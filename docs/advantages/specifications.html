@@ -1,0 +1,242 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Support for the Most Recent Specifications</h2>
+
+              <p>
+                The original LDAPv3 specifications were released in 1997, but an updated
+                specification was released in 2006, and there have been a number of other
+                additions, especially in the form of controls and extended operations.  Neither
+                JNDI nor the Netscape Directory SDK for Java have been significantly updated over
+                time to reflect the evolving nature of LDAP and to add support for new
+                capabilities.  On the other hand, the UnboundID LDAP SDK for Java supports the
+                core LDAP protocol and a large number of extensions, including many of the most
+                recent specifications.
+              </p>
+
+              <p>
+                The following table provides a comparison of LDAP specifications supported by JNDI,
+                the Netscape Directory SDK for Java, and the UnboundID LDAP SDK for Java.  It is
+                assumed that all SDKs provide general support for at least the initial core LDAPv3
+                specification, so this table will primarily focus on specifications released after
+                that.
+              </p>
+
+              <table border="1">
+                <tr>
+                  <th align="left" width="70%">Specification</th>
+                  <th align="center" width="10%">JNDI</th>
+                  <th align="center" width="10%">Netscape SDK</th>
+                  <th align="center" width="10%">UnboundID SDK</th>
+                </tr>
+                <tr>
+                  <td align="left">Simple Paged Results Control (RFC 2696)</td>
+                  <td align="center">X</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">StartTLS (RFC 2830)</td>
+                  <td align="center">X</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">DIGEST-MD5 (RFC 2831)</td>
+                  <td align="center">X</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">LDIF v1 (RFC 2849)</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Server-Side Sort Control (RFC 2891)</td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Password Modify Extended Operation (RFC 3062)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">ManageDsaIT (RFC 3296)</td>
+                  <td align="center">X</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Authorization Identity Controls (RFC 3866)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Matched Values Control (RFC 3876)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Cancel Extended Operation (RFC 3909)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Proxied Authorization V2 Control (RFC 4370)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">EXTERNAL SASL Mechanism (RFC 4422)</td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">ANONYMOUS SASL Mechanism (RFC 4505)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Notice of Disconnection Unsolicited Notification (RFC 4511)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Increment Modify Extension (RFC 4525)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Read Entry Controls (RFC 4527)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Assertion Control (RFC 4528)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">"Who Am I?" Extended Operation (RFC 4532)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">PLAIN SASL Mechanism (RFC 4616)</td>
+                  <td align="center">X</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">GSSAPI SASL Mechanism (RFC 4876)</td>
+                  <td align="center">X</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Subtree Delete Control (draft-armijo-ldap-treedelete)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Password Policy Control (draft-behera-ldap-password-policy)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X (*)</td>
+                </tr>
+                <tr>
+                  <td align="left">LDAP Change Records (draft-good-ldap-changelog)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Virtual List View Control (draft-ietf-ldapext-ldapv3-vlv)</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Persistent Search / Entry Change Notification Controls (draft-ietf-ldapext-psearch)</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Subentries Control (draft-ietf-ldup-subentry)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">CRAM-MD5 SASL Mechanism (draft-ietf-sasl-crammd5)</td>
+                  <td align="center">X</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Subordinate Subtree Search Scope (draft-sermersheim-ldap-subordinate-scope)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Password Expired / Password Expiring Controls (draft-vchu-ldap-pwd-policy)</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">Proxied Authorization V1 Control (draft-weltman-ldapv3-proxy)</td>
+                  <td align="center"></td>
+                  <td align="center">X</td>
+                  <td align="center">X</td>
+                </tr>
+                <tr>
+                  <td align="left">LDAP No-Op Control (draft-zeilenga-ldap-noop)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X (*)</td>
+                </tr>
+                <tr>
+                  <td align="left">LDAP Transactions (draft-zeilenga-ldap-txn)</td>
+                  <td align="center"></td>
+                  <td align="center"></td>
+                  <td align="center">X (*)</td>
+                </tr>
+              </table>
+
+              <p>
+                (*) -- At present, these specifications are not yet considered complete enough to
+                provide a stable interface for general use.  As such, support for these features
+                is only available in the Commercial Edition of the LDAP SDK and only for use with
+                the UnboundID Directory Server.  Whenever these specifications reach a sufficient
+                level of maturity to make it possible to safely implement them in a cross-server
+                manner, then they will be added to the Standard Edition.
+              </p>
