@@ -10,6 +10,101 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 1.1.0</h3>
+
+              <p>
+                The following changes were made between the 1.0.0 and 1.1.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  A new license has been added to the UnboundID LDAP SDK for Java.  In addition
+                  to the previous GNU General Public License (GPLv2) and UnboundID LDAP SDK Free
+                  Use License, the Standard Edition of the LDAP SDK is now available under the
+                  terms of the GNU Lesser General Public License (LGPLv2.1).  This is an
+                  OSI-approved open source license which allows the SDK to be used in a very wide
+                  range of applications (including proprietary and commercial applications).
+                  <br><br>
+                </li>
+
+                <li>
+                  The Standard Edition of the LDAP SDK is now available in a SourceForge project
+                  at <a href="http://sourceforge.net/projects/ldap-sdk/">http://sourceforge.net/projects/ldap-sdk/</a>.
+                  This includes a subversion repository containing the source code, as well as a
+                  new set of project mailing lists and a forum.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>LDAPCommandLineTool</tt> class to provide support for handling
+                  connections to multiple servers.  If this capability is enabled, then it will
+                  allow multiple occurrences of the "--hostname" and "--port" arguments to be
+                  provided.  If multiple addresses and ports are provided, then the same number of
+                  each must be given, and a RoundRobinServerSet will be used when creating
+                  connections so that each subsequent connection will be established to the next
+                  server in the list, looping back to the beginning of the list when all servers
+                  have been used.  The searchrate, modrate, and authrate tools have been updated
+                  to take advantage of this capability, so they may now be used to process
+                  operations concurrently against multiple servers.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the build process so that the manifest for the generated jar file
+                  contains an appropriate set of attributes to make the LDAP SDK more suitable for
+                  use in an OSGi environment.  The added attributes include:  Bundle-Name,
+                  Bundle-Version, Bundle-Vendor, Bundle-Copyright, Bundle-ManifestVersion,
+                  Bundle-RequiredExecutionEnvironment, Bundle-Category, Bundle-DocURL, and
+                  Export-Package.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>ResultCode.isConnectionUsable()</tt> method to be more
+                  conservative so that it is more likely to return a false positive (i.e., the
+                  connection will be considered unusable when it may still be usable) than a false
+                  negative (the connection will be considered usable when it that is not the
+                  case).  Also, non-static versions of the <tt>isClientSideResultCode()</tt> and
+                  <tt>isConnectionUsable()</tt> methods have been added for convenience.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added <tt>finalize()</tt> methods for the connection pool implementations so
+                  that the pool will be closed when it is reaped by the garbage collector if that
+                  was not already done.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support to make it easier to migrate applications written to use the
+                  Netscape Directory SDK for Java to the UnboundID LDAP SDK for Java.  This
+                  includes wrappers for a number of commonly-used classes in the Netscape API so
+                  that in many cases it may be sufficient to simply change the import statements
+                  of the application so that they reference
+                  "com.unboundid.ldap.sdk.migrate.ldapjdk" instead of "netscape.ldap".  This is
+                  not a complete re-implementation of the Netscape API (e.g., it does not directly
+                  support applications written to use asynchronous operations), but in the common
+                  case it should help significantly reduce the code change required to migrate an
+                  application from the Netscape API to the UnboundID LDAP SDK for Java.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support to make it easier to migrate applications written to use the Java
+                  Naming and Directory Interface (JNDI) to the UnboundID LDAP SDK for Java, or to
+                  allow applications which use functionality provided by both APIs concurrently.
+                  A new JNDIConverter class has been added which provides support for converting
+                  between corresponding JNDI and LDAP SDK implementations of common data
+                  structures, including attributes, controls, extended requests and responses,
+                  modifications, and search result entries.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 1.0.0</h3>
 
               <p>
