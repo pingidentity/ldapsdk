@@ -199,7 +199,7 @@ public final class Attribute
    * Creates a new LDAP attribute with the specified name and set of values.
    *
    * @param  name    The name for this attribute.  It must not be {@code null}.
-   * @param  values  The set of value for this attribute.  It must not be
+   * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
   public Attribute(final String name, final String... values)
@@ -222,7 +222,7 @@ public final class Attribute
    * Creates a new LDAP attribute with the specified name and set of values.
    *
    * @param  name    The name for this attribute.  It must not be {@code null}.
-   * @param  values  The set of value for this attribute.  It must not be
+   * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
   public Attribute(final String name, final byte[]... values)
@@ -245,7 +245,26 @@ public final class Attribute
    * Creates a new LDAP attribute with the specified name and set of values.
    *
    * @param  name    The name for this attribute.  It must not be {@code null}.
-   * @param  values  The set of value for this attribute.  It must not be
+   * @param  values  The set of raw values for this attribute.  It must not be
+   *                 {@code null}.
+   */
+  public Attribute(final String name, final ASN1OctetString... values)
+  {
+    ensureNotNull(name, values);
+
+    this.name   = name;
+    this.values = values;
+
+    matchingRule = CaseIgnoreStringMatchingRule.getInstance();
+  }
+
+
+
+  /**
+   * Creates a new LDAP attribute with the specified name and set of values.
+   *
+   * @param  name    The name for this attribute.  It must not be {@code null}.
+   * @param  values  The set of values for this attribute.  It must not be
    *                 {@code null}.
    */
   public Attribute(final String name, final Collection<String> values)
