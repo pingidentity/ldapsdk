@@ -1,0 +1,1008 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Frequently-Asked Questions</h2>
+
+              <p></p>
+              <h3>General Questions</h3>
+              <ol>
+                <li>
+                  <a href="#what_is_it">What is the UnboundID LDAP SDK for Java?</a>
+                </li>
+
+                <li>
+                  <a href="#advantages">
+                    What advantages does the UnboundID LDAP SDK have over other LDAP APIs?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#download">How can I get the LDAP SDK?</a>
+                </li>
+
+                <li>
+                  <a href="#documentation">Where can I find the documentation for the LDAP SDK?</a>
+                </li>
+
+                <li>
+                  <a href="#any_directory">
+                    Does the LDAP SDK work with any LDAP directory server?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#specifications">
+                    What LDAP specifications does the LDAP SDK support?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#ldapv2">Does the LDAP SDK support LDAPv2?</a>
+                </li>
+              </ol>
+
+              <p></p>
+              <h3>Licensing and Legal Questions</h3>
+              <ol>
+                <li>
+                  <a href="#is_it_free">Is the LDAP SDK free to use?</a>
+                </li>
+
+                <li>
+                  <a href="#redistribute">
+                    Can I redistribute the LDAP SDK with my application?  What do I need to
+                    include?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#license">What license does the LDAP SDK use?</a>
+                </li>
+
+                <li>
+                  <a href="#which_license">
+                    Why is the LDAP SDK available under two different licenses?  Which should I
+                    choose for my application?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#open_source">Is the LDAP SDK open source?</a>
+                </li>
+
+                <li>
+                  <a href="#closed_source">
+                    Can the LDAP SDK be used in closed source or proprietary applications?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#internal">
+                    Can the LDAP SDK be used in applications which are intended only for private
+                    use and will not be redistributed?
+                  </a>
+                </li>
+              </ol>
+
+
+              <p></p>
+              <h3>Support Questions</h3>
+              <ol>
+                <li>
+                  <a href="#support">Can I get support for the LDAP SDK?</a>
+                </li>
+
+                <li>
+                  <a href="#feedback">
+                    How can I ask questions, report bugs, or provide feedback?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#keeping_up">
+                    How can I keep up to date with new releases and the latest news about the LDAP
+                    SDK?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#debugging">
+                    How can I debug problems in which the LDAP SDK isn't behaving as I expected?
+                  </a>
+                </li>
+              </ol>
+
+
+              <p></p>
+              <h3>API Questions</h3>
+              <ol>
+                <li>
+                  <a href="#stability">
+                    Is the LDAP SDK suitable for production use?
+                  </a>
+                </li>
+
+                <li>
+                <a href="#compatibility">
+                  Is backward compatibility maintained between releases?
+                </a>
+                </li>
+
+                <li>
+                <a href="#threadsafe">
+                  Is the LDAP SDK threadsafe?
+                </a>
+                </li>
+
+                <li>
+                <a href="#extensible">
+                  Is the LDAP SDK extensible?
+                </a>
+                </li>
+
+                <li>
+                  <a href="#version">
+                    How can I determine the version number for the LDAP SDK build that I have?
+                  </a>
+                </li>
+              </ol>
+
+
+              <p></p>
+              <h3>Usage Questions</h3>
+              <ol>
+                <li>
+                  <a href="#examples">
+                    Where can I find examples that demonstrate how to use the LDAP SDK?
+                  </a>
+                </li>
+
+                <li>
+                  <a href="#connect">How do I create a connection to an LDAP directory server?</a>
+                </li>
+
+                <li>
+                  <a href="#secure">How do I create secure connections?</a>
+                </li>
+
+                <li>
+                  <a href="#search">How do I perform searches?</a>
+                </li>
+
+                <li>
+                  <a href="#modify">How do I modify entries?</a>
+                </li>
+
+                <li>
+                  <a href="#add">How do I add new entries?</a>
+                </li>
+
+                <li>
+                  <a href="#pool">How do I use connection pools?</a>
+                </li>
+
+                <li>
+                  <a href="#asynchronous">How do I process asynchronous operations?</a>
+                </li>
+
+                <li>
+                  <a href="#ldif">How do I read and write LDIF files?</a>
+                </li>
+              </ol>
+
+              <p></p>
+              <hr>
+
+              <a name="what_is_it"></a>
+              <h3>What is the UnboundID LDAP SDK for Java?</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java is a fast, powerful, user-friendly, and completely
+                free Java API for communicating with LDAP directory servers.  It is an alternative
+                to other APIs like JNDI, the Netscape Directory SDK for Java, and JLDAP.  If you
+                need to perform LDAP communication (or perform other directory-related processing
+                like reading and writing LDIF files), then this is the API that you should be
+                using.
+              </p>
+
+              <hr>
+
+              <a name="advantages"></a>
+              <h3>What advantages does the UnboundID LDAP SDK have over other LDAP APIs?</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides a number of advantages over other
+                Java-based LDAP APIs.  See <a href="advantages/index.${EXTENSION}">this document</a>
+                for a detailed overview of the advantages that our LDAP SDK provides over the
+                alternatives, including a single-page
+                <a href="advantages/comparison.${EXTENSION}">comparison</a> that summarizes many of the
+                benefits.
+              </p>
+
+              <hr>
+
+              <a name="download"></a>
+              <h3>How can I get the LDAP SDK?</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java is available for download at
+                <a href="http://www.unboundid.com/products/ldapsdk/">http://www.unboundid.com/products/ldapsdk/</a>.
+              </p>
+
+              <hr>
+
+              <a name="documentation"></a>
+              <h3>Where can I find the documentation for the LDAP SDK?</h3>
+
+              <p>
+                The LDAP SDK documentation (including this FAQ) is included with the LDAP SDK in
+                the "<tt>docs</tt>" directory.  The documentation for the latest release is also
+                available online at
+                <a href="http://www.unboundid.com/products/ldapsdk/docs/">http://www.unboundid.com/products/ldapsdk/docs/</a>.
+              </p>
+
+              <hr>
+
+              <a name="any_directory"></a>
+              <h3>Does the LDAP SDK work with any LDAP directory server?</h3>
+
+              <p>
+                Yes.  The UnboundID LDAP SDK for Java supports the standard LDAP protocol, and
+                will work with any directory server that supports LDAPv3.  Note that LDAP is an
+                extensible protocol and there are a number of optional features.  Not all
+                directory servers support all of the features offered by the LDAP SDK, and some
+                directories may provide controls, extended operations, or SASL mechanisms not
+                explicitly supported by the LDAP SDK (although the LDAP SDK is also extensible and
+                it is possible to add support for custom controls, extended operations, and SASL
+                mechanisms that it doesn't provide out of the box).
+              </p>
+
+              <hr>
+
+              <a name="specifications"></a>
+              <h3>What LDAP specifications does the LDAP SDK support?</h3>
+
+              <p>
+                The LDAP SDK provides full support for the core LDAPv3 protocol as described in
+                <a href="http://www.ietf.org/rfc/rfc2251.txt">RFC 2251</a> and updated in
+                <a href="http://www.ietf.org/rfc/rfc4511.txt">RFC 4511</a>.  It also supports a
+                number of controls, extended operations, and other capabilities described in a
+                number of other RFCs and IETF drafts.  See
+                <a href="advantages/specifications.${EXTENSION}">this page</a> for information about some
+                of the specifications supported by the LDAP SDK.
+              </p>
+
+              <hr>
+
+              <a name="ldapv2"></a>
+              <h3>Does the LDAP SDK support LDAPv2?</h3>
+
+              <p>
+                No, it does not.  LDAPv2 is an older version of the protocol with a much more
+                limited feature set than LDAPv3 and using a somewhat arcane encoding.  It was
+                declared "historic" by
+                <a href="http://www.ietf.org/rfc/rfc3494.txt">RFC 3494</a> in 2003 and shouldn't
+                be used for new development.
+              </p>
+
+              <hr>
+
+              <a name="is_it_free"></a>
+              <h3>Is the LDAP SDK free to use?</h3>
+
+              <p>
+                The Standard Edition of the UnboundID LDAP SDK is completely free to use and
+                redistribute by itself or under the terms of the
+                <a href="LICENSE-GPLv2.txt">GPLv2</a>, the
+                <a href="LICENSE-LGPLv2.1.txt">LGPLv2.1</a>, or the
+                <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>.
+                Commercial support and indemnification are available for a fee, but are not
+                required to be able to use the SDK.
+              </p>
+
+              <hr>
+
+              <a name="redistribute"></a>
+              <h3>Can I redistribute the LDAP SDK with my application?  What do I need to
+                  include?</h3>
+
+              <p>
+                Yes.  You can redistribute the UnboundID LDAP SDK for Java with your application.
+                The only requirements are that you include the appropriate license file (one or
+                more of the <a href="LICENSE-GPLv2.txt">GPLv2</a>, the
+                <a href="LICENSE-LGPLv2.1.txt">LGPLv2.1</a>, or the
+                <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>,
+                depending on which you have decided to use) along with the
+                <tt>unboundid-ldapsdk-se.jar</tt> file.
+              </p>
+
+              <hr>
+
+              <a name="license"></a>
+              <h3>What license does the LDAP SDK use?</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java Standard Edition is available under three
+                licenses:  the <a href="LICENSE-GPLv2.txt">GNU General Public License version 2
+                (GPLv2)</a>, the <a href="LICENSE-LGPLv2.1.txt">GNU Lesser General Public License
+                version 2.1 (LGPLv2.1)</a>, and the
+                <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>.
+              </p>
+
+              <hr>
+
+              <a name="which_license"></a>
+              <h3>Why is the LDAP SDK available under multiple licenses?  Which should I
+                  choose for my application?</h3>
+
+              <p>
+                We want to make it as easy and painless as possible to use the UnboundID LDAP SDK,
+                so we have three licenses that should cover a broad range of possible use cases.
+             </p>
+
+              <p>
+                The <a href="LICENSE-GPLv2.txt">GPLv2</a> is a popular OSI-approved open source
+                license, and if your application is licensed under GPLv2 or a compatible license,
+                then you should choose this license.
+              </p>
+
+              <p>
+                The <a href="LICENSE-LGPLv2.1.txt">LGPLv2.1</a> is similar to the GPLv2, but it is
+                designed to be compatible with a wider range of licenses, including those for
+                proprietary or closed-source applications.  If you wish to use the LDAP SDK under
+                an OSI-approved open source license but your license is not compatible with the
+                terms of the GPLv2, then you should choose this license.
+              </p>
+
+              <p>
+                The <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>
+                is not an OSI-approved open source license, but has been designed to be compatible
+                with a very broad range of applications.  If you wish to use the LDAP SDK with a
+                license that is not open source and has fewer requirements than the GPLv2 or
+                LGPLv2.1, then you should choose this license.  Note that you may not distribute a
+                modified version of the LDAP SDK under the terms of this license, although you may
+                create your own classes which extend classes or implement interfaces defined in
+                the LDAP SDK that have been marked with the "<tt>@Extensible</tt>" annotation
+                type.
+              </p>
+
+              <p>
+                If you do not believe that any of these licenses are suitable for your
+                application, then send an e-mail message to
+                <a HREF="mailto:ldapsdk-support@unboundid.com">ldapsdk-support@unboundid.com</a>
+                to inquire about other options.
+              </p>
+
+              <hr>
+
+              <a name="open_source"></a>
+              <h3>Is the LDAP SDK open source?</h3>
+
+              <p>
+                Yes.  The Standard Edition is available under the
+                <a href="LICENSE-GPLv2.txt">GPLv2</a> and
+                <a href="LICENSE-LGPLv2.1.txt">LGPLv2.1</a>, which are OSI-approved open source
+                licenses.  The full source for the LDAP SDK is available in the <tt>src.zip</tt>
+                file which is included in the SDK download.
+              </p>
+
+              <p>
+                The LDAP SDK is also available under the terms of the
+                <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>.
+                This is not an OSI-approved open source license, but should be fully compatible
+                with many existing open source licenses.
+              </p>
+
+              <hr>
+
+              <a name="closed_source"></a>
+              <h3>Can the LDAP SDK be used in closed source or proprietary applications?</h3>
+
+              <p>
+                Yes.  The LDAP SDK may be used in closed source or proprietary applications under
+                the terms of either the <a href="LICENSE-LGPLv2.1.txt">LGPLv2.1</a> or the
+                <a href="LICENSE-UnboundID-LDAPSDK.txt">UnboundID LDAP SDK Free Use License</a>.
+              </p>
+
+              <hr>
+
+              <a name="internal"></a>
+              <h3>Can the LDAP SDK be used in applications which are intended only for private use
+                  and will not be redistributed?</h3>
+
+              <p>
+                Yes.  There are no restrictions on the use of the LDAP SDK in an application that
+                is for internal use only and will not be redistributed outside of your
+                organization.  If you later decide to redistribute the application, then you may
+                only do so under the terms of the GPLv2, LGPLv2.1, or the UnboundID LDAP SDK Free
+                Use License.
+              </p>
+
+              <hr>
+
+              <a name="support"></a>
+              <h3>Can I get support for the LDAP SDK?</h3>
+
+              <p>
+                Yes.  Commercial support is available for purchase from UnboundID.  This includes
+                providing patches to fix problems identified within the LDAP SDK, the ability to
+                request enhancements and additional functionality, and assistance in developing
+                applications which use the UnboundID LDAP SDK for Java.  See the
+                <a href="http://www.unboundid.com/products/ldapsdk/">LDAP SDK home page</a> for
+                more information.
+              </p>
+
+              <hr>
+
+              <a name="feedback"></a>
+              <h3>How can I ask questions, report bugs, or provide feedback?</h3>
+
+              <p>
+                The following options are available for submitting questions, comments, bug
+                reports, feature requests, or any other feedback for the LDAP SDK:
+              </p>
+
+              <ul>
+                <li>
+                  Use the <a href="http://unboundid.fogbugz.com/?ldapsdk-discuss">online
+                  discussion forum</a>
+                </li>
+
+                <li>
+                  Send e-mail to
+                  <a href="mailto:ldapsdk-support@unboundid.com">ldapsdk-support@unboundid.com</a>
+                </li>
+
+                <li>
+                  Purchase a support contract for the LDAP SDK.  See the
+                  <a href="http://www.unboundid.com/products/ldapsdk/">LDAP SDK home page</a> for
+                  more information
+                </li>
+              </ul>
+
+              <p>
+                Assistance will be on a best-effort basis, and priority will be given to customers
+                with commercial support contracts.
+              </p>
+
+              <hr>
+
+              <a name="keeping_up"></a>
+              <h3>How can I keep up to date with new releases and the latest news about the LDAP
+                  SDK?</h3>
+
+              <p>
+                You can send an e-mail message to
+                <a href="mailto:ldapsdk-announce-subscribe@unboundid.com">ldapsdk-announce-subscribe@unboundid.com</a>
+                to request being added to the mailing list that will be used for notifications
+                regarding new releases or other significant news regarding the UnboundID LDAP SDK
+                for Java.
+              </p>
+
+              <hr>
+
+              <a name="debugging"></a>
+              <h3>How can I debug problems in which the LDAP SDK isn't behaving as I
+                  expected?</h3>
+
+              <p>
+                The LDAP SDK provides access to debugging information using the standard Java
+                logging framework.  It can be enabled either programmatically or by setting Java
+                properties.  See the <a href="getting-started/debug.${EXTENSION}">Debugging SDK
+                Operations</a> page for information about accessing enabling and accessing
+                debugging capabilities.
+              </p>
+
+              <hr>
+
+              <a name="stability"></a>
+              <h3>Is the LDAP SDK suitable for production use?</h3>
+
+              <p>
+                The current version of the LDAP SDK is very stable and is suitable for use in
+                production applications.  We have developed an extensive test suite specifically
+                for the LDAP SDK, and it also undergoes significant testing as it is used in our
+                other products.
+              </p>
+
+              <hr>
+
+              <a name="compatibility"></a>
+              <h3>Is backward compatibility maintained between releases?</h3>
+
+              <p>
+                Whenever possible, we will avoid making incompatible changes in the LDAP SDK.  In
+                fact, we have unit tests in place which compare the current API against that of
+                previous releases to ensure that no incompatibilities have been introduced.
+                However, if there is sufficient justification, we reserve the right to break
+                backward compatibility under the following conditions:
+              </p>
+
+              <ul>
+                <li>
+                  For any new additions to the API, we reserve the right to make incompatible
+                  changes within the same minor version if there is sufficient justification.  For
+                  example, if a new class is added in version 1.2.3, then that API may be changed
+                  in incompatible ways in subsequent 1.2.x releases, but it should be considered
+                  stable in 1.3.x and later releases.
+                  <br><br>
+                </li>
+
+                <li>
+                  For any established APIs, we reserve the right to make incompatible changes
+                  between major versions if there is sufficient justification.  For example, it is
+                  possible that if there is a strong enough reason to do so then we may change
+                  the interface for a class between 2.x.y and the 3.0.0 releases.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                In the event that we do make such an incompatible change, it will be documented in
+                the release notes for the new version.
+              </p>
+
+              <hr>
+
+              <a name="threadsafe"></a>
+              <h3>Is the LDAP SDK threadsafe?</h3>
+
+              <p>
+                The LDAP SDK has been designed to be highly concurrent and scalable.  As much of
+                the LDAP SDK has been made threadsafe as is possible to do without adversely
+                impacting performance or flexibility.  Connections can be used to process multiple
+                requests at the same time as long as none of them does something that will impact
+                the state of that connection (e.g., tries to close or re-establish the connection,
+                tries to perform a bind, or tries to initiate StartTLS negotiation).
+              </p>
+
+              <p>
+                The <tt>com.unboundid.util.ThreadSafety</tt> annotation type may be used to
+                determine whether a given class or interface is threadsafe.  All public classes
+                and interfaces in the LDAP SDK should be marked with this annotation type to
+                indicate whether instances may be safely accessed via multiple threads at the
+                same time.  This annotation type appears in the generated javadoc documentation,
+                and for special cases in which a class may be partially threadsafe (like the
+                <tt>LDAPConnection</tt> caveats mentioned above) the class-level documentation
+                provides additional information about how such objects may be used concurrently.
+              </p>
+
+
+              <hr>
+
+              <a name="extensible"></a>
+              <h3>Is the LDAP SDK extensible?</h3>
+
+              <p>
+                The LDAP SDK does provide various forms of extensibility.  In particular, it
+                contains a number of non-final classes that may be extended to provide additional
+                functionality.  It is possible to define custom controls, extended requests and
+                results, SASL mechanisms, matching rules, server sets, and command-line tools by
+                extending classes provided by the LDAP SDK.
+              </p>
+
+              <p>
+                Similarly, the LDAP SDK provides a number of interfaces that may be implemented
+                by third-party code for various purposes, including notification of certain types
+                of events or messages received from the server, establishing connections for
+                following referrals, and transforming entries read from LDIF files.
+              </p>
+
+              <p>
+                However, the LDAP  SDK also includes a number of interfaces and non-final classes
+                that are intended to be extended only by code within the LDAP SDK itself and not
+                by third-party code outside of the LDAP SDK.  To help developers distinguish which
+                classes and interfaces may be extended by external code and which are only allowed
+                for classes in the LDAP SDK itself, all public interfaces and all non-final public
+                classes have been updated to include an annotation which indicates whether new
+                implementations may be provided in third-party code.  If a class or interface
+                contains the <tt>@Extensible</tt> annotation, then it is safe for third-party code
+                to extend.  Conversely, if a class or interface contains the
+                <tt>@NotExtensible</tt> annotation then it is not intended to be implemented by
+                code outside of the LDAP SDK (although objects of that type may be used by
+                third-party code).  These annotations are visible in the generated Javadoc
+                documentation.
+              </p>
+
+              <hr>
+
+              <a name="version"></a>
+              <h3>How can I determine the version number for the LDAP SDK build that I have?</h3>
+
+              <p>
+                There are a number of ways to determine the version of the LDAP SDK that you are
+                using:
+              </p>
+
+              <ul>
+                <li>
+                  The zip file in which the LDAP SDK was downloaded will include the version
+                  number.  For example, the zip file containing files for the 1.2.3 release will
+                  be named "<tt>unboundid-ldapsdk-1.2.3-se.zip</tt>".
+                  <br><br>
+                </li>
+
+                <li>
+                  The <a href="javadoc/index.html">javadoc documentation</a> provided with the
+                  LDAP SDK will include the version number in the page title, as well as on the
+                  initial page summarizing the packages included in the SDK.  For example, the
+                  page title for javadoc documentation for the 1.2.3 release will be "UnboundID
+                  LDAP SDK for Java 1.2.3 (Standard Edition)".
+                  <br><br>
+                </li>
+
+                <li>
+                  You may issue the command "<tt>java -jar unboundid-ldapsdk-se.jar</tt>" to
+                  write version information for the LDAP SDK to standard output.
+                  <br><br>
+                </li>
+
+                <li>
+                  The <tt>com.unboundid.ldap.sdk.Version</tt> class provides a number of constant
+                  fields that may be used to obtain information about the SDK version.
+                  <br><br>
+                </li>
+              </ul>
+
+              <hr>
+
+              <a name="examples"></a>
+              <h3>Where can I find examples that demonstrate how to use the LDAP SDK?</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java comes with many examples demonstrating its use.
+                The following kinds of examples are available:
+              </p>
+
+              <ul>
+                <li>
+                  The <a href="examples/index.${EXTENSION}">examples</a> directory in the zip archive
+                  in which the LDAP SDK was downloaded contains source for complete programs that
+                  demonstrate the use of various APIs within the LDAP SDK, and may also serve as
+                  useful utilities for general use.
+                  <br><br>
+                </li>
+
+                <li>
+                  The <a href="getting-started/index.${EXTENSION}">Getting Started Guide</a> provides
+                  discussion and code snippets demonstrating a number of components within the
+                  LDAP SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  The <a href="javadoc/index.html">javadoc documentation</a> provides a large
+                  number of examples in the class-level documentation for classes throughout the
+                  LDAP SDK.
+                  <br><br>
+                </li>
+              </ul>
+
+              <hr>
+
+              <a name="connect"></a>
+              <h3>How do I create a connection to an LDAP directory server?</h3>
+
+              <p>
+                The <tt>com.unboundid.ldap.sdk.LDAPConnection</tt> class provides the main API for
+                communicating with LDAP directory servers.  To create a new
+                <tt>LDAPConnection</tt> object, establish the connection, and authenticate to the
+                directory server, you can use code like:
+              </p>
+
+              <pre>
+LDAPConnection connection = new LDAPConnection();
+connection.connect("server.example.com", 389);
+connection.bind("uid=john.doe,ou=People,dc=example,dc=com", "password');
+</pre>
+
+              <p>
+                You can also create the connection and establish it at the same time, like:
+              </p>
+
+              <pre>
+LDAPConnection connection = new LDAPConnection("server.example.com", 389);
+connection.bind("uid=john.doe,ou=People,dc=example,dc=com", "password');
+</pre>
+
+              <p>
+                And you can also do all three in a single step:
+              </p>
+
+              <pre>
+LDAPConnection connection = new LDAPConnection("server.example.com", 389,
+     "uid=john.doe,ou=People,dc=example,dc=com", "password");
+</pre>
+
+              <hr>
+
+              <a name="secure"></a>
+              <h3>How do I create secure connections?</h3>
+
+              <p>
+                The LDAP SDK supports the use of SSL and StartTLS for secure communication.  SSL
+                should be used to create connections that are always secure (and will generally
+                use a different port from that used for LDAP communication, typically port 636).
+                StartTLS may be used to add security to an existing insecure connection (and will
+                communicate over the same port used for insecure LDAP communication, typically
+                port 389).  In both cases, the <tt>com.unboundid.util.ssl.SSLUtil</tt> class may
+                be used to help configure the underlying security layer.
+              </p>
+
+              <p>
+                In order to create an SSL-based connection, you should provide a custom socket
+                factory when establishing the connection.  For example, the following code may be
+                used to establish an SSL-based connection that will blindly trust any certificate
+                that the Directory Server provides:
+              </p>
+
+              <pre>
+SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+SSLSocketFactory socketFactory = sslUtil.createSSLSocketFactory();
+LDAPConnection connection = new LDAPConnection(socketFactory,
+     "server.example.com", 636);
+</pre>
+
+              <p>
+                In order to use the StartTLS extended operation to add encryption to an existing
+                connection, you will need to use the
+                <tt>com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest</tt> and you should
+                provide a custom <tt>SSLContext</tt> to use when processing.  For example:
+              </p>
+
+              <pre>
+SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+SSLContext sslContext = sslUtil.createSSLContext();
+ExtendedResult extendedResult = connection.processExtendedOperation(
+     new StartTLSExtendedRequest(sslContext));
+
+if (extendedResult.getResultCode() == ResultCode.SUCCESS)
+{
+  // The connection is now secure.
+}
+else
+{
+  // The StartTLS negotiation failed for some reason.  The connection can no
+  // longer be used.
+  connection.close();
+}
+</pre>
+
+              <hr>
+
+              <a name="search"></a>
+              <h3>How do I perform searches?</h3>
+
+              <p>
+                There are two primary ways in which you can perform searches in a synchronous
+                manner.  For simple searches that are expected to match a small number of
+                entries, you can allow the SDK to capture all of the entries in a list that it
+                will make available in the <tt>SearchResult</tt> object that is returned.
+                For example:
+              </p>
+
+              <pre>
+SearchResult searchResult = connection.search("dc=example,dc=com",
+     SearchScope.SUB, "(uid=john.doe)");
+System.out.println(searchResult.getEntryCount() + " entries returned.");
+for (SearchResultEntry e : searchResult.getSearchEntries())
+{
+  System.out.println(e.toLDIFString());
+  System.out.println();
+}
+</pre>
+
+              <p>
+                For searches that are expected to match a large number of entries, or that may
+                take a long time to complete and you want to ensure that entries are processed as
+                quickly as they are returned, then you can implement the
+                <tt>com.unboundid.ldap.sdk.SearchResultListener</tt> interface.  This interface
+                contains methods that will be called whenever a search result entry or reference
+                is returned by the server for the search.  The <tt>LDAPConnection.search</tt>
+                method will still block until the search has completed.  For example:
+              </p>
+
+              <pre>
+// The searchEntryReturned method of the provided searchListener will be
+// invoked for each entry returned.  The searchReferenceReturned method of the
+// searchListener will be invoked for each reference returned.  The call to
+// the LDAPConnection.search method will not return until the search has
+// completed, and the entries will not be available in the result, although the
+// number of entries returned will still be included.
+SearchResult searchResult = connection.search(searchListener,
+     "dc=example,dc=com", SearchScope.SUB, "(givenName=John)");
+System.out.println(searchResult.getEntryCount() + " entries returned.");
+</pre>
+
+              <hr>
+
+              <a name="modify"></a>
+              <h3>How do I modify entries?</h3>
+
+              <p>
+                The <tt>com.unboundid.ldap.sdk.Modification</tt> class may be used to describe the
+                change or set of changes that should be made to a single attribute.  A modify
+                operation may be processed using one or more modifications, like:
+              </p>
+
+              <pre>
+Modification modification = new Modification(ModificationType.REPLACE,
+     "description", "This is the new description for the user");
+LDAPResult result = connection.modify(
+     "uid=john.doe,ou=People,dc=example,dc=com", modification);
+</pre>
+
+              <p>
+                As a convenience, it is also possible to process modifications using the LDIF
+                representation, with a separate value per line of the LDIF.  For example:
+              </p>
+
+              <pre>
+LDAPResult result = connection.modify(
+     "dn: uid=john.doe,ou=People,dc=example,dc=com",
+     "changetype: modify",
+     "replace: description",
+     "description: This is the new description for the user");
+</pre>
+
+              <hr>
+
+              <a name="add"></a>
+              <h3>How do I add new entries?</h3>
+
+              <p>
+                Entries can be added using a distinguished name and collection of attributes,
+                like:
+              </p>
+
+              <pre>
+Attribute[] attributes =
+{
+  new Attribute("objectClass", "top", "person", "organizationalPerson",
+       "inetOrgPerson"),
+  new Attribute("uid", "john.doe"),
+  new Attribute("givenName", "John"),
+  new Attribute("sn", "Doe"),
+  new Attribute("cn", "John Doe")
+};
+LDAPResult result = connection.add("uid=john.doe,ou=People,dc=example,dc=com",
+     attributes);
+</pre>
+
+              <p>
+                As with the modify operation, add operations can be processed using the LDIF
+                representation of the entry to add.  For example:
+              </p>
+
+              <pre>
+LDAPResult result = connection.add(
+     "dn: uid=john.doe,ou=People,dc=example,dc=com",
+     "objectClass: top",
+     "objectClass: person",
+     "objectClass: organizationalPerson",
+     "objectClass: inetOrgPerson",
+     "uid: john.doe",
+     "givenName: John",
+     "sn: Doe",
+     "cn: John Doe");
+</pre>
+
+              <hr>
+
+              <a name="pool"></a>
+              <h3>How do I use connection pools?</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides support for connection pools that can be
+                used to maintain multiple connections to a directory server, or even multiple
+                connections spread across multiple directory servers.  The easiest way to create a
+                connection pool is to provide an established (and optionally authenticated)
+                connection to use as the template for creating new connections and the initial and
+                maximum number of connections that should be maintained in the pool.  For example:
+              </p>
+
+              <pre>
+LDAPConnection connection = new LDAPConnection("server.example.com", 389,
+     "uid=john.doe,ou=People,dc=example,dc=com", "password");
+LDAPConnectionPool pool = new LDAPConnectionPool(connection, 1, 10);
+</pre>
+
+              <p>
+                As with traditional connection pool implementations, it is possible to check out
+                a connection, do something with it, and return it back to the pool, like:
+              </p>
+
+              <pre>
+LDAPConnection connection = pool.getConnection();
+try
+{
+  SearchResult searchResult = connection.search("dc=example,dc=com",
+       SearchScope.SUB, "(objectClass=*)");
+  // Do something with the result.
+  pool.releaseConnection(connection);
+}
+catch (LDAPSearchException lse)
+{
+  // The search failed.  See if the connection is still valid and either
+  // release it back to the pool or notify the pool that it is no longer valid
+  // so that it will create a new one in its place.
+  if (ResultCode.isConnectionUsable(lse.getResultCode()))
+  {
+    pool.releaseConnection(connection);
+  }
+  else
+  {
+    pool.releaseDefunctConnection(connection);
+  }
+}
+</pre>
+
+              <p>
+                However, it is also possible to perform operations in the context of the
+                connection pool without the need to explicitly check out the connection and
+                perform all of the appropriate error handling.  The <tt>LDAPConnectionPool</tt>
+                class implements the same interface (<tt>LDAPInterface</tt>) as the
+                <tt>LDAPConnection</tt> class, so it is possible to perform operations against
+                a pool in much the same way as with a single connection.  For example, the
+                following is the logical equivalent to the above search:
+              </p>
+
+              <pre>
+SearchResult searchResult = pool.search("dc=example,dc=com", SearchScope.SUB,
+     "(objectClass=*)");
+// Do something with the result.
+</pre>
+
+              <hr>
+
+              <a name="asynchronous"></a>
+              <h3>How do I process asynchronous operations?</h3>
+
+              <p>
+                The LDAP SDK provides relatively simple interfaces that may be used to process
+                add, compare, delete, modify, modify DN, and search operations in an asynchronous
+                manner.  In this case, the LDAP SDK will return control to the caller immediately
+                after sending the request to the server without waiting for the response.  This
+                allows the client to perform other processing in the meantime, and it will be
+                notified when the response message(s) arrive for that operation.
+                <a href="getting-started/asynchronous.${EXTENSION}">This page</a> describes
+                the process for performing asynchronous operations in the LDAP SDK.
+              </p>
+
+              <hr>
+
+              <a name="ldif"></a>
+              <h3>How do I read and write LDIF files?</h3>
+
+              <p>
+                The <tt>com.unboundid.ldif</tt> package provides classes that may be used to read
+                and write entries and change records using the LDAP Data Interchange Format (LDIF)
+                syntax.  The <tt>LDIFReader</tt> class can be used to read entries and change
+                records, and the <tt>LDIFWriter</tt> class can be used to write them.  The
+                following code provides a simple example demonstrating the process that could be
+                used to read entries from one file and write them to another:
+              </p>
+
+            <pre>
+LDIFReader ldifReader = new LDIFReader("/path/to/source.ldif");
+LDIFWriter ldifWriter = new LDIFWriter("/path/to/target.ldif");
+while (true)
+{
+  Entry entry = ldifReader.readEntry();
+  if (entry == null)
+  {
+    // There are no more entries to be read.
+    break;
+  }
+  ldifWriter.writeEntry(entry);
+}
+ldifReader.close();
+ldifWriter.close();
+</pre>
