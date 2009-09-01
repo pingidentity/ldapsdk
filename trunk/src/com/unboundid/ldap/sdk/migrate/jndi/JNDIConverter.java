@@ -61,6 +61,46 @@ import static com.unboundid.util.StaticUtils.*;
 public final class JNDIConverter
 {
   /**
+   * An empty array of attributes.
+   */
+  private static final Attribute[] NO_ATTRIBUTES = new Attribute[0];
+
+
+
+
+  /**
+   * An empty array of JNDI controls.
+   */
+  private static final javax.naming.ldap.Control[] NO_JNDI_CONTROLS =
+       new javax.naming.ldap.Control[0];
+
+
+
+  /**
+   * An empty array of SDK modifications.
+   */
+  private static final Modification[] NO_MODIFICATIONS = new Modification[0];
+
+
+
+  /**
+   * An empty array of JNDI modification items.
+   */
+  private static final ModificationItem[] NO_MODIFICATION_ITEMS =
+       new ModificationItem[0];
+
+
+
+
+  /**
+   * An empty array of SDK controls.
+   */
+  private static final Control[] NO_SDK_CONTROLS = new Control[0];
+
+
+
+
+  /**
    * Prevent this utility class from being instantiated.
    */
   private JNDIConverter()
@@ -85,6 +125,11 @@ public final class JNDIConverter
                                final javax.naming.directory.Attribute a)
          throws NamingException
   {
+    if (a == null)
+    {
+      return null;
+    }
+
     final String name = a.getID();
     final ASN1OctetString[] values = new ASN1OctetString[a.size()];
 
@@ -114,12 +159,18 @@ public final class JNDIConverter
    * @return  The JNDI attribute that corresponds to the provided LDAP SDK
    *          attribute.
    */
-  public static BasicAttribute convertAttribute(final Attribute a)
+  public static javax.naming.directory.Attribute convertAttribute(
+                                                      final Attribute a)
   {
-    final BasicAttribute attr = new BasicAttribute(a.getName());
-    for (final ASN1OctetString v : a.getRawValues())
+    if (a == null)
     {
-      attr.add(v.getValue());
+      return null;
+    }
+
+    final BasicAttribute attr = new BasicAttribute(a.getName(), true);
+    for (final String v : a.getValues())
+    {
+      attr.add(v);
     }
 
     return attr;
@@ -141,6 +192,11 @@ public final class JNDIConverter
   public static Attribute[] convertAttributes(final Attributes a)
          throws NamingException
   {
+    if (a == null)
+    {
+      return NO_ATTRIBUTES;
+    }
+
     int i=0;
     final Attribute[] attributes = new Attribute[a.size()];
     final NamingEnumeration<? extends javax.naming.directory.Attribute> e =
@@ -172,9 +228,14 @@ public final class JNDIConverter
    * @return  The JNDI attributes that corresponds to the provided LDAP SDK
    *          attributes.
    */
-  public static BasicAttributes convertAttributes(final Attribute... a)
+  public static Attributes convertAttributes(final Attribute... a)
   {
-    final BasicAttributes attrs = new BasicAttributes();
+    final BasicAttributes attrs = new BasicAttributes(true);
+    if (a == null)
+    {
+      return attrs;
+    }
+
     for (final Attribute attr : a)
     {
       attrs.put(convertAttribute(attr));
@@ -194,9 +255,14 @@ public final class JNDIConverter
    * @return  The JNDI attributes that corresponds to the provided LDAP SDK
    *          attributes.
    */
-  public static BasicAttributes convertAttributes(final Collection<Attribute> a)
+  public static Attributes convertAttributes(final Collection<Attribute> a)
   {
-    final BasicAttributes attrs = new BasicAttributes();
+    final BasicAttributes attrs = new BasicAttributes(true);
+    if (a == null)
+    {
+      return attrs;
+    }
+
     for (final Attribute attr : a)
     {
       attrs.put(convertAttribute(attr));
@@ -221,6 +287,11 @@ public final class JNDIConverter
   public static Control convertControl(final javax.naming.ldap.Control c)
          throws NamingException
   {
+    if (c == null)
+    {
+      return null;
+    }
+
     final ASN1OctetString value;
     final byte[] valueBytes = c.getEncodedValue();
     if ((valueBytes == null) || (valueBytes.length == 0))
@@ -252,8 +323,13 @@ public final class JNDIConverter
    * @return  The JNDI control that corresponds to the provided LDAP SDK
    *          control.
    */
-  public static BasicControl convertControl(final Control c)
+  public static javax.naming.ldap.Control convertControl(final Control c)
   {
+    if (c == null)
+    {
+      return null;
+    }
+
     final ASN1OctetString value = c.getValue();
     if (value == null)
     {
@@ -282,6 +358,11 @@ public final class JNDIConverter
   public static Control[] convertControls(final javax.naming.ldap.Control... c)
          throws NamingException
   {
+    if (c == null)
+    {
+      return NO_SDK_CONTROLS;
+    }
+
     final Control[] controls = new Control[c.length];
     for (int i=0; i < controls.length; i++)
     {
@@ -304,6 +385,11 @@ public final class JNDIConverter
    */
   public static javax.naming.ldap.Control[] convertControls(final Control... c)
   {
+    if (c == null)
+    {
+      return NO_JNDI_CONTROLS;
+    }
+
     final javax.naming.ldap.Control[] controls =
          new javax.naming.ldap.Control[c.length];
     for (int i=0; i < controls.length; i++)
@@ -332,6 +418,11 @@ public final class JNDIConverter
                                      final javax.naming.ldap.ExtendedRequest r)
          throws NamingException
   {
+    if (r == null)
+    {
+      return null;
+    }
+
     return JNDIExtendedRequest.toSDKExtendedRequest(r);
   }
 
@@ -345,9 +436,14 @@ public final class JNDIConverter
    * @return  The JNDI extended request that corresponds to the provided LDAP
    *          SDK extended request.
    */
-  public static JNDIExtendedRequest convertExtendedRequest(
-                                         final ExtendedRequest r)
+  public static javax.naming.ldap.ExtendedRequest convertExtendedRequest(
+                                                       final ExtendedRequest r)
   {
+    if (r == null)
+    {
+      return null;
+    }
+
     return new JNDIExtendedRequest(r);
   }
 
@@ -368,6 +464,11 @@ public final class JNDIConverter
   public static ExtendedResult convertExtendedResponse(final ExtendedResponse r)
          throws NamingException
   {
+    if (r == null)
+    {
+      return null;
+    }
+
     return JNDIExtendedResponse.toSDKExtendedResult(r);
   }
 
@@ -381,9 +482,13 @@ public final class JNDIConverter
    * @return  The JNDI extended response that corresponds to the provided LDAP
    *          SDK extended result.
    */
-  public static JNDIExtendedResponse convertExtendedResult(
-                                          final ExtendedResult r)
+  public static ExtendedResponse convertExtendedResult(final ExtendedResult r)
   {
+    if (r == null)
+    {
+      return null;
+    }
+
     return new JNDIExtendedResponse(r);
   }
 
@@ -403,6 +508,11 @@ public final class JNDIConverter
   public static Modification convertModification(final ModificationItem m)
          throws NamingException
   {
+    if (m == null)
+    {
+      return null;
+    }
+
     final ModificationType modType;
     switch (m.getModificationOp())
     {
@@ -440,6 +550,11 @@ public final class JNDIConverter
   public static ModificationItem convertModification(final Modification m)
          throws NamingException
   {
+    if (m == null)
+    {
+      return null;
+    }
+
     final int modType;
     switch (m.getModificationType().intValue())
     {
@@ -476,6 +591,11 @@ public final class JNDIConverter
   public static Modification[] convertModifications(final ModificationItem... m)
          throws NamingException
   {
+    if (m == null)
+    {
+      return NO_MODIFICATIONS;
+    }
+
     final Modification[] mods = new Modification[m.length];
     for (int i=0; i < m.length; i++)
     {
@@ -502,6 +622,11 @@ public final class JNDIConverter
   public static ModificationItem[] convertModifications(final Modification... m)
          throws NamingException
   {
+    if (m == null)
+    {
+      return NO_MODIFICATION_ITEMS;
+    }
+
     final ModificationItem[] mods = new ModificationItem[m.length];
     for (int i=0; i < m.length; i++)
     {
@@ -527,6 +652,11 @@ public final class JNDIConverter
   public static Entry convertSearchEntry(final SearchResult r)
          throws NamingException
   {
+    if (r == null)
+    {
+      return null;
+    }
+
     return new Entry(r.getName(), convertAttributes(r.getAttributes()));
   }
 
@@ -542,6 +672,11 @@ public final class JNDIConverter
    */
   public static SearchResult convertSearchEntry(final Entry e)
   {
+    if (e == null)
+    {
+      return null;
+    }
+
     final Collection<Attribute> attrs = e.getAttributes();
     final Attribute[] attributes = new Attribute[attrs.size()];
     attrs.toArray(attributes);
