@@ -177,6 +177,11 @@ public final class JNDIExtendedRequest
                                      final javax.naming.ldap.ExtendedRequest r)
          throws NamingException
   {
+    if (r == null)
+    {
+      return null;
+    }
+
     final ASN1OctetString value;
     final byte[] valueBytes = r.getEncodedValue();
     if (valueBytes == null)

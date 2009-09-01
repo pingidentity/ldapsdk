@@ -203,6 +203,11 @@ public final class JNDIExtendedResponse
   public static ExtendedResult toSDKExtendedResult(final ExtendedResponse r)
          throws NamingException
   {
+    if (r == null)
+    {
+      return null;
+    }
+
     final JNDIExtendedResponse response;
     final byte[] encodedValue = r.getEncodedValue();
     if (encodedValue == null)
