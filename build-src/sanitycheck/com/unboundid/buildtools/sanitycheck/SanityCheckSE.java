@@ -92,6 +92,12 @@ public class SanityCheckSE
   // The base directory for the Standard Edition release.
   private File baseDir;
 
+  // The set of packages imported for OSGi.
+  private HashSet<String> osgiImportedPackages;
+
+  // The set of packages imported from the source.
+  private HashSet<String> srcImportedPackages;
+
   // The string representation of the test server port, if available.
   private String dsPort;
 
@@ -105,7 +111,9 @@ public class SanityCheckSE
    */
   public SanityCheckSE()
   {
-    baseDir = null;
+    baseDir              = null;
+    osgiImportedPackages = new HashSet<String>();
+    srcImportedPackages  = new HashSet<String>();
   }
 
 
@@ -271,6 +279,10 @@ public class SanityCheckSE
       validateSDKJarFile(sdkJarFile);
 
 
+      // Ensure that the manifest includes an appropriate set of OSGi imports.
+      validateOSGiImports();
+
+
       // Finally, try to perform some LDAP operations to ensure that the SDK
       // appears to be functional.
       validateSDKIsUsable();
@@ -429,7 +441,7 @@ public class SanityCheckSE
    * @throws  BuildException  If a problem is found with the content of the
    *                          src.zip file.
    */
-  private static void validateSrcZipFile(final File srcZipFile)
+  private void validateSrcZipFile(final File srcZipFile)
           throws BuildException
   {
     ZipFile zipFile = null;
@@ -541,8 +553,7 @@ public class SanityCheckSE
    * @throws  BuildException  If the import line attempts to import UnboundID
    *                          content that isn't part of the Standard Edition.
    */
-  private static void validateImportLine(final String fileName,
-                                         final String line)
+  private void validateImportLine(final String fileName, final String line)
           throws BuildException
   {
     // First, make sure that we have the complete import line.  It could be that
@@ -621,6 +632,10 @@ public class SanityCheckSE
              "defined Standard Edition packages.");
       }
     }
+    else if (! token.startsWith("java."))
+    {
+      srcImportedPackages.add(token);
+    }
   }
 
 
@@ -634,7 +649,7 @@ public class SanityCheckSE
    * @throws  BuildException  If a problem is found with the content of the jar
    *                          file.
    */
-  private static void validateSDKJarFile(final File jarFile)
+  private void validateSDKJarFile(final File jarFile)
           throws BuildException
   {
     JarFile jar = null;
@@ -743,6 +758,29 @@ public class SanityCheckSE
         }
       }
 
+      String importPackageStr = attributes.getValue("Import-Package");
+      if (importPackageStr == null)
+      {
+        throw new BuildException("Could not find an Import-Package attribute " +
+             "in the " + jarFile.getAbsolutePath() + " manifest");
+      }
+
+      tokenizer = new StringTokenizer(importPackageStr, ", ");
+      while (tokenizer.hasMoreTokens())
+      {
+        String importToken = tokenizer.nextToken();
+        if (osgiImportedPackages.contains(importToken))
+        {
+          throw new BuildException("Duplicate Import-Package value " +
+               importToken + " found in the" + jarFile.getAbsolutePath() +
+               " manifest");
+        }
+        else
+        {
+          osgiImportedPackages.add(importToken);
+        }
+      }
+
       // The only package names left in the set should be either the examples
       // package or be marked with an @InternalUseOnly annotation.
       for (String packageName : packageNames)
@@ -782,6 +820,33 @@ public class SanityCheckSE
       {
         jar.close();
       } catch (Exception e) {}
+    }
+  }
+
+
+
+  /**
+   * Ensures that the jar file manifest contains an appropriate set of OSGi
+   * imports based on the source imports.
+   *
+   * @throws  BuildException  If a problem is found with the imports.
+   */
+  private void validateOSGiImports()
+          throws BuildException
+  {
+    for (String s : srcImportedPackages)
+    {
+      if (! osgiImportedPackages.remove(s))
+      {
+        throw new BuildException("OSGi Import-Package manifest entry missing " +
+            "source-imported package " + s);
+      }
+    }
+
+    if (! osgiImportedPackages.isEmpty())
+    {
+      throw new BuildException("OSGi Import-Package values found for " +
+           "packages not used in the source:  " + osgiImportedPackages);
     }
   }
 
