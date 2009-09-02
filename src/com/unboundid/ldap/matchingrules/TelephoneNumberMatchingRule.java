@@ -23,12 +23,12 @@ package com.unboundid.ldap.matchingrules;
 
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.matchingrules.MatchingRuleMessages.*;
-import com.unboundid.ldap.sdk.LDAPException;
 
 
 
