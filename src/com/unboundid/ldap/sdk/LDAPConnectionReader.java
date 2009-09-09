@@ -870,28 +870,25 @@ final class LDAPConnectionReader
    {
      closeRequested = true;
 
-     try
+     for (int i=0; i < 5; i++)
      {
-       if (thread != null)
+       try
        {
-         thread.interrupt();
+         final Thread t = thread;
+         if ((t == null) || (t == Thread.currentThread()) || (! t.isAlive()))
+         {
+           break;
+         }
+         else
+         {
+           t.interrupt();
+           t.join(100L);
+         }
        }
-     }
-     catch (Exception e)
-     {
-       debugException(e);
-     }
-
-     try
-     {
-       if (thread != null)
+       catch (Exception e)
        {
-         thread.join();
+         debugException(e);
        }
-     }
-     catch (Exception e)
-     {
-       debugException(e);
      }
 
      closeInternal(notifyConnection, null);
