@@ -697,14 +697,16 @@ public final class Attribute
    * name will be considered valid only if it starts with an ASCII alphabetic
    * character ('a' through 'z', or 'A' through 'Z'), and contains only ASCII
    * alphabetic characters, ASCII numeric digits ('0' through '9'), and the
-   * ASCII hyphen character ('-').
+   * ASCII hyphen character ('-').  It will also be allowed to include zero or
+   * more attribute options, in which the option must be separate from the base
+   * name by a semicolon and has the same naming constraints as the base name.
    *
    * @return  {@code true} if this attribute has a valid name, or {@code false}
    *          if not.
    */
   public boolean nameIsValid()
   {
-    return nameIsValid(name);
+    return nameIsValid(name, true);
   }
 
 
@@ -714,7 +716,10 @@ public final class Attribute
    * per RFC 4512.  It will be considered valid only if it starts with an ASCII
    * alphabetic character ('a' through 'z', or 'A' through 'Z'), and contains
    * only ASCII alphabetic characters, ASCII numeric digits ('0' through '9'),
-   * and the ASCII hyphen character ('-').
+   * and the ASCII hyphen character ('-').  It will also be allowed to include
+   * zero or more attribute options, in which the option must be separate from
+   * the base name by a semicolon and has the same naming constraints as the
+   * base name.
    *
    * @param  s  The name for which to make the determination.
    *
@@ -722,6 +727,30 @@ public final class Attribute
    *          if not.
    */
   public static boolean nameIsValid(final String s)
+  {
+    return nameIsValid(s, true);
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid attribute name as
+   * per RFC 4512.  It will be considered valid only if it starts with an ASCII
+   * alphabetic character ('a' through 'z', or 'A' through 'Z'), and contains
+   * only ASCII alphabetic characters, ASCII numeric digits ('0' through '9'),
+   * and the ASCII hyphen character ('-').  It may optionally be allowed to
+   * include zero or more attribute options, in which the option must be
+   * separate from the base name by a semicolon and has the same naming
+   * constraints as the base name.
+   *
+   * @param  s             The name for which to make the determination.
+   * @param  allowOptions  Indicates whether the provided name will be allowed
+   *                       to contain attribute options.
+   *
+   * @return  {@code true} if this attribute has a valid name, or {@code false}
+   *          if not.
+   */
+  public static boolean nameIsValid(final String s, final boolean allowOptions)
   {
     final int length;
     if ((s == null) || ((length = s.length()) == 0))
@@ -736,19 +765,46 @@ public final class Attribute
       return false;
     }
 
+    boolean lastWasSemiColon = false;
     for (int i=1; i < length; i++)
     {
       final char c = s.charAt(i);
-      if (! (((c >= 'a') && (c <= 'z')) ||
-             ((c >= 'A') && (c <= 'Z')) ||
-             ((c >= '0') && (c <= '9')) ||
-             (c == '-')))
+      if (((c >= 'a') && (c <= 'z')) ||
+          ((c >= 'A') && (c <= 'Z')))
+      {
+        // This will always be acceptable.
+        lastWasSemiColon = false;
+      }
+      else if (((c >= '0') && (c <= '9')) ||
+               (c == '-'))
+      {
+        // These will only be acceptable if the last character was not a
+        // semicolon.
+        if (lastWasSemiColon)
+        {
+          return false;
+        }
+
+        lastWasSemiColon = false;
+      }
+      else if (c == ';')
+      {
+        // This will only be acceptable if attribute options are allowed and the
+        // last character was not a semicolon.
+        if (lastWasSemiColon || (! allowOptions))
+        {
+          return false;
+        }
+
+        lastWasSemiColon = true;
+      }
+      else
       {
         return false;
       }
     }
 
-    return true;
+    return (! lastWasSemiColon);
   }
 
 
