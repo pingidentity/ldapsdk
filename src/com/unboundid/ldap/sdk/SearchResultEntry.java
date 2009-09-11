@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPResponse;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -203,6 +204,10 @@ public final class SearchResultEntry
    *                          course of reading the LDAP message elements.
    * @param  reader           The ASN.1 stream reader from which to read the
    *                          protocol op and controls.
+   * @param  schema           The schema to use to select the appropriate
+   *                          matching rule to use for each attribute.  It may
+   *                          be {@code null} if the default matching rule
+   *                          should always be used.
    *
    * @return  The decoded search result entry object.
    *
@@ -211,7 +216,7 @@ public final class SearchResultEntry
    */
   static SearchResultEntry readSearchEntryFrom(final int messageID,
               final ASN1StreamReaderSequence messageSequence,
-              final ASN1StreamReader reader)
+              final ASN1StreamReader reader, final Schema schema)
          throws LDAPException
   {
     try
@@ -223,7 +228,7 @@ public final class SearchResultEntry
       final ASN1StreamReaderSequence attrSequence = reader.beginSequence();
       while (attrSequence.hasMoreElements())
       {
-        attrList.add(Attribute.readFrom(reader));
+        attrList.add(Attribute.readFrom(reader, schema));
       }
 
       Control[] controls = NO_CONTROLS;

@@ -227,6 +227,9 @@ public final class LDAPConnection
   // servers when following a referral.
   private ReferralConnector referralConnector = this;
 
+  // The cached schema read from the server.
+  private Schema cachedSchema;
+
   // The socket factory used for the last connection attempt.
   private SocketFactory lastUsedSocketFactory;
 
@@ -338,6 +341,7 @@ public final class LDAPConnection
     connectionStatistics = new LDAPConnectionStatistics();
     connectionName       = null;
     connectionPoolName   = null;
+    cachedSchema         = null;
   }
 
 
@@ -660,6 +664,7 @@ public final class LDAPConnection
     disconnectCause       = null;
     reconnectAddress      = host;
     reconnectPort         = port;
+    cachedSchema          = null;
 
     try
     {
@@ -676,6 +681,18 @@ public final class LDAPConnection
       throw new LDAPException(ResultCode.CONNECT_ERROR,
            ERR_CONN_CONNECT_ERROR.get(getHostPort(), getExceptionMessage(e)),
            e);
+    }
+
+    if (connectionOptions.useSchema())
+    {
+      try
+      {
+        cachedSchema = getSchema();
+      }
+      catch (Exception e)
+      {
+        debugException(e);
+      }
     }
   }
 
@@ -1673,6 +1690,19 @@ public final class LDAPConnection
     if (bindResult.getResultCode().equals(ResultCode.SUCCESS))
     {
       lastBindRequest = bindRequest;
+
+      if (connectionOptions.useSchema())
+      {
+        try
+        {
+          cachedSchema = getSchema();
+        }
+        catch (Exception e)
+        {
+          debugException(e);
+        }
+      }
+
       return bindResult;
     }
 
@@ -3194,6 +3224,8 @@ public final class LDAPConnection
       internals.close();
       connectionInternals = null;
     }
+
+    cachedSchema = null;
   }
 
 
@@ -3313,6 +3345,21 @@ public final class LDAPConnection
   LDAPConnectionInternals getConnectionInternals()
   {
     return connectionInternals;
+  }
+
+
+
+  /**
+   * Retrieves the cached schema for this connection, if applicable.
+   *
+   * @return  The cached schema for this connection, or {@code null} if it is
+   *          not available (e.g., because the connection is not established,
+   *          because {@link LDAPConnectionOptions#useSchema()} is false, or
+   *          because an error occurred when trying to read the server schema).
+   */
+  Schema getCachedSchema()
+  {
+    return cachedSchema;
   }
 
 
