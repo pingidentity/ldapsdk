@@ -620,6 +620,67 @@ public final class Attribute
 
 
   /**
+   * Indicates whether the name of this attribute is valid as per RFC 4512.  The
+   * name will be considered valid only if it starts with an ASCII alphabetic
+   * character ('a' through 'z', or 'A' through 'Z'), and contains only ASCII
+   * alphabetic characters, ASCII numeric digits ('0' through '9'), and the
+   * ASCII hyphen character ('-').
+   *
+   * @return  {@code true} if this attribute has a valid name, or {@code false}
+   *          if not.
+   */
+  public boolean nameIsValid()
+  {
+    return nameIsValid(name);
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid attribute name as
+   * per RFC 4512.  It will be considered valid only if it starts with an ASCII
+   * alphabetic character ('a' through 'z', or 'A' through 'Z'), and contains
+   * only ASCII alphabetic characters, ASCII numeric digits ('0' through '9'),
+   * and the ASCII hyphen character ('-').
+   *
+   * @param  s  The name for which to make the determination.
+   *
+   * @return  {@code true} if this attribute has a valid name, or {@code false}
+   *          if not.
+   */
+  public static boolean nameIsValid(final String s)
+  {
+    final int length;
+    if ((s == null) || ((length = s.length()) == 0))
+    {
+      return false;
+    }
+
+    final char firstChar = s.charAt(0);
+    if (! (((firstChar >= 'a') && (firstChar <= 'z')) ||
+          ((firstChar >= 'A') && (firstChar <= 'Z'))))
+    {
+      return false;
+    }
+
+    for (int i=1; i < length; i++)
+    {
+      final char c = s.charAt(i);
+      if (! (((c >= 'a') && (c <= 'z')) ||
+             ((c >= 'A') && (c <= 'Z')) ||
+             ((c >= '0') && (c <= '9')) ||
+             (c == '-')))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether this attribute has any attribute options.
    *
    * @return  {@code true} if this attribute has at least one attribute option,
