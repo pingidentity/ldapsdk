@@ -1046,7 +1046,27 @@ public final class Attribute
   {
     ensureNotNull(value);
 
-    return hasValue(new ASN1OctetString(value));
+    return hasValue(new ASN1OctetString(value), matchingRule);
+  }
+
+
+
+  /**
+   * Indicates whether this attribute contains the specified value.
+   *
+   * @param  value         The value for which to make the determination.  It
+   *                       must not be {@code null}.
+   * @param  matchingRule  The matching rule to use when making the
+   *                       determination.  It must not be {@code null}.
+   *
+   * @return  {@code true} if this attribute has the specified value, or
+   *          {@code false} if not.
+   */
+  public boolean hasValue(final String value, final MatchingRule matchingRule)
+  {
+    ensureNotNull(value);
+
+    return hasValue(new ASN1OctetString(value), matchingRule);
   }
 
 
@@ -1064,7 +1084,27 @@ public final class Attribute
   {
     ensureNotNull(value);
 
-    return hasValue(new ASN1OctetString(value));
+    return hasValue(new ASN1OctetString(value), matchingRule);
+  }
+
+
+
+  /**
+   * Indicates whether this attribute contains the specified value.
+   *
+   * @param  value         The value for which to make the determination.  It
+   *                       must not be {@code null}.
+   * @param  matchingRule  The matching rule to use when making the
+   *                       determination.  It must not be {@code null}.
+   *
+   * @return  {@code true} if this attribute has the specified value, or
+   *          {@code false} if not.
+   */
+  public boolean hasValue(final byte[] value, final MatchingRule matchingRule)
+  {
+    ensureNotNull(value);
+
+    return hasValue(new ASN1OctetString(value), matchingRule);
   }
 
 
@@ -1078,6 +1118,24 @@ public final class Attribute
    *          {@code false} if not.
    */
   boolean hasValue(final ASN1OctetString value)
+  {
+    return hasValue(value, matchingRule);
+  }
+
+
+
+  /**
+   * Indicates whether this attribute contains the specified value.
+   *
+   * @param  value         The value for which to make the determination.  It
+   *                       must not be {@code null}.
+   * @param  matchingRule  The matching rule to use when making the
+   *                       determination.  It must not be {@code null}.
+   *
+   * @return  {@code true} if this attribute has the specified value, or
+   *          {@code false} if not.
+   */
+  boolean hasValue(final ASN1OctetString value, final MatchingRule matchingRule)
   {
     for (final ASN1OctetString existingValue : values)
     {

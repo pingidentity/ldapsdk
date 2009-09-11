@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFRecord;
@@ -484,6 +485,32 @@ public class Entry
    *                         determination.  It must not be {@code null}.
    * @param  attributeValue  The value for which to make the determination.  It
    *                         must not be {@code null}.
+   * @param  matchingRule    The matching rule to use to make the determination.
+   *                         It must not be {@code null}.
+   *
+   * @return  {@code true} if this entry contains an attribute with the
+   *          specified name and value, or {@code false} if not.
+   */
+  public final boolean hasAttributeValue(final String attributeName,
+                                         final String attributeValue,
+                                         final MatchingRule matchingRule)
+  {
+    ensureNotNull(attributeName, attributeValue);
+
+    final Attribute attr = attributes.get(toLowerCase(attributeName));
+    return ((attr != null) && attr.hasValue(attributeValue, matchingRule));
+  }
+
+
+
+  /**
+   * Indicates whether this entry contains an attribute with the given name and
+   * value.
+   *
+   * @param  attributeName   The name of the attribute for which to make the
+   *                         determination.  It must not be {@code null}.
+   * @param  attributeValue  The value for which to make the determination.  It
+   *                         must not be {@code null}.
    *
    * @return  {@code true} if this entry contains an attribute with the
    *          specified name and value, or {@code false} if not.
@@ -495,6 +522,32 @@ public class Entry
 
     final Attribute attr = attributes.get(toLowerCase(attributeName));
     return ((attr != null) && attr.hasValue(attributeValue));
+  }
+
+
+
+  /**
+   * Indicates whether this entry contains an attribute with the given name and
+   * value.
+   *
+   * @param  attributeName   The name of the attribute for which to make the
+   *                         determination.  It must not be {@code null}.
+   * @param  attributeValue  The value for which to make the determination.  It
+   *                         must not be {@code null}.
+   * @param  matchingRule    The matching rule to use to make the determination.
+   *                         It must not be {@code null}.
+   *
+   * @return  {@code true} if this entry contains an attribute with the
+   *          specified name and value, or {@code false} if not.
+   */
+  public final boolean hasAttributeValue(final String attributeName,
+                                         final byte[] attributeValue,
+                                         final MatchingRule matchingRule)
+  {
+    ensureNotNull(attributeName, attributeValue);
+
+    final Attribute attr = attributes.get(toLowerCase(attributeName));
+    return ((attr != null) && attr.hasValue(attributeValue, matchingRule));
   }
 
 
