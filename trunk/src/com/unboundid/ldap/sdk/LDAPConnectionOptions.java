@@ -154,6 +154,14 @@ public final class LDAPConnectionOptions
 
   /**
    * The default value ({@code false}) for the setting that controls whether to
+   * use schema when reading data from the server.
+   */
+  static final boolean DEFAULT_USE_SCHEMA = false;
+
+
+
+  /**
+   * The default value ({@code false}) for the setting that controls whether to
    * operate in synchronous mode, in which only a single outstanding operation
    * may be in progress on an associated connection at any given time.
    */
@@ -246,6 +254,10 @@ public final class LDAPConnectionOptions
   // Indicates whether to use SO_REUSEADDR for the underlying sockets.
   private boolean useReuseAddress;
 
+  // Indicates whether to try to use schema information when reading data from
+  // the server.
+  private boolean useSchema;
+
   // Indicates whether to use synchronous mode in which only a single operation
   // may be in progress on associated connections at any given time.
   private boolean useSynchronousMode;
@@ -295,6 +307,7 @@ public final class LDAPConnectionOptions
     useKeepAlive                   = DEFAULT_USE_KEEPALIVE;
     useLinger                      = DEFAULT_USE_LINGER;
     useReuseAddress                = DEFAULT_USE_REUSE_ADDRESS;
+    useSchema                      = DEFAULT_USE_SCHEMA;
     useSynchronousMode             = DEFAULT_USE_SYNCHRONOUS_MODE;
     useTCPNoDelay                  = DEFAULT_USE_TCP_NODELAY;
     connectTimeout                 = DEFAULT_CONNECT_TIMEOUT_MILLIS;
@@ -328,6 +341,7 @@ public final class LDAPConnectionOptions
     o.useKeepAlive                   = useKeepAlive;
     o.useLinger                      = useLinger;
     o.useReuseAddress                = useReuseAddress;
+    o.useSchema                      = useSchema;
     o.useSynchronousMode             = useSynchronousMode;
     o.useTCPNoDelay                  = useTCPNoDelay;
     o.connectTimeout                 = connectTimeout;
@@ -617,6 +631,36 @@ public final class LDAPConnectionOptions
   public void setUseReuseAddress(final boolean useReuseAddress)
   {
     this.useReuseAddress = useReuseAddress;
+  }
+
+
+
+  /**
+   * Indicates whether to try to use schema information when reading data from
+   * the server (e.g., to select the appropriate matching rules for the
+   * attributes included in a search result entry).
+   *
+   * @return  {@code true} if schema should be used when reading data from the
+   *          server, or {@code false} if not.
+   */
+  public boolean useSchema()
+  {
+    return useSchema;
+  }
+
+
+
+  /**
+   * Specifies whether to try to use schema information when reading data from
+   * the server  (e.g., to select the appropriate matching rules for the
+   * attributes included in a search result entry).
+   *
+   * @param  useSchema  Indicates whether to try to use schema information when
+   *                    reading data from the server.
+   */
+  public void setUseSchema(final boolean useSchema)
+  {
+    this.useSchema = useSchema;
   }
 
 
@@ -975,6 +1019,8 @@ public final class LDAPConnectionOptions
     }
     buffer.append(", useReuseAddress=");
     buffer.append(useReuseAddress);
+    buffer.append(", useSchema=");
+    buffer.append(useSchema);
     buffer.append(", useSynchronousMode=");
     buffer.append(useSynchronousMode);
     buffer.append(", useTCPNoDelay=");

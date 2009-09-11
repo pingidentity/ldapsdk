@@ -44,6 +44,7 @@ import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -447,6 +448,78 @@ public final class Attribute
     this.name         = name;
     this.matchingRule = matchingRule;
     this.values       = values;
+  }
+
+
+
+  /**
+   * Creates a new LDAP attribute with the specified name and set of values.
+   *
+   * @param  name    The name for this attribute.  It must not be {@code null}.
+   * @param  schema  The schema to use to select the matching rule for this
+   *                 attribute.  It may be {@code null} if the default matching
+   *                 rule should be used.
+   * @param  values  The set of values for this attribute.  It must not be
+   *                 {@code null}.
+   */
+  public Attribute(final String name, final Schema schema,
+                   final String... values)
+  {
+    this(name, MatchingRule.selectEqualityMatchingRule(name, schema), values);
+  }
+
+
+
+  /**
+   * Creates a new LDAP attribute with the specified name and set of values.
+   *
+   * @param  name    The name for this attribute.  It must not be {@code null}.
+   * @param  schema  The schema to use to select the matching rule for this
+   *                 attribute.  It may be {@code null} if the default matching
+   *                 rule should be used.
+   * @param  values  The set of values for this attribute.  It must not be
+   *                 {@code null}.
+   */
+  public Attribute(final String name, final Schema schema,
+                   final byte[]... values)
+  {
+    this(name, MatchingRule.selectEqualityMatchingRule(name, schema), values);
+  }
+
+
+
+  /**
+   * Creates a new LDAP attribute with the specified name and set of values.
+   *
+   * @param  name    The name for this attribute.  It must not be {@code null}.
+   * @param  schema  The schema to use to select the matching rule for this
+   *                 attribute.  It may be {@code null} if the default matching
+   *                 rule should be used.
+   * @param  values  The set of values for this attribute.  It must not be
+   *                 {@code null}.
+   */
+  public Attribute(final String name, final Schema schema,
+                   final Collection<String> values)
+  {
+    this(name, MatchingRule.selectEqualityMatchingRule(name, schema), values);
+  }
+
+
+
+  /**
+   * Creates a new LDAP attribute with the specified name and set of values.
+   *
+   * @param  name    The name for this attribute.  It must not be {@code null}.
+   * @param  schema  The schema to use to select the matching rule for this
+   *                 attribute.  It may be {@code null} if the default matching
+   *                 rule should be used.
+   * @param  values  The set of values for this attribute.  It must not be
+   *                 {@code null}.
+   */
+  public Attribute(final String name, final Schema schema,
+                   final ASN1OctetString[] values)
+  {
+    this(name, MatchingRule.selectEqualityMatchingRule(name, schema), values);
   }
 
 
@@ -1227,11 +1300,36 @@ public final class Attribute
   public static Attribute readFrom(final ASN1StreamReader reader)
          throws LDAPException
   {
+    return readFrom(reader, null);
+  }
+
+
+
+  /**
+   * Reads and decodes an attribute from the provided ASN.1 stream reader.
+   *
+   * @param  reader  The ASN.1 stream reader from which to read the attribute.
+   * @param  schema  The schema to use to select the appropriate matching rule
+   *                 for this attribute.  It may be {@code null} if the default
+   *                 matching rule should be selected.
+   *
+   * @return  The decoded attribute.
+   *
+   * @throws  LDAPException  If a problem occurs while trying to read or decode
+   *                         the attribute.
+   */
+  public static Attribute readFrom(final ASN1StreamReader reader,
+                                   final Schema schema)
+         throws LDAPException
+  {
     try
     {
       ensureNotNull(reader.beginSequence());
       final String attrName = reader.readString();
       ensureNotNull(attrName);
+
+      final MatchingRule matchingRule =
+           MatchingRule.selectEqualityMatchingRule(attrName, schema);
 
       final ArrayList<ASN1OctetString> valueList =
            new ArrayList<ASN1OctetString>();
@@ -1244,8 +1342,7 @@ public final class Attribute
       final ASN1OctetString[] values = new ASN1OctetString[valueList.size()];
       valueList.toArray(values);
 
-      return new Attribute(attrName, CaseIgnoreStringMatchingRule.getInstance(),
-                           values);
+      return new Attribute(attrName, matchingRule, values);
     }
     catch (Exception e)
     {

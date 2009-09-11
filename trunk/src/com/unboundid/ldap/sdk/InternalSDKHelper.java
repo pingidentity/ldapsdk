@@ -28,6 +28,7 @@ import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.sdk.extensions.CancelExtendedRequest;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -241,6 +242,10 @@ public final class InternalSDKHelper
    *                          course of reading the LDAP message elements.
    * @param  reader           The ASN.1 stream reader from which to read the
    *                          protocol op and controls.
+   * @param  schema           The schema to use to select the appropriate
+   *                          matching rule to use for each attribute.  It may
+   *                          be {@code null} if the default matching rule
+   *                          should always be used.
    *
    * @return  The decoded search result entry object.
    *
@@ -250,11 +255,11 @@ public final class InternalSDKHelper
   @InternalUseOnly()
   public static SearchResultEntry readSearchResultEntryFrom(final int messageID,
                      final ASN1StreamReaderSequence messageSequence,
-                     final ASN1StreamReader reader)
+                     final ASN1StreamReader reader, final Schema schema)
          throws LDAPException
   {
     return SearchResultEntry.readSearchEntryFrom(messageID, messageSequence,
-                                                 reader);
+                                                 reader, schema);
   }
 
 

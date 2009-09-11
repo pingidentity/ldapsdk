@@ -39,6 +39,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -937,6 +938,39 @@ public final class LDAPMessage
                                   final boolean ignoreSocketTimeout)
          throws LDAPException
   {
+    return readLDAPResponseFrom(reader, ignoreSocketTimeout, null);
+  }
+
+
+
+  /**
+   * Reads {@link LDAPResponse} object from the provided ASN.1 stream reader.
+   *
+   * @param  reader               The ASN.1 stream reader from which the LDAP
+   *                              message should be read.
+   * @param  ignoreSocketTimeout  Indicates whether to ignore socket timeout
+   *                              exceptions caught during processing.  This
+   *                              should be {@code true} when the associated
+   *                              connection is operating in asynchronous mode,
+   *                              and {@code false} when operating in
+   *                              synchronous mode.  In either case, exceptions
+   *                              will not be ignored for the first read, since
+   *                              that will be handled by the connection reader.
+   * @param  schema               The schema to use to select the appropriate
+   *                              matching rule for attributes included in the
+   *                              response.
+   *
+   * @return  The decoded LDAP message, or {@code null} if the end of the input
+   *          stream has been reached..
+   *
+   * @throws  LDAPException  If an error occurs while attempting to read or
+   *                         decode the LDAP message.
+   */
+  public static LDAPResponse readLDAPResponseFrom(final ASN1StreamReader reader,
+                                  final boolean ignoreSocketTimeout,
+                                  final Schema schema)
+         throws LDAPException
+  {
     final ASN1StreamReaderSequence messageSequence;
     try
     {
@@ -991,7 +1025,7 @@ public final class LDAPMessage
 
         case PROTOCOL_OP_TYPE_SEARCH_RESULT_ENTRY:
           return InternalSDKHelper.readSearchResultEntryFrom(messageID,
-                      messageSequence, reader);
+                      messageSequence, reader, schema);
 
         case PROTOCOL_OP_TYPE_SEARCH_RESULT_REFERENCE:
           return InternalSDKHelper.readSearchResultReferenceFrom(messageID,

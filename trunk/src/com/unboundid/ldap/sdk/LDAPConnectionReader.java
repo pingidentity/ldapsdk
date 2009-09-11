@@ -215,7 +215,8 @@ final class LDAPConnectionReader
         final LDAPResponse response;
         try
         {
-          response = LDAPMessage.readLDAPResponseFrom(asn1StreamReader, true);
+          response = LDAPMessage.readLDAPResponseFrom(asn1StreamReader, true,
+               connection.getCachedSchema());
         }
         catch (LDAPException le)
         {
@@ -582,8 +583,8 @@ final class LDAPConnectionReader
     {
       try
       {
-        final LDAPResponse response =
-             LDAPMessage.readLDAPResponseFrom(asn1StreamReader, false);
+        final LDAPResponse response = LDAPMessage.readLDAPResponseFrom(
+             asn1StreamReader, false, connection.getCachedSchema());
         if (response == null)
         {
           return new ConnectionClosedResponse(null);
