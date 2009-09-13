@@ -56,6 +56,9 @@ final class SearchRateThread
 
 
 
+  // Indicates whether a request has been made to start running.
+  private final AtomicBoolean startRequested;
+
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
@@ -104,6 +107,8 @@ final class SearchRateThread
    * @param  scope            The scope to use for the searches.
    * @param  filter           The value pattern for the filters.
    * @param  attributes       The set of attributes to return.
+   * @param  shouldStart      Indicates whether the thread should actually
+   *                          start running.
    * @param  searchCounter    A value that will be used to keep track of the
    *                          total number of searches performed.
    * @param  entryCounter     A value that will be used to keep track of the
@@ -119,6 +124,7 @@ final class SearchRateThread
   SearchRateThread(final int threadNumber, final LDAPConnection connection,
                    final ValuePattern baseDN, final SearchScope scope,
                    final ValuePattern filter, final String[] attributes,
+                   final AtomicBoolean shouldStart,
                    final AtomicLong searchCounter,
                    final AtomicLong entryCounter,
                    final AtomicLong searchDurations,
@@ -135,6 +141,7 @@ final class SearchRateThread
     this.entryCounter    = entryCounter;
     this.searchDurations = searchDurations;
     this.errorCounter    = errorCounter;
+    startRequested       = shouldStart;
     fixedRateBarrier     = rateBarrier;
 
     connection.setConnectionName("search-" + threadNumber);
@@ -155,6 +162,11 @@ final class SearchRateThread
   public void run()
   {
     searchThread.set(currentThread());
+
+    while (! startRequested.get())
+    {
+      yield();
+    }
 
     while (! stopRequested.get())
     {

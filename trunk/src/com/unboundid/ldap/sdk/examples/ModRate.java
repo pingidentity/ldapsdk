@@ -24,18 +24,23 @@ package com.unboundid.ldap.sdk.examples;
 
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FixedRateBarrier;
+import com.unboundid.util.FormattableColumn;
+import com.unboundid.util.HorizontalAlignment;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.OutputFormat;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ValuePattern;
@@ -98,10 +103,16 @@ import static com.unboundid.util.StaticUtils.*;
  *       intervals for which to run.  If this is not provided, then it will
  *       run forever.</LI>
  *   <LI>"-r {modifies-per-second}" or "--ratePerSecond {modifies-per-second}"
- *       specifies the target number of modifies to perform per second.  It is
- *       still necessary to specify a sufficient number of threads for achieving
- *       this rate.  If this option is not provided, then the tool will run at
- *       the maximum rate for the specified number of threads.</LI>
+ *       -- specifies the target number of modifies to perform per second.  It
+ *       is still necessary to specify a sufficient number of threads for
+ *       achieving this rate.  If this option is not provided, then the tool
+ *       will run at the maximum rate for the specified number of threads.</LI>
+ *   <LI>"--warmUpIntervals {num}" -- specifies the number of intervals to
+ *       complete before beginning overall statistics collection.</LI>
+ *   <LI>"--timestampFormat {format}" -- specifies the format to use for
+ *       timestamps included before each output line.  The format may be one of
+ *       "none" (for no timestamps), "with-date" (to include both the date and
+ *       the time), or "without-date" (to include only time time).</LI>
  *   <LI>"-c" or "--csv" -- Generate output in CSV format rather than a
  *       display-friendly format.</LI>
  * </UL>
@@ -136,6 +147,9 @@ public final class ModRate
   // The argument used to specify the length of the values to generate.
   private IntegerArgument valueLength;
 
+  // The number of warm-up intervals to perform.
+  private IntegerArgument warmUpIntervals;
+
   // The argument used to specify the name of the attribute to modify.
   private StringArgument attribute;
 
@@ -145,6 +159,9 @@ public final class ModRate
 
   // The argument used to specify the DNs of the entries to modify.
   private StringArgument entryDN;
+
+  // The argument used to specify the timestamp format.
+  private StringArgument timestampFormat;
 
 
 
@@ -314,6 +331,28 @@ public final class ModRate
                                         1, Integer.MAX_VALUE);
     parser.addArgument(ratePerSecond);
 
+    description = "The number of intervals to complete before beginning " +
+                  "overall statistics collection.  Specifying a nonzero " +
+                  "number of warm-up intervals gives the client and server " +
+                  "a chance to warm up without skewing performance results.";
+    warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
+         "{num}", description, 0, Integer.MAX_VALUE, 0);
+    parser.addArgument(warmUpIntervals);
+
+    description = "Indicates the format to use for timestamps included in " +
+                  "the output.  A value of 'none' indicates that no " +
+                  "timestamps should be included.  A value of 'with-date' " +
+                  "indicates that both the date and the time should be " +
+                  "included.  A value of 'without-date' indicates that only " +
+                  "the time should be included.";
+    final LinkedHashSet<String> allowedFormats = new LinkedHashSet<String>(3);
+    allowedFormats.add("none");
+    allowedFormats.add("with-date");
+    allowedFormats.add("without-date");
+    timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
+         "{format}", description, allowedFormats, "none");
+    parser.addArgument(timestampFormat);
+
     description = "Generate output in CSV format rather than a " +
                   "display-friendly format";
     csvFormat = new BooleanArgument('c', "csv", 1, description);
@@ -401,19 +440,76 @@ public final class ModRate
     }
 
 
+    // Determine whether to include timestamps in the output and if so what
+    // format should be used for them.
+    final boolean includeTimestamp;
+    final String timeFormat;
+    if (timestampFormat.getValue().equalsIgnoreCase("with-date"))
+    {
+      includeTimestamp = true;
+      timeFormat       = "dd/MM/yyyy HH:mm:ss";
+    }
+    else if (timestampFormat.getValue().equalsIgnoreCase("without-date"))
+    {
+      includeTimestamp = true;
+      timeFormat       = "HH:mm:ss";
+    }
+    else
+    {
+      includeTimestamp = false;
+      timeFormat       = null;
+    }
+
+
+    // Determine whether any warm-up intervals should be run.
+    final long totalIntervals;
+    final boolean warmUp;
+    int remainingWarmUpIntervals = warmUpIntervals.getValue();
+    if (remainingWarmUpIntervals > 0)
+    {
+      warmUp = true;
+      totalIntervals = 0L + numIntervals.getValue() + remainingWarmUpIntervals;
+    }
+    else
+    {
+      warmUp = true;
+      totalIntervals = 0L + numIntervals.getValue();
+    }
+
+
+    // Create the table that will be used to format the output.
+    final OutputFormat outputFormat;
+    if (csvFormat.isPresent())
+    {
+      outputFormat = OutputFormat.CSV;
+    }
+    else
+    {
+      outputFormat = OutputFormat.COLUMNS;
+    }
+
+    final ColumnFormatter formatter = new ColumnFormatter(includeTimestamp,
+         timeFormat, outputFormat, " ",
+         new FormattableColumn(12, HorizontalAlignment.RIGHT, "Recent",
+                  "Mods/Sec"),
+         new FormattableColumn(12, HorizontalAlignment.RIGHT, "Recent",
+                  "Avg Dur ms"),
+         new FormattableColumn(12, HorizontalAlignment.RIGHT, "Recent",
+                  "Errors/Sec"),
+         new FormattableColumn(12, HorizontalAlignment.RIGHT, "Overall",
+                  "Mods/Sec"),
+         new FormattableColumn(12, HorizontalAlignment.RIGHT, "Overall",
+                  "Avg Dur ms"));
+
+
     // Create values to use for statistics collection.
     final AtomicLong modCounter   = new AtomicLong(0L);
     final AtomicLong errorCounter = new AtomicLong(0L);
     final AtomicLong modDurations = new AtomicLong(0L);
 
 
-    // Create the output formatters.
-    final DecimalFormat longFormatter   = new DecimalFormat("0");
-    final DecimalFormat doubleFormatter = new DecimalFormat("0.000");
-
-
-    // Get the length of time to sleep in milliseconds.
-    final long sleepTimeMillis = 1000L * collectionInterval.getValue();
+    // Determine the length of each interval in milliseconds.
+    final long intervalMillis = 1000L * collectionInterval.getValue();
 
 
     // Create a random number generator to use for seeding the per-thread
@@ -422,6 +518,7 @@ public final class ModRate
 
 
     // Create the threads to use for the modifications.
+    final AtomicBoolean shouldStart = new AtomicBoolean();
     final ModRateThread[] threads = new ModRateThread[numThreads.getValue()];
     for (int i=0; i < threads.length; i++)
     {
@@ -438,36 +535,60 @@ public final class ModRate
       }
 
       threads[i] = new ModRateThread(i, connection, dnPattern, attrs, charSet,
-           valueLength.getValue(), random.nextLong(), modCounter, modDurations,
-           errorCounter, fixedRateBarrier);
+           valueLength.getValue(), random.nextLong(), shouldStart, modCounter,
+           modDurations, errorCounter, fixedRateBarrier);
+      threads[i].start();
     }
 
 
-    // Start all of the threads.
-    final long overallStartTime = System.nanoTime();
-    for (final ModRateThread t : threads)
+    // Display the table header.
+    for (final String headerLine : formatter.getHeaderLines(true))
     {
-      t.start();
+      out(headerLine);
     }
+
+
+    // Indicate that the threads can start running.
+    long overallStartTime = System.nanoTime();
+    shouldStart.set(true);
+    long nextIntervalStartTime = System.currentTimeMillis() + intervalMillis;
 
 
     long lastDuration  = 0L;
     long lastNumErrors = 0L;
     long lastNumMods   = 0L;
-    for (int i=0; i < numIntervals.getValue(); i++)
+    for (long i=0; i < totalIntervals; i++)
     {
       final long startTime = System.nanoTime();
+      final long startTimeMillis = System.currentTimeMillis();
+      final long sleepTimeMillis = nextIntervalStartTime - startTimeMillis;
+      nextIntervalStartTime += intervalMillis;
       try
       {
-        Thread.sleep(sleepTimeMillis);
+        if (sleepTimeMillis > 0)
+        {
+          Thread.sleep(sleepTimeMillis);
+        }
       } catch (Exception e) {}
 
       final long endTime          = System.nanoTime();
       final long intervalDuration = endTime - startTime;
 
-      final long numMods       = modCounter.get();
-      final long numErrors     = errorCounter.get();
-      final long totalDuration = modDurations.get();
+      final long numMods;
+      final long numErrors;
+      final long totalDuration;
+      if (warmUp && (remainingWarmUpIntervals > 0))
+      {
+        numMods       = modCounter.getAndSet(0L);
+        numErrors     = errorCounter.getAndSet(0L);
+        totalDuration = modDurations.getAndSet(0L);
+      }
+      else
+      {
+        numMods       = modCounter.get();
+        numErrors     = errorCounter.get();
+        totalDuration = modDurations.get();
+      }
 
       final long recentNumMods = numMods - lastNumMods;
       final long recentNumErrors = numErrors - lastNumErrors;
@@ -479,60 +600,33 @@ public final class ModRate
       final double recentAvgDuration =
                   1.0D * recentDuration / recentNumMods / 1000000;
 
-      final double numOverallSeconds =
-           (endTime - overallStartTime) / 1000000000.0D;
-      final double overallModRate = numMods / numOverallSeconds;
-      final double overallAvgDuration =
-           1.0D * totalDuration / numMods / 1000000;
-
-      if (csvFormat.isPresent())
+      if (warmUp && (remainingWarmUpIntervals > 0))
       {
-        if (i == 0)
-        {
-          out("\"Recent Mods/Second\",",
-              "\"Recent Average Modify Duration (ms)\",",
-              "\"Recent Errors/Second\",",
-              "\"Overall Mods/Second\",",
-              "\"Overall Average Modify Duration (ms)\"");
-        }
+        out(formatter.formatRow(recentModRate, recentAvgDuration,
+             recentErrorRate, "warming up", "warming up"));
 
-        out(longFormatter.format(recentModRate), ',',
-            doubleFormatter.format(recentAvgDuration), ',',
-            doubleFormatter.format(recentErrorRate), ',',
-            longFormatter.format(overallModRate), ',',
-            doubleFormatter.format(overallAvgDuration));
+        remainingWarmUpIntervals--;
+        if (remainingWarmUpIntervals == 0)
+        {
+          out("Warm-up completed.  Beginning overall statistics collection.");
+          overallStartTime = endTime;
+        }
       }
       else
       {
-        if (i == 0)
-        {
-          out("       Recent",
-              "       Recent",
-              "       Recent",
-              "      Overall",
-              "      Overall");
-          out("     Mods/Sec",
-              "   Avg Dur ms",
-              "   Errors/Sec",
-              "     Mods/Sec",
-              "   Avg Dur ms");
-          out(" ------------",
-              " ------------",
-              " ------------",
-              " ------------",
-              " ------------");
-        }
+        final double numOverallSeconds =
+             (endTime - overallStartTime) / 1000000000.0D;
+        final double overallAuthRate = numMods / numOverallSeconds;
+        final double overallAvgDuration =
+             1.0D * totalDuration / numMods / 1000000;
 
-        out(formatAndAlign(recentModRate, longFormatter),
-            formatAndAlign(recentAvgDuration, doubleFormatter),
-            formatAndAlign(recentErrorRate,  doubleFormatter),
-            formatAndAlign(overallModRate, longFormatter),
-            formatAndAlign(overallAvgDuration, doubleFormatter));
+        out(formatter.formatRow(recentModRate, recentAvgDuration,
+             recentErrorRate, overallAuthRate, overallAvgDuration));
+
+        lastNumMods     = numMods;
+        lastNumErrors   = numErrors;
+        lastDuration    = totalDuration;
       }
-
-      lastNumMods   = numMods;
-      lastNumErrors = numErrors;
-      lastDuration  = totalDuration;
     }
 
 
@@ -548,31 +642,6 @@ public final class ModRate
     }
 
     return resultCode;
-  }
-
-
-
-  /**
-   * Right-aligns the provided value in 13 spaces with the given formatter.
-   *
-   * @param  v  The value to be formatted and aligned.
-   * @param  f  The formatter to use.
-   *
-   * @return  The formatted and aligned value.
-   */
-  private static String formatAndAlign(final double v, final DecimalFormat f)
-  {
-    final StringBuilder buffer = new StringBuilder(13);
-    final String s = f.format(v);
-
-    final int padChars = 13 - s.length();
-    for (int i=0; i < padChars; i++)
-    {
-      buffer.append(' ');
-    }
-    buffer.append(s);
-
-    return buffer.toString();
   }
 
 
