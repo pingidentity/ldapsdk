@@ -82,6 +82,9 @@ final class AuthRateThread
 
 
 
+  // Indicates whether a request has been made to start running.
+  private final AtomicBoolean startRequested;
+
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
@@ -139,6 +142,8 @@ final class AuthRateThread
    * @param  attributes        The set of attributes to return.
    * @param  userPassword      The password to use for the bind operations.
    * @param  authType          The type of authentication to perform.
+   * @param  shouldStart      Indicates whether the thread should actually
+   *                          start running.
    * @param  authCounter       A value that will be used to keep track of the
    *                           total number of authentications performed.
    * @param  authDurations     A value that will be used to keep track of the
@@ -153,8 +158,9 @@ final class AuthRateThread
                  final LDAPConnection bindConnection, final ValuePattern baseDN,
                  final SearchScope scope, final ValuePattern filter,
                  final String[] attributes, final String userPassword,
-                 final String authType, final AtomicLong authCounter,
-                 final AtomicLong authDurations, final AtomicLong errorCounter,
+                 final String authType, final AtomicBoolean shouldStart,
+                 final AtomicLong authCounter, final AtomicLong authDurations,
+                 final AtomicLong errorCounter,
                  final FixedRateBarrier rateBarrier)
   {
     setName("AuthRate Thread " + threadNumber);
@@ -168,6 +174,7 @@ final class AuthRateThread
     this.authCounter      = authCounter;
     this.authDurations    = authDurations;
     this.errorCounter     = errorCounter;
+    startRequested        = shouldStart;
     fixedRateBarrier      = rateBarrier;
 
     searchConnection.setConnectionName("search-" + threadNumber);
@@ -206,6 +213,11 @@ final class AuthRateThread
   public void run()
   {
     authThread.set(currentThread());
+
+    while (! startRequested.get())
+    {
+      yield();
+    }
 
     while (! stopRequested.get())
     {

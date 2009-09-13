@@ -45,6 +45,9 @@ import com.unboundid.util.ValuePattern;
 final class ModRateThread
       extends Thread
 {
+  // Indicates whether a request has been made to start running.
+  private final AtomicBoolean startRequested;
+
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
@@ -99,6 +102,8 @@ final class ModRateThread
    *                       values.
    * @param  valueLength   The length in bytes to use for the generated values.
    * @param  randomSeed    The seed to use for the random number generator.
+   * @param  shouldStart   Indicates whether the thread should actually start
+   *                       running.
    * @param  modCounter    A value that will be used to keep track of the total
    *                       number of modifications performed.
    * @param  modDurations  A value that will be used to keep track of the total
@@ -112,8 +117,9 @@ final class ModRateThread
   ModRateThread(final int threadNumber, final LDAPConnection connection,
                 final ValuePattern entryDN, final String[] attributes,
                 final byte[] charSet, final int valueLength,
-                final long randomSeed, final AtomicLong modCounter,
-                final AtomicLong modDurations, final AtomicLong errorCounter,
+                final long randomSeed, final AtomicBoolean shouldStart,
+                final AtomicLong modCounter, final AtomicLong modDurations,
+                final AtomicLong errorCounter,
                 final FixedRateBarrier rateBarrier)
   {
     setName("ModRate Thread " + threadNumber);
@@ -127,6 +133,7 @@ final class ModRateThread
     this.modCounter   = modCounter;
     this.modDurations = modDurations;
     this.errorCounter = errorCounter;
+    startRequested    = shouldStart;
     fixedRateBarrier  = rateBarrier;
 
     connection.setConnectionName("mod-" + threadNumber);
@@ -150,6 +157,11 @@ final class ModRateThread
     final Modification[] mods = new Modification[attributes.length];
     final byte[] valueBytes = new byte[valueLength];
     final ASN1OctetString[] values = new ASN1OctetString[1];
+
+    while (! startRequested.get())
+    {
+      yield();
+    }
 
     while (! stopRequested.get())
     {
