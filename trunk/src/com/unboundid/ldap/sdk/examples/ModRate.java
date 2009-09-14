@@ -28,7 +28,7 @@ import java.text.ParseException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -518,7 +518,7 @@ public final class ModRate
 
 
     // Create the threads to use for the modifications.
-    final AtomicBoolean shouldStart = new AtomicBoolean();
+    final CyclicBarrier barrier = new CyclicBarrier(numThreads.getValue() + 1);
     final ModRateThread[] threads = new ModRateThread[numThreads.getValue()];
     for (int i=0; i < threads.length; i++)
     {
@@ -535,7 +535,7 @@ public final class ModRate
       }
 
       threads[i] = new ModRateThread(i, connection, dnPattern, attrs, charSet,
-           valueLength.getValue(), random.nextLong(), shouldStart, modCounter,
+           valueLength.getValue(), random.nextLong(), barrier, modCounter,
            modDurations, errorCounter, fixedRateBarrier);
       threads[i].start();
     }
@@ -549,8 +549,11 @@ public final class ModRate
 
 
     // Indicate that the threads can start running.
+    try
+    {
+      barrier.await();
+    } catch (Exception e) {}
     long overallStartTime = System.nanoTime();
-    shouldStart.set(true);
     long nextIntervalStartTime = System.currentTimeMillis() + intervalMillis;
 
 

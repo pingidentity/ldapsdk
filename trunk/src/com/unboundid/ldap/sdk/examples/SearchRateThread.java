@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -56,9 +57,6 @@ final class SearchRateThread
 
 
 
-  // Indicates whether a request has been made to start running.
-  private final AtomicBoolean startRequested;
-
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
@@ -79,6 +77,9 @@ final class SearchRateThread
 
   // The result code for this thread.
   private final AtomicReference<ResultCode> resultCode;
+
+  // The barrier that will be used to coordinate starting among all the threads.
+  private final CyclicBarrier startBarrier;
 
   // The search request to generate.
   private final SearchRequest searchRequest;
@@ -107,8 +108,8 @@ final class SearchRateThread
    * @param  scope            The scope to use for the searches.
    * @param  filter           The value pattern for the filters.
    * @param  attributes       The set of attributes to return.
-   * @param  shouldStart      Indicates whether the thread should actually
-   *                          start running.
+   * @param  startBarrier     A barrier used to coordinate starting between all
+   *                          of the threads.
    * @param  searchCounter    A value that will be used to keep track of the
    *                          total number of searches performed.
    * @param  entryCounter     A value that will be used to keep track of the
@@ -124,7 +125,7 @@ final class SearchRateThread
   SearchRateThread(final int threadNumber, final LDAPConnection connection,
                    final ValuePattern baseDN, final SearchScope scope,
                    final ValuePattern filter, final String[] attributes,
-                   final AtomicBoolean shouldStart,
+                   final CyclicBarrier startBarrier,
                    final AtomicLong searchCounter,
                    final AtomicLong entryCounter,
                    final AtomicLong searchDurations,
@@ -141,7 +142,7 @@ final class SearchRateThread
     this.entryCounter    = entryCounter;
     this.searchDurations = searchDurations;
     this.errorCounter    = errorCounter;
-    startRequested       = shouldStart;
+    this.startBarrier    = startBarrier;
     fixedRateBarrier     = rateBarrier;
 
     connection.setConnectionName("search-" + threadNumber);
@@ -163,10 +164,10 @@ final class SearchRateThread
   {
     searchThread.set(currentThread());
 
-    while (! startRequested.get())
+    try
     {
-      yield();
-    }
+      startBarrier.await();
+    } catch (Exception e) {}
 
     while (! stopRequested.get())
     {

@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 import java.util.Random;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,9 +46,6 @@ import com.unboundid.util.ValuePattern;
 final class ModRateThread
       extends Thread
 {
-  // Indicates whether a request has been made to start running.
-  private final AtomicBoolean startRequested;
-
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
@@ -63,6 +61,9 @@ final class ModRateThread
 
   // The set of characters to use for the generated values.
   private final byte[] charSet;
+
+  // The barrier that will be used to coordinate starting among all the threads.
+  private final CyclicBarrier startBarrier;
 
   // The length in bytes of the values to generate.
   private final int valueLength;
@@ -102,8 +103,8 @@ final class ModRateThread
    *                       values.
    * @param  valueLength   The length in bytes to use for the generated values.
    * @param  randomSeed    The seed to use for the random number generator.
-   * @param  shouldStart   Indicates whether the thread should actually start
-   *                       running.
+   * @param  startBarrier  A barrier used to coordinate starting between all of
+   *                       the threads.
    * @param  modCounter    A value that will be used to keep track of the total
    *                       number of modifications performed.
    * @param  modDurations  A value that will be used to keep track of the total
@@ -117,7 +118,7 @@ final class ModRateThread
   ModRateThread(final int threadNumber, final LDAPConnection connection,
                 final ValuePattern entryDN, final String[] attributes,
                 final byte[] charSet, final int valueLength,
-                final long randomSeed, final AtomicBoolean shouldStart,
+                final long randomSeed, final CyclicBarrier startBarrier,
                 final AtomicLong modCounter, final AtomicLong modDurations,
                 final AtomicLong errorCounter,
                 final FixedRateBarrier rateBarrier)
@@ -133,7 +134,7 @@ final class ModRateThread
     this.modCounter   = modCounter;
     this.modDurations = modDurations;
     this.errorCounter = errorCounter;
-    startRequested    = shouldStart;
+    this.startBarrier = startBarrier;
     fixedRateBarrier  = rateBarrier;
 
     connection.setConnectionName("mod-" + threadNumber);
@@ -158,10 +159,10 @@ final class ModRateThread
     final byte[] valueBytes = new byte[valueLength];
     final ASN1OctetString[] values = new ASN1OctetString[1];
 
-    while (! startRequested.get())
+    try
     {
-      yield();
-    }
+      startBarrier.await();
+    } catch (Exception e) {}
 
     while (! stopRequested.get())
     {

@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -82,9 +83,6 @@ final class AuthRateThread
 
 
 
-  // Indicates whether a request has been made to start running.
-  private final AtomicBoolean startRequested;
-
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
@@ -102,6 +100,9 @@ final class AuthRateThread
 
   // The thread that is actually performing the searches.
   private final AtomicReference<Thread> authThread;
+
+  // The barrier that will be used to coordinate starting among all the threads.
+  private final CyclicBarrier startBarrier;
 
   // The type of authentication to perform.
   private final int authType;
@@ -142,8 +143,8 @@ final class AuthRateThread
    * @param  attributes        The set of attributes to return.
    * @param  userPassword      The password to use for the bind operations.
    * @param  authType          The type of authentication to perform.
-   * @param  shouldStart      Indicates whether the thread should actually
-   *                          start running.
+   * @param  startBarrier      A barrier used to coordinate starting between all
+   *                           of the threads.
    * @param  authCounter       A value that will be used to keep track of the
    *                           total number of authentications performed.
    * @param  authDurations     A value that will be used to keep track of the
@@ -158,7 +159,7 @@ final class AuthRateThread
                  final LDAPConnection bindConnection, final ValuePattern baseDN,
                  final SearchScope scope, final ValuePattern filter,
                  final String[] attributes, final String userPassword,
-                 final String authType, final AtomicBoolean shouldStart,
+                 final String authType, final CyclicBarrier startBarrier,
                  final AtomicLong authCounter, final AtomicLong authDurations,
                  final AtomicLong errorCounter,
                  final FixedRateBarrier rateBarrier)
@@ -174,7 +175,7 @@ final class AuthRateThread
     this.authCounter      = authCounter;
     this.authDurations    = authDurations;
     this.errorCounter     = errorCounter;
-    startRequested        = shouldStart;
+    this.startBarrier     = startBarrier;
     fixedRateBarrier      = rateBarrier;
 
     searchConnection.setConnectionName("search-" + threadNumber);
@@ -214,10 +215,10 @@ final class AuthRateThread
   {
     authThread.set(currentThread());
 
-    while (! startRequested.get())
+    try
     {
-      yield();
-    }
+      startBarrier.await();
+    } catch (Exception e) {}
 
     while (! stopRequested.get())
     {
