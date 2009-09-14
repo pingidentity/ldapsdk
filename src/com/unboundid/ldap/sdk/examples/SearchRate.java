@@ -600,13 +600,14 @@ public final class SearchRate
     long nextIntervalStartTime = System.currentTimeMillis() + intervalMillis;
 
 
-    long lastDuration    = 0L;
-    long lastNumEntries  = 0L;
-    long lastNumErrors   = 0L;
-    long lastNumSearches = 0L;
+    boolean setOverallStartTime = false;
+    long    lastDuration        = 0L;
+    long    lastNumEntries      = 0L;
+    long    lastNumErrors       = 0L;
+    long    lastNumSearches     = 0L;
+    long    lastEndTime         = System.nanoTime();
     for (long i=0; i < totalIntervals; i++)
     {
-      final long startTime = System.nanoTime();
       final long startTimeMillis = System.currentTimeMillis();
       final long sleepTimeMillis = nextIntervalStartTime - startTimeMillis;
       nextIntervalStartTime += intervalMillis;
@@ -619,7 +620,7 @@ public final class SearchRate
       } catch (Exception e) {}
 
       final long endTime          = System.nanoTime();
-      final long intervalDuration = endTime - startTime;
+      final long intervalDuration = endTime - lastEndTime;
 
       final long numSearches;
       final long numEntries;
@@ -663,11 +664,17 @@ public final class SearchRate
         if (remainingWarmUpIntervals == 0)
         {
           out("Warm-up completed.  Beginning overall statistics collection.");
-          overallStartTime = endTime;
+          setOverallStartTime = true;
         }
       }
       else
       {
+        if (setOverallStartTime)
+        {
+          overallStartTime    = lastEndTime;
+          setOverallStartTime = false;
+        }
+
         final double numOverallSeconds =
              (endTime - overallStartTime) / 1000000000.0D;
         final double overallSearchRate = numSearches / numOverallSeconds;
@@ -683,6 +690,8 @@ public final class SearchRate
         lastNumErrors   = numErrors;
         lastDuration    = totalDuration;
       }
+
+      lastEndTime = endTime;
     }
 
 
