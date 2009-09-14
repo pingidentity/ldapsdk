@@ -36,10 +36,12 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
-                  The Standard Edition of the LDAP SDK is now available for use with Maven and is
-                  included in the Central Repository.  It uses a groupId of "com.unboundid", an
-                  artifactId of "unboundid-ldapsdk", and the version is "1.1.0" (although this
-                  will change with each release).
+                  The Standard Edition of the LDAP SDK is now available for use with Maven.  It
+                  is available at
+                  <a href="http://ldap-sdk.sourceforge.net/maven/">http://ldap-sdk.sourceforge.net/maven/</a>
+                  with a groupId of "com.unboundid", an artifactId of "unboundid-ldapsdk", and a
+                  version of "1.1.0".  In the near future, it will also be included in the Central
+                  Repository.
                   <br><br>
                 </li>
 
@@ -107,6 +109,47 @@ ${TARGET="offline"}                    <br>
                   structures, including attributes, controls, extended requests and responses,
                   modifications, and search result entries.
                   <br><br>
+                </li>
+
+                <li>
+                  Added a new "use schema" LDAP connection option which can be used to cause
+                  operations on the connection to make use of schema information when reading
+                  data from the directory server.  In particular, the schema will be used to
+                  select the appropriate matching rule for each attribute included in search
+                  result entries.  The <tt>Attribute</tt> class has been updated to provide new
+                  constructors which take <tt>Schema</tt> objects that allow that schema to be
+                  used to select the appropriate matching rule for that attribute.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a set of <tt>Attribute.nameIsValid</tt> methods which can be used to
+                  determine whether a provided string is a valid attribute name.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added additional <tt>Attribute.hasValue</tt> and
+                  <tt>Entry.hasAttributeValue</tt> methods which allow an alternate matching rule
+                  to be provided which will be used when making the determination rather than the
+                  matching rule with which that attribute type is associated.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for the case-ignore list equality and substring matching rules,
+                  as used by the postal address syntax.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the searchrate, modrate, and authrate tools to include new command-line
+                  options.  The "<tt>--timestampFormat</tt>" argument may be used to indicate
+                  whether timestamps should be included in the output, and if so what format
+                  should be used (either the time only or both the date and the time).  The
+                  "<tt>--warmUpIntervals</tt>" argument may be used to indicate that the tool
+                  should be allowed to run for a specified number of intervals before beginning
+                  overall statistics collection to allow the client and the server to warm up.
                 </li>
               </ul>
 
