@@ -1,0 +1,64 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Easier Access to Response Data</h2>
+
+              <p>
+                In both JNDI and the Netscape Directory SDK for Java, most methods used to process
+                LDAP operations have a <tt>void</tt> return type.  If the operation completes
+                without throwing an exception, then it is not possible to get access to the result
+                code, diagnostic message, matched DN, or referral URLs returned by the server.  To
+                be fair, it's probably a safe bet that the result code was SUCCESS and that there
+                was no matched DN or referral URLs.  However, there may be valid cases in which
+                the server could include a useful diagnostic message even if the operation
+                completed successfully, and neither JNDI nor the Netscape SDK provide any
+                mechanism for accessing it.
+              </p>
+
+              <p>
+                If the operation doesn't complete successfully, then both JNDI and the Netscape
+                Directory SDK for Java will throw exceptions.  In the Netscape Directory SDK for
+                Java, this will be an instance of <tt>LDAPException</tt> or one of its subclasses,
+                and that exception will provide access to the result code, matched DN, error
+                message, and in some cases the referral URLs.  In JNDI, on the other hand, the
+                exception that will be thrown will be a <tt>NamingException</tt> or one of its
+                subclasses.  It is possible to get access to the error message and matched DN, and
+                possibly referral URLs, but there does not appear to be any mechanism to determine
+                the result code returned by the server.  It may be possible to deduce the result
+                code based on the particular <tt>NamingException</tt> subclass that was thrown,
+                but this is tedious at best, and only works for a small set of responses.  This
+                approach is not at all suited for use with special cases like the LDAP no-op
+                control in which the server should always return a non-success response, nor is it
+                helpful in cases in which the server does not include any additional diagnostic
+                message with the non-success result code.
+              </p>
+
+              <p>
+                In addition, regardless of whether the operation completes successfully or fails
+                and an exception is thrown, neither JNDI nor the Netscape Directory SDK for Java
+                provide an adequate method for getting access to the response controls for that
+                operation.  In both cases, it is possible to get the response controls from the
+                underlying connection, but this only stores the response controls from the last
+                operation processed, and it is not reliable if the connection might be in use
+                concurrently by multiple threads.
+              </p>
+
+              <p>
+                In the UnboundID LDAP SDK for Java, each method used to process an operation will
+                either return an <tt>LDAPResult</tt> object or one of its subclasses if the
+                operation completes successfully, or will throw an <tt>LDAPException</tt> or one of
+                its subclasses if an error occurs.  In any case, the entire content of the
+                response, including the result code, diagnostic message, matched DN, referral URLs,
+                and response controls, will be available, and the client does not need to be
+                concerned about response controls being invalidated by another thread using the
+                same connection.
+              </p>

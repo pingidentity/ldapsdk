@@ -1,0 +1,393 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>A Comparison of LDAP SDK Functionality</h2>
+
+              <p></p>
+              <p>
+                This page provides a basic comparison of the capabilities included in JNDI, the
+                Netscape Directory SDK for Java, and the UnboundID LDAP SDK for Java.
+              </p>
+
+              <h3>General Functionality</h3>
+
+              <table border="1" width="100%">
+                <tr>
+                  <th align="left"   width="40%">Description</th>
+                  <th align="center" width="20%">JNDI</th>
+                  <th align="center" width="20%">Netscape SDK</th>
+                  <th align="center" width="20%">UnboundID SDK</th>
+                </tr>
+                <tr>
+                  <td align="left">Full support for the core LDAPv3 protocol</td>
+                  <td align="center">Yes</td>
+                  <td align="center">Yes</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="other.${EXTENSION}">Uses LDAPv3 by default</a></td>
+                  <td align="center">Yes</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="ease-of-use.${EXTENSION}">Ease of use</a></td>
+                  <td align="center">Poor</td>
+                  <td align="center">Moderate</td>
+                  <td align="center">Excellent</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="java5.${EXTENSION}">Support for Java SE 5 features</a></td>
+                  <td align="left">
+                    <ul>
+                      <li>Generics</li>
+                    </ul>
+                  </td>
+                  <td align="center">None</td>
+                  <td align="left">
+                    <ul>
+                      <li>Generics</li>
+                      <li>Varargs</li>
+                      <li>Enumerations</li>
+                      <li>Concurrency</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="specifications.${EXTENSION}">Supported standards-based controls</a></td>
+                  <td align="center">3</td>
+                  <td align="center">7</td>
+                  <td align="center">18</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="specifications.${EXTENSION}">Supported standards-based extended operations</a></td>
+                  <td align="center">1</td>
+                  <td align="center">0</td>
+                  <td align="center">4</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="security.${EXTENSION}">Supported SASL mechanisms</a></td>
+                  <td align="center">5</td>
+                  <td align="center">1</td>
+                  <td align="center">6</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="asynchronous.${EXTENSION}">Direct support for asynchronous operations</a></td>
+                  <td align="center">No</td>
+                  <td align="center">Yes (via queue polling)</td>
+                  <td align="center">Yes (via notification interface)</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="connection-pools.${EXTENSION}">Support for connection pooling</a></td>
+                  <td align="center">Basic</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="connection-pools.${EXTENSION}">Multiple connection pools in the same JVM</a></td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="failover-load-balancing.${EXTENSION}">Support for failover between servers</a></td>
+                  <td align="center">None</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="failover-load-balancing.${EXTENSION}">Support for load balancing across servers</a></td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="reusable-requests.${EXTENSION}">Reusable request objects</a></td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="other.${EXTENSION}">Disconnect notification</a></td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="response-data.${EXTENSION}">Access to response data for successful operations</a></td>
+                  <td align="left">
+                    <ul>
+                      <li>Response controls (not threadsafe)</li>
+                    </ul>
+                  </td>
+                  <td align="left">
+                    <ul>
+                      <li>Response controls (not threadsafe)</li>
+                    </ul>
+                  </td>
+                  <td align="left">
+                    <ul>
+                      <li>Result code</li>
+                      <li>Diagnostic message</li>
+                      <li>Matched DN</li>
+                      <li>Referral URLs</li>
+                      <li>Response controls (threadsafe)</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="response-data.${EXTENSION}">Access to response data for failed operations</a></td>
+                  <td align="left">
+                    <ul>
+                      <li>Diagnostic message</li>
+                      <li>Matched DN</li>
+                      <li>Referral URLs</li>
+                      <li>Response controls (not threadsafe)</li>
+                    </ul>
+                  </td>
+                  <td align="left">
+                    <ul>
+                      <li>Result code</li>
+                      <li>Diagnostic message</li>
+                      <li>Matched DN</li>
+                      <li>Referral URLs</li>
+                      <li>Response controls (not threadsafe)</li>
+                    </ul>
+                  </td>
+                  <td align="left">
+                    <ul>
+                      <li>Result code</li>
+                      <li>Diagnostic message</li>
+                      <li>Matched DN</li>
+                      <li>Referral URLs</li>
+                      <li>Response controls (threadsafe)</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="other.${EXTENSION}">Client-side entry sorting</a></td>
+                  <td align="center">None</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="other.${EXTENSION}">Client-side filter evaluation</a></td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="other.${EXTENSION}">Provided example tools</a></td>
+                  <td align="center">0</td>
+                  <td align="center">3</td>
+                  <td align="center">7</td>
+                </tr>
+              </table>
+
+              <p></p>
+              <h3>Security-Related Functionality</h3>
+
+              See the <a href="security.${EXTENSION}">Improved Security Functionality</a> page for
+              additional information.
+
+              <p></p>
+
+              <table border="1" width="100%">
+                <tr>
+                  <th align="left"   width="40%">Description</th>
+                  <th align="center" width="20%">JNDI</th>
+                  <th align="center" width="20%">Netscape SDK</th>
+                  <th align="center" width="20%">UnboundID SDK</th>
+                </tr>
+                <tr>
+                  <td align="left">Secure communication with SSL</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left">Secure communication with StartTLS</td>
+                  <td align="center">Basic</td>
+                  <td align="center">None</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left">Prevent simple binds with a DN but no password</td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left">Methods for retrieving the client identity</td>
+                  <td align="center">None</td>
+                  <td align="center">None</td>
+                  <td align="left">
+                    <ul>
+                      <li>Authorization identity controls</li>
+                      <li>"Who Am I?" extended operation</li>
+                      <li>Get authorization entry control (Commercial Edition only)</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left">Support for the proxied authorization control</td>
+                  <td align="center">None</td>
+                  <td align="center">V1 Only</td>
+                  <td align="center">V1 and V2</td>
+                </tr>
+                <tr>
+                  <td align="left">Supported password policy controls</td>
+                  <td align="center">None</td>
+                  <td align="left">
+                    <ul>
+                      <li>Password expired</li>
+                      <li>Password expiring</li>
+                    </ul>
+                  </td>
+                  <td align="left">
+                    <ul>
+                      <li>Password expired</li>
+                      <li>Password expiring</li>
+                      <li>Password policy (Commercial Edition only)</li>
+                      <li>Account usability (Commercial Edition only)</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left">Supported password policy controls</td>
+                  <td align="center">None</td>
+                  <td align="center">None</td>
+                  <td align="left">
+                    <ul>
+                      <li>Password modify</li>
+                      <li>Password policy state (Commercial Edition only)</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left">Support for atomic operations</td>
+                  <td align="center">None</td>
+                  <td align="center">None</td>
+                  <td align="left">
+                    <ul>
+                      <li>Increment modify extension</li>
+                      <li>Read entry controls</li>
+                      <li>Assertion control</li>
+                      <li>Batched transactions (Commercial Edition only)</li>
+                      <li>Interactive transactions (Commercial Edition only)</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left">Search filter construction</td>
+                  <td align="center">Basic</td>
+                  <td align="center">None</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+              </table>
+
+              <p></p>
+              <h3>Included Related APIs</h3>
+
+              See the <a href="related-apis.${EXTENSION}">Inclusion of Related APIs</a> page for
+              additional information.
+
+              <p></p>
+
+              <table border="1" width="100%">
+                <tr>
+                  <th align="left"   width="40%">Description</th>
+                  <th align="center" width="20%">JNDI</th>
+                  <th align="center" width="20%">Netscape SDK</th>
+                  <th align="center" width="20%">UnboundID SDK</th>
+                </tr>
+                <tr>
+                  <td align="left">LDIF processing</td>
+                  <td align="center">None</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left">Base64 processing</td>
+                  <td align="center">None</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left">ASN.1 BER processing</td>
+                  <td align="center">None</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left">Root DSE parsing</td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left">Schema parsing</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left">Changelog entry parsing</td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left">Command line argument parsing</td>
+                  <td align="center">None</td>
+                  <td align="center">Basic</td>
+                  <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left">Simple LDAP-enabled command-line tool development</td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+              </table>
+
+              <p></p>
+              <h3>Suitability for Commercial Development</h3>
+
+              <table border="1" width="100%">
+                <tr>
+                  <th align="left"   width="40%">Description</th>
+                  <th align="center" width="20%">JNDI</th>
+                  <th align="center" width="20%">Netscape SDK</th>
+                  <th align="center" width="20%">UnboundID SDK</th>
+                </tr>
+                <tr>
+                  <td align="left"><a href="support.${EXTENSION}">Commercial support available</a></td>
+                  <td align="center">Yes</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="localization.${EXTENSION}">Full localization support</a></td>
+                  <td align="center">No</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
+                </tr>
+                <tr>
+                  <td align="left"><a href="debug.${EXTENSION}">Availability of debug information</a></td>
+                  <td align="center">Basic (using JDK logging)</td>
+                  <td align="center">
+                    Basic (debug written to standard out, trace written to a custom handler)
+                  </td>
+                  <td align="center">Enhanced (using JDK logging)</td>
+                </tr>
+              </table>

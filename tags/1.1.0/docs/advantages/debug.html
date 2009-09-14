@@ -1,0 +1,134 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Easy Access to Debugging Information</h2>
+
+              <p>
+                Whenever an application is behaving in an incorrect or unexpected manner, it is
+                important to be able to quickly analyze the behavior and determine the source of
+                the problem.  For applications that use an API for communicating with a directory
+                server, it is important for that API to provide adequate debugging information to
+                help determine where the cause of the problem might exist.
+              </p>
+
+              <p></p>
+              <h3>JNDI Debugging Capabilities</h3>
+
+              <p>
+                JNDI appears to provide the following support for debugging:
+              </p>
+
+              <ul>
+                <li>
+                  The <tt>com.sun.jndi.ldap.trace.ber</tt> property can be set with a value that is
+                  an <tt>OutputStream</tt> object in the initial environment properties used when
+                  creating a connection.  If this is done, then JNDI will write hexadecimal dumps
+                  of all ASN.1 BER data to that output stream.  This will happen for the duration
+                  of the connection, and it cannot be enabled or disabled during the life of the
+                  connection.
+                  <br><br>
+                </li>
+
+                <li>
+                  The <tt>com.sun.jndi.ldap.connect.pool.debug</tt> property can be set with a
+                  value of either "fine" or "all" in order to enable debugging of information
+                  related to connection pooling.  It appears that this debug information would be
+                  written using the Java logging framework.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                There does not appear to be any other mechanism for accessing debug information in
+                JNDI.
+              </p>
+
+              <p></p>
+              <h3>Netscape Directory SDK for Java Debugging Capabilities</h3>
+
+              <p>
+                The Netscape Directory SDK for Java provides the following support for debugging:
+              </p>
+
+              <ul>
+                <li>
+                  The "<tt>debug</tt>" property can be set to "true" using the
+                  <tt>LDAPConnection.setProperty</tt> method (and presumably as a system property)
+                  to enable debugging, in which case a small set of messages will be written to
+                  standard output.  There are very few things that can generate debug messages in
+                  the SDK, and it is not possible to specify an alternate location for this debug
+                  information.
+                  <br><br>
+                </li>
+
+                <li>
+                  The "<tt>com.netscape.ldap.trace</tt>" property can be set to either a
+                  <tt>PrintWriter</tt> or <tt>LDAPTraceWriter</tt> object using the
+                  <tt>LDAPConnection.setProperty</tt> method.  If this is done, then messages will
+                  be written to the provided writer for key events like establishing connections,
+                  sending requests, and reading responses.  It appears that it is possible to
+                  specify this as a system property with no value in order to cause this
+                  information to be written to standard error.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>UnboundID LDAP SDK for Java Debugging Capabilities</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides significant access to debugging
+                information.  The types of debug information that can be generated include:
+              </p>
+
+              <ul>
+                <li>
+                  Information about LDAP messages read from or written to a directory server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Information about ASN.1 elements read from or written to a directory server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Information about connection establishment and termination.
+                  <br><br>
+                </li>
+
+                <li>
+                  Information about entries and change records read from and written to LDIF.
+                  <br><br>
+                </li>
+
+                <li>
+                  Information about exceptions caught within the SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  Information about monitor entry parsing.
+                  <br><br>
+                </li>
+
+                <li>
+                  Information about coding errors and other incorrect uses of the LDAP SDK.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                Each of these types of debugging can be enabled or disabled individually, and
+                debugging can be configured either programmatically or using system properties.
+                Debug messages are handled using the Java logging framework.
+              </p>
