@@ -238,6 +238,11 @@ public abstract class MatchingRule
       {
         return CaseExactStringMatchingRule.getInstance();
       }
+      else if (lowerName.equals("caseignorelistmatch") ||
+               lowerName.equals("2.5.13.11"))
+      {
+        return CaseIgnoreListMatchingRule.getInstance();
+      }
       else if (lowerName.equals("caseignorematch") ||
                lowerName.equals("2.5.13.2") ||
                lowerName.equals("caseignoreia5match") ||
@@ -407,6 +412,11 @@ public abstract class MatchingRule
       {
         return CaseExactStringMatchingRule.getInstance();
       }
+      else if (lowerName.equals("caseignorelistsubstringsmatch") ||
+               lowerName.equals("2.5.13.12"))
+      {
+        return CaseIgnoreListMatchingRule.getInstance();
+      }
       else if (lowerName.equals("caseignoresubstringsmatch") ||
                lowerName.equals("2.5.13.4") ||
                lowerName.equals("caseignoreia5substringsmatch") ||
@@ -458,6 +468,10 @@ public abstract class MatchingRule
     if (syntaxOID.equals("1.3.6.1.4.1.1466.115.121.1.7"))
     {
       return BooleanMatchingRule.getInstance();
+    }
+    else if (syntaxOID.equals("1.3.6.1.4.1.1466.115.121.1.41")) // Postal addr.
+    {
+      return CaseIgnoreListMatchingRule.getInstance();
     }
     else if (syntaxOID.equals("1.3.6.1.4.1.1466.115.121.1.12") ||
          syntaxOID.equals("1.3.6.1.4.1.1466.115.121.1.34")) // name&optional UID
