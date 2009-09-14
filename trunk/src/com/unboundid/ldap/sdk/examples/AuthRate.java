@@ -639,12 +639,13 @@ public final class AuthRate
     long nextIntervalStartTime = System.currentTimeMillis() + intervalMillis;
 
 
-    long lastDuration  = 0L;
-    long lastNumErrors = 0L;
-    long lastNumAuths  = 0L;
+    boolean setOverallStartTime = false;
+    long    lastDuration        = 0L;
+    long    lastNumErrors       = 0L;
+    long    lastNumAuths        = 0L;
+    long    lastEndTime         = System.nanoTime();
     for (long i=0; i < totalIntervals; i++)
     {
-      final long startTime = System.nanoTime();
       final long startTimeMillis = System.currentTimeMillis();
       final long sleepTimeMillis = nextIntervalStartTime - startTimeMillis;
       nextIntervalStartTime += intervalMillis;
@@ -657,7 +658,7 @@ public final class AuthRate
       } catch (Exception e) {}
 
       final long endTime          = System.nanoTime();
-      final long intervalDuration = endTime - startTime;
+      final long intervalDuration = endTime - lastEndTime;
 
       final long numAuths;
       final long numErrors;
@@ -694,11 +695,17 @@ public final class AuthRate
         if (remainingWarmUpIntervals == 0)
         {
           out("Warm-up completed.  Beginning overall statistics collection.");
-          overallStartTime = endTime;
+          setOverallStartTime = true;
         }
       }
       else
       {
+        if (setOverallStartTime)
+        {
+          overallStartTime    = lastEndTime;
+          setOverallStartTime = false;
+        }
+
         final double numOverallSeconds =
              (endTime - overallStartTime) / 1000000000.0D;
         final double overallAuthRate = numAuths / numOverallSeconds;
@@ -712,6 +719,8 @@ public final class AuthRate
         lastNumErrors   = numErrors;
         lastDuration    = totalDuration;
       }
+
+      lastEndTime = endTime;
     }
 
 
