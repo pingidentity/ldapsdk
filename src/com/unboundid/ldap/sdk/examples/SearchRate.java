@@ -28,7 +28,7 @@ import java.text.ParseException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -560,7 +560,7 @@ public final class SearchRate
 
 
     // Create the threads to use for the searches.
-    final AtomicBoolean shouldStart = new AtomicBoolean();
+    final CyclicBarrier barrier = new CyclicBarrier(numThreads.getValue() + 1);
     final SearchRateThread[] threads =
          new SearchRateThread[numThreads.getValue()];
     for (int i=0; i < threads.length; i++)
@@ -578,7 +578,7 @@ public final class SearchRate
       }
 
       threads[i] = new SearchRateThread(i, connection, dnPattern, scope,
-           filterPattern, attrs, shouldStart, searchCounter, entryCounter,
+           filterPattern, attrs, barrier, searchCounter, entryCounter,
            searchDurations, errorCounter, fixedRateBarrier);
       threads[i].start();
     }
@@ -592,8 +592,11 @@ public final class SearchRate
 
 
     // Indicate that the threads can start running.
+    try
+    {
+      barrier.await();
+    } catch (Exception e) {}
     long overallStartTime = System.nanoTime();
-    shouldStart.set(true);
     long nextIntervalStartTime = System.currentTimeMillis() + intervalMillis;
 
 
