@@ -38,6 +38,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ValuePattern;
 
@@ -87,6 +88,9 @@ final class SearchRateThread
   // The thread that is actually performing the searches.
   private final AtomicReference<Thread> searchThread;
 
+  // The value pattern to use for proxied authorization.
+  private final ValuePattern authzID;
+
   // The value pattern to use for the base DNs.
   private final ValuePattern baseDN;
 
@@ -108,6 +112,10 @@ final class SearchRateThread
    * @param  scope            The scope to use for the searches.
    * @param  filter           The value pattern for the filters.
    * @param  attributes       The set of attributes to return.
+   * @param  authzID          The value pattern to use to generate authorization
+   *                          identities for use with the proxied authorization
+   *                          control.  It may be {@code null} if proxied
+   *                          authorization should not be used.
    * @param  startBarrier     A barrier used to coordinate starting between all
    *                          of the threads.
    * @param  searchCounter    A value that will be used to keep track of the
@@ -125,6 +133,7 @@ final class SearchRateThread
   SearchRateThread(final int threadNumber, final LDAPConnection connection,
                    final ValuePattern baseDN, final SearchScope scope,
                    final ValuePattern filter, final String[] attributes,
+                   final ValuePattern authzID,
                    final CyclicBarrier startBarrier,
                    final AtomicLong searchCounter,
                    final AtomicLong entryCounter,
@@ -138,6 +147,7 @@ final class SearchRateThread
     this.connection      = connection;
     this.baseDN          = baseDN;
     this.filter          = filter;
+    this.authzID         = authzID;
     this.searchCounter   = searchCounter;
     this.entryCounter    = entryCounter;
     this.searchDurations = searchDurations;
@@ -176,6 +186,12 @@ final class SearchRateThread
       {
         searchRequest.setBaseDN(baseDN.nextValue());
         searchRequest.setFilter(filter.nextValue());
+
+        if (authzID != null)
+        {
+          searchRequest.setControls(new ProxiedAuthorizationV2RequestControl(
+               authzID.nextValue()));
+        }
       }
       catch (LDAPException le)
       {

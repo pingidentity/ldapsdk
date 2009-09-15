@@ -113,6 +113,11 @@ import static com.unboundid.util.StaticUtils.*;
  *       timestamps included before each output line.  The format may be one of
  *       "none" (for no timestamps), "with-date" (to include both the date and
  *       the time), or "without-date" (to include only time time).</LI>
+ *   <LI>"-Y {authzID}" or "--proxyAs {authzID}" -- Use the proxied
+ *       authorization v2 control to request that the operation be processed
+ *       using an alternate authorization identity.  In this case, the bind DN
+ *       should be that of a user that has permission to use this control.  The
+ *       authorization identity may be a value pattern.</LI>
  *   <LI>"-c" or "--csv" -- Generate output in CSV format rather than a
  *       display-friendly format.</LI>
  * </UL>
@@ -159,6 +164,9 @@ public final class ModRate
 
   // The argument used to specify the DNs of the entries to modify.
   private StringArgument entryDN;
+
+  // The argument used to specify the proxied authorization identity.
+  private StringArgument proxyAs;
 
   // The argument used to specify the timestamp format.
   private StringArgument timestampFormat;
@@ -353,6 +361,14 @@ public final class ModRate
          "{format}", description, allowedFormats, "none");
     parser.addArgument(timestampFormat);
 
+    description = "Indicates that the proxied authorization control (as " +
+                  "defined in RFC 4370) should be used to request that " +
+                  "operations be processed using an alternate authorization " +
+                  "identity.";
+    proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
+                                 description);
+    parser.addArgument(proxyAs);
+
     description = "Generate output in CSV format rather than a " +
                   "display-friendly format";
     csvFormat = new BooleanArgument('c', "csv", 1, description);
@@ -407,7 +423,8 @@ public final class ModRate
   @Override()
   public ResultCode doToolProcessing()
   {
-    // Create the value pattern for the entry DN.
+    // Create the value patterns for the target entry DN and proxied
+    // authorization identities.
     final ValuePattern dnPattern;
     try
     {
@@ -417,6 +434,25 @@ public final class ModRate
     {
       err("Unable to parse the entry DN value pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
+    }
+
+    final ValuePattern authzIDPattern;
+    if (proxyAs.isPresent())
+    {
+      try
+      {
+        authzIDPattern = new ValuePattern(proxyAs.getValue());
+      }
+      catch (ParseException pe)
+      {
+        err("Unable to parse the proxied authorization pattern:  ",
+            pe.getMessage());
+        return ResultCode.PARAM_ERROR;
+      }
+    }
+    else
+    {
+      authzIDPattern = null;
     }
 
 
@@ -535,8 +571,8 @@ public final class ModRate
       }
 
       threads[i] = new ModRateThread(i, connection, dnPattern, attrs, charSet,
-           valueLength.getValue(), random.nextLong(), barrier, modCounter,
-           modDurations, errorCounter, fixedRateBarrier);
+           valueLength.getValue(), authzIDPattern, random.nextLong(), barrier,
+           modCounter, modDurations, errorCounter, fixedRateBarrier);
       threads[i].start();
     }
 
