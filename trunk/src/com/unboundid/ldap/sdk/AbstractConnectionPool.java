@@ -60,6 +60,16 @@ public abstract class AbstractConnectionPool
 
 
   /**
+   * Indicates whether this connection pool has been closed.
+   *
+   * @return  {@code true} if this connection pool has been closed, or
+   *          {@code false} if not.
+   */
+  public abstract boolean isClosed();
+
+
+
+  /**
    * Retrieves an LDAP connection from the pool.
    *
    * @return  The LDAP connection taken from the pool.
