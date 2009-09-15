@@ -426,6 +426,17 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
+  public boolean isClosed()
+  {
+    return closed;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public LDAPConnection getConnection()
          throws LDAPException
   {

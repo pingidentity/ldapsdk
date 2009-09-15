@@ -186,6 +186,19 @@ public final class LDAPReadWriteConnectionPool
 
 
   /**
+   * Indicates whether this connection pool has been closed.
+   *
+   * @return  {@code true} if this connection pool has been closed, or
+   *          {@code false} if not.
+   */
+  public boolean isClosed()
+  {
+    return readPool.isClosed() || writePool.isClosed();
+  }
+
+
+
+  /**
    * Retrieves an LDAP connection from the read pool.
    *
    * @return  The LDAP connection taken from the read pool.
