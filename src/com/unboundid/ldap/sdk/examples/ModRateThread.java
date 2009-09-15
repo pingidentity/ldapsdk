@@ -33,7 +33,9 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
+import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ValuePattern;
 
@@ -83,6 +85,9 @@ final class ModRateThread
   // The thread that is actually performing the modifications.
   private final AtomicReference<Thread> modThread;
 
+  // The value pattern to use for proxied authorization.
+  private final ValuePattern authzID;
+
   // The value pattern to use for the entry DNs.
   private final ValuePattern entryDN;
 
@@ -102,6 +107,10 @@ final class ModRateThread
    * @param  charSet       The set of characters to include in the generated
    *                       values.
    * @param  valueLength   The length in bytes to use for the generated values.
+   * @param  authzID       The value pattern to use to generate authorization
+   *                       identities for use with the proxied authorization
+   *                       control.  It may be {@code null} if proxied
+   *                       authorization should not be used.
    * @param  randomSeed    The seed to use for the random number generator.
    * @param  startBarrier  A barrier used to coordinate starting between all of
    *                       the threads.
@@ -118,9 +127,9 @@ final class ModRateThread
   ModRateThread(final int threadNumber, final LDAPConnection connection,
                 final ValuePattern entryDN, final String[] attributes,
                 final byte[] charSet, final int valueLength,
-                final long randomSeed, final CyclicBarrier startBarrier,
-                final AtomicLong modCounter, final AtomicLong modDurations,
-                final AtomicLong errorCounter,
+                final ValuePattern authzID, final long randomSeed,
+                final CyclicBarrier startBarrier, final AtomicLong modCounter,
+                final AtomicLong modDurations, final AtomicLong errorCounter,
                 final FixedRateBarrier rateBarrier)
   {
     setName("ModRate Thread " + threadNumber);
@@ -131,6 +140,7 @@ final class ModRateThread
     this.attributes   = attributes;
     this.charSet      = charSet;
     this.valueLength  = valueLength;
+    this.authzID      = authzID;
     this.modCounter   = modCounter;
     this.modDurations = modDurations;
     this.errorCounter = errorCounter;
@@ -158,6 +168,7 @@ final class ModRateThread
     final Modification[] mods = new Modification[attributes.length];
     final byte[] valueBytes = new byte[valueLength];
     final ASN1OctetString[] values = new ASN1OctetString[1];
+    final ModifyRequest modifyRequest = new ModifyRequest("", mods);
 
     try
     {
@@ -166,6 +177,8 @@ final class ModRateThread
 
     while (! stopRequested.get())
     {
+      modifyRequest.setDN(entryDN.nextValue());
+
       for (int i=0; i < valueLength; i++)
       {
         valueBytes[i] = charSet[random.nextInt(charSet.length)];
@@ -177,6 +190,14 @@ final class ModRateThread
         mods[i] = new Modification(ModificationType.REPLACE, attributes[i],
                                    values);
       }
+      modifyRequest.setModifications(mods);
+
+      if (authzID != null)
+      {
+        modifyRequest.setControls(new ProxiedAuthorizationV2RequestControl(
+             authzID.nextValue()));
+      }
+
 
       // If we're trying for a specific target rate, then we might need to
       // wait until issuing the next modify.
@@ -188,7 +209,7 @@ final class ModRateThread
       final long startTime = System.nanoTime();
       try
       {
-        connection.modify(entryDN.nextValue(), mods);
+        connection.modify(modifyRequest);
       }
       catch (LDAPException le)
       {
