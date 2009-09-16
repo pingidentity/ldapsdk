@@ -22,11 +22,14 @@ package com.unboundid.util;
 
 
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static com.unboundid.util.Debug.*;
+import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
 
 
@@ -41,7 +44,8 @@ import static com.unboundid.util.UtilityMessages.*;
  *       without any modification, except that double opening or closing square
  *       brackets (i.e., "<CODE>[[</CODE>" or "<CODE>]]</CODE>") will be
  *       replaced with single opening or closing square brackets to distinguish
- *       them from the square brackets used in numeric ranges.</LI>
+ *       them from the square brackets used in numeric ranges or URL
+ *       references.</LI>
  *   <LI>Sequential numeric ranges consist of an opening square bracket, a
  *       numeric value to be used as the lower bound for the range, a colon, a
  *       second numeric value to be used as the upper bound for the range, an
@@ -57,6 +61,15 @@ import static com.unboundid.util.UtilityMessages.*;
  *       allowed by the {@link java.text.DecimalFormat} class to define how the
  *       resulting value should be formatted, and a closing square bracket to
  *       indicate the end of the range.</LI>
+ *   <LI>Strings read from a file specified by a given URL.  That file may be
+ *       contained on the local filesystem (using a URL like
+ *       "file:///tmp/mydata.txt") or read from a remote server via HTTP (using
+ *       a URL like "http://server.example.com/mydata.txt").  In either case,
+ *       the provided URL must not contain a closing square bracket character.
+ *       If this option is used, then that file must contain one value per line,
+ *       and its contents will be read into memory and values from the file will
+ *       be selected in a random order and used in place of the bracketed
+ *       URL.</LI>
  * </UL>
  * <BR>
  * It must be possible to represent all of the numeric values used in sequential
@@ -90,6 +103,13 @@ import static com.unboundid.util.UtilityMessages.*;
  *       values at random between 0 and 1000, inclusive, and values will be
  *       padded with leading zeroes as necessary so that they are represented
  *       using four digits.</LI>
+ *   <LI><CODE>[file:///tmp/mydata.txt]</CODE> -- A URL reference that will
+ *       cause randomly-selected lines from the specified local file to be used
+ *       in place of the bracketed range.</LI>
+ *   <LI><CODE>[http://server.example.com/tmp/mydata.txt]</CODE> -- A URL
+ *       reference that will cause randomly-selected lines from the specified
+ *       remote HTTP-accessible file to be used in place of the bracketed
+ *       range.</LI>
  * </UL>
  * <BR>
  * Examples of full value pattern strings include:
@@ -222,8 +242,8 @@ public final class ValuePattern
     }
 
     // Find the first occurrence of "[" and the corresponding "]".  The part
-    // before that will be a string.  Then parse out the numeric component, and
-    // parse the rest of the string after the "]".
+    // before that will be a string.  Then parse out the numeric or URL
+    // component, and parse the rest of the string after the "]".
     pos = s.indexOf('[');
     if (pos >= 0)
     {
@@ -244,7 +264,39 @@ public final class ValuePattern
         l.add(new StringValuePatternComponent(s.substring(0, pos)));
       }
 
-      l.add(parseNumericComponent(s.substring(pos+1, closePos), (o+pos+1), r));
+      final String bracketedToken = s.substring(pos+1, closePos);
+      if (bracketedToken.startsWith("file:/"))
+      {
+        final String path = bracketedToken.substring(5);
+        try
+        {
+          l.add(new FileValuePatternComponent(path, r.nextLong()));
+        }
+        catch (IOException ioe)
+        {
+          debugException(ioe);
+          throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
+               path, getExceptionMessage(ioe)), o+pos);
+        }
+      }
+      else if (bracketedToken.startsWith("http://"))
+      {
+        try
+        {
+          l.add(new HTTPValuePatternComponent(bracketedToken, r.nextLong()));
+        }
+        catch (IOException ioe)
+        {
+          debugException(ioe);
+          throw new ParseException(ERR_HTTP_VALUE_PATTERN_NOT_USABLE.get(
+               bracketedToken, getExceptionMessage(ioe)), o+pos);
+        }
+      }
+      else
+      {
+        l.add(parseNumericComponent(s.substring(pos+1, closePos), (o+pos+1),
+                                    r));
+      }
 
       if (closePos < (s.length() - 1))
       {
