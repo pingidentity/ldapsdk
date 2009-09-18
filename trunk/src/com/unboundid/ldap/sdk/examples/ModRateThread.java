@@ -37,6 +37,7 @@ import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.util.FixedRateBarrier;
+import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
 
 
@@ -61,6 +62,9 @@ final class ModRateThread
   // The value that will be updated with total duration of the modifications.
   private final AtomicLong modDurations;
 
+  // The result code for this thread.
+  private final AtomicReference<ResultCode> resultCode;
+
   // The set of characters to use for the generated values.
   private final byte[] charSet;
 
@@ -73,11 +77,11 @@ final class ModRateThread
   // The connection to use for the modifications.
   private final LDAPConnection connection;
 
+  // The result code counter to use for failed operations.
+  private final ResultCodeCounter rcCounter;
+
   // The random number generator to use for this thread.
   private final Random random;
-
-  // The result code for this thread.
-  private final AtomicReference<ResultCode> resultCode;
 
   // The names of the attributes to modify.
   private final String[] attributes;
@@ -120,6 +124,8 @@ final class ModRateThread
    *                       duration for all modifications.
    * @param  errorCounter  A value that will be used to keep track of the number
    *                       of errors encountered while processing.
+   * @param  rcCounter     The result code counter to use for keeping track
+   *                       of the result codes for failed operations.
    * @param  rateBarrier   The barrier to use for controlling the rate of
    *                       modifies.  {@code null} if no rate-limiting
    *                       should be used.
@@ -130,6 +136,7 @@ final class ModRateThread
                 final ValuePattern authzID, final long randomSeed,
                 final CyclicBarrier startBarrier, final AtomicLong modCounter,
                 final AtomicLong modDurations, final AtomicLong errorCounter,
+                final ResultCodeCounter rcCounter,
                 final FixedRateBarrier rateBarrier)
   {
     setName("ModRate Thread " + threadNumber);
@@ -144,6 +151,7 @@ final class ModRateThread
     this.modCounter   = modCounter;
     this.modDurations = modDurations;
     this.errorCounter = errorCounter;
+    this.rcCounter    = rcCounter;
     this.startBarrier = startBarrier;
     fixedRateBarrier  = rateBarrier;
 
@@ -214,7 +222,10 @@ final class ModRateThread
       catch (LDAPException le)
       {
         errorCounter.incrementAndGet();
-        resultCode.compareAndSet(null, le.getResultCode());
+
+        final ResultCode rc = le.getResultCode();
+        rcCounter.increment(rc);
+        resultCode.compareAndSet(null, rc);
       }
 
       modCounter.incrementAndGet();

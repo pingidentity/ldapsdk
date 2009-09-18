@@ -40,6 +40,7 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.FixedRateBarrier;
+import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
 
 
@@ -113,6 +114,9 @@ final class AuthRateThread
   // The connection to use for the searches.
   private final LDAPConnection searchConnection;
 
+  // The result code counter to use for failed operations.
+  private final ResultCodeCounter rcCounter;
+
   // The search request to generate.
   private final SearchRequest searchRequest;
 
@@ -151,6 +155,8 @@ final class AuthRateThread
    *                           total duration for all authentications.
    * @param  errorCounter      A value that will be used to keep track of the
    *                           number of errors encountered while searching.
+   * @param  rcCounter         The result code counter to use for keeping track
+   *                           of the result codes for failed operations.
    * @param  rateBarrier       The barrier to use for controlling the rate of
    *                           authorizations.  {@code null} if no rate-limiting
    *                           should be used.
@@ -162,6 +168,7 @@ final class AuthRateThread
                  final String authType, final CyclicBarrier startBarrier,
                  final AtomicLong authCounter, final AtomicLong authDurations,
                  final AtomicLong errorCounter,
+                 final ResultCodeCounter rcCounter,
                  final FixedRateBarrier rateBarrier)
   {
     setName("AuthRate Thread " + threadNumber);
@@ -175,6 +182,7 @@ final class AuthRateThread
     this.authCounter      = authCounter;
     this.authDurations    = authDurations;
     this.errorCounter     = errorCounter;
+    this.rcCounter        = rcCounter;
     this.startBarrier     = startBarrier;
     fixedRateBarrier      = rateBarrier;
 
@@ -230,7 +238,10 @@ final class AuthRateThread
       catch (LDAPException le)
       {
         errorCounter.incrementAndGet();
-        resultCode.compareAndSet(null, le.getResultCode());
+
+        final ResultCode rc = le.getResultCode();
+        rcCounter.increment(rc);
+        resultCode.compareAndSet(null, rc);
         continue;
       }
 
@@ -250,6 +261,7 @@ final class AuthRateThread
         {
           case 0:
             errorCounter.incrementAndGet();
+            rcCounter.increment(ResultCode.NO_RESULTS_RETURNED);
             resultCode.compareAndSet(null, ResultCode.NO_RESULTS_RETURNED);
             continue;
 
@@ -259,6 +271,7 @@ final class AuthRateThread
 
           default:
             errorCounter.incrementAndGet();
+            rcCounter.increment(ResultCode.MORE_RESULTS_TO_RETURN);
             resultCode.compareAndSet(null, ResultCode.MORE_RESULTS_TO_RETURN);
             continue;
         }
@@ -289,7 +302,10 @@ final class AuthRateThread
       catch (LDAPException le)
       {
         errorCounter.incrementAndGet();
-        resultCode.compareAndSet(null, le.getResultCode());
+
+        final ResultCode rc = le.getResultCode();
+        rcCounter.increment(rc);
+        resultCode.compareAndSet(null, rc);
       }
       finally
       {
