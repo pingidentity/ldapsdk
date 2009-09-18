@@ -41,7 +41,9 @@ import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
 import com.unboundid.util.HorizontalAlignment;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OutputFormat;
+import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ValuePattern;
@@ -122,6 +124,8 @@ import static com.unboundid.util.StaticUtils.*;
  *       using an alternate authorization identity.  In this case, the bind DN
  *       should be that of a user that has permission to use this control.  The
  *       authorization identity may be a value pattern.</LI>
+ *   <LI>"--suppressErrorResultCodes" -- Indicates that information about the
+ *       result codes for failed operations should not be displayed.</LI>
  *   <LI>"-c" or "--csv" -- Generate output in CSV format rather than a
  *       display-friendly format.</LI>
  * </UL>
@@ -140,6 +144,10 @@ public final class SearchRate
 
   // The argument used to indicate whether to generate output in CSV format.
   private BooleanArgument csvFormat;
+
+  // The argument used to indicate whether to suppress information about error
+  // result codes.
+  private BooleanArgument suppressErrorsArgument;
 
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
@@ -377,6 +385,12 @@ public final class SearchRate
                                  description);
     parser.addArgument(proxyAs);
 
+    description = "Indicates that information about the result codes for " +
+                  "failed operations should not be displayed.";
+    suppressErrorsArgument = new BooleanArgument(null,
+         "suppressErrorResultCodes", 1, description);
+    parser.addArgument(suppressErrorsArgument);
+
     description = "Generate output in CSV format rather than a " +
                   "display-friendly format";
     csvFormat = new BooleanArgument('c', "csv", 1, description);
@@ -585,10 +599,11 @@ public final class SearchRate
 
 
     // Create values to use for statistics collection.
-    final AtomicLong searchCounter   = new AtomicLong(0L);
-    final AtomicLong entryCounter    = new AtomicLong(0L);
-    final AtomicLong errorCounter    = new AtomicLong(0L);
-    final AtomicLong searchDurations = new AtomicLong(0L);
+    final AtomicLong        searchCounter   = new AtomicLong(0L);
+    final AtomicLong        entryCounter    = new AtomicLong(0L);
+    final AtomicLong        errorCounter    = new AtomicLong(0L);
+    final AtomicLong        searchDurations = new AtomicLong(0L);
+    final ResultCodeCounter rcCounter       = new ResultCodeCounter();
 
 
     // Determine the length of each interval in milliseconds.
@@ -615,7 +630,8 @@ public final class SearchRate
 
       threads[i] = new SearchRateThread(i, connection, dnPattern, scope,
            filterPattern, attrs, authzIDPattern, barrier, searchCounter,
-           entryCounter, searchDurations, errorCounter, fixedRateBarrier);
+           entryCounter, searchDurations, errorCounter, rcCounter,
+           fixedRateBarrier);
       threads[i].start();
     }
 
@@ -725,6 +741,17 @@ public final class SearchRate
         lastNumEntries  = numEntries;
         lastNumErrors   = numErrors;
         lastDuration    = totalDuration;
+      }
+
+      final List<ObjectPair<ResultCode,Long>> rcCounts =
+           rcCounter.getCounts(true);
+      if ((! suppressErrorsArgument.isPresent()) && (! rcCounts.isEmpty()))
+      {
+        err("\tError Results:");
+        for (final ObjectPair<ResultCode,Long> p : rcCounts)
+        {
+          err("\t", p.getFirst().getName(), ":  ", p.getSecond());
+        }
       }
 
       lastEndTime = endTime;

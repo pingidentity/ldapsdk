@@ -40,6 +40,7 @@ import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.util.FixedRateBarrier;
+import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
 
 
@@ -73,6 +74,9 @@ final class SearchRateThread
   // The value that will be updated with total duration of the searches.
   private final AtomicLong searchDurations;
 
+  // The thread that is actually performing the searches.
+  private final AtomicReference<Thread> searchThread;
+
   // The connection to use for the searches.
   private final LDAPConnection connection;
 
@@ -82,11 +86,11 @@ final class SearchRateThread
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
 
+  // The result code counter to use for failed operations.
+  private final ResultCodeCounter rcCounter;
+
   // The search request to generate.
   private final SearchRequest searchRequest;
-
-  // The thread that is actually performing the searches.
-  private final AtomicReference<Thread> searchThread;
 
   // The value pattern to use for proxied authorization.
   private final ValuePattern authzID;
@@ -126,6 +130,8 @@ final class SearchRateThread
    *                          total duration for all searches.
    * @param  errorCounter     A value that will be used to keep track of the
    *                          number of errors encountered while searching.
+   * @param  rcCounter        The result code counter to use for keeping track
+   *                          of the result codes for failed operations.
    * @param  rateBarrier      The barrier to use for controlling the rate of
    *                          searches.  {@code null} if no rate-limiting
    *                          should be used.
@@ -139,6 +145,7 @@ final class SearchRateThread
                    final AtomicLong entryCounter,
                    final AtomicLong searchDurations,
                    final AtomicLong errorCounter,
+                   final ResultCodeCounter rcCounter,
                    final FixedRateBarrier rateBarrier)
   {
     setName("SearchRate Thread " + threadNumber);
@@ -152,6 +159,7 @@ final class SearchRateThread
     this.entryCounter    = entryCounter;
     this.searchDurations = searchDurations;
     this.errorCounter    = errorCounter;
+    this.rcCounter       = rcCounter;
     this.startBarrier    = startBarrier;
     fixedRateBarrier     = rateBarrier;
 
@@ -196,7 +204,10 @@ final class SearchRateThread
       catch (LDAPException le)
       {
         errorCounter.incrementAndGet();
-        resultCode.compareAndSet(null, le.getResultCode());
+
+        final ResultCode rc = le.getResultCode();
+        rcCounter.increment(rc);
+        resultCode.compareAndSet(null, rc);
         continue;
       }
 
@@ -218,7 +229,10 @@ final class SearchRateThread
       {
         errorCounter.incrementAndGet();
         entryCounter.addAndGet(lse.getEntryCount());
-        resultCode.compareAndSet(null, lse.getResultCode());
+
+        final ResultCode rc = lse.getResultCode();
+        rcCounter.increment(rc);
+        resultCode.compareAndSet(null, rc);
       }
 
       searchCounter.incrementAndGet();
