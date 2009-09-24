@@ -46,31 +46,38 @@ import static com.unboundid.util.Validator.*;
  *   LDIFEntrySource entrySource =
  *        new LDIFEntrySource(new LDIFReader(pathToLDIFFile));
  *
- *   while (true)
+ *   try
  *   {
- *     try
+ *     while (true)
  *     {
- *       Entry entry = entrySource.nextEntry();
- *       if (entry == null)
+ *       try
  *       {
- *         // There are no more entries to be read.
- *         break;
+ *         Entry entry = entrySource.nextEntry();
+ *         if (entry == null)
+ *         {
+ *           // There are no more entries to be read.
+ *           break;
+ *         }
+ *         else
+ *           {
+ *           // Do something with the entry here.
+ *         }
  *       }
- *       else
+ *       catch (EntrySourceException e)
  *       {
- *         // Do something with the entry here.
+ *         // Some kind of problem was encountered (e.g., a malformed entry
+ *         // found in the LDIF file, or an I/O error when trying to read).  See
+ *         // if we can continue reading entries.
+ *         if (! e.mayContinueReading())
+ *         {
+ *           break;
+ *         }
  *       }
  *     }
- *     catch (EntrySourceException e)
- *     {
- *       // Some kind of problem was encountered (e.g., a malformed entry found
- *       // in the LDIF file, or an I/O error when trying to read).  See if we
- *       // can continue reading entries.
- *       if (! e.mayContinueReading())
- *       {
- *         break;
- *       }
- *     }
+ *   }
+ *   finally
+ *   {
+ *     entrySource.close();
  *   }
  * </PRE>
  */
