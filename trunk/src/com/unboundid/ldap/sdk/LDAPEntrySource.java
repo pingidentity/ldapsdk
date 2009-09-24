@@ -66,35 +66,42 @@ import static com.unboundid.util.Validator.*;
  *   LDAPEntrySource entrySource = new LDAPEntrySource(connection,
  *        searchRequest, false);
  *
- *   while (true)
+ *   try
  *   {
- *     try
+ *     while (true)
  *     {
- *       Entry entry = entrySource.nextEntry();
- *       if (entry == null)
+ *       try
  *       {
- *         // There are no more entries to be read.
- *         break;
+ *         Entry entry = entrySource.nextEntry();
+ *         if (entry == null)
+ *         {
+ *           // There are no more entries to be read.
+ *           break;
+ *         }
+ *         else
+ *         {
+ *           // Do something with the entry here.
+ *         }
  *       }
- *       else
+ *       catch (SearchResultReferenceEntrySourceException e)
  *       {
- *         // Do something with the entry here.
+ *         // The directory server returned a search result reference.
+ *         SearchResultReference searchReference = e.getSearchReference();
+ *       }
+ *       catch (EntrySourceException e)
+ *       {
+ *         // Some kind of problem was encountered (e.g., the connection is no
+ *         // longer valid).  See if we can continue reading entries.
+ *         if (! e.mayContinueReading())
+ *         {
+ *           break;
+ *         }
  *       }
  *     }
- *     catch (SearchResultReferenceEntrySourceException e)
- *     {
- *       // The directory server returned a search result reference.
- *       SearchResultReference searchReference = e.getSearchReference();
- *     }
- *     catch (EntrySourceException e)
- *     {
- *       // Some kind of problem was encountered (e.g., the connection is no
- *       // longer valid).  See if we can continue reading entries.
- *       if (! e.mayContinueReading())
- *       {
- *         break;
- *       }
- *     }
+ *   }
+ *   finally
+ *   {
+ *     entrySource.close();
  *   }
  * </PRE>
  */
