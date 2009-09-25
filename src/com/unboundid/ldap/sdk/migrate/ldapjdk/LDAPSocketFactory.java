@@ -33,6 +33,13 @@ import com.unboundid.util.ThreadSafetyLevel;
 /**
  * This interface defines a method that can be used to construct the socket to
  * use when communicating with the directory server.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, the standard Java socket factory
+ * may be used directly without the need for the {@code LDAPSocketFactory}
+ * interface.
  */
 @Extensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)

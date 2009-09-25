@@ -35,6 +35,12 @@ import static com.unboundid.util.StaticUtils.*;
 
 /**
  * This class provides a set of utility methods for working with LDAP DNs.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, the {@link DN} class should be
+ * used instead.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

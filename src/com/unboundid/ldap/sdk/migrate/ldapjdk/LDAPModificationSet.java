@@ -36,6 +36,12 @@ import com.unboundid.util.ThreadSafetyLevel;
 /**
  * This class provides a data structure that represents a set of LDAP
  * modifications.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, an array or collection of
+ * {@link com.unboundid.ldap.sdk.Modification} objects should be used instead.
  */
 @NotExtensible()
 @Mutable()

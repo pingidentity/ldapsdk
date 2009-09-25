@@ -41,6 +41,12 @@ import static com.unboundid.util.StaticUtils.*;
  * This class provides a data structure that holds information about an LDAP
  * attribute, including an attribute description (a base name or OID and
  * optional set of options) and zero or more values.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, the {@link Attribute} class should
+ * be used instead.
  */
 @NotExtensible()
 @Mutable()

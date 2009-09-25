@@ -40,6 +40,13 @@ import static com.unboundid.util.StaticUtils.*;
  * This class provides an {@link LDAPSocketFactory} implementation that wraps a
  * standard Java socket factory to use when creating sockets.  It will also
  * appear as a standard Java socket factory.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, the standard Java socket factory
+ * may be used directly without the need for the {@code LDAPSocketFactory}
+ * interface.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
