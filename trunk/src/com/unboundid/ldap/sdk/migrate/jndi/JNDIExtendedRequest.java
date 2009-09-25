@@ -37,6 +37,8 @@ import com.unboundid.util.ThreadSafetyLevel;
 /**
  * This class provides a mechanism for converting between an LDAP extended
  * request as used in JNDI and one used in the UnboundID LDAP SDK for Java.
+ *
+ * @see  ExtendedRequest
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

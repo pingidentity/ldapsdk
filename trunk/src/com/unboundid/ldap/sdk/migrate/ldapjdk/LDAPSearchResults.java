@@ -50,6 +50,12 @@ import static com.unboundid.util.Debug.*;
 /**
  * This class provides a data structure that provides access to data returned
  * in response to a search operation.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, the {@link SearchResult} class
+ * should be used instead.
  */
 @Mutable()
 @NotExtensible()

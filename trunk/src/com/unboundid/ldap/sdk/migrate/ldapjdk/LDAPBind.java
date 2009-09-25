@@ -31,6 +31,13 @@ import com.unboundid.util.ThreadSafetyLevel;
 /**
  * This interface defines a method that can be used to bind to a server when
  * following a referral.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, the
+ * {@link com.unboundid.ldap.sdk.ReferralConnector} class should be used
+ * instead.
  */
 @Extensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)

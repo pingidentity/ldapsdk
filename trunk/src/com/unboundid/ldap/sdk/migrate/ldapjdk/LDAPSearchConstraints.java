@@ -32,6 +32,13 @@ import com.unboundid.util.ThreadSafetyLevel;
 /**
  * This class provides a data structure which may be used to define a set of
  * constraints that may be used when processing search operations.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, the
+ * {@link com.unboundid.ldap.sdk.LDAPConnectionOptions} class should be used
+ * instead.
  */
 @NotExtensible()
 @Mutable()

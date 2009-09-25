@@ -35,6 +35,12 @@ import com.unboundid.util.ThreadSafetyLevel;
 /**
  * This class defines an exception that may be thrown if an error occurs during
  * LDAP-related processing.
+ * <BR><BR>
+ * This class is primarily intended to be used in the process of updating
+ * applications which use the Netscape Directory SDK for Java to switch to or
+ * coexist with the UnboundID LDAP SDK for Java.  For applications not written
+ * using the Netscape Directory SDK for Java, the
+ * {@link com.unboundid.ldap.sdk.LDAPException} class should be used instead.
  */
 @NotExtensible()
 @NotMutable()
