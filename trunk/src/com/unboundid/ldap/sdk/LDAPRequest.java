@@ -204,7 +204,7 @@ public abstract class LDAPRequest
    */
   public final long getResponseTimeoutMillis(final LDAPConnection connection)
   {
-    if (responseTimeout < 0L)
+    if ((responseTimeout < 0L) && (connection != null))
     {
       return connection.getConnectionOptions().getResponseTimeoutMillis();
     }
@@ -217,14 +217,27 @@ public abstract class LDAPRequest
 
 
   /**
-   * Updates the response timeout for this request.  This must only be called by
-   * {@link UpdatableLDAPRequest}.
+   * Specifies the maximum length of time in milliseconds that processing on
+   * this operation should be allowed to block while waiting for a response
+   * from the server.  A value of zero indicates that no timeout should be
+   * enforced.  A value that is less than zero indicates that the default
+   * response timeout for the underlying connection should be used.
    *
-   * @param  responseTimeout  The response timeout for this request.
+   * @param  responseTimeout  The maximum length of time in milliseconds that
+   *                          processing on this operation should be allowed to
+   *                          block while waiting for a response from the
+   *                          server.
    */
-  final void setResponseTimeoutMillisInternal(final long responseTimeout)
+  public final void setResponseTimeoutMillis(final long responseTimeout)
   {
-    this.responseTimeout = responseTimeout;
+    if (responseTimeout < 0L)
+    {
+      this.responseTimeout = -1L;
+    }
+    else
+    {
+      this.responseTimeout = responseTimeout;
+    }
   }
 
 

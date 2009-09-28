@@ -487,8 +487,10 @@ public final class PLAINBindRequest
   @Override()
   public PLAINBindRequest duplicate(final Control[] controls)
   {
-    return new PLAINBindRequest(authenticationID, authorizationID, password,
-                                controls);
+    final PLAINBindRequest bindRequest = new PLAINBindRequest(authenticationID,
+         authorizationID, password, controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return bindRequest;
   }
 
 

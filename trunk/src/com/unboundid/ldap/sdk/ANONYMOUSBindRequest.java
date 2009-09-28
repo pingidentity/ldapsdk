@@ -219,7 +219,10 @@ public final class ANONYMOUSBindRequest
   @Override()
   public ANONYMOUSBindRequest duplicate(final Control[] controls)
   {
-    return new ANONYMOUSBindRequest(traceString, controls);
+    final ANONYMOUSBindRequest bindRequest =
+         new ANONYMOUSBindRequest(traceString, controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return bindRequest;
   }
 
 

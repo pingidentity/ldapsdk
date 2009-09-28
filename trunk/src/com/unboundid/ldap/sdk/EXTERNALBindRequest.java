@@ -175,7 +175,9 @@ public final class EXTERNALBindRequest
   @Override()
   public EXTERNALBindRequest duplicate(final Control[] controls)
   {
-    return new EXTERNALBindRequest(controls);
+    final EXTERNALBindRequest bindRequest = new EXTERNALBindRequest(controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return bindRequest;
   }
 
 

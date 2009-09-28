@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -131,68 +130,28 @@ final class LDAPConnectionInternals
 
     asn1Buffers = new ThreadLocal<ASN1Buffer>();
 
-    Socket s = null;
-    if (timeout > 0)
+    try
     {
-      // Some socket factories (e.g., SSL socket factories) may not allow
-      // unconnected sockets.  In those cases, we'll do this without the
-      // timeout.
-      boolean timeoutAllowed = true;
-      try
-      {
-        s = socketFactory.createSocket();
-      }
-      catch (Exception e)
-      {
-        debugException(Level.FINEST, e);
-        timeoutAllowed = false;
-      }
-
-      if (timeoutAllowed)
-      {
-        if (options.getReceiveBufferSize() > 0)
-        {
-          s.setReceiveBufferSize(options.getReceiveBufferSize());
-        }
-
-        if (options.getSendBufferSize() > 0)
-        {
-          s.setSendBufferSize(options.getSendBufferSize());
-        }
-
-        s.connect(new InetSocketAddress(host, port), timeout);
-      }
-      else
-      {
-        s = socketFactory.createSocket(host, port);
-
-        if (options.getReceiveBufferSize() > 0)
-        {
-          s.setReceiveBufferSize(options.getReceiveBufferSize());
-        }
-
-        if (options.getSendBufferSize() > 0)
-        {
-          s.setSendBufferSize(options.getSendBufferSize());
-        }
-      }
+      final ConnectThread connectThread =
+           new ConnectThread(socketFactory, host, port);
+      connectThread.start();
+      socket = connectThread.getConnectedSocket(timeout);
     }
-    else
+    catch (LDAPException le)
     {
-      s = socketFactory.createSocket(host, port);
-
-      if (options.getReceiveBufferSize() > 0)
-      {
-        s.setReceiveBufferSize(options.getReceiveBufferSize());
-      }
-
-      if (options.getSendBufferSize() > 0)
-      {
-        s.setSendBufferSize(options.getSendBufferSize());
-      }
+      debugException(le);
+      throw new IOException(le.getMessage());
     }
 
-    socket = s;
+    if (options.getReceiveBufferSize() > 0)
+    {
+      socket.setReceiveBufferSize(options.getReceiveBufferSize());
+    }
+
+    if (options.getSendBufferSize() > 0)
+    {
+      socket.setSendBufferSize(options.getSendBufferSize());
+    }
 
     try
     {

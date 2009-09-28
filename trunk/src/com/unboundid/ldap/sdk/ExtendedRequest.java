@@ -512,7 +512,9 @@ public class ExtendedRequest
    */
   public ExtendedRequest duplicate(final Control[] controls)
   {
-    return new ExtendedRequest(oid, value, controls);
+    final ExtendedRequest r = new ExtendedRequest(oid, value, controls);
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return r;
   }
 
 

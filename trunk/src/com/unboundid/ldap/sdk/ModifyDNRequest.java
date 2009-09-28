@@ -953,6 +953,8 @@ public final class ModifyDNRequest
       r.setFollowReferrals(followReferralsInternal());
     }
 
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+
     return r;
   }
 

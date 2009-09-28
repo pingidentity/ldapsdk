@@ -892,8 +892,11 @@ public final class GSSAPIBindRequest
   {
     try
     {
-      return new GSSAPIBindRequest(authenticationID, authorizationID, password,
-                                   realm, kdcAddress, configFilePath, controls);
+      final GSSAPIBindRequest bindRequest =
+           new GSSAPIBindRequest(authenticationID, authorizationID, password,
+                realm, kdcAddress, configFilePath, controls);
+      bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+      return bindRequest;
     }
     catch (Exception e)
     {
