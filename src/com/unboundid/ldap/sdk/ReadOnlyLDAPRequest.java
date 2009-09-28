@@ -103,7 +103,9 @@ public interface ReadOnlyLDAPRequest
    * the server.
    *
    * @param  connection  The connection to use in order to retrieve the default
-   *                     value, if appropriate.  It must not be {@code null}.
+   *                     value, if appropriate.  It may be {@code null} to
+   *                     retrieve the request-specific timeout (which may be
+   *                     negative if no response-specific timeout has been set).
    *
    * @return  The maximum length of time in milliseconds that processing on this
    *          operation should be allowed to block while waiting for a response

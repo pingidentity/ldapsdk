@@ -600,7 +600,10 @@ public final class SimpleBindRequest
   @Override()
   public SimpleBindRequest duplicate(final Control[] controls)
   {
-    return new SimpleBindRequest(bindDN, password, controls);
+    final SimpleBindRequest bindRequest =
+         new SimpleBindRequest(bindDN, password, controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return bindRequest;
   }
 
 

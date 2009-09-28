@@ -700,8 +700,11 @@ public final class PasswordModifyExtendedRequest
     final byte[] newPWBytes =
          (newPassword == null) ? null : newPassword.getValue();
 
-    return new PasswordModifyExtendedRequest(userIdentity, oldPWBytes,
-                                             newPWBytes, controls);
+    final PasswordModifyExtendedRequest r =
+         new PasswordModifyExtendedRequest(userIdentity, oldPWBytes,
+              newPWBytes, controls);
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return r;
   }
 
 

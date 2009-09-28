@@ -511,8 +511,11 @@ public final class DIGESTMD5BindRequest
   @Override()
   public DIGESTMD5BindRequest duplicate(final Control[] controls)
   {
-    return new DIGESTMD5BindRequest(authenticationID, authorizationID, password,
-                                    realm, controls);
+    final DIGESTMD5BindRequest bindRequest =
+         new DIGESTMD5BindRequest(authenticationID, authorizationID, password,
+              realm, controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return bindRequest;
   }
 
 

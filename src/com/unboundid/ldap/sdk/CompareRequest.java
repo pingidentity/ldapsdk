@@ -915,6 +915,8 @@ public final class CompareRequest
       r.setFollowReferrals(followReferralsInternal());
     }
 
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+
     return r;
   }
 

@@ -1181,6 +1181,8 @@ public final class AddRequest
       r.setFollowReferrals(followReferralsInternal());
     }
 
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+
     return r;
   }
 

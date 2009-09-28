@@ -291,7 +291,10 @@ public final class CancelExtendedRequest
   @Override()
   public CancelExtendedRequest duplicate(final Control[] controls)
   {
-    return new CancelExtendedRequest(targetMessageID, controls);
+    final CancelExtendedRequest cancelRequest =
+         new CancelExtendedRequest(targetMessageID, controls);
+    cancelRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return cancelRequest;
   }
 
 

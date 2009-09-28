@@ -1869,6 +1869,8 @@ public final class SearchRequest
       r.setFollowReferrals(followReferralsInternal());
     }
 
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+
     return r;
   }
 

@@ -405,7 +405,10 @@ public final class CRAMMD5BindRequest
   @Override()
   public CRAMMD5BindRequest duplicate(final Control[] controls)
   {
-    return new CRAMMD5BindRequest(authenticationID, password, controls);
+    final CRAMMD5BindRequest bindRequest =
+         new CRAMMD5BindRequest(authenticationID, password, controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return bindRequest;
   }
 
 

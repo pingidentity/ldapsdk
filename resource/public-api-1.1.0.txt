@@ -430,7 +430,7 @@
 @NotExtensible class com.unboundid.ldap.sdk.UpdatableLDAPRequest method public void clearControls()
 @NotExtensible class com.unboundid.ldap.sdk.UpdatableLDAPRequest method public void setControls(com.unboundid.ldap.sdk.Control...)
 @NotExtensible class com.unboundid.ldap.sdk.UpdatableLDAPRequest method public void setControls(java.util.List<com.unboundid.ldap.sdk.Control>)
-@NotExtensible class com.unboundid.ldap.sdk.UpdatableLDAPRequest method public void setResponseTimeoutMillis(long)
+@Extensible class com.unboundid.ldap.sdk.LDAPRequest method public final void setResponseTimeoutMillis(long)
 @NotExtensible class com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPAttribute constructor public com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPAttribute(com.unboundid.ldap.sdk.Attribute)
 @NotExtensible class com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPAttribute constructor public com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPAttribute(com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPAttribute)
 @NotExtensible class com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPAttribute constructor public com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPAttribute(java.lang.String)

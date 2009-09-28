@@ -258,7 +258,10 @@ public final class StartTLSExtendedRequest
   {
     try
     {
-      return new StartTLSExtendedRequest(sslContext, controls);
+      final StartTLSExtendedRequest r =
+           new StartTLSExtendedRequest(sslContext, controls);
+      r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+      return r;
     }
     catch (Exception e)
     {

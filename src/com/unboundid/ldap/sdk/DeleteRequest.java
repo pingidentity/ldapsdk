@@ -601,6 +601,8 @@ public final class DeleteRequest
       r.setFollowReferrals(followReferralsInternal());
     }
 
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+
     return r;
   }
 

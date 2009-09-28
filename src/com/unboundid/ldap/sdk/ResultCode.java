@@ -1874,6 +1874,7 @@ public final class ResultCode
       case LOCAL_ERROR_INT_VALUE:
       case ENCODING_ERROR_INT_VALUE:
       case DECODING_ERROR_INT_VALUE:
+      case TIMEOUT_INT_VALUE:
       case NO_MEMORY_INT_VALUE:
       case CONNECT_ERROR_INT_VALUE:
         return false;

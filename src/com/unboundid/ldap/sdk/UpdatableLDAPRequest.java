@@ -335,30 +335,4 @@ public abstract class UpdatableLDAPRequest
     setControlsInternal(newControls);
     return null;
   }
-
-
-
-  /**
-   * Specifies the maximum length of time in milliseconds that processing on
-   * this operation should be allowed to block while waiting for a response
-   * from the server.  A value of zero indicates that no timeout should be
-   * enforced.  A value that is less than zero indicates that the default
-   * response timeout for the underlying connection should be used.
-   *
-   * @param  responseTimeout  The maximum length of time in milliseconds that
-   *                          processing on this operation should be allowed to
-   *                          block while waiting for a response from the
-   *                          server.
-   */
-  public final void setResponseTimeoutMillis(final long responseTimeout)
-  {
-    if (responseTimeout < 0L)
-    {
-      setResponseTimeoutMillisInternal(-1L);
-    }
-    else
-    {
-      setResponseTimeoutMillisInternal(responseTimeout);
-    }
-  }
 }

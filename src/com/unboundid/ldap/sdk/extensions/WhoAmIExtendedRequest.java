@@ -181,7 +181,9 @@ public final class WhoAmIExtendedRequest
   @Override()
   public WhoAmIExtendedRequest duplicate(final Control[] controls)
   {
-    return new WhoAmIExtendedRequest(controls);
+    final WhoAmIExtendedRequest r = new WhoAmIExtendedRequest(controls);
+    r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return r;
   }
 
 
