@@ -1122,12 +1122,12 @@ public final class SearchRequest
       int numEntries    = 0;
       int numReferences = 0;
       ResultCode intermediateResultCode = ResultCode.SUCCESS;
+      final long responseTimeout = getResponseTimeoutMillis(connection);
       while (true)
       {
         final LDAPResponse response;
         try
         {
-          final long responseTimeout = getResponseTimeoutMillis(connection);
           if (responseTimeout > 0)
           {
             response =
@@ -1149,9 +1149,10 @@ public final class SearchRequest
         {
           final SearchResult searchResult =
                new SearchResult(messageID, ResultCode.TIMEOUT,
-                    ERR_CLIENT_TIMEOUT.get(connection.getHostPort()), null,
-                    null, entryList, referenceList, numEntries, numReferences,
-                    null);
+                    ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
+                         connection.getHostPort()),
+                    null, null, entryList, referenceList, numEntries,
+                    numReferences, null);
           throw new LDAPSearchException(searchResult);
         }
 
@@ -1385,10 +1386,11 @@ public final class SearchRequest
 
 
     // Set the appropriate timeout on the socket.
+    final long responseTimeout = getResponseTimeoutMillis(connection);
     try
     {
       connection.getConnectionInternals().getSocket().setSoTimeout(
-           (int) getResponseTimeoutMillis(connection));
+           (int) responseTimeout);
     }
     catch (Exception e)
     {
@@ -1425,7 +1427,8 @@ public final class SearchRequest
       if (response == null)
       {
         throw new LDAPException(ResultCode.TIMEOUT,
-             ERR_CLIENT_TIMEOUT.get(connection.getHostPort()));
+             ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
+                  connection.getHostPort()));
       }
       else if (response instanceof ConnectionClosedResponse)
       {
