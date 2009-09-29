@@ -809,8 +809,9 @@ public final class ModifyRequest
   {
     if (response == null)
     {
+      final long waitTime = System.currentTimeMillis() - requestTime;
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_CLIENT_TIMEOUT.get(connection.getHostPort()));
+           ERR_MODIFY_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumModifyResponses(
