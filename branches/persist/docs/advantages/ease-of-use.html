@@ -1,0 +1,446 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Ease of Use</h2>
+
+              <p>
+                The UnboundID LDAP SDK for Java was specifically designed to be very user-friendly.
+                We have a great deal of experience working with real-world directory environments
+                and writing directory-enabled applications, and as a result we are well aware of
+                the challenges and frustrations that may be encountered when working with other
+                LDAP SDKs.
+              </p>
+
+              <p>
+                The primary reason that JNDI is commonly-used for directory-enabled applications is
+                that it is part of the core Java platform.  In fact, that is perhaps the only
+                reason for its popularity, since the API itself is absolutely horrible.  It is very
+                abstract (in fact, it is intended for use in communicating with a number of
+                different types of systems, so it really isn't an LDAP API as much as an API that
+                happens to provide LDAP support), which means that performing simple tasks often
+                require significantly more code than should be required, and that it uses
+                terminology that can be extremely confusing (e.g., in JNDI, the "bind" method is
+                used to add an entry to the directory rather than performing an LDAP bind
+                operation).  Further, the abstract nature of the API may make some tasks either
+                difficult (e.g., performing an LDAP compare operation) or impossible (e.g.,
+                retrieving the result code from an operation).  Finally, JNDI provides virtually no
+                support for anything but the most basic functionality.  It provides no facilities
+                for interacting with data in LDIF form, or for performing ASN.1 encoding/decoding
+                needed to support development of custom controls and extensions.
+              </p>
+
+              <p>
+                The Netscape Directory SDK for Java is LDAP-centric and therefore much more
+                user-friendly than JNDI.  It doesn't suffer from the terminology conflicts that
+                plagues JNDI, and it does offer support for additional functionality like parsing
+                the server schema, LDIF processing, ASN.1 processing, and base64 processing.  The
+                primary concerns related to ease of use of the Netscape Directory SDK for Java
+                aren't really issues of tasks being difficult to perform but rather that many
+                common tasks are not as convenient as they could be.
+              </p>
+
+              <p>
+                The UnboundID LDAP SDK for Java is rather similar to the Netscape Directory SDK
+                for Java, and developers familiar with the Netscape SDK should find it easy to
+                switch to the UnboundID offering.  However, many kinds of tasks can be performed
+                in the UnboundID LDAP SDK for Java more conveniently and with less effort.
+              </p>
+
+              <p>
+                Perhaps the best way to illustrate the relative ease of use of these APIs is by
+                providing a few examples.  The rest of this page will demonstrate the code required
+                to perform common tasks in JNDI, the Netscape Directory SDK for Java, and the
+                UnboundID LDAP SDK for Java.  For the sake of simplicity, exception handling has been
+                omitted from all examples.
+              </p>
+
+              <p></p>
+              <h3>Establishing a Connection</h3>
+
+              <p>
+                This section will demonstrate the process for establishing a simple LDAPv3
+                connection (with no SSL or other security) and performing a simple bind operation.
+              </p>
+
+              <p></p>
+              <b>JNDI</b>
+
+              <p>
+                In JNDI, when you wish to establish a connection to an LDAP directory server, you
+                should create an <tt>InitialLdapContext</tt> object.  This can be quite a daunting
+                task, because the only way that you have to specify the target server, whether or
+                not to use SSL or some other security mechanism, whether or not to authenticate,
+                etc. is by providing a set of properties.  There aren't any convenience methods to
+                help you figure out what those properties might be (although there are constants in
+                some cases), so you have to look through the documentation to try to find them, and
+                in fact some of these properties and/or values use "com.sun.*" prefixes, so it
+                isn't even clear whether they are safe to use in code that might run on Java
+                implementations provided by vendors other than Sun.
+              </p>
+
+              <p>
+                Here is an example of the work required to do this in JNDI:
+              </p>
+
+              <pre>
+Properties env = new Properties();
+env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+env.put(Context.PROVIDER_URL, "ldap://server.example.com:389/");
+env.put(Context.SECURITY_PRINCIPAL,
+        "uid=test.user,ou=People,dc=example,dc=com");
+env.put(Context.SECURITY_CREDENTIALS, "password");
+env.put("java.naming.ldap.version", "3");
+
+LdapContext connection = new InitialLdapContext(env, null);
+</pre>
+
+              <p></p>
+              <b>Netscape Directory SDK for Java</b>
+
+              <p>
+                The Netscape Directory SDK for Java is significantly simpler to use than JNDI
+                because there is no need to worry about figuring out what properties need to be
+                set.  The following example demonstrates the work required to create an
+                authenticated connection using the Netscape Directory SDK for Java:
+              </p>
+
+              <pre>
+LDAPConnection connection = new LDAPConnection();
+connection.connect(3, "server.example.com", 389,
+                   "uid=test.user,ou=People,dc=example,dc=com", "password");
+</pre>
+
+              <p>
+                Note the inclusion of the "3" as the first argument to the <tt>connect</tt> method.
+                This is very important (although unfortunately very easy to overlook, since there
+                is also a version of the <tt>connect</tt> method without the version but with all
+                of the other arguments) because by default the Netscape Directory SDK for Java
+                uses LDAPv2 and you must override that if you want to use LDAPv3.  Otherwise, you
+                may find strange behavior in your application (e.g., not getting response controls
+                when you expect them, or not being able to use extended operations, since LDAPv2
+                doesn't support them).
+              </p>
+
+              <p></p>
+              <b>UnboundID LDAP SDK for Java</b>
+
+              <p>
+                The process for establishing a connection using simple authentication in the
+                UnboundID LDAP SDK for Java is similar to the process for performing the same
+                operation in the Netscape Directory SDK for Java, but it also provides the
+                ability to establish the connection and perform simple authentication in the
+                constructor so it is not necessary to perform as two separate steps (although you
+                can separate them if you wish to do so, e.g., to be able to get response controls
+                from the bind operation).  Further, there is no need to explicitly request LDAPv3,
+                since the UnboundID LDAP SDK for Java uses LDAPv3 by default.
+              </p>
+
+              <pre>
+LDAPConnection connection = new LDAPConnection("server.example.com", 389,
+     "uid=test.user,ou=People,dc=example,dc=com", "password");
+</pre>
+
+              <p></p>
+              <h3>Performing a Search Operation</h3>
+
+              <p>
+                This section will demonstrate the process for performing a search to find a user
+                entry and then retrieve that user's e-mail address from the <tt>mail</tt>
+                attribute.  In each of these cases, it will be assumed that only one entry will be
+                returned, so we don't need to worry about the possibility of multiple entries
+                matching the search criteria.
+              </p>
+
+              <p></p>
+              <b>JNDI</b>
+
+              <p>
+                The JNDI "<tt>search</tt>" methods may be used to perform searches in the
+                directory, and the simplest of these in most cases is the variant that takes string
+                representations of the base DN and filter and a <tt>SearchControls</tt> object.
+                This is another case where JNDI suffers from a poor choice of terminology because
+                "controls" in this case does not have anything at all to do with LDAP controls but
+                rather with a set of miscellaneous options used to perform the search (e.g., the
+                search scope, attributes to return, size and time limits, etc.).
+              </p>
+
+              <p>
+                Something else that directory developers may find confusing is that the methods
+                used to get attribute values have a generic return type of <tt>Object</tt>.  It is
+                not clear from the JNDI specification whether these objects will always be strings
+                or whether they may be other types of objects.  Further, it is not necessarily
+                clear if it is possible to obtain the values in any other form (e.g., the raw bytes
+                that make up the value).
+              </p>
+
+              <p>
+                The following code illustrates the process for performing the desired search
+                processing in JNDI:
+              </p>
+
+              <pre>
+SearchControls searchControls = new SearchControls();
+searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+searchControls.setReturningAttributes(new String[] { "mail" });
+
+String mail = null;
+NamingEnumeration&lt;SearchResult&gt; results =
+     connection.search("dc=example,dc=com", "(uid=john.doe)", searchControls);
+while (results.hasMore())
+{
+  SearchResult result = results.next();
+  Attributes attributes = result.getAttributes();
+  Attribute attribute = attributes.get("mail");
+  if (attribute != null)
+  {
+    Object o = attribute.get();
+    if (o != null)
+    {
+      mail = String.valueOf(o);
+    }
+  }
+}
+</pre>
+
+              <p></p>
+              <b>Netscape Directory SDK for Java</b>
+
+              <p>
+                Performing this search using the Netscape Directory SDK requires slightly less
+                code than the JNDI version, and again is significantly less confusing.  The
+                Netscape Directory SDK provides the ability to get attribute values as either
+                strings or byte arrays.  The process for achieving the desired result, however,
+                is still not as convenient as it could be, and a significant problem that may
+                arise is that the <tt>LDAPSearchResults.next()</tt> method may throw an exception
+                even if the search is not yet complete (e.g., if the server returns a search
+                result reference while there are still more entries to be returned, and the SDK
+                has not been configured to follow referrals, which it is not by default), so just
+                because an exception is thrown doesn't mean that search processing is over.
+              </p>
+
+              <p>
+                The following code illustrates the process for performing the desired search
+                processing using the Netscape Directory SDK for Java.  Note that for simplicity,
+                this code does not attempt to address the above concern over throwing an exception
+                when there are still more results to return.
+              </p>
+
+              <pre>
+LDAPSearchResults searchResults =
+     connection.search("dc=example,dc=com", LDAPConnection.SCOPE_SUB,
+                       "(uid=john.doe)", new String[] { "mail" }, false);
+
+String mail = null;
+while (searchResults.hasMoreElements())
+{
+  LDAPEntry entry = searchResults.next();
+  LDAPAttribute attribute = entry.getAttribute("mail");
+  if (attribute != null)
+  {
+    String[] values = attribute.getStringValueArray();
+    if ((values != null) &amp;&amp; (values.length &gt; 0))
+    {
+      mail = values[0];
+    }
+  }
+}
+</pre>
+
+              <p></p>
+              <b>UnboundID LDAP SDK for Java</b>
+
+              <p>
+                The following code may be used to perform the same task in the UnboundID LDAP SDK
+                for Java:
+              </p>
+
+              <pre>
+SearchResult searchResults = connection.search("dc=example,dc=com",
+                                  SearchScope.SUB, "(uid=john.doe)", "mail");
+
+String mail = null;
+if (searchResults.getEntryCount() &gt; 0)
+{
+  SearchResultEntry entry = searchResults.getSearchEntries().get(0);
+  mail = entry.getAttributeValue("mail");
+}
+</pre>
+
+              <p>
+                In this case, you can see that the code is much more streamlined and significantly
+                fewer steps are required to achieve the desired result.  You can also see a number
+                of other benefits that the UnboundID LDAP SDK for Java provides:
+              </p>
+
+              <ul>
+                <li>
+                  In the above search request, the set of requested attributes to return can be
+                  specified using varargs (i.e., "<tt>String...</tt>" rather than
+                  "<tt>String[]</tt>") so it is not necessary to construct an array to hold the set
+                  of requested attributes (although you can still do so if you want to, since Java
+                  will allow you to provide a single <tt>String[]</tt> object instead of individual
+                  <tt>String</tt> objects).
+                </li>
+                <li>
+                  The UnboundID LDAP SDK for Java counts the number of matching entries for you, so
+                  you don't have to do that for yourself.
+                </li>
+                <li>
+                  The UnboundID LDAP SDK for Java provides the ability to capture all search result
+                  entries and references and include them as <tt>List</tt>s in the
+                  <tt>SearchResult</tt> object.  For cases in which the expected set of matching
+                  entries is small, this can be very convenient.
+                </li>
+                <li>
+                  The UnboundID LDAP SDK for Java makes matching entries available as
+                  <tt>SearchResultEntry</tt> objects rather than as plain <tt>Entry</tt> objects.
+                  <tt>SearchResultEntry</tt> objects are a subclass of <tt>Entry</tt> that may also
+                  include controls.  This makes it much more convenient (and threadsafe) to access
+                  the set of controls included with each entry.
+                </li>
+                <li>
+                  The <tt>Entry</tt> class provides methods for getting direct access to attribute
+                  values rather than first requiring you to retrieve the specified attribute,
+                  checking to ensure that it isn't null, and then getting the associated value.
+                  It also provides the ability to retrieve a single value or an array of values,
+                  unlike the Netscape Directory SDK for Java which always requires that you treat
+                  the values as arrays.
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Performing an Add Operation</h3>
+
+              <p>
+                This section will demonstrate the process for adding a simple entry to the server.
+                In this case, the entry added will have the following LDIF representation:
+              </p>
+
+              <pre>
+dn: dc=example,dc=com
+objectClass: top
+objectClass: domain
+dc: example
+</pre>
+
+              <p></p>
+              <b>JNDI</b>
+
+              <p>
+                As noted above, JNDI uses the poorly-named "bind" method to add an entry to the
+                server (and "unbind" to delete an entry).  The basic reasoning for this is that it
+                is trying to associate the provided set of data (the attributes) with a name (the
+                DN), but this can be very confusing and frustrating for developers familiar with
+                LDAP directories but not very familiar with JNDI because obviously the terms "bind"
+                and "unbind" have very different meanings in LDAP.  Another nit with JNDI is that
+                <tt>Attributes</tt> and <tt>Attribute</tt> are interfaces rather than classes, so
+                it is necessary to create <tt>BasicAttributes</tt> and <tt>BasicAttribute</tt>
+                objects instead, and it appears that there is no way to create an attribute with
+                multiple values so it is first necessary to create a <tt>BasicAttribute</tt> with a
+                single value and then add additional values to it.
+              </p>
+
+              <p>
+                The code to use to add an entry in JNDI is as follows:
+              </p>
+
+              <pre>
+Attributes attributes = new BasicAttributes();
+
+Attribute objectClassAttribute = new BasicAttribute("objectClass", "top");
+objectClassAttribute.add("domain");
+attributes.put(objectClassAttribute);
+
+attributes.put("dc", "example");
+
+connection.bind("dc=example,dc=com", null, attributes);
+</pre>
+
+              <p></p>
+              <b>Netscape Directory SDK for Java</b>
+
+              <p>
+                The Netscape Directory SDK for Java uses the more appropriately-named <tt>add</tt>
+                method to add entries to a directory server.  <tt>LDAPAttribute</tt> objects to
+                include in the entries can be directly instantiated, and they can be created with
+                multiple values.  However, it is still a little frustrating that it is necessary
+                to create an <tt>LDAPEntry</tt> object in order to perform an add, and that when
+                creating an entry it is necessary to use an <tt>LDAPAttributeSet</tt> instead of
+                being able to use a more generic array or collection of <tt>LDAPAttribute</tt>
+                objects.
+              </p>
+
+              <p>
+                The code used to perform the add operation in the Netscape Directory SDK for Java
+                is as follows:
+              <p>
+
+              <pre>
+LDAPAttributeSet attributeSet = new LDAPAttributeSet();
+attributeSet.add(
+     new LDAPAttribute("objectClass", new String[] { "top", "domain" }));
+attributeSet.add(new LDAPAttribute("dc", "example"));
+
+LDAPEntry entry = new LDAPEntry("dc=example,dc=com", attributeSet);
+connection.add(entry);
+</pre>
+
+              <p></p>
+              <b>UnboundID LDAP SDK for Java</b>
+
+              <p>
+                The UnboundID LDAP SDK for Java also uses the "<tt>add</tt>" method to add entries.
+                However, as you can see this is another case in which the process is significantly
+                more streamlined than either JNDI or the Netscape SDK:
+              </p>
+
+              <pre>
+LDAPResult addResult = connection.add("dc=example,dc=com",
+     new Attribute("objectClass", "top", "domain"),
+     new Attribute("dc", "example"));
+</pre>
+
+              <p>
+                It isn't necessary to create an entry in this case, since one of the available
+                <tt>add</tt> methods supports providing a DN and a variable-length set of
+                attributes using varargs.  Further, the fact that the set of attribute values can
+                be specified using varargs means that you don't have to explicitly create an array
+                in order to create a multivalued attribute.
+              </p>
+
+              <p>
+                Note, however, that the UnboundID LDAP SDK for Java has another trick up its sleeve
+                in that it supports adding an entry using its LDIF representation.  If you know
+                exactly what the entry you want to create looks like, then you can use the
+                following code to add it:
+              </p>
+
+              <pre>
+LDAPResult addResult = connection.add(
+     "dn: dc=example,dc=com",
+     "objectClass: top",
+     "objectClass: domain",
+     "dc: example");
+</pre>
+
+              <p>
+                The <tt>modify</tt> operation also provides the ability to modify existing entries
+                using the LDIF representation, like:
+              </p>
+
+              <pre>
+LDAPResult modifyResult = connection.modify(
+     "dn: dc=example,dc=com",
+     "changetype: modify",
+     "replace: description",
+     "description: Example");
+</pre>

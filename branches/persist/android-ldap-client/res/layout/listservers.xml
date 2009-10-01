@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ! Copyright 2009 UnboundID Corp.
+ ! All Rights Reserved.
+ -->
+<!--
+ ! Copyright (C) 2009 UnboundID Corp.
+ !
+ ! This program is free software; you can redistribute it and/or modify
+ ! it under the terms of the GNU General Public License (GPLv2 only)
+ ! or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ ! as published by the Free Software Foundation.
+ !
+ ! This program is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ! GNU General Public License for more details.
+ !
+ ! You should have received a copy of the GNU General Public License
+ ! along with this program; if not, see <http://www.gnu.org/licenses>.
+ -->
+
+
+
+<!--
+ ! This layout displays the set of directory servers that have been defined for
+ ! use and provides the ability to search a server, add a new server, edit an
+ ! existing server, or remove a server.  This layout is used when the device is
+ ! oriented in portrait mode.
+ -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+  <!-- The Define New Server Button -->
+  <LinearLayout android:id="@+id/panel_add_button"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:padding="5dp">
+    <Button  android:id="@+id/button_new_server"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/button_new" />
+  </LinearLayout>
+
+  <!-- List of Defined Servers -->
+  <ListView android:id="@+id/list_servers"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@id/panel_add_button"
+            android:scrollbars="vertical" />
+
+</RelativeLayout>
+

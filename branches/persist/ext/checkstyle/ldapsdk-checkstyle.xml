@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<!--
+ ! Copyright 2007-2009 UnboundID Corp.
+ ! All Rights Reserved.
+ -->
+
+<module name="Checker">
+
+
+  <!-- Ensure that there is always a newline at the end of each file. -->
+  <module name="NewlineAtEndOfFile" />
+
+
+  <module name="TreeWalker">
+    <!-- Ensure that all methods have Javadoc documentation. -->
+    <module name="JavadocMethod">
+      <property name="scope"                       value="private" />
+      <property name="allowUndeclaredRTE"          value="false"   />
+      <property name="allowMissingParamTags"       value="false"   />
+      <property name="allowMissingThrowsTags"      value="false"   />
+      <property name="allowMissingReturnTag"       value="false"   />
+      <property name="allowMissingJavadoc"         value="false"   />
+      <property name="allowMissingPropertyJavadoc" value="false"   />
+      <property name="suppressLoadErrors"          value="true"    />
+    </module>
+
+
+    <!-- Ensure that all non-private variables have Javadoc documentation. -->
+    <module name="JavadocVariable">
+      <property name="scope" value="package" />
+    </module>
+
+
+    <!-- Ensure that all Javadoc comments are well-formed. -->
+    <module name="JavadocStyle">
+      <property name="scope"              value="private" />
+      <property name="checkFirstSentence" value="true"    />
+      <property name="checkEmptyJavadoc"  value="false"   />
+      <property name="checkHtml"          value="true"    />
+    </module>
+
+
+    <!-- Ensure that all source files have the appropriate header. -->
+    <module name="RegexpHeader">
+      <property name="header"
+                value="/*\n * Copyright (\d\d\d\d-)?200[89] UnboundID Corp.\n * All Rights Reserved.\n */" />
+    </module>
+
+
+    <!-- Ensure that there are no star imports. -->
+    <module name="AvoidStarImport" />
+
+
+    <!-- Ensure that there are no imports from a "sun.*" package. -->
+    <module name="IllegalImport">
+      <property name="illegalPkgs" value="sun" />
+    </module>
+
+
+    <!-- Ensure that there are no redundant imports. -->
+    <module name="RedundantImport" />
+
+
+    <!-- Ensure that there are no unused imports. -->
+    <module name="UnusedImports" />
+
+
+    <!-- Ensure that there are no lines longer than 80 characters. -->
+    <module name="LineLength">
+      <property name="max" value="80" />
+    </module>
+
+
+    <!-- Ensure that modifiers are provided in the correct order. -->
+    <module name="ModifierOrder" />
+
+
+    <!-- Check to ensure there are no redundant modifiers. -->
+    <module name="RedundantModifier" />
+
+
+    <!-- Check to ensure that all code blocks include curly braces. -->
+    <module name="NeedBraces" />
+
+
+    <!-- Ensure that any class containing an equals method includes an
+         equals(Object) method. -->
+    <module name="CovariantEquals" />
+
+
+    <!-- Ensure that there are no uses of double-checked locking. -->
+    <module name="DoubleCheckedLocking" />
+
+
+    <!-- Ensure that there are no empty statements in the code.  -->
+    <module name="EmptyStatement" />
+
+
+    <!-- Ensure that any class containing an equals method also includes a
+         hashCode method. -->
+    <module name="EqualsHashCode" />
+
+
+    <!-- Ensure that local variables do not hide class variables. -->
+    <module name="HiddenField">
+      <property name="tokens" value="VARIABLE_DEF" />
+    </module>
+
+
+    <!-- Ensure that there are no redundant throws statements. -->
+    <module name="RedundantThrows">
+      <property name="allowUnchecked"     value="true" />
+      <property name="suppressLoadErrors" value="true" />
+    </module>
+
+
+    <!-- Ensure that checks for boolean values are simple where possible. -->
+    <module name="SimplifyBooleanExpression" />
+
+
+    <!-- Ensure that boolean returns are simple where possible. -->
+    <module name="SimplifyBooleanReturn" />
+
+
+    <!-- Ensure that string literal equality doesn't use "==". -->
+    <module name="StringLiteralEquality" />
+
+
+    <!-- Ensure that an overriding clone method invokes super.clone. -->
+    <module name="SuperClone" />
+
+
+    <!-- Ensure that an overriding finalize method invokes super.finalize. -->
+    <module name="SuperFinalize" />
+
+
+    <!-- Ensure that all classes have a package declaration. -->
+    <module name="PackageDeclaration" />
+
+
+    <!-- Ensure that any switch statement that has a default clause always has
+         the default clause after all other clauses. -->
+    <module name="DefaultComesLast" />
+
+
+    <!-- Ensure that all cases of a switch statement that have any code also
+         have a break, return, or throw and don't fall through to the next
+         case. -->
+    <module name="FallThrough" />
+
+
+    <!-- Ensure that all local fields are declared private unless they are
+         static final. -->
+    <module name="VisibilityModifier" />
+
+
+    <!-- Ensure that classes with only private constructors are final. -->
+    <module name="FinalClass" />
+
+
+    <!-- Ensure that all exceptions are immutable. -->
+    <module name="MutableException" />
+
+
+    <!-- Ensure that no line ends with whitespace. -->
+    <module name="GenericIllegalRegexp">
+      <property name="format"         value="\s$"                        />
+      <property name="ignoreComments" value="false"                      />
+      <property name="message"        value="Line ends with whitespace." />
+    </module>
+
+
+    <!-- Ensure that all long constants are followed by a capital L. -->
+    <module name="UpperEll" />
+
+
+    <!-- Ensure that all method/constructor/catch parameters are final. -->
+    <module name="FinalParameters" />
+  </module>
+</module>
+
