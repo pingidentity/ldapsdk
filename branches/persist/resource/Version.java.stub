@@ -106,7 +106,8 @@ public final class Version
    * filesystem path if the Subversion path isn't available at build time.
    * For this build, the value is "@REPOSITORY_PATH@".
    */
-  public static final String REPOSITORY_PATH = "@REPOSITORY_PATH@";
+  public static final String REPOSITORY_PATH =
+       "@REPOSITORY_PATH@";
 
 
 
