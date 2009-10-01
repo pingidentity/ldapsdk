@@ -79,6 +79,7 @@ public class SanityCheckSE
     "com.unboundid.ldap.sdk.extensions",
     "com.unboundid.ldap.sdk.migrate.jndi",
     "com.unboundid.ldap.sdk.migrate.ldapjdk",
+    "com.unboundid.ldap.sdk.persist",
     "com.unboundid.ldap.sdk.schema",
     "com.unboundid.ldif",
     "com.unboundid.util",
