@@ -429,7 +429,7 @@ public final class DeleteRequest
   {
     if (response == null)
     {
-      final long waitTime = System.currentTimeMillis() - requestTime;
+      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
       throw new LDAPException(ResultCode.TIMEOUT,
            ERR_DELETE_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
