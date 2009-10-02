@@ -1027,7 +1027,7 @@ public final class AddRequest
   {
     if (response == null)
     {
-      final long waitTime = System.currentTimeMillis() - requestTime;
+      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
       throw new LDAPException(ResultCode.TIMEOUT,
            ERR_ADD_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }

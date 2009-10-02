@@ -739,7 +739,7 @@ public final class CompareRequest
   {
     if (response == null)
     {
-      final long waitTime = System.currentTimeMillis() - requestTime;
+      final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
       throw new LDAPException(ResultCode.TIMEOUT,
            ERR_COMPARE_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }

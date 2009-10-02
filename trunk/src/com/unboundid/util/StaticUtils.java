@@ -1281,4 +1281,34 @@ public final class StaticUtils
 
     return buffer.toString();
   }
+
+
+
+  /**
+   * Converts the provided number of nanoseconds to milliseconds.
+   *
+   * @param  nanos  The number of nanoseconds to convert to milliseconds.
+   *
+   * @return  The number of milliseconds that most closely corresponds to the
+   *          specified number of nanoseconds.
+   */
+  public static long nanosToMillis(final long nanos)
+  {
+    return Math.max(0L, Math.round(nanos / 1000000.0d));
+  }
+
+
+
+  /**
+   * Converts the provided number of milliseconds to nanoseconds.
+   *
+   * @param  millis  The number of milliseconds to convert to nanoseconds.
+   *
+   * @return  The number of nanoseconds that most closely corresponds to the
+   *          specified number of milliseconds.
+   */
+  public static long millisToNanos(final long millis)
+  {
+    return Math.max(0L, (millis * 1000000L));
+  }
 }
