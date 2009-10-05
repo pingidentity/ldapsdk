@@ -250,8 +250,10 @@ public abstract class LDAPFieldEncoder
    * values).
    *
    * @param  f  The field to which the {@code null} value should be assigned.
-   *            It must not be {@code null}.
-   * @param  o  The object to be updated.  It must not be {@code null}.
+   *            It must not be {@code null} and must be marked with the
+   *            {@link LDAPField} annotation.
+   * @param  o  The object to be updated.  It must not be {@code null}, and the
+   *            class must be marked with the {@link LDAPObject annotation}.
    *
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                assign a {@code null} value to the specified
@@ -305,8 +307,82 @@ public abstract class LDAPFieldEncoder
     catch (Exception e)
     {
       debugException(e);
-      throw new LDAPPersistException(ERR_ENCODER_CANNOT_SET_NULL_VALUE.get(
-           f.getName(), o.getClass().getName(), getExceptionMessage(e)), e);
+      throw new LDAPPersistException(
+           ERR_ENCODER_CANNOT_SET_NULL_FIELD_VALUE.get(f.getName(),
+                o.getClass().getName(), getExceptionMessage(e)), e);
+    }
+  }
+
+
+
+  /**
+   * Invokes the provided setter method with a single argument that will set a
+   * {@code null} value for that method, if possible.  If the argument type is
+   * and cannot be assigned a {@code null} value, then a default primitive value
+   * will be assigned instead (0 for numeric values, false for {@code boolean}
+   * values, and the null character for {@code char} values).
+   *
+   * @param  m  The setter method that should be used to set the {@code null}
+   *            value.  It must not be {@code null}, and must have the
+   *            {@code LDAPFieldSetter} annotation.
+   * @param  o  The object to be updated.  It must not be {@code null}, and the
+   *            class must be marked with the {@link LDAPObject annotation}.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                assign a {@code null} value to the specified
+   *                                field.
+   */
+  public void setNull(final Method m, final Object o)
+         throws LDAPPersistException
+  {
+    try
+    {
+      m.setAccessible(true);
+
+      final Class<?> type = m.getParameterTypes()[0];
+      if (type.equals(Boolean.TYPE))
+      {
+        m.invoke(o, Boolean.FALSE);
+      }
+      else if (type.equals(Byte.TYPE))
+      {
+        m.invoke(o, (byte) 0);
+      }
+      else if (type.equals(Character.TYPE))
+      {
+        m.invoke(o, '\u0000');
+      }
+      else if (type.equals(Double.TYPE))
+      {
+        m.invoke(o, 0.0d);
+      }
+      else if (type.equals(Float.TYPE))
+      {
+        m.invoke(o, 0.0f);
+      }
+      else if (type.equals(Integer.TYPE))
+      {
+        m.invoke(o, 0);
+      }
+      else if (type.equals(Long.TYPE))
+      {
+        m.invoke(o, 0L);
+      }
+      else if (type.equals(Short.TYPE))
+      {
+        m.invoke(o, (short) 0);
+      }
+      else
+      {
+        m.invoke(o, type.cast(null));
+      }
+    }
+    catch (Exception e)
+    {
+      debugException(e);
+      throw new LDAPPersistException(
+           ERR_ENCODER_CANNOT_SET_NULL_METHOD_VALUE.get(m.getName(),
+                o.getClass().getName(), getExceptionMessage(e)), e);
     }
   }
 
