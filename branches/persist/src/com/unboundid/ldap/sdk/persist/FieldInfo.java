@@ -221,10 +221,20 @@ final class FieldInfo
            f.getName(), c.getName(), invalidReason.toString()));
     }
 
+    final String structuralClass;
+    if (o.structuralClass().length() == 0)
+    {
+      structuralClass = getUnqualifiedClassName(c);
+    }
+    else
+    {
+      structuralClass = o.structuralClass();
+    }
+
     final String[] ocs = a.objectClass();
     if ((ocs == null) || (ocs.length == 0))
     {
-      objectClasses = new String[] { o.structuralClass() };
+      objectClasses = new String[] { structuralClass };
     }
     else
     {
@@ -233,7 +243,7 @@ final class FieldInfo
 
     for (final String s : objectClasses)
     {
-      if (! s.equalsIgnoreCase(o.structuralClass()))
+      if (! s.equalsIgnoreCase(structuralClass))
       {
         boolean found = false;
         for (final String oc : o.auxiliaryClass())
