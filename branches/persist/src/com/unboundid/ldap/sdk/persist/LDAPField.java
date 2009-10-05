@@ -113,7 +113,7 @@ public @interface LDAPField
    * create an LDAP entry from an object without a value set for this field will
    * result in an exception.  Attempts to initialize a Java object from an LDAP
    * entry which does not contain a value for the associated attribute type and
-   * no value(s) returned by the {@link #defaultReadValue} element of this
+   * no value(s) returned by the {@link #defaultEncodeValue} element of this
    * annotation type will also result in an exception.
    */
   boolean required() default false;
@@ -139,14 +139,6 @@ public @interface LDAPField
 
 
   /**
-   * The string representation(s) of the default value to use when adding an
-   * entry to the directory if this field has a {@code null} value.
-   */
-  String[] defaultAddValue() default {};
-
-
-
-  /**
    * The string representation(s) of the default value(s) to assign to this
    * field if there are no values for the associated attribute in the
    * corresponding LDAP entry being used to initialize the object.  If no
@@ -154,7 +146,15 @@ public @interface LDAPField
    * is {@link #required}, or the field will be set to {@code null} if it is
    * not required.
    */
-  String[] defaultReadValue() default {};
+  String[] defaultDecodeValue() default {};
+
+
+
+  /**
+   * The string representation(s) of the default value to use when adding an
+   * entry to the directory if this field has a {@code null} value.
+   */
+  String[] defaultEncodeValue() default {};
 
 
 

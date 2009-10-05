@@ -407,6 +407,56 @@ public final class DefaultLDAPFieldEncoder
    * {@inheritDoc}
    */
   @Override()
+  public boolean supportsMultipleValues(final Field field)
+  {
+    return supportsMultipleValues(field.getType());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean supportsMultipleValues(final Method method)
+  {
+    final Class<?>[] paramTypes = method.getParameterTypes();
+    if (paramTypes.length != 1)
+    {
+      return false;
+    }
+
+    return supportsMultipleValues(paramTypes[0]);
+  }
+
+
+
+  /**
+   * Indicates whether the provided object type supports multiple values.
+   *
+   * @param  t  The type for which to make the determination.
+   *
+   * @return  {@code true} if the provided object type supports multiple values,
+   *          or {@code false} if not.
+   */
+  private static boolean supportsMultipleValues(final Class<?> t)
+  {
+    if (t.isArray())
+    {
+      final Class<?> componentType = t.getComponentType();
+      return (! (componentType.equals(Byte.TYPE) ||
+                 componentType.equals(Character.TYPE)));
+    }
+
+    return false;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public Attribute encodeFieldValue(final Field field, final Object value,
                                     final String name)
          throws LDAPPersistException

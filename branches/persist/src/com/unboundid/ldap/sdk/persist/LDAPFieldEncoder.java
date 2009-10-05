@@ -32,6 +32,10 @@ import com.unboundid.util.Extensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
+import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
+import static com.unboundid.util.Debug.*;
+import static com.unboundid.util.StaticUtils.*;
+
 
 
 /**
@@ -153,6 +157,33 @@ public abstract class LDAPFieldEncoder
 
 
   /**
+   * Indicates whether the provided field can hold multiple values.
+   *
+   * @param  field  The field for which to make the determination.  It must be
+   *                marked with the {@link LDAPField} annotation.
+   *
+   * @return  {@code true} if the provided field can hold multiple values, or
+   *          {@code false} if not.
+   */
+  public abstract boolean supportsMultipleValues(final Field field);
+
+
+
+  /**
+   * Indicates whether the provided method takes an argument that can hold
+   * multiple values.
+   *
+   * @param  method  The field for which to make the determination.  It must be
+   *                 marked with the {@link LDAPFieldSetter} annotation type.
+   *
+   * @return  {@code true} if the provided method takes an argument that can
+   *          hold multiple values, or {@code false} if not.
+   */
+  public abstract boolean supportsMultipleValues(final Method method);
+
+
+
+  /**
    * Encodes the provided field to an LDAP attribute.
    *
    * @param  field  The field to be encoded.
@@ -208,6 +239,76 @@ public abstract class LDAPFieldEncoder
   public abstract void decodeField(final Field field, final Object object,
                                    final Attribute attribute)
          throws LDAPPersistException;
+
+
+
+  /**
+   * Assigns a {@code null} value to the provided field, if possible.  If the
+   * field type is primitive and cannot be assigned a {@code null} value, then a
+   * default primitive value will be assigned instead (0 for numeric values,
+   * false for {@code boolean} values, and the null character for {@code char}
+   * values).
+   *
+   * @param  f  The field to which the {@code null} value should be assigned.
+   *            It must not be {@code null}.
+   * @param  o  The object to be updated.  It must not be {@code null}.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                assign a {@code null} value to the specified
+   *                                field.
+   */
+  public void setNull(final Field f, final Object o)
+         throws LDAPPersistException
+  {
+    try
+    {
+      f.setAccessible(true);
+
+      final Class<?> type = f.getType();
+      if (type.equals(Boolean.TYPE))
+      {
+        f.set(o, Boolean.FALSE);
+      }
+      else if (type.equals(Byte.TYPE))
+      {
+        f.set(o, (byte) 0);
+      }
+      else if (type.equals(Character.TYPE))
+      {
+        f.set(o, '\u0000');
+      }
+      else if (type.equals(Double.TYPE))
+      {
+        f.set(o, 0.0d);
+      }
+      else if (type.equals(Float.TYPE))
+      {
+        f.set(o, 0.0f);
+      }
+      else if (type.equals(Integer.TYPE))
+      {
+        f.set(o, 0);
+      }
+      else if (type.equals(Long.TYPE))
+      {
+        f.set(o, 0L);
+      }
+      else if (type.equals(Short.TYPE))
+      {
+        f.set(o, (short) 0);
+      }
+      else
+      {
+        f.set(o, null);
+      }
+    }
+    catch (Exception e)
+    {
+      debugException(e);
+      throw new LDAPPersistException(ERR_ENCODER_CANNOT_SET_NULL_VALUE.get(
+           f.getName(), o.getClass().getName(), getExceptionMessage(e)), e);
+    }
+  }
 
 
 
