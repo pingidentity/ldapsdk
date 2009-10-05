@@ -239,7 +239,7 @@ public final class RootDSE
    * @param  rootDSEEntry  The entry to use to create this root DSE object.  It
    *                       must not be {@code null}.
    */
-  RootDSE(final Entry rootDSEEntry)
+  public RootDSE(final Entry rootDSEEntry)
   {
     super(rootDSEEntry);
   }
