@@ -1270,7 +1270,7 @@ public final class StaticUtils
       {
         final double numSecondsDouble = numSeconds + (numMillis / 1000.0);
         final DecimalFormat decimalFormat = new DecimalFormat("0.000");
-        buffer.append(INFO_NUM_SECONDS_PLURAL.get(
+        buffer.append(INFO_NUM_SECONDS_WITH_DECIMAL.get(
              decimalFormat.format(numSecondsDouble)));
       }
       else

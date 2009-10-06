@@ -2324,8 +2324,8 @@ public final class LDIFReader
           {
             debugException(pe);
             throw new LDIFException(ERR_READ_CANNOT_BASE64_DECODE_ATTR.get(
-                                         firstLineNumber, pe.getMessage()),
-                                    firstLineNumber, true, ldifLines, pe);
+                 attributeName, firstLineNumber, pe.getMessage()),
+                 firstLineNumber, true, ldifLines, pe);
           }
           catch (final Exception e)
           {
