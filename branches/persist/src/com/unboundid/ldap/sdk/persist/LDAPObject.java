@@ -44,6 +44,40 @@ import java.lang.annotation.Target;
 public @interface LDAPObject
 {
   /**
+   * The DN of the entry below which objects of this type will be created if no
+   * alternate parent DN is specified.  A value equal to the empty string
+   * indicates that there should be no default parent.
+   */
+  String defaultParentDN() default "";
+
+
+
+  /**
+   * The name of a method that should be invoked on an object after all other
+   * decode processing has been performed for that object.  It may perform any
+   * additional work or validation that is not available as part of the LDAP SDK
+   * persistence framework.  If a method name is provided, then that method must
+   * exist in the associated class and it must not take any arguments.  It may
+   * throw any kind of exception if the object is not valid.
+   */
+  String postDecodeMethod() default "";
+
+
+
+  /**
+   * The name of a method that should be invoked after an object has been
+   * encoded to an LDAP entry.  It may alter the generated entry in any way,
+   * including adding, removing, or replacing attributes, or altering the entry
+   * DN.  If a method name is provided, then that method must exist in the
+   * associated class and it must take exactly one argument, with a type of
+   * {@link com.unboundid.ldap.sdk.Entry}.  It may throw any kind of exception
+   * if a problem is found with the entry and it should not be used.
+   */
+  String postEncodeMethod() default "";
+
+
+
+  /**
    * The name of the structural object class for LDAP entries created from the
    * associated object type.  If no value is provided, then it will be assumed
    * that the object class name is equal to the unqualified name of the Java

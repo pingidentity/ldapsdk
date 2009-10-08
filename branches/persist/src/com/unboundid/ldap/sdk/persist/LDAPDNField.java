@@ -35,8 +35,8 @@ import java.lang.annotation.Target;
  * DN of the entry from which the corresponding object was initialized.  This
  * annotation type should only be used for at most one field in a given class,
  * and that class must be marked with the {@link LDAPObject} annotation type.
- * The field marked with this annotation type must have a type of either
- * {@code String} or {@link com.unboundid.ldap.sdk.DN}.
+ * The field marked with this annotation type must have a type of
+ * {@code java.lang.String}.
  */
 @Documented()
 @Retention(RetentionPolicy.RUNTIME)

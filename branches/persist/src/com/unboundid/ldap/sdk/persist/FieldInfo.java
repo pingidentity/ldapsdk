@@ -75,8 +75,11 @@ final class FieldInfo
   // created for search operations.
   private final boolean includeInSearchFilter;
 
-  // Indicates whether the associated field is required.
-  private final boolean isRequired;
+  // Indicates whether the associated field is required when decoding.
+  private final boolean isRequiredForDecode;
+
+  // Indicates whether the associated field is required when encoding.
+  private final boolean isRequiredForEncode;
 
   // Indicates whether the associated field supports multiple values.
   private final boolean supportsMultipleValues;
@@ -142,9 +145,10 @@ final class FieldInfo
     failOnInvalidValue    = a.failOnInvalidValue();
     includeInRDN          = a.inRDN();
     includeInAdd          = (includeInRDN || a.inAdd());
-    includeInModify       = a.inModify();
+    includeInModify       = ((! includeInRDN) && a.inModify());
     includeInSearchFilter = a.inFilter();
-    isRequired            = (includeInRDN || a.required());
+    isRequiredForDecode   = a.requiredForDecode();
+    isRequiredForEncode   = (includeInRDN || a.requiredForEncode());
     defaultDecodeValues   = a.defaultDecodeValue();
     defaultEncodeValues   = a.defaultEncodeValue();
 
@@ -342,7 +346,10 @@ final class FieldInfo
 
   /**
    * Indicates whether the associated field should be considered for inclusion
-   * in the set of modifications generated for modify operations.
+   * in the set of modifications generated for modify operations.  Note that the
+   * value returned from this method may be {@code false} even when the
+   * annotation has a value of {@code true} for the {@code inModify} element if
+   * the associated field is to be included in entry RDNs.
    *
    * @return  {@code true} if the associated field should be considered for
    *          inclusion in the set of modifications generated for modify
@@ -385,16 +392,32 @@ final class FieldInfo
 
 
   /**
-   * Indicates whether the associated field should be considered required.  It
-   * will be considered required if it is declared required or if it should be
-   * included in the RDN.
+   * Indicates whether the associated field should be considered required for
+   * decode operations.
    *
-   * @return  {@code true} if the associated field should be considered
-   *          required, or {@code false} if not.
+   * @return  {@code true} if the associated field should be considered required
+   *          for decode operations, or {@code false} if not.
    */
-  boolean isRequired()
+  boolean isRequiredForDecode()
   {
-    return isRequired;
+    return isRequiredForDecode;
+  }
+
+
+
+  /**
+   * Indicates whether the associated field should be considered required for
+   * encode operations.    Note that the value returned from this method may be
+   * {@code true} even when the annotation has a value of {@code true} for the
+   * {@code requiredForEncode} element if the associated field is to be included
+   * in entry RDNs.
+   *
+   * @return  {@code true} if the associated field should be considered required
+   *          for encode operations, or {@code false} if not.
+   */
+  boolean isRequiredForEncode()
+  {
+    return isRequiredForEncode;
   }
 
 
@@ -486,7 +509,13 @@ final class FieldInfo
    * Encodes the value for the associated field from the provided object to an
    * attribute.
    *
-   * @param  o  The object containing the field to be encoded.
+   * @param  o                   The object containing the field to be encoded.
+   * @param  ignoreRequiredFlag  Indicates whether to ignore the value of the
+   *                             {@code requiredForEncode} setting.  If this is
+   *                             {@code true}, then this method will always
+   *                             return {@code null} if the field does not have
+   *                             a value even if this field is marked as
+   *                             required for encode processing.
    *
    * @return  The attribute containing the encoded representation of the field
    *          value if it is non-{@code null}, an encoded representation of the
@@ -500,7 +529,7 @@ final class FieldInfo
    *                                as required but is {@code null} and does not
    *                                have any default add values.
    */
-  Attribute encode(final Object o)
+  Attribute encode(final Object o, final boolean ignoreRequiredFlag)
             throws LDAPPersistException
   {
     try
@@ -513,7 +542,7 @@ final class FieldInfo
           return new Attribute(attributeName, defaultEncodeValues);
         }
 
-        if (isRequired)
+        if (isRequiredForEncode && (! ignoreRequiredFlag))
         {
           throw new LDAPPersistException(
                ERR_FIELD_INFO_MISSING_REQUIRED_VALUE.get(field.getName(),
@@ -563,6 +592,14 @@ final class FieldInfo
       }
       else
       {
+        if (isRequiredForDecode)
+        {
+          throw new LDAPPersistException(
+               ERR_FIELD_INFO_MISSING_REQUIRED_ATTRIBUTE.get(
+                    containingClass.getName(), e.getDN(), attributeName,
+                    field.getName()));
+        }
+
         encoder.setNull(field, o);
         return;
       }

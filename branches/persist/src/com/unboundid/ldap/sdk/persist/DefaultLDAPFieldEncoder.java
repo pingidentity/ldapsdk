@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk.persist;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -753,10 +754,16 @@ public final class DefaultLDAPFieldEncoder
       debugException(lpe);
       throw lpe;
     }
-    catch (Exception e)
+    catch (Throwable t)
     {
-      debugException(e);
-      throw new LDAPPersistException(getExceptionMessage(e), e);
+      debugException(t);
+
+      if (t instanceof InvocationTargetException)
+      {
+        t = ((InvocationTargetException) t).getTargetException();
+      }
+
+      throw new LDAPPersistException(getExceptionMessage(t), t);
     }
   }
 

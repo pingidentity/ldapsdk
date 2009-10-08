@@ -115,7 +115,7 @@ final class GetterInfo
     containingClass       = c;
     includeInRDN          = a.inRDN();
     includeInAdd          = (includeInRDN || a.inAdd());
-    includeInModify       = a.inModify();
+    includeInModify       = ((! includeInRDN) && a.inModify());
     includeInSearchFilter = a.inFilter();
     attributeName         = a.attribute();
 
@@ -225,7 +225,9 @@ final class GetterInfo
 
   /**
    * Indicates whether the associated method value should be included in entries
-   * generated for add operations.
+   * generated for add operations.  Note that the value returned from this
+   * method may be {@code true} even when the annotation has a value of
+   * {@code false} if the associated field is to be included in entry RDNs.
    *
    * @return  {@code true} if the associated method value should be included in
    *          entries generated for add operations, or {@code false} if not.
@@ -240,6 +242,9 @@ final class GetterInfo
   /**
    * Indicates whether the associated method value should be considered for
    * inclusion in the set of modifications generated for modify operations.
+   * Note that the value returned from this method may be {@code false} even
+   * when the annotation have a value of {@code true} if the associated field is
+   * to be included in entry RDNs.
    *
    * @return  {@code true} if the associated method value should be considered
    *          for inclusion in the set of modifications generated for modify
@@ -346,11 +351,6 @@ final class GetterInfo
       }
 
       return encoder.encodeMethodValue(method, methodValue, attributeName);
-    }
-    catch (LDAPPersistException lpe)
-    {
-      debugException(lpe);
-      throw lpe;
     }
     catch (Exception e)
     {

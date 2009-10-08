@@ -72,7 +72,9 @@ public @interface LDAPField
   /**
    * Indicates whether this field should be included in the LDAP entry that is
    * generated when adding a new instance of the associated object to the
-   * directory.
+   * directory.  Note that any field which is to be included in entry RDNs will
+   * always be included in add operations regardless of the value of this
+   * element.
    */
   boolean inAdd() default true;
 
@@ -90,7 +92,9 @@ public @interface LDAPField
   /**
    * Indicates whether this field should be examined and included in the set of
    * LDAP modifications if it has been changed when modifying an existing
-   * instance of the associated object in the directory.
+   * instance of the associated object in the directory.  Note that any field
+   * which is to be included in entry RDNs will never be included in modify
+   * operations regardless of the value of this element.
    */
   boolean inModify() default true;
 
@@ -100,23 +104,31 @@ public @interface LDAPField
    * Indicates whether the value of this field should be included in the RDN of
    * entries created from the associated object.  Any field which is to be
    * included entry RDNs will be considered required for add operations
-   * regardless of the value of the {@link #required} element of this annotation
-   * type, and will be included in add operations regardless of the value of the
-   * {@link #inAdd} element.
+   * regardless of the value of the {@link #requiredForEncode} element of this
+   * annotation type, and will be included in add operations regardless of the
+   * value of the {@link #inAdd} element.
    */
   boolean inRDN() default false;
 
 
 
   /**
-   * Indicates whether this field is required to have a value.  Attempts to
-   * create an LDAP entry from an object without a value set for this field will
-   * result in an exception.  Attempts to initialize a Java object from an LDAP
-   * entry which does not contain a value for the associated attribute type and
-   * no value(s) returned by the {@link #defaultEncodeValue} element of this
-   * annotation type will also result in an exception.
+   * Indicates whether this field is required to be assigned a value in decode
+   * processing.  If this is {@code true}, then attempts to initialize a Java
+   * object from an LDAP entry which does not contain a value for the associated
+   * attribute will result in an exception.
    */
-  boolean required() default false;
+  boolean requiredForDecode() default false;
+
+
+
+  /**
+   * Indicates whether this field is required to have a value for encode
+   * processing.  If this is {@code true}, then attempts to construct an entry
+   * or set of modifications for an object that does not have a value for this
+   * field will result in an exception.
+   */
+  boolean requiredForEncode() default false;
 
 
 
@@ -143,8 +155,8 @@ public @interface LDAPField
    * field if there are no values for the associated attribute in the
    * corresponding LDAP entry being used to initialize the object.  If no
    * default values are defined, then an exception will be thrown if the field
-   * is {@link #required}, or the field will be set to {@code null} if it is
-   * not required.
+   * is {@link #requiredForEncode}, or the field will be set to {@code null} if
+   * it is not required.
    */
   String[] defaultDecodeValue() default {};
 

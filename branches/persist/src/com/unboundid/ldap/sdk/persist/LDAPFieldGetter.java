@@ -50,7 +50,9 @@ public @interface LDAPFieldGetter
   /**
    * Indicates whether the value returned from this method should be included in
    * the LDAP entry that is generated when adding a new instance of the
-   * associated object to the directory.
+   * associated object to the directory.  Note that any field which is to be
+   * included in entry RDNs will always be included in add operations regardless
+   * of the value of this element.
    */
   boolean inAdd() default true;
 
@@ -68,7 +70,9 @@ public @interface LDAPFieldGetter
   /**
    * Indicates whether the value returned from this method should be included in
    * the set of LDAP modifications if it has been changed when modifying an
-   * existing instance of the associated object in the directory.
+   * existing instance of the associated object in the directory.  Note that any
+   * field which is to be included in entry RDNs will never be included in
+   * modify operations regardless of the value of this element.
    */
   boolean inModify() default true;
 
