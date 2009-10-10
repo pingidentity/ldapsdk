@@ -79,8 +79,18 @@ final class LDAPObjectHandler<T>
   // The constructor to use to create a new instance of the class.
   private final Constructor<T> constructor;
 
-  // The default parent DN for entries created from this object.
+  // The default parent DN for entries created from objects of the associated
+  //  type.
   private final DN defaultParentDN;
+
+  // The field that will be used to hold the DN of the entry.
+  private final Field dnField;
+
+  // The field that will be used to hold the entry contents.
+  private final Field entryField;
+
+  // The LDAPObject annotation for the associated object.
+  private final LDAPObject ldapObject;
 
   // The list of fields for this class that should be used to construct search
   // filters.
@@ -114,11 +124,13 @@ final class LDAPObjectHandler<T>
   // processing has been performed.
   private final Method postEncodeMethod;
 
-  // The field that will be used to hold the DN of the entry.
-  private final Field dnField;
+  // The structural object class that should be used for entries created from
+  // objects of the associated type.
+  private final String structuralClass;
 
-  // The field that will be used to hold the entry contents.
-  private final Field entryField;
+  // The auxiliary object classes that should should used for entries created
+  // from objects of the associated type.
+  private final String[] auxiliaryClasses;
 
 
 
@@ -141,7 +153,7 @@ final class LDAPObjectHandler<T>
     final TreeMap<String,GetterInfo> getters = new TreeMap<String,GetterInfo>();
     final TreeMap<String,SetterInfo> setters = new TreeMap<String,SetterInfo>();
 
-    final LDAPObject ldapObject = type.getAnnotation(LDAPObject.class);
+    ldapObject = type.getAnnotation(LDAPObject.class);
     if (ldapObject == null)
     {
       throw new LDAPPersistException(
@@ -150,10 +162,14 @@ final class LDAPObjectHandler<T>
 
     final LinkedList<String> objectClasses = new LinkedList<String>();
 
-    String structuralClass = ldapObject.structuralClass();
-    if (structuralClass.length() == 0)
+    String oc = ldapObject.structuralClass();
+    if (oc.length() == 0)
     {
       structuralClass = getUnqualifiedClassName(type);
+    }
+    else
+    {
+      structuralClass = oc;
     }
 
     final StringBuilder invalidReason = new StringBuilder();
@@ -168,7 +184,8 @@ final class LDAPObjectHandler<T>
                 structuralClass, invalidReason.toString()));
     }
 
-    for (final String auxiliaryClass : ldapObject.auxiliaryClass())
+    auxiliaryClasses = ldapObject.auxiliaryClass();
+    for (final String auxiliaryClass : auxiliaryClasses)
     {
       if (PersistUtils.isValidLDAPName(auxiliaryClass, invalidReason))
       {
@@ -476,6 +493,18 @@ final class LDAPObjectHandler<T>
 
 
   /**
+   * Retrieves the {@link LDAPObject} annotation for the associated class.
+   *
+   * @return  The {@code LDAPObject} annotation for the associated class.
+   */
+  LDAPObject getLDAPObjectAnnotation()
+  {
+    return ldapObject;
+  }
+
+
+
+  /**
    * Retrieves the constructor used to create a new instance of the appropriate
    * type.
    *
@@ -515,6 +544,47 @@ final class LDAPObjectHandler<T>
   Field getEntryField()
   {
     return entryField;
+  }
+
+
+
+  /**
+   * Retrieves the default parent DN for objects of the associated type.
+   *
+   * @return  The default parent DN for objects of the associated type.
+   */
+  DN getDefaultParentDN()
+  {
+    return defaultParentDN;
+  }
+
+
+
+  /**
+   * Retrieves the name of the structural object class for objects of the
+   * associated type.
+   *
+   * @return  The name of the structural object class for objects of the
+   *          associated type.
+   */
+  String getStructuralClass()
+  {
+    return structuralClass;
+  }
+
+
+
+  /**
+   * Retrieves the names of the auxiliary object classes for objects of the
+   * associated type.
+   *
+   * @return  The names of the auxiliary object classes for objects of the
+   *          associated type.  It may be empty if no auxiliary classes are
+   *          defined.
+   */
+  String[] getAuxiliaryClasses()
+  {
+    return auxiliaryClasses;
   }
 
 

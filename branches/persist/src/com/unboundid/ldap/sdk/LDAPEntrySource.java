@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
@@ -130,6 +131,9 @@ public final class LDAPEntrySource
   // Indicates whether this entry source has been closed.
   private final AtomicBoolean closed;
 
+  // The search result for the search operation.
+  private final AtomicReference<SearchResult> searchResult;
+
   // Indicates whether to close the connection when this entry source is closed.
   private final boolean closeConnection;
 
@@ -210,8 +214,9 @@ public final class LDAPEntrySource
                               ERR_LDAP_ENTRY_SOURCE_REQUEST_HAS_LISTENER.get());
     }
 
-    closed = new AtomicBoolean(false);
-    queue  = new LinkedBlockingQueue<Object>(queueSize);
+    closed       = new AtomicBoolean(false);
+    searchResult = new AtomicReference<SearchResult>();
+    queue        = new LinkedBlockingQueue<Object>(queueSize);
 
     final SearchRequest r = new SearchRequest(this, searchRequest.getControls(),
          searchRequest.getBaseDN(), searchRequest.getScope(),
@@ -312,6 +317,21 @@ public final class LDAPEntrySource
 
 
   /**
+   * Retrieves the search result for the search operation, if available.  It
+   * will not be available until the search has completed (as indicated by a
+   * {@code null} return value from the {@link #nextEntry} method).
+   *
+   * @return  The search result for the search operation, or {@code null} if it
+   *          is not available (e.g., because the search has not yet completed).
+   */
+  public SearchResult getSearchResult()
+  {
+    return searchResult.get();
+  }
+
+
+
+  /**
    * {@inheritDoc}  This is intended for internal use only and should not be
    * called by anything outside of the LDAP SDK itself.
    */
@@ -344,6 +364,8 @@ public final class LDAPEntrySource
   public void searchResultReceived(final AsyncRequestID requestID,
                                    final SearchResult searchResult)
   {
+    this.searchResult.set(searchResult);
+
     if (! searchResult.getResultCode().equals(ResultCode.SUCCESS))
     {
       addToQueue(new EntrySourceException(false,
