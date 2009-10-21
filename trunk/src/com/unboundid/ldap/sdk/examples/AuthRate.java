@@ -779,6 +779,8 @@ public final class AuthRate
     {
       "--hostname", "server.example.com",
       "--port", "389",
+      "--bindDN", "uid=admin,dc=example,dc=com",
+      "--bindPassword", "password",
       "--baseDN", "dc=example,dc=com",
       "--scope", "sub",
       "--filter", "(uid=user.[1-1000000])",
