@@ -734,6 +734,8 @@ public final class ModRate
     {
       "--hostname", "server.example.com",
       "--port", "389",
+      "--bindDN", "uid=admin,dc=example,dc=com",
+      "--bindPassword", "password",
       "--entryDN", "uid=user.[1-1000000],ou=People,dc=example,dc=com",
       "--attribute", "description",
       "--valueLength", "12",
