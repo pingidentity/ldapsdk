@@ -243,7 +243,7 @@ public final class Schema
    *
    * @param  schemaEntry  The schema entry to decode.
    */
-  Schema(final Entry schemaEntry)
+  public Schema(final Entry schemaEntry)
   {
     // Decode the attribute syntaxes from the schema entry.
     String[] defs = schemaEntry.getAttributeValues(ATTR_ATTRIBUTE_SYNTAX);
