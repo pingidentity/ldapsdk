@@ -995,7 +995,7 @@ public final class SearchRequest
    * @return  The search result listener for this search request, or
    *          {@code null} if none has been configured.
    */
-  SearchResultListener getSearchResultListener()
+  public SearchResultListener getSearchResultListener()
   {
     return searchResultListener;
   }
