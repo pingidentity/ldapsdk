@@ -82,7 +82,8 @@ final class LDAPConnectionInternals
   private final String host;
 
   // The thread-local ASN.1 buffer used for writing elements.
-  private final ThreadLocal<ASN1Buffer> asn1Buffers;
+  private static final ThreadLocal<ASN1Buffer> asn1Buffers =
+       new ThreadLocal<ASN1Buffer>();
 
 
 
@@ -127,8 +128,6 @@ final class LDAPConnectionInternals
     nextMessageID             = new AtomicInteger(0);
     disconnectHandlerNotified = false;
     synchronousMode           = options.useSynchronousMode();
-
-    asn1Buffers = new ThreadLocal<ASN1Buffer>();
 
     try
     {
