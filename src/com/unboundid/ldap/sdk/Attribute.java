@@ -45,6 +45,7 @@ import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Base64;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -1462,6 +1463,98 @@ public final class Attribute
 
 
   /**
+   * Indicates whether any of the values of this attribute need to be
+   * base64-encoded when represented as LDIF.
+   *
+   * @return  {@code true} if any of the values of this attribute need to be
+   *          base64-encoded when represented as LDIF, or {@code false} if not.
+   */
+  public boolean needsBase64Encoding()
+  {
+    for (final ASN1OctetString v : values)
+    {
+      if (needsBase64Encoding(v.getValue()))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+
+
+  /**
+   * Indicates whether the provided value needs to be base64-encoded when
+   * represented as LDIF.
+   *
+   * @param  v  The value for which to make the determination.  It must not be
+   *            {@code null}.
+   *
+   * @return  {@code true} if the provided value needs to be base64-encoded when
+   *          represented as LDIF, or {@code false} if not.
+   */
+  public static boolean needsBase64Encoding(final String v)
+  {
+    return needsBase64Encoding(getBytes(v));
+  }
+
+
+
+  /**
+   * Indicates whether the provided value needs to be base64-encoded when
+   * represented as LDIF.
+   *
+   * @param  v  The value for which to make the determination.  It must not be
+   *            {@code null}.
+   *
+   * @return  {@code true} if the provided value needs to be base64-encoded when
+   *          represented as LDIF, or {@code false} if not.
+   */
+  public static boolean needsBase64Encoding(final byte[] v)
+  {
+    if (v.length == 0)
+    {
+      return false;
+    }
+
+    switch (v[0] & 0xFF)
+    {
+      case 0x20: // Space
+      case 0x3A: // Colon
+      case 0x3C: // Less-than
+        return true;
+    }
+
+    if ((v[v.length-1] & 0xFF) == 0x20)
+    {
+      return true;
+    }
+
+    for (final byte b : v)
+    {
+      switch (b & 0xFF)
+      {
+        case 0x00: // NULL
+        case 0x0A: // LF
+        case 0x0D: // CR
+          return true;
+
+        default:
+          if ((b & 0x80) != 0x00)
+          {
+            return true;
+          }
+          break;
+      }
+    }
+
+    return false;
+  }
+
+
+
+  /**
    * Generates a hash code for this LDAP attribute.  It will be the sum of the
    * hash codes for the lowercase attribute name and the normalized values.
    *
@@ -1575,11 +1668,30 @@ public final class Attribute
   {
     buffer.append("Attribute(name=");
     buffer.append(name);
-    buffer.append(", values={");
 
-    if (values.length > 0)
+    if (values.length == 0)
     {
+      buffer.append(", values={");
+    }
+    else if (needsBase64Encoding())
+    {
+      buffer.append(", base64Values={'");
+
+      for (int i=0; i < values.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append("', '");
+        }
+
+        buffer.append(Base64.encode(values[i].getValue()));
+      }
+
       buffer.append('\'');
+    }
+    else
+    {
+      buffer.append(", values={'");
 
       for (int i=0; i < values.length; i++)
       {
