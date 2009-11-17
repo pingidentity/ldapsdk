@@ -68,6 +68,13 @@ public class ASN1Element
   // The cached hashCode for this element.
   private int hashCode = -1;
 
+  // The number of bytes contained in the value.
+  private final int valueLength;
+
+  // The offset within the value array at which the value begins.
+  private final int valueOffset;
+
+
 
   /**
    * Creates a new ASN.1 BER element with the specified type and no value.
@@ -76,8 +83,10 @@ public class ASN1Element
    */
   public ASN1Element(final byte type)
   {
-    this.type = type;
-    value     = NO_VALUE;
+    this.type   = type;
+    value       = NO_VALUE;
+    valueOffset = 0;
+    valueLength = 0;
   }
 
 
@@ -100,6 +109,30 @@ public class ASN1Element
     {
       this.value = value;
     }
+
+    valueOffset = 0;
+    valueLength = this.value.length;
+  }
+
+
+
+  /**
+   * Creates a new ASN1 BER element with the specified type and value.
+   *
+   * @param  type    The BER type for this element.
+   * @param  value   The array containing the encoded value for this element.
+   *                 It must not be {@code null}.
+   * @param  offset  The offset within the array at which the value begins.
+   * @param  length  The number of bytes contained in the value.
+   */
+  public ASN1Element(final byte type, final byte[] value, final int offset,
+                     final int length)
+  {
+    this.type  = type;
+    this.value = value;
+
+    valueOffset = offset;
+    valueLength = length;
   }
 
 
@@ -117,13 +150,63 @@ public class ASN1Element
 
 
   /**
+   * Retrieves the array containing the value.  The returned array may be
+   * larger than the actual value, so it must be used in conjunction with the
+   * values returned by the {@link #getValueOffset} and {@link #getValueLength}
+   * methods.
+   *
+   * @return  The array containing the value.
+   */
+  byte[] getValueArray()
+  {
+    return value;
+  }
+
+
+
+  /**
+   * Retrieves the position in the value array at which the value actually
+   * begins.
+   *
+   * @return  The position in the value array at which the value actually
+   *          begins.
+   */
+  int getValueOffset()
+  {
+    return valueOffset;
+  }
+
+
+
+  /**
+   * Retrieves the number of bytes contained in the value.
+   *
+   * @return  The number of bytes contained in the value.
+   */
+  public int getValueLength()
+  {
+    return valueLength;
+  }
+
+
+
+  /**
    * Retrieves the encoded value for this element.
    *
    * @return  The encoded value for this element.
    */
   public byte[] getValue()
   {
-    return value;
+    if ((valueOffset == 0) && (valueLength == value.length))
+    {
+      return value;
+    }
+    else
+    {
+      final byte[] returnValue = new byte[valueLength];
+      System.arraycopy(value, valueOffset, returnValue, 0, valueLength);
+      return returnValue;
+    }
   }
 
 
@@ -134,24 +217,26 @@ public class ASN1Element
    * @return  A byte array containing the encoded representation of this ASN.1
    *          element.
    */
-  public byte[] encode()
+  public final byte[] encode()
   {
-    final byte[] v = getValue();
-    if (v.length == 0)
+    final byte[] valueArray = getValueArray();
+    final int    length     = getValueLength();
+    final int    offset     = getValueOffset();
+
+    if (length == 0)
     {
       return new byte[] { type, 0x00 };
     }
-    else
-    {
-      final byte[] lengthBytes  = encodeLength(v.length);
-      final byte[] elementBytes = new byte[1 + lengthBytes.length + v.length];
 
-      elementBytes[0] = type;
-      System.arraycopy(lengthBytes, 0, elementBytes, 1, lengthBytes.length);
-      System.arraycopy(v, 0, elementBytes, 1+lengthBytes.length, v.length);
+    final byte[] lengthBytes  = encodeLength(length);
+    final byte[] elementBytes = new byte[1 + lengthBytes.length + length];
 
-      return elementBytes;
-    }
+    elementBytes[0] = type;
+    System.arraycopy(lengthBytes, 0, elementBytes, 1, lengthBytes.length);
+    System.arraycopy(valueArray, offset, elementBytes, 1+lengthBytes.length,
+         length);
+
+    return elementBytes;
   }
 
 
@@ -207,17 +292,19 @@ public class ASN1Element
    */
   public void encodeTo(final ByteStringBuffer buffer)
   {
-    final byte[] v = getValue();
-    if (v.length == 0)
+    final byte[] valueArray = getValueArray();
+    final int    length     = getValueLength();
+    final int    offset     = getValueOffset();
+
+    buffer.append(type);
+    if (length == 0)
     {
-      buffer.append(type);
       buffer.append((byte) 0x00);
     }
     else
     {
-      buffer.append(type);
-      encodeLengthTo(v.length, buffer);
-      buffer.append(v);
+      encodeLengthTo(length, buffer);
+      buffer.append(valueArray, offset, length);
     }
   }
 

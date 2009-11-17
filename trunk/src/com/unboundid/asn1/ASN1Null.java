@@ -22,7 +22,6 @@ package com.unboundid.asn1;
 
 
 
-import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -76,44 +75,6 @@ public final class ASN1Null
   public ASN1Null(final byte type)
   {
     super(type);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public byte[] getValue()
-  {
-    return NO_VALUE;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public byte[] encode()
-  {
-    return new byte[]
-    {
-      getType(),
-      0x00
-    };
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void encodeTo(final ByteStringBuffer buffer)
-  {
-    buffer.append(getType());
-    buffer.append((byte) 0x00);
   }
 
 

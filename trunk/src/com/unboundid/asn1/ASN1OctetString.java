@@ -307,6 +307,39 @@ public final class ASN1OctetString
    * {@inheritDoc}
    */
   @Override()
+  byte[] getValueArray()
+  {
+    return getValue();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  int getValueOffset()
+  {
+    return 0;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int getValueLength()
+  {
+    return getValue().length;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public byte[] getValue()
   {
     if (valueBytes == null)

@@ -555,41 +555,29 @@ class com.unboundid.asn1.ASN1Boolean method public static com.unboundid.asn1.ASN
 class com.unboundid.asn1.ASN1Boolean method public void toString(java.lang.StringBuilder)
 class com.unboundid.asn1.ASN1Enumerated constructor public com.unboundid.asn1.ASN1Enumerated(byte,int)
 class com.unboundid.asn1.ASN1Enumerated constructor public com.unboundid.asn1.ASN1Enumerated(int)
-class com.unboundid.asn1.ASN1Enumerated method public byte[] encode()
-class com.unboundid.asn1.ASN1Enumerated method public byte[] getValue()
 class com.unboundid.asn1.ASN1Enumerated method public int intValue()
 class com.unboundid.asn1.ASN1Enumerated method public static com.unboundid.asn1.ASN1Enumerated decodeAsEnumerated(byte[]) throws com.unboundid.asn1.ASN1Exception
 class com.unboundid.asn1.ASN1Enumerated method public static com.unboundid.asn1.ASN1Enumerated decodeAsEnumerated(com.unboundid.asn1.ASN1Element) throws com.unboundid.asn1.ASN1Exception
-class com.unboundid.asn1.ASN1Enumerated method public void encodeTo(com.unboundid.util.ByteStringBuffer)
 class com.unboundid.asn1.ASN1Enumerated method public void toString(java.lang.StringBuilder)
 class com.unboundid.asn1.ASN1Exception constructor public com.unboundid.asn1.ASN1Exception(java.lang.String)
 class com.unboundid.asn1.ASN1Exception constructor public com.unboundid.asn1.ASN1Exception(java.lang.String,java.lang.Throwable)
 class com.unboundid.asn1.ASN1Integer constructor public com.unboundid.asn1.ASN1Integer(byte,int)
 class com.unboundid.asn1.ASN1Integer constructor public com.unboundid.asn1.ASN1Integer(int)
-class com.unboundid.asn1.ASN1Integer method public byte[] encode()
-class com.unboundid.asn1.ASN1Integer method public byte[] getValue()
 class com.unboundid.asn1.ASN1Integer method public int intValue()
 class com.unboundid.asn1.ASN1Integer method public static com.unboundid.asn1.ASN1Integer decodeAsInteger(byte[]) throws com.unboundid.asn1.ASN1Exception
 class com.unboundid.asn1.ASN1Integer method public static com.unboundid.asn1.ASN1Integer decodeAsInteger(com.unboundid.asn1.ASN1Element) throws com.unboundid.asn1.ASN1Exception
-class com.unboundid.asn1.ASN1Integer method public void encodeTo(com.unboundid.util.ByteStringBuffer)
 class com.unboundid.asn1.ASN1Integer method public void toString(java.lang.StringBuilder)
 class com.unboundid.asn1.ASN1Long constructor public com.unboundid.asn1.ASN1Long(byte,long)
 class com.unboundid.asn1.ASN1Long constructor public com.unboundid.asn1.ASN1Long(long)
-class com.unboundid.asn1.ASN1Long method public byte[] encode()
-class com.unboundid.asn1.ASN1Long method public byte[] getValue()
 class com.unboundid.asn1.ASN1Long method public long longValue()
 class com.unboundid.asn1.ASN1Long method public static com.unboundid.asn1.ASN1Long decodeAsLong(byte[]) throws com.unboundid.asn1.ASN1Exception
 class com.unboundid.asn1.ASN1Long method public static com.unboundid.asn1.ASN1Long decodeAsLong(com.unboundid.asn1.ASN1Element) throws com.unboundid.asn1.ASN1Exception
-class com.unboundid.asn1.ASN1Long method public void encodeTo(com.unboundid.util.ByteStringBuffer)
 class com.unboundid.asn1.ASN1Long method public void toString(java.lang.StringBuilder)
 class com.unboundid.asn1.ASN1Null constructor public com.unboundid.asn1.ASN1Null()
 class com.unboundid.asn1.ASN1Null constructor public com.unboundid.asn1.ASN1Null(byte)
 class com.unboundid.asn1.ASN1Null field public static final com.unboundid.asn1.ASN1Null UNIVERSAL_NULL_ELEMENT
-class com.unboundid.asn1.ASN1Null method public byte[] encode()
-class com.unboundid.asn1.ASN1Null method public byte[] getValue()
 class com.unboundid.asn1.ASN1Null method public static com.unboundid.asn1.ASN1Null decodeAsNull(byte[]) throws com.unboundid.asn1.ASN1Exception
 class com.unboundid.asn1.ASN1Null method public static com.unboundid.asn1.ASN1Null decodeAsNull(com.unboundid.asn1.ASN1Element) throws com.unboundid.asn1.ASN1Exception
-class com.unboundid.asn1.ASN1Null method public void encodeTo(com.unboundid.util.ByteStringBuffer)
 class com.unboundid.asn1.ASN1Null method public void toString(java.lang.StringBuilder)
 class com.unboundid.asn1.ASN1OctetString constructor public com.unboundid.asn1.ASN1OctetString()
 class com.unboundid.asn1.ASN1OctetString constructor public com.unboundid.asn1.ASN1OctetString(byte)
