@@ -528,9 +528,11 @@ public final class SearchRate
     FixedRateBarrier fixedRateBarrier = null;
     if (ratePerSecond.isPresent())
     {
-      final int ONE_SECOND = 1000;  // in milliseconds
-      fixedRateBarrier = new FixedRateBarrier(ONE_SECOND,
-                                              ratePerSecond.getValue());
+      final int intervalSeconds = collectionInterval.getValue();
+      final int ratePerInterval = ratePerSecond.getValue() * intervalSeconds;
+
+      fixedRateBarrier =
+           new FixedRateBarrier(1000L * intervalSeconds, ratePerInterval);
     }
 
 
