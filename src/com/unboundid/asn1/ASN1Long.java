@@ -22,7 +22,6 @@ package com.unboundid.asn1;
 
 
 
-import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -53,9 +52,6 @@ public final class ASN1Long
   // The long value for this element.
   private final long longValue;
 
-  // The encoded value for this element, if available.
-  private final byte[] encodedValue;
-
 
 
   /**
@@ -66,10 +62,9 @@ public final class ASN1Long
    */
   public ASN1Long(final long longValue)
   {
-    super(UNIVERSAL_INTEGER_TYPE);
+    super(UNIVERSAL_INTEGER_TYPE, encodeLongValue(longValue));
 
     this.longValue = longValue;
-    encodedValue   = encodeLongValue(longValue);
   }
 
 
@@ -83,10 +78,9 @@ public final class ASN1Long
    */
   public ASN1Long(final byte type, final long longValue)
   {
-    super(type);
+    super(type, encodeLongValue(longValue));
 
     this.longValue = longValue;
-    encodedValue   = encodeLongValue(longValue);
   }
 
 
@@ -104,132 +98,6 @@ public final class ASN1Long
     super(type, value);
 
     this.longValue = longValue;
-    encodedValue   = value;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public byte[] getValue()
-  {
-    return encodedValue;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public byte[] encode()
-  {
-    switch (encodedValue.length)
-    {
-      case 1:
-        return new byte[]
-        {
-          getType(),
-          0x01,
-          encodedValue[0]
-        };
-      case 2:
-        return new byte[]
-        {
-          getType(),
-          0x02,
-          encodedValue[0],
-          encodedValue[1]
-        };
-      case 3:
-        return new byte[]
-        {
-          getType(),
-          0x03,
-          encodedValue[0],
-          encodedValue[1],
-          encodedValue[2]
-        };
-      case 4:
-        return new byte[]
-        {
-          getType(),
-          0x04,
-          encodedValue[0],
-          encodedValue[1],
-          encodedValue[2],
-          encodedValue[3]
-        };
-      case 5:
-        return new byte[]
-        {
-          getType(),
-          0x05,
-          encodedValue[0],
-          encodedValue[1],
-          encodedValue[2],
-          encodedValue[3],
-          encodedValue[4]
-        };
-      case 6:
-        return new byte[]
-        {
-          getType(),
-          0x06,
-          encodedValue[0],
-          encodedValue[1],
-          encodedValue[2],
-          encodedValue[3],
-          encodedValue[4],
-          encodedValue[5]
-        };
-      case 7:
-        return new byte[]
-        {
-          getType(),
-          0x07,
-          encodedValue[0],
-          encodedValue[1],
-          encodedValue[2],
-          encodedValue[3],
-          encodedValue[4],
-          encodedValue[5],
-          encodedValue[6]
-        };
-      case 8:
-        return new byte[]
-        {
-          getType(),
-          0x08,
-          encodedValue[0],
-          encodedValue[1],
-          encodedValue[2],
-          encodedValue[3],
-          encodedValue[4],
-          encodedValue[5],
-          encodedValue[6],
-          encodedValue[7]
-        };
-      default:
-        // This should never happen.
-        throw new AssertionError("Invalid long value length:  " +
-                                 encodedValue.length);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void encodeTo(final ByteStringBuffer buffer)
-  {
-    buffer.append(getType());
-    encodeLengthTo(encodedValue.length, buffer);
-    buffer.append(encodedValue);
   }
 
 

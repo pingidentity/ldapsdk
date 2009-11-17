@@ -22,7 +22,6 @@ package com.unboundid.asn1;
 
 
 
-import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -56,9 +55,6 @@ public final class ASN1Enumerated
   // The int value for this element.
   private final int intValue;
 
-  // The encoded value for this element, if available.
-  private final byte[] encodedValue;
-
 
 
   /**
@@ -69,10 +65,9 @@ public final class ASN1Enumerated
    */
   public ASN1Enumerated(final int intValue)
   {
-    super(UNIVERSAL_ENUMERATED_TYPE);
+    super(UNIVERSAL_ENUMERATED_TYPE, ASN1Integer.encodeIntValue(intValue));
 
     this.intValue = intValue;
-    encodedValue  = ASN1Integer.encodeIntValue(intValue);
   }
 
 
@@ -86,10 +81,9 @@ public final class ASN1Enumerated
    */
   public ASN1Enumerated(final byte type, final int intValue)
   {
-    super(type);
+    super(type, ASN1Integer.encodeIntValue(intValue));
 
     this.intValue = intValue;
-    encodedValue  = ASN1Integer.encodeIntValue(intValue);
   }
 
 
@@ -108,7 +102,6 @@ public final class ASN1Enumerated
     super(type, value);
 
     this.intValue = intValue;
-    encodedValue  = value;
   }
 
 
@@ -121,81 +114,6 @@ public final class ASN1Enumerated
   public int intValue()
   {
     return intValue;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public byte[] getValue()
-  {
-    return encodedValue;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public byte[] encode()
-  {
-    switch (encodedValue.length)
-    {
-      case 1:
-        return new byte[]
-        {
-          getType(),
-          0x01,
-          encodedValue[0]
-        };
-      case 2:
-        return new byte[]
-        {
-          getType(),
-          0x02,
-          encodedValue[0],
-          encodedValue[1]
-        };
-      case 3:
-        return new byte[]
-        {
-          getType(),
-          0x03,
-          encodedValue[0],
-          encodedValue[1],
-          encodedValue[2]
-        };
-      case 4:
-        return new byte[]
-        {
-          getType(),
-          0x04,
-          encodedValue[0],
-          encodedValue[1],
-          encodedValue[2],
-          encodedValue[3]
-        };
-      default:
-        // This should never happen.
-        throw new AssertionError("Invalid enumerated value length:  " +
-                                 encodedValue.length);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void encodeTo(final ByteStringBuffer buffer)
-  {
-    buffer.append(getType());
-    encodeLengthTo(encodedValue.length, buffer);
-    buffer.append(encodedValue);
   }
 
 

@@ -241,6 +241,39 @@ public final class ASN1Set
    * {@inheritDoc}
    */
   @Override()
+  byte[] getValueArray()
+  {
+    return getValue();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  int getValueOffset()
+  {
+    return 0;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int getValueLength()
+  {
+    return getValue().length;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public byte[] getValue()
   {
     if (encodedValue == null)
@@ -362,10 +395,8 @@ public final class ASN1Set
                  ERR_SET_BYTES_DECODE_LENGTH_EXCEEDS_AVAILABLE.get());
           }
 
-          final byte[] b = new byte[l];
-          System.arraycopy(value, pos, b, 0, l);
+          elementList.add(new ASN1Element(type, value, pos, l));
           pos += l;
-          elementList.add(new ASN1Element(type, b));
           numElements++;
         }
       }
@@ -448,10 +479,8 @@ public final class ASN1Set
                     String.valueOf(element)));
         }
 
-        final byte[] b = new byte[length];
-        System.arraycopy(value, pos, b, 0, length);
+        elementList.add(new ASN1Element(type, value, pos, length));
         pos += length;
-        elementList.add(new ASN1Element(type, b));
         numElements++;
       }
     }
