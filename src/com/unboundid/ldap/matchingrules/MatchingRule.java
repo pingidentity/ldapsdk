@@ -87,6 +87,78 @@ public abstract class MatchingRule
 
 
   /**
+   * Retrieves the name for this matching rule when used to perform equality
+   * matching, if appropriate.
+   *
+   * @return  The name for this matching rule when used to perform equality
+   *          matching, or {@code null} if this matching rule is not intended
+   *          to be used for equality matching.
+   */
+  public abstract String getEqualityMatchingRuleName();
+
+
+
+  /**
+   * Retrieves the OID for this matching rule when used to perform equality
+   * matching, if appropriate.
+   *
+   * @return  The OID for this matching rule when used to perform equality
+   *          matching, or {@code null} if this matching rule is not intended
+   *          to be used for equality matching.
+   */
+  public abstract String getEqualityMatchingRuleOID();
+
+
+
+  /**
+   * Retrieves the name for this matching rule when used to perform ordering
+   * matching, if appropriate.
+   *
+   * @return  The name for this matching rule when used to perform ordering
+   *          matching, or {@code null} if this matching rule is not intended
+   *          to be used for ordering matching.
+   */
+  public abstract String getOrderingMatchingRuleName();
+
+
+
+  /**
+   * Retrieves the OID for this matching rule when used to perform ordering
+   * matching, if appropriate.
+   *
+   * @return  The OID for this matching rule when used to perform ordering
+   *          matching, or {@code null} if this matching rule is not intended
+   *          to be used for ordering matching.
+   */
+  public abstract String getOrderingMatchingRuleOID();
+
+
+
+  /**
+   * Retrieves the name for this matching rule when used to perform substring
+   * matching, if appropriate.
+   *
+   * @return  The name for this matching rule when used to perform substring
+   *          matching, or {@code null} if this matching rule is not intended
+   *          to be used for substring matching.
+   */
+  public abstract String getSubstringMatchingRuleName();
+
+
+
+  /**
+   * Retrieves the OID for this matching rule when used to perform substring
+   * matching, if appropriate.
+   *
+   * @return  The OID for this matching rule when used to perform substring
+   *          matching, or {@code null} if this matching rule is not intended
+   *          to be used for substring matching.
+   */
+  public abstract String getSubstringMatchingRuleOID();
+
+
+
+  /**
    * Indicates whether the provided values are equal to each other, according to
    * the constraints of this matching rule.
    *
@@ -197,95 +269,69 @@ public abstract class MatchingRule
   /**
    * Attempts to select the appropriate matching rule to use for equality
    * matching against the specified attribute.  If an appropriate matching rule
-   * cannot be determined, then the case-ignore string matching rule will be
+   * cannot be determined, then the default equality matching rule will be
    * selected.
    *
    * @param  attrName  The name of the attribute to examine in the provided
    *                   schema.
    * @param  schema    The schema to examine to make the appropriate
-   *                   determination.  If this is {@code null}, then a
-   *                   case-ignore string matching rule will be selected.
+   *                   determination.  If this is {@code null}, then the default
+   *                   equality matching rule will be selected.
    *
    * @return  The selected matching rule.
    */
   public static MatchingRule selectEqualityMatchingRule(final String attrName,
                                                         final Schema schema)
   {
+    return selectEqualityMatchingRule(attrName, null, schema);
+  }
+
+
+
+  /**
+   * Attempts to select the appropriate matching rule to use for equality
+   * matching against the specified attribute.  If an appropriate matching rule
+   * cannot be determined, then the default equality matching rule will be
+   * selected.
+   *
+   * @param  attrName  The name of the attribute to examine in the provided
+   *                   schema.  It may be {@code null} if the matching rule
+   *                   should be selected using the matching rule ID.
+   * @param  ruleID    The OID of the desired matching rule.  It may be
+   *                   {@code null} if the matching rule should be selected only
+   *                   using the attribute name.  If a rule ID is provided, then
+   *                   it will be the only criteria used to select the matching
+   *                   rule.
+   * @param  schema    The schema to examine to make the appropriate
+   *                   determination.  If this is {@code null} and no rule ID
+   *                   was provided, then the default equality matching rule
+   *                   will be selected.
+   *
+   * @return  The selected matching rule.
+   */
+  public static MatchingRule selectEqualityMatchingRule(final String attrName,
+                                  final String ruleID, final Schema schema)
+  {
+    if (ruleID != null)
+    {
+      return selectEqualityMatchingRule(ruleID);
+    }
+
     if ((attrName == null) || (schema == null))
     {
-      return CaseIgnoreStringMatchingRule.getInstance();
+      return getDefaultEqualityMatchingRule();
     }
 
     final AttributeTypeDefinition attrType = schema.getAttributeType(attrName);
     if (attrType == null)
     {
-      return CaseIgnoreStringMatchingRule.getInstance();
+      return getDefaultEqualityMatchingRule();
     }
 
     final String mrName = attrType.getEqualityMatchingRule(schema);
     if (mrName != null)
     {
-      final String lowerName = toLowerCase(mrName);
-      if (lowerName.equals("booleanmatch") ||
-          lowerName.equals("2.5.13.13"))
-      {
-        return BooleanMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("caseexactmatch") ||
-               lowerName.equals("2.5.13.5") ||
-               lowerName.equals("caseexactia5match") ||
-               lowerName.equals("1.3.6.1.4.1.1466.109.114.1"))
-      {
-        return CaseExactStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("caseignorelistmatch") ||
-               lowerName.equals("2.5.13.11"))
-      {
-        return CaseIgnoreListMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("caseignorematch") ||
-               lowerName.equals("2.5.13.2") ||
-               lowerName.equals("caseignoreia5match") ||
-               lowerName.equals("1.3.6.1.4.1.1466.109.114.2"))
-      {
-        return CaseIgnoreStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("distinguishednamematch") ||
-               lowerName.equals("2.5.13.1") ||
-               lowerName.equals("uniquemembermatch") ||
-               lowerName.equals("2.5.13.23"))
-      {
-        // NOTE -- Technically uniqueMember should use a name and optional UID
-        // matching rule, but the SDK doesn't currently provide one and the
-        // distinguished name matching rule should be sufficient the vast
-        // majority of the time.
-        return DistinguishedNameMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("generalizedtimematch") ||
-               lowerName.equals("2.5.13.27"))
-      {
-        return GeneralizedTimeMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("integermatch") ||
-               lowerName.equals("2.5.13.14"))
-      {
-        return IntegerMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("numericstringmatch") ||
-               lowerName.equals("2.5.13.8"))
-      {
-        return NumericStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("octetstringmatch") ||
-               lowerName.equals("2.5.13.17"))
-      {
-        return OctetStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("telephonenumbermatch") ||
-               lowerName.equals("2.5.13.20"))
-      {
-        return TelephoneNumberMatchingRule.getInstance();
-      }
+      return selectEqualityMatchingRule(mrName);
     }
 
     final String syntaxOID = attrType.getSyntaxOID(schema);
@@ -294,6 +340,116 @@ public abstract class MatchingRule
       return selectMatchingRuleForSyntax(syntaxOID);
     }
 
+    return getDefaultEqualityMatchingRule();
+  }
+
+
+
+  /**
+   * Attempts to select the appropriate matching rule to use for equality
+   * matching using the specified matching rule.  If an appropriate matching
+   * rule cannot be determined, then the default equality matching rule will be
+   * selected.
+   *
+   * @param  ruleID  The name or OID of the desired matching rule.
+   *
+   * @return  The selected matching rule.
+   */
+  public static MatchingRule selectEqualityMatchingRule(final String ruleID)
+  {
+    if ((ruleID == null) || (ruleID.length() == 0))
+    {
+      return getDefaultEqualityMatchingRule();
+    }
+
+    final String lowerName = toLowerCase(ruleID);
+    if (lowerName.equals(BooleanMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+        lowerName.equals(BooleanMatchingRule.EQUALITY_RULE_OID))
+    {
+      return BooleanMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  CaseExactStringMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(CaseExactStringMatchingRule.EQUALITY_RULE_OID) ||
+             lowerName.equals("caseexactia5match") ||
+             lowerName.equals("1.3.6.1.4.1.1466.109.114.1"))
+    {
+      return CaseExactStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  CaseIgnoreListMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(CaseIgnoreListMatchingRule.EQUALITY_RULE_OID))
+    {
+      return CaseIgnoreListMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  CaseIgnoreStringMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(CaseIgnoreStringMatchingRule.EQUALITY_RULE_OID) ||
+             lowerName.equals("caseignoreia5match") ||
+             lowerName.equals("1.3.6.1.4.1.1466.109.114.2"))
+    {
+      return CaseIgnoreStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  DistinguishedNameMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(
+                  DistinguishedNameMatchingRule.EQUALITY_RULE_OID) ||
+             lowerName.equals("uniquemembermatch") ||
+             lowerName.equals("2.5.13.23"))
+    {
+      // NOTE -- Technically uniqueMember should use a name and optional UID
+      // matching rule, but the SDK doesn't currently provide one and the
+      // distinguished name matching rule should be sufficient the vast
+      // majority of the time.
+      return DistinguishedNameMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  GeneralizedTimeMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(GeneralizedTimeMatchingRule.EQUALITY_RULE_OID))
+    {
+      return GeneralizedTimeMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(IntegerMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(IntegerMatchingRule.EQUALITY_RULE_OID))
+    {
+      return IntegerMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  NumericStringMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(NumericStringMatchingRule.EQUALITY_RULE_OID))
+    {
+      return NumericStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  OctetStringMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(OctetStringMatchingRule.EQUALITY_RULE_OID))
+    {
+      return OctetStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  TelephoneNumberMatchingRule.LOWER_EQUALITY_RULE_NAME) ||
+             lowerName.equals(TelephoneNumberMatchingRule.EQUALITY_RULE_OID))
+    {
+      return TelephoneNumberMatchingRule.getInstance();
+    }
+    else
+    {
+      return getDefaultEqualityMatchingRule();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the default matching rule that will be used for equality matching
+   * if no other matching rule is specified or available.  The rule returned
+   * will perform case-ignore string matching.
+   *
+   * @return  The default matching rule that will be used for equality matching
+   *          if no other matching rule is specified or available.
+   */
+  public static MatchingRule getDefaultEqualityMatchingRule()
+  {
     return CaseIgnoreStringMatchingRule.getInstance();
   }
 
@@ -302,65 +458,70 @@ public abstract class MatchingRule
   /**
    * Attempts to select the appropriate matching rule to use for ordering
    * matching against the specified attribute.  If an appropriate matching rule
-   * cannot be determined, then the case-ignore string matching rule will be
+   * cannot be determined, then the default ordering matching rule will be
    * selected.
    *
    * @param  attrName  The name of the attribute to examine in the provided
    *                   schema.
    * @param  schema    The schema to examine to make the appropriate
-   *                   determination.  If this is {@code null}, then a
-   *                   case-ignore string matching rule will be selected.
+   *                   determination.  If this is {@code null}, then the default
+   *                   ordering matching rule will be selected.
    *
    * @return  The selected matching rule.
    */
   public static MatchingRule selectOrderingMatchingRule(final String attrName,
                                                         final Schema schema)
   {
+    return selectOrderingMatchingRule(attrName, null, schema);
+  }
+
+
+
+  /**
+   * Attempts to select the appropriate matching rule to use for ordering
+   * matching against the specified attribute.  If an appropriate matching rule
+   * cannot be determined, then the default ordering matching rule will be
+   * selected.
+   *
+   * @param  attrName  The name of the attribute to examine in the provided
+   *                   schema.  It may be {@code null} if the matching rule
+   *                   should be selected using the matching rule ID.
+   * @param  ruleID    The OID of the desired matching rule.  It may be
+   *                   {@code null} if the matching rule should be selected only
+   *                   using the attribute name.  If a rule ID is provided, then
+   *                   it will be the only criteria used to select the matching
+   *                   rule.
+   * @param  schema    The schema to examine to make the appropriate
+   *                   determination.  If this is {@code null} and no rule ID
+   *                   was provided, then the default ordering matching rule
+   *                   will be selected.
+   *
+   * @return  The selected matching rule.
+   */
+  public static MatchingRule selectOrderingMatchingRule(final String attrName,
+                                                        final String ruleID,
+                                                        final Schema schema)
+  {
+    if (ruleID != null)
+    {
+      return selectOrderingMatchingRule(ruleID);
+    }
+
     if ((attrName == null) || (schema == null))
     {
-      return CaseIgnoreStringMatchingRule.getInstance();
+      return getDefaultOrderingMatchingRule();
     }
 
     final AttributeTypeDefinition attrType = schema.getAttributeType(attrName);
     if (attrType == null)
     {
-      return CaseIgnoreStringMatchingRule.getInstance();
+      return getDefaultOrderingMatchingRule();
     }
 
     final String mrName = attrType.getOrderingMatchingRule(schema);
     if (mrName != null)
     {
-      final String lowerName = toLowerCase(mrName);
-      if (lowerName.equals("caseexactorderingmatch") ||
-          lowerName.equals("2.5.13.6"))
-      {
-        return CaseExactStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("caseignoreorderingmatch") ||
-               lowerName.equals("2.5.13.3"))
-      {
-        return CaseIgnoreStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("generalizedtimeorderingmatch") ||
-               lowerName.equals("2.5.13.28"))
-      {
-        return GeneralizedTimeMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("integerorderingmatch") ||
-               lowerName.equals("2.5.13.15"))
-      {
-        return IntegerMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("numericstringorderingmatch") ||
-               lowerName.equals("2.5.13.9"))
-      {
-        return NumericStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("octetstringorderingmatch") ||
-               lowerName.equals("2.5.13.18"))
-      {
-        return OctetStringMatchingRule.getInstance();
-      }
+      return selectOrderingMatchingRule(mrName);
     }
 
     final String syntaxOID = attrType.getSyntaxOID(schema);
@@ -369,6 +530,82 @@ public abstract class MatchingRule
       return selectMatchingRuleForSyntax(syntaxOID);
     }
 
+    return getDefaultOrderingMatchingRule();
+  }
+
+
+
+  /**
+   * Attempts to select the appropriate matching rule to use for ordering
+   * matching using the specified matching rule.  If an appropriate matching
+   * rule cannot be determined, then the default ordering matching rule will be
+   * selected.
+   *
+   * @param  ruleID  The name or OID of the desired matching rule.
+   *
+   * @return  The selected matching rule.
+   */
+  public static MatchingRule selectOrderingMatchingRule(final String ruleID)
+  {
+    if ((ruleID == null) || (ruleID.length() == 0))
+    {
+      return getDefaultOrderingMatchingRule();
+    }
+
+    final String lowerName = toLowerCase(ruleID);
+    if (lowerName.equals(
+             CaseExactStringMatchingRule.LOWER_ORDERING_RULE_NAME) ||
+        lowerName.equals(CaseExactStringMatchingRule.ORDERING_RULE_OID))
+    {
+      return CaseExactStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  CaseIgnoreStringMatchingRule.LOWER_ORDERING_RULE_NAME) ||
+             lowerName.equals(CaseIgnoreStringMatchingRule.ORDERING_RULE_OID))
+    {
+      return CaseIgnoreStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  GeneralizedTimeMatchingRule.LOWER_ORDERING_RULE_NAME) ||
+             lowerName.equals(GeneralizedTimeMatchingRule.ORDERING_RULE_OID))
+    {
+      return GeneralizedTimeMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(IntegerMatchingRule.LOWER_ORDERING_RULE_NAME) ||
+             lowerName.equals(IntegerMatchingRule.ORDERING_RULE_OID))
+    {
+      return IntegerMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  NumericStringMatchingRule.LOWER_ORDERING_RULE_NAME) ||
+             lowerName.equals(NumericStringMatchingRule.ORDERING_RULE_OID))
+    {
+      return NumericStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  OctetStringMatchingRule.LOWER_ORDERING_RULE_NAME) ||
+             lowerName.equals(OctetStringMatchingRule.ORDERING_RULE_OID))
+    {
+      return OctetStringMatchingRule.getInstance();
+    }
+    else
+    {
+      return getDefaultOrderingMatchingRule();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the default matching rule that will be used for ordering matching
+   * if no other matching rule is specified or available.  The rule returned
+   * will perform case-ignore string matching.
+   *
+   * @return  The default matching rule that will be used for ordering matching
+   *          if no other matching rule is specified or available.
+   */
+  public static MatchingRule getDefaultOrderingMatchingRule()
+  {
     return CaseIgnoreStringMatchingRule.getInstance();
   }
 
@@ -377,68 +614,70 @@ public abstract class MatchingRule
   /**
    * Attempts to select the appropriate matching rule to use for substring
    * matching against the specified attribute.  If an appropriate matching rule
-   * cannot be determined, then the case-ignore string matching rule will be
+   * cannot be determined, then the default substring matching rule will be
    * selected.
    *
    * @param  attrName  The name of the attribute to examine in the provided
    *                   schema.
    * @param  schema    The schema to examine to make the appropriate
-   *                   determination.  If this is {@code null}, then a
-   *                   case-ignore string matching rule will be selected.
+   *                   determination.  If this is {@code null}, then the default
+   *                   substring matching rule will be selected.
    *
    * @return  The selected matching rule.
    */
   public static MatchingRule selectSubstringMatchingRule(final String attrName,
                                                          final Schema schema)
   {
+    return selectSubstringMatchingRule(attrName, null, schema);
+  }
+
+
+
+  /**
+   * Attempts to select the appropriate matching rule to use for substring
+   * matching against the specified attribute.  If an appropriate matching rule
+   * cannot be determined, then the default substring matching rule will be
+   * selected.
+   *
+   * @param  attrName  The name of the attribute to examine in the provided
+   *                   schema.  It may be {@code null} if the matching rule
+   *                   should be selected using the matching rule ID.
+   * @param  ruleID    The OID of the desired matching rule.  It may be
+   *                   {@code null} if the matching rule should be selected only
+   *                   using the attribute name.  If a rule ID is provided, then
+   *                   it will be the only criteria used to select the matching
+   *                   rule.
+   * @param  schema    The schema to examine to make the appropriate
+   *                   determination.  If this is {@code null} and no rule ID
+   *                   was provided, then the default substring matching rule
+   *                   will be selected.
+   *
+   * @return  The selected matching rule.
+   */
+  public static MatchingRule selectSubstringMatchingRule(final String attrName,
+                                                         final String ruleID,
+                                                         final Schema schema)
+  {
+    if (ruleID != null)
+    {
+      return selectSubstringMatchingRule(ruleID);
+    }
+
     if ((attrName == null) || (schema == null))
     {
-      return CaseIgnoreStringMatchingRule.getInstance();
+      return getDefaultSubstringMatchingRule();
     }
 
     final AttributeTypeDefinition attrType = schema.getAttributeType(attrName);
     if (attrType == null)
     {
-      return CaseIgnoreStringMatchingRule.getInstance();
+      return getDefaultSubstringMatchingRule();
     }
 
     final String mrName = attrType.getSubstringMatchingRule(schema);
     if (mrName != null)
     {
-      final String lowerName = toLowerCase(mrName);
-      if (lowerName.equals("caseexactsubstringsmatch") ||
-          lowerName.equals("2.5.13.7") ||
-          lowerName.equals("caseexactia5substringsmatch"))
-      {
-        return CaseExactStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("caseignorelistsubstringsmatch") ||
-               lowerName.equals("2.5.13.12"))
-      {
-        return CaseIgnoreListMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("caseignoresubstringsmatch") ||
-               lowerName.equals("2.5.13.4") ||
-               lowerName.equals("caseignoreia5substringsmatch") ||
-               lowerName.equals("1.3.6.1.4.1.1466.109.114.3"))
-      {
-        return CaseIgnoreStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("numericstringsubstringsmatch") ||
-               lowerName.equals("2.5.13.10"))
-      {
-        return NumericStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("octetstringsubstringsmatch") ||
-               lowerName.equals("2.5.13.19"))
-      {
-        return OctetStringMatchingRule.getInstance();
-      }
-      else if (lowerName.equals("telephonenumbersubstringsmatch") ||
-               lowerName.equals("2.5.13.21"))
-      {
-        return TelephoneNumberMatchingRule.getInstance();
-      }
+      return selectSubstringMatchingRule(mrName);
     }
 
     final String syntaxOID = attrType.getSyntaxOID(schema);
@@ -447,6 +686,87 @@ public abstract class MatchingRule
       return selectMatchingRuleForSyntax(syntaxOID);
     }
 
+    return getDefaultSubstringMatchingRule();
+  }
+
+
+
+  /**
+   * Attempts to select the appropriate matching rule to use for substring
+   * matching using the specified matching rule.  If an appropriate matching
+   * rule cannot be determined, then the default substring matching rule will be
+   * selected.
+   *
+   * @param  ruleID  The name or OID of the desired matching rule.
+   *
+   * @return  The selected matching rule.
+   */
+  public static MatchingRule selectSubstringMatchingRule(final String ruleID)
+  {
+    if ((ruleID == null) || (ruleID.length() == 0))
+    {
+      return getDefaultSubstringMatchingRule();
+    }
+
+    final String lowerName = toLowerCase(ruleID);
+    if (lowerName.equals(
+             CaseExactStringMatchingRule.LOWER_SUBSTRING_RULE_NAME) ||
+        lowerName.equals(CaseExactStringMatchingRule.SUBSTRING_RULE_OID) ||
+        lowerName.equals("caseexactia5substringsmatch"))
+    {
+      return CaseExactStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  CaseIgnoreListMatchingRule.LOWER_SUBSTRING_RULE_NAME) ||
+             lowerName.equals(CaseIgnoreListMatchingRule.SUBSTRING_RULE_OID))
+    {
+      return CaseIgnoreListMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  CaseIgnoreStringMatchingRule.LOWER_SUBSTRING_RULE_NAME) ||
+             lowerName.equals(
+                  CaseIgnoreStringMatchingRule.SUBSTRING_RULE_OID) ||
+             lowerName.equals("caseignoreia5substringsmatch") ||
+             lowerName.equals("1.3.6.1.4.1.1466.109.114.3"))
+    {
+      return CaseIgnoreStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  NumericStringMatchingRule.LOWER_SUBSTRING_RULE_NAME) ||
+             lowerName.equals(NumericStringMatchingRule.SUBSTRING_RULE_OID))
+    {
+      return NumericStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  OctetStringMatchingRule.LOWER_SUBSTRING_RULE_NAME) ||
+             lowerName.equals(OctetStringMatchingRule.SUBSTRING_RULE_OID))
+    {
+      return OctetStringMatchingRule.getInstance();
+    }
+    else if (lowerName.equals(
+                  TelephoneNumberMatchingRule.LOWER_SUBSTRING_RULE_NAME) ||
+             lowerName.equals(TelephoneNumberMatchingRule.SUBSTRING_RULE_OID))
+    {
+      return TelephoneNumberMatchingRule.getInstance();
+    }
+    else
+    {
+      return getDefaultSubstringMatchingRule();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the default matching rule that will be used for substring
+   * matching if no other matching rule is specified or available.  The rule
+   * returned will perform case-ignore string matching.
+   *
+   * @return  The default matching rule that will be used for substring matching
+   *          if no other matching rule is specified or available.
+   */
+  public static MatchingRule getDefaultSubstringMatchingRule()
+  {
     return CaseIgnoreStringMatchingRule.getInstance();
   }
 
@@ -462,8 +782,7 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  private static MatchingRule selectMatchingRuleForSyntax(
-                                   final String syntaxOID)
+  static MatchingRule selectMatchingRuleForSyntax(final String syntaxOID)
   {
     if (syntaxOID.equals("1.3.6.1.4.1.1466.115.121.1.7"))
     {

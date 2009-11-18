@@ -29,6 +29,7 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.matchingrules.MatchingRuleMessages.*;
+import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -47,6 +48,53 @@ public final class TelephoneNumberMatchingRule
    */
   private static final TelephoneNumberMatchingRule INSTANCE =
        new TelephoneNumberMatchingRule();
+
+
+
+  /**
+   * The name for the telephoneNumberMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_NAME = "telephoneNumberMatch";
+
+
+
+  /**
+   * The name for the telephoneNumberMatch equality matching rule, formatted in
+   * all lowercase characters.
+   */
+  static final String LOWER_EQUALITY_RULE_NAME =
+       toLowerCase(EQUALITY_RULE_NAME);
+
+
+
+  /**
+   * The OID for the telephoneNumberMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_OID = "2.5.13.20";
+
+
+
+  /**
+   * The name for the telephoneNumberSubstringsMatch substring matching rule.
+   */
+  public static final String SUBSTRING_RULE_NAME =
+       "telephoneNumberSubstringsMatch";
+
+
+
+  /**
+   * The name for the telephoneNumberSubstringsMatch substring matching rule,
+   * formatted in all lowercase characters.
+   */
+  static final String LOWER_SUBSTRING_RULE_NAME =
+       toLowerCase(SUBSTRING_RULE_NAME);
+
+
+
+  /**
+   * The OID for the telephoneNumberSubstringsMatch substring matching rule.
+   */
+  public static final String SUBSTRING_RULE_OID = "2.5.13.21";
 
 
 
@@ -75,6 +123,72 @@ public final class TelephoneNumberMatchingRule
   public static TelephoneNumberMatchingRule getInstance()
   {
     return INSTANCE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleName()
+  {
+    return EQUALITY_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleOID()
+  {
+    return EQUALITY_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleName()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleOID()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleName()
+  {
+    return SUBSTRING_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleOID()
+  {
+    return SUBSTRING_RULE_OID;
   }
 
 

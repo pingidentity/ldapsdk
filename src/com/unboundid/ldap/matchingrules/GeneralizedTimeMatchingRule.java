@@ -42,7 +42,7 @@ import static com.unboundid.util.StaticUtils.*;
 /**
  * This class provides an implementation of a matching rule that performs
  * equality and ordering comparisons against values that should be timestamps
- * in the generalized time syntax.  Substring not supported.
+ * in the generalized time syntax.  Substring matching is not supported.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class GeneralizedTimeMatchingRule
@@ -70,6 +70,53 @@ public final class GeneralizedTimeMatchingRule
    * A reference to the "UTC" time zone.
    */
   private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+
+
+
+  /**
+   * The name for the generalizedTimeMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_NAME = "generalizedTimeMatch";
+
+
+
+  /**
+   * The name for the generalizedTimeMatch equality matching rule, formatted in
+   * all lowercase characters.
+   */
+  static final String LOWER_EQUALITY_RULE_NAME =
+       toLowerCase(EQUALITY_RULE_NAME);
+
+
+
+  /**
+   * The OID for the generalizedTimeMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_OID = "2.5.13.27";
+
+
+
+  /**
+   * The name for the generalizedTimeOrderingMatch ordering matching rule.
+   */
+  public static final String ORDERING_RULE_NAME =
+       "generalizedTimeOrderingMatch";
+
+
+
+  /**
+   * The name for the generalizedTimeOrderingMatch ordering matching rule,
+   * formatted in all lowercase characters.
+   */
+  static final String LOWER_ORDERING_RULE_NAME =
+       toLowerCase(ORDERING_RULE_NAME);
+
+
+
+  /**
+   * The OID for the generalizedTimeOrderingMatch ordering matching rule.
+   */
+  public static final String ORDERING_RULE_OID = "2.5.13.28";
 
 
 
@@ -104,6 +151,72 @@ public final class GeneralizedTimeMatchingRule
   public static GeneralizedTimeMatchingRule getInstance()
   {
     return INSTANCE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleName()
+  {
+    return EQUALITY_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleOID()
+  {
+    return EQUALITY_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleName()
+  {
+    return ORDERING_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleOID()
+  {
+    return ORDERING_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleName()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleOID()
+  {
+    return null;
   }
 
 
