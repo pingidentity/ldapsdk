@@ -26,6 +26,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
+import static com.unboundid.util.StaticUtils.*;
+
 
 
 /**
@@ -43,6 +45,75 @@ public final class CaseExactStringMatchingRule
    */
   private static final CaseExactStringMatchingRule INSTANCE =
        new CaseExactStringMatchingRule();
+
+
+
+  /**
+   * The name for the caseExactMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_NAME = "caseExactMatch";
+
+
+
+  /**
+   * The name for the caseExactMatch equality matching rule, formatted in all
+   * lowercase characters.
+   */
+  static final String LOWER_EQUALITY_RULE_NAME =
+       toLowerCase(EQUALITY_RULE_NAME);
+
+
+
+  /**
+   * The OID for the caseExactMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_OID = "2.5.13.5";
+
+
+
+  /**
+   * The name for the caseExactOrderingMatch ordering matching rule.
+   */
+  public static final String ORDERING_RULE_NAME = "caseExactOrderingMatch";
+
+
+
+  /**
+   * The name for the caseExactOrderingMatch ordering matching rule, formatted
+   * in all lowercase characters.
+   */
+  static final String LOWER_ORDERING_RULE_NAME =
+       toLowerCase(ORDERING_RULE_NAME);
+
+
+
+  /**
+   * The OID for the caseExactOrderingMatch ordering matching rule.
+   */
+  public static final String ORDERING_RULE_OID = "2.5.13.6";
+
+
+
+  /**
+   * The name for the caseExactSubstringsMatch substring matching rule.
+   */
+  public static final String SUBSTRING_RULE_NAME = "caseExactSubstringsMatch";
+
+
+
+  /**
+   * The name for the caseExactSubstringsMatch substring matching rule,
+   * formatted in all lowercase characters.
+   */
+  static final String LOWER_SUBSTRING_RULE_NAME =
+       toLowerCase(SUBSTRING_RULE_NAME);
+
+
+
+  /**
+   * The OID for the caseExactSubstringsMatch substring matching rule.
+   */
+  public static final String SUBSTRING_RULE_OID = "2.5.13.7";
 
 
 
@@ -71,6 +142,72 @@ public final class CaseExactStringMatchingRule
   public static CaseExactStringMatchingRule getInstance()
   {
     return INSTANCE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleName()
+  {
+    return EQUALITY_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleOID()
+  {
+    return EQUALITY_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleName()
+  {
+    return ORDERING_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleOID()
+  {
+    return ORDERING_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleName()
+  {
+    return SUBSTRING_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleOID()
+  {
+    return SUBSTRING_RULE_OID;
   }
 
 

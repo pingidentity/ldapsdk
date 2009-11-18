@@ -59,6 +59,53 @@ public final class CaseIgnoreListMatchingRule
 
 
   /**
+   * The name for the caseIgnoreListMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_NAME = "caseIgnoreListMatch";
+
+
+
+  /**
+   * The name for the caseIgnoreListMatch equality matching rule, formatted in
+   * all lowercase characters.
+   */
+  static final String LOWER_EQUALITY_RULE_NAME =
+       toLowerCase(EQUALITY_RULE_NAME);
+
+
+
+  /**
+   * The OID for the caseIgnoreListMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_OID = "2.5.13.11";
+
+
+
+  /**
+   * The name for the caseIgnoreListSubstringsMatch substring matching rule.
+   */
+  public static final String SUBSTRING_RULE_NAME =
+       "caseIgnoreListSubstringsMatch";
+
+
+
+  /**
+   * The name for the caseIgnoreListSubstringsMatch substring matching rule,
+   * formatted in all lowercase characters.
+   */
+  static final String LOWER_SUBSTRING_RULE_NAME =
+       toLowerCase(SUBSTRING_RULE_NAME);
+
+
+
+  /**
+   * The OID for the caseIgnoreListSubstringsMatch substring matching rule.
+   */
+  public static final String SUBSTRING_RULE_OID = "2.5.13.12";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 7795143670808983466L;
@@ -83,6 +130,72 @@ public final class CaseIgnoreListMatchingRule
   public static CaseIgnoreListMatchingRule getInstance()
   {
     return INSTANCE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleName()
+  {
+    return EQUALITY_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleOID()
+  {
+    return EQUALITY_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleName()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleOID()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleName()
+  {
+    return SUBSTRING_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleOID()
+  {
+    return SUBSTRING_RULE_OID;
   }
 
 

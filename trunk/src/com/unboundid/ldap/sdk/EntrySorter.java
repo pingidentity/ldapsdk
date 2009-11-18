@@ -290,9 +290,8 @@ public final class EntrySorter
       }
 
 
-      final MatchingRule matchingRule =
-           MatchingRule.selectOrderingMatchingRule(attrName, schema);
-
+      final MatchingRule matchingRule = MatchingRule.selectOrderingMatchingRule(
+           attrName, k.getMatchingRuleID(), schema);
       if (k.reverseOrder())
       {
         // Find the largest value for each attribute, and pick the larger of the

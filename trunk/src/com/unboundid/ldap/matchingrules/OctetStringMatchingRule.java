@@ -26,6 +26,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
+import static com.unboundid.util.StaticUtils.*;
+
 
 
 /**
@@ -42,6 +44,75 @@ public final class OctetStringMatchingRule
    */
   private static final OctetStringMatchingRule INSTANCE =
        new OctetStringMatchingRule();
+
+
+
+  /**
+   * The name for the octetStringMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_NAME = "octetStringMatch";
+
+
+
+  /**
+   * The name for the octetStringMatch equality matching rule, formatted in all
+   * lowercase characters.
+   */
+  static final String LOWER_EQUALITY_RULE_NAME =
+       toLowerCase(EQUALITY_RULE_NAME);
+
+
+
+  /**
+   * The OID for the octetStringMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_OID = "2.5.13.17";
+
+
+
+  /**
+   * The name for the octetStringOrderingMatch ordering matching rule.
+   */
+  public static final String ORDERING_RULE_NAME = "octetStringOrderingMatch";
+
+
+
+  /**
+   * The name for the octetStringOrderingMatch ordering matching rule, formatted
+   * in all lowercase characters.
+   */
+  static final String LOWER_ORDERING_RULE_NAME =
+       toLowerCase(ORDERING_RULE_NAME);
+
+
+
+  /**
+   * The OID for the octetStringOrderingMatch ordering matching rule.
+   */
+  public static final String ORDERING_RULE_OID = "2.5.13.18";
+
+
+
+  /**
+   * The name for the octetStringSubstringsMatch substring matching rule.
+   */
+  public static final String SUBSTRING_RULE_NAME = "octetStringSubstringsMatch";
+
+
+
+  /**
+   * The name for the octetStringSubstringsMatch substring matching rule,
+   * formatted in all lowercase characters.
+   */
+  static final String LOWER_SUBSTRING_RULE_NAME =
+       toLowerCase(SUBSTRING_RULE_NAME);
+
+
+
+  /**
+   * The OID for the octetStringSubstringMatch substring matching rule.
+   */
+  public static final String SUBSTRING_RULE_OID = "2.5.13.19";
 
 
 
@@ -70,6 +141,72 @@ public final class OctetStringMatchingRule
   public static OctetStringMatchingRule getInstance()
   {
     return INSTANCE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleName()
+  {
+    return EQUALITY_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleOID()
+  {
+    return EQUALITY_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleName()
+  {
+    return ORDERING_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleOID()
+  {
+    return ORDERING_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleName()
+  {
+    return SUBSTRING_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleOID()
+  {
+    return SUBSTRING_RULE_OID;
   }
 
 

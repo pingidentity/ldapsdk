@@ -31,6 +31,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.matchingrules.MatchingRuleMessages.*;
 import static com.unboundid.util.Debug.*;
+import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -49,6 +50,29 @@ public final class DistinguishedNameMatchingRule
    */
   private static final DistinguishedNameMatchingRule INSTANCE =
        new DistinguishedNameMatchingRule();
+
+
+
+  /**
+   * The name for the distinguishedNameMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_NAME = "distinguishedNameMatch";
+
+
+
+  /**
+   * The name for the distinguishedNameMatch equality matching rule, formatted
+   * in all lowercase characters.
+   */
+  static final String LOWER_EQUALITY_RULE_NAME =
+       toLowerCase(EQUALITY_RULE_NAME);
+
+
+
+  /**
+   * The OID for the distinguishedNameMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_OID = "2.5.13.1";
 
 
 
@@ -77,6 +101,72 @@ public final class DistinguishedNameMatchingRule
   public static DistinguishedNameMatchingRule getInstance()
   {
     return INSTANCE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleName()
+  {
+    return EQUALITY_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleOID()
+  {
+    return EQUALITY_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleName()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleOID()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleName()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleOID()
+  {
+    return null;
   }
 
 

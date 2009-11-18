@@ -29,13 +29,14 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.matchingrules.MatchingRuleMessages.*;
+import static com.unboundid.util.StaticUtils.*;
 
 
 
 /**
  * This class provides an implementation of a matching rule that performs
  * equality and ordering comparisons against values that should be integers.
- * Substring not supported.
+ * Substring matching is not supported.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class IntegerMatchingRule
@@ -47,6 +48,52 @@ public final class IntegerMatchingRule
    */
   private static final IntegerMatchingRule INSTANCE =
        new IntegerMatchingRule();
+
+
+
+  /**
+   * The name for the integerMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_NAME = "integerMatch";
+
+
+
+  /**
+   * The name for the integerMatch equality matching rule, formatted in all
+   * lowercase characters.
+   */
+  static final String LOWER_EQUALITY_RULE_NAME =
+       toLowerCase(EQUALITY_RULE_NAME);
+
+
+
+  /**
+   * The OID for the integerMatch equality matching rule.
+   */
+  public static final String EQUALITY_RULE_OID = "2.5.13.14";
+
+
+
+  /**
+   * The name for the integerOrderingMatch ordering matching rule.
+   */
+  public static final String ORDERING_RULE_NAME = "integerOrderingMatch";
+
+
+
+  /**
+   * The name for the integerOrderingMatch ordering matching rule, formatted
+   * in all lowercase characters.
+   */
+  static final String LOWER_ORDERING_RULE_NAME =
+       toLowerCase(ORDERING_RULE_NAME);
+
+
+
+  /**
+   * The OID for the integerOrderingMatch ordering matching rule.
+   */
+  public static final String ORDERING_RULE_OID = "2.5.13.15";
 
 
 
@@ -75,6 +122,72 @@ public final class IntegerMatchingRule
   public static IntegerMatchingRule getInstance()
   {
     return INSTANCE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleName()
+  {
+    return EQUALITY_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getEqualityMatchingRuleOID()
+  {
+    return EQUALITY_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleName()
+  {
+    return ORDERING_RULE_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getOrderingMatchingRuleOID()
+  {
+    return ORDERING_RULE_OID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleName()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSubstringMatchingRuleOID()
+  {
+    return null;
   }
 
 
