@@ -100,20 +100,19 @@ public final class DITStructureRuleDefinition
   /**
    * Creates a new DIT structure rule from the provided string representation.
    *
-   * @param  ditStructureRuleString  The string representation of the DIT
-   *                                 structure rule to create, using the syntax
-   *                                 described in RFC 4512 section 4.1.7.1.  It
-   *                                 must not be {@code null}.
+   * @param  s  The string representation of the DIT structure rule to create,
+   *            using the syntax described in RFC 4512 section 4.1.7.1.  It must
+   *            not be {@code null}.
    *
    * @throws  LDAPException  If the provided string cannot be decoded as a DIT
    *                         structure rule definition.
    */
-  public DITStructureRuleDefinition(final String ditStructureRuleString)
+  public DITStructureRuleDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(ditStructureRuleString);
+    ensureNotNull(s);
 
-    this.ditStructureRuleString = ditStructureRuleString;
+    ditStructureRuleString = s.trim();
 
     // The first character must be an opening parenthesis.
     final int length = ditStructureRuleString.length();
@@ -259,11 +258,11 @@ public final class DITStructureRuleDefinition
           pos = readOIDs(ditStructureRuleString, pos, length, supStrs);
 
           supList.ensureCapacity(supStrs.size());
-          for (final String s : supStrs)
+          for (final String supStr : supStrs)
           {
             try
             {
-              supList.add(Integer.parseInt(s));
+              supList.add(Integer.parseInt(supStr));
             }
             catch (NumberFormatException nfe)
             {

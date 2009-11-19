@@ -112,20 +112,19 @@ public final class AttributeTypeDefinition
   /**
    * Creates a new attribute type from the provided string representation.
    *
-   * @param  attributeTypeString  The string representation of the attribute
-   *                              type to create, using the syntax described in
-   *                              RFC 4512 section 4.1.2.  It must not be
-   *                              {@code null}.
+   * @param  s  The string representation of the attribute type to create, using
+   *            the syntax described in RFC 4512 section 4.1.2.  It must not be
+   *            {@code null}.
    *
    * @throws  LDAPException  If the provided string cannot be decoded as an
    *                         attribute type definition.
    */
-  public AttributeTypeDefinition(final String attributeTypeString)
+  public AttributeTypeDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(attributeTypeString);
+    ensureNotNull(s);
 
-    this.attributeTypeString = attributeTypeString;
+    attributeTypeString = s.trim();
 
     // The first character must be an opening parenthesis.
     final int length = attributeTypeString.length();

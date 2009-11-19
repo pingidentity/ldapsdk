@@ -88,20 +88,19 @@ public final class MatchingRuleUseDefinition
   /**
    * Creates a new matching rule use from the provided string representation.
    *
-   * @param  matchingRuleUseString  The string representation of the matching
-   *                                rule use to create, using the syntax
-   *                                described in RFC 4512 section 4.1.4.  It
-   *                                must not be {@code null}.
+   * @param  s  The string representation of the matching rule use to create,
+   *            using the syntax described in RFC 4512 section 4.1.4.  It must
+   *            not be {@code null}.
    *
    * @throws  LDAPException  If the provided string cannot be decoded as a
    *                         matching rule use definition.
    */
-  public MatchingRuleUseDefinition(final String matchingRuleUseString)
+  public MatchingRuleUseDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(matchingRuleUseString);
+    ensureNotNull(s);
 
-    this.matchingRuleUseString = matchingRuleUseString;
+    matchingRuleUseString = s.trim();
 
     // The first character must be an opening parenthesis.
     final int length = matchingRuleUseString.length();

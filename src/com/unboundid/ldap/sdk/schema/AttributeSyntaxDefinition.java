@@ -72,20 +72,19 @@ public final class AttributeSyntaxDefinition
   /**
    * Creates a new attribute syntax from the provided string representation.
    *
-   * @param  attributeSyntaxString  The string representation of the attribute
-   *                                syntax to create, using the syntax described
-   *                                in RFC 4512 section 4.1.5.  It must not be
-   *                                {@code null}.
+   * @param  s  The string representation of the attribute syntax to create,
+   *            using the syntax described in RFC 4512 section 4.1.5.  It must
+   *            not be {@code null}.
    *
    * @throws  LDAPException  If the provided string cannot be decoded as an
    *                         attribute syntax definition.
    */
-  public AttributeSyntaxDefinition(final String attributeSyntaxString)
+  public AttributeSyntaxDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(attributeSyntaxString);
+    ensureNotNull(s);
 
-    this.attributeSyntaxString = attributeSyntaxString;
+    attributeSyntaxString = s.trim();
 
     // The first character must be an opening parenthesis.
     final int length = attributeSyntaxString.length();
