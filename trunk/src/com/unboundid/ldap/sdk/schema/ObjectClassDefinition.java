@@ -100,19 +100,19 @@ public final class ObjectClassDefinition
   /**
    * Creates a new object class from the provided string representation.
    *
-   * @param  objectClassString  The string representation of the object class to
-   *                            create, using the syntax described in RFC 4512
-   *                            section 4.1.1.  It must not be {@code null}.
+   * @param  s  The string representation of the object class to create, using
+   *            the syntax described in RFC 4512 section 4.1.1.  It must not be
+   *            {@code null}.
    *
    * @throws  LDAPException  If the provided string cannot be decoded as an
    *                         object class definition.
    */
-  public ObjectClassDefinition(final String objectClassString)
+  public ObjectClassDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(objectClassString);
+    ensureNotNull(s);
 
-    this.objectClassString = objectClassString;
+    objectClassString = s.trim();
 
     // The first character must be an opening parenthesis.
     final int length = objectClassString.length();

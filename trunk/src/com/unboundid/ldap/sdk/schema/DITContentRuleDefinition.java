@@ -98,20 +98,19 @@ public final class DITContentRuleDefinition
   /**
    * Creates a new DIT content rule from the provided string representation.
    *
-   * @param  ditContentRuleString  The string representation of the DIT content
-   *                               rule to create, using the syntax described in
-   *                               RFC 4512 section 4.1.6.  It must not be
-   *                               {@code null}.
+   * @param  s  The string representation of the DIT content rule to create,
+   *            using the syntax described in RFC 4512 section 4.1.6.  It must
+   *            not be {@code null}.
    *
    * @throws  LDAPException  If the provided string cannot be decoded as a DIT
    *                         content rule definition.
    */
-  public DITContentRuleDefinition(final String ditContentRuleString)
+  public DITContentRuleDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(ditContentRuleString);
+    ensureNotNull(s);
 
-    this.ditContentRuleString = ditContentRuleString;
+    ditContentRuleString = s.trim();
 
     // The first character must be an opening parenthesis.
     final int length = ditContentRuleString.length();

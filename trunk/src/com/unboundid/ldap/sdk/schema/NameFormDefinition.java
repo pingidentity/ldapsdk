@@ -95,19 +95,19 @@ public final class NameFormDefinition
   /**
    * Creates a new name form from the provided string representation.
    *
-   * @param  nameFormString  The string representation of the name form to
-   *                         create, using the syntax described in RFC 4512
-   *                         section 4.1.7.2.  It must not be {@code null}.
+   * @param  s  The string representation of the name form to create, using the
+   *            syntax described in RFC 4512 section 4.1.7.2.  It must not be
+   *            {@code null}.
    *
    * @throws  LDAPException  If the provided string cannot be decoded as a name
    *                         form definition.
    */
-  public NameFormDefinition(final String nameFormString)
+  public NameFormDefinition(final String s)
          throws LDAPException
   {
-    ensureNotNull(nameFormString);
+    ensureNotNull(s);
 
-    this.nameFormString = nameFormString;
+    nameFormString = s.trim();
 
     // The first character must be an opening parenthesis.
     final int length = nameFormString.length();
