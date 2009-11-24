@@ -32,6 +32,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.unboundid.ldap.sdk.Version;
+
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.UtilityMessages.*;
 import static com.unboundid.util.Validator.*;
@@ -596,6 +598,8 @@ public final class StaticUtils
       buffer.append(", cause=");
       getStackTrace(cause, buffer);
     }
+    buffer.append(", revision=");
+    buffer.append(Version.REVISION_NUMBER);
     buffer.append(')');
   }
 
