@@ -36,6 +36,7 @@ import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.DisconnectType;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPRequest;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldif.LDIFRecord;
 
 import static com.unboundid.util.StaticUtils.*;
@@ -1020,6 +1021,8 @@ public final class Debug
       }
     }
 
-    buffer.append("\" ");
+    buffer.append("\" revision=");
+    buffer.append(Version.REVISION_NUMBER);
+    buffer.append(' ');
   }
 }
