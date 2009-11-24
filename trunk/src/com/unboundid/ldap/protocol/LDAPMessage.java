@@ -769,7 +769,7 @@ public final class LDAPMessage
     final ASN1StreamReaderSequence messageSequence;
     try
     {
-      reader.setIgnoreSocketTimeout(false);
+      reader.setIgnoreSocketTimeout(false, ignoreSocketTimeout);
       messageSequence = reader.beginSequence();
       if (messageSequence == null)
       {
@@ -794,7 +794,7 @@ public final class LDAPMessage
     try
     {
 
-      reader.setIgnoreSocketTimeout(ignoreSocketTimeout);
+      reader.setIgnoreSocketTimeout(ignoreSocketTimeout, ignoreSocketTimeout);
       final int messageID = reader.readInteger();
 
       final ProtocolOp protocolOp;
@@ -974,7 +974,7 @@ public final class LDAPMessage
     final ASN1StreamReaderSequence messageSequence;
     try
     {
-      reader.setIgnoreSocketTimeout(false);
+      reader.setIgnoreSocketTimeout(false, ignoreSocketTimeout);
       messageSequence = reader.beginSequence();
       if (messageSequence == null)
       {
@@ -998,7 +998,7 @@ public final class LDAPMessage
 
     try
     {
-      reader.setIgnoreSocketTimeout(ignoreSocketTimeout);
+      reader.setIgnoreSocketTimeout(ignoreSocketTimeout, ignoreSocketTimeout);
       final int messageID = reader.readInteger();
 
       final byte protocolOpType = (byte) reader.peek();
