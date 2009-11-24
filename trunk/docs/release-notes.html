@@ -10,6 +10,175 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 1.1.1</h3>
+
+              <p>
+                The following changes were made between the 1.1.0 and 1.1.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the searchrate, modrate, and authrate tools to change the way that they
+                  signal the processing threads to start.  The previous approach could lead to
+                  resource starvation causing the system to run with 100% CPU utilization for a
+                  period of time.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the accuracy of the searchrate, modrate, and authrate tools.  The
+                  overall rates were accurate, but the recent rates could be slightly off.
+                  In addition, the recent and overall rates for the first interval often didn't
+                  match up.  These problems have been resolved.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the searchrate and modrate tools to support the use of the proxied
+                  authorization v2 control.  The authorization ID may be specified as a value
+                  pattern, which makes it possible to specify a range of alternate authorization
+                  identities.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added <tt>isClosed</tt> methods to the connection pool implementations which can
+                  be used to determine whether the connection pool has been closed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the value pattern implementation to provide support for reading values
+                  from files.  Files should be referenced by URL, and it supports both local files
+                  (using a URL like "file:///path/to/file") and remote files via HTTP (using a URL
+                  like "http://server.example.com/path/to/file"), and that URL should be enclosed
+                  in square brackets.  For example, a value pattern of "[file:///tmp/filters.txt]"
+                  will cause the individual lines of the file "/tmp/filters.txt" to be read and
+                  randomly substituted for that portion of the value pattern.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the searchrate, modrate, and authrate tools so that they provide the
+                  ability to display information about the result codes for operations that don't
+                  complete successfully.  If any errors are encountered during processing, then
+                  the result codes for those failures will be displayed along with the number of
+                  times that result was returned.  The "--suppressErrorResultCodes" argument may
+                  be provided to disable this capability.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the behavior exhibited by the LDAP SDK when interacting with a server
+                  that is completely unresponsive (e.g., as in the case in which the network cable
+                  has been removed, or the server process has been halted with a command like
+                  pstop).  This includes improved support for honoring any configured connect
+                  timeout, even for SSL-based connections which did not previously support it.
+                  Bind and extended requests can now have an explicit timeout assigned to them,
+                  like was already possible for all other types of requests.  When duplicating a
+                  request, any assigned timeout is also duplicated along with the other details of
+                  that request.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the error message in the exception thrown if a client-side timeout
+                  occurs.  The updated message now includes the type of operation and the length
+                  of time the client waited before considering the operation to have timed out.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>RootDSE</tt> and <tt>Schema</tt> classes so that their
+                  constructors which take <tt>Entry</tt> objects are made public, since they can
+                  be useful in code outside of the LDAP SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  Made the <tt>SearchRequest.getSearchResultListener</tt> method public so that
+                  code outside of the LDAP SDK can determine whether a search result listener has
+                  been configured for the search.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the message properties files to use better format strings for messages
+                  containing numbers.  Previously, large numbers could be formatted awkwardly
+                  (e.g., including commas as grouping separators, like "12,345" instead of just
+                  "12345").
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK so that the thread-local <tt>ASN1Buffer</tt> object used for
+                  connections is made static rather than per-instance.  This can dramatically
+                  reduce the amount of memory consumed for applications with large numbers of
+                  connections that can be used by multiple threads.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added methods that can be used to determine whether an attribute value needs to
+                  be base64-encoded when represented in LDIF.  Also, updated the
+                  <tt>Attribute.toString</tt> methods so that values will be base64-encoded in
+                  that string representation if they should be base64-encoded in LDIF.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK so that it allows working with ASN.1 elements whose values
+                  are contained in a portion of a byte array rather than always requiring them to
+                  be the full array.  The sequence and set parsing code now takes advantage of
+                  this, and elements decoded from them no longer require allocation of new arrays
+                  for holding their values.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved support for client-side use of matching rules.  All matching rule
+                  classes now provide the ability to retrieve the name and OID of the equality,
+                  ordering, and substring matching rules that they implement.  The
+                  <tt>MatchingRule</tt> class now provides the ability to select a matching rule
+                  instance from the OID of the desired matching rule.  The <tt>EntrySorter</tt>
+                  class has been updated so that if a sort key contains a matching rule ID, then
+                  it will be used to select the matching rule to use for the client-side sorting.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the schema parsing code so that when reading schema definitions from
+                  LDAP or LDIF, any leading and trailing spaces will be trimmed before attempting
+                  to parse the elements.  Technically, leading and trailing spaces are illegal
+                  and should not be present in such definitions, but some servers are lenient and
+                  allow them so the LDAP SDK should attempt to accommodate such definitions.  It
+                  will still never generate schema element definitions containing leading or
+                  trailing spaces.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK so that any debug messages or string representations of
+                  exception stack traces that it generates will include the revision number of the
+                  source repository from which the LDAP SDK was built.  This can help make it
+                  easier to troubleshoot problems, since it is easier to identify the version of
+                  the source used to generate the LDAP SDK build being used.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug that can cause problems for clients operating in the default
+                  asynchronous mode if the server sends response messages broken up into small
+                  pieces rather than all a once.  In particular, if a response message contains
+                  only the BER type, or only the BER type and a portion (but not all of) the
+                  length, then the LDAP SDK may not be able to properly decode the full message if
+                  there is a delay between the first and second packets with portions of the type
+                  and length.  If this problem occurs, then the client would terminate the
+                  connection to the server.
+                  <br><br>
+                </li>
+              </ul>
+
               <h3>Version 1.1.0</h3>
 
               <p>
