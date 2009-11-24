@@ -211,7 +211,6 @@ final class LDAPConnectionReader
     {
       try
       {
-
         final LDAPResponse response;
         try
         {

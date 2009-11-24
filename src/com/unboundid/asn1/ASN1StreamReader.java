@@ -51,8 +51,13 @@ import static com.unboundid.util.StaticUtils.*;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class ASN1StreamReader
 {
-  // Indicates whether socket timeout exceptions should be ignored.
-  private boolean ignoreSocketTimeout;
+  // Indicates whether socket timeout exceptions should be ignored for the
+  // initial read of an element.
+  private boolean ignoreInitialSocketTimeout;
+
+  // Indicates whether socket timeout exceptions should be ignored for
+  // subsequent reads of an element.
+  private boolean ignoreSubsequentSocketTimeout;
 
   // The input stream from which data will be read.
   private final InputStream inputStream;
@@ -117,8 +122,9 @@ public final class ASN1StreamReader
       this.maxElementSize = Integer.MAX_VALUE;
     }
 
-    totalBytesRead      = 0L;
-    ignoreSocketTimeout = false;
+    totalBytesRead                = 0L;
+    ignoreInitialSocketTimeout    = false;
+    ignoreSubsequentSocketTimeout = false;
   }
 
 
@@ -159,10 +165,49 @@ public final class ASN1StreamReader
    * @return  {@code true} if {@code SocketTimeoutException} exceptions should
    *          be ignored, or {@code false} if they should not be ignored and
    *          should be propagated to the caller.
+   *
+   * @deprecated  Use the {@link #ignoreInitialSocketTimeoutException()} and
+   *              {@link #ignoreSubsequentSocketTimeoutException()} methods
+   *              instead.
    */
+  @Deprecated()
   public boolean ignoreSocketTimeoutException()
   {
-    return ignoreSocketTimeout;
+    return ignoreInitialSocketTimeout;
+  }
+
+
+
+  /**
+   * Indicates whether to ignore {@code java.net.SocketTimeoutException}
+   * exceptions that may be caught while trying to read the first byte of an
+   * element.
+   *
+   * @return  {@code true} if {@code SocketTimeoutException} exceptions should
+   *          be ignored while trying to read the first byte of an element, or
+   *          {@code false} if they should not be ignored and should be
+   *          propagated to the caller.
+   */
+  public boolean ignoreInitialSocketTimeoutException()
+  {
+    return ignoreInitialSocketTimeout;
+  }
+
+
+
+  /**
+   * Indicates whether to ignore {@code java.net.SocketTimeoutException}
+   * exceptions that may be caught while trying to read subsequent bytes of an
+   * element (after one or more bytes have already been read for that element).
+   *
+   * @return  {@code true} if {@code SocketTimeoutException} exceptions should
+   *          be ignored while trying to read subsequent bytes of an element, or
+   *          {@code false} if they should not be ignored and should be
+   *          propagated to the caller.
+   */
+  public boolean ignoreSubsequentSocketTimeoutException()
+  {
+    return ignoreSubsequentSocketTimeout;
   }
 
 
@@ -174,10 +219,39 @@ public final class ASN1StreamReader
    * @param  ignoreSocketTimeout  Indicates whether to ignore
    *                              {@code SocketTimeoutException} exceptions that
    *                              may be caught during processing.
+   *
+   * @deprecated  Use the {@link #setIgnoreSocketTimeout(boolean,boolean)}
+   *              method instead.
    */
+  @Deprecated()
   public void setIgnoreSocketTimeout(final boolean ignoreSocketTimeout)
   {
-    this.ignoreSocketTimeout= ignoreSocketTimeout;
+    ignoreInitialSocketTimeout    = ignoreSocketTimeout;
+    ignoreSubsequentSocketTimeout = ignoreSocketTimeout;
+  }
+
+
+
+  /**
+   * Indicates whether to ignore {@code java.net.SocketTimeoutException}
+   * exceptions that may be caught during processing.
+   *
+   * @param  ignoreInitialSocketTimeout     Indicates whether to ignore
+   *                                        {@code SocketTimeoutException}
+   *                                        exceptions that may be caught while
+   *                                        trying to read the first byte of an
+   *                                        element.
+   * @param  ignoreSubsequentSocketTimeout  Indicates whether to ignore
+   *                                        {@code SocketTimeoutException}
+   *                                        exceptions that may be caught while
+   *                                        reading beyond the first byte of an
+   *                                        element.
+   */
+  public void setIgnoreSocketTimeout(final boolean ignoreInitialSocketTimeout,
+                   final boolean ignoreSubsequentSocketTimeout)
+  {
+    this.ignoreInitialSocketTimeout    = ignoreInitialSocketTimeout;
+    this.ignoreSubsequentSocketTimeout = ignoreSubsequentSocketTimeout;
   }
 
 
@@ -200,7 +274,7 @@ public final class ASN1StreamReader
          throws IOException
   {
     inputStream.mark(1);
-    final int byteRead = read();
+    final int byteRead = read(true);
     inputStream.reset();
 
     return byteRead;
@@ -223,7 +297,7 @@ public final class ASN1StreamReader
   private int readType()
           throws IOException
   {
-    final int typeInt = read();
+    final int typeInt = read(true);
     if (typeInt < 0)
     {
       close();
@@ -251,7 +325,7 @@ public final class ASN1StreamReader
   private int readLength()
           throws IOException
   {
-    int length = read();
+    int length = read(false);
     if (length < 0)
     {
       throw new IOException(ERR_READ_END_BEFORE_FIRST_LENGTH.get());
@@ -269,7 +343,7 @@ public final class ASN1StreamReader
 
       for (int i=0; i < numLengthBytes; i++)
       {
-        final int lengthInt = read();
+        final int lengthInt = read(false);
         if (lengthInt < 0)
         {
           throw new IOException(ERR_READ_END_BEFORE_LENGTH_END.get());
@@ -318,7 +392,7 @@ public final class ASN1StreamReader
       {
         while (totalBytesSkipped < numBytes)
         {
-          final int byteRead = read();
+          final int byteRead = read(false);
           if (byteRead < 0)
           {
             throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -367,7 +441,7 @@ public final class ASN1StreamReader
     final byte[] value = new byte[length];
     while (valueBytesRead < length)
     {
-      final int bytesRead = read(value, valueBytesRead, bytesRemaining);
+      final int bytesRead = read(false, value, valueBytesRead, bytesRemaining);
       if (bytesRead < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -416,7 +490,7 @@ public final class ASN1StreamReader
 
     if (length == 1)
     {
-      final int value = read();
+      final int value = read(false);
       if (value < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -498,7 +572,7 @@ public final class ASN1StreamReader
     int intValue = 0;
     for (int i=0; i < length; i++)
     {
-      final int byteRead = read();
+      final int byteRead = read(false);
       if (byteRead < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -573,7 +647,7 @@ public final class ASN1StreamReader
     long longValue = 0;
     for (int i=0; i < length; i++)
     {
-      final int byteRead = read();
+      final int byteRead = read(false);
       if (byteRead < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -686,7 +760,7 @@ public final class ASN1StreamReader
     final byte[] value = new byte[length];
     while (valueBytesRead < length)
     {
-      final int bytesRead = read(value, valueBytesRead, bytesRemaining);
+      final int bytesRead = read(false, value, valueBytesRead, bytesRemaining);
       if (bytesRead < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -733,7 +807,7 @@ public final class ASN1StreamReader
     final byte[] value = new byte[length];
     while (valueBytesRead < length)
     {
-      final int bytesRead = read(value, valueBytesRead, bytesRemaining);
+      final int bytesRead = read(false, value, valueBytesRead, bytesRemaining);
       if (bytesRead < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -822,12 +896,14 @@ public final class ASN1StreamReader
    * Reads a byte of data from the underlying input stream, optionally ignoring
    * socket timeout exceptions.
    *
+   * @param  initial  Indicates whether this is the initial read for an element.
+   *
    * @return  The byte read from the input stream, or -1 if the end of the
    *          input stream was reached.
    *
    * @throws  IOException  If a problem occurs while reading data.
    */
-  private int read()
+  private int read(final boolean initial)
           throws IOException
   {
     try
@@ -837,7 +913,9 @@ public final class ASN1StreamReader
     catch (SocketTimeoutException ste)
     {
       debugException(Level.FINEST, ste);
-      if (ignoreSocketTimeout)
+
+      if ((initial && ignoreInitialSocketTimeout) ||
+          ((! initial) && ignoreSubsequentSocketTimeout))
       {
         while (true)
         {
@@ -864,17 +942,19 @@ public final class ASN1StreamReader
    * Reads data from the underlying input stream, optionally ignoring socket
    * timeout exceptions.
    *
-   * @param  buffer  The buffer into which the data should be read.
-   * @param  offset  The position at which to start placing the data that was
-   *                 read.
-   * @param  length  The maximum number of bytes to read.
+   * @param  initial  Indicates whether this is the initial read for an element.
+   * @param  buffer   The buffer into which the data should be read.
+   * @param  offset   The position at which to start placing the data that was
+   *                  read.
+   * @param  length   The maximum number of bytes to read.
    *
    * @return  The number of bytes read, or -1 if the end of the input stream
    *          was reached.
    *
    * @throws  IOException  If a problem occurs while reading data.
    */
-  private int read(final byte[] buffer, final int offset, final int length)
+  private int read(final boolean initial, final byte[] buffer, final int offset,
+                   final int length)
           throws IOException
   {
     try
@@ -884,7 +964,8 @@ public final class ASN1StreamReader
     catch (SocketTimeoutException ste)
     {
       debugException(Level.FINEST, ste);
-      if (ignoreSocketTimeout)
+      if ((initial && ignoreInitialSocketTimeout) ||
+          ((! initial) && ignoreSubsequentSocketTimeout))
       {
         while (true)
         {
