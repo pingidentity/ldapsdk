@@ -334,7 +334,7 @@ public abstract class MatchingRule
       return selectEqualityMatchingRule(mrName);
     }
 
-    final String syntaxOID = attrType.getSyntaxOID(schema);
+    final String syntaxOID = attrType.getBaseSyntaxOID(schema);
     if (syntaxOID != null)
     {
       return selectMatchingRuleForSyntax(syntaxOID);
@@ -524,7 +524,7 @@ public abstract class MatchingRule
       return selectOrderingMatchingRule(mrName);
     }
 
-    final String syntaxOID = attrType.getSyntaxOID(schema);
+    final String syntaxOID = attrType.getBaseSyntaxOID(schema);
     if (syntaxOID != null)
     {
       return selectMatchingRuleForSyntax(syntaxOID);
@@ -680,7 +680,7 @@ public abstract class MatchingRule
       return selectSubstringMatchingRule(mrName);
     }
 
-    final String syntaxOID = attrType.getSyntaxOID(schema);
+    final String syntaxOID = attrType.getBaseSyntaxOID(schema);
     if (syntaxOID != null)
     {
       return selectMatchingRuleForSyntax(syntaxOID);

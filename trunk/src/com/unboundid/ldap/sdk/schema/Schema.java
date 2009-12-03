@@ -918,7 +918,10 @@ public final class Schema
    * schema.
    *
    * @param  oid  The OID of the attribute syntax to retrieve.  It must not be
-   *              {@code null}.
+   *              {@code null}.  It may optionally include a minimum upper bound
+   *              (as may appear when the syntax OID is included in an attribute
+   *              type definition), but if it does then that portion will be
+   *              ignored when retrieving the attribute syntax.
    *
    * @return  The requested attribute syntax, or {@code null} if there is no
    *          such syntax defined in the server schema.
@@ -927,7 +930,17 @@ public final class Schema
   {
     ensureNotNull(oid);
 
-    return asMap.get(toLowerCase(oid));
+    final String lowerOID = toLowerCase(oid);
+    final int    curlyPos = lowerOID.indexOf('{');
+
+    if (curlyPos > 0)
+    {
+      return asMap.get(lowerOID.substring(0, curlyPos));
+    }
+    else
+    {
+      return asMap.get(lowerOID);
+    }
   }
 
 
