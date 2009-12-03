@@ -34,6 +34,7 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
+import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.Validator.*;
 
@@ -943,7 +944,8 @@ public final class AttributeTypeDefinition
 
 
   /**
-   * Retrieves the OID of the syntax for this attribute type, if available.
+   * Retrieves the OID of the syntax for this attribute type, if available.  It
+   * may optionally include a minimum upper bound in curly braces.
    *
    * @return  The OID of the syntax for this attribute type, or {@code null} if
    *          the syntax will be inherited.
@@ -957,7 +959,8 @@ public final class AttributeTypeDefinition
 
   /**
    * Retrieves the OID of the syntax for this attribute type, examining superior
-   * types if necessary.
+   * types if necessary.  It may optionally include a minimum upper bound in
+   * curly braces.
    *
    * @param  schema  The schema to use to get the superior attribute type.
    *
@@ -976,6 +979,160 @@ public final class AttributeTypeDefinition
     }
 
     return syntaxOID;
+  }
+
+
+
+  /**
+   * Retrieves the OID of the syntax for this attribute type, if available.  If
+   * the attribute type definition includes a minimum upper bound in curly
+   * braces, it will be removed from the value that is returned.
+   *
+   * @return  The OID of the syntax for this attribute type, or {@code null} if
+   *          the syntax will be inherited.
+   */
+  public String getBaseSyntaxOID()
+  {
+    return getBaseSyntaxOID(syntaxOID);
+  }
+
+
+
+  /**
+   * Retrieves the base OID of the syntax for this attribute type, examining
+   * superior types if necessary.    If the attribute type definition includes a
+   * minimum upper bound in curly braces, it will be removed from the value that
+   * is returned.
+   *
+   * @param  schema  The schema to use to get the superior attribute type, if
+   *                 necessary.
+   *
+   * @return  The OID of the syntax for this attribute type, or {@code null} if
+   *          no syntax is defined.
+   */
+  public String getBaseSyntaxOID(final Schema schema)
+  {
+    return getBaseSyntaxOID(getSyntaxOID(schema));
+  }
+
+
+
+  /**
+   * Retrieves the base OID of the syntax for this attribute type, examining
+   * superior types if necessary.    If the attribute type definition includes a
+   * minimum upper bound in curly braces, it will be removed from the value that
+   * is returned.
+   *
+   * @param  syntaxOID  The syntax OID (optionally including the minimum upper
+   *                    bound element) to examine.
+   *
+   * @return  The OID of the syntax for this attribute type, or {@code null} if
+   *          no syntax is defined.
+   */
+  public static String getBaseSyntaxOID(final String syntaxOID)
+  {
+    if (syntaxOID == null)
+    {
+      return null;
+    }
+
+    final int curlyPos = syntaxOID.indexOf('{');
+    if (curlyPos > 0)
+    {
+      return syntaxOID.substring(0, curlyPos);
+    }
+    else
+    {
+      return syntaxOID;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the value of the minimum upper bound element of the syntax
+   * definition for this attribute type, if defined.  If a minimum upper bound
+   * is present (as signified by an integer value in curly braces immediately
+   * following the syntax OID without any space between them), then it should
+   * serve as an indication to the directory server that it should be prepared
+   * to handle values with at least that number of (possibly multi-byte)
+   * characters.
+   *
+   * @return  The value of the minimum upper bound element of the syntax
+   *          definition for this attribute type, or -1 if no syntax is defined
+   *          defined or if it does not have a valid minimum upper bound.
+   */
+  public int getSyntaxMinimumUpperBound()
+  {
+    return getSyntaxMinimumUpperBound(syntaxOID);
+  }
+
+
+
+  /**
+   * Retrieves the value of the minimum upper bound element of the syntax
+   * definition for this attribute type, if defined.  If a minimum upper bound
+   * is present (as signified by an integer value in curly braces immediately
+   * following the syntax OID without any space between them), then it should
+   * serve as an indication to the directory server that it should be prepared
+   * to handle values with at least that number of (possibly multi-byte)
+   * characters.
+   *
+   * @param  schema  The schema to use to get the superior attribute type, if
+   *                 necessary.
+   *
+   * @return  The value of the minimum upper bound element of the syntax
+   *          definition for this attribute type, or -1 if no syntax is defined
+   *          defined or if it does not have a valid minimum upper bound.
+   */
+  public int getSyntaxMinimumUpperBound(final Schema schema)
+  {
+    return getSyntaxMinimumUpperBound(getSyntaxOID(schema));
+  }
+
+
+
+  /**
+   * Retrieves the value of the minimum upper bound element of the syntax
+   * definition for this attribute type, if defined.  If a minimum upper bound
+   * is present (as signified by an integer value in curly braces immediately
+   * following the syntax OID without any space between them), then it should
+   * serve as an indication to the directory server that it should be prepared
+   * to handle values with at least that number of (possibly multi-byte)
+   * characters.
+   *
+   * @param  syntaxOID  The syntax OID (optionally including the minimum upper
+   *                    bound element) to examine.
+   *
+   * @return  The value of the minimum upper bound element of the provided
+   *          syntax OID, or -1 if the provided syntax OID is {@code null} or
+   *          does not have a valid minimum upper bound.
+   */
+  public static int getSyntaxMinimumUpperBound(final String syntaxOID)
+  {
+    if (syntaxOID == null)
+    {
+      return -1;
+    }
+
+    final int curlyPos = syntaxOID.indexOf('{');
+    if ((curlyPos > 0) && syntaxOID.endsWith("}"))
+    {
+      try
+      {
+        return Integer.parseInt(syntaxOID.substring(curlyPos+1,
+             syntaxOID.length()-1));
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        return -1;
+      }
+    }
+    else
+    {
+      return -1;
+    }
   }
 
 
