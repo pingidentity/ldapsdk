@@ -1528,12 +1528,13 @@ public final class LDIFReader
     }
 
 
-    // The remaining lines must be the attributes for the entry.  Make sure that
-    // there is at least one line remaining.
+    // The remaining lines must be the attributes for the entry.  However, we
+    // will allow the case in which an entry does not have any attributes, to be
+    // able to support reading search result entries in which no attributes were
+    // returned.
     if (! iterator.hasNext())
     {
-      throw new LDIFException(ERR_READ_ENTRY_NO_ATTRIBUTES.get(firstLineNumber),
-                              firstLineNumber, true, ldifLines, null);
+      return new Entry(dn);
     }
 
     return new Entry(dn, parseAttributes(dn,
