@@ -1388,7 +1388,9 @@ public class Entry
 
   /**
    * Retrieves a set of modifications that can be applied to the source entry in
-   * order to make it match the target entry.
+   * order to make it match the target entry.  The diff will be generated in
+   * reversible form (i.e., the same as calling
+   * {@code diff(sourceEntry, targetEntry, ignoreRDN, true, attributes)}.
    *
    * @param  sourceEntry  The source entry for which the set of modifications
    *                      should be generated.
@@ -1410,6 +1412,48 @@ public class Entry
   public static List<Modification> diff(final Entry sourceEntry,
                                         final Entry targetEntry,
                                         final boolean ignoreRDN,
+                                        final String... attributes)
+  {
+    return diff(sourceEntry, targetEntry, ignoreRDN, true, attributes);
+  }
+
+
+
+  /**
+   * Retrieves a set of modifications that can be applied to the source entry in
+   * order to make it match the target entry.
+   *
+   * @param  sourceEntry  The source entry for which the set of modifications
+   *                      should be generated.
+   * @param  targetEntry  The target entry, which is what the source entry
+   *                      should look like if the returned modifications are
+   *                      applied.
+   * @param  ignoreRDN    Indicates whether to ignore differences in the RDNs
+   *                      of the provided entries.  If this is {@code false},
+   *                      then the resulting set of modifications may include
+   *                      changes to the RDN attribute.  If it is {@code true},
+   *                      then differences in the entry DNs will be ignored.
+   * @param  reversible   Indicates whether to generate the diff in reversible
+   *                      form.  In reversible form, only the ADD or DELETE
+   *                      modification types will be used so that source entry
+   *                      could be reconstructed from the target and the
+   *                      resulting modifications.  In non-reversible form, only
+   *                      the REPLACE modification type will be used.  Attempts
+   *                      to apply the modifications obtained when using
+   *                      reversible form are more likely to fail if the entry
+   *                      has been modified since the source and target forms
+   *                      were obtained.
+   * @param  attributes   The set of attributes to be compared.  If this is
+   *                      {@code null} or empty, then all attributes will be
+   *                      compared.
+   *
+   * @return  A set of modifications that can be applied to the source entry in
+   *          order to make it match the target entry.
+   */
+  public static List<Modification> diff(final Entry sourceEntry,
+                                        final Entry targetEntry,
+                                        final boolean ignoreRDN,
+                                        final boolean reversible,
                                         final String... attributes)
   {
     HashSet<String> compareAttrs = null;
@@ -1492,31 +1536,39 @@ public class Entry
 
     for (final Attribute a : sourceOnlyAttrs.values())
     {
-      ASN1OctetString[] values = a.getRawValues();
-      if ((sourceRDN != null) && (sourceRDN.hasAttribute(a.getName())))
+      if (reversible)
       {
-        final ArrayList<ASN1OctetString> newValues =
-             new ArrayList<ASN1OctetString>(values.length);
-        for (final ASN1OctetString value : values)
+        ASN1OctetString[] values = a.getRawValues();
+        if ((sourceRDN != null) && (sourceRDN.hasAttribute(a.getName())))
         {
-          if (! sourceRDN.hasAttributeValue(a.getName(), value.getValue()))
+          final ArrayList<ASN1OctetString> newValues =
+               new ArrayList<ASN1OctetString>(values.length);
+          for (final ASN1OctetString value : values)
           {
-            newValues.add(value);
+            if (! sourceRDN.hasAttributeValue(a.getName(), value.getValue()))
+            {
+              newValues.add(value);
+            }
+          }
+
+          if (newValues.isEmpty())
+          {
+            continue;
+          }
+          else
+          {
+            values = new ASN1OctetString[newValues.size()];
+            newValues.toArray(values);
           }
         }
 
-        if (newValues.isEmpty())
-        {
-          continue;
-        }
-        else
-        {
-          values = new ASN1OctetString[newValues.size()];
-          newValues.toArray(values);
-        }
+        mods.add(new Modification(ModificationType.DELETE, a.getName(),
+             values));
       }
-
-      mods.add(new Modification(ModificationType.DELETE, a.getName(), values));
+      else
+      {
+        mods.add(new Modification(ModificationType.REPLACE, a.getName()));
+      }
     }
 
     for (final Attribute a : targetOnlyAttrs.values())
@@ -1545,7 +1597,15 @@ public class Entry
         }
       }
 
-      mods.add(new Modification(ModificationType.ADD, a.getName(), values));
+      if (reversible)
+      {
+        mods.add(new Modification(ModificationType.ADD, a.getName(), values));
+      }
+      else
+      {
+        mods.add(new Modification(ModificationType.REPLACE, a.getName(),
+             values));
+      }
     }
 
     for (final Attribute sourceAttr : commonAttrs.values())
@@ -1557,50 +1617,59 @@ public class Entry
         continue;
       }
 
-      final ArrayList<ASN1OctetString> addValues =
-           new ArrayList<ASN1OctetString>();
-      final ArrayList<ASN1OctetString> delValues =
-           new ArrayList<ASN1OctetString>();
-      for (final ASN1OctetString value : sourceAttr.getRawValues())
+      if (reversible ||
+          ((targetRDN != null) && targetRDN.hasAttribute(targetAttr.getName())))
       {
-        if (! targetAttr.hasValue(value))
+        final ArrayList<ASN1OctetString> addValues =
+             new ArrayList<ASN1OctetString>();
+        final ArrayList<ASN1OctetString> delValues =
+             new ArrayList<ASN1OctetString>();
+        for (final ASN1OctetString value : sourceAttr.getRawValues())
         {
-          if ((sourceRDN == null) ||
-              (! sourceRDN.hasAttributeValue(sourceAttr.getName(),
-                                             value.getValue())))
+          if (! targetAttr.hasValue(value))
           {
-            delValues.add(value);
+            if ((sourceRDN == null) ||
+                (! sourceRDN.hasAttributeValue(sourceAttr.getName(),
+                                               value.getValue())))
+            {
+              delValues.add(value);
+            }
           }
         }
-      }
 
-      for (final ASN1OctetString value : targetAttr.getRawValues())
-      {
-        if (! sourceAttr.hasValue(value))
+        for (final ASN1OctetString value : targetAttr.getRawValues())
         {
-          if ((targetRDN == null) ||
-              (! targetRDN.hasAttributeValue(targetAttr.getName(),
-                                             value.getValue())))
+          if (! sourceAttr.hasValue(value))
           {
-            addValues.add(value);
+            if ((targetRDN == null) ||
+                (! targetRDN.hasAttributeValue(targetAttr.getName(),
+                                               value.getValue())))
+            {
+              addValues.add(value);
+            }
           }
         }
-      }
 
-      if (! addValues.isEmpty())
-      {
-        final ASN1OctetString[] addArray =
-             new ASN1OctetString[addValues.size()];
-        mods.add(new Modification(ModificationType.ADD, targetAttr.getName(),
-                                  addValues.toArray(addArray)));
-      }
+        if (! addValues.isEmpty())
+        {
+          final ASN1OctetString[] addArray =
+               new ASN1OctetString[addValues.size()];
+          mods.add(new Modification(ModificationType.ADD, targetAttr.getName(),
+               addValues.toArray(addArray)));
+        }
 
-      if (! delValues.isEmpty())
+        if (! delValues.isEmpty())
+        {
+          final ASN1OctetString[] delArray =
+               new ASN1OctetString[delValues.size()];
+          mods.add(new Modification(ModificationType.DELETE,
+               sourceAttr.getName(), delValues.toArray(delArray)));
+        }
+      }
+      else
       {
-        final ASN1OctetString[] delArray =
-             new ASN1OctetString[delValues.size()];
-        mods.add(new Modification(ModificationType.DELETE, sourceAttr.getName(),
-                                  delValues.toArray(delArray)));
+        mods.add(new Modification(ModificationType.REPLACE,
+             targetAttr.getName(), targetAttr.getRawValues()));
       }
     }
 
