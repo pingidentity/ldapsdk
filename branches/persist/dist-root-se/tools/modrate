@@ -38,6 +38,7 @@ else
   JAVA_CMD="${UNBOUNDID_JAVA_HOME}/bin/java"
 fi
 
-"${JAVA_CMD}" ${JAVA_ARGS} -cp "${TOOLS_DIR}/../unboundid-ldapsdk-se.jar" \
+"${JAVA_CMD}" ${JAVA_ARGS} \
+     -cp "${TOOLS_DIR}/../unboundid-ldapsdk-se.jar:${CLASSPATH}" \
      com.unboundid.ldap.sdk.examples.ModRate "${@}"
 

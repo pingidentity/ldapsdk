@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
+import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
+import com.unboundid.ldap.sdk.schema.ObjectClassType;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -726,6 +728,158 @@ final class LDAPObjectHandler<T>
   Map<String,SetterInfo> getSetters()
   {
     return setterMap;
+  }
+
+
+
+  /**
+   * Constructs a list of LDAP object class definitions which may be added to
+   * the directory server schema to allow it to hold objects of this type.  Note
+   * that the object identifiers used for the constructed object class
+   * definitions are not required to be valid or unique.
+   *
+   * @param  a  The OID allocator to use to generate the object identifiers for
+   *            the constructed attribute types.  It must not be {@code null}.
+   *
+   * @return  A list of object class definitions that may be used to represent
+   *          objects of the associated type in an LDAP directory.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                generate the list of object class
+   *                                definitions.
+   */
+  public List<ObjectClassDefinition> constructObjectClasses(
+                                          final OIDAllocator a)
+         throws LDAPPersistException
+  {
+    final LinkedList<ObjectClassDefinition> ocList =
+         new LinkedList<ObjectClassDefinition>();
+
+    ocList.add(constructObjectClass(structuralClass, ObjectClassType.STRUCTURAL,
+         a));
+
+    for (final String s : auxiliaryClasses)
+    {
+      ocList.add(constructObjectClass(s,ObjectClassType.AUXILIARY, a));
+    }
+
+    return Collections.unmodifiableList(ocList);
+  }
+
+
+
+  /**
+   * Constructs an LDAP object class definition for the object class with the
+   * specified name.
+   *
+   * @param  name  The name of the object class to create.  It must not be
+   *               {@code null}.
+   * @param  type  The type of object class to create.  It must not be
+   *               {@code null}.
+   * @param  a     The OID allocator to use to generate the object identifiers
+   *               for the constructed attribute types.  It must not be
+   *               {@code null}.
+   *
+   * @return  The constructed object class definition.
+   */
+  private ObjectClassDefinition constructObjectClass(final String name,
+                                                     final ObjectClassType type,
+                                                     final OIDAllocator a)
+  {
+    final TreeMap<String,String> requiredAttrs = new TreeMap<String,String>();
+    final TreeMap<String,String> optionalAttrs = new TreeMap<String,String>();
+
+
+    // Extract the attributes for all of the fields.
+    for (final FieldInfo i : fieldMap.values())
+    {
+      boolean found = false;
+      for (final String s : i.getObjectClasses())
+      {
+        if (name.equalsIgnoreCase(s))
+        {
+          found = true;
+          break;
+        }
+      }
+
+      if (! found)
+      {
+        continue;
+      }
+
+      final String attrName  = i.getAttributeName();
+      final String lowerName = toLowerCase(attrName);
+      if (i.includeInRDN() ||
+          (i.isRequiredForDecode() && i.isRequiredForEncode()))
+      {
+        requiredAttrs.put(lowerName, attrName);
+      }
+      else
+      {
+        optionalAttrs.put(lowerName, attrName);
+      }
+    }
+
+
+    // Extract the attributes for all of the getter methods.
+    for (final GetterInfo i : getterMap.values())
+    {
+      boolean found = false;
+      for (final String s : i.getObjectClasses())
+      {
+        if (name.equalsIgnoreCase(s))
+        {
+          found = true;
+          break;
+        }
+      }
+
+      if (! found)
+      {
+        continue;
+      }
+
+      final String attrName  = i.getAttributeName();
+      final String lowerName = toLowerCase(attrName);
+      if (i.includeInRDN())
+      {
+        requiredAttrs.put(lowerName, attrName);
+      }
+      else
+      {
+        optionalAttrs.put(lowerName, attrName);
+      }
+    }
+
+
+    // Extract the attributes for all of the setter methods.  We'll assume that
+    // they are all part of the structural object class and all optional.
+    if (name.equalsIgnoreCase(structuralClass))
+    {
+      for (final SetterInfo i : setterMap.values())
+      {
+        final String attrName  = i.getAttributeName();
+        final String lowerName = toLowerCase(attrName);
+        if (requiredAttrs.containsKey(lowerName) ||
+             optionalAttrs.containsKey(lowerName))
+        {
+          continue;
+        }
+
+        optionalAttrs.put(lowerName, attrName);
+      }
+    }
+
+    final String[] reqArray = new String[requiredAttrs.size()];
+    requiredAttrs.values().toArray(reqArray);
+
+    final String[] optArray = new String[optionalAttrs.size()];
+    optionalAttrs.values().toArray(optArray);
+
+    return new ObjectClassDefinition(a.allocateObjectClassOID(name),
+         new String[] { name }, null, false, new String[] { "top" }, type,
+         reqArray, optArray, null);
   }
 
 

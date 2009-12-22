@@ -23,6 +23,8 @@ package com.unboundid.ldap.sdk.persist;
 
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -37,6 +39,8 @@ import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -106,6 +110,111 @@ public final class LDAPPersister<T>
   public LDAPObject getLDAPObjectAnnotation()
   {
     return handler.getLDAPObjectAnnotation();
+  }
+
+
+
+  /**
+   * Constructs a list of LDAP attribute type definitions which may be added to
+   * the directory server schema to allow it to hold objects of this type.  Note
+   * that the object identifiers used for the constructed attribute type
+   * definitions are not required to be valid or unique.
+   *
+   * @return  A list of attribute type definitions that may be used to represent
+   *          objects of the associated type in an LDAP directory.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                generate the list of attribute type
+   *                                definitions.
+   */
+  public List<AttributeTypeDefinition> constructAttributeTypes()
+         throws LDAPPersistException
+  {
+    return constructAttributeTypes(DefaultOIDAllocator.getInstance());
+  }
+
+
+
+  /**
+   * Constructs a list of LDAP attribute type definitions which may be added to
+   * the directory server schema to allow it to hold objects of this type.  Note
+   * that the object identifiers used for the constructed attribute type
+   * definitions are not required to be valid or unique.
+   *
+   * @param  a  The OID allocator to use to generate the object identifiers for
+   *            the constructed attribute types.  It must not be {@code null}.
+   *
+   * @return  A list of attribute type definitions that may be used to represent
+   *          objects of the associated type in an LDAP directory.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                generate the list of attribute type
+   *                                definitions.
+   */
+  public List<AttributeTypeDefinition> constructAttributeTypes(
+                                            final OIDAllocator a)
+         throws LDAPPersistException
+  {
+    final LinkedList<AttributeTypeDefinition> attrList =
+         new LinkedList<AttributeTypeDefinition>();
+
+    for (final FieldInfo i : handler.getFields().values())
+    {
+      attrList.add(i.constructAttributeType(a));
+    }
+
+    for (final GetterInfo i : handler.getGetters().values())
+    {
+      attrList.add(i.constructAttributeType(a));
+    }
+
+    return Collections.unmodifiableList(attrList);
+  }
+
+
+
+  /**
+   * Constructs a list of LDAP object class definitions which may be added to
+   * the directory server schema to allow it to hold objects of this type.  Note
+   * that the object identifiers used for the constructed object class
+   * definitions are not required to be valid or unique.
+   *
+   * @return  A list of object class definitions that may be used to represent
+   *          objects of the associated type in an LDAP directory.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                generate the list of object class
+   *                                definitions.
+   */
+  public List<ObjectClassDefinition> constructObjectClasses()
+         throws LDAPPersistException
+  {
+    return constructObjectClasses(DefaultOIDAllocator.getInstance());
+  }
+
+
+
+  /**
+   * Constructs a list of LDAP object class definitions which may be added to
+   * the directory server schema to allow it to hold objects of this type.  Note
+   * that the object identifiers used for the constructed object class
+   * definitions are not required to be valid or unique.
+   *
+   * @param  a  The OID allocator to use to generate the object identifiers for
+   *            the constructed attribute types.  It must not be {@code null}.
+   *
+   * @return  A list of object class definitions that may be used to represent
+   *          objects of the associated type in an LDAP directory.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                generate the list of object class
+   *                                definitions.
+   */
+  public List<ObjectClassDefinition> constructObjectClasses(
+                                          final OIDAllocator a)
+         throws LDAPPersistException
+  {
+    return handler.constructObjectClasses(a);
   }
 
 

@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.persist;
 import java.util.UUID;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
+import static com.unboundid.util.StaticUtils.*;
 
 
 
@@ -46,7 +47,7 @@ final class PersistUtils
 
   /**
    * Indicates whether the provided string could be used as a valid attribute or
-   * object class name.
+   * object class name.  Numeric OIDs will also be considered acceptable.
    *
    * @param  s  The string for which to make the determination.
    * @param  r  A buffer to which the unacceptable reason may be appended.
@@ -61,6 +62,11 @@ final class PersistUtils
     {
       r.append(ERR_LDAP_NAME_VALIDATOR_EMPTY.get());
       return false;
+    }
+
+    if (isNumericOID(s))
+    {
+      return true;
     }
 
     for (int i=0; i < length; i++)
@@ -83,6 +89,52 @@ final class PersistUtils
       else
       {
         r.append(ERR_LDAP_NAME_VALIDATOR_INVALID_CHAR.get(s, c, i));
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether the provided string could be used as a valid Java
+   * identifier.  The identifier must begin with an ASCII letter or underscore,
+   * and must contain only ASCII letters, ASCII digits, and the underscore
+   * character.  Even though a dollar sign is technically allowed, it will not
+   * be considered valid for the purpose of this method.  Similarly, even though
+   * Java keywords are not allowed, they will not be rejected by this method.
+   *
+   * @param  s  The string for which to make the determination.
+   * @param  r  A buffer to which the unacceptable reason may be appended.
+   *
+   * @return  {@code true} if the provided string is acceptable for use as a
+   *          Java identifier, or {@code false} if not.
+   */
+  static boolean isValidJavaIdentifier(final String s, final StringBuilder r)
+  {
+    final int length = s.length();
+    for (int i=0; i < length; i++)
+    {
+      final char c = s.charAt(i);
+      if (((c >= 'a') && (c <= 'z')) ||
+          ((c >= 'A') && (c <= 'Z')) ||
+          (c == '_'))
+      {
+        // This will always be acceptable.
+      }
+      else if ((c >= '0') && (c <= '9'))
+      {
+        if (i == 0)
+        {
+          r.append(ERR_JAVA_NAME_VALIDATOR_INVALID_FIRST_CHAR_DIGIT.get(s));
+          return false;
+        }
+      }
+      else
+      {
+        r.append(ERR_JAVA_NAME_VALIDATOR_INVALID_CHAR.get(s, c, i));
         return false;
       }
     }

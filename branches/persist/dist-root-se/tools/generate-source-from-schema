@@ -40,5 +40,5 @@ fi
 
 "${JAVA_CMD}" ${JAVA_ARGS} \
      -cp "${TOOLS_DIR}/../unboundid-ldapsdk-se.jar:${CLASSPATH}" \
-     com.unboundid.ldap.sdk.examples.LDAPSearch "${@}"
+     com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema "${@}"
 

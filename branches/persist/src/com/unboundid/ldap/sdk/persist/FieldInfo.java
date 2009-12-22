@@ -28,6 +28,7 @@ import java.lang.reflect.Modifier;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -501,6 +502,49 @@ final class FieldInfo
   boolean supportsMultipleValues()
   {
     return supportsMultipleValues;
+  }
+
+
+
+  /**
+   * Constructs a definition for an LDAP attribute type which may be added to
+   * the directory server schema to allow it to hold the value of the associated
+   * field.  Note that the object identifier used for the constructed attribute
+   * type definition is not required to be valid or unique.
+   *
+   * @return  The constructed attribute type definition.
+   *
+   * @throws  LDAPPersistException  If the LDAP field encoder does not support
+   *                                encoding values for the associated field
+   *                                type.
+   */
+  public AttributeTypeDefinition constructAttributeType()
+         throws LDAPPersistException
+  {
+    return constructAttributeType(DefaultOIDAllocator.getInstance());
+  }
+
+
+
+  /**
+   * Constructs a definition for an LDAP attribute type which may be added to
+   * the directory server schema to allow it to hold the value of the associated
+   * field.  Note that the object identifier used for the constructed attribute
+   * type definition is not required to be valid or unique.
+   *
+   * @param  a  The OID allocator to use to generate the object identifier.  It
+   *            must not be {@code null}.
+   *
+   * @return  The constructed attribute type definition.
+   *
+   * @throws  LDAPPersistException  If the LDAP field encoder does not support
+   *                                encoding values for the associated field
+   *                                type.
+   */
+  public AttributeTypeDefinition constructAttributeType(final OIDAllocator a)
+         throws LDAPPersistException
+  {
+    return encoder.constructAttributeType(field, a);
   }
 
 

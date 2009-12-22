@@ -1281,4 +1281,96 @@ public final class StaticUtils
 
     return buffer.toString();
   }
+
+
+
+  /**
+   * Indicates whether the provided string is a valid numeric OID.  A numeric
+   * OID must start and end with a digit, must have at least on period, must
+   * contain only digits and periods, and must not have two consecutive periods.
+   *
+   * @param  s  The string to examine.  It must not be {@code null}.
+   *
+   * @return  {@code true} if the provided string is a valid numeric OID, or
+   *          {@code false} if not.
+   */
+  public static boolean isNumericOID(final String s)
+  {
+    boolean digitRequired = true;
+    boolean periodFound   = false;
+    for (final char c : s.toCharArray())
+    {
+      switch (c)
+      {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          digitRequired = false;
+          break;
+
+        case '.':
+          if (digitRequired)
+          {
+            return false;
+          }
+          else
+          {
+            digitRequired = true;
+          }
+          periodFound = true;
+          break;
+
+        default:
+          return false;
+      }
+
+    }
+
+    return (periodFound && (! digitRequired));
+  }
+
+
+
+  /**
+   * Capitalizes the provided string.  The first character will be converted to
+   * uppercase, and the rest of the string will be left unaltered.
+   *
+   * @param  s  The string to be capitalized.
+   *
+   * @return  A capitalized version of the provided string.
+   */
+  public static String capitalize(final String s)
+  {
+    if (s == null)
+    {
+      return null;
+    }
+
+    switch (s.length())
+    {
+      case 0:
+        return s;
+
+      case 1:
+        return s.toUpperCase();
+
+      default:
+        final char c = s.charAt(0);
+        if (Character.isUpperCase(c))
+        {
+          return s;
+        }
+        else
+        {
+          return Character.toUpperCase(c) + s.substring(1);
+        }
+    }
+  }
 }

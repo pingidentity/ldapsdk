@@ -36,5 +36,5 @@ goto runTool
 set JAVA_CMD=java.exe
 
 :runTool
-"%JAVA_CMD%" %JAVA_ARGS% -cp "%BATDIR%\..\unboundid-ldapsdk-se.jar" com.unboundid.ldap.sdk.examples.LDAPSearch %*
+"%JAVA_CMD%" %JAVA_ARGS% -cp "%BATDIR%\..\unboundid-ldapsdk-se.jar;%CLASSPATH%" com.unboundid.ldap.sdk.examples.LDAPSearch %*
 
