@@ -142,7 +142,7 @@ public final class GenerateSchemaFromSource
   @Override()
   public String getToolName()
   {
-    return "generate-ldap-schema-from-java-class";
+    return "generate-schema-from-source";
   }
 
 

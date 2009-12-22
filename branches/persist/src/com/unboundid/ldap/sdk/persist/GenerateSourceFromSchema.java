@@ -159,7 +159,7 @@ public final class GenerateSourceFromSchema
   @Override()
   public String getToolName()
   {
-    return "generate-java-source-from-schema";
+    return "generate-source-from-schema";
   }
 
 
@@ -806,13 +806,11 @@ public final class GenerateSourceFromSchema
         final String name = iterator.next();
         if (iterator.hasNext())
         {
-          writer.println("                           \"" +
-               iterator.next() + "\",");
+          writer.println("                           \"" + name + "\",");
         }
         else
         {
-          writer.print("                           \"" +
-               iterator.next() + "\" }");
+          writer.print("                           \"" + name + "\" }");
         }
       }
     }
