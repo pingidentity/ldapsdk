@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.persist;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
@@ -127,7 +128,7 @@ final class GetterInfo
            m.getName(), c.getName()));
     }
 
-    final Class<?>[] params = m.getParameterTypes();
+    final Type[] params = m.getGenericParameterTypes();
     if (params.length > 0)
     {
       throw new LDAPPersistException(ERR_GETTER_INFO_METHOD_TAKES_ARGUMENTS.get(
@@ -146,12 +147,12 @@ final class GetterInfo
            getExceptionMessage(e)), e);
     }
 
-    if (! encoder.supportsType(m.getReturnType()))
+    if (! encoder.supportsType(m.getGenericReturnType()))
     {
       throw new LDAPPersistException(
            ERR_GETTER_INFO_ENCODER_UNSUPPORTED_TYPE.get(
                 encoder.getClass().getName(), m.getName(), c.getName(),
-                m.getReturnType().getName()));
+                String.valueOf(m.getGenericReturnType())));
     }
 
     final String structuralClass;

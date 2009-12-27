@@ -26,10 +26,21 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -113,7 +124,10 @@ import static com.unboundid.util.StaticUtils.*;
  * </UL>
  * In addition, arrays of all of the above types are also supported, in which
  * case each element of the array will be a separate value in the corresponding
- * LDAP attribute.
+ * LDAP attribute.  Lists (including {@code ArrayList}, {@code LinkedList}, and
+ * {@code CopyOnWriteArrayList}) and sets (including {@code HashSet},
+ * {@code LinkedHashSet}, {@code TreeSet}, and {@code CopyOnWriteArraySet}) of
+ * the above types are also supported.
  * <BR><BR>
  * Note that you should be careful when using primitive types, since they cannot
  * be unassigned and therefore will always have a value.  When using an LDAP
@@ -155,19 +169,42 @@ public final class DefaultLDAPFieldEncoder
    * {@inheritDoc}
    */
   @Override()
-  public boolean supportsType(final Class<?> t)
+  public boolean supportsType(final Type t)
   {
-    if (supportsTypeInternal(t))
+    final TypeInfo typeInfo = new TypeInfo(t);
+    if (! typeInfo.isSupported())
+    {
+      return false;
+    }
+
+    final Class<?> baseClass = typeInfo.getBaseClass();
+
+    if (supportsTypeInternal(baseClass))
     {
       return true;
     }
 
-    if (t.isArray())
+    final Class<?> componentType = typeInfo.getComponentType();
+    if (componentType == null)
     {
-      if (supportsTypeInternal(t.getComponentType()))
-      {
-        return true;
-      }
+      return false;
+    }
+
+    if (typeInfo.isArray())
+    {
+      return supportsTypeInternal(componentType);
+    }
+
+    if (typeInfo.isList())
+    {
+      return (isSupportedListType(baseClass) &&
+           supportsTypeInternal(componentType));
+    }
+
+    if (typeInfo.isSet())
+    {
+      return (isSupportedSetType(baseClass) &&
+           supportsTypeInternal(componentType));
     }
 
     return false;
@@ -231,6 +268,105 @@ public final class DefaultLDAPFieldEncoder
 
 
   /**
+   * Indicates whether the provided type is a supported list type.
+   *
+   * @param  t  The type for which to make the determination.
+   *
+   * @return  {@code true} if the provided type is a supported list type, or
+   *          or {@code false}.
+   */
+  private static boolean isSupportedListType(final Class<?> t)
+  {
+    return (t.equals(List.class) ||
+            t.equals(ArrayList.class) ||
+            t.equals(LinkedList.class) ||
+            t.equals(CopyOnWriteArrayList.class));
+  }
+
+
+
+  /**
+   * Creates a new list of the specified type.
+   *
+   * @param  t     The type of list to create.
+   * @param  size  The number of values that will be included in the list.
+   *
+   * @return  The created list, or {@code null} if it is not a supported list
+   *          type.
+   */
+  private static List<?> createList(final Class<?> t, final int size)
+  {
+    if (t.equals(List.class) || t.equals(ArrayList.class))
+    {
+      return new ArrayList(1);
+    }
+    else if (t.equals(LinkedList.class))
+    {
+      return new LinkedList();
+    }
+    else if (t.equals(CopyOnWriteArrayList.class))
+    {
+      return new CopyOnWriteArrayList();
+    }
+
+    return null;
+  }
+
+
+
+  /**
+   * Indicates whether the provided type is a supported set type.
+   *
+   * @param  t  The type for which to make the determination.
+   *
+   * @return  {@code true} if the provided type is a supported set type, or
+   *          or {@code false}.
+   */
+  private static boolean isSupportedSetType(final Class<?> t)
+  {
+    return (t.equals(Set.class) ||
+            t.equals(HashSet.class) ||
+            t.equals(LinkedHashSet.class) ||
+            t.equals(TreeSet.class) ||
+            t.equals(CopyOnWriteArraySet.class));
+  }
+
+
+
+  /**
+   * Creates a new set of the specified type.
+   *
+   * @param  t     The type of set to create.
+   * @param  size  The number of values that will be included in the set.
+   *
+   * @return  The created list, or {@code null} if it is not a supported set
+   *          type.
+   */
+  private static Set<?> createSet(final Class<?> t, final int size)
+  {
+    if (t.equals(Set.class) || t.equals(LinkedHashSet.class))
+    {
+      return new LinkedHashSet(1);
+    }
+    else if (t.equals(HashSet.class))
+    {
+      return new HashSet(1);
+    }
+    else if (t.equals(TreeSet.class))
+    {
+      return new TreeSet();
+    }
+    else if (t.equals(CopyOnWriteArraySet.class))
+    {
+      return new CopyOnWriteArraySet();
+    }
+
+    return null;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -252,29 +388,23 @@ public final class DefaultLDAPFieldEncoder
 
     final String oid = a.allocateAttributeTypeOID(attrName);
 
-    final boolean isSingleValued;
-    final Class<?> t = f.getType();
-    String syntaxOID = getSyntaxOID(t);
-    if (syntaxOID == null)
+    final TypeInfo typeInfo = new TypeInfo(f.getGenericType());
+    if (! typeInfo.isSupported())
     {
-      if (t.isArray())
-      {
-        syntaxOID = getSyntaxOID(t.getComponentType());
-      }
+      throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
+           String.valueOf(typeInfo.getType())));
+    }
 
-      if (syntaxOID == null)
-      {
-        throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
-             t.getName()));
-      }
-      else
-      {
-        isSingleValued = false;
-      }
+    final boolean isSingleValued = (! supportsMultipleValues(typeInfo));
+
+    final String syntaxOID;
+    if (isSingleValued)
+    {
+      syntaxOID = getSyntaxOID(typeInfo.getBaseClass());
     }
     else
     {
-      isSingleValued = true;
+      syntaxOID = getSyntaxOID(typeInfo.getComponentType());
     }
 
     return new AttributeTypeDefinition(oid, new String[] { attrName }, null,
@@ -297,29 +427,23 @@ public final class DefaultLDAPFieldEncoder
     final String attrName = at.attribute();
     final String oid = a.allocateAttributeTypeOID(attrName);
 
-    final boolean isSingleValued;
-    final Class<?> t = m.getReturnType();
-    String syntaxOID = getSyntaxOID(t);
-    if (syntaxOID == null)
+    final TypeInfo typeInfo = new TypeInfo(m.getGenericReturnType());
+    if (! typeInfo.isSupported())
     {
-      if (t.isArray())
-      {
-        syntaxOID = getSyntaxOID(t.getComponentType());
-      }
+      throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
+           String.valueOf(typeInfo.getType())));
+    }
 
-      if (syntaxOID == null)
-      {
-        throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
-             t.getName()));
-      }
-      else
-      {
-        isSingleValued = false;
-      }
+    final boolean isSingleValued = (! supportsMultipleValues(typeInfo));
+
+    final String syntaxOID;
+    if (isSingleValued)
+    {
+      syntaxOID = getSyntaxOID(typeInfo.getBaseClass());
     }
     else
     {
-      isSingleValued = true;
+      syntaxOID = getSyntaxOID(typeInfo.getComponentType());
     }
 
     return new AttributeTypeDefinition(oid, new String[] { attrName }, null,
@@ -410,7 +534,7 @@ public final class DefaultLDAPFieldEncoder
   @Override()
   public boolean supportsMultipleValues(final Field field)
   {
-    return supportsMultipleValues(field.getType());
+    return supportsMultipleValues(new TypeInfo(field.getGenericType()));
   }
 
 
@@ -421,13 +545,13 @@ public final class DefaultLDAPFieldEncoder
   @Override()
   public boolean supportsMultipleValues(final Method method)
   {
-    final Class<?>[] paramTypes = method.getParameterTypes();
+    final Type[] paramTypes = method.getGenericParameterTypes();
     if (paramTypes.length != 1)
     {
       return false;
     }
 
-    return supportsMultipleValues(paramTypes[0]);
+    return supportsMultipleValues(new TypeInfo(paramTypes[0]));
   }
 
 
@@ -440,7 +564,7 @@ public final class DefaultLDAPFieldEncoder
    * @return  {@code true} if the provided object type supports multiple values,
    *          or {@code false} if not.
    */
-  private static boolean supportsMultipleValues(final Class<?> t)
+  private static boolean supportsMultipleValues(final TypeInfo t)
   {
     if (t.isArray())
     {
@@ -448,8 +572,10 @@ public final class DefaultLDAPFieldEncoder
       return (! (componentType.equals(Byte.TYPE) ||
                  componentType.equals(Character.TYPE)));
     }
-
-    return false;
+    else
+    {
+      return t.isMultiValued();
+    }
   }
 
 
@@ -462,7 +588,7 @@ public final class DefaultLDAPFieldEncoder
                                     final String name)
          throws LDAPPersistException
   {
-    return encodeValue(field.getType(), value, name);
+    return encodeValue(field.getGenericType(), value, name);
   }
 
 
@@ -475,7 +601,7 @@ public final class DefaultLDAPFieldEncoder
                                      final String name)
          throws LDAPPersistException
   {
-    return encodeValue(method.getReturnType(), value, name);
+    return encodeValue(method.getGenericReturnType(), value, name);
   }
 
 
@@ -493,32 +619,35 @@ public final class DefaultLDAPFieldEncoder
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                construct an attribute for the field.
    */
-  private static Attribute encodeValue(final Class<?> type, final Object value,
+  private static Attribute encodeValue(final Type type, final Object value,
                                        final String name)
          throws LDAPPersistException
   {
-    if (type.equals(AtomicInteger.class) ||
-        type.equals(AtomicLong.class) ||
-        type.equals(BigDecimal.class) ||
-        type.equals(BigInteger.class) ||
-        type.equals(Double.class) ||
-        type.equals(Double.TYPE) ||
-        type.equals(Float.class) ||
-        type.equals(Float.TYPE) ||
-        type.equals(Integer.class) ||
-        type.equals(Integer.TYPE) ||
-        type.equals(Long.class) ||
-        type.equals(Long.TYPE) ||
-        type.equals(Short.class) ||
-        type.equals(Short.TYPE) ||
-        type.equals(String.class) ||
-        type.equals(StringBuffer.class) ||
-        type.equals(StringBuilder.class) ||
-        type.equals(UUID.class) ||
-        type.equals(DN.class) ||
-        type.equals(Filter.class) ||
-        type.equals(LDAPURL.class) ||
-        type.equals(RDN.class))
+    final TypeInfo typeInfo = new TypeInfo(type);
+
+    final Class<?> c = typeInfo.getBaseClass();
+    if (c.equals(AtomicInteger.class) ||
+        c.equals(AtomicLong.class) ||
+        c.equals(BigDecimal.class) ||
+        c.equals(BigInteger.class) ||
+        c.equals(Double.class) ||
+        c.equals(Double.TYPE) ||
+        c.equals(Float.class) ||
+        c.equals(Float.TYPE) ||
+        c.equals(Integer.class) ||
+        c.equals(Integer.TYPE) ||
+        c.equals(Long.class) ||
+        c.equals(Long.TYPE) ||
+        c.equals(Short.class) ||
+        c.equals(Short.TYPE) ||
+        c.equals(String.class) ||
+        c.equals(StringBuffer.class) ||
+        c.equals(StringBuilder.class) ||
+        c.equals(UUID.class) ||
+        c.equals(DN.class) ||
+        c.equals(Filter.class) ||
+        c.equals(LDAPURL.class) ||
+        c.equals(RDN.class))
     {
       return new Attribute(name, String.valueOf(value));
     }
@@ -530,8 +659,7 @@ public final class DefaultLDAPFieldEncoder
     {
       return new Attribute(name, new String((char[]) value));
     }
-    else if (type.equals(Boolean.class) ||
-             type.equals(Boolean.TYPE))
+    else if (c.equals(Boolean.class) || c.equals(Boolean.TYPE))
     {
       final Boolean b = (Boolean) value;
       if (b)
@@ -543,18 +671,23 @@ public final class DefaultLDAPFieldEncoder
         return new Attribute(name, "FALSE");
       }
     }
-    else if (type.equals(Date.class))
+    else if (c.equals(Date.class))
     {
       final Date d = (Date) value;
       return new Attribute(name, encodeGeneralizedTime(d));
     }
-    else if (type.isArray())
+    else if (typeInfo.isArray())
     {
-      return encodeArray(type.getComponentType(), value, name);
+      return encodeArray(typeInfo.getComponentType(), value, name);
+    }
+    else if (Collection.class.isAssignableFrom(c))
+    {
+      return encodeCollection(typeInfo.getComponentType(),
+           (Collection<?>) value, name);
     }
 
     throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
-         type.getName()));
+         String.valueOf(type)));
   }
 
 
@@ -646,6 +779,94 @@ public final class DefaultLDAPFieldEncoder
 
 
   /**
+   * Encodes the contents of the provided collection.
+   *
+   * @param  genericType    The generic type of the collection.
+   * @param  collection     The collection to process.
+   * @param  attributeName  The name to use for the attribute to create.
+   *
+   * @return  The attribute containing the encoded collection contents.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while trying to create
+   *                                the attribute.
+   */
+  private static Attribute encodeCollection(final Class<?> genericType,
+                                            final Collection<?> collection,
+                                            final String attributeName)
+          throws LDAPPersistException
+  {
+    final ASN1OctetString[] values = new ASN1OctetString[collection.size()];
+
+    int i=0;
+    for (final Object o : collection)
+    {
+      if (genericType.equals(AtomicInteger.class) ||
+          genericType.equals(AtomicLong.class) ||
+          genericType.equals(BigDecimal.class) ||
+          genericType.equals(BigInteger.class) ||
+          genericType.equals(Double.class) ||
+          genericType.equals(Double.TYPE) ||
+          genericType.equals(Float.class) ||
+          genericType.equals(Float.TYPE) ||
+          genericType.equals(Integer.class) ||
+          genericType.equals(Integer.TYPE) ||
+          genericType.equals(Long.class) ||
+          genericType.equals(Long.TYPE) ||
+          genericType.equals(Short.class) ||
+          genericType.equals(Short.TYPE) ||
+          genericType.equals(String.class) ||
+          genericType.equals(StringBuffer.class) ||
+          genericType.equals(StringBuilder.class) ||
+          genericType.equals(UUID.class) ||
+          genericType.equals(DN.class) ||
+          genericType.equals(Filter.class) ||
+          genericType.equals(LDAPURL.class) ||
+          genericType.equals(RDN.class))
+      {
+        values[i] = new ASN1OctetString(String.valueOf(o));
+      }
+      else if (o instanceof byte[])
+      {
+        values[i] = new ASN1OctetString((byte[]) o);
+      }
+      else if (o instanceof char[])
+      {
+        values[i] = new ASN1OctetString(new String((char[]) o));
+      }
+      else if (genericType.equals(Boolean.class) ||
+               genericType.equals(Boolean.TYPE))
+      {
+        final Boolean b = (Boolean) o;
+        if (b)
+        {
+          values[i] = new ASN1OctetString("TRUE");
+        }
+        else
+        {
+          values[i] = new ASN1OctetString("FALSE");
+        }
+      }
+      else if (genericType.equals(Date.class))
+      {
+        final Date d = (Date) o;
+        values[i] = new ASN1OctetString(encodeGeneralizedTime(d));
+      }
+      else
+      {
+        throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
+             genericType.getName()));
+      }
+
+      i++;
+    }
+
+    return new Attribute(attributeName,
+         CaseIgnoreStringMatchingRule.getInstance(), values);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -653,21 +874,22 @@ public final class DefaultLDAPFieldEncoder
                           final Attribute attribute)
          throws LDAPPersistException
   {
-    final Class<?> fieldType = field.getType();
     field.setAccessible(true);
+    final TypeInfo typeInfo = new TypeInfo(field.getGenericType());
 
     try
     {
-      final Object newValue = getValue(fieldType, attribute, 0);
+      final Class<?> baseClass = typeInfo.getBaseClass();
+      final Object newValue = getValue(baseClass, attribute, 0);
       if (newValue != null)
       {
         field.set(object, newValue);
         return;
       }
 
-      if (fieldType.isArray())
+      if (typeInfo.isArray())
       {
-        final Class<?> componentType = fieldType.getComponentType();
+        final Class<?> componentType = typeInfo.getComponentType();
         final ASN1OctetString[] values = attribute.getRawValues();
         final Object arrayObject =
              Array.newInstance(componentType, values.length);
@@ -686,9 +908,63 @@ public final class DefaultLDAPFieldEncoder
         field.set(object, arrayObject);
         return;
       }
+      else if (typeInfo.isList() && isSupportedListType(baseClass))
+      {
+        final Class<?> componentType = typeInfo.getComponentType();
+        if (componentType == null)
+        {
+          throw new LDAPPersistException(
+               ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(baseClass.getName()));
+        }
+
+        final ASN1OctetString[] values = attribute.getRawValues();
+        final List<?> l = createList(baseClass, values.length);
+        for (int i=0; i < values.length; i++)
+        {
+          final Object o = getValue(componentType, attribute, i);
+          if (o == null)
+          {
+            throw new LDAPPersistException(
+                 ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
+                      componentType.getName()));
+          }
+
+          invokeAdd(l, o);
+        }
+
+        field.set(object, l);
+        return;
+      }
+      else if (typeInfo.isSet() && isSupportedSetType(baseClass))
+      {
+        final Class<?> componentType = typeInfo.getComponentType();
+        if (componentType == null)
+        {
+          throw new LDAPPersistException(
+               ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(baseClass.getName()));
+        }
+
+        final ASN1OctetString[] values = attribute.getRawValues();
+        final Set<?> l = createSet(baseClass, values.length);
+        for (int i=0; i < values.length; i++)
+        {
+          final Object o = getValue(componentType, attribute, i);
+          if (o == null)
+          {
+            throw new LDAPPersistException(
+                 ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
+                      componentType.getName()));
+          }
+
+          invokeAdd(l, o);
+        }
+
+        field.set(object, l);
+        return;
+      }
 
       throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
-           fieldType.getName()));
+           baseClass.getName()));
     }
     catch (LDAPPersistException lpe)
     {
@@ -712,21 +988,23 @@ public final class DefaultLDAPFieldEncoder
                            final Attribute attribute)
          throws LDAPPersistException
   {
-    final Class<?> argType = method.getParameterTypes()[0];
+    final TypeInfo typeInfo =
+         new TypeInfo(method.getGenericParameterTypes()[0]);
+    final Class<?> baseClass = typeInfo.getBaseClass();
     method.setAccessible(true);
 
     try
     {
-      final Object newValue = getValue(argType, attribute, 0);
+      final Object newValue = getValue(baseClass, attribute, 0);
       if (newValue != null)
       {
         method.invoke(object, newValue);
         return;
       }
 
-      if (argType.isArray())
+      if (typeInfo.isArray())
       {
-        final Class<?> componentType = argType.getComponentType();
+        final Class<?> componentType = typeInfo.getComponentType();
         final ASN1OctetString[] values = attribute.getRawValues();
         final Object arrayObject =
              Array.newInstance(componentType, values.length);
@@ -745,9 +1023,63 @@ public final class DefaultLDAPFieldEncoder
         method.invoke(object, arrayObject);
         return;
       }
+      else if (typeInfo.isList() && isSupportedListType(baseClass))
+      {
+        final Class<?> componentType = typeInfo.getComponentType();
+        if (componentType == null)
+        {
+          throw new LDAPPersistException(
+               ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(baseClass.getName()));
+        }
+
+        final ASN1OctetString[] values = attribute.getRawValues();
+        final List<?> l = createList(baseClass, values.length);
+        for (int i=0; i < values.length; i++)
+        {
+          final Object o = getValue(componentType, attribute, i);
+          if (o == null)
+          {
+            throw new LDAPPersistException(
+                 ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
+                      componentType.getName()));
+          }
+
+          invokeAdd(l, o);
+        }
+
+        method.invoke(object, l);
+        return;
+      }
+      else if (typeInfo.isSet() && isSupportedSetType(baseClass))
+      {
+        final Class<?> componentType = typeInfo.getComponentType();
+        if (componentType == null)
+        {
+          throw new LDAPPersistException(
+               ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(baseClass.getName()));
+        }
+
+        final ASN1OctetString[] values = attribute.getRawValues();
+        final Set<?> s = createSet(baseClass, values.length);
+        for (int i=0; i < values.length; i++)
+        {
+          final Object o = getValue(componentType, attribute, i);
+          if (o == null)
+          {
+            throw new LDAPPersistException(
+                 ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
+                      componentType.getName()));
+          }
+
+          invokeAdd(s, o);
+        }
+
+        method.invoke(object, s);
+        return;
+      }
 
       throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
-           argType.getName()));
+           baseClass.getName()));
     }
     catch (LDAPPersistException lpe)
     {
@@ -943,5 +1275,45 @@ public final class DefaultLDAPFieldEncoder
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Invokes the {@code add} method on the provided {@code List} or {@code Set}
+   * object.
+   *
+   * @param  l  The list or set on which to invoke the {@code add} method.
+   * @param  o  The object to add to the {@code List} or {@code Set} object.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                invoke the {@code add} method.
+   */
+  private static void invokeAdd(final Object l, final Object o)
+          throws LDAPPersistException
+  {
+    final Class<?> c = l.getClass();
+
+    for (final Method m : c.getMethods())
+    {
+      if (m.getName().equals("add") &&
+          (m.getGenericParameterTypes().length == 1))
+      {
+        try
+        {
+          m.invoke(l, o);
+          return;
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+          throw new LDAPPersistException(
+               ERR_DEFAULT_ENCODER_CANNOT_ADD.get(getExceptionMessage(e)), e);
+        }
+      }
+    }
+
+    throw new LDAPPersistException(
+         ERR_DEFAULT_ENCODER_CANNOT_FIND_ADD_METHOD.get());
   }
 }

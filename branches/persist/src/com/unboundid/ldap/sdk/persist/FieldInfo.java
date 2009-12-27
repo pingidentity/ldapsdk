@@ -178,12 +178,12 @@ final class FieldInfo
            getExceptionMessage(e)), e);
     }
 
-    if (! encoder.supportsType(f.getType()))
+    if (! encoder.supportsType(f.getGenericType()))
     {
       throw new LDAPPersistException(
            ERR_FIELD_INFO_ENCODER_UNSUPPORTED_TYPE.get(
                 encoder.getClass().getName(), f.getName(), c.getName(),
-                f.getType()));
+                f.getGenericType()));
     }
 
     supportsMultipleValues = encoder.supportsMultipleValues(f);

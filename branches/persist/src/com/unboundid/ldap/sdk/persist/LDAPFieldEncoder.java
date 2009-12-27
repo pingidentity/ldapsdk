@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.persist;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
@@ -57,7 +58,7 @@ public abstract class LDAPFieldEncoder
    * @return  {@code true} if this LDAP field encoder may be used for objects of
    *          the specified type, or {@code false} if not.
    */
-  public abstract boolean supportsType(final Class<?> t);
+  public abstract boolean supportsType(final Type t);
 
 
 

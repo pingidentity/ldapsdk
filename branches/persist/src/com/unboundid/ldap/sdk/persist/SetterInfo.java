@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk.persist;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
@@ -112,7 +113,7 @@ final class SetterInfo
     failOnInvalidValue  = a.failOnInvalidValue();
     attributeName       = a.attribute();
 
-    final Class<?>[] params = m.getParameterTypes();
+    final Type[] params = m.getGenericParameterTypes();
     if (params.length != 1)
     {
       throw new LDAPPersistException(
@@ -137,7 +138,7 @@ final class SetterInfo
       throw new LDAPPersistException(
            ERR_SETTER_INFO_ENCODER_UNSUPPORTED_TYPE.get(
                 encoder.getClass().getName(), m.getName(), c.getName(),
-                params[0].getName()));
+                String.valueOf(params[0])));
     }
 
     supportsMultipleValues = encoder.supportsMultipleValues(m);
