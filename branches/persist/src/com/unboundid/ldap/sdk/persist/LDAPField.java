@@ -81,15 +81,6 @@ public @interface LDAPField
 
 
   /**
-   * Indicates whether this field should be included in the filter that is
-   * generated when searching for entries representing the associated object
-   * type in the directory.
-   */
-  boolean inFilter() default false;
-
-
-
-  /**
    * Indicates whether this field should be examined and included in the set of
    * LDAP modifications if it has been changed when modifying an existing
    * instance of the associated object in the directory.  Note that any field
@@ -138,6 +129,15 @@ public @interface LDAPField
    */
   Class<? extends LDAPFieldEncoder> encoderClass()
        default DefaultLDAPFieldEncoder.class;
+
+
+
+  /**
+   * Indicates whether and under what circumstances the value of this field may
+   * be included in a search filter generated to search for entries that match
+   * the object.
+   */
+  FilterUsage filterUsage() default FilterUsage.CONDITIONALLY_ALLOWED;
 
 
 

@@ -423,6 +423,7 @@ public final class GenerateSourceFromSchema
 
     writer.println("import " + Entry.class.getName() + ';');
     writer.println("import " + ReadOnlyEntry.class.getName() + ';');
+    writer.println("import " + FilterUsage.class.getName() + ';');
     writer.println("import " + LDAPEntryField.class.getName() + ';');
     writer.println("import " + LDAPField.class.getName() + ';');
     writer.println("import " + LDAPObject.class.getName() + ';');
@@ -819,7 +820,12 @@ public final class GenerateSourceFromSchema
     {
       writer.println(",");
       writer.println("             inRDN=true,");
-      writer.print("             inFilter=true");
+      writer.print("             filterUsage=FilterUsage.ALWAYS_ALLOWED");
+    }
+    else
+    {
+      writer.print("             " +
+           "filterUsage=FilterUsage.CONDITIONALLY_ALLOWED");
     }
 
     if (required)

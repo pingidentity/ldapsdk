@@ -94,16 +94,27 @@ final class LDAPObjectHandler<T>
   // The LDAPObject annotation for the associated object.
   private final LDAPObject ldapObject;
 
-  // The list of fields for this class that should be used to construct search
-  // filters.
-  private final List<FieldInfo> filterFields;
+  // The list of fields for with a filter usage of ALWAYS_ALLOWED.
+  private final List<FieldInfo> alwaysAllowedFilterFields;
+
+  // The list of fields for with a filter usage of CONDITIONALLY_ALLOWED.
+  private final List<FieldInfo> conditionallyAllowedFilterFields;
+
+  // The list of fields for with a filter usage of REQUIRED.
+  private final List<FieldInfo> requiredFilterFields;
 
   // The list of fields for this class that should be used to construct the RDN.
   private final List<FieldInfo> rdnFields;
 
-  // The list of getters for this class that should be used to construct search
-  // filters
-  private final List<GetterInfo> filterGetters;
+  // The list of getter methods for with a filter usage of ALWAYS_ALLOWED.
+  private final List<GetterInfo> alwaysAllowedFilterGetters;
+
+  // The list of getter methods for with a filter usage of
+  // CONDITIONALLY_ALLOWED.
+  private final List<GetterInfo> conditionallyAllowedFilterGetters;
+
+  // The list of getter methods for with a filter usage of REQUIRED.
+  private final List<GetterInfo> requiredFilterGetters;
 
   // The list of getters for this class that should be used to construct the
   // RDN.
@@ -274,10 +285,12 @@ final class LDAPObjectHandler<T>
            ERR_OBJECT_HANDLER_NO_DEFAULT_CONSTRUCTOR.get(type.getName()), e);
     }
 
-    Field                       tmpDNField      = null;
-    Field                       tmpEntryField   = null;
-    final LinkedList<FieldInfo> tmpFilterFields = new LinkedList<FieldInfo>();
-    final LinkedList<FieldInfo> tmpRDNFields    = new LinkedList<FieldInfo>();
+    Field tmpDNField = null;
+    Field tmpEntryField = null;
+    final LinkedList<FieldInfo> tmpRFilterFields = new LinkedList<FieldInfo>();
+    final LinkedList<FieldInfo> tmpAAFilterFields = new LinkedList<FieldInfo>();
+    final LinkedList<FieldInfo> tmpCAFilterFields = new LinkedList<FieldInfo>();
+    final LinkedList<FieldInfo> tmpRDNFields = new LinkedList<FieldInfo>();
     for (final Field f : type.getDeclaredFields())
     {
       final LDAPField fieldAnnotation = f.getAnnotation(LDAPField.class);
@@ -301,9 +314,21 @@ final class LDAPObjectHandler<T>
           fields.put(attrName, fieldInfo);
         }
 
-        if (fieldInfo.includeInSearchFilter())
+        switch (fieldInfo.getFilterUsage())
         {
-          tmpFilterFields.add(fieldInfo);
+          case REQUIRED:
+            tmpRFilterFields.add(fieldInfo);
+            break;
+          case ALWAYS_ALLOWED:
+            tmpAAFilterFields.add(fieldInfo);
+            break;
+          case CONDITIONALLY_ALLOWED:
+            tmpCAFilterFields.add(fieldInfo);
+            break;
+          case EXCLUDED:
+          default:
+            // No action required.
+            break;
         }
 
         if (fieldInfo.includeInRDN())
@@ -400,12 +425,19 @@ final class LDAPObjectHandler<T>
       }
     }
 
-    dnField      = tmpDNField;
-    entryField   = tmpEntryField;
-    filterFields = Collections.unmodifiableList(tmpFilterFields);
+    dnField = tmpDNField;
+    entryField = tmpEntryField;
+    requiredFilterFields = Collections.unmodifiableList(tmpRFilterFields);
+    alwaysAllowedFilterFields = Collections.unmodifiableList(tmpAAFilterFields);
+    conditionallyAllowedFilterFields =
+         Collections.unmodifiableList(tmpCAFilterFields);
     rdnFields    = Collections.unmodifiableList(tmpRDNFields);
 
-    final LinkedList<GetterInfo> tmpFilterGetters =
+    final LinkedList<GetterInfo> tmpRFilterGetters =
+         new LinkedList<GetterInfo>();
+    final LinkedList<GetterInfo> tmpAAFilterGetters =
+         new LinkedList<GetterInfo>();
+    final LinkedList<GetterInfo> tmpCAFilterGetters =
          new LinkedList<GetterInfo>();
     final LinkedList<GetterInfo> tmpRDNGetters = new LinkedList<GetterInfo>();
     for (final Method m : type.getDeclaredMethods())
@@ -437,9 +469,21 @@ final class LDAPObjectHandler<T>
           getters.put(attrName, methodInfo);
         }
 
-        if (methodInfo.includeInSearchFilter())
+        switch (methodInfo.getFilterUsage())
         {
-          tmpFilterGetters.add(methodInfo);
+          case REQUIRED:
+            tmpRFilterGetters.add(methodInfo);
+            break;
+          case ALWAYS_ALLOWED:
+            tmpAAFilterGetters.add(methodInfo);
+            break;
+          case CONDITIONALLY_ALLOWED:
+            tmpCAFilterGetters.add(methodInfo);
+            break;
+          case EXCLUDED:
+          default:
+            // No action required.
+            break;
         }
 
         if (methodInfo.includeInRDN())
@@ -466,7 +510,11 @@ final class LDAPObjectHandler<T>
       }
     }
 
-    filterGetters = Collections.unmodifiableList(tmpFilterGetters);
+    requiredFilterGetters = Collections.unmodifiableList(tmpRFilterGetters);
+    alwaysAllowedFilterGetters =
+         Collections.unmodifiableList(tmpAAFilterGetters);
+    conditionallyAllowedFilterGetters =
+         Collections.unmodifiableList(tmpCAFilterGetters);
 
     rdnGetters = Collections.unmodifiableList(tmpRDNGetters);
     if (rdnFields.isEmpty() && rdnGetters.isEmpty())
@@ -1389,7 +1437,66 @@ final class LDAPObjectHandler<T>
     final LinkedList<Attribute> attrs = new LinkedList<Attribute>();
     attrs.add(objectClassAttribute);
 
-    for (final FieldInfo i : filterFields)
+    boolean added = false;
+    for (final FieldInfo i : requiredFilterFields)
+    {
+      final Attribute a = i.encode(o, true);
+      if (a == null)
+      {
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_FILTER_MISSING_REQUIRED_FIELD.get(
+                  i.getField().getName()));
+      }
+      else
+      {
+        attrs.add(a);
+        added = true;
+      }
+    }
+
+    for (final GetterInfo i : requiredFilterGetters)
+    {
+      final Attribute a = i.encode(o);
+      if (a == null)
+      {
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_FILTER_MISSING_REQUIRED_GETTER.get(
+                  i.getMethod().getName()));
+      }
+      else
+      {
+        attrs.add(a);
+        added = true;
+      }
+    }
+
+    for (final FieldInfo i : alwaysAllowedFilterFields)
+    {
+      final Attribute a = i.encode(o, true);
+      if (a != null)
+      {
+        attrs.add(a);
+        added = true;
+      }
+    }
+
+    for (final GetterInfo i : alwaysAllowedFilterGetters)
+    {
+      final Attribute a = i.encode(o);
+      if (a != null)
+      {
+        attrs.add(a);
+        added = true;
+      }
+    }
+
+    if (! added)
+    {
+      throw new LDAPPersistException(
+           ERR_OBJECT_HANDLER_FILTER_MISSING_REQUIRED_OR_ALLOWED.get());
+    }
+
+    for (final FieldInfo i : conditionallyAllowedFilterFields)
     {
       final Attribute a = i.encode(o, true);
       if (a != null)
@@ -1398,7 +1505,7 @@ final class LDAPObjectHandler<T>
       }
     }
 
-    for (final GetterInfo i : filterGetters)
+    for (final GetterInfo i : conditionallyAllowedFilterGetters)
     {
       final Attribute a = i.encode(o);
       if (a != null)
@@ -1416,13 +1523,6 @@ final class LDAPObjectHandler<T>
       }
     }
 
-    if (comps.size() == 1)
-    {
-      return comps.get(0);
-    }
-    else
-    {
-      return Filter.createANDFilter(comps);
-    }
+    return Filter.createANDFilter(comps);
   }
 }

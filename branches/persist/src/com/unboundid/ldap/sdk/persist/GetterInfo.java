@@ -62,12 +62,11 @@ final class GetterInfo
   // Indicates whether the associated method value is part of the RDN.
   private final boolean includeInRDN;
 
-  // Indicates whether the associated method value should be included in the
-  // filter created for search operations.
-  private final boolean includeInSearchFilter;
-
   // The class that contains the associated method.
   private final Class<?> containingClass;
+
+  // The filter usage for the associated method.
+  private final FilterUsage filterUsage;
 
   // The method with which this object is associated.
   private final Method method;
@@ -114,12 +113,12 @@ final class GetterInfo
            c.getName()));
     }
 
-    containingClass       = c;
-    includeInRDN          = a.inRDN();
-    includeInAdd          = (includeInRDN || a.inAdd());
-    includeInModify       = ((! includeInRDN) && a.inModify());
-    includeInSearchFilter = a.inFilter();
-    attributeName         = a.attribute();
+    containingClass = c;
+    includeInRDN    = a.inRDN();
+    includeInAdd    = (includeInRDN || a.inAdd());
+    includeInModify = ((! includeInRDN) && a.inModify());
+    filterUsage     = a.filterUsage();
+    attributeName   = a.attribute();
 
     final int modifiers = m.getModifiers();
     if (Modifier.isStatic(modifiers))
@@ -274,16 +273,13 @@ final class GetterInfo
 
 
   /**
-   * Indicates whether the associated method value should be considered for
-   * inclusion in filters generated for search operations.
+   * Retrieves the filter usage for the associated method.
    *
-   * @return  {@code true} if the associated method value should be considered
-   *          for inclusion in filters generated for search operations, or
-   *          {@code false} if not.
+   * @return  The filter usage for the associated method.
    */
-  boolean includeInSearchFilter()
+  FilterUsage getFilterUsage()
   {
-    return includeInSearchFilter;
+    return filterUsage;
   }
 
 

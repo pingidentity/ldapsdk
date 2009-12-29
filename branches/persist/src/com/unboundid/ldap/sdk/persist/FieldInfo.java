@@ -72,10 +72,6 @@ final class FieldInfo
   // Indicates whether the associated field is part of the RDN.
   private final boolean includeInRDN;
 
-  // Indicates whether the associated field should be included in the filter
-  // created for search operations.
-  private final boolean includeInSearchFilter;
-
   // Indicates whether the associated field is required when decoding.
   private final boolean isRequiredForDecode;
 
@@ -90,6 +86,9 @@ final class FieldInfo
 
   // The field with which this object is associated.
   private final Field field;
+
+  // The filter usage for the associated field.
+  private final FilterUsage filterUsage;
 
   // The encoder used for this field.
   private final LDAPFieldEncoder encoder;
@@ -142,16 +141,16 @@ final class FieldInfo
            c.getName()));
     }
 
-    containingClass       = c;
-    failOnInvalidValue    = a.failOnInvalidValue();
-    includeInRDN          = a.inRDN();
-    includeInAdd          = (includeInRDN || a.inAdd());
-    includeInModify       = ((! includeInRDN) && a.inModify());
-    includeInSearchFilter = a.inFilter();
-    isRequiredForDecode   = a.requiredForDecode();
-    isRequiredForEncode   = (includeInRDN || a.requiredForEncode());
-    defaultDecodeValues   = a.defaultDecodeValue();
-    defaultEncodeValues   = a.defaultEncodeValue();
+    containingClass     = c;
+    failOnInvalidValue  = a.failOnInvalidValue();
+    includeInRDN        = a.inRDN();
+    includeInAdd        = (includeInRDN || a.inAdd());
+    includeInModify     = ((! includeInRDN) && a.inModify());
+    filterUsage         = a.filterUsage();
+    isRequiredForDecode = a.requiredForDecode();
+    isRequiredForEncode = (includeInRDN || a.requiredForEncode());
+    defaultDecodeValues = a.defaultDecodeValue();
+    defaultEncodeValues = a.defaultEncodeValue();
 
     final int modifiers = f.getModifiers();
     if (Modifier.isFinal(modifiers))
@@ -378,16 +377,13 @@ final class FieldInfo
 
 
   /**
-   * Indicates whether the associated field should be considered for inclusion
-   * in filters generated for search operations.
+   * Retrieves the filter usage for the associated field.
    *
-   * @return  {@code true} if the associated field should be considered for
-   *          inclusion in filters generated for search operations, or
-   *          {@code false} if not.
+   * @return  The filter usage for the associated field.
    */
-  boolean includeInSearchFilter()
+  FilterUsage getFilterUsage()
   {
-    return includeInSearchFilter;
+    return filterUsage;
   }
 
 

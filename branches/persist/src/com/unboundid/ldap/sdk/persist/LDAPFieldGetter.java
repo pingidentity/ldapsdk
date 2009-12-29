@@ -60,15 +60,6 @@ public @interface LDAPFieldGetter
 
   /**
    * Indicates whether the value returned from this method should be included in
-   * the filter that is generated when searching for entries representing the
-   * associated object type in the directory.
-   */
-  boolean inFilter() default false;
-
-
-
-  /**
-   * Indicates whether the value returned from this method should be included in
    * the set of LDAP modifications if it has been changed when modifying an
    * existing instance of the associated object in the directory.  Note that any
    * field which is to be included in entry RDNs will never be included in
@@ -94,6 +85,15 @@ public @interface LDAPFieldGetter
    */
   Class<? extends LDAPFieldEncoder> encoderClass()
        default DefaultLDAPFieldEncoder.class;
+
+
+
+  /**
+   * Indicates whether and under what circumstances the value returned from this
+   * method may be included in a search filter generated to search for entries
+   * that match the object.
+   */
+  FilterUsage filterUsage() default FilterUsage.CONDITIONALLY_ALLOWED;
 
 
 
