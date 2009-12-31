@@ -308,7 +308,7 @@ public class CopyDocs
           for (String line : headerLines)
           {
             String l = processLine(line, b);
-            if ((l != null) && l.length() > 0)
+            if (l != null)
             {
               w.println(l);
             }
@@ -317,7 +317,7 @@ public class CopyDocs
           for (String line : readFile(file))
           {
             String l = processLine(line, b);
-            if ((l != null) && l.length() > 0)
+            if (l != null)
             {
               w.println(l);
             }
@@ -326,7 +326,7 @@ public class CopyDocs
           for (String line : footerLines)
           {
             String l = processLine(line, b);
-            if ((l != null) && l.length() > 0)
+            if (l != null)
             {
               w.println(l);
             }
