@@ -1,0 +1,116 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Using the UnboundID LDAP SDK Persistence Framework</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>The <tt>LDAPPersister</tt> Class</h2>
+
+              <p>
+                The <tt>com.unboundid.ldap.sdk.persist.LDAPPersister</tt> class provides a set of
+                methods that may be used to perform most of the real work of encoding and decoding
+                entries and communicating with an LDAP directory server in the context of the LDAP
+                SDK persistence framework.  It uses the Java generics framework, and each instance
+                of an <tt>LDAPPersister</tt> class may be used for one type of object marked with
+                the <tt>@LDAPObject</tt> annotation type.
+              </p>
+
+              <p>
+                When creating a new <tt>LDAPPersister</tt> instance, you must provide a reference
+                to the Java class for the type of object that will be persisted using that
+                instance.  This class must be marked with the <tt>@LDAPObject</tt> annotation type,
+                and the process of initializing the <tt>LDAPPersister</tt> instance will validate
+                that class to ensure that it does not violate any of the constraints imposed by
+                the LDAP SDK persistence framework.
+              </p>
+
+              <p>
+                Key methods provided by the <tt>LDAPPersister</tt> class include:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>constructAttributeTypes</tt> -- This method may be used to construct LDAP
+                  attribute type definitions for all attributes that may be used in the encoding or
+                  decoding process.  This is primarily used for the purpose of generating LDAP
+                  schema definitions from properly-annotated source files.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>constructObjectClasses</tt> -- This method may be used to construct LDAP
+                  object class definitions for the structural and any auxiliary classes referenced
+                  in the <tt>@LDAPObject</tt> annotation type.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>encode</tt> -- This method may be used to encode a Java object of the
+                  associated class to an LDAP entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>decode</tt> -- This method may be used to create and initialize a Java object
+                  from the contents of an LDAP entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>add</tt> -- This method may be used to add an entry created from a Java
+                  object to an LDAP directory server.  It invokes the <tt>encode</tt> method to
+                  generate an entry, and then adds that entry to the directory server via LDAP.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>delete</tt> -- This method may be used to delete the LDAP entry that
+                  corresponds to a provided Java object.  The provided object must have been 
+                  obtained using the persistence framework, and it must have a field marked with
+                  either the <tt>@LDAPDNField</tt> or <tt>@LDAPEntryField</tt> annotation types.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>getModifications</tt> -- This method may be used to retrieve a set of
+                  modifications that may be applied to an entry in order to update it based on the
+                  information in a provided object instance.  If the Java class has a field marked
+                  with the <tt>@LDAPEntryField</tt> annotation type and a non-<tt>null</tt> value,
+                  then the information in that entry will be used to help refine the set of
+                  modifications to be applied.  Otherwise, modifications will be generated from all
+                  fields and getter methods marked for inclusion in modify operations.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>modify</tt> -- This method may be used to modify an LDAP entry to match the
+                  content of a provided Java object.  It uses the <tt>getModifications</tt> method
+                  to obtain the set of modifications.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>get</tt> -- This method may be used to retrieve a single instance of the
+                  associated object from an LDAP directory.  There are two variants of this method:
+                  one that takes the DN of the LDAP entry to retrieve, and a second that takes an
+                  object instance to use to construct the DN.  If the variant that takes an object
+                  instance is used, then that object must include values for all fields and/or
+                  getter methods included in the entry RDN.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>search</tt> -- This method may be used to perform an LDAP search to retrieve
+                  object instances that match a provided object.  All non-<tt>null</tt> fields and
+                  getter methods marked for inclusion in search filters will be used to generate
+                  the filter, and all entries returned from the search will be decoded as instances
+                  of the associated object type.
+                  <br><br>
+                </li>
+              </ul>

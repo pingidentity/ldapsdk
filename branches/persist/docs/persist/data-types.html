@@ -1,0 +1,93 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Using the UnboundID LDAP SDK Persistence Framework</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Supported Data Types</h2>
+
+              <p>
+                The work of converting Java field and methods values to LDAP attributes (and vice
+                versa) is performed by <tt>LDAPFieldEncoder</tt> object instances.  The LDAP SDK
+                persistence framework includes a <tt>DefaultLDAPFieldEncoder</tt> instance which
+                supports a wide range of data types, but custom field encoders may be created if
+                other data types should be supported, or if the values should be encoded in a
+                different manner.
+              </p>
+
+              <p>
+                The following Java types are supported by the <tt>DefaultLDAPFieldEncoder</tt>
+                class:
+              </p>
+
+              <ul>
+                <li><tt>boolean</tt></li>
+                <li><tt>double</tt></li>
+                <li><tt>float</tt></li>
+                <li><tt>int</tt></li>
+                <li><tt>long</tt></li>
+                <li><tt>short</tt></li>
+                <li><tt>byte[]</tt></li>
+                <li><tt>char[]</tt></li>
+                <li><tt>java.lang.Boolean</tt></li>
+                <li><tt>java.lang.Double</tt></li>
+                <li><tt>java.lang.Float</tt></li>
+                <li><tt>java.lang.Integer</tt></li>
+                <li><tt>java.lang.Long</tt></li>
+                <li><tt>java.lang.Short</tt></li>
+                <li><tt>java.lang.String</tt></li>
+                <li><tt>java.lang.StringBuffer</tt></li>
+                <li><tt>java.lang.StringBuilder</tt></li>
+                <li><tt>java.math.BigDecimal</tt></li>
+                <li><tt>java.math.BigInteger</tt></li>
+                <li><tt>java.util.Date</tt></li>
+                <li><tt>java.util.UUID</tt></li>
+                <li><tt>java.util.concurent.atomic.AtomicInteger</tt></li>
+                <li><tt>java.util.concurent.atomic.AtomicLong</tt></li>
+                <li><tt>com.unboundid.ldap.sdk.DN</tt></li>
+                <li><tt>com.unboundid.ldap.sdk.Filter</tt></li>
+                <li><tt>com.unboundid.ldap.sdk.LDAPURL</tt></li>
+                <li><tt>com.unboundid.ldap.sdk.RDN</tt></li>
+              </ul>
+
+              <p>
+                All of the above types are meant to hold a single attribute value.  For multivalued
+                attributes, you may use arrays, lists, or sets of any of these types.  If a list or
+                set is to be used, then it should have a Java generic type of one of the above
+                types, and list or set itself must have one of the following types:
+              </p>
+
+              <ul>
+                <li><tt>java.util.ArrayList</tt></li>
+                <li><tt>java.util.HashSet</tt></li>
+                <li><tt>java.util.LinkedHashSet</tt></li>
+                <li><tt>java.util.LinkedList</tt></li>
+                <li><tt>java.util.List</tt></li>
+                <li><tt>java.util.Set</tt></li>
+                <li><tt>java.util.TreeSet</tt></li>
+                <li><tt>java.util.concurrent.CopyOnWriteArrayList</tt></li>
+                <li><tt>java.util.concurrent.CopyOnWriteArraySet</tt></li>
+              </ul>
+
+              <p>
+                Note that although the <tt>DefaultLDAPFieldEncoder</tt> class supports most of the
+                Java primitive types, it is generally recommended that you use the corresponding
+                object types in the <tt>java.lang</tt> package instead of the primitive (e.g., 
+                <tt>java.lang.Integer</tt> instead of the <tt>int</tt> primitive).  The primary
+                reason for this is that primitive types must always have values, whereas object
+                types may be <tt>null</tt>.  If primitive types are used, then it is impossible for
+                them to remain uninitialized, so it is not possible to determine whether the
+                corresponding attribute should be excluded from the encoded entry, or if that field
+                or method was initialized when decoding an entry.  This can also cause problems
+                when trying to perform searches, since primitive elements will always have a value
+                and will be included in search filters unless the associated fields or getter
+                methods have been specifically excluded (in which case they can't be used in
+                filters).  The <tt>java.lang</tt> equivalents of these types do not have these
+                limitations.
+              </p>

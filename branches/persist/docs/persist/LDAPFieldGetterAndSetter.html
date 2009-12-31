@@ -1,0 +1,177 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Using the UnboundID LDAP SDK Persistence Framework</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>The <tt>@LDAPFieldGetter</tt> and <tt>@LDAPFieldSetter</tt> Annotation Types</h2>
+
+              <p>
+                The <tt>@LDAPFieldGetter</tt> annotation type may be used to mark a method that
+                will be invoked in the course of encoding a Java object to an LDAP entry.  The
+                method should not take any arguments, and should return a value (or set of values)
+                that will be converted to an attribute to include in the generated entry.  The
+                <tt>@LDAPFieldSetter</tt> annotation type may be used to mark a method that will be
+                invoked in the course of initializing a Java object from an LDAP entry.  The method
+                should take exactly one argument, which will be a value (or set of values) decoded
+                from an LDAP attribute.
+              </p>
+
+              <p>
+                In simple cases, the <tt>@LDAPFieldGetter</tt> and <tt>@LDAPFieldSetter</tt>
+                annotation types provide roughly the same functionality as the <tt>@LDAPField</tt>
+                annotation type, but they can be used to provide additional functionality.  In
+                particular, using the method annotations rather than field annotations make it
+                possible to provide more complex processing when encoding or decoding attribute
+                values (e.g., breaking up a single attribute value across multiple fields), or to
+                have values which are read-only or write-only.
+              </p>
+
+              <p>
+                The methods marked with <tt>@LDAPFieldGetter</tt> or <tt>@LDAPFieldSetter</tt>
+                must not be declared <tt>static</tt>, but they may have any visibility modifier,
+                including <tt>public</tt>, <tt>private</tt>, <tt>protected</tt>, or the default
+                package-level access.
+              </p>
+
+              <p>
+                Elements that may be included in the <tt>@LDAPFieldGetter</tt> annotation type
+                include:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>attribute</tt> -- This element is used to specify the name (or OID) of the
+                  attribute that will be used to hold the method return value(s) in LDAP entries.
+                  This attribute should be defined in the directory server schema, and it should be
+                  allowed by at least one of the structural or auxiliary object classes referenced
+                  in the <tt>@LDAPObject</tt> annotation used to mark the Java class.  This element
+                  must be provided.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>objectClass</tt> -- This element is used to specify the name(s) of the LDAP
+                  object classes that allow the associated attribute.  This is primarily used when
+                  generating LDAP schema definitions from annotated Java source code using the
+                  <tt>generate-schema-from-source</tt> tool.  If it is not provided, then it will
+                  be assumed that the attribute is included in the structural object class.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>inRDN</tt> -- This element is used to indicate whether the attribute should
+                  be included in the RDN for entries generated from Java objects of the associated
+                  type.  At least one <tt>@LDAPField</tt> or <tt>@LDAPFieldGetter</tt> annotation
+                  defined in the class must indicate that the associated attribute should be
+                  included in the entry's RDN.  If this element is not provided, then it will be
+                  assumed that the corresponding method should not be used to construct the entry's
+                  RDN.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>inAdd</tt> -- This element is used to indicate whether the attribute created
+                  from the associated method should be included when adding an entry created from
+                  an instance of the object to the directory.  It may be <tt>false</tt> if the
+                  attribute should be generated by the directory server or populated through some
+                  other means.  If this element is not provided, then it will have a default value
+                  of <tt>true</tt>.  Note that if the <tt>inRDN</tt> element is present with a
+                  value of <tt>true</tt>, then the attribute will always be included in add
+                  operations regardless of the value of the <tt>inAdd</tt> element.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>inModify</tt> -- This element is used to indicate whether changes in the
+                  return value(s) of the marked method should be applied to the corresponding entry
+                  when performing an LDAP modify operation.  It may be <tt>false</tt> if the
+                  attribute should not be updated by modify operations (e.g., if it should only be
+                  written in add operations).  If this element is not provided, then it will have a
+                  default value of <tt>true</tt>.  Note that if the <tt>inRDN</tt> element is
+                  present with a value of <tt>true</tt>, then the attribute will never be included
+                  in modify operations regardless of the value of the <tt>inModify</tt> element.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>filterUsage</tt> -- This element is used to indicate whether the return value
+                  of the associated method should be used when generating a search filter to search
+                  for entries that correspond to objects of the associated type.  It may have a
+                  value of <tt>REQUIRED</tt> (to indicate that the method must return a value in
+                  order to be able to generate a search filter for the object),
+                  <tt>ALWAYS_ALLOWED</tt> (to indicate that it may be present by itself or in
+                  conjunction with other fields or getter methods when generating the search
+                  filter), <tt>CONDITIONALLY_ALLOWED</tt> (to indicate that it may only be used in
+                  conjunction with other fields or getter methods that are <tt>REQUIRED</tt> or
+                  <tt>ALWAYS_ALLOWED</tt>), or <tt>EXCLUDED</tt> (to indicate that this method will
+                  never be included in generated search filters).  If this element is not provided,
+                  then it will have a default value of <tt>CONDITIONALLY_ALLOWED</tt>.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>encoderClass</tt> -- This element is used to specify the class that provides
+                  the logic that will be used to encode the method return value(s) to an LDAP
+                  attribute.   If a value is specified, then it must represent a Java class which
+                  is a subclass of <tt>com.unboundid.ldap.sdk.persist.LDAPFieldEncoder</tt>.  If
+                  this element is not provided, then a default value of
+                  <tt>com.unboundid.ldap.sdk.persist.DefaultLDAPFieldEncoder</tt> will be used.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                Elements that may be included in the <tt>@LDAPFieldSetter</tt> annotation type
+                include:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>attribute</tt> -- This element is used to specify the name (or OID) of the
+                  attribute that will be used to provide the value(s) for the argument to pass to
+                  the setter method.  This attribute should be defined in the directory server
+                  schema, and it should be allowed by at least one of the structural or auxiliary
+                  object classes referenced in the <tt>@LDAPObject</tt> annotation used to mark the
+                  Java class.  This element must be provided.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>failOnInvalidValue</tt> -- This element is used to indicate whether attempts
+                  to initialize a Java object with information from an LDAP entry should fail if
+                  the corresponding attribute has an invalid value for the associated method
+                  argument (e.g., the argument has a type of <tt>Integer</tt> but the attribute
+                  value cannot be parsed as an integer).  If this is <tt>false</tt> then any such
+                  decoding errors will be ignored and the corresponding method will not be
+                  invoked.  If this element is not provided, then it will have a default value of
+                  <tt>true</tt>.
+                  <br><br>
+                <li>
+                  <tt>failOnTooManyValues</tt> -- This element is used to indicate whether attempts
+                  to initialize a Java object with information from an LDAP entry should fail if
+                  the corresponding attribute has multiple values but the argument for the
+                  associated method can only hold a single value.  If this is <tt>false</tt> then
+                  only the first value will be used to initialize the corresponding method and all
+                  other values will be ignored.  If this element is not provided, then it will have
+                  a default value of <tt>true</tt>.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>encoderClass</tt> -- This element is used to specify the class that provides
+                  the logic that will decode the attribute to obtain the value(s) to pass as an
+                  argument to the associated method.  If a value is specified, then it must
+                  represent a Java class which is a subclass of
+                  <tt>com.unboundid.ldap.sdk.persist.LDAPFieldEncoder</tt>.  If this element is not
+                  provided, then a default value of
+                  <tt>com.unboundid.ldap.sdk.persist.DefaultLDAPFieldEncoder</tt> will be used.
+                  <br><br>
+                </li>
+              </ul>
