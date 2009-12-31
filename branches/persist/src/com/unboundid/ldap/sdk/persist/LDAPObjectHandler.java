@@ -1179,6 +1179,75 @@ final class LDAPObjectHandler<T>
    *                   used.  If the provided parent DN is {@code null} and the
    *                   {@code LDAPObject} annotation does not specify a default
    *                   parent DN, then the generated DN will not have a parent.
+   *
+   * @return  The entry DN for the provided object.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while obtaining the
+   *                                entry DN, or if the provided parent DN
+   *                                represents an invalid DN.
+   */
+  String constructDN(final T o, final String parentDN)
+         throws LDAPPersistException
+  {
+    final String existingDN = getEntryDN(o);
+    if (existingDN != null)
+    {
+      return existingDN;
+    }
+
+    final LinkedHashMap<String,Attribute> attrMap =
+         new LinkedHashMap<String,Attribute>(1);
+
+    for (final FieldInfo i : rdnFields)
+    {
+      final Attribute a = i.encode(o, true);
+      if (a == null)
+      {
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_RDN_FIELD_MISSING_VALUE.get(type.getName(),
+                  i.getField().getName()));
+      }
+
+      attrMap.put(toLowerCase(i.getAttributeName()), a);
+    }
+
+    for (final GetterInfo i : rdnGetters)
+    {
+      final Attribute a = i.encode(o);
+      if (a == null)
+      {
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_RDN_GETTER_MISSING_VALUE.get(type.getName(),
+                  i.getMethod().getName()));
+      }
+
+      attrMap.put(toLowerCase(i.getAttributeName()), a);
+    }
+
+    return constructDN(o, parentDN, attrMap);
+  }
+
+
+
+  /**
+   * Determines the DN that should be used for the entry associated with the
+   * given object.  If the provided object was retrieved from the directory
+   * using the persistence framework and has a field with either the
+   * {@link LDAPDNField} or {@link LDAPEntryField} annotation, then the actual
+   * DN of the corresponding entry will be returned.  Otherwise, it will be
+   * constructed using the fields and getter methods marked for inclusion in
+   * the entry RDN.
+   *
+   * @param  o         The object for which to determine the appropriate DN.
+   * @param  parentDN  The parent DN to use for the constructed DN.  If a
+   *                   non-{@code null} value is provided, then that value will
+   *                   be used as the parent DN (and the empty string will
+   *                   indicate that the generated DN should not have a parent).
+   *                   If the value is {@code null}, then the default parent DN
+   *                   as defined in the {@link LDAPObject} annotation will be
+   *                   used.  If the provided parent DN is {@code null} and the
+   *                   {@code LDAPObject} annotation does not specify a default
+   *                   parent DN, then the generated DN will not have a parent.
    * @param  attrMap   A map of the attributes that will be included in the
    *                   entry and may be used to construct the RDN elements.
    *

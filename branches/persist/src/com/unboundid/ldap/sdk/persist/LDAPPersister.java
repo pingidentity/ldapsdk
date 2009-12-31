@@ -224,7 +224,7 @@ public final class LDAPPersister<T>
    * an LDAP directory server.
    *
    * @param  o         The object to be encoded.  It must not be {@code null}.
-   * @param  parentDN  The parent DN to use by for the resulting entry.  If the
+   * @param  parentDN  The parent DN to use for the resulting entry.  If the
    *                   provided object was previously read from a directory
    *                   server and includes a field marked with the
    *                   {@link LDAPDNField} or {@link LDAPEntryField} annotation,
@@ -304,7 +304,7 @@ public final class LDAPPersister<T>
    * @param  o         The object to be added.  It must not be {@code null}.
    * @param  i         The interface to use to communicate with the directory
    *                   server.  It must not be {@code null}.
-   * @param  parentDN  The parent DN to use by for the resulting entry.  If the
+   * @param  parentDN  The parent DN to use for the resulting entry.  If the
    *                   provided object was previously read from a directory
    *                   server and includes a field marked with the
    *                   {@link LDAPDNField} or {@link LDAPEntryField} annotation,
@@ -487,6 +487,62 @@ public final class LDAPPersister<T>
     }
 
     return mods;
+  }
+
+
+
+  /**
+   * Constructs the DN of the associated entry from the provided object and
+   * parent DN and retrieves the contents of that entry as a new instance of
+   * that object.
+   *
+   * @param  o         An object instance to use to construct the DN of the
+   *                   entry to retrieve.  It must not be {@code null}, and all
+   *                   fields and/or getter methods marked for inclusion in the
+   *                   entry RDN must have non-{@code null} values.
+   * @param  i         The interface to use to communicate with the directory
+   *                   server. It must not be {@code null}.
+   * @param  parentDN  The parent DN to use for the entry to retrieve.  If the
+   *                   provided object was previously read from a directory
+   *                   server and includes a field marked with the
+   *                   {@link LDAPDNField} or {@link LDAPEntryField} annotation,
+   *                   then that field may be used to retrieve the actual DN of
+   *                   the associated entry.  If the actual DN of the target
+   *                   entry is not available, then a DN will be constructed
+   *                   from the RDN fields and/or getter methods declared in the
+   *                   class and this parent DN.  If the provided parent DN is
+   *                   {@code null}, then the default parent DN defined in the
+   *                   {@link LDAPObject} annotation will be used.
+   *
+   * @return  The object read from the entry with the provided DN, or
+   *          {@code null} if no entry exists with the constructed DN.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                construct the entry DN, retrieve the
+   *                                corresponding entry or decode it as an
+   *                                object.
+   */
+  public T get(final T o, final LDAPInterface i, final String parentDN)
+         throws LDAPPersistException
+  {
+    final String dn = handler.constructDN(o, parentDN);
+
+    final Entry entry;
+    try
+    {
+      entry = i.getEntry(dn, "*", "+");
+      if (entry == null)
+      {
+        return null;
+      }
+    }
+    catch (LDAPException le)
+    {
+      debugException(le);
+      throw new LDAPPersistException(le);
+    }
+
+    return decode(entry);
   }
 
 
