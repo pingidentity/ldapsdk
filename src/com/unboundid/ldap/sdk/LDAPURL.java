@@ -83,7 +83,7 @@ import static com.unboundid.util.Validator.*;
  *         <LI>base -- Equivalent to {@link SearchScope#BASE}.</LI>
  *         <LI>one -- Equivalent to {@link SearchScope#ONE}.</LI>
  *         <LI>sub -- Equivalent to {@link SearchScope#SUB}.</LI>
- *         <LI>subord -- Equivalent to
+ *         <LI>subordinates -- Equivalent to
  *             {@link SearchScope#SUBORDINATE_SUBTREE}.</LI>
  *       </UL></LI>
  *   <LI>Filter -- This specifies the filter for the URL.  If no filter is
@@ -399,7 +399,7 @@ public final class LDAPURL
         scope         = SearchScope.SUB;
         scopeProvided = true;
       }
-      else if (scopeStr.equals("subord"))
+      else if (scopeStr.equals("subord") || scopeStr.equals("subordinates"))
       {
         scope         = SearchScope.SUBORDINATE_SUBTREE;
         scopeProvided = true;
@@ -434,7 +434,7 @@ public final class LDAPURL
       scope         = SearchScope.SUB;
       scopeProvided = true;
     }
-    else if (scopeStr.equals("subord"))
+        else if (scopeStr.equals("subord") || scopeStr.equals("subordinates"))
     {
       scope         = SearchScope.SUBORDINATE_SUBTREE;
       scopeProvided = true;
@@ -606,7 +606,7 @@ public final class LDAPURL
         case 3:
           this.scope = scope;
           scopeProvided = true;
-          buffer.append("subord");
+          buffer.append("subordinates");
           break;
         default:
           throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -1467,7 +1467,7 @@ public final class LDAPURL
         buffer.append("sub");
         break;
       case 3:  // SUBORDINATE_SUBTREE
-        buffer.append("subord");
+        buffer.append("subordinates");
         break;
     }
 
