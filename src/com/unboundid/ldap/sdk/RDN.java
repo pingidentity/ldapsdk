@@ -1294,6 +1294,10 @@ valueLoop:
             }
             break;
 
+          case '\u0000':
+            buffer.append("\\00");
+            break;
+
           default:
             // If it's not a printable ASCII character, then hex-encode it
             // unless we're using minimized encoding.
