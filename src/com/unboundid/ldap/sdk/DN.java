@@ -135,7 +135,7 @@ public final class DN
   private final RDN[] rdns;
 
   // The string representation of this DN.
-  private volatile String dnString;
+  private final String dnString;
 
   // The normalized string representation of this DN.
   private volatile String normalizedString;
@@ -156,6 +156,20 @@ public final class DN
     {
       dnString         = "";
       normalizedString = "";
+    }
+    else
+    {
+      final StringBuilder buffer = new StringBuilder();
+      for (final RDN rdn : rdns)
+      {
+        if (buffer.length() > 0)
+        {
+          buffer.append(',');
+        }
+        rdn.toString(buffer, false);
+      }
+
+      dnString = buffer.toString();
     }
   }
 
@@ -179,6 +193,18 @@ public final class DN
     else
     {
       this.rdns = rdns.toArray(new RDN[rdns.size()]);
+
+      final StringBuilder buffer = new StringBuilder();
+      for (final RDN rdn : this.rdns)
+      {
+        if (buffer.length() > 0)
+        {
+          buffer.append(',');
+        }
+        rdn.toString(buffer, false);
+      }
+
+      dnString = buffer.toString();
     }
   }
 
@@ -198,6 +224,18 @@ public final class DN
     rdns = new RDN[parentDN.rdns.length + 1];
     rdns[0] = rdn;
     System.arraycopy(parentDN.rdns, 0, rdns, 1, parentDN.rdns.length);
+
+    final StringBuilder buffer = new StringBuilder();
+    for (final RDN r : rdns)
+    {
+      if (buffer.length() > 0)
+      {
+        buffer.append(',');
+      }
+      r.toString(buffer, false);
+    }
+
+    dnString = buffer.toString();
   }
 
 
@@ -1212,14 +1250,25 @@ rdnLoop:
   @Override()
   public String toString()
   {
-    if (dnString == null)
-    {
-      final StringBuilder buffer = new StringBuilder();
-      toString(buffer);
-      dnString = buffer.toString();
-    }
-
     return dnString;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this DN with minimal encoding for
+   * special characters.  Only those characters specified in RFC 4514 section
+   * 2.4 will be escaped.  No escaping will be used for non-ASCII characters or
+   * non-printable ASCII characters.
+   *
+   * @return  A string representation of this DN with minimal encoding for
+   *          special characters.
+   */
+  public String toMinimallyEncodedString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer, true);
+    return buffer.toString();
   }
 
 
@@ -1232,6 +1281,27 @@ rdnLoop:
    */
   public void toString(final StringBuilder buffer)
   {
+    toString(buffer, false);
+  }
+
+
+
+  /**
+   * Appends a string representation of this DN to the provided buffer.
+   *
+   * @param  buffer            The buffer to which the string representation is
+   *                           to be appended.
+   * @param  minimizeEncoding  Indicates whether to restrict the encoding of
+   *                           special characters to the bare minimum required
+   *                           by LDAP (as per RFC 4514 section 2.4).  If this
+   *                           is {@code true}, then only leading and trailing
+   *                           spaces, double quotes, plus signs, commas,
+   *                           semicolons, greater-than, less-than, and
+   *                           backslash characters will be encoded.
+   */
+  public void toString(final StringBuilder buffer,
+                       final boolean minimizeEncoding)
+  {
     for (int i=0; i < rdns.length; i++)
     {
       if (i > 0)
@@ -1239,7 +1309,7 @@ rdnLoop:
         buffer.append(',');
       }
 
-      rdns[i].toString(buffer);
+      rdns[i].toString(buffer, minimizeEncoding);
     }
   }
 
