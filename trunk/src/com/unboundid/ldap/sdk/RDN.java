@@ -1192,11 +1192,29 @@ valueLoop:
     if (rdnString == null)
     {
       final StringBuilder buffer = new StringBuilder();
-      toString(buffer);
+      toString(buffer, false);
       rdnString = buffer.toString();
     }
 
     return rdnString;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this RDN with minimal encoding for
+   * special characters.  Only those characters specified in RFC 4514 section
+   * 2.4 will be escaped.  No escaping will be used for non-ASCII characters or
+   * non-printable ASCII characters.
+   *
+   * @return  A string representation of this RDN with minimal encoding for
+   *          special characters.
+   */
+  public String toMinimallyEncodedString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer, true);
+    return buffer.toString();
   }
 
 
@@ -1208,6 +1226,27 @@ valueLoop:
    *                 appended.
    */
   public void toString(final StringBuilder buffer)
+  {
+    toString(buffer, false);
+  }
+
+
+
+  /**
+   * Appends a string representation of this RDN to the provided buffer.
+   *
+   * @param  buffer            The buffer to which the string representation is
+   *                           to be appended.
+   * @param  minimizeEncoding  Indicates whether to restrict the encoding of
+   *                           special characters to the bare minimum required
+   *                           by LDAP (as per RFC 4514 section 2.4).  If this
+   *                           is {@code true}, then only leading and trailing
+   *                           spaces, double quotes, plus signs, commas,
+   *                           semicolons, greater-than, less-than, and
+   *                           backslash characters will be encoded.
+   */
+  public void toString(final StringBuilder buffer,
+                       final boolean minimizeEncoding)
   {
     for (int i=0; i < attributeNames.length; i++)
     {
@@ -1256,8 +1295,9 @@ valueLoop:
             break;
 
           default:
-            // If it's not a printable ASCII character, then hex-encode it.
-            if ((c < ' ') || (c > '~'))
+            // If it's not a printable ASCII character, then hex-encode it
+            // unless we're using minimized encoding.
+            if ((! minimizeEncoding) && ((c < ' ') || (c > '~')))
             {
               hexEncode(c, buffer);
             }
