@@ -911,6 +911,32 @@ public final class GenerateSourceFromSchema
     else
     {
       writer.println("  /**");
+      writer.println("   * Retrieves the first value for the field " +
+           "associated with the");
+      writer.println("   * " + attrName + " attribute, if defined.");
+      writer.println("   *");
+      writer.println("   * @return  The first value for the field associated " +
+           "with the");
+      writer.println("   *          " + attrName + " attribute, or");
+      writer.println("   *          {@code null} if it is not defined or " +
+           "does not have any values.");
+      writer.println("   */");
+      writer.println("  public " + type + " getFirst" + capFieldName + "()");
+      writer.println("  {");
+      writer.println("    if ((" + fieldName + " == null) ||");
+      writer.println("        (" + fieldName + ".length == 0))");
+      writer.println("    {");
+      writer.println("      return null;");
+      writer.println("    }");
+      writer.println("    else");
+      writer.println("    {");
+      writer.println("      return " + fieldName + "[0];");
+      writer.println("    }");
+      writer.println("  }");
+      writer.println();
+      writer.println();
+      writer.println();
+      writer.println("  /**");
       writer.println("   * Retrieves the values for the field associated " +
            "with the");
       writer.println("   * " + attrName + " attribute, if defined.");
