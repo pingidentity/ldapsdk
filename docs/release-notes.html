@@ -10,6 +10,77 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 1.1.2</h3>
+
+              <p>
+                The following changes were made between the 1.1.1 and 1.1.2 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Improved the behavior of the <tt>AttributeTypeDefinition</tt> class so that it
+                  can better deal with attribute type definitions whose syntax element contains
+                  the optional minimum upper bound component.  The <tt>getSyntaxOID()</tt> method
+                  still returns the complete syntax OID (including the minimum upper bound, if
+                  present), but a new <tt>getBaseSyntaxOID()</tt> method has been added that can
+                  be used to obtain the syntax OID without the minimum upper bound, and a
+                  <tt>getSyntaxMinimumUpperBound()</tt> method has been added that can be used to
+                  obtain the minimum upper bound (or -1 if no minimum upper bound is defined).
+                  In addition, the <tt>Schema.getAttributeSyntax</tt> method has been updated so
+                  that it will ignore any minimum upper bound portion that may be included in the
+                  provided OID.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>Entry.diff</tt> method that makes it possible to indicate
+                  whether you want the resulting modifications to be reversible.  If the
+                  modifications should be reversible (which was always the case in the past), then
+                  the resulting list will contain only modifications with the ADD and DELETE
+                  modification types, which could be played in reverse to recreate the source
+                  entry from the target entry, but is more likely to fail if the entry has been
+                  altered in some way since attempting to apply the modifications.  If the
+                  modifications should not be reversible, then they will all use the REPLACE
+                  modification type, which is not reversible but more likely to succeed even if
+                  the entry has been altered.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the way that the LDAP SDK generates string representations of DNs and
+                  RDNs.  When creating a DN from a set of RDNs (or from an RDN and parent DN), it
+                  will now use the string representations of the provided RDNs (and optionally DN)
+                  rather than reconstructing the entire string representation.  This can help
+                  preserve a user-supplied string representation if you do something like
+                  "<tt>new DN(existingDN.getRDNs())</tt>", particularly if the existing DN had
+                  characters that may be escaped but don't have to be.  In addition, a new
+                  <tt>toMinimallyEncodedString</tt> method has been added to both the <tt>DN</tt>
+                  and <tt>RDN</tt> classes which will construct a string representation of the
+                  DN or RDN with a minimal set of escaped characters (e.g., non-ASCII characters
+                  and non-printible ASCII characters will not be escaped).
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the LDIF reader in which it would refuse to decode an entry
+                  containing only a DN but no attributes (e.g., like might be the case with a
+                  search result entry where the requested attribute set contained only "1.1").
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the way that LDAP URLs were generated for URLs containing the
+                  subordinate subtree search scope.  Previously, the string representation of
+                  such URLs would have a scope of "subord" instead of the correct "subordinates"
+                  as specified in draft-sermersheim-ldap-subordinate-scope.  It will still accept
+                  URLs containing "subord", but will no longer generate them.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 1.1.1</h3>
 
               <p>
@@ -178,6 +249,9 @@ ${TARGET="offline"}                    <br>
                   <br><br>
                 </li>
               </ul>
+
+              <p></p>
+
 
               <h3>Version 1.1.0</h3>
 
