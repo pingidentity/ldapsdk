@@ -76,6 +76,15 @@ ${TARGET="offline"}                    <br>
                   URLs containing "subord", but will no longer generate them.
                   <br><br>
                 </li>
+
+                <li>
+                  Fixed a bug in the <tt>LDAPCommandLineTool</tt> class that prevented the
+                  <tt>--bindPasswordFile</tt> argument from being used in conjunction with the
+                  <tt>--bindDN</tt> argument.  Due to an oversight, <tt>--bindPasswordFile</tt>
+                  could only be used when performing SASL authentication when no bind DN was
+                  given.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
