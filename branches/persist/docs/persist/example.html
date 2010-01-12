@@ -220,6 +220,29 @@ public class MyObject
 
 
   /**
+   * Retrieve the first value for the field associated with the
+   * myNumericAttr attribute, if defined.
+   *
+   * @return  The first value for the field associated with the
+   *          myNumericAttr attribute, or
+   *          {@code null} if it is not defined or does not have any values.
+   */
+  public Long getFirstMyNumericAttr()
+  {
+    if ((myNumericAttr == null) ||
+        (myNumericAttr.length == 0))
+    {
+      return null;
+    }
+    else
+    {
+      return myNumericAttr[0];
+    }
+  }
+
+
+
+  /**
    * Retrieves the values for the field associated with the
    * myNumericAttr attribute, if defined.
    *
@@ -259,8 +282,8 @@ public void testMyObject(final LDAPConnection connection)
        throws LDAPPersistException
 {
   // Create an LDAPPersister instance for MyObject objects.
-  LDAPPersister<MyObject> persister =
-       new LDAPPersister<MyObject>(MyObject.class);
+  LDAPPersister&lt;MyObject&gt; persister =
+       new LDAPPersister&lt;MyObject&gt;(MyObject.class);
 
   // Create a new MyObject instance and add it to the directory.  We can use
   // a parent DN of null to indicate that it should use the default defined
@@ -279,7 +302,7 @@ public void testMyObject(final LDAPConnection connection)
   // then delete them from the server.
   o = new MyObject();
   o.setMyStringAttr("test");
-  PersistedObjects<MyObject> results = persister.search(o, connection);
+  PersistedObjects&lt;MyObject&gt; results = persister.search(o, connection);
   while (true)
   {
     o = results.next();
