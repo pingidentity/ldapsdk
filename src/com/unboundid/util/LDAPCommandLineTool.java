@@ -457,7 +457,7 @@ public abstract class LDAPCommandLineTool
     parser.addArgument(saslOption);
 
 
-    parser.addDependentArgumentSet(bindDN, bindPassword);
+    parser.addDependentArgumentSet(bindDN, bindPassword, bindPasswordFile);
 
     parser.addExclusiveArgumentSet(useSSL, useStartTLS);
     parser.addExclusiveArgumentSet(bindPassword, bindPasswordFile);
