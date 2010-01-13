@@ -3452,6 +3452,38 @@ public final class LDAPConnection
 
 
   /**
+   * Retrieves the number of outstanding operations on this LDAP connection
+   * (i.e., the number of operations currently in progress).  The value will
+   * only be valid for connections not configured to use synchronous mode.
+   *
+   * @return  The number of outstanding operations on this LDAP connection, or
+   *          -1 if it cannot be determined (e.g., because the connection is not
+   *          established or is operating in synchronous mode).
+   */
+  public int getActiveOperationCount()
+  {
+    final LDAPConnectionInternals internals = connectionInternals;
+
+    if (internals == null)
+    {
+      return -1;
+    }
+    else
+    {
+      if (internals.synchronousMode())
+      {
+        return -1;
+      }
+      else
+      {
+        return internals.getConnectionReader().getActiveOperationCount();
+      }
+    }
+  }
+
+
+
+  /**
    * Performs any necessary cleanup to ensure that this connection is properly
    * closed before it is garbage collected.
    *

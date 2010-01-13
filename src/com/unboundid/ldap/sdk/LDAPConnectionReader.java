@@ -197,6 +197,22 @@ final class LDAPConnectionReader
 
 
   /**
+   * Retrieves the number of outstanding operations on the LDAP connection,
+   * which are operations for which the request has been sent but the final
+   * result has not yet been received.  The value will only be valid for
+   * connections not configured to use synchronous mode.
+   *
+   * @return  The number of outstanding operations on the associated LDAP
+   *          connection.
+   */
+  int getActiveOperationCount()
+  {
+    return acceptorMap.size();
+  }
+
+
+
+  /**
    * Operates in a loop, reading data from the server and decoding the
    * responses, and associating them with their corresponding requests.
    */
