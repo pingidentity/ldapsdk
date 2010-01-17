@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -124,6 +125,14 @@ import static com.unboundid.util.StaticUtils.*;
  *       using an alternate authorization identity.  In this case, the bind DN
  *       should be that of a user that has permission to use this control.  The
  *       authorization identity may be a value pattern.</LI>
+ *   <LI>"-a" or "--asynchronous" -- Indicates that searches should be performed
+ *       in asynchronous mode, in which the client will not wait for a response
+ *       to a previous request before sending the next request.  Either the
+ *       "--ratePerSecond" or "--maxOutstandingRequests" arguments must be
+ *       provided to limit the number of outstanding requests.</LI>
+ *   <LI>"-O {num}" or "--maxOutstandingRequests {num}" -- Specifies the maximum
+ *       number of outstanding requests that will be allowed in asynchronous
+ *       mode.</LI>
  *   <LI>"--suppressErrorResultCodes" -- Indicates that information about the
  *       result codes for failed operations should not be displayed.</LI>
  *   <LI>"-c" or "--csv" -- Generate output in CSV format rather than a
@@ -142,15 +151,22 @@ public final class SearchRate
 
 
 
+  // The argument used to indicate whether to operate in asynchronous mode.
+  private BooleanArgument asynchronousMode;
+
   // The argument used to indicate whether to generate output in CSV format.
   private BooleanArgument csvFormat;
 
   // The argument used to indicate whether to suppress information about error
   // result codes.
-  private BooleanArgument suppressErrorsArgument;
+  private BooleanArgument suppressErrors;
 
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
+
+  // The argument used to specify the maximum number of outstanding asynchronous
+  // requests.
+  private IntegerArgument maxOutstandingRequests;
 
   // The argument used to specify the number of intervals.
   private IntegerArgument numIntervals;
@@ -385,16 +401,36 @@ public final class SearchRate
                                  description);
     parser.addArgument(proxyAs);
 
+    description = "Indicates that the client should operate in asynchronous " +
+                  "mode, in which it will not be necessary to wait for a " +
+                  "response to a previous request before sending the next " +
+                  "request.  Either the '--ratePerSecond' or the " +
+                  "'--maxOutstandingRequests' argument must be provided to " +
+                  "limit the number of outstanding requests.";
+    asynchronousMode = new BooleanArgument('a', "asynchronous", description);
+    parser.addArgument(asynchronousMode);
+
+    description = "Specifies the maximum number of outstanding requests " +
+                  "that should be allowed when operating in asynchronous mode.";
+    maxOutstandingRequests = new IntegerArgument('O', "maxOutstandingRequests",
+         false, 1, "{num}", description, 1, Integer.MAX_VALUE, (Integer) null);
+    parser.addArgument(maxOutstandingRequests);
+
     description = "Indicates that information about the result codes for " +
                   "failed operations should not be displayed.";
-    suppressErrorsArgument = new BooleanArgument(null,
+    suppressErrors = new BooleanArgument(null,
          "suppressErrorResultCodes", 1, description);
-    parser.addArgument(suppressErrorsArgument);
+    parser.addArgument(suppressErrors);
 
     description = "Generate output in CSV format rather than a " +
                   "display-friendly format";
     csvFormat = new BooleanArgument('c', "csv", 1, description);
     parser.addArgument(csvFormat);
+
+
+    parser.addDependentArgumentSet(asynchronousMode, ratePerSecond,
+         maxOutstandingRequests);
+    parser.addDependentArgumentSet(maxOutstandingRequests, asynchronousMode);
   }
 
 
@@ -429,7 +465,7 @@ public final class SearchRate
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
     options.setAutoReconnect(true);
-    options.setUseSynchronousMode(true);
+    options.setUseSynchronousMode(! asynchronousMode.isPresent());
     return options;
   }
 
@@ -536,6 +572,19 @@ public final class SearchRate
     }
 
 
+    // If the --maxOutstandingRequests option was specified, then create the
+    // semaphore used to enforce that limit.
+    final Semaphore asyncSemaphore;
+    if (maxOutstandingRequests.isPresent())
+    {
+      asyncSemaphore = new Semaphore(maxOutstandingRequests.getValue());
+    }
+    else
+    {
+      asyncSemaphore = null;
+    }
+
+
     // Determine whether to include timestamps in the output and if so what
     // format should be used for them.
     final boolean includeTimestamp;
@@ -630,10 +679,11 @@ public final class SearchRate
         return le.getResultCode();
       }
 
-      threads[i] = new SearchRateThread(i, connection, dnPattern, scope,
-           filterPattern, attrs, authzIDPattern, barrier, searchCounter,
-           entryCounter, searchDurations, errorCounter, rcCounter,
-           fixedRateBarrier);
+      threads[i] = new SearchRateThread(i, connection,
+           asynchronousMode.isPresent(), dnPattern, scope, filterPattern, attrs,
+           authzIDPattern, barrier, searchCounter, entryCounter,
+           searchDurations, errorCounter, rcCounter, fixedRateBarrier,
+           asyncSemaphore);
       threads[i].start();
     }
 
@@ -747,7 +797,7 @@ public final class SearchRate
 
       final List<ObjectPair<ResultCode,Long>> rcCounts =
            rcCounter.getCounts(true);
-      if ((! suppressErrorsArgument.isPresent()) && (! rcCounts.isEmpty()))
+      if ((! suppressErrors.isPresent()) && (! rcCounts.isEmpty()))
       {
         err("\tError Results:");
         for (final ObjectPair<ResultCode,Long> p : rcCounts)
