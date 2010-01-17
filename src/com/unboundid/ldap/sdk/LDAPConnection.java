@@ -2974,6 +2974,312 @@ public final class LDAPConnection
 
 
   /**
+   * Processes a search operation with the provided information.  It is expected
+   * that at most one entry will be returned from the search, and that no
+   * additional content from the successful search result (e.g., diagnostic
+   * message or response controls) are needed.
+   *
+   * @param  baseDN      The base DN for the search request.  It must not be
+   *                     {@code null}.
+   * @param  scope       The scope that specifies the range of entries that
+   *                     should be examined for the search.
+   * @param  filter      The string representation of the filter to use to
+   *                     identify matching entries.  It must not be
+   *                     {@code null}.
+   * @param  attributes  The set of attributes that should be returned in
+   *                     matching entries.  It may be {@code null} or empty if
+   *                     the default attribute set (all user attributes) is to
+   *                     be requested.
+   *
+   * @return  The entry that was returned from the search, or {@code null} if no
+   *          entry was returned or the base entry does not exist.
+   *
+   * @throws  LDAPSearchException  If the search does not complete successfully,
+   *                               if more than a single entry is returned, or
+   *                               if a problem is encountered while parsing the
+   *                               provided filter string, sending the request,
+   *                               or reading the response.
+   */
+  public SearchResultEntry searchForEntry(final String baseDN,
+                                          final SearchScope scope,
+                                          final String filter,
+                                          final String... attributes)
+         throws LDAPSearchException
+  {
+    final SearchRequest r;
+    try
+    {
+      r = new SearchRequest(baseDN, scope, DereferencePolicy.NEVER, 1, 0, false,
+           filter, attributes);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw new LDAPSearchException(le);
+    }
+
+    return searchForEntry(r);
+  }
+
+
+
+  /**
+   * Processes a search operation with the provided information.  It is expected
+   * that at most one entry will be returned from the search, and that no
+   * additional content from the successful search result (e.g., diagnostic
+   * message or response controls) are needed.
+   *
+   * @param  baseDN      The base DN for the search request.  It must not be
+   *                     {@code null}.
+   * @param  scope       The scope that specifies the range of entries that
+   *                     should be examined for the search.
+   * @param  filter      The string representation of the filter to use to
+   *                     identify matching entries.  It must not be
+   *                     {@code null}.
+   * @param  attributes  The set of attributes that should be returned in
+   *                     matching entries.  It may be {@code null} or empty if
+   *                     the default attribute set (all user attributes) is to
+   *                     be requested.
+   *
+   * @return  The entry that was returned from the search, or {@code null} if no
+   *          entry was returned or the base entry does not exist.
+   *
+   * @throws  LDAPSearchException  If the search does not complete successfully,
+   *                               if more than a single entry is returned, or
+   *                               if a problem is encountered while parsing the
+   *                               provided filter string, sending the request,
+   *                               or reading the response.
+   */
+  public SearchResultEntry searchForEntry(final String baseDN,
+                                          final SearchScope scope,
+                                          final Filter filter,
+                                          final String... attributes)
+         throws LDAPSearchException
+  {
+    return searchForEntry(new SearchRequest(baseDN, scope,
+         DereferencePolicy.NEVER, 1, 0, false, filter, attributes));
+  }
+
+
+
+  /**
+   * Processes a search operation with the provided information.  It is expected
+   * that at most one entry will be returned from the search, and that no
+   * additional content from the successful search result (e.g., diagnostic
+   * message or response controls) are needed.
+   *
+   * @param  baseDN       The base DN for the search request.  It must not be
+   *                      {@code null}.
+   * @param  scope        The scope that specifies the range of entries that
+   *                      should be examined for the search.
+   * @param  derefPolicy  The dereference policy the server should use for any
+   *                      aliases encountered while processing the search.
+   * @param  timeLimit    The maximum length of time in seconds that the server
+   *                      should spend processing this search request.  A value
+   *                      of zero indicates that there should be no limit.
+   * @param  typesOnly    Indicates whether to return only attribute names in
+   *                      matching entries, or both attribute names and values.
+   * @param  filter       The string representation of the filter to use to
+   *                      identify matching entries.  It must not be
+   *                      {@code null}.
+   * @param  attributes   The set of attributes that should be returned in
+   *                      matching entries.  It may be {@code null} or empty if
+   *                      the default attribute set (all user attributes) is to
+   *                      be requested.
+   *
+   * @return  The entry that was returned from the search, or {@code null} if no
+   *          entry was returned or the base entry does not exist.
+   *
+   * @throws  LDAPSearchException  If the search does not complete successfully,
+   *                               if more than a single entry is returned, or
+   *                               if a problem is encountered while parsing the
+   *                               provided filter string, sending the request,
+   *                               or reading the response.
+   */
+  public SearchResultEntry searchForEntry(final String baseDN,
+                                          final SearchScope scope,
+                                          final DereferencePolicy derefPolicy,
+                                          final int timeLimit,
+                                          final boolean typesOnly,
+                                          final String filter,
+                                          final String... attributes)
+         throws LDAPSearchException
+  {
+    final SearchRequest r;
+    try
+    {
+      r = new SearchRequest(baseDN, scope, derefPolicy, 1, timeLimit, typesOnly,
+           filter, attributes);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw new LDAPSearchException(le);
+    }
+
+    return searchForEntry(r);
+  }
+
+
+
+  /**
+   * Processes a search operation with the provided information.  It is expected
+   * that at most one entry will be returned from the search, and that no
+   * additional content from the successful search result (e.g., diagnostic
+   * message or response controls) are needed.
+   *
+   * @param  baseDN       The base DN for the search request.  It must not be
+   *                      {@code null}.
+   * @param  scope        The scope that specifies the range of entries that
+   *                      should be examined for the search.
+   * @param  derefPolicy  The dereference policy the server should use for any
+   *                      aliases encountered while processing the search.
+   * @param  timeLimit    The maximum length of time in seconds that the server
+   *                      should spend processing this search request.  A value
+   *                      of zero indicates that there should be no limit.
+   * @param  typesOnly    Indicates whether to return only attribute names in
+   *                      matching entries, or both attribute names and values.
+   * @param  filter       The filter to use to identify matching entries.  It
+   *                      must not be {@code null}.
+   * @param  attributes   The set of attributes that should be returned in
+   *                      matching entries.  It may be {@code null} or empty if
+   *                      the default attribute set (all user attributes) is to
+   *                      be requested.
+   *
+   * @return  The entry that was returned from the search, or {@code null} if no
+   *          entry was returned or the base entry does not exist.
+   *
+   * @throws  LDAPSearchException  If the search does not complete successfully,
+   *                               if more than a single entry is returned, or
+   *                               if a problem is encountered while parsing the
+   *                               provided filter string, sending the request,
+   *                               or reading the response.
+   */
+  public SearchResultEntry searchForEntry(final String baseDN,
+                                          final SearchScope scope,
+                                          final DereferencePolicy derefPolicy,
+                                          final int timeLimit,
+                                          final boolean typesOnly,
+                                          final Filter filter,
+                                          final String... attributes)
+       throws LDAPSearchException
+  {
+    return searchForEntry(new SearchRequest(baseDN, scope, derefPolicy, 1,
+         timeLimit, typesOnly, filter, attributes));
+  }
+
+
+
+  /**
+   * Processes the provided search request.  It is expected that at most one
+   * entry will be returned from the search, and that no additional content from
+   * the successful search result (e.g., diagnostic message or response
+   * controls) are needed.
+   *
+   * @param  searchRequest  The search request to be processed.  If it is
+   *                        configured with a search result listener or a size
+   *                        limit other than one, then the provided request will
+   *                        be duplicated with the appropriate settings.
+   *
+   * It must not be
+   *                        {@code null}, it must not be configured with a
+   *                        search result listener, and it should be configured
+   *                        with a size limit of one.
+   *
+   * @return  The entry that was returned from the search, or {@code null} if no
+   *          entry was returned or the base entry does not exist.
+   *
+   * @throws  LDAPSearchException  If the search does not complete successfully,
+   *                               if more than a single entry is returned, or
+   *                               if a problem is encountered while parsing the
+   *                               provided filter string, sending the request,
+   *                               or reading the response.
+   */
+  public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
+         throws LDAPSearchException
+  {
+    final SearchRequest r;
+    if ((searchRequest.getSearchResultListener() != null) ||
+        (searchRequest.getSizeLimit() != 1))
+    {
+      searchRequest.duplicate();
+      r = new SearchRequest(searchRequest.getBaseDN(), searchRequest.getScope(),
+           searchRequest.getDereferencePolicy(), 1,
+           searchRequest.getTimeLimitSeconds(), searchRequest.typesOnly(),
+           searchRequest.getFilter(), searchRequest.getAttributes());
+
+      r.setFollowReferrals(searchRequest.followReferralsInternal());
+      r.setResponseTimeoutMillis(searchRequest.getResponseTimeoutMillis(null));
+
+      if (searchRequest.hasControl())
+      {
+        r.setControlsInternal(searchRequest.getControls());
+      }
+    }
+    else
+    {
+      r = searchRequest;
+    }
+
+    final SearchResult result;
+    try
+    {
+      result = search(r);
+    }
+    catch (final LDAPSearchException lse)
+    {
+      debugException(lse);
+
+      if (lse.getResultCode() == ResultCode.NO_SUCH_OBJECT)
+      {
+        return null;
+      }
+
+      throw lse;
+    }
+
+    if (result.getEntryCount() == 0)
+    {
+      return null;
+    }
+    else
+    {
+      return result.getSearchEntries().get(0);
+    }
+  }
+
+
+
+  /**
+   * Processes the provided search request.  It is expected that at most one
+   * entry will be returned from the search, and that no additional content from
+   * the successful search result (e.g., diagnostic message or response
+   * controls) are needed.
+   *
+   * @param  searchRequest  The search request to be processed.  If it is
+   *                        configured with a search result listener or a size
+   *                        limit other than one, then the provided request will
+   *                        be duplicated with the appropriate settings.
+   *
+   * @return  The entry that was returned from the search, or {@code null} if no
+   *          entry was returned or the base entry does not exist.
+   *
+   * @throws  LDAPSearchException  If the search does not complete successfully,
+   *                               if more than a single entry is returned, or
+   *                               if a problem is encountered while parsing the
+   *                               provided filter string, sending the request,
+   *                               or reading the response.
+   */
+  public SearchResultEntry searchForEntry(
+                                final ReadOnlySearchRequest searchRequest)
+         throws LDAPSearchException
+  {
+    return searchForEntry((SearchRequest) searchRequest);
+  }
+
+
+
+  /**
    * Processes the provided search request as an asynchronous operation.
    *
    * @param  searchRequest  The search request to be processed.  It must not be
