@@ -435,7 +435,7 @@ public final class CaseExactStringMatchingRule
     while (pos < buffer.length())
     {
       final char c = buffer.charAt(pos++);
-      if (Character.isSpaceChar(c))
+      if (c == ' ')
       {
         if (lastWasSpace || (trimFinal && (pos >= buffer.length())))
         {
@@ -454,7 +454,8 @@ public final class CaseExactStringMatchingRule
 
     // It is possible that there could be an extra space at the end.  If that's
     // the case, then remove it.
-    if (trimFinal && Character.isSpaceChar(buffer.charAt(buffer.length() - 1)))
+    if (trimFinal && (buffer.length() > 0) &&
+        (buffer.charAt(buffer.length() - 1) == ' '))
     {
       buffer.deleteCharAt(buffer.length() - 1);
     }
