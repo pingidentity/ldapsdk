@@ -778,7 +778,10 @@ public final class LDAPMessage
     }
     catch (IOException ioe)
     {
-      debugException(ioe);
+      if (! (ioe instanceof SocketTimeoutException))
+      {
+        debugException(ioe);
+      }
 
       throw new LDAPException(ResultCode.SERVER_DOWN,
            ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
@@ -983,7 +986,10 @@ public final class LDAPMessage
     }
     catch (IOException ioe)
     {
-      debugException(ioe);
+      if (! (ioe instanceof SocketTimeoutException))
+      {
+        debugException(ioe);
+      }
 
       throw new LDAPException(ResultCode.SERVER_DOWN,
            ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
