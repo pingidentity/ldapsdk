@@ -73,7 +73,7 @@
 
 
   <!-- Define the amount of memory to use for forked VMs -->
-  <property name="MEM" value="256M" />
+  <property name="MEM" value="512M" />
 
 
 
