@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk;
 
 import java.util.List;
 
+import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.ThreadSafety;
@@ -64,6 +65,145 @@ public interface ReadOnlyAddRequest
    * @return  The set of attributes for this add request.
    */
   List<Attribute> getAttributes();
+
+
+
+  /**
+   * Retrieves the specified attribute from this add request.
+   *
+   * @param  attributeName  The name of the attribute to retrieve.  It must not
+   *                        be {@code null}.
+   *
+   * @return  The requested attribute, or {@code null} if it does not exist in
+   *          the add request.
+   */
+  Attribute getAttribute(final String attributeName);
+
+
+
+  /**
+   * Indicates whether this add request contains the specified attribute.
+   *
+   * @param  attributeName  The name of the attribute for which to make the
+   *                        determination.  It must not be {@code null}.
+   *
+   * @return  {@code true} if this add request contains the specified attribute,
+   *          or {@code false} if not.
+   */
+  boolean hasAttribute(final String attributeName);
+
+
+
+  /**
+   * Indicates whether this add request contains the specified attribute.  It
+   * will only return {@code true} if this add request contains an attribute
+   * with the same name and exact set of values.
+   *
+   * @param  attribute  The attribute for which to make the determination.  It
+   *                    must not be {@code null}.
+   *
+   * @return  {@code true} if this add request contains the specified attribute,
+   *          or {@code false} if not.
+   */
+  boolean hasAttribute(final Attribute attribute);
+
+
+
+  /**
+   * Indicates whether this add request contains an attribute with the given
+   * name and value.
+   *
+   * @param  attributeName   The name of the attribute for which to make the
+   *                         determination.  It must not be {@code null}.
+   * @param  attributeValue  The value for which to make the determination.  It
+   *                         must not be {@code null}.
+   *
+   * @return  {@code true} if this add request contains an attribute with the
+   *          specified name and value, or {@code false} if not.
+   */
+  boolean hasAttributeValue(final String attributeName,
+                            final String attributeValue);
+
+
+
+  /**
+   * Indicates whether this add request contains an attribute with the given
+   * name and value.
+   *
+   * @param  attributeName   The name of the attribute for which to make the
+   *                         determination.  It must not be {@code null}.
+   * @param  attributeValue  The value for which to make the determination.  It
+   *                         must not be {@code null}.
+   * @param  matchingRule    The matching rule to use to make the determination.
+   *                         It must not be {@code null}.
+   *
+   * @return  {@code true} if this add request contains an attribute with the
+   *          specified name and value, or {@code false} if not.
+   */
+  boolean hasAttributeValue(final String attributeName,
+                            final String attributeValue,
+                            final MatchingRule matchingRule);
+
+
+
+  /**
+   * Indicates whether this add request contains an attribute with the given
+   * name and value.
+   *
+   * @param  attributeName   The name of the attribute for which to make the
+   *                         determination.  It must not be {@code null}.
+   * @param  attributeValue  The value for which to make the determination.  It
+   *                         must not be {@code null}.
+   *
+   * @return  {@code true} if this add request  contains an attribute with the
+   *          specified name and value, or {@code false} if not.
+   */
+  boolean hasAttributeValue(final String attributeName,
+                            final byte[] attributeValue);
+
+
+
+  /**
+   * Indicates whether this add request contains an attribute with the given
+   * name and value.
+   *
+   * @param  attributeName   The name of the attribute for which to make the
+   *                         determination.  It must not be {@code null}.
+   * @param  attributeValue  The value for which to make the determination.  It
+   *                         must not be {@code null}.
+   * @param  matchingRule    The matching rule to use to make the determination.
+   *                         It must not be {@code null}.
+   *
+   * @return  {@code true} if this add request  contains an attribute with the
+   *          specified name and value, or {@code false} if not.
+   */
+  boolean hasAttributeValue(final String attributeName,
+                            final byte[] attributeValue,
+                            final MatchingRule matchingRule);
+
+
+
+  /**
+   * Indicates whether this add request contains the specified object class.
+   *
+   * @param  objectClassName  The name of the object class for which to make the
+   *                          determination.  It must not be {@code null}.
+   *
+   * @return  {@code true} if this add request contains the specified object
+   *          class, or {@code false} if not.
+   */
+  boolean hasObjectClass(final String objectClassName);
+
+
+
+  /**
+   * Retrieves an {@code Entry} object containing the DN and attributes of this
+   * add request.
+   *
+   * @return  An {@code Entry} object containing the DN and attributes of this
+   *          add request.
+   */
+  Entry toEntry();
 
 
 

@@ -36,6 +36,7 @@ import com.unboundid.asn1.ASN1BufferSequence;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
+import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
@@ -379,6 +380,127 @@ public final class AddRequest
   public List<Attribute> getAttributes()
   {
     return Collections.unmodifiableList(attributes);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public Attribute getAttribute(final String attributeName)
+  {
+    ensureNotNull(attributeName);
+
+    for (final Attribute a : attributes)
+    {
+      if (a.getName().equalsIgnoreCase(attributeName))
+      {
+        return a;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasAttribute(final String attributeName)
+  {
+    return (getAttribute(attributeName) != null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasAttribute(final Attribute attribute)
+  {
+    ensureNotNull(attribute);
+
+    final Attribute a = getAttribute(attribute.getName());
+    return ((a != null) && attribute.equals(a));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasAttributeValue(final String attributeName,
+                                   final String attributeValue)
+  {
+    ensureNotNull(attributeName, attributeValue);
+
+    final Attribute a = getAttribute(attributeName);
+    return ((a != null) && a.hasValue(attributeValue));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasAttributeValue(final String attributeName,
+                                   final String attributeValue,
+                                   final MatchingRule matchingRule)
+  {
+    ensureNotNull(attributeName, attributeValue);
+
+    final Attribute a = getAttribute(attributeName);
+    return ((a != null) && a.hasValue(attributeValue, matchingRule));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasAttributeValue(final String attributeName,
+                                   final byte[] attributeValue)
+  {
+    ensureNotNull(attributeName, attributeValue);
+
+    final Attribute a = getAttribute(attributeName);
+    return ((a != null) && a.hasValue(attributeValue));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasAttributeValue(final String attributeName,
+                                   final byte[] attributeValue,
+                                   final MatchingRule matchingRule)
+  {
+    ensureNotNull(attributeName, attributeValue);
+
+    final Attribute a = getAttribute(attributeName);
+    return ((a != null) && a.hasValue(attributeValue, matchingRule));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasObjectClass(final String objectClassName)
+  {
+    return hasAttributeValue("objectClass", objectClassName);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public Entry toEntry()
+  {
+    return new Entry(dn, attributes);
   }
 
 
