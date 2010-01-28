@@ -441,7 +441,7 @@ public class Entry
    *                    must not be {@code null}.
    *
    * @return  {@code true} if this entry contains the specified attribute, or
-   *          {@code false}.
+   *          {@code false} if not.
    */
   public final boolean hasAttribute(final Attribute attribute)
   {
