@@ -45,8 +45,8 @@
       <TextView   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:textSize="10sp"
-                  android:text="@string/label_search_type" />
-      <Spinner    android:id="@+id/spinner_search_type"
+                  android:text="@string/layout_search_server_label_search_type" />
+      <Spinner    android:id="@+id/layout_search_server_spinner_search_type"
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent" />
     </LinearLayout>
@@ -60,8 +60,8 @@
       <TextView   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:textSize="10sp"
-                  android:text="@string/label_search_text" />
-      <EditText   android:id="@+id/field_search_text"
+                  android:text="@string/layout_search_server_label_search_text" />
+      <EditText   android:id="@+id/layout_search_server_field_search_text"
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent"
                   android:singleLine="true" />
@@ -74,12 +74,12 @@
                   android:paddingTop="7dp"
                   android:paddingBottom="7dp"
                   android:gravity="center">
-      <Button     android:id="@+id/button_search"
+      <Button     android:id="@+id/layout_search_server_button_search"
                   android:layout_width="wrap_content"
                   android:layout_height="fill_parent"
                   android:paddingLeft="10dp"
                   android:paddingRight="10dp"
-                  android:text="@string/button_search" />
+                  android:text="@string/layout_search_server_button_label_search" />
     </LinearLayout>
 
   </LinearLayout>

@@ -24,14 +24,16 @@
 
 
 <!--
- ! This layout defines the pop-up that will be displayed whenever the user
- ! long-clicks on a server in the list of defined servers.
+ ! This layout defines a pop-up menu that allows the user to display one of
+ ! several options.
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
-  <ListView   android:id="@+id/list_server_options"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent" />
-</LinearLayout>
 
+  <ListView   android:id="@+id/layout_popup_menu_list_view"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:scrollbars="vertical" />
+
+</LinearLayout>
