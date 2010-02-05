@@ -30,7 +30,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
-  <LinearLayout android:id="@+id/layout_entry"
+  <LinearLayout android:id="@+id/layout_view_entry_panel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
