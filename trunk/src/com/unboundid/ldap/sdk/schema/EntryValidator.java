@@ -123,6 +123,9 @@ public final class EntryValidator
   // name form.
   private final AtomicLong nameFormViolations;
 
+  // A count of the number of entries without any object class.
+  private final AtomicLong noObjectClasses;
+
   // A count of the number of entries without a structural object class.
   private final AtomicLong noStructuralClass;
 
@@ -226,6 +229,7 @@ public final class EntryValidator
     malformedDNs              = new AtomicLong(0L);
     multipleStructuralClasses = new AtomicLong(0L);
     nameFormViolations        = new AtomicLong(0L);
+    noObjectClasses           = new AtomicLong(0L);
     noStructuralClass         = new AtomicLong(0L);
 
     attributesViolatingSyntax = new ConcurrentHashMap<String,AtomicLong>();
@@ -707,9 +711,19 @@ public final class EntryValidator
                                    final HashSet<ObjectClassDefinition> ocSet,
                                    final List<String> invalidReasons)
   {
-    boolean entryValid = true;
-    final HashSet<String> missingOCs = new HashSet<String>();
+    final String[] ocValues = entry.getObjectClassValues();
+    if ((ocValues == null) || (ocValues.length == 0))
+    {
+      noObjectClasses.incrementAndGet();
+      if (invalidReasons != null)
+      {
+        invalidReasons.add(ERR_ENTRY_NO_OCS.get());
+      }
+      return false;
+    }
 
+    boolean entryValid = true;
+    final HashSet<String> missingOCs = new HashSet<String>(ocValues.length);
     for (final String ocName : entry.getObjectClassValues())
     {
       final ObjectClassDefinition d = schema.getObjectClass(ocName);
@@ -1365,6 +1379,7 @@ public final class EntryValidator
     malformedDNs.set(0L);
     multipleStructuralClasses.set(0L);
     nameFormViolations.set(0L);
+    noObjectClasses.set(0L);
     noStructuralClass.set(0L);
 
     attributesViolatingSyntax.clear();
@@ -1412,6 +1427,20 @@ public final class EntryValidator
   public long getMalformedDNs()
   {
     return malformedDNs.get();
+  }
+
+
+
+  /**
+   * Retrieves the total number of entries examined which did not contain any
+   * object classes.
+   *
+   * @return  The total number of entries examined which did not contain any
+   *          object classes.
+   */
+  public long getEntriesWithoutAnyObjectClasses()
+  {
+    return noObjectClasses.get();
   }
 
 
@@ -1748,6 +1777,13 @@ public final class EntryValidator
       pct = 100 * numBadDNs / numEntries;
       messages.add(INFO_ENTRY_MALFORMED_DN_COUNT.get(
            numBadDNs, numEntries, pct));
+    }
+
+    final long numNoOCs = noObjectClasses.get();
+    if (numNoOCs > 0)
+    {
+      pct = 100 * numNoOCs / numEntries;
+      messages.add(INFO_ENTRY_NO_OC_COUNT.get(numNoOCs, numEntries, pct));
     }
 
     final long numMissingStructural = noStructuralClass.get();
