@@ -439,7 +439,8 @@ abstract class SchemaElement
   /**
    * Reads an OID value from the provided string.  The OID value may be either a
    * numeric OID or a string name.  This implementation will be fairly lenient
-   * with regard to the set of characters that may be present.
+   * with regard to the set of characters that may be present, and it will
+   * allow the OID to be enclosed in single quotes.
    *
    * @param  s         The string from which to read the OID string.
    * @param  startPos  The position at which to start reading.
@@ -458,6 +459,7 @@ abstract class SchemaElement
   {
     // Read until we find the first space.
     int pos = startPos;
+    boolean lastWasQuote = false;
     while (pos < length)
     {
       final char c = s.charAt(pos);
@@ -477,7 +479,20 @@ abstract class SchemaElement
                (c == '-') || (c == '.') || (c == '_') ||
                (c == '{') || (c == '}'))
       {
+        if (lastWasQuote)
+        {
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_SCHEMA_ELEM_UNEXPECTED_CHAR_IN_OID.get(s, (pos-1)));
+        }
+
         buffer.append(c);
+      }
+      else if (c == '\'')
+      {
+        if (buffer.length() != 0)
+        {
+          lastWasQuote = true;
+        }
       }
       else
       {
@@ -564,8 +579,13 @@ abstract class SchemaElement
                                 ERR_SCHEMA_ELEM_EMPTY_OID_LIST.get(s));
       }
 
-      if ((pos >= length) || (s.charAt(pos) != ' '))
+      if (pos >= length)
       {
+        // Technically, there should be a space after the closing parenthesis,
+        // but there are known cases in which servers (like Active Directory)
+        // omit this space, so we'll be lenient and allow a missing space.  But
+        // it can't possibly be the end of the schema element definition, so
+        // that's still an error.
         throw new LDAPException(ResultCode.DECODING_ERROR,
                                 ERR_SCHEMA_ELEM_NO_SPACE_AFTER_OID_LIST.get(s));
       }
