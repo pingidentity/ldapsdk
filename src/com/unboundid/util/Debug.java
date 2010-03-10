@@ -815,7 +815,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDIF))
     {
-      debugLDIFWrite(Level.INFO, r);
+      debugLDIFRead(Level.INFO, r);
     }
   }
 
