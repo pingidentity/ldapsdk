@@ -400,6 +400,18 @@ public abstract class CommandLineTool
 
 
   /**
+   * Retrieves the print writer that will be used for standard output.
+   *
+   * @return  The print writer that will be used for standard output.
+   */
+  public final PrintStream getOut()
+  {
+    return out;
+  }
+
+
+
+  /**
    * Writes the provided message to the standard output stream for this tool.
    * <BR><BR>
    * This method is completely threadsafe and my be invoked concurrently by any
@@ -443,6 +455,18 @@ public abstract class CommandLineTool
                                          final Object... msg)
   {
     write(out, indent, wrapColumn, msg);
+  }
+
+
+
+  /**
+   * Retrieves the print writer that will be used for standard error.
+   *
+   * @return  The print writer that will be used for standard error.
+   */
+  public final PrintStream getErr()
+  {
+    return err;
   }
 
 
