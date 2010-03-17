@@ -109,9 +109,8 @@ final class SetterInfo
            c.getName()));
     }
 
-    containingClass     = c;
-    failOnInvalidValue  = a.failOnInvalidValue();
-    attributeName       = a.attribute();
+    containingClass    = c;
+    failOnInvalidValue = a.failOnInvalidValue();
 
     final Type[] params = m.getGenericParameterTypes();
     if (params.length != 1)
@@ -149,6 +148,25 @@ final class SetterInfo
     else
     {
       failOnTooManyValues = a.failOnTooManyValues();
+    }
+
+    final String attrName = a.attribute();
+    if ((attrName == null) || (attrName.length() == 0))
+    {
+      final String methodName = m.getName();
+      if (methodName.startsWith("set") && (methodName.length() >= 4))
+      {
+        attributeName = toInitialLowerCase(methodName.substring(3));
+      }
+      else
+      {
+        throw new LDAPPersistException(ERR_SETTER_INFO_CANNOT_INFER_ATTR.get(
+             methodName, c.getName()));
+      }
+    }
+    else
+    {
+      attributeName = attrName;
     }
   }
 

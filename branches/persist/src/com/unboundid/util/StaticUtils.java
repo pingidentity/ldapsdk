@@ -180,6 +180,45 @@ public final class StaticUtils
 
 
   /**
+   * Retrieves a version of the provided string with the first character
+   * converted to lowercase but all other characters retaining their original
+   * capitalization.
+   *
+   * @param  s  The string to be processed.
+   *
+   * @return  A version of the provided string with the first character
+   *          converted to lowercase but all other characters retaining their
+   *          original capitalization.
+   */
+  public static String toInitialLowerCase(final String s)
+  {
+    if ((s == null) || (s.length() == 0))
+    {
+      return s;
+    }
+    else if (s.length() == 1)
+    {
+      return toLowerCase(s);
+    }
+    else
+    {
+      final char c = s.charAt(0);
+      if (((c >= 'A') && (c <= 'Z')) || (c < ' ') || (c > '~'))
+      {
+        final StringBuilder b = new StringBuilder(s);
+        b.setCharAt(0, Character.toLowerCase(c));
+        return b.toString();
+      }
+      else
+      {
+        return s;
+      }
+    }
+  }
+
+
+
+  /**
    * Retrieves an all-lowercase version of the provided string.
    *
    * @param  s  The string for which to retrieve the lowercase version.

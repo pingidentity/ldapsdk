@@ -85,9 +85,9 @@ public @interface LDAPFieldSetter
 
   /**
    * The name of the attribute type in which the value of the associated method
-   * will be stored.  This must be provided, and it must not conflict with the
-   * attribute used by any other {@code LDAPFieldSetter} annotation or by any
-   * {@link LDAPField} annotation in the same class.
+   * will be stored.  If this is not provided, then the method name must start
+   * with "set" and it will be assumed that the attribute name is the remainder
+   * of the method name.
    */
-  String attribute();
+  String attribute() default "";
 }

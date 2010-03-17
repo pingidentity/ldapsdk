@@ -424,7 +424,16 @@ public final class DefaultLDAPFieldEncoder
   {
     final LDAPFieldGetter at = m.getAnnotation(LDAPFieldGetter.class);
 
-    final String attrName = at.attribute();
+    final String attrName;
+    if (at.attribute().length() == 0)
+    {
+      attrName = toInitialLowerCase(m.getName().substring(3));
+    }
+    else
+    {
+      attrName = at.attribute();
+    }
+
     final String oid = a.allocateAttributeTypeOID(attrName);
 
     final TypeInfo typeInfo = new TypeInfo(m.getGenericReturnType());

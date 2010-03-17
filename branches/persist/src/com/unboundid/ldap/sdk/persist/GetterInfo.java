@@ -118,7 +118,6 @@ final class GetterInfo
     includeInAdd    = (includeInRDN || a.inAdd());
     includeInModify = ((! includeInRDN) && a.inModify());
     filterUsage     = a.filterUsage();
-    attributeName   = a.attribute();
 
     final int modifiers = m.getModifiers();
     if (Modifier.isStatic(modifiers))
@@ -194,6 +193,25 @@ final class GetterInfo
                m.getName(), c.getName(), s));
         }
       }
+    }
+
+    final String attrName = a.attribute();
+    if ((attrName == null) || (attrName.length() == 0))
+    {
+      final String methodName = m.getName();
+      if (methodName.startsWith("get") && (methodName.length() >= 4))
+      {
+        attributeName = toInitialLowerCase(methodName.substring(3));
+      }
+      else
+      {
+        throw new LDAPPersistException(ERR_GETTER_INFO_CANNOT_INFER_ATTR.get(
+             methodName, c.getName()));
+      }
+    }
+    else
+    {
+      attributeName = attrName;
     }
   }
 

@@ -99,9 +99,11 @@ public @interface LDAPFieldGetter
 
   /**
    * The name of the attribute type in which the associated field will be stored
-   * in LDAP entries.
+   * in LDAP entries.  If this is not provided, then the method name must start
+   * with "get" and it will be assumed that the attribute name is the remainder
+   * of the method name.
    */
-  String attribute();
+  String attribute() default "";
 
 
 
