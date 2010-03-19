@@ -28,6 +28,9 @@ import java.lang.reflect.Type;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -40,8 +43,10 @@ import static com.unboundid.util.Validator.*;
  * This class provides a data structure that holds information about an
  * annotated setter method.
  */
-final class SetterInfo
-      implements Serializable
+@NotMutable()
+@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+public final class SetterInfo
+       implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
@@ -177,7 +182,7 @@ final class SetterInfo
    *
    * @return  The method with which this object is associated.
    */
-  Method getMethod()
+  public Method getMethod()
   {
     return method;
   }
@@ -190,7 +195,7 @@ final class SetterInfo
    *
    * @return  The class that contains the associated field.
    */
-  Class<?> getContainingClass()
+  public Class<?> getContainingClass()
   {
     return containingClass;
   }
@@ -207,7 +212,7 @@ final class SetterInfo
    *          associated method, or {@code false} if the method should not be
    *          invoked.
    */
-  boolean failOnInvalidValue()
+  public boolean failOnInvalidValue()
   {
     return failOnInvalidValue;
   }
@@ -226,7 +231,7 @@ final class SetterInfo
    *          {@code false} if the first value returned should be provided as an
    *          argument to the associated method.
    */
-  boolean failOnTooManyValues()
+  public boolean failOnTooManyValues()
   {
     return failOnTooManyValues;
   }
@@ -238,7 +243,7 @@ final class SetterInfo
    *
    * @return  The encoder that should be used for the associated method.
    */
-  LDAPFieldEncoder getEncoder()
+  public LDAPFieldEncoder getEncoder()
   {
     return encoder;
   }
@@ -252,7 +257,7 @@ final class SetterInfo
    * @return  The name of the LDAP attribute used to hold values for the
    *          associated method.
    */
-  String getAttributeName()
+  public String getAttributeName()
   {
     return attributeName;
   }
@@ -266,7 +271,7 @@ final class SetterInfo
    * @return  {@code true} if the associated method takes an argument that can
    *          hold multiple values, or {@code false} if not.
    */
-  boolean supportsMultipleValues()
+  public boolean supportsMultipleValues()
   {
     return supportsMultipleValues;
   }

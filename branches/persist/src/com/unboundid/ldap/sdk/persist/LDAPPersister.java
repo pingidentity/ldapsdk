@@ -155,6 +155,22 @@ public final class LDAPPersister<T>
 
 
   /**
+   * Retrieves the {@link LDAPObjectHandler} instance associated with this
+   * LDAP persister class.  It provides easy access to information about the
+   * {@link LDAPObject} annotation and the fields, getters, and setters used
+   * by the object.
+   *
+   * @return  The {@code LDAPObjectHandler} instance associated with this LDAP
+   *          persister class.
+   */
+  public LDAPObjectHandler<T> getObjectHandler()
+  {
+    return handler;
+  }
+
+
+
+  /**
    * Constructs a list of LDAP attribute type definitions which may be added to
    * the directory server schema to allow it to hold objects of this type.  Note
    * that the object identifiers used for the constructed attribute type

@@ -29,6 +29,9 @@ import java.lang.reflect.Modifier;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -41,8 +44,10 @@ import static com.unboundid.util.Validator.*;
  * This class provides a data structure that holds information about an
  * annotated field.
  */
-final class FieldInfo
-      implements Serializable
+@NotMutable()
+@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+public final class FieldInfo
+       implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
@@ -275,7 +280,7 @@ final class FieldInfo
    *
    * @return  The field with which this object is associated.
    */
-  Field getField()
+  public Field getField()
   {
     return field;
   }
@@ -288,7 +293,7 @@ final class FieldInfo
    *
    * @return  The class that contains the associated field.
    */
-  Class<?> getContainingClass()
+  public Class<?> getContainingClass()
   {
     return containingClass;
   }
@@ -303,7 +308,7 @@ final class FieldInfo
    *          has a value that cannot be assigned to the associated field, or
    *          {@code false} if the field should remain uninitialized.
    */
-  boolean failOnInvalidValue()
+  public boolean failOnInvalidValue()
   {
     return failOnInvalidValue;
   }
@@ -321,7 +326,7 @@ final class FieldInfo
    *          too many values to hold in the associated field, or {@code false}
    *          if the first value returned should be assigned to the field.
    */
-  boolean failOnTooManyValues()
+  public boolean failOnTooManyValues()
   {
     return failOnTooManyValues;
   }
@@ -337,7 +342,7 @@ final class FieldInfo
    * @return  {@code true} if the associated field should be included in entries
    *         generated for add operations, or {@code false} if not.
    */
-  boolean includeInAdd()
+  public boolean includeInAdd()
   {
     return includeInAdd;
   }
@@ -355,7 +360,7 @@ final class FieldInfo
    *          inclusion in the set of modifications generated for modify
    *          operations, or {@code false} if not.
    */
-  boolean includeInModify()
+  public boolean includeInModify()
   {
     return includeInModify;
   }
@@ -369,7 +374,7 @@ final class FieldInfo
    * @return  {@code true} if the associated field should be used to generate
    *          entry RDNs, or {@code false} if not.
    */
-  boolean includeInRDN()
+  public boolean includeInRDN()
   {
     return includeInRDN;
   }
@@ -381,7 +386,7 @@ final class FieldInfo
    *
    * @return  The filter usage for the associated field.
    */
-  FilterUsage getFilterUsage()
+  public FilterUsage getFilterUsage()
   {
     return filterUsage;
   }
@@ -395,7 +400,7 @@ final class FieldInfo
    * @return  {@code true} if the associated field should be considered required
    *          for decode operations, or {@code false} if not.
    */
-  boolean isRequiredForDecode()
+  public boolean isRequiredForDecode()
   {
     return isRequiredForDecode;
   }
@@ -412,7 +417,7 @@ final class FieldInfo
    * @return  {@code true} if the associated field should be considered required
    *          for encode operations, or {@code false} if not.
    */
-  boolean isRequiredForEncode()
+  public boolean isRequiredForEncode()
   {
     return isRequiredForEncode;
   }
@@ -424,7 +429,7 @@ final class FieldInfo
    *
    * @return  The encoder that should be used for the associated field.
    */
-  LDAPFieldEncoder getEncoder()
+  public LDAPFieldEncoder getEncoder()
   {
     return encoder;
   }
@@ -438,7 +443,7 @@ final class FieldInfo
    * @return  The name of the LDAP attribute used to hold values for the
    *          associated field.
    */
-  String getAttributeName()
+  public String getAttributeName()
   {
     return attributeName;
   }
@@ -453,7 +458,7 @@ final class FieldInfo
    * @return  The set of default values for use when instantiating the object,
    *          or an empty array if no default values are defined.
    */
-  String[] getDefaultDecodeValues()
+  public String[] getDefaultDecodeValues()
   {
     return defaultDecodeValues;
   }
@@ -468,7 +473,7 @@ final class FieldInfo
    * @return  The set of default values for use in add operations, or an empty
    *          array if no default values are defined.
    */
-  String[] getDefaultEncodeValues()
+  public String[] getDefaultEncodeValues()
   {
     return defaultEncodeValues;
   }
@@ -482,7 +487,7 @@ final class FieldInfo
    * @return  The names of the object classes containing the associated
    *          attribute.
    */
-  String[] getObjectClasses()
+  public String[] getObjectClasses()
   {
     return objectClasses;
   }
@@ -495,7 +500,7 @@ final class FieldInfo
    * @return  {@code true} if the associated field can hold multiple values, or
    *          {@code false} if not.
    */
-  boolean supportsMultipleValues()
+  public boolean supportsMultipleValues()
   {
     return supportsMultipleValues;
   }
@@ -514,8 +519,8 @@ final class FieldInfo
    *                                encoding values for the associated field
    *                                type.
    */
-  public AttributeTypeDefinition constructAttributeType()
-         throws LDAPPersistException
+  AttributeTypeDefinition constructAttributeType()
+       throws LDAPPersistException
   {
     return constructAttributeType(DefaultOIDAllocator.getInstance());
   }
@@ -537,8 +542,8 @@ final class FieldInfo
    *                                encoding values for the associated field
    *                                type.
    */
-  public AttributeTypeDefinition constructAttributeType(final OIDAllocator a)
-         throws LDAPPersistException
+  AttributeTypeDefinition constructAttributeType(final OIDAllocator a)
+       throws LDAPPersistException
   {
     return encoder.constructAttributeType(field, a);
   }

@@ -49,6 +49,9 @@ import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassType;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -62,8 +65,10 @@ import static com.unboundid.util.StaticUtils.*;
  *
  * @param  <T>  The type of object handled by this class.
  */
-final class LDAPObjectHandler<T>
-      implements Serializable
+@NotMutable()
+@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+public final class LDAPObjectHandler<T>
+       implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
@@ -535,7 +540,7 @@ final class LDAPObjectHandler<T>
    *
    * @return  The type of object handled by this class.
    */
-  Class<T> getType()
+  public Class<T> getType()
   {
     return type;
   }
@@ -547,7 +552,7 @@ final class LDAPObjectHandler<T>
    *
    * @return  The {@code LDAPObject} annotation for the associated class.
    */
-  LDAPObject getLDAPObjectAnnotation()
+  public LDAPObject getLDAPObjectAnnotation()
   {
     return ldapObject;
   }
@@ -561,7 +566,7 @@ final class LDAPObjectHandler<T>
    * @return  The constructor used to create a new instance of the appropriate
    *          type.
    */
-  Constructor getConstructor()
+  public Constructor<T> getConstructor()
   {
     return constructor;
   }
@@ -576,7 +581,7 @@ final class LDAPObjectHandler<T>
    *          entry, or {@code null} if no DN field is defined in the associated
    *          object type.
    */
-  Field getDNField()
+  public Field getDNField()
   {
     return dnField;
   }
@@ -591,7 +596,7 @@ final class LDAPObjectHandler<T>
    *          used to create the object instance, or {@code null} if no entry
    *          field is defined in the associated object type.
    */
-  Field getEntryField()
+  public Field getEntryField()
   {
     return entryField;
   }
@@ -603,7 +608,7 @@ final class LDAPObjectHandler<T>
    *
    * @return  The default parent DN for objects of the associated type.
    */
-  DN getDefaultParentDN()
+  public DN getDefaultParentDN()
   {
     return defaultParentDN;
   }
@@ -617,7 +622,7 @@ final class LDAPObjectHandler<T>
    * @return  The name of the structural object class for objects of the
    *          associated type.
    */
-  String getStructuralClass()
+  public String getStructuralClass()
   {
     return structuralClass;
   }
@@ -632,7 +637,7 @@ final class LDAPObjectHandler<T>
    *          associated type.  It may be empty if no auxiliary classes are
    *          defined.
    */
-  String[] getAuxiliaryClasses()
+  public String[] getAuxiliaryClasses()
   {
     return auxiliaryClasses;
   }
@@ -654,8 +659,8 @@ final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurred while attempting to
    *                                obtain the entry DN.
    */
-  String getEntryDN(final T o)
-       throws LDAPPersistException
+  public String getEntryDN(final T o)
+         throws LDAPPersistException
   {
     if (dnField != null)
     {
@@ -702,8 +707,8 @@ final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurred while attempting to
    *                                obtain the entry DN.
    */
-  ReadOnlyEntry getEntry(final T o)
-       throws LDAPPersistException
+  public ReadOnlyEntry getEntry(final T o)
+         throws LDAPPersistException
   {
     if (entryField != null)
     {
@@ -739,7 +744,7 @@ final class LDAPObjectHandler<T>
    * @return  A map of all fields in the class that should be persisted as LDAP
    *          attributes.
    */
-  Map<String,FieldInfo> getFields()
+  public Map<String,FieldInfo> getFields()
   {
     return fieldMap;
   }
@@ -756,7 +761,7 @@ final class LDAPObjectHandler<T>
    * @return  A map of all getter methods in the class whose values should be
    *          persisted as LDAP attributes.
    */
-  Map<String,GetterInfo> getGetters()
+  public Map<String,GetterInfo> getGetters()
   {
     return getterMap;
   }
@@ -773,7 +778,7 @@ final class LDAPObjectHandler<T>
    * @return  A map of all setter methods in the class that should be invoked
    *          with information read from LDAP attributes.
    */
-  Map<String,SetterInfo> getSetters()
+  public Map<String,SetterInfo> getSetters()
   {
     return setterMap;
   }
@@ -796,8 +801,7 @@ final class LDAPObjectHandler<T>
    *                                generate the list of object class
    *                                definitions.
    */
-  public List<ObjectClassDefinition> constructObjectClasses(
-                                          final OIDAllocator a)
+  List<ObjectClassDefinition> constructObjectClasses(final OIDAllocator a)
          throws LDAPPersistException
   {
     final LinkedList<ObjectClassDefinition> ocList =
@@ -830,9 +834,9 @@ final class LDAPObjectHandler<T>
    *
    * @return  The constructed object class definition.
    */
-  private ObjectClassDefinition constructObjectClass(final String name,
-                                                     final ObjectClassType type,
-                                                     final OIDAllocator a)
+  ObjectClassDefinition constructObjectClass(final String name,
+                                             final ObjectClassType type,
+                                             final OIDAllocator a)
   {
     final TreeMap<String,String> requiredAttrs = new TreeMap<String,String>();
     final TreeMap<String,String> optionalAttrs = new TreeMap<String,String>();
@@ -1186,7 +1190,7 @@ final class LDAPObjectHandler<T>
    *                                entry DN, or if the provided parent DN
    *                                represents an invalid DN.
    */
-  String constructDN(final T o, final String parentDN)
+  public String constructDN(final T o, final String parentDN)
          throws LDAPPersistException
   {
     final String existingDN = getEntryDN(o);
@@ -1500,7 +1504,7 @@ final class LDAPObjectHandler<T>
    *                                non-{@code null} fields or getters that are
    *                                marked for inclusion in filters).
    */
-  Filter createFilter(final T o)
+  public Filter createFilter(final T o)
          throws LDAPPersistException
   {
     final LinkedList<Attribute> attrs = new LinkedList<Attribute>();

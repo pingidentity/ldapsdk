@@ -29,6 +29,9 @@ import java.lang.reflect.Type;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -41,8 +44,10 @@ import static com.unboundid.util.Validator.*;
  * This class provides a data structure that holds information about an
  * annotated getter method.
  */
-final class GetterInfo
-      implements Serializable
+@NotMutable()
+@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+public final class GetterInfo
+       implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
@@ -222,7 +227,7 @@ final class GetterInfo
    *
    * @return  The method with which this object is associated.
    */
-  Method getMethod()
+  public Method getMethod()
   {
     return method;
   }
@@ -235,7 +240,7 @@ final class GetterInfo
    *
    * @return  The class that contains the associated field.
    */
-  Class<?> getContainingClass()
+  public Class<?> getContainingClass()
   {
     return containingClass;
   }
@@ -251,7 +256,7 @@ final class GetterInfo
    * @return  {@code true} if the associated method value should be included in
    *          entries generated for add operations, or {@code false} if not.
    */
-  boolean includeInAdd()
+  public boolean includeInAdd()
   {
     return includeInAdd;
   }
@@ -269,7 +274,7 @@ final class GetterInfo
    *          for inclusion in the set of modifications generated for modify
    *          operations, or {@code false} if not.
    */
-  boolean includeInModify()
+  public boolean includeInModify()
   {
     return includeInModify;
   }
@@ -283,7 +288,7 @@ final class GetterInfo
    * @return  {@code true} if the associated method value should be used to
    *          generate entry RDNs, or {@code false} if not.
    */
-  boolean includeInRDN()
+  public boolean includeInRDN()
   {
     return includeInRDN;
   }
@@ -295,7 +300,7 @@ final class GetterInfo
    *
    * @return  The filter usage for the associated method.
    */
-  FilterUsage getFilterUsage()
+  public FilterUsage getFilterUsage()
   {
     return filterUsage;
   }
@@ -307,7 +312,7 @@ final class GetterInfo
    *
    * @return  The encoder that should be used for the associated method.
    */
-  LDAPFieldEncoder getEncoder()
+  public LDAPFieldEncoder getEncoder()
   {
     return encoder;
   }
@@ -321,7 +326,7 @@ final class GetterInfo
    * @return  The name of the LDAP attribute used to hold values for the
    *          associated method.
    */
-  String getAttributeName()
+  public String getAttributeName()
   {
     return attributeName;
   }
@@ -335,7 +340,7 @@ final class GetterInfo
    * @return  The names of the object classes containing the associated
    *          attribute.
    */
-  String[] getObjectClasses()
+  public String[] getObjectClasses()
   {
     return objectClasses;
   }
@@ -354,8 +359,8 @@ final class GetterInfo
    *                                encoding values for the associated field
    *                                type.
    */
-  public AttributeTypeDefinition constructAttributeType()
-         throws LDAPPersistException
+  AttributeTypeDefinition constructAttributeType()
+       throws LDAPPersistException
   {
     return constructAttributeType(DefaultOIDAllocator.getInstance());
   }
@@ -377,8 +382,8 @@ final class GetterInfo
    *                                encoding values for the associated method
    *                                type.
    */
-  public AttributeTypeDefinition constructAttributeType(final OIDAllocator a)
-         throws LDAPPersistException
+  AttributeTypeDefinition constructAttributeType(final OIDAllocator a)
+       throws LDAPPersistException
   {
     return encoder.constructAttributeType(method, a);
   }
