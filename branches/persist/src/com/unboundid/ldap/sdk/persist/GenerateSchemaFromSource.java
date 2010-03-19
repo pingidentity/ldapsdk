@@ -205,8 +205,7 @@ public final class GenerateSchemaFromSource
     final LDAPPersister<?> persister;
     try
     {
-      persister = (LDAPPersister<?>) LDAPPersister.class.getConstructor(
-           Class.class).newInstance(targetClass);
+      persister = LDAPPersister.getInstance(targetClass);
     }
     catch (Exception e)
     {

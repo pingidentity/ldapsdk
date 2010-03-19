@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Entry;
@@ -75,6 +76,14 @@ public final class LDAPPersister<T>
 
 
 
+  /**
+   * The map of instances created so far.
+   */
+  private static final ConcurrentHashMap<Class<?>,LDAPPersister<?>> INSTANCES =
+       new ConcurrentHashMap<Class<?>,LDAPPersister<?>>();
+
+
+
   // The LDAP object handler that will be used for this class.
   private final LDAPObjectHandler<T> handler;
 
@@ -91,11 +100,42 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If the provided class is not suitable for
    *                                persisting in an LDAP directory server.
    */
-  public LDAPPersister(final Class<T> type)
-         throws LDAPPersistException
+  private LDAPPersister(final Class<T> type)
+          throws LDAPPersistException
   {
     ensureNotNull(type);
     handler = new LDAPObjectHandler<T>(type);
+  }
+
+
+
+  /**
+   * Retrieves an {@code LDAPPersister} instance for use with objects of the
+   * specified type.
+   *
+   * @param  <T>   The generic type for the {@code LDAPPersister} instance.
+   * @param  type  The type of object for which to retrieve the LDAP persister.
+   *               It must not be {@code null}, and it must be marked with the
+   *               {@link LDAPObject} annotation.
+   *
+   * @return  The {@code LDAPPersister} instance for use with objects of the
+   *          specified type.
+   *
+   * @throws  LDAPPersistException  If the provided class is not suitable for
+   *                                persisting in an LDAP directory server.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> LDAPPersister<T> getInstance(final Class<T> type)
+         throws LDAPPersistException
+  {
+    LDAPPersister<T> p = (LDAPPersister<T>) INSTANCES.get(type);
+    if (p == null)
+    {
+      p = new LDAPPersister(type);
+      INSTANCES.put(type, p);
+    }
+
+    return p;
   }
 
 
