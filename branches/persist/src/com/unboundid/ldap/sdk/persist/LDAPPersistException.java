@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.persist;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -47,6 +48,12 @@ public final class LDAPPersistException
 
 
 
+  // The object that was in the process of being decoded, if available.  If it
+  // is non-null, then it will likely only be partially initialized.
+  private final Object partiallyDecodedObject;
+
+
+
   /**
    * Creates a new LDAP persist exception that wraps the provided LDAP
    * exception.
@@ -56,6 +63,8 @@ public final class LDAPPersistException
   public LDAPPersistException(final LDAPException e)
   {
     super(e);
+
+    partiallyDecodedObject = null;
   }
 
 
@@ -68,6 +77,8 @@ public final class LDAPPersistException
   public LDAPPersistException(final String message)
   {
     super(ResultCode.LOCAL_ERROR, message);
+
+    partiallyDecodedObject = null;
   }
 
 
@@ -81,5 +92,75 @@ public final class LDAPPersistException
   public LDAPPersistException(final String message, final Throwable cause)
   {
     super(ResultCode.LOCAL_ERROR, message, cause);
+
+    partiallyDecodedObject = null;
+  }
+
+
+
+  /**
+   * Creates a new LDAP persist exception with the provided message and cause.
+   *
+   * @param  message                 The message for this exception.
+   * @param  partiallyDecodedObject  The object that was in the process of being
+   *                                 decoded when this exception was thrown.  It
+   *                                 may be {@code null} if the exception was
+   *                                 thrown outside of the context of decoding
+   *                                 an object.  If an object is available, then
+   *                                 it will likely be only partially
+   *                                 initialized.
+   * @param  cause                   The underlying cause for this exception.
+   */
+  public LDAPPersistException(final String message,
+                              final Object partiallyDecodedObject,
+                              final Throwable cause)
+  {
+    super(ResultCode.LOCAL_ERROR, message, cause);
+
+    this.partiallyDecodedObject = partiallyDecodedObject;
+  }
+
+
+
+  /**
+   * Retrieves the partially-decoded object in the process of being initialized
+   * when this exception was thrown.
+   *
+   * @return  The partially-decoded object in the process of being initialized
+   *          when this exception was thrown, or {@code null} if none is
+   *          available or the exception was not thrown while decoding an
+   *          object.
+   */
+  public Object getPartiallyDecodedObject()
+  {
+    return partiallyDecodedObject;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("LDAPPersistException(message='");
+    buffer.append(getMessage());
+    buffer.append('\'');
+
+    if (partiallyDecodedObject != null)
+    {
+      buffer.append(", partiallyDecodedObject=");
+      buffer.append(partiallyDecodedObject);
+    }
+
+    final Throwable cause = getCause();
+    if (cause != null)
+    {
+      buffer.append(", cause=");
+      buffer.append(StaticUtils.getExceptionMessage(cause));
+    }
+
+    buffer.append(')');
   }
 }

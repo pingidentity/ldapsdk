@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.persist;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.List;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
@@ -619,17 +620,22 @@ public final class FieldInfo
    * Sets the value of the associated field in the given object from the
    * information contained in the provided attribute.
    *
-   * @param  o  The object for which to update the associated field.
-   * @param  e  The entry being decoded.
+   * @param  o               The object for which to update the associated
+   *                         field.
+   * @param  e               The entry being decoded.
+   * @param  failureReasons  A list to which information about any failures
+   *                         may be appended.
    *
-   * @throws  LDAPPersistException  If a problem occurs while updating the
-   *                                provided object.
+   * @return  {@code true} if the decode process was completely successful, or
+   *          {@code false} if there were one or more failures.
    */
-  void decode(final Object o, final Entry e)
-       throws LDAPPersistException
+  boolean decode(final Object o, final Entry e,
+                 final List<String> failureReasons)
   {
+    boolean successful = true;
+
     Attribute a = e.getAttribute(attributeName);
-    if (a == null)
+    if ((a == null) || (! a.hasValue()))
     {
       if (defaultDecodeValues.length > 0)
       {
@@ -639,21 +645,32 @@ public final class FieldInfo
       {
         if (isRequiredForDecode)
         {
-          throw new LDAPPersistException(
-               ERR_FIELD_INFO_MISSING_REQUIRED_ATTRIBUTE.get(
-                    containingClass.getName(), e.getDN(), attributeName,
-                    field.getName()));
+          successful = false;
+          failureReasons.add(ERR_FIELD_INFO_MISSING_REQUIRED_ATTRIBUTE.get(
+               containingClass.getName(), e.getDN(), attributeName,
+               field.getName()));
         }
 
-        encoder.setNull(field, o);
-        return;
+        try
+        {
+          encoder.setNull(field, o);
+        }
+        catch (final LDAPPersistException lpe)
+        {
+          debugException(lpe);
+          successful = false;
+          failureReasons.add(lpe.getMessage());
+        }
+
+        return successful;
       }
     }
 
     if (failOnTooManyValues && (a.size() > 1))
     {
-      throw new LDAPPersistException(ERR_FIELD_INFO_FIELD_NOT_MULTIVALUED.get(
-           a.getName(), field.getName(), containingClass.getName()));
+      successful = false;
+      failureReasons.add(ERR_FIELD_INFO_FIELD_NOT_MULTIVALUED.get(a.getName(),
+           field.getName(), containingClass.getName()));
     }
 
     try
@@ -665,8 +682,11 @@ public final class FieldInfo
       debugException(lpe);
       if (failOnInvalidValue)
       {
-        throw lpe;
+        successful = false;
+        failureReasons.add(lpe.getMessage());
       }
     }
+
+    return successful;
   }
 }

@@ -991,36 +991,51 @@ public final class LDAPObjectHandler<T>
   {
     setDNAndEntryFields(o, e);
 
+    final LinkedList<String> failureReasons = new LinkedList<String>();
+    boolean successful = true;
+
     for (final FieldInfo i : fieldMap.values())
     {
-      i.decode(o, e);
+      successful &= i.decode(o, e, failureReasons);
     }
 
     for (final SetterInfo i : setterMap.values())
     {
-      i.invokeSetter(o, e);
+      successful &= i.invokeSetter(o, e, failureReasons);
     }
 
+    Throwable cause = null;
     if (postDecodeMethod != null)
     {
       try
       {
         postDecodeMethod.invoke(o);
       }
-      catch (Throwable t)
+      catch (final Throwable t)
       {
         debugException(t);
 
         if (t instanceof InvocationTargetException)
         {
-          t = ((InvocationTargetException) t).getTargetException();
+          cause = ((InvocationTargetException) t).getTargetException();
+        }
+        else
+        {
+          cause = t;
         }
 
-        throw new LDAPPersistException(
+        successful = false;
+        failureReasons.add(
              ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_DECODE_METHOD.get(
                   postDecodeMethod.getName(), type.getName(),
-                  getExceptionMessage(t)), t);
+                  getExceptionMessage(t)));
       }
+    }
+
+    if (! successful)
+    {
+      throw new LDAPPersistException(concatenateStrings(failureReasons), o,
+           cause);
     }
   }
 

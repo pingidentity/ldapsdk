@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.persist;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.List;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
@@ -282,25 +283,40 @@ public final class SetterInfo
    * Invokes the setter method on the provided object with the value from the
    * given attribute.
    *
-   * @param  o  The object for which to invoke the setter method.
-   * @param  e  The entry being decoded.
+   * @param  o               The object for which to invoke the setter method.
+   * @param  e               The entry being decoded.
+   * @param  failureReasons  A list to which information about any failures
+   *                         may be appended.
    *
-   * @throws  LDAPPersistException  If a problem occurs while attempting to
-   *                                invoke the setter method.
+   * @return  {@code true} if the decode process was completely successful, or
+   *          {@code false} if there were one or more failures.
    */
-  void invokeSetter(final Object o, final Entry e)
-       throws LDAPPersistException
+  boolean invokeSetter(final Object o, final Entry e,
+                       final List<String> failureReasons)
   {
+    boolean successful = true;
+
     final Attribute a = e.getAttribute(attributeName);
-    if (a == null)
+    if ((a == null) || (! a.hasValue()))
     {
-      encoder.setNull(method, o);
-      return;
+      try
+      {
+        encoder.setNull(method, o);
+      }
+      catch (final LDAPPersistException lpe)
+      {
+        debugException(lpe);
+        successful = false;
+        failureReasons.add(lpe.getMessage());
+      }
+
+      return successful;
     }
 
     if (failOnTooManyValues && (a.size() > 1))
     {
-      throw new LDAPPersistException(ERR_SETTER_INFO_METHOD_NOT_MULTIVALUED.get(
+      successful = false;
+      failureReasons.add(ERR_SETTER_INFO_METHOD_NOT_MULTIVALUED.get(
            method.getName(), a.getName(), containingClass.getName()));
     }
 
@@ -313,8 +329,11 @@ public final class SetterInfo
       debugException(lpe);
       if (failOnInvalidValue)
       {
-        throw lpe;
+        successful = false;
+        failureReasons.add(lpe.getMessage());
       }
     }
+
+    return successful;
   }
 }
