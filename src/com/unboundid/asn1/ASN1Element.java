@@ -815,12 +815,10 @@ public class ASN1Element
   {
     if (hashCode == -1)
     {
-      final byte[] v = getValue();
-      final int length = Math.min(20, v.length);
-      int hash = length;
-      for (int i=0; i < length; i++)
+      int hash = 0;
+      for (final byte b : getValue())
       {
-        hash = hash * 31 + v[i];
+        hash = hash * 31 + b;
       }
       hashCode = hash;
     }
