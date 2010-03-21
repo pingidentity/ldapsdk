@@ -27,6 +27,8 @@ import java.io.FileWriter;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
@@ -84,6 +86,10 @@ public final class GenerateSourceFromSchema
   private StringArgument packageNameArg;
   private StringArgument rdnAttributeArg;
   private StringArgument structuralClassArg;
+
+  // Indicates whether any multivalued attributes have been identified, and
+  // therefore we need to include java.util.Arrays in the import list.
+  private boolean needArrays;
 
   // Indicates whether any date attributes have been identified, and therefore
   // we need to include java.util.Date in the import list.
@@ -148,7 +154,8 @@ public final class GenerateSourceFromSchema
   {
     super(outStream, errStream);
 
-    needDate = false;
+    needArrays = false;
+    needDate   = false;
   }
 
 
@@ -415,9 +422,21 @@ public final class GenerateSourceFromSchema
       }
     }
 
+    boolean javaImports = false;
+    if (needArrays)
+    {
+      writer.println("import " + Arrays.class.getName() + ';');
+      javaImports = true;
+    }
+
     if (needDate)
     {
       writer.println("import " + Date.class.getName() + ';');
+      javaImports = true;
+    }
+
+    if (javaImports)
+    {
       writer.println();
     }
 
@@ -665,6 +684,9 @@ public final class GenerateSourceFromSchema
       final AttributeTypeDefinition d = optionalAttrs.get(lowerName);
       writeGetterAndSetter(writer, d, types.get(lowerName));
     }
+
+    writeToString(writer, className, requiredAttrs.values(),
+         optionalAttrs.values());
 
     writer.println("}");
     writer.println();
@@ -972,6 +994,114 @@ public final class GenerateSourceFromSchema
 
 
   /**
+   * Writes a {@code toString} method for the generated class.
+   *
+   * @param  writer         The writer to use to write the methods.
+   * @param  className      The base name (without package information) for the
+   *                        generated class.
+   * @param  requiredAttrs  The set of required attributes for the generated
+   *                        class.
+   * @param  optionalAttrs  The set of optional attributes for the generated
+   *                        class.
+   */
+  static void writeToString(final PrintWriter writer, final String className,
+                   final Collection<AttributeTypeDefinition> requiredAttrs,
+                   final Collection<AttributeTypeDefinition> optionalAttrs)
+  {
+    writer.println();
+    writer.println();
+    writer.println();
+    writer.println("  /**");
+    writer.println("   * Retrieves a string representation of this {@code " +
+         className + "}.");
+    writer.println("   *");
+    writer.println("   * @return  A string representation of this {@code " +
+         className + "}.");
+    writer.println("   */");
+    writer.println("  @Override()");
+    writer.println("  public String toString()");
+    writer.println("  {");
+    writer.println("    final StringBuilder buffer = new StringBuilder();");
+    writer.println("    toString(buffer);");
+    writer.println("    return buffer.toString();");
+    writer.println("  }");
+
+    writer.println();
+    writer.println();
+    writer.println();
+    writer.println("  /**");
+    writer.println("   * Appends a string representation of this {@code " +
+         className + "}");
+    writer.println("     to the provided buffer.");
+    writer.println("   *");
+    writer.println("   * @param  buffer  The buffer to which the string " +
+         "representation should be");
+    writer.println("   *                 appended.");
+    writer.println("   */");
+    writer.println("  public void toString(final StringBuilder buffer)");
+    writer.println("  {");
+    writer.println("    buffer.append(\"" + className + "(\");");
+    writer.println();
+    writer.println("    boolean appended = false;");
+    writer.println("    if (ldapEntry != null)");
+    writer.println("    {");
+    writer.println("      appended = true;");
+    writer.println("      buffer.append(\"entryDN='\");");
+    writer.println("      buffer.append(ldapEntry.getDN());");
+    writer.println("      buffer.append('\\'');");
+    writer.println("    }");
+
+    for (final AttributeTypeDefinition d : requiredAttrs)
+    {
+      writeToStringField(writer, d);
+    }
+
+    for (final AttributeTypeDefinition d : optionalAttrs)
+    {
+      writeToStringField(writer, d);
+    }
+
+    writer.println();
+    writer.println("    buffer.append(')');");
+    writer.println("  }");
+  }
+
+
+
+  /**
+   * Writes information about the provided field for use in the {@code toString}
+   * method.
+   *
+   * @param  w  The writer to use to write the {@code toString} content.
+   * @param  d  The attribute type definition for the field to write.
+   */
+  private static void writeToStringField(final PrintWriter w,
+                                         final AttributeTypeDefinition d)
+  {
+    final String fieldName = PersistUtils.toJavaIdentifier(d.getNameOrOID());
+    w.println();
+    w.println("    if (" +  fieldName + " != null)");
+    w.println("    {");
+    w.println("      if (appended)");
+    w.println("      {");
+    w.println("        buffer.append(\", \");");
+    w.println("      }");
+    w.println("      appended = true;");
+    w.println("      buffer.append(\"" + fieldName + "=\");");
+    if (d.isSingleValued())
+    {
+      w.println("      buffer.append(" + fieldName + ");");
+    }
+    else
+    {
+      w.println("      buffer.append(Arrays.toString(" + fieldName + "));");
+    }
+    w.println("    }");
+  }
+
+
+
+  /**
    * Retrieves the Java type to use for the provided attribute type definition.
    * For multi-valued attributes, the value returned will be the base type
    * without square brackets to indicate an array.
@@ -985,6 +1115,11 @@ public final class GenerateSourceFromSchema
    */
   String getJavaType(final Schema schema, final AttributeTypeDefinition d)
   {
+    if (! d.isSingleValued())
+    {
+      needArrays = true;
+    }
+
     final String syntaxOID = d.getSyntaxOID(schema);
     if (syntaxOID == null)
     {
