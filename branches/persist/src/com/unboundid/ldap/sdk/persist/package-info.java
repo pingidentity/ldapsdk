@@ -42,7 +42,7 @@
  *       It provides information about the LDAP attribute that should be used to
  *       store the information for that field, and to identify constraints on
  *       how that field may be used.</LI>
- *   <LI>{@code LDAPFieldGetter} and {@code LDAPFieldSetter} -- These annotation
+ *   <LI>{@code LDAPGetter} and {@code LDAPSetter} -- These annotation
  *       types provide an alternative to the {@code LDAPField} annotation.
  *       Rather than marking fields, they should be used to mark getter and
  *       setter methods that can be used to retrieve and update the associated

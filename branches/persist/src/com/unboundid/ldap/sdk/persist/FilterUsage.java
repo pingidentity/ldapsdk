@@ -29,7 +29,7 @@ package com.unboundid.ldap.sdk.persist;
  * equality components created from the structural object class and any
  * auxiliary classes, as well as equality components created from the values of
  * fields with the {@link LDAPField} annotation type and/or the return values of
- * methods with the {@link LDAPFieldGetter} annotation type.
+ * methods with the {@link LDAPGetter} annotation type.
  * <BR><BR>
  * If a class has any fields or getter methods with a filter usage of
  * {@code REQUIRED}, then all fields and/or getter methods marked as

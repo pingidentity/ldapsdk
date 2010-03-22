@@ -116,7 +116,7 @@ public abstract class ObjectEncoder
    * attribute type definition is not required to be valid or unique.
    *
    * @param  m  The method for which to construct an LDAP attribute type
-   *            definition.  It will include the {@link LDAPFieldGetter}
+   *            definition.  It will include the {@link LDAPGetter}
    *            annotation type.
    *
    * @return  The constructed attribute type definition.
@@ -140,7 +140,7 @@ public abstract class ObjectEncoder
    * attribute type definition is not required to be valid or unique.
    *
    * @param  m  The method for which to construct an LDAP attribute type
-   *            definition.  It will include the {@link LDAPFieldGetter}
+   *            definition.  It will include the {@link LDAPGetter}
    *            annotation type.
    * @param  a  The OID allocator to use to generate the object identifier.  It
    *            must not be {@code null}.
@@ -175,7 +175,7 @@ public abstract class ObjectEncoder
    * hold multiple values.
    *
    * @param  method  The setter method for which to make the determination.  It
-   *                 must be marked with the {@link LDAPFieldSetter} annotation
+   *                 must be marked with the {@link LDAPSetter} annotation
    *                 type and conform to the constraints associated with that
    *                 annotation.
    *
@@ -327,7 +327,7 @@ public abstract class ObjectEncoder
    *
    * @param  m  The setter method that should be used to set the {@code null}
    *            value.  It must not be {@code null}, and must have the
-   *            {@code LDAPFieldSetter} annotation.
+   *            {@code LDAPSetter} annotation.
    * @param  o  The object to be updated.  It must not be {@code null}, and the
    *            class must be marked with the {@link LDAPObject annotation}.
    *

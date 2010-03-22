@@ -38,21 +38,20 @@ import java.lang.annotation.Target;
  * they may have any access modifier (including {@code public},
  * {@code protected}, {@code private}, or no access modifier at all indicating
  * package-level access).  The associated attribute must not be referenced by
- * any other {@link LDAPField} or {@code LDAPFieldGetter} annotations in the
- * same class, and it may be referenced by at most one {@link LDAPFieldSetter}
- * annotation.
+ * any other {@link LDAPField} or {@code LDAPGetter} annotations in the same
+ * class, and it may be referenced by at most one {@link LDAPSetter} annotation.
  */
 @Documented()
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={ElementType.METHOD})
-public @interface LDAPFieldGetter
+public @interface LDAPGetter
 {
   /**
    * Indicates whether the value returned from this method should be included in
    * the LDAP entry that is generated when adding a new instance of the
-   * associated object to the directory.  Note that any field which is to be
-   * included in entry RDNs will always be included in add operations regardless
-   * of the value of this element.
+   * associated object to the directory.  Note that any getter value which is
+   * to be included in entry RDNs will always be included in add operations
+   * regardless of the value of this element.
    */
   boolean inAdd() default true;
 
@@ -62,8 +61,8 @@ public @interface LDAPFieldGetter
    * Indicates whether the value returned from this method should be included in
    * the set of LDAP modifications if it has been changed when modifying an
    * existing instance of the associated object in the directory.  Note that any
-   * field which is to be included in entry RDNs will never be included in
-   * modify operations regardless of the value of this element.
+   * getter value which is to be included in entry RDNs will never be included
+   * in modify operations regardless of the value of this element.
    */
   boolean inModify() default true;
 
@@ -71,17 +70,17 @@ public @interface LDAPFieldGetter
 
   /**
    * Indicates whether the value returned from this method should be included in
-   * the RDN of entries created from the associated object.  Any field which is
-   * to be included entry RDNs will always be included in add operations
-   * regardless of the value of the {@link #inAdd} element.
+   * the RDN of entries created from the associated object.  Any getter value
+   * which is to be included entry RDNs will always be included in add
+   * operations regardless of the value of the {@link #inAdd} element.
    */
   boolean inRDN() default false;
 
 
 
   /**
-   * The class that provides the logic for encoding a field to an LDAP
-   * attribute, and for initializing a field from an LDAP attribute.
+   * The class that provides the logic for encoding the method return value to
+   * an LDAP attribute.
    */
   Class<? extends ObjectEncoder> encoderClass()
        default DefaultObjectEncoder.class;
@@ -98,10 +97,10 @@ public @interface LDAPFieldGetter
 
 
   /**
-   * The name of the attribute type in which the associated field will be stored
-   * in LDAP entries.  If this is not provided, then the method name must start
-   * with "get" and it will be assumed that the attribute name is the remainder
-   * of the method name.
+   * The name of the attribute type in which the associated getter value will be
+   * stored in LDAP entries.  If this is not provided, then the method name must
+   * start with "get" and it will be assumed that the attribute name is the
+   * remainder of the method name.
    */
   String attribute() default "";
 

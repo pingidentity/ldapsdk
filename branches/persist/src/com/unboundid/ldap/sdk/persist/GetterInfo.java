@@ -104,7 +104,7 @@ public final class GetterInfo
     method = m;
     m.setAccessible(true);
 
-    final LDAPFieldGetter  a = m.getAnnotation(LDAPFieldGetter.class);
+    final LDAPGetter  a = m.getAnnotation(LDAPGetter.class);
     if (a == null)
     {
       throw new LDAPPersistException(ERR_GETTER_INFO_METHOD_NOT_ANNOTATED.get(

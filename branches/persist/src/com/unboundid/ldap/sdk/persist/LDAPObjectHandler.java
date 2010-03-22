@@ -447,8 +447,8 @@ public final class LDAPObjectHandler<T>
     final LinkedList<GetterInfo> tmpRDNGetters = new LinkedList<GetterInfo>();
     for (final Method m : type.getDeclaredMethods())
     {
-      final LDAPFieldGetter getter = m.getAnnotation(LDAPFieldGetter.class);
-      final LDAPFieldSetter setter = m.getAnnotation(LDAPFieldSetter.class);
+      final LDAPGetter getter = m.getAnnotation(LDAPGetter.class);
+      final LDAPSetter setter = m.getAnnotation(LDAPSetter.class);
 
       if (getter != null)
       {
@@ -458,7 +458,7 @@ public final class LDAPObjectHandler<T>
         {
           throw new LDAPPersistException(
                ERR_OBJECT_HANDLER_CONFLICTING_METHOD_ANNOTATIONS.get(
-                    type.getName(), "LDAPFieldGetter", "LDAPFieldSetter",
+                    type.getName(), "LDAPGetter", "LDAPSetter",
                     m.getName()));
         }
 
@@ -1505,7 +1505,7 @@ public final class LDAPObjectHandler<T>
    * with a non-{@code null} value and that have a {@link LDAPField} annotation
    * with the {@code inFilter} element set to {@code true}, and all  getter
    * methods that return a non-{@code null} value and have a
-   * {@link LDAPFieldGetter} annotation with the {@code inFilter} element set to
+   * {@link LDAPGetter} annotation with the {@code inFilter} element set to
    * {@code true}.
    *
    * @param  o  The object for which to create the search filter.

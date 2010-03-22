@@ -39,14 +39,14 @@ import java.lang.annotation.Target;
  * LDAP attribute, but they may have any access modifier (including
  * {@code public}, {@code protected}, {@code private}, or no access modifier at
  * all indicating package-level access).  The associated attribute must not be
- * referenced by any other {@link LDAPField} or {@code LDAPFieldSetter}
- * annotations in the same class, and it may be referenced by at most one
- * {@link LDAPFieldGetter} annotation.
+ * referenced by any other {@link LDAPField} or {@code LDAPSetter} annotations
+ * in the same class, and it may be referenced by at most one {@link LDAPGetter}
+ * annotation.
  */
 @Documented()
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={ElementType.METHOD})
-public @interface LDAPFieldSetter
+public @interface LDAPSetter
 {
   /**
    * Indicates whether attempts to initialize an object should fail if the LDAP

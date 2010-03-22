@@ -63,7 +63,7 @@ import static com.unboundid.util.Validator.*;
  * retrieve Java objects from the directory server.  The objects to store,
  * update, and retrieve must be marked with the {@link LDAPObject} annotation.
  * Fields and methods within the class should be marked with the
- * {@link LDAPField}, {@link LDAPFieldGetter}, or {@link LDAPFieldSetter}
+ * {@link LDAPField}, {@link LDAPGetter}, or {@link LDAPSetter}
  * annotations as appropriate to indicate how to convert between the LDAP and
  * the Java representations of the content.
  *
@@ -839,7 +839,7 @@ public final class LDAPPersister<T>
    * Performs a search in the directory for objects matching the contents of the
    * provided object.  A search filter will be generated from the provided
    * object containing all non-{@code null} values from fields and getter
-   * methods whose {@link LDAPField} or {@link LDAPFieldGetter} annotation has
+   * methods whose {@link LDAPField} or {@link LDAPGetter} annotation has
    * the {@code inFilter} element set to {@code true}.
    * <BR><BR>
    * The search performed will be a subtree search using a base DN equal to the
@@ -877,7 +877,7 @@ public final class LDAPPersister<T>
    * Performs a search in the directory for objects matching the contents of the
    * provided object.  A search filter will be generated from the provided
    * object containing all non-{@code null} values from fields and getter
-   * methods whose {@link LDAPField} or {@link LDAPFieldGetter} annotation has
+   * methods whose {@link LDAPField} or {@link LDAPGetter} annotation has
    * the {@code inFilter} element set to {@code true}.
    * <BR><BR>
    * The search performed will be a subtree search using a base DN equal to the
@@ -922,7 +922,7 @@ public final class LDAPPersister<T>
    * Performs a search in the directory for objects matching the contents of
    * the provided object.  A search filter will be generated from the provided
    * object containing all non-{@code null} values from fields and getter
-   * methods whose {@link LDAPField} or {@link LDAPFieldGetter} annotation has
+   * methods whose {@link LDAPField} or {@link LDAPGetter} annotation has
    * the {@code inFilter} element set to {@code true}.
    * <BR><BR>
    * Note that this method requires an {@link LDAPConnection} argument rather
@@ -1002,7 +1002,7 @@ public final class LDAPPersister<T>
    * Performs a search in the directory for objects matching the contents of the
    * provided object.  A search filter will be generated from the provided
    * object containing all non-{@code null} values from fields and getter
-   * methods whose {@link LDAPField} or {@link LDAPFieldGetter} annotation has
+   * methods whose {@link LDAPField} or {@link LDAPGetter} annotation has
    * the {@code inFilter} element set to {@code true}.
    * <BR><BR>
    * The search performed will be a subtree search using a base DN equal to the
@@ -1036,7 +1036,7 @@ public final class LDAPPersister<T>
    * Performs a search in the directory for objects matching the contents of the
    * provided object.  A search filter will be generated from the provided
    * object containing all non-{@code null} values from fields and getter
-   * methods whose {@link LDAPField} or {@link LDAPFieldGetter} annotation has
+   * methods whose {@link LDAPField} or {@link LDAPGetter} annotation has
    * the {@code inFilter} element set to {@code true}.
    * <BR><BR>
    * The search performed will be a subtree search using a base DN equal to the
@@ -1076,7 +1076,7 @@ public final class LDAPPersister<T>
    * Performs a search in the directory for objects matching the contents of
    * the provided object.  A search filter will be generated from the provided
    * object containing all non-{@code null} values from fields and getter
-   * methods whose {@link LDAPField} or {@link LDAPFieldGetter} annotation has
+   * methods whose {@link LDAPField} or {@link LDAPGetter} annotation has
    * the {@code inFilter} element set to {@code true}.
    *
    * @param  o            The object to use to construct the search filter.  It

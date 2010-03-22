@@ -422,7 +422,7 @@ public final class DefaultObjectEncoder
                                       final OIDAllocator a)
          throws LDAPPersistException
   {
-    final LDAPFieldGetter at = m.getAnnotation(LDAPFieldGetter.class);
+    final LDAPGetter at = m.getAnnotation(LDAPGetter.class);
 
     final String attrName;
     if (at.attribute().length() == 0)

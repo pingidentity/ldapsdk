@@ -101,7 +101,7 @@ public final class SetterInfo
     method = m;
     m.setAccessible(true);
 
-    final LDAPFieldSetter  a = m.getAnnotation(LDAPFieldSetter.class);
+    final LDAPSetter  a = m.getAnnotation(LDAPSetter.class);
     if (a == null)
     {
       throw new LDAPPersistException(ERR_SETTER_INFO_METHOD_NOT_ANNOTATED.get(
