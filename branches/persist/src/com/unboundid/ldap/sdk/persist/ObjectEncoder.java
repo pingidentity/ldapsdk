@@ -40,22 +40,22 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
- * This class provides an API for converting between Java object fields and LDAP
+ * This class provides an API for converting between Java objects and LDAP
  * attributes.  Concrete instances of this class must provide a default
  * zero-argument constructor.
  */
 @Extensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
-public abstract class LDAPFieldEncoder
+public abstract class ObjectEncoder
        implements Serializable
 {
   /**
-   * Indicates whether this LDAP field encoder may be used to encode or decode
+   * Indicates whether this object encoder may be used to encode or decode
    * objects of the specified type.
    *
    * @param  t  The type of object for which to make the determination.
    *
-   * @return  {@code true} if this LDAP field encoder may be used for objects of
+   * @return  {@code true} if this object encoder may be used for objects of
    *          the specified type, or {@code false} if not.
    */
   public abstract boolean supportsType(final Type t);
@@ -74,7 +74,7 @@ public abstract class LDAPFieldEncoder
    *
    * @return  The constructed attribute type definition.
    *
-   * @throws  LDAPPersistException  If this LDAP field encoder does not support
+   * @throws  LDAPPersistException  If this object encoder does not support
    *                                encoding values for the associated field
    *                                type.
    */
@@ -99,7 +99,7 @@ public abstract class LDAPFieldEncoder
    *
    * @return  The constructed attribute type definition.
    *
-   * @throws  LDAPPersistException  If this LDAP field encoder does not support
+   * @throws  LDAPPersistException  If this object encoder does not support
    *                                encoding values for the associated field
    *                                type.
    */
@@ -121,7 +121,7 @@ public abstract class LDAPFieldEncoder
    *
    * @return  The constructed attribute type definition.
    *
-   * @throws  LDAPPersistException  If this LDAP field encoder does not support
+   * @throws  LDAPPersistException  If this object encoder does not support
    *                                encoding values for the associated method
    *                                type.
    */
@@ -147,7 +147,7 @@ public abstract class LDAPFieldEncoder
    *
    * @return  The constructed attribute type definition.
    *
-   * @throws  LDAPPersistException  If this LDAP field encoder does not support
+   * @throws  LDAPPersistException  If this object encoder does not support
    *                                encoding values for the associated method
    *                                type.
    */
@@ -171,11 +171,13 @@ public abstract class LDAPFieldEncoder
 
 
   /**
-   * Indicates whether the provided method takes an argument that can hold
-   * multiple values.
+   * Indicates whether the provided setter method takes an argument that can
+   * hold multiple values.
    *
-   * @param  method  The field for which to make the determination.  It must be
-   *                 marked with the {@link LDAPFieldSetter} annotation type.
+   * @param  method  The setter method for which to make the determination.  It
+   *                 must be marked with the {@link LDAPFieldSetter} annotation
+   *                 type and conform to the constraints associated with that
+   *                 annotation.
    *
    * @return  {@code true} if the provided method takes an argument that can
    *          hold multiple values, or {@code false} if not.

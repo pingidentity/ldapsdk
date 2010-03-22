@@ -65,7 +65,7 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
- * This class provides the default implementation of an {@link LDAPFieldEncoder}
+ * This class provides the default implementation of an {@link ObjectEncoder}
  * object that will be used when encoding and decoding fields to be written to
  * or read from an LDAP directory server.
  * <BR><BR>
@@ -145,8 +145,8 @@ import static com.unboundid.util.StaticUtils.*;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class DefaultLDAPFieldEncoder
-       extends LDAPFieldEncoder
+public final class DefaultObjectEncoder
+       extends ObjectEncoder
 {
   /**
    * The serial version UID for this serializable class.
@@ -158,7 +158,7 @@ public final class DefaultLDAPFieldEncoder
   /**
    * Creates a new instance of this encoder.
    */
-  public DefaultLDAPFieldEncoder()
+  public DefaultObjectEncoder()
   {
     super();
   }
@@ -213,13 +213,13 @@ public final class DefaultLDAPFieldEncoder
 
 
   /**
-   * Indicates whether this LDAP field encoder supports objects of the specified
+   * Indicates whether this object encoder supports objects of the specified
    * type.
    *
    * @param  c  The object type class for which to make the determination.
    *
-   * @return  {@code true} if this field encoder supports objects of the
-   *          specified type, or {@code false} if not.
+   * @return  {@code true} if this object supports objects of the specified
+   *          type, or {@code false} if not.
    */
   private static boolean supportsTypeInternal(final Class<?> c)
   {

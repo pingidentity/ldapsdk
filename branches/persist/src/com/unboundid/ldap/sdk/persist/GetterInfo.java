@@ -77,7 +77,7 @@ public final class GetterInfo
   private final Method method;
 
   // The encoder used for this method.
-  private final LDAPFieldEncoder encoder;
+  private final ObjectEncoder encoder;
 
   // The name of the associated attribute type.
   private final String attributeName;
@@ -312,7 +312,7 @@ public final class GetterInfo
    *
    * @return  The encoder that should be used for the associated method.
    */
-  public LDAPFieldEncoder getEncoder()
+  public ObjectEncoder getEncoder()
   {
     return encoder;
   }
@@ -355,7 +355,7 @@ public final class GetterInfo
    *
    * @return  The constructed attribute type definition.
    *
-   * @throws  LDAPPersistException  If the LDAP field encoder does not support
+   * @throws  LDAPPersistException  If the object encoder does not support
    *                                encoding values for the associated field
    *                                type.
    */
@@ -378,7 +378,7 @@ public final class GetterInfo
    *
    * @return  The constructed attribute type definition.
    *
-   * @throws  LDAPPersistException  If the LDAP field encoder does not support
+   * @throws  LDAPPersistException  If the object encoder does not support
    *                                encoding values for the associated method
    *                                type.
    */

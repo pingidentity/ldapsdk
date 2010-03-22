@@ -97,7 +97,7 @@ public final class FieldInfo
   private final FilterUsage filterUsage;
 
   // The encoder used for this field.
-  private final LDAPFieldEncoder encoder;
+  private final ObjectEncoder encoder;
 
   // The name of the associated attribute type.
   private final String attributeName;
@@ -430,7 +430,7 @@ public final class FieldInfo
    *
    * @return  The encoder that should be used for the associated field.
    */
-  public LDAPFieldEncoder getEncoder()
+  public ObjectEncoder getEncoder()
   {
     return encoder;
   }
@@ -516,7 +516,7 @@ public final class FieldInfo
    *
    * @return  The constructed attribute type definition.
    *
-   * @throws  LDAPPersistException  If the LDAP field encoder does not support
+   * @throws  LDAPPersistException  If the object encoder does not support
    *                                encoding values for the associated field
    *                                type.
    */
@@ -539,7 +539,7 @@ public final class FieldInfo
    *
    * @return  The constructed attribute type definition.
    *
-   * @throws  LDAPPersistException  If the LDAP field encoder does not support
+   * @throws  LDAPPersistException  If the object encoder does not support
    *                                encoding values for the associated field
    *                                type.
    */

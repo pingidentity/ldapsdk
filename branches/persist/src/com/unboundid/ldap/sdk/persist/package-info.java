@@ -58,7 +58,7 @@
  * <BR><BR>
  * The {@code LDAPObjectHandler} class provides the primary interface for
  * interacting with objects of a specified type and converting between the Java
- * and LDAP representations of that data.  The {@code LDAPFieldEncoder} class
+ * and LDAP representations of that data.  The {@code ObjectEncoder} class
  * provides an API that may be used to convert between Java and LDAP
  * representations for object values.
  */

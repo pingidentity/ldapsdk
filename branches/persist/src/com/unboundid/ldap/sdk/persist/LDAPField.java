@@ -127,8 +127,8 @@ public @interface LDAPField
    * The class that provides the logic for encoding a field to an LDAP
    * attribute, and for initializing a field from an LDAP attribute.
    */
-  Class<? extends LDAPFieldEncoder> encoderClass()
-       default DefaultLDAPFieldEncoder.class;
+  Class<? extends ObjectEncoder> encoderClass()
+       default DefaultObjectEncoder.class;
 
 
 

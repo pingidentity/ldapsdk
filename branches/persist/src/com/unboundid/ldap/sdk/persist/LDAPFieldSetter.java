@@ -78,8 +78,8 @@ public @interface LDAPFieldSetter
    * The class that provides the logic for encoding the value of this method to
    * an LDAP attribute.
    */
-  Class<? extends LDAPFieldEncoder> encoderClass()
-       default DefaultLDAPFieldEncoder.class;
+  Class<? extends ObjectEncoder> encoderClass()
+       default DefaultObjectEncoder.class;
 
 
 

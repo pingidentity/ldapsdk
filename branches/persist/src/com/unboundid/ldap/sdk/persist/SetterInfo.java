@@ -77,7 +77,7 @@ public final class SetterInfo
   private final Method method;
 
   // The encoder used for this method.
-  private final LDAPFieldEncoder encoder;
+  private final ObjectEncoder encoder;
 
   // The name of the associated attribute type.
   private final String attributeName;
@@ -244,7 +244,7 @@ public final class SetterInfo
    *
    * @return  The encoder that should be used for the associated method.
    */
-  public LDAPFieldEncoder getEncoder()
+  public ObjectEncoder getEncoder()
   {
     return encoder;
   }
