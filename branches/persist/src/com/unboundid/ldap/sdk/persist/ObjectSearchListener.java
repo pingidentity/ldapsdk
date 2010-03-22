@@ -39,7 +39,7 @@ import com.unboundid.util.ThreadSafetyLevel;
  */
 @Extensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)
-public interface PersistSearchListener<T>
+public interface ObjectSearchListener<T>
 {
   /**
    * Indicates that the provided object was created from an entry retrieved from

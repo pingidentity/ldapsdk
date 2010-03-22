@@ -1013,7 +1013,7 @@ public final class LDAPPersister<T>
    *            be {@code null}.
    * @param  i  The interface to use to communicate with the directory server.
    *            It must not be {@code null}.
-   * @param  l  The persist search result listener that will be used to receive
+   * @param  l  The object search result listener that will be used to receive
    *            objects decoded from entries returned for the search.  It must
    *            not be {@code null}.
    *
@@ -1023,7 +1023,7 @@ public final class LDAPPersister<T>
    *                                sending the search request.
    */
   public SearchResult search(final T o, final LDAPInterface i,
-                             final PersistSearchListener<T> l)
+                             final ObjectSearchListener<T> l)
          throws LDAPPersistException
   {
     return search(o, i, null, SearchScope.SUB, DereferencePolicy.NEVER, 0, 0,
@@ -1052,7 +1052,7 @@ public final class LDAPPersister<T>
    *                 {@code LDAPObject}
    * @param  scope   The scope to use for the search operation.  It must not be
    *                 {@code null}.
-   * @param  l       The persist search result listener that will be used to
+   * @param  l       The object search result listener that will be used to
    *                 receive objects decoded from entries returned for the
    *                 search.  It must not be {@code null}.
    *
@@ -1064,7 +1064,7 @@ public final class LDAPPersister<T>
    */
   public SearchResult search(final T o, final LDAPInterface i,
                              final String baseDN, final SearchScope scope,
-                             final PersistSearchListener<T> l)
+                             final ObjectSearchListener<T> l)
          throws LDAPPersistException
   {
     return search(o, i, baseDN, scope, DereferencePolicy.NEVER, 0, 0, l);
@@ -1097,7 +1097,7 @@ public final class LDAPPersister<T>
    *                      should spend processing the search.  A value of zero
    *                      indicates that no client-requested time limit should
    *                      be enforced.
-   * @param  l            The persist search result listener that will be used
+   * @param  l            The object search result listener that will be used
    *                      to receive objects decoded from entries returned for
    *                      the search.  It must not be {@code null}.
    *
@@ -1111,7 +1111,7 @@ public final class LDAPPersister<T>
                              final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final PersistSearchListener<T> l)
+                             final ObjectSearchListener<T> l)
          throws LDAPPersistException
   {
     ensureNotNull(o, i, scope, derefPolicy, l);

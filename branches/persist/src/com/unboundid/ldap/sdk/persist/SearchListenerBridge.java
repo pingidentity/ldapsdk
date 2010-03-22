@@ -35,7 +35,7 @@ import static com.unboundid.util.Debug.*;
 /**
  * This class provides a bridge between the {@link SearchResultListener}
  * interface used to receive entries returned by a search operation and the
- * {@link PersistSearchListener} interface used to provide those entries as
+ * {@link ObjectSearchListener} interface used to provide those entries as
  * decoded objects.
  *
  * @param  <T>  The type of object accessed by this class.
@@ -55,14 +55,14 @@ final class SearchListenerBridge<T>
   private final LDAPPersister<T> persister;
 
   // The listener to which decoded objects will be provided.
-  private final PersistSearchListener<T> listener;
+  private final ObjectSearchListener<T> listener;
 
 
 
   /**
    * Creates a new instance of this search listener bridge that will use the
    * given persister to decode search result entries and forward them to the
-   * provided persist search result listener.
+   * provided object search listener.
    *
    * @param  persister  The persister that will be used to decode entries that
    *                    are returned during search processing.
@@ -70,7 +70,7 @@ final class SearchListenerBridge<T>
    *                    forwarded.
    */
   SearchListenerBridge(final LDAPPersister<T> persister,
-                       final PersistSearchListener<T> listener)
+                       final ObjectSearchListener<T> listener)
   {
     this.persister = persister;
     this.listener  = listener;
