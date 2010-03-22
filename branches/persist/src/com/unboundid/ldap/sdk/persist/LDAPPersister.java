@@ -23,9 +23,12 @@ package com.unboundid.ldap.sdk.persist;
 
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -36,12 +39,14 @@ import com.unboundid.ldap.sdk.LDAPEntrySource;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -257,7 +262,7 @@ public final class LDAPPersister<T>
    * definitions are not required to be valid or unique.
    *
    * @param  a  The OID allocator to use to generate the object identifiers for
-   *            the constructed attribute types.  It must not be {@code null}.
+   *            the constructed object classes.  It must not be {@code null}.
    *
    * @return  A list of object class definitions that may be used to represent
    *          objects of the associated type in an LDAP directory.
@@ -271,6 +276,195 @@ public final class LDAPPersister<T>
          throws LDAPPersistException
   {
     return handler.constructObjectClasses(a);
+  }
+
+
+
+  /**
+   * Attempts to update the schema for a directory server to ensure that it
+   * includes the attribute type and object class definitions used to store
+   * objects of the associated type.  It will do this by attempting to add
+   * values to the attributeTypes and objectClasses attributes to the server
+   * schema.  It will attempt to preserve existing schema elements.
+   *
+   * @param  i  The interface to use to communicate with the directory server.
+   *
+   * @return  {@code true} if the schema was updated, or {@code false} if all of
+   *          the necessary schema elements were already present.
+   *
+   * @throws  LDAPException  If an error occurs while attempting to update the
+   *                         server schema.
+   */
+  public boolean updateSchema(final LDAPInterface i)
+         throws LDAPException
+  {
+    return updateSchema(i, DefaultOIDAllocator.getInstance());
+  }
+
+
+
+  /**
+   * Attempts to update the schema for a directory server to ensure that it
+   * includes the attribute type and object class definitions used to store
+   * objects of the associated type.  It will do this by attempting to add
+   * values to the attributeTypes and objectClasses attributes to the server
+   * schema.  It will preserve existing attribute types, and will only modify
+   * existing object classes if the existing definition does not allow all of
+   * the attributes needed to store the associated object.
+   * <BR><BR>
+   * Note that because there is no standard process for altering a directory
+   * server's schema over LDAP, the approach used by this method may not work
+   * for all types of directory servers.  In addition, some directory servers
+   * may place restrictions on schema updates, particularly around the
+   * modification of existing schema elements.  This method is provided as a
+   * convenience, but it may not work as expected in all environments or under
+   * all conditions.
+   *
+   * @param  i  The interface to use to communicate with the directory server.
+   * @param  a  The OID allocator to use ot generate the object identifiers to
+   *            use for the constructed attribute types and object classes.  It
+   *            must not be {@code null}.
+   *
+   * @return  {@code true} if the schema was updated, or {@code false} if all of
+   *          the necessary schema elements were already present.
+   *
+   * @throws  LDAPException  If an error occurs while attempting to update the
+   *                         server schema.
+   */
+  public boolean updateSchema(final LDAPInterface i, final OIDAllocator a)
+         throws LDAPException
+  {
+    final Schema s = i.getSchema();
+
+    final List<AttributeTypeDefinition> generatedTypes =
+         constructAttributeTypes(a);
+    final List<ObjectClassDefinition> generatedClasses =
+         constructObjectClasses(a);
+
+    final LinkedList<String> newAttrList = new LinkedList<String>();
+    for (final AttributeTypeDefinition d : generatedTypes)
+    {
+      if (s.getAttributeType(d.getNameOrOID()) == null)
+      {
+        newAttrList.add(d.toString());
+      }
+    }
+
+    final LinkedList<String> newOCList = new LinkedList<String>();
+    for (final ObjectClassDefinition d : generatedClasses)
+    {
+      final ObjectClassDefinition existing = s.getObjectClass(d.getNameOrOID());
+      if (existing == null)
+      {
+        newOCList.add(d.toString());
+      }
+      else
+      {
+        final Set<AttributeTypeDefinition> existingRequired =
+             existing.getRequiredAttributes(s, true);
+        final Set<AttributeTypeDefinition> existingOptional =
+             existing.getOptionalAttributes(s, true);
+
+        final LinkedHashSet<String> newOptionalNames =
+             new LinkedHashSet<String>(0);
+        addMissingAttrs(d.getRequiredAttributes(), existingRequired,
+             existingOptional, newOptionalNames);
+        addMissingAttrs(d.getOptionalAttributes(), existingRequired,
+             existingOptional, newOptionalNames);
+
+        if (! newOptionalNames.isEmpty())
+        {
+          final LinkedHashSet<String> newOptionalSet =
+               new LinkedHashSet<String>();
+          newOptionalSet.addAll(
+               Arrays.asList(existing.getOptionalAttributes()));
+          newOptionalSet.addAll(newOptionalNames);
+
+          final String[] newOptional = new String[newOptionalSet.size()];
+          newOptionalSet.toArray(newOptional);
+
+          final ObjectClassDefinition newOC = new ObjectClassDefinition(
+               existing.getOID(), existing.getNames(),
+               existing.getDescription(), existing.isObsolete(),
+               existing.getSuperiorClasses(), existing.getObjectClassType(),
+               existing.getRequiredAttributes(), newOptional,
+               existing.getExtensions());
+          newOCList.add(newOC.toString());
+        }
+      }
+    }
+
+    final LinkedList<Modification> mods = new LinkedList<Modification>();
+    if (! newAttrList.isEmpty())
+    {
+      final String[] newAttrValues = new String[newAttrList.size()];
+      mods.add(new Modification(ModificationType.ADD,
+           Schema.ATTR_ATTRIBUTE_TYPE, newAttrList.toArray(newAttrValues)));
+    }
+
+    if (! newOCList.isEmpty())
+    {
+      final String[] newOCValues = new String[newOCList.size()];
+      mods.add(new Modification(ModificationType.ADD,
+           Schema.ATTR_OBJECT_CLASS, newOCList.toArray(newOCValues)));
+    }
+
+    if (mods.isEmpty())
+    {
+      return false;
+    }
+    else
+    {
+      i.modify(s.getSchemaEntry().getDN(), mods);
+      return true;
+    }
+  }
+
+
+
+  /**
+   * Adds any missing attributes to the provided set.
+   *
+   * @param  names     The names of the attributes which may potentially be
+   *                   added.
+   * @param  required  The existing required definitions.
+   * @param  optional  The existing optional definitions.
+   * @param  missing   The set to which any missing names should be added.
+   */
+  private static void addMissingAttrs(final String[] names,
+                           final Set<AttributeTypeDefinition> required,
+                           final Set<AttributeTypeDefinition> optional,
+                           final Set<String> missing)
+  {
+    for (final String name : names)
+    {
+      boolean found = false;
+      for (final AttributeTypeDefinition eA : required)
+      {
+        if (eA.hasNameOrOID(name))
+        {
+          found = true;
+          break;
+        }
+      }
+
+      if (! found)
+      {
+        for (final AttributeTypeDefinition eA : optional)
+        {
+          if (eA.hasNameOrOID(name))
+          {
+            found = true;
+            break;
+          }
+        }
+
+        if (! found)
+        {
+          missing.add(name);
+        }
+      }
+    }
   }
 
 
