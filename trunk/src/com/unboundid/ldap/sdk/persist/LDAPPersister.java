@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
@@ -38,9 +41,10 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPEntrySource;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
-import com.unboundid.ldap.sdk.ReadOnlyEntry;
+import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
@@ -78,6 +82,13 @@ public final class LDAPPersister<T>
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -4001743482496453961L;
+
+
+
+  /**
+   * An empty array of controls that will be used if none are specified.
+   */
+  private static final Control[] NO_CONTROLS = new Control[0];
 
 
 
@@ -565,14 +576,16 @@ public final class LDAPPersister<T>
    *                   class.  If the provided parent DN is {@code null}, then
    *                   the default parent DN defined in the {@link LDAPObject}
    *                   annotation will be used.
+   * @param  controls  An optional set of controls to include in the add
+   *                   request.
    *
-   * @return  A read-only representation of the entry that was added.
+   * @return  The result of processing the add operation.
    *
    * @throws  LDAPPersistException  If a problem occurs while encoding or adding
    *                                the entry.
    */
-  public ReadOnlyEntry add(final T o, final LDAPInterface i,
-                           final String parentDN)
+  public LDAPResult add(final T o, final LDAPInterface i, final String parentDN,
+                        final Control... controls)
          throws LDAPPersistException
   {
     ensureNotNull(o, i);
@@ -580,15 +593,19 @@ public final class LDAPPersister<T>
 
     try
     {
-      i.add(e);
+      final AddRequest addRequest = new AddRequest(e);
+      if (controls != null)
+      {
+        addRequest.setControls(controls);
+      }
+
+      return i.add(addRequest);
     }
     catch (LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
     }
-
-    return new ReadOnlyEntry(e);
   }
 
 
@@ -596,17 +613,22 @@ public final class LDAPPersister<T>
   /**
    * Deletes the provided object from the directory.
    *
-   * @param  o  The object to be deleted.  It must not be {@code null}, and it
-   *            must have been retrieved from the directory and have a field
-   *            with either the {@link LDAPDNField} or {@link LDAPEntryField}
-   *            annotations.
-   * @param  i  The interface to use to communicate with the directory server.
-   *            It must not be {@code null}.
+   * @param  o         The object to be deleted.  It must not be {@code null},
+   *                   and it must have been retrieved from the directory and
+   *                   have a field with either the {@link LDAPDNField} or
+   *                   {@link LDAPEntryField} annotations.
+   * @param  i         The interface to use to communicate with the directory
+   *                   server.  It must not be {@code null}.
+   * @param  controls  An optional set of controls to include in the add
+   *                   request.
+   *
+   * @return  The result of processing the delete operation.
    *
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                delete the entry.
    */
-  public void delete(final T o, final LDAPInterface i)
+  public LDAPResult delete(final T o, final LDAPInterface i,
+                           final Control... controls)
          throws LDAPPersistException
   {
     ensureNotNull(o, i);
@@ -618,7 +640,13 @@ public final class LDAPPersister<T>
 
     try
     {
-      i.delete(dn);
+      final DeleteRequest deleteRequest = new DeleteRequest(dn);
+      if (controls != null)
+      {
+        deleteRequest.setControls(controls);
+      }
+
+      return i.delete(deleteRequest);
     }
     catch (LDAPException le)
     {
@@ -702,10 +730,54 @@ public final class LDAPPersister<T>
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
    */
-  public List<Modification> modify(final T o, final LDAPInterface i,
-                                   final String dn,
-                                   final boolean deleteNullValues,
-                                   final String... attributes)
+  public LDAPResult modify(final T o, final LDAPInterface i, final String dn,
+                           final boolean deleteNullValues,
+                           final String... attributes)
+         throws LDAPPersistException
+  {
+    return modify(o, i, dn, deleteNullValues, attributes, NO_CONTROLS);
+  }
+
+
+
+  /**
+   * Updates the stored representation of the provided object in the directory.
+   * If the provided object was retrieved from the directory using the
+   * persistence framework and includes a field with the {@link LDAPEntryField}
+   * annotation, then that entry will be used to make the returned set of
+   * modifications as efficient as possible.  Otherwise, the resulting
+   * modifications will include attempts to replace every attribute which are
+   * associated with fields or getters that should be used in modify operations.
+   *
+   * @param  o                 The object for which to generate the list of
+   *                           modifications.  It must not be {@code null}.
+   * @param  i                 The interface to use to communicate with the
+   *                           directory server.  It must not be {@code null}.
+   * @param  dn                The DN to use for the entry.  It must not be
+   *                           {@code null} if the object was not retrieved from
+   *                           the directory using the persistence framework or
+   *                           does not have a field marked with the
+   *                           {@link LDAPDNField} or {@link LDAPEntryField}
+   *                           annotation.
+   * @param  deleteNullValues  Indicates whether to include modifications that
+   *                           may completely remove an attribute from the
+   *                           entry if the corresponding field or getter method
+   *                           has a value of {@code null}.
+   * @param  attributes        The set of LDAP attributes for which to include
+   *                           modifications.  If this is empty or {@code null},
+   *                           then all attributes marked for inclusion in the
+   *                           modification will be examined.
+   * @param  controls          The optional set of controls to include in the
+   *                           modify request.
+   *
+   * @return  An unmodifiable list of the modifications applied to the entry.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while computing the set
+   *                                of modifications.
+   */
+  public LDAPResult modify(final T o, final LDAPInterface i, final String dn,
+                           final boolean deleteNullValues,
+                           final String[] attributes, final Control... controls)
          throws LDAPPersistException
   {
     ensureNotNull(o, i);
@@ -728,15 +800,19 @@ public final class LDAPPersister<T>
 
     try
     {
-      i.modify(targetDN, mods);
+      final ModifyRequest modifyRequest = new ModifyRequest(targetDN, mods);
+      if (controls != null)
+      {
+        modifyRequest.setControls(controls);
+      }
+
+      return i.modify(targetDN, mods);
     }
     catch (LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
     }
-
-    return mods;
   }
 
 
@@ -868,7 +944,8 @@ public final class LDAPPersister<T>
   public PersistedObjects<T> search(final T o, final LDAPConnection c)
          throws LDAPPersistException
   {
-    return search(o, c, null, SearchScope.SUB, DereferencePolicy.NEVER, 0, 0);
+    return search(o, c, null, SearchScope.SUB, DereferencePolicy.NEVER, 0, 0,
+         null, NO_CONTROLS);
   }
 
 
@@ -913,7 +990,8 @@ public final class LDAPPersister<T>
                                     final SearchScope scope)
          throws LDAPPersistException
   {
-    return search(o, c, baseDN, scope, DereferencePolicy.NEVER, 0, 0);
+    return search(o, c, baseDN, scope, DereferencePolicy.NEVER, 0, 0, null,
+         NO_CONTROLS);
   }
 
 
@@ -951,6 +1029,13 @@ public final class LDAPPersister<T>
    *                      should spend processing the search.  A value of zero
    *                      indicates that no client-requested time limit should
    *                      be enforced.
+   * @param  extraFilter  An optional additional filter to be ANDed with the
+   *                      filter generated from the provided object.  If this is
+   *                      {@code null}, then only the filter generated from the
+   *                      object will be used.
+   * @param  controls     An optional set of controls to include in the search
+   *                      request.  It may be empty or {@code null} if no
+   *                      controls are needed.
    *
    * @return  A results object that may be used to iterate through the objects
    *          returned from the search.
@@ -962,7 +1047,9 @@ public final class LDAPPersister<T>
                                     final String baseDN,
                                     final SearchScope scope,
                                     final DereferencePolicy derefPolicy,
-                                    final int sizeLimit, final int timeLimit)
+                                    final int sizeLimit, final int timeLimit,
+                                    final Filter extraFilter,
+                                    final Control... controls)
          throws LDAPPersistException
   {
     ensureNotNull(o, c, scope, derefPolicy);
@@ -977,10 +1064,22 @@ public final class LDAPPersister<T>
       base = baseDN;
     }
 
-    final Filter filter = handler.createFilter(o);
+    final Filter filter;
+    if (extraFilter == null)
+    {
+      filter = handler.createFilter(o);
+    }
+    else
+    {
+      filter = Filter.createANDFilter(handler.createFilter(o), extraFilter);
+    }
 
     final SearchRequest searchRequest = new SearchRequest(base, scope,
          derefPolicy, sizeLimit, timeLimit, false, filter, "*", "+");
+    if (controls != null)
+    {
+      searchRequest.setControls(controls);
+    }
 
     final LDAPEntrySource entrySource;
     try
@@ -1027,7 +1126,7 @@ public final class LDAPPersister<T>
          throws LDAPPersistException
   {
     return search(o, i, null, SearchScope.SUB, DereferencePolicy.NEVER, 0, 0,
-         l);
+         null, l, NO_CONTROLS);
   }
 
 
@@ -1067,7 +1166,8 @@ public final class LDAPPersister<T>
                              final ObjectSearchListener<T> l)
          throws LDAPPersistException
   {
-    return search(o, i, baseDN, scope, DereferencePolicy.NEVER, 0, 0, l);
+    return search(o, i, baseDN, scope, DereferencePolicy.NEVER, 0, 0, null, l,
+         NO_CONTROLS);
   }
 
 
@@ -1097,9 +1197,16 @@ public final class LDAPPersister<T>
    *                      should spend processing the search.  A value of zero
    *                      indicates that no client-requested time limit should
    *                      be enforced.
+   * @param  extraFilter  An optional additional filter to be ANDed with the
+   *                      filter generated from the provided object.  If this is
+   *                      {@code null}, then only the filter generated from the
+   *                      object will be used.
    * @param  l            The object search result listener that will be used
    *                      to receive objects decoded from entries returned for
    *                      the search.  It must not be {@code null}.
+   * @param  controls     An optional set of controls to include in the search
+   *                      request.  It may be empty or {@code null} if no
+   *                      controls are needed.
    *
    * @return  A results object that may be used to iterate through the objects
    *          returned from the search.
@@ -1111,7 +1218,9 @@ public final class LDAPPersister<T>
                              final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
                              final int sizeLimit, final int timeLimit,
-                             final ObjectSearchListener<T> l)
+                             final Filter extraFilter,
+                             final ObjectSearchListener<T> l,
+                             final Control... controls)
          throws LDAPPersistException
   {
     ensureNotNull(o, i, scope, derefPolicy, l);
@@ -1126,12 +1235,24 @@ public final class LDAPPersister<T>
       base = baseDN;
     }
 
-    final Filter filter = handler.createFilter(o);
+    final Filter filter;
+    if (extraFilter == null)
+    {
+      filter = handler.createFilter(o);
+    }
+    else
+    {
+      filter = Filter.createANDFilter(handler.createFilter(o), extraFilter);
+    }
 
     final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
 
     final SearchRequest searchRequest = new SearchRequest(bridge, base, scope,
          derefPolicy, sizeLimit, timeLimit, false, filter, "*", "+");
+    if (controls != null)
+    {
+      searchRequest.setControls(controls);
+    }
 
     try
     {
