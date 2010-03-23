@@ -38,6 +38,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.NotMutable;
@@ -196,6 +197,9 @@ public final class Schema
   // The set of object classes mapped from lowercase name/OID to class.
   private final Map<String,ObjectClassDefinition> ocMap;
 
+  // The entry used to create this schema object.
+  private final ReadOnlyEntry schemaEntry;
+
   // The set of attribute syntaxes defined in the schema.
   private final Set<AttributeSyntaxDefinition> asSet;
 
@@ -245,6 +249,8 @@ public final class Schema
    */
   public Schema(final Entry schemaEntry)
   {
+    this.schemaEntry = new ReadOnlyEntry(schemaEntry);
+
     // Decode the attribute syntaxes from the schema entry.
     String[] defs = schemaEntry.getAttributeValues(ATTR_ATTRIBUTE_SYNTAX);
     if (defs == null)
@@ -813,6 +819,18 @@ public final class Schema
     }
 
     return new Schema(schemaEntry);
+  }
+
+
+
+  /**
+   * Retrieves the entry used to create this schema object.
+   *
+   * @return  The entry used to create this schema object.
+   */
+  public ReadOnlyEntry getSchemaEntry()
+  {
+    return schemaEntry;
   }
 
 

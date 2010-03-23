@@ -345,6 +345,24 @@ public class LDAPException
 
 
   /**
+   * Creates a new LDAP exception using the information contained in the
+   * provided LDAP exception.
+   *
+   * @param  e  The LDAP exception to use to create this exception.
+   */
+  public LDAPException(final LDAPException e)
+  {
+    super(e.getMessage(), e.getCause());
+
+    resultCode       = e.getResultCode();
+    matchedDN        = e.getMatchedDN();
+    referralURLs     = e.getReferralURLs();
+    responseControls = e.getResponseControls();
+  }
+
+
+
+  /**
    * Retrieves the result code for this LDAP exception.
    *
    * @return  The result code for this LDAP exception.
