@@ -50,6 +50,7 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.StringArgument;
@@ -79,13 +80,14 @@ public final class GenerateSourceFromSchema
 
 
   // Arguments used by this tool.
-  private DNArgument     defaultParentDNArg;
-  private FileArgument   outputDirectoryArg;
-  private StringArgument auxiliaryClassArg;
-  private StringArgument classNameArg;
-  private StringArgument packageNameArg;
-  private StringArgument rdnAttributeArg;
-  private StringArgument structuralClassArg;
+  private BooleanArgument terseArg;
+  private DNArgument      defaultParentDNArg;
+  private FileArgument    outputDirectoryArg;
+  private StringArgument  auxiliaryClassArg;
+  private StringArgument  classNameArg;
+  private StringArgument  packageNameArg;
+  private StringArgument  rdnAttributeArg;
+  private StringArgument  structuralClassArg;
 
   // Indicates whether any multivalued attributes have been identified, and
   // therefore we need to include java.util.Arrays in the import list.
@@ -224,6 +226,10 @@ public final class GenerateSourceFromSchema
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_CLASS_NAME.get());
     parser.addArgument(classNameArg);
+
+    terseArg = new BooleanArgument('t', "terse", 1,
+         INFO_GEN_SOURCE_ARG_DESCRIPTION_TERSE.get());
+    parser.addArgument(terseArg);
   }
 
 
@@ -270,7 +276,7 @@ public final class GenerateSourceFromSchema
       conn.close();
     }
 
-    return generateSourceFile(schema);
+    return generateSourceFile(schema, terseArg.isPresent());
   }
 
 
@@ -279,10 +285,14 @@ public final class GenerateSourceFromSchema
    * Generates the source file using the information in the provided schema.
    *
    * @param  schema  The schema to use to generate the source file.
+   * @param  terse   Indicates whether to use terse mode when generating the
+   *                 source file.  If this is {@code true}, then all optional
+   *                 elements will be omitted from annotations.
    *
    * @return  A result code obtained for the processing.
    */
-  ResultCode generateSourceFile(final Schema schema)
+  private ResultCode generateSourceFile(final Schema schema,
+                                        final boolean terse)
   {
     // Retrieve and process the structural object class.
     final TreeMap<String,AttributeTypeDefinition> requiredAttrs =
@@ -503,6 +513,23 @@ public final class GenerateSourceFromSchema
     writer.println("            postEncodeMethod=\"doPostEncode\")");
     writer.println("public class " + className);
     writer.println("{");
+
+    if (! terse)
+    {
+      writer.println("  /*");
+      writer.println("   * NOTE:  This class includes a number of annotation " +
+           "elements which are not");
+      writer.println("   * required but have been provided to make it easier " +
+           "to edit the resulting");
+      writer.println("   * source code.  If you want to exclude these " +
+           "unnecessary annotation");
+      writer.println("   * elements, use the '--terse' command-line argument.");
+      writer.println("   */");
+      writer.println();
+      writer.println();
+      writer.println();
+    }
+
     writer.println("  // The field to use to hold a read-only copy of the " +
          "associated entry.");
     writer.println("  @LDAPEntryField()");
@@ -516,7 +543,8 @@ public final class GenerateSourceFromSchema
     {
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
       final TreeSet<String> ocNames = requiredAttrOCs.get(lowerName);
-      writeField(schema, writer, d, types.get(lowerName), ocNames, true, true);
+      writeField(writer, d, types.get(lowerName), ocNames, true, true,
+           structuralClassName, terse);
     }
 
     for (final String lowerName : requiredAttrs.keySet())
@@ -528,15 +556,16 @@ public final class GenerateSourceFromSchema
 
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
       final TreeSet<String> ocNames = requiredAttrOCs.get(lowerName);
-      writeField(schema, writer, d, types.get(lowerName), ocNames, false, true);
+      writeField(writer, d, types.get(lowerName), ocNames, false, true,
+           structuralClassName, terse);
     }
 
     for (final String lowerName : optionalAttrs.keySet())
     {
       final AttributeTypeDefinition d = optionalAttrs.get(lowerName);
       final TreeSet<String> ocNames = optionalAttrOCs.get(lowerName);
-      writeField(schema, writer, d, types.get(lowerName), ocNames, false,
-           false);
+      writeField(writer, d, types.get(lowerName), ocNames, false, false,
+           structuralClassName, terse);
     }
 
 
@@ -593,7 +622,8 @@ public final class GenerateSourceFromSchema
     writer.println("   *");
     writer.println("   * @param  entry  The entry that has been generated.  " +
          "It may be altered if");
-    writer.println("   *                desired.");    writer.println("   *");
+    writer.println("   *                desired.");
+    writer.println("   *");
     writer.println("   * @throws  LDAPPersistException  If there is a " +
          "problem with the object after");
     writer.println("   *                                it has been decoded " +
@@ -665,7 +695,7 @@ public final class GenerateSourceFromSchema
     for (final String lowerName : rdnAttrs)
     {
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
-      writeGetterAndSetter(writer, d, types.get(lowerName));
+      writeGetterAndSetter(writer, d, types.get(lowerName), terse);
     }
 
     for (final String lowerName : requiredAttrs.keySet())
@@ -676,13 +706,13 @@ public final class GenerateSourceFromSchema
       }
 
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
-      writeGetterAndSetter(writer, d, types.get(lowerName));
+      writeGetterAndSetter(writer, d, types.get(lowerName), terse);
     }
 
     for (final String lowerName : optionalAttrs.keySet())
     {
       final AttributeTypeDefinition d = optionalAttrs.get(lowerName);
-      writeGetterAndSetter(writer, d, types.get(lowerName));
+      writeGetterAndSetter(writer, d, types.get(lowerName), terse);
     }
 
     writeToString(writer, className, requiredAttrs.values(),
@@ -782,7 +812,6 @@ public final class GenerateSourceFromSchema
   /**
    * Writes information about a field to the Java class file.
    *
-   * @param  schema    The schema from which the attribute type was read.
    * @param  writer    The writer to which the field information should be
    *                   written.
    * @param  d         The attribute type definition.
@@ -792,13 +821,17 @@ public final class GenerateSourceFromSchema
    *                   generated entry RDNs.
    * @param  required  Indicates whether the attribute should be considered
    *                   required.
+   * @param  sc        The name of the structural object class for the object.
+   * @param  terse     Indicates whether to use terse mode.
    */
-  static void writeField(final Schema schema, final PrintWriter writer,
+  static void writeField(final PrintWriter writer,
                          final AttributeTypeDefinition d, final String type,
                          final TreeSet<String> ocNames,
-                         final boolean inRDN, final boolean required)
+                         final boolean inRDN, final boolean required,
+                         final String sc, final boolean terse)
   {
     final String attrName  = d.getNameOrOID();
+    final String fieldName = PersistUtils.toJavaIdentifier(attrName);
 
     writer.println();
 
@@ -817,18 +850,48 @@ public final class GenerateSourceFromSchema
            '.');
     }
 
-    writer.println("  @LDAPField(attribute=\"" + attrName + "\",");
+    boolean added = false;
+    if (terse && attrName.equalsIgnoreCase(fieldName))
+    {
+      writer.print("  @LDAPField(");
+    }
+    else
+    {
+      writer.println("  @LDAPField(attribute=\"" + attrName + "\",");
+      added = true;
+    }
 
     if (ocNames.size() == 1)
     {
-      writer.print("             objectClass=\"" + ocNames.iterator().next() +
-           '"');
+      if ((! terse) || (! ocNames.iterator().next().equalsIgnoreCase(sc)))
+      {
+        if (added)
+        {
+          writer.print("             objectClass=\"" +
+               ocNames.iterator().next() + '"');
+        }
+        else
+        {
+          writer.println("objectClass=\"" +
+               ocNames.iterator().next() + '"');
+          added = true;
+        }
+      }
     }
     else
     {
       final Iterator<String> iterator = ocNames.iterator();
-      writer.println("             objectClass={ \"" +
-           iterator.next() + "\",");
+      if (added)
+      {
+        writer.println("             objectClass={ \"" +
+             iterator.next() + "\",");
+      }
+      else
+      {
+        writer.println("objectClass={ \"" +
+             iterator.next() + "\",");
+        added = true;
+      }
 
       while (iterator.hasNext())
       {
@@ -846,33 +909,58 @@ public final class GenerateSourceFromSchema
 
     if (inRDN)
     {
-      writer.println(",");
-      writer.println("             inRDN=true,");
+      if (added)
+      {
+        writer.println(",");
+        writer.println("             inRDN=true,");
+      }
+      else
+      {
+        writer.println("inRDN=true,");
+        added = true;
+      }
       writer.print("             filterUsage=FilterUsage.ALWAYS_ALLOWED");
     }
     else
     {
-      writer.println(",");
-      writer.print("             " +
-           "filterUsage=FilterUsage.CONDITIONALLY_ALLOWED");
+      if (! terse)
+      {
+        if (added)
+        {
+          writer.println(",");
+          writer.print("             " +
+               "filterUsage=FilterUsage.CONDITIONALLY_ALLOWED");
+        }
+        else
+        {
+          writer.print("filterUsage=FilterUsage.CONDITIONALLY_ALLOWED");
+          added = true;
+        }
+      }
     }
 
     if (required)
     {
-      writer.println(",");
-      writer.print("             requiredForEncode=true");
+      if (added)
+      {
+        writer.println(",");
+        writer.print("             requiredForEncode=true");
+      }
+      else
+      {
+        writer.print("requiredForEncode=true");
+        added = true;
+      }
     }
 
     writer.println(")");
     if (d.isSingleValued())
     {
-      writer.println("  private " + type + ' ' +
-                     PersistUtils.toJavaIdentifier(attrName) + ';');
+      writer.println("  private " + type + ' ' + fieldName + ';');
     }
     else
     {
-      writer.println("  private " + type + "[] " +
-                     PersistUtils.toJavaIdentifier(attrName) + ';');
+      writer.println("  private " + type + "[] " + fieldName + ';');
     }
   }
 
@@ -884,10 +972,11 @@ public final class GenerateSourceFromSchema
    * @param  writer  The writer to use to write the methods.
    * @param  d       The attribute type definition to be written.
    * @param  type    The name of the Java type to use for the attribute.
+   * @param  terse   Indicates whether to use terse mode.
    */
   static void writeGetterAndSetter(final PrintWriter writer,
                                    final AttributeTypeDefinition d,
-                                   final String type)
+                                   final String type, final boolean terse)
   {
     writer.println();
     writer.println();
