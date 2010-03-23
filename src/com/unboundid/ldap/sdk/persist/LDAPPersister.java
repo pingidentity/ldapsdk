@@ -957,10 +957,6 @@ public final class LDAPPersister<T>
    * methods whose {@link LDAPField} or {@link LDAPGetter} annotation has
    * the {@code inFilter} element set to {@code true}.
    * <BR><BR>
-   * The search performed will be a subtree search using a base DN equal to the
-   * {@link LDAPObject#defaultParentDN} element in the {@code LDAPObject}
-   * annotation.  It will not enforce a client-side time limit or size limit.
-   * <BR><BR>
    * Note that this method requires an {@link LDAPConnection} argument rather
    * than using the more generic {@link LDAPInterface} type because the search
    * is invoked as an asynchronous operation, which is not supported by the
@@ -1137,10 +1133,6 @@ public final class LDAPPersister<T>
    * object containing all non-{@code null} values from fields and getter
    * methods whose {@link LDAPField} or {@link LDAPGetter} annotation has
    * the {@code inFilter} element set to {@code true}.
-   * <BR><BR>
-   * The search performed will be a subtree search using a base DN equal to the
-   * {@link LDAPObject#defaultParentDN} element in the {@code LDAPObject}
-   * annotation.  It will not enforce a client-side time limit or size limit.
    *
    * @param  o       The object to use to construct the search filter.  It must
    *                 not be {@code null}.
@@ -1260,6 +1252,193 @@ public final class LDAPPersister<T>
     }
     catch (LDAPException le)
     {
+      debugException(le);
+      throw new LDAPPersistException(le);
+    }
+  }
+
+
+
+  /**
+   * Performs a search in the directory to retrieve the object whose contents
+   * match the contents of the provided object.  It is expected that at most one
+   * entry matches the provided criteria, and that it can be decoded as an
+   * object of the associated type.  If multiple entries match the resulting
+   * criteria, or if the matching entry cannot be decoded as the associated type
+   * of object, then an exception will be thrown.
+   * <BR><BR>
+   * A search filter will be generated from the provided object containing all
+   * non-{@code null} values from fields and getter methods whose
+   * {@link LDAPField} or {@link LDAPGetter} annotation has the {@code inFilter}
+   * element set to {@code true}.
+   * <BR><BR>
+   * The search performed will be a subtree search using a base DN equal to the
+   * {@link LDAPObject#defaultParentDN} element in the {@code LDAPObject}
+   * annotation.  It will not enforce a client-side time limit or size limit.
+   *
+   * @param  o  The object to use to construct the search filter.  It must not
+   *            be {@code null}.
+   * @param  i  The interface to use to communicate with the directory server.
+   *            It must not be {@code null}.
+   *
+   * @return  The object constructed from the entry returned by the search, or
+   *          {@code null} if no entry was returned.
+   *
+   * @throws  LDAPPersistException  If an error occurs while preparing or
+   *                                sending the search request or decoding the
+   *                                entry that was returned.
+   */
+  public T searchForObject(final T o, final LDAPInterface i)
+         throws LDAPPersistException
+  {
+    return searchForObject(o, i, null, SearchScope.SUB, DereferencePolicy.NEVER,
+         0, 0, null, NO_CONTROLS);
+  }
+
+
+
+  /**
+   * Performs a search in the directory to retrieve the object whose contents
+   * match the contents of the provided object.  It is expected that at most one
+   * entry matches the provided criteria, and that it can be decoded as an
+   * object of the associated type.  If multiple entries match the resulting
+   * criteria, or if the matching entry cannot be decoded as the associated type
+   * of object, then an exception will be thrown.
+   * <BR><BR>
+   * A search filter will be generated from the provided object containing all
+   * non-{@code null} values from fields and getter methods whose
+   * {@link LDAPField} or {@link LDAPGetter} annotation has the {@code inFilter}
+   * element set to {@code true}.
+   *
+   * @param  o       The object to use to construct the search filter.  It must
+   *                 not be {@code null}.
+   * @param  i       The interface to use to communicate with the directory
+   *                 server. It must not be {@code null}.
+   * @param  baseDN  The base DN to use for the search.  It may be {@code null}
+   *                 if the {@link LDAPObject#defaultParentDN} element in the
+   *                 {@code LDAPObject}
+   * @param  scope   The scope to use for the search operation.  It must not be
+   *                 {@code null}.
+   *
+   * @return  The object constructed from the entry returned by the search, or
+   *          {@code null} if no entry was returned.
+   *
+   * @throws  LDAPPersistException  If an error occurs while preparing or
+   *                                sending the search request or decoding the
+   *                                entry that was returned.
+   */
+  public T searchForObject(final T o, final LDAPInterface i,
+                           final String baseDN, final SearchScope scope)
+         throws LDAPPersistException
+  {
+    return searchForObject(o, i, baseDN, scope, DereferencePolicy.NEVER, 0, 0,
+         null, NO_CONTROLS);
+  }
+
+
+
+  /**
+   * Performs a search in the directory to retrieve the object whose contents
+   * match the contents of the provided object.  It is expected that at most one
+   * entry matches the provided criteria, and that it can be decoded as an
+   * object of the associated type.  If multiple entries match the resulting
+   * criteria, or if the matching entry cannot be decoded as the associated type
+   * of object, then an exception will be thrown.
+   * <BR><BR>
+   * A search filter will be generated from the provided object containing all
+   * non-{@code null} values from fields and getter methods whose
+   * {@link LDAPField} or {@link LDAPGetter} annotation has the {@code inFilter}
+   * element set to {@code true}.
+   *
+   * @param  o            The object to use to construct the search filter.  It
+   *                      must not be {@code null}.
+   * @param  i            The connection to use to communicate with the
+   *                      directory server.  It must not be {@code null}.
+   * @param  baseDN       The base DN to use for the search.  It may be
+   *                      {@code null} if the {@link LDAPObject#defaultParentDN}
+   *                      element in the {@code LDAPObject}
+   * @param  scope        The scope to use for the search operation.  It must
+   *                      not be {@code null}.
+   * @param  derefPolicy  The dereference policy to use for the search
+   *                      operation.  It must not be {@code null}.
+   * @param  sizeLimit    The maximum number of entries to retrieve from the
+   *                      directory.  A value of zero indicates that no
+   *                      client-requested size limit should be enforced.
+   * @param  timeLimit    The maximum length of time in seconds that the server
+   *                      should spend processing the search.  A value of zero
+   *                      indicates that no client-requested time limit should
+   *                      be enforced.
+   * @param  extraFilter  An optional additional filter to be ANDed with the
+   *                      filter generated from the provided object.  If this is
+   *                      {@code null}, then only the filter generated from the
+   *                      object will be used.
+   * @param  controls     An optional set of controls to include in the search
+   *                      request.  It may be empty or {@code null} if no
+   *                      controls are needed.
+   *
+   * @return  The object constructed from the entry returned by the search, or
+   *          {@code null} if no entry was returned.
+   *
+   * @throws  LDAPPersistException  If an error occurs while preparing or
+   *                                sending the search request or decoding the
+   *                                entry that was returned.
+   */
+  public T searchForObject(final T o, final LDAPInterface i,
+                           final String baseDN, final SearchScope scope,
+                           final DereferencePolicy derefPolicy,
+                           final int sizeLimit, final int timeLimit,
+                           final Filter extraFilter, final Control... controls)
+         throws LDAPPersistException
+  {
+    ensureNotNull(o, i, scope, derefPolicy);
+
+    final String base;
+    if (baseDN == null)
+    {
+      base = handler.getDefaultParentDN().toString();
+    }
+    else
+    {
+      base = baseDN;
+    }
+
+    final Filter filter;
+    if (extraFilter == null)
+    {
+      filter = handler.createFilter(o);
+    }
+    else
+    {
+      filter = Filter.createANDFilter(handler.createFilter(o), extraFilter);
+    }
+
+    final SearchRequest searchRequest = new SearchRequest(base, scope,
+         derefPolicy, sizeLimit, timeLimit, false, filter, "*", "+");
+    if (controls != null)
+    {
+      searchRequest.setControls(controls);
+    }
+
+    try
+    {
+      final Entry e = i.searchForEntry(searchRequest);
+      if (e == null)
+      {
+        return null;
+      }
+      else
+      {
+        return decode(e);
+      }
+    }
+    catch (LDAPPersistException lpe)
+    {
+      debugException(lpe);
+      throw lpe;
+    }
+    catch (LDAPException le)
+    {
+      debugException(le);
       throw new LDAPPersistException(le);
     }
   }
