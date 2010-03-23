@@ -283,6 +283,19 @@ public final class Modification
 
 
   /**
+   * Indicates whether this modification has at least one value.
+   *
+   * @return  {@code true} if this modification has one or more values, or
+   *          {@code false} if not.
+   */
+  public boolean hasValue()
+  {
+    return (values.length > 0);
+  }
+
+
+
+  /**
    * Retrieves the set of values for this modification as an array of strings.
    *
    * @return  The set of values for this modification as an array of strings.

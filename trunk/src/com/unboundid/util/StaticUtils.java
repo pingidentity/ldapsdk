@@ -182,6 +182,45 @@ public final class StaticUtils
 
 
   /**
+   * Retrieves a version of the provided string with the first character
+   * converted to lowercase but all other characters retaining their original
+   * capitalization.
+   *
+   * @param  s  The string to be processed.
+   *
+   * @return  A version of the provided string with the first character
+   *          converted to lowercase but all other characters retaining their
+   *          original capitalization.
+   */
+  public static String toInitialLowerCase(final String s)
+  {
+    if ((s == null) || (s.length() == 0))
+    {
+      return s;
+    }
+    else if (s.length() == 1)
+    {
+      return toLowerCase(s);
+    }
+    else
+    {
+      final char c = s.charAt(0);
+      if (((c >= 'A') && (c <= 'Z')) || (c < ' ') || (c > '~'))
+      {
+        final StringBuilder b = new StringBuilder(s);
+        b.setCharAt(0, Character.toLowerCase(c));
+        return b.toString();
+      }
+      else
+      {
+        return s;
+      }
+    }
+  }
+
+
+
+  /**
    * Retrieves an all-lowercase version of the provided string.
    *
    * @param  s  The string for which to retrieve the lowercase version.
@@ -1314,5 +1353,97 @@ public final class StaticUtils
   public static long millisToNanos(final long millis)
   {
     return Math.max(0L, (millis * 1000000L));
+  }
+
+
+
+  /**
+   * Indicates whether the provided string is a valid numeric OID.  A numeric
+   * OID must start and end with a digit, must have at least on period, must
+   * contain only digits and periods, and must not have two consecutive periods.
+   *
+   * @param  s  The string to examine.  It must not be {@code null}.
+   *
+   * @return  {@code true} if the provided string is a valid numeric OID, or
+   *          {@code false} if not.
+   */
+  public static boolean isNumericOID(final String s)
+  {
+    boolean digitRequired = true;
+    boolean periodFound   = false;
+    for (final char c : s.toCharArray())
+    {
+      switch (c)
+      {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          digitRequired = false;
+          break;
+
+        case '.':
+          if (digitRequired)
+          {
+            return false;
+          }
+          else
+          {
+            digitRequired = true;
+          }
+          periodFound = true;
+          break;
+
+        default:
+          return false;
+      }
+
+    }
+
+    return (periodFound && (! digitRequired));
+  }
+
+
+
+  /**
+   * Capitalizes the provided string.  The first character will be converted to
+   * uppercase, and the rest of the string will be left unaltered.
+   *
+   * @param  s  The string to be capitalized.
+   *
+   * @return  A capitalized version of the provided string.
+   */
+  public static String capitalize(final String s)
+  {
+    if (s == null)
+    {
+      return null;
+    }
+
+    switch (s.length())
+    {
+      case 0:
+        return s;
+
+      case 1:
+        return s.toUpperCase();
+
+      default:
+        final char c = s.charAt(0);
+        if (Character.isUpperCase(c))
+        {
+          return s;
+        }
+        else
+        {
+          return Character.toUpperCase(c) + s.substring(1);
+        }
+    }
   }
 }
