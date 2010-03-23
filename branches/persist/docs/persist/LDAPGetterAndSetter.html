@@ -10,39 +10,38 @@ ${TARGET="offline"}                    <br>
                 </tr>
               </table>
 
-              <h2>The <tt>@LDAPFieldGetter</tt> and <tt>@LDAPFieldSetter</tt> Annotation Types</h2>
+              <h2>The <tt>@LDAPGetter</tt> and <tt>@LDAPSetter</tt> Annotation Types</h2>
 
               <p>
-                The <tt>@LDAPFieldGetter</tt> annotation type may be used to mark a method that
-                will be invoked in the course of encoding a Java object to an LDAP entry.  The
-                method should not take any arguments, and should return a value (or set of values)
-                that will be converted to an attribute to include in the generated entry.  The
-                <tt>@LDAPFieldSetter</tt> annotation type may be used to mark a method that will be
+                The <tt>@LDAPGetter</tt> annotation type may be used to mark a method that will be
+                invoked in the course of encoding a Java object to an LDAP entry.  The method
+                should not take any arguments, and should return a value (or set of values) that
+                will be converted to an attribute to include in the generated entry.  The
+                <tt>@LDAPSetter</tt> annotation type may be used to mark a method that will be
                 invoked in the course of initializing a Java object from an LDAP entry.  The method
                 should take exactly one argument, which will be a value (or set of values) decoded
                 from an LDAP attribute.
               </p>
 
               <p>
-                In simple cases, the <tt>@LDAPFieldGetter</tt> and <tt>@LDAPFieldSetter</tt>
-                annotation types provide roughly the same functionality as the <tt>@LDAPField</tt>
-                annotation type, but they can be used to provide additional functionality.  In
-                particular, using the method annotations rather than field annotations make it
-                possible to provide more complex processing when encoding or decoding attribute
-                values (e.g., breaking up a single attribute value across multiple fields), or to
-                have values which are read-only or write-only.
+                In simple cases, the <tt>@LDAPGetter</tt> and <tt>@LDAPSetter</tt> annotation
+                types provide roughly the same functionality as the <tt>@LDAPField</tt> annotation
+                type, but they can be used to provide additional functionality.  In particular,
+                using the method annotations rather than field annotations make it possible to
+                provide more complex processing when encoding or decoding attribute values (e.g.,
+                breaking up a single attribute value across multiple fields), or to have values
+                which are read-only or write-only.
               </p>
 
               <p>
-                The methods marked with <tt>@LDAPFieldGetter</tt> or <tt>@LDAPFieldSetter</tt>
-                must not be declared <tt>static</tt>, but they may have any visibility modifier,
-                including <tt>public</tt>, <tt>private</tt>, <tt>protected</tt>, or the default
+                The methods marked with <tt>@LDAPGetter</tt> or <tt>@LDAPSetter</tt> must not be
+                declared <tt>static</tt>, but they may have any visibility modifier, including
+                <tt>public</tt>, <tt>private</tt>, <tt>protected</tt>, or the default
                 package-level access.
               </p>
 
               <p>
-                Elements that may be included in the <tt>@LDAPFieldGetter</tt> annotation type
-                include:
+                Elements that may be included in the <tt>@LDAPGetter</tt> annotation type include:
               </p>
 
               <ul>
@@ -51,8 +50,10 @@ ${TARGET="offline"}                    <br>
                   attribute that will be used to hold the method return value(s) in LDAP entries.
                   This attribute should be defined in the directory server schema, and it should be
                   allowed by at least one of the structural or auxiliary object classes referenced
-                  in the <tt>@LDAPObject</tt> annotation used to mark the Java class.  This element
-                  must be provided.
+                  in the <tt>@LDAPObject</tt> annotation used to mark the Java class.  If this
+                  element is not provided, then the name of the method must start with "get" and
+                  it will be assumed that the attribute name will be the remainder of the method
+                  name.
                   <br><br>
                 </li>
 
@@ -68,7 +69,7 @@ ${TARGET="offline"}                    <br>
                 <li>
                   <tt>inRDN</tt> -- This element is used to indicate whether the attribute should
                   be included in the RDN for entries generated from Java objects of the associated
-                  type.  At least one <tt>@LDAPField</tt> or <tt>@LDAPFieldGetter</tt> annotation
+                  type.  At least one <tt>@LDAPField</tt> or <tt>@LDAPGetter</tt> annotation
                   defined in the class must indicate that the associated attribute should be
                   included in the entry's RDN.  If this element is not provided, then it will be
                   assumed that the corresponding method should not be used to construct the entry's
@@ -120,16 +121,15 @@ ${TARGET="offline"}                    <br>
                   <tt>encoderClass</tt> -- This element is used to specify the class that provides
                   the logic that will be used to encode the method return value(s) to an LDAP
                   attribute.   If a value is specified, then it must represent a Java class which
-                  is a subclass of <tt>com.unboundid.ldap.sdk.persist.LDAPFieldEncoder</tt>.  If
+                  is a subclass of <tt>com.unboundid.ldap.sdk.persist.ObjectEncoder</tt>.  If
                   this element is not provided, then a default value of
-                  <tt>com.unboundid.ldap.sdk.persist.DefaultLDAPFieldEncoder</tt> will be used.
+                  <tt>com.unboundid.ldap.sdk.persist.DefaultObjectEncoder</tt> will be used.
                   <br><br>
                 </li>
               </ul>
 
               <p>
-                Elements that may be included in the <tt>@LDAPFieldSetter</tt> annotation type
-                include:
+                Elements that may be included in the <tt>@LDAPSetter</tt> annotation type include:
               </p>
 
               <ul>
@@ -139,7 +139,9 @@ ${TARGET="offline"}                    <br>
                   the setter method.  This attribute should be defined in the directory server
                   schema, and it should be allowed by at least one of the structural or auxiliary
                   object classes referenced in the <tt>@LDAPObject</tt> annotation used to mark the
-                  Java class.  This element must be provided.
+                  Java class.  If this element is not provided, then the name of the method must
+                  start with "get" and it will be assumed that the attribute name will be the
+                  remainder of the method name.
                   <br><br>
                 </li>
 
@@ -169,9 +171,9 @@ ${TARGET="offline"}                    <br>
                   the logic that will decode the attribute to obtain the value(s) to pass as an
                   argument to the associated method.  If a value is specified, then it must
                   represent a Java class which is a subclass of
-                  <tt>com.unboundid.ldap.sdk.persist.LDAPFieldEncoder</tt>.  If this element is not
+                  <tt>com.unboundid.ldap.sdk.persist.ObjectEncoder</tt>.  If this element is not
                   provided, then a default value of
-                  <tt>com.unboundid.ldap.sdk.persist.DefaultLDAPFieldEncoder</tt> will be used.
+                  <tt>com.unboundid.ldap.sdk.persist.DefaultObjectEncoder</tt> will be used.
                   <br><br>
                 </li>
               </ul>

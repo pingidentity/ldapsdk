@@ -283,7 +283,7 @@ public void testMyObject(final LDAPConnection connection)
 {
   // Create an LDAPPersister instance for MyObject objects.
   LDAPPersister&lt;MyObject&gt; persister =
-       new LDAPPersister&lt;MyObject&gt;(MyObject.class);
+       LDAPPersister.getInstance(MyObject.class);
 
   // Create a new MyObject instance and add it to the directory.  We can use
   // a parent DN of null to indicate that it should use the default defined

@@ -14,15 +14,15 @@ ${TARGET="offline"}                    <br>
 
               <p>
                 The work of converting Java field and methods values to LDAP attributes (and vice
-                versa) is performed by <tt>LDAPFieldEncoder</tt> object instances.  The LDAP SDK
-                persistence framework includes a <tt>DefaultLDAPFieldEncoder</tt> instance which
-                supports a wide range of data types, but custom field encoders may be created if
+                versa) is performed by <tt>ObjectEncoder</tt> object instances.  The LDAP SDK
+                persistence framework includes a <tt>DefaultObjectEncoder</tt> instance which
+                supports a wide range of data types, but custom object encoders may be created if
                 other data types should be supported, or if the values should be encoded in a
                 different manner.
               </p>
 
               <p>
-                The following Java types are supported by the <tt>DefaultLDAPFieldEncoder</tt>
+                The following Java types are supported by the <tt>DefaultObjectEncoder</tt>
                 class:
               </p>
 
@@ -76,9 +76,9 @@ ${TARGET="offline"}                    <br>
               </ul>
 
               <p>
-                Note that although the <tt>DefaultLDAPFieldEncoder</tt> class supports most of the
+                Note that although the <tt>DefaultObjectEncoder</tt> class supports most of the
                 Java primitive types, it is generally recommended that you use the corresponding
-                object types in the <tt>java.lang</tt> package instead of the primitive (e.g., 
+                object types in the <tt>java.lang</tt> package instead of the primitive (e.g.,
                 <tt>java.lang.Integer</tt> instead of the <tt>int</tt> primitive).  The primary
                 reason for this is that primitive types must always have values, whereas object
                 types may be <tt>null</tt>.  If primitive types are used, then it is impossible for

@@ -22,12 +22,12 @@ ${TARGET="offline"}                    <br>
               </p>
 
               <p>
-                When creating a new <tt>LDAPPersister</tt> instance, you must provide a reference
-                to the Java class for the type of object that will be persisted using that
-                instance.  This class must be marked with the <tt>@LDAPObject</tt> annotation type,
-                and the process of initializing the <tt>LDAPPersister</tt> instance will validate
-                that class to ensure that it does not violate any of the constraints imposed by
-                the LDAP SDK persistence framework.
+                The <tt>getInstance</tt> method may be used to obtain an instance of the
+                <tt>LDAPPersister</tt> class for use with a particular type of object.  The class
+                provided as an argument to the <tt>getInstance</tt> method must be marked with the
+                <tt>@LDAPObject</tt> annotation type, and the process of initializing the
+                <tt>LDAPPersister</tt> instance will validate that class to ensure that it does
+                not violate any of the constraints imposed by the LDAP SDK persistence framework.
               </p>
 
               <p>
@@ -71,7 +71,7 @@ ${TARGET="offline"}                    <br>
 
                 <li>
                   <tt>delete</tt> -- This method may be used to delete the LDAP entry that
-                  corresponds to a provided Java object.  The provided object must have been 
+                  corresponds to a provided Java object.  The provided object must have been
                   obtained using the persistence framework, and it must have a field marked with
                   either the <tt>@LDAPDNField</tt> or <tt>@LDAPEntryField</tt> annotation types.
                   <br><br>
