@@ -24,8 +24,17 @@ package com.unboundid.ldap.sdk.persist;
 
 import java.util.UUID;
 
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.DNEntrySource;
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.LDAPInterface;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
+
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
 import static com.unboundid.util.StaticUtils.*;
+import static com.unboundid.util.Validator.*;
 
 
 
@@ -33,7 +42,8 @@ import static com.unboundid.util.StaticUtils.*;
  * This class provides a set of utilities that may be used in the course of
  * persistence processing.
  */
-final class PersistUtils
+@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+public final class PersistUtils
 {
   /**
    * Prevent this utility class from being instantiated.
@@ -50,12 +60,13 @@ final class PersistUtils
    * object class name.  Numeric OIDs will also be considered acceptable.
    *
    * @param  s  The string for which to make the determination.
-   * @param  r  A buffer to which the unacceptable reason may be appended.
+   * @param  r  A buffer to which the unacceptable reason may be appended.  It
+   *            must not be {@code null}.
    *
    * @return  {@code true} if the provided string is acceptable for use as an
    *          LDAP attribute or object class name, or {@code false} if not.
    */
-  static boolean isValidLDAPName(final String s, final StringBuilder r)
+  public static boolean isValidLDAPName(final String s, final StringBuilder r)
   {
     final int length;
     if ((s == null) || ((length = s.length()) == 0))
@@ -106,13 +117,16 @@ final class PersistUtils
    * be considered valid for the purpose of this method.  Similarly, even though
    * Java keywords are not allowed, they will not be rejected by this method.
    *
-   * @param  s  The string for which to make the determination.
-   * @param  r  A buffer to which the unacceptable reason may be appended.
+   * @param  s  The string for which to make the determination.  It must not be
+   *            {@code null}.
+   * @param  r  A buffer to which the unacceptable reason may be appended.  It
+   *            must not be {@code null}.
    *
    * @return  {@code true} if the provided string is acceptable for use as a
    *          Java identifier, or {@code false} if not.
    */
-  static boolean isValidJavaIdentifier(final String s, final StringBuilder r)
+  public static boolean isValidJavaIdentifier(final String s,
+                                              final StringBuilder r)
   {
     final int length = s.length();
     for (int i=0; i < length; i++)
@@ -155,7 +169,7 @@ final class PersistUtils
    *
    * @return  A string that may be used as a valid Java identifier.
    */
-  static String toJavaIdentifier(final String s)
+  public static String toJavaIdentifier(final String s)
   {
     final int length;
     if ((s == null) || ((length = s.length()) == 0))
@@ -212,5 +226,81 @@ final class PersistUtils
     }
 
     return b.toString();
+  }
+
+
+
+  /**
+   * Retrieves the entry with the specified DN and decodes it as an object of
+   * the specified type.
+   *
+   * @param  <T>  The type of object as which to decode the entry.
+   *
+   * @param  dn    The DN of the entry to retrieve.  It must not be
+   *               {@code null}.
+   * @param  type  The type of object as which the entry should be decoded.  It
+   *               must not be {@code null}, and the class must be marked with
+   *               the {@link LDAPObject} annotation type.
+   * @param  conn  The connection that should be used to retrieve the entry.  It
+   *               must not be {@code null}.
+   *
+   * @return  The object decoded from the specified entry, or {@code null} if
+   *          the entry cannot be retrieved (e.g., because it does not exist or
+   *          is not readable by the authenticated user).
+   *
+   * @throws  LDAPException  If a problem occurs while trying to retrieve the
+   *                         entry or decode it as the specified type of object.
+   */
+  public static <T> T getEntryAsObject(final DN dn, final Class<T> type,
+                                       final LDAPInterface conn)
+         throws LDAPException
+  {
+    ensureNotNull(dn, type, conn);
+
+    final LDAPPersister<T> p = LDAPPersister.getInstance(type);
+
+    final Entry e = conn.getEntry(dn.toString(), "*", "+");
+    if (e == null)
+    {
+      return null;
+    }
+
+    return p.decode(e);
+  }
+
+
+
+  /**
+   * Retrieves and decodes the indicated entries as objects of the specified
+   * type.
+   *
+   * @param  <T>  The type of object as which to decode the entries.
+   *
+   * @param  dns   The DNs of the entries to retrieve.  It must not be
+   *               {@code null}.
+   * @param  type  The type of object as which the entries should be decoded.
+   *               It must not be {@code null}, and the class must be marked
+   *               with the {@link LDAPObject} annotation type.
+   * @param  conn  The connection that should be used to retrieve the entries.
+   *               It must not be {@code null}.
+   *
+   * @return  The object decoded from the specified entry, or {@code null} if
+   *          the entry cannot be retrieved (e.g., because it does not exist or
+   *          is not readable by the authenticated user).
+   *
+   * @throws  LDAPException  If a problem occurs while trying to retrieve the
+   *                         entry or decode it as the specified type of object.
+   */
+  public static <T> PersistedObjects<T> getEntriesAsObjects(final DN[] dns,
+                                             final Class<T> type,
+                                             final LDAPInterface conn)
+         throws LDAPException
+  {
+    ensureNotNull(dns, type, conn);
+
+    final LDAPPersister<T> p = LDAPPersister.getInstance(type);
+
+    final DNEntrySource entrySource = new DNEntrySource(conn, dns, "*", "+");
+    return new PersistedObjects<T>(p, entrySource);
   }
 }

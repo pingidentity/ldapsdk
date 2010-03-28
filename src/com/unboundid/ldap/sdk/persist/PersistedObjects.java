@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.persist;
 import java.io.Serializable;
 
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.EntrySource;
 import com.unboundid.ldap.sdk.LDAPEntrySource;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchResult;
@@ -69,7 +70,7 @@ public final class PersistedObjects<T>
 
 
   // The LDAP entry source that will be used to read matching entries.
-  private final LDAPEntrySource entrySource;
+  private final EntrySource entrySource;
 
   // The LDAP persister that will be used to decode the entries that are
   // returned.
@@ -87,7 +88,7 @@ public final class PersistedObjects<T>
    *                      returned from the search.
    */
   PersistedObjects(final LDAPPersister<T> persister,
-                   final LDAPEntrySource entrySource)
+                   final EntrySource entrySource)
   {
     this.persister   = persister;
     this.entrySource = entrySource;
@@ -162,13 +163,21 @@ public final class PersistedObjects<T>
   /**
    * Retrieves the search result for the search operation, if available.  It
    * will not be available until the search has completed (as indicated by a
-   * {@code null} return value from the {@link #next} method).
+   * {@code null} return value from the {@link #next} method), and for some use
+   * cases it may never be available.
    *
    * @return  The search result for the search operation, or {@code null} if it
    *          is not available (e.g., because the search has not yet completed).
    */
   public SearchResult getSearchResult()
   {
-    return entrySource.getSearchResult();
+    if (entrySource instanceof LDAPEntrySource)
+    {
+      return ((LDAPEntrySource) entrySource).getSearchResult();
+    }
+    else
+    {
+      return null;
+    }
   }
 }
