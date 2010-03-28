@@ -80,6 +80,29 @@ public class EntrySourceException
 
 
   /**
+   * Creates a new entry source exception with the provided information.
+   *
+   * @param  mayContinueReading  Indicates whether it is possible to continue
+   *                             attempting to iterate through subsequent
+   *                             entries in the entry source.
+   * @param  message             A message explaining the problem that occurred.
+   *                             It must not be {@code null}.
+   * @param  cause               The underlying exception that triggered this
+   *                             exception.  It must not be {@code null}.
+   */
+  public EntrySourceException(final boolean mayContinueReading,
+                              final String message, final Throwable cause)
+  {
+    super(message, cause);
+
+    Validator.ensureNotNull(message, cause);
+
+    this.mayContinueReading = mayContinueReading;
+  }
+
+
+
+  /**
    * Indicates whether it is possible to continue attempting to iterate through
    * subsequent entries in the entry source.
    *
@@ -100,7 +123,9 @@ public class EntrySourceException
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("EntrySourceException(mayContinueReading=");
+    buffer.append("EntrySourceException(message='");
+    buffer.append(getMessage());
+    buffer.append("', mayContinueReading=");
     buffer.append(mayContinueReading);
     buffer.append(", cause='");
     buffer.append(StaticUtils.getExceptionMessage(getCause()));
