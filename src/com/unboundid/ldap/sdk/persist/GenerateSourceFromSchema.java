@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -97,6 +98,10 @@ public final class GenerateSourceFromSchema
   // we need to include java.util.Date in the import list.
   private boolean needDate;
 
+  // Indicates whether any DN-syntax attributes have been identified, and
+  // therefore we need to include java.util.Date in the import list.
+  private boolean needDN;
+
 
 
   /**
@@ -158,6 +163,7 @@ public final class GenerateSourceFromSchema
 
     needArrays = false;
     needDate   = false;
+    needDN     = false;
   }
 
 
@@ -448,6 +454,11 @@ public final class GenerateSourceFromSchema
     if (javaImports)
     {
       writer.println();
+    }
+
+    if (needDN)
+    {
+      writer.println("import " + DN.class.getName() + ';');
     }
 
     writer.println("import " + Entry.class.getName() + ';');
@@ -1258,6 +1269,14 @@ public final class GenerateSourceFromSchema
     {
       // integer
       return "Long";
+    }
+    else if (oid.equals("1.3.6.1.4.1.1466.115.121.1.12") ||
+             oid.equals("1.3.6.1.4.1.1466.115.121.1.34"))
+    {
+      // DN
+      // name and optional UID
+      needDN = true;
+      return "DN";
     }
     else
     {
