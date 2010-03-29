@@ -284,17 +284,16 @@ public final class PersistUtils
    * @param  conn  The connection that should be used to retrieve the entries.
    *               It must not be {@code null}.
    *
-   * @return  The object decoded from the specified entry, or {@code null} if
-   *          the entry cannot be retrieved (e.g., because it does not exist or
-   *          is not readable by the authenticated user).
+   * @return  A {@code PersistedObjects} result that may be used to access the
+   *          objects decoded from the provided set of DNs.
    *
-   * @throws  LDAPException  If a problem occurs while trying to retrieve the
-   *                         entry or decode it as the specified type of object.
+   * @throws  LDAPPersistException  If the requested type cannot be used with
+   *                                the LDAP SDK persistence framework.
    */
   public static <T> PersistedObjects<T> getEntriesAsObjects(final DN[] dns,
                                              final Class<T> type,
                                              final LDAPInterface conn)
-         throws LDAPException
+         throws LDAPPersistException
   {
     ensureNotNull(dns, type, conn);
 
