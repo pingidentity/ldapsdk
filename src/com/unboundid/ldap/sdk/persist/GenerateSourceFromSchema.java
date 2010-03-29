@@ -39,6 +39,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
@@ -99,8 +100,14 @@ public final class GenerateSourceFromSchema
   private boolean needDate;
 
   // Indicates whether any DN-syntax attributes have been identified, and
-  // therefore we need to include java.util.Date in the import list.
+  // therefore we need to include com.unboundid.ldap.sdk.DN in the import list.
   private boolean needDN;
+
+  // Indicates whether
+  // Indicates whether any DN-syntax attributes have been identified, and
+  // therefore we need to include
+  // com.unboundid.ldap.sdk.persist.PersistedObjects in the import list.
+  private boolean needPersistedObjects;
 
 
 
@@ -161,9 +168,10 @@ public final class GenerateSourceFromSchema
   {
     super(outStream, errStream);
 
-    needArrays = false;
-    needDate   = false;
-    needDN     = false;
+    needArrays           = false;
+    needDate             = false;
+    needDN               = false;
+    needPersistedObjects = false;
   }
 
 
@@ -462,12 +470,30 @@ public final class GenerateSourceFromSchema
     }
 
     writer.println("import " + Entry.class.getName() + ';');
+
+    if (needDN)
+    {
+      writer.println("import " + LDAPException.class.getName() + ';');
+      writer.println("import " + LDAPInterface.class.getName() + ';');
+    }
+
     writer.println("import " + ReadOnlyEntry.class.getName() + ';');
     writer.println("import " + FilterUsage.class.getName() + ';');
     writer.println("import " + LDAPEntryField.class.getName() + ';');
     writer.println("import " + LDAPField.class.getName() + ';');
     writer.println("import " + LDAPObject.class.getName() + ';');
     writer.println("import " + LDAPPersistException.class.getName() + ';');
+
+    if (needPersistedObjects)
+    {
+      writer.println("import " + PersistedObjects.class.getName() + ';');
+    }
+
+    if (needDN)
+    {
+      writer.println("import " + PersistUtils.class.getName() + ';');
+    }
+
     writer.println();
     writer.println();
     writer.println();
@@ -999,95 +1025,300 @@ public final class GenerateSourceFromSchema
 
     if (d.isSingleValued())
     {
-      writer.println("  /**");
-      writer.println("   * Retrieves the value for the field associated with " +
-           "the");
-      writer.println("   * " + attrName + " attribute, if defined.");
-      writer.println("   *");
-      writer.println("   * @return  The value for the field associated with " +
-           "the");
-      writer.println("   *          " + attrName + " attribute, or");
-      writer.println("   *          {@code null} if it is not defined.");
-      writer.println("   */");
-      writer.println("  public " + type + " get" + capFieldName + "()");
-      writer.println("  {");
-      writer.println("    return " + fieldName + ';');
-      writer.println("  }");
-      writer.println();
-      writer.println();
-      writer.println();
-      writer.println("  /**");
-      writer.println("   * Sets the value for the field associated with the");
-      writer.println("   * " + attrName + " attribute.");
-      writer.println("   *");
-      writer.println("   * @param  v  The value for the field associated " +
-            "with the");
-      writer.println("   *            " + attrName + " attribute.");
-      writer.println("   */");
-      writer.println("  public void set" + capFieldName + "(final " + type +
-           " v)");
-      writer.println("  {");
-      writer.println("    this." + fieldName + " = v;");
-      writer.println("  }");
+      if (type.equals("DN"))
+      {
+        writer.println("  /**");
+        writer.println("   * Retrieves the first value for the field " +
+             "associated with the");
+        writer.println("   * " + attrName + " attribute as a DN, if present.");
+        writer.println("   *");
+        writer.println("   * @return  The first value for the field " +
+             "associated with the");
+        writer.println("   *          " + attrName + " attribute, or");
+        writer.println("   *          {@code null} if the field does not " +
+             "have a value.");
+        writer.println("   */");
+        writer.println("  public DN get" + capFieldName + "DN()");
+        writer.println("  {");
+        writer.println("    return " + fieldName + ';');
+        writer.println("  }");
+
+        writer.println();
+        writer.println();
+        writer.println();
+
+        writer.println("  /**");
+        writer.println("   * Retrieves the object referenced by the DN held " +
+             "in the");
+        writer.println("   * " + attrName + " attribute, if present.");
+        writer.println("   *");
+        writer.println("   * @param  <T>  The type of object to return.");
+        writer.println("   *");
+        writer.println("   * @param  connection  The connection to use to " +
+             "retrieve the entry.  It must");
+        writer.println("   *                     not be {@code null}.");
+        writer.println("   * @param  type        The type of object as which " +
+             "to decode the entry.  It");
+        writer.println("   *                     must not be {@code null}, " +
+             "and the class must be marked");
+        writer.println("   *                     with the {@code LDAPObject} " +
+             "annotation type.");
+        writer.println("   *");
+        writer.println("   * @return  The object decoded from the entry with " +
+             "the associated DN, or");
+        writer.println("   *          {@code null} if the field does not " +
+             "have a value or the referenced");
+        writer.println("   *          entry does not exist.");
+        writer.println("   *");
+        writer.println("   * @throws  LDAPException  If a problem occurs " +
+             "while attempting to retrieve");
+        writer.println("   *                         the entry or decode it " +
+             "as an object of the");
+        writer.println("   *                         specified type.");
+        writer.println("   */");
+        writer.println("  public <T> T get" + capFieldName + "Object(");
+        writer.println("                    final LDAPInterface connection,");
+        writer.println("                    final Class<T> type)");
+        writer.println("         throws LDAPException");
+        writer.println("  {");
+        writer.println("    return PersistUtils.getEntryAsObject(" + fieldName +
+             ',');
+        writer.println("         type, connection);");
+        writer.println("  }");
+
+        writer.println();
+        writer.println();
+        writer.println();
+
+        writer.println("  /**");
+        writer.println("   * Sets the value for the field associated with the");
+        writer.println("   * " + attrName + " attribute.");
+        writer.println("   *");
+        writer.println("   * @param  v  The value for the field associated " +
+             "with the");
+        writer.println("   *            " + attrName + " attribute.");
+        writer.println("   */");
+        writer.println("  public void set" + capFieldName + "DN(final DN v)");
+        writer.println("  {");
+        writer.println("    this." + fieldName + " = v;");
+        writer.println("  }");
+      }
+      else
+      {
+        writer.println("  /**");
+        writer.println("   * Retrieves the value for the field associated " +
+             "with the");
+        writer.println("   * " + attrName + " attribute, if present.");
+        writer.println("   *");
+        writer.println("   * @return  The value for the field associated " +
+             "with the");
+        writer.println("   *          " + attrName + " attribute, or");
+        writer.println("   *          {@code null} if the field does not " +
+             "have a value.");
+        writer.println("   */");
+        writer.println("  public " + type + " get" + capFieldName + "()");
+        writer.println("  {");
+        writer.println("    return " + fieldName + ';');
+        writer.println("  }");
+
+        writer.println();
+        writer.println();
+        writer.println();
+
+        writer.println("  /**");
+        writer.println("   * Sets the value for the field associated with the");
+        writer.println("   * " + attrName + " attribute.");
+        writer.println("   *");
+        writer.println("   * @param  v  The value for the field associated " +
+             "with the");
+        writer.println("   *            " + attrName + " attribute.");
+        writer.println("   */");
+        writer.println("  public void set" + capFieldName + "(final " + type +
+             " v)");
+        writer.println("  {");
+        writer.println("    this." + fieldName + " = v;");
+        writer.println("  }");
+      }
     }
     else
     {
-      writer.println("  /**");
-      writer.println("   * Retrieves the first value for the field " +
-           "associated with the");
-      writer.println("   * " + attrName + " attribute, if defined.");
-      writer.println("   *");
-      writer.println("   * @return  The first value for the field associated " +
-           "with the");
-      writer.println("   *          " + attrName + " attribute, or");
-      writer.println("   *          {@code null} if it is not defined or " +
-           "does not have any values.");
-      writer.println("   */");
-      writer.println("  public " + type + " getFirst" + capFieldName + "()");
-      writer.println("  {");
-      writer.println("    if ((" + fieldName + " == null) ||");
-      writer.println("        (" + fieldName + ".length == 0))");
-      writer.println("    {");
-      writer.println("      return null;");
-      writer.println("    }");
-      writer.println("    else");
-      writer.println("    {");
-      writer.println("      return " + fieldName + "[0];");
-      writer.println("    }");
-      writer.println("  }");
-      writer.println();
-      writer.println();
-      writer.println();
-      writer.println("  /**");
-      writer.println("   * Retrieves the values for the field associated " +
-           "with the");
-      writer.println("   * " + attrName + " attribute, if defined.");
-      writer.println("   *");
-      writer.println("   * @return  The values for the field associated with " +
-           "the");
-      writer.println("   *          " + attrName + " attribute, or");
-      writer.println("   *          {@code null} if it is not defined.");
-      writer.println("   */");
-      writer.println("  public " + type + "[] get" + capFieldName + "()");
-      writer.println("  {");
-      writer.println("    return " + fieldName + ';');
-      writer.println("  }");
-      writer.println();
-      writer.println();
-      writer.println();
-      writer.println("  /**");
-      writer.println("   * Sets the values for the field associated with the");
-      writer.println("   * " + attrName + " attribute.");
-      writer.println("   *");
-      writer.println("   * @param  v  The values for the field associated " +
-           "with the");
-      writer.println("   *            " + attrName + " attribute.");
-      writer.println("   */");
-      writer.println("  public void set" + capFieldName + "(final " + type +
-           "... v)");
-      writer.println("  {");
-      writer.println("    this." + fieldName + " = v;");
-      writer.println("  }");
+      if (type.equals("DN"))
+      {
+        writer.println("  /**");
+        writer.println("   * Retrieves the first value for the field " +
+             "associated with the");
+        writer.println("   * " + attrName + " attribute as a DN, if present.");
+        writer.println("   *");
+        writer.println("   * @return  The first value for the field " +
+             "associated with the");
+        writer.println("   *          " + attrName + " attribute, or");
+        writer.println("   *          {@code null} if that attribute was not " +
+             "present in the entry or");
+        writer.println("   *          does not have any values.");
+        writer.println("   */");
+        writer.println("  public DN getFirst" + capFieldName + "DN()");
+        writer.println("  {");
+        writer.println("    if ((" + fieldName + " == null) ||");
+        writer.println("        (" + fieldName + ".length == 0))");
+        writer.println("    {");
+        writer.println("      return null;");
+        writer.println("    }");
+        writer.println("    else");
+        writer.println("    {");
+        writer.println("      return " + fieldName + "[0];");
+        writer.println("    }");
+        writer.println("  }");
+
+        writer.println();
+        writer.println();
+        writer.println();
+
+        writer.println("  /**");
+        writer.println("   * Retrieves the values for the field associated " +
+             "with the");
+        writer.println("   * " + attrName + " attribute as DNs, if present.");
+        writer.println("   *");
+        writer.println("   * @return  The values for the field associated " +
+             "with the");
+        writer.println("   *          " + attrName + " attribute, or");
+        writer.println("   *          {@code null} if that attribute was not " +
+             "present in the entry.");
+        writer.println("   */");
+        writer.println("  public DN[] get" + capFieldName + "DNs()");
+        writer.println("  {");
+        writer.println("    return " + fieldName + ';');
+        writer.println("  }");
+
+        writer.println();
+        writer.println();
+        writer.println();
+
+        writer.println("  /**");
+        writer.println("   * Retrieves the values for the field associated " +
+             "with the");
+        writer.println("   * " + attrName + " attribute as objects of the " +
+             "specified type,");
+        writer.println("   * if present.");
+        writer.println("   *");
+        writer.println("   * @param  <T>  The type of object to return.");
+        writer.println("   *");
+        writer.println("   * @param  connection  The connection to use to " +
+             "retrieve the entries.  It");
+        writer.println("   *                     must not be {@code null}.");
+        writer.println("   * @param  type        The type of object as which " +
+             "the entries should be");
+        writer.println("   *                     decoded.  It must not be " +
+             "{@code null}, and the class");
+        writer.println("   *                     must be marked with the " +
+             "{@code LDAPObject} annotation");
+        writer.println("   *                     type.");
+        writer.println("   *");
+        writer.println("   * @return  A {@code PersistedObjects} object that " +
+             "may be used to iterate");
+        writer.println("   *          across the resulting objects.");
+        writer.println("   *");
+        writer.println("   * @throws  LDAPException  If the requested type " +
+             "cannot be used with the LDAP");
+        writer.println("   *                         SDK persistence " +
+             "framework.");
+        writer.println("   */");
+        writer.println("  public <T> PersistedObjects<T> get" + capFieldName +
+             "Objects(");
+        writer.println("                                      final " +
+             "LDAPInterface connection,");
+        writer.println("                                      final Class<T> " +
+             "type)");
+        writer.println("         throws LDAPException");
+        writer.println("  {");
+        writer.println("    return PersistUtils.getEntriesAsObjects(" +
+             fieldName + ',');
+        writer.println("         type, connection);");
+        writer.println("  }");
+
+        writer.println();
+        writer.println();
+        writer.println();
+
+        writer.println("  /**");
+        writer.println("   * Sets the values for the field associated with " +
+             "the");
+        writer.println("   * " + attrName + " attribute.");
+        writer.println("   *");
+        writer.println("   * @param  v  The values for the field associated " +
+             "with the");
+        writer.println("   *            " + attrName + " attribute.");
+        writer.println("   */");
+        writer.println("  public void set" + capFieldName + "(final DN... v)");
+        writer.println("  {");
+        writer.println("    this." + fieldName + " = v;");
+        writer.println("  }");
+      }
+      else
+      {
+        writer.println("  /**");
+        writer.println("   * Retrieves the first value for the field " +
+             "associated with the");
+        writer.println("   * " + attrName + " attribute, if present.");
+        writer.println("   *");
+        writer.println("   * @return  The first value for the field " +
+             "associated with the");
+        writer.println("   *          " + attrName + " attribute, or");
+        writer.println("   *          {@code null} if that attribute was not " +
+             "present in the entry or");
+        writer.println("   *          does not have any values.");
+        writer.println("   */");
+        writer.println("  public " + type + " getFirst" + capFieldName + "()");
+        writer.println("  {");
+        writer.println("    if ((" + fieldName + " == null) ||");
+        writer.println("        (" + fieldName + ".length == 0))");
+        writer.println("    {");
+        writer.println("      return null;");
+        writer.println("    }");
+        writer.println("    else");
+        writer.println("    {");
+        writer.println("      return " + fieldName + "[0];");
+        writer.println("    }");
+        writer.println("  }");
+
+        writer.println();
+        writer.println();
+        writer.println();
+
+        writer.println("  /**");
+        writer.println("   * Retrieves the values for the field associated " +
+             "with the");
+        writer.println("   * " + attrName + " attribute, if present.");
+        writer.println("   *");
+        writer.println("   * @return  The values for the field associated " +
+             "with the");
+        writer.println("   *          " + attrName + " attribute, or");
+        writer.println("   *          {@code null} if that attribute was not " +
+             "present in the entry.");
+        writer.println("   */");
+        writer.println("  public " + type + "[] get" + capFieldName + "()");
+        writer.println("  {");
+        writer.println("    return " + fieldName + ';');
+        writer.println("  }");
+
+        writer.println();
+        writer.println();
+        writer.println();
+
+        writer.println("  /**");
+        writer.println("   * Sets the values for the field associated with " +
+             "the");
+        writer.println("   * " + attrName + " attribute.");
+        writer.println("   *");
+        writer.println("   * @param  v  The values for the field associated " +
+             "with the");
+        writer.println("   *            " + attrName + " attribute.");
+        writer.println("   */");
+        writer.println("  public void set" + capFieldName + "(final " + type +
+             "... v)");
+        writer.println("  {");
+        writer.println("    this." + fieldName + " = v;");
+        writer.println("  }");
+      }
     }
   }
 
@@ -1276,6 +1507,10 @@ public final class GenerateSourceFromSchema
       // DN
       // name and optional UID
       needDN = true;
+      if (! d.isSingleValued())
+      {
+        needPersistedObjects = true;
+      }
       return "DN";
     }
     else
