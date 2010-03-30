@@ -50,6 +50,9 @@ final class ConnectionClosedResponse
 
 
 
+  // The result code that should be used for the closure.
+  private final ResultCode resultCode;
+
   // A message providing additional information about the closure.
   private final String message;
 
@@ -58,13 +61,17 @@ final class ConnectionClosedResponse
   /**
    * Creates a new instance of this class.
    *
-   * @param  message  The message that provides additional information about
-   *                  the reason for the closure, or {@code null} if no reason
-   *                  is available.
+   * @param  resultCode  The result code that should be used for the closure.
+   *                     It must not be {@code null}.
+   * @param  message     The message that provides additional information about
+   *                     the reason for the closure, or {@code null} if no
+   *                     reason is available.
    */
-  ConnectionClosedResponse(final String message)
+  ConnectionClosedResponse(final ResultCode resultCode,
+                           final String message)
   {
-    this.message = message;
+    this.resultCode = resultCode;
+    this.message    = message;
   }
 
 
@@ -93,6 +100,18 @@ final class ConnectionClosedResponse
 
 
   /**
+   * Retrieves the result code that should be used for the closure.
+   *
+   * @return  The result code that should be used for the closure.
+   */
+  ResultCode getResultCode()
+  {
+    return resultCode;
+  }
+
+
+
+  /**
    * Retrieves a string representation of this connection closed response.
    *
    * @return  A string representation of this connection closed response.
@@ -115,11 +134,13 @@ final class ConnectionClosedResponse
    */
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("ConnectionClosedResponse(");
+    buffer.append("ConnectionClosedResponse(resultCode='");
+    buffer.append(resultCode);
+    buffer.append('\'');
 
     if (message != null)
     {
-      buffer.append("message='");
+      buffer.append(", message='");
       buffer.append(message);
       buffer.append('\'');
     }

@@ -3716,7 +3716,16 @@ public final class LDAPConnection
     }
     else
     {
-      return new ConnectionClosedResponse(null);
+      if (disconnectType == null)
+      {
+        return new ConnectionClosedResponse(ResultCode.CONNECT_ERROR,
+             ERR_CONN_READ_RESPONSE_NOT_ESTABLISHED.get());
+      }
+      else
+      {
+        return new ConnectionClosedResponse(disconnectType.getResultCode(),
+             disconnectMessage);
+      }
     }
   }
 

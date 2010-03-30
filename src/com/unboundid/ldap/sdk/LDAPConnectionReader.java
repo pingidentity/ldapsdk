@@ -602,7 +602,7 @@ final class LDAPConnectionReader
              asn1StreamReader, false, connection.getCachedSchema());
         if (response == null)
         {
-          return new ConnectionClosedResponse(null);
+          return new ConnectionClosedResponse(ResultCode.SERVER_DOWN, null);
         }
 
         if (response.getMessageID() == messageID)
@@ -951,7 +951,26 @@ final class LDAPConnectionReader
 
        try
        {
-         acceptor.responseReceived(new ConnectionClosedResponse(message));
+         if (message == null)
+         {
+           final DisconnectType disconnectType = connection.getDisconnectType();
+           if (disconnectType == null)
+           {
+             acceptor.responseReceived(new ConnectionClosedResponse(
+                  ResultCode.SERVER_DOWN, null));
+           }
+           else
+           {
+             acceptor.responseReceived(new ConnectionClosedResponse(
+                  disconnectType.getResultCode(),
+                  connection.getDisconnectMessage()));
+           }
+         }
+         else
+         {
+           acceptor.responseReceived(new ConnectionClosedResponse(
+                ResultCode.SERVER_DOWN, message));
+         }
        }
        catch (Exception e)
        {

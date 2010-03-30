@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPResponse;
@@ -281,6 +282,12 @@ public class LDAPResult
     {
       debugException(le);
       throw le;
+    }
+    catch (final ASN1Exception ae)
+    {
+      debugException(ae);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_RESULT_CANNOT_DECODE.get(ae.getMessage()), ae);
     }
     catch (Exception e)
     {
