@@ -30,8 +30,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -81,12 +81,20 @@ public final class GenerateSourceFromSchema
 
 
 
+  /**
+   * A pre-allocated empty tree set.
+   */
+  private static final TreeSet<String> EMPTY_TREE_SET = new TreeSet<String>();
+
+
+
   // Arguments used by this tool.
   private BooleanArgument terseArg;
   private DNArgument      defaultParentDNArg;
   private FileArgument    outputDirectoryArg;
   private StringArgument  auxiliaryClassArg;
   private StringArgument  classNameArg;
+  private StringArgument  operationalAttributeArg;
   private StringArgument  packageNameArg;
   private StringArgument  rdnAttributeArg;
   private StringArgument  structuralClassArg;
@@ -226,6 +234,11 @@ public final class GenerateSourceFromSchema
          INFO_GEN_SOURCE_ARG_DESCRIPTION_RDN_ATTRIBUTE.get());
     parser.addArgument(rdnAttributeArg);
 
+    operationalAttributeArg = new StringArgument('O', "operationalAttribute",
+         false, 0, INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
+         INFO_GEN_SOURCE_ARG_DESCRIPTION_OPERATIONAL_ATTRIBUTE.get());
+    parser.addArgument(operationalAttributeArg);
+
     defaultParentDNArg = new DNArgument('b', "defaultParentDN", false, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_DN.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_DEFAULT_PARENT_DN.get());
@@ -363,6 +376,34 @@ public final class GenerateSourceFromSchema
 
         processObjectClass(oc, schema, requiredAttrs, requiredAttrOCs,
              optionalAttrs, optionalAttrOCs, types);
+      }
+    }
+
+
+    // Retrieve and process the operational attributes.
+    final TreeMap<String,AttributeTypeDefinition> operationalAttrs =
+         new TreeMap<String,AttributeTypeDefinition>();
+    if (operationalAttributeArg.isPresent())
+    {
+      for (final String s : operationalAttributeArg.getValues())
+      {
+        final AttributeTypeDefinition d = schema.getAttributeType(s);
+        if (d == null)
+        {
+          err(ERR_GEN_SOURCE_OPERATIONAL_ATTRIBUTE_NOT_DEFINED.get(s));
+          return ResultCode.PARAM_ERROR;
+        }
+        else if (! d.isOperational())
+        {
+          err(ERR_GEN_SOURCE_OPERATIONAL_ATTRIBUTE_NOT_OPERATIONAL.get(s));
+          return ResultCode.PARAM_ERROR;
+        }
+        else
+        {
+          final String lowerName = toLowerCase(s);
+          operationalAttrs.put(lowerName, d);
+          types.put(lowerName, getJavaType(schema, d));
+        }
       }
     }
 
@@ -574,8 +615,8 @@ public final class GenerateSourceFromSchema
 
 
     // Add all of the fields.  First the fields for the RDN attributes, then
-    // for the rest of the required attributes, and then for the optional
-    // attributes.
+    // for the rest of the required attributes, then for the optional
+    // attributes, and finally any operational attributes.
     for (final String lowerName : rdnAttrs)
     {
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
@@ -601,6 +642,14 @@ public final class GenerateSourceFromSchema
     {
       final AttributeTypeDefinition d = optionalAttrs.get(lowerName);
       final TreeSet<String> ocNames = optionalAttrOCs.get(lowerName);
+      writeField(writer, d, types.get(lowerName), ocNames, false, false,
+           structuralClassName, terse);
+    }
+
+    for (final String lowerName : operationalAttrs.keySet())
+    {
+      final AttributeTypeDefinition d = operationalAttrs.get(lowerName);
+      final TreeSet<String> ocNames = EMPTY_TREE_SET;
       writeField(writer, d, types.get(lowerName), ocNames, false, false,
            structuralClassName, terse);
     }
@@ -743,17 +792,23 @@ public final class GenerateSourceFromSchema
       }
 
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
-      writeGetterAndSetter(writer, d, types.get(lowerName), terse);
+      writeGetterAndSetter(writer, d, types.get(lowerName), true);
     }
 
     for (final String lowerName : optionalAttrs.keySet())
     {
       final AttributeTypeDefinition d = optionalAttrs.get(lowerName);
-      writeGetterAndSetter(writer, d, types.get(lowerName), terse);
+      writeGetterAndSetter(writer, d, types.get(lowerName), true);
+    }
+
+    for (final String lowerName : operationalAttrs.keySet())
+    {
+      final AttributeTypeDefinition d = operationalAttrs.get(lowerName);
+      writeGetterAndSetter(writer, d, types.get(lowerName), false);
     }
 
     writeToString(writer, className, requiredAttrs.values(),
-         optionalAttrs.values());
+         optionalAttrs.values(), operationalAttrs.values());
 
     writer.println("}");
     writer.println();
@@ -881,6 +936,11 @@ public final class GenerateSourceFromSchema
       writer.println("  // The field used for required attribute " + attrName +
            '.');
     }
+    else if (d.isOperational())
+    {
+      writer.println("  // The field used for operational attribute " +
+           attrName + '.');
+    }
     else
     {
       writer.println("  // The field used for optional attribute " + attrName +
@@ -894,16 +954,22 @@ public final class GenerateSourceFromSchema
     }
     else
     {
-      writer.println("  @LDAPField(attribute=\"" + attrName + "\",");
+      writer.print("  @LDAPField(attribute=\"" + attrName + '"');
       added = true;
     }
 
-    if (ocNames.size() == 1)
+    if (ocNames.isEmpty())
+    {
+      // Don't need to do anything.  This should only be the case for
+      // operational attributes.
+    }
+    else if (ocNames.size() == 1)
     {
       if ((! terse) || (! ocNames.iterator().next().equalsIgnoreCase(sc)))
       {
         if (added)
         {
+          writer.println(",");
           writer.print("             objectClass=\"" +
                ocNames.iterator().next() + '"');
         }
@@ -920,6 +986,7 @@ public final class GenerateSourceFromSchema
       final Iterator<String> iterator = ocNames.iterator();
       if (added)
       {
+        writer.println(",");
         writer.println("             objectClass={ \"" +
              iterator.next() + "\",");
       }
@@ -990,6 +1057,22 @@ public final class GenerateSourceFromSchema
       }
     }
 
+    if (d.isOperational())
+    {
+      if (added)
+      {
+        writer.println(",");
+        writer.println("             inAdd=false,");
+      }
+      else
+      {
+        writer.println("inAdd=false,");
+        added = true;
+      }
+
+      writer.print("             inModify=false");
+    }
+
     writer.println(")");
     if (d.isSingleValued())
     {
@@ -1006,14 +1089,14 @@ public final class GenerateSourceFromSchema
   /**
    * Writes getter and setter methods for the provided attribute.
    *
-   * @param  writer  The writer to use to write the methods.
-   * @param  d       The attribute type definition to be written.
-   * @param  type    The name of the Java type to use for the attribute.
-   * @param  terse   Indicates whether to use terse mode.
+   * @param  writer     The writer to use to write the methods.
+   * @param  d          The attribute type definition to be written.
+   * @param  type       The name of the Java type to use for the attribute.
+   * @param  addSetter  Indicates whether to write a setter method.
    */
   static void writeGetterAndSetter(final PrintWriter writer,
                                    final AttributeTypeDefinition d,
-                                   final String type, final boolean terse)
+                                   final String type, final boolean addSetter)
   {
     writer.println();
     writer.println();
@@ -1086,22 +1169,26 @@ public final class GenerateSourceFromSchema
         writer.println("         type, connection);");
         writer.println("  }");
 
-        writer.println();
-        writer.println();
-        writer.println();
+        if (addSetter)
+        {
+          writer.println();
+          writer.println();
+          writer.println();
 
-        writer.println("  /**");
-        writer.println("   * Sets the value for the field associated with the");
-        writer.println("   * " + attrName + " attribute.");
-        writer.println("   *");
-        writer.println("   * @param  v  The value for the field associated " +
-             "with the");
-        writer.println("   *            " + attrName + " attribute.");
-        writer.println("   */");
-        writer.println("  public void set" + capFieldName + "DN(final DN v)");
-        writer.println("  {");
-        writer.println("    this." + fieldName + " = v;");
-        writer.println("  }");
+          writer.println("  /**");
+          writer.println("   * Sets the value for the field associated with " +
+               "the");
+          writer.println("   * " + attrName + " attribute.");
+          writer.println("   *");
+          writer.println("   * @param  v  The value for the field associated " +
+               "with the");
+          writer.println("   *            " + attrName + " attribute.");
+          writer.println("   */");
+          writer.println("  public void set" + capFieldName + "DN(final DN v)");
+          writer.println("  {");
+          writer.println("    this." + fieldName + " = v;");
+          writer.println("  }");
+        }
       }
       else
       {
@@ -1121,23 +1208,27 @@ public final class GenerateSourceFromSchema
         writer.println("    return " + fieldName + ';');
         writer.println("  }");
 
-        writer.println();
-        writer.println();
-        writer.println();
+        if (addSetter)
+        {
+          writer.println();
+          writer.println();
+          writer.println();
 
-        writer.println("  /**");
-        writer.println("   * Sets the value for the field associated with the");
-        writer.println("   * " + attrName + " attribute.");
-        writer.println("   *");
-        writer.println("   * @param  v  The value for the field associated " +
-             "with the");
-        writer.println("   *            " + attrName + " attribute.");
-        writer.println("   */");
-        writer.println("  public void set" + capFieldName + "(final " + type +
-             " v)");
-        writer.println("  {");
-        writer.println("    this." + fieldName + " = v;");
-        writer.println("  }");
+          writer.println("  /**");
+          writer.println("   * Sets the value for the field associated with " +
+               "the");
+          writer.println("   * " + attrName + " attribute.");
+          writer.println("   *");
+          writer.println("   * @param  v  The value for the field associated " +
+               "with the");
+          writer.println("   *            " + attrName + " attribute.");
+          writer.println("   */");
+          writer.println("  public void set" + capFieldName + "(final " + type +
+               " v)");
+          writer.println("  {");
+          writer.println("    this." + fieldName + " = v;");
+          writer.println("  }");
+        }
       }
     }
     else
@@ -1235,23 +1326,27 @@ public final class GenerateSourceFromSchema
         writer.println("         type, connection);");
         writer.println("  }");
 
-        writer.println();
-        writer.println();
-        writer.println();
+        if (addSetter)
+        {
+          writer.println();
+          writer.println();
+          writer.println();
 
-        writer.println("  /**");
-        writer.println("   * Sets the values for the field associated with " +
-             "the");
-        writer.println("   * " + attrName + " attribute.");
-        writer.println("   *");
-        writer.println("   * @param  v  The values for the field associated " +
-             "with the");
-        writer.println("   *            " + attrName + " attribute.");
-        writer.println("   */");
-        writer.println("  public void set" + capFieldName + "(final DN... v)");
-        writer.println("  {");
-        writer.println("    this." + fieldName + " = v;");
-        writer.println("  }");
+          writer.println("  /**");
+          writer.println("   * Sets the values for the field associated with " +
+               "the");
+          writer.println("   * " + attrName + " attribute.");
+          writer.println("   *");
+          writer.println("   * @param  v  The values for the field " +
+               "associated with the");
+          writer.println("   *            " + attrName + " attribute.");
+          writer.println("   */");
+          writer.println("  public void set" + capFieldName +
+               "(final DN... v)");
+          writer.println("  {");
+          writer.println("    this." + fieldName + " = v;");
+          writer.println("  }");
+        }
       }
       else
       {
@@ -1300,24 +1395,27 @@ public final class GenerateSourceFromSchema
         writer.println("    return " + fieldName + ';');
         writer.println("  }");
 
-        writer.println();
-        writer.println();
-        writer.println();
+        if (addSetter)
+        {
+          writer.println();
+          writer.println();
+          writer.println();
 
-        writer.println("  /**");
-        writer.println("   * Sets the values for the field associated with " +
-             "the");
-        writer.println("   * " + attrName + " attribute.");
-        writer.println("   *");
-        writer.println("   * @param  v  The values for the field associated " +
-             "with the");
-        writer.println("   *            " + attrName + " attribute.");
-        writer.println("   */");
-        writer.println("  public void set" + capFieldName + "(final " + type +
-             "... v)");
-        writer.println("  {");
-        writer.println("    this." + fieldName + " = v;");
-        writer.println("  }");
+          writer.println("  /**");
+          writer.println("   * Sets the values for the field associated with " +
+               "the");
+          writer.println("   * " + attrName + " attribute.");
+          writer.println("   *");
+          writer.println("   * @param  v  The values for the field " +
+               "associated with the");
+          writer.println("   *            " + attrName + " attribute.");
+          writer.println("   */");
+          writer.println("  public void set" + capFieldName + "(final " + type +
+               "... v)");
+          writer.println("  {");
+          writer.println("    this." + fieldName + " = v;");
+          writer.println("  }");
+        }
       }
     }
   }
@@ -1327,17 +1425,20 @@ public final class GenerateSourceFromSchema
   /**
    * Writes a {@code toString} method for the generated class.
    *
-   * @param  writer         The writer to use to write the methods.
-   * @param  className      The base name (without package information) for the
-   *                        generated class.
-   * @param  requiredAttrs  The set of required attributes for the generated
-   *                        class.
-   * @param  optionalAttrs  The set of optional attributes for the generated
-   *                        class.
+   * @param  writer            The writer to use to write the methods.
+   * @param  className         The base name (without package information) for
+   *                           the generated class.
+   * @param  requiredAttrs     The set of required attributes for the generated
+   *                           class.
+   * @param  optionalAttrs     The set of optional attributes for the generated
+   *                           class.
+   * @param  operationalAttrs  The set of operational attributes for the
+   *                           generated class.
    */
   static void writeToString(final PrintWriter writer, final String className,
                    final Collection<AttributeTypeDefinition> requiredAttrs,
-                   final Collection<AttributeTypeDefinition> optionalAttrs)
+                   final Collection<AttributeTypeDefinition> optionalAttrs,
+                   final Collection<AttributeTypeDefinition> operationalAttrs)
   {
     writer.println();
     writer.println();
@@ -1388,6 +1489,11 @@ public final class GenerateSourceFromSchema
     }
 
     for (final AttributeTypeDefinition d : optionalAttrs)
+    {
+      writeToStringField(writer, d);
+    }
+
+    for (final AttributeTypeDefinition d : operationalAttrs)
     {
       writeToStringField(writer, d);
     }
