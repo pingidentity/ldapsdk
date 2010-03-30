@@ -1165,7 +1165,7 @@ public final class SearchRequest
           {
             // The connection was closed while waiting for the response.
             final SearchResult searchResult =
-                 new SearchResult(messageID, ResultCode.SERVER_DOWN,
+                 new SearchResult(messageID, ccr.getResultCode(),
                       ERR_CONN_CLOSED_WAITING_FOR_SEARCH_RESPONSE.get(
                            connection.getHostPort(), toString()),
                       null, null, entryList, referenceList, numEntries,
@@ -1176,7 +1176,7 @@ public final class SearchRequest
           {
             // The connection was closed while waiting for the response.
             final SearchResult searchResult =
-                 new SearchResult(messageID, ResultCode.SERVER_DOWN,
+                 new SearchResult(messageID, ccr.getResultCode(),
                       ERR_CONN_CLOSED_WAITING_FOR_SEARCH_RESPONSE_WITH_MESSAGE.
                            get(connection.getHostPort(), toString(), message),
                       null, null, entryList, referenceList, numEntries,
@@ -1439,7 +1439,7 @@ public final class SearchRequest
         {
           // The connection was closed while waiting for the response.
           final SearchResult searchResult =
-               new SearchResult(messageID, ResultCode.SERVER_DOWN,
+               new SearchResult(messageID, ccr.getResultCode(),
                     ERR_CONN_CLOSED_WAITING_FOR_SEARCH_RESPONSE.get(
                          connection.getHostPort(), toString()),
                     null, null, entryList, referenceList, numEntries,
@@ -1450,7 +1450,7 @@ public final class SearchRequest
         {
           // The connection was closed while waiting for the response.
           final SearchResult searchResult =
-               new SearchResult(messageID, ResultCode.SERVER_DOWN,
+               new SearchResult(messageID, ccr.getResultCode(),
                     ERR_CONN_CLOSED_WAITING_FOR_SEARCH_RESPONSE_WITH_MESSAGE.
                          get(connection.getHostPort(), toString(), msg),
                     null, null, entryList, referenceList, numEntries,

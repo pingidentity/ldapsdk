@@ -1471,6 +1471,9 @@ public final class ResultCode
   // The name for this result code.
   private final String name;
 
+  // The string representation for this result code.
+  private final String stringRepresentation;
+
 
 
   /**
@@ -1482,7 +1485,8 @@ public final class ResultCode
   {
     this.intValue = intValue;
 
-    name = String.valueOf(intValue);
+    name                 = String.valueOf(intValue);
+    stringRepresentation = name;
   }
 
 
@@ -1497,6 +1501,8 @@ public final class ResultCode
   {
     this.name     = name;
     this.intValue = intValue;
+
+    stringRepresentation = intValue + "(" + name + ")";
   }
 
 
@@ -1777,7 +1783,7 @@ public final class ResultCode
 
   /**
    * Indicates whether this result code is one that should be used for
-   * client-side errors rather tahn returned by the server.
+   * client-side errors rather than returned by the server.
    *
    * @return  {@code true} if this result code is a client-side result code, or
    *          {@code false} if it is one that may be returned by the server.
@@ -1937,6 +1943,6 @@ public final class ResultCode
   @Override()
   public String toString()
   {
-    return name;
+    return stringRepresentation;
   }
 }

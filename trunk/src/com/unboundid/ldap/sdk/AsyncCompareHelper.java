@@ -102,12 +102,12 @@ final class AsyncCompareHelper
       final String message = ccr.getMessage();
       if (message == null)
       {
-        throw new LDAPException(ResultCode.SERVER_DOWN,
+        throw new LDAPException(ccr.getResultCode(),
              ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get());
       }
       else
       {
-        throw new LDAPException(ResultCode.SERVER_DOWN,
+        throw new LDAPException(ccr.getResultCode(),
              ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(
                   message));
       }

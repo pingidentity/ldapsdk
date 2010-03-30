@@ -128,6 +128,7 @@ public final class ASN1StreamReaderSequence
       return true;
     }
 
-    throw new ASN1Exception(ERR_STREAM_READER_SEQUENCE_READ_PAST_END.get());
+    throw new ASN1Exception(ERR_STREAM_READER_SEQUENCE_READ_PAST_END.get(
+         length, endBytesRead, currentBytesRead));
   }
 }

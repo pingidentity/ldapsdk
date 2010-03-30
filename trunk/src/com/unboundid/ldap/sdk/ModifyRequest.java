@@ -823,13 +823,13 @@ public final class ModifyRequest
       final String message = ccr.getMessage();
       if (message == null)
       {
-        throw new LDAPException(ResultCode.SERVER_DOWN,
+        throw new LDAPException(ccr.getResultCode(),
              ERR_CONN_CLOSED_WAITING_FOR_MODIFY_RESPONSE.get(
                   connection.getHostPort(), toString()));
       }
       else
       {
-        throw new LDAPException(ResultCode.SERVER_DOWN,
+        throw new LDAPException(ccr.getResultCode(),
              ERR_CONN_CLOSED_WAITING_FOR_MODIFY_RESPONSE_WITH_MESSAGE.get(
                   connection.getHostPort(), toString(), message));
       }

@@ -44,7 +44,7 @@ public enum DisconnectType
    * The connection was closed as a result of an unbind request sent by the
    * client.
    */
-  UNBIND(INFO_DISCONNECT_TYPE_UNBIND.get()),
+  UNBIND(INFO_DISCONNECT_TYPE_UNBIND.get(), ResultCode.LOCAL_ERROR),
 
 
 
@@ -52,14 +52,15 @@ public enum DisconnectType
    * The connection was closed because a bind performed as part of the
    * creation did not complete successfully.
    */
-  BIND_FAILED(INFO_DISCONNECT_TYPE_BIND_FAILED.get()),
+  BIND_FAILED(INFO_DISCONNECT_TYPE_BIND_FAILED.get(),
+       ResultCode.CONNECT_ERROR),
 
 
 
   /**
    * The connection was closed because it is going to be re-established.
    */
-  RECONNECT(INFO_DISCONNECT_TYPE_RECONNECT.get()),
+  RECONNECT(INFO_DISCONNECT_TYPE_RECONNECT.get(), ResultCode.SERVER_DOWN),
 
 
 
@@ -67,7 +68,7 @@ public enum DisconnectType
    * The connection was closed because it had been a temporary connection
    * created for following a referral and was no longer needed.
    */
-  REFERRAL(INFO_DISCONNECT_TYPE_REFERRAL.get()),
+  REFERRAL(INFO_DISCONNECT_TYPE_REFERRAL.get(), ResultCode.LOCAL_ERROR),
 
 
 
@@ -76,7 +77,8 @@ public enum DisconnectType
    * unsolicited notification was provided.
    */
   SERVER_CLOSED_WITH_NOTICE(
-       INFO_DISCONNECT_TYPE_SERVER_CLOSED_WITH_NOTICE.get()),
+       INFO_DISCONNECT_TYPE_SERVER_CLOSED_WITH_NOTICE.get(),
+       ResultCode.SERVER_DOWN),
 
 
 
@@ -84,7 +86,8 @@ public enum DisconnectType
    * The connection was closed by the server without a notice of disconnection.
    */
   SERVER_CLOSED_WITHOUT_NOTICE(
-       INFO_DISCONNECT_TYPE_SERVER_CLOSED_WITHOUT_NOTICE.get()),
+       INFO_DISCONNECT_TYPE_SERVER_CLOSED_WITHOUT_NOTICE.get(),
+       ResultCode.SERVER_DOWN),
 
 
 
@@ -92,7 +95,7 @@ public enum DisconnectType
    * The connection was closed because an I/O problem was encountered while
    * trying to communicate with the server.
    */
-  IO_ERROR(INFO_DISCONNECT_TYPE_IO_ERROR.get()),
+  IO_ERROR(INFO_DISCONNECT_TYPE_IO_ERROR.get(), ResultCode.SERVER_DOWN),
 
 
 
@@ -100,7 +103,8 @@ public enum DisconnectType
    * The connection was closed because an error occurred while trying to decode
    * data from the server.
    */
-  DECODE_ERROR(INFO_DISCONNECT_TYPE_DECODE_ERROR.get()),
+  DECODE_ERROR(INFO_DISCONNECT_TYPE_DECODE_ERROR.get(),
+       ResultCode.DECODING_ERROR),
 
 
 
@@ -108,7 +112,7 @@ public enum DisconnectType
    * The connection was closed because an unexpected error occurred within the
    * LDAP SDK.
    */
-  LOCAL_ERROR(INFO_DISCONNECT_TYPE_LOCAL_ERROR.get()),
+  LOCAL_ERROR(INFO_DISCONNECT_TYPE_LOCAL_ERROR.get(), ResultCode.LOCAL_ERROR),
 
 
 
@@ -116,7 +120,8 @@ public enum DisconnectType
    * The connection was closed because a problem was encountered while
    * negotiating a security layer with the server.
    */
-  SECURITY_PROBLEM(INFO_DISCONNECT_TYPE_SECURITY_PROBLEM.get()),
+  SECURITY_PROBLEM(INFO_DISCONNECT_TYPE_SECURITY_PROBLEM.get(),
+       ResultCode.LOCAL_ERROR),
 
 
 
@@ -124,7 +129,7 @@ public enum DisconnectType
    * The connection was closed because it was part of a connection pool that
    * was closed.
    */
-  POOL_CLOSED(INFO_DISCONNECT_TYPE_POOL_CLOSED.get()),
+  POOL_CLOSED(INFO_DISCONNECT_TYPE_POOL_CLOSED.get(), ResultCode.LOCAL_ERROR),
 
 
 
@@ -133,7 +138,8 @@ public enum DisconnectType
    * was being initialized and a failure occurred while attempting to create
    * another connection as part of the pool.
    */
-  POOL_CREATION_FAILURE(INFO_DISCONNECT_TYPE_POOL_CREATION_FAILURE.get()),
+  POOL_CREATION_FAILURE(INFO_DISCONNECT_TYPE_POOL_CREATION_FAILURE.get(),
+       ResultCode.CONNECT_ERROR),
 
 
 
@@ -142,7 +148,8 @@ public enum DisconnectType
    * been classified as defunct.
    */
   POOLED_CONNECTION_DEFUNCT(
-       INFO_DISCONNECT_TYPE_POOLED_CONNECTION_DEFUNCT.get()),
+       INFO_DISCONNECT_TYPE_POOLED_CONNECTION_DEFUNCT.get(),
+       ResultCode.SERVER_DOWN),
 
 
 
@@ -152,7 +159,8 @@ public enum DisconnectType
    * age for the pool.
    */
   POOLED_CONNECTION_EXPIRED(
-       INFO_DISCONNECT_TYPE_POOLED_CONNECTION_EXPIRED.get()),
+       INFO_DISCONNECT_TYPE_POOLED_CONNECTION_EXPIRED.get(),
+       ResultCode.LOCAL_ERROR),
 
 
 
@@ -161,7 +169,8 @@ public enum DisconnectType
    * no longer needed.
    */
   POOLED_CONNECTION_UNNEEDED(
-       INFO_DISCONNECT_TYPE_POOLED_CONNECTION_UNNEEDED.get()),
+       INFO_DISCONNECT_TYPE_POOLED_CONNECTION_UNNEEDED.get(),
+       ResultCode.LOCAL_ERROR),
 
 
 
@@ -169,7 +178,7 @@ public enum DisconnectType
    * The reason for the disconnect is not known.  This generally indicates a
    * problem with inappropriate instrumentation in the LDAP SDK.
    */
-  UNKNOWN(INFO_DISCONNECT_TYPE_UNKNOWN.get()),
+  UNKNOWN(INFO_DISCONNECT_TYPE_UNKNOWN.get(), ResultCode.LOCAL_ERROR),
 
 
 
@@ -178,7 +187,8 @@ public enum DisconnectType
    * that it was not properly closed by the application that had been using
    * it.
    */
-  CLOSED_BY_FINALIZER(INFO_DISCONNECT_TYPE_CLOSED_BY_FINALIZER.get()),
+  CLOSED_BY_FINALIZER(INFO_DISCONNECT_TYPE_CLOSED_BY_FINALIZER.get(),
+       ResultCode.LOCAL_ERROR),
 
 
 
@@ -186,9 +196,12 @@ public enum DisconnectType
    * The connection was closed for a reason that does not fit any other
    * defined disconnect type.
    */
-  OTHER(INFO_DISCONNECT_TYPE_OTHER.get());
+  OTHER(INFO_DISCONNECT_TYPE_OTHER.get(), ResultCode.LOCAL_ERROR);
 
 
+
+  // The result code most closely associated with this disconnect type.
+  private final ResultCode resultCode;
 
   // A description for this disconnect type.
   private final String description;
@@ -199,10 +212,13 @@ public enum DisconnectType
    * Creates a new disconnect type with the specified description.
    *
    * @param  description  The description for this disconnect type.
+   * @param  resultCode   The result code most closely associated with this
+   *                      disconnect type.
    */
-  private DisconnectType(final String description)
+  private DisconnectType(final String description, final ResultCode resultCode)
   {
     this.description = description;
+    this.resultCode  = resultCode;
   }
 
 
@@ -215,6 +231,19 @@ public enum DisconnectType
   public String getDescription()
   {
     return description;
+  }
+
+
+
+  /**
+   * Retrieves the result code most closely associated with this disconnect
+   * type.
+   *
+   * @return  The result code most closely associated with this disconnect type.
+   */
+  public ResultCode getResultCode()
+  {
+    return resultCode;
   }
 
 
@@ -374,6 +403,8 @@ public enum DisconnectType
   {
     buffer.append("DisconnectType(name='");
     buffer.append(name());
+    buffer.append("', resultCode='");
+    buffer.append(resultCode);
     buffer.append("', description='");
     buffer.append(description);
     buffer.append("')");
