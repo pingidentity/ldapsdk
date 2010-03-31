@@ -315,7 +315,7 @@
         <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="com.unboundid.ldap.sdk.Version" />
+        <attribute name="Main-Class" value="com.unboundid.util.Launcher" />
         <attribute name="Implementation-Title"
                    value="${PRODUCT_NAME} (Standard Edition)" />
         <attribute name="Implementation-Version"
