@@ -22,6 +22,10 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -161,16 +165,37 @@ public final class Version
    */
   public static void main(final String... args)
   {
-    System.out.println("Full Version String:   " + FULL_VERSION_STRING);
-    System.out.println("Short Version String:  " + SHORT_VERSION_STRING);
-    System.out.println("Product Name:          " + PRODUCT_NAME);
-    System.out.println("Short Name:            " + SHORT_NAME);
-    System.out.println("Major Version:         " + MAJOR_VERSION);
-    System.out.println("Minor Version:         " + MINOR_VERSION);
-    System.out.println("Point Version:         " + POINT_VERSION);
-    System.out.println("Version Qualifier:     " + VERSION_QUALIFIER);
-    System.out.println("Build Timestamp:       " + BUILD_TIMESTAMP);
-    System.out.println("Repository Path:       " + REPOSITORY_PATH);
-    System.out.println("Revision Number:       " + REVISION_NUMBER);
+    for (final String line : getVersionLines())
+    {
+      System.out.println(line);
+    }
+  }
+
+
+
+  /**
+   * Retrieves a list of lines containing information about the LDAP SDK
+   * version.
+   *
+   * @return  A list of lines containing information about the LDAP SDK
+   *          version.
+   */
+  public static List<String> getVersionLines()
+  {
+    final LinkedList<String> versionLines = new LinkedList<String>();
+
+    versionLines.add("Full Version String:   " + FULL_VERSION_STRING);
+    versionLines.add("Short Version String:  " + SHORT_VERSION_STRING);
+    versionLines.add("Product Name:          " + PRODUCT_NAME);
+    versionLines.add("Short Name:            " + SHORT_NAME);
+    versionLines.add("Major Version:         " + MAJOR_VERSION);
+    versionLines.add("Minor Version:         " + MINOR_VERSION);
+    versionLines.add("Point Version:         " + POINT_VERSION);
+    versionLines.add("Version Qualifier:     " + VERSION_QUALIFIER);
+    versionLines.add("Build Timestamp:       " + BUILD_TIMESTAMP);
+    versionLines.add("Repository Path:       " + REPOSITORY_PATH);
+    versionLines.add("Revision Number:       " + REVISION_NUMBER);
+
+    return Collections.unmodifiableList(versionLines);
   }
 }
