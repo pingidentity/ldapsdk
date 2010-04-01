@@ -82,7 +82,7 @@ public final class WakeableSleeper
   @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
   public boolean sleep(final long time)
   {
-    synchronized (this)
+    synchronized (wakeupCount)
     {
       Validator.ensureTrue(sleeping.compareAndSet(false, true),
            "WakeableSleeper.sleep() must not be invoked concurrently by " +
@@ -91,7 +91,7 @@ public final class WakeableSleeper
       try
       {
         final long beforeCount = wakeupCount.get();
-        wait(time);
+        wakeupCount.wait(time);
         final long afterCount = wakeupCount.get();
         return (beforeCount == afterCount);
       }
@@ -119,10 +119,10 @@ public final class WakeableSleeper
   @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
   public void wakeup()
   {
-    synchronized (this)
+    synchronized (wakeupCount)
     {
       wakeupCount.incrementAndGet();
-      notifyAll();
+      wakeupCount.notifyAll();
     }
   }
 }
