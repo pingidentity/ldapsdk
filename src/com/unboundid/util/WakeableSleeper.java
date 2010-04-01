@@ -23,9 +23,8 @@ package com.unboundid.util;
 
 
 import java.io.Serializable;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 
@@ -41,24 +40,17 @@ public final class WakeableSleeper
        implements Serializable
 {
   /**
-   * The object that we will place in the queue to trigger a wakeup.
-   */
-  private static final Object WAKEUP_OBJECT = new Object();
-
-
-
-  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 4758449685424440579L;
+  private static final long serialVersionUID = 755656862953269760L;
 
 
-
-  // The queue that we will use to trigger a wakeup.
-  private final ArrayBlockingQueue<Object> queue;
 
   // A flag used to prevent multiple concurrent attempts to sleep.
   private final AtomicBoolean sleeping;
+
+  // The number of attempts to wake up this sleeper.
+  private final AtomicLong wakeupCount;
 
 
 
@@ -67,8 +59,8 @@ public final class WakeableSleeper
    */
   public WakeableSleeper()
   {
-    queue    = new ArrayBlockingQueue<Object>(1);
-    sleeping = new AtomicBoolean(false);
+    sleeping    = new AtomicBoolean(false);
+    wakeupCount = new AtomicLong(0L);
   }
 
 
@@ -79,8 +71,8 @@ public final class WakeableSleeper
    * wake up prematurely if the wakeup method is called, or if the thread is
    * interrupted.
    * <BR><BR>
-   * This method must not be called on the same instance by multiple threads at
-   * the same time.
+   * This method must not be called on the same {@code WakeableSleeper} instance
+   * by multiple threads at the same time.
    *
    * @param  time  The length of time in milliseconds to sleep.
    *
@@ -90,26 +82,29 @@ public final class WakeableSleeper
   @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
   public boolean sleep(final long time)
   {
-    Validator.ensureTrue(sleeping.compareAndSet(false, true),
-         "WakeableSleeper.sleep() must not be invoked concurrently by " +
-              "multiple threads against the same instance.");
-
-    boolean completed = false;
-
-    try
+    synchronized (this)
     {
-      // First, poll with no timeout in order to remove any pending wakeup
-      // object.  Then poll with the specified timeout.
-      queue.poll();
-      completed = (queue.poll(time, TimeUnit.MILLISECONDS) == null);
-    }
-    catch (InterruptedException ie)
-    {
-      Debug.debugException(ie);
-    }
+      Validator.ensureTrue(sleeping.compareAndSet(false, true),
+           "WakeableSleeper.sleep() must not be invoked concurrently by " +
+                "multiple threads against the same instance.");
 
-    sleeping.set(false);
-    return completed;
+      try
+      {
+        final long beforeCount = wakeupCount.get();
+        wait(time);
+        final long afterCount = wakeupCount.get();
+        return (beforeCount == afterCount);
+      }
+      catch (final InterruptedException ie)
+      {
+        Debug.debugException(ie);
+        return false;
+      }
+      finally
+      {
+        sleeping.set(false);
+      }
+    }
   }
 
 
@@ -124,6 +119,10 @@ public final class WakeableSleeper
   @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
   public void wakeup()
   {
-    queue.offer(WAKEUP_OBJECT);
+    synchronized (this)
+    {
+      wakeupCount.incrementAndGet();
+      notifyAll();
+    }
   }
 }
