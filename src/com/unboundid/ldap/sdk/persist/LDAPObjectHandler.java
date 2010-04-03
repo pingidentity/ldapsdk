@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Attribute;
@@ -145,6 +146,9 @@ public final class LDAPObjectHandler<T>
   // The structural object class that should be used for entries created from
   // objects of the associated type.
   private final String structuralClass;
+
+  // The set of attributes that should be requested when performing a search.
+  private final String[] attributesToRequest;
 
   // The auxiliary object classes that should should used for entries created
   // from objects of the associated type.
@@ -531,6 +535,28 @@ public final class LDAPObjectHandler<T>
     fieldMap  = Collections.unmodifiableMap(fields);
     getterMap = Collections.unmodifiableMap(getters);
     setterMap = Collections.unmodifiableMap(setters);
+
+
+    final TreeSet<String> attrSet = new TreeSet<String>();
+    if (ldapObject.requestAllAttributes())
+    {
+      attrSet.add("*");
+      attrSet.add("+");
+    }
+    else
+    {
+      for (final FieldInfo i : fields.values())
+      {
+        attrSet.add(i.getAttributeName());
+      }
+
+      for (final SetterInfo i : setters.values())
+      {
+        attrSet.add(i.getAttributeName());
+      }
+    }
+    attributesToRequest = new String[attrSet.size()];
+    attrSet.toArray(attributesToRequest);
   }
 
 
@@ -640,6 +666,20 @@ public final class LDAPObjectHandler<T>
   public String[] getAuxiliaryClasses()
   {
     return auxiliaryClasses;
+  }
+
+
+
+  /**
+   * Retrieves the names of the attributes that should be requested when
+   * performing a search.
+   *
+   * @return  The names of the attributes that should be requested when
+   *          performing a search.
+   */
+  public String[] getAttributesToRequest()
+  {
+    return attributesToRequest;
   }
 
 

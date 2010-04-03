@@ -44,6 +44,18 @@ import java.lang.annotation.Target;
 public @interface LDAPObject
 {
   /**
+   * Indicates whether to request all attributes when performing searches to
+   * retrieve objects of this type.  If this is {@code true}, then the search
+   * request will attempt to retrieve all user and operational attributes.  If
+   * this is {@code false}, then the search request will attempt to retrieve
+   * only those attributes which are referenced by an {@link LDAPField} or
+   * {@link LDAPSetter} annotation.
+   */
+  boolean requestAllAttributes() default false;
+
+
+
+  /**
    * The DN of the entry below which objects of this type will be created if no
    * alternate parent DN is specified.  A value equal to the empty string
    * indicates that there should be no default parent.
