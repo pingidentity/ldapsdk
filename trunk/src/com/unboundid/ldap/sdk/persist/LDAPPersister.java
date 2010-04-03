@@ -856,7 +856,7 @@ public final class LDAPPersister<T>
     final Entry entry;
     try
     {
-      entry = i.getEntry(dn, "*", "+");
+      entry = i.getEntry(dn, handler.getAttributesToRequest());
       if (entry == null)
       {
         return null;
@@ -894,7 +894,7 @@ public final class LDAPPersister<T>
     final Entry entry;
     try
     {
-      entry = i.getEntry(dn, "*", "+");
+      entry = i.getEntry(dn, handler.getAttributesToRequest());
       if (entry == null)
       {
         return null;
@@ -1071,7 +1071,8 @@ public final class LDAPPersister<T>
     }
 
     final SearchRequest searchRequest = new SearchRequest(base, scope,
-         derefPolicy, sizeLimit, timeLimit, false, filter, "*", "+");
+         derefPolicy, sizeLimit, timeLimit, false, filter,
+         handler.getAttributesToRequest());
     if (controls != null)
     {
       searchRequest.setControls(controls);
@@ -1240,7 +1241,8 @@ public final class LDAPPersister<T>
     final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
 
     final SearchRequest searchRequest = new SearchRequest(bridge, base, scope,
-         derefPolicy, sizeLimit, timeLimit, false, filter, "*", "+");
+         derefPolicy, sizeLimit, timeLimit, false, filter,
+         handler.getAttributesToRequest());
     if (controls != null)
     {
       searchRequest.setControls(controls);
@@ -1413,7 +1415,8 @@ public final class LDAPPersister<T>
     }
 
     final SearchRequest searchRequest = new SearchRequest(base, scope,
-         derefPolicy, sizeLimit, timeLimit, false, filter, "*", "+");
+         derefPolicy, sizeLimit, timeLimit, false, filter,
+         handler.getAttributesToRequest());
     if (controls != null)
     {
       searchRequest.setControls(controls);

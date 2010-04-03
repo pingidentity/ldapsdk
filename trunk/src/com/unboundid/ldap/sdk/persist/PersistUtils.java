@@ -259,7 +259,8 @@ public final class PersistUtils
 
     final LDAPPersister<T> p = LDAPPersister.getInstance(type);
 
-    final Entry e = conn.getEntry(dn.toString(), "*", "+");
+    final Entry e = conn.getEntry(dn.toString(),
+         p.getObjectHandler().getAttributesToRequest());
     if (e == null)
     {
       return null;
@@ -299,7 +300,8 @@ public final class PersistUtils
 
     final LDAPPersister<T> p = LDAPPersister.getInstance(type);
 
-    final DNEntrySource entrySource = new DNEntrySource(conn, dns, "*", "+");
+    final DNEntrySource entrySource = new DNEntrySource(conn, dns,
+         p.getObjectHandler().getAttributesToRequest());
     return new PersistedObjects<T>(p, entrySource);
   }
 }
