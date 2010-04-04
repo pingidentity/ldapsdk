@@ -49,7 +49,8 @@ public @interface LDAPObject
    * request will attempt to retrieve all user and operational attributes.  If
    * this is {@code false}, then the search request will attempt to retrieve
    * only those attributes which are referenced by an {@link LDAPField} or
-   * {@link LDAPSetter} annotation.
+   * {@link LDAPSetter} annotation.  Note that if this is given a value of
+   * {@code true}, then lazy loading will be disabled.
    */
   boolean requestAllAttributes() default false;
 

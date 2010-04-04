@@ -23,15 +23,18 @@ package com.unboundid.ldap.sdk.persist;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -57,6 +60,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.persist.PersistMessages.*;
 import static com.unboundid.util.Debug.*;
+import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.Validator.*;
 
 
@@ -119,7 +123,6 @@ public final class LDAPPersister<T>
   private LDAPPersister(final Class<T> type)
           throws LDAPPersistException
   {
-    ensureNotNull(type);
     handler = new LDAPObjectHandler<T>(type);
   }
 
@@ -144,6 +147,8 @@ public final class LDAPPersister<T>
   public static <T> LDAPPersister<T> getInstance(final Class<T> type)
          throws LDAPPersistException
   {
+    ensureNotNull(type);
+
     LDAPPersister<T> p = (LDAPPersister<T>) INSTANCES.get(type);
     if (p == null)
     {
@@ -907,6 +912,100 @@ public final class LDAPPersister<T>
     }
 
     return decode(entry);
+  }
+
+
+
+  /**
+   * Initializes any fields in the provided object marked for lazy loading.
+   *
+   * @param  o       The object to be updated.  It must not be {@code null}.
+   * @param  i       The interface to use to communicate with the directory
+   *                 server.  It must not be {@code null}.
+   * @param  fields  The set of fields that should be loaded.  Any fields
+   *                 included in this list which aren't marked for lazy loading
+   *                 will be ignored.  If this is empty or {@code null}, then
+   *                 all lazily-loaded fields will be requested.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while attempting to
+   *                                retrieve or process the associated entry.
+   *                                If an exception is thrown, then all content
+   *                                from the provided object that is not lazily
+   *                                loaded should remain valid, and some
+   *                                lazily-loaded fields may have been
+   *                                initialized.
+   */
+  public void lazilyLoad(final T o, final LDAPInterface i,
+                         final FieldInfo... fields)
+         throws LDAPPersistException
+  {
+    ensureNotNull(o, i);
+
+    final String[] attrs;
+    if ((fields == null) || (fields.length == 0))
+    {
+      attrs = handler.getLazilyLoadedAttributes();
+    }
+    else
+    {
+      final ArrayList<String> attrList = new ArrayList<String>(fields.length);
+      for (final FieldInfo f : fields)
+      {
+        if (f.lazilyLoad())
+        {
+          attrList.add(f.getAttributeName());
+        }
+      }
+      attrs = new String[attrList.size()];
+      attrList.toArray(attrs);
+    }
+
+    if (attrs.length == 0)
+    {
+      return;
+    }
+
+    final String dn = handler.getEntryDN(o);
+    if (dn == null)
+    {
+      throw new LDAPPersistException(ERR_PERSISTER_LAZILY_LOAD_NO_DN.get());
+    }
+
+    final Entry entry;
+    try
+    {
+      entry = i.getEntry(handler.getEntryDN(o), attrs);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw new LDAPPersistException(le);
+    }
+
+    if (entry == null)
+    {
+      throw new LDAPPersistException(
+           ERR_PERSISTER_LAZILY_LOAD_NO_ENTRY.get(dn));
+    }
+
+    boolean successful = true;
+    final LinkedList<String> failureReasons = new LinkedList<String>();
+    final Map<String,FieldInfo> fieldMap = handler.getFields();
+    for (final Attribute a : entry.getAttributes())
+    {
+      final String lowerName = toLowerCase(a.getName());
+      final FieldInfo f = handler.getFields().get(lowerName);
+      if (f != null)
+      {
+        successful &= f.decode(o, entry, failureReasons);
+      }
+    }
+
+    if (! successful)
+    {
+      throw new LDAPPersistException(concatenateStrings(failureReasons), o,
+           null);
+    }
   }
 
 

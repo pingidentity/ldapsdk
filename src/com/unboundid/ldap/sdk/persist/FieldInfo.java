@@ -84,6 +84,9 @@ public final class FieldInfo
   // Indicates whether the associated field is required when encoding.
   private final boolean isRequiredForEncode;
 
+  // Indicates whether the associated field should be lazily-loaded.
+  private final boolean lazilyLoad;
+
   // Indicates whether the associated field supports multiple values.
   private final boolean supportsMultipleValues;
 
@@ -153,10 +156,34 @@ public final class FieldInfo
     includeInAdd        = (includeInRDN || a.inAdd());
     includeInModify     = ((! includeInRDN) && a.inModify());
     filterUsage         = a.filterUsage();
-    isRequiredForDecode = a.requiredForDecode();
+    lazilyLoad          = a.lazilyLoad();
+    isRequiredForDecode = (a.requiredForDecode() && (! lazilyLoad));
     isRequiredForEncode = (includeInRDN || a.requiredForEncode());
     defaultDecodeValues = a.defaultDecodeValue();
     defaultEncodeValues = a.defaultEncodeValue();
+
+    if (lazilyLoad)
+    {
+      if (defaultDecodeValues.length > 0)
+      {
+        throw new LDAPPersistException(
+             ERR_FIELD_INFO_LAZY_WITH_DEFAULT_DECODE.get(f.getName(),
+                  c.getName()));
+      }
+
+      if (defaultEncodeValues.length > 0)
+      {
+        throw new LDAPPersistException(
+             ERR_FIELD_INFO_LAZY_WITH_DEFAULT_ENCODE.get(f.getName(),
+                  c.getName()));
+      }
+
+      if (includeInRDN)
+      {
+        throw new LDAPPersistException(ERR_FIELD_INFO_LAZY_IN_RDN.get(
+             f.getName(), c.getName()));
+      }
+    }
 
     final int modifiers = f.getModifiers();
     if (Modifier.isFinal(modifiers))
@@ -410,7 +437,7 @@ public final class FieldInfo
 
   /**
    * Indicates whether the associated field should be considered required for
-   * encode operations.    Note that the value returned from this method may be
+   * encode operations.  Note that the value returned from this method may be
    * {@code true} even when the annotation has a value of {@code true} for the
    * {@code requiredForEncode} element if the associated field is to be included
    * in entry RDNs.
@@ -421,6 +448,19 @@ public final class FieldInfo
   public boolean isRequiredForEncode()
   {
     return isRequiredForEncode;
+  }
+
+
+
+  /**
+   * Indicates whether the associated field should be lazily-loaded.
+   *
+   * @return  {@code true} if the associated field should be lazily-loaded, or
+   *          {@code false} if not.
+   */
+  public boolean lazilyLoad()
+  {
+    return lazilyLoad;
   }
 
 
