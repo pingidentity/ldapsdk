@@ -148,11 +148,15 @@ public final class LDAPObjectHandler<T>
   private final String structuralClass;
 
   // The set of attributes that should be requested when performing a search.
+  // It will not include lazily-loaded attributes.
   private final String[] attributesToRequest;
 
   // The auxiliary object classes that should should used for entries created
   // from objects of the associated type.
   private final String[] auxiliaryClasses;
+
+  // The set of attributes that should be lazily loaded.
+  private final String[] lazilyLoadedAttributes;
 
 
 
@@ -538,6 +542,7 @@ public final class LDAPObjectHandler<T>
 
 
     final TreeSet<String> attrSet = new TreeSet<String>();
+    final TreeSet<String> lazySet = new TreeSet<String>();
     if (ldapObject.requestAllAttributes())
     {
       attrSet.add("*");
@@ -547,7 +552,14 @@ public final class LDAPObjectHandler<T>
     {
       for (final FieldInfo i : fields.values())
       {
-        attrSet.add(i.getAttributeName());
+        if (i.lazilyLoad())
+        {
+          lazySet.add(i.getAttributeName());
+        }
+        else
+        {
+          attrSet.add(i.getAttributeName());
+        }
       }
 
       for (final SetterInfo i : setters.values())
@@ -557,6 +569,9 @@ public final class LDAPObjectHandler<T>
     }
     attributesToRequest = new String[attrSet.size()];
     attrSet.toArray(attributesToRequest);
+
+    lazilyLoadedAttributes = new String[lazySet.size()];
+    lazySet.toArray(lazilyLoadedAttributes);
   }
 
 
@@ -672,7 +687,7 @@ public final class LDAPObjectHandler<T>
 
   /**
    * Retrieves the names of the attributes that should be requested when
-   * performing a search.
+   * performing a search.  It will not include lazily-loaded attributes.
    *
    * @return  The names of the attributes that should be requested when
    *          performing a search.
@@ -680,6 +695,21 @@ public final class LDAPObjectHandler<T>
   public String[] getAttributesToRequest()
   {
     return attributesToRequest;
+  }
+
+
+
+  /**
+   * Retrieves the names of the attributes that should be lazily loaded for
+   * objects of this type.
+   *
+   * @return  The names of the attributes that should be lazily loaded for
+   *          objects of this type.  It may be empty if no attributes should be
+   *          lazily-loaded.
+   */
+  public String[] getLazilyLoadedAttributes()
+  {
+    return lazilyLoadedAttributes;
   }
 
 

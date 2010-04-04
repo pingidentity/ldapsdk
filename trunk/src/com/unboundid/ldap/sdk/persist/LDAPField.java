@@ -104,6 +104,20 @@ public @interface LDAPField
 
 
   /**
+   * Indicates whether this field should be lazily-loaded, which means that the
+   * associated attribute will not be retrieved by default so this field will
+   * be uninitialized.  This may be useful for attributes which are not always
+   * needed and that may be expensive to retrieve or could require a lot of
+   * memory to hold.  The contents of such fields may be loaded on demand if
+   * their values are needed.  Fields marked for lazy loading will never be
+   * considered required for decoding, and they must not be given default values
+   * or marked for inclusion in entry RDNs.
+   */
+  boolean lazilyLoad() default false;
+
+
+
+  /**
    * Indicates whether this field is required to be assigned a value in decode
    * processing.  If this is {@code true}, then attempts to initialize a Java
    * object from an LDAP entry which does not contain a value for the associated
