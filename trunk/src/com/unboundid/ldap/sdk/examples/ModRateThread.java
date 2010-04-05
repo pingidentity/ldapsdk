@@ -226,6 +226,14 @@ final class ModRateThread
         final ResultCode rc = le.getResultCode();
         rcCounter.increment(rc);
         resultCode.compareAndSet(null, rc);
+
+        if (! le.getResultCode().isConnectionUsable())
+        {
+          try
+          {
+            connection.reconnect();
+          } catch (final LDAPException le2) {}
+        }
       }
 
       modCounter.incrementAndGet();

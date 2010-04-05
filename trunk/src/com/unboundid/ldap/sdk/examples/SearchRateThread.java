@@ -300,6 +300,14 @@ final class SearchRateThread
           final ResultCode rc = lse.getResultCode();
           rcCounter.increment(rc);
           resultCode.compareAndSet(null, rc);
+
+          if (! lse.getResultCode().isConnectionUsable())
+          {
+            try
+            {
+              connection.reconnect();
+            } catch (final LDAPException le2) {}
+          }
         }
 
         searchCounter.incrementAndGet();

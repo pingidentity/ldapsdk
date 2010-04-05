@@ -705,8 +705,8 @@ public final class LDAPConnection
    * @throws  LDAPException  If a problem occurs while attempting to re-connect
    *                         or re-authenticate.
    */
-  void reconnect()
-       throws LDAPException
+  public void reconnect()
+         throws LDAPException
   {
     if ((System.currentTimeMillis() - lastReconnectTime) < 1000L)
     {

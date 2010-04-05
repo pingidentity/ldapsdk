@@ -306,6 +306,15 @@ final class AuthRateThread
         final ResultCode rc = le.getResultCode();
         rcCounter.increment(rc);
         resultCode.compareAndSet(null, rc);
+
+        if (! le.getResultCode().isConnectionUsable())
+        {
+          try
+          {
+            searchConnection.reconnect();
+            bindConnection.reconnect();
+          } catch (final LDAPException le2) {}
+        }
       }
       finally
       {
