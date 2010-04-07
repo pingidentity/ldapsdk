@@ -820,7 +820,7 @@ public final class GenerateSourceFromSchema
     for (final String lowerName : rdnAttrs)
     {
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
-      writeGetterAndSetter(writer, d, types.get(lowerName), terse);
+      writeGetterAndSetter(writer, d, types.get(lowerName), true);
     }
 
     for (final String lowerName : requiredAttrs.keySet())
@@ -1240,9 +1240,40 @@ public final class GenerateSourceFromSchema
                "with the");
           writer.println("   *            " + attrName + " attribute.");
           writer.println("   */");
-          writer.println("  public void set" + capFieldName + "DN(final DN v)");
+          writer.println("  public void set" + capFieldName + "(final DN v)");
           writer.println("  {");
           writer.println("    this." + fieldName + " = v;");
+          writer.println("  }");
+
+          writer.println();
+          writer.println();
+          writer.println();
+
+          writer.println("  /**");
+          writer.println("   * Sets the value for the field associated with " +
+               "the");
+          writer.println("   * " + attrName + " attribute.");
+          writer.println("   *");
+          writer.println("   * @param  v  The string representation of the " +
+               "value for the field associated");
+          writer.println("   *            with the " + attrName +
+               " attribute.");
+          writer.println("   *");
+          writer.println("   * @throws  LDAPException  If the provided " +
+               "string cannot be parsed as a DN.");
+          writer.println("   */");
+          writer.println("  public void set" + capFieldName +
+               "(final String v)");
+          writer.println("         throws LDAPException");
+          writer.println("  {");
+          writer.println("    if (v == null)");
+          writer.println("    {");
+          writer.println("      this." + fieldName + " = null;");
+          writer.println("    }");
+          writer.println("    else");
+          writer.println("    {");
+          writer.println("      this." + fieldName + " = new DN(v);");
+          writer.println("    }");
           writer.println("  }");
         }
       }
@@ -1401,6 +1432,42 @@ public final class GenerateSourceFromSchema
                "(final DN... v)");
           writer.println("  {");
           writer.println("    this." + fieldName + " = v;");
+          writer.println("  }");
+
+          writer.println();
+          writer.println();
+          writer.println();
+
+          writer.println("  /**");
+          writer.println("   * Sets the values for the field associated with " +
+               "the");
+          writer.println("   * " + attrName + " attribute.");
+          writer.println("   *");
+          writer.println("   * @param  v  The string representations of the " +
+               "values for the field ");
+          writer.println("   *            associated with the " + attrName +
+               " attribute.");
+          writer.println("   *");
+          writer.println("   * @throws  LDAPException  If any of the " +
+               "provided strings cannot be parsed as");
+          writer.println("   *                         a DN.");
+          writer.println("   */");
+          writer.println("  public void set" + capFieldName +
+               "(final String... v)");
+          writer.println("         throws LDAPException");
+          writer.println("  {");
+          writer.println("    if (v == null)");
+          writer.println("    {");
+          writer.println("      this." + fieldName + " = null;");
+          writer.println("    }");
+          writer.println("    else");
+          writer.println("    {");
+          writer.println("      this." + fieldName + " = new DN[v.length];");
+          writer.println("      for (int i=0; i < v.length; i++)");
+          writer.println("      {");
+          writer.println("        this." + fieldName + "[i] = new DN(v[i]);");
+          writer.println("      }");
+          writer.println("    }");
           writer.println("  }");
         }
       }
