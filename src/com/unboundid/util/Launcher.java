@@ -33,6 +33,7 @@ import com.unboundid.ldap.sdk.examples.LDAPModify;
 import com.unboundid.ldap.sdk.examples.LDAPSearch;
 import com.unboundid.ldap.sdk.examples.ModRate;
 import com.unboundid.ldap.sdk.examples.SearchRate;
+import com.unboundid.ldap.sdk.examples.SearchAndModRate;
 import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
@@ -60,6 +61,7 @@ import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
+ *   <LI>search-and-mod-rate -- Launch the {@link SearchAndModRate} tool.</LI>
  *   <LI>validate-ldif -- Launch the {@link ValidateLDIF} tool.</LI>
  *   <LI>version -- Display version information for the LDAP SDK.</LI>
  * </UL>
@@ -159,6 +161,10 @@ public final class Launcher
     {
       return SearchRate.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("search-and-mod-rate"))
+    {
+      return SearchAndModRate.main(remainingArgs, outStream, errStream);
+    }
     else if (firstArg.equals("validate-ldif"))
     {
       return ValidateLDIF.main(remainingArgs, outStream, errStream);
@@ -178,6 +184,7 @@ public final class Launcher
         err.println("     ldapsearch");
         err.println("     modrate");
         err.println("     searchrate");
+        err.println("     search-and-mod-rate");
         err.println("     validate-ldif");
         err.println("     version");
       }
