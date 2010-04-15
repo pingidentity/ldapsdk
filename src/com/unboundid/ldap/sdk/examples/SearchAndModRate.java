@@ -887,7 +887,7 @@ public final class SearchAndModRate
       "--attribute", "mail",
       "--modifyAttribute", "description",
       "--valueLength", "10",
-      "----characterSet", "abcdefghijklmnopqrstuvwxyz0123456789",
+      "--characterSet", "abcdefghijklmnopqrstuvwxyz0123456789",
       "--numThreads", "10"
     };
     final String description =
