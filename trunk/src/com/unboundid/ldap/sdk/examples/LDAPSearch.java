@@ -103,6 +103,9 @@ public final class LDAPSearch
   // The argument used to indicate whether to follow referrals.
   private BooleanArgument followReferrals;
 
+  // The argument used to indicate whether to use terse mode.
+  private BooleanArgument terseMode;
+
   // The argument used to specify the base DN for the search.
   private DNArgument baseDN;
 
@@ -261,6 +264,11 @@ public final class LDAPSearch
     description = "Follow any referrals encountered during processing.";
     followReferrals = new BooleanArgument('R', "followReferrals", description);
     parser.addArgument(followReferrals);
+
+
+    description = "Generate terse output with minimal additional information.";
+    terseMode = new BooleanArgument('t', "terse", description);
+    parser.addArgument(terseMode);
   }
 
 
@@ -339,8 +347,11 @@ public final class LDAPSearch
     try
     {
       connection = getConnection();
-      out("Connected to ", connection.getConnectedAddress(), ':',
-          connection.getConnectedPort());
+      if (! terseMode.isPresent())
+      {
+        out("# Connected to ", connection.getConnectedAddress(), ':',
+             connection.getConnectedPort());
+      }
     }
     catch (LDAPException le)
     {
@@ -363,9 +374,12 @@ public final class LDAPSearch
     try
     {
       final SearchResult searchResult = connection.search(searchRequest);
-      out("The search operation was processed successfully.");
-      out("Entries returned:  ", searchResult.getEntryCount());
-      out("References returned:  ", searchResult.getReferenceCount());
+      if (! terseMode.isPresent())
+      {
+        out("# The search operation was processed successfully.");
+        out("# Entries returned:  ", searchResult.getEntryCount());
+        out("# References returned:  ", searchResult.getReferenceCount());
+      }
       resultCode = searchResult.getResultCode();
     }
     catch (LDAPException le)
@@ -391,8 +405,11 @@ public final class LDAPSearch
 
     // Close the connection to the directory server and exit.
     connection.close();
-    out();
-    out("Disconnected from the server");
+    if (! terseMode.isPresent())
+    {
+      out();
+      out("# Disconnected from the server");
+    }
     return resultCode;
   }
 
