@@ -23,6 +23,8 @@ package com.unboundid.ldap.sdk.examples;
 
 
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,10 +43,12 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.WakeableSleeper;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.DNArgument;
+import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
 
 
@@ -91,6 +95,14 @@ public final class LDAPSearch
        implements SearchResultListener
 {
   /**
+   * The date formatter that should be used when writing timestamps.
+   */
+  private static final SimpleDateFormat DATE_FORMAT =
+       new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss.SSS");
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 7465188734621412477L;
@@ -100,11 +112,20 @@ public final class LDAPSearch
   // The argument parser used by this program.
   private ArgumentParser parser;
 
+  // Indicates whether the search should be repeated.
+  private boolean repeat;
+
   // The argument used to indicate whether to follow referrals.
   private BooleanArgument followReferrals;
 
   // The argument used to indicate whether to use terse mode.
   private BooleanArgument terseMode;
+
+  // The number of times to perform the search.
+  private IntegerArgument numSearches;
+
+  // The interval in milliseconds between repeated searches.
+  private IntegerArgument repeatInterval;
 
   // The argument used to specify the base DN for the search.
   private DNArgument baseDN;
@@ -269,6 +290,27 @@ public final class LDAPSearch
     description = "Generate terse output with minimal additional information.";
     terseMode = new BooleanArgument('t', "terse", description);
     parser.addArgument(terseMode);
+
+
+    description = "Specifies the length of time in milliseconds to sleep " +
+                  "before repeating the same search.  If this is not " +
+                  "provided, then the search will only be performed once.";
+    repeatInterval = new IntegerArgument('i', "repeatInterval", false, 1,
+                                         "{millis}", description, 0,
+                                         Integer.MAX_VALUE);
+    parser.addArgument(repeatInterval);
+
+
+    description = "Specifies the number of times that the search should be " +
+                  "performed.  If this argument is present, then the " +
+                  "--repeatInterval argument must also be provided to " +
+                  "specify the length of time between searches.  If " +
+                  "--repeatInterval is used without --numSearches, then the " +
+                  "search will be repeated until the tool is interrupted.";
+    numSearches = new IntegerArgument('n', "numSearches", false, 1, "{count}",
+                                      description, 1, Integer.MAX_VALUE);
+    parser.addArgument(numSearches);
+    parser.addDependentArgumentSet(numSearches, repeatInterval);
   }
 
 
@@ -370,36 +412,86 @@ public final class LDAPSearch
                            attributesToReturn);
     searchRequest.setFollowReferrals(followReferrals.isPresent());
 
-    ResultCode resultCode;
-    try
+
+    final boolean infinite;
+    final int numIterations;
+    if (repeatInterval.isPresent())
     {
-      final SearchResult searchResult = connection.search(searchRequest);
-      if (! terseMode.isPresent())
+      repeat = true;
+
+      if (numSearches.isPresent())
       {
-        out("# The search operation was processed successfully.");
-        out("# Entries returned:  ", searchResult.getEntryCount());
-        out("# References returned:  ", searchResult.getReferenceCount());
+        infinite      = false;
+        numIterations = numSearches.getValue();
       }
-      resultCode = searchResult.getResultCode();
-    }
-    catch (LDAPException le)
-    {
-      err("An error occurred while processing the search:  ", le.getMessage());
-      err("Result Code:  ", le.getResultCode().intValue(), " (",
-          le.getResultCode().getName(), ')');
-      if (le.getMatchedDN() != null)
+      else
       {
-        err("Matched DN:  ", le.getMatchedDN());
+        infinite      = true;
+        numIterations = Integer.MAX_VALUE;
+      }
+    }
+    else
+    {
+      infinite      = false;
+      repeat        = false;
+      numIterations = 1;
+    }
+
+    ResultCode resultCode = ResultCode.SUCCESS;
+    long lastSearchTime = System.currentTimeMillis();
+    final WakeableSleeper sleeper = new WakeableSleeper();
+    for (int i=0; (infinite || (i < numIterations)); i++)
+    {
+      if (repeat && (i > 0))
+      {
+        final long sleepTime = (lastSearchTime + repeatInterval.getValue()) -
+             System.currentTimeMillis();
+        if (sleepTime > 0)
+        {
+          sleeper.sleep(sleepTime);
+        }
+        lastSearchTime = System.currentTimeMillis();
       }
 
-      if (le.getReferralURLs() != null)
+      try
       {
-        for (final String url : le.getReferralURLs())
+        final SearchResult searchResult = connection.search(searchRequest);
+        if ((! repeat) && (! terseMode.isPresent()))
         {
-          err("Referral URL:  ", url);
+          out("# The search operation was processed successfully.");
+          out("# Entries returned:  ", searchResult.getEntryCount());
+          out("# References returned:  ", searchResult.getReferenceCount());
         }
       }
-      resultCode = le.getResultCode();
+      catch (LDAPException le)
+      {
+        err("An error occurred while processing the search:  ",
+             le.getMessage());
+        err("Result Code:  ", le.getResultCode().intValue(), " (",
+             le.getResultCode().getName(), ')');
+        if (le.getMatchedDN() != null)
+        {
+          err("Matched DN:  ", le.getMatchedDN());
+        }
+
+        if (le.getReferralURLs() != null)
+        {
+          for (final String url : le.getReferralURLs())
+          {
+            err("Referral URL:  ", url);
+          }
+        }
+
+        if (resultCode == ResultCode.SUCCESS)
+        {
+          resultCode = le.getResultCode();
+        }
+
+        if (! le.getResultCode().isConnectionUsable())
+        {
+          break;
+        }
+      }
     }
 
 
@@ -423,6 +515,11 @@ public final class LDAPSearch
    */
   public void searchEntryReturned(final SearchResultEntry entry)
   {
+    if (repeat)
+    {
+      out("# ", DATE_FORMAT.format(new Date()));
+    }
+
     out(entry.toLDIFString());
   }
 
@@ -436,6 +533,11 @@ public final class LDAPSearch
    */
   public void searchReferenceReturned(final SearchResultReference reference)
   {
+    if (repeat)
+    {
+      out("# ", DATE_FORMAT.format(new Date()));
+    }
+
     out(reference.toString());
   }
 
