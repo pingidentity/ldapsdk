@@ -76,6 +76,19 @@ import com.unboundid.util.args.StringArgument;
  *       search.  The scope value should be one of "base", "one", "sub", or
  *       "subord".  If this isn't specified, then a scope of "sub" will be
  *       used.</LI>
+ *   <LI>"-R" or "--followReferrals" -- indicates that the tool should follow
+ *       any referrals encountered while searching.</LI>
+ *   <LI>"-t" or "--terse" -- indicates that the tool should generate minimal
+ *       output beyond the search results.</LI>
+ *   <LI>"-i {millis}" or "--repeatIntervalMillis {millis}" -- indicates that
+ *       the search should be periodically repeated with the specified delay
+ *       (in milliseconds) between requests.</LI>
+ *   <LI>"-n {count}" or "--numSearches {count}" -- specifies the total number
+ *       of times that the search should be performed.  This may only be used in
+ *       conjunction with the "--repeatIntervalMillis" argument.  If
+ *       "--repeatIntervalMillis" is used without "--numSearches", then the
+ *       searches will continue to be repeated until the tool is
+ *       interrupted.</LI>
  * </UL>
  * In addition, after the above named arguments are provided, a set of one or
  * more unnamed trailing arguments must be given.  The first argument should be
@@ -125,7 +138,7 @@ public final class LDAPSearch
   private IntegerArgument numSearches;
 
   // The interval in milliseconds between repeated searches.
-  private IntegerArgument repeatInterval;
+  private IntegerArgument repeatIntervalMillis;
 
   // The argument used to specify the base DN for the search.
   private DNArgument baseDN;
@@ -295,22 +308,24 @@ public final class LDAPSearch
     description = "Specifies the length of time in milliseconds to sleep " +
                   "before repeating the same search.  If this is not " +
                   "provided, then the search will only be performed once.";
-    repeatInterval = new IntegerArgument('i', "repeatInterval", false, 1,
-                                         "{millis}", description, 0,
-                                         Integer.MAX_VALUE);
-    parser.addArgument(repeatInterval);
+    repeatIntervalMillis = new IntegerArgument('i', "repeatIntervalMillis",
+                                               false, 1, "{millis}",
+                                               description, 0,
+                                               Integer.MAX_VALUE);
+    parser.addArgument(repeatIntervalMillis);
 
 
     description = "Specifies the number of times that the search should be " +
                   "performed.  If this argument is present, then the " +
-                  "--repeatInterval argument must also be provided to " +
+                  "--repeatIntervalMillis argument must also be provided to " +
                   "specify the length of time between searches.  If " +
-                  "--repeatInterval is used without --numSearches, then the " +
-                  "search will be repeated until the tool is interrupted.";
+                  "--repeatIntervalMillis is used without --numSearches, " +
+                  "then the search will be repeated until the tool is " +
+                  "interrupted.";
     numSearches = new IntegerArgument('n', "numSearches", false, 1, "{count}",
                                       description, 1, Integer.MAX_VALUE);
     parser.addArgument(numSearches);
-    parser.addDependentArgumentSet(numSearches, repeatInterval);
+    parser.addDependentArgumentSet(numSearches, repeatIntervalMillis);
   }
 
 
@@ -415,7 +430,7 @@ public final class LDAPSearch
 
     final boolean infinite;
     final int numIterations;
-    if (repeatInterval.isPresent())
+    if (repeatIntervalMillis.isPresent())
     {
       repeat = true;
 
@@ -444,7 +459,8 @@ public final class LDAPSearch
     {
       if (repeat && (i > 0))
       {
-        final long sleepTime = (lastSearchTime + repeatInterval.getValue()) -
+        final long sleepTime =
+             (lastSearchTime + repeatIntervalMillis.getValue()) -
              System.currentTimeMillis();
         if (sleepTime > 0)
         {
