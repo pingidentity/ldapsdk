@@ -104,10 +104,17 @@ public final class LDAPThreadLocalConnectionPool
   // the available connections in this pool.
   private volatile long healthCheckInterval;
 
+  // The time that the last expired connection was closed.
+  private volatile long lastExpiredDisconnectTime;
+
   // The maximum length of time in milliseconds that a connection should be
   // allowed to be established before terminating and re-establishing the
   // connection.
   private volatile long maxConnectionAge;
+
+  // The minimum length of time in milliseconds that must pass between
+  // disconnects of connections that have exceeded the maximum connection age.
+  private volatile long minDisconnectInterval;
 
   // The post-connect processor for this connection pool, if any.
   private final PostConnectProcessor postConnectProcessor;
@@ -198,8 +205,10 @@ public final class LDAPThreadLocalConnectionPool
     connections = new ConcurrentHashMap<Thread,LDAPConnection>();
     connections.put(Thread.currentThread(), connection);
 
-    maxConnectionAge   = 0L;
-    closed             = false;
+    lastExpiredDisconnectTime = 0L;
+    maxConnectionAge          = 0L;
+    closed                    = false;
+    minDisconnectInterval     = 0L;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -261,8 +270,10 @@ public final class LDAPThreadLocalConnectionPool
 
     connections = new ConcurrentHashMap<Thread,LDAPConnection>();
 
-    maxConnectionAge   = 0L;
-    closed             = false;
+    lastExpiredDisconnectTime = 0L;
+    maxConnectionAge          = 0L;
+    minDisconnectInterval     = 0L;
+    closed                    = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -528,15 +539,23 @@ public final class LDAPThreadLocalConnectionPool
     }
 
     connection.setConnectionPoolName(connectionPoolName);
-    if ((maxConnectionAge > 0L) &&
-        ((System.currentTimeMillis() - connection.getConnectTime()) >
-         maxConnectionAge))
+    if (connectionIsExpired(connection))
     {
-      connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_EXPIRED,
-                                   null, null);
-      poolStatistics.incrementNumConnectionsClosedExpired();
-      handleDefunctConnection(connection);
-      return;
+      try
+      {
+        final LDAPConnection newConnection = createConnection();
+        connections.put(Thread.currentThread(), newConnection);
+
+        connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_EXPIRED,
+             null, null);
+        connection.terminate(null);
+        poolStatistics.incrementNumConnectionsClosedExpired();
+        lastExpiredDisconnectTime = System.currentTimeMillis();
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+      }
     }
 
     try
@@ -611,6 +630,37 @@ public final class LDAPThreadLocalConnectionPool
 
 
   /**
+   * Indicates whether the provided connection should be considered expired.
+   *
+   * @param  connection  The connection for which to make the determination.
+   *
+   * @return  {@code true} if the provided connection should be considered
+   *          expired, or {@code false} if not.
+   */
+  private boolean connectionIsExpired(final LDAPConnection connection)
+  {
+    // If connection expiration is not enabled, then there is nothing to do.
+    if (maxConnectionAge <= 0L)
+    {
+      return false;
+    }
+
+    // If there is a minimum disconnect interval, then make sure that we have
+    // not closed another expired connection too recently.
+    final long currentTime = System.currentTimeMillis();
+    if ((currentTime - lastExpiredDisconnectTime) < minDisconnectInterval)
+    {
+      return false;
+    }
+
+    // Get the age of the connection and see if it is expired.
+    final long connectionAge = currentTime - connection.getConnectTime();
+    return (connectionAge > maxConnectionAge);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -669,6 +719,49 @@ public final class LDAPThreadLocalConnectionPool
     else
     {
       this.maxConnectionAge = 0L;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the minimum length of time in milliseconds that should pass
+   * between connections closed because they have been established for longer
+   * than the maximum connection age.
+   *
+   * @return  The minimum length of time in milliseconds that should pass
+   *          between connections closed because they have been established for
+   *          longer than the maximum connection age, or {@code 0L} if expired
+   *          connections may be closed as quickly as they are identified.
+   */
+  public long getMinDisconnectIntervalMillis()
+  {
+    return minDisconnectInterval;
+  }
+
+
+
+  /**
+   * Specifies the minimum length of time in milliseconds that should pass
+   * between connections closed because they have been established for longer
+   * than the maximum connection age.
+   *
+   * @param  minDisconnectInterval  The minimum length of time in milliseconds
+   *                                that should pass between connections closed
+   *                                because they have been established for
+   *                                longer than the maximum connection age.  A
+   *                                value less than or equal to zero indicates
+   *                                that no minimum time should be enforced.
+   */
+  public void setMinDisconnectIntervalMillis(final long minDisconnectInterval)
+  {
+    if (minDisconnectInterval > 0)
+    {
+      this.minDisconnectInterval = minDisconnectInterval;
+    }
+    else
+    {
+      this.minDisconnectInterval = 0L;
     }
   }
 
