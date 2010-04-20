@@ -182,6 +182,9 @@ public final class LDAPConnectionPool
   // the available connections in this pool.
   private volatile long healthCheckInterval;
 
+  // The time that the last expired connection was closed.
+  private volatile long lastExpiredDisconnectTime;
+
   // The maximum length of time in milliseconds that a connection should be
   // allowed to be established before terminating and re-establishing the
   // connection.
@@ -190,6 +193,10 @@ public final class LDAPConnectionPool
   // The maximum length of time in milliseconds to wait for a connection to be
   // available.
   private long maxWaitTime;
+
+  // The minimum length of time in milliseconds that must pass between
+  // disconnects of connections that have exceeded the maximum connection age.
+  private volatile long minDisconnectInterval;
 
   // The post-connect processor for this connection pool, if any.
   private final PostConnectProcessor postConnectProcessor;
@@ -380,11 +387,14 @@ public final class LDAPConnectionPool
          new LinkedBlockingQueue<LDAPConnection>(numConnections);
     availableConnections.addAll(connList);
 
-    failedReplaceCount = new AtomicInteger(maxConnections - initialConnections);
-    createIfNecessary  = true;
-    maxConnectionAge   = 0L;
-    maxWaitTime        = 5000L;
-    closed             = false;
+    failedReplaceCount        =
+         new AtomicInteger(maxConnections - initialConnections);
+    createIfNecessary         = true;
+    maxConnectionAge          = 0L;
+    minDisconnectInterval     = 0L;
+    lastExpiredDisconnectTime = 0L;
+    maxWaitTime               = 5000L;
+    closed                    = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -548,11 +558,14 @@ public final class LDAPConnectionPool
          new LinkedBlockingQueue<LDAPConnection>(numConnections);
     availableConnections.addAll(connList);
 
-    failedReplaceCount = new AtomicInteger(maxConnections - initialConnections);
-    createIfNecessary  = true;
-    maxConnectionAge   = 0L;
-    maxWaitTime        = 5000L;
-    closed             = false;
+    failedReplaceCount        =
+         new AtomicInteger(maxConnections - initialConnections);
+    createIfNecessary         = true;
+    maxConnectionAge          = 0L;
+    minDisconnectInterval     = 0L;
+    lastExpiredDisconnectTime = 0L;
+    maxWaitTime               = 5000L;
+    closed                    = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -878,15 +891,32 @@ public final class LDAPConnectionPool
     }
 
     connection.setConnectionPoolName(connectionPoolName);
-    if ((maxConnectionAge > 0L) &&
-        ((System.currentTimeMillis() - connection.getConnectTime()) >
-         maxConnectionAge))
+    if (connectionIsExpired(connection))
     {
-      connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_EXPIRED,
-                                   null, null);
-      poolStatistics.incrementNumConnectionsClosedExpired();
-      handleDefunctConnection(connection);
-      return;
+      try
+      {
+        final LDAPConnection newConnection = createConnection();
+        if (availableConnections.offer(newConnection))
+        {
+          connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_EXPIRED,
+               null, null);
+          connection.terminate(null);
+          poolStatistics.incrementNumConnectionsClosedExpired();
+          lastExpiredDisconnectTime = System.currentTimeMillis();
+          return;
+        }
+        else
+        {
+          newConnection.setDisconnectInfo(
+               DisconnectType.POOLED_CONNECTION_UNNEEDED, null, null);
+          newConnection.terminate(null);
+          poolStatistics.incrementNumConnectionsClosedUnneeded();
+        }
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+      }
     }
 
     try
@@ -990,6 +1020,37 @@ public final class LDAPConnectionPool
       failedReplaceCount.incrementAndGet();
       return null;
     }
+  }
+
+
+
+  /**
+   * Indicates whether the provided connection should be considered expired.
+   *
+   * @param  connection  The connection for which to make the determination.
+   *
+   * @return  {@code true} if the provided connection should be considered
+   *          expired, or {@code false} if not.
+   */
+  private boolean connectionIsExpired(final LDAPConnection connection)
+  {
+    // If connection expiration is not enabled, then there is nothing to do.
+    if (maxConnectionAge <= 0L)
+    {
+      return false;
+    }
+
+    // If there is a minimum disconnect interval, then make sure that we have
+    // not closed another expired connection too recently.
+    final long currentTime = System.currentTimeMillis();
+    if ((currentTime - lastExpiredDisconnectTime) < minDisconnectInterval)
+    {
+      return false;
+    }
+
+    // Get the age of the connection and see if it is expired.
+    final long connectionAge = currentTime - connection.getConnectTime();
+    return (connectionAge > maxConnectionAge);
   }
 
 
@@ -1138,6 +1199,49 @@ public final class LDAPConnectionPool
 
 
   /**
+   * Retrieves the minimum length of time in milliseconds that should pass
+   * between connections closed because they have been established for longer
+   * than the maximum connection age.
+   *
+   * @return  The minimum length of time in milliseconds that should pass
+   *          between connections closed because they have been established for
+   *          longer than the maximum connection age, or {@code 0L} if expired
+   *          connections may be closed as quickly as they are identified.
+   */
+  public long getMinDisconnectIntervalMillis()
+  {
+    return minDisconnectInterval;
+  }
+
+
+
+  /**
+   * Specifies the minimum length of time in milliseconds that should pass
+   * between connections closed because they have been established for longer
+   * than the maximum connection age.
+   *
+   * @param  minDisconnectInterval  The minimum length of time in milliseconds
+   *                                that should pass between connections closed
+   *                                because they have been established for
+   *                                longer than the maximum connection age.  A
+   *                                value less than or equal to zero indicates
+   *                                that no minimum time should be enforced.
+   */
+  public void setMinDisconnectIntervalMillis(final long minDisconnectInterval)
+  {
+    if (minDisconnectInterval > 0)
+    {
+      this.minDisconnectInterval = minDisconnectInterval;
+    }
+    else
+    {
+      this.minDisconnectInterval = 0L;
+    }
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -1226,21 +1330,37 @@ public final class LDAPConnectionPool
           examinedConnections.add(conn);
         }
       }
-      else if ((maxConnectionAge > 0L) &&
-               ((System.currentTimeMillis() - conn.getConnectTime()) >=
-                maxConnectionAge))
-      {
-        conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_EXPIRED, null,
-                               null);
-        poolStatistics.incrementNumConnectionsClosedExpired();
-        conn = handleDefunctConnection(conn);
-        if (conn != null)
-        {
-          examinedConnections.add(conn);
-        }
-      }
       else
       {
+        if (connectionIsExpired(conn))
+        {
+          try
+          {
+            final LDAPConnection newConnection = createConnection();
+            if (availableConnections.offer(newConnection))
+            {
+              examinedConnections.add(newConnection);
+              conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_EXPIRED,
+                   null, null);
+              conn.terminate(null);
+              poolStatistics.incrementNumConnectionsClosedExpired();
+              lastExpiredDisconnectTime = System.currentTimeMillis();
+              continue;
+            }
+            else
+            {
+              newConnection.setDisconnectInfo(
+                   DisconnectType.POOLED_CONNECTION_UNNEEDED, null, null);
+              newConnection.terminate(null);
+              poolStatistics.incrementNumConnectionsClosedUnneeded();
+            }
+          }
+          catch (final LDAPException le)
+          {
+            debugException(le);
+          }
+        }
+
         try
         {
           healthCheck.ensureConnectionValidForContinuedUse(conn);
