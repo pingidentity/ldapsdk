@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -48,9 +49,11 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
@@ -730,7 +733,7 @@ public final class LDAPPersister<T>
    *                           then all attributes marked for inclusion in the
    *                           modification will be examined.
    *
-   * @return  An unmodifiable list of the modifications applied to the entry.
+   * @return  The result of processing the modify operation.
    *
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
@@ -775,7 +778,7 @@ public final class LDAPPersister<T>
    * @param  controls          The optional set of controls to include in the
    *                           modify request.
    *
-   * @return  An unmodifiable list of the modifications applied to the entry.
+   * @return  The result of processing the modify operation.
    *
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
@@ -818,6 +821,71 @@ public final class LDAPPersister<T>
       debugException(le);
       throw new LDAPPersistException(le);
     }
+  }
+
+
+
+  /**
+   * Attempts to perform a simple bind as the user specified by the given object
+   * on the provided connection.  The object should represent some kind of entry
+   * capable suitable for use as the target of a simple bind operation.
+   * <BR><BR>
+   * If the provided object was retrieved from the directory and has either an
+   * {@link LDAPDNField} or {@link LDAPEntryField}, then that field will be used
+   * to obtain the DN.  Otherwise, a search will be performed to try to find the
+   * entry that corresponds to the provided object.
+   *
+   * @param  o         The object representing the user as whom to bind.  It
+   *                   must not be {@code null}.
+   * @param  baseDN    The base DN to use if it is necessary to search for the
+   *                   entry.  It may be {@code null} if the
+   *                   {@link LDAPObject#defaultParentDN} element in the
+   *                   {@code LDAPObject} should be used as the base DN.
+   * @param  password  The password to use for the bind.  It must not be
+   *                   {@code null}.
+   * @param  c         The connection to be authenticated.  It must not be
+   *                   {@code null}.
+   * @param  controls  An optional set of controls to include in the bind
+   *                   request.  It may be empty or {@code null} if no controls
+   *                   are needed.
+   *
+   * @return  The result of processing the bind operation.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to process the
+   *                         search or bind operation.
+   */
+  public BindResult bind(final T o, final String baseDN, final String password,
+                         final LDAPConnection c, final Control... controls)
+         throws LDAPException
+  {
+    ensureNotNull(o, password, c);
+
+    String dn = handler.getEntryDN(o);
+    if (dn == null)
+    {
+      String base = baseDN;
+      if (base == null)
+      {
+        base = handler.getDefaultParentDN().toString();
+      }
+
+      final SearchRequest r = new SearchRequest(base, SearchScope.SUB,
+           handler.createFilter(o), SearchRequest.NO_ATTRIBUTES);
+      r.setSizeLimit(1);
+
+      final Entry e = c.searchForEntry(r);
+      if (e == null)
+      {
+        throw new LDAPException(ResultCode.NO_RESULTS_RETURNED,
+             ERR_PERSISTER_BIND_NO_ENTRY_FOUND.get());
+      }
+      else
+      {
+        dn = e.getDN();
+      }
+    }
+
+    return c.bind(new SimpleBindRequest(dn, password, controls));
   }
 
 
@@ -1070,7 +1138,7 @@ public final class LDAPPersister<T>
    *                 server. It must not be {@code null}.
    * @param  baseDN  The base DN to use for the search.  It may be {@code null}
    *                 if the {@link LDAPObject#defaultParentDN} element in the
-   *                 {@code LDAPObject}
+   *                 {@code LDAPObject} should be used as the base DN.
    * @param  scope   The scope to use for the search operation.  It must not be
    *                 {@code null}.
    *
@@ -1112,7 +1180,8 @@ public final class LDAPPersister<T>
    *                      directory server.  It must not be {@code null}.
    * @param  baseDN       The base DN to use for the search.  It may be
    *                      {@code null} if the {@link LDAPObject#defaultParentDN}
-   *                      element in the {@code LDAPObject}
+   *                      element in the {@code LDAPObject} should be used as
+   *                      the base DN.
    * @param  scope        The scope to use for the search operation.  It must
    *                      not be {@code null}.
    * @param  derefPolicy  The dereference policy to use for the search
@@ -1240,7 +1309,7 @@ public final class LDAPPersister<T>
    *                 server. It must not be {@code null}.
    * @param  baseDN  The base DN to use for the search.  It may be {@code null}
    *                 if the {@link LDAPObject#defaultParentDN} element in the
-   *                 {@code LDAPObject}
+   *                 {@code LDAPObject} should be used as the base DN.
    * @param  scope   The scope to use for the search operation.  It must not be
    *                 {@code null}.
    * @param  l       The object search result listener that will be used to
@@ -1277,7 +1346,8 @@ public final class LDAPPersister<T>
    *                      directory server.  It must not be {@code null}.
    * @param  baseDN       The base DN to use for the search.  It may be
    *                      {@code null} if the {@link LDAPObject#defaultParentDN}
-   *                      element in the {@code LDAPObject}
+   *                      element in the {@code LDAPObject} should be used as
+   *                      the base DN.
    * @param  scope        The scope to use for the search operation.  It must
    *                      not be {@code null}.
    * @param  derefPolicy  The dereference policy to use for the search
@@ -1417,7 +1487,7 @@ public final class LDAPPersister<T>
    *                 server. It must not be {@code null}.
    * @param  baseDN  The base DN to use for the search.  It may be {@code null}
    *                 if the {@link LDAPObject#defaultParentDN} element in the
-   *                 {@code LDAPObject}
+   *                 {@code LDAPObject} should be used as the base DN.
    * @param  scope   The scope to use for the search operation.  It must not be
    *                 {@code null}.
    *
@@ -1457,7 +1527,8 @@ public final class LDAPPersister<T>
    *                      directory server.  It must not be {@code null}.
    * @param  baseDN       The base DN to use for the search.  It may be
    *                      {@code null} if the {@link LDAPObject#defaultParentDN}
-   *                      element in the {@code LDAPObject}
+   *                      element in the {@code LDAPObject} should be used as
+   *                      the base DN.
    * @param  scope        The scope to use for the search operation.  It must
    *                      not be {@code null}.
    * @param  derefPolicy  The dereference policy to use for the search
