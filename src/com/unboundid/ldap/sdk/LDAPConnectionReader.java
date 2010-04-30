@@ -143,16 +143,19 @@ final class LDAPConnectionReader
     startTLSOutputStream = null;
     startTLSSleeper      = new WakeableSleeper();
 
-    if (socket instanceof SSLSocket)
+    if (! connectionInternals.synchronousMode())
     {
-      socket.setSoTimeout(0);
-      final SSLSocket sslSocket = (SSLSocket) socket;
-      sslSocket.addHandshakeCompletedListener(this);
-      sslSocket.startHandshake();
-    }
-    else
-    {
-      socket.setSoTimeout(50);
+      if (socket instanceof SSLSocket)
+      {
+        socket.setSoTimeout(0);
+        final SSLSocket sslSocket = (SSLSocket) socket;
+        sslSocket.addHandshakeCompletedListener(this);
+        sslSocket.startHandshake();
+      }
+      else
+      {
+        socket.setSoTimeout(50);
+      }
     }
   }
 
