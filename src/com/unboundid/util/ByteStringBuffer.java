@@ -51,6 +51,29 @@ public final class ByteStringBuffer
 
 
   /**
+   * The pre-allocated array that will be used for a boolean value of "false".
+   */
+  private static final byte[] FALSE_VALUE_BYTES = StaticUtils.getBytes("false");
+
+
+
+  /**
+   * The pre-allocated array that will be used for a boolean value of "true".
+   */
+  private static final byte[] TRUE_VALUE_BYTES = StaticUtils.getBytes("true");
+
+
+
+  /**
+   * A thread-local byte array that will be used for holding numeric values
+   * to append to the buffer.
+   */
+  private static final ThreadLocal<byte[]> TEMP_NUMBER_BUFFER =
+       new ThreadLocal<byte[]>();
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 2899392249591230998L;
@@ -89,6 +112,27 @@ public final class ByteStringBuffer
     array    = new byte[initialCapacity];
     capacity = initialCapacity;
     endPos   = 0;
+  }
+
+
+
+  /**
+   * Appends the provided boolean value to this buffer.
+   *
+   * @param  b  The boolean value to be appended to this buffer.
+   *
+   * @return  A reference to this buffer.
+   */
+  public ByteStringBuffer append(final boolean b)
+  {
+    if (b)
+    {
+      return append(TRUE_VALUE_BYTES, 0, 4);
+    }
+    else
+    {
+      return append(FALSE_VALUE_BYTES, 0, 5);
+    }
   }
 
 
@@ -412,6 +456,62 @@ public final class ByteStringBuffer
     }
 
     return this;
+  }
+
+
+
+  /**
+   * Appends the provided integer value to this buffer.
+   *
+   * @param  i  The integer value to be appended to this buffer.
+   *
+   * @return  A reference to this buffer.
+   */
+  public ByteStringBuffer append(final int i)
+  {
+    final int length = getBytes(i);
+    return append(TEMP_NUMBER_BUFFER.get(), 0, length);
+  }
+
+
+
+  /**
+   * Appends the provided long value to this buffer.
+   *
+   * @param  l  The long value to be appended to this buffer.
+   *
+   * @return  A reference to this buffer.
+   */
+  public ByteStringBuffer append(final long l)
+  {
+    final int length = getBytes(l);
+    return append(TEMP_NUMBER_BUFFER.get(), 0, length);
+  }
+
+
+
+  /**
+   * Inserts the provided boolean value to this buffer.
+   *
+   * @param  pos  The position at which the value is to be inserted.
+   * @param  b    The boolean value to be inserted into this buffer.
+   *
+   * @return  A reference to this buffer.
+   *
+   * @throws  IndexOutOfBoundsException  If the specified position is negative
+   *                                     or greater than the current length.
+   */
+  public ByteStringBuffer insert(final int pos, final boolean b)
+         throws  IndexOutOfBoundsException
+  {
+    if (b)
+    {
+      return insert(pos, TRUE_VALUE_BYTES, 0, 4);
+    }
+    else
+    {
+      return insert(pos, FALSE_VALUE_BYTES, 0, 5);
+    }
   }
 
 
@@ -810,6 +910,68 @@ public final class ByteStringBuffer
 
 
   /**
+   * Inserts the provided integer value to this buffer.
+   *
+   * @param  pos  The position at which the value is to be inserted.
+   * @param  i    The integer value to be inserted into this buffer.
+   *
+   * @return  A reference to this buffer.
+   *
+   * @throws  IndexOutOfBoundsException  If the specified position is negative
+   *                                     or greater than the current length.
+   */
+  public ByteStringBuffer insert(final int pos, final int i)
+         throws IndexOutOfBoundsException
+  {
+    final int length = getBytes(i);
+    return insert(pos, TEMP_NUMBER_BUFFER.get(), 0, length);
+  }
+
+
+
+  /**
+   * Inserts the provided long value to this buffer.
+   *
+   * @param  pos  The position at which the value is to be inserted.
+   * @param  l    The long value to be inserted into this buffer.
+   *
+   * @return  A reference to this buffer.
+   *
+   * @throws  IndexOutOfBoundsException  If the specified position is negative
+   *                                     or greater than the current length.
+   */
+  public ByteStringBuffer insert(final int pos, final long l)
+         throws IndexOutOfBoundsException
+  {
+    final int length = getBytes(l);
+    return insert(pos, TEMP_NUMBER_BUFFER.get(), 0, length);
+  }
+
+
+
+  /**
+   * Sets the contents of this buffer to include only the provided boolean
+   * value.
+   *
+   * @param  b  The boolean value to use as the content for this buffer.
+   *
+   * @return  A reference to this buffer.
+   */
+  public ByteStringBuffer set(final boolean b)
+  {
+    if (b)
+    {
+      return set(TRUE_VALUE_BYTES, 0, 4);
+    }
+    else
+    {
+      return set(FALSE_VALUE_BYTES, 0, 5);
+    }
+  }
+
+
+
+  /**
    * Sets the contents of this buffer to include only the provided byte.
    *
    * @param  b  The byte to use as the content for this buffer.
@@ -1093,6 +1255,37 @@ public final class ByteStringBuffer
 
 
   /**
+   * Sets the contents of this buffer to include only the provided integer
+   * value.
+   *
+   * @param  i  The integer value to use as the content for this buffer.
+   *
+   * @return  A reference to this buffer.
+   */
+  public ByteStringBuffer set(final int i)
+  {
+    final int length = getBytes(i);
+    return set(TEMP_NUMBER_BUFFER.get(), 0, length);
+  }
+
+
+
+  /**
+   * Sets the contents of this buffer to include only the provided long value.
+   *
+   * @param  l  The long value to use as the content for this buffer.
+   *
+   * @return  A reference to this buffer.
+   */
+  public ByteStringBuffer set(final long l)
+  {
+    final int length = getBytes(l);
+    return set(TEMP_NUMBER_BUFFER.get(), 0, length);
+  }
+
+
+
+  /**
    * Clears the contents of this buffer.
    *
    * @return  A reference to this buffer.
@@ -1313,6 +1506,206 @@ public final class ByteStringBuffer
          throws IOException
   {
     outputStream.write(array, 0, endPos);
+  }
+
+
+
+  /**
+   * Adds the bytes comprising the string representation of the provided long
+   * value to the temporary number buffer.
+   *
+   * @param  l  The long value to be appended.
+   *
+   * @return  The number of bytes in the string representation of the value.
+   */
+  private static int getBytes(final long l)
+  {
+    // NOTE:  This method is probably not as efficient as it could be, but it is
+    // more important to avoid the need for memory allocation.
+    byte[] b = TEMP_NUMBER_BUFFER.get();
+    if (b == null)
+    {
+      b = new byte[20];
+      TEMP_NUMBER_BUFFER.set(b);
+    }
+
+    if (l == Long.MIN_VALUE)
+    {
+      b[0]  = '-';
+      b[1]  = '9';
+      b[2]  = '2';
+      b[3]  = '2';
+      b[4]  = '3';
+      b[5]  = '3';
+      b[6]  = '7';
+      b[7]  = '2';
+      b[8]  = '0';
+      b[9]  = '3';
+      b[10] = '6';
+      b[11] = '8';
+      b[12] = '5';
+      b[13] = '4';
+      b[14] = '7';
+      b[15] = '7';
+      b[16] = '5';
+      b[17] = '8';
+      b[18] = '0';
+      b[19] = '8';
+      return 20;
+    }
+    else if (l == 0L)
+    {
+      b[0] = '0';
+      return 1;
+    }
+
+    int pos = 0;
+    long v = l;
+    if (l < 0)
+    {
+      b[0] = '-';
+      pos = 1;
+      v = Math.abs(l);
+    }
+
+    long divisor;
+    if (v <= 9L)
+    {
+      divisor = 1L;
+    }
+    else if (v <= 99L)
+    {
+      divisor = 10L;
+    }
+    else if (v <= 999L)
+    {
+      divisor = 100L;
+    }
+    else if (v <= 9999L)
+    {
+      divisor = 1000L;
+    }
+    else if (v <= 99999L)
+    {
+      divisor = 10000L;
+    }
+    else if (v <= 999999L)
+    {
+      divisor = 100000L;
+    }
+    else if (v <= 9999999L)
+    {
+      divisor = 1000000L;
+    }
+    else if (v <= 99999999L)
+    {
+      divisor = 10000000L;
+    }
+    else if (v <= 999999999L)
+    {
+      divisor = 100000000L;
+    }
+    else if (v <= 9999999999L)
+    {
+      divisor = 1000000000L;
+    }
+    else if (v <= 99999999999L)
+    {
+      divisor = 10000000000L;
+    }
+    else if (v <= 999999999999L)
+    {
+      divisor = 100000000000L;
+    }
+    else if (v <= 9999999999999L)
+    {
+      divisor = 1000000000000L;
+    }
+    else if (v <= 99999999999999L)
+    {
+      divisor = 10000000000000L;
+    }
+    else if (v <= 999999999999999L)
+    {
+      divisor = 100000000000000L;
+    }
+    else if (v <= 9999999999999999L)
+    {
+      divisor = 1000000000000000L;
+    }
+    else if (v <= 99999999999999999L)
+    {
+      divisor = 10000000000000000L;
+    }
+    else if (v <= 999999999999999999L)
+    {
+      divisor = 100000000000000000L;
+    }
+    else
+    {
+      divisor = 1000000000000000000L;
+    }
+
+    while (true)
+    {
+      final long digit = v / divisor;
+      switch ((int) digit)
+      {
+        case 0:
+          b[pos++] = '0';
+          break;
+        case 1:
+          b[pos++] = '1';
+          break;
+        case 2:
+          b[pos++] = '2';
+          break;
+        case 3:
+          b[pos++] = '3';
+          break;
+        case 4:
+          b[pos++] = '4';
+          break;
+        case 5:
+          b[pos++] = '5';
+          break;
+        case 6:
+          b[pos++] = '6';
+          break;
+        case 7:
+          b[pos++] = '7';
+          break;
+        case 8:
+          b[pos++] = '8';
+          break;
+        case 9:
+          b[pos++] = '9';
+          break;
+      }
+
+      if (divisor == 1L)
+      {
+        break;
+      }
+      else
+      {
+        v -= (divisor * digit);
+        if (v == 0)
+        {
+          while (divisor > 1L)
+          {
+            b[pos++] = '0';
+            divisor /= 10L;
+          }
+
+          break;
+        }
+
+        divisor /= 10L;
+      }
+    }
+
+    return pos;
   }
 
 
