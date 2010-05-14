@@ -22,9 +22,9 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
@@ -224,7 +224,7 @@ public final class SearchResultEntry
       reader.beginSequence();
       final String dn = reader.readString();
 
-      final LinkedList<Attribute> attrList = new LinkedList<Attribute>();
+      final ArrayList<Attribute> attrList = new ArrayList<Attribute>(10);
       final ASN1StreamReaderSequence attrSequence = reader.beginSequence();
       while (attrSequence.hasMoreElements())
       {
@@ -234,7 +234,7 @@ public final class SearchResultEntry
       Control[] controls = NO_CONTROLS;
       if (messageSequence.hasMoreElements())
       {
-        final LinkedList<Control> controlList = new LinkedList<Control>();
+        final ArrayList<Control> controlList = new ArrayList<Control>(5);
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();
         while (controlSequence.hasMoreElements())
         {

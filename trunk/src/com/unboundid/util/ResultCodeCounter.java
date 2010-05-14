@@ -23,8 +23,8 @@ package com.unboundid.util;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -167,8 +167,8 @@ public final class ResultCodeCounter
     }
 
 
-    final LinkedList<ObjectPair<ResultCode,Long>> rcCounts =
-         new LinkedList<ObjectPair<ResultCode,Long>>();
+    final ArrayList<ObjectPair<ResultCode,Long>> rcCounts =
+         new ArrayList<ObjectPair<ResultCode,Long>>(2*sortedMap.size());
     for (final Map.Entry<Long,TreeMap<Integer,ResultCode>> e :
          sortedMap.entrySet())
     {

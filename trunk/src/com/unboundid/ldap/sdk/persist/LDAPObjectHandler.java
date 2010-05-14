@@ -186,9 +186,9 @@ public final class LDAPObjectHandler<T>
            ERR_OBJECT_HANDLER_OBJECT_NOT_ANNOTATED.get(type.getName()));
     }
 
-    final LinkedList<String> objectClasses = new LinkedList<String>();
+    final ArrayList<String> objectClasses = new ArrayList<String>(10);
 
-    String oc = ldapObject.structuralClass();
+    final String oc = ldapObject.structuralClass();
     if (oc.length() == 0)
     {
       structuralClass = getUnqualifiedClassName(type);
@@ -874,8 +874,8 @@ public final class LDAPObjectHandler<T>
   List<ObjectClassDefinition> constructObjectClasses(final OIDAllocator a)
          throws LDAPPersistException
   {
-    final LinkedList<ObjectClassDefinition> ocList =
-         new LinkedList<ObjectClassDefinition>();
+    final ArrayList<ObjectClassDefinition> ocList =
+         new ArrayList<ObjectClassDefinition>(1 + auxiliaryClasses.length);
 
     ocList.add(constructObjectClass(structuralClass, ObjectClassType.STRUCTURAL,
          a));
@@ -1061,7 +1061,7 @@ public final class LDAPObjectHandler<T>
   {
     setDNAndEntryFields(o, e);
 
-    final LinkedList<String> failureReasons = new LinkedList<String>();
+    final ArrayList<String> failureReasons = new ArrayList<String>(5);
     boolean successful = true;
 
     for (final FieldInfo i : fieldMap.values())
@@ -1472,7 +1472,7 @@ public final class LDAPObjectHandler<T>
       }
     }
 
-    final LinkedList<Modification> mods = new LinkedList<Modification>();
+    final ArrayList<Modification> mods = new ArrayList<Modification>(5);
 
     for (final Map.Entry<String,FieldInfo> e : fieldMap.entrySet())
     {
@@ -1592,7 +1592,7 @@ public final class LDAPObjectHandler<T>
   public Filter createFilter(final T o)
          throws LDAPPersistException
   {
-    final LinkedList<Attribute> attrs = new LinkedList<Attribute>();
+    final ArrayList<Attribute> attrs = new ArrayList<Attribute>(5);
     attrs.add(objectClassAttribute);
 
     boolean added = false;

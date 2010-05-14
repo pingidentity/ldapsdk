@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static com.unboundid.util.UtilityMessages.*;
@@ -78,7 +78,7 @@ final class HTTPValuePatternComponent
     random     = new ThreadLocal<Random>();
 
 
-    final LinkedList<String> lineList = new LinkedList<String>();
+    final ArrayList<String> lineList = new ArrayList<String>(100);
     final URL parsedURL = new URL(url);
     final HttpURLConnection urlConnection =
          (HttpURLConnection) parsedURL.openConnection();

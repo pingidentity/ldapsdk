@@ -140,7 +140,7 @@ public final class SearchResultReference
   {
     try
     {
-      final ArrayList<String> refList = new ArrayList<String>(1);
+      final ArrayList<String> refList = new ArrayList<String>(5);
       final ASN1StreamReaderSequence refSequence = reader.beginSequence();
       while (refSequence.hasMoreElements())
       {
@@ -153,7 +153,7 @@ public final class SearchResultReference
       Control[] controls = NO_CONTROLS;
       if (messageSequence.hasMoreElements())
       {
-        final ArrayList<Control> controlList = new ArrayList<Control>(1);
+        final ArrayList<Control> controlList = new ArrayList<Control>(5);
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();
         while (controlSequence.hasMoreElements())
         {

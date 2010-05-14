@@ -25,10 +25,10 @@ package com.unboundid.ldap.protocol;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
@@ -872,7 +872,7 @@ public final class LDAPMessage
                ERR_MESSAGE_INVALID_PROTOCOL_OP_TYPE.get(toHex(protocolOpType)));
       }
 
-      final LinkedList<Control> controls = new LinkedList<Control>();
+      final ArrayList<Control> controls = new ArrayList<Control>(5);
       if (messageSequence.hasMoreElements())
       {
         final ASN1StreamReaderSequence controlSequence = reader.beginSequence();

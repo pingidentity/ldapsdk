@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -1036,7 +1035,7 @@ public final class LDIFReader
   private UnparsedLDIFRecord readUnparsedRecord()
          throws IOException, LDIFException
   {
-    final LinkedList<StringBuilder> lineList = new LinkedList<StringBuilder>();
+    final ArrayList<StringBuilder> lineList = new ArrayList<StringBuilder>(20);
     boolean lastWasComment = false;
     long firstLineNumber = lineNumberCounter + 1;
     while (true)
@@ -1051,7 +1050,7 @@ public final class LDIFReader
         // a blank line, which is OK, and we should decode that entry.
         if (lineList.isEmpty())
         {
-          return new UnparsedLDIFRecord(new LinkedList<StringBuilder>(),
+          return new UnparsedLDIFRecord(new ArrayList<StringBuilder>(0),
                                         ignoreDuplicateValues, schema, -1);
         }
         else
@@ -1088,7 +1087,7 @@ public final class LDIFReader
         }
         else if(! lastWasComment)
         {
-          lineList.getLast().append(line.substring(1));
+          lineList.get(lineList.size() - 1).append(line.substring(1));
         }
       }
       else if (line.charAt(0) == '#')
@@ -1303,7 +1302,8 @@ public final class LDIFReader
                 "LDIFReader.prepareRecord.ldifLines must not be empty.");
 
     boolean lastWasComment = false;
-    final LinkedList<StringBuilder> lineList = new LinkedList<StringBuilder>();
+    final ArrayList<StringBuilder> lineList =
+         new ArrayList<StringBuilder>(ldifLines.length);
     for (int i=0; i < ldifLines.length; i++)
     {
       final String line = ldifLines[i];
@@ -1341,7 +1341,7 @@ public final class LDIFReader
         {
           if (! lastWasComment)
           {
-            lineList.getLast().append(line.substring(1));
+            lineList.get(lineList.size() - 1).append(line.substring(1));
           }
         }
         else
@@ -1420,7 +1420,7 @@ public final class LDIFReader
       return null;
     }
 
-    final LinkedList<StringBuilder> lineList = unparsedRecord.getLineList();
+    final ArrayList<StringBuilder> lineList = unparsedRecord.getLineList();
     if (unparsedRecord.getLineList() == null)
     {
       return null;  // We can get here if there was an error reading the lines.
@@ -1459,7 +1459,7 @@ public final class LDIFReader
   private static Entry decodeEntry(final UnparsedLDIFRecord unparsedRecord)
           throws LDIFException
   {
-    final LinkedList<StringBuilder> ldifLines = unparsedRecord.getLineList();
+    final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
     final long firstLineNumber = unparsedRecord.getFirstLineNumber();
 
     final Iterator<StringBuilder> iterator = ldifLines.iterator();
@@ -1568,7 +1568,7 @@ public final class LDIFReader
                                        final boolean defaultAdd)
           throws LDIFException
   {
-    final LinkedList<StringBuilder> ldifLines = unparsedRecord.getLineList();
+    final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
     final long firstLineNumber = unparsedRecord.getFirstLineNumber();
 
     final Iterator<StringBuilder> iterator = ldifLines.iterator();
@@ -1831,9 +1831,9 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         set of attributes.
    */
-  private static LinkedList<Attribute> parseAttributes(final String dn,
+  private static ArrayList<Attribute> parseAttributes(final String dn,
        final boolean ignoreDuplicateValues, final Schema schema,
-       final LinkedList<StringBuilder> ldifLines,
+       final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final long firstLineNumber)
           throws LDIFException
   {
@@ -2130,7 +2130,8 @@ public final class LDIFReader
       }
     }
 
-    final LinkedList<Attribute> attrList = new LinkedList<Attribute>();
+    final ArrayList<Attribute> attrList =
+         new ArrayList<Attribute>(attributes.size());
     for (final Object o : attributes.values())
     {
       if (o instanceof Attribute)
@@ -2164,7 +2165,7 @@ public final class LDIFReader
    *                         set of modifications.
    */
   private static Modification[] parseModifications(
-       final LinkedList<StringBuilder> ldifLines,
+       final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final long firstLineNumber)
        throws LDIFException
   {
@@ -2402,7 +2403,7 @@ public final class LDIFReader
    *                         modify DN change record.
    */
   private static LDIFModifyDNChangeRecord parseModifyDNChangeRecord(
-       final LinkedList<StringBuilder> ldifLines,
+       final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final String dn,
        final long firstLineNumber)
        throws LDIFException
@@ -2674,7 +2675,7 @@ public final class LDIFReader
    */
   private static final class UnparsedLDIFRecord
   {
-    private final LinkedList<StringBuilder> lineList;
+    private final ArrayList<StringBuilder> lineList;
     private final long firstLineNumber;
     private final Exception failureCause;
     private final boolean ignoreDuplicateValues;
@@ -2694,7 +2695,7 @@ public final class LDIFReader
      *                                applicable.
      * @param firstLineNumber         The first line number of the LDIF record.
      */
-    private UnparsedLDIFRecord(final LinkedList<StringBuilder> lineList,
+    private UnparsedLDIFRecord(final ArrayList<StringBuilder> lineList,
                                final boolean ignoreDuplicateValues,
                                final Schema schema,
                                final long firstLineNumber)
@@ -2732,7 +2733,7 @@ public final class LDIFReader
      *
      * @return  The lines that comprise the LDIF record.
      */
-    private LinkedList<StringBuilder> getLineList()
+    private ArrayList<StringBuilder> getLineList()
     {
       return lineList;
     }

@@ -23,8 +23,8 @@ package com.unboundid.ldif;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
@@ -57,7 +57,7 @@ class LDIFAttribute
   private LinkedHashSet<ASN1OctetString> normalizedValues;
 
   // The list of values for this attribute.
-  private final LinkedList<ASN1OctetString> values;
+  private final ArrayList<ASN1OctetString> values;
 
   // The matching rule to use when comparing values.
   private final MatchingRule matchingRule;
@@ -80,7 +80,7 @@ class LDIFAttribute
     this.name         = name;
     this.matchingRule = matchingRule;
 
-    values = new LinkedList<ASN1OctetString>();
+    values = new ArrayList<ASN1OctetString>(5);
     values.add(value);
 
     normalizedValues = null;

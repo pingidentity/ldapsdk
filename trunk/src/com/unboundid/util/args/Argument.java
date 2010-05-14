@@ -24,8 +24,8 @@ package com.unboundid.util.args;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.util.Mutable;
@@ -69,7 +69,7 @@ public abstract class Argument
   private boolean isUsageArgument;
 
   // The short identifier for this argument, or an empty list if there are none.
-  private final LinkedList<Character> shortIdentifiers;
+  private final ArrayList<Character> shortIdentifiers;
 
   // The maximum number of times this argument is allowed to be provided.
   private int maxOccurrences;
@@ -83,7 +83,7 @@ public abstract class Argument
 
   // The long identifier(s) for this argument, or an empty list if there are
   // none.
-  private final LinkedList<String> longIdentifiers;
+  private final ArrayList<String> longIdentifiers;
 
   // The value placeholder for this argument, or {@code null} if it does not
   // take a value.
@@ -134,13 +134,13 @@ public abstract class Argument
       throw new ArgumentException(ERR_ARG_NO_IDENTIFIERS.get());
     }
 
-    shortIdentifiers = new LinkedList<Character>();
+    shortIdentifiers = new ArrayList<Character>(1);
     if (shortIdentifier != null)
     {
       shortIdentifiers.add(shortIdentifier);
     }
 
-    longIdentifiers = new LinkedList<String>();
+    longIdentifiers = new ArrayList<String>(1);
     if (longIdentifier != null)
     {
       longIdentifiers.add(longIdentifier);
@@ -195,7 +195,7 @@ public abstract class Argument
     }
     else
     {
-      return shortIdentifiers.getFirst();
+      return shortIdentifiers.get(0);
     }
   }
 
@@ -267,7 +267,7 @@ public abstract class Argument
     }
     else
     {
-      return longIdentifiers.getFirst();
+      return longIdentifiers.get(0);
     }
   }
 
@@ -323,11 +323,11 @@ public abstract class Argument
   {
     if (longIdentifiers.isEmpty())
     {
-      return "-" + shortIdentifiers.getFirst();
+      return "-" + shortIdentifiers.get(0);
     }
     else
     {
-      return "--" + longIdentifiers.getFirst();
+      return "--" + longIdentifiers.get(0);
     }
   }
 

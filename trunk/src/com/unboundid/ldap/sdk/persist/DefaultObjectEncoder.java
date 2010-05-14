@@ -298,7 +298,7 @@ public final class DefaultObjectEncoder
   {
     if (t.equals(List.class) || t.equals(ArrayList.class))
     {
-      return new ArrayList(1);
+      return new ArrayList(size);
     }
     else if (t.equals(LinkedList.class))
     {
@@ -346,11 +346,11 @@ public final class DefaultObjectEncoder
   {
     if (t.equals(Set.class) || t.equals(LinkedHashSet.class))
     {
-      return new LinkedHashSet(1);
+      return new LinkedHashSet(size);
     }
     else if (t.equals(HashSet.class))
     {
-      return new HashSet(1);
+      return new HashSet(size);
     }
     else if (t.equals(TreeSet.class))
     {
