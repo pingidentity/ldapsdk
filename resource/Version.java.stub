@@ -22,8 +22,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.util.ThreadSafety;
@@ -182,7 +182,7 @@ public final class Version
    */
   public static List<String> getVersionLines()
   {
-    final LinkedList<String> versionLines = new LinkedList<String>();
+    final ArrayList<String> versionLines = new ArrayList<String>(11);
 
     versionLines.add("Full Version String:   " + FULL_VERSION_STRING);
     versionLines.add("Short Version String:  " + SHORT_VERSION_STRING);

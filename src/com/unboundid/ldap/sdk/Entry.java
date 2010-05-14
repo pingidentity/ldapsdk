@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -619,7 +618,7 @@ public class Entry
   {
     ensureNotNull(baseName);
 
-    final LinkedList<Attribute> attrList = new LinkedList<Attribute>();
+    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(10);
 
     for (final Attribute a : attributes.values())
     {
@@ -1532,7 +1531,7 @@ public class Entry
       }
     }
 
-    final LinkedList<Modification> mods = new LinkedList<Modification>();
+    final ArrayList<Modification> mods = new ArrayList<Modification>(10);
 
     for (final Attribute a : sourceOnlyAttrs.values())
     {
@@ -1738,7 +1737,8 @@ public class Entry
     ensureFalse(modifications.isEmpty());
 
     final Entry e = entry.duplicate();
-    final LinkedList<String> errors = new LinkedList<String>();
+    final ArrayList<String> errors =
+         new ArrayList<String>(modifications.size());
 
     for (final Modification m : modifications)
     {

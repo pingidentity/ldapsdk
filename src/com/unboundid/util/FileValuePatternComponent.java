@@ -25,7 +25,7 @@ package com.unboundid.util;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static com.unboundid.util.UtilityMessages.*;
@@ -76,7 +76,7 @@ final class FileValuePatternComponent
     random     = new ThreadLocal<Random>();
 
 
-    final LinkedList<String> lineList = new LinkedList<String>();
+    final ArrayList<String> lineList = new ArrayList<String>(100);
     final BufferedReader reader = new BufferedReader(new FileReader(path));
 
     try

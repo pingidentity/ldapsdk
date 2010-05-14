@@ -25,11 +25,11 @@ package com.unboundid.ldap.sdk.schema;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -712,7 +712,7 @@ public final class Schema
     ensureNotNull(schemaFiles);
     ensureFalse(schemaFiles.length == 0);
 
-    final LinkedList<File> files = new LinkedList<File>();
+    final ArrayList<File> files = new ArrayList<File>(schemaFiles.length);
     for (final String s : schemaFiles)
     {
       files.add(new File(s));

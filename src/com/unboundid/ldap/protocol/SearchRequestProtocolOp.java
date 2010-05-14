@@ -22,9 +22,9 @@ package com.unboundid.ldap.protocol;
 
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
@@ -179,7 +179,7 @@ public final class SearchRequestProtocolOp
       typesOnly   = reader.readBoolean();
       filter      = Filter.readFrom(reader);
 
-      final LinkedList<String> attrs = new LinkedList<String>();
+      final ArrayList<String> attrs = new ArrayList<String>(5);
       final ASN1StreamReaderSequence attrSequence = reader.beginSequence();
       while (attrSequence.hasMoreElements())
       {

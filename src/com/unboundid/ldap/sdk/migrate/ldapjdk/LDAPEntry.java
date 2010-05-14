@@ -23,8 +23,8 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.LinkedList;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
@@ -204,7 +204,8 @@ public class LDAPEntry
    */
   public final Entry toEntry()
   {
-    final LinkedList<Attribute> attrs = new LinkedList<Attribute>();
+    final ArrayList<Attribute> attrs =
+         new ArrayList<Attribute>(attributeSet.size());
     final Enumeration<LDAPAttribute> attrEnum = attributeSet.getAttributes();
     while (attrEnum.hasMoreElements())
     {

@@ -22,9 +22,9 @@ package com.unboundid.ldap.protocol;
 
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
@@ -105,7 +105,7 @@ public final class ModifyRequestProtocolOp
       dn = reader.readString();
       ensureNotNull(dn);
 
-      final LinkedList<Modification> mods = new LinkedList<Modification>();
+      final ArrayList<Modification> mods = new ArrayList<Modification>(5);
       final ASN1StreamReaderSequence modSequence = reader.beginSequence();
       while (modSequence.hasMoreElements())
       {

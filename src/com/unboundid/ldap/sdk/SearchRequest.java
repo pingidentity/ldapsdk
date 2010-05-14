@@ -22,9 +22,9 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -1106,12 +1106,12 @@ public final class SearchRequest
     try
     {
       // Wait for and process the response.
-      final LinkedList<SearchResultEntry> entryList;
-      final LinkedList<SearchResultReference> referenceList;
+      final ArrayList<SearchResultEntry> entryList;
+      final ArrayList<SearchResultReference> referenceList;
       if (searchResultListener == null)
       {
-        entryList     = new LinkedList<SearchResultEntry>();
-        referenceList = new LinkedList<SearchResultReference>();
+        entryList     = new ArrayList<SearchResultEntry>(5);
+        referenceList = new ArrayList<SearchResultReference>(5);
       }
       else
       {
@@ -1404,12 +1404,12 @@ public final class SearchRequest
     connection.getConnectionStatistics().incrementNumSearchRequests();
     connection.sendMessage(message);
 
-    final LinkedList<SearchResultEntry> entryList;
-    final LinkedList<SearchResultReference> referenceList;
+    final ArrayList<SearchResultEntry> entryList;
+    final ArrayList<SearchResultReference> referenceList;
     if (searchResultListener == null)
     {
-      entryList     = new LinkedList<SearchResultEntry>();
-      referenceList = new LinkedList<SearchResultReference>();
+      entryList     = new ArrayList<SearchResultEntry>(5);
+      referenceList = new ArrayList<SearchResultReference>(5);
     }
     else
     {

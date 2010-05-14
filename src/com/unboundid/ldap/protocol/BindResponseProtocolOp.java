@@ -22,9 +22,9 @@ package com.unboundid.ldap.protocol;
 
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
@@ -172,7 +172,7 @@ public final class BindResponseProtocolOp
       }
 
       ASN1OctetString creds = null;
-      final LinkedList<String> refs = new LinkedList<String>();
+      final ArrayList<String> refs = new ArrayList<String>(1);
       while (opSequence.hasMoreElements())
       {
         final byte type = (byte) reader.peek();

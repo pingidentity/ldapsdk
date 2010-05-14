@@ -23,10 +23,10 @@ package com.unboundid.ldap.sdk.schema;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -1765,7 +1765,7 @@ public final class EntryValidator
       return Collections.emptyList();
     }
 
-    final LinkedList<String> messages = new LinkedList<String>();
+    final ArrayList<String> messages = new ArrayList<String>(5);
     final long numEntries = entriesExamined.get();
     long pct = 100 * numInvalid / numEntries;
     messages.add(INFO_ENTRY_INVALID_ENTRY_COUNT.get(

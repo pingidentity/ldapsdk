@@ -26,10 +26,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -397,8 +397,7 @@ public final class ValidateLDIF
           return ResultCode.PARAM_ERROR;
         }
 
-        final LinkedList<File> fileList =
-             new LinkedList<File>(fileMap.values());
+        final ArrayList<File> fileList = new ArrayList<File>(fileMap.values());
         schema = Schema.getSchema(fileList);
       }
       catch (Exception e)
@@ -622,7 +621,7 @@ public final class ValidateLDIF
    */
   public Entry translate(final Entry entry, final long firstLineNumber)
   {
-    final LinkedList<String> invalidReasons = new LinkedList<String>();
+    final ArrayList<String> invalidReasons = new ArrayList<String>(5);
     if (! entryValidator.entryIsValid(entry, invalidReasons))
     {
       if (rejectWriter != null)

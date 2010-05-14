@@ -1057,12 +1057,12 @@ public final class LDAPPersister<T>
     }
 
     boolean successful = true;
-    final LinkedList<String> failureReasons = new LinkedList<String>();
+    final ArrayList<String> failureReasons = new ArrayList<String>(5);
     final Map<String,FieldInfo> fieldMap = handler.getFields();
     for (final Attribute a : entry.getAttributes())
     {
       final String lowerName = toLowerCase(a.getName());
-      final FieldInfo f = handler.getFields().get(lowerName);
+      final FieldInfo f = fieldMap.get(lowerName);
       if (f != null)
       {
         successful &= f.decode(o, entry, failureReasons);

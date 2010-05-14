@@ -25,10 +25,10 @@ package com.unboundid.util;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -1024,7 +1024,7 @@ public final class StaticUtils
 
     int wrapPos = maxWidth;
     int lastWrapPos = 0;
-    final LinkedList<String> lineList = new LinkedList<String>();
+    final ArrayList<String> lineList = new ArrayList<String>(5);
     while (true)
     {
       final int spacePos = line.lastIndexOf(' ', wrapPos);

@@ -22,9 +22,9 @@ package com.unboundid.ldap.protocol;
 
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
@@ -161,7 +161,7 @@ public abstract class GenericResponseProtocolOp
 
       if (opSequence.hasMoreElements())
       {
-        final LinkedList<String> refs = new LinkedList<String>();
+        final ArrayList<String> refs = new ArrayList<String>(1);
         final ASN1StreamReaderSequence refSequence = reader.beginSequence();
         while (refSequence.hasMoreElements())
         {

@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -903,7 +902,7 @@ public final class ArgumentParser
    */
   public List<String> getUsage(final int maxWidth)
   {
-    final LinkedList<String> lines = new LinkedList<String>();
+    final ArrayList<String> lines = new ArrayList<String>(100);
 
     // First is a description of the command.
     lines.addAll(wrapLine(commandDescription, maxWidth));

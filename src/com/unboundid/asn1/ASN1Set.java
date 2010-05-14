@@ -22,8 +22,8 @@ package com.unboundid.asn1;
 
 
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
@@ -367,7 +367,7 @@ public final class ASN1Set
       System.arraycopy(elementBytes, valueStartPos, value, 0, length);
 
       int numElements = 0;
-      final LinkedList<ASN1Element> elementList = new LinkedList<ASN1Element>();
+      final ArrayList<ASN1Element> elementList = new ArrayList<ASN1Element>(5);
       try
       {
         int pos = 0;
@@ -447,7 +447,7 @@ public final class ASN1Set
          throws ASN1Exception
   {
     int numElements = 0;
-    final LinkedList<ASN1Element> elementList = new LinkedList<ASN1Element>();
+    final ArrayList<ASN1Element> elementList = new ArrayList<ASN1Element>(5);
     final byte[] value = element.getValue();
 
     try

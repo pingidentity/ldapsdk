@@ -22,9 +22,9 @@ package com.unboundid.ldap.matchingrules;
 
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -380,7 +380,7 @@ public final class CaseIgnoreListMatchingRule
   public static List<String> getItems(final String value)
          throws LDAPException
   {
-    final LinkedList<String> items = new LinkedList<String>();
+    final ArrayList<String> items = new ArrayList<String>(10);
 
     final int length = value.length();
     final StringBuilder buffer = new StringBuilder();
