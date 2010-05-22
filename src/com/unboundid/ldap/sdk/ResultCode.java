@@ -1502,7 +1502,7 @@ public final class ResultCode
     this.name     = name;
     this.intValue = intValue;
 
-    stringRepresentation = intValue + "(" + name + ")";
+    stringRepresentation = intValue + " (" + name + ')';
   }
 
 
