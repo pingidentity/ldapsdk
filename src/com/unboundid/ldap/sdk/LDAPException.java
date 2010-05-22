@@ -72,6 +72,9 @@ public class LDAPException
   // The set of referral URLs for this LDAP exception.
   private final String[] referralURLs;
 
+  // The diagnostic message returned by the directory server.
+  private final String diagnosticMessage;
+
   // The matched DN for this LDAP exception.
   private final String matchedDN;
 
@@ -89,9 +92,10 @@ public class LDAPException
 
     this.resultCode = resultCode;
 
-    matchedDN        = null;
-    referralURLs     = NO_REFERRALS;
-    responseControls = NO_CONTROLS;
+    matchedDN         = null;
+    diagnosticMessage = null;
+    referralURLs      = NO_REFERRALS;
+    responseControls  = NO_CONTROLS;
   }
 
 
@@ -109,9 +113,10 @@ public class LDAPException
 
     this.resultCode = resultCode;
 
-    matchedDN        = null;
-    referralURLs     = NO_REFERRALS;
-    responseControls = NO_CONTROLS;
+    matchedDN         = null;
+    diagnosticMessage = null;
+    referralURLs      = NO_REFERRALS;
+    responseControls  = NO_CONTROLS;
   }
 
 
@@ -128,9 +133,10 @@ public class LDAPException
 
     this.resultCode = resultCode;
 
-    matchedDN        = null;
-    referralURLs     = NO_REFERRALS;
-    responseControls = NO_CONTROLS;
+    matchedDN         = null;
+    diagnosticMessage = null;
+    referralURLs      = NO_REFERRALS;
+    responseControls  = NO_CONTROLS;
   }
 
 
@@ -150,9 +156,10 @@ public class LDAPException
 
     this.resultCode = resultCode;
 
-    matchedDN        = null;
-    referralURLs     = NO_REFERRALS;
-    responseControls = NO_CONTROLS;
+    matchedDN         = null;
+    diagnosticMessage = null;
+    referralURLs      = NO_REFERRALS;
+    responseControls  = NO_CONTROLS;
   }
 
 
@@ -182,7 +189,8 @@ public class LDAPException
       this.referralURLs = referralURLs;
     }
 
-    responseControls = NO_CONTROLS;
+    diagnosticMessage = null;
+    responseControls  = NO_CONTROLS;
   }
 
 
@@ -215,7 +223,8 @@ public class LDAPException
       this.referralURLs = referralURLs;
     }
 
-    responseControls = NO_CONTROLS;
+    diagnosticMessage = null;
+    responseControls  = NO_CONTROLS;
   }
 
 
@@ -237,6 +246,8 @@ public class LDAPException
 
     this.resultCode = resultCode;
     this.matchedDN  = matchedDN;
+
+    diagnosticMessage = null;
 
     if (referralURLs == null)
     {
@@ -279,6 +290,8 @@ public class LDAPException
     this.resultCode = resultCode;
     this.matchedDN  = matchedDN;
 
+    diagnosticMessage = null;
+
     if (referralURLs == null)
     {
       this.referralURLs = NO_REFERRALS;
@@ -313,10 +326,11 @@ public class LDAPException
           ? ldapResult.getResultCode().getName()
           : ldapResult.getDiagnosticMessage());
 
-    resultCode       = ldapResult.getResultCode();
-    matchedDN        = ldapResult.getMatchedDN();
-    referralURLs     = ldapResult.getReferralURLs();
-    responseControls = ldapResult.getResponseControls();
+    resultCode        = ldapResult.getResultCode();
+    matchedDN         = ldapResult.getMatchedDN();
+    diagnosticMessage = ldapResult.getDiagnosticMessage();
+    referralURLs      = ldapResult.getReferralURLs();
+    responseControls  = ldapResult.getResponseControls();
   }
 
 
@@ -336,10 +350,11 @@ public class LDAPException
            : ldapResult.getDiagnosticMessage()),
           cause);
 
-    resultCode       = ldapResult.getResultCode();
-    matchedDN        = ldapResult.getMatchedDN();
-    referralURLs     = ldapResult.getReferralURLs();
-    responseControls = ldapResult.getResponseControls();
+    resultCode        = ldapResult.getResultCode();
+    matchedDN         = ldapResult.getMatchedDN();
+    diagnosticMessage = ldapResult.getDiagnosticMessage();
+    referralURLs      = ldapResult.getReferralURLs();
+    responseControls  = ldapResult.getResponseControls();
   }
 
 
@@ -354,10 +369,11 @@ public class LDAPException
   {
     super(e.getMessage(), e.getCause());
 
-    resultCode       = e.getResultCode();
-    matchedDN        = e.getMatchedDN();
-    referralURLs     = e.getReferralURLs();
-    responseControls = e.getResponseControls();
+    resultCode        = e.getResultCode();
+    matchedDN         = e.getMatchedDN();
+    diagnosticMessage = e.getDiagnosticMessage();
+    referralURLs      = e.getReferralURLs();
+    responseControls  = e.getResponseControls();
   }
 
 
@@ -383,6 +399,19 @@ public class LDAPException
   public final String getMatchedDN()
   {
     return matchedDN;
+  }
+
+
+
+  /**
+   * Retrieves the diagnostic message returned by the directory server.
+   *
+   * @return  The diagnostic message returned by the directory server, or
+   *          {@code null} if there is none.
+   */
+  public final String getDiagnosticMessage()
+  {
+    return diagnosticMessage;
   }
 
 
@@ -481,8 +510,8 @@ public class LDAPException
    */
   public final LDAPResult toLDAPResult()
   {
-    return new LDAPResult(-1, resultCode, getMessage(), matchedDN, referralURLs,
-                          responseControls);
+    return new LDAPResult(-1, resultCode, diagnosticMessage, matchedDN,
+         referralURLs, responseControls);
   }
 
 
@@ -508,6 +537,13 @@ public class LDAPException
     {
       buffer.append(", matchedDN='");
       buffer.append(matchedDN);
+      buffer.append('\'');
+    }
+
+    if (diagnosticMessage != null)
+    {
+      buffer.append(", diagnosticMessage='");
+      buffer.append(diagnosticMessage);
       buffer.append('\'');
     }
 
