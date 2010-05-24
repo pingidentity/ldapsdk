@@ -738,8 +738,8 @@ public abstract class LDAPCommandLineTool
    *
    * @throws  LDAPException  If a problem occurs while creating the server set.
    */
-  private ServerSet createServerSet()
-          throws LDAPException
+  public ServerSet createServerSet()
+         throws LDAPException
   {
     final SSLUtil sslUtil = createSSLUtil();
 

@@ -29,6 +29,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.examples.AuthRate;
 import com.unboundid.ldap.sdk.examples.LDAPCompare;
+import com.unboundid.ldap.sdk.examples.LDAPDebugger;
 import com.unboundid.ldap.sdk.examples.LDAPModify;
 import com.unboundid.ldap.sdk.examples.LDAPSearch;
 import com.unboundid.ldap.sdk.examples.ModRate;
@@ -59,6 +60,7 @@ import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
  *   <LI>ldapcompare -- Launch the {@link LDAPCompare} tool.</LI>
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
+ *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
  *   <LI>search-and-mod-rate -- Launch the {@link SearchAndModRate} tool.</LI>
@@ -153,6 +155,10 @@ public final class Launcher
     {
       return LDAPSearch.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("ldap-debugger"))
+    {
+      return LDAPDebugger.main(remainingArgs, outStream, errStream);
+    }
     else if (firstArg.equals("modrate"))
     {
       return ModRate.main(remainingArgs, outStream, errStream);
@@ -182,6 +188,7 @@ public final class Launcher
         err.println("     ldapcompare");
         err.println("     ldapmodify");
         err.println("     ldapsearch");
+        err.println("     ldap-debugger");
         err.println("     modrate");
         err.println("     searchrate");
         err.println("     search-and-mod-rate");

@@ -71,6 +71,7 @@ public class SanityCheckSE
   public static final String[] SE_PACKAGES =
   {
     "com.unboundid.asn1",
+    "com.unboundid.ldap.listener",
     "com.unboundid.ldap.matchingrules",
     "com.unboundid.ldap.protocol",
     "com.unboundid.ldap.sdk",
