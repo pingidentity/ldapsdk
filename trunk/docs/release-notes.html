@@ -10,6 +10,150 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.0.0</h3>
+
+              <p>
+                The following changes were made between the 1.1.4 and 2.0.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new persistence API which can be used to make it easy to represent LDAP
+                  entries as Java objects, and vice-versa.  Java annotation types may be used to
+                  mark fields and methods within a class to provide information about the way that
+                  instances of that object should be represented in LDAP entries.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a <tt>generate-source-from-schema</tt> tool that can be used to generate
+                  the source code for a Java class based on information contained in a directory
+                  server schema.  The generated Java source will have all of the necessary
+                  annotations to allow that object to be used in conjunction with the LDAP SDK
+                  persistence framework.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a <tt>generate-schema-from-source</tt> tool that can be used to generate
+                  LDAP schema from a Java class configured for use with the LDAP SDK persistence
+                  framework.  The generated schema may be added to a directory server to be able to
+                  store objects of the specified type in the directory.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new listener API which can be used to develop applications which accept
+                  connections and manage communication with LDAP clients.  It may be used to help
+                  develop applications which support interaction with LDAP clients.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>ldap-debugger</tt> tool which uses the listener API and other
+                  components of the LDAP SDK to intercept communication from LDAP clients and
+                  write details of the LDAP communication to standard output or a specified log
+                  file.  The received LDAP requests will then be forwarded on to a target directory
+                  server and any responses returned will be decoded and written to the same
+                  location as the decoded requests before the responses are returned to the client.
+                  This tool acts as a simple LDAP proxy server that can be used to help better
+                  understand exactly what communication occurs between an LDAP client and server.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 1.1.4</h3>
+
+              <p>
+                The following changes were made between the 1.1.3 and 1.1.4 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fixed a bug in the way that the LDAP SDK performed SSL or StartTLS negotiation
+                  when using synchronous mode.  As a result of this bug, a race condition created a
+                  condition in which the connection could be terminated with an error if any part
+                  of the negotiation process took longer than 50 milliseconds.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>search-and-mod-rate</tt> tool that can be used to perform
+                  searches as quickly as possible while also modifying each entry returned from
+                  those searches.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new Launcher class that can be used to invoke the various command-line
+                  utilities without needing to use the associated shell scripts.  This is primarily
+                  a convenience that makes it possible to use the tools when only the LDAP SDK jar
+                  file is available.  The tools can be invoked using a command like:
+                  <blockquote>
+                    <tt>java -jar unboundid-ldapsdk-se.jar </tt><i>{tool-name} {tool-args}</i>
+                  </blockquote>
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the ldapsearch tool to add the ability to perform the same search
+                  multiple times using a specified interval.  This can be useful, for example, to
+                  repeatedly retrieve a server monitor entry at regular intervals.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the ldapsearch tool to add a terse mode that can be used to minimize the
+                  output that it generates to include only minimal content.  It will exclude the
+                  connect message, and entry and reference counts.  Further, all such messages
+                  written in non-terse mode will be prefixed with "#" characters so that the entire
+                  output will be valid LDIF.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the traditional and thread-local connection pool implementations to
+                  provide the ability to define the minimum length of time that should pass between
+                  connection closures because they have been established for longer than the
+                  maximum connection age.  This can help avoid cases in which a large number of
+                  connections are closed and re-established in a short period of time.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK to provide a more useful exception in the event that the
+                  connection is terminated as a result of an error encountered while trying to read
+                  a response from the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the searchrate, modrate, and authrate tools so that they are better able
+                  to handle the case in which the connection to the server is lost or the server
+                  becomes unavailable.  The tools will attempt to re-establish the connections
+                  when the server again becomes available.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated several parts of the LDAP SDK to reduce the amount of memory allocation
+                  performed and the amount of garbage created during processing.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a missing space between the numeric value and name in the string
+                  representation of a result code.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 1.1.3</h3>
 
               <p>
