@@ -29,6 +29,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -119,6 +121,10 @@ import static com.unboundid.util.StaticUtils.*;
  *       representation of the value</LI>
  *   <LI>{@code java.lang.StringBuilder} -- Encoded using the string
  *       representation of the value</LI>
+ *   <LI>{@code java.net.URI} -- Encoded using the string representation of the
+ *       value.</LI>
+ *   <LI>{@code java.net.URL} -- Encoded using the string representation of the
+ *       value.</LI>
  *   <LI>{@code java.util.UUID} -- Encoded using the string representation of
  *       the value</LI>
  * </UL>
@@ -247,6 +253,8 @@ public final class DefaultObjectEncoder
         c.equals(String.class) ||
         c.equals(StringBuffer.class) ||
         c.equals(StringBuilder.class) ||
+        c.equals(URI.class) ||
+        c.equals(URL.class) ||
         c.equals(UUID.class))
     {
       return true;
@@ -480,6 +488,8 @@ public final class DefaultObjectEncoder
         t.equals(String.class) ||
         t.equals(StringBuffer.class) ||
         t.equals(StringBuilder.class) ||
+        t.equals(URI.class) ||
+        t.equals(URL.class) ||
         t.equals(Filter.class) ||
         t.equals(LDAPURL.class))
     {
@@ -660,6 +670,16 @@ public final class DefaultObjectEncoder
     {
       return new Attribute(name, String.valueOf(value));
     }
+    else if (value instanceof URI)
+    {
+      final URI uri = (URI) value;
+      return new Attribute(name, uri.toASCIIString());
+    }
+    else if (value instanceof URL)
+    {
+      final URL url = (URL) value;
+      return new Attribute(name, url.toExternalForm());
+    }
     else if (value instanceof byte[])
     {
       return new Attribute(name, (byte[]) value);
@@ -748,6 +768,16 @@ public final class DefaultObjectEncoder
       {
         values[i] = new ASN1OctetString(String.valueOf(o));
       }
+      else if (arrayType.equals(URI.class))
+      {
+        final URI uri = (URI) o;
+        values[i] = new ASN1OctetString(uri.toASCIIString());
+      }
+      else if (arrayType.equals(URL.class))
+      {
+        final URL url = (URL) o;
+        values[i] = new ASN1OctetString(url.toExternalForm());
+      }
       else if (o instanceof byte[])
       {
         values[i] = new ASN1OctetString((byte[]) o);
@@ -833,6 +863,16 @@ public final class DefaultObjectEncoder
           genericType.equals(RDN.class))
       {
         values[i] = new ASN1OctetString(String.valueOf(o));
+      }
+      else if (genericType.equals(URI.class))
+      {
+        final URI uri = (URI) o;
+        values[i] = new ASN1OctetString(uri.toASCIIString());
+      }
+      else if (genericType.equals(URL.class))
+      {
+        final URL url = (URL) o;
+        values[i] = new ASN1OctetString(url.toExternalForm());
       }
       else if (o instanceof byte[])
       {
@@ -1176,6 +1216,34 @@ public final class DefaultObjectEncoder
     else if (t.equals(StringBuilder.class))
     {
       return new StringBuilder(v.stringValue());
+    }
+    else if (t.equals(URI.class))
+    {
+      try
+      {
+        return new URI(v.stringValue());
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        throw new LDAPPersistException(
+             ERR_DEFAULT_ENCODER_VALUE_INVALID_URI.get(v.stringValue(),
+                  getExceptionMessage(e)), e);
+      }
+    }
+    else if (t.equals(URL.class))
+    {
+      try
+      {
+        return new URL(v.stringValue());
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        throw new LDAPPersistException(
+             ERR_DEFAULT_ENCODER_VALUE_INVALID_URL.get(v.stringValue(),
+                  getExceptionMessage(e)), e);
+      }
     }
     else if (t.equals(UUID.class))
     {
