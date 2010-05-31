@@ -73,6 +73,7 @@ import static com.unboundid.util.StaticUtils.*;
  * <BR><BR>
  * The following basic types will be supported, with the following encodings:
  * <UL>
+ *   <LI>Any kind of enumeration.</LI>
  *   <LI>{@code java.util.concurrent.atomic.AtomicInteger} -- Encoded using the
  *       string representation of the value</LI>
  *   <LI>{@code java.util.concurrent.atomic.AtomicLong} -- Encoded using the
@@ -268,6 +269,11 @@ public final class DefaultObjectEncoder
       {
         return true;
       }
+    }
+
+    if (c.isEnum())
+    {
+      return true;
     }
 
     return false;
@@ -541,6 +547,10 @@ public final class DefaultObjectEncoder
         return "1.3.6.1.4.1.1466.115.121.1.15";
       }
     }
+    else if (t.isEnum())
+    {
+      return "1.3.6.1.4.1.1466.115.121.1.15";
+    }
 
     return null;
   }
@@ -709,6 +719,11 @@ public final class DefaultObjectEncoder
     {
       return encodeArray(typeInfo.getComponentType(), value, name);
     }
+    else if (typeInfo.isEnum())
+    {
+      final Enum<?> e = (Enum<?>) value;
+      return new Attribute(name, e.name());
+    }
     else if (Collection.class.isAssignableFrom(c))
     {
       return encodeCollection(typeInfo.getComponentType(),
@@ -803,6 +818,11 @@ public final class DefaultObjectEncoder
       {
         final Date d = (Date) o;
         values[i] = new ASN1OctetString(encodeGeneralizedTime(d));
+      }
+      else if (arrayType.isEnum())
+      {
+        final Enum<?> e = (Enum<?>) o;
+        values[i] = new ASN1OctetString(e.name());
       }
       else
       {
@@ -899,6 +919,11 @@ public final class DefaultObjectEncoder
       {
         final Date d = (Date) o;
         values[i] = new ASN1OctetString(encodeGeneralizedTime(d));
+      }
+      else if (genericType.isEnum())
+      {
+        final Enum<?> e = (Enum<?>) o;
+        values[i] = new ASN1OctetString(e.name());
       }
       else
       {
@@ -1163,6 +1188,7 @@ public final class DefaultObjectEncoder
    * @throws  LDAPPersistException  If a problem occurs while creating the
    *                                object.
    */
+  @SuppressWarnings("unchecked")
   private static Object getValue(final Class<?> t, final Attribute a,
                                  final int p)
           throws LDAPPersistException
@@ -1348,6 +1374,21 @@ public final class DefaultObjectEncoder
       else if (componentType.equals(Character.TYPE))
       {
         return v.stringValue().toCharArray();
+      }
+    }
+    else if (t.isEnum())
+    {
+      try
+      {
+        final Class<? extends Enum> enumClass = (Class<? extends Enum>) t;
+        return Enum.valueOf(enumClass, v.stringValue());
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        throw new LDAPPersistException(
+             ERR_DEFAULT_ENCODER_VALUE_INVALID_ENUM.get(v.stringValue(),
+                  getExceptionMessage(e)), e);
       }
     }
 
