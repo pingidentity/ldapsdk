@@ -43,6 +43,9 @@ final class TypeInfo
   // Indicates whether this type represents an array.
   private final boolean isArray;
 
+  // Indicates whether this type represents an enum.
+  private final boolean isEnum;
+
   // Indicates whether this type represents a list.
   private final boolean isList;
 
@@ -82,6 +85,7 @@ final class TypeInfo
       isSupported = true;
       baseClass   = (Class<?>) type;
       isArray     = baseClass.isArray();
+      isEnum      = baseClass.isEnum();
 
       if (isArray)
       {
@@ -123,6 +127,7 @@ final class TypeInfo
         {
           isSupported = true;
           isArray     = false;
+          isEnum      = false;
           isList      = true;
           isSet       = false;
         }
@@ -130,6 +135,7 @@ final class TypeInfo
         {
           isSupported = true;
           isArray     = false;
+          isEnum      = false;
           isList      = false;
           isSet       = true;
         }
@@ -137,6 +143,7 @@ final class TypeInfo
         {
           isSupported = false;
           isArray     = false;
+          isEnum      = false;
           isList      = false;
           isSet       = false;
         }
@@ -145,6 +152,7 @@ final class TypeInfo
       {
         isSupported   = false;
         isArray       = false;
+        isEnum        = false;
         isList        = false;
         isSet         = false;
         baseClass     = null;
@@ -155,6 +163,7 @@ final class TypeInfo
     {
       isSupported   = false;
       isArray       = false;
+      isEnum        = false;
       isList        = false;
       isSet         = false;
       baseClass     = null;
@@ -223,6 +232,19 @@ final class TypeInfo
   public boolean isArray()
   {
     return isArray;
+  }
+
+
+
+  /**
+   * Indicates whether the provided type represents an enum.
+   *
+   * @return  {@code true} if the provided type represents an enum, or
+   *          {@code false} if not.
+   */
+  public boolean isEnum()
+  {
+    return isEnum;
   }
 
 
