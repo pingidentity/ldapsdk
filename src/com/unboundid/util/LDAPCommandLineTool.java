@@ -109,6 +109,8 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI>"-u {path}" or "--keyStorePasswordFile {path}" -- Specifies the path to
  *       the file containing the password to use to access the contents of the
  *       key store.</LI>
+ *   <LI>"--keyStoreFormat {format}" -- Specifies the format to use for the key
+ *       store file.</LI>
  *   <LI>"-P {path}" or "--trustStorePath {path}" -- Specifies the path to the
  *       trust store to use when determining whether to trust server
  *       certificates.</LI>
@@ -117,6 +119,8 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI>"-U {path}" or "--trustStorePasswordFile {path}" -- Specifies the path
  *       to the file containing the password to use to access the contents of
  *       the trust store.</LI>
+ *   <LI>"--trustStoreFormat {format}" -- Specifies the format to use for the
+ *       trust store file.</LI>
  *   <LI>"-N {nickname}" or "--certNickname {nickname}" -- Specifies the
  *       nickname of the client certificate to use when performing SSL client
  *       authentication.</LI>
@@ -287,9 +291,11 @@ public abstract class LDAPCommandLineTool
   private StringArgument  bindPassword;
   private StringArgument  certificateNickname;
   private StringArgument  host;
+  private StringArgument  keyStoreFormat;
   private StringArgument  keyStorePath;
   private StringArgument  keyStorePassword;
   private StringArgument  saslOption;
+  private StringArgument  trustStoreFormat;
   private StringArgument  trustStorePath;
   private StringArgument  trustStorePassword;
 
@@ -431,6 +437,11 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_FILE.get());
     parser.addArgument(keyStorePasswordFile);
 
+    keyStoreFormat = new StringArgument(null, "keyStoreFormat", false, 1,
+         INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
+         INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_FORMAT.get());
+    parser.addArgument(keyStoreFormat);
+
     trustStorePath = new StringArgument('P', "trustStorePath", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PATH.get());
@@ -445,6 +456,11 @@ public abstract class LDAPCommandLineTool
          false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_FILE.get());
     parser.addArgument(trustStorePasswordFile);
+
+    trustStoreFormat = new StringArgument(null, "trustStoreFormat", false, 1,
+         INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
+         INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_FORMAT.get());
+    parser.addArgument(trustStoreFormat);
 
     certificateNickname = new StringArgument('N', "certNickname", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_CERT_NICKNAME.get(),
@@ -839,8 +855,8 @@ public abstract class LDAPCommandLineTool
 
         try
         {
-          keyManager = new KeyStoreKeyManager(keyStorePath.getValue(), pw, null,
-                                              certificateNickname.getValue());
+          keyManager = new KeyStoreKeyManager(keyStorePath.getValue(), pw,
+               keyStoreFormat.getValue(), certificateNickname.getValue());
         }
         catch (Exception e)
         {
@@ -880,7 +896,7 @@ public abstract class LDAPCommandLineTool
         }
 
         trustManager = new TrustStoreTrustManager(trustStorePath.getValue(), pw,
-                                                  null, true);
+             trustStoreFormat.getValue(), true);
       }
       else
       {
