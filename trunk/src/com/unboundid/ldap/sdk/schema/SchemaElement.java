@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotExtensible;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
 
 import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -42,8 +44,9 @@ import static com.unboundid.util.StaticUtils.*;
  * strings.
  */
 @NotExtensible()
-abstract class SchemaElement
-         implements Serializable
+@ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)
+public abstract class SchemaElement
+       implements Serializable
 {
   /**
    * The serial version UID for this serializable class.
