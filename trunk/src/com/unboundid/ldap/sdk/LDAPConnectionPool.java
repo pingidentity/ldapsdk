@@ -120,12 +120,15 @@ import static com.unboundid.util.Validator.*;
  * <BR><BR>
  * Performing a bind operation using a connection from the pool will invalidate
  * any previous authentication on that connection, and if that connection is
- * released back to the pool then subsequent operation attempts may fail or
- * be processed in an incorrect manner.  Bind operations should only be
- * performed in a connection pool if the pool is to be used exclusively for
- * processing binds, or if the bind request is specially crafted so that it will
- * not change the identity of the associated connection (e.g., by including the
- * retain identity request control in the bind request).
+ * released back to the pool without first being re-authenticated as the
+ * original user, then subsequent operation attempts may fail or be processed in
+ * an incorrect manner.  Bind operations should only be performed in a
+ * connection pool if the pool is to be used exclusively for processing binds,
+ * if the bind request is specially crafted so that it will not change the
+ * identity of the associated connection (e.g., by including the retain identity
+ * request control in the bind request), or if the code using the connection
+ * pool makes sure to re-authenticate the connection as the appropriate user
+ * whenever its identity has been changed.
  * <BR><BR>
  * The StartTLS extended operation should never be invoked on a connection which
  * is part of a connection pool.  It is acceptable for the pool to maintain
