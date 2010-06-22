@@ -558,6 +558,7 @@ public final class GenerateSourceFromSchema
     writer.println("import " + LDAPEntryField.class.getName() + ';');
     writer.println("import " + LDAPField.class.getName() + ';');
     writer.println("import " + LDAPObject.class.getName() + ';');
+    writer.println("import " + LDAPPersister.class.getName() + ';');
     writer.println("import " + LDAPPersistException.class.getName() + ';');
 
     if (needPersistedObjects)
@@ -714,6 +715,33 @@ public final class GenerateSourceFromSchema
          "overwritten in the course of");
     writer.println("    // decoding initializing this object from an LDAP " +
          "entry.");
+    writer.println("  }");
+
+
+    // Add the getPersister method.
+    writer.println("");
+    writer.println("");
+    writer.println("");
+    writer.println("  /**");
+    writer.println("   * Retrieves an {@code LDAPPersister} instance that " +
+         "may be used to interact");
+    writer.println("   * with objects of this type.");
+    writer.println("   *");
+    writer.println("   * @return  An {@code LDAPPersister} instance that may " +
+         "be used to interact");
+    writer.println("   *          with objects of this type.");
+    writer.println("   *");
+    writer.println("   * @throws  LDAPPersistException  If a problem occurs " +
+         "while creating the");
+    writer.println("   *                                " +
+         "{@code LDAPPersister} instance.");
+    writer.println("   */");
+    writer.println("  public static LDAPPersister<" + className +
+         "> getPersister()");
+    writer.println("         throws LDAPPersistException");
+    writer.println("  {");
+    writer.println("    return LDAPPersister.getInstance(" + className +
+         ".class);");
     writer.println("  }");
 
 
@@ -1444,7 +1472,7 @@ public final class GenerateSourceFromSchema
           writer.println("   * " + attrName + " attribute.");
           writer.println("   *");
           writer.println("   * @param  v  The string representations of the " +
-               "values for the field ");
+               "values for the field");
           writer.println("   *            associated with the " + attrName +
                " attribute.");
           writer.println("   *");
@@ -1567,11 +1595,11 @@ public final class GenerateSourceFromSchema
     writer.println();
     writer.println();
     writer.println("  /**");
-    writer.println("   * Retrieves a string representation of this {@code " +
-         className + "}.");
+    writer.println("   * Retrieves a string representation of this");
+    writer.println("   * {@code " + className + "} object.");
     writer.println("   *");
-    writer.println("   * @return  A string representation of this {@code " +
-         className + "}.");
+    writer.println("   * @return  A string representation of this");
+    writer.println("   *          {@code " + className + "} object.");
     writer.println("   */");
     writer.println("  @Override()");
     writer.println("  public String toString()");
@@ -1585,8 +1613,8 @@ public final class GenerateSourceFromSchema
     writer.println();
     writer.println();
     writer.println("  /**");
-    writer.println("   * Appends a string representation of this {@code " +
-         className + "}");
+    writer.println("   * Appends a string representation of this");
+    writer.println("   * {@code " + className + "} object");
     writer.println("     to the provided buffer.");
     writer.println("   *");
     writer.println("   * @param  buffer  The buffer to which the string " +
