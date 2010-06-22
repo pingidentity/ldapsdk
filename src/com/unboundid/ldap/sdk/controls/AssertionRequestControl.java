@@ -22,15 +22,21 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -211,6 +217,70 @@ public final class AssertionRequestControl
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_ASSERT_CANNOT_DECODE.get(e), e);
+    }
+  }
+
+
+
+  /**
+   * Generates an assertion request control that may be used to help ensure
+   * that some or all of the attributes in the specified entry have not changed
+   * since it was read from the server.
+   *
+   * @param  sourceEntry  The entry from which to take the attributes to include
+   *                      in the assertion request control.  It must not be
+   *                      {@code null} and should have at least one attribute to
+   *                      be included in the generated filter.
+   * @param  attributes   The names of the attributes to include in the
+   *                      assertion request control.  If this is empty or
+   *                      {@code null}, then all attributes in the provided
+   *                      entry will be used.
+   *
+   * @return  The generated assertion request control.
+   */
+  public static AssertionRequestControl generate(final Entry sourceEntry,
+                                                 final String... attributes)
+  {
+    Validator.ensureNotNull(sourceEntry);
+
+    final ArrayList<Filter> andComponents;
+
+    if ((attributes == null) || (attributes.length == 0))
+    {
+      final Collection<Attribute> entryAttrs = sourceEntry.getAttributes();
+      andComponents = new ArrayList<Filter>(entryAttrs.size());
+      for (final Attribute a : entryAttrs)
+      {
+        for (final ASN1OctetString v : a.getRawValues())
+        {
+          andComponents.add(Filter.createEqualityFilter(a.getName(),
+               v.getValue()));
+        }
+      }
+    }
+    else
+    {
+      andComponents = new ArrayList<Filter>(attributes.length);
+      for (final String name : attributes)
+      {
+        final Attribute a = sourceEntry.getAttribute(name);
+        if (a != null)
+        {
+          for (final ASN1OctetString v : a.getRawValues())
+          {
+            andComponents.add(Filter.createEqualityFilter(name, v.getValue()));
+          }
+        }
+      }
+    }
+
+    if (andComponents.size() == 1)
+    {
+      return new AssertionRequestControl(andComponents.get(0));
+    }
+    else
+    {
+      return new AssertionRequestControl(Filter.createANDFilter(andComponents));
     }
   }
 
