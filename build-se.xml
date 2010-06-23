@@ -149,16 +149,13 @@
       </not>
     </condition>
 
-    <filter token="BUILD_TIMESTAMP" value="${timestamp}" />
-    <filter token="year" value="${year}" />
-    <filter token="REPOSITORY_PATH" value="${svn.path}" />
-    <filter token="REVISION_NUMBER" value="${svn.version}" />
-
     <delete file="${src.dir}/com/unboundid/ldap/sdk/Version.java" />
     <copy file="${resource.dir}/Version.java.stub"
           tofile="${src.dir}/com/unboundid/ldap/sdk/Version.java"
-          filtering="true">
-      <filterset filtersfile="version.properties" onmissingfiltersfile="fail" />
+          overwrite="true">
+      <filterchain>
+        <expandproperties />
+      </filterchain>
     </copy>
   </target>
 
