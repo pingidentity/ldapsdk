@@ -695,7 +695,7 @@ public final class GenerateSourceFromSchema
     }
 
 
-    // Add the constructor.
+    // Add the default constructor.
     writer.println();
     writer.println();
     writer.println();
@@ -715,6 +715,32 @@ public final class GenerateSourceFromSchema
          "overwritten in the course of");
     writer.println("    // decoding initializing this object from an LDAP " +
          "entry.");
+    writer.println("  }");
+
+
+    // Add a static decode method that can create an instance of the object
+    // from a given entry.
+    writer.println();
+    writer.println();
+    writer.println();
+    writer.println("  /**");
+    writer.println("   * Creates a new " + className + " object decoded");
+    writer.println("   * from the provided entry.");
+    writer.println("   *");
+    writer.println("   * @param  entry  The entry to be decoded.");
+    writer.println("   *");
+    writer.println("   * @return  The decoded " + className + " object.");
+    writer.println("   *");
+    writer.println("   * @throws  LDAPPersistException  If a problem occurs " +
+         "while attempting to");
+    writer.println("   *                                decode the provided " +
+         "entry.");
+    writer.println("   */");
+    writer.println("  public static " + className +
+         " decode(final Entry entry)");
+    writer.println("         throws LDAPPersistException");
+    writer.println("  {");
+    writer.println("    return getPersister().decode(entry);");
     writer.println("  }");
 
 
