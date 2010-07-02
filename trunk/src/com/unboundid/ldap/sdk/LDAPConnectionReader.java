@@ -147,7 +147,21 @@ final class LDAPConnectionReader
     {
       if (socket instanceof SSLSocket)
       {
-        socket.setSoTimeout(0);
+        // We don't want to set an SO_TIMEOUT that is too short, but we don't
+        // necessarily want to make it unlimited.  As a compromise, set it equal
+        // to the connect timeout for the connection (which might be unlimited,
+        // but that's up to the user to decide).
+        final LDAPConnectionOptions options = connection.getConnectionOptions();
+        final int connectTimeout = options.getConnectTimeoutMillis();
+        if (connectTimeout > 0)
+        {
+          socket.setSoTimeout(connectTimeout);
+        }
+        else
+        {
+          socket.setSoTimeout(0);
+        }
+
         final SSLSocket sslSocket = (SSLSocket) socket;
         sslSocket.addHandshakeCompletedListener(this);
         sslSocket.startHandshake();
