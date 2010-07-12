@@ -32,8 +32,6 @@ import java.net.SocketTimeoutException;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import javax.net.ssl.HandshakeCompletedEvent;
-import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -61,7 +59,6 @@ import static com.unboundid.util.StaticUtils.*;
 @InternalUseOnly()
 final class LDAPConnectionReader
       extends Thread
-      implements HandshakeCompletedListener
 {
   /**
    * The default size that will be used for the input stream buffer.
@@ -155,19 +152,36 @@ final class LDAPConnectionReader
         final int connectTimeout = options.getConnectTimeoutMillis();
         if (connectTimeout > 0)
         {
+          if (debugEnabled())
+          {
+            debug(Level.INFO, DebugType.CONNECT,
+                 "Setting SO_TIMEOUT to connect timeout of " + connectTimeout +
+                      "ms in LDAPConnectionReader constructor");
+          }
           socket.setSoTimeout(connectTimeout);
         }
         else
         {
+          if (debugEnabled())
+          {
+            debug(Level.INFO, DebugType.CONNECT,
+                 "Setting SO_TIMEOUT to 0ms in LDAPConnectionReader " +
+                      "constructor");
+          }
           socket.setSoTimeout(0);
         }
 
         final SSLSocket sslSocket = (SSLSocket) socket;
-        sslSocket.addHandshakeCompletedListener(this);
         sslSocket.startHandshake();
       }
       else
       {
+        if (debugEnabled())
+        {
+          debug(Level.INFO, DebugType.CONNECT,
+               "Setting SO_TIMEOUT to 50ms in LDAPConnectionReader " +
+                    "constructor");
+        }
         socket.setSoTimeout(50);
       }
     }
@@ -263,14 +277,38 @@ final class LDAPConnectionReader
             {
               try
               {
-                socket.setSoTimeout(0);
+                final int connectTimeout = connection.getConnectionOptions().
+                     getConnectTimeoutMillis();
+                if (connectTimeout > 0)
+                {
+                  if (debugEnabled())
+                  {
+                    debug(Level.INFO, DebugType.CONNECT,
+                         "Setting SO_TIMEOUT to connect timeout of " +
+                              connectTimeout + "ms in " +
+                              "LDAPConnectionReader.run while performing " +
+                              "StartTLS processing.");
+                  }
+                  socket.setSoTimeout(connectTimeout);
+                }
+                else
+                {
+                  if (debugEnabled())
+                  {
+                    debug(Level.INFO, DebugType.CONNECT,
+                         "Setting SO_TIMEOUT to 0ms in " +
+                              "LDAPConnectionReader.run while performing " +
+                              "StartTLS processing.");
+                  }
+                  socket.setSoTimeout(0);
+                }
+
                 final SSLSocketFactory socketFactory =
                      sslContext.getSocketFactory();
                 final SSLSocket sslSocket =
                      (SSLSocket) socketFactory.createSocket(socket,
                           connection.getConnectedAddress(), socket.getPort(),
                           true);
-                sslSocket.addHandshakeCompletedListener(this);
                 sslSocket.startHandshake();
                 inputStream =
                      new BufferedInputStream(sslSocket.getInputStream(),
@@ -827,7 +865,32 @@ final class LDAPConnectionReader
     {
       try
       {
-        socket.setSoTimeout(0);
+        final int connectTimeout = connection.getConnectionOptions().
+             getConnectTimeoutMillis();
+        if (connectTimeout > 0)
+        {
+          if (debugEnabled())
+          {
+            debug(Level.INFO, DebugType.CONNECT,
+                 "Setting SO_TIMEOUT to connect timeout of " +
+                      connectTimeout + "ms in " +
+                      "LDAPConnectionReader.doStartTLS while performing " +
+                      "StartTLS processing.");
+          }
+          socket.setSoTimeout(connectTimeout);
+        }
+        else
+        {
+          if (debugEnabled())
+          {
+            debug(Level.INFO, DebugType.CONNECT,
+                 "Setting SO_TIMEOUT to 0ms in " +
+                      "LDAPConnectionReader.doStartTLS while performing " +
+                      "StartTLS processing.");
+          }
+          socket.setSoTimeout(0);
+        }
+
         final SSLSocketFactory socketFactory = sslContext.getSocketFactory();
         final SSLSocket sslSocket =
              (SSLSocket) socketFactory.createSocket(socket,
@@ -997,25 +1060,6 @@ final class LDAPConnectionReader
        iterator.remove();
      }
    }
-
-
-
-  /**
-   * Indicates that the SSL handshake for the associated socket has completed.
-   *
-   * @param  event  The handshake completed event for for the socket.
-   */
-  public void handshakeCompleted(final HandshakeCompletedEvent event)
-  {
-    try
-    {
-      event.getSocket().setSoTimeout(50);
-    }
-    catch (Exception e)
-    {
-      debugException(e);
-    }
-  }
 
 
 
