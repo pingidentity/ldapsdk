@@ -86,7 +86,7 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  *       with a non-success response) may include a
  *       {@link ContentSyncDoneControl} with updated sync state information.
  *       You should call
- *       {code getResponseControl(ContentSyncDoneControl.SYNC_DONE_OID)} to
+ *       {@code getResponseControl(ContentSyncDoneControl.SYNC_DONE_OID)} to
  *       retrieve the control with the sync state information.</LI>
  * </UL>
  */
