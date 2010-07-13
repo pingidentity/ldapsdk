@@ -313,6 +313,10 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  *       <TD ALIGN="RIGHT">123</TD>
  *     </TR>
  *     <TR>
+ *       <TD ALIGN="LEFT">E_SYNC_REFRESH_REQUIRED</TD>
+ *       <TD ALIGN="RIGHT">4096</TD>
+ *     </TR>
+ *     <TR>
  *       <TD ALIGN="LEFT">NO_OPERATION</TD>
  *       <TD ALIGN="RIGHT">16654</TD>
  *     </TR>
@@ -1414,6 +1418,25 @@ public final class ResultCode
 
 
   /**
+   * The integer value (4096) for the "E_SYNC_REFRESH_REQUIRED" result code.
+   */
+  public static final int E_SYNC_REFRESH_REQUIRED_INT_VALUE = 4096;
+
+
+
+  /**
+   * The result code (4096) that will be used if a client using the content
+   * synchronization request control requests an incremental update but the
+   * server is unable to honor that request and requires the client to request
+   * an initial content.
+   */
+  public static final ResultCode E_SYNC_REFRESH_REQUIRED =
+       new ResultCode(INFO_RC_E_SYNC_REFRESH_REQUIRED.get(),
+                      E_SYNC_REFRESH_REQUIRED_INT_VALUE);
+
+
+
+  /**
    * The integer value (16654) for the "NO_OPERATION" result code.
    */
   public static final int NO_OPERATION_INT_VALUE = 16654;
@@ -1679,6 +1702,8 @@ public final class ResultCode
         return ASSERTION_FAILED;
       case AUTHORIZATION_DENIED_INT_VALUE:
         return AUTHORIZATION_DENIED;
+      case E_SYNC_REFRESH_REQUIRED_INT_VALUE:
+        return E_SYNC_REFRESH_REQUIRED;
       case NO_OPERATION_INT_VALUE:
         return NO_OPERATION;
       case INTERACTIVE_TRANSACTION_ABORTED_INT_VALUE:
@@ -1774,6 +1799,7 @@ public final class ResultCode
       CANNOT_CANCEL,
       ASSERTION_FAILED,
       AUTHORIZATION_DENIED,
+      E_SYNC_REFRESH_REQUIRED,
       NO_OPERATION,
       INTERACTIVE_TRANSACTION_ABORTED
     };

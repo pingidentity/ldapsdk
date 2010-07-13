@@ -64,6 +64,14 @@ public final class ControlHelper
          new AuthorizationIdentityResponseControl());
 
     Control.registerDecodeableControl(
+         ContentSyncDoneControl.SYNC_DONE_OID,
+         new ContentSyncDoneControl());
+
+    Control.registerDecodeableControl(
+         ContentSyncStateControl.SYNC_STATE_OID,
+         new ContentSyncStateControl());
+
+    Control.registerDecodeableControl(
          EntryChangeNotificationControl.ENTRY_CHANGE_NOTIFICATION_OID,
          new EntryChangeNotificationControl());
 
