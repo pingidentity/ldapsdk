@@ -22,7 +22,9 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Enumerated;
@@ -80,7 +82,7 @@ public final class ContentSyncStateControl
   private final ContentSyncState state;
 
   // The entryUUID value for the associated entry.
-  private final String entryUUID;
+  private final UUID entryUUID;
 
 
 
@@ -110,7 +112,7 @@ public final class ContentSyncStateControl
    *                    be {@code null} if no updated state is available.
    */
   public ContentSyncStateControl(final ContentSyncState state,
-                                 final String entryUUID,
+                                 final UUID entryUUID,
                                  final ASN1OctetString cookie)
   {
     super(SYNC_STATE_OID, false, encodeValue(state, entryUUID, cookie));
@@ -158,8 +160,16 @@ public final class ContentSyncStateControl
              ERR_SYNC_STATE_VALUE_INVALID_STATE.get(e.intValue()));
       }
 
-      entryUUID =
-           ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
+      try
+      {
+        entryUUID = StaticUtils.decodeUUID(elements[1].getValue());
+      }
+      catch (final ParseException pe)
+      {
+        Debug.debugException(pe);
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_SYNC_STATE_VALUE_MALFORMED_UUID.get(pe.getMessage()), pe);
+      }
 
       if (elements.length == 3)
       {
@@ -200,14 +210,14 @@ public final class ContentSyncStateControl
    * @return  An ASN.1 octet string containing the encoded control value.
    */
   private static ASN1OctetString encodeValue(final ContentSyncState state,
-                                             final String entryUUID,
+                                             final UUID entryUUID,
                                              final ASN1OctetString cookie)
   {
     Validator.ensureNotNull(state, entryUUID);
 
     final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(3);
     elements.add(new ASN1Enumerated(state.intValue()));
-    elements.add(new ASN1OctetString(entryUUID));
+    elements.add(new ASN1OctetString(StaticUtils.encodeUUID(entryUUID)));
 
     if (cookie != null)
     {
@@ -253,7 +263,7 @@ public final class ContentSyncStateControl
    * @return  The entryUUID for the associated search result entry or
    *          reference.
    */
-  public String getEntryUUID()
+  public UUID getEntryUUID()
   {
     return entryUUID;
   }
