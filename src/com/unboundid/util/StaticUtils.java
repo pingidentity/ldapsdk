@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import com.unboundid.ldap.sdk.Version;
 
@@ -1445,5 +1446,78 @@ public final class StaticUtils
           return Character.toUpperCase(c) + s.substring(1);
         }
     }
+  }
+
+
+
+  /**
+   * Encodes the provided UUID to a byte array containing its 128-bit
+   * representation.
+   *
+   * @param  uuid  The UUID to be encoded.  It must not be {@code null}.
+   *
+   * @return  The byte array containing the 128-bit encoded UUID.
+   */
+  public static byte[] encodeUUID(final UUID uuid)
+  {
+    final byte[] b = new byte[16];
+
+    final long mostSignificantBits  = uuid.getMostSignificantBits();
+    b[0]  = (byte) ((mostSignificantBits >> 56) & 0xFF);
+    b[1]  = (byte) ((mostSignificantBits >> 48) & 0xFF);
+    b[2]  = (byte) ((mostSignificantBits >> 40) & 0xFF);
+    b[3]  = (byte) ((mostSignificantBits >> 32) & 0xFF);
+    b[4]  = (byte) ((mostSignificantBits >> 24) & 0xFF);
+    b[5]  = (byte) ((mostSignificantBits >> 16) & 0xFF);
+    b[6]  = (byte) ((mostSignificantBits >> 8) & 0xFF);
+    b[7]  = (byte) (mostSignificantBits & 0xFF);
+
+    final long leastSignificantBits = uuid.getLeastSignificantBits();
+    b[8]  = (byte) ((leastSignificantBits >> 56) & 0xFF);
+    b[9]  = (byte) ((leastSignificantBits >> 48) & 0xFF);
+    b[10] = (byte) ((leastSignificantBits >> 40) & 0xFF);
+    b[11] = (byte) ((leastSignificantBits >> 32) & 0xFF);
+    b[12] = (byte) ((leastSignificantBits >> 24) & 0xFF);
+    b[13] = (byte) ((leastSignificantBits >> 16) & 0xFF);
+    b[14] = (byte) ((leastSignificantBits >> 8) & 0xFF);
+    b[15] = (byte) (leastSignificantBits & 0xFF);
+
+    return b;
+  }
+
+
+
+  /**
+   * Decodes the value of the provided byte array as a Java UUID.
+   *
+   * @param  b  The byte array to be decoded as a UUID.  It must not be
+   *            {@code null}.
+   *
+   * @return  The decoded UUID.
+   *
+   * @throws  ParseException  If the provided byte array cannot be parsed as a
+   *                         UUID.
+   */
+  public static UUID decodeUUID(final byte[] b)
+         throws ParseException
+  {
+    if (b.length != 16)
+    {
+      throw new ParseException(ERR_DECODE_UUID_INVALID_LENGTH.get(toHex(b)), 0);
+    }
+
+    long mostSignificantBits = 0L;
+    for (int i=0; i < 8; i++)
+    {
+      mostSignificantBits = (mostSignificantBits << 8) | (b[i] & 0xFF);
+    }
+
+    long leastSignificantBits = 0L;
+    for (int i=8; i < 16; i++)
+    {
+      leastSignificantBits = (leastSignificantBits << 8) | (b[i] & 0xFF);
+    }
+
+    return new UUID(mostSignificantBits, leastSignificantBits);
   }
 }

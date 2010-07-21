@@ -22,10 +22,12 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Constants;
@@ -92,7 +94,7 @@ public final class ContentSyncInfoIntermediateResponse
   private final ContentSyncInfoType type;
 
   // A list of entryUUIDs for the set of entries associated with this message.
-  private final List<String> entryUUIDs;
+  private final List<UUID> entryUUIDs;
 
 
 
@@ -118,7 +120,7 @@ public final class ContentSyncInfoIntermediateResponse
   private ContentSyncInfoIntermediateResponse(final ContentSyncInfoType type,
                  final ASN1OctetString value, final ASN1OctetString cookie,
                  final boolean refreshDone, final boolean refreshDeletes,
-                 final List<String> entryUUIDs, final Control... controls)
+                 final List<UUID> entryUUIDs, final Control... controls)
   {
     super(SYNC_INFO_OID, value, controls);
 
@@ -233,8 +235,7 @@ public final class ContentSyncInfoIntermediateResponse
    * @return  The created sync info intermediate response.
    */
   public static ContentSyncInfoIntermediateResponse createSyncIDSetResponse(
-                     final ASN1OctetString cookie,
-                     final List<String> entryUUIDs,
+                     final ASN1OctetString cookie, final List<UUID> entryUUIDs,
                      final boolean refreshDeletes, final Control... controls)
   {
     Validator.ensureNotNull(entryUUIDs);
@@ -299,7 +300,7 @@ public final class ContentSyncInfoIntermediateResponse
     ASN1OctetString cookie         = null;
     boolean         refreshDone    = false;
     boolean         refreshDeletes = false;
-    List<String>    entryUUIDs     = null;
+    List<UUID>      entryUUIDs     = null;
 
     try
     {
@@ -347,11 +348,21 @@ public final class ContentSyncInfoIntermediateResponse
               case ASN1Constants.UNIVERSAL_SET_TYPE:
                 final ASN1Set uuidSet = ASN1Set.decodeAsSet(e);
                 final ASN1Element[] uuidElements = uuidSet.elements();
-                entryUUIDs = new ArrayList<String>(uuidElements.length);
+                entryUUIDs = new ArrayList<UUID>(uuidElements.length);
                 for (final ASN1Element uuidElement : uuidElements)
                 {
-                  entryUUIDs.add(ASN1OctetString.decodeAsOctetString(
-                       uuidElement).stringValue());
+                  try
+                  {
+                    entryUUIDs.add(StaticUtils.decodeUUID(
+                         uuidElement.getValue()));
+                  }
+                  catch (final ParseException pe)
+                  {
+                    Debug.debugException(pe);
+                    throw new LDAPException(ResultCode.DECODING_ERROR,
+                         ERR_SYNC_INFO_IR_INVALID_UUID.get(type.name(),
+                              pe.getMessage()), pe);
+                  }
                 }
                 break;
               default:
@@ -406,7 +417,7 @@ public final class ContentSyncInfoIntermediateResponse
   private static ASN1OctetString encodeValue(final ContentSyncInfoType type,
                                              final ASN1OctetString cookie,
                                              final boolean refreshDone,
-                                             final List<String> entryUUIDs,
+                                             final List<UUID> entryUUIDs,
                                              final boolean refreshDeletes)
   {
     final ASN1Element e;
@@ -447,9 +458,9 @@ public final class ContentSyncInfoIntermediateResponse
 
         final ArrayList<ASN1Element> uuidElements =
              new ArrayList<ASN1Element>(entryUUIDs.size());
-        for (final String s : entryUUIDs)
+        for (final UUID uuid : entryUUIDs)
         {
-          uuidElements.add(new ASN1OctetString(s));
+          uuidElements.add(new ASN1OctetString(StaticUtils.encodeUUID(uuid)));
         }
         l.add(new ASN1Set(uuidElements));
 
@@ -522,7 +533,7 @@ public final class ContentSyncInfoIntermediateResponse
    *          message, or {@code null} if it is not applicable for this message
    *          type.
    */
-  public List<String> getEntryUUIDs()
+  public List<UUID> getEntryUUIDs()
   {
     return entryUUIDs;
   }
@@ -588,7 +599,7 @@ public final class ContentSyncInfoIntermediateResponse
       case SYNC_ID_SET:
         buffer.append(", entryUUIDs={");
 
-        final Iterator<String> iterator = entryUUIDs.iterator();
+        final Iterator<UUID> iterator = entryUUIDs.iterator();
         while (iterator.hasNext())
         {
           buffer.append(iterator.next());
