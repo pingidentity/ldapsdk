@@ -32,12 +32,16 @@ import static com.unboundid.util.args.ArgsMessages.*;
 
 /**
  * Creates a new argument that is intended to represent Boolean states based on
- * whether it was present in the provided set of command line arguments.
+ * whether it was present in the provided set of command-line arguments.
  * Boolean arguments never have values, since the argument identifier itself is
- * sufficient to indicate presence.  Note, however, that it may be beneficial in
- * some cases to allow multiple occurrences of the same Boolean argument if that
- * has special meaning (e.g., if "-v" is used to enable verbose output, then
- * perhaps "-v -v" would be even more verbose).
+ * sufficient to indicate presence.  If the argument is present in the set of
+ * provided command-line arguments, then it will be assumed to have a value of
+ * {@code true}.  If the argument is not present, then it will be assumed to
+ * have a value of {@code false}.
+ * <BR><BR>
+ * Note that it may be beneficial in some cases to allow multiple occurrences of
+ * the same Boolean argument if that has special meaning (e.g., if "-v" is used
+ * to enable verbose output, then perhaps "-v -v" would be even more verbose).
  */
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
