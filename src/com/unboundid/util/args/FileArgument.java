@@ -72,6 +72,10 @@ public final class FileArgument
   // The set of values assigned to this argument.
   private final ArrayList<File> values;
 
+  // The path to the directory that will serve as the base directory for
+  // relative paths.
+  private File relativeBaseDirectory;
+
   // The list of default values for this argument.
   private final List<File> defaultValues;
 
@@ -234,7 +238,8 @@ public final class FileArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<File>();
+    values                = new ArrayList<File>();
+    relativeBaseDirectory = null;
   }
 
 
@@ -308,6 +313,37 @@ public final class FileArgument
 
 
   /**
+   * Retrieves the directory that will serve as the base directory for relative
+   * paths, if one has been defined.
+   *
+   * @return  The directory that will serve as the base directory for relative
+   *          paths, or {@code null} if relative paths will be relative to the
+   *          current working directory.
+   */
+  public File getRelativeBaseDirectory()
+  {
+    return relativeBaseDirectory;
+  }
+
+
+
+  /**
+   * Specifies the directory that will serve as the base directory for relative
+   * paths.
+   *
+   * @param  relativeBaseDirectory  The directory that will serve as the base
+   *                                directory for relative paths.  It may be
+   *                                {@code null} if relative paths should be
+   *                                relative to the current working directory.
+   */
+  public void setRelativeBaseDirectory(final File relativeBaseDirectory)
+  {
+    this.relativeBaseDirectory = relativeBaseDirectory;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -318,8 +354,22 @@ public final class FileArgument
     // is created from a relative path and that path contains only the filename,
     // then calling getParent or getParentFile will return null even though it
     // obviously has a parent.  Therefore, you must always create a File using
-    // the absolute path if you might want to get the parent.
-    final File f = new File(new File(valueString).getAbsolutePath());
+    // the absolute path if you might want to get the parent.  Also, if the path
+    // is relative, then we might want to control the base to which it is
+    // relative.
+    File f = new File(valueString);
+    if (! f.isAbsolute())
+    {
+      if (relativeBaseDirectory == null)
+      {
+        f = new File(f.getAbsolutePath());
+      }
+      else
+      {
+        f = new File(new File(relativeBaseDirectory,
+             valueString).getAbsolutePath());
+      }
+    }
 
     if (f.exists())
     {
