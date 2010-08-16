@@ -665,6 +665,7 @@ public final class LDAPConnection
     reconnectAddress      = host;
     reconnectPort         = port;
     cachedSchema          = null;
+    unbindRequestSent     = false;
 
     try
     {
