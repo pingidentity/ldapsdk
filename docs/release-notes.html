@@ -60,6 +60,61 @@ ${TARGET="offline"}                    <br>
                   understand exactly what communication occurs between an LDAP client and server.
                   <br><br>
                 </li>
+
+                <li>
+                  Added support for the content synchronization operation as defined in RFC 4533,
+                  including the various controls and the intermediate response needed to interact
+                  with servers supporting this feature.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added new argument types, including a BooleanValueArgument (in which the
+                  provided value must be either "true" or "false", which is more useful in some
+                  cases than the BooleanArgument in which the Boolean value is inferred based on
+                  whether the argument was provided) and a DurationArgument (in which the value
+                  contains both an integer portion and a time unit, like "50ms", to indicate a
+                  length of time).
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP command-line tool interface to make it possible to specify the
+                  format to use for the Java key store and trust store files.  The default
+                  format will be JKS, but you can indicate that an alternate format (e.g., JCEKS
+                  or PKCS12) if desired.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the support for the LDAP assertion control to add a new <tt>generate</tt>
+                  convenience method that can be used to easily generate an assertion request
+                  control from some or all of the attributes in a provided entry.  This can be
+                  used when updating an entry to help ensure that it has not been altered by
+                  something else since it was last read.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the support for the FileArgument class in which allows you to specify
+                  the base directory to use for relative paths.  If no relative base path is
+                  defined, then relative paths will be relative to the current working directory
+                  (which has always been the case), but if a relative base path is defined, then
+                  any relative paths will be relative to that base directory.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a couple of bugs in the way that SSL handshaking is performed to make it
+                  more robust, particularly when used over higher-latency network links.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug that could prevent an unbind request from being sent to the server
+                  when closing a connection that had previously been closed and re-established.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
