@@ -52,6 +52,7 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.IntegerArgument;
+import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
 
 import static com.unboundid.util.StaticUtils.*;
@@ -186,6 +187,9 @@ public final class SearchAndModRate
   // The number of warm-up intervals to perform.
   private IntegerArgument warmUpIntervals;
 
+  // The argument used to specify the scope for the searches.
+  private ScopeArgument scopeArg;
+
   // The argument used to specify the base DNs for the searches.
   private StringArgument baseDN;
 
@@ -204,9 +208,6 @@ public final class SearchAndModRate
 
   // The argument used to specify the attributes to return.
   private StringArgument returnAttributes;
-
-  // The argument used to specify the scope for the searches.
-  private StringArgument scopeStr;
 
   // The argument used to specify the timestamp format.
   private StringArgument timestampFormat;
@@ -323,14 +324,9 @@ public final class SearchAndModRate
     description = "The scope to use for the searches.  It should be 'base', " +
                   "'one', 'sub', or 'subord'.  If this is not provided, then " +
                   "a default scope of 'sub' will be used.";
-    final LinkedHashSet<String> allowedScopes = new LinkedHashSet<String>(4);
-    allowedScopes.add("base");
-    allowedScopes.add("one");
-    allowedScopes.add("sub");
-    allowedScopes.add("subord");
-    scopeStr = new StringArgument('s', "scope", false, 1, "{scope}",
-                                  description, allowedScopes, "sub");
-    parser.addArgument(scopeStr);
+    scopeArg = new ScopeArgument('s', "scope", false, "{scope}", description,
+                                 SearchScope.SUB);
+    parser.addArgument(scopeArg);
 
 
     description = "The filter to use for the searches.  It may be a simple " +
@@ -502,26 +498,6 @@ public final class SearchAndModRate
   @Override()
   public ResultCode doToolProcessing()
   {
-    // Convert the search scope from a string to an integer.
-    final SearchScope scope;
-    if (scopeStr.getValue().equalsIgnoreCase("base"))
-    {
-      scope = SearchScope.BASE;
-    }
-    else if (scopeStr.getValue().equalsIgnoreCase("one"))
-    {
-      scope = SearchScope.ONE;
-    }
-    else if (scopeStr.getValue().equalsIgnoreCase("subord"))
-    {
-      scope = SearchScope.SUBORDINATE_SUBTREE;
-    }
-    else
-    {
-      scope = SearchScope.SUB;
-    }
-
-
     // Create value patterns for the base DN, filter, and proxied authorization
     // DN.
     final ValuePattern dnPattern;
@@ -704,11 +680,11 @@ public final class SearchAndModRate
         return le.getResultCode();
       }
 
-      threads[i] = new SearchAndModRateThread(i, connection, dnPattern, scope,
-           filterPattern, returnAttrs, modAttrs, valueLength.getValue(),
-           charSet, authzIDPattern, random.nextLong(), barrier, searchCounter,
-           modCounter, searchDurations, modDurations, errorCounter, rcCounter,
-           fixedRateBarrier);
+      threads[i] = new SearchAndModRateThread(i, connection, dnPattern,
+           scopeArg.getValue(), filterPattern, returnAttrs, modAttrs,
+           valueLength.getValue(), charSet, authzIDPattern, random.nextLong(),
+           barrier, searchCounter, modCounter, searchDurations, modDurations,
+           errorCounter, rcCounter, fixedRateBarrier);
       threads[i].start();
     }
 
@@ -732,7 +708,6 @@ public final class SearchAndModRate
     boolean setOverallStartTime = false;
     long    lastSearchDuration  = 0L;
     long    lastModDuration     = 0L;
-    long    lastNumEntries      = 0L;
     long    lastNumErrors       = 0L;
     long    lastNumSearches     = 0L;
     long    lastNumMods          = 0L;

@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -49,7 +48,7 @@ import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.IntegerArgument;
-import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.args.ScopeArgument;
 
 
 
@@ -144,7 +143,7 @@ public final class LDAPSearch
   private DNArgument baseDN;
 
   // The argument used to specify the scope for the search.
-  private StringArgument scopeStr;
+  private ScopeArgument scopeArg;
 
 
 
@@ -285,14 +284,9 @@ public final class LDAPSearch
     description = "The scope to use for the search.  It should be 'base', " +
                   "'one', 'sub', or 'subord'.  If this is not provided, then " +
                   "a default scope of 'sub' will be used.";
-    final LinkedHashSet<String> allowedScopes = new LinkedHashSet<String>(4);
-    allowedScopes.add("base");
-    allowedScopes.add("one");
-    allowedScopes.add("sub");
-    allowedScopes.add("subord");
-    scopeStr = new StringArgument('s', "scope", false, 1, "{scope}",
-                                  description, allowedScopes, "sub");
-    parser.addArgument(scopeStr);
+    scopeArg = new ScopeArgument('s', "scope", false, "{scope}", description,
+                                 SearchScope.SUB);
+    parser.addArgument(scopeArg);
 
 
     description = "Follow any referrals encountered during processing.";
@@ -378,27 +372,6 @@ public final class LDAPSearch
     }
 
 
-    // Convert the search scope from a string to an integer.
-    final SearchScope scope;
-    if (scopeStr.getValue().equalsIgnoreCase("base"))
-    {
-      scope = SearchScope.BASE;
-    }
-    else if (scopeStr.getValue().equalsIgnoreCase("one"))
-    {
-      scope = SearchScope.ONE;
-    }
-    else if (scopeStr.getValue().equalsIgnoreCase("subord"))
-    {
-      scope = SearchScope.SUBORDINATE_SUBTREE;
-    }
-    else
-    {
-      scope = SearchScope.SUB;
-    }
-
-
-
     // Get the connection to the directory server.
     final LDAPConnection connection;
     try
@@ -422,7 +395,7 @@ public final class LDAPSearch
     // listener to handle the results since there could potentially be a lot of
     // them.
     final SearchRequest searchRequest =
-         new SearchRequest(this, baseDN.getStringValue(), scope,
+         new SearchRequest(this, baseDN.getStringValue(), scopeArg.getValue(),
                            DereferencePolicy.NEVER, 0, 0, false, filter,
                            attributesToReturn);
     searchRequest.setFollowReferrals(followReferrals.isPresent());
