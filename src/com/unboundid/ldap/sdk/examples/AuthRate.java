@@ -51,6 +51,7 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.IntegerArgument;
+import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
 
 import static com.unboundid.util.StaticUtils.*;
@@ -183,7 +184,7 @@ public final class AuthRate
   private StringArgument filter;
 
   // The argument used to specify the scope for the searches.
-  private StringArgument scopeStr;
+  private ScopeArgument scopeArg;
 
   // The argument used to specify the timestamp format.
   private StringArgument timestampFormat;
@@ -303,14 +304,9 @@ public final class AuthRate
     description = "The scope to use for the searches.  It should be 'base', " +
                   "'one', 'sub', or 'subord'.  If this is not provided, a " +
                   "default scope of 'sub' will be used.";
-    final LinkedHashSet<String> allowedScopes = new LinkedHashSet<String>(4);
-    allowedScopes.add("base");
-    allowedScopes.add("one");
-    allowedScopes.add("sub");
-    allowedScopes.add("subord");
-    scopeStr = new StringArgument('s', "scope", false, 1, "{scope}",
-                                  description, allowedScopes, "sub");
-    parser.addArgument(scopeStr);
+    scopeArg = new ScopeArgument('s', "scope", false, "{scope}", description,
+                                 SearchScope.SUB);
+    parser.addArgument(scopeArg);
 
 
     description = "The filter to use for the searches.  It may be a simple " +
@@ -469,26 +465,6 @@ public final class AuthRate
   @Override()
   public ResultCode doToolProcessing()
   {
-    // Convert the search scope from a string to an integer.
-    final SearchScope scope;
-    if (scopeStr.getValue().equalsIgnoreCase("base"))
-    {
-      scope = SearchScope.BASE;
-    }
-    else if (scopeStr.getValue().equalsIgnoreCase("one"))
-    {
-      scope = SearchScope.ONE;
-    }
-    else if (scopeStr.getValue().equalsIgnoreCase("subord"))
-    {
-      scope = SearchScope.SUBORDINATE_SUBTREE;
-    }
-    else
-    {
-      scope = SearchScope.SUB;
-    }
-
-
     // Create value patterns for the base DN and filter.
     final ValuePattern dnPattern;
     try
@@ -633,9 +609,9 @@ public final class AuthRate
       }
 
       threads[i] = new AuthRateThread(i, searchConnection, bindConnection,
-           dnPattern, scope, filterPattern, attrs, userPassword.getValue(),
-           authType.getValue(), barrier, authCounter, authDurations,
-           errorCounter, rcCounter, fixedRateBarrier);
+           dnPattern, scopeArg.getValue(), filterPattern, attrs,
+           userPassword.getValue(), authType.getValue(), barrier, authCounter,
+           authDurations, errorCounter, rcCounter, fixedRateBarrier);
       threads[i].start();
     }
 
