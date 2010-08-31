@@ -76,7 +76,7 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  *   <LI>The search request should be configured with an unlimited server-side
  *       time limit using {@code SearchRequest.setTimeLimitSeconds(0)}, and an
  *       unlimited client-side timeout using
- *       {@code SearchRequest.setResponseTimeoutMillis(-1L)}.</LI>
+ *       {@code SearchRequest.setResponseTimeoutMillis(0L)}.</LI>
  *   <LI>The search request should be configured with an intermediate response
  *       listener using the
  *       {@code SearchRequest.setIntermediateResponseListener} method.</LI>
