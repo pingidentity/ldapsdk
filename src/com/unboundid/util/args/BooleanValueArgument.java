@@ -224,4 +224,46 @@ public final class BooleanValueArgument
            valueString, getIdentifierString()));
     }
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getDataTypeName()
+  {
+    return INFO_BOOLEAN_VALUE_TYPE_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getValueConstraints()
+  {
+    return INFO_BOOLEAN_VALUE_CONSTRAINTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("BooleanValueArgument(");
+    appendBasicToStringInfo(buffer);
+
+    if (defaultValue != null)
+    {
+      buffer.append(", defaultValue=");
+      buffer.append(defaultValue);
+    }
+
+    buffer.append(')');
+  }
 }

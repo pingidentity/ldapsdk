@@ -29,6 +29,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.util.Mutable;
@@ -609,5 +610,132 @@ public final class FileArgument
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getDataTypeName()
+  {
+    if (mustBeDirectory)
+    {
+      return INFO_FILE_TYPE_PATH_DIRECTORY.get();
+    }
+    else
+    {
+      return INFO_FILE_TYPE_PATH_FILE.get();
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getValueConstraints()
+  {
+    final StringBuilder buffer = new StringBuilder();
+
+    if (mustBeDirectory)
+    {
+      if (fileMustExist)
+      {
+        buffer.append(INFO_FILE_CONSTRAINTS_DIR_MUST_EXIST.get());
+      }
+      else if (parentMustExist)
+      {
+        buffer.append(INFO_FILE_CONSTRAINTS_DIR_PARENT_MUST_EXIST.get());
+      }
+      else
+      {
+        buffer.append(INFO_FILE_CONSTRAINTS_DIR_MAY_EXIST.get());
+      }
+    }
+    else
+    {
+      if (fileMustExist)
+      {
+        buffer.append(INFO_FILE_CONSTRAINTS_FILE_MUST_EXIST.get());
+      }
+      else if (parentMustExist)
+      {
+        buffer.append(INFO_FILE_CONSTRAINTS_FILE_PARENT_MUST_EXIST.get());
+      }
+      else
+      {
+        buffer.append(INFO_FILE_CONSTRAINTS_FILE_MAY_EXIST.get());
+      }
+    }
+
+    if (relativeBaseDirectory != null)
+    {
+      buffer.append("  ");
+      buffer.append(INFO_FILE_CONSTRAINTS_RELATIVE_PATH_SPECIFIED_ROOT.get(
+           relativeBaseDirectory.getAbsolutePath()));
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("FileArgument(");
+    appendBasicToStringInfo(buffer);
+
+    buffer.append(", fileMustExist=");
+    buffer.append(fileMustExist);
+    buffer.append(", parentMustExist=");
+    buffer.append(parentMustExist);
+    buffer.append(", mustBeFile=");
+    buffer.append(mustBeFile);
+    buffer.append(", mustBeDirectory=");
+    buffer.append(mustBeDirectory);
+
+    if (relativeBaseDirectory != null)
+    {
+      buffer.append(", relativeBaseDirectory='");
+      buffer.append(relativeBaseDirectory.getAbsolutePath());
+      buffer.append('\'');
+    }
+
+    if ((defaultValues != null) && (! defaultValues.isEmpty()))
+    {
+      if (defaultValues.size() == 1)
+      {
+        buffer.append(", defaultValue='");
+        buffer.append(defaultValues.get(0).toString());
+      }
+      else
+      {
+        buffer.append(", defaultValues={");
+
+        final Iterator<File> iterator = defaultValues.iterator();
+        while (iterator.hasNext())
+        {
+          buffer.append('\'');
+          buffer.append(iterator.next().toString());
+          buffer.append('\'');
+
+          if (iterator.hasNext())
+          {
+            buffer.append(", ");
+          }
+        }
+
+        buffer.append('}');
+      }
+    }
+
+    buffer.append(')');
   }
 }

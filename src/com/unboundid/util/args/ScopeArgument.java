@@ -250,4 +250,64 @@ public final class ScopeArgument
   {
     return (defaultValue != null);
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getDataTypeName()
+  {
+    return INFO_SCOPE_TYPE_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getValueConstraints()
+  {
+    return INFO_SCOPE_CONSTRAINTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("ScopeArgument(");
+    appendBasicToStringInfo(buffer);
+
+    if (defaultValue != null)
+    {
+      buffer.append(", defaultValue='");
+      switch (defaultValue.intValue())
+      {
+        case SearchScope.BASE_INT_VALUE:
+          buffer.append("base");
+          break;
+        case SearchScope.ONE_INT_VALUE:
+          buffer.append("one");
+          break;
+        case SearchScope.SUB_INT_VALUE:
+          buffer.append("sub");
+          break;
+        case SearchScope.SUBORDINATE_SUBTREE_INT_VALUE:
+          buffer.append("subordinate");
+          break;
+        default:
+          buffer.append(defaultValue.intValue());
+          break;
+      }
+      buffer.append('\'');
+    }
+
+    buffer.append(')');
+  }
 }

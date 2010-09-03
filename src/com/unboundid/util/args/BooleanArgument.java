@@ -132,4 +132,39 @@ public final class BooleanArgument
   {
     return false;
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getDataTypeName()
+  {
+    return INFO_BOOLEAN_TYPE_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getValueConstraints()
+  {
+    return INFO_BOOLEAN_CONSTRAINTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("BooleanArgument(");
+    appendBasicToStringInfo(buffer);
+    buffer.append(')');
+  }
 }
