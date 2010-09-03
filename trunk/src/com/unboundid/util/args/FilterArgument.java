@@ -25,6 +25,7 @@ package com.unboundid.util.args;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.Filter;
@@ -300,5 +301,69 @@ public final class FilterArgument
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getDataTypeName()
+  {
+    return INFO_FILTER_TYPE_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getValueConstraints()
+  {
+    return INFO_FILTER_CONSTRAINTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("FilterArgument(");
+    appendBasicToStringInfo(buffer);
+
+    if ((defaultValues != null) && (! defaultValues.isEmpty()))
+    {
+      if (defaultValues.size() == 1)
+      {
+        buffer.append(", defaultValue='");
+        buffer.append(defaultValues.get(0).toString());
+      }
+      else
+      {
+        buffer.append(", defaultValues={");
+
+        final Iterator<Filter> iterator = defaultValues.iterator();
+        while (iterator.hasNext())
+        {
+          buffer.append('\'');
+          buffer.append(iterator.next().toString());
+          buffer.append('\'');
+
+          if (iterator.hasNext())
+          {
+            buffer.append(", ");
+          }
+        }
+
+        buffer.append('}');
+      }
+    }
+
+    buffer.append(')');
   }
 }

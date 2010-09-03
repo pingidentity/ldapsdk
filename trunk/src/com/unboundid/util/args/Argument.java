@@ -26,6 +26,7 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.util.Mutable;
@@ -585,5 +586,163 @@ public abstract class Argument
     }
 
     isRegistered = true;
+  }
+
+
+
+  /**
+   * Retrieves a concise name of the data type with which this argument is
+   * associated.
+   *
+   * @return  A concise name of the data type with which this argument is
+   *          associated.
+   */
+  public abstract String getDataTypeName();
+
+
+
+  /**
+   * Retrieves a human-readable string with information about any constraints
+   * that may be imposed for values of this argument.
+   *
+   * @return  A human-readable string with information about any constraints
+   *          that may be imposed for values of this argument, or {@code null}
+   *          if there are none.
+   */
+  public String getValueConstraints()
+  {
+    return null;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this argument.
+   *
+   * @return  A string representation of this argument.
+   */
+  public final String toString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a string representation of this argument to the provided buffer.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
+   */
+  public abstract void toString(final StringBuilder buffer);
+
+
+
+  /**
+   * Appends a basic set of information for this argument to the provided
+   * buffer in a form suitable for use in the {@code toString} method.
+   *
+   * @param  buffer  The buffer to which information should be appended.
+   */
+  protected void appendBasicToStringInfo(final StringBuilder buffer)
+  {
+    switch (shortIdentifiers.size())
+    {
+      case 0:
+        // Nothing to add.
+        break;
+
+      case 1:
+        buffer.append("shortIdentifier='-");
+        buffer.append(shortIdentifiers.get(0));
+        buffer.append('\'');
+        break;
+
+      default:
+        buffer.append("shortIdentifiers={");
+
+        final Iterator<Character> iterator = shortIdentifiers.iterator();
+        while (iterator.hasNext())
+        {
+          buffer.append("'-");
+          buffer.append(iterator.next());
+          buffer.append('\'');
+
+          if (iterator.hasNext())
+          {
+            buffer.append(", ");
+          }
+        }
+        buffer.append('}');
+        break;
+    }
+
+    if (! shortIdentifiers.isEmpty())
+    {
+      buffer.append(", ");
+    }
+
+    switch (longIdentifiers.size())
+    {
+      case 0:
+        // Nothing to add.
+        break;
+
+      case 1:
+        buffer.append("longIdentifier='--");
+        buffer.append(longIdentifiers.get(0));
+        buffer.append('\'');
+        break;
+
+      default:
+        buffer.append("longIdentifiers={");
+
+        final Iterator<String> iterator = longIdentifiers.iterator();
+        while (iterator.hasNext())
+        {
+          buffer.append("'--");
+          buffer.append(iterator.next());
+          buffer.append('\'');
+
+          if (iterator.hasNext())
+          {
+            buffer.append(", ");
+          }
+        }
+        buffer.append('}');
+        break;
+    }
+
+    buffer.append(", description='");
+    buffer.append(description);
+    buffer.append("', isRequired=");
+    buffer.append(isRequired);
+
+    buffer.append(", maxOccurrences=");
+    if (maxOccurrences == 0)
+    {
+      buffer.append("unlimited");
+    }
+    else
+    {
+      buffer.append(maxOccurrences);
+    }
+
+    if (valuePlaceholder == null)
+    {
+      buffer.append(", takesValue=false");
+    }
+    else
+    {
+      buffer.append(", takesValue=true, valuePlaceholder='");
+      buffer.append(valuePlaceholder);
+      buffer.append('\'');
+    }
+
+    if (isHidden)
+    {
+      buffer.append(", isHidden=true");
+    }
   }
 }

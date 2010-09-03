@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -457,5 +458,109 @@ public final class StringArgument
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getDataTypeName()
+  {
+    return INFO_STRING_TYPE_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getValueConstraints()
+  {
+    if ((allowedValues == null) || allowedValues.isEmpty())
+    {
+      return null;
+    }
+
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append(INFO_STRING_CONSTRAINTS.get());
+    buffer.append("  ");
+
+    final Iterator<String> iterator = allowedValues.iterator();
+    while (iterator.hasNext())
+    {
+      buffer.append('\'');
+      buffer.append(iterator.next());
+      buffer.append('\'');
+
+      if (iterator.hasNext())
+      {
+        buffer.append(", ");
+      }
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("StringArgument(");
+    appendBasicToStringInfo(buffer);
+
+    if ((allowedValues != null) && (! allowedValues.isEmpty()))
+    {
+      buffer.append(", allowedValues={");
+      final Iterator<String> iterator = allowedValues.iterator();
+      while (iterator.hasNext())
+      {
+        buffer.append('\'');
+        buffer.append(iterator.next());
+        buffer.append('\'');
+
+        if (iterator.hasNext())
+        {
+          buffer.append(", ");
+        }
+      }
+      buffer.append('}');
+    }
+
+    if ((defaultValues != null) && (! defaultValues.isEmpty()))
+    {
+      if (defaultValues.size() == 1)
+      {
+        buffer.append(", defaultValue='");
+        buffer.append(defaultValues.get(0));
+      }
+      else
+      {
+        buffer.append(", defaultValues={");
+
+        final Iterator<String> iterator = defaultValues.iterator();
+        while (iterator.hasNext())
+        {
+          buffer.append('\'');
+          buffer.append(iterator.next());
+          buffer.append('\'');
+
+          if (iterator.hasNext())
+          {
+            buffer.append(", ");
+          }
+        }
+
+        buffer.append('}');
+      }
+    }
+
+    buffer.append(')');
   }
 }

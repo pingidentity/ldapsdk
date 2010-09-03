@@ -523,4 +523,86 @@ public final class DurationArgument
       valueNanos = proposedValueNanos;
     }
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getDataTypeName()
+  {
+    return INFO_DURATION_TYPE_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getValueConstraints()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append(INFO_DURATION_CONSTRAINTS_FORMAT.get());
+
+    if (lowerBoundStr != null)
+    {
+      if (upperBoundStr == null)
+      {
+        buffer.append("  ");
+        buffer.append(INFO_DURATION_CONSTRAINTS_LOWER_BOUND.get(lowerBoundStr));
+      }
+      else
+      {
+        buffer.append("  ");
+        buffer.append(INFO_DURATION_CONSTRAINTS_LOWER_AND_UPPER_BOUND.get(
+             lowerBoundStr, upperBoundStr));
+      }
+    }
+    else
+    {
+      if (upperBoundStr != null)
+      {
+        buffer.append("  ");
+        buffer.append(INFO_DURATION_CONSTRAINTS_UPPER_BOUND.get(upperBoundStr));
+      }
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("DurationArgument(");
+    appendBasicToStringInfo(buffer);
+
+    if (lowerBoundStr != null)
+    {
+      buffer.append(", lowerBound='");
+      buffer.append(lowerBoundStr);
+      buffer.append('\'');
+    }
+
+    if (upperBoundStr != null)
+    {
+      buffer.append(", upperBound='");
+      buffer.append(upperBoundStr);
+      buffer.append('\'');
+    }
+
+    if (defaultValueNanos != null)
+    {
+      buffer.append(", defaultValueNanos=");
+      buffer.append(defaultValueNanos);
+    }
+
+    buffer.append(')');
+  }
 }

@@ -25,6 +25,7 @@ package com.unboundid.util.args;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.util.Mutable;
@@ -492,5 +493,75 @@ public final class IntegerArgument
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getDataTypeName()
+  {
+    return INFO_INTEGER_TYPE_NAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getValueConstraints()
+  {
+    return INFO_INTEGER_CONSTRAINTS_LOWER_AND_UPPER_BOUND.get(lowerBound,
+         upperBound);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("IntegerArgument(");
+    appendBasicToStringInfo(buffer);
+
+    buffer.append(", lowerBound=");
+    buffer.append(lowerBound);
+    buffer.append(", upperBound=");
+    buffer.append(upperBound);
+
+    if ((defaultValues != null) && (! defaultValues.isEmpty()))
+    {
+      if (defaultValues.size() == 1)
+      {
+        buffer.append(", defaultValue='");
+        buffer.append(defaultValues.get(0).toString());
+      }
+      else
+      {
+        buffer.append(", defaultValues={");
+
+        final Iterator<Integer> iterator = defaultValues.iterator();
+        while (iterator.hasNext())
+        {
+          buffer.append('\'');
+          buffer.append(iterator.next().toString());
+          buffer.append('\'');
+
+          if (iterator.hasNext())
+          {
+            buffer.append(", ");
+          }
+        }
+
+        buffer.append('}');
+      }
+    }
+
+    buffer.append(')');
   }
 }
