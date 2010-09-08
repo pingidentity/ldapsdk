@@ -292,6 +292,8 @@ rdnLoop:
       }
 
       // Read the attribute name, until we find a space or equal sign.
+      int rdnEndPos;
+      int rdnStartPos = pos;
       int attrStartPos = pos;
       while (pos < length)
       {
@@ -357,6 +359,7 @@ rdnLoop:
         final byte[] valueArray = RDN.readHexString(dnString, ++pos);
         value = new ASN1OctetString(valueArray);
         pos += (valueArray.length * 2);
+        rdnEndPos = pos;
       }
       else
       {
@@ -364,6 +367,7 @@ rdnLoop:
         final StringBuilder buffer = new StringBuilder();
         pos = RDN.readValueString(dnString, pos, buffer);
         value = new ASN1OctetString(buffer.toString());
+        rdnEndPos = pos;
       }
 
 
@@ -377,7 +381,8 @@ rdnLoop:
       if (pos >= length)
       {
         // It's a single-valued RDN, and we're at the end of the DN.
-        rdnList.add(new RDN(attrName, value));
+        rdnList.add(new RDN(attrName, value,
+             getTrimmedRDN(dnString, rdnStartPos,rdnEndPos)));
         expectMore = false;
         break;
       }
@@ -394,7 +399,8 @@ rdnLoop:
         case ';':
           // We hit the end of the single-valued RDN, but there's still more of
           // the DN to be read.
-          rdnList.add(new RDN(attrName, value));
+          rdnList.add(new RDN(attrName, value,
+               getTrimmedRDN(dnString, rdnStartPos,rdnEndPos)));
           pos++;
           expectMore = true;
           continue rdnLoop;
@@ -501,6 +507,7 @@ rdnLoop:
           final byte[] valueArray = RDN.readHexString(dnString, ++pos);
           value = new ASN1OctetString(valueArray);
           pos += (valueArray.length * 2);
+          rdnEndPos = pos;
         }
         else
         {
@@ -509,6 +516,7 @@ rdnLoop:
           final StringBuilder buffer = new StringBuilder();
           pos = RDN.readValueString(dnString, pos, buffer);
           value = new ASN1OctetString(buffer.toString());
+          rdnEndPos = pos;
         }
 
 
@@ -528,7 +536,8 @@ rdnLoop:
           final String[] names = nameList.toArray(new String[nameList.size()]);
           final ASN1OctetString[] values =
                valueList.toArray(new ASN1OctetString[valueList.size()]);
-          rdnList.add(new RDN(names, values));
+          rdnList.add(new RDN(names, values,
+               getTrimmedRDN(dnString, rdnStartPos,rdnEndPos)));
           expectMore = false;
           break rdnLoop;
         }
@@ -555,7 +564,8 @@ rdnLoop:
                  nameList.toArray(new String[nameList.size()]);
             final ASN1OctetString[] values =
                  valueList.toArray(new ASN1OctetString[valueList.size()]);
-            rdnList.add(new RDN(names, values));
+            rdnList.add(new RDN(names, values,
+                 getTrimmedRDN(dnString, rdnStartPos,rdnEndPos)));
             pos++;
             expectMore = true;
             continue rdnLoop;
@@ -580,6 +590,39 @@ rdnLoop:
     // At this point, we should have all of the RDNs to use to create this DN.
     rdns = new RDN[rdnList.size()];
     rdnList.toArray(rdns);
+  }
+
+
+
+  /**
+   * Retrieves a trimmed version of the string representation of the RDN in the
+   * specified portion of the provided DN string.  Only non-escaped trailing
+   * spaces will be removed.
+   *
+   * @param  dnString  The string representation of the DN from which to extract
+   *                   the string representation of the RDN.
+   * @param  start     The position of the first character in the RDN.
+   * @param  end       The position marking the end of the RDN.
+   *
+   * @return  A properly-trimmed string representation of the RDN.
+   */
+  private static String getTrimmedRDN(final String dnString, final int start,
+                                      final int end)
+  {
+    final String rdnString = dnString.substring(start, end);
+    if (! rdnString.endsWith(" "))
+    {
+      return rdnString;
+    }
+
+    final StringBuilder buffer = new StringBuilder(rdnString);
+    while ((buffer.charAt(buffer.length() - 1) == ' ') &&
+           (buffer.charAt(buffer.length() - 2) != '\\'))
+    {
+      buffer.setLength(buffer.length() - 1);
+    }
+
+    return buffer.toString();
   }
 
 

@@ -177,9 +177,13 @@ public final class RDN
    *
    * @param  attributeName   The name to use for this RDN.
    * @param  attributeValue  The value to use for this RDN.
+   * @param  rdnString       The string representation for this RDN.
    */
-  RDN(final String attributeName, final ASN1OctetString attributeValue)
+  RDN(final String attributeName, final ASN1OctetString attributeValue,
+      final String rdnString)
   {
+    this.rdnString = rdnString;
+
     attributeNames  = new String[] { attributeName };
     attributeValues = new ASN1OctetString[] { attributeValue };
   }
@@ -191,9 +195,13 @@ public final class RDN
    *
    * @param  attributeNames   The set of names to use for this RDN.
    * @param  attributeValues  The set of values to use for this RDN.
+   * @param  rdnString        The string representation for this RDN.
    */
-  RDN(final String[] attributeNames, final ASN1OctetString[] attributeValues)
+  RDN(final String[] attributeNames, final ASN1OctetString[] attributeValues,
+      final String rdnString)
   {
+    this.rdnString = rdnString;
+
     this.attributeNames  = attributeNames;
     this.attributeValues = attributeValues;
   }
@@ -1248,6 +1256,12 @@ valueLoop:
   public void toString(final StringBuilder buffer,
                        final boolean minimizeEncoding)
   {
+    if ((rdnString != null) && (! minimizeEncoding))
+    {
+      buffer.append(rdnString);
+      return;
+    }
+
     for (int i=0; i < attributeNames.length; i++)
     {
       if (i > 0)
