@@ -72,9 +72,10 @@ ${TARGET="offline"}                    <br>
                   Added new argument types, including a BooleanValueArgument (in which the
                   provided value must be either "true" or "false", which is more useful in some
                   cases than the BooleanArgument in which the Boolean value is inferred based on
-                  whether the argument was provided) and a DurationArgument (in which the value
+                  whether the argument was provided), a DurationArgument (in which the value
                   contains both an integer portion and a time unit, like "50ms", to indicate a
-                  length of time).
+                  length of time), and a ScopeArgument (in which the value should represent an LDAP
+                  search scope).
                   <br><br>
                 </li>
 
@@ -113,6 +114,19 @@ ${TARGET="offline"}                    <br>
                 <li>
                   Fixed a bug that could prevent an unbind request from being sent to the server
                   when closing a connection that had previously been closed and re-established.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the way that the string representation of RDNs was generated when
+                  decoding a DN from a string.  Previously, extraneous spaces might have been
+                  incorrectly removed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the source for the Android LDAP client to match the 1.1 release available
+                  in the Android Market.
                   <br><br>
                 </li>
               </ul>
