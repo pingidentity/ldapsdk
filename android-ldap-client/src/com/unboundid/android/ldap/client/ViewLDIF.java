@@ -55,7 +55,7 @@ public final class ViewLDIF
 
 
   // The entry to be viewed.
-  private volatile Entry entry;
+  private volatile Entry entry = null;
 
 
 

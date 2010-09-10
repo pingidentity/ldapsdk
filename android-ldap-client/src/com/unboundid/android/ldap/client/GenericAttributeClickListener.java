@@ -75,9 +75,6 @@ final class GenericAttributeClickListener
    * Takes any appropriate action after a click on the attribute value.
    *
    * @param  view      The view for the item that was clicked.
-   *
-   * @return  {@code true} if this method consumed the click, or {@code false}
-   *          if not.
    */
   public void onClick(final View view)
   {

@@ -61,7 +61,7 @@ public final class PostalAddressOptions
 
 
   // The postal address that was selected.
-  private volatile String address;
+  private volatile String address = null;
 
 
 

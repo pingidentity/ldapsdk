@@ -60,7 +60,7 @@ public final class GenericAttributeOptions
 
 
   // The attribute value that was selected.
-  private volatile String attrValue;
+  private volatile String attrValue = null;
 
 
 

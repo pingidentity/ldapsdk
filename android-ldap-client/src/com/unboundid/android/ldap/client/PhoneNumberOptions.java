@@ -62,7 +62,7 @@ public final class PhoneNumberOptions
 
 
   // The instance that was selected.
-  private volatile String phoneNumber;
+  private volatile String phoneNumber = null;
 
 
 
