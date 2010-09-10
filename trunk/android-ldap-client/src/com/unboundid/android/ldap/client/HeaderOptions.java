@@ -63,7 +63,7 @@ public final class HeaderOptions
 
 
   // The attribute value that was selected.
-  private volatile Entry entry;
+  private volatile Entry entry = null;
 
 
 

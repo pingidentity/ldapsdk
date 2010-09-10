@@ -22,10 +22,6 @@ package com.unboundid.android.ldap.client;
 
 
 
-import java.util.LinkedList;
-
-
-
 /**
  * This interface defines a set of methods that should be implemented by any
  * class which has the ability to retrieve the string for a given identifier.

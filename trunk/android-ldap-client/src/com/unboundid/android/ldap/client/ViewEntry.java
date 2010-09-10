@@ -102,8 +102,7 @@ public final class ViewEntry
     setContentView(R.layout.layout_view_entry);
     setTitle(R.string.activity_label);
 
-    if (entry.hasObjectClass("person") &&
-        entry.hasAttribute(ATTR_FULL_NAME))
+    if (hasContactAttributes(entry))
     {
       displayUser();
     }
@@ -111,6 +110,34 @@ public final class ViewEntry
     {
       displayGeneric();
     }
+  }
+
+
+
+  /**
+   * Indicates whether the provided entry has any attributes which may be
+   * considered contact attributes and as such should be displayed as a person
+   * rather than a generic entry.
+   *
+   * @param  e  The entry for which to make the determination.
+   */
+  private boolean hasContactAttributes(final Entry e)
+  {
+    // The entry must have a full name attribute to be considered a user.
+    if (! e.hasAttribute(ATTR_FULL_NAME))
+    {
+      return false;
+    }
+
+
+    // The user also needs at least one of an e-mail address or phone number.
+    return (e.hasAttribute(ATTR_PRIMARY_MAIL) ||
+            e.hasAttribute(ATTR_ALTERNATE_MAIL) ||
+            e.hasAttribute(ATTR_PRIMARY_PHONE) ||
+            e.hasAttribute(ATTR_HOME_PHONE) ||
+            e.hasAttribute(ATTR_MOBILE_PHONE) ||
+            e.hasAttribute(ATTR_PAGER) ||
+            e.hasAttribute(ATTR_FAX));
   }
 
 

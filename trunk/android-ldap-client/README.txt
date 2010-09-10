@@ -19,14 +19,15 @@ to the clipboard, and by clicking on the header at the top of the entry, you
 can view the entry as LDIF, or copy the DN or LDIF representation to the
 clipboard.
 
-In order to build this tool, you will need the 1.5 or later version of the
-Android SDK, available from http://www.android.com/.  Then, use the following
+In order to build this tool, you will need the 2.2 or later version of the
+Android SDK (although the resulting client will run on devices with Android 1.5
+or later), available from http://www.android.com/.  Then, use the following
 steps:
 
 1.  Go to the tools directory below the Android SDK installation and run the
     following command:
          ./android create project --package com.unboundid.android.ldap.client \
-              --name LDAPClient --activity LDAPClient --target 3 \
+              --name LDAPClient --activity LDAPClient --target 8 \
               --path {wspath}/AndroidLDAPClient
     where {wspath} is the path to the desired workspace directory.
 

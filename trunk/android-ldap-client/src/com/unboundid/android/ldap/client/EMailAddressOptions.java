@@ -61,7 +61,7 @@ public final class EMailAddressOptions
 
 
   // The e-mail address that was selected.
-  private volatile String address;
+  private volatile String address = null;
 
 
 
