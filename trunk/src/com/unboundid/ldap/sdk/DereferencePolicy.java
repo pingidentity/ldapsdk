@@ -216,6 +216,24 @@ public final class DereferencePolicy
 
 
   /**
+   * Retrieves an array of all dereference policies defined in the LDAP SDK.
+   *
+   * @return  An array of all dereference policies defined in the LDAP SDK.
+   */
+  public static DereferencePolicy[] values()
+  {
+    return new DereferencePolicy[]
+    {
+      NEVER,
+      SEARCHING,
+      FINDING,
+      ALWAYS
+    };
+  }
+
+
+
+  /**
    * The hash code for this dereference policy.
    *
    * @return  The hash code for this dereference policy.
