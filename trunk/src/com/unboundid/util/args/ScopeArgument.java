@@ -237,7 +237,15 @@ public final class ScopeArgument
    */
   public SearchScope getValue()
   {
-    return value.get();
+    final SearchScope s = value.get();
+    if (s == null)
+    {
+      return defaultValue;
+    }
+    else
+    {
+      return s;
+    }
   }
 
 
