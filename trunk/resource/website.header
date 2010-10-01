@@ -1,23 +1,27 @@
 <?php $thisPage="products"; ?>
 <?php include('${BASE}../../../inc/dochead_start.php') ?>
 
-        <title>Overview | Products | UnboundID</title>
+	<title>LDAP SDK for Java - UnboundID Solutions - UnboundID</title>
 
-    <meta name="description" content="UnboundID is an emerging leader in the field of next-generation identity management and directory services." />
-        <meta name="keywords" content="UnboundID, Directory, Directory Services, Directory Server, Directory Proxy, LDAP, LDAP Proxy, LDAP SDK, Java, X.500, Subscriber, Subscriber Data Management, database, SQL, transactions, DSEE, Directory Server Enterprise Edition, Synchronization, Replication, Apertio, Xerhound, Identity, Identity Management, high performance, availability, scalability, manageability " />
+    <meta name="keywords" content="" />
+	<meta name="description" content="" />
 
-    <!-- Page Based Styles -->
-        <style type="text/css">
-        pre { background-color: #dde2e7; margin: 15px 30px; padding: 10px 10px; border: 1px solid #2d4b66; }
-        .nav2 { background:url('/img/nav_productson.gif') !important; }
-        .secnav2 { color:#f57b20 !important; }
-        </style>
-        <!-- END -->
+	<style type="text/css">
+	.nav3 { background:url('/img/bg-topnav.png') -428px -100px no-repeat !important; }
+	.secnav5 { color: #cc6633 !important; background: #fff; background-image: url('/img/dd-arr.png') !important; }
+	</style>
 
 <?php include('${BASE}../../../inc/dochead_end.php') ?>
 <?php include('${BASE}../../../inc/topnav.php') ?>
-<?php include('${BASE}../../../inc/nav_products.php') ?>
+<?php include('${BASE}../../../inc/ltcol_start.php') ?>            
+<?php include('${BASE}../../../inc/secnav_products.php') ?>
+<?php include('${BASE}../../../inc/ltcol_end.php') ?>
+        
+        <div id="subhdr">
+<h1>LDAP SDK for Java</h1>
+</div>
 
-<h1>UnboundID LDAP SDK for Java</h1>
-<p></p>
+<table cellpadding="0" cellspacing="0" width="100%" border="0"> 
+  <tr valign="top"> 
+    <td style="padding-right:20px;"> 
 
