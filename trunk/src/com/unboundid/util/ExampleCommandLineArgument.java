@@ -419,6 +419,8 @@ public final class ExampleCommandLineArgument implements Serializable
           requiresDoubleQuotes = true;
           break;
 
+        case ',':
+        case '=':
         case '-':
         case '_':
         case ':':
