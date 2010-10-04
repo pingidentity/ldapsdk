@@ -13,7 +13,7 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.0.0</h3>
 
               <p>
-                The following changes were made between the 1.1.4 and 2.0.0 releases:
+                The following changes were made between the 1.1.6 and 2.0.0 releases:
               </p>
 
               <ul>
@@ -62,13 +62,6 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
-                  Added support for the content synchronization operation as defined in RFC 4533,
-                  including the various controls and the intermediate response needed to interact
-                  with servers supporting this feature.
-                  <br><br>
-                </li>
-
-                <li>
                   Added new argument types, including a BooleanValueArgument (in which the
                   provided value must be either "true" or "false", which is more useful in some
                   cases than the BooleanArgument in which the Boolean value is inferred based on
@@ -104,6 +97,57 @@ ${TARGET="offline"}                    <br>
                   any relative paths will be relative to that base directory.
                   <br><br>
                 </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 1.1.6</h3>
+
+              <p>
+                The following changes were made between the 1.1.5 and 1.1.6 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fixed an error in the documentation for the ContentSyncRequestControl that
+                  indicated a response timeout of -1 should be used instead of the correct
+                  recommendation of 0.  A value of 0 indicates that no timeout should be used,
+                  while -1 indicates that the connection-level timeout (5 minutes by default)
+                  should be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed the way that RDNs are created when decoding a DN from a string.
+                  Previously, RDNs created in this way were treated in a way that could cause
+                  extra spaces to be removed from their string representation.  While the resulting
+                  RDN was technically equivalent to the expected version, the user-provided string
+                  representation should have been retained.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the source code for the Android LDAP client to match the 1.1 version
+                  published in the Android market.
+                  <br><br>
+                </li>
+              </ul>
+
+
+              <h3>Version 1.1.5</h3>
+
+              <p>
+                The following changes were made between the 1.1.4 and 1.1.5 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added support for the content synchronization operation as defined in RFC 4533,
+                  including the various controls and the intermediate response needed to interact
+                  with servers supporting this feature.
+                  <br><br>
+                </li>
 
                 <li>
                   Fixed a couple of bugs in the way that SSL handshaking is performed to make it
@@ -114,19 +158,6 @@ ${TARGET="offline"}                    <br>
                 <li>
                   Fixed a bug that could prevent an unbind request from being sent to the server
                   when closing a connection that had previously been closed and re-established.
-                  <br><br>
-                </li>
-
-                <li>
-                  Fixed a bug in the way that the string representation of RDNs was generated when
-                  decoding a DN from a string.  Previously, extraneous spaces might have been
-                  incorrectly removed.
-                  <br><br>
-                </li>
-
-                <li>
-                  Updated the source for the Android LDAP client to match the 1.1 release available
-                  in the Android Market.
                   <br><br>
                 </li>
               </ul>
