@@ -224,13 +224,17 @@ public abstract class CommandLineTool
         {
           if ((i < (args.length - 1)) && (! args[i+1].startsWith("-")))
           {
-            arg += ' ' + cleanExampleCommandLineArgument(args[i+1]);
+            ExampleCommandLineArgument cleanArg =
+                ExampleCommandLineArgument.getCleanArgument(args[i+1]);
+            arg += ' ' + cleanArg.getLocalForm();
             i++;
           }
         }
         else
         {
-          arg = cleanExampleCommandLineArgument(arg);
+          ExampleCommandLineArgument cleanArg =
+              ExampleCommandLineArgument.getCleanArgument(arg);
+          arg = cleanArg.getLocalForm();
         }
 
         if ((buffer.length() + arg.length() + 2) < 79)
