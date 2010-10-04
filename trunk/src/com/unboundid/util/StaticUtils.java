@@ -1084,24 +1084,27 @@ public final class StaticUtils
 
 
   /**
-   * This method is maintained only for backwards compatibility.  The
-   * {@link ExampleCommandLineArgument} class was introduced to handle quoting
-   * better.
+   * This method returns a form of the provided argument that is safe to
+   * use on the command line for the local platform. This method is provided as
+   * a convenience wrapper around {@link ExampleCommandLineArgument}.  Calling
+   * this method is equivalent to:
+   *
+   * <PRE>
+   *  return ExampleCommandLineArgument.getCleanArgument(s).getLocalForm();
+   * </PRE>
+   *
+   * For getting direct access to command line arguments that are safe to
+   * use on other platforms, call
+   * {@link ExampleCommandLineArgument#getCleanArgument}.
    *
    * @param  s  The string to be processed.  It must not be {@code null}.
    *
    * @return  A cleaned version of the provided string in a form that will allow
-   *          it to be displayed as the value of a command-line argument.
-   * @deprecated  Use {@link ExampleCommandLineArgument#getCleanArgument}
-   *              instead.
+   *          it to be displayed as the value of a command-line argument on.
    */
-  @Deprecated()
   public static String cleanExampleCommandLineArgument(final String s)
   {
-    ExampleCommandLineArgument exampleArg =
-         ExampleCommandLineArgument.getCleanArgument(s);
-
-    return exampleArg.getLocalForm();
+    return ExampleCommandLineArgument.getCleanArgument(s).getLocalForm();
   }
 
 
