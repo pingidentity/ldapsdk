@@ -1084,95 +1084,24 @@ public final class StaticUtils
 
 
   /**
-   * Formats the provided string in a manner that will allow it to be properly
-   * displayed as the value of a command-line argument in an example.  The
-   * processing that will be performed includes:
-   * <UL>
-   *   <LI>If the provided string has a length of zero characters, then the
-   *       value returned will be two consecutive double quotes (i.e., "").</LI>
-   *   <LI>All instances of the following characters will be escaped by
-   *       prefixing them with backslash characters:  backslash (\\), double
-   *       quote ("), percent (%), vertical pipe (|), dollar sign ($),
-   *       exclamation point (!), and backwards single quote (`).</LI>
-   *   <LI>The string resulting from the above escaping will be surrounded by
-   *       double quote (") characters if it contains any characters other than
-   *       the following characters:  uppercase or lowercase ASCII letters,
-   *       numeric digits, dash (-), underscore (_), colon (:), period (.),
-   *       backslash (\\), and forward slash (/).</LI>
-   * </UL>
+   * This method is maintained only for backwards compatibility.  The
+   * {@link ExampleCommandLineArgument} class was introduced to handle quoting
+   * better.
    *
    * @param  s  The string to be processed.  It must not be {@code null}.
    *
    * @return  A cleaned version of the provided string in a form that will allow
    *          it to be displayed as the value of a command-line argument.
+   * @deprecated  Use {@link ExampleCommandLineArgument#getCleanArgument}
+   *              instead.
    */
+  @Deprecated()
   public static String cleanExampleCommandLineArgument(final String s)
   {
-    ensureNotNull(s);
+    ExampleCommandLineArgument exampleArg =
+         ExampleCommandLineArgument.getCleanArgument(s);
 
-    if (s.length() == 0)
-    {
-      return "\"\"";
-    }
-
-    boolean needsQuotes = false;
-    final StringBuilder buffer = new StringBuilder(2 * s.length() + 2);
-
-    for (int i=0; i < s.length(); i++)
-    {
-      final char c = s.charAt(i);
-      switch (c)
-      {
-        case '\\':
-          // This needs to be escaped, but the value does not necessarily need
-          // to be quoted.
-          buffer.append("\\\\");
-          break;
-
-        case '"':
-        case '%':
-        case '|':
-        case '$':
-        case '!':
-        case '`':
-          // This needs to be escaped and the value needs to be quoted.
-          needsQuotes = true;
-          buffer.append('\\');
-          buffer.append(c);
-          break;
-
-        case '-':
-        case '_':
-        case ':':
-        case '.':
-        case '/':
-          // This does not need to be escaped and does not indicate that the
-          // string needs to be quoted.
-          buffer.append(c);
-          break;
-
-        default:
-          if (((c >= 'a') && (c <= 'z')) ||
-              ((c >= 'A') && (c <= 'Z')) ||
-              ((c >= '0') && (c <= '9')))
-          {
-            buffer.append(c);
-          }
-          else
-          {
-            needsQuotes = true;
-            buffer.append(c);
-          }
-      }
-    }
-
-    if (needsQuotes)
-    {
-      buffer.insert(0, '"');
-      buffer.append('"');
-    }
-
-    return buffer.toString();
+    return exampleArg.getLocalForm();
   }
 
 
@@ -1519,5 +1448,21 @@ public final class StaticUtils
     }
 
     return new UUID(mostSignificantBits, leastSignificantBits);
+  }
+
+
+
+  /**
+   * Returns {@code true} if and only if the current process is running on
+   * a Windows-based operating system.
+   *
+   * @return  {@code true} if the current process is running on a Windows-based
+   *          operating system and {@code false} otherwise.
+   */
+  public static boolean isWindows()
+  {
+    String osNameLower = System.getProperty("os.name").toLowerCase();
+
+    return osNameLower.indexOf("windows") >= 0;
   }
 }
