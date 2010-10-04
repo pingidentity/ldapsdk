@@ -56,6 +56,28 @@ ${TARGET="offline"}                    <br>
 
               <p></p>
               <p>
+                <a href="LDAPDebugger.java">LDAPDebugger.java</a>
+              </p>
+
+              <p>
+                Provides a tool that can be used to act as a simple LDAP proxy that will intercept
+                and decode any LDAP traffic passing through it.  This can be used to observe
+                detailed information about LDAP traffic between a client and server if the client
+                can be altered to point to an alternate server address.  Some of the APIs
+                demonstrated by this example include:
+              </p>
+
+              <ul>
+                <li>Argument Parsing</li>
+                <li>LDAP Command Line Tool</li>
+                <li>LDAP Communication</li>
+                <li>LDAP Listener</li>
+              </ul>
+
+              <hr>
+
+              <p></p>
+              <p>
                 <a href="LDAPModify.java">LDAPModify.java</a>
               </p>
 
@@ -127,6 +149,30 @@ ${TARGET="offline"}                    <br>
                 "uid=user.[1-1000],ou=People,dc=example,dc=com", and the search filter may also be
                 provided as a value pattern, like "(uid=user.[1-1000])".  Some of the APIs
                 demonstrated by this example include:
+              </p>
+
+              <ul>
+                <li>Argument Parsing</li>
+                <li>LDAP Command Line Tool</li>
+                <li>LDAP Communication</li>
+                <li>Value Patterns</li>
+              </ul>
+
+              <hr>
+
+              <p></p>
+              <p>
+                <a href="SearchAndModRate.java">SearchAndModRate.java</a>
+              </p>
+
+              <p>
+                Provides a tool that can be used to perform repeated searches in an LDAP directory
+                server using multiple threads, and then to modify each entry returned.  It can
+                help provide an estimate of the search and modify performance that a directory
+                server is able to achieve.  The base DN for the searches can be specified using a
+                value pattern, like "uid=user.[1-1000],ou=People,dc=example,dc=com", and the
+                search filter may also be provided as a value pattern, like "(uid=user.[1-1000])".
+                Some of the APIs demonstrated by this example include:
               </p>
 
               <ul>
