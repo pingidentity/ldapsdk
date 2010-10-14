@@ -652,11 +652,19 @@ public final class ModRate
       final long recentNumErrors = numErrors - lastNumErrors;
       final long recentDuration = totalDuration - lastDuration;
 
-      final double numSeconds = intervalDuration / 1000000000.0D;
+      final double numSeconds = intervalDuration / 1000000000.0d;
       final double recentModRate = recentNumMods / numSeconds;
       final double recentErrorRate  = recentNumErrors / numSeconds;
-      final double recentAvgDuration =
-                  1.0D * recentDuration / recentNumMods / 1000000;
+
+      final double recentAvgDuration;
+      if (recentNumMods > 0L)
+      {
+        recentAvgDuration = 1.0d * recentDuration / recentNumMods / 1000000;
+      }
+      else
+      {
+        recentAvgDuration = 0.0d;
+      }
 
       if (warmUp && (remainingWarmUpIntervals > 0))
       {
@@ -679,10 +687,18 @@ public final class ModRate
         }
 
         final double numOverallSeconds =
-             (endTime - overallStartTime) / 1000000000.0D;
+             (endTime - overallStartTime) / 1000000000.0d;
         final double overallAuthRate = numMods / numOverallSeconds;
-        final double overallAvgDuration =
-             1.0D * totalDuration / numMods / 1000000;
+
+        final double overallAvgDuration;
+        if (numMods > 0L)
+        {
+          overallAvgDuration = 1.0d * totalDuration / numMods / 1000000;
+        }
+        else
+        {
+          overallAvgDuration = 0.0d;
+        }
 
         out(formatter.formatRow(recentModRate, recentAvgDuration,
              recentErrorRate, overallAuthRate, overallAvgDuration));

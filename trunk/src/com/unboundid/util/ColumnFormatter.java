@@ -24,6 +24,7 @@ package com.unboundid.util;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -41,6 +42,20 @@ import static com.unboundid.util.UtilityMessages.*;
 public final class ColumnFormatter
        implements Serializable
 {
+  /**
+   * The symbols to use for special characters that might be encountered when
+   * using a decimal formatter.
+   */
+  private static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS =
+       new DecimalFormatSymbols();
+  static
+  {
+    DECIMAL_FORMAT_SYMBOLS.setInfinity("inf");
+    DECIMAL_FORMAT_SYMBOLS.setNaN("NaN");
+  }
+
+
+
   /**
    * The default output format to use.
    */
@@ -469,7 +484,7 @@ public final class ColumnFormatter
       DecimalFormat f = decimalFormatter.get();
       if (f == null)
       {
-        f = new DecimalFormat("0.000");
+        f = new DecimalFormat("0.000", DECIMAL_FORMAT_SYMBOLS);
         decimalFormatter.set(f);
       }
 
