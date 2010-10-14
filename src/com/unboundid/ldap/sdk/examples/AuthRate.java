@@ -673,11 +673,19 @@ public final class AuthRate
       final long recentNumErrors = numErrors - lastNumErrors;
       final long recentDuration = totalDuration - lastDuration;
 
-      final double numSeconds = intervalDuration / 1000000000.0D;
+      final double numSeconds = intervalDuration / 1000000000.0d;
       final double recentAuthRate = recentNumAuths / numSeconds;
       final double recentErrorRate  = recentNumErrors / numSeconds;
-      final double recentAvgDuration =
-           1.0D * recentDuration / recentNumAuths / 1000000;
+
+      final double recentAvgDuration;
+      if (recentNumAuths > 0L)
+      {
+        recentAvgDuration = 1.0d * recentDuration / recentNumAuths / 1000000;
+      }
+      else
+      {
+        recentAvgDuration = 0.0d;
+      }
 
       if (warmUp && (remainingWarmUpIntervals > 0))
       {
@@ -700,10 +708,18 @@ public final class AuthRate
         }
 
         final double numOverallSeconds =
-             (endTime - overallStartTime) / 1000000000.0D;
+             (endTime - overallStartTime) / 1000000000.0d;
         final double overallAuthRate = numAuths / numOverallSeconds;
-        final double overallAvgDuration =
-             1.0D * totalDuration / numAuths / 1000000;
+
+        final double overallAvgDuration;
+        if (numAuths > 0L)
+        {
+          overallAvgDuration = 1.0d * totalDuration / numAuths / 1000000;
+        }
+        else
+        {
+          overallAvgDuration = 0.0d;
+        }
 
         out(formatter.formatRow(recentAuthRate, recentAvgDuration,
              recentErrorRate, overallAuthRate, overallAvgDuration));

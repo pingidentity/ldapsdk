@@ -726,13 +726,23 @@ public final class SearchRate
       final long recentNumErrors = numErrors - lastNumErrors;
       final long recentDuration = totalDuration - lastDuration;
 
-      final double numSeconds = intervalDuration / 1000000000.0D;
+      final double numSeconds = intervalDuration / 1000000000.0d;
       final double recentSearchRate = recentNumSearches / numSeconds;
       final double recentErrorRate  = recentNumErrors / numSeconds;
-      final double recentEntriesPerSearch =
-                  1.0D * recentNumEntries / recentNumSearches;
-      final double recentAvgDuration =
-                  1.0D * recentDuration / recentNumSearches / 1000000;
+
+      final double recentAvgDuration;
+      final double recentEntriesPerSearch;
+      if (recentNumSearches > 0L)
+      {
+        recentEntriesPerSearch = 1.0d * recentNumEntries / recentNumSearches;
+        recentAvgDuration = 1.0d * recentDuration / recentNumSearches / 1000000;
+      }
+      else
+      {
+        recentEntriesPerSearch = 0.0d;
+        recentAvgDuration = 0.0d;
+      }
+
 
       if (warmUp && (remainingWarmUpIntervals > 0))
       {
@@ -756,10 +766,18 @@ public final class SearchRate
         }
 
         final double numOverallSeconds =
-             (endTime - overallStartTime) / 1000000000.0D;
+             (endTime - overallStartTime) / 1000000000.0d;
         final double overallSearchRate = numSearches / numOverallSeconds;
-        final double overallAvgDuration =
-             1.0D * totalDuration / numSearches / 1000000;
+
+        final double overallAvgDuration;
+        if (numSearches > 0L)
+        {
+          overallAvgDuration = 1.0d * totalDuration / numSearches / 1000000;
+        }
+        else
+        {
+          overallAvgDuration = 0.0d;
+        }
 
         out(formatter.formatRow(recentSearchRate, recentAvgDuration,
              recentEntriesPerSearch, recentErrorRate, overallSearchRate,

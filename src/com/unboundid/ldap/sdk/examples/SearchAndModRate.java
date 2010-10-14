@@ -757,14 +757,32 @@ public final class SearchAndModRate
            totalSearchDuration - lastSearchDuration;
       final long recentModDuration = totalModDuration - lastModDuration;
 
-      final double numSeconds = intervalDuration / 1000000000.0D;
+      final double numSeconds = intervalDuration / 1000000000.0d;
       final double recentSearchRate = recentNumSearches / numSeconds;
       final double recentModRate = recentNumMods / numSeconds;
       final double recentErrorRate  = recentNumErrors / numSeconds;
-      final double recentAvgSearchDuration =
-                  1.0D * recentSearchDuration / recentNumSearches / 1000000;
-      final double recentAvgModDuration =
-                  1.0D * recentModDuration / recentNumMods / 1000000;
+
+      final double recentAvgSearchDuration;
+      if (recentNumSearches > 0L)
+      {
+        recentAvgSearchDuration =
+             1.0d * recentSearchDuration / recentNumSearches / 1000000;
+      }
+      else
+      {
+        recentAvgSearchDuration = 0.0d;
+      }
+
+      final double recentAvgModDuration;
+      if (recentNumMods > 0L)
+      {
+        recentAvgModDuration =
+             1.0d * recentModDuration / recentNumMods / 1000000;
+      }
+      else
+      {
+        recentAvgModDuration = 0.0d;
+      }
 
       if (warmUp && (remainingWarmUpIntervals > 0))
       {
@@ -788,13 +806,31 @@ public final class SearchAndModRate
         }
 
         final double numOverallSeconds =
-             (endTime - overallStartTime) / 1000000000.0D;
+             (endTime - overallStartTime) / 1000000000.0d;
         final double overallSearchRate = numSearches / numOverallSeconds;
         final double overallModRate = numMods / numOverallSeconds;
-        final double overallAvgSearchDuration =
-             1.0D * totalSearchDuration / numSearches / 1000000;
-        final double overallAvgModDuration =
-             1.0D * totalModDuration / numMods / 1000000;
+
+        final double overallAvgSearchDuration;
+        if (numSearches > 0L)
+        {
+          overallAvgSearchDuration =
+               1.0d * totalSearchDuration / numSearches / 1000000;
+        }
+        else
+        {
+          overallAvgSearchDuration = 0.0d;
+        }
+
+        final double overallAvgModDuration;
+        if (numMods > 0L)
+        {
+          overallAvgModDuration =
+               1.0d * totalModDuration / numMods / 1000000;
+        }
+        else
+        {
+          overallAvgModDuration = 0.0d;
+        }
 
         out(formatter.formatRow(recentSearchRate, recentAvgSearchDuration,
              recentModRate, recentAvgModDuration, recentErrorRate,
