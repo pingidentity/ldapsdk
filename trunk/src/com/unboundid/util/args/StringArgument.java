@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.unboundid.util.Mutable;
 import com.unboundid.util.ThreadSafety;
@@ -64,8 +66,14 @@ public final class StringArgument
   // The list of default values that will be used if no values were provided.
   private final List<String> defaultValues;
 
+  // A regular expression that may be enforced for values of this argument.
+  private volatile Pattern valueRegex;
+
   // The set of allowed values for this argument.
   private final Set<String> allowedValues;
+
+  // A human-readable explanation of the regular expression pattern.
+  private volatile String valueRegexExplanation;
 
 
 
@@ -344,7 +352,9 @@ public final class StringArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<String>();
+    values                = new ArrayList<String>();
+    valueRegex            = null;
+    valueRegexExplanation = null;
   }
 
 
@@ -377,6 +387,57 @@ public final class StringArgument
 
 
   /**
+   * Retrieves the regular expression that values of this argument will be
+   * required to match, if any.
+   *
+   * @return  The regular expression that values of this argument will be
+   *          required to match, or {@code null} if none is defined.
+   */
+  public Pattern getValueRegex()
+  {
+    return valueRegex;
+  }
+
+
+
+  /**
+   * Retrieves a human-readable explanation of the regular expression pattern
+   * that may be required to match any provided values, if any.
+   *
+   * @return  A human-readable explanation of the regular expression pattern, or
+   *          {@code null} if none is available.
+   */
+  public String getValueRegexExplanation()
+  {
+    return valueRegexExplanation;
+  }
+
+
+
+  /**
+   * Specifies the regular expression that values of this argument will be
+   * required to match, if any.
+   *
+   * @param  valueRegex   The regular expression that values of this argument
+   *                      will be required to match.  It may be {@code null} if
+   *                      no pattern matching should be required.
+   * @param  explanation  A human-readable explanation for the pattern which may
+   *                      be used to clarify the kinds of values that are
+   *                      acceptable.  It may be {@code null} if no pattern
+   *                      matching should be required, or if the regular
+   *                      expression pattern should be sufficiently clear for
+   *                      the target audience.
+   */
+  public void setValueRegex(final Pattern valueRegex,
+                            final String explanation)
+  {
+    this.valueRegex = valueRegex;
+    valueRegexExplanation = explanation;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -397,6 +458,28 @@ public final class StringArgument
     {
       throw new ArgumentException(ERR_ARG_MAX_OCCURRENCES_EXCEEDED.get(
                                        getIdentifierString()));
+    }
+
+    if (valueRegex != null)
+    {
+      final Matcher matcher = valueRegex.matcher(valueString);
+      if (! matcher.matches())
+      {
+        final String pattern = valueRegex.pattern();
+        if (valueRegexExplanation == null)
+        {
+          throw new ArgumentException(
+               ERR_ARG_VALUE_DOES_NOT_MATCH_PATTERN_WITHOUT_EXPLANATION.get(
+                    valueString, getIdentifierString(), pattern));
+        }
+        else
+        {
+          throw new ArgumentException(
+               ERR_ARG_VALUE_DOES_NOT_MATCH_PATTERN_WITH_EXPLANATION.get(
+                    valueString, getIdentifierString(), pattern,
+                    valueRegexExplanation));
+        }
+      }
     }
 
     values.add(valueString);
@@ -479,29 +562,62 @@ public final class StringArgument
   @Override()
   public String getValueConstraints()
   {
-    if ((allowedValues == null) || allowedValues.isEmpty())
+    StringBuilder buffer = null;
+
+    if (valueRegex != null)
     {
-      return null;
-    }
-
-    final StringBuilder buffer = new StringBuilder();
-    buffer.append(INFO_STRING_CONSTRAINTS.get());
-    buffer.append("  ");
-
-    final Iterator<String> iterator = allowedValues.iterator();
-    while (iterator.hasNext())
-    {
-      buffer.append('\'');
-      buffer.append(iterator.next());
-      buffer.append('\'');
-
-      if (iterator.hasNext())
+      buffer = new StringBuilder();
+      final String pattern = valueRegex.pattern();
+      if ((valueRegexExplanation == null) ||
+          (valueRegexExplanation.length() == 0))
       {
-        buffer.append(", ");
+        buffer.append(INFO_STRING_CONSTRAINTS_REGEX_WITHOUT_EXPLANATION.get(
+             pattern));
+      }
+      else
+      {
+        buffer.append(INFO_STRING_CONSTRAINTS_REGEX_WITHOUT_EXPLANATION.get(
+             pattern, valueRegexExplanation));
       }
     }
 
-    return buffer.toString();
+    if ((allowedValues != null) && (! allowedValues.isEmpty()))
+    {
+      if (buffer == null)
+      {
+        buffer = new StringBuilder();
+      }
+      else
+      {
+        buffer.append("  ");
+      }
+
+      buffer.append(INFO_STRING_CONSTRAINTS_ALLOWED_VALUE.get());
+      buffer.append("  ");
+
+      final Iterator<String> iterator = allowedValues.iterator();
+      while (iterator.hasNext())
+      {
+        buffer.append('\'');
+        buffer.append(iterator.next());
+        buffer.append('\'');
+
+        if (iterator.hasNext())
+        {
+          buffer.append(", ");
+        }
+      }
+      buffer.append('.');
+    }
+
+    if (buffer == null)
+    {
+      return null;
+    }
+    else
+    {
+      return buffer.toString();
+    }
   }
 
 
@@ -531,6 +647,20 @@ public final class StringArgument
         }
       }
       buffer.append('}');
+    }
+
+    if (valueRegex != null)
+    {
+      buffer.append(", valueRegex='");
+      buffer.append(valueRegex.pattern());
+      buffer.append('\'');
+
+      if (valueRegexExplanation != null)
+      {
+        buffer.append(", valueRegexExplanation='");
+        buffer.append(valueRegexExplanation);
+        buffer.append('\'');
+      }
     }
 
     if ((defaultValues != null) && (! defaultValues.isEmpty()))
