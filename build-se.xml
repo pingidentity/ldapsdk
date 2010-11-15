@@ -313,6 +313,7 @@
       </fileset>
       <manifest>
         <attribute name="Main-Class" value="com.unboundid.util.Launcher" />
+        <attribute name="Build-Time" value="${timestamp}" />
         <attribute name="Implementation-Title"
                    value="${PRODUCT_NAME} (Standard Edition)" />
         <attribute name="Implementation-Version"
