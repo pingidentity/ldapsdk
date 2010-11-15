@@ -318,6 +318,8 @@
                    value="${PRODUCT_NAME} (Standard Edition)" />
         <attribute name="Implementation-Version"
                    value="${MMP}${VERSION_QUALIFIER}" />
+        <attribute name="Source-Path" value="${svn.path}" />
+        <attribute name="Source-Revision" value="${svn.version}" />
         <attribute name="Implementation-Vendor" value="UnboundID Corp." />
         <attribute name="Implementation-URL"
                    value="http://www.unboundid.com/" />
