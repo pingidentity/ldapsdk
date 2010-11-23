@@ -425,7 +425,7 @@ final class LDAPConnectionReader
           }
         }
 
-        debugLDAPResult(response);
+        debugLDAPResult(response, connection);
 
         final ResponseAcceptor responseAcceptor;
         if ((response instanceof SearchResultEntry) ||

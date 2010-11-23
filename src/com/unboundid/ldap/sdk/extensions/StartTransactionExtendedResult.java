@@ -146,6 +146,13 @@ public final class StartTransactionExtendedResult
     buffer.append("StartTransactionExtendedResult(resultCode=");
     buffer.append(getResultCode());
 
+    final int messageID = getMessageID();
+    if (messageID >= 0)
+    {
+      buffer.append(", messageID=");
+      buffer.append(messageID);
+    }
+
     if (transactionID != null)
     {
       buffer.append(", transactionID='");

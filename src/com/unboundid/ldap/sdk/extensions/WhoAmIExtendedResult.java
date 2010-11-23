@@ -175,6 +175,13 @@ public final class WhoAmIExtendedResult
     buffer.append("WhoAmIExtendedResult(resultCode=");
     buffer.append(getResultCode());
 
+    final int messageID = getMessageID();
+    if (messageID >= 0)
+    {
+      buffer.append(", messageID=");
+      buffer.append(messageID);
+    }
+
     if (authorizationID != null)
     {
       buffer.append(", authorizationID='");

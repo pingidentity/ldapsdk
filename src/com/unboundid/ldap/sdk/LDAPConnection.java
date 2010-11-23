@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
@@ -182,6 +183,13 @@ public final class LDAPConnection
        implements LDAPInterface, ReferralConnector
 {
   /**
+   * The counter that will be used when assigning connection IDs to connections.
+   */
+  private static final AtomicLong NEXT_CONNECTION_ID = new AtomicLong(0L);
+
+
+
+  /**
    * The default socket factory that will be used if no alternate factory is
    * provided.
    */
@@ -189,6 +197,10 @@ public final class LDAPConnection
                                           SocketFactory.getDefault();
 
 
+
+  // The connection pool with which this connection is associated, if
+  // applicable.
+  private AbstractConnectionPool connectionPool;
 
   // The last successful bind request processed on this connection.
   private BindRequest lastBindRequest;
@@ -213,12 +225,13 @@ public final class LDAPConnection
   // The set of connection options for this connection.
   private LDAPConnectionOptions connectionOptions;
 
-  // The connection pool with which this connection is associated, if
-  // applicable.
-  private AbstractConnectionPool connectionPool;
-
   // The set of statistics for this connection.
   private final LDAPConnectionStatistics connectionStatistics;
+
+  // The unique identifier assigned to this connection when it was created.  It
+  // will not change over the life of the connection, even if the connection is
+  // closed and re-established (or even re-established to a different server).
+  private final long connectionID;
 
   // The time of the last rebind attempt.
   private long lastReconnectTime;
@@ -320,6 +333,8 @@ public final class LDAPConnection
   public LDAPConnection(final SocketFactory socketFactory,
                         final LDAPConnectionOptions connectionOptions)
   {
+    connectionID = NEXT_CONNECTION_ID.getAndIncrement();
+
     if (socketFactory == null)
     {
       this.socketFactory = DEFAULT_SOCKET_FACTORY;
@@ -904,6 +919,22 @@ public final class LDAPConnection
     {
       this.socketFactory = socketFactory;
     }
+  }
+
+
+
+  /**
+   * Retrieves a value that uniquely identifies this connection within the JVM
+   * Each {@code LDAPConnection} object will be assigned a different connection
+   * ID, and that connection ID will not change over the life of the object,
+   * even if the connection is closed and re-established (whether re-established
+   * to the same server or a different server).
+   *
+   * @return  A value that uniquely identifies this connection within the JVM.
+   */
+  public long getConnectionID()
+  {
+    return connectionID;
   }
 
 

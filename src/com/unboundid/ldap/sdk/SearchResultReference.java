@@ -272,8 +272,15 @@ public final class SearchResultReference
       }
       buffer.append(referralURLs[i]);
     }
+    buffer.append('}');
 
-    buffer.append("}, controls={");
+    if (messageID >= 0)
+    {
+      buffer.append(", messageID=");
+      buffer.append(messageID);
+    }
+
+    buffer.append(", controls={");
 
     for (int i=0; i < controls.length; i++)
     {
