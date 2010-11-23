@@ -407,8 +407,21 @@ public class IntermediateResponse
     buffer.append("IntermediateResponse(");
 
     boolean added = false;
+
+    if (messageID >= 0)
+    {
+      buffer.append("messageID=");
+      buffer.append(messageID);
+      added = true;
+    }
+
     if (oid != null)
     {
+      if (added)
+      {
+        buffer.append(", ");
+      }
+
       buffer.append("oid='");
       buffer.append(oid);
       buffer.append('\'');

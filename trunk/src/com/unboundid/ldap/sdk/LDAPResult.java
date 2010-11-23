@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.NotMutable;
@@ -110,6 +111,9 @@ public class LDAPResult
 
 
 
+  // The protocol op type for this result, if available.
+  private final Byte protocolOpType;
+
   // The set of controls from the response.
   private final Control[] responseControls;
 
@@ -138,6 +142,7 @@ public class LDAPResult
    */
   protected LDAPResult(final LDAPResult result)
   {
+    protocolOpType    = result.protocolOpType;
     messageID         = result.messageID;
     resultCode        = result.resultCode;
     diagnosticMessage = result.diagnosticMessage;
@@ -158,7 +163,7 @@ public class LDAPResult
    */
   public LDAPResult(final int messageID, final ResultCode resultCode)
   {
-    this(messageID, resultCode, null, null, null, null);
+    this(null, messageID, resultCode, null, null, null, null);
   }
 
 
@@ -182,6 +187,35 @@ public class LDAPResult
                     final String[] referralURLs,
                     final Control[] responseControls)
   {
+    this(null, messageID, resultCode, diagnosticMessage, matchedDN,
+         referralURLs, responseControls);
+  }
+
+
+
+  /**
+   * Creates a new LDAP result object with the provided information.
+   *
+   * @param  protocolOpType     The protocol op type for this result, if
+   *                            available.
+   * @param  messageID          The message ID for the LDAP message that is
+   *                            associated with this LDAP result.
+   * @param  resultCode         The result code from the response.
+   * @param  diagnosticMessage  The diagnostic message from the response, if
+   *                            available.
+   * @param  matchedDN          The matched DN from the response, if available.
+   * @param  referralURLs       The set of referral URLs from the response, if
+   *                            available.
+   * @param  responseControls   The set of controls from the response, if
+   *                            available.
+   */
+  private LDAPResult(final Byte protocolOpType, final int messageID,
+                     final ResultCode resultCode,
+                     final String diagnosticMessage, final String matchedDN,
+                     final String[] referralURLs,
+                     final Control[] responseControls)
+  {
+    this.protocolOpType    = protocolOpType;
     this.messageID         = messageID;
     this.resultCode        = resultCode;
     this.diagnosticMessage = diagnosticMessage;
@@ -233,6 +267,8 @@ public class LDAPResult
     {
       final ASN1StreamReaderSequence protocolOpSequence =
            reader.beginSequence();
+      final byte protocolOpType = protocolOpSequence.getType();
+
       final ResultCode resultCode = ResultCode.valueOf(reader.readEnumerated());
 
       String matchedDN = reader.readString();
@@ -275,8 +311,8 @@ public class LDAPResult
         controlList.toArray(responseControls);
       }
 
-      return new LDAPResult(messageID, resultCode, diagnosticMessage, matchedDN,
-                            referralURLs, responseControls);
+      return new LDAPResult(protocolOpType, messageID, resultCode,
+           diagnosticMessage, matchedDN, referralURLs, responseControls);
     }
     catch (LDAPException le)
     {
@@ -465,6 +501,43 @@ public class LDAPResult
   {
     buffer.append("LDAPResult(resultCode=");
     buffer.append(resultCode);
+
+    if (messageID >= 0)
+    {
+      buffer.append(", messageID=");
+      buffer.append(messageID);
+    }
+
+    if (protocolOpType != null)
+    {
+      switch (protocolOpType)
+      {
+        case LDAPMessage.PROTOCOL_OP_TYPE_ADD_RESPONSE:
+          buffer.append(", opType='add'");
+          break;
+        case LDAPMessage.PROTOCOL_OP_TYPE_BIND_RESPONSE:
+          buffer.append(", opType='bind'");
+          break;
+        case LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_RESPONSE:
+          buffer.append(", opType='compare'");
+          break;
+        case LDAPMessage.PROTOCOL_OP_TYPE_DELETE_RESPONSE:
+          buffer.append(", opType='delete'");
+          break;
+        case LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_RESPONSE:
+          buffer.append(", opType='extended'");
+          break;
+        case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_RESPONSE:
+          buffer.append(", opType='modify'");
+          break;
+        case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_RESPONSE:
+          buffer.append(", opType='modify DN'");
+          break;
+        case LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_DONE:
+          buffer.append(", opType='search'");
+          break;
+      }
+    }
 
     if (diagnosticMessage != null)
     {

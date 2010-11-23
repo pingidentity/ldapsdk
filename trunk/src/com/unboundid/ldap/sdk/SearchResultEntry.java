@@ -382,7 +382,15 @@ public final class SearchResultEntry
   {
     buffer.append("SearchResultEntry(dn='");
     buffer.append(getDN());
-    buffer.append("', attributes={");
+    buffer.append('\'');
+
+    if (messageID >= 0)
+    {
+      buffer.append(", messageID=");
+      buffer.append(messageID);
+    }
+
+    buffer.append(", attributes={");
 
     final Iterator<Attribute> iterator = getAttributes().iterator();
 

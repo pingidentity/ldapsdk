@@ -154,7 +154,7 @@ final class LDAPConnectionInternals
 
     try
     {
-      debugConnect(host, port);
+      debugConnect(host, port, connection);
       socket.setKeepAlive(options.useKeepAlive());
       socket.setReuseAddress(options.useReuseAddress());
       socket.setSoLinger(options.useLinger(),
@@ -522,8 +522,7 @@ final class LDAPConnectionInternals
 
       disconnectType = DisconnectType.UNKNOWN;
     }
-
-    debugDisconnect(host, port, disconnectType, disconnectMessage,
+    debugDisconnect(host, port, connection, disconnectType, disconnectMessage,
                     disconnectCause);
     if (closedByFinalizer && debugEnabled(DebugType.LDAP))
     {

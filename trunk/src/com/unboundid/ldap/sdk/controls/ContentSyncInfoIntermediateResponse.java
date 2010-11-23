@@ -574,7 +574,17 @@ public final class ContentSyncInfoIntermediateResponse
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("ContentSyncInfoIntermediateResponse(type=");
+    buffer.append("ContentSyncInfoIntermediateResponse(");
+
+    final int messageID = getMessageID();
+    if (messageID >= 0)
+    {
+      buffer.append("messageID=");
+      buffer.append(messageID);
+      buffer.append(", ");
+    }
+
+    buffer.append("type=");
     buffer.append(type.name());
 
     if (cookie != null)

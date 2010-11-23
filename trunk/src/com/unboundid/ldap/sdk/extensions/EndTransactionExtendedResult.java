@@ -424,6 +424,13 @@ public final class EndTransactionExtendedResult
     buffer.append("EndTransactionExtendedResult(resultCode=");
     buffer.append(getResultCode());
 
+    final int messageID = getMessageID();
+    if (messageID >= 0)
+    {
+      buffer.append(", messageID=");
+      buffer.append(messageID);
+    }
+
     if (failedOpMessageID > 0)
     {
       buffer.append(", failedOpMessageID=");

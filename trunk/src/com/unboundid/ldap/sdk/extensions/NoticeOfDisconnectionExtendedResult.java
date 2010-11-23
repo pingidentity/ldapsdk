@@ -127,6 +127,13 @@ public final class NoticeOfDisconnectionExtendedResult
     buffer.append("NoticeOfDisconnectionExtendedResult(resultCode=");
     buffer.append(getResultCode());
 
+    final int messageID = getMessageID();
+    if (messageID >= 0)
+    {
+      buffer.append(", messageID=");
+      buffer.append(messageID);
+    }
+
     final String diagnosticMessage = getDiagnosticMessage();
     if (diagnosticMessage != null)
     {
