@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -1016,6 +1017,21 @@ public final class StaticUtils
    */
   public static List<String> wrapLine(final String line, final int maxWidth)
   {
+    // See if the provided string already contains line breaks.  If so, then
+    // treat it as multiple lines rather than a single line.
+    final int breakPos = line.indexOf('\n');
+    if (breakPos >= 0)
+    {
+      final ArrayList<String> lineList = new ArrayList<String>(10);
+      final StringTokenizer tokenizer = new StringTokenizer(line, "\r\n");
+      while (tokenizer.hasMoreTokens())
+      {
+        lineList.addAll(wrapLine(tokenizer.nextToken(), maxWidth));
+      }
+
+      return lineList;
+    }
+
     final int length = line.length();
     if ((maxWidth <= 0) || (length < maxWidth))
     {
