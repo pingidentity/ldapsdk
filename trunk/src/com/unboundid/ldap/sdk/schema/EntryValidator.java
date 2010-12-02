@@ -746,7 +746,8 @@ public final class EntryValidator
       }
     }
 
-    for (final ObjectClassDefinition d : ocSet)
+    for (final ObjectClassDefinition d :
+         new HashSet<ObjectClassDefinition>(ocSet))
     {
       entryValid &= addSuperiorClasses(d, ocSet, missingOCs, invalidReasons);
     }
