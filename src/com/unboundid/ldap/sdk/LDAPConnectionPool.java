@@ -454,11 +454,11 @@ public final class LDAPConnectionPool
    *                             performed on the connections.
    * @param  initialConnections  The number of connections to initially
    *                             establish when the pool is created.  It must be
-   *                             greater than or equal to one.
+   *                             greater than or equal to zero.
    * @param  maxConnections      The maximum number of connections that should
    *                             be maintained in the pool.  It must be greater
    *                             than or equal to the initial number of
-   *                             connections.
+   *                             connections, and must not be zero.
    *
    * @throws  LDAPException  If a problem occurs while attempting to establish
    *                         any of the connections.  If this is thrown, then
@@ -490,11 +490,11 @@ public final class LDAPConnectionPool
    *                               performed on the connections.
    * @param  initialConnections    The number of connections to initially
    *                               establish when the pool is created.  It must
-   *                               be greater than or equal to one.
+   *                               be greater than or equal to zero.
    * @param  maxConnections        The maximum number of connections that should
    *                               be maintained in the pool.  It must be
    *                               greater than or equal to the initial number
-   *                               of connections.
+   *                               of connections, and must not be zero.
    * @param  postConnectProcessor  A processor that should be used to perform
    *                               any post-connect processing for connections
    *                               in this pool.  It may be {@code null} if no
@@ -513,8 +513,11 @@ public final class LDAPConnectionPool
          throws LDAPException
   {
     ensureNotNull(serverSet);
-    ensureTrue(initialConnections >= 1,
-               "LDAPConnectionPool.initialConnections must be at least 1.");
+    ensureTrue(initialConnections >= 0,
+               "LDAPConnectionPool.initialConnections must be greater than " +
+                    "or equal to 0.");
+    ensureTrue(maxConnections > 0,
+               "LDAPConnectionPool.maxConnections must be greater than 0.");
     ensureTrue(maxConnections >= initialConnections,
                "LDAPConnectionPool.initialConnections must not be greater " +
                     "than maxConnections.");
