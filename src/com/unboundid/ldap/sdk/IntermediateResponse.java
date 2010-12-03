@@ -381,6 +381,23 @@ public class IntermediateResponse
 
 
   /**
+   * Retrieves a human-readable string representation for the contents of the
+   * value for this intermediate response, if appropriate.  If one is provided,
+   * then it should be a relatively compact single-line representation of the
+   * most important elements of the value.
+   *
+   * @return  A human-readable string representation for the contents of the
+   *          value for this intermediate response, or {@code null} if there is
+   *          no value or no string representation is available.
+   */
+  public String valueToString()
+  {
+    return null;
+  }
+
+
+
+  /**
    * Retrieves a string representation of this intermediate response.
    *
    * @return  A string representation of this intermediate response.

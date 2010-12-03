@@ -572,6 +572,64 @@ public final class ContentSyncInfoIntermediateResponse
    * {@inheritDoc}
    */
   @Override()
+  public String valueToString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+
+    buffer.append("syncInfoType='");
+    buffer.append(type.name());
+    buffer.append('\'');
+
+    if (cookie != null)
+    {
+      buffer.append(" cookie='");
+      StaticUtils.toHex(cookie.getValue(), buffer);
+      buffer.append('\'');
+    }
+
+    switch (type)
+    {
+      case REFRESH_DELETE:
+      case REFRESH_PRESENT:
+        buffer.append(" refreshDone='");
+        buffer.append(refreshDone);
+        buffer.append('\'');
+        break;
+
+      case SYNC_ID_SET:
+        buffer.append(" entryUUIDs={");
+
+        final Iterator<UUID> iterator = entryUUIDs.iterator();
+        while (iterator.hasNext())
+        {
+          buffer.append('\'');
+          buffer.append(iterator.next().toString());
+          buffer.append('\'');
+
+          if (iterator.hasNext())
+          {
+            buffer.append(',');
+          }
+        }
+
+        buffer.append('}');
+        break;
+
+      case NEW_COOKIE:
+      default:
+        // No additional content is needed.
+        break;
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("ContentSyncInfoIntermediateResponse(");
