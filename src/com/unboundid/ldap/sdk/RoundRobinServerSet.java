@@ -41,6 +41,27 @@ import static com.unboundid.util.Validator.*;
  * circling back to the beginning of the list as necessary.  If a server is
  * unavailable when an attempt is made to establish a connection to it, then
  * the connection will be established to the next available server in the set.
+ * <BR><BR>
+ * <H2>Example</H2>
+ * The following example demonstrates the process for creating a round-robin
+ * server set that may be used to establish connections to either of two
+ * servers.  When using the server set to attempt to create a connection, it
+ * will first try one of the servers, but will fail over to the other if the
+ * first one attempted is not available:
+ * <PRE>
+ *   String[] addresses =
+ *   {
+ *     "ds1.example.com",
+ *     "ds2.example.com",
+ *   };
+ *   int[] ports =
+ *   {
+ *     389,
+ *     389
+ *   }
+ *   RoundRobinServerSet roundRobinSet =
+ *        new RoundRobinServerSet(addresses, ports);
+ * </PRE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
