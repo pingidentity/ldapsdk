@@ -46,6 +46,62 @@ import static com.unboundid.util.Validator.*;
  * round robin server set containing servers in the local data center, but if
  * none of those are available then fail over to a server set with servers in a
  * remote data center).
+ * <BR><BR>
+ * <H2>Example</H2>
+ * The following example demonstrates the process for creating a failover server
+ * set with information about individual servers.  It will first try to connect
+ * to ds1.example.com:389, but if that fails then it will try connecting to
+ * ds2.example.com:389:
+ * <PRE>
+ *   String[] addresses =
+ *   {
+ *     "ds1.example.com",
+ *     "ds2.example.com"
+ *   };
+ *   int[] ports =
+ *   {
+ *     389,
+ *     389
+ *   };
+ *   FailoverServerSet failoverSet = new FailoverServerSet(addresses, ports);
+ * </PRE>
+ * This second example demonstrates the process for creating a failover server
+ * set which actually fails over between two different data centers (east and
+ * west), with each data center containing two servers that will be accessed in
+ * a round-robin manner.  It will first try to connect to one of the servers in
+ * the east data center, and if that attempt fails then it will try to connect
+ * to the other server in the east data center.  If both of them fail, then it
+ * will try to connect to one of the servers in the west data center, and
+ * finally as a last resort the other server in the west data center:
+ * <PRE>
+ *   String[] eastAddresses =
+ *   {
+ *     "ds-east-1.example.com",
+ *     "ds-east-2.example.com",
+ *   };
+ *   int[] eastPorts =
+ *   {
+ *     389,
+ *     389
+ *   }
+ *   RoundRobinServerSet eastSet =
+ *        new RoundRobinServerSet(eastAddresses, eastPorts);
+ *
+ *   String[] westAddresses =
+ *   {
+ *     "ds-west-1.example.com",
+ *     "ds-west-2.example.com",
+ *   };
+ *   int[] westPorts =
+ *   {
+ *     389,
+ *     389
+ *   }
+ *   RoundRobinServerSet westSet =
+ *        new RoundRobinServerSet(westAddresses, westPorts);
+ *
+ *   FailoverServerSet failoverSet = new FailoverServerSet(eastSet, westSet);
+ * </PRE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
