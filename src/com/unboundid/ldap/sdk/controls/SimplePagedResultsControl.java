@@ -111,7 +111,7 @@ import static com.unboundid.util.Debug.*;
  *         cookie = ((SimplePagedResultsControl) c).getCookie();
  *       }
  *     }
- *   } while (cookie != null);
+ *   } while ((cookie != null) && (cookie.getValueLength() > 0));
  * </PRE>
  */
 @NotMutable()
