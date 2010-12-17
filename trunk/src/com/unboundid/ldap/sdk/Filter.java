@@ -3814,6 +3814,50 @@ attrNameLoop:
 
 
   /**
+   * Encodes the provided value into a form suitable for use as the assertion
+   * value in the string representation of a search filter.  Parentheses,
+   * asterisks, backslashes, null characters, and any non-ASCII characters will
+   * be escaped using a backslash before the hexadecimal representation of each
+   * byte in the character to escape.
+   *
+   * @param  value  The value to be encoded.  It must not be {@code null}.
+   *
+   * @return  The encoded representation of the provided string.
+   */
+  public static String encodeValue(final String value)
+  {
+    ensureNotNull(value);
+
+    final StringBuilder buffer = new StringBuilder();
+    encodeValue(new ASN1OctetString(value), buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Encodes the provided value into a form suitable for use as the assertion
+   * value in the string representation of a search filter.  Parentheses,
+   * asterisks, backslashes, null characters, and any non-ASCII characters will
+   * be escaped using a backslash before the hexadecimal representation of each
+   * byte in the character to escape.
+   *
+   * @param  value  The value to be encoded.  It must not be {@code null}.
+   *
+   * @return  The encoded representation of the provided string.
+   */
+  public static String encodeValue(final byte[]value)
+  {
+    ensureNotNull(value);
+
+    final StringBuilder buffer = new StringBuilder();
+    encodeValue(new ASN1OctetString(value), buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
    * Appends the assertion value for this filter to the provided buffer,
    * encoding any special characters as necessary.
    *
