@@ -41,7 +41,7 @@ import static com.unboundid.util.Validator.*;
 /**
  * This class provides an implementation of the server-side sort request
  * control, as defined in
- * <A HREF="http://www.ietf.org/rfc/rfc2981.txt">RFC 2891</A>.  It may be
+ * <A HREF="http://www.ietf.org/rfc/rfc2891.txt">RFC 2891</A>.  It may be
  * included in a search request to indicate that the server should sort the
  * results before returning them to the client.
  * <BR><BR>
