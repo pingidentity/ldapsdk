@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.svnversion;
