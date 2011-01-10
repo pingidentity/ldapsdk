@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Collections;
@@ -100,6 +101,9 @@ public final class LDAPObjectHandler<T>
   // The LDAPObject annotation for the associated object.
   private final LDAPObject ldapObject;
 
+  // The LDAP object handler for the superclass, if applicable.
+  private final LDAPObjectHandler<? super T> superclassHandler;
+
   // The list of fields for with a filter usage of ALWAYS_ALLOWED.
   private final List<FieldInfo> alwaysAllowedFilterFields;
 
@@ -170,10 +174,30 @@ public final class LDAPObjectHandler<T>
    *                                class that makes it unsuitable for use with
    *                                the persistence framework.
    */
+  @SuppressWarnings("unchecked")
   LDAPObjectHandler(final Class<T> type)
        throws LDAPPersistException
   {
     this.type = type;
+
+    final Class<? super T> superclassType = type.getSuperclass();
+    if (superclassType == null)
+    {
+      superclassHandler = null;
+    }
+    else
+    {
+      final LDAPObject superclassAnnotation =
+           superclassType.getAnnotation(LDAPObject.class);
+      if (superclassAnnotation == null)
+      {
+        superclassHandler = null;
+      }
+      else
+      {
+        superclassHandler = new LDAPObjectHandler(superclassType);
+      }
+    }
 
     final TreeMap<String,FieldInfo>  fields  = new TreeMap<String,FieldInfo>();
     final TreeMap<String,GetterInfo> getters = new TreeMap<String,GetterInfo>();
@@ -186,7 +210,8 @@ public final class LDAPObjectHandler<T>
            ERR_OBJECT_HANDLER_OBJECT_NOT_ANNOTATED.get(type.getName()));
     }
 
-    final ArrayList<String> objectClasses = new ArrayList<String>(10);
+    final LinkedHashMap<String,String> objectClasses =
+         new LinkedHashMap<String,String>(10);
 
     final String oc = ldapObject.structuralClass();
     if (oc.length() == 0)
@@ -201,7 +226,7 @@ public final class LDAPObjectHandler<T>
     final StringBuilder invalidReason = new StringBuilder();
     if (PersistUtils.isValidLDAPName(structuralClass, invalidReason))
     {
-      objectClasses.add(structuralClass);
+      objectClasses.put(toLowerCase(structuralClass), structuralClass);
     }
     else
     {
@@ -215,7 +240,7 @@ public final class LDAPObjectHandler<T>
     {
       if (PersistUtils.isValidLDAPName(auxiliaryClass, invalidReason))
       {
-        objectClasses.add(auxiliaryClass);
+        objectClasses.put(toLowerCase(auxiliaryClass), auxiliaryClass);
       }
       else
       {
@@ -225,7 +250,15 @@ public final class LDAPObjectHandler<T>
       }
     }
 
-    objectClassAttribute = new Attribute("objectClass", objectClasses);
+    if (superclassHandler != null)
+    {
+      for (final String s : superclassHandler.objectClassAttribute.getValues())
+      {
+        objectClasses.put(toLowerCase(s), s);
+      }
+    }
+
+    objectClassAttribute = new Attribute("objectClass", objectClasses.values());
 
 
     final String parentDNStr = ldapObject.defaultParentDN();
@@ -577,6 +610,26 @@ public final class LDAPObjectHandler<T>
 
 
   /**
+   * Retrieves an {@code LDAPObjectHandler} instance of the specified type.
+   *
+   * @param  <T>  The type of object handler to create.
+   *
+   * @param  type  The class for the type of object handler to create.
+   *
+   * @return  The created {@code LDAPObjectHandler} instance.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while creating the
+   *                                instance.
+   */
+  private static <T> LDAPObjectHandler<T> getHandler(final Class<T> type)
+          throws LDAPPersistException
+  {
+    return new LDAPObjectHandler<T>(type);
+  }
+
+
+
+  /**
    * Retrieves the type of object handled by this class.
    *
    * @return  The type of object handled by this class.
@@ -584,6 +637,21 @@ public final class LDAPObjectHandler<T>
   public Class<T> getType()
   {
     return type;
+  }
+
+
+
+  /**
+   * Retrieves the {@code LDAPObjectHandler} object for the superclass of the
+   * associated type, if it is marked with the {@code LDAPObject annotation}.
+   *
+   * @return  The {@code LDAPObjectHandler} object for the superclass of the
+   *          associated type, or {@code null} if the superclass is not marked
+   *          with the {@code LDAPObject} annotation.
+   */
+  public LDAPObjectHandler<?> getSuperclassHandler()
+  {
+    return superclassHandler;
   }
 
 
@@ -874,18 +942,47 @@ public final class LDAPObjectHandler<T>
   List<ObjectClassDefinition> constructObjectClasses(final OIDAllocator a)
          throws LDAPPersistException
   {
-    final ArrayList<ObjectClassDefinition> ocList =
-         new ArrayList<ObjectClassDefinition>(1 + auxiliaryClasses.length);
+    final LinkedHashMap<String,ObjectClassDefinition> ocMap =
+         new LinkedHashMap<String,ObjectClassDefinition>(
+              1 + auxiliaryClasses.length);
 
-    ocList.add(constructObjectClass(structuralClass, ObjectClassType.STRUCTURAL,
-         a));
+    if (superclassHandler != null)
+    {
+      for (final ObjectClassDefinition d :
+           superclassHandler.constructObjectClasses(a))
+      {
+        ocMap.put(toLowerCase(d.getNameOrOID()), d);
+      }
+    }
+
+    final String lowerStructuralClass = toLowerCase(structuralClass);
+    if (! ocMap.containsKey(lowerStructuralClass))
+    {
+      if (superclassHandler == null)
+      {
+        ocMap.put(lowerStructuralClass, constructObjectClass(structuralClass,
+             "top", ObjectClassType.STRUCTURAL, a));
+      }
+      else
+      {
+        ocMap.put(lowerStructuralClass, constructObjectClass(structuralClass,
+             superclassHandler.getStructuralClass(), ObjectClassType.STRUCTURAL,
+             a));
+      }
+    }
 
     for (final String s : auxiliaryClasses)
     {
-      ocList.add(constructObjectClass(s,ObjectClassType.AUXILIARY, a));
+      final String lowerName = toLowerCase(s);
+      if (! ocMap.containsKey(lowerName))
+      {
+        ocMap.put(lowerName,
+             constructObjectClass(s, "top", ObjectClassType.AUXILIARY, a));
+      }
     }
 
-    return Collections.unmodifiableList(ocList);
+    return Collections.unmodifiableList(new ArrayList<ObjectClassDefinition>(
+         ocMap.values()));
   }
 
 
@@ -896,6 +993,8 @@ public final class LDAPObjectHandler<T>
    *
    * @param  name  The name of the object class to create.  It must not be
    *               {@code null}.
+   * @param  sup   The name of the superior object class.  It must not be
+   *               {@code null}.
    * @param  type  The type of object class to create.  It must not be
    *               {@code null}.
    * @param  a     The OID allocator to use to generate the object identifiers
@@ -905,6 +1004,7 @@ public final class LDAPObjectHandler<T>
    * @return  The constructed object class definition.
    */
   ObjectClassDefinition constructObjectClass(final String name,
+                                             final String sup,
                                              final ObjectClassType type,
                                              final OIDAllocator a)
   {
@@ -1000,7 +1100,7 @@ public final class LDAPObjectHandler<T>
     optionalAttrs.values().toArray(optArray);
 
     return new ObjectClassDefinition(a.allocateObjectClassOID(name),
-         new String[] { name }, null, false, new String[] { "top" }, type,
+         new String[] { name }, null, false, new String[] { sup }, type,
          reqArray, optArray, null);
   }
 
@@ -1059,6 +1159,11 @@ public final class LDAPObjectHandler<T>
   void decode(final T o, final Entry e)
        throws LDAPPersistException
   {
+    if (superclassHandler != null)
+    {
+      superclassHandler.decode(o, e);
+    }
+
     setDNAndEntryFields(o, e);
 
     final ArrayList<String> failureReasons = new ArrayList<String>(5);
@@ -1199,6 +1304,15 @@ public final class LDAPObjectHandler<T>
 
     setDNAndEntryFields(o, entry);
 
+    if (superclassHandler != null)
+    {
+      final Entry e = superclassHandler.encode(o, parentDN);
+      for (final Attribute a : e.getAttributes())
+      {
+        entry.addAttribute(a);
+      }
+    }
+
     return entry;
   }
 
@@ -1213,7 +1327,7 @@ public final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurs while setting the value
    *                                of the DN or entry field.
    */
-  private void setDNAndEntryFields(final Object o, final Entry e)
+  private void setDNAndEntryFields(final T o, final Entry e)
           throws LDAPPersistException
   {
     if (dnField != null)
@@ -1564,6 +1678,31 @@ public final class LDAPObjectHandler<T>
            a.getRawValues()));
     }
 
+    if (superclassHandler != null)
+    {
+      final List<Modification> superMods =
+           superclassHandler.getModifications(o, deleteNullValues, attributes);
+      final ArrayList<Modification> modsToAdd =
+           new ArrayList<Modification>(superMods.size());
+      for (final Modification sm : superMods)
+      {
+        boolean add = true;
+        for (final Modification m : mods)
+        {
+          if (m.getAttributeName().equalsIgnoreCase(sm.getAttributeName()))
+          {
+            add = false;
+            break;
+          }
+        }
+        if (add)
+        {
+          modsToAdd.add(sm);
+        }
+      }
+      mods.addAll(modsToAdd);
+    }
+
     return Collections.unmodifiableList(mods);
   }
 
@@ -1678,6 +1817,19 @@ public final class LDAPObjectHandler<T>
       for (final ASN1OctetString v : a.getRawValues())
       {
         comps.add(Filter.createEqualityFilter(a.getName(), v.getValue()));
+      }
+    }
+
+    if (superclassHandler != null)
+    {
+      final Filter f = superclassHandler.createFilter(o);
+      if (f.getFilterType() == Filter.FILTER_TYPE_AND)
+      {
+        comps.addAll(Arrays.asList(f.getComponents()));
+      }
+      else
+      {
+        comps.add(f);
       }
     }
 
