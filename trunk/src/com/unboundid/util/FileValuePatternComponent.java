@@ -123,4 +123,15 @@ final class FileValuePatternComponent
 
     buffer.append(lines[r.nextInt(lines.length)]);
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  boolean supportsBackReference()
+  {
+    return true;
+  }
 }
