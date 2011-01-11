@@ -135,4 +135,15 @@ final class RandomValuePatternComponent
       buffer.append(f.format(value));
     }
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  boolean supportsBackReference()
+  {
+    return true;
+  }
 }

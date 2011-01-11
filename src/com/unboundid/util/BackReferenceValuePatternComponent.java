@@ -26,29 +26,42 @@ package com.unboundid.util;
  * This class defines a string value pattern component, which will always
  * generate the same static text.
  */
-final class StringValuePatternComponent
+final class BackReferenceValuePatternComponent
       extends ValuePatternComponent
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -5948022796724341802L;
+  private static final long serialVersionUID = 417294789313497595L;
 
 
 
-  // The string that will be used by this component.
-  private final String valueString;
+  // The index of the referenced component.  It will be one-based rather than
+  // zero-based.
+  private final int index;
 
 
 
   /**
-   * Creates a new string value component with the provided string.
+   * Creates a new back-reference component with the specified index.
    *
-   * @param  valueString  The string that will be used by this component.
+   * @param  index  The one-based index of the referenced component.
    */
-  StringValuePatternComponent(final String valueString)
+  BackReferenceValuePatternComponent(final int index)
   {
-    this.valueString = valueString;
+    this.index = index;
+  }
+
+
+
+  /**
+   * Retrieves the one-based index for this back-reference component.
+   *
+   * @return  The one-based index for this back-reference component.
+   */
+  int getIndex()
+  {
+    return index;
   }
 
 
@@ -59,7 +72,9 @@ final class StringValuePatternComponent
   @Override()
   void append(final StringBuilder buffer)
   {
-    buffer.append(valueString);
+    // This should never be called.
+    throw new AssertionError(
+         "Unexpected call to BackReferenceValuePatternComponent.append");
   }
 
 
@@ -70,6 +85,6 @@ final class StringValuePatternComponent
   @Override()
   boolean supportsBackReference()
   {
-    return false;
+    return true;
   }
 }

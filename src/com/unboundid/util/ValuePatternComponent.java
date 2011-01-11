@@ -49,4 +49,15 @@ abstract class ValuePatternComponent
    * @param  buffer  The buffer to which the value should be appended.
    */
   abstract void append(final StringBuilder buffer);
+
+
+
+  /**
+   * Indicates whether this value pattern component may be targeted by a back
+   * reference.
+   *
+   * @return  {@code true} if this value pattern component may be targeted by a
+   *          back reference, or {@code false} if not.
+   */
+  abstract boolean supportsBackReference();
 }
