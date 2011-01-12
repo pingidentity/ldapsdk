@@ -291,6 +291,26 @@ public final class DurationArgument
 
 
   /**
+   * Creates a new duration argument that is a "clean" copy of the provided
+   * source argument.
+   *
+   * @param  source  The source argument to use for this argument.
+   */
+  private DurationArgument(final DurationArgument source)
+  {
+    super(source);
+
+    defaultValueNanos = source.defaultValueNanos;
+    maxValueNanos     = source.maxValueNanos;
+    minValueNanos     = source.minValueNanos;
+    lowerBoundStr     = source.lowerBoundStr;
+    upperBoundStr     = source.upperBoundStr;
+    valueNanos        = null;
+  }
+
+
+
+  /**
    * Retrieves the lower bound for this argument using the specified time unit.
    *
    * @param  unit  The time unit in which the lower bound value may be
@@ -570,6 +590,17 @@ public final class DurationArgument
     }
 
     return buffer.toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public DurationArgument getCleanCopy()
+  {
+    return new DurationArgument(this);
   }
 
 

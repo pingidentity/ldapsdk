@@ -359,6 +359,24 @@ public final class IntegerArgument
 
 
   /**
+   * Creates a new integer argument that is a "clean" copy of the provided
+   * source argument.
+   *
+   * @param  source  The source argument to use for this argument.
+   */
+  private IntegerArgument(final IntegerArgument source)
+  {
+    super(source);
+
+    lowerBound    = source.lowerBound;
+    upperBound    = source.upperBound;
+    defaultValues = source.defaultValues;
+    values        = new ArrayList<Integer>();
+  }
+
+
+
+  /**
    * Retrieves the smallest value that this argument will be allowed to have.
    *
    * @return  The smallest value that this argument will be allowed to have.
@@ -516,6 +534,17 @@ public final class IntegerArgument
   {
     return INFO_INTEGER_CONSTRAINTS_LOWER_AND_UPPER_BOUND.get(lowerBound,
          upperBound);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public IntegerArgument getCleanCopy()
+  {
+    return new IntegerArgument(this);
   }
 
 

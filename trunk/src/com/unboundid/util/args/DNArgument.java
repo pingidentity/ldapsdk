@@ -196,6 +196,22 @@ public final class DNArgument
 
 
   /**
+   * Creates a new DN argument that is a "clean" copy of the provided source
+   * argument.
+   *
+   * @param  source  The source argument to use for this argument.
+   */
+  private DNArgument(final DNArgument source)
+  {
+    super(source);
+
+    defaultValues = source.defaultValues;
+    values        = new ArrayList<DN>();
+  }
+
+
+
+  /**
    * Retrieves the list of default values for this argument, which will be used
    * if no values were provided.
    *
@@ -337,6 +353,17 @@ public final class DNArgument
   public String getValueConstraints()
   {
     return INFO_DN_CONSTRAINTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public DNArgument getCleanCopy()
+  {
+    return new DNArgument(this);
   }
 
 
