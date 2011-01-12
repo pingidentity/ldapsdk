@@ -147,6 +147,22 @@ public final class BooleanValueArgument
 
 
   /**
+   * Creates a new Boolean value argument that is a "clean" copy of the provided
+   * source argument.
+   *
+   * @param  source  The source argument to use for this argument.
+   */
+  private BooleanValueArgument(final BooleanValueArgument source)
+  {
+    super(source);
+
+    defaultValue = source.defaultValue;
+    value        = null;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -245,6 +261,17 @@ public final class BooleanValueArgument
   public String getValueConstraints()
   {
     return INFO_BOOLEAN_VALUE_CONSTRAINTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public BooleanValueArgument getCleanCopy()
+  {
+    return new BooleanValueArgument(this);
   }
 
 

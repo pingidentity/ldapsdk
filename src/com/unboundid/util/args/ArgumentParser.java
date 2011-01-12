@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -197,6 +198,106 @@ public final class ArgumentParser
     dependentArgumentSets = new ArrayList<ObjectPair<Argument,Set<Argument>>>();
     exclusiveArgumentSets = new ArrayList<Set<Argument>>();
     requiredArgumentSets  = new ArrayList<Set<Argument>>();
+  }
+
+
+
+  /**
+   * Creates a new argument parser that is a "clean" copy of the provided source
+   * argument parser.
+   *
+   * @param  source  The source argument parser to use for this argument parser.
+   */
+  private ArgumentParser(final ArgumentParser source)
+  {
+    commandName             = source.commandName;
+    commandDescription      = source.commandDescription;
+    maxTrailingArgs         = source.maxTrailingArgs;
+    trailingArgsPlaceholder = source.trailingArgsPlaceholder;
+
+    trailingArgs = new ArrayList<String>();
+
+    namedArgs = new ArrayList<Argument>(source.namedArgs.size());
+    namedArgsByLongID =
+         new LinkedHashMap<String,Argument>(source.namedArgsByLongID.size());
+    namedArgsByShortID = new LinkedHashMap<Character,Argument>(
+         source.namedArgsByShortID.size());
+
+    final LinkedHashMap<String,Argument> argsByID =
+         new LinkedHashMap<String,Argument>(source.namedArgs.size());
+    for (final Argument sourceArg : source.namedArgs)
+    {
+      final Argument a = sourceArg.getCleanCopy();
+
+      try
+      {
+        a.setRegistered();
+      }
+      catch (final ArgumentException ae)
+      {
+        // This should never happen.
+        Debug.debugException(ae);
+      }
+
+      namedArgs.add(a);
+      argsByID.put(a.getIdentifierString(), a);
+
+      for (final Character c : a.getShortIdentifiers())
+      {
+        namedArgsByShortID.put(c, a);
+      }
+
+      for (final String s : a.getLongIdentifiers())
+      {
+        namedArgsByLongID.put(toLowerCase(s), a);
+      }
+    }
+
+    dependentArgumentSets = new ArrayList<ObjectPair<Argument,Set<Argument>>>(
+         source.dependentArgumentSets.size());
+    for (final ObjectPair<Argument,Set<Argument>> p :
+         source.dependentArgumentSets)
+    {
+      final Set<Argument> sourceSet = p.getSecond();
+      final LinkedHashSet<Argument> newSet =
+           new LinkedHashSet<Argument>(sourceSet.size());
+      for (final Argument a : sourceSet)
+      {
+        newSet.add(argsByID.get(a.getIdentifierString()));
+      }
+
+      final Argument sourceFirst = p.getFirst();
+      final Argument newFirst = argsByID.get(sourceFirst.getIdentifierString());
+      dependentArgumentSets.add(
+           new ObjectPair<Argument, Set<Argument>>(newFirst, newSet));
+    }
+
+    exclusiveArgumentSets =
+         new ArrayList<Set<Argument>>(source.exclusiveArgumentSets.size());
+    for (final Set<Argument> sourceSet : source.exclusiveArgumentSets)
+    {
+      final LinkedHashSet<Argument> newSet =
+           new LinkedHashSet<Argument>(sourceSet.size());
+      for (final Argument a : sourceSet)
+      {
+        newSet.add(argsByID.get(a.getIdentifierString()));
+      }
+
+      exclusiveArgumentSets.add(newSet);
+    }
+
+    requiredArgumentSets =
+         new ArrayList<Set<Argument>>(source.requiredArgumentSets.size());
+    for (final Set<Argument> sourceSet : source.requiredArgumentSets)
+    {
+      final LinkedHashSet<Argument> newSet =
+           new LinkedHashSet<Argument>(sourceSet.size());
+      for (final Argument a : sourceSet)
+      {
+        newSet.add(argsByID.get(a.getIdentifierString()));
+      }
+      requiredArgumentSets.add(newSet);
+    }
   }
 
 
@@ -564,6 +665,20 @@ public final class ArgumentParser
   public List<String> getTrailingArguments()
   {
     return Collections.unmodifiableList(trailingArgs);
+  }
+
+
+
+  /**
+   * Creates a copy of this argument parser that is "clean" and appears as if it
+   * has not been used to parse an argument set.  The new parser will have all
+   * of the same arguments and constraints as this parser.
+   *
+   * @return  The "clean" copy of this argument parser.
+   */
+  public ArgumentParser getCleanCopy()
+  {
+    return new ArgumentParser(this);
   }
 
 

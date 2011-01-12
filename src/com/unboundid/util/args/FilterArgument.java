@@ -202,6 +202,22 @@ public final class FilterArgument
 
 
   /**
+   * Creates a new filter argument that is a "clean" copy of the provided source
+   * argument.
+   *
+   * @param  source  The source argument to use for this argument.
+   */
+  private FilterArgument(final FilterArgument source)
+  {
+    super(source);
+
+    defaultValues = source.defaultValues;
+    values        = new ArrayList<Filter>();
+  }
+
+
+
+  /**
    * Retrieves the list of default values for this argument, which will be used
    * if no values were provided.
    *
@@ -323,6 +339,17 @@ public final class FilterArgument
   public String getValueConstraints()
   {
     return INFO_FILTER_CONSTRAINTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public FilterArgument getCleanCopy()
+  {
+    return new FilterArgument(this);
   }
 
 

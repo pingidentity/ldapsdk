@@ -360,6 +360,25 @@ public final class StringArgument
 
 
   /**
+   * Creates a new string argument that is a "clean" copy of the provided source
+   * argument.
+   *
+   * @param  source  The source argument to use for this argument.
+   */
+  private StringArgument(final StringArgument source)
+  {
+    super(source);
+
+    allowedValues         = source.allowedValues;
+    defaultValues         = source.defaultValues;
+    valueRegex            = source.valueRegex;
+    valueRegexExplanation = source.valueRegexExplanation;
+    values                = new ArrayList<String>();
+  }
+
+
+
+  /**
    * Retrieves the set of allowed values for this argument, if applicable.
    *
    * @return  The set of allowed values for this argument, or {@code null} if
@@ -618,6 +637,17 @@ public final class StringArgument
     {
       return buffer.toString();
     }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public StringArgument getCleanCopy()
+  {
+    return new StringArgument(this);
   }
 
 

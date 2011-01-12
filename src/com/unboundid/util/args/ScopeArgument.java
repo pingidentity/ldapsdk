@@ -190,6 +190,22 @@ public final class ScopeArgument
 
 
   /**
+   * Creates a new scope argument that is a "clean" copy of the provided
+   * source argument.
+   *
+   * @param  source  The source argument to use for this argument.
+   */
+  private ScopeArgument(final ScopeArgument source)
+  {
+    super(source);
+
+    defaultValue = source.defaultValue;
+    value        = new AtomicReference<SearchScope>();
+  }
+
+
+
+  /**
    * Retrieves the default value for this argument, which will be used if no
    * value was provided.
    *
@@ -279,6 +295,17 @@ public final class ScopeArgument
   public String getValueConstraints()
   {
     return INFO_SCOPE_CONSTRAINTS.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public ScopeArgument getCleanCopy()
+  {
+    return new ScopeArgument(this);
   }
 
 

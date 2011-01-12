@@ -246,6 +246,27 @@ public final class FileArgument
 
 
   /**
+   * Creates a new file argument that is a "clean" copy of the provided source
+   * argument.
+   *
+   * @param  source  The source argument to use for this argument.
+   */
+  private FileArgument(final FileArgument source)
+  {
+    super(source);
+
+    fileMustExist         = source.fileMustExist;
+    mustBeDirectory       = source.mustBeDirectory;
+    mustBeFile            = source.mustBeFile;
+    parentMustExist       = source.parentMustExist;
+    defaultValues         = source.defaultValues;
+    relativeBaseDirectory = source.relativeBaseDirectory;
+         values           = new ArrayList<File>();
+  }
+
+
+
+  /**
    * Indicates whether each value must refer to a file that exists.
    *
    * @return  {@code true} if the target files must exist, or {@code false} if
@@ -679,6 +700,17 @@ public final class FileArgument
     }
 
     return buffer.toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public FileArgument getCleanCopy()
+  {
+    return new FileArgument(this);
   }
 
 
