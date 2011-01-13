@@ -27,6 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -1480,8 +1481,96 @@ public final class StaticUtils
    */
   public static boolean isWindows()
   {
-    String osNameLower = System.getProperty("os.name").toLowerCase();
+    final String osName = toLowerCase(System.getProperty("os.name"));
+    return ((osName != null) && osName.contains("windows"));
+  }
 
-    return osNameLower.indexOf("windows") >= 0;
+
+
+  /**
+   * Attempts to parse the contents of the provided string to an argument list
+   * (e.g., converts something like "--arg1 arg1value --arg2 --arg3 arg3value"
+   * to a list of "--arg1", "arg1value", "--arg2", "--arg3", "arg3value").
+   *
+   * @param  s  The string to be converted to an argument list.
+   *
+   * @return  The parsed argument list.
+   *
+   * @throws  ParseException  If a problem is encountered while attempting to
+   *                          parse the given string to an argument list.
+   */
+  public static List<String> toArgumentList(final String s)
+         throws ParseException
+  {
+    if ((s == null) || (s.length() == 0))
+    {
+      return Collections.emptyList();
+    }
+
+    int quoteStartPos = -1;
+    boolean inEscape = false;
+    final ArrayList<String> argList = new ArrayList<String>();
+    final StringBuilder currentArg = new StringBuilder();
+    for (int i=0; i < s.length(); i++)
+    {
+      final char c = s.charAt(i);
+      if (inEscape)
+      {
+        currentArg.append(c);
+        inEscape = false;
+        continue;
+      }
+
+      if (c == '\\')
+      {
+        inEscape = true;
+      }
+      else if (c == '"')
+      {
+        if (quoteStartPos >= 0)
+        {
+          quoteStartPos = -1;
+        }
+        else
+        {
+          quoteStartPos = i;
+        }
+      }
+      else if (c == ' ')
+      {
+        if (quoteStartPos >= 0)
+        {
+          currentArg.append(c);
+        }
+        else if (currentArg.length() > 0)
+        {
+          argList.add(currentArg.toString());
+          currentArg.setLength(0);
+        }
+      }
+      else
+      {
+        currentArg.append(c);
+      }
+    }
+
+    if (s.endsWith("\\") && (! s.endsWith("\\\\")))
+    {
+      throw new ParseException(ERR_ARG_STRING_DANGLING_BACKSLASH.get(),
+           (s.length() - 1));
+    }
+
+    if (quoteStartPos >= 0)
+    {
+      throw new ParseException(ERR_ARG_STRING_UNMATCHED_QUOTE.get(
+           quoteStartPos), quoteStartPos);
+    }
+
+    if (currentArg.length() > 0)
+    {
+      argList.add(currentArg.toString());
+    }
+
+    return Collections.unmodifiableList(argList);
   }
 }

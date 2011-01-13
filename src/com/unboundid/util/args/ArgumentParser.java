@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1191,5 +1192,59 @@ public final class ArgumentParser
       buffer.append(line);
       buffer.append(EOL);
     }
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this argument parser.
+   *
+   * @return  A string representation of this argument parser.
+   */
+  @Override()
+  public String toString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a string representation of this argument parser to the provided
+   * buffer.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
+   */
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("ArgumentParser(commandName='");
+    buffer.append(commandName);
+    buffer.append("', commandDescription='");
+    buffer.append(commandDescription);
+    buffer.append("', maxTrailingArgs=");
+    buffer.append(maxTrailingArgs);
+
+    if (trailingArgsPlaceholder != null)
+    {
+      buffer.append(", trailingArgsPlaceholder='");
+      buffer.append(trailingArgsPlaceholder);
+      buffer.append('\'');
+    }
+
+    buffer.append("namedArgs={");
+
+    final Iterator<Argument> iterator = namedArgs.iterator();
+    while (iterator.hasNext())
+    {
+      iterator.next().toString(buffer);
+      if (iterator.hasNext())
+      {
+        buffer.append(", ");
+      }
+    }
+
+    buffer.append("})");
   }
 }
