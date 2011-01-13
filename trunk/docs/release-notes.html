@@ -10,6 +10,94 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.0.1</h3>
+
+              <p>
+                The following changes were made between the 2.0.0 and 2.0.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the persistence framework to support inheritance.  If a class marked
+                  with the <tt>@LDAPObject</tt> annotation type has a superclass which is also
+                  annotated, then the annotated fields and methods of the superclass will be used
+                  in the course of converting between entries and instances of the subclass.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>ValuePattern</tt> class to provide support for back-references,
+                  in which it is possible to have a generated substring repeated later in the
+                  generated value.  Also, fix a bug in its support for obtaining values from files
+                  that could interfere with the ability to use Windows absolute paths containing a
+                  drive letter.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the formatter used to generate output for tools like searchrate,
+                  modrate, and authrate so that they will use a string of "inf" for a numeric
+                  value of infinity, and "NaN" for a numeric value of "not a number".  Also,
+                  fix a couple of potential conditions that could cause divide by zero
+                  errors.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the argument parsing support to add a new "argument list" argument type,
+                  in which values may themselves be parsed as argument strings, validated with
+                  their own argument parser.  Also, updated string arguments to make it possible
+                  to use a regular expression to restrict the set of values that may be used for
+                  that argument.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a potential bug in the entry validator that could cause it to throw an
+                  exception when attempting to parse an entry that does not have all of the
+                  superior classes for the object classes it does include.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP connection pool implementation so that it is possible to
+                  request that zero connections be initially created, so that the first connection
+                  will only be created when the first operation is attempted.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added static <tt>Filter.encodeValue</tt> methods that may be used to properly
+                  escape a value for use in the string representation of a search filter.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the intermediate response API to add a valueToString method, which may
+                  be used to obtain a human-readable representation of the intermediate response
+                  value.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the quality of debugging information so that it can be more useful in
+                  cases in which there may be multiple connections active at the same time.
+                  Messages about LDAP communication will include a connection ID and LDAP message
+                  ID, and result messages will include the protocol op type.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK jar file manifest to include new attributes with
+                  additional metadata about the LDAP SDK build, including the build time and
+                  source repository path and revision number.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 2.0.0</h3>
 
               <p>
