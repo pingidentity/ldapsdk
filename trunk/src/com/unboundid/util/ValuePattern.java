@@ -311,7 +311,7 @@ public final class ValuePattern
       }
 
       final String bracketedToken = s.substring(pos+1, closePos);
-      if (bracketedToken.startsWith("file:/"))
+      if (bracketedToken.startsWith("file:"))
       {
         final String path = bracketedToken.substring(5);
         try
