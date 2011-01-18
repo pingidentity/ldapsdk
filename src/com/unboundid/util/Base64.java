@@ -149,15 +149,36 @@ public final class Base64
    */
   public static void encode(final byte[] data, final StringBuilder buffer)
   {
-    ensureNotNull(data);
+    encode(data, 0, data.length, buffer);
+  }
 
-    if (data.length == 0)
+
+
+  /**
+   * Appends a base64-encoded representation of the provided data to the given
+   * buffer.
+   *
+   * @param  data    The array containing the raw data to be encoded.  It must
+   *                 not be {@code null}.
+   * @param  off     The offset in the array at which the data to encode begins.
+   * @param  length  The number of bytes to be encoded.
+   * @param  buffer  The buffer to which the base64-encoded data is to be
+   *                 written.
+   */
+  public static void encode(final byte[] data, final int off, final int length,
+                            final StringBuilder buffer)
+  {
+    ensureNotNull(data);
+    ensureTrue(data.length >= off);
+    ensureTrue(data.length >= (off+length));
+
+    if (length == 0)
     {
       return;
     }
 
-    int pos = 0;
-    for (int i=0; i < (data.length / 3); i++)
+    int pos = off;
+    for (int i=0; i < (length / 3); i++)
     {
       final int intValue = ((data[pos++] & 0xFF) << 16) |
                            ((data[pos++] & 0xFF) << 8) |
@@ -169,7 +190,7 @@ public final class Base64
       buffer.append(BASE64_ALPHABET[intValue & 0x3F]);
     }
 
-    switch (data.length - pos)
+    switch ((off+length) - pos)
     {
       case 1:
         int intValue = (data[pos] & 0xFF) << 16;
@@ -200,15 +221,35 @@ public final class Base64
    */
   public static void encode(final byte[] data, final ByteStringBuffer buffer)
   {
-    ensureNotNull(data);
+    encode(data, 0, data.length, buffer);
+  }
 
-    if (data.length == 0)
+
+
+  /**
+   * Appends a base64-encoded representation of the provided data to the given
+   * buffer.
+   *
+   * @param  data    The raw data to be encoded.  It must not be {@code null}.
+   * @param  off     The offset in the array at which the data to encode begins.
+   * @param  length  The number of bytes to be encoded.
+   * @param  buffer  The buffer to which the base64-encoded data is to be
+   *                 written.
+   */
+  public static void encode(final byte[] data, final int off, final int length,
+                            final ByteStringBuffer buffer)
+  {
+    ensureNotNull(data);
+    ensureTrue(data.length >= off);
+    ensureTrue(data.length >= (off+length));
+
+    if (length == 0)
     {
       return;
     }
 
-    int pos = 0;
-    for (int i=0; i < (data.length / 3); i++)
+    int pos = off;
+    for (int i=0; i < (length / 3); i++)
     {
       final int intValue = ((data[pos++] & 0xFF) << 16) |
                            ((data[pos++] & 0xFF) << 8) |
@@ -220,7 +261,7 @@ public final class Base64
       buffer.append(BASE64_ALPHABET[intValue & 0x3F]);
     }
 
-    switch (data.length - pos)
+    switch ((off+length) - pos)
     {
       case 1:
         int intValue = (data[pos] & 0xFF) << 16;
