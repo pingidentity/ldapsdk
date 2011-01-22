@@ -24,14 +24,16 @@ package com.unboundid.util.parallel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.LDAPSDKThreadFactory;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -63,7 +65,7 @@ public final class ParallelProcessor<I, O>
    * The work done in parallel during processAll is done by the invoking thread
    * and this pool of worker threads.
    */
-  private final List<Worker> workers;
+  private final List<Thread> workers;
 
   /**
    * When a batch of work is passed into processAll, we don't release all of the
@@ -127,25 +129,64 @@ public final class ParallelProcessor<I, O>
    * threads.  These worker threads will continue to run until shutdown() is
    * called.
    *
-   * @param processor    The Processor that processes the items input to
-   *                     processAll.  It cannot be {@code null}.
-   * @param totalThreads The total number of threads to use when processing
-   *                     items during processAll.  This value includes the
-   *                     thread that called invokeAll itself, so it cannot be
-   *                     less than 1.  It also must not be more than 1000.
-   * @param minPerThread The minimum number of items that a Worker thread has to
-   *                     process during a call to processAll for it to be
-   *                     released from the worker pool.  This lets us balance
-   *                     the effort required to do the work versus the
-   *                     synchronization around doing the work.  Choosing the
-   *                     best value for this depends on how expensive the task
-   *                     is.  In general, the more expensive processor.process()
-   *                     is, the smaller the value of minPerThread.  Don't spend
-   *                     too much time trying to find the optimal value for
-   *                     this.  Making the value too large is a bigger danger
-   *                     than having it be too small.
+   * @param  processor     The Processor that processes the items input to
+   *                       processAll.  It cannot be {@code null}.
+   * @param  totalThreads  The total number of threads to use when processing
+   *                       items during processAll.  This value includes the
+   *                       thread that called invokeAll itself, so it cannot be
+   *                       less than 1.  It also must not be more than 1000.
+   * @param  minPerThread  The minimum number of items that a Worker thread has
+   *                       to process during a call to processAll for it to be
+   *                       released from the worker pool.  This lets us balance
+   *                       the effort required to do the work versus the
+   *                       synchronization around doing the work.  Choosing the
+   *                       best value for this depends on how expensive the
+   *                       task is.  In general, the more expensive
+   *                       processor.process() is, the smaller the value of
+   *                       minPerThread.  Don't spend too much time trying to
+   *                       find the optimal value for this.  Making the value
+   *                       too large is a bigger danger than having it be too
+   *                       small.
    */
   public ParallelProcessor(final Processor<I, O> processor,
+                           final int totalThreads,
+                           final int minPerThread)
+  {
+    this(processor, null, totalThreads, minPerThread);
+  }
+
+
+
+  /**
+   * Constructs a new ParallelProcessor with the specified parameters.   If
+   * totalThreads is greater than one, then this method will start worker
+   * threads.  These worker threads will continue to run until shutdown() is
+   * called.
+   *
+   * @param  processor      The Processor that processes the items input to
+   *                        processAll.  It cannot be {@code null}.
+   * @param  threadFactory  The thread factory that should be used for creating
+   *                        worker threads.  It may be {@code null} if a default
+   *                        thread factory should be used.
+   * @param  totalThreads   The total number of threads to use when processing
+   *                        items during processAll.  This value includes the
+   *                        thread that called invokeAll itself, so it cannot be
+   *                        less than 1.  It also must not be more than 1000.
+   * @param  minPerThread   The minimum number of items that a Worker thread has
+   *                        to process during a call to processAll for it to be
+   *                        released from the worker pool.  This lets us balance
+   *                        the effort required to do the work versus the
+   *                        synchronization around doing the work.  Choosing the
+   *                        best value for this depends on how expensive the
+   *                        task is.  In general, the more expensive
+   *                        processor.process() is, the smaller the value of
+   *                        minPerThread.  Don't spend too much time trying to
+   *                        find the optimal value for this.  Making the value
+   *                        too large is a bigger danger than having it be too
+   *                        small.
+   */
+  public ParallelProcessor(final Processor<I, O> processor,
+                           final ThreadFactory threadFactory,
                            final int totalThreads,
                            final int minPerThread)
   {
@@ -160,11 +201,21 @@ public final class ParallelProcessor<I, O>
     this.processor = processor;
     this.minPerThread = minPerThread;
 
+    final ThreadFactory tf;
+    if (threadFactory == null)
+    {
+      tf = new LDAPSDKThreadFactory("ParallelProcessor-Worker", true);
+    }
+    else
+    {
+      tf = threadFactory;
+    }
+
     final int numExtraThreads = totalThreads - 1;
-    final List<Worker> workerList = new ArrayList<Worker>(numExtraThreads);
+    final List<Thread> workerList = new ArrayList<Thread>(numExtraThreads);
     for (int i = 0; i < numExtraThreads; i++)
     {
-      final Worker worker = new Worker();
+      final Thread worker = tf.newThread(new Worker());
       workerList.add(worker);
       worker.start();
     }
@@ -270,7 +321,7 @@ public final class ParallelProcessor<I, O>
 
     workerSemaphore.release(workers.size());
 
-    for (final Worker worker : workers)
+    for (final Thread worker : workers)
     {
       worker.join();
     }
@@ -339,15 +390,13 @@ public final class ParallelProcessor<I, O>
    * Internal worker thread class.
    */
   private final class Worker
-       extends Thread
+          implements Runnable
   {
     /**
-     * Constructor.
+     * Creates a new worker instance.
      */
     private Worker()
     {
-      super("ParallelProcessor-Worker");
-      setDaemon(true);
     }
 
 
@@ -356,7 +405,6 @@ public final class ParallelProcessor<I, O>
      * Iteratively process batches of work passed in to processAll until
      * shutdown.
      */
-    @Override()
     public void run()
     {
       while (true)
