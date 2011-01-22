@@ -34,6 +34,7 @@ import java.util.Arrays;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.util.Base64;
+import com.unboundid.util.LDAPSDKThreadFactory;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ByteStringBuffer;
@@ -191,6 +192,8 @@ public final class LDIFWriter
     }
     else
     {
+      final LDAPSDKThreadFactory threadFactory =
+           new LDAPSDKThreadFactory("LDIFWriter Worker", true, null);
       toLdifBytesInvoker = new ParallelProcessor<LDIFRecord,ByteStringBuffer>(
            new Processor<LDIFRecord,ByteStringBuffer>() {
              public ByteStringBuffer process(final LDIFRecord input)
@@ -198,7 +201,7 @@ public final class LDIFWriter
              {
                return toLDIFBytes(input);
              }
-           }, parallelThreads, 5);
+           }, threadFactory, parallelThreads, 5);
     }
   }
 

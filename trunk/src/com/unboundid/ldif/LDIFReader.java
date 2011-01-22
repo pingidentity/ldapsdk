@@ -49,6 +49,7 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Base64;
+import com.unboundid.util.LDAPSDKThreadFactory;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.parallel.AsynchronousParallelProcessor;
@@ -427,9 +428,12 @@ public final class LDIFReader
       asyncParsingComplete = new AtomicBoolean(false);
 
       // Decodes entries in parallel.
+      final LDAPSDKThreadFactory threadFactory =
+           new LDAPSDKThreadFactory("LDIFReader Worker", true, null);
       final ParallelProcessor<UnparsedLDIFRecord, LDIFRecord> parallelParser =
-          new ParallelProcessor<UnparsedLDIFRecord, LDIFRecord>(
-             new RecordParser(), numParseThreads, ASYNC_MIN_PER_PARSING_THREAD);
+           new ParallelProcessor<UnparsedLDIFRecord, LDIFRecord>(
+                new RecordParser(), threadFactory, numParseThreads,
+                ASYNC_MIN_PER_PARSING_THREAD);
 
       final BlockingQueue<UnparsedLDIFRecord> pendingQueue = new
            ArrayBlockingQueue<UnparsedLDIFRecord>(ASYNC_QUEUE_SIZE);
