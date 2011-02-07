@@ -361,7 +361,10 @@ public final class LDAPConnectionOptions
 
   /**
    * Indicates whether associated connections should attempt to automatically
-   * reconnect to the target server if the connection is lost.
+   * reconnect to the target server if the connection is lost.  Note that this
+   * option will not have any effect on pooled connections because defunct
+   * pooled connections will be replaced by newly-created connections rather
+   * than attempting to re-establish the existing connection.
    *
    * @return  {@code true} if associated connections should attempt to
    *          automatically reconnect to the target server if the connection is
@@ -379,7 +382,10 @@ public final class LDAPConnectionOptions
    * reconnect to the target server if the connection is lost.  Note that
    * automatic reconnection will only be available for authenticated clients if
    * the authentication mechanism used provides support for re-binding on a new
-   * connection.
+   * connection.  Also note that this option will not have any effect on pooled
+   * connections because defunct pooled connections will be replaced by
+   * newly-created connections rather than attempting to re-establish the
+   * existing connection.
    *
    * @param  autoReconnect  Specifies whether associated connections should
    *                        attempt to automatically reconnect to the target
