@@ -3390,6 +3390,28 @@ public final class LDAPConnection
 
 
   /**
+   * Processes the provided generic request and returns the result.  This may
+   * be useful for cases in which it is not known what type of operation the
+   * request represents.
+   *
+   * @param  request  The request to be processed.
+   *
+   * @return  The result obtained from processing the request.
+   *
+   * @throws  LDAPException  If a problem occurs while sending the request or
+   *                         reading the response.  Note simply having a
+   *                         non-success result code in the response will not
+   *                         cause an exception to be thrown.
+   */
+  public LDAPResult processOperation(final LDAPRequest request)
+         throws LDAPException
+  {
+    return request.process(this, 1);
+  }
+
+
+
+  /**
    * Retrieves the referral connector that should be used to establish
    * connections for use when following referrals.
    *
