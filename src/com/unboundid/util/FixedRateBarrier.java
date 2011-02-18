@@ -23,6 +23,12 @@ package com.unboundid.util;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+
+import static com.unboundid.util.Debug.*;
 
 
 
@@ -68,10 +74,64 @@ public final class FixedRateBarrier
    */
   private static final long serialVersionUID = -3490156685189909611L;
 
+  /**
+   * The minimum number of milliseconds that Thread.sleep() can handle
+   * accurately.  This varies from platform to platform, so we measure it
+   * once in the static initializer below.  When using a low rate (such as
+   * 100 per second), we can often sleep between iterations instead of having
+   * to spin calling Thread.yield().
+   */
+  private static final long minSleepMillis;
+
+  static
+  {
+    // Calibrate the minimum number of milliseconds that we can reliably
+    // sleep on this system.  We take several measurements and take the median,
+    // which keeps us from choosing an outlier.
+    //
+    // It varies from system to system.  Testing on three systems, yielded
+    // three different measurements Solaris x86 (10 ms), RedHat Linux (2 ms),
+    // Windows 7 (1 ms).
+
+    final List<Long> minSleepMillisMeasurements = new ArrayList<Long>();
+
+    for (int i = 0; i < 11; i++)
+    {
+      final long timeBefore = System.currentTimeMillis();
+      try
+      {
+        Thread.sleep(1);
+      }
+      catch (InterruptedException e)
+      {
+        debugException(e);
+      }
+      final long sleepMillis = System.currentTimeMillis() - timeBefore;
+      minSleepMillisMeasurements.add(sleepMillis);
+    }
+
+    Collections.sort(minSleepMillisMeasurements);
+    final long medianSleepMillis = minSleepMillisMeasurements.get(
+            minSleepMillisMeasurements.size()/2);
+
+    minSleepMillis = Math.max(medianSleepMillis, 1);
+
+    final String message = "Calibrated FixedRateBarrier to use " +
+          "minSleepMillis=" + minSleepMillis + ".  " +
+          "Minimum sleep measurements = " + minSleepMillisMeasurements;
+    debug(Level.INFO, DebugType.OTHER, message);
+  }
 
 
   // The duration of the target interval in nano-seconds.
   private final long intervalDurationNanos;
+
+  // This tracks the number of milliseconds between each iteration if they
+  // were evenly spaced.
+  //
+  // If intervalDurationMs=1000 and perInterval=100, then this is 100.
+  // If intervalDurationMs=1000 and perInterval=10000, then this is .1.
+  private final double millisBetweenIterations;
 
   // The target number of times to release a thread per interval.
   private final int perInterval;
@@ -115,6 +175,8 @@ public final class FixedRateBarrier
     this.perInterval = perInterval;
 
     intervalDurationNanos = 1000L * 1000L * intervalDurationMs;
+
+    millisBetweenIterations = (double)intervalDurationMs/(double)perInterval;
   }
 
 
@@ -187,11 +249,32 @@ public final class FixedRateBarrier
       }
       else
       {
-        // We're ahead of schedule so yield to other threads, and then try
-        // again.  Note: this is the most costly part of the algorithm because
-        // we have to busy wait due to the lack of sleeping for very small
-        // amounts of time.
-        Thread.yield();
+        // If we can sleep until it's time to leave this barrier, then do
+        // so to keep from spinning on a CPU doing Thread.yield().
+
+        final double gapIterations = expectedRemaining - actualRemaining;
+        final double remainingMillis =
+                millisBetweenIterations * gapIterations;
+
+        if (remainingMillis >= minSleepMillis)
+        {
+          try
+          {
+            Thread.sleep((long)remainingMillis);
+          }
+          catch (InterruptedException e)
+          {
+            debugException(e);
+          }
+        }
+        else
+        {
+          // We're ahead of schedule so yield to other threads, and then try
+          // again.  Note: this is the most costly part of the algorithm because
+          // we have to busy wait due to the lack of sleeping for very small
+          // amounts of time.
+          Thread.yield();
+        }
       }
     }
 
