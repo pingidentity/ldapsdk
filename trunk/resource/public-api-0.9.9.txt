@@ -881,26 +881,26 @@ class com.unboundid.ldap.sdk.CRAMMD5BindRequest method public java.lang.String g
 class com.unboundid.ldap.sdk.CRAMMD5BindRequest method public java.lang.String getPasswordString()
 class com.unboundid.ldap.sdk.CRAMMD5BindRequest method public java.lang.String getSASLMechanismName()
 class com.unboundid.ldap.sdk.CRAMMD5BindRequest method public void toString(java.lang.StringBuilder)
-class com.unboundid.ldap.sdk.ChangeLogEntry constructor public com.unboundid.ldap.sdk.ChangeLogEntry(com.unboundid.ldap.sdk.Entry) throws com.unboundid.ldap.sdk.LDAPException
-class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGES
-class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGE_NUMBER
-class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGE_TYPE
-class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_DELETED_ENTRY_ATTRS
-class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_DELETE_OLD_RDN
-class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_NEW_RDN
-class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_NEW_SUPERIOR
-class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_TARGET_DN
-class com.unboundid.ldap.sdk.ChangeLogEntry method public boolean deleteOldRDN()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldap.sdk.ChangeType getChangeType()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldap.sdk.LDAPResult processChange(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
-class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldif.LDIFChangeRecord toLDIFChangeRecord()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getNewRDN()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getNewSuperior()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getTargetDN()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Attribute> getAddAttributes()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Attribute> getDeletedEntryAttributes()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Modification> getModifications()
-class com.unboundid.ldap.sdk.ChangeLogEntry method public long getChangeNumber()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry constructor public com.unboundid.ldap.sdk.ChangeLogEntry(com.unboundid.ldap.sdk.Entry) throws com.unboundid.ldap.sdk.LDAPException
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGES
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGE_NUMBER
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGE_TYPE
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_DELETED_ENTRY_ATTRS
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_DELETE_OLD_RDN
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_NEW_RDN
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_NEW_SUPERIOR
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_TARGET_DN
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public boolean deleteOldRDN()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldap.sdk.ChangeType getChangeType()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldap.sdk.LDAPResult processChange(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldif.LDIFChangeRecord toLDIFChangeRecord()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getNewRDN()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getNewSuperior()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getTargetDN()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Attribute> getAddAttributes()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Attribute> getDeletedEntryAttributes()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Modification> getModifications()
+@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public long getChangeNumber()
 class com.unboundid.ldap.sdk.CompactEntry constructor public com.unboundid.ldap.sdk.CompactEntry(com.unboundid.ldap.sdk.Entry)
 class com.unboundid.ldap.sdk.CompactEntry method public boolean equals(java.lang.Object)
 class com.unboundid.ldap.sdk.CompactEntry method public boolean hasAttribute(com.unboundid.ldap.sdk.Attribute)
