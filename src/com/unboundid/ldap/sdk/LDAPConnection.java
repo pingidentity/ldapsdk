@@ -169,7 +169,9 @@ import static com.unboundid.util.Validator.*;
  *     Using one of the {@code bind} methods to attempt to authenticate the
  *     connection (unless you are certain that the bind will not impact the
  *     identity of the associated connection, for example by including the
- *     retain identity request control in the bind request).
+ *     retain identity request control in the bind request if using the
+ *     Commercial Edition of the LDAP SDK in conjunction with an UnboundID
+ *     Directory Server).
  *   </LI>
  *   <LI>
  *     Attempting to make a change to the way that the underlying communication
@@ -1663,9 +1665,10 @@ public final class LDAPConnection
    * server has already gotten while processing that operation (unless the bind
    * request is one that will not cause the server to attempt to change the
    * identity of this connection, for example by including the retain identity
-   * request control in the bind request).  It is recommended that all active
-   * operations be abandoned, canceled, or allowed to complete before attempting
-   * to perform a bind on an active connection.
+   * request control in the bind request if using the Commercial Edition of the
+   * LDAP SDK in conjunction with an UnboundID Directory Server).  It is
+   * recommended that all active operations be abandoned, canceled, or allowed
+   * to complete before attempting to perform a bind on an active connection.
    *
    * @param  bindDN    The bind DN for the bind operation.
    * @param  password  The password for the simple bind operation.
@@ -1696,9 +1699,10 @@ public final class LDAPConnection
    * server has already gotten while processing that operation (unless the bind
    * request is one that will not cause the server to attempt to change the
    * identity of this connection, for example by including the retain identity
-   * request control in the bind request).  It is recommended that all active
-   * operations be abandoned, canceled, or allowed to complete before attempting
-   * to perform a bind on an active connection.
+   * request control in the bind request if using the Commercial Edition of the
+   * LDAP SDK in conjunction with an UnboundID Directory Server).  It is
+   * recommended that all active operations be abandoned, canceled, or allowed
+   * to complete before attempting to perform a bind on an active connection.
    *
    * @param  bindRequest  The bind request to be processed.  It must not be
    *                      {@code null}.
