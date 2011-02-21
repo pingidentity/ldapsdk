@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.NotMutable;
@@ -108,6 +109,9 @@ import static com.unboundid.util.Validator.*;
 public final class FailoverServerSet
        extends ServerSet
 {
+  // Indicates whether to re-order the server set list if failover occurs.
+  private final AtomicBoolean reOrderOnFailover;
+
   // The server sets for which we will allow failover.
   private final ServerSet[] serverSets;
 
@@ -217,6 +221,8 @@ public final class FailoverServerSet
     ensureTrue(addresses.length == ports.length,
          "FailoverServerSet addresses and ports arrays must be the same size.");
 
+    reOrderOnFailover = new AtomicBoolean(false);
+
     final SocketFactory sf;
     if (socketFactory == null)
     {
@@ -261,6 +267,8 @@ public final class FailoverServerSet
                 "FailoverServerSet.serverSets must not be empty.");
 
     this.serverSets = serverSets;
+
+    reOrderOnFailover = new AtomicBoolean(false);
   }
 
 
@@ -280,6 +288,8 @@ public final class FailoverServerSet
 
     this.serverSets = new ServerSet[serverSets.size()];
     serverSets.toArray(this.serverSets);
+
+    reOrderOnFailover = new AtomicBoolean(false);
   }
 
 
@@ -295,6 +305,48 @@ public final class FailoverServerSet
   public ServerSet[] getServerSets()
   {
     return serverSets;
+  }
+
+
+
+  /**
+   * Indicates whether the list of servers or server sets used by this failover
+   * server set should be re-ordered in the event that a failure is encountered
+   * while attempting to establish a connection.  If {@code true}, then any
+   * failed attempt to establish a connection to a server set at the beginning
+   * of the list may cause that server/set to be moved to the end of the list so
+   * that it will be the last one tried on the next attempt.
+   *
+   * @return  {@code true} if the order of elements in the associated list of
+   *          servers or server sets should be updated if a failure occurs while
+   *          attempting to establish a connection, or {@code false} if the
+   *          original order should be preserved.
+   */
+  public boolean reOrderOnFailover()
+  {
+    return reOrderOnFailover.get();
+  }
+
+
+
+  /**
+   * Specifies whether the list of servers or server sets used by this failover
+   * server set should be re-ordered in the event that a failure is encountered
+   * while attempting to establish a connection.  By default, the original
+   * order will be preserved, but if this method is called with a value of
+   * {@code true}, then a failed attempt to establish a connection to the server
+   * or server set at the beginning of the list may cause that server to be
+   * moved to the end of the list so that it will be the last server/set tried
+   * on the next attempt.
+   *
+   * @param  reOrderOnFailover  Indicates whether the list of servers or server
+   *                            sets should be re-ordered in the event that a
+   *                            failure is encountered while attempting to
+   *                            establish a connection.
+   */
+  public void setReOrderOnFailover(final boolean reOrderOnFailover)
+  {
+    this.reOrderOnFailover.set(reOrderOnFailover);
   }
 
 
@@ -319,22 +371,83 @@ public final class FailoverServerSet
                              final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
-    LDAPException lastException = null;
-
-    for (final ServerSet s : serverSets)
+    if (reOrderOnFailover.get() && (serverSets.length > 1))
     {
-      try
+      synchronized (this)
       {
-        return s.getConnection(healthCheck);
-      }
-      catch (LDAPException le)
-      {
-        debugException(le);
-        lastException = le;
+        // First, try to get a connection using the first set in the list.  If
+        // this succeeds, then we don't need to go any further.
+        try
+        {
+          return serverSets[0].getConnection(healthCheck);
+        }
+        catch (final LDAPException le)
+        {
+          debugException(le);
+        }
+
+        // If we've gotten here, then we will need to re-order the list unless
+        // all other attempts fail.
+        int successfulPos = -1;
+        LDAPConnection conn = null;
+        LDAPException lastException = null;
+        for (int i=1; i < serverSets.length; i++)
+        {
+          try
+          {
+            conn = serverSets[i].getConnection(healthCheck);
+            successfulPos = i;
+            break;
+          }
+          catch (final LDAPException le)
+          {
+            debugException(le);
+            lastException = le;
+          }
+        }
+
+        if (successfulPos > 0)
+        {
+          int pos = 0;
+          final ServerSet[] setCopy = new ServerSet[serverSets.length];
+          for (int i=successfulPos; i < serverSets.length; i++)
+          {
+            setCopy[pos++] = serverSets[i];
+          }
+
+          for (int i=0; i < successfulPos; i++)
+          {
+            setCopy[pos++] = serverSets[i];
+          }
+
+          System.arraycopy(setCopy, 0, serverSets, 0, setCopy.length);
+          return conn;
+        }
+        else
+        {
+          throw lastException;
+        }
       }
     }
+    else
+    {
+      LDAPException lastException = null;
 
-    throw lastException;
+      for (final ServerSet s : serverSets)
+      {
+        try
+        {
+          return s.getConnection(healthCheck);
+        }
+        catch (LDAPException le)
+        {
+          debugException(le);
+          lastException = le;
+        }
+      }
+
+      throw lastException;
+    }
   }
 
 
