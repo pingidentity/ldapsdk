@@ -22,6 +22,8 @@ package com.unboundid.util;
 
 
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -1467,7 +1469,7 @@ public final class ByteStringBuffer
 
 
   /**
-   * Returns a new byte array with the content form this buffer.
+   * Returns a new byte array with the content from this buffer.
    *
    * @return  A byte array containing the content from this buffer.
    */
@@ -1488,6 +1490,19 @@ public final class ByteStringBuffer
   public ByteString toByteString()
   {
     return new ASN1OctetString(array, 0, endPos);
+  }
+
+
+
+  /**
+   * Creates an input stream that may be used to read content from this buffer.
+   * This buffer should not be altered while the input stream is being used.
+   *
+   * @return  An input stream that may be used to read content from this buffer.
+   */
+  public InputStream asInputStream()
+  {
+    return new ByteArrayInputStream(array, 0, endPos);
   }
 
 

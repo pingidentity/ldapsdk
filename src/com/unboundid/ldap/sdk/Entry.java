@@ -1739,6 +1739,19 @@ public class Entry
     final Entry e = entry.duplicate();
     final ArrayList<String> errors =
          new ArrayList<String>(modifications.size());
+    ResultCode resultCode = null;
+
+    // Get the RDN for the entry to ensure that RDN modifications are not
+    // allowed.
+    RDN rdn = null;
+    try
+    {
+      rdn = entry.getRDN();
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+    }
 
     for (final Modification m : modifications)
     {
@@ -1772,6 +1785,22 @@ public class Entry
         case ModificationType.DELETE_INT_VALUE:
           if (values.length == 0)
           {
+            if ((rdn != null) && rdn.hasAttribute(name))
+            {
+              final String msg =
+                   ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN());
+              if (! errors.contains(msg))
+              {
+                errors.add(msg);
+              }
+
+              if (resultCode == null)
+              {
+                resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
+              }
+              break;
+            }
+
             final boolean removed = e.removeAttribute(name);
             if (! (lenient || removed))
             {
@@ -1781,8 +1810,25 @@ public class Entry
           }
           else
           {
+deleteValueLoop:
             for (int i=0; i < values.length; i++)
             {
+              if ((rdn != null) && rdn.hasAttributeValue(name, values[i]))
+              {
+                final String msg =
+                     ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN());
+                if (! errors.contains(msg))
+                {
+                  errors.add(msg);
+                }
+
+                if (resultCode == null)
+                {
+                  resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
+                }
+                break deleteValueLoop;
+              }
+
               final boolean removed = e.removeAttributeValue(name, values[i]);
               if (! (lenient || removed))
               {
@@ -1794,6 +1840,22 @@ public class Entry
           break;
 
         case ModificationType.REPLACE_INT_VALUE:
+          if ((rdn != null) && rdn.hasAttribute(name))
+          {
+            final String msg =
+                 ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN());
+            if (! errors.contains(msg))
+            {
+              errors.add(msg);
+            }
+
+            if (resultCode == null)
+            {
+              resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
+            }
+            continue;
+          }
+
           if (values.length == 0)
           {
             e.removeAttribute(name);
@@ -1816,6 +1878,22 @@ public class Entry
           {
             errors.add(ERR_ENTRY_APPLY_MODS_INCREMENT_NOT_SINGLE_VALUED.get(
                  name));
+            continue;
+          }
+
+          if ((rdn != null) && rdn.hasAttribute(name))
+          {
+            final String msg =
+                 ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN());
+            if (! errors.contains(msg))
+            {
+              errors.add(msg);
+            }
+
+            if (resultCode == null)
+            {
+              resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
+            }
             continue;
           }
 
@@ -1875,7 +1953,12 @@ public class Entry
       return e;
     }
 
-    throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
+    if (resultCode == null)
+    {
+      resultCode = ResultCode.CONSTRAINT_VIOLATION;
+    }
+
+    throw new LDAPException(resultCode,
          ERR_ENTRY_APPLY_MODS_FAILURE.get(e.getDN(),
               concatenateStrings(errors)));
   }

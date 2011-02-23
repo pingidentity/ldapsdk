@@ -818,6 +818,21 @@ public final class Attribute
    */
   public boolean hasOptions()
   {
+    return hasOptions(name);
+  }
+
+
+
+  /**
+   * Indicates whether the provided attribute name contains any options.
+   *
+   * @param  name  The name for which to make the determination.
+   *
+   * @return  {@code true} if the provided attribute name has at least one
+   *          attribute option, or {@code false} if not.
+   */
+  public static boolean hasOptions(final String name)
+  {
     return (name.indexOf(';') > 0);
   }
 
@@ -833,7 +848,24 @@ public final class Attribute
    */
   public boolean hasOption(final String option)
   {
-    final Set<String> options = getOptions();
+    return hasOption(name, option);
+  }
+
+
+
+  /**
+   * Indicates whether the provided attribute name has the specified attribute
+   * option.
+   *
+   * @param  name    The name to be examined.
+   * @param  option  The attribute option for which to make the determination.
+   *
+   * @return  {@code true} if the provided attribute name has the specified
+   *          attribute option, or {@code false} if not.
+   */
+  public static boolean hasOption(final String name, final String option)
+  {
+    final Set<String> options = getOptions(name);
     for (final String s : options)
     {
       if (s.equalsIgnoreCase(option))
@@ -854,6 +886,21 @@ public final class Attribute
    *          are none.
    */
   public Set<String> getOptions()
+  {
+    return getOptions(name);
+  }
+
+
+
+  /**
+   * Retrieves the set of options for the provided attribute name.
+   *
+   * @param  name  The name to be examined.
+   *
+   * @return  The set of options for the provided attribute name, or an empty
+   *          set if there are none.
+   */
+  public static Set<String> getOptions(final String name)
   {
     int semicolonPos = name.indexOf(';');
     if (semicolonPos > 0)

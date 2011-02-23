@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk.schema;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,12 +40,14 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
+import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.Validator.*;
@@ -158,11 +161,25 @@ public final class Schema
 
 
   /**
+   * Retrieves the resource path that may be used to obtain a file with a number
+   * of standard schema definitions.
+   */
+  private static final String DEFAULT_SCHEMA_RESOURCE_PATH =
+       "com/unboundid/ldap/sdk/schema/standard-schema.ldif";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 8081839633831517925L;
 
 
+
+  // A map of all subordinate attribute type definitions for each attribute
+  // type definition.
+  private final Map<AttributeTypeDefinition,List<AttributeTypeDefinition>>
+       subordinateAttributeTypes;
 
   // The set of attribute syntaxes mapped from lowercase name/OID to syntax.
   private final Map<String,AttributeSyntaxDefinition> asMap;
@@ -601,6 +618,29 @@ public final class Schema
       auxiliaryOCSet  = Collections.unmodifiableSet(sAuxiliary);
       structuralOCSet = Collections.unmodifiableSet(sStructural);
     }
+
+
+    // Populate the map of subordinate attribute types.
+    final LinkedHashMap<AttributeTypeDefinition,List<AttributeTypeDefinition>>
+         subAttrTypes = new LinkedHashMap<AttributeTypeDefinition,
+              List<AttributeTypeDefinition>>(atSet.size());
+    for (final AttributeTypeDefinition d : atSet)
+    {
+      AttributeTypeDefinition sup = d.getSuperiorType(this);
+      while (sup != null)
+      {
+        List<AttributeTypeDefinition> l = subAttrTypes.get(sup);
+        if (l == null)
+        {
+          l = new ArrayList<AttributeTypeDefinition>(1);
+          subAttrTypes.put(sup, l);
+        }
+        l.add(d);
+
+        sup = sup.getSuperiorType(this);
+      }
+    }
+    subordinateAttributeTypes = Collections.unmodifiableMap(subAttrTypes);
   }
 
 
@@ -824,6 +864,43 @@ public final class Schema
 
 
   /**
+   * Retrieves a schema object that contains definitions for a number of
+   * standard attribute types and object classes from LDAP-related RFCs and
+   * Internet Drafts.
+   *
+   * @return  A schema object that contains definitions for a number of standard
+   *          attribute types and object classes from LDAP-related RFCs and
+   *          Internet Drafts.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to obtain or
+   *                         parse the default standard schema definitions.
+   */
+  public static Schema getDefaultStandardSchema()
+         throws LDAPException
+  {
+    try
+    {
+      final ClassLoader classLoader = Schema.class.getClassLoader();
+      final InputStream inputStream =
+           classLoader.getResourceAsStream(DEFAULT_SCHEMA_RESOURCE_PATH);
+      final LDIFReader ldifReader = new LDIFReader(inputStream);
+      final Entry schemaEntry = ldifReader.readEntry();
+      ldifReader.close();
+      return new Schema(schemaEntry);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_SCHEMA_CANNOT_LOAD_DEFAULT_DEFINITIONS.get(
+                getExceptionMessage(e)),
+           e);
+    }
+  }
+
+
+
+  /**
    * Retrieves the entry used to create this schema object.
    *
    * @return  The entry used to create this schema object.
@@ -1022,6 +1099,36 @@ public final class Schema
     ensureNotNull(name);
 
     return atMap.get(toLowerCase(name));
+  }
+
+
+
+  /**
+   * Retrieves a list of all subordinate attribute type definitions for the
+   * provided attribute type definition.
+   *
+   * @param  d  The attribute type definition for which to retrieve all
+   *            subordinate attribute types.  It must not be {@code null}.
+   *
+   * @return  A list of all subordinate attribute type definitions for the
+   *          provided attribute type definition, or an empty list if it does
+   *          not have any subordinate types or the provided attribute type is
+   *          not defined in the schema.
+   */
+  public List<AttributeTypeDefinition> getSubordinateAttributeTypes(
+                                            final AttributeTypeDefinition d)
+  {
+    ensureNotNull(d);
+
+    final List<AttributeTypeDefinition> l = subordinateAttributeTypes.get(d);
+    if (l == null)
+    {
+      return Collections.emptyList();
+    }
+    else
+    {
+      return Collections.unmodifiableList(l);
+    }
   }
 
 
