@@ -101,7 +101,7 @@ public final class LDAPListener
 
   /**
    * Creates the server socket for this listener and starts listening for client
-   * connections.  This method will not return until the listener has stated.
+   * connections.  This method will return after the listener has stated.
    *
    * @throws  IOException  If a problem occurs while creating the server socket.
    */

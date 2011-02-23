@@ -25,6 +25,7 @@ package com.unboundid.util;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServerTool;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.examples.AuthRate;
@@ -53,6 +54,8 @@ import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
  * The tool names are case-insensitive.  Supported tool names include:
  * <UL>
  *   <LI>authrate -- Launch the {@link AuthRate} tool.</LI>
+ *   <LI>in-memory-directory-server -- Launch the
+ *       {@link InMemoryDirectoryServerTool} tool.</LI>
  *   <LI>generate-schema-from-source -- Launch the
  *       {@link GenerateSchemaFromSource} tool.</LI>
  *   <LI>generate-source-from-schema -- Launch the
@@ -135,6 +138,11 @@ public final class Launcher
     {
       return AuthRate.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("in-memory-directory-server"))
+    {
+      return InMemoryDirectoryServerTool.main(remainingArgs, outStream,
+           errStream);
+    }
     else if (firstArg.equals("generate-schema-from-source"))
     {
       return GenerateSchemaFromSource.main(remainingArgs, outStream, errStream);
@@ -183,6 +191,7 @@ public final class Launcher
         err.println("Unrecognized tool name '" + args[0] + '\'');
         err.println("Supported tool names include:");
         err.println("     authrate");
+        err.println("     in-memory-directory-server");
         err.println("     generate-schema-from-source");
         err.println("     generate-source-from-schema");
         err.println("     ldapcompare");

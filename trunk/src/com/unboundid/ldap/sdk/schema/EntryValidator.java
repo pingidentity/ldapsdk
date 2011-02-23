@@ -1290,7 +1290,8 @@ public final class EntryValidator
       else
       {
         if (checkProhibitedAttributes &&
-            (! (requiredAttrs.contains(d) || optionalAttrs.contains(d))))
+            (! (requiredAttrs.contains(d) || optionalAttrs.contains(d) ||
+                d.isOperational())))
         {
           entryValid = false;
           updateCount(d.getNameOrOID(), prohibitedAttributes);

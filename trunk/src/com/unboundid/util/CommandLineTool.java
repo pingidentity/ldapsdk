@@ -74,7 +74,7 @@ import static com.unboundid.util.UtilityMessages.*;
  * </PRE>.
  * <BR><BR>
  * Note that in general, methods in this class are not threadsafe.  However, the
- * {@link #out(Object[])} and {@link #err(Object[])} methods may be invoked
+ * {@link #out(Object...)} and {@link #err(Object...)} methods may be invoked
  * concurrently by any number of threads.
  */
 @Extensible()
@@ -254,7 +254,6 @@ public abstract class CommandLineTool
       out(buffer.toString());
     }
   }
-
 
 
 
