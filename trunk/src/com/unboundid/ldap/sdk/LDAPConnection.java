@@ -2015,11 +2015,17 @@ public final class LDAPConnection
 
 
   /**
-   * Processes an extended operation with the provided request OID.  Note that
-   * when processing an extended operation, the server will never throw an
-   * exception for a failed response -- only when there is a problem sending the
-   * request or reading the response.  It is the responsibility of the caller to
-   * determine whether the operation was successful.
+   * Processes an extended request with the provided request OID.  Note that
+   * because some types of extended operations return unusual result codes under
+   * "normal" conditions, the server may not always throw an exception for a
+   * failed extended operation like it does for other types of operations.  It
+   * will throw an exception under conditions where there appears to be a
+   * problem with the connection or the server to which the connection is
+   * established, but there may be many circumstances in which an extended
+   * operation is not processed correctly but this method does not throw an
+   * exception.  In the event that no exception is thrown, it is the
+   * responsibility of the caller to interpret the result to determine whether
+   * the operation was processed as expected.
    * <BR><BR>
    * Note that extended operations which may change the state of this connection
    * (e.g., the StartTLS extended operation, which will add encryption to a
@@ -2051,11 +2057,17 @@ public final class LDAPConnection
 
 
   /**
-   * Processes an extended operation with the provided request OID and value.
-   * Note that when processing an extended operation, the server will never
-   * throw an exception for a failed response -- only when there is a problem
-   * sending the request or reading the response.  It is the responsibility of
-   * the caller to determine whether the operation was successful.
+   * Processes an extended request with the provided request OID and value.
+   * Note that because some types of extended operations return unusual result
+   * codes under "normal" conditions, the server may not always throw an
+   * exception for a failed extended operation like it does for other types of
+   * operations.  It will throw an exception under conditions where there
+   * appears to be a problem with the connection or the server to which the
+   * connection is established, but there may be many circumstances in which an
+   * extended operation is not processed correctly but this method does not
+   * throw an exception.  In the event that no exception is thrown, it is the
+   * responsibility of the caller to interpret the result to determine whether
+   * the operation was processed as expected.
    * <BR><BR>
    * Note that extended operations which may change the state of this connection
    * (e.g., the StartTLS extended operation, which will add encryption to a
@@ -2092,11 +2104,16 @@ public final class LDAPConnection
 
 
   /**
-   * Processes the provided extended request.  Note that when processing an
-   * extended operation, the server will never throw an exception for a failed
-   * response -- only when there is a problem sending the request or reading the
-   * response.  It is the responsibility of the caller to determine whether the
-   * operation was successful.
+   * Processes the provided extended request.  Note that because some types of
+   * extended operations return unusual result codes under "normal" conditions,
+   * the server may not always throw an exception for a failed extended
+   * operation like it does for other types of operations.  It will throw an
+   * exception under conditions where there appears to be a problem with the
+   * connection or the server to which the connection is established, but there
+   * may be many circumstances in which an extended operation is not processed
+   * correctly but this method does not throw an exception.  In the event that
+   * no exception is thrown, it is the responsibility of the caller to interpret
+   * the result to determine whether the operation was processed as expected.
    * <BR><BR>
    * Note that extended operations which may change the state of this connection
    * (e.g., the StartTLS extended operation, which will add encryption to a
@@ -2123,7 +2140,26 @@ public final class LDAPConnection
   {
     ensureNotNull(extendedRequest);
 
-    return extendedRequest.process(this, 1);
+    final ExtendedResult extendedResult = extendedRequest.process(this, 1);
+    switch (extendedResult.getResultCode().intValue())
+    {
+      case ResultCode.OPERATIONS_ERROR_INT_VALUE:
+      case ResultCode.PROTOCOL_ERROR_INT_VALUE:
+      case ResultCode.BUSY_INT_VALUE:
+      case ResultCode.UNAVAILABLE_INT_VALUE:
+      case ResultCode.OTHER_INT_VALUE:
+      case ResultCode.SERVER_DOWN_INT_VALUE:
+      case ResultCode.LOCAL_ERROR_INT_VALUE:
+      case ResultCode.ENCODING_ERROR_INT_VALUE:
+      case ResultCode.DECODING_ERROR_INT_VALUE:
+      case ResultCode.TIMEOUT_INT_VALUE:
+      case ResultCode.NO_MEMORY_INT_VALUE:
+      case ResultCode.CONNECT_ERROR_INT_VALUE:
+        throw new LDAPException(extendedResult);
+
+      default:
+        return extendedResult;
+    }
   }
 
 
