@@ -1573,4 +1573,31 @@ public final class StaticUtils
 
     return Collections.unmodifiableList(argList);
   }
+
+
+
+  /**
+   * Creates a modifiable list with all of the items of the provided array in
+   * the same order.  This method behaves much like {@code Arrays.asList},
+   * except that if the provided array is {@code null}, then it will return a
+   * {@code null} list rather than throwing an exception.
+   *
+   * @param  <T>  The type of item contained in the provided array.
+   *
+   * @param  array  The array of items to include in the list.
+   *
+   * @return  The list that was created, or {@code null} if the provided array
+   *          was {@code null}.
+   */
+  public static <T> List<T> toList(final T[] array)
+  {
+    if (array == null)
+    {
+      return null;
+    }
+
+    final ArrayList<T> l = new ArrayList<T>(array.length);
+    l.addAll(Arrays.asList(array));
+    return l;
+  }
 }
