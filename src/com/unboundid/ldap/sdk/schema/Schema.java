@@ -901,6 +901,152 @@ public final class Schema
 
 
   /**
+   * Retrieves a schema containing all of the elements of each of the provided
+   * schemas.
+   *
+   * @param  schemas  The schemas to be merged.  It must not be {@code null} or
+   *                  empty.
+   *
+   * @return  A merged representation of the provided schemas.
+   */
+  public static Schema mergeSchemas(final Schema... schemas)
+  {
+    if ((schemas == null) || (schemas.length == 0))
+    {
+      return null;
+    }
+    else if (schemas.length == 1)
+    {
+      return schemas[0];
+    }
+
+    final LinkedHashMap<String,String> asMap =
+         new LinkedHashMap<String,String>();
+    final LinkedHashMap<String,String> atMap =
+         new LinkedHashMap<String,String>();
+    final LinkedHashMap<String,String> dcrMap =
+         new LinkedHashMap<String,String>();
+    final LinkedHashMap<Integer,String> dsrMap =
+         new LinkedHashMap<Integer,String>();
+    final LinkedHashMap<String,String> mrMap =
+         new LinkedHashMap<String,String>();
+    final LinkedHashMap<String,String> mruMap =
+         new LinkedHashMap<String,String>();
+    final LinkedHashMap<String,String> nfMap =
+         new LinkedHashMap<String,String>();
+    final LinkedHashMap<String,String> ocMap =
+         new LinkedHashMap<String,String>();
+
+    for (final Schema s : schemas)
+    {
+      for (final AttributeSyntaxDefinition as : s.asSet)
+      {
+        asMap.put(toLowerCase(as.getOID()), as.toString());
+      }
+
+      for (final AttributeTypeDefinition at : s.atSet)
+      {
+        atMap.put(toLowerCase(at.getOID()), at.toString());
+      }
+
+      for (final DITContentRuleDefinition dcr : s.dcrSet)
+      {
+        dcrMap.put(toLowerCase(dcr.getOID()), dcr.toString());
+      }
+
+      for (final DITStructureRuleDefinition dsr : s.dsrSet)
+      {
+        dsrMap.put(dsr.getRuleID(), dsr.toString());
+      }
+
+      for (final MatchingRuleDefinition mr : s.mrSet)
+      {
+        mrMap.put(toLowerCase(mr.getOID()), mr.toString());
+      }
+
+      for (final MatchingRuleUseDefinition mru : s.mruSet)
+      {
+        mruMap.put(toLowerCase(mru.getOID()), mru.toString());
+      }
+
+      for (final NameFormDefinition nf : s.nfSet)
+      {
+        nfMap.put(toLowerCase(nf.getOID()), nf.toString());
+      }
+
+      for (final ObjectClassDefinition oc : s.ocSet)
+      {
+        ocMap.put(toLowerCase(oc.getOID()), oc.toString());
+      }
+    }
+
+    final Entry e = new Entry(schemas[0].getSchemaEntry().getDN());
+
+    final Attribute ocAttr =
+         schemas[0].getSchemaEntry().getObjectClassAttribute();
+    if (ocAttr == null)
+    {
+      e.addAttribute("objectClass", "top", "ldapSubEntry", "subschema");
+    }
+    else
+    {
+      e.addAttribute(ocAttr);
+    }
+
+    if (! asMap.isEmpty())
+    {
+      final String[] values = new String[asMap.size()];
+      e.addAttribute(ATTR_ATTRIBUTE_SYNTAX, asMap.values().toArray(values));
+    }
+
+    if (! mrMap.isEmpty())
+    {
+      final String[] values = new String[mrMap.size()];
+      e.addAttribute(ATTR_MATCHING_RULE, mrMap.values().toArray(values));
+    }
+
+    if (! atMap.isEmpty())
+    {
+      final String[] values = new String[atMap.size()];
+      e.addAttribute(ATTR_ATTRIBUTE_TYPE, atMap.values().toArray(values));
+    }
+
+    if (! ocMap.isEmpty())
+    {
+      final String[] values = new String[ocMap.size()];
+      e.addAttribute(ATTR_OBJECT_CLASS, ocMap.values().toArray(values));
+    }
+
+    if (! dcrMap.isEmpty())
+    {
+      final String[] values = new String[dcrMap.size()];
+      e.addAttribute(ATTR_DIT_CONTENT_RULE, dcrMap.values().toArray(values));
+    }
+
+    if (! dsrMap.isEmpty())
+    {
+      final String[] values = new String[dsrMap.size()];
+      e.addAttribute(ATTR_DIT_STRUCTURE_RULE, dsrMap.values().toArray(values));
+    }
+
+    if (! nfMap.isEmpty())
+    {
+      final String[] values = new String[nfMap.size()];
+      e.addAttribute(ATTR_NAME_FORM, nfMap.values().toArray(values));
+    }
+
+    if (! mruMap.isEmpty())
+    {
+      final String[] values = new String[mruMap.size()];
+      e.addAttribute(ATTR_MATCHING_RULE_USE, mruMap.values().toArray(values));
+    }
+
+    return new Schema(e);
+  }
+
+
+
+  /**
    * Retrieves the entry used to create this schema object.
    *
    * @return  The entry used to create this schema object.

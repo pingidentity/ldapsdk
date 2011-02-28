@@ -55,7 +55,8 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       interfaces.</LI>
  *   <LI>Listen Port:  The server will automatically select an available listen
  *       port.</LI>
- *   <LI>Schema:  The server will not use a schema.</LI>
+ *   <LI>Schema:  The server will use a schema with a number of standard
+ *       attribute types and object classes.</LI>
  *   <LI>Additional Bind Credentials:  The server will not have any additional
  *       bind credentials.</LI>
  *   <LI>Generate Operational Attributes:  The server will automatically
@@ -171,7 +172,7 @@ public final class InMemoryDirectoryServerConfig
     listenPort                    = 0;
     maxChangeLogEntries           = 0;
     exceptionHandler              = null;
-    schema                        = null;
+    schema                        = Schema.getDefaultStandardSchema();
     serverSocketFactory           = null;
     clientSocketFactory           = null;
 
