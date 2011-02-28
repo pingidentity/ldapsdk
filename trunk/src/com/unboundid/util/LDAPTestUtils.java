@@ -27,10 +27,15 @@ import java.util.Collection;
 import java.util.List;
 
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
+import com.unboundid.ldap.sdk.LDAPRequest;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
@@ -464,7 +469,7 @@ public final class LDAPTestUtils
     final List<Filter> comps = new ArrayList<Filter>(attrs.size());
     for (final Attribute a : attrs)
     {
-      for (final String value : a.getValues())
+      for (final byte[] value : a.getValueByteArrays())
       {
         comps.add(Filter.createEqualityFilter(a.getName(), value));
       }
@@ -614,7 +619,7 @@ public final class LDAPTestUtils
         }
       }
 
-      for (final String value : a.getValues())
+      for (final byte[] value : a.getValueByteArrays())
       {
         final SearchResult searchResult = conn.search(entry.getDN(),
              SearchScope.BASE, Filter.createEqualityFilter(a.getName(), value),
@@ -622,7 +627,7 @@ public final class LDAPTestUtils
         if (searchResult.getEntryCount() == 0)
         {
           messages.add(ERR_TEST_VALUE_MISSING.get(entry.getDN(), a.getName(),
-               value));
+               StaticUtils.toUTF8String(value)));
         }
       }
     }
@@ -1261,5 +1266,293 @@ public final class LDAPTestUtils
     {
       throw new AssertionError(StaticUtils.concatenateStrings(messages));
     }
+  }
+
+
+
+  /**
+   * Ensures that the result code for the provided result matches the expected
+   * value.
+   *
+   * @param  result      The LDAP result to examine.
+   * @param  resultCode  The expected result code for the given result.
+   *
+   * @throws  AssertionError  If the result code from the provided result did
+   *                          not match the expected value.
+   */
+  public static void expectResultCode(final LDAPResult result,
+                                      final ResultCode resultCode)
+         throws AssertionError
+  {
+    if (result.getResultCode() != resultCode)
+    {
+      throw new AssertionError(ERR_TEST_RESULT_CODE_MISMATCH.get(
+           resultCode.toString(), result.toString()));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the result code for the provided LDAP exception matches the
+   * expected value.
+   *
+   * @param  exception   The LDAP exception to examine.
+   * @param  resultCode  The expected result code for the given result.
+   *
+   * @throws  AssertionError  If the result code from the provided result did
+   *                          not match the expected value.
+   */
+  public static void expectResultCode(final LDAPException exception,
+                                      final ResultCode resultCode)
+       throws AssertionError
+  {
+    if (exception.getResultCode() != resultCode)
+    {
+      throw new AssertionError(ERR_TEST_RESULT_CODE_MISMATCH.get(
+           resultCode.toString(), StaticUtils.getExceptionMessage(exception)));
+    }
+  }
+
+
+
+  /**
+   * Processes the provided request using the given connection and ensures that
+   * the result code matches the expected value.
+   *
+   * @param  conn        The connection to use to communicate with the
+   *                     directory server.
+   * @param  request     The request to be processed.
+   * @param  resultCode  The expected result code for the provided operation.
+   *
+   * @return  The result returned from processing the requested operation.
+   *
+   * @throws  AssertionError  If the result code returned by the server does not
+   *                          match the expected value.
+   */
+  public static LDAPResult expectResultCode(final LDAPConnection conn,
+                                            final LDAPRequest request,
+                                            final ResultCode resultCode)
+         throws AssertionError
+  {
+    LDAPResult result;
+
+    try
+    {
+      result = conn.processOperation(request);
+    }
+    catch (final LDAPException le)
+    {
+      result = le.toLDAPResult();
+    }
+
+    if (result.getResultCode() != resultCode)
+    {
+      throw new AssertionError(
+           ERR_TEST_PROCESSING_RESULT_CODE_MISMATCH.get(resultCode.toString(),
+                request.toString(), result.toString()));
+    }
+
+    return result;
+  }
+
+
+
+  /**
+   * Ensures that the provided result includes the specified matched DN value.
+   *
+   * @param  result     The LDAP result to examine.
+   * @param  matchedDN  The expected matched DN value.  It may be {@code null}
+   *                    if no matched DN should be present.
+   *
+   * @throws  LDAPException  If either the provided matched DN or the value
+   *                         found in the result could not be parsed as a valid
+   *                         DN.
+   *
+   * @throws  AssertionError  If the provided result did not have the expected
+   *                          matched DN.
+   */
+  public static void expectMatchedDN(final LDAPResult result,
+                                     final String matchedDN)
+         throws LDAPException, AssertionError
+  {
+    final String foundMatchedDN = result.getMatchedDN();
+    if (matchedDN == null)
+    {
+      if (foundMatchedDN == null)
+      {
+        return;
+      }
+      else
+      {
+        throw new AssertionError(ERR_TEST_RESULT_UNEXPECTED_MATCHED_DN.get(
+             result.toString()));
+      }
+    }
+    else if (foundMatchedDN == null)
+    {
+      throw new AssertionError(ERR_TEST_RESULT_MATCHED_DN_MISMATCH.get(
+           matchedDN, result.toString()));
+    }
+
+    final DN parsedExpected = new DN(matchedDN);
+    final DN parsedFound    = new DN(foundMatchedDN);
+    if (! parsedExpected.equals(parsedFound))
+    {
+      throw new AssertionError(ERR_TEST_RESULT_MATCHED_DN_MISMATCH.get(
+           matchedDN, result.toString()));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided LDAP exception includes the specified matched DN
+   * value.
+   *
+   * @param  exception  The LDAP exception to examine.
+   * @param  matchedDN  The expected matched DN value.  It may be {@code null}
+   *                    if no matched DN should be present.
+   *
+   * @throws  LDAPException  If either the provided matched DN or the value
+   *                         found in the exception could not be parsed as a
+   *                         valid DN.
+   *
+   * @throws  AssertionError  If the provided result did not have the expected
+   *                          matched DN.
+   */
+  public static void expectMatchedDN(final LDAPException exception,
+                                     final String matchedDN)
+         throws LDAPException, AssertionError
+  {
+    final String foundMatchedDN = exception.getMatchedDN();
+    if (matchedDN == null)
+    {
+      if (foundMatchedDN == null)
+      {
+        return;
+      }
+      else
+      {
+        throw new AssertionError(ERR_TEST_RESULT_UNEXPECTED_MATCHED_DN.get(
+             StaticUtils.getExceptionMessage(exception)));
+      }
+    }
+    else if (foundMatchedDN == null)
+    {
+      throw new AssertionError(ERR_TEST_RESULT_MATCHED_DN_MISMATCH.get(
+           matchedDN, StaticUtils.getExceptionMessage(exception)));
+    }
+
+    final DN parsedExpected = new DN(matchedDN);
+    final DN parsedFound    = new DN(foundMatchedDN);
+    if (! parsedExpected.equals(parsedFound))
+    {
+      throw new AssertionError(ERR_TEST_RESULT_MATCHED_DN_MISMATCH.get(
+           matchedDN, StaticUtils.getExceptionMessage(exception)));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided result includes one or more referral URLs.
+   *
+   * @param  result  The LDAP result to examine.
+   *
+   * @throws  AssertionError  If the provided result did not have any referral
+   *                          URLs.
+   */
+  public static void expectReferral(final LDAPResult result)
+         throws AssertionError
+  {
+    final String[] refs = result.getReferralURLs();
+    if ((refs == null) || (refs.length == 0))
+    {
+      throw new AssertionError(ERR_TEST_RESULT_MISSING_REFERRAL.get(
+           result.toString()));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided LDAP exception includes one or more referral
+   * URLs.
+   *
+   * @param  exception  The LDAP exception to examine.
+   *
+   * @throws  AssertionError  If the provided exception did not have any
+   *                          referral URLs.
+   */
+  public static void expectReferral(final LDAPException exception)
+         throws AssertionError
+  {
+    final String[] refs = exception.getReferralURLs();
+    if ((refs == null) || (refs.length == 0))
+    {
+      throw new AssertionError(ERR_TEST_RESULT_MISSING_REFERRAL.get(
+           StaticUtils.getExceptionMessage(exception)));
+    }
+  }
+
+
+
+  /**
+   * Ensures that the provided result includes a response control with the
+   * specified OID.
+   *
+   * @param  result  The LDAP result to examine.
+   * @param  oid     The OID of the expected response control.
+   *
+   * @return  The first control found with the provided OID.
+   *
+   * @throws  AssertionError  If the provided result did not have a response
+   *                          control with a given OID.
+   */
+  public static Control expectResponseControl(final LDAPResult result,
+                                              final String oid)
+         throws AssertionError
+  {
+    for (final Control c : result.getResponseControls())
+    {
+      if (c.getOID().equals(oid))
+      {
+        return c;
+      }
+    }
+
+    throw new AssertionError(ERR_TEST_RESULT_MISSING_CONTROL.get(oid,
+         result.toString()));
+  }
+
+
+
+  /**
+   * Ensures that the provided LDAP exception includes a response control with
+   * the specified OID.
+   *
+   * @param  exception  The LDAP result to examine.
+   * @param  oid     The OID of the expected response control.
+   *
+   * @return  The first control found with the provided OID.
+   *
+   * @throws  AssertionError  If the provided result did not have a response
+   *                          control with a given OID.
+   */
+  public static Control expectResponseControl(final LDAPException exception,
+                                              final String oid)
+         throws AssertionError
+  {
+    for (final Control c : exception.getResponseControls())
+    {
+      if (c.getOID().equals(oid))
+      {
+        return c;
+      }
+    }
+
+    throw new AssertionError(ERR_TEST_RESULT_MISSING_CONTROL.get(oid,
+         StaticUtils.getExceptionMessage(exception)));
   }
 }

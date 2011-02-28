@@ -255,6 +255,43 @@ public final class SearchResult
 
 
   /**
+   * Retrieves the search result entry with the specified DN from the set of
+   * entries returned.  This will only be available if a
+   * {@code SearchResultListener} was not used during the search.
+   *
+   * @param  dn  The DN of the search result entry to retrieve.  It must not
+   *             be {@code null}.
+   *
+   * @return  The search result entry with the provided DN, or {@code null} if
+   *          the specified entry was not returned, or if a
+   *          {@code SearchResultListener} was used for the search.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         parse the provided DN or a search entry DN.
+   */
+  public SearchResultEntry getSearchEntry(final String dn)
+         throws LDAPException
+  {
+    if (searchEntries == null)
+    {
+      return null;
+    }
+
+    final DN parsedDN = new DN(dn);
+    for (final SearchResultEntry e : searchEntries)
+    {
+      if (parsedDN.equals(e.getParsedDN()))
+      {
+        return e;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
    * Retrieves a list containing the search references returned from the search
    * operation.  This will only be available if a {@code SearchResultListener}
    * was not used during the search, and may be empty even if search references

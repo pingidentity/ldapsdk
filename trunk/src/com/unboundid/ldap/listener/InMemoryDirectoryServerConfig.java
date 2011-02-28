@@ -23,7 +23,10 @@ package com.unboundid.ldap.listener;
 
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import javax.net.ServerSocketFactory;
@@ -44,12 +47,41 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 
 /**
  * This class provides a simple data structure with information that may be
- * used to control the behavior of an in-memory directory server instance.
+ * used to control the behavior of an in-memory directory server instance.  At
+ * least one base DN must be specified.  For all other properties, the following
+ * default values will be used unless an alternate configuration is provided:
+ * <UL>
+ *   <LI>Listen Address:  The server will listen on all addresses on all
+ *       interfaces.</LI>
+ *   <LI>Listen Port:  The server will automatically select an available listen
+ *       port.</LI>
+ *   <LI>Schema:  The server will not use a schema.</LI>
+ *   <LI>Additional Bind Credentials:  The server will not have any additional
+ *       bind credentials.</LI>
+ *   <LI>Generate Operational Attributes:  The server will automatically
+ *       generate a number of operational attributes.</LI>
+ *   <LI>Extended Operation Handlers:  The server will support the password
+ *       modify extended operation as defined in RFC 3062 and the "Who Am I?"
+ *       extended operation as defined in RFC 4532.</LI>
+ *   <LI>SASL Bind Handlers:  The server will support the SASL PLAIN mechanism
+ *       as defined in RFC 4616.</LI>
+ *   <LI>Access Log Handler:  The server will not perform any access
+ *       logging.</LI>
+ *   <LI>Listener Exception Handler:  The server will not use a listener
+ *       exception handler.</LI>
+ *   <LI>Server Socket Factory:  The server will use the JVM-default server
+ *       socket factory.</LI>
+ *   <LI>Client Socket Factory:  The server will use the JVM-default client
+ *       socket factory.</LI>
+ * </UL>
  */
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class InMemoryDirectoryServerConfig
 {
+  // Indicates whether to automatically generate operational attributes.
+  private boolean generateOperationalAttributes;
+
   // The base DNs to use for the LDAP listener.
   private DN[] baseDNs;
 
@@ -63,8 +95,20 @@ public final class InMemoryDirectoryServerConfig
   // The port on which to listen for client connections.
   private int listenPort;
 
+  // The maximum number of entries to retain in a generated changelog.
+  private int maxChangeLogEntries;
+
   // The exception handler that should be used for the listener.
   private LDAPListenerExceptionHandler exceptionHandler;
+
+  // The extended operation handlers that may be used to process extended
+  // operations in the server.
+  private final List<InMemoryExtendedOperationHandler>
+       extendedOperationHandlers;
+
+  // The SASL bind handlers that may be used to process SASL bind requests in
+  // the server.
+  private final List<InMemorySASLBindHandler> saslBindHandlers;
 
   // A set of additional credentials that can be used for binding without
   // requiring a corresponding entry in the data set.
@@ -120,14 +164,24 @@ public final class InMemoryDirectoryServerConfig
 
     this.baseDNs = baseDNs;
 
-    additionalBindCredentials = new LinkedHashMap<DN,byte[]>(1);
-    accessLogHandler          = null;
-    listenAddress             = null;
-    listenPort                = 0;
-    exceptionHandler          = null;
-    schema                    = null;
-    serverSocketFactory       = null;
-    clientSocketFactory       = null;
+    additionalBindCredentials     = new LinkedHashMap<DN,byte[]>(1);
+    accessLogHandler              = null;
+    generateOperationalAttributes = true;
+    listenAddress                 = null;
+    listenPort                    = 0;
+    maxChangeLogEntries           = 0;
+    exceptionHandler              = null;
+    schema                        = null;
+    serverSocketFactory           = null;
+    clientSocketFactory           = null;
+
+    extendedOperationHandlers =
+         new ArrayList<InMemoryExtendedOperationHandler>(2);
+    extendedOperationHandlers.add(new PasswordModifyExtendedOperationHandler());
+    extendedOperationHandlers.add(new WhoAmIExtendedOperationHandler());
+
+    saslBindHandlers = new ArrayList<InMemorySASLBindHandler>(1);
+    saslBindHandlers.add(new PLAINBindHandler());
   }
 
 
@@ -509,5 +563,286 @@ public final class InMemoryDirectoryServerConfig
   public void setAccessLogHandler(final Handler accessLogHandler)
   {
     this.accessLogHandler = accessLogHandler;
+  }
+
+
+
+  /**
+   * Retrieves a list of the extended operation handlers that may be used to
+   * process extended operations in the server.  The contents of the list may
+   * be altered by the caller.
+   *
+   * @return  An updatable list of the extended operation handlers that may be
+   *          used to process extended operations in the server.
+   */
+  public List<InMemoryExtendedOperationHandler> getExtendedOperationHandlers()
+  {
+    return extendedOperationHandlers;
+  }
+
+
+
+  /**
+   * Adds the provided extended operation handler for use by the server for
+   * processing certain types of extended operations.
+   *
+   * @param  handler  The extended operation handler that should be used by the
+   *                  server for processing certain types of extended
+   *                  operations.
+   */
+  public void addExtendedOperationHandler(
+                   final InMemoryExtendedOperationHandler handler)
+  {
+    extendedOperationHandlers.add(handler);
+  }
+
+
+
+  /**
+   * Retrieves a list of the SASL bind handlers that may be used to process
+   * SASL bind requests in the server.  The contents of the list may be altered
+   * by the caller.
+   *
+   * @return  An updatable list of the SASL bind handlers that may be used to
+   *          process SASL bind requests in the server.
+   */
+  public List<InMemorySASLBindHandler> getSASLBindHandlers()
+  {
+    return saslBindHandlers;
+  }
+
+
+
+  /**
+   * Adds the provided SASL bind handler for use by the server for processing
+   * certain types of SASL bind requests.
+   *
+   * @param  handler  The SASL bind handler that should be used by the server
+   *                  for processing certain types of SASL bind requests.
+   */
+  public void addSASLBindHandler(final InMemorySASLBindHandler handler)
+  {
+    saslBindHandlers.add(handler);
+  }
+
+
+
+  /**
+   * Indicates whether the server should automatically generate operational
+   * attributes (including entryDN, entryUUID, creatorsName, createTimestamp,
+   * modifiersName, modifyTimestamp, and subschemaSubentry) for entries in the
+   * server.
+   *
+   * @return  {@code true} if the server should automatically generate
+   *          operational attributes for entries in the server, or {@code false}
+   *          if not.
+   */
+  public boolean generateOperationalAttributes()
+  {
+    return generateOperationalAttributes;
+  }
+
+
+
+  /**
+   * Specifies whether the server should automatically generate operational
+   * attributes (including entryDN, entryUUID, creatorsName, createTimestamp,
+   * modifiersName, modifyTimestamp, and subschemaSubentry) for entries in the
+   * server.
+   *
+   * @param  generateOperationalAttributes  Indicates whether the server should
+   *                                        automatically generate operational
+   *                                        attributes for entries in the
+   *                                        server.
+   */
+  public void setGenerateOperationalAttributes(
+                   final boolean generateOperationalAttributes)
+  {
+    this.generateOperationalAttributes = generateOperationalAttributes;
+  }
+
+
+
+  /**
+   * Retrieves the maximum number of changelog entries that the server should
+   * maintain.
+   *
+   * @return  The maximum number of changelog entries that the server should
+   *          maintain, or 0 if the server should not maintain a changelog.
+   */
+  public int getMaxChangeLogEntries()
+  {
+    return maxChangeLogEntries;
+  }
+
+
+
+  /**
+   * Specifies the maximum number of changelog entries that the server should
+   * maintain.  A value less than or equal to zero indicates that the server
+   * should not attempt to maintain a changelog.
+   *
+   * @param  maxChangeLogEntries  The maximum number of changelog entries that
+   *                              the server should maintain.
+   */
+  public void setMaxChangeLogEntries(final int maxChangeLogEntries)
+  {
+    if (maxChangeLogEntries < 0)
+    {
+      this.maxChangeLogEntries = 0;
+    }
+    else
+    {
+      this.maxChangeLogEntries = maxChangeLogEntries;
+    }
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this in-memory directory server
+   * configuration.
+   *
+   * @return  A string representation of this in-memory directory server
+   *          configuration.
+   */
+  @Override()
+  public String toString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a string representation of this in-memory directory server
+   * configuration to the provided buffer.
+   *
+   * @param  buffer  The buffer to which the string representation should be
+   *                 appended.
+   */
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("InMemoryDirectoryServerConfig(baseDNs={");
+
+    for (int i=0; i < baseDNs.length; i++)
+    {
+      if (i > 0)
+      {
+        buffer.append(", ");
+      }
+
+      buffer.append('\'');
+      baseDNs[i].toString(buffer);
+      buffer.append('\'');
+    }
+    buffer.append('}');
+
+    if (listenAddress != null)
+    {
+      buffer.append(", listenAddress='");
+      buffer.append(listenAddress.getHostAddress());
+      buffer.append('\'');
+    }
+
+    buffer.append(", listenPort=");
+    buffer.append(listenPort);
+
+    buffer.append(", schemaProvided=");
+    buffer.append((schema != null));
+
+    if (! additionalBindCredentials.isEmpty())
+    {
+      buffer.append(", additionalBindDNs={");
+
+      final Iterator<DN> bindDNIterator =
+           additionalBindCredentials.keySet().iterator();
+      while (bindDNIterator.hasNext())
+      {
+        buffer.append('\'');
+        bindDNIterator.next().toString(buffer);
+        buffer.append('\'');
+        if (bindDNIterator.hasNext())
+        {
+          buffer.append(", ");
+        }
+      }
+      buffer.append('}');
+    }
+
+    buffer.append(", generateOperationalAttributes=");
+    buffer.append(generateOperationalAttributes);
+
+    if (maxChangeLogEntries > 0)
+    {
+      buffer.append(", maxChangelogEntries=");
+      buffer.append(maxChangeLogEntries);
+    }
+
+    if (! extendedOperationHandlers.isEmpty())
+    {
+      buffer.append(", extendedOperationHandlers={");
+
+      final Iterator<InMemoryExtendedOperationHandler>
+           handlerIterator = extendedOperationHandlers.iterator();
+      while (handlerIterator.hasNext())
+      {
+        buffer.append(handlerIterator.next().toString());
+        if (handlerIterator.hasNext())
+        {
+          buffer.append(", ");
+        }
+      }
+      buffer.append('}');
+    }
+
+    if (! saslBindHandlers.isEmpty())
+    {
+      buffer.append(", saslBindHandlers={");
+
+      final Iterator<InMemorySASLBindHandler>
+           handlerIterator = saslBindHandlers.iterator();
+      while (handlerIterator.hasNext())
+      {
+        buffer.append(handlerIterator.next().toString());
+        if (handlerIterator.hasNext())
+        {
+          buffer.append(", ");
+        }
+      }
+      buffer.append('}');
+    }
+
+    if (accessLogHandler != null)
+    {
+      buffer.append(", accessLogHandlerClass='");
+      buffer.append(accessLogHandler.getClass().getName());
+      buffer.append('\'');
+    }
+
+    if (exceptionHandler != null)
+    {
+      buffer.append(", listenerExceptionHandlerClass='");
+      buffer.append(exceptionHandler.getClass().getName());
+      buffer.append('\'');
+    }
+
+    if (serverSocketFactory != null)
+    {
+      buffer.append(", serverSocketFactoryClass='");
+      buffer.append(serverSocketFactory.getClass().getName());
+      buffer.append('\'');
+    }
+
+    if (clientSocketFactory != null)
+    {
+      buffer.append(", clientSocketFactoryClass='");
+      buffer.append(clientSocketFactory.getClass().getName());
+      buffer.append('\'');
+    }
+
+    buffer.append(')');
   }
 }

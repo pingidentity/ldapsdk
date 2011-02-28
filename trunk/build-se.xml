@@ -286,6 +286,9 @@
       <fileset dir="${se.package.dir}">
         <include name="LICENSE*.txt" />
       </fileset>
+      <fileset dir="${resource.dir}">
+        <include name="standard-schema.ldif" />
+      </fileset>
     </copy>
 
     <copy todir="${se.package.dir}/docs/examples">

@@ -420,7 +420,7 @@ public class LDAPException
    * Retrieves the set of referral URLs for this LDAP exception.
    *
    * @return  The set of referral URLs for this LDAP exception, or an empty
-   *          list if there are none.
+   *          array if there are none.
    */
   public final String[] getReferralURLs()
   {
@@ -471,7 +471,7 @@ public class LDAPException
    * Retrieves the set of response controls for this LDAP exception.
    *
    * @return  The set of response controls for this LDAP exception, or an empty
-   *          list if there are none.
+   *          array if there are none.
    */
   public final Control[] getResponseControls()
   {
@@ -508,7 +508,7 @@ public class LDAPException
    *
    * @return  The {@code LDAPResult} object created from this exception.
    */
-  public final LDAPResult toLDAPResult()
+  public LDAPResult toLDAPResult()
   {
     return new LDAPResult(-1, resultCode, diagnosticMessage, matchedDN,
          referralURLs, responseControls);
