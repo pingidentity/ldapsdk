@@ -34,7 +34,6 @@
 #   LDAP Subentry Schema
 dn: cn=schema
 objectClass: top
-objectClass: namedObject
 objectClass: ldapSubEntry
 objectClass: subschema
 cn: schema
