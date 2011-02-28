@@ -196,7 +196,7 @@ public final class InMemoryRequestHandler
   private final Set<DN> baseDNs;
 
   // The map of entries currently held in the server.
-  private final TreeMap<DN,Entry> entryMap;
+  private final TreeMap<DN,ReadOnlyEntry> entryMap;
 
 
 
@@ -230,7 +230,7 @@ public final class InMemoryRequestHandler
            ERR_MEM_HANDLER_NO_BASE_DNS.get());
     }
 
-    entryMap = new TreeMap<DN,Entry>();
+    entryMap = new TreeMap<DN,ReadOnlyEntry>();
 
     final LinkedHashSet<DN> baseDNSet =
          new LinkedHashSet<DN>(Arrays.asList(baseDNArray));
@@ -308,7 +308,7 @@ public final class InMemoryRequestHandler
     if (maxChangelogEntries > 0)
     {
       baseDNSet.add(changeLogBaseDN);
-      entryMap.put(changeLogBaseDN, new Entry(changeLogBaseDN,
+      entryMap.put(changeLogBaseDN, new ReadOnlyEntry(changeLogBaseDN,
            new Attribute("objectClass", "top", "namedObject"),
            new Attribute("cn", "changelog"),
            new Attribute("entryDN",
@@ -386,6 +386,41 @@ public final class InMemoryRequestHandler
          throws LDAPException
   {
     return new InMemoryRequestHandler(this, connection);
+  }
+
+
+
+  /**
+   * Creates a point-in-time snapshot of the information contained in this
+   * in-memory request handler.  If desired, it may be restored using the
+   * {@link #restoreSnapshot} method.
+   *
+   * @return  The snapshot created based on the current content of this
+   *          in-memory request handler.
+   */
+  public synchronized InMemoryDirectoryServerSnapshot createSnapshot()
+  {
+    return new InMemoryDirectoryServerSnapshot(entryMap,
+         firstChangeNumber.get(), lastChangeNumber.get());
+  }
+
+
+
+  /**
+   * Updates the content of this in-memory request handler to match what it was
+   * at the time the snapshot was created.
+   *
+   * @param  snapshot  The snapshot to be restored.  It must not be
+   *                   {@code null}.
+   */
+  public synchronized void restoreSnapshot(
+                                final InMemoryDirectoryServerSnapshot snapshot)
+  {
+    entryMap.clear();
+    entryMap.putAll(snapshot.getEntryMap());
+
+    firstChangeNumber.set(snapshot.getFirstChangeNumber());
+    lastChangeNumber.set(snapshot.getLastChangeNumber());
   }
 
 
@@ -819,7 +854,7 @@ public final class InMemoryRequestHandler
     // add the entry.
     if (baseDNs.contains(dn))
     {
-      entryMap.put(dn, entry);
+      entryMap.put(dn, new ReadOnlyEntry(entry));
       addChangeLogEntry(request, authzDN);
       return new LDAPMessage(messageID,
            new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
@@ -831,7 +866,7 @@ public final class InMemoryRequestHandler
     final DN parentDN = dn.getParent();
     if ((parentDN != null) && entryMap.containsKey(parentDN))
     {
-      entryMap.put(dn, entry);
+      entryMap.put(dn, new ReadOnlyEntry(entry));
       addChangeLogEntry(request, authzDN);
       return new LDAPMessage(messageID,
            new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
@@ -1619,7 +1654,7 @@ public final class InMemoryRequestHandler
 
 
     // Replace the entry in the map and return a success result.
-    entryMap.put(dn, modifiedEntry);
+    entryMap.put(dn, new ReadOnlyEntry(modifiedEntry));
     addChangeLogEntry(request, authzDN);
     return new LDAPMessage(messageID,
          new ModifyResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
@@ -1997,7 +2032,7 @@ public final class InMemoryRequestHandler
 
     // Remove the old entry and add the new one.
     entryMap.remove(dn);
-    entryMap.put(newDN, updatedEntry);
+    entryMap.put(newDN, new ReadOnlyEntry(updatedEntry));
 
     // If the target entry had any subordinates, then rename them as well.
     final RDN[] oldDNComps = dn.getRDNs();
@@ -2007,7 +2042,7 @@ public final class InMemoryRequestHandler
     {
       if (mapEntryDN.isDescendantOf(dn, false))
       {
-        final Entry e = entryMap.remove(mapEntryDN);
+        final Entry e = entryMap.remove(mapEntryDN).duplicate();
 
         final RDN[] oldMapEntryComps = mapEntryDN.getRDNs();
         final int compsToSave = oldMapEntryComps.length - oldDNComps.length ;
@@ -2026,7 +2061,7 @@ public final class InMemoryRequestHandler
                DistinguishedNameMatchingRule.getInstance(),
                newMapEntryDN.toNormalizedString()));
         }
-        entryMap.put(newMapEntryDN, e);
+        entryMap.put(newMapEntryDN, new ReadOnlyEntry(e));
       }
     }
 
@@ -2250,7 +2285,7 @@ public final class InMemoryRequestHandler
 
     // Iterate through the map to find and return entries matching the criteria.
     // It is not necessary to consider the root DSE for non-base scopes.
-    for (final Map.Entry<DN,Entry> me : entryMap.entrySet())
+    for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
     {
       final DN dn = me.getKey();
       final Entry entry = me.getValue();
@@ -2332,8 +2367,8 @@ public final class InMemoryRequestHandler
                                              final LDIFReader ldifReader)
          throws LDAPException
   {
-    final HashMap<DN,Entry> originalEntryMap = new HashMap<DN,Entry>(entryMap);
-    boolean restoreOriginalEntryMap = true;
+    final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
+    boolean restoreSnapshot = true;
 
     try
     {
@@ -2351,7 +2386,7 @@ public final class InMemoryRequestHandler
           entry = ldifReader.readEntry();
           if (entry == null)
           {
-            restoreOriginalEntryMap = false;
+            restoreSnapshot = false;
             return entriesAdded;
           }
         }
@@ -2386,10 +2421,9 @@ public final class InMemoryRequestHandler
         Debug.debugException(e);
       }
 
-      if (restoreOriginalEntryMap)
+      if (restoreSnapshot)
       {
-        entryMap.clear();
-        entryMap.putAll(originalEntryMap);
+        restoreSnapshot(snapshot);
       }
     }
   }
@@ -2427,7 +2461,7 @@ public final class InMemoryRequestHandler
     {
       int entriesWritten = 0;
 
-      for (final Map.Entry<DN,Entry> me : entryMap.entrySet())
+      for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
       {
         final DN dn = me.getKey();
         if (excludeChangeLog && dn.isDescendantOf(changeLogBaseDN, true))
@@ -2568,8 +2602,8 @@ public final class InMemoryRequestHandler
   public synchronized void addEntries(final List<? extends Entry> entries)
          throws LDAPException
   {
-    final HashMap<DN,Entry> originalEntryMap = new HashMap<DN,Entry>(entryMap);
-    boolean restoreOriginalEntryMap = true;
+    final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
+    boolean restoreSnapshot = true;
 
     try
     {
@@ -2577,14 +2611,13 @@ public final class InMemoryRequestHandler
       {
         addEntry(e, false);
       }
-      restoreOriginalEntryMap = false;
+      restoreSnapshot = false;
     }
     finally
     {
-      if (restoreOriginalEntryMap)
+      if (restoreSnapshot)
       {
-        entryMap.clear();
-        entryMap.putAll(originalEntryMap);
+        restoreSnapshot(snapshot);
       }
     }
   }
@@ -2655,11 +2688,11 @@ public final class InMemoryRequestHandler
 
     int numDeleted = 0;
 
-    final Iterator<Map.Entry<DN,Entry>> iterator =
+    final Iterator<Map.Entry<DN,ReadOnlyEntry>> iterator =
          entryMap.entrySet().iterator();
     while (iterator.hasNext())
     {
-      final Map.Entry<DN,Entry> e = iterator.next();
+      final Map.Entry<DN,ReadOnlyEntry> e = iterator.next();
       if (e.getKey().isDescendantOf(dn, true))
       {
         iterator.remove();
@@ -2867,7 +2900,7 @@ public final class InMemoryRequestHandler
     }
 
     final List<ReadOnlyEntry> entryList = new ArrayList<ReadOnlyEntry>(10);
-    for (final Map.Entry<DN,Entry> me : entryMap.entrySet())
+    for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
     {
       final DN dn = me.getKey();
       if (dn.matchesBaseAndScope(parsedDN, scope))
@@ -3722,7 +3755,7 @@ public final class InMemoryRequestHandler
            StaticUtils.encodeGeneralizedTime(d)));
     }
 
-    entryMap.put(dn, entry);
+    entryMap.put(dn, new ReadOnlyEntry(entry));
 
     // Update the first change number and/or trim the changelog if necessary.
     final long firstNumber = firstChangeNumber.get();
@@ -4020,8 +4053,8 @@ public final class InMemoryRequestHandler
    *
    * @return  The referral URLs that should be returned.
    */
-  static List<String> getReferralURLs(final DN targetDN,
-                                      final Entry referralEntry)
+  private static List<String> getReferralURLs(final DN targetDN,
+                                              final Entry referralEntry)
   {
     final String[] refs = referralEntry.getAttributeValues("ref");
     if (refs == null)
@@ -4092,7 +4125,7 @@ public final class InMemoryRequestHandler
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final String dn)
+  public synchronized boolean entryExists(final String dn)
          throws LDAPException
   {
     return (getEntry(dn) != null);
@@ -4113,7 +4146,7 @@ public final class InMemoryRequestHandler
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final String dn, final String filter)
+  public synchronized boolean entryExists(final String dn, final String filter)
          throws LDAPException
   {
     final Entry e = getEntry(dn);
@@ -4150,7 +4183,7 @@ public final class InMemoryRequestHandler
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final Entry entry)
+  public synchronized boolean entryExists(final Entry entry)
          throws LDAPException
   {
     final Entry e = getEntry(entry.getDN());
@@ -4185,7 +4218,7 @@ public final class InMemoryRequestHandler
    *
    * @throws  AssertionError  If the target entry does not exist.
    */
-  public void assertEntryExists(final String dn)
+  public synchronized void assertEntryExists(final String dn)
          throws LDAPException, AssertionError
   {
     final Entry e = getEntry(dn);
@@ -4209,7 +4242,8 @@ public final class InMemoryRequestHandler
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          match the provided filter.
    */
-  public void assertEntryExists(final String dn, final String filter)
+  public synchronized void assertEntryExists(final String dn,
+                                             final String filter)
          throws LDAPException, AssertionError
   {
     final Entry e = getEntry(dn);
@@ -4251,7 +4285,7 @@ public final class InMemoryRequestHandler
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          match the provided filter.
    */
-  public void assertEntryExists(final Entry entry)
+  public synchronized void assertEntryExists(final Entry entry)
          throws LDAPException, AssertionError
   {
     final Entry e = getEntry(entry.getDN());
@@ -4306,7 +4340,8 @@ public final class InMemoryRequestHandler
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingEntryDNs(final Collection<String> dns)
+  public synchronized List<String> getMissingEntryDNs(
+                                        final Collection<String> dns)
          throws LDAPException
   {
     final List<String> missingDNs = new ArrayList<String>(dns.size());
@@ -4335,7 +4370,7 @@ public final class InMemoryRequestHandler
    *
    * @throws  AssertionError  If any of the target entries does not exist.
    */
-  public void assertEntriesExist(final Collection<String> dns)
+  public synchronized void assertEntriesExist(final Collection<String> dns)
          throws LDAPException, AssertionError
   {
     final List<String> missingDNs = getMissingEntryDNs(dns);
@@ -4371,8 +4406,8 @@ public final class InMemoryRequestHandler
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingAttributeNames(final String dn,
-                           final Collection<String> attributeNames)
+  public synchronized List<String> getMissingAttributeNames(final String dn,
+                                        final Collection<String> attributeNames)
          throws LDAPException
   {
     final Entry e = getEntry(dn);
@@ -4411,8 +4446,8 @@ public final class InMemoryRequestHandler
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          contain all of the specified attributes.
    */
-  public void assertAttributeExists(final String dn,
-                                    final Collection<String> attributeNames)
+  public synchronized void assertAttributeExists(final String dn,
+                                final Collection<String> attributeNames)
         throws LDAPException, AssertionError
   {
     final List<String> missingAttrs =
@@ -4455,7 +4490,7 @@ public final class InMemoryRequestHandler
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingAttributeValues(final String dn,
+  public synchronized List<String> getMissingAttributeValues(final String dn,
                            final String attributeName,
                            final Collection<String> attributeValues)
        throws LDAPException
@@ -4499,7 +4534,8 @@ public final class InMemoryRequestHandler
    *                          contain the specified attribute, or that attribute
    *                          does not have all of the specified values.
    */
-  public void assertValueExists(final String dn, final String attributeName,
+  public synchronized void assertValueExists(final String dn,
+                                final String attributeName,
                                 final Collection<String> attributeValues)
         throws LDAPException, AssertionError
   {
@@ -4545,7 +4581,7 @@ public final class InMemoryRequestHandler
    *
    * @throws  AssertionError  If the target entry is found in the server.
    */
-  public void assertEntryMissing(final String dn)
+  public synchronized void assertEntryMissing(final String dn)
          throws LDAPException, AssertionError
   {
     final Entry e = getEntry(dn);
@@ -4571,8 +4607,8 @@ public final class InMemoryRequestHandler
    * @throws  AssertionError  If the target entry is missing from the server, or
    *                          if it contains any of the target attributes.
    */
-  public void assertAttributeMissing(final String dn,
-                                     final Collection<String> attributeNames)
+  public synchronized void assertAttributeMissing(final String dn,
+                                final Collection<String> attributeNames)
          throws LDAPException, AssertionError
   {
     final Entry e = getEntry(dn);
@@ -4614,8 +4650,9 @@ public final class InMemoryRequestHandler
    * @throws  AssertionError  If the target entry is missing from the server, or
    *                          if it contains any of the target attribute values.
    */
-  public void assertValueMissing(final String dn, final String attributeName,
-                                 final Collection<String> attributeValues)
+  public synchronized void assertValueMissing(final String dn,
+                                final String attributeName,
+                                final Collection<String> attributeValues)
          throws LDAPException, AssertionError
   {
     final Entry e = getEntry(dn);

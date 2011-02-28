@@ -241,6 +241,35 @@ public final class InMemoryDirectoryServer
 
 
   /**
+   * Creates a point-in-time snapshot of the information contained in this
+   * in-memory directory server instance.  It may be restored using the
+   * {@link #restoreSnapshot} method.
+   *
+   * @return  The snapshot created based on the current content of this
+   *          in-memory directory server instance.
+   */
+  public InMemoryDirectoryServerSnapshot createSnapshot()
+  {
+    return inMemoryHandler.createSnapshot();
+  }
+
+
+
+  /**
+   * Restores the this in-memory directory server instance to match the content
+   * it held at the time the snapshot was created.
+   *
+   * @param  snapshot  The snapshot to be restored.  It must not be
+   *                   {@code null}.
+   */
+  public void restoreSnapshot(final InMemoryDirectoryServerSnapshot snapshot)
+  {
+    inMemoryHandler.restoreSnapshot(snapshot);
+  }
+
+
+
+  /**
    * Retrieves the address on which the server is currently listening for client
    * connections.
    *
