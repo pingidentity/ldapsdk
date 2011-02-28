@@ -208,6 +208,19 @@ public final class LDAPSearchException
 
 
   /**
+   * Creates a new {@code SearchResult} object from this exception.
+   *
+   * @return  The {@code SearchResult} object created from this exception.
+   */
+  @Override()
+  public SearchResult toLDAPResult()
+  {
+    return searchResult;
+  }
+
+
+
+  /**
    * Appends a string representation of this LDAP exception to the provided
    * buffer.
    *

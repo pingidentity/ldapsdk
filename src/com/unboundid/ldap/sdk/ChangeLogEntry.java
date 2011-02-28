@@ -35,6 +35,10 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFModifyDNChangeRecord;
 import com.unboundid.ldif.LDIFReader;
+import com.unboundid.ldap.matchingrules.BooleanMatchingRule;
+import com.unboundid.ldap.matchingrules.DistinguishedNameMatchingRule;
+import com.unboundid.ldap.matchingrules.IntegerMatchingRule;
+import com.unboundid.ldap.matchingrules.OctetStringMatchingRule;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
@@ -309,8 +313,10 @@ public class ChangeLogEntry
     final Entry e =
          new Entry(ATTR_CHANGE_NUMBER + '=' + changeNumber + ",cn=changelog");
     e.addAttribute("objectClass", "top", "changeLogEntry");
-    e.addAttribute(ATTR_CHANGE_NUMBER, String.valueOf(changeNumber));
-    e.addAttribute(ATTR_TARGET_DN, changeRecord.getDN());
+    e.addAttribute(new Attribute(ATTR_CHANGE_NUMBER,
+         IntegerMatchingRule.getInstance(), String.valueOf(changeNumber)));
+    e.addAttribute(new Attribute(ATTR_TARGET_DN,
+         DistinguishedNameMatchingRule.getInstance(), changeRecord.getDN()));
     e.addAttribute(ATTR_CHANGE_TYPE, changeRecord.getChangeType().getName());
 
     switch (changeRecord.getChangeType())
@@ -330,7 +336,9 @@ public class ChangeLogEntry
           entryLDIFBuffer.append(entryLdifLines[i]);
           entryLDIFBuffer.append(EOL);
         }
-        e.addAttribute(ATTR_CHANGES, entryLDIFBuffer.toString());
+        e.addAttribute(new Attribute(ATTR_CHANGES,
+             OctetStringMatchingRule.getInstance(),
+             entryLDIFBuffer.toString()));
         break;
 
       case DELETE:
@@ -348,18 +356,24 @@ public class ChangeLogEntry
           modLDIFBuffer.append(modLdifLines[i]);
           modLDIFBuffer.append(EOL);
         }
-        e.addAttribute(ATTR_CHANGES, modLDIFBuffer.toString());
+        e.addAttribute(new Attribute(ATTR_CHANGES,
+             OctetStringMatchingRule.getInstance(), modLDIFBuffer.toString()));
         break;
 
       case MODIFY_DN:
         final LDIFModifyDNChangeRecord modDNRecord =
              (LDIFModifyDNChangeRecord) changeRecord;
-        e.addAttribute(ATTR_NEW_RDN, modDNRecord.getNewRDN());
-        e.addAttribute(ATTR_DELETE_OLD_RDN,
-             (modDNRecord.deleteOldRDN() ? "TRUE" : "FALSE"));
+        e.addAttribute(new Attribute(ATTR_NEW_RDN,
+             DistinguishedNameMatchingRule.getInstance(),
+             modDNRecord.getNewRDN()));
+        e.addAttribute(new Attribute(ATTR_DELETE_OLD_RDN,
+             BooleanMatchingRule.getInstance(),
+             (modDNRecord.deleteOldRDN() ? "TRUE" : "FALSE")));
         if (modDNRecord.getNewSuperiorDN() != null)
         {
-          e.addAttribute(ATTR_NEW_SUPERIOR, modDNRecord.getNewSuperiorDN());
+          e.addAttribute(new Attribute(ATTR_NEW_SUPERIOR,
+               DistinguishedNameMatchingRule.getInstance(),
+               modDNRecord.getNewSuperiorDN()));
         }
         break;
     }

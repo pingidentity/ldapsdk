@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import javax.net.SocketFactory;
 
@@ -161,10 +162,7 @@ public final class InMemoryDirectoryServer
   {
     Validator.ensureNotNull(config);
 
-    inMemoryHandler = new InMemoryRequestHandler(config.getSchema(),
-         config.getBaseDNs());
-    inMemoryHandler.setAdditionalBindCredentials(
-         config.getAdditionalBindCredentials());
+    inMemoryHandler = new InMemoryRequestHandler(config);
 
     final LDAPListenerRequestHandler requestHandler;
     if (config.getAccessLogHandler() == null)
@@ -224,6 +222,20 @@ public final class InMemoryDirectoryServer
   public void shutDown(final boolean closeExistingConnections)
   {
     listener.shutDown(closeExistingConnections);
+  }
+
+
+
+  /**
+   * Retrieves the in-memory request handler that is used to perform the real
+   * server processing.
+   *
+   * @return  The in-memory request handler that is used to perform the real
+   *          server processing.
+   */
+  InMemoryRequestHandler getInMemoryRequestHandler()
+  {
+    return inMemoryHandler;
   }
 
 
@@ -503,14 +515,20 @@ public final class InMemoryDirectoryServer
    * This method may be used regardless of whether the server is listening for
    * client connections.
    *
-   * @param  path  The path of the file to which the LDIF entries should be
-   *               written.
+   * @param  path                   The path of the file to which the LDIF
+   *                                entries should be written.
+   * @param  excludeGeneratedAttrs  Indicates whether to exclude automatically
+   *                                generated operational attributes like
+   *                                entryUUID, entryDN, creatorsName, etc.
+   * @param  excludeChangeLog       Indicates whether to exclude entries
+   *                                contained in the changelog.
    *
    * @return  The number of entries written to LDIF.
    *
    * @throws  LDAPException  If a problem occurs while writing entries to LDIF.
    */
-  public int writeToLDIF(final String path)
+  public int writeToLDIF(final String path, final boolean excludeGeneratedAttrs,
+                         final boolean excludeChangeLog)
          throws LDAPException
   {
     final LDIFWriter ldifWriter;
@@ -527,7 +545,8 @@ public final class InMemoryDirectoryServer
            e);
     }
 
-    return writeToLDIF(ldifWriter, true);
+    return writeToLDIF(ldifWriter, excludeGeneratedAttrs, excludeChangeLog,
+         true);
   }
 
 
@@ -539,19 +558,28 @@ public final class InMemoryDirectoryServer
    * This method may be used regardless of whether the server is listening for
    * client connections.
    *
-   * @param  writer       The LDIF writer to use to write entries.
-   * @param  closeWriter  Indicates whether the provided LDIF writer should be
-   *                      closed after all server entries have been written to
-   *                      it.
+   * @param  ldifWriter             The LDIF writer to use when writing the
+   *                                entries.  It must not be {@code null}.
+   * @param  excludeGeneratedAttrs  Indicates whether to exclude automatically
+   *                                generated operational attributes like
+   *                                entryUUID, entryDN, creatorsName, etc.
+   * @param  excludeChangeLog       Indicates whether to exclude entries
+   *                                contained in the changelog.
+   * @param  closeWriter            Indicates whether the LDIF writer should be
+   *                                closed after all entries have been written.
    *
    * @return  The number of entries written to LDIF.
    *
    * @throws  LDAPException  If a problem occurs while writing entries to LDIF.
    */
-  public int writeToLDIF(final LDIFWriter writer, final boolean closeWriter)
+  public int writeToLDIF(final LDIFWriter ldifWriter,
+                         final boolean excludeGeneratedAttrs,
+                         final boolean excludeChangeLog,
+                         final boolean closeWriter)
          throws LDAPException
   {
-    return inMemoryHandler.writeToLDIF(writer, closeWriter);
+    return inMemoryHandler.writeToLDIF(ldifWriter, excludeGeneratedAttrs,
+         excludeChangeLog, closeWriter);
   }
 
 
@@ -899,5 +927,526 @@ public final class InMemoryDirectoryServer
          throws LDAPException
   {
     return inMemoryHandler.search(baseDN, scope, filter);
+  }
+
+
+
+  /**
+   * Indicates whether the specified entry exists in the server.
+   *
+   * @param  dn  The DN of the entry for which to make the determination.
+   *
+   * @return  {@code true} if the entry exists, or {@code false} if not.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public boolean entryExists(final String dn)
+         throws LDAPException
+  {
+    return inMemoryHandler.entryExists(dn);
+  }
+
+
+
+  /**
+   * Indicates whether the specified entry exists in the server and matches the
+   * given filter.
+   *
+   * @param  dn      The DN of the entry for which to make the determination.
+   * @param  filter  The filter the entry is expected to match.
+   *
+   * @return  {@code true} if the entry exists and matches the specified filter,
+   *          or {@code false} if not.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public boolean entryExists(final String dn, final String filter)
+         throws LDAPException
+  {
+    return inMemoryHandler.entryExists(dn, filter);
+  }
+
+
+
+  /**
+   * Indicates whether the specified entry exists in the server.  This will
+   * return {@code true} only if the target entry exists and contains all values
+   * for all attributes of the provided entry.  The entry will be allowed to
+   * have attribute values not included in the provided entry.
+   *
+   * @param  entry  The entry to compare against the directory server.
+   *
+   * @return  {@code true} if the entry exists in the server and is a superset
+   *          of the provided entry, or {@code false} if not.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public boolean entryExists(final Entry entry)
+         throws LDAPException
+  {
+    return inMemoryHandler.entryExists(entry);
+  }
+
+
+
+  /**
+   * Ensures that an entry with the provided DN exists in the directory.
+   *
+   * @param  dn  The DN of the entry for which to make the determination.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry does not exist.
+   */
+  public void assertEntryExists(final String dn)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertEntryExists(dn);
+  }
+
+
+
+  /**
+   * Ensures that an entry with the provided DN exists in the directory.
+   *
+   * @param  dn      The DN of the entry for which to make the determination.
+   * @param  filter  A filter that the target entry must match.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry does not exist or does not
+   *                          match the provided filter.
+   */
+  public void assertEntryExists(final String dn, final String filter)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertEntryExists(dn, filter);
+  }
+
+
+
+  /**
+   * Ensures that an entry exists in the directory with the same DN and all
+   * attribute values contained in the provided entry.  The server entry may
+   * contain additional attributes and/or attribute values not included in the
+   * provided entry.
+   *
+   * @param  entry  The entry expected to be present in the directory server.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry does not exist or does not
+   *                          match the provided filter.
+   */
+  public void assertEntryExists(final Entry entry)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertEntryExists(entry);
+  }
+
+
+
+  /**
+   * Retrieves a list containing the DNs of the entries which are missing from
+   * the directory server.
+   *
+   * @param  dns  The DNs of the entries to try to find in the server.
+   *
+   * @return  A list containing all of the provided DNs that were not found in
+   *          the server, or an empty list if all entries were found.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public List<String> getMissingEntryDNs(final String... dns)
+         throws LDAPException
+  {
+    return inMemoryHandler.getMissingEntryDNs(StaticUtils.toList(dns));
+  }
+
+
+
+  /**
+   * Retrieves a list containing the DNs of the entries which are missing from
+   * the directory server.
+   *
+   * @param  dns  The DNs of the entries to try to find in the server.
+   *
+   * @return  A list containing all of the provided DNs that were not found in
+   *          the server, or an empty list if all entries were found.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public List<String> getMissingEntryDNs(final Collection<String> dns)
+         throws LDAPException
+  {
+    return inMemoryHandler.getMissingEntryDNs(dns);
+  }
+
+
+
+  /**
+   * Ensures that all of the entries with the provided DNs exist in the
+   * directory.
+   *
+   * @param  dns  The DNs of the entries for which to make the determination.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If any of the target entries does not exist.
+   */
+  public void assertEntriesExist(final String... dns)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertEntriesExist(StaticUtils.toList(dns));
+  }
+
+
+
+  /**
+   * Ensures that all of the entries with the provided DNs exist in the
+   * directory.
+   *
+   * @param  dns  The DNs of the entries for which to make the determination.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If any of the target entries does not exist.
+   */
+  public void assertEntriesExist(final Collection<String> dns)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertEntriesExist(dns);
+  }
+
+
+
+  /**
+   * Retrieves a list containing all of the named attributes which do not exist
+   * in the target entry.
+   *
+   * @param  dn              The DN of the entry to examine.
+   * @param  attributeNames  The names of the attributes expected to be present
+   *                         in the target entry.
+   *
+   * @return  A list containing the names of the attributes which were not
+   *          present in the target entry, an empty list if all specified
+   *          attributes were found in the entry, or {@code null} if the target
+   *          entry does not exist.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public List<String> getMissingAttributeNames(final String dn,
+                                               final String... attributeNames)
+         throws LDAPException
+  {
+    return inMemoryHandler.getMissingAttributeNames(dn,
+         StaticUtils.toList(attributeNames));
+  }
+
+
+
+  /**
+   * Retrieves a list containing all of the named attributes which do not exist
+   * in the target entry.
+   *
+   * @param  dn              The DN of the entry to examine.
+   * @param  attributeNames  The names of the attributes expected to be present
+   *                         in the target entry.
+   *
+   * @return  A list containing the names of the attributes which were not
+   *          present in the target entry, an empty list if all specified
+   *          attributes were found in the entry, or {@code null} if the target
+   *          entry does not exist.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public List<String> getMissingAttributeNames(final String dn,
+                           final Collection<String> attributeNames)
+         throws LDAPException
+  {
+    return inMemoryHandler.getMissingAttributeNames(dn, attributeNames);
+  }
+
+
+
+  /**
+   * Ensures that the specified entry exists in the directory with all of the
+   * specified attributes.
+   *
+   * @param  dn              The DN of the entry to examine.
+   * @param  attributeNames  The names of the attributes that are expected to be
+   *                         present in the provided entry.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry does not exist or does not
+   *                          contain all of the specified attributes.
+   */
+  public void assertAttributeExists(final String dn,
+                                    final String... attributeNames)
+        throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertAttributeExists(dn,
+         StaticUtils.toList(attributeNames));
+  }
+
+
+
+  /**
+   * Ensures that the specified entry exists in the directory with all of the
+   * specified attributes.
+   *
+   * @param  dn              The DN of the entry to examine.
+   * @param  attributeNames  The names of the attributes that are expected to be
+   *                         present in the provided entry.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry does not exist or does not
+   *                          contain all of the specified attributes.
+   */
+  public void assertAttributeExists(final String dn,
+                                    final Collection<String> attributeNames)
+        throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertAttributeExists(dn, attributeNames);
+  }
+
+
+
+  /**
+   * Retrieves a list of all provided attribute values which are missing from
+   * the specified entry.
+   *
+   * @param  dn               The DN of the entry to examine.
+   * @param  attributeName    The attribute expected to be present in the target
+   *                          entry with the given values.
+   * @param  attributeValues  The values expected to be present in the target
+   *                          entry.
+   *
+   * @return  A list containing all of the provided values which were not found
+   *          in the entry, an empty list if all provided attribute values were
+   *          found, or {@code null} if the target entry does not exist.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public List<String> getMissingAttributeValues(final String dn,
+                                                final String attributeName,
+                                                final String... attributeValues)
+         throws LDAPException
+  {
+    return inMemoryHandler.getMissingAttributeValues(dn, attributeName,
+         StaticUtils.toList(attributeValues));
+  }
+
+
+
+  /**
+   * Retrieves a list of all provided attribute values which are missing from
+   * the specified entry.  The target attribute may or may not contain
+   * additional values.
+   *
+   * @param  dn               The DN of the entry to examine.
+   * @param  attributeName    The attribute expected to be present in the target
+   *                          entry with the given values.
+   * @param  attributeValues  The values expected to be present in the target
+   *                          entry.
+   *
+   * @return  A list containing all of the provided values which were not found
+   *          in the entry, an empty list if all provided attribute values were
+   *          found, or {@code null} if the target entry does not exist.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   */
+  public List<String> getMissingAttributeValues(final String dn,
+                           final String attributeName,
+                           final Collection<String> attributeValues)
+       throws LDAPException
+  {
+    return inMemoryHandler.getMissingAttributeValues(dn, attributeName,
+         attributeValues);
+  }
+
+
+
+  /**
+   * Ensures that the specified entry exists in the directory with all of the
+   * specified values for the given attribute.  The attribute may or may not
+   * contain additional values.
+   *
+   * @param  dn               The DN of the entry to examine.
+   * @param  attributeName    The name of the attribute to examine.
+   * @param  attributeValues  The set of values which must exist for the given
+   *                          attribute.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry does not exist, does not
+   *                          contain the specified attribute, or that attribute
+   *                          does not have all of the specified values.
+   */
+  public void assertValueExists(final String dn, final String attributeName,
+                                final String... attributeValues)
+        throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertValueExists(dn, attributeName,
+         StaticUtils.toList(attributeValues));
+  }
+
+
+
+  /**
+   * Ensures that the specified entry exists in the directory with all of the
+   * specified values for the given attribute.  The attribute may or may not
+   * contain additional values.
+   *
+   * @param  dn               The DN of the entry to examine.
+   * @param  attributeName    The name of the attribute to examine.
+   * @param  attributeValues  The set of values which must exist for the given
+   *                          attribute.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry does not exist, does not
+   *                          contain the specified attribute, or that attribute
+   *                          does not have all of the specified values.
+   */
+  public void assertValueExists(final String dn, final String attributeName,
+                                final Collection<String> attributeValues)
+        throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertValueExists(dn, attributeName, attributeValues);
+  }
+
+
+
+  /**
+   * Ensures that the specified entry does not exist in the directory.
+   *
+   * @param  dn  The DN of the entry expected to be missing.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry is found in the server.
+   */
+  public void assertEntryMissing(final String dn)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertEntryMissing(dn);
+  }
+
+
+
+  /**
+   * Ensures that the specified entry exists in the directory but does not
+   * contain any of the specified attributes.
+   *
+   * @param  dn              The DN of the entry expected to be present.
+   * @param  attributeNames  The names of the attributes expected to be missing
+   *                         from the entry.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry is missing from the server, or
+   *                          if it contains any of the target attributes.
+   */
+  public void assertAttributeMissing(final String dn,
+                                     final String... attributeNames)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertAttributeMissing(dn,
+         StaticUtils.toList(attributeNames));
+  }
+
+
+
+  /**
+   * Ensures that the specified entry exists in the directory but does not
+   * contain any of the specified attributes.
+   *
+   * @param  dn              The DN of the entry expected to be present.
+   * @param  attributeNames  The names of the attributes expected to be missing
+   *                         from the entry.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry is missing from the server, or
+   *                          if it contains any of the target attributes.
+   */
+  public void assertAttributeMissing(final String dn,
+                                     final Collection<String> attributeNames)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertAttributeMissing(dn, attributeNames);
+  }
+
+
+
+  /**
+   * Ensures that the specified entry exists in the directory but does not
+   * contain any of the specified attribute values.
+   *
+   * @param  dn               The DN of the entry expected to be present.
+   * @param  attributeName    The name of the attribute to examine.
+   * @param  attributeValues  The values expected to be missing from the target
+   *                          entry.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry is missing from the server, or
+   *                          if it contains any of the target attribute values.
+   */
+  public void assertValueMissing(final String dn, final String attributeName,
+                                 final String... attributeValues)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertValueMissing(dn, attributeName,
+         StaticUtils.toList(attributeValues));
+  }
+
+
+
+  /**
+   * Ensures that the specified entry exists in the directory but does not
+   * contain any of the specified attribute values.
+   *
+   * @param  dn               The DN of the entry expected to be present.
+   * @param  attributeName    The name of the attribute to examine.
+   * @param  attributeValues  The values expected to be missing from the target
+   *                          entry.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to
+   *                         communicate with the directory server.
+   *
+   * @throws  AssertionError  If the target entry is missing from the server, or
+   *                          if it contains any of the target attribute values.
+   */
+  public void assertValueMissing(final String dn, final String attributeName,
+                                 final Collection<String> attributeValues)
+         throws LDAPException, AssertionError
+  {
+    inMemoryHandler.assertValueMissing(dn, attributeName, attributeValues);
   }
 }

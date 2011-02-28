@@ -557,7 +557,21 @@ public final class LDAPURL
       percentEncode(baseDN.toString(), buffer);
     }
 
-    buffer.append('?');
+    final boolean continueAppending;
+    if (((attributes == null) || (attributes.length == 0)) && (scope == null) &&
+        (filter == null))
+    {
+      continueAppending = false;
+    }
+    else
+    {
+      continueAppending = true;
+    }
+
+    if (continueAppending)
+    {
+      buffer.append('?');
+    }
     if ((attributes == null) || (attributes.length == 0))
     {
       this.attributes = DEFAULT_ATTRIBUTES;
@@ -578,7 +592,10 @@ public final class LDAPURL
       }
     }
 
-    buffer.append('?');
+    if (continueAppending)
+    {
+      buffer.append('?');
+    }
     if (scope == null)
     {
       this.scope = DEFAULT_SCOPE;
@@ -614,7 +631,10 @@ public final class LDAPURL
       }
     }
 
-    buffer.append('?');
+    if (continueAppending)
+    {
+      buffer.append('?');
+    }
     if (filter == null)
     {
       this.filter = DEFAULT_FILTER;

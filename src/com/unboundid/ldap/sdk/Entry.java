@@ -1775,6 +1775,10 @@ public class Entry
             {
               if (! e.addAttribute(name, values[i]))
               {
+                if (resultCode == null)
+                {
+                  resultCode = ResultCode.ATTRIBUTE_OR_VALUE_EXISTS;
+                }
                 errors.add(ERR_ENTRY_APPLY_MODS_ADD_EXISTING.get(
                      m.getValues()[i], name));
               }
@@ -1804,6 +1808,10 @@ public class Entry
             final boolean removed = e.removeAttribute(name);
             if (! (lenient || removed))
             {
+              if (resultCode == null)
+              {
+                resultCode = ResultCode.NO_SUCH_ATTRIBUTE;
+              }
               errors.add(ERR_ENTRY_APPLY_MODS_DELETE_NONEXISTENT_ATTR.get(
                    name));
             }
@@ -1832,6 +1840,10 @@ deleteValueLoop:
               final boolean removed = e.removeAttributeValue(name, values[i]);
               if (! (lenient || removed))
               {
+                if (resultCode == null)
+                {
+                  resultCode = ResultCode.NO_SUCH_ATTRIBUTE;
+                }
                 errors.add(ERR_ENTRY_APPLY_MODS_DELETE_NONEXISTENT_VALUE.get(
                      m.getValues()[i], name));
               }
