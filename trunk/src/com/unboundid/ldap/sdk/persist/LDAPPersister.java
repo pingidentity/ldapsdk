@@ -814,7 +814,7 @@ public final class LDAPPersister<T>
         modifyRequest.setControls(controls);
       }
 
-      return i.modify(targetDN, mods);
+      return i.modify(modifyRequest);
     }
     catch (LDAPException le)
     {
