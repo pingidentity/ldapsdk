@@ -3146,7 +3146,7 @@ attrNameLoop:
         return (! notComp.matchesEntry(entry, schema));
 
       case FILTER_TYPE_EQUALITY:
-        Attribute a = entry.getAttribute(attrName);
+        Attribute a = entry.getAttribute(attrName, schema);
         if (a == null)
         {
           return false;
@@ -3164,7 +3164,7 @@ attrNameLoop:
         return false;
 
       case FILTER_TYPE_SUBSTRING:
-        a = entry.getAttribute(attrName);
+        a = entry.getAttribute(attrName, schema);
         if (a == null)
         {
           return false;
@@ -3182,7 +3182,7 @@ attrNameLoop:
         return false;
 
       case FILTER_TYPE_GREATER_OR_EQUAL:
-        a = entry.getAttribute(attrName);
+        a = entry.getAttribute(attrName, schema);
         if (a == null)
         {
           return false;
@@ -3200,7 +3200,7 @@ attrNameLoop:
         return false;
 
       case FILTER_TYPE_LESS_OR_EQUAL:
-        a = entry.getAttribute(attrName);
+        a = entry.getAttribute(attrName, schema);
         if (a == null)
         {
           return false;

@@ -36,6 +36,7 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
@@ -75,7 +76,11 @@ final class ModRateThread
   private final int valueLength;
 
   // The connection to use for the modifications.
-  private final LDAPConnection connection;
+  private LDAPConnection connection;
+
+  // A reference to the associated modrate tool that can be used when attempting
+  // to establish connections.
+  private final ModRate modRate;
 
   // The result code counter to use for failed operations.
   private final ResultCodeCounter rcCounter;
@@ -104,6 +109,7 @@ final class ModRateThread
   /**
    * Creates a new mod rate thread with the provided information.
    *
+   * @param  modRate       A reference to the associated modrate tool.
    * @param  threadNumber  The thread number for this thread.
    * @param  connection    The connection to use for the modifications.
    * @param  entryDN       The value pattern to use for the entry DNs.
@@ -130,18 +136,20 @@ final class ModRateThread
    *                       modifies.  {@code null} if no rate-limiting
    *                       should be used.
    */
-  ModRateThread(final int threadNumber, final LDAPConnection connection,
-                final ValuePattern entryDN, final String[] attributes,
-                final byte[] charSet, final int valueLength,
-                final ValuePattern authzID, final long randomSeed,
-                final CyclicBarrier startBarrier, final AtomicLong modCounter,
-                final AtomicLong modDurations, final AtomicLong errorCounter,
+  ModRateThread(final ModRate modRate, final int threadNumber,
+                final LDAPConnection connection, final ValuePattern entryDN,
+                final String[] attributes, final byte[] charSet,
+                final int valueLength, final ValuePattern authzID,
+                final long randomSeed, final CyclicBarrier startBarrier,
+                final AtomicLong modCounter, final AtomicLong modDurations,
+                final AtomicLong errorCounter,
                 final ResultCodeCounter rcCounter,
                 final FixedRateBarrier rateBarrier)
   {
     setName("ModRate Thread " + threadNumber);
     setDaemon(true);
 
+    this.modRate      = modRate;
     this.connection   = connection;
     this.entryDN      = entryDN;
     this.attributes   = attributes;
@@ -181,10 +189,39 @@ final class ModRateThread
     try
     {
       startBarrier.await();
-    } catch (Exception e) {}
+    }
+    catch (Exception e)
+    {
+      Debug.debugException(e);
+    }
 
     while (! stopRequested.get())
     {
+      if (connection == null)
+      {
+        try
+        {
+          connection = modRate.getConnection();
+        }
+        catch (final LDAPException le)
+        {
+          Debug.debugException(le);
+
+          errorCounter.incrementAndGet();
+
+          final ResultCode rc = le.getResultCode();
+          rcCounter.increment(rc);
+          resultCode.compareAndSet(null, rc);
+
+          if (fixedRateBarrier != null)
+          {
+            fixedRateBarrier.await();
+          }
+
+          continue;
+        }
+      }
+
       modifyRequest.setDN(entryDN.nextValue());
 
       for (int i=0; i < valueLength; i++)
@@ -221,6 +258,7 @@ final class ModRateThread
       }
       catch (LDAPException le)
       {
+        Debug.debugException(le);
         errorCounter.incrementAndGet();
 
         final ResultCode rc = le.getResultCode();
@@ -229,10 +267,8 @@ final class ModRateThread
 
         if (! le.getResultCode().isConnectionUsable())
         {
-          try
-          {
-            connection.reconnect();
-          } catch (final LDAPException le2) {}
+          connection.close();
+          connection = null;
         }
       }
 
@@ -267,7 +303,11 @@ final class ModRateThread
       try
       {
         t.join();
-      } catch (Exception e) {}
+      }
+      catch (Exception e)
+      {
+        Debug.debugException(e);
+      }
     }
 
     resultCode.compareAndSet(null, ResultCode.SUCCESS);

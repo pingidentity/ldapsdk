@@ -588,9 +588,10 @@ public final class ModRate
         return le.getResultCode();
       }
 
-      threads[i] = new ModRateThread(i, connection, dnPattern, attrs, charSet,
-           valueLength.getValue(), authzIDPattern, random.nextLong(), barrier,
-           modCounter, modDurations, errorCounter, rcCounter, fixedRateBarrier);
+      threads[i] = new ModRateThread(this, i, connection, dnPattern, attrs,
+           charSet, valueLength.getValue(), authzIDPattern, random.nextLong(),
+           barrier, modCounter, modDurations, errorCounter, rcCounter,
+           fixedRateBarrier);
       threads[i].start();
     }
 

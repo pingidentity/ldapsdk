@@ -680,7 +680,7 @@ public final class SearchAndModRate
         return le.getResultCode();
       }
 
-      threads[i] = new SearchAndModRateThread(i, connection, dnPattern,
+      threads[i] = new SearchAndModRateThread(this, i, connection, dnPattern,
            scopeArg.getValue(), filterPattern, returnAttrs, modAttrs,
            valueLength.getValue(), charSet, authzIDPattern, random.nextLong(),
            barrier, searchCounter, modCounter, searchDurations, modDurations,
