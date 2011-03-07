@@ -608,7 +608,7 @@ public final class AuthRate
         return le.getResultCode();
       }
 
-      threads[i] = new AuthRateThread(i, searchConnection, bindConnection,
+      threads[i] = new AuthRateThread(this, i, searchConnection, bindConnection,
            dnPattern, scopeArg.getValue(), filterPattern, attrs,
            userPassword.getValue(), authType.getValue(), barrier, authCounter,
            authDurations, errorCounter, rcCounter, fixedRateBarrier);

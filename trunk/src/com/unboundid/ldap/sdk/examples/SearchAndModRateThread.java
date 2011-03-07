@@ -42,6 +42,7 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
@@ -55,13 +56,6 @@ import com.unboundid.util.ValuePattern;
 final class SearchAndModRateThread
       extends Thread
 {
-  /**
-   * The serial version UID for this serializable class.
-   */
-  private static final long serialVersionUID = -8238795420559281873L;
-
-
-
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
@@ -83,9 +77,6 @@ final class SearchAndModRateThread
   // The thread that is actually performing the search and modify operations.
   private final AtomicReference<Thread> searchAndModThread;
 
-  // The connection to use for the searches.
-  private final LDAPConnection connection;
-
   // The result code for this thread.
   private final AtomicReference<ResultCode> resultCode;
 
@@ -98,23 +89,23 @@ final class SearchAndModRateThread
   // The length to use for modify values.
   private final int valueLength;
 
+  // The connection to use for the searches.
+  private LDAPConnection connection;
+
   // The random number generator to use for this thread.
   private final Random random;
 
   // The result code counter to use for failed operations.
   private final ResultCodeCounter rcCounter;
 
+  // A reference to the associated tool.
+  private final SearchAndModRate searchAndModRate;
+
   // The search request to generate.
   private final SearchRequest searchRequest;
 
-  // The scope to use for search requests.
-  private final SearchScope scope;
-
   // The set of attributes to modify.
   private final String[] modAttributes;
-
-  // The set of requested attributes for search requests.
-  private final String[] returnAttributes;
 
   // The value pattern to use for proxied authorization.
   private final ValuePattern authzID;
@@ -134,6 +125,7 @@ final class SearchAndModRateThread
   /**
    * Creates a new search rate thread with the provided information.
    *
+   * @param  searchAndModRate  A reference to the associated tool.
    * @param  threadNumber      The thread number for this thread.
    * @param  connection        The connection to use for the searches.
    * @param  baseDN            The value pattern to use for the base DNs.
@@ -167,25 +159,24 @@ final class SearchAndModRateThread
    *                           searches.  {@code null} if no rate-limiting
    *                           should be used.
    */
-  SearchAndModRateThread(final int threadNumber,
-       final LDAPConnection connection, final ValuePattern baseDN,
-       final SearchScope scope, final ValuePattern filter,
-       final String[] returnAttributes, final String[] modAttributes,
-       final int valueLength, final byte[] charSet, final ValuePattern authzID,
-       final long randomSeed, final CyclicBarrier startBarrier,
-       final AtomicLong searchCounter, final AtomicLong modCounter,
-       final AtomicLong searchDurations, final AtomicLong modDurations,
-       final AtomicLong errorCounter, final ResultCodeCounter rcCounter,
-       final FixedRateBarrier rateBarrier)
+  SearchAndModRateThread(final SearchAndModRate searchAndModRate,
+       final int threadNumber, final LDAPConnection connection,
+       final ValuePattern baseDN, final SearchScope scope,
+       final ValuePattern filter, final String[] returnAttributes,
+       final String[] modAttributes, final int valueLength,
+       final byte[] charSet, final ValuePattern authzID, final long randomSeed,
+       final CyclicBarrier startBarrier, final AtomicLong searchCounter,
+       final AtomicLong modCounter, final AtomicLong searchDurations,
+       final AtomicLong modDurations, final AtomicLong errorCounter,
+       final ResultCodeCounter rcCounter, final FixedRateBarrier rateBarrier)
   {
     setName("SearchRate Thread " + threadNumber);
     setDaemon(true);
 
+    this.searchAndModRate = searchAndModRate;
     this.connection       = connection;
     this.baseDN           = baseDN;
-    this.scope            = scope;
     this.filter           = filter;
-    this.returnAttributes = returnAttributes;
     this.modAttributes    = modAttributes;
     this.valueLength      = valueLength;
     this.charSet          = charSet;
@@ -227,10 +218,39 @@ final class SearchAndModRateThread
     try
     {
       startBarrier.await();
-    } catch (Exception e) {}
+    }
+    catch (Exception e)
+    {
+      Debug.debugException(e);
+    }
 
     while (! stopRequested.get())
     {
+      if (connection == null)
+      {
+        try
+        {
+          connection = searchAndModRate.getConnection();
+        }
+        catch (final LDAPException le)
+        {
+          Debug.debugException(le);
+
+          errorCounter.incrementAndGet();
+
+          final ResultCode rc = le.getResultCode();
+          rcCounter.increment(rc);
+          resultCode.compareAndSet(null, rc);
+
+          if (fixedRateBarrier != null)
+          {
+            fixedRateBarrier.await();
+          }
+
+          continue;
+        }
+      }
+
       // If we're trying for a specific target rate, then we might need to
       // wait until issuing the next search.
       if (fixedRateBarrier != null)
@@ -251,6 +271,7 @@ final class SearchAndModRateThread
       }
       catch (LDAPException le)
       {
+        Debug.debugException(le);
         errorCounter.incrementAndGet();
 
         final ResultCode rc = le.getResultCode();
@@ -268,6 +289,7 @@ final class SearchAndModRateThread
       }
       catch (LDAPSearchException lse)
       {
+        Debug.debugException(lse);
         errorCounter.incrementAndGet();
 
         final ResultCode rc = lse.getResultCode();
@@ -276,10 +298,8 @@ final class SearchAndModRateThread
 
         if (! lse.getResultCode().isConnectionUsable())
         {
-          try
-          {
-            connection.reconnect();
-          } catch (final LDAPException le2) {}
+          connection.close();
+          connection = null;
         }
 
         continue;
@@ -325,6 +345,7 @@ final class SearchAndModRateThread
         }
         catch (LDAPException le)
         {
+          Debug.debugException(le);
           errorCounter.incrementAndGet();
 
           final ResultCode rc = le.getResultCode();
@@ -333,10 +354,8 @@ final class SearchAndModRateThread
 
           if (! le.getResultCode().isConnectionUsable())
           {
-            try
-            {
-              connection.reconnect();
-            } catch (final LDAPException le2) {}
+            connection.close();
+            connection = null;
           }
         }
         finally
@@ -374,7 +393,11 @@ final class SearchAndModRateThread
       try
       {
         t.join();
-      } catch (Exception e) {}
+      }
+      catch (Exception e)
+      {
+        Debug.debugException(e);
+      }
     }
 
     resultCode.compareAndSet(null, ResultCode.SUCCESS);

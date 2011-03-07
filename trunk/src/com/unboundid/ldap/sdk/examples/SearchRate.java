@@ -655,7 +655,7 @@ public final class SearchRate
         return le.getResultCode();
       }
 
-      threads[i] = new SearchRateThread(i, connection,
+      threads[i] = new SearchRateThread(this, i, connection,
            asynchronousMode.isPresent(), dnPattern, scopeArg.getValue(),
            filterPattern, attrs, authzIDPattern, barrier, searchCounter,
            entryCounter, searchDurations, errorCounter, rcCounter,

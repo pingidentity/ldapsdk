@@ -40,6 +40,7 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
@@ -82,7 +83,7 @@ final class SearchRateThread
   private final boolean async;
 
   // The connection to use for the searches.
-  private final LDAPConnection connection;
+  private LDAPConnection connection;
 
   // The result code for this thread.
   private final AtomicReference<ResultCode> resultCode;
@@ -92,6 +93,9 @@ final class SearchRateThread
 
   // The result code counter to use for failed operations.
   private final ResultCodeCounter rcCounter;
+
+  // A reference to the searchrate tool.
+  private final SearchRate searchRate;
 
   // The search request to generate.
   private final SearchRequest searchRequest;
@@ -124,6 +128,7 @@ final class SearchRateThread
   /**
    * Creates a new search rate thread with the provided information.
    *
+   * @param  searchRate       A reference to the associated searchrate tool.
    * @param  threadNumber     The thread number for this thread.
    * @param  connection       The connection to use for the searches.
    * @param  async            Indicates whether to operate in asynchronous mode.
@@ -153,11 +158,11 @@ final class SearchRateThread
    * @param  asyncSemaphore   The semaphore used ot limit the total number of
    *                          outstanding asynchronous requests.
    */
-  SearchRateThread(final int threadNumber, final LDAPConnection connection,
-                   final boolean async, final ValuePattern baseDN,
-                   final SearchScope scope, final ValuePattern filter,
-                   final String[] attributes, final ValuePattern authzID,
-                   final CyclicBarrier startBarrier,
+  SearchRateThread(final SearchRate searchRate, final int threadNumber,
+                   final LDAPConnection connection, final boolean async,
+                   final ValuePattern baseDN, final SearchScope scope,
+                   final ValuePattern filter, final String[] attributes,
+                   final ValuePattern authzID, final CyclicBarrier startBarrier,
                    final AtomicLong searchCounter,
                    final AtomicLong entryCounter,
                    final AtomicLong searchDurations,
@@ -169,6 +174,7 @@ final class SearchRateThread
     setName("SearchRate Thread " + threadNumber);
     setDaemon(true);
 
+    this.searchRate      = searchRate;
     this.connection      = connection;
     this.async           = async;
     this.baseDN          = baseDN;
@@ -207,10 +213,39 @@ final class SearchRateThread
     try
     {
       startBarrier.await();
-    } catch (Exception e) {}
+    }
+    catch (Exception e)
+    {
+      Debug.debugException(e);
+    }
 
     while (! stopRequested.get())
     {
+      if (connection == null)
+      {
+        try
+        {
+          connection = searchRate.getConnection();
+        }
+        catch (final LDAPException le)
+        {
+          Debug.debugException(le);
+
+          errorCounter.incrementAndGet();
+
+          final ResultCode rc = le.getResultCode();
+          rcCounter.increment(rc);
+          resultCode.compareAndSet(null, rc);
+
+          if (fixedRateBarrier != null)
+          {
+            fixedRateBarrier.await();
+          }
+
+          continue;
+        }
+      }
+
       // If we're trying for a specific target rate, then we might need to
       // wait until issuing the next search.
       if (fixedRateBarrier != null)
@@ -228,6 +263,7 @@ final class SearchRateThread
           }
           catch (final Exception e)
           {
+            Debug.debugException(e);
             errorCounter.incrementAndGet();
 
             final ResultCode rc = ResultCode.LOCAL_ERROR;
@@ -248,6 +284,7 @@ final class SearchRateThread
         }
         catch (final LDAPException le)
         {
+          Debug.debugException(le);
           errorCounter.incrementAndGet();
 
           final ResultCode rc = le.getResultCode();
@@ -277,6 +314,7 @@ final class SearchRateThread
         }
         catch (LDAPException le)
         {
+          Debug.debugException(le);
           errorCounter.incrementAndGet();
 
           final ResultCode rc = le.getResultCode();
@@ -294,6 +332,7 @@ final class SearchRateThread
         }
         catch (LDAPSearchException lse)
         {
+          Debug.debugException(lse);
           errorCounter.incrementAndGet();
           entryCounter.addAndGet(lse.getEntryCount());
 
@@ -303,10 +342,8 @@ final class SearchRateThread
 
           if (! lse.getResultCode().isConnectionUsable())
           {
-            try
-            {
-              connection.reconnect();
-            } catch (final LDAPException le2) {}
+            connection.close();
+            connection = null;
           }
         }
 
@@ -342,7 +379,11 @@ final class SearchRateThread
       try
       {
         t.join();
-      } catch (Exception e) {}
+      }
+      catch (Exception e)
+      {
+        Debug.debugException(e);
+      }
     }
 
     resultCode.compareAndSet(null, ResultCode.SUCCESS);

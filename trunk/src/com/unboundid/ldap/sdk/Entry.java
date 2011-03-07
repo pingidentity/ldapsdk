@@ -37,6 +37,8 @@ import java.util.Set;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
+import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFRecord;
@@ -432,6 +434,67 @@ public class Entry
 
 
   /**
+   * Indicates whether this entry contains the specified attribute.
+   *
+   * @param  attributeName  The name of the attribute for which to make the
+   *                        determination.  It must not be {@code null}.
+   * @param  schema         The schema to use to determine whether there may be
+   *                        alternate names for the specified attribute.  It may
+   *                        be {@code null} if no schema is available.
+   *
+   * @return  {@code true} if this entry contains the specified attribute, or
+   *          {@code false} if not.
+   */
+  public final boolean hasAttribute(final String attributeName,
+                                    final Schema schema)
+  {
+    ensureNotNull(attributeName);
+
+    if (attributes.containsKey(toLowerCase(attributeName)))
+    {
+      return true;
+    }
+
+    if (schema != null)
+    {
+      final String baseName;
+      final String options;
+      final int semicolonPos = attributeName.indexOf(';');
+      if (semicolonPos > 0)
+      {
+        baseName = attributeName.substring(0, semicolonPos);
+        options  = toLowerCase(attributeName.substring(semicolonPos));
+      }
+      else
+      {
+        baseName = attributeName;
+        options  = "";
+      }
+
+      final AttributeTypeDefinition at = schema.getAttributeType(baseName);
+      if (at != null)
+      {
+        if (attributes.containsKey(toLowerCase(at.getOID()) + options))
+        {
+          return true;
+        }
+
+        for (final String name : at.getNames())
+        {
+          if (attributes.containsKey(toLowerCase(name) + options))
+          {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+
+
+  /**
    * Indicates whether this entry contains the specified attribute.  It will
    * only return {@code true} if this entry contains an attribute with the same
    * name and exact set of values.
@@ -593,6 +656,69 @@ public class Entry
     ensureNotNull(attributeName);
 
     return attributes.get(toLowerCase(attributeName));
+  }
+
+
+
+  /**
+   * Retrieves the attribute with the specified name.
+   *
+   * @param  attributeName  The name of the attribute to retrieve.  It must not
+   *                        be {@code null}.
+   * @param  schema         The schema to use to determine whether there may be
+   *                        alternate names for the specified attribute.  It may
+   *                        be {@code null} if no schema is available.
+   *
+   * @return  The requested attribute from this entry, or {@code null} if the
+   *          specified attribute is not present in this entry.
+   */
+  public final Attribute getAttribute(final String attributeName,
+                                      final Schema schema)
+  {
+    ensureNotNull(attributeName);
+
+    Attribute a = attributes.get(toLowerCase(attributeName));
+    if ((a == null) && (schema != null))
+    {
+      final String baseName;
+      final String options;
+      final int semicolonPos = attributeName.indexOf(';');
+      if (semicolonPos > 0)
+      {
+        baseName = attributeName.substring(0, semicolonPos);
+        options  = toLowerCase(attributeName.substring(semicolonPos));
+      }
+      else
+      {
+        baseName = attributeName;
+        options  = "";
+      }
+
+      final AttributeTypeDefinition at = schema.getAttributeType(baseName);
+      if (at == null)
+      {
+        return null;
+      }
+
+      a = attributes.get(toLowerCase(at.getOID() + options));
+      if (a == null)
+      {
+        for (final String name : at.getNames())
+        {
+          a = attributes.get(toLowerCase(name) + options);
+          if (a != null)
+          {
+            return a;
+          }
+        }
+      }
+
+      return a;
+    }
+    else
+    {
+      return a;
+    }
   }
 
 
