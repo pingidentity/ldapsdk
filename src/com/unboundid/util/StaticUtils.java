@@ -555,6 +555,122 @@ public final class StaticUtils
 
 
   /**
+   * Retrieves a hex-encoded representation of the contents of the provided
+   * array, along with an ASCII representation of its contents next to it.  The
+   * output will be split across multiple lines, with up to sixteen bytes per
+   * line.  For each of those sixteen bytes, the two-digit hex representation
+   * will be appended followed by a space.  Then, the ASCII representation of
+   * those sixteen bytes will follow that, with a space used in place of any
+   * byte that does not have an ASCII representation.
+   *
+   * @param  array   The array whose contents should be processed.
+   * @param  indent  The number of spaces to insert on each line prior to the
+   *                 first hex byte.
+   *
+   * @return  A hex-encoded representation of the contents of the provided
+   *          array, along with an ASCII representation of its contents next to
+   *          it.
+   */
+  public static String toHexPlusASCII(final byte[] array, final int indent)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toHexPlusASCII(array, indent, buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a hex-encoded representation of the contents of the provided array
+   * to the given buffer, along with an ASCII representation of its contents
+   * next to it.  The output will be split across multiple lines, with up to
+   * sixteen bytes per line.  For each of those sixteen bytes, the two-digit hex
+   * representation will be appended followed by a space.  Then, the ASCII
+   * representation of those sixteen bytes will follow that, with a space used
+   * in place of any byte that does not have an ASCII representation.
+   *
+   * @param  array   The array whose contents should be processed.
+   * @param  indent  The number of spaces to insert on each line prior to the
+   *                 first hex byte.
+   * @param  buffer  The buffer to which the encoded data should be appended.
+   */
+  public static void toHexPlusASCII(final byte[] array, final int indent,
+                                    final StringBuilder buffer)
+  {
+    if ((array == null) || (array.length == 0))
+    {
+      return;
+    }
+
+    for (int i=0; i < indent; i++)
+    {
+      buffer.append(' ');
+    }
+
+    int pos = 0;
+    int startPos = 0;
+    while (pos < array.length)
+    {
+      toHex(array[pos++], buffer);
+      buffer.append(' ');
+
+      if ((pos % 16) == 0)
+      {
+        buffer.append("  ");
+        for (int i=startPos; i < pos; i++)
+        {
+          if ((array[i] < ' ') || (array[i] > '~'))
+          {
+            buffer.append(' ');
+          }
+          else
+          {
+            buffer.append((char) array[i]);
+          }
+        }
+        buffer.append(EOL);
+        startPos = pos;
+
+        if (pos < array.length)
+        {
+          for (int i=0; i < indent; i++)
+          {
+            buffer.append(' ');
+          }
+        }
+      }
+    }
+
+    // If the last line isn't complete yet, then finish it off.
+    if ((array.length % 16) != 0)
+    {
+      final int missingBytes = (16 - (array.length % 16));
+      if (missingBytes > 0)
+      {
+        for (int i=0; i < missingBytes; i++)
+        {
+          buffer.append("   ");
+        }
+        buffer.append("  ");
+        for (int i=startPos; i < array.length; i++)
+        {
+          if ((array[i] < ' ') || (array[i] > '~'))
+          {
+            buffer.append(' ');
+          }
+          else
+          {
+            buffer.append((char) array[i]);
+          }
+        }
+        buffer.append(EOL);
+      }
+    }
+  }
+
+
+
+  /**
    * Appends a hex-encoded representation of the provided character to the given
    * buffer.  Each byte of the hex-encoded representation will be prefixed with
    * a backslash.

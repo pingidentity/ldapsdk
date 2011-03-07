@@ -23,6 +23,7 @@ package com.unboundid.ldap.listener;
 
 
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -313,9 +314,9 @@ public final class LDAPDebuggerRequestHandler
         final ASN1OctetString saslCredentials = request.getSASLCredentials();
         if (saslCredentials != null)
         {
-          b.append("               Encoded Credentials:  ");
-          toHex(saslCredentials.getValue(), b);
+          b.append("               Encoded Credentials:");
           b.append(EOL);
+          toHexPlusASCII(saslCredentials.getValue(), 20, b);
         }
         break;
     }
@@ -340,9 +341,9 @@ public final class LDAPDebuggerRequestHandler
          protocolOp.getServerSASLCredentials();
     if (serverSASLCredentials != null)
     {
-      b.append("               Encoded Server SASL Credentials:  ");
-      toHex(serverSASLCredentials.getValue(), b);
+      b.append("               Encoded Server SASL Credentials:");
       b.append(EOL);
+      toHexPlusASCII(serverSASLCredentials.getValue(), 20, b);
     }
 
     appendControls(b, responseMessage.getControls());
@@ -450,9 +451,9 @@ public final class LDAPDebuggerRequestHandler
     final ASN1OctetString requestValue = request.getValue();
     if (requestValue != null)
     {
-      b.append("          Encoded Request Value:  ");
-      toHex(requestValue.getValue(), b);
+      b.append("          Encoded Request Value:");
       b.append(EOL);
+      toHexPlusASCII(requestValue.getValue(), 15, b);
     }
 
     appendControls(b, controls);
@@ -480,9 +481,9 @@ public final class LDAPDebuggerRequestHandler
     final ASN1OctetString responseValue = protocolOp.getResponseValue();
     if (responseValue != null)
     {
-      b.append("          Encoded Response Value:  ");
-      toHex(responseValue.getValue(), b);
+      b.append("          Encoded Response Value:");
       b.append(EOL);
+      toHexPlusASCII(responseValue.getValue(), 15, b);
     }
 
     appendControls(b, responseMessage.getControls());
@@ -759,11 +760,36 @@ public final class LDAPDebuggerRequestHandler
     if (! controls.isEmpty())
     {
       b.append("     Controls:").append(EOL);
+
+      int index = 1;
       for (final Control c : controls)
       {
-        b.append("          ");
-        c.toString(b);
+        b.append("          Control ");
+        b.append(index++);
         b.append(EOL);
+        b.append("               OID:  ");
+        b.append(c.getOID());
+        b.append(EOL);
+        b.append("               Is Critical:  ");
+        b.append(c.isCritical());
+        b.append(EOL);
+
+        final ASN1OctetString value = c.getValue();
+        if ((value != null) && (value.getValueLength() > 0))
+        {
+          b.append("               Encoded Value:");
+          b.append(EOL);
+          toHexPlusASCII(value.getValue(), 20, b);
+        }
+
+        // If it is a subclass of Control rather than just a generic one, then
+        // it might have a useful toString representation, so provide it.
+        if (! c.getClass().getName().equals(Control.class.getName()))
+        {
+          b.append("               String Representation:  ");
+          c.toString(b);
+          b.append(EOL);
+        }
       }
     }
   }
@@ -779,16 +805,7 @@ public final class LDAPDebuggerRequestHandler
   private static void appendControls(final StringBuilder b,
                                      final Control[] controls)
   {
-    if (controls.length > 0)
-    {
-      b.append("     Controls:").append(EOL);
-      for (final Control c : controls)
-      {
-        b.append("          ");
-        c.toString(b);
-        b.append(EOL);
-      }
-    }
+    appendControls(b, Arrays.asList(controls));
   }
 
 
@@ -815,9 +832,9 @@ public final class LDAPDebuggerRequestHandler
     final ASN1OctetString value = response.getValue();
     if (value != null)
     {
-      b.append("          Encoded Value:  ");
-      toHex(value.getValue(), b);
+      b.append("          Encoded Value:");
       b.append(EOL);
+      toHexPlusASCII(value.getValue(), 15, b);
     }
 
     appendControls(b, controls);
