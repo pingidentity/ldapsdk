@@ -44,11 +44,13 @@ import com.unboundid.ldap.protocol.ModifyDNResponseProtocolOp;
 import com.unboundid.ldap.protocol.SearchRequestProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultDoneProtocolOp;
 import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.GenericSASLBindRequest;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.IntermediateResponseListener;
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -56,7 +58,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ModifyDNRequest;
-import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.ServerSet;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
@@ -81,6 +82,13 @@ public final class ProxyRequestHandler
        extends LDAPListenerRequestHandler
        implements IntermediateResponseListener
 {
+  /**
+   * A pre-allocated empty control array.
+   */
+  private static final Control[] EMPTY_CONTROL_ARRAY = new Control[0];
+
+
+
   /**
    * A pre-allocated empty string array.
    */
@@ -220,26 +228,30 @@ public final class ProxyRequestHandler
                                         final BindRequestProtocolOp request,
                                         final List<Control> controls)
   {
-    if (request.getCredentialsType() != BindRequestProtocolOp.CRED_TYPE_SIMPLE)
+    final Control[] controlArray;
+    if ((controls == null) || (controls.isEmpty()))
     {
-      return new LDAPMessage(messageID, new BindResponseProtocolOp(
-           ResultCode.AUTH_METHOD_NOT_SUPPORTED_INT_VALUE, null,
-           ERR_PROXY_HANDLER_SASL_NOT_SUPPORTED.get(), null, null));
-    }
-
-    final SimpleBindRequest bindRequest;
-    if (controls.isEmpty())
-    {
-      bindRequest = new SimpleBindRequest(request.getBindDN(),
-           request.getSimplePassword().getValue());
+      controlArray = EMPTY_CONTROL_ARRAY;
     }
     else
     {
-      final Control[] controlArray = new Control[controls.size()];
+      controlArray = new Control[controls.size()];
       controls.toArray(controlArray);
+    }
+
+    final BindRequest bindRequest;
+    if (request.getCredentialsType() == BindRequestProtocolOp.CRED_TYPE_SIMPLE)
+    {
       bindRequest = new SimpleBindRequest(request.getBindDN(),
            request.getSimplePassword().getValue(), controlArray);
     }
+    else
+    {
+      bindRequest = new GenericSASLBindRequest(request.getBindDN(),
+           request.getSASLMechanism(), request.getSASLCredentials(),
+           controlArray);
+    }
+
     bindRequest.setIntermediateResponseListener(this);
 
     LDAPResult bindResult;
