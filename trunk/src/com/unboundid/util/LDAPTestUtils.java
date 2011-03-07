@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.unboundid.ldap.matchingrules.DistinguishedNameMatchingRule;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
@@ -237,6 +238,67 @@ public final class LDAPTestUtils
 
 
   /**
+   * Generates a country entry with the provided information.  It will include
+   * the top and country object classes and will use c as the RDN attribute.  It
+   * may optionally include additional attributes.
+   *
+   * @param  name                  The name for the country (typically a
+   *                               two-character country code), which will be
+   *                               used as the value of the "c" attribute.  It
+   *                               must not be {@code null}.
+   * @param  parentDN              The DN of the entry below which the new
+   *                               entry should be placed.  It may be
+   *                               {@code null} if the new entry should not have
+   *                               a parent.
+   * @param  additionalAttributes  A set of additional attributes to include in
+   *                               the generated entry.  It may be {@code null}
+   *                               or empty if no additional attributes should
+   *                               be included.
+   *
+   * @return  The generated entry.
+   */
+  public static Entry generateCountryEntry(final String name,
+                           final String parentDN,
+                           final Attribute... additionalAttributes)
+  {
+    return generateCountryEntry(name, parentDN,
+         StaticUtils.toList(additionalAttributes));
+  }
+
+
+
+  /**
+   * Generates a country entry with the provided information.  It will include
+   * the top and country object classes and will use c as the RDN attribute.  It
+   * may optionally include additional attributes.
+   *
+   * @param  name                  The name for the country (typically a
+   *                               two-character country code), which will be
+   *                               used as the value of the "c" attribute.  It
+   *                               must not be {@code null}.
+   * @param  parentDN              The DN of the entry below which the new
+   *                               entry should be placed.  It may be
+   *                               {@code null} if the new entry should not have
+   *                               a parent.
+   * @param  additionalAttributes  A set of additional attributes to include in
+   *                               the generated entry.  It may be {@code null}
+   *                               or empty if no additional attributes should
+   *                               be included.
+   *
+   * @return  The generated entry.
+   */
+  public static Entry generateCountryEntry(final String name,
+                           final String parentDN,
+                           final Collection<Attribute> additionalAttributes)
+  {
+    return generateEntry("c", name, parentDN,
+         new String[] { "top", "country" },
+         additionalAttributes);
+  }
+
+
+
+  /**
    * Generates a user entry with the provided information.  It will include the
    * top, person, organizationalPerson, and inetOrgPerson object classes, will
    * use uid as the RDN attribute, and will have givenName, sn, and cn
@@ -328,6 +390,114 @@ public final class LDAPTestUtils
     };
 
     return generateEntry("uid", uid, parentDN, objectClasses, attrList);
+  }
+
+
+
+  /**
+   * Generates a group entry with the provided information.  It will include
+   * the top and groupOfNames object classes and will use cn as the RDN
+   * attribute.
+   *
+   * @param  name       The name for the group, which will be used as the value
+   *                    of the "cn" attribute.  It must not be {@code null}.
+   * @param  parentDN   The DN of the entry below which the new entry should be
+   *                    placed.  It may be {@code null} if the new entry should
+   *                    not have a parent.
+   * @param  memberDNs  The DNs of the users that should be listed as members of
+   *                    the group.
+   *
+   * @return  The generated entry.
+   */
+  public static Entry generateGroupOfNamesEntry(final String name,
+                                                final String parentDN,
+                                                final String... memberDNs)
+  {
+    return generateGroupOfNamesEntry(name, parentDN,
+         StaticUtils.toList(memberDNs));
+  }
+
+
+
+  /**
+   * Generates a group entry with the provided information.  It will include
+   * the top and groupOfNames object classes and will use cn as the RDN
+   * attribute.
+   *
+   * @param  name       The name for the group, which will be used as the value
+   *                    of the "cn" attribute.  It must not be {@code null}.
+   * @param  parentDN   The DN of the entry below which the new entry should be
+   *                    placed.  It may be {@code null} if the new entry should
+   *                    not have a parent.
+   * @param  memberDNs  The DNs of the users that should be listed as members of
+   *                    the group.
+   *
+   * @return  The generated entry.
+   */
+  public static Entry generateGroupOfNamesEntry(final String name,
+                           final String parentDN,
+                           final Collection<String> memberDNs)
+  {
+    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(1);
+    attrList.add(new Attribute("member",
+         DistinguishedNameMatchingRule.getInstance(), memberDNs));
+
+    return generateEntry("cn", name, parentDN,
+         new String[] { "top", "groupOfNames" }, attrList);
+  }
+
+
+
+  /**
+   * Generates a group entry with the provided information.  It will include
+   * the top and groupOfUniqueNames object classes and will use cn as the RDN
+   * attribute.
+   *
+   * @param  name       The name for the group, which will be used as the value
+   *                    of the "cn" attribute.  It must not be {@code null}.
+   * @param  parentDN   The DN of the entry below which the new entry should be
+   *                    placed.  It may be {@code null} if the new entry should
+   *                    not have a parent.
+   * @param  memberDNs  The DNs of the users that should be listed as members of
+   *                    the group.
+   *
+   * @return  The generated entry.
+   */
+  public static Entry generateGroupOfUniqueNamesEntry(final String name,
+                                                      final String parentDN,
+                                                      final String... memberDNs)
+  {
+    return generateGroupOfUniqueNamesEntry(name, parentDN,
+         StaticUtils.toList(memberDNs));
+  }
+
+
+
+  /**
+   * Generates a group entry with the provided information.  It will include
+   * the top and groupOfUniqueNames object classes and will use cn as the RDN
+   * attribute.
+   *
+   * @param  name       The name for the group, which will be used as the value
+   *                    of the "cn" attribute.  It must not be {@code null}.
+   * @param  parentDN   The DN of the entry below which the new entry should be
+   *                    placed.  It may be {@code null} if the new entry should
+   *                    not have a parent.
+   * @param  memberDNs  The DNs of the users that should be listed as members of
+   *                    the group.
+   *
+   * @return  The generated entry.
+   */
+  public static Entry generateGroupOfUniqueNamesEntry(final String name,
+                           final String parentDN,
+                           final Collection<String> memberDNs)
+  {
+    final ArrayList<Attribute> attrList = new ArrayList<Attribute>(1);
+    attrList.add(new Attribute("uniqueMember",
+         DistinguishedNameMatchingRule.getInstance(), memberDNs));
+
+    return generateEntry("cn", name, parentDN,
+         new String[] { "top", "groupOfUniqueNames" }, attrList);
   }
 
 
