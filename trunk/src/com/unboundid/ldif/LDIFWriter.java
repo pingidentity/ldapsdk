@@ -208,6 +208,21 @@ public final class LDIFWriter
 
 
   /**
+   * Flushes the output stream used by this LDIF writer to ensure any buffered
+   * data is written out.
+   *
+   * @throws  IOException  If a problem occurs while attempting to flush the
+   *                       output stream.
+   */
+  public void flush()
+         throws IOException
+  {
+    writer.flush();
+  }
+
+
+
+  /**
    * Closes this LDIF writer and the underlying LDIF target.
    *
    * @throws  IOException  If a problem occurs while closing the underlying LDIF
