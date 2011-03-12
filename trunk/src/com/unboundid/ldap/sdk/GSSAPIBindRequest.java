@@ -157,10 +157,20 @@ public final class GSSAPIBindRequest
 
 
   /**
-   * The path to the default JAAS config file, if one has been defined.
+   * The path to the default JAAS config file with debugging enabled, if one has
+   * been defined.
    */
-  private static final AtomicReference<String> DEFAULT_CONFIG_FILE_PATH =
-       new AtomicReference<String>();
+  private static final AtomicReference<String>
+       DEFAULT_CONFIG_FILE_PATH_WITH_DEBUG = new AtomicReference<String>();
+
+
+
+  /**
+   * The path to the default JAAS config file with debugging disabled, if one
+   * has been defined.
+   */
+  private static final AtomicReference<String>
+       DEFAULT_CONFIG_FILE_PATH_WITHOUT_DEBUG = new AtomicReference<String>();
 
 
 
@@ -178,28 +188,35 @@ public final class GSSAPIBindRequest
 
 
 
-  // The password for this bind request.
+  // The password for the GSSAPI bind request.
   private final ASN1OctetString password;
 
-  // The connection currently being used for authentication processing.
+  // A reference to the connection to use for bind processing.
   private final AtomicReference<LDAPConnection> conn;
 
-  // The message ID from the last LDAP message sent from this request.
-  private int messageID = -1;
+  // Indicates whether to enable JVM-level debugging for GSSAPI processing.
+  private final boolean enableGSSAPIDebugging;
 
-  // The authentication ID string for this bind request.
+  // The message ID from the last LDAP message sent from this request.
+  private int messageID;
+
+  // The authentication ID string for the GSSAPI bind request.
   private final String authenticationID;
 
-  // The authorization ID string for this bind request, if available.
+  // The authorization ID string for the GSSAPI bind request, if available.
   private final String authorizationID;
 
   // The path to the JAAS configuration file to use for bind processing.
   private final String configFilePath;
 
-  // The KDC address for this bind request, if available.
+  // The KDC address for the GSSAPI bind request, if available.
   private final String kdcAddress;
 
-  // The realm form this bind request, if available.
+  // The protocol that should be used in the Kerberos service principal for
+  // the server system.
+  private final String servicePrincipalProtocol;
+
+  // The realm for the GSSAPI bind request, if available.
   private final String realm;
 
 
@@ -220,7 +237,7 @@ public final class GSSAPIBindRequest
   public GSSAPIBindRequest(final String authenticationID, final String password)
          throws LDAPException
   {
-    this(authenticationID, null, password, null, null, null, null);
+    this(new GSSAPIBindRequestProperties(authenticationID, password));
   }
 
 
@@ -241,7 +258,7 @@ public final class GSSAPIBindRequest
   public GSSAPIBindRequest(final String authenticationID, final byte[] password)
          throws LDAPException
   {
-    this(authenticationID, null, password, null, null, null, null);
+    this(new GSSAPIBindRequestProperties(authenticationID, password));
   }
 
 
@@ -264,7 +281,7 @@ public final class GSSAPIBindRequest
                            final Control[] controls)
          throws LDAPException
   {
-    this(authenticationID, null, password, null, null, null, controls);
+    this(new GSSAPIBindRequestProperties(authenticationID, password), controls);
   }
 
 
@@ -287,7 +304,7 @@ public final class GSSAPIBindRequest
                            final Control[] controls)
          throws LDAPException
   {
-    this(authenticationID, null, password, null, null, null, controls);
+    this(new GSSAPIBindRequestProperties(authenticationID, password), controls);
   }
 
 
@@ -323,8 +340,8 @@ public final class GSSAPIBindRequest
                            final String configFilePath)
          throws LDAPException
   {
-    this(authenticationID, authorizationID, new ASN1OctetString(password),
-         realm, kdcAddress,configFilePath, null);
+    this(new GSSAPIBindRequestProperties(authenticationID, authorizationID,
+         new ASN1OctetString(password), realm, kdcAddress, configFilePath));
   }
 
 
@@ -360,8 +377,8 @@ public final class GSSAPIBindRequest
                            final String configFilePath)
          throws LDAPException
   {
-    this(authenticationID, authorizationID, new ASN1OctetString(password),
-         realm, kdcAddress,configFilePath, null);
+    this(new GSSAPIBindRequestProperties(authenticationID, authorizationID,
+         new ASN1OctetString(password), realm, kdcAddress, configFilePath));
   }
 
 
@@ -399,8 +416,9 @@ public final class GSSAPIBindRequest
                            final Control[] controls)
          throws LDAPException
   {
-    this(authenticationID, authorizationID, new ASN1OctetString(password),
-         realm, kdcAddress,configFilePath, controls);
+    this(new GSSAPIBindRequestProperties(authenticationID, authorizationID,
+         new ASN1OctetString(password), realm, kdcAddress, configFilePath),
+         controls);
   }
 
 
@@ -438,73 +456,61 @@ public final class GSSAPIBindRequest
                            final Control[] controls)
          throws LDAPException
   {
-    this(authenticationID, authorizationID, new ASN1OctetString(password),
-         realm, kdcAddress,configFilePath, controls);
+    this(new GSSAPIBindRequestProperties(authenticationID, authorizationID,
+         new ASN1OctetString(password), realm, kdcAddress, configFilePath),
+         controls);
   }
 
 
 
   /**
-   * Creates a new SASL GSSAPI bind request with the provided information.
+   * Creates a new SASL GSSAPI bind request with the provided set of properties.
    *
-   * @param  authenticationID  The authentication ID for this bind request.  It
-   *                           must not be {@code null}.
-   * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if the authorization ID
-   *                           should be the same as the authentication ID.
-   * @param  password          The password for this bind request.  It must not
-   *                           be {@code null}.
-   * @param  realm             The realm to use for the authentication.  It may
-   *                           be {@code null} to attempt to use the default
-   *                           realm from the system configuration.
-   * @param  kdcAddress        The address of the Kerberos key distribution
-   *                           center.  It may be {@code null} to attempt to use
-   *                           the default KDC from the system configuration.
-   * @param  configFilePath    The path to the JAAS configuration file to use
-   *                           for the authentication processing.  It may be
-   *                           {@code null} to use the default JAAS
-   *                           configuration.
+   * @param  gssapiProperties  The set of properties that should be used for
+   *                           the GSSAPI bind request.  It must not be
+   *                           {@code null}.
    * @param  controls          The set of controls to include in the request.
    *
    * @throws  LDAPException  If a problem occurs while creating the JAAS
    *                         configuration file to use during authentication
    *                         processing.
    */
-  private GSSAPIBindRequest(final String authenticationID,
-                            final String authorizationID,
-                            final ASN1OctetString password, final String realm,
-                            final String kdcAddress,
-                            final String configFilePath,
-                            final Control[] controls)
+  public GSSAPIBindRequest(final GSSAPIBindRequestProperties gssapiProperties,
+                           final Control... controls)
           throws LDAPException
   {
     super(controls);
 
-    ensureNotNull(authenticationID, password);
+    ensureNotNull(gssapiProperties);
 
-    this.authenticationID = authenticationID;
-    this.password         = password;
-    this.realm            = realm;
-    this.kdcAddress       = kdcAddress;
+    authenticationID         = gssapiProperties.getAuthenticationID();
+    password                 = gssapiProperties.getPassword();
+    realm                    = gssapiProperties.getRealm();
+    kdcAddress               = gssapiProperties.getKDCAddress();
+    servicePrincipalProtocol = gssapiProperties.getServicePrincipalProtocol();
+    enableGSSAPIDebugging    = gssapiProperties.enableGSSAPIDebugging();
 
-    conn = new AtomicReference<LDAPConnection>();
+    conn      = new AtomicReference<LDAPConnection>();
+    messageID = -1;
 
-    if (authorizationID == null)
+    final String authzID = gssapiProperties.getAuthorizationID();
+    if (authzID == null)
     {
-      this.authorizationID = authenticationID;
+      authorizationID = authenticationID;
     }
     else
     {
-      this.authorizationID = authorizationID;
+      authorizationID = authzID;
     }
 
-    if (configFilePath == null)
+    final String cfgPath = gssapiProperties.getConfigFilePath();
+    if (cfgPath == null)
     {
-      this.configFilePath = getDefaultConfigFilePath();
+      configFilePath = getDefaultConfigFilePath(enableGSSAPIDebugging);
     }
     else
     {
-      this.configFilePath = configFilePath;
+      configFilePath = cfgPath;
     }
   }
 
@@ -613,9 +619,39 @@ public final class GSSAPIBindRequest
 
 
   /**
+   * Retrieves the protocol specified in the service principal that the
+   * directory server uses for its communication with the KDC.
+   *
+   * @return  The protocol specified in the service principal that the directory
+   *          server uses for its communication with the KDC.
+   */
+  public String getServicePrincipalProtocol()
+  {
+    return servicePrincipalProtocol;
+  }
+
+
+
+  /**
+   * Indicates whether JVM-level debugging should be enabled for GSSAPI bind
+   * processing.
+   *
+   * @return  {@code true} if JVM-level debugging should be enabled for GSSAPI
+   *          bind processing, or {@code false} if not.
+   */
+  public boolean enableGSSAPIDebugging()
+  {
+    return enableGSSAPIDebugging;
+  }
+
+
+
+  /**
    * Retrieves the path to the default JAAS configuration file that will be used
    * if no file was explicitly provided.  A new file may be created if
    * necessary.
+   *
+   * @param  enableDebug  Indicates whether JVM-level GSSAPI should be enabled.
    *
    * @return  The path to the default JAAS configuration file that will be used
    *          if no file was explicitly provided.
@@ -623,12 +659,21 @@ public final class GSSAPIBindRequest
    * @throws  LDAPException  If an error occurs while attempting to create the
    *                         configuration file.
    */
-  private static String getDefaultConfigFilePath()
+  private static String getDefaultConfigFilePath(final boolean enableDebug)
           throws LDAPException
   {
     try
     {
-      String value = DEFAULT_CONFIG_FILE_PATH.get();
+      String value;
+      if (enableDebug)
+      {
+        value = DEFAULT_CONFIG_FILE_PATH_WITH_DEBUG.get();
+      }
+      else
+      {
+        value = DEFAULT_CONFIG_FILE_PATH_WITHOUT_DEBUG.get();
+      }
+
       if (value == null)
       {
         final File f =
@@ -638,8 +683,15 @@ public final class GSSAPIBindRequest
         try
         {
           w.println(JAAS_CLIENT_NAME + " {");
-          w.println("  com.sun.security.auth.module.Krb5LoginModule required " +
-                    "client=true useTicketCache=true;");
+          w.print("  com.sun.security.auth.module.Krb5LoginModule required " +
+                    "client=true useTicketCache=true");
+
+          if (enableDebug)
+          {
+            w.print(" debug=true");
+          }
+
+          w.println(";");
           w.println("};");
         }
         finally
@@ -647,12 +699,26 @@ public final class GSSAPIBindRequest
           w.close();
         }
 
-        if (! DEFAULT_CONFIG_FILE_PATH.compareAndSet(null, f.getAbsolutePath()))
+        if (enableDebug)
         {
-          f.delete();
-        }
+          if (! DEFAULT_CONFIG_FILE_PATH_WITH_DEBUG.compareAndSet(null,
+               f.getAbsolutePath()))
+          {
+            f.delete();
+          }
 
-        value = DEFAULT_CONFIG_FILE_PATH.get();
+          value = DEFAULT_CONFIG_FILE_PATH_WITH_DEBUG.get();
+        }
+        else
+        {
+          if (! DEFAULT_CONFIG_FILE_PATH_WITHOUT_DEBUG.compareAndSet(null,
+               f.getAbsolutePath()))
+          {
+            f.delete();
+          }
+
+          value = DEFAULT_CONFIG_FILE_PATH_WITHOUT_DEBUG.get();
+        }
       }
 
       return value;
@@ -772,9 +838,9 @@ public final class GSSAPIBindRequest
     final SaslClient saslClient;
     try
     {
-      saslClient = Sasl.createSaslClient(mechanisms, authorizationID, "ldap",
-                                         connection.getConnectedAddress(),
-                                         saslProperties, this);
+      saslClient = Sasl.createSaslClient(mechanisms, authorizationID,
+           servicePrincipalProtocol, connection.getConnectedAddress(),
+           saslProperties, this);
     }
     catch (Exception e)
     {
@@ -807,9 +873,13 @@ public final class GSSAPIBindRequest
   {
     try
     {
-      return new GSSAPIBindRequest(authenticationID, authorizationID, password,
-                                   realm, kdcAddress, configFilePath,
-                                   getControls());
+      final GSSAPIBindRequestProperties gssapiProperties =
+           new GSSAPIBindRequestProperties(authenticationID, authorizationID,
+                password, realm, kdcAddress, configFilePath);
+      gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
+      gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
+
+      return new GSSAPIBindRequest(gssapiProperties, getControls());
     }
     catch (Exception e)
     {
@@ -892,9 +962,14 @@ public final class GSSAPIBindRequest
   {
     try
     {
+      final GSSAPIBindRequestProperties gssapiProperties =
+           new GSSAPIBindRequestProperties(authenticationID, authorizationID,
+                password, realm, kdcAddress, configFilePath);
+      gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
+      gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
+
       final GSSAPIBindRequest bindRequest =
-           new GSSAPIBindRequest(authenticationID, authorizationID, password,
-                realm, kdcAddress, configFilePath, controls);
+           new GSSAPIBindRequest(gssapiProperties, controls);
       bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
       return bindRequest;
     }
@@ -941,7 +1016,10 @@ public final class GSSAPIBindRequest
 
     buffer.append(", configFilePath='");
     buffer.append(configFilePath);
-    buffer.append('\'');
+    buffer.append("', servicePrincipalProtocol='");
+    buffer.append(servicePrincipalProtocol);
+    buffer.append("', enableGSSAPIDebugging=");
+    buffer.append(enableGSSAPIDebugging);
 
     final Control[] controls = getControls();
     if (controls.length > 0)

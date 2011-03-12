@@ -40,6 +40,7 @@ import com.unboundid.ldap.sdk.DIGESTMD5BindRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.EXTERNALBindRequest;
 import com.unboundid.ldap.sdk.GSSAPIBindRequest;
+import com.unboundid.ldap.sdk.GSSAPIBindRequestProperties;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
@@ -165,7 +166,8 @@ import static com.unboundid.util.UtilityMessages.*;
  *     mech=GSSAPI
  *     <UL>
  *       <LI>Required SASL options:  authID</LI>
- *       <LI>Optional SASL options:  authzID, realm, kdcAddress</LI>
+ *       <LI>Optional SASL options:  authzID, debug, protocol, realm,
+ *                kdcAddress</LI>
  *     </UL>
  *   </LI>
  *   <LI>
@@ -259,9 +261,25 @@ public abstract class LDAPCommandLineTool
 
 
   /**
+   * The name of the SASL option that indicates whether debugging should be
+   * enabled.
+   */
+  private static final String SASL_OPTION_DEBUG = "debug";
+
+
+
+  /**
    * The name of the SASL option that specifies the KDC address.
    */
   private static final String SASL_OPTION_KDC_ADDRESS = "kdcaddress";
+
+
+
+  /**
+   * The name of the SASL option that specifies the GSSAPI service principal
+   * protocol.
+   */
+  private static final String SASL_OPTION_PROTOCOL = "protocol";
 
 
 
@@ -339,8 +357,11 @@ public abstract class LDAPCommandLineTool
     REQUIRED_SASL_OPTIONS.put(SASL_MECH_GSSAPI,
          Arrays.asList(SASL_OPTION_AUTH_ID));
     OPTIONAL_SASL_OPTIONS.put(SASL_MECH_GSSAPI,
-         Arrays.asList(SASL_OPTION_AUTHZ_ID, SASL_OPTION_REALM,
-                       SASL_OPTION_KDC_ADDRESS));
+         Arrays.asList(SASL_OPTION_AUTHZ_ID,
+              SASL_OPTION_DEBUG,
+              SASL_OPTION_PROTOCOL,
+              SASL_OPTION_REALM,
+              SASL_OPTION_KDC_ADDRESS));
 
     REQUIRED_SASL_OPTIONS.put(SASL_MECH_PLAIN,
          Arrays.asList(SASL_OPTION_AUTH_ID));
@@ -981,10 +1002,28 @@ public abstract class LDAPCommandLineTool
       }
       else if (saslMechanism.equals(SASL_MECH_GSSAPI))
       {
-        return new GSSAPIBindRequest(saslOptions.get(SASL_OPTION_AUTH_ID),
-             saslOptions.get(SASL_OPTION_AUTHZ_ID), pw,
-             saslOptions.get(SASL_OPTION_REALM),
-             saslOptions.get(SASL_OPTION_KDC_ADDRESS), null);
+        final GSSAPIBindRequestProperties gssapiProperties =
+             new GSSAPIBindRequestProperties(
+                  saslOptions.get(SASL_OPTION_AUTH_ID), pw);
+        gssapiProperties.setAuthorizationID(
+             saslOptions.get(SASL_OPTION_AUTHZ_ID));
+        gssapiProperties.setRealm(saslOptions.get(SASL_OPTION_REALM));
+        gssapiProperties.setKDCAddress(
+             saslOptions.get(SASL_OPTION_KDC_ADDRESS));
+
+        final String protocol = saslOptions.get(SASL_OPTION_PROTOCOL);
+        if (protocol != null)
+        {
+          gssapiProperties.setServicePrincipalProtocol(protocol);
+        }
+
+        final String debugStr = saslOptions.get(SASL_OPTION_DEBUG);
+        if ((debugStr != null) && debugStr.equalsIgnoreCase("true"))
+        {
+          gssapiProperties.setEnableGSSAPIDebugging(true);
+        }
+
+        return new GSSAPIBindRequest(gssapiProperties);
       }
       else if (saslMechanism.equals(SASL_MECH_PLAIN))
       {
