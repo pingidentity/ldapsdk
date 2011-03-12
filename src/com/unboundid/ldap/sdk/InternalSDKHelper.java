@@ -56,6 +56,37 @@ public final class InternalSDKHelper
 
 
   /**
+   * Sets the SO_TIMEOUT socket option on the socket associated with this
+   * connection, which will take effect for the next blocking operation that is
+   * performed on the socket.  This will have no effect for connections that are
+   * operating in synchronous mode.
+   *
+   * @param  connection  The connection for which the SO_TIMEOUT option will be
+   *                     set.
+   * @param  soTimeout   The SO_TIMEOUT value (in milliseconds) that should be
+   *                     used for the connection.  It must be greater than or
+   *                     equal to zero, with a timeout of zero indicating an
+   *                     unlimited timeout.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         set the SO_TIMEOUT value.
+   */
+  @InternalUseOnly()
+  public static void setSoTimeout(final LDAPConnection connection,
+                                  final int soTimeout)
+         throws LDAPException
+  {
+    final LDAPConnectionReader connectionReader =
+         connection.getConnectionInternals().getConnectionReader();
+    if (connectionReader != null)
+    {
+      connectionReader.setSoTimeout(soTimeout);
+    }
+  }
+
+
+
+  /**
    * Converts the provided clear-text connection to one that encrypts all
    * communication using Transport Layer Security.  This method is intended for
    * use as a helper for processing in the course of the StartTLS extended

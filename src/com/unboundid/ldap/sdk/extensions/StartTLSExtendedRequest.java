@@ -228,6 +228,10 @@ public final class StartTLSExtendedRequest
                                 final int depth)
          throws LDAPException
   {
+    // Set an SO_TIMEOUT on the connection if it's not operating in synchronous
+    // mode to make it more responsive during the negotiation phase.
+    InternalSDKHelper.setSoTimeout(connection, 50);
+
     final ExtendedResult result = super.process(connection, depth);
     if (result.getResultCode() == ResultCode.SUCCESS)
     {

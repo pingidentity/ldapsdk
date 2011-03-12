@@ -352,7 +352,11 @@ final class SearchRateThread
       }
     }
 
-    connection.close();
+    if (connection != null)
+    {
+      connection.close();
+    }
+
     searchThread.set(null);
   }
 
