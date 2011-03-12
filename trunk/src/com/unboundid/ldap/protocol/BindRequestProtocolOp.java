@@ -372,6 +372,7 @@ public final class BindRequestProtocolOp
       saslSequence.end();
     }
     opSequence.end();
+    buffer.setZeroBufferOnClear();
   }
 
 

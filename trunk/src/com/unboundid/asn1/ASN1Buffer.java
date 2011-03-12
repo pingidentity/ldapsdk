@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.DebugType;
@@ -103,6 +104,10 @@ public final class ASN1Buffer
 
 
 
+  // Indicates whether to zero out the contents of the buffer the next time it
+  // is cleared in order to wipe out any sensitive data it may contain.
+  private final AtomicBoolean zeroBufferOnClear;
+
   // The buffer to which all data will be written.
   private final ByteStringBuffer buffer;
 
@@ -136,7 +141,34 @@ public final class ASN1Buffer
   {
     this.maxBufferSize = maxBufferSize;
 
-    buffer = new ByteStringBuffer();
+    buffer            = new ByteStringBuffer();
+    zeroBufferOnClear = new AtomicBoolean(false);
+  }
+
+
+
+  /**
+   * Indicates whether the content of the buffer should be zeroed out the next
+   * time it is cleared in order to wipe any sensitive information it may
+   * contain.
+   *
+   * @return  {@code true} if the content of the buffer should be zeroed out the
+   *          next time it is cleared, or {@code false} if not.
+   */
+  public boolean zeroBufferOnClear()
+  {
+    return zeroBufferOnClear.get();
+  }
+
+
+
+  /**
+   * Specifies that the content of the buffer should be zeroed out the next time
+   * it is cleared in order to wipe any sensitive information it may contain.
+   */
+  public void setZeroBufferOnClear()
+  {
+    zeroBufferOnClear.set(true);
   }
 
 
@@ -148,7 +180,7 @@ public final class ASN1Buffer
    */
   public void clear()
   {
-    buffer.clear();
+    buffer.clear(zeroBufferOnClear.getAndSet(false));
 
     if ((maxBufferSize > 0) && (buffer.capacity() > maxBufferSize))
     {

@@ -424,7 +424,15 @@ final class LDAPConnectionInternals
     }
 
     buffer.clear();
-    message.writeTo(buffer);
+    try
+    {
+      message.writeTo(buffer);
+    }
+    catch (final LDAPRuntimeException lre)
+    {
+      debugException(lre);
+      lre.throwLDAPException();
+    }
 
     try
     {
@@ -463,6 +471,13 @@ final class LDAPConnectionInternals
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_CONN_ENCODE_ERROR.get(host + ':' + port, getExceptionMessage(e)),
            e);
+    }
+    finally
+    {
+      if (buffer.zeroBufferOnClear())
+      {
+        buffer.clear();
+      }
     }
   }
 

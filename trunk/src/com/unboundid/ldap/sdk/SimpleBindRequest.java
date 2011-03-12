@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -97,6 +98,10 @@ public final class SimpleBindRequest
   private final LinkedBlockingQueue<LDAPResponse> responseQueue =
        new LinkedBlockingQueue<LDAPResponse>();
 
+  // The password provider that should be used to obtain the password for this
+  // simple bind request.
+  private final PasswordProvider passwordProvider;
+
 
 
   /**
@@ -106,7 +111,7 @@ public final class SimpleBindRequest
    */
   public SimpleBindRequest()
   {
-    this(NO_BIND_DN, NO_PASSWORD, NO_CONTROLS);
+    this(NO_BIND_DN, NO_PASSWORD, null, NO_CONTROLS);
   }
 
 
@@ -192,6 +197,8 @@ public final class SimpleBindRequest
     {
       this.password = new ASN1OctetString(CRED_TYPE_SIMPLE, password);
     }
+
+    passwordProvider = null;
   }
 
 
@@ -225,6 +232,8 @@ public final class SimpleBindRequest
     {
       this.password = new ASN1OctetString(CRED_TYPE_SIMPLE, password);
     }
+
+    passwordProvider = null;
   }
 
 
@@ -258,6 +267,8 @@ public final class SimpleBindRequest
     {
       this.password = new ASN1OctetString(CRED_TYPE_SIMPLE, password);
     }
+
+    passwordProvider = null;
   }
 
 
@@ -291,6 +302,58 @@ public final class SimpleBindRequest
     {
       this.password = new ASN1OctetString(CRED_TYPE_SIMPLE, password);
     }
+
+    passwordProvider = null;
+  }
+
+
+
+  /**
+   * Creates a new simple bind request with the provided bind DN and that will
+   * use a password provider in order to obtain the bind password.
+   *
+   * @param  bindDN            The bind DN for this simple bind request.  It
+   *                           must not be {@code null}.
+   * @param  passwordProvider  The password provider that will be used to obtain
+   *                           the password for this simple bind request.  It
+   *                           must not be {@code null}.
+   * @param  controls          The set of controls for this simple bind request.
+   */
+  public SimpleBindRequest(final String bindDN,
+                           final PasswordProvider passwordProvider,
+                           final Control... controls)
+  {
+    super(controls);
+
+    this.bindDN           = new ASN1OctetString(bindDN);
+    this.passwordProvider = passwordProvider;
+
+    password = null;
+  }
+
+
+
+  /**
+   * Creates a new simple bind request with the provided bind DN and that will
+   * use a password provider in order to obtain the bind password.
+   *
+   * @param  bindDN            The bind DN for this simple bind request.  It
+   *                           must not be {@code null}.
+   * @param  passwordProvider  The password provider that will be used to obtain
+   *                           the password for this simple bind request.  It
+   *                           must not be {@code null}.
+   * @param  controls          The set of controls for this simple bind request.
+   */
+  public SimpleBindRequest(final DN bindDN,
+                           final PasswordProvider passwordProvider,
+                           final Control... controls)
+  {
+    super(controls);
+
+    this.bindDN           = new ASN1OctetString(bindDN.toString());
+    this.passwordProvider = passwordProvider;
+
+    password = null;
   }
 
 
@@ -298,17 +361,22 @@ public final class SimpleBindRequest
   /**
    * Creates a new simple bind request with the provided bind DN and password.
    *
-   * @param  bindDN    The bind DN for this simple bind request.
-   * @param  password  The password for this simple bind request.
-   * @param  controls  The set of controls for this simple bind request.
+   * @param  bindDN            The bind DN for this simple bind request.
+   * @param  password          The password for this simple bind request.
+   * @param  passwordProvider  The password provider that will be used to obtain
+   *                           the password to use for the bind request.
+   * @param  controls          The set of controls for this simple bind request.
    */
-  SimpleBindRequest(final ASN1OctetString bindDN,
-                    final ASN1OctetString password, final Control... controls)
+  private SimpleBindRequest(final ASN1OctetString bindDN,
+                            final ASN1OctetString password,
+                            final PasswordProvider passwordProvider,
+                            final Control... controls)
   {
     super(controls);
 
-    this.bindDN   = bindDN;
-    this.password = password;
+    this.bindDN           = bindDN;
+    this.password         = password;
+    this.passwordProvider = passwordProvider;
   }
 
 
@@ -326,13 +394,29 @@ public final class SimpleBindRequest
 
 
   /**
-   * Retrieves the password for this simple bind request.
+   * Retrieves the password for this simple bind request, if no password
+   * provider has been configured.
    *
-   * @return  The password for this simple bind request.
+   * @return  The password for this simple bind request, or {@code null} if a
+   *          password provider will be used to obtain the password.
    */
   public ASN1OctetString getPassword()
   {
     return password;
+  }
+
+
+
+  /**
+   * Retrieves the password provider for this simple bind request, if defined.
+   *
+   * @return  The password provider for this simple bind request, or
+   *          {@code null} if this bind request was created with an explicit
+   *          password rather than a password provider.
+   */
+  public PasswordProvider getPasswordProvider()
+  {
+    return passwordProvider;
   }
 
 
@@ -356,7 +440,30 @@ public final class SimpleBindRequest
          buffer.beginSequence(LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST);
     buffer.addElement(VERSION_ELEMENT);
     buffer.addElement(bindDN);
-    buffer.addElement(password);
+
+    if (passwordProvider == null)
+    {
+      buffer.addElement(password);
+    }
+    else
+    {
+      byte[] pwBytes;
+      try
+      {
+        pwBytes = passwordProvider.getPasswordBytes();
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+        throw new LDAPRuntimeException(le);
+      }
+
+      final ASN1OctetString pw = new ASN1OctetString(CRED_TYPE_SIMPLE, pwBytes);
+      buffer.addElement(pw);
+      buffer.setZeroBufferOnClear();
+      Arrays.fill(pwBytes, (byte) 0x00);
+    }
+
     requestSequence.end();
   }
 
@@ -376,13 +483,16 @@ public final class SimpleBindRequest
 
     // See if a bind DN was provided without a password.  If that is the case
     // and this should not be allowed, then throw an exception.
-    if ((bindDN.getValue().length > 0) && (password.getValue().length == 0) &&
-        connection.getConnectionOptions().bindWithDNRequiresPassword())
+    if (password != null)
     {
-      final LDAPException le = new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_SIMPLE_BIND_DN_WITHOUT_PASSWORD.get());
-      debugCodingError(le);
-      throw le;
+      if ((bindDN.getValue().length > 0) && (password.getValue().length == 0) &&
+           connection.getConnectionOptions().bindWithDNRequiresPassword())
+      {
+        final LDAPException le = new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SIMPLE_BIND_DN_WITHOUT_PASSWORD.get());
+        debugCodingError(le);
+        throw le;
+      }
     }
 
 
@@ -536,7 +646,8 @@ public final class SimpleBindRequest
   @Override()
   public SimpleBindRequest getRebindRequest(final String host, final int port)
   {
-    return new SimpleBindRequest(bindDN, password, getControls());
+    return new SimpleBindRequest(bindDN, password, passwordProvider,
+         getControls());
   }
 
 
@@ -602,7 +713,7 @@ public final class SimpleBindRequest
   public SimpleBindRequest duplicate(final Control[] controls)
   {
     final SimpleBindRequest bindRequest =
-         new SimpleBindRequest(bindDN, password, controls);
+         new SimpleBindRequest(bindDN, password, passwordProvider, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
     return bindRequest;
   }
