@@ -26,6 +26,7 @@ import java.security.GeneralSecurityException;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.TrustManager;
 
 import com.unboundid.util.ThreadSafety;
@@ -355,5 +356,77 @@ public final class SSLUtil
          throws GeneralSecurityException
   {
     return createSSLContext(protocol, provider).getSocketFactory();
+  }
+
+
+
+  /**
+   * Creates an SSL server socket factory using the configured key and trust
+   * manager providers.  It will use the "TLSv1" protocol and the default
+   * provider.
+   *
+   * @return  The created SSL server socket factory.
+   *
+   * @throws  GeneralSecurityException  If a problem occurs while creating or
+   *                                    initializing the SSL server socket
+   *                                    factory.
+   */
+  public SSLServerSocketFactory createSSLServerSocketFactory()
+         throws GeneralSecurityException
+  {
+    return createSSLContext().getServerSocketFactory();
+  }
+
+
+
+  /**
+   * Creates an SSL server socket factory using the configured key and trust
+   * manager providers.  It will use the "TLSv1" protocol and the default
+   * provider.
+   *
+   * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
+   *                   Architecture document, the set of supported protocols
+   *                   should include at least "SSLv3", "TLSv1", "TLSv1.1", and
+   *                   "SSLv2Hello".  It must not be {@code null}.
+   *
+   * @return  The created SSL server socket factory.
+   *
+   * @throws  GeneralSecurityException  If a problem occurs while creating or
+   *                                    initializing the SSL server socket
+   *                                    factory.
+   */
+  public SSLServerSocketFactory createSSLServerSocketFactory(
+                                     final String protocol)
+         throws GeneralSecurityException
+  {
+    return createSSLContext(protocol).getServerSocketFactory();
+  }
+
+
+
+  /**
+   * Creates an SSL server socket factory using the configured key and trust
+   * manager providers.  It will use the "TLSv1" protocol and the default
+   * provider.
+   *
+   * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
+   *                   Architecture document, the set of supported protocols
+   *                   should include at least "SSLv3", "TLSv1", "TLSv1.1", and
+   *                   "SSLv2Hello".  It must not be {@code null}.
+   * @param  provider  The name of the provider to use for cryptographic
+   *                   operations.  It must not be {@code null}.
+   *
+   * @return  The created SSL server socket factory.
+   *
+   * @throws  GeneralSecurityException  If a problem occurs while creating or
+   *                                    initializing the SSL server socket
+   *                                    factory.
+   */
+  public SSLServerSocketFactory createSSLServerSocketFactory(
+                                     final String protocol,
+                                     final String provider)
+         throws GeneralSecurityException
+  {
+    return createSSLContext(protocol, provider).getServerSocketFactory();
   }
 }
