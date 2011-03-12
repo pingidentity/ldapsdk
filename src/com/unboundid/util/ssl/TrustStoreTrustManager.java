@@ -86,9 +86,52 @@ public final class TrustStoreTrustManager
    * @param  trustStoreFile  The path to the trust store file to use.  It must
    *                         not be {@code null}.
    */
+  public TrustStoreTrustManager(final File trustStoreFile)
+  {
+    this(trustStoreFile.getAbsolutePath(), null, null, true);
+  }
+
+
+
+  /**
+   * Creates a new instance of this trust store trust manager that will trust
+   * all certificates in the specified file within the validity window. It will
+   * use the default trust store format and will not provide a PIN when
+   * attempting to read the trust store.
+   *
+   * @param  trustStoreFile  The path to the trust store file to use.  It must
+   *                         not be {@code null}.
+   */
   public TrustStoreTrustManager(final String trustStoreFile)
   {
     this(trustStoreFile, null, null, true);
+  }
+
+
+
+  /**
+   * Creates a new instance of this trust store trust manager that will trust
+   * all certificates in the specified file with the specified constraints.
+   *
+   * @param  trustStoreFile        The path to the trust store file to use.  It
+   *                               must not be {@code null}.
+   * @param  trustStorePIN         The PIN to use to access the contents of the
+   *                               trust store.  It may be {@code null} if no
+   *                               PIN is required.
+   * @param  trustStoreFormat      The format to use for the trust store.  It
+   *                               may be {@code null} if the default format
+   *                               should be used.
+   * @param  examineValidityDates  Indicates whether to reject certificates if
+   *                               the current time is outside the validity
+   *                               window for the certificate.
+   */
+  public TrustStoreTrustManager(final File trustStoreFile,
+                                final char[] trustStorePIN,
+                                final String trustStoreFormat,
+                                final boolean examineValidityDates)
+  {
+    this(trustStoreFile.getAbsolutePath(), trustStorePIN, trustStoreFormat,
+         examineValidityDates);
   }
 
 
