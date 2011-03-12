@@ -39,6 +39,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
@@ -514,7 +515,16 @@ public final class LDAPListenerClientConnection
           throws LDAPException
   {
     asn1Buffer.clear();
-    message.writeTo(asn1Buffer);
+
+    try
+    {
+      message.writeTo(asn1Buffer);
+    }
+    catch (final LDAPRuntimeException lre)
+    {
+      Debug.debugException(lre);
+      lre.throwLDAPException();
+    }
 
     try
     {
@@ -528,6 +538,13 @@ public final class LDAPListenerClientConnection
            ERR_CONN_SEND_MESSAGE_EXCEPTION.get(
                 StaticUtils.getExceptionMessage(ioe)),
            ioe);
+    }
+    finally
+    {
+      if (asn1Buffer.zeroBufferOnClear())
+      {
+        asn1Buffer.clear();
+      }
     }
   }
 

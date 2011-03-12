@@ -1301,6 +1301,29 @@ public final class ByteStringBuffer
 
 
   /**
+   * Clears the contents of this buffer.
+   *
+   * @param  zero  Indicates whether to overwrite the content of the backing
+   *               array with all zeros in order to wipe out any sensitive data
+   *               it may contain.
+   *
+   * @return  A reference to this buffer.
+   */
+  public ByteStringBuffer clear(final boolean zero)
+  {
+    endPos = 0;
+
+    if (zero)
+    {
+      Arrays.fill(array, (byte) 0x00);
+    }
+
+    return this;
+  }
+
+
+
+  /**
    * Retrieves the current backing array for this buffer.  The data will begin
    * at position 0 and will contain {@link ByteStringBuffer#length} bytes.
    *
