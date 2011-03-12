@@ -66,7 +66,11 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       extended operation as defined in RFC 4532.</LI>
  *   <LI>SASL Bind Handlers:  The server will support the SASL PLAIN mechanism
  *       as defined in RFC 4616.</LI>
+ *   <LI>Max ChangeLog Entries:  The server will not provide an LDAP
+ *       changelog.</LI>
  *   <LI>Access Log Handler:  The server will not perform any access
+ *       logging.</LI>
+ *   <LI>LDAP Debug Log Handler:  The server will not perform any LDAP debug
  *       logging.</LI>
  *   <LI>Listener Exception Handler:  The server will not use a listener
  *       exception handler.</LI>
@@ -89,6 +93,10 @@ public final class InMemoryDirectoryServerConfig
   // The log handler that should be used to record access log messages about
   // operations processed by the server.
   private Handler accessLogHandler;
+
+  // The log handler that should be used to record detailed protocol-level
+  // messages about LDAP operations processed by the server.
+  private Handler ldapDebugLogHandler;
 
   // The address on which to listen for client connections.
   private InetAddress listenAddress;
@@ -167,6 +175,7 @@ public final class InMemoryDirectoryServerConfig
 
     additionalBindCredentials     = new LinkedHashMap<DN,byte[]>(1);
     accessLogHandler              = null;
+    ldapDebugLogHandler           = null;
     generateOperationalAttributes = true;
     listenAddress                 = null;
     listenPort                    = 0;
@@ -553,7 +562,7 @@ public final class InMemoryDirectoryServerConfig
 
 
   /**
-   * Retrieves the log handler that should be used to record access log messages
+   * Specifies the log handler that should be used to record access log messages
    * about operations processed by the server.
    *
    * @param  accessLogHandler  The log handler that should be used to record
@@ -564,6 +573,40 @@ public final class InMemoryDirectoryServerConfig
   public void setAccessLogHandler(final Handler accessLogHandler)
   {
     this.accessLogHandler = accessLogHandler;
+  }
+
+
+
+  /**
+   * Retrieves the log handler that should be used to record detailed messages
+   * about LDAP communication to and from the server, which may be useful for
+   * debugging purposes.
+   *
+   * @return  The log handler that should be used to record detailed
+   *          protocol-level debug messages about LDAP communication to and from
+   *          the server, or {@code null} if no debug logging should be
+   *          performed.
+   */
+  public Handler getLDAPDebugLogHandler()
+  {
+    return ldapDebugLogHandler;
+  }
+
+
+
+  /**
+   * Specifies the log handler that should be used to record detailed messages
+   * about LDAP communication to and from the server, which may be useful for
+   * debugging purposes.
+   *
+   * @param  ldapDebugLogHandler  The log handler that should be used to record
+   *                              detailed messages about LDAP communication to
+   *                              and from the server.  It may be {@code null}
+   *                              if no LDAP debug logging should be performed.
+   */
+  public void setLDAPDebugLogHandler(final Handler ldapDebugLogHandler)
+  {
+    this.ldapDebugLogHandler = ldapDebugLogHandler;
   }
 
 
@@ -820,6 +863,13 @@ public final class InMemoryDirectoryServerConfig
     {
       buffer.append(", accessLogHandlerClass='");
       buffer.append(accessLogHandler.getClass().getName());
+      buffer.append('\'');
+    }
+
+    if (ldapDebugLogHandler != null)
+    {
+      buffer.append(", ldapDebugLogHandlerClass='");
+      buffer.append(ldapDebugLogHandler.getClass().getName());
       buffer.append('\'');
     }
 
