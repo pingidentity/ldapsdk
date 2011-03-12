@@ -366,7 +366,11 @@ final class SearchAndModRateThread
       }
     }
 
-    connection.close();
+    if (connection != null)
+    {
+      connection.close();
+    }
+
     searchAndModThread.set(null);
   }
 

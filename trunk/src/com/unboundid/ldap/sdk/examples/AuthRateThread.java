@@ -386,8 +386,16 @@ final class AuthRateThread
       }
     }
 
-    searchConnection.close();
-    bindConnection.close();
+    if (searchConnection != null)
+    {
+      searchConnection.close();
+    }
+
+    if (bindConnection != null)
+    {
+      bindConnection.close();
+    }
+
     authThread.set(null);
   }
 

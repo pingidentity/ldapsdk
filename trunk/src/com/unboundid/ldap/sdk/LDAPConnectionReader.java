@@ -92,7 +92,7 @@ final class LDAPConnectionReader
   private final LDAPConnection connection;
 
   // The socket with which this reader is associated.
-  private Socket socket;
+  private volatile Socket socket;
 
   // The SSL context to use to perform StartTLS negotiation.  It will be null
   // unless there is an outstanding StartTLS request.
@@ -142,47 +142,37 @@ final class LDAPConnectionReader
 
     if (! connectionInternals.synchronousMode())
     {
-      if (socket instanceof SSLSocket)
+      // We don't want to set an SO_TIMEOUT that is too short, but we don't
+      // necessarily want to make it unlimited.  As a compromise, set it equal
+      // to the connect timeout for the connection (which might be unlimited,
+      // but that's up to the user to decide).
+      final LDAPConnectionOptions options = connection.getConnectionOptions();
+      final int connectTimeout = options.getConnectTimeoutMillis();
+      if (connectTimeout > 0)
       {
-        // We don't want to set an SO_TIMEOUT that is too short, but we don't
-        // necessarily want to make it unlimited.  As a compromise, set it equal
-        // to the connect timeout for the connection (which might be unlimited,
-        // but that's up to the user to decide).
-        final LDAPConnectionOptions options = connection.getConnectionOptions();
-        final int connectTimeout = options.getConnectTimeoutMillis();
-        if (connectTimeout > 0)
+        if (debugEnabled())
         {
-          if (debugEnabled())
-          {
-            debug(Level.INFO, DebugType.CONNECT,
-                 "Setting SO_TIMEOUT to connect timeout of " + connectTimeout +
-                      "ms in LDAPConnectionReader constructor");
-          }
-          socket.setSoTimeout(connectTimeout);
+          debug(Level.INFO, DebugType.CONNECT,
+               "Setting SO_TIMEOUT to connect timeout of " + connectTimeout +
+                    "ms in LDAPConnectionReader constructor");
         }
-        else
-        {
-          if (debugEnabled())
-          {
-            debug(Level.INFO, DebugType.CONNECT,
-                 "Setting SO_TIMEOUT to 0ms in LDAPConnectionReader " +
-                      "constructor");
-          }
-          socket.setSoTimeout(0);
-        }
-
-        final SSLSocket sslSocket = (SSLSocket) socket;
-        sslSocket.startHandshake();
+        socket.setSoTimeout(connectTimeout);
       }
       else
       {
         if (debugEnabled())
         {
           debug(Level.INFO, DebugType.CONNECT,
-               "Setting SO_TIMEOUT to 50ms in LDAPConnectionReader " +
+               "Setting SO_TIMEOUT to 0ms in LDAPConnectionReader " +
                     "constructor");
         }
-        socket.setSoTimeout(50);
+        socket.setSoTimeout(0);
+      }
+
+      if (socket instanceof SSLSocket)
+      {
+        final SSLSocket sslSocket = (SSLSocket) socket;
+        sslSocket.startHandshake();
       }
     }
   }
@@ -842,6 +832,37 @@ final class LDAPConnectionReader
 
         throw new LDAPException(ResultCode.SERVER_DOWN,  message, e);
       }
+    }
+  }
+
+
+
+  /**
+   * Attempts to set the SO_TIMEOUT value for the connection.  This will take
+   * effect for the next blocking operation that it starts.
+   *
+   * @param  soTimeout  The SO_TIMEOUT value that should be set for the
+   *                    connection.  It must be greater than or equal to zero,
+   *                    with a value of zero meaning an unlimited timeout.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         set the SO_TIMEOUT value.
+   */
+  void setSoTimeout(final int soTimeout)
+       throws LDAPException
+  {
+    try
+    {
+      socket.setSoTimeout(soTimeout);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_READER_CANNOT_SET_SO_TIMEOUT.get(soTimeout,
+                connection.toString(), getExceptionMessage(e)),
+           e);
     }
   }
 

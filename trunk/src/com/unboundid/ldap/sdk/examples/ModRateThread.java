@@ -276,7 +276,11 @@ final class ModRateThread
       modDurations.addAndGet(System.nanoTime() - startTime);
     }
 
-    connection.close();
+    if (connection != null)
+    {
+      connection.close();
+    }
+
     modThread.set(null);
   }
 
