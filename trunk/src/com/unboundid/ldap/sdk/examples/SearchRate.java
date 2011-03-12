@@ -808,7 +808,11 @@ public final class SearchRate
     ResultCode resultCode = ResultCode.SUCCESS;
     for (final SearchRateThread t : threads)
     {
-      final ResultCode r = t.stopRunning();
+      t.signalShutdown();
+    }
+    for (final SearchRateThread t : threads)
+    {
+      final ResultCode r = t.waitForShutdown();
       if (resultCode == ResultCode.SUCCESS)
       {
         resultCode = r;
@@ -816,6 +820,29 @@ public final class SearchRate
     }
 
     return resultCode;
+  }
+
+
+
+  /**
+   * Retrieves the maximum number of outstanding requests that may be in
+   * progress at any time, if appropriate.
+   *
+   * @return  The maximum number of outstanding requests that may be in progress
+   *          at any time, or -1 if the tool was not configured to perform
+   *          asynchronous searches with a maximum number of outstanding
+   *          requests.
+   */
+  int getMaxOutstandingRequests()
+  {
+    if (maxOutstandingRequests.isPresent())
+    {
+      return maxOutstandingRequests.getValue();
+    }
+    else
+    {
+      return -1;
+    }
   }
 
 

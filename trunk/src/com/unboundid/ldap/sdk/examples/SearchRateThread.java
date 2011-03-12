@@ -352,6 +352,24 @@ final class SearchRateThread
       }
     }
 
+    // Wait for all outstanding asynchronous searches to complete before closing
+    // the connection.
+    if (asyncSemaphore != null)
+    {
+      while (asyncSemaphore.availablePermits() <
+           searchRate.getMaxOutstandingRequests())
+      {
+        try
+        {
+          Thread.sleep(1L);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+    }
+
     if (connection != null)
     {
       connection.close();
@@ -363,12 +381,10 @@ final class SearchRateThread
 
 
   /**
-   * Indicates that this thread should stop running.
-   *
-   * @return  A result code that provides information about whether any errors
-   *          were encountered during processing.
+   * Indicates that this thread should stop running.  It will not wait for the
+   * thread to complete before returning.
    */
-  public ResultCode stopRunning()
+  void signalShutdown()
   {
     stopRequested.set(true);
 
@@ -376,7 +392,18 @@ final class SearchRateThread
     {
       fixedRateBarrier.shutdownRequested();
     }
+  }
 
+
+
+  /**
+   * Waits for this thread to stop running.
+   *
+   * @return  A result code that provides information about whether any errors
+   *          were encountered during processing.
+   */
+  ResultCode waitForShutdown()
+  {
     final Thread t = searchThread.get();
     if (t != null)
     {
