@@ -164,15 +164,18 @@ public final class InMemoryDirectoryServer
 
     inMemoryHandler = new InMemoryRequestHandler(config);
 
-    final LDAPListenerRequestHandler requestHandler;
-    if (config.getAccessLogHandler() == null)
-    {
-      requestHandler = inMemoryHandler;
-    }
-    else
+    LDAPListenerRequestHandler requestHandler = inMemoryHandler;
+
+    if (config.getAccessLogHandler() != null)
     {
       requestHandler = new AccessLogRequestHandler(config.getAccessLogHandler(),
-           inMemoryHandler);
+           requestHandler);
+    }
+
+    if (config.getLDAPDebugLogHandler() != null)
+    {
+      requestHandler = new LDAPDebuggerRequestHandler(
+           config.getLDAPDebugLogHandler(), requestHandler);
     }
 
     final LDAPListenerConfig listenerConfig =
