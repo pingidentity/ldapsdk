@@ -469,7 +469,7 @@ public final class InMemoryDirectoryServerTool
       final File ldifFile = ldifFileArgument.getValue();
       try
       {
-        final int numEntries = directoryServer.initializeFromLDIF(true,
+        final int numEntries = directoryServer.importFromLDIF(true,
              ldifFile.getAbsolutePath());
         out(INFO_MEM_DS_TOOL_ADDED_ENTRIES_FROM_LDIF.get(numEntries,
              ldifFile.getAbsolutePath()));

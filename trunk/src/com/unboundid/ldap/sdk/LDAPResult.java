@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1StreamReader;
@@ -83,20 +84,6 @@ import static com.unboundid.util.StaticUtils.*;
 public class LDAPResult
        implements Serializable, LDAPResponse
 {
-  /**
-   * An array that will be used when no controls were provided.
-   */
-  static final Control[] NO_CONTROLS = new Control[0];
-
-
-
-  /**
-   * An array that will be used when no referral URLs were provided.
-   */
-  static final String[] NO_REFERRALS = new String[0];
-
-
-
   /**
    * The BER type for the set of referral URLs.
    */
@@ -163,7 +150,7 @@ public class LDAPResult
    */
   public LDAPResult(final int messageID, final ResultCode resultCode)
   {
-    this(null, messageID, resultCode, null, null, null, null);
+    this(null, messageID, resultCode, null, null, NO_STRINGS, NO_CONTROLS);
   }
 
 
@@ -186,6 +173,31 @@ public class LDAPResult
                     final String diagnosticMessage, final String matchedDN,
                     final String[] referralURLs,
                     final Control[] responseControls)
+  {
+    this(null, messageID, resultCode, diagnosticMessage, matchedDN,
+         referralURLs, responseControls);
+  }
+
+
+
+  /**
+   * Creates a new LDAP result object with the provided information.
+   *
+   * @param  messageID          The message ID for the LDAP message that is
+   *                            associated with this LDAP result.
+   * @param  resultCode         The result code from the response.
+   * @param  diagnosticMessage  The diagnostic message from the response, if
+   *                            available.
+   * @param  matchedDN          The matched DN from the response, if available.
+   * @param  referralURLs       The set of referral URLs from the response, if
+   *                            available.
+   * @param  responseControls   The set of controls from the response, if
+   *                            available.
+   */
+  public LDAPResult(final int messageID, final ResultCode resultCode,
+                    final String diagnosticMessage, final String matchedDN,
+                    final List<String> referralURLs,
+                    final List<Control> responseControls)
   {
     this(null, messageID, resultCode, diagnosticMessage, matchedDN,
          referralURLs, responseControls);
@@ -223,7 +235,7 @@ public class LDAPResult
 
     if (referralURLs == null)
     {
-      this.referralURLs = NO_REFERRALS;
+      this.referralURLs = NO_STRINGS;
     }
     else
     {
@@ -237,6 +249,57 @@ public class LDAPResult
     else
     {
       this.responseControls = responseControls;
+    }
+  }
+
+
+
+  /**
+   * Creates a new LDAP result object with the provided information.
+   *
+   * @param  protocolOpType     The protocol op type for this result, if
+   *                            available.
+   * @param  messageID          The message ID for the LDAP message that is
+   *                            associated with this LDAP result.
+   * @param  resultCode         The result code from the response.
+   * @param  diagnosticMessage  The diagnostic message from the response, if
+   *                            available.
+   * @param  matchedDN          The matched DN from the response, if available.
+   * @param  referralURLs       The set of referral URLs from the response, if
+   *                            available.
+   * @param  responseControls   The set of controls from the response, if
+   *                            available.
+   */
+  private LDAPResult(final Byte protocolOpType, final int messageID,
+                     final ResultCode resultCode,
+                     final String diagnosticMessage, final String matchedDN,
+                     final List<String> referralURLs,
+                     final List<Control> responseControls)
+  {
+    this.protocolOpType    = protocolOpType;
+    this.messageID         = messageID;
+    this.resultCode        = resultCode;
+    this.diagnosticMessage = diagnosticMessage;
+    this.matchedDN         = matchedDN;
+
+    if ((referralURLs == null) || referralURLs.isEmpty())
+    {
+      this.referralURLs = NO_STRINGS;
+    }
+    else
+    {
+      this.referralURLs = new String[referralURLs.size()];
+      referralURLs.toArray(this.referralURLs);
+    }
+
+    if ((responseControls == null) || responseControls.isEmpty())
+    {
+      this.responseControls = NO_CONTROLS;
+    }
+    else
+    {
+      this.responseControls = new Control[responseControls.size()];
+      responseControls.toArray(this.responseControls);
     }
   }
 
@@ -283,7 +346,7 @@ public class LDAPResult
         diagnosticMessage = null;
       }
 
-      String[] referralURLs = NO_REFERRALS;
+      String[] referralURLs = NO_STRINGS;
       if (protocolOpSequence.hasMoreElements())
       {
         final ArrayList<String> refList = new ArrayList<String>(1);

@@ -63,6 +63,7 @@ import com.unboundid.ldap.sdk.ServerSet;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -82,20 +83,6 @@ public final class ProxyRequestHandler
        extends LDAPListenerRequestHandler
        implements IntermediateResponseListener
 {
-  /**
-   * A pre-allocated empty control array.
-   */
-  private static final Control[] EMPTY_CONTROL_ARRAY = new Control[0];
-
-
-
-  /**
-   * A pre-allocated empty string array.
-   */
-  private static final String[] EMPTY_STRING_ARRAY = new String[0];
-
-
-
   /**
    * The serial version UID for this serializable class.
    */
@@ -231,7 +218,7 @@ public final class ProxyRequestHandler
     final Control[] controlArray;
     if ((controls == null) || (controls.isEmpty()))
     {
-      controlArray = EMPTY_CONTROL_ARRAY;
+      controlArray = StaticUtils.NO_CONTROLS;
     }
     else
     {
@@ -496,7 +483,7 @@ public final class ProxyRequestHandler
     final List<String> attrList = request.getAttributes();
     if (attrList.isEmpty())
     {
-      attrs = EMPTY_STRING_ARRAY;
+      attrs = StaticUtils.NO_STRINGS;
     }
     else
     {

@@ -27,20 +27,62 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.net.SocketFactory;
 
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.protocol.AddRequestProtocolOp;
+import com.unboundid.ldap.protocol.AddResponseProtocolOp;
+import com.unboundid.ldap.protocol.CompareRequestProtocolOp;
+import com.unboundid.ldap.protocol.CompareResponseProtocolOp;
+import com.unboundid.ldap.protocol.DeleteRequestProtocolOp;
+import com.unboundid.ldap.protocol.DeleteResponseProtocolOp;
+import com.unboundid.ldap.protocol.ExtendedRequestProtocolOp;
+import com.unboundid.ldap.protocol.ExtendedResponseProtocolOp;
+import com.unboundid.ldap.protocol.LDAPMessage;
+import com.unboundid.ldap.protocol.ModifyRequestProtocolOp;
+import com.unboundid.ldap.protocol.ModifyResponseProtocolOp;
+import com.unboundid.ldap.protocol.ModifyDNRequestProtocolOp;
+import com.unboundid.ldap.protocol.ModifyDNResponseProtocolOp;
+import com.unboundid.ldap.protocol.SearchRequestProtocolOp;
+import com.unboundid.ldap.protocol.SearchResultDoneProtocolOp;
+import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.CompareRequest;
+import com.unboundid.ldap.sdk.CompareResult;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DeleteRequest;
+import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.ExtendedRequest;
+import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.Filter;
+import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPInterface;
+import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModifyRequest;
-import com.unboundid.ldap.sdk.ReadOnlyEntry;
+import com.unboundid.ldap.sdk.ModifyDNRequest;
+import com.unboundid.ldap.sdk.ReadOnlyAddRequest;
+import com.unboundid.ldap.sdk.ReadOnlyCompareRequest;
+import com.unboundid.ldap.sdk.ReadOnlyDeleteRequest;
+import com.unboundid.ldap.sdk.ReadOnlyModifyRequest;
+import com.unboundid.ldap.sdk.ReadOnlyModifyDNRequest;
+import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.RootDSE;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchResultListener;
+import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
@@ -115,6 +157,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class InMemoryDirectoryServer
+       implements LDAPInterface
 {
   // The in-memory request handler that will be used for the server.
   private final InMemoryRequestHandler inMemoryHandler;
@@ -247,6 +290,9 @@ public final class InMemoryDirectoryServer
    * Creates a point-in-time snapshot of the information contained in this
    * in-memory directory server instance.  It may be restored using the
    * {@link #restoreSnapshot} method.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @return  The snapshot created based on the current content of this
    *          in-memory directory server instance.
@@ -261,6 +307,9 @@ public final class InMemoryDirectoryServer
   /**
    * Restores the this in-memory directory server instance to match the content
    * it held at the time the snapshot was created.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  snapshot  The snapshot to be restored.  It must not be
    *                   {@code null}.
@@ -308,19 +357,6 @@ public final class InMemoryDirectoryServer
   public List<DN> getBaseDNs()
   {
     return inMemoryHandler.getBaseDNs();
-  }
-
-
-
-  /**
-   * Retrieves the schema used by the server, if available.
-   *
-   * @return  The schema used by the server, or {@code null} if none is
-   *          available.
-   */
-  public Schema getSchema()
-  {
-    return inMemoryHandler.getSchema();
   }
 
 
@@ -492,7 +528,7 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while reading entries or adding
    *                         them to the server.
    */
-  public int initializeFromLDIF(final boolean clear, final String path)
+  public int importFromLDIF(final boolean clear, final String path)
          throws LDAPException
   {
     final LDIFReader reader;
@@ -509,7 +545,7 @@ public final class InMemoryDirectoryServer
            e);
     }
 
-    return initializeFromLDIF(clear, reader);
+    return importFromLDIF(clear, reader);
   }
 
 
@@ -534,10 +570,10 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while reading entries or adding
    *                         them to the server.
    */
-  public int initializeFromLDIF(final boolean clear, final LDIFReader reader)
+  public int importFromLDIF(final boolean clear, final LDIFReader reader)
          throws LDAPException
   {
-    return inMemoryHandler.initializeFromLDIF(clear, reader);
+    return inMemoryHandler.importFromLDIF(clear, reader);
   }
 
 
@@ -561,8 +597,9 @@ public final class InMemoryDirectoryServer
    *
    * @throws  LDAPException  If a problem occurs while writing entries to LDIF.
    */
-  public int writeToLDIF(final String path, final boolean excludeGeneratedAttrs,
-                         final boolean excludeChangeLog)
+  public int exportToLDIF(final String path,
+                          final boolean excludeGeneratedAttrs,
+                          final boolean excludeChangeLog)
          throws LDAPException
   {
     final LDIFWriter ldifWriter;
@@ -579,7 +616,7 @@ public final class InMemoryDirectoryServer
            e);
     }
 
-    return writeToLDIF(ldifWriter, excludeGeneratedAttrs, excludeChangeLog,
+    return exportToLDIF(ldifWriter, excludeGeneratedAttrs, excludeChangeLog,
          true);
   }
 
@@ -606,62 +643,190 @@ public final class InMemoryDirectoryServer
    *
    * @throws  LDAPException  If a problem occurs while writing entries to LDIF.
    */
-  public int writeToLDIF(final LDIFWriter ldifWriter,
-                         final boolean excludeGeneratedAttrs,
-                         final boolean excludeChangeLog,
-                         final boolean closeWriter)
+  public int exportToLDIF(final LDIFWriter ldifWriter,
+                          final boolean excludeGeneratedAttrs,
+                          final boolean excludeChangeLog,
+                          final boolean closeWriter)
          throws LDAPException
   {
-    return inMemoryHandler.writeToLDIF(ldifWriter, excludeGeneratedAttrs,
+    return inMemoryHandler.exportToLDIF(ldifWriter, excludeGeneratedAttrs,
          excludeChangeLog, closeWriter);
   }
 
 
 
   /**
-   * Attempts to add the provided entry to the server.
+   * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
-   *
-   * @param  ldifEntry  The lines comprising the LDIF representation of the
-   *                    entry to be added.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to add
-   *                         the provided entry.
    */
-  public void addEntry(final String... ldifEntry)
+  public RootDSE getRootDSE()
          throws LDAPException
   {
-    try
+    return new RootDSE(inMemoryHandler.getEntry(""));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public Schema getSchema()
+         throws LDAPException
+  {
+    return inMemoryHandler.getSchema();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public Schema getSchema(final String entryDN)
+         throws LDAPException
+  {
+    return inMemoryHandler.getSchema();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResultEntry getEntry(final String dn)
+         throws LDAPException
+  {
+    return searchForEntry(dn, SearchScope.BASE,
+         Filter.createPresenceFilter("objectClass"));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResultEntry getEntry(final String dn, final String... attributes)
+         throws LDAPException
+  {
+    return searchForEntry(dn, SearchScope.BASE,
+         Filter.createPresenceFilter("objectClass"), attributes);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult add(final String dn, final Attribute... attributes)
+         throws LDAPException
+  {
+    return add(new AddRequest(dn, attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult add(final String dn, final Collection<Attribute> attributes)
+         throws LDAPException
+  {
+    return add(new AddRequest(dn, attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult add(final Entry entry)
+         throws LDAPException
+  {
+    return add(new AddRequest(entry));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult add(final String... ldifLines)
+         throws LDIFException, LDAPException
+  {
+    return add(new AddRequest(ldifLines));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult add(final AddRequest addRequest)
+         throws LDAPException
+  {
+    final LDAPMessage responseMessage = inMemoryHandler.processAddRequest(1,
+         new AddRequestProtocolOp(addRequest.getDN(),
+              addRequest.getAttributes()),
+         addRequest.getControlList());
+
+    final AddResponseProtocolOp addResponse =
+         responseMessage.getAddResponseProtocolOp();
+
+    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
+         ResultCode.valueOf(addResponse.getResultCode()),
+         addResponse.getDiagnosticMessage(), addResponse.getMatchedDN(),
+         addResponse.getReferralURLs(), responseMessage.getControls());
+
+    switch (addResponse.getResultCode())
     {
-      addEntry(new Entry(ldifEntry));
-    }
-    catch (final LDIFException le)
-    {
-      Debug.debugException(le);
-      throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_MEM_DS_ADD_ENTRY_LDIF_PARSE_EXCEPTION.get(le.getMessage()), le);
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        return ldapResult;
+      default:
+        throw new LDAPException(ldapResult);
     }
   }
 
 
 
   /**
-   * Attempts to add the provided entry to the server.
+   * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
-   *
-   * @param  entry  The entry to be written.  It must not be {@code null}.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to add
-   *                         the provided entry.
    */
-  public void addEntry(final Entry entry)
+  public LDAPResult add(final ReadOnlyAddRequest addRequest)
          throws LDAPException
   {
-    inMemoryHandler.addEntry(entry, false);
+    return add(addRequest.duplicate());
   }
 
 
@@ -769,20 +934,127 @@ public final class InMemoryDirectoryServer
 
 
   /**
-   * Attempts to delete the specified entry from the server.
+   * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
-   *
-   * @param  dn  The DN of the entry to remove from the server.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         remove the specified entry.
    */
-  public void deleteEntry(final String dn)
+  public CompareResult compare(final String dn, final String attributeName,
+                        final String assertionValue)
          throws LDAPException
   {
-    inMemoryHandler.deleteEntry(dn);
+    return compare(new CompareRequest(dn, attributeName, assertionValue));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public CompareResult compare(final CompareRequest compareRequest)
+         throws LDAPException
+  {
+    final LDAPMessage responseMessage = inMemoryHandler.processCompareRequest(1,
+         new CompareRequestProtocolOp(compareRequest.getDN(),
+              compareRequest.getAttributeName(),
+              compareRequest.getRawAssertionValue()),
+         compareRequest.getControlList());
+
+    final CompareResponseProtocolOp compareResponse =
+         responseMessage.getCompareResponseProtocolOp();
+
+    final LDAPResult compareResult = new LDAPResult(
+         responseMessage.getMessageID(),
+         ResultCode.valueOf(compareResponse.getResultCode()),
+         compareResponse.getDiagnosticMessage(), compareResponse.getMatchedDN(),
+         compareResponse.getReferralURLs(), responseMessage.getControls());
+
+    switch (compareResponse.getResultCode())
+    {
+      case ResultCode.COMPARE_TRUE_INT_VALUE:
+      case ResultCode.COMPARE_FALSE_INT_VALUE:
+        return new CompareResult(compareResult);
+      default:
+        throw new LDAPException(compareResult);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public CompareResult compare(final ReadOnlyCompareRequest compareRequest)
+         throws LDAPException
+  {
+    return compare(compareRequest.duplicate());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult delete(final String dn)
+         throws LDAPException
+  {
+    return delete(new DeleteRequest(dn));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult delete(final DeleteRequest deleteRequest)
+         throws LDAPException
+  {
+    final LDAPMessage responseMessage = inMemoryHandler.processDeleteRequest(1,
+         new DeleteRequestProtocolOp(deleteRequest.getDN()),
+         deleteRequest.getControlList());
+
+    final DeleteResponseProtocolOp deleteResponse =
+         responseMessage.getDeleteResponseProtocolOp();
+
+    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
+         ResultCode.valueOf(deleteResponse.getResultCode()),
+         deleteResponse.getDiagnosticMessage(), deleteResponse.getMatchedDN(),
+         deleteResponse.getReferralURLs(), responseMessage.getControls());
+
+    switch (deleteResponse.getResultCode())
+    {
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        return ldapResult;
+      default:
+        throw new LDAPException(ldapResult);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
+         throws LDAPException
+  {
+    return delete(deleteRequest.duplicate());
   }
 
 
@@ -812,161 +1084,803 @@ public final class InMemoryDirectoryServer
 
 
   /**
-   * Attempts to apply the provided set of modifications to the specified
-   * entry.
+   * Processes an extended request with the provided request OID.  Note that
+   * because some types of extended operations return unusual result codes under
+   * "normal" conditions, the server may not always throw an exception for a
+   * failed extended operation like it does for other types of operations.  It
+   * will throw an exception under conditions where there appears to be a
+   * problem with the connection or the server to which the connection is
+   * established, but there may be many circumstances in which an extended
+   * operation is not processed correctly but this method does not throw an
+   * exception.  In the event that no exception is thrown, it is the
+   * responsibility of the caller to interpret the result to determine whether
+   * the operation was processed as expected.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
    *
-   * @param  dn    The DN of the entry to modify.
-   * @param  mods  The modifications to apply to the entry.
+   * @param  requestOID  The OID for the extended request to process.  It must
+   *                     not be {@code null}.
    *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         modify the entry.
+   * @return  The extended result object that provides information about the
+   *          result of the request processing.  It may or may not indicate that
+   *          the operation was successful.
+   *
+   * @throws  LDAPException  If a problem occurs while sending the request or
+   *                         reading the response.
    */
-  public void modifyEntry(final String dn, final Modification... mods)
+  public ExtendedResult processExtendedOperation(final String requestOID)
          throws LDAPException
   {
-    modifyEntry(dn, Arrays.asList(mods));
+    Validator.ensureNotNull(requestOID);
+
+    return processExtendedOperation(new ExtendedRequest(requestOID));
   }
 
 
 
   /**
-   * Attempts to apply the provided set of modifications to the specified
-   * entry.
+   * Processes an extended request with the provided request OID and value.
+   * Note that because some types of extended operations return unusual result
+   * codes under "normal" conditions, the server may not always throw an
+   * exception for a failed extended operation like it does for other types of
+   * operations.  It will throw an exception under conditions where there
+   * appears to be a problem with the connection or the server to which the
+   * connection is established, but there may be many circumstances in which an
+   * extended operation is not processed correctly but this method does not
+   * throw an exception.  In the event that no exception is thrown, it is the
+   * responsibility of the caller to interpret the result to determine whether
+   * the operation was processed as expected.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
    *
-   * @param  dn    The DN of the entry to modify.
-   * @param  mods  The modifications to apply to the entry.
+   * @param  requestOID    The OID for the extended request to process.  It must
+   *                       not be {@code null}.
+   * @param  requestValue  The encoded value for the extended request to
+   *                       process.  It may be {@code null} if there does not
+   *                       need to be a value for the requested operation.
    *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         modify the entry.
+   * @return  The extended result object that provides information about the
+   *          result of the request processing.  It may or may not indicate that
+   *          the operation was successful.
+   *
+   * @throws  LDAPException  If a problem occurs while sending the request or
+   *                         reading the response.
    */
-  public void modifyEntry(final String dn, final List<Modification> mods)
+  public ExtendedResult processExtendedOperation(final String requestOID,
+                             final ASN1OctetString requestValue)
          throws LDAPException
   {
-    inMemoryHandler.modifyEntry(dn, mods);
+    Validator.ensureNotNull(requestOID);
+
+    return processExtendedOperation(new ExtendedRequest(requestOID,
+         requestValue));
   }
 
 
 
   /**
-   * Attempts to apply the provided modification in the server.
+   * Processes the provided extended request.  Note that because some types of
+   * extended operations return unusual result codes under "normal" conditions,
+   * the server may not always throw an exception for a failed extended
+   * operation like it does for other types of operations.  It will throw an
+   * exception under conditions where there appears to be a problem with the
+   * connection or the server to which the connection is established, but there
+   * may be many circumstances in which an extended operation is not processed
+   * correctly but this method does not throw an exception.  In the event that
+   * no exception is thrown, it is the responsibility of the caller to interpret
+   * the result to determine whether the operation was processed as expected.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
    *
-   * @param  ldifModification  The lines that comprise the LDIF representation
-   *                           of the modification to be applied.
+   * @param  extendedRequest  The extended request to be processed.  It must not
+   *                          be {@code null}.
    *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         process the modification.
+   * @return  The extended result object that provides information about the
+   *          result of the request processing.  It may or may not indicate that
+   *          the operation was successful.
+   *
+   * @throws  LDAPException  If a problem occurs while sending the request or
+   *                         reading the response.
    */
-  public void modifyEntry(final String... ldifModification)
+  public ExtendedResult processExtendedOperation(
+                               final ExtendedRequest extendedRequest)
          throws LDAPException
   {
-    final ModifyRequest modifyRequest;
+    Validator.ensureNotNull(extendedRequest);
+
+    final LDAPMessage responseMessage =
+         inMemoryHandler.processExtendedRequest(1,
+              new ExtendedRequestProtocolOp(extendedRequest.getOID(),
+                   extendedRequest.getValue()),
+              extendedRequest.getControlList());
+
+    final ExtendedResponseProtocolOp extendedResponse =
+         responseMessage.getExtendedResponseProtocolOp();
+
+    final ResultCode rc = ResultCode.valueOf(extendedResponse.getResultCode());
+
+    final String[] referralURLs;
+    final List<String> referralURLList = extendedResponse.getReferralURLs();
+    if ((referralURLList == null) || referralURLList.isEmpty())
+    {
+      referralURLs = StaticUtils.NO_STRINGS;
+    }
+    else
+    {
+      referralURLs = new String[referralURLList.size()];
+      referralURLList.toArray(referralURLs);
+    }
+
+    final Control[] responseControls;
+    final List<Control> controlList = responseMessage.getControls();
+    if ((controlList == null) || controlList.isEmpty())
+    {
+      responseControls = StaticUtils.NO_CONTROLS;
+    }
+    else
+    {
+      responseControls = new Control[controlList.size()];
+      controlList.toArray(responseControls);
+    }
+
+    final ExtendedResult extendedResult = new ExtendedResult(
+         responseMessage.getMessageID(), rc,
+         extendedResponse.getDiagnosticMessage(),
+         extendedResponse.getMatchedDN(), referralURLs,
+         extendedResponse.getResponseOID(),
+         extendedResponse.getResponseValue(), responseControls);
+
+    if ((extendedResult.getOID() == null) &&
+        (extendedResult.getValue() == null))
+    {
+      switch (rc.intValue())
+      {
+        case ResultCode.OPERATIONS_ERROR_INT_VALUE:
+        case ResultCode.PROTOCOL_ERROR_INT_VALUE:
+        case ResultCode.BUSY_INT_VALUE:
+        case ResultCode.UNAVAILABLE_INT_VALUE:
+        case ResultCode.OTHER_INT_VALUE:
+        case ResultCode.SERVER_DOWN_INT_VALUE:
+        case ResultCode.LOCAL_ERROR_INT_VALUE:
+        case ResultCode.ENCODING_ERROR_INT_VALUE:
+        case ResultCode.DECODING_ERROR_INT_VALUE:
+        case ResultCode.TIMEOUT_INT_VALUE:
+        case ResultCode.NO_MEMORY_INT_VALUE:
+        case ResultCode.CONNECT_ERROR_INT_VALUE:
+          throw new LDAPException(extendedResult);
+      }
+    }
+
+    return extendedResult;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modify(final String dn, final Modification mod)
+         throws LDAPException
+  {
+    return modify(new ModifyRequest(dn, mod));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modify(final String dn, final Modification... mods)
+         throws LDAPException
+  {
+    return modify(new ModifyRequest(dn, mods));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modify(final String dn, final List<Modification> mods)
+         throws LDAPException
+  {
+    return modify(new ModifyRequest(dn, mods));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modify(final String... ldifModificationLines)
+         throws LDIFException, LDAPException
+  {
+    return modify(new ModifyRequest(ldifModificationLines));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modify(final ModifyRequest modifyRequest)
+         throws LDAPException
+  {
+    final LDAPMessage responseMessage = inMemoryHandler.processModifyRequest(1,
+         new ModifyRequestProtocolOp(modifyRequest.getDN(),
+              modifyRequest.getModifications()),
+         modifyRequest.getControlList());
+
+    final ModifyResponseProtocolOp modifyResponse =
+         responseMessage.getModifyResponseProtocolOp();
+
+    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
+         ResultCode.valueOf(modifyResponse.getResultCode()),
+         modifyResponse.getDiagnosticMessage(), modifyResponse.getMatchedDN(),
+         modifyResponse.getReferralURLs(), responseMessage.getControls());
+
+    switch (modifyResponse.getResultCode())
+    {
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        return ldapResult;
+      default:
+        throw new LDAPException(ldapResult);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
+         throws LDAPException
+  {
+    return modify(modifyRequest.duplicate());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modifyDN(final String dn, final String newRDN,
+                             final boolean deleteOldRDN)
+         throws LDAPException
+  {
+    return modifyDN(new ModifyDNRequest(dn, newRDN, deleteOldRDN));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modifyDN(final String dn, final String newRDN,
+                             final boolean deleteOldRDN,
+                             final String newSuperiorDN)
+         throws LDAPException
+  {
+    return modifyDN(new ModifyDNRequest(dn, newRDN, deleteOldRDN,
+         newSuperiorDN));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
+         throws LDAPException
+  {
+    final LDAPMessage responseMessage = inMemoryHandler.processModifyDNRequest(
+         1, new ModifyDNRequestProtocolOp(modifyDNRequest.getDN(),
+              modifyDNRequest.getNewRDN(), modifyDNRequest.deleteOldRDN(),
+              modifyDNRequest.getNewSuperiorDN()),
+         modifyDNRequest.getControlList());
+
+    final ModifyDNResponseProtocolOp modifyDNResponse =
+         responseMessage.getModifyDNResponseProtocolOp();
+
+    final LDAPResult ldapResult = new LDAPResult(responseMessage.getMessageID(),
+         ResultCode.valueOf(modifyDNResponse.getResultCode()),
+         modifyDNResponse.getDiagnosticMessage(),
+         modifyDNResponse.getMatchedDN(), modifyDNResponse.getReferralURLs(),
+         responseMessage.getControls());
+
+    switch (modifyDNResponse.getResultCode())
+    {
+      case ResultCode.SUCCESS_INT_VALUE:
+      case ResultCode.NO_OPERATION_INT_VALUE:
+        return ldapResult;
+      default:
+        throw new LDAPException(ldapResult);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
+         throws LDAPException
+  {
+    return modifyDN(modifyDNRequest.duplicate());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final String baseDN, final SearchScope scope,
+                             final String filter, final String... attributes)
+         throws LDAPSearchException
+  {
+    return search(new SearchRequest(baseDN, scope, parseFilter(filter),
+         attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final String baseDN, final SearchScope scope,
+                             final Filter filter, final String... attributes)
+         throws LDAPSearchException
+  {
+    return search(new SearchRequest(baseDN, scope, filter, attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final SearchResultListener searchResultListener,
+                             final String baseDN, final SearchScope scope,
+                             final String filter, final String... attributes)
+         throws LDAPSearchException
+  {
+    return search(new SearchRequest(searchResultListener, baseDN, scope,
+         parseFilter(filter), attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final SearchResultListener searchResultListener,
+                             final String baseDN, final SearchScope scope,
+                             final Filter filter, final String... attributes)
+         throws LDAPSearchException
+  {
+    return search(new SearchRequest(searchResultListener, baseDN, scope,
+         filter, attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final String baseDN, final SearchScope scope,
+                             final DereferencePolicy derefPolicy,
+                             final int sizeLimit, final int timeLimit,
+                             final boolean typesOnly, final String filter,
+                             final String... attributes)
+         throws LDAPSearchException
+  {
+    return search(new SearchRequest(baseDN, scope, derefPolicy, sizeLimit,
+         timeLimit, typesOnly, parseFilter(filter), attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final String baseDN, final SearchScope scope,
+                             final DereferencePolicy derefPolicy,
+                             final int sizeLimit, final int timeLimit,
+                             final boolean typesOnly, final Filter filter,
+                             final String... attributes)
+         throws LDAPSearchException
+  {
+    return search(new SearchRequest(baseDN, scope, derefPolicy, sizeLimit,
+         timeLimit, typesOnly, filter, attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final SearchResultListener searchResultListener,
+                             final String baseDN, final SearchScope scope,
+                             final DereferencePolicy derefPolicy,
+                             final int sizeLimit, final int timeLimit,
+                             final boolean typesOnly, final String filter,
+                             final String... attributes)
+         throws LDAPSearchException
+  {
+    return search(new SearchRequest(searchResultListener, baseDN, scope,
+         derefPolicy, sizeLimit, timeLimit, typesOnly, parseFilter(filter),
+         attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final SearchResultListener searchResultListener,
+                             final String baseDN, final SearchScope scope,
+                             final DereferencePolicy derefPolicy,
+                             final int sizeLimit, final int timeLimit,
+                             final boolean typesOnly, final Filter filter,
+                             final String... attributes)
+         throws LDAPSearchException
+  {
+    return search(new SearchRequest(searchResultListener, baseDN, scope,
+         derefPolicy, sizeLimit, timeLimit, typesOnly, filter, attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final SearchRequest searchRequest)
+         throws LDAPSearchException
+  {
+    final List<SearchResultEntry> entryList =
+         new ArrayList<SearchResultEntry>(10);
+    final List<SearchResultReference> referenceList =
+         new ArrayList<SearchResultReference>(10);
+
+    final LDAPMessage responseMessage = inMemoryHandler.processSearchRequest(1,
+         new SearchRequestProtocolOp(searchRequest.getBaseDN(),
+              searchRequest.getScope(), searchRequest.getDereferencePolicy(),
+              searchRequest.getSizeLimit(), searchRequest.getTimeLimitSeconds(),
+              searchRequest.typesOnly(), searchRequest.getFilter(),
+              searchRequest.getAttributeList()),
+         searchRequest.getControlList(), entryList, referenceList);
+
+
+    final List<SearchResultEntry> returnEntryList;
+    final List<SearchResultReference> returnReferenceList;
+    final SearchResultListener searchListener =
+         searchRequest.getSearchResultListener();
+    if (searchListener == null)
+    {
+      returnEntryList = Collections.unmodifiableList(entryList);
+      returnReferenceList = Collections.unmodifiableList(referenceList);
+    }
+    else
+    {
+      returnEntryList     = null;
+      returnReferenceList = null;
+
+      for (final SearchResultEntry e : entryList)
+      {
+        searchListener.searchEntryReturned(e);
+      }
+
+      for (final SearchResultReference r : referenceList)
+      {
+        searchListener.searchReferenceReturned(r);
+      }
+    }
+
+
+    final SearchResultDoneProtocolOp searchDone =
+         responseMessage.getSearchResultDoneProtocolOp();
+
+    final ResultCode rc = ResultCode.valueOf(searchDone.getResultCode());
+
+    final String[] referralURLs;
+    final List<String> referralURLList = searchDone.getReferralURLs();
+    if ((referralURLList == null) || referralURLList.isEmpty())
+    {
+      referralURLs = StaticUtils.NO_STRINGS;
+    }
+    else
+    {
+      referralURLs = new String[referralURLList.size()];
+      referralURLList.toArray(referralURLs);
+    }
+
+    final Control[] responseControls;
+    final List<Control> controlList = responseMessage.getControls();
+    if ((controlList == null) || controlList.isEmpty())
+    {
+      responseControls = StaticUtils.NO_CONTROLS;
+    }
+    else
+    {
+      responseControls = new Control[controlList.size()];
+      controlList.toArray(responseControls);
+    }
+
+    final SearchResult searchResult =new SearchResult(
+         responseMessage.getMessageID(), rc, searchDone.getDiagnosticMessage(),
+         searchDone.getMatchedDN(), referralURLs, returnEntryList,
+         returnReferenceList, entryList.size(), referenceList.size(),
+         responseControls);
+
+    if (rc == ResultCode.SUCCESS)
+    {
+      return searchResult;
+    }
+    else
+    {
+      throw new LDAPSearchException(searchResult);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResult search(final ReadOnlySearchRequest searchRequest)
+         throws LDAPSearchException
+  {
+    return search(searchRequest.duplicate());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResultEntry searchForEntry(final String baseDN,
+                                          final SearchScope scope,
+                                          final String filter,
+                                          final String... attributes)
+         throws LDAPSearchException
+  {
+    return searchForEntry(new SearchRequest(baseDN, scope, parseFilter(filter),
+         attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResultEntry searchForEntry(final String baseDN,
+                                          final SearchScope scope,
+                                          final Filter filter,
+                                          final String... attributes)
+         throws LDAPSearchException
+  {
+    return searchForEntry(new SearchRequest(baseDN, scope, filter, attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResultEntry searchForEntry(final String baseDN,
+                                          final SearchScope scope,
+                                          final DereferencePolicy derefPolicy,
+                                          final int timeLimit,
+                                          final boolean typesOnly,
+                                          final String filter,
+                                          final String... attributes)
+         throws LDAPSearchException
+  {
+    return searchForEntry(new SearchRequest(baseDN, scope, derefPolicy, 1,
+         timeLimit, typesOnly, parseFilter(filter), attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResultEntry searchForEntry(final String baseDN,
+                                          final SearchScope scope,
+                                          final DereferencePolicy derefPolicy,
+                                          final int timeLimit,
+                                          final boolean typesOnly,
+                                          final Filter filter,
+                                          final String... attributes)
+         throws LDAPSearchException
+  {
+    return searchForEntry(new SearchRequest(baseDN, scope, derefPolicy, 1,
+         timeLimit, typesOnly, filter, attributes));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   */
+  public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
+         throws LDAPSearchException
+  {
+    final SearchRequest r;
+    if ((searchRequest.getSizeLimit() == 1) &&
+        (searchRequest.getSearchResultListener() == null))
+    {
+      r = searchRequest;
+    }
+    else
+    {
+      r = new SearchRequest(searchRequest.getBaseDN(), searchRequest.getScope(),
+           searchRequest.getDereferencePolicy(), 1,
+           searchRequest.getTimeLimitSeconds(), searchRequest.typesOnly(),
+           searchRequest.getFilter(), searchRequest.getAttributes());
+
+      r.setFollowReferrals(InternalSDKHelper.followReferralsInternal(r));
+      r.setResponseTimeoutMillis(searchRequest.getResponseTimeoutMillis(null));
+
+      if (searchRequest.hasControl())
+      {
+        r.setControls(searchRequest.getControls());
+      }
+    }
+
+    final SearchResult result;
     try
     {
-      modifyRequest = new ModifyRequest(ldifModification);
+      result = search(r);
     }
-    catch (final LDIFException le)
+    catch (final LDAPSearchException lse)
     {
-      Debug.debugException(le);
-      throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_MEM_DS_MODIFY_ENTRY_LDIF_PARSE_EXCEPTION.get( le.getMessage()),
-           le);
+      Debug.debugException(lse);
+
+      if (lse.getResultCode() == ResultCode.NO_SUCH_OBJECT)
+      {
+        return null;
+      }
+
+      throw lse;
     }
 
-    modifyEntry(modifyRequest.getDN(), modifyRequest.getModifications());
+    if (result.getEntryCount() == 0)
+    {
+      return null;
+    }
+    else
+    {
+      return result.getSearchEntries().get(0);
+    }
   }
 
 
 
   /**
-   * Retrieves a read-only copy of the specified entry from the server.
+   * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
-   *
-   * @param  dn  The DN of the entry to retrieve.
-   *
-   * @return  The a read-only copy of the requested entry, or {@code null} if it
-   *          does not exist in the server.
-   *
-   * @throws  LDAPException  If the provided DN is malformed.
    */
-  public ReadOnlyEntry getEntry(final String dn)
-         throws LDAPException
+  public SearchResultEntry searchForEntry(
+                                final ReadOnlySearchRequest searchRequest)
+         throws LDAPSearchException
   {
-    return inMemoryHandler.getEntry(dn);
+    return searchForEntry(searchRequest.duplicate());
   }
 
 
 
   /**
-   * Retrieves a list of all entries in the server which match the given
-   * search criteria.
-   * <BR><BR>
-   * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * Parses the provided string as a search filter.
    *
-   * @param  baseDN  The base DN to use for the search.  It must not be
-   *                 {@code null}.
-   * @param  scope   The scope to use for the search.  It must not be
-   *                 {@code null}.
-   * @param  filter  The filter to use for the search.  It must not be
-   *                 {@code null}.
+   * @param  s  The string to be parsed.
    *
-   * @return  A list of the entries that matched the provided search criteria.
+   * @return  The parsed filter.
    *
-   * @throws  LDAPException  If a problem is encountered while performing the
-   *                         search.
+   * @throws  LDAPSearchException  If the provided string could not be parsed as
+   *                               a valid search filter.
    */
-  public List<ReadOnlyEntry> search(final String baseDN,
-                                    final SearchScope scope,
-                                    final String filter)
-         throws LDAPException
+  private static Filter parseFilter(final String s)
+          throws LDAPSearchException
   {
-    return search(baseDN, scope, Filter.create(filter));
-  }
-
-
-
-  /**
-   * Retrieves a list of all entries in the server which match the given
-   * search criteria.
-   * <BR><BR>
-   * This method may be used regardless of whether the server is listening for
-   * client connections.
-   *
-   * @param  baseDN  The base DN to use for the search.  It must not be
-   *                 {@code null}.
-   * @param  scope   The scope to use for the search.  It must not be
-   *                 {@code null}.
-   * @param  filter  The filter to use for the search.  It must not be
-   *                 {@code null}.
-   *
-   * @return  A list of the entries that matched the provided search criteria.
-   *
-   * @throws  LDAPException  If a problem is encountered while performing the
-   *                         search.
-   */
-  public List<ReadOnlyEntry> search(final String baseDN,
-                                    final SearchScope scope,
-                                    final Filter filter)
-         throws LDAPException
-  {
-    return inMemoryHandler.search(baseDN, scope, filter);
+    try
+    {
+      return Filter.create(s);
+    }
+    catch (final LDAPException le)
+    {
+      throw new LDAPSearchException(le);
+    }
   }
 
 
 
   /**
    * Indicates whether the specified entry exists in the server.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn  The DN of the entry for which to make the determination.
    *
@@ -986,6 +1900,9 @@ public final class InMemoryDirectoryServer
   /**
    * Indicates whether the specified entry exists in the server and matches the
    * given filter.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn      The DN of the entry for which to make the determination.
    * @param  filter  The filter the entry is expected to match.
@@ -1009,6 +1926,9 @@ public final class InMemoryDirectoryServer
    * return {@code true} only if the target entry exists and contains all values
    * for all attributes of the provided entry.  The entry will be allowed to
    * have attribute values not included in the provided entry.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  entry  The entry to compare against the directory server.
    *
@@ -1028,6 +1948,9 @@ public final class InMemoryDirectoryServer
 
   /**
    * Ensures that an entry with the provided DN exists in the directory.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn  The DN of the entry for which to make the determination.
    *
@@ -1046,6 +1969,9 @@ public final class InMemoryDirectoryServer
 
   /**
    * Ensures that an entry with the provided DN exists in the directory.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn      The DN of the entry for which to make the determination.
    * @param  filter  A filter that the target entry must match.
@@ -1069,6 +1995,9 @@ public final class InMemoryDirectoryServer
    * attribute values contained in the provided entry.  The server entry may
    * contain additional attributes and/or attribute values not included in the
    * provided entry.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  entry  The entry expected to be present in the directory server.
    *
@@ -1089,6 +2018,9 @@ public final class InMemoryDirectoryServer
   /**
    * Retrieves a list containing the DNs of the entries which are missing from
    * the directory server.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dns  The DNs of the entries to try to find in the server.
    *
@@ -1109,6 +2041,9 @@ public final class InMemoryDirectoryServer
   /**
    * Retrieves a list containing the DNs of the entries which are missing from
    * the directory server.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dns  The DNs of the entries to try to find in the server.
    *
@@ -1129,6 +2064,9 @@ public final class InMemoryDirectoryServer
   /**
    * Ensures that all of the entries with the provided DNs exist in the
    * directory.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dns  The DNs of the entries for which to make the determination.
    *
@@ -1148,6 +2086,9 @@ public final class InMemoryDirectoryServer
   /**
    * Ensures that all of the entries with the provided DNs exist in the
    * directory.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dns  The DNs of the entries for which to make the determination.
    *
@@ -1167,6 +2108,9 @@ public final class InMemoryDirectoryServer
   /**
    * Retrieves a list containing all of the named attributes which do not exist
    * in the target entry.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn              The DN of the entry to examine.
    * @param  attributeNames  The names of the attributes expected to be present
@@ -1193,6 +2137,9 @@ public final class InMemoryDirectoryServer
   /**
    * Retrieves a list containing all of the named attributes which do not exist
    * in the target entry.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn              The DN of the entry to examine.
    * @param  attributeNames  The names of the attributes expected to be present
@@ -1218,6 +2165,9 @@ public final class InMemoryDirectoryServer
   /**
    * Ensures that the specified entry exists in the directory with all of the
    * specified attributes.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn              The DN of the entry to examine.
    * @param  attributeNames  The names of the attributes that are expected to be
@@ -1242,6 +2192,9 @@ public final class InMemoryDirectoryServer
   /**
    * Ensures that the specified entry exists in the directory with all of the
    * specified attributes.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn              The DN of the entry to examine.
    * @param  attributeNames  The names of the attributes that are expected to be
@@ -1265,6 +2218,9 @@ public final class InMemoryDirectoryServer
   /**
    * Retrieves a list of all provided attribute values which are missing from
    * the specified entry.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn               The DN of the entry to examine.
    * @param  attributeName    The attribute expected to be present in the target
@@ -1294,6 +2250,9 @@ public final class InMemoryDirectoryServer
    * Retrieves a list of all provided attribute values which are missing from
    * the specified entry.  The target attribute may or may not contain
    * additional values.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn               The DN of the entry to examine.
    * @param  attributeName    The attribute expected to be present in the target
@@ -1323,6 +2282,9 @@ public final class InMemoryDirectoryServer
    * Ensures that the specified entry exists in the directory with all of the
    * specified values for the given attribute.  The attribute may or may not
    * contain additional values.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn               The DN of the entry to examine.
    * @param  attributeName    The name of the attribute to examine.
@@ -1350,6 +2312,9 @@ public final class InMemoryDirectoryServer
    * Ensures that the specified entry exists in the directory with all of the
    * specified values for the given attribute.  The attribute may or may not
    * contain additional values.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn               The DN of the entry to examine.
    * @param  attributeName    The name of the attribute to examine.
@@ -1374,6 +2339,9 @@ public final class InMemoryDirectoryServer
 
   /**
    * Ensures that the specified entry does not exist in the directory.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn  The DN of the entry expected to be missing.
    *
@@ -1393,6 +2361,9 @@ public final class InMemoryDirectoryServer
   /**
    * Ensures that the specified entry exists in the directory but does not
    * contain any of the specified attributes.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn              The DN of the entry expected to be present.
    * @param  attributeNames  The names of the attributes expected to be missing
@@ -1417,6 +2388,9 @@ public final class InMemoryDirectoryServer
   /**
    * Ensures that the specified entry exists in the directory but does not
    * contain any of the specified attributes.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn              The DN of the entry expected to be present.
    * @param  attributeNames  The names of the attributes expected to be missing
@@ -1440,6 +2414,9 @@ public final class InMemoryDirectoryServer
   /**
    * Ensures that the specified entry exists in the directory but does not
    * contain any of the specified attribute values.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn               The DN of the entry expected to be present.
    * @param  attributeName    The name of the attribute to examine.
@@ -1465,6 +2442,9 @@ public final class InMemoryDirectoryServer
   /**
    * Ensures that the specified entry exists in the directory but does not
    * contain any of the specified attribute values.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
    *
    * @param  dn               The DN of the entry expected to be present.
    * @param  attributeName    The name of the attribute to examine.

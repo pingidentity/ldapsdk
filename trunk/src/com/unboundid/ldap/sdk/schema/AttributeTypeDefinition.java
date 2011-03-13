@@ -50,13 +50,6 @@ public final class AttributeTypeDefinition
        extends SchemaElement
 {
   /**
-   * A pre-allocated zero-element string array.
-   */
-  private static final String[] NO_STRINGS = new String[0];
-
-
-
-  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -6688185196734362719L;

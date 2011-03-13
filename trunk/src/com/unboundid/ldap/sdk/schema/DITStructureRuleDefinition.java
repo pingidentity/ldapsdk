@@ -57,13 +57,6 @@ public final class DITStructureRuleDefinition
 
 
   /**
-   * A pre-allocated zero-element string array.
-   */
-  private static final String[] NO_STRINGS = new String[0];
-
-
-
-  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -3233223742542121140L;

@@ -531,7 +531,7 @@ public final class SearchRate
     }
     else
     {
-      attrs = new String[0];
+      attrs = NO_STRINGS;
     }
 
 

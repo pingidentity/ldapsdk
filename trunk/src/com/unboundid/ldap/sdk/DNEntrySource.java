@@ -75,13 +75,6 @@ import static com.unboundid.util.Validator.*;
 public final class DNEntrySource
        extends EntrySource
 {
-  /**
-   * A pre-allocated array of no strings.
-   */
-  private static final String[] EMPTY_STRING_ARRAY = new String[0];
-
-
-
   // The iterator to use to access the DNs.  It will either be across DN or
   // String objects.
   private final Iterator<?> dnIterator;
@@ -115,7 +108,7 @@ public final class DNEntrySource
 
     if (attributes == null)
     {
-      this.attributes = EMPTY_STRING_ARRAY;
+      this.attributes = NO_STRINGS;
     }
     else
     {
@@ -165,7 +158,7 @@ public final class DNEntrySource
 
     if (attributes == null)
     {
-      this.attributes = EMPTY_STRING_ARRAY;
+      this.attributes = NO_STRINGS;
     }
     else
     {

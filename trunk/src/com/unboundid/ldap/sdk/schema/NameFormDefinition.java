@@ -49,13 +49,6 @@ public final class NameFormDefinition
        extends SchemaElement
 {
   /**
-   * A pre-allocated zero-element string array.
-   */
-  private static final String[] NO_STRINGS = new String[0];
-
-
-
-  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -816231530223449984L;

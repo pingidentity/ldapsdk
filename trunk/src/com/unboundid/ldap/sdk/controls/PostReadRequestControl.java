@@ -29,6 +29,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -101,7 +102,7 @@ public final class PostReadRequestControl
   /**
    * The set of requested attributes that will be used if none are provided.
    */
-  private static final String[] NO_ATTRIBUTES = new String[0];
+  private static final String[] NO_ATTRIBUTES = StaticUtils.NO_STRINGS;
 
 
 
