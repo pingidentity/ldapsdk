@@ -165,6 +165,10 @@ public final class InMemoryDirectoryServer
   // The LDAP listener that will be used to interact with clients.
   private final LDAPListener listener;
 
+  // A read-only representation of the configuration used to create this
+  // in-memory directory server.
+  private final ReadOnlyInMemoryDirectoryServerConfig config;
+
   // The socket factory that should be used when trying to create client
   // connections.
   private final SocketFactory clientSocketFactory;
@@ -204,6 +208,8 @@ public final class InMemoryDirectoryServer
          throws LDAPException
   {
     Validator.ensureNotNull(config);
+
+    this.config = new ReadOnlyInMemoryDirectoryServerConfig(config);
 
     inMemoryHandler = new InMemoryRequestHandler(config);
 
@@ -268,6 +274,20 @@ public final class InMemoryDirectoryServer
   public void shutDown(final boolean closeExistingConnections)
   {
     listener.shutDown(closeExistingConnections);
+  }
+
+
+
+  /**
+   * Retrieves a read-only representation of the configuration used to create
+   * this in-memory directory server instance.
+   *
+   * @return  A read-only representation of the configuration used to create
+   *          this in-memory directory server instance.
+   */
+  public ReadOnlyInMemoryDirectoryServerConfig getConfig()
+  {
+    return config;
   }
 
 
