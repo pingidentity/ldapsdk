@@ -37,6 +37,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.NotExtensible;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -80,9 +81,10 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       socket factory.</LI>
  * </UL>
  */
+@NotExtensible()
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
-public final class InMemoryDirectoryServerConfig
+public class InMemoryDirectoryServerConfig
 {
   // Indicates whether to automatically generate operational attributes.
   private boolean generateOperationalAttributes;
@@ -192,6 +194,42 @@ public final class InMemoryDirectoryServerConfig
 
     saslBindHandlers = new ArrayList<InMemorySASLBindHandler>(1);
     saslBindHandlers.add(new PLAINBindHandler());
+  }
+
+
+
+  /**
+   * Creates a new in-memory directory server config object that is a duplicate
+   * of the provided config and may be altered without impacting the state of
+   * the given config object.
+   *
+   * @param  cfg  The in-memory directory server config object for to be
+   *              duplicated.
+   */
+  public InMemoryDirectoryServerConfig(final InMemoryDirectoryServerConfig cfg)
+  {
+    baseDNs = new DN[cfg.baseDNs.length];
+    System.arraycopy(cfg.baseDNs, 0, baseDNs, 0, baseDNs.length);
+
+    extendedOperationHandlers = new ArrayList<InMemoryExtendedOperationHandler>(
+         cfg.extendedOperationHandlers);
+
+    saslBindHandlers =
+         new ArrayList<InMemorySASLBindHandler>(cfg.saslBindHandlers);
+
+    additionalBindCredentials =
+         new LinkedHashMap<DN,byte[]>(cfg.additionalBindCredentials);
+
+    generateOperationalAttributes = cfg.generateOperationalAttributes;
+    accessLogHandler              = cfg.accessLogHandler;
+    ldapDebugLogHandler           = cfg.ldapDebugLogHandler;
+    listenAddress                 = cfg.listenAddress;
+    listenPort                    = cfg.listenPort;
+    maxChangeLogEntries           = cfg.maxChangeLogEntries;
+    exceptionHandler              = cfg.exceptionHandler;
+    schema                        = cfg.schema;
+    serverSocketFactory           = cfg.serverSocketFactory;
+    clientSocketFactory           = cfg.clientSocketFactory;
   }
 
 
