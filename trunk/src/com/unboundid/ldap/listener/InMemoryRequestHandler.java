@@ -34,6 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -70,6 +71,7 @@ import com.unboundid.ldap.sdk.ChangeLogEntry;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.EntrySorter;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.Filter;
@@ -98,6 +100,8 @@ import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.ldap.sdk.controls.PreReadResponseControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
+import com.unboundid.ldap.sdk.controls.ServerSideSortResponseControl;
 import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldif.LDIFAddChangeRecord;
@@ -2373,6 +2377,24 @@ findEntriesAndRefs:
     }
 
 
+    // If the request included the server-side sort request control, then sort
+    // the matching entries appropriately.
+    final ServerSideSortRequestControl sortRequestControl =
+         (ServerSideSortRequestControl) controlMap.get(
+              ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID);
+    if (sortRequestControl != null)
+    {
+      final EntrySorter entrySorter = new EntrySorter(false, schema,
+           sortRequestControl.getSortKeys());
+      final SortedSet<Entry> sortedEntrySet = entrySorter.sort(fullEntryList);
+      fullEntryList.clear();
+      fullEntryList.addAll(sortedEntrySet);
+
+      responseControls.add(new ServerSideSortResponseControl(ResultCode.SUCCESS,
+           null, false));
+    }
+
+
     // Process the set of requested attributes so that we can pare down the
     // entries.
     final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
@@ -3105,6 +3127,7 @@ findEntriesAndRefs:
          PROXIED_AUTHORIZATION_V1_REQUEST_OID);
     ctlSet.add(ProxiedAuthorizationV2RequestControl.
          PROXIED_AUTHORIZATION_V2_REQUEST_OID);
+    ctlSet.add(ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID);
     ctlSet.add(SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     ctlSet.add(SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
 
