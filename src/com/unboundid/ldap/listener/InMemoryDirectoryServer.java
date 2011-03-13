@@ -458,7 +458,9 @@ public final class InMemoryDirectoryServer
 
 
   /**
-   * Removes all entries held in the server.
+   * Removes all entries currently held in the server.  If a changelog is
+   * enabled, then all changelog entries will also be cleared but the base
+   * "cn=changelog" entry will be retained.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
