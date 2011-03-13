@@ -129,13 +129,6 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 public final class InMemoryRequestHandler
        extends LDAPListenerRequestHandler
 {
-  // TODO -- Add support for prohibiting object class modifications
-  // TODO -- Use schema when applying modifications
-  // TODO -- Add support for schema modifications
-  // TODO -- Merge schemas
-
-
-
   /**
    * The OID for a proprietary control that can be used to indicate that the
    * NO-USER-MODIFICATION flag should be ignored when processing an add.
@@ -166,6 +159,10 @@ public final class InMemoryRequestHandler
   // The entry validator that will be used for schema checking, if
   // appropriate.
   private final EntryValidator entryValidator;
+
+  // A snapshot containing the server content as it initially appeared.  It
+  // will not contain any user data, but may contain a changelog base entry.
+  private final InMemoryDirectoryServerSnapshot initialSnapshot;
 
   // The maximum number of changelog entries to maintain.
   private final int maxChangelogEntries;
@@ -331,6 +328,8 @@ public final class InMemoryRequestHandler
                 DistinguishedNameMatchingRule.getInstance(),
                 subschemaSubentryDN.toString())));
     }
+
+    initialSnapshot = createSnapshot();
   }
 
 
@@ -364,6 +363,7 @@ public final class InMemoryRequestHandler
     schema                        = parent.schema;
     subschemaSubentry             = parent.subschemaSubentry;
     subschemaSubentryDN           = parent.subschemaSubentryDN;
+    initialSnapshot               = parent.initialSnapshot;
   }
 
 
@@ -2337,11 +2337,13 @@ public final class InMemoryRequestHandler
 
 
   /**
-   * Removes all entries currently held in the server.
+   * Removes all entries currently held in the server.  If a changelog is
+   * enabled, then all changelog entries will also be cleared but the base
+   * "cn=changelog" entry will be retained.
    */
   public synchronized void clear()
   {
-    entryMap.clear();
+    restoreSnapshot(initialSnapshot);
   }
 
 
@@ -2374,7 +2376,7 @@ public final class InMemoryRequestHandler
     {
       if (clear)
       {
-        entryMap.clear();
+        restoreSnapshot(initialSnapshot);
       }
 
       int entriesAdded = 0;
