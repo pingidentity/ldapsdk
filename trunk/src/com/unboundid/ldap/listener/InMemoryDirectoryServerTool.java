@@ -30,6 +30,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -48,6 +50,11 @@ import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.ssl.KeyStoreKeyManager;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustAllTrustManager;
+import com.unboundid.util.ssl.TrustStoreTrustManager;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
 
@@ -72,16 +79,62 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       file to use to initially populate the server.  If this is not provided,
  *       then the server will initially be empty.  The LDIF file will not be
  *       updated as operations are processed in the server.</LI>
- *   <LI>"-L {path}" or "--logFile {path}" -- specifies the path to a file that
- *       should be used as a server access log.  If this is not provided, then
- *       no access logging will be performed.</LI>
- *   <LI>"-s {path}" or "--useSchema {path}" -- specifies the path to a file or
- *       directory containing schema definitions to use for the server.  If this
- *       is not provided, then the server will not perform any schema
- *       validation.  If the specified path represents a file, then it must be
- *       an LDIF file containing a valid LDAP subschema subentry.  If the path
- *       is a directory, then its files will be processed in lexicographic order
- *       by name.</LI>
+ *   <LI>"-D {bindDN}" or "--additionalBindDN {bindDN}" -- specifies an
+ *       additional DN that can be used to authenticate to the server, even if
+ *       there is no account for that user.  If this is provided, then the
+ *       --additionalBindPassword argument must also be given.</LI>
+ *   <LI>"-w {password}" or "--additionalBindPassword {password}" -- specifies
+ *       the password that should be used when attempting to bind as the user
+ *       specified with the "-additionalBindDN" argument.  If this is provided,
+ *       then the --additionalBindDN argument must also be given.</LI>
+ *   <LI>"-c {count}" or "--maxChangeLogEntries {count}" -- Indicates whether an
+ *       LDAP changelog should be enabled, and if so how many changelog records
+ *       should be maintained.  If this argument is not provided, or if it is
+ *       provided with a value of zero, then no changelog will be
+ *       maintained.</LI>
+ *   <LI>"-a {path}" or "--accessLogFile {path}" -- specifies the path to a file
+ *       that should be used as a server access log.  If this is not provided,
+ *       then no access logging will be performed.</LI>
+ *   <LI>"-d {path}" or "--ldapDebugLogFile {path}" -- specifies the path to a
+ *       file that should be used as a server LDAP debug log.  If this is not
+ *       provided, then no LDAP debug logging will be performed.</LI>
+ *   <LI>"-s" or "--useDefaultSchema" -- Indicates that the server should use
+ *       the default standard schema provided as part of the LDAP SDK.  If
+ *       neither this argument nor the "--useSchemaFile" argument is provided,
+ *       then the server will not perform any schema validation.</LI>
+ *   <LI>"-S {path}" or "--useSchemaFile {path}" -- specifies the path to a file
+ *       or directory containing schema definitions to use for the server.  If
+ *       neither this argument nor the "--useDefaultSchema" argument is
+ *       provided, then the server will not perform any schema validation.  If
+ *       the specified path represents a file, then it must be an LDIF file
+ *       containing a valid LDAP subschema subentry.  If the path is a
+ *       directory, then its files will be processed in lexicographic order by
+ *       name.</LI>
+ *   <LI>"-Z" or "--useSSL" -- indicates that the server should encrypt all
+ *       communication using SSL.  If this is provided, then the
+ *       "--keyStorePath" and "--keyStorePassword" arguments must also be
+ *       provided.</LI>
+ *   <LI>"-K {path}" or "--keyStorePath {path}" -- specifies the path to the JKS
+ *       key store file that should be used to obtain the server certificate to
+ *       use for SSL communication.  If this argument is provided, then the
+ *       "--useSSL and "--keyStorePassword" arguments must also be
+ *       provided.</LI>
+ *   <LI>"-W {password}" or "--keyStorePassword {password}" -- specifies the
+ *       password that should be used to access the contents of the SSL key
+ *       store.  If this argument is provided, then the "--useSSL" and
+ *       "--keyStorePath" arguments must also be provided.</LI>
+ *   <LI>"-P {path}" or "--trustStorePath {path}" -- specifies the path to the
+ *       JKS trust store file that should be used to determine whether to trust
+ *       any SSL certificates that may be presented by the client.  If this
+ *       argument is provided, then the "--useSSL" argument must also be
+ *       provided.  If this argument is not provided but SSL is to be used, then
+ *       all client certificates will be automatically trusted.</LI>
+ *   <LI>"-T {password}" or "--trustStorePassword {password}" -- specifies the
+ *       password that should be used to access the contents of the SSL trust
+ *       store.  If this argument is provided, then the "--useSSL" and
+ *       "--trustStorePath" arguments must also be provided.  If an SSL trust
+ *       store path was provided without a trust store password, then the server
+ *       will attempt to use the trust store without a password.</LI>
  * </UL>
  */
 @NotMutable()
@@ -97,49 +150,66 @@ public final class InMemoryDirectoryServerTool
 
 
 
-  /**
-   * The argument used to indicate that the default standard schema should be
-   * used.
-   */
+  // The argument used to prevent the in-memory server from starting.  This is
+  // only intended to be used for internal testing purposes.
+  private BooleanArgument dontStartArgument;
+
+  // The argument used to indicate that the default standard schema should be
+  // used.
   private BooleanArgument useDefaultSchemaArgument;
 
+  // The argument used to indicate that the server should use SSL
+  private BooleanArgument useSSLArgument;
 
+  // The argument used to specify an additional bind DN to use for the server.
+  private DNArgument additionalBindDNArgument;
 
-  /**
-   * The argument used to specify the base DNs to use for the server.
-   */
+  // The argument used to specify the base DNs to use for the server.
   private DNArgument baseDNArgument;
 
+  // The argument used to specify the path to an access log file to which
+  // information should be written about operations processed by the server.
+  private FileArgument accessLogFileArgument;
 
+  // The argument used to specify the path to the SSL key store file.
+  private FileArgument keyStorePathArgument;
 
-  /**
-   * The argument used to specify the path to an LDIF file with data to use to
-   * initially populate the server.
-   */
+  // The argument used to specify the path to an LDAP debug log file to which
+  // information should be written about detailed LDAP communication performed
+  // by the server.
+  private FileArgument ldapDebugLogFileArgument;
+
+  // The argument used to specify the path to an LDIF file with data to use to
+  // initially populate the server.
   private FileArgument ldifFileArgument;
 
+  // The argument used to specify the path to the SSL trust store file.
+  private FileArgument trustStorePathArgument;
 
-
-  /**
-   * The argument used to specify the path to an access log file to which
-   * information should be written about operations processed by the server.
-   */
-  private FileArgument logFileArgument;
-
-
-
-  /**
-   * The argument used to specify the path to a directory containing schema
-   * definitions.
-   */
+  // The argument used to specify the path to a directory containing schema
+  // definitions.
   private FileArgument useSchemaFileArgument;
 
+  // The in-memory directory server instance that has been created by this tool.
+  private InMemoryDirectoryServer directoryServer;
 
+  // The argument used to specify the maximum number of changelog entries that
+  // the server should maintain.
+  private IntegerArgument maxChangeLogEntriesArgument;
 
-  /**
-   * The argument used to specify the port on which the server should listen.
-   */
+  // The argument used to specify the port on which the server should listen.
   private IntegerArgument portArgument;
+
+  // The argument used to specify the password for the additional bind DN.
+  private StringArgument additionalBindPasswordArgument;
+
+  // The argument used to specify the password to use to access the contents of
+  // the SSL key store
+  private StringArgument keyStorePasswordArgument;
+
+  // The argument used to specify the password to use to access the contents of
+  // the SSL trust store
+  private StringArgument trustStorePasswordArgument;
 
 
 
@@ -205,12 +275,22 @@ public final class InMemoryDirectoryServerTool
   {
     super(outStream, errStream);
 
-    baseDNArgument           = null;
-    portArgument             = null;
-    ldifFileArgument         = null;
-    logFileArgument          = null;
-    useDefaultSchemaArgument = null;
-    useSchemaFileArgument    = null;
+    dontStartArgument              = null;
+    useDefaultSchemaArgument       = null;
+    useSSLArgument                 = null;
+    additionalBindDNArgument       = null;
+    baseDNArgument                 = null;
+    accessLogFileArgument          = null;
+    keyStorePathArgument           = null;
+    ldapDebugLogFileArgument       = null;
+    ldifFileArgument               = null;
+    trustStorePathArgument         = null;
+    useSchemaFileArgument          = null;
+    maxChangeLogEntriesArgument    = null;
+    portArgument                   = null;
+    additionalBindPasswordArgument = null;
+    keyStorePasswordArgument       = null;
+    trustStorePasswordArgument     = null;
   }
 
 
@@ -259,10 +339,35 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_LDIF_FILE.get(), true, true, true, false);
     parser.addArgument(ldifFileArgument);
 
-    logFileArgument = new FileArgument('L', "logFile", false, 1,
+    additionalBindDNArgument = new DNArgument('D', "additionalBindDN", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_BIND_DN.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_ADDITIONAL_BIND_DN.get());
+    parser.addArgument(additionalBindDNArgument);
+
+    additionalBindPasswordArgument = new StringArgument('w',
+         "additionalBindPassword", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_ADDITIONAL_BIND_PW.get());
+    parser.addArgument(additionalBindPasswordArgument);
+
+    maxChangeLogEntriesArgument = new IntegerArgument('c',
+         "maxChangeLogEntries", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_COUNT.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_MAX_CHANGELOG_ENTRIES.get(), 0,
+         Integer.MAX_VALUE, 0);
+    parser.addArgument(maxChangeLogEntriesArgument);
+
+    accessLogFileArgument = new FileArgument('a', "accessLogFile", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_LOG_FILE.get(), false, true, true, false);
-    parser.addArgument(logFileArgument);
+         INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_FILE.get(), false, true, true,
+         false);
+    parser.addArgument(accessLogFileArgument);
+
+    ldapDebugLogFileArgument = new FileArgument('d', "ldapDebugLogFile", false,
+         1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_FILE.get(), false, true, true,
+         false);
+    parser.addArgument(ldapDebugLogFileArgument);
 
     useDefaultSchemaArgument = new BooleanArgument('s', "useDefaultSchema",
          INFO_MEM_DS_TOOL_ARG_DESC_USE_DEFAULT_SCHEMA.get());
@@ -274,8 +379,52 @@ public final class InMemoryDirectoryServerTool
          false);
     parser.addArgument(useSchemaFileArgument);
 
+    useSSLArgument = new BooleanArgument('Z', "useSSL",
+         INFO_MEM_DS_TOOL_ARG_DESC_USE_SSL.get());
+    parser.addArgument(useSSLArgument);
+
+    keyStorePathArgument = new FileArgument('K', "keyStorePath", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_PATH.get(), true, true, true,
+         false);
+    parser.addArgument(keyStorePathArgument);
+
+    keyStorePasswordArgument = new StringArgument('W', "keyStorePassword",
+         false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_PW.get());
+    parser.addArgument(keyStorePasswordArgument);
+
+    trustStorePathArgument = new FileArgument('P', "trustStorePath", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PATH.get(), true, true, true,
+         false);
+    parser.addArgument(trustStorePathArgument);
+
+    trustStorePasswordArgument = new StringArgument('T', "trustStorePassword",
+         false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PW.get());
+    parser.addArgument(trustStorePasswordArgument);
+
+    dontStartArgument = new BooleanArgument(null, "dontStart",
+         INFO_MEM_DS_TOOL_ARG_DESC_DONT_START.get());
+    dontStartArgument.setHidden(true);
+    parser.addArgument(dontStartArgument);
+
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,
          useSchemaFileArgument);
+
+    parser.addDependentArgumentSet(additionalBindDNArgument,
+         additionalBindPasswordArgument);
+    parser.addDependentArgumentSet(additionalBindPasswordArgument,
+         additionalBindDNArgument);
+
+    parser.addDependentArgumentSet(useSSLArgument, keyStorePathArgument);
+    parser.addDependentArgumentSet(useSSLArgument, keyStorePasswordArgument);
+    parser.addDependentArgumentSet(keyStorePathArgument, useSSLArgument);
+    parser.addDependentArgumentSet(keyStorePasswordArgument, useSSLArgument);
+    parser.addDependentArgumentSet(trustStorePathArgument, useSSLArgument);
+    parser.addDependentArgumentSet(trustStorePasswordArgument,
+         trustStorePathArgument);
   }
 
 
@@ -302,10 +451,9 @@ public final class InMemoryDirectoryServerTool
 
     // Create the server instance using the provided configuration, but don't
     // start it yet.
-    final InMemoryDirectoryServer server;
     try
     {
-      server = new InMemoryDirectoryServer(serverConfig);
+      directoryServer = new InMemoryDirectoryServer(serverConfig);
     }
     catch (final LDAPException le)
     {
@@ -321,8 +469,8 @@ public final class InMemoryDirectoryServerTool
       final File ldifFile = ldifFileArgument.getValue();
       try
       {
-        final int numEntries =
-             server.initializeFromLDIF(true, ldifFile.getAbsolutePath());
+        final int numEntries = directoryServer.initializeFromLDIF(true,
+             ldifFile.getAbsolutePath());
         out(INFO_MEM_DS_TOOL_ADDED_ENTRIES_FROM_LDIF.get(numEntries,
              ldifFile.getAbsolutePath()));
       }
@@ -339,8 +487,11 @@ public final class InMemoryDirectoryServerTool
     // Start the server.
     try
     {
-      server.startListening();
-      out(INFO_MEM_DS_TOOL_LISTENING.get(server.getListenPort()));
+      if (! dontStartArgument.isPresent())
+      {
+        directoryServer.startListening();
+        out(INFO_MEM_DS_TOOL_LISTENING.get(directoryServer.getListenPort()));
+      }
     }
     catch (final Exception e)
     {
@@ -427,18 +578,38 @@ public final class InMemoryDirectoryServerTool
     }
 
 
-    // If a log file was specified, then create the log handler.
-    if (logFileArgument.isPresent())
+    // If an additional bind DN and password are provided, then include them in
+    // the configuration.
+    if (additionalBindDNArgument.isPresent())
     {
-      final File logFile = logFileArgument.getValue();
+      serverConfig.addAdditionalBindCredentials(
+           additionalBindDNArgument.getValue().toString(),
+           additionalBindPasswordArgument.getValue());
+    }
+
+
+    // If a maximum number of changelog entries was specified, then update the
+    // configuration with that.
+    if (maxChangeLogEntriesArgument.isPresent())
+    {
+      serverConfig.setMaxChangeLogEntries(
+           maxChangeLogEntriesArgument.getValue());
+    }
+
+
+    // If an access log file was specified, then create the appropriate log
+    // handler.
+    if (accessLogFileArgument.isPresent())
+    {
+      final File logFile = accessLogFileArgument.getValue();
       try
       {
-        final FileHandler logFileHandler =
+        final FileHandler handler =
              new FileHandler(logFile.getAbsolutePath(), true);
-        logFileHandler.setLevel(Level.INFO);
-        logFileHandler.setFormatter(new MinimalLogFormatter(null, false, false,
+        handler.setLevel(Level.INFO);
+        handler.setFormatter(new MinimalLogFormatter(null, false, false,
              true));
-        serverConfig.setAccessLogHandler(logFileHandler);
+        serverConfig.setAccessLogHandler(handler);
       }
       catch (final Exception e)
       {
@@ -446,6 +617,81 @@ public final class InMemoryDirectoryServerTool
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_MEM_DS_TOOL_ERROR_CREATING_LOG_HANDLER.get(
                   logFile.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
+
+    // If an LDAP debug log file was specified, then create the appropriate log
+    // handler.
+    if (ldapDebugLogFileArgument.isPresent())
+    {
+      final File logFile = ldapDebugLogFileArgument.getValue();
+      try
+      {
+        final FileHandler handler =
+             new FileHandler(logFile.getAbsolutePath(), true);
+        handler.setLevel(Level.INFO);
+        handler.setFormatter(new MinimalLogFormatter(null, false, false,
+             true));
+        serverConfig.setLDAPDebugLogHandler(handler);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MEM_DS_TOOL_ERROR_CREATING_LOG_HANDLER.get(
+                  logFile.getAbsolutePath(),
+                  StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
+
+    // If SSL is to be used, then create the corresponding socket factories.
+    if (useSSLArgument.isPresent())
+    {
+      try
+      {
+        final KeyManager keyManager = new KeyStoreKeyManager(
+             keyStorePathArgument.getValue(),
+             keyStorePasswordArgument.getValue().toCharArray());
+
+        final TrustManager trustManager;
+        if (trustStorePathArgument.isPresent())
+        {
+          final char[] password;
+          if (trustStorePasswordArgument.isPresent())
+          {
+            password = trustStorePasswordArgument.getValue().toCharArray();
+          }
+          else
+          {
+            password = null;
+          }
+
+          trustManager = new TrustStoreTrustManager(
+               trustStorePathArgument.getValue(), password, "JKS", true);
+        }
+        else
+        {
+          trustManager = new TrustAllTrustManager();
+        }
+
+        final SSLUtil serverSSLUtil = new SSLUtil(keyManager, trustManager);
+        serverConfig.setServerSocketFactory(
+             serverSSLUtil.createSSLServerSocketFactory());
+
+        final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
+        serverConfig.setClientSocketFactory(
+             clientSSLUtil.createSSLSocketFactory());
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MEM_DS_TOOL_ERROR_INITIALIZING_SSL.get(
                   StaticUtils.getExceptionMessage(e)),
              e);
       }
@@ -476,11 +722,27 @@ public final class InMemoryDirectoryServerTool
       "--baseDN", "dc=example,dc=com",
       "--port", "1389",
       "--ldifFile", "test.ldif",
-      "--logFile", "log.txt",
+      "--accessLogFile", "access.log",
       "--useDefaultSchema"
     };
     exampleUsages.put(example2Args, INFO_MEM_DS_TOOL_EXAMPLE_2.get());
 
     return exampleUsages;
+  }
+
+
+
+  /**
+   * Retrieves the in-memory directory server instance that has been created by
+   * this tool.  It will only be valid after the {@link #doToolProcessing()}
+   * method has been called.
+   *
+   * @return  The in-memory directory server instance that has been created by
+   *          this tool, or {@code null} if the directory server instance has
+   *          not been successfully created.
+   */
+  public InMemoryDirectoryServer getDirectoryServer()
+  {
+    return directoryServer;
   }
 }
