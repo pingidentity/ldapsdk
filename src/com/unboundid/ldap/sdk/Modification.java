@@ -73,14 +73,6 @@ public final class Modification
 
 
   /**
-   * The string value array that will be used when the modification does not
-   * have any values.
-   */
-  private static final String[] NO_STRING_VALUES = new String[0];
-
-
-
-  /**
    * The byte array value array that will be used when the modification does not
    * have any values.
    */
@@ -304,7 +296,7 @@ public final class Modification
   {
     if (values.length == 0)
     {
-      return NO_STRING_VALUES;
+      return NO_STRINGS;
     }
     else
     {

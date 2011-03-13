@@ -499,7 +499,7 @@ public final class AuthRate
     }
     else
     {
-      attrs = new String[0];
+      attrs = NO_STRINGS;
     }
 
 

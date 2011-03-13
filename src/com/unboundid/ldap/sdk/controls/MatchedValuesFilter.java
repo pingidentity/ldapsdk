@@ -158,7 +158,7 @@ public final class MatchedValuesFilter
   /**
    * An empty array that will be used if there are no subAny elements.
    */
-  private static final String[] NO_SUB_ANY_STRINGS = new String[0];
+  private static final String[] NO_SUB_ANY_STRINGS = NO_STRINGS;
 
 
 

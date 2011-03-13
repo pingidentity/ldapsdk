@@ -219,7 +219,7 @@ public final class SearchRequest
    * The default set of requested attributes that will be used, which will
    * return all user attributes but no operational attributes.
    */
-  public static final String[] REQUEST_ATTRS_DEFAULT = new String[0];
+  public static final String[] REQUEST_ATTRS_DEFAULT = NO_STRINGS;
 
 
 

@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import java.util.List;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -65,7 +66,7 @@ public final class LDAPSearchException
     super(resultCode, errorMessage);
 
     searchResult = new SearchResult(-1, resultCode, errorMessage, null,
-                                    NO_REFERRALS, 0, 0, NO_CONTROLS);
+         StaticUtils.NO_STRINGS, 0, 0, StaticUtils.NO_CONTROLS);
   }
 
 
@@ -84,7 +85,7 @@ public final class LDAPSearchException
     super(resultCode, errorMessage, cause);
 
     searchResult = new SearchResult(-1, resultCode, errorMessage, null,
-                                    NO_REFERRALS, 0, 0, NO_CONTROLS);
+         StaticUtils.NO_STRINGS , 0, 0, StaticUtils.NO_CONTROLS);
   }
 
 

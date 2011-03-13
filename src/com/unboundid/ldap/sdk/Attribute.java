@@ -111,13 +111,6 @@ public final class Attribute
 
 
   /**
-   * The array to use as the set of string values when there are no values.
-   */
-  private static final String[] NO_STRING_VALUES = new String[0];
-
-
-
-  /**
    * The array to use as the set of byte array values when there are no values.
    */
   private static final byte[][] NO_BYTE_VALUES = new byte[0][];
@@ -1144,7 +1137,7 @@ public final class Attribute
   {
     if (values.length == 0)
     {
-      return NO_STRING_VALUES;
+      return NO_STRINGS;
     }
 
     final String[] stringValues = new String[values.length];

@@ -552,7 +552,7 @@ public final class SearchAndModRate
     }
     else
     {
-      returnAttrs = new String[0];
+      returnAttrs = NO_STRINGS;
     }
 
 

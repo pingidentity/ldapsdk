@@ -379,4 +379,22 @@ public final class InternalSDKHelper
   {
     return IntermediateResponse.readFrom(messageID, messageSequence, reader);
   }
+
+
+
+  /**
+   * Indicates whether automatic referral following is enabled for the provided
+   * request.
+   *
+   * @param  request  The request for which to make the determination.
+   *
+   * @return  {@code Boolean.TRUE} if automatic referral following is enabled
+   *          for this request, {@code Boolean.FALSE} if not, or {@code null} if
+   *          a per-request behavior is not specified.
+   */
+  @InternalUseOnly()
+  public static Boolean followReferralsInternal(final LDAPRequest request)
+  {
+    return request.followReferralsInternal();
+  }
 }

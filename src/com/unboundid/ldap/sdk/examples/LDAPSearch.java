@@ -40,6 +40,7 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.LDAPCommandLineTool;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.WakeableSleeper;
@@ -368,7 +369,7 @@ public final class LDAPSearch
     }
     else
     {
-      attributesToReturn = new String[0];
+      attributesToReturn = StaticUtils.NO_STRINGS;
     }
 
 

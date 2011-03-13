@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -52,14 +53,14 @@ public class LDAPException
   /**
    * An empty array that will be used when no controls were provided.
    */
-  protected static final Control[] NO_CONTROLS = new Control[0];
+  protected static final Control[] NO_CONTROLS = StaticUtils.NO_CONTROLS;
 
 
 
   /**
    * An empty array that will be used when no referrals were provided.
    */
-  protected static final String[] NO_REFERRALS = new String[0];
+  protected static final String[] NO_REFERRALS = StaticUtils.NO_STRINGS;
 
 
 

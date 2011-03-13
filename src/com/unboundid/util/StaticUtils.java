@@ -35,6 +35,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Version;
 
 import static com.unboundid.util.Debug.*;
@@ -53,6 +54,20 @@ public final class StaticUtils
    * A pre-allocated byte array containing zero bytes.
    */
   public static final byte[] NO_BYTES = new byte[0];
+
+
+
+  /**
+   * A pre-allocated empty control array.
+   */
+  public static final Control[] NO_CONTROLS = new Control[0];
+
+
+
+  /**
+   * A pre-allocated empty string array.
+   */
+  public static final String[] NO_STRINGS = new String[0];
 
 
 

@@ -2141,25 +2141,29 @@ public final class LDAPConnection
     ensureNotNull(extendedRequest);
 
     final ExtendedResult extendedResult = extendedRequest.process(this, 1);
-    switch (extendedResult.getResultCode().intValue())
-    {
-      case ResultCode.OPERATIONS_ERROR_INT_VALUE:
-      case ResultCode.PROTOCOL_ERROR_INT_VALUE:
-      case ResultCode.BUSY_INT_VALUE:
-      case ResultCode.UNAVAILABLE_INT_VALUE:
-      case ResultCode.OTHER_INT_VALUE:
-      case ResultCode.SERVER_DOWN_INT_VALUE:
-      case ResultCode.LOCAL_ERROR_INT_VALUE:
-      case ResultCode.ENCODING_ERROR_INT_VALUE:
-      case ResultCode.DECODING_ERROR_INT_VALUE:
-      case ResultCode.TIMEOUT_INT_VALUE:
-      case ResultCode.NO_MEMORY_INT_VALUE:
-      case ResultCode.CONNECT_ERROR_INT_VALUE:
-        throw new LDAPException(extendedResult);
 
-      default:
-        return extendedResult;
+    if ((extendedResult.getOID() == null) &&
+        (extendedResult.getValue() == null))
+    {
+      switch (extendedResult.getResultCode().intValue())
+      {
+        case ResultCode.OPERATIONS_ERROR_INT_VALUE:
+        case ResultCode.PROTOCOL_ERROR_INT_VALUE:
+        case ResultCode.BUSY_INT_VALUE:
+        case ResultCode.UNAVAILABLE_INT_VALUE:
+        case ResultCode.OTHER_INT_VALUE:
+        case ResultCode.SERVER_DOWN_INT_VALUE:
+        case ResultCode.LOCAL_ERROR_INT_VALUE:
+        case ResultCode.ENCODING_ERROR_INT_VALUE:
+        case ResultCode.DECODING_ERROR_INT_VALUE:
+        case ResultCode.TIMEOUT_INT_VALUE:
+        case ResultCode.NO_MEMORY_INT_VALUE:
+        case ResultCode.CONNECT_ERROR_INT_VALUE:
+          throw new LDAPException(extendedResult);
+      }
     }
+
+    return extendedResult;
   }
 
 
@@ -3274,7 +3278,6 @@ public final class LDAPConnection
     if ((searchRequest.getSearchResultListener() != null) ||
         (searchRequest.getSizeLimit() != 1))
     {
-      searchRequest.duplicate();
       r = new SearchRequest(searchRequest.getBaseDN(), searchRequest.getScope(),
            searchRequest.getDereferencePolicy(), 1,
            searchRequest.getTimeLimitSeconds(), searchRequest.typesOnly(),

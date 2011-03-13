@@ -2453,24 +2453,24 @@ findEntriesAndRefs:
 
 
   /**
-   * Adds all entries obtained from the provided LDIF reader to the server.   If
-   * an error is encountered during processing, then the contents of the server
-   * will be the same as they were before this method was called.
+   * Reads entries from the provided LDIF reader and adds them to the server,
+   * optionally clearing any existing entries before beginning to add the new
+   * entries.  If an error is encountered while adding entries from LDIF then
+   * the server will remain populated with the data it held before the import
+   * attempt (even if the {@code clear} is given with a value of {@code true}).
    *
-   * @param  clear       Indicates whether to clear the contents of the server
-   *                     prior to adding all entries read from LDIF.
-   * @param  ldifReader  The LDIF reader from which to read the entries to use
-   *                     to populate the server.  It must not be {@code null}.
-   *                     It will be closed by this method.
+   * @param  clear       Indicates whether to remove all existing entries prior
+   *                     to adding entries read from LDIF.
+   * @param  ldifReader  The LDIF reader to use to obtain the entries to be
+   *                     imported.
    *
-   * @return  The number of entries read from LDIF.
+   * @return  The number of entries read from LDIF and added to the server.
    *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         populate the server with entries from the specified
-   *                         LDIF file.
+   * @throws  LDAPException  If a problem occurs while reading entries or adding
+   *                         them to the server.
    */
-  public synchronized int initializeFromLDIF(final boolean clear,
-                                             final LDIFReader ldifReader)
+  public synchronized int importFromLDIF(final boolean clear,
+                                         final LDIFReader ldifReader)
          throws LDAPException
   {
     final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
@@ -2555,10 +2555,10 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         write an entry to LDIF.
    */
-  public synchronized int writeToLDIF(final LDIFWriter ldifWriter,
-                                      final boolean excludeGeneratedAttrs,
-                                      final boolean excludeChangeLog,
-                                      final boolean closeWriter)
+  public synchronized int exportToLDIF(final LDIFWriter ldifWriter,
+                                       final boolean excludeGeneratedAttrs,
+                                       final boolean excludeChangeLog,
+                                       final boolean closeWriter)
          throws LDAPException
   {
     boolean exceptionThrown = false;

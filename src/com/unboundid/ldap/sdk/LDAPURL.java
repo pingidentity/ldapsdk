@@ -157,7 +157,7 @@ public final class LDAPURL
   /**
    * The default set of attributes that will be used if none is provided.
    */
-  private static final String[] DEFAULT_ATTRIBUTES = new String[0];
+  private static final String[] DEFAULT_ATTRIBUTES = NO_STRINGS;
 
 
 
