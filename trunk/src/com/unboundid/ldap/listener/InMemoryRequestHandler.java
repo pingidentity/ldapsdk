@@ -38,7 +38,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -80,6 +79,8 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
@@ -129,6 +130,13 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 public final class InMemoryRequestHandler
        extends LDAPListenerRequestHandler
 {
+  /**
+   * A pre-allocated array containing no controls.
+   */
+  private static final Control[] NO_CONTROLS = new Control[0];
+
+
+
   /**
    * The OID for a proprietary control that can be used to indicate that the
    * NO-USER-MODIFICATION flag should be ignored when processing an add.
@@ -2106,6 +2114,95 @@ public final class InMemoryRequestHandler
                                        final SearchRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    final List<SearchResultEntry> entryList =
+         new ArrayList<SearchResultEntry>(entryMap.size());
+    final List<SearchResultReference> referenceList =
+         new ArrayList<SearchResultReference>(entryMap.size());
+
+    final LDAPMessage returnMessage = processSearchRequest(messageID, request,
+         controls, entryList, referenceList);
+
+    for (final SearchResultEntry e : entryList)
+    {
+      try
+      {
+        connection.sendSearchResultEntry(messageID, e, e.getControls());
+      }
+      catch (final LDAPException le)
+      {
+        Debug.debugException(le);
+        return new LDAPMessage(messageID,
+             new SearchResultDoneProtocolOp(le.getResultCode().intValue(),
+                  le.getMatchedDN(), le.getDiagnosticMessage(),
+                  StaticUtils.toList(le.getReferralURLs())),
+             le.getResponseControls());
+      }
+    }
+
+    for (final SearchResultReference r : referenceList)
+    {
+      try
+      {
+        connection.sendSearchResultReference(messageID,
+             new SearchResultReferenceProtocolOp(
+                  StaticUtils.toList(r.getReferralURLs())),
+             r.getControls());
+      }
+      catch (final LDAPException le)
+      {
+        Debug.debugException(le);
+        return new LDAPMessage(messageID,
+             new SearchResultDoneProtocolOp(le.getResultCode().intValue(),
+                  le.getMatchedDN(), le.getDiagnosticMessage(),
+                  StaticUtils.toList(le.getReferralURLs())),
+             le.getResponseControls());
+      }
+    }
+
+    return returnMessage;
+  }
+
+
+
+  /**
+   * Attempts to process the provided search request.  The attempt will fail
+   * if any of the following conditions is true:
+   * <UL>
+   *   <LI>There is a problem with any of the request controls.</LI>
+   *   <LI>The modify DN request contains a malformed target DN, new RDN, or
+   *       new superior DN.</LI>
+   *   <LI>The new DN of the entry would conflict with the DN of an existing
+   *       entry.</LI>
+   *   <LI>The new DN of the entry would exist outside the set of defined
+   *       base DNs.</LI>
+   *   <LI>The new DN of the entry is not a defined base DN and does not exist
+   *       immediately below an existing entry.</LI>
+   * </UL>
+   *
+   * @param  messageID      The message ID of the LDAP message containing the
+   *                        search request.
+   * @param  request        The search request that was included in the LDAP
+   *                        message that was received.
+   * @param  controls       The set of controls included in the LDAP message.
+   *                        It may be empty if there were no controls, but will
+   *                        not be {@code null}.
+   * @param  entryList      A list to which to add search result entries
+   *                        intended for return to the client.  It must not be
+   *                        {@code null}.
+   * @param  referenceList  A list to which to add search result references
+   *                        intended for return to the client.  It must not be
+   *                        {@code null}.
+   *
+   * @return  The {@link LDAPMessage} containing the response to send to the
+   *          client.  The protocol op in the {@code LDAPMessage} must be an
+   *          {@code SearchResultDoneProtocolOp}.
+   */
+  synchronized LDAPMessage processSearchRequest(final int messageID,
+                                final SearchRequestProtocolOp request,
+                                final List<Control> controls,
+                                final List<SearchResultEntry> entryList,
+                                final List<SearchResultReference> referenceList)
+  {
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -2192,127 +2289,134 @@ public final class InMemoryRequestHandler
            le.getResultCode().intValue(), null, le.getMessage(), null));
     }
 
-    // Process the set of requested attributes.
+    // Create a temporary list to hold all of the entries to be returned.  These
+    // entries will not have been pared down based on the requested attributes.
+    final List<Entry> fullEntryList = new ArrayList<Entry>(entryMap.size());
+
+findEntriesAndRefs:
+    {
+      // Check the scope.  If it is a base-level search, then we only need to
+      // examine the base entry.  Otherwise, we'll have to scan the entire entry
+      // map.
+      final Filter filter = request.getFilter();
+      final SearchScope scope = request.getScope();
+      final boolean includeSubEntries = ((scope == SearchScope.BASE) ||
+           controlMap.containsKey(
+                SubentriesRequestControl.SUBENTRIES_REQUEST_OID));
+      if (scope == SearchScope.BASE)
+      {
+        try
+        {
+          if (filter.matchesEntry(baseEntry, schema))
+          {
+            processSearchEntry(baseEntry, includeSubEntries, includeChangeLog,
+                 hasManageDsaIT, fullEntryList, referenceList);
+          }
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+
+        break findEntriesAndRefs;
+      }
+
+      // If the search uses a single-level scope and the base DN is the root
+      // DSE, then we will only examine the defined base entries for the data
+      // set.
+      if ((scope == SearchScope.ONE) && baseDN.isNullDN())
+      {
+        for (final DN dn : baseDNs)
+        {
+          final Entry e = entryMap.get(dn);
+          if (e != null)
+          {
+            try
+            {
+              if (filter.matchesEntry(e, schema))
+              {
+                processSearchEntry(e, includeSubEntries, includeChangeLog,
+                     hasManageDsaIT, fullEntryList, referenceList);
+              }
+            }
+            catch (final Exception ex)
+            {
+              Debug.debugException(ex);
+            }
+          }
+        }
+
+        break findEntriesAndRefs;
+      }
+
+      // Iterate through the map to find and return entries matching the
+      // criteria.  It is not necessary to consider the root DSE for non-base
+      // scopes.
+      for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
+      {
+        final DN dn = me.getKey();
+        final Entry entry = me.getValue();
+        try
+        {
+          if (dn.matchesBaseAndScope(baseDN, scope) &&
+              filter.matchesEntry(entry, schema))
+          {
+            processSearchEntry(entry, includeSubEntries, includeChangeLog,
+                 hasManageDsaIT, fullEntryList, referenceList);
+          }
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+    }
+
+
+    // Process the set of requested attributes so that we can pare down the
+    // entries.
     final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
     final AtomicBoolean allOpAttrs = new AtomicBoolean(false);
     final Map<String,List<List<String>>> returnAttrs =
          processRequestedAttributes(request.getAttributes(), allUserAttrs,
               allOpAttrs);
 
-    // Check the scope.  If it is a base-level search, then we only need to
-    // examine the base entry.  Otherwise, we'll have to scan the entire entry
-    // map.
-    final Filter filter = request.getFilter();
-    final SearchScope scope = request.getScope();
-    final AtomicInteger entriesSent = new AtomicInteger(0);
-    final boolean includeSubEntries = ((scope == SearchScope.BASE) ||
-         controlMap.containsKey(
-              SubentriesRequestControl.SUBENTRIES_REQUEST_OID));
-    if (scope == SearchScope.BASE)
+    final int sizeLimit;
+    if (request.getSizeLimit() > 0)
     {
-      try
-      {
-        if (filter.matchesEntry(baseEntry, schema))
-        {
-          try
-          {
-            returnEntry(messageID, baseEntry, allUserAttrs.get(),
-                 allOpAttrs.get(), returnAttrs, includeSubEntries,
-                 includeChangeLog, hasManageDsaIT, entriesSent,
-                 request.getSizeLimit());
-          }
-          catch (final LDAPException le)
-          {
-            Debug.debugException(le);
-
-            return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-                 le.getResultCode().intValue(), le.getMatchedDN(),
-                 le.getMessage(), null));
-          }
-        }
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
-
-      return new LDAPMessage(messageID,
-           new SearchResultDoneProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
-                null, null),
-           responseControls);
+      sizeLimit = request.getSizeLimit();
+    }
+    else
+    {
+      sizeLimit = Integer.MAX_VALUE;
     }
 
-    // If the search uses a single-level scope and the base DN is the root DSE,
-    // then we will only examine the defined base entries for the data set.
-    if ((scope == SearchScope.ONE) && baseDN.isNullDN())
+    int entryCount = 0;
+    for (final Entry e : fullEntryList)
     {
-      for (final DN dn : baseDNs)
+      entryCount++;
+      if (entryCount > sizeLimit)
       {
-        final Entry e = entryMap.get(dn);
-        if (e != null)
-        {
-          try
-          {
-            if (filter.matchesEntry(e, schema))
-            {
-              try
-              {
-                returnEntry(messageID, e, allUserAttrs.get(), allOpAttrs.get(),
-                     returnAttrs, includeSubEntries, includeChangeLog,
-                     hasManageDsaIT, entriesSent, request.getSizeLimit());
-              }
-              catch (final LDAPException le)
-              {
-                Debug.debugException(le);
-
-                return new LDAPMessage(messageID,
-                     new SearchResultDoneProtocolOp(
-                          le.getResultCode().intValue(), le.getMatchedDN(),
-                          le.getMessage(), null));
-              }
-            }
-          }
-          catch (final Exception ex)
-          {
-            Debug.debugException(ex);
-          }
-        }
+        return new LDAPMessage(messageID,
+             new SearchResultDoneProtocolOp(
+                  ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE, null, null, null),
+             responseControls);
       }
 
-      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-           ResultCode.SUCCESS_INT_VALUE, null, null, null));
-    }
-
-    // Iterate through the map to find and return entries matching the criteria.
-    // It is not necessary to consider the root DSE for non-base scopes.
-    for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
-    {
-      final DN dn = me.getKey();
-      final Entry entry = me.getValue();
-      try
+      final Entry trimmedEntry = trimForRequestedAttributes(e,
+           allUserAttrs.get(), allOpAttrs.get(), returnAttrs);
+      if (request.typesOnly())
       {
-        if (dn.matchesBaseAndScope(baseDN, scope) &&
-            filter.matchesEntry(entry, schema))
+        final Entry typesOnlyEntry = new Entry(trimmedEntry.getDN());
+        for (final Attribute a : trimmedEntry.getAttributes())
         {
-          try
-          {
-            returnEntry(messageID, entry, allUserAttrs.get(), allOpAttrs.get(),
-                 returnAttrs, includeSubEntries, includeChangeLog,
-                 hasManageDsaIT, entriesSent, request.getSizeLimit());
-          }
-          catch (final LDAPException le)
-          {
-            Debug.debugException(le);
-
-            return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-                 le.getResultCode().intValue(), le.getMatchedDN(),
-                 le.getMessage(), null));
-          }
+          typesOnlyEntry.addAttribute(new Attribute(a.getName()));
         }
+        entryList.add(new SearchResultEntry(typesOnlyEntry));
       }
-      catch (final Exception e)
+      else
       {
-        Debug.debugException(e);
+        entryList.add(new SearchResultEntry(trimmedEntry));
       }
     }
 
@@ -3313,47 +3417,32 @@ public final class InMemoryRequestHandler
 
 
   /**
-   * Returns the provided entry to the client, paring it down as necessary
-   * based on the requested attributes.
+   * Performs the necessary processing to determine whether the given entry
+   * should be returned as a search result entry or reference, or if it should
+   * not be returned at all.
    *
-   * @param  messageID          The message ID for the search operation.
-   * @param  entry              The entry to be returned.
-   * @param  allUserAttrs       Indicates whether to return all user attributes.
-   * @param  allOpAttrs         Indicates whether to return all operational
-   *                            attributes.
-   * @param  returnAttrs        A map with information about the specific
-   *                            attribute types to return.
+   * @param  entry              The entry to be processed.
    * @param  includeSubEntries  Indicates whether LDAP subentries should be
-   *                            returned.
+   *                            returned to the client.
    * @param  includeChangeLog   Indicates whether entries within the changelog
-   *                            should be returned.
+   *                            should be returned to the client.
    * @param  hasManageDsaIT     Indicates whether the request includes the
    *                            ManageDsaIT control, which can change how smart
    *                            referrals should be handled.
-   * @param  entriesSent        The number of entries returned so far for the
-   *                            associated search.
-   * @param  sizeLimit          The size limit for the search.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         return the entry.
+   * @param  entryList          The list to which the entry should be added if
+   *                            it should be returned to the client as a search
+   *                            result entry.
+   * @param  referenceList      The list that should be updated if the provided
+   *                            entry represents a smart referral that should be
+   *                            returned as a search result reference.
    */
-  private void returnEntry(final int messageID, final Entry entry,
-                           final boolean allUserAttrs, final boolean allOpAttrs,
-                           final Map<String,List<List<String>>> returnAttrs,
-                           final boolean includeSubEntries,
-                           final boolean includeChangeLog,
-                           final boolean hasManageDsaIT,
-                           final AtomicInteger entriesSent,
-                           final int sizeLimit)
-          throws LDAPException
+  private void processSearchEntry(final Entry entry,
+                    final boolean includeSubEntries,
+                    final boolean includeChangeLog,
+                    final boolean hasManageDsaIT,
+                    final List<Entry> entryList,
+                    final List<SearchResultReference> referenceList)
   {
-    // Check to see if we have hit the size limit.
-    if ((sizeLimit > 0) && (entriesSent.get() >= sizeLimit))
-    {
-      throw new LDAPException(ResultCode.SIZE_LIMIT_EXCEEDED,
-           ERR_MEM_HANDLER_SEARCH_SIZE_LIMIT_EXCEEDED.get());
-    }
-
     // See if the entry should be suppressed as an LDAP subentry.
     if ((! includeSubEntries) &&
         (entry.hasObjectClass("ldapSubEntry") ||
@@ -3363,26 +3452,31 @@ public final class InMemoryRequestHandler
     }
 
     // See if the entry should be suppressed as a changelog entry.
-    if ((! includeChangeLog) &&
-        (entry.getParsedDN().isDescendantOf(changeLogBaseDN, true)))
+    try
     {
-      return;
+      if ((! includeChangeLog) &&
+           (entry.getParsedDN().isDescendantOf(changeLogBaseDN, true)))
+      {
+        return;
+      }
+    }
+    catch (final Exception e)
+    {
+      // This should never happen.
+      Debug.debugException(e);
     }
 
     // See if the entry is a referral and should result in a reference rather
     // than an entry.
-    if ((! hasManageDsaIT) && entry.hasObjectClass("referral"))
+    if ((! hasManageDsaIT) && entry.hasObjectClass("referral") &&
+        entry.hasAttribute("ref"))
     {
-      connection.sendSearchResultReference(messageID,
-           new SearchResultReferenceProtocolOp(
-                Arrays.asList(entry.getAttributeValues("ref"))));
+      referenceList.add(new SearchResultReference(
+           entry.getAttributeValues("ref"), NO_CONTROLS));
       return;
     }
 
-    connection.sendSearchResultEntry(messageID,
-         trimForRequestedAttributes(entry, allUserAttrs, allOpAttrs,
-              returnAttrs));
-    entriesSent.incrementAndGet();
+    entryList.add(entry);
   }
 
 
