@@ -523,8 +523,8 @@ public final class DeleteRequest
           deleteRequest = this;
         }
 
-        final LDAPConnection referralConn =
-             connection.getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn = connection.getReferralConnector().
+             getReferralConnection(referralURL, connection);
         try
         {
           return deleteRequest.process(referralConn, depth+1);

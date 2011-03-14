@@ -1683,8 +1683,8 @@ public final class SearchRequest
                                sizeLimit, timeLimit, typesOnly, requestFilter,
                                attributes);
 
-        final LDAPConnection referralConn =
-             connection.getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn = connection.getReferralConnector().
+             getReferralConnection(referralURL, connection);
 
         try
         {
@@ -1787,8 +1787,8 @@ public final class SearchRequest
                                sizeLimit, timeLimit, typesOnly, requestFilter,
                                attributes);
 
-        final LDAPConnection referralConn =
-             connection.getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn = connection.getReferralConnector().
+             getReferralConnection(referralURL, connection);
         try
         {
           return searchRequest.process(referralConn, depth+1);

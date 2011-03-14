@@ -240,7 +240,7 @@ public final class LDAPConnection
 
   // The referral connector that will be used to establish connections to remote
   // servers when following a referral.
-  private ReferralConnector referralConnector = this;
+  private ReferralConnector referralConnector;
 
   // The cached schema read from the server.
   private Schema cachedSchema;
@@ -359,6 +359,12 @@ public final class LDAPConnection
     connectionName       = null;
     connectionPoolName   = null;
     cachedSchema         = null;
+
+    referralConnector = this.connectionOptions.getReferralConnector();
+    if (referralConnector == null)
+    {
+      referralConnector = this;
+    }
   }
 
 
@@ -3463,7 +3469,14 @@ public final class LDAPConnection
    */
   public ReferralConnector getReferralConnector()
   {
-    return referralConnector;
+    if (referralConnector == null)
+    {
+      return this;
+    }
+    else
+    {
+      return referralConnector;
+    }
   }
 
 
