@@ -903,8 +903,8 @@ public final class ModifyRequest
           modifyRequest = this;
         }
 
-        final LDAPConnection referralConn =
-             connection.getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn = connection.getReferralConnector().
+             getReferralConnection(referralURL, connection);
         try
         {
           return modifyRequest.process(referralConn, depth+1);

@@ -47,6 +47,11 @@ import static com.unboundid.util.Validator.*;
  *   <LI>A referral hop limit, which indicates the maximum number of hops that
  *       the connection may take when trying to follow a referral.  The default
  *       referral hop limit is five.</LI>
+ *   <LI>The referral connector that should be used to create and optionally
+ *       authenticate connections used to follow referrals encountered during
+ *       processing.  By default, referral connections will use the same socket
+ *       factory and bind request as the client connection on which the referral
+ *       was received.</LI>
  *   <LI>A flag that indicates whether to use the SO_KEEPALIVE socket option to
  *       attempt to more quickly detect when idle TCP connections have been lost
  *       or to prevent them from being unexpectedly closed by intermediate
@@ -61,8 +66,9 @@ import static com.unboundid.util.Validator.*;
  *       indicate that a socket in a TIME_WAIT state may be reused.  By default,
  *       the SO_REUSEADDR socket option will be used.</LI>
  *   <LI>A flag that indicates whether to operate in synchronous mode, in which
- *       at most one operation may be in progress at any given time on an
- *       associated connection.</LI>
+ *       connections may exhibit better performance and will not require a
+ *       separate reader thread, but will not allow multiple concurrent
+ *       operations to be used on the same connection.</LI>
  *   <LI>A flag that indicates whether to use the TCP_NODELAY socket option to
  *       indicate that any data written to the socket will be sent immediately
  *       rather than delaying for a short amount of time to see if any more data
@@ -89,6 +95,26 @@ import static com.unboundid.util.Validator.*;
  *       receive notification about any unsolicited notifications returned by
  *       the server.  By default, no {@code UnsolicitedNotificationHandler} will
  *       be used.</LI>
+ *   <LI>A flag that indicates whether to capture a thread stack trace whenever
+ *       a new connection is established.  Capturing a thread stack trace when
+ *       establishing a connection may be marginally expensive, but can be
+ *       useful for debugging certain kinds of problems like leaked connections
+ *       (connections that are established but never explicitly closed).  By
+ *       default, connect stack traces will not be captured.</LI>
+ *   <LI>A flag that indicates whether connections should try to retrieve schema
+ *       information from the server, which may be used to better determine
+ *       which matching rules should be used when comparing attribute values.
+ *       By default, server schema information will not be retrieved.</LI>
+ *   <LI>The size of the socket receive buffer, which may be used for
+ *       temporarily holding data received from the directory server until it
+ *       can be read and processed by the LDAP SDK.  By default, the receive
+ *       buffer size will be automatically determined by the JVM based on the
+ *       underlying system settings.</LI>
+ *   <LI>The size of the socket send buffer, which may be used for temporarily
+ *       holding data to be sent to the directory server until it can actually
+ *       be transmitted over the network.  By default, the send buffer size will
+ *       be automatically determined by the JVM based on the underlying system
+ *       settings.</LI>
  * </UL>
  */
 @Mutable()
@@ -290,6 +316,10 @@ public final class LDAPConnectionOptions
   // The response timeout, in milliseconds.
   private long responseTimeout;
 
+  // Tne default referral connector that should be used for associated
+  // connections.
+  private ReferralConnector referralConnector;
+
   // The unsolicited notification handler for associated connections.
   private UnsolicitedNotificationHandler unsolicitedNotificationHandler;
 
@@ -318,6 +348,7 @@ public final class LDAPConnectionOptions
     receiveBufferSize              = DEFAULT_RECEIVE_BUFFER_SIZE;
     sendBufferSize                 = DEFAULT_SEND_BUFFER_SIZE;
     disconnectHandler              = null;
+    referralConnector              = null;
     unsolicitedNotificationHandler = null;
   }
 
@@ -348,6 +379,7 @@ public final class LDAPConnectionOptions
     o.lingerTimeout                  = lingerTimeout;
     o.maxMessageSize                 = maxMessageSize;
     o.responseTimeout                = responseTimeout;
+    o.referralConnector              = referralConnector;
     o.referralHopLimit               = referralHopLimit;
     o.disconnectHandler              = disconnectHandler;
     o.unsolicitedNotificationHandler = unsolicitedNotificationHandler;
@@ -804,6 +836,47 @@ public final class LDAPConnectionOptions
          "LDAPConnectionOptions.referralHopLimit must be greater than 0.");
 
     this.referralHopLimit = referralHopLimit;
+  }
+
+
+
+  /**
+   * Retrieves the referral connector that will be used to establish and
+   * optionally authenticate connections to servers when attempting to follow
+   * referrals, if defined.
+   *
+   * @return  The referral connector that will be used to establish and
+   *          optionally authenticate connections to servers when attempting to
+   *          follow referrals, or {@code null} if no specific referral
+   *          connector has been configured and referral connections should be
+   *          created using the same socket factory and bind request as the
+   *          connection on which the referral was received.
+   */
+  public ReferralConnector getReferralConnector()
+  {
+    return referralConnector;
+  }
+
+
+
+  /**
+   * Specifies the referral connector that should be used to establish and
+   * optionally authenticate connections to servers when attempting to follow
+   * referrals.
+   *
+   * @param  referralConnector  The referral connector that will be used to
+   *                            establish and optionally authenticate
+   *                            connections to servers when attempting to follow
+   *                            referrals.  It may be {@code null} to indicate
+   *                            that the same socket factory and bind request
+   *                            as the connection on which the referral was
+   *                            received should be used to establish and
+   *                            authenticate connections for following
+   *                            referrals.
+   */
+  public void setReferralConnector(final ReferralConnector referralConnector)
+  {
+    this.referralConnector = referralConnector;
   }
 
 

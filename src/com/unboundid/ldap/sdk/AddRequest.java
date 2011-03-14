@@ -1245,8 +1245,8 @@ public final class AddRequest
           addRequest = this;
         }
 
-        final LDAPConnection referralConn =
-             connection.getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn = connection.getReferralConnector().
+             getReferralConnection(referralURL, connection);
         try
         {
           return addRequest.process(referralConn, (depth+1));

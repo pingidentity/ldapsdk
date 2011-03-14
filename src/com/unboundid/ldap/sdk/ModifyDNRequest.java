@@ -875,8 +875,8 @@ public final class ModifyDNRequest
           modifyDNRequest = this;
         }
 
-        final LDAPConnection referralConn =
-             connection.getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn = connection.getReferralConnector().
+             getReferralConnection(referralURL, connection);
         try
         {
           return modifyDNRequest.process(referralConn, depth+1);
