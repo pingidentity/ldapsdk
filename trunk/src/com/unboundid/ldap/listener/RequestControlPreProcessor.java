@@ -42,6 +42,7 @@ import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
+import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
 
@@ -428,6 +429,33 @@ final class RequestControlPreProcessor
                ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
         }
       }
+      else if (oid.equals(VirtualListViewRequestControl.
+           VIRTUAL_LIST_VIEW_REQUEST_OID))
+      {
+        switch (requestOpType)
+        {
+          case LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST:
+            // The control is acceptable for these operations.
+            break;
+
+          default:
+            if (control.isCritical())
+            {
+              throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
+                   ERR_CONTROL_PROCESSOR_UNSUPPORTED_FOR_OP.get(oid));
+            }
+            else
+            {
+              continue;
+            }
+        }
+
+        if (m.put(oid, new VirtualListViewRequestControl(control)) != null)
+        {
+          throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
+               ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
+        }
+      }
       else if (oid.equals(InMemoryRequestHandler.
            OID_ADD_IGNORE_NO_USER_MODIFICATION))
       {
@@ -469,6 +497,23 @@ final class RequestControlPreProcessor
     {
       throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
            ERR_CONTROL_PROCESSOR_MULTIPLE_PROXY_CONTROLS.get());
+    }
+
+    if (m.containsKey(
+             VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID))
+    {
+      if (m.containsKey(SimplePagedResultsControl.PAGED_RESULTS_OID))
+      {
+        throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
+             ERR_CONTROL_PROCESSOR_VLV_AND_PAGED_RESULTS.get());
+      }
+
+      if (! m.containsKey(
+                 ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID))
+      {
+        throw new LDAPException(ResultCode.SORT_CONTROL_MISSING,
+             ERR_CONTROL_PROCESSOR_VLV_WITHOUT_SORT.get());
+      }
     }
 
     return m;
