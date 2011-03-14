@@ -104,8 +104,11 @@ import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortResponseControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
+import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
+import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
+import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
 import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
 import com.unboundid.ldif.LDIFException;
@@ -2478,6 +2481,75 @@ findEntriesAndRefs:
     }
 
 
+    // If the request includes the virtual list view request control, then
+    // handle it.
+    final VirtualListViewRequestControl vlvRequest =
+         (VirtualListViewRequestControl) controlMap.get(
+              VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID);
+    if (vlvRequest != null)
+    {
+      final int totalEntries = fullEntryList.size();
+      final ASN1OctetString assertionValue = vlvRequest.getAssertionValue();
+
+      // Figure out the position of the target entry in the list.
+      int offset = vlvRequest.getTargetOffset();
+      if (assertionValue == null)
+      {
+        // The offset is one-based, so we need to adjust it for the list's
+        // zero-based offset.  Also, make sure to put it within the bounds of
+        // the list.
+        offset--;
+        offset = Math.max(0, offset);
+        offset = Math.min(fullEntryList.size(), offset);
+      }
+      else
+      {
+        final SortKey primarySortKey = sortRequestControl.getSortKeys()[0];
+
+        final Entry testEntry = new Entry("cn=test",
+             new Attribute(primarySortKey.getAttributeName(), assertionValue));
+
+        final EntrySorter entrySorter =
+             new EntrySorter(false, schema, primarySortKey);
+
+        offset = fullEntryList.size();
+        for (int i=0; i < fullEntryList.size(); i++)
+        {
+          if (entrySorter.compare(fullEntryList.get(i), testEntry) >= 0)
+          {
+            offset = i;
+            break;
+          }
+        }
+      }
+
+      // Get the start and end positions based on the before and after counts.
+      final int beforeCount = Math.max(0, vlvRequest.getBeforeCount());
+      final int afterCount  = Math.max(0, vlvRequest.getAfterCount());
+
+      final int start = Math.max(0, (offset - beforeCount));
+      final int end = Math.min(fullEntryList.size(), (offset + afterCount + 1));
+
+      // Create an iterator to use to alter the list so that it only contains
+      // the appropriate set of entries.
+      int pos = 0;
+      final Iterator<Entry> iterator = fullEntryList.iterator();
+      while (iterator.hasNext())
+      {
+        iterator.next();
+        if ((pos < start) || (pos >= end))
+        {
+          iterator.remove();
+        }
+        pos++;
+      }
+
+      // Create the appropriate response control.
+      responseControls.add(new VirtualListViewResponseControl((offset+1),
+           totalEntries, ResultCode.SUCCESS, null));
+    }
+
+
     // Process the set of requested attributes so that we can pare down the
     // entries.
     final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
@@ -3266,6 +3338,7 @@ findEntriesAndRefs:
     ctlSet.add(SimplePagedResultsControl.PAGED_RESULTS_OID);
     ctlSet.add(SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     ctlSet.add(SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
+    ctlSet.add(VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID);
 
     final String[] controlOIDs = new String[ctlSet.size()];
     rootDSEEntry.addAttribute("supportedControl", ctlSet.toArray(controlOIDs));
