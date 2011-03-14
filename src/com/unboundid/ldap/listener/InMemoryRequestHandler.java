@@ -41,6 +41,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.protocol.AddRequestProtocolOp;
 import com.unboundid.ldap.protocol.AddResponseProtocolOp;
@@ -102,6 +103,7 @@ import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.ServerSideSortResponseControl;
+import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldif.LDIFAddChangeRecord;
@@ -2395,6 +2397,87 @@ findEntriesAndRefs:
     }
 
 
+    // If the request included the simple paged results control, then handle it.
+    final SimplePagedResultsControl pagedResultsControl =
+         (SimplePagedResultsControl)
+         controlMap.get(SimplePagedResultsControl.PAGED_RESULTS_OID);
+    if (pagedResultsControl != null)
+    {
+      final int totalSize = fullEntryList.size();
+      final int pageSize = pagedResultsControl.getSize();
+      final ASN1OctetString cookie = pagedResultsControl.getCookie();
+
+      final int offset;
+      if ((cookie == null) || (cookie.getValueLength() == 0))
+      {
+        // This is the first request in the series, so start at the beginning of
+        // the list.
+        offset = 0;
+      }
+      else
+      {
+        // The cookie value will simply be an integer representation of the
+        // offset within the result list at which to start the next batch.
+        try
+        {
+          final ASN1Integer offsetInteger =
+               ASN1Integer.decodeAsInteger(cookie.getValue());
+          offset = offsetInteger.intValue();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          return new LDAPMessage(messageID,
+               new SearchResultDoneProtocolOp(
+                    ResultCode.PROTOCOL_ERROR_INT_VALUE, null,
+                    ERR_MEM_HANDLER_MALFORMED_PAGED_RESULTS_COOKIE.get(), null),
+               responseControls);
+        }
+      }
+
+      // Create an iterator that will be used to remove entries from the result
+      // set that are outside of the requested page of results.
+      int pos = 0;
+      final Iterator<Entry> iterator = fullEntryList.iterator();
+
+      // First, remove entries at the beginning of the list until we hit the
+      // offset.
+      while (iterator.hasNext() && (pos < offset))
+      {
+        iterator.next();
+        iterator.remove();
+        pos++;
+      }
+
+      // Next, skip over the entries that should be returned.
+      int keptEntries = 0;
+      while (iterator.hasNext() && (keptEntries < pageSize))
+      {
+        iterator.next();
+        pos++;
+        keptEntries++;
+      }
+
+      // If there are still entries left, then remove them and create a cookie
+      // to include in the response.  Otherwise, use an empty cookie.
+      if (iterator.hasNext())
+      {
+        responseControls.add(new SimplePagedResultsControl(totalSize,
+             new ASN1OctetString(new ASN1Integer(pos).encode()), false));
+        while (iterator.hasNext())
+        {
+          iterator.next();
+          iterator.remove();
+        }
+      }
+      else
+      {
+        responseControls.add(new SimplePagedResultsControl(totalSize,
+             new ASN1OctetString(), false));
+      }
+    }
+
+
     // Process the set of requested attributes so that we can pare down the
     // entries.
     final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
@@ -2421,7 +2504,8 @@ findEntriesAndRefs:
       {
         return new LDAPMessage(messageID,
              new SearchResultDoneProtocolOp(
-                  ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE, null, null, null),
+                  ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE,
+                  ERR_MEM_HANDLER_SEARCH_SIZE_LIMIT_EXCEEDED.get(), null, null),
              responseControls);
       }
 
@@ -3128,6 +3212,7 @@ findEntriesAndRefs:
     ctlSet.add(ProxiedAuthorizationV2RequestControl.
          PROXIED_AUTHORIZATION_V2_REQUEST_OID);
     ctlSet.add(ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID);
+    ctlSet.add(SimplePagedResultsControl.PAGED_RESULTS_OID);
     ctlSet.add(SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     ctlSet.add(SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
 
