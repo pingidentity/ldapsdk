@@ -499,7 +499,8 @@ public final class InMemoryDirectoryServer
 
 
   /**
-   * Retrieves the number of entries currently held in the server.
+   * Retrieves the number of entries currently held in the server.  The count
+   * returned will not include entries which are part of the changelog.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
    * client connections.
@@ -508,7 +509,49 @@ public final class InMemoryDirectoryServer
    */
   public int countEntries()
   {
-    return inMemoryHandler.countEntries();
+    return countEntries(false);
+  }
+
+
+
+  /**
+   * Retrieves the number of entries currently held in the server, optionally
+   * including those entries which are part of the changelog.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   *
+   * @param  includeChangeLog  Indicates whether to include entries that are
+   *                           part of the changelog in the count.
+   *
+   * @return  The number of entries currently held in the server.
+   */
+  public int countEntries(final boolean includeChangeLog)
+  {
+    return inMemoryHandler.countEntries(includeChangeLog);
+  }
+
+
+
+  /**
+   * Retrieves the number of entries currently held in the server whose DN
+   * matches or is subordinate to the provided base DN.
+   * <BR><BR>
+   * This method may be used regardless of whether the server is listening for
+   * client connections.
+   *
+   * @param  baseDN  The base DN to use for the determination.
+   *
+   * @return  The number of entries currently held in the server whose DN
+   *          matches or is subordinate to the provided base DN.
+   *
+   * @throws  LDAPException  If the provided string cannot be parsed as a valid
+   *                         DN.
+   */
+  public int countEntriesBelow(final String baseDN)
+         throws LDAPException
+  {
+    return inMemoryHandler.countEntriesBelow(baseDN);
   }
 
 

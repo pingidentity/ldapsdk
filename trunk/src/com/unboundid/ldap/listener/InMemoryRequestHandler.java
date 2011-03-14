@@ -2537,11 +2537,62 @@ findEntriesAndRefs:
   /**
    * Retrieves the number of entries currently held in the server.
    *
+   * @param  includeChangeLog  Indicates whether to include entries that are
+   *                           part of the changelog in the count.
+   *
    * @return  The number of entries currently held in the server.
    */
-  public synchronized int countEntries()
+  public synchronized int countEntries(final boolean includeChangeLog)
   {
-    return entryMap.size();
+    if (includeChangeLog || (maxChangelogEntries == 0))
+    {
+      return entryMap.size();
+    }
+    else
+    {
+      int count = 0;
+
+      for (final DN dn : entryMap.keySet())
+      {
+        if (! dn.isDescendantOf(changeLogBaseDN, true))
+        {
+          count++;
+        }
+      }
+
+      return count;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the number of entries currently held in the server whose DN
+   * matches or is subordinate to the provided base DN.
+   *
+   * @param  baseDN  The base DN to use for the determination.
+   *
+   * @return  The number of entries currently held in the server whose DN
+   *          matches or is subordinate to the provided base DN.
+   *
+   * @throws  LDAPException  If the provided string cannot be parsed as a valid
+   *                         DN.
+   */
+  public synchronized int countEntriesBelow(final String baseDN)
+         throws LDAPException
+  {
+    final DN parsedBaseDN = new DN(baseDN);
+
+    int count = 0;
+    for (final DN dn : entryMap.keySet())
+    {
+      if (dn.isDescendantOf(parsedBaseDN, true))
+      {
+        count++;
+      }
+    }
+
+    return count;
   }
 
 
