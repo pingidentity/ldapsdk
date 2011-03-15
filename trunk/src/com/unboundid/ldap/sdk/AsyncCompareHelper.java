@@ -51,6 +51,9 @@ final class AsyncCompareHelper
   // The async result listener to be notified when the response arrives.
   private final AsyncCompareResultListener resultListener;
 
+  // The async request ID created for the associated operation.
+  private final AsyncRequestID asyncRequestID;
+
   // The intermediate response listener to be notified of any intermediate
   // response messages received.
   private final IntermediateResponseListener intermediateResponseListener;
@@ -69,6 +72,8 @@ final class AsyncCompareHelper
    *
    * @param  connection                    The connection with which this async
    *                                       helper is associated.
+   * @param  messageID                     The message ID for the associated
+   *                                       operation.
    * @param  resultListener                The async result listener to be
    *                                       notified when the response arrives.
    * @param  intermediateResponseListener  The intermediate response listener to
@@ -76,7 +81,7 @@ final class AsyncCompareHelper
    *                                       response messages received.
    */
   @InternalUseOnly()
-  AsyncCompareHelper(final LDAPConnection connection,
+  AsyncCompareHelper(final LDAPConnection connection, final int messageID,
        final AsyncCompareResultListener resultListener,
        final IntermediateResponseListener intermediateResponseListener)
   {
@@ -84,7 +89,20 @@ final class AsyncCompareHelper
     this.resultListener               = resultListener;
     this.intermediateResponseListener = intermediateResponseListener;
 
-    createTime = System.nanoTime();
+    asyncRequestID = new AsyncRequestID(messageID, connection);
+    createTime     = System.nanoTime();
+  }
+
+
+
+  /**
+   * Retrieves the async request ID created for the associated operation.
+   *
+   * @return  The async request ID created for the associated operation.
+   */
+  AsyncRequestID getAsyncRequestID()
+  {
+    return asyncRequestID;
   }
 
 
@@ -117,8 +135,8 @@ final class AsyncCompareHelper
          System.nanoTime() - createTime);
 
     final CompareResult result = (CompareResult) response;
-    resultListener.compareResultReceived(
-         new AsyncRequestID(result.getMessageID()), result);
+    resultListener.compareResultReceived(asyncRequestID, result);
+    asyncRequestID.setResult(result);
   }
 
 

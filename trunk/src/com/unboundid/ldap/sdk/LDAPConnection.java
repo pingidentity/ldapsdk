@@ -753,6 +753,12 @@ public final class LDAPConnection
 
     setDisconnectInfo(DisconnectType.RECONNECT, null, null);
     terminate(null);
+
+    try
+    {
+      Thread.sleep(10);
+    } catch (final Exception e) {}
+
     connect(reconnectAddress, reconnectPort);
 
     if (bindRequest != null)
@@ -1627,7 +1633,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return new AsyncRequestID(addRequest.processAsync(this, resultListener));
+    return addRequest.processAsync(this, resultListener);
   }
 
 
@@ -1856,8 +1862,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return new AsyncRequestID(
-                    compareRequest.processAsync(this, resultListener));
+    return compareRequest.processAsync(this, resultListener);
   }
 
 
@@ -1987,7 +1992,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return new AsyncRequestID(deleteRequest.processAsync(this, resultListener));
+    return deleteRequest.processAsync(this, resultListener);
   }
 
 
@@ -2347,7 +2352,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return new AsyncRequestID(modifyRequest.processAsync(this, resultListener));
+    return modifyRequest.processAsync(this, resultListener);
   }
 
 
@@ -2516,8 +2521,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return new AsyncRequestID(
-                    modifyDNRequest.processAsync(this, resultListener));
+    return modifyDNRequest.processAsync(this, resultListener);
   }
 
 
@@ -3403,8 +3407,8 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return new AsyncRequestID(searchRequest.processAsync(this,
-                    (AsyncSearchResultListener) searchListener));
+    return searchRequest.processAsync(this,
+         (AsyncSearchResultListener) searchListener);
   }
 
 

@@ -1311,14 +1311,15 @@ public final class SearchRequest
    *                         {@code null} only if the result is to be processed
    *                         by this class.
    *
-   * @return  The LDAP message ID for the search request that was sent to the
-   *          server.
+   * @return  The async request ID created for the operation, or {@code null} if
+   *          the provided {@code resultListener} is {@code null} and the
+   *          operation will not actually be processed asynchronously.
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  int processAsync(final LDAPConnection connection,
-                   final AsyncSearchResultListener resultListener)
-      throws LDAPException
+  AsyncRequestID processAsync(final LDAPConnection connection,
+                              final AsyncSearchResultListener resultListener)
+                 throws LDAPException
   {
     // Create the LDAP message.
     messageID = connection.nextMessageID();
@@ -1328,15 +1329,18 @@ public final class SearchRequest
     // If the provided async result listener is {@code null}, then we'll use
     // this class as the message acceptor.  Otherwise, create an async helper
     // and use it as the message acceptor.
+    final AsyncRequestID asyncRequestID;
     if (resultListener == null)
     {
+      asyncRequestID = null;
       connection.registerResponseAcceptor(messageID, this);
     }
     else
     {
       final AsyncSearchHelper helper = new AsyncSearchHelper(connection,
-           resultListener, getIntermediateResponseListener());
+           messageID, resultListener, getIntermediateResponseListener());
       connection.registerResponseAcceptor(messageID, helper);
+      asyncRequestID = helper.getAsyncRequestID();
     }
 
 
@@ -1346,7 +1350,7 @@ public final class SearchRequest
       debugLDAPRequest(this);
       connection.getConnectionStatistics().incrementNumSearchRequests();
       connection.sendMessage(message);
-      return messageID;
+      return asyncRequestID;
     }
     catch (LDAPException le)
     {

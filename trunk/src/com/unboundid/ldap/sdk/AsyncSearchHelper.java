@@ -48,6 +48,9 @@ final class AsyncSearchHelper
 
 
 
+  // The async request ID created for the associated operation.
+  private final AsyncRequestID asyncRequestID;
+
   // The async result listener to be notified when the response arrives.
   private final AsyncSearchResultListener resultListener;
 
@@ -75,6 +78,8 @@ final class AsyncSearchHelper
    *
    * @param  connection                    The connection with which this async
    *                                       helper is associated.
+   * @param  messageID                     The message ID for the associated
+   *                                       operation.
    * @param  resultListener                The async result listener to be
    *                                       notified when the response arrives.
    * @param  intermediateResponseListener  The intermediate response listener to
@@ -82,7 +87,7 @@ final class AsyncSearchHelper
    *                                       response messages received.
    */
   @InternalUseOnly()
-  AsyncSearchHelper(final LDAPConnection connection,
+  AsyncSearchHelper(final LDAPConnection connection, final int messageID,
        final AsyncSearchResultListener resultListener,
        final IntermediateResponseListener intermediateResponseListener)
   {
@@ -90,9 +95,22 @@ final class AsyncSearchHelper
     this.resultListener               = resultListener;
     this.intermediateResponseListener = intermediateResponseListener;
 
-    numEntries    = 0;
-    numReferences = 0;
-    createTime    = System.nanoTime();
+    numEntries     = 0;
+    numReferences  = 0;
+    asyncRequestID = new AsyncRequestID(messageID, connection);
+    createTime     = System.nanoTime();
+  }
+
+
+
+  /**
+   * Retrieves the async request ID created for the associated operation.
+   *
+   * @return  The async request ID created for the associated operation.
+   */
+  AsyncRequestID getAsyncRequestID()
+  {
+    return asyncRequestID;
   }
 
 
@@ -137,8 +155,8 @@ final class AsyncSearchHelper
 
       final SearchResult searchResult = (SearchResult) response;
       searchResult.setCounts(numEntries, null, numReferences, null);
-      resultListener.searchResultReceived(
-           new AsyncRequestID(response.getMessageID()), searchResult);
+      resultListener.searchResultReceived(asyncRequestID, searchResult);
+      asyncRequestID.setResult(searchResult);
     }
   }
 
