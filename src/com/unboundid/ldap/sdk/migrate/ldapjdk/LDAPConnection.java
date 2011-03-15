@@ -645,7 +645,7 @@ public class LDAPConnection
   {
     try
     {
-      conn.abandon(InternalSDKHelper.createAsyncRequestID(id),
+      conn.abandon(InternalSDKHelper.createAsyncRequestID(id, conn),
                    getControls(null));
     }
     catch (com.unboundid.ldap.sdk.LDAPException le)

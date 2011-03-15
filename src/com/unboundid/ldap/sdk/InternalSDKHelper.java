@@ -114,13 +114,16 @@ public final class InternalSDKHelper
    *
    * @param  targetMessageID  The message ID to use for the asynchronous request
    *                          ID.
+   * @param  connection       The connection on which the associated request has
+   *                          been sent.
    *
    * @return  The new asynchronous request ID.
    */
   @InternalUseOnly()
-  public static AsyncRequestID createAsyncRequestID(final int targetMessageID)
+  public static AsyncRequestID createAsyncRequestID(final int targetMessageID,
+                                    final LDAPConnection connection)
   {
-    return new AsyncRequestID(targetMessageID);
+    return new AsyncRequestID(targetMessageID, connection);
   }
 
 

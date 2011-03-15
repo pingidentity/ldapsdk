@@ -49,6 +49,9 @@ final class AsyncHelper
 
 
 
+  // The async request ID created for the associated operation.
+  private final AsyncRequestID asyncRequestID;
+
   // The async result listener to be notified when the response arrives.
   private final AsyncResultListener resultListener;
 
@@ -75,6 +78,8 @@ final class AsyncHelper
    *                                       helper is associated.
    * @param  opType                        The BER type for the expected
    *                                       response protocol op for this helper.
+   * @param  messageID                     The message ID for the associated
+   *                                       operation.
    * @param  resultListener                The async result listener to be
    *                                       notified when the response arrives.
    * @param  intermediateResponseListener  The intermediate response listener to
@@ -83,7 +88,7 @@ final class AsyncHelper
    */
   @InternalUseOnly()
   AsyncHelper(final LDAPConnection connection, final byte opType,
-              final AsyncResultListener resultListener,
+              final int messageID, final AsyncResultListener resultListener,
               final IntermediateResponseListener intermediateResponseListener)
   {
     this.resultListener               = resultListener;
@@ -91,7 +96,20 @@ final class AsyncHelper
     this.intermediateResponseListener = intermediateResponseListener;
     this.connection                   = connection;
 
-    createTime = System.nanoTime();
+    asyncRequestID = new AsyncRequestID(messageID, connection);
+    createTime     = System.nanoTime();
+  }
+
+
+
+  /**
+   * Retrieves the async request ID created for the associated operation.
+   *
+   * @return  The async request ID created for the associated operation.
+   */
+  AsyncRequestID getAsyncRequestID()
+  {
+    return asyncRequestID;
   }
 
 
@@ -143,8 +161,8 @@ final class AsyncHelper
     }
 
     final LDAPResult result = (LDAPResult) response;
-    resultListener.ldapResultReceived(
-         new AsyncRequestID(result.getMessageID()), result);
+    resultListener.ldapResultReceived(asyncRequestID, result);
+    asyncRequestID.setResult(result);
   }
 
 
