@@ -102,9 +102,12 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 
 /**
  * This class provides a utility that may be used to create a simple LDAP server
- * instance that will hold all of its information in memory.  This is primarily
- * intended for testing purposes, and the server will not be fully standards
- * compliant.
+ * instance that will hold all of its information in memory.  It is intended to
+ * be very easy to use, particularly as an embeddable server for testing
+ * directory-enabled applications.  It can be easily created, configured,
+ * populated, and shut down with only a few lines of code, and it provides a
+ * number of convenience methods that can be very helpful in writing test cases
+ * that validate the content of the server.
  * <BR><BR>
  * Some notes about the capabilities of this server:
  * <UL>
@@ -113,14 +116,48 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       search, and unbind operations.</LI>
  *   <LI>It will accept abandon requests, but will not do anything with
  *       them.</LI>
- *   <LI>It provides support for simple bind operations.  It does not currently
- *       support any form of SASL authentication.</LI>
- *   <LI>It does not currently support any extended operations.</LI>
- *   <LI>It does not currently support any request or response controls.</LI>
- *   <LI>It does not currently support smart referrals.</LI>
+ *   <LI>It provides support for simple bind operations, and for the SASL PLAIN
+ *       mechanism.  It also provides an API that can be used to add support for
+ *       additional SASL mechanisms.</LI>
+ *   <LI>It provides support for the password modify and "who am I?" extended
+ *       operations, as well as an API that can be used to add support for
+ *       additional types of extended operations.</LI>
+ *   <LI>It provides support for the LDAP assertions, authorization identity,
+ *       manage DSA IT, permissive modify, pre-read, post-read, proxied
+ *       authorization v1 and v2, server-side sort, simple paged results,
+ *       LDAP subentries, subtree delete, and virtual list view request
+ *       controls.</LI>
  *   <LI>It supports the use of schema (if provided), but it does not currently
  *       allow updating the schema on the fly.</LI>
+ *   <LI>It has the ability to maintain a log of operations processed, either
+ *       as a simple access log or a more detailed LDAP debug log.</LI>
+ *   <LI>It has the ability to maintain an LDAP-accessible changelog.</LI>
+ *   <LI>It provides an option to generate a number of operational attributes,
+ *       including entryDN, entryUUID, creatorsName, createTimestamp,
+ *       modifiersName, modifyTimestamp, and subschemaSubentry.</LI>
+ *   <LI>It provides methods for importing data from and exporting data to LDIF
+ *       files, and it has the ability to capture a point-in-time snapshot of
+ *       the data (including changelog information) that may be restored at any
+ *       point.</LI>
+ *   <LI>It implements the {@link LDAPInterface} interface, which means that in
+ *       many cases it can be used as a drop-in replacement for an
+ *       {@link LDAPConnection}.</LI>
  * </UL>
+ * <BR><BR>
+ * In order to create an in-memory directory server instance, you should first
+ * create an {@link InMemoryDirectoryServerConfig} object with the desired
+ * settings.  Then use that configuration object to initialize the directory
+ * server instance, and call the {@link #startListening} method to start
+ * accepting connections from LDAP clients.  The {@link #getConnection} and
+ * {@link #getConnectionPool} methods may be used to obtain connections to the
+ * server, and you can also manually create connections using the information
+ * obtained via the {@link #getListenAddress}, {@link #getListenPort}, and
+ * {@link #getClientSocketFactory} methods.  When the server is no longer
+ * needed, the {@link #shutDown} method should be used to stop the server.  Any
+ * number of in-memory directory server instances can be created and running in
+ * a single JVM at any time, and many of the methods provided in this class can
+ * be used without the server running if operations are to be performed using
+ * only method calls rather than via LDAP clients.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process that can be used to create,
@@ -365,6 +402,21 @@ public final class InMemoryDirectoryServer
   public int getListenPort()
   {
     return listener.getListenPort();
+  }
+
+
+
+  /**
+   * Retrieves the socket factory that should be used when establishing
+   * connections to the server, if defined.
+   *
+   * @return  The socket factory that should be used when establishing
+   *          connections to the server, or {@code null} if the JVM-default
+   *          socket factory should be used.
+   */
+  public SocketFactory getClientSocketFactory()
+  {
+    return clientSocketFactory;
   }
 
 
