@@ -10,6 +10,183 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.1.0</h3>
+
+              <p>
+                The following changes were made between the 2.0.1 and 2.1.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added the ability to easily create a simple memory-based LDAP server that
+                  supports a wide range of LDAP functionality (including a number of controls and
+                  extended operations).  It may be used as a server for testing or demonstrating
+                  directory-enabled applications, and it provides a number of convenience methods
+                  for interacting with and verifying the contents of that server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>LDAPTestUtils</tt> class that provides a number of convenience
+                  methods that can be usd to help write test cases for directory-enabled
+                  applications and make determinations about the content of an LDAP directory
+                  server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>LDAPConnection.processOperation</tt> method that can be used to
+                  process a generic request without needing to know the type of operation that it
+                  represents.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>GenericSASLBindRequest</tt> class that can be used to process
+                  any kind of SASL bind request if the caller is capable of properly encoding
+                  and decoding request and response credentials.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>PasswordProvider</tt> API which can be used when performing
+                  simple bind operations in order to minimize the length of time that the
+                  clear-text password remains in memory.  If a password provider is used rather
+                  than explicitly including the password in the bind request, then the memory
+                  containing that password will be overwritten as soon as the password is no
+                  longer needed.  A <tt>ReadFromFilePasswordProvider</tt> implementation of this
+                  API is also included in the LDAP SDK, which makes it possible to obtain the
+                  password from a file whenever it is needed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the <tt>LDAPPersister.modify</tt> method that prevented it from
+                  including controls in the request sent to the directory server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug that could prevent a configured <tt>ReferralConnector</tt> from
+                  being used.  In addition, it is now possible to use the
+                  <tt>LDAPConnectionOptions</tt> class to configure a referral connector that will
+                  be used for all connections created with those options rather than requiring
+                  each connection to be explicitly assigned a custom referral connector if one was
+                  needed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>FixedRateBarrier</tt> class to use a much more efficient process
+                  for dealing with low operation rates that can consume significantly less CPU.
+                  Previously, it would always spin, but it will now try to sleep if there is a
+                  long enough interval before the next operation can be processed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>FailoverServerSet</tt> class to provide an option to re-order
+                  the internal list of servers so that if a failover does occur, any unavailable
+                  servers are moved to the end of the list so that the server to which the
+                  connection was successfully established is now at the top of the list and will
+                  be the first server tried for subsequent attempts.  The same behavior is
+                  available for failing over between server sets rather than individual servers.
+                  Note that the previous behavior of preserving the original order is still
+                  available, and will continue to be used unless the server set is explicitly
+                  configured to allow re-ordering the list.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>AsyncRequestID</tt> class so that it implements the
+                  <tt>java.util.concurrent.Future</tt> API.  This can make it easier to wait for
+                  and retrieve the response to asynchronous operations requested through the
+                  LDAP SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>LDAPConnection.processExtendedOperation</tt> methods so that
+                  they are more likely to throw an exception in the event that the connection is
+                  no longer valid.  Because extended operation responses may often include result
+                  codes other than "success" even when the operation completed successfully, and
+                  because it is undesirable to throw an exception when the operation completed
+                  successfully, the LDAP SDK is more likely to return an <tt>ExtendedResult</tt>
+                  object even for an unsuccessful operation in cases where it would have thrown an
+                  <tt>LDAPException</tt> for other types of operations.  However, it was
+                  previously too hesitant to throw an exception in cases where there clearly was a
+                  failure, including when the associated connection was no longer valid, and this
+                  could sometimes cause problems.  The LDAP SDK will now throw an exception in
+                  cases where the operation was clearly not successful, and particularly in cases
+                  where the connection may no longer be valid.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the behavior of many of the command-line tools that can be used to
+                  issue repeated requests against a directory server (e.g., <tt>searchrate</tt>,
+                  <tt>modrate</tt>, etc.) so that they exhibit better behavior in the event that
+                  the connection is lost or becomes no longer usable.  In some rare conditions,
+                  the previous approach would attempt to re-establish connections which were no
+                  longer authenticated, which could lead to failures or unexpected behavior in
+                  the operations that had been attempted.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the behavior of connections operating in asynchronous mode so that they
+                  are less likely to encounter SO_TIMEOUT exceptions (or at least, will encounter
+                  them with much less frequency) when connections remain idle for extended periods
+                  of time.  These exceptions are harmless and are handled entirely by the LDAP SDK
+                  so that the underlying application does not need to deal with them, but having
+                  them occur too frequently has been observed to cause unnecessarily high CPU
+                  utilization in some client systems.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated support for the GSSAPI SASL bind request so that it is possible to
+                  specify an alternate protocol for use in the Kerberos service principal.  The
+                  bind request previously always used a protocol of "ldap", and this is still the
+                  default, but it is now possible to request that an alternate protocol be used in
+                  the server's service principal.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the format of the output generated by the <tt>ldap-debugger</tt> tool,
+                  particularly when dealing with binary data such as may be present in control and
+                  extended operation values or SASL bind credentials.  In such cases, the hex
+                  representation of the binary data may be accompanied by a text representation
+                  of any printable ASCII characters contained in that binary data.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added an <tt>LDIFWriter.flush</tt> method, which can be used to flush any
+                  buffered LDIF content to disk or the underlying output stream without the need
+                  to close the writer.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>SSLUtil</tt> class to provide convenience methods for creating
+                  <tt>SSLServerSocketFactory</tt> objects.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>LDAPConnectionOptions</tt> class-level documentation to indicate
+                  that the auto-reconnect option doesn't apply to connections that are part of a
+                  connection pool.  Connections in a connection pool will be closed and replaced
+                  rather than attempting to re-establishing the existing connections.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 2.0.1</h3>
 
               <p>
