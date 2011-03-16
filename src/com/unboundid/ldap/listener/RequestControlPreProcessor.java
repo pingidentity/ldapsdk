@@ -32,6 +32,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
+import com.unboundid.ldap.sdk.controls.DontUseCopyRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
 import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
@@ -137,6 +138,33 @@ final class RequestControlPreProcessor
 
         if (m.put(oid, new AuthorizationIdentityRequestControl(control)) !=
              null)
+        {
+          throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
+               ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
+        }
+      }
+      else if (oid.equals(DontUseCopyRequestControl.DONT_USE_COPY_REQUEST_OID))
+      {
+        switch (requestOpType)
+        {
+          case LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST:
+          case LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST:
+            // The control is acceptable for these operations.
+            break;
+
+          default:
+            if (control.isCritical())
+            {
+              throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
+                   ERR_CONTROL_PROCESSOR_UNSUPPORTED_FOR_OP.get(oid));
+            }
+            else
+            {
+              continue;
+            }
+        }
+
+        if (m.put(oid, new DontUseCopyRequestControl(control)) != null)
         {
           throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
                ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
