@@ -61,6 +61,13 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Added support for the LDAP don't use copy request control as defined in RFC 6171
+                  and can be used to request that only an authoritative directory server be used
+                  to process the associated search or compare operation.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a bug in the <tt>LDAPPersister.modify</tt> method that prevented it from
                   including controls in the request sent to the directory server.
                   <br><br>
