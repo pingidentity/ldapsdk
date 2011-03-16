@@ -421,13 +421,15 @@ public final class ContentSyncRequestControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("ContentSyncRequestControl(mode=");
+    buffer.append("ContentSyncRequestControl(mode='");
     buffer.append(mode.name());
+    buffer.append('\'');
 
     if (cookie != null)
     {
-      buffer.append(", cookie=");
+      buffer.append(", cookie='");
       StaticUtils.toHex(cookie.getValue(), buffer);
+      buffer.append('\'');
     }
 
     buffer.append(", reloadHint=");

@@ -211,8 +211,8 @@ public final class ProxiedAuthorizationV2RequestControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("ProxiedAuthorizationV2RequestControl(authorizationID=");
+    buffer.append("ProxiedAuthorizationV2RequestControl(authorizationID='");
     buffer.append(authorizationID);
-    buffer.append(')');
+    buffer.append("')");
   }
 }

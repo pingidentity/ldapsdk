@@ -256,8 +256,8 @@ public final class ProxiedAuthorizationV1RequestControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("ProxiedAuthorizationV1RequestControl(proxyDN=");
+    buffer.append("ProxiedAuthorizationV1RequestControl(proxyDN='");
     buffer.append(proxyDN);
-    buffer.append(')');
+    buffer.append("')");
   }
 }

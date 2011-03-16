@@ -278,7 +278,9 @@ public final class PostReadRequestControl
       {
         buffer.append(", ");
       }
+      buffer.append('\'');
       buffer.append(attributes[i]);
+      buffer.append('\'');
     }
     buffer.append("}, isCritical=");
     buffer.append(isCritical());

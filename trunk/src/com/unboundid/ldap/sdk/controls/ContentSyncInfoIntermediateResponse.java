@@ -642,14 +642,15 @@ public final class ContentSyncInfoIntermediateResponse
       buffer.append(", ");
     }
 
-    buffer.append("type=");
+    buffer.append("type='");
     buffer.append(type.name());
+    buffer.append('\'');
 
     if (cookie != null)
     {
-      buffer.append(", cookie=");
+      buffer.append(", cookie='");
       StaticUtils.toHex(cookie.getValue(), buffer);
-      buffer.append(", ");
+      buffer.append("', ");
     }
 
     switch (type)
@@ -670,7 +671,9 @@ public final class ContentSyncInfoIntermediateResponse
         final Iterator<UUID> iterator = entryUUIDs.iterator();
         while (iterator.hasNext())
         {
+          buffer.append('\'');
           buffer.append(iterator.next());
+          buffer.append('\'');
           if (iterator.hasNext())
           {
             buffer.append(',');

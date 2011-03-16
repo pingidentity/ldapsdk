@@ -302,9 +302,9 @@ public final class ContentSyncStateControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("ContentSyncStateControl(state=");
+    buffer.append("ContentSyncStateControl(state='");
     buffer.append(state.name());
-    buffer.append(", entryUUID='");
+    buffer.append("', entryUUID='");
     buffer.append(entryUUID);
     buffer.append('\'');
 
