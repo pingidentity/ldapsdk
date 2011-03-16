@@ -123,9 +123,9 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       operations, as well as an API that can be used to add support for
  *       additional types of extended operations.</LI>
  *   <LI>It provides support for the LDAP assertions, authorization identity,
- *       manage DSA IT, permissive modify, pre-read, post-read, proxied
- *       authorization v1 and v2, server-side sort, simple paged results,
- *       LDAP subentries, subtree delete, and virtual list view request
+ *       don't use copy, manage DSA IT, permissive modify, pre-read, post-read,
+ *       proxied authorization v1 and v2, server-side sort, simple paged
+ *       results, LDAP subentries, subtree delete, and virtual list view request
  *       controls.</LI>
  *   <LI>It supports the use of schema (if provided), but it does not currently
  *       allow updating the schema on the fly.</LI>

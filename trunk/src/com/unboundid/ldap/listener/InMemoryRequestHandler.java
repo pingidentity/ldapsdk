@@ -93,6 +93,7 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityResponseControl;
+import com.unboundid.ldap.sdk.controls.DontUseCopyRequestControl;
 import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
 import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
 import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
@@ -3326,6 +3327,7 @@ findEntriesAndRefs:
     ctlSet.add(AssertionRequestControl.ASSERTION_REQUEST_OID);
     ctlSet.add(AuthorizationIdentityRequestControl.
          AUTHORIZATION_IDENTITY_REQUEST_OID);
+    ctlSet.add(DontUseCopyRequestControl.DONT_USE_COPY_REQUEST_OID);
     ctlSet.add(ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID);
     ctlSet.add(PermissiveModifyRequestControl.PERMISSIVE_MODIFY_REQUEST_OID);
     ctlSet.add(PostReadRequestControl.POST_READ_REQUEST_OID);
