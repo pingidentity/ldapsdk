@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.logging.Handler;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -249,6 +250,23 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setClientSocketFactory(final SocketFactory clientSocketFactory)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setStartTLSSocketFactory(
+                   final SSLSocketFactory startTLSSocketFactory)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
