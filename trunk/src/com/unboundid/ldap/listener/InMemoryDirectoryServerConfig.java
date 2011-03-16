@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.logging.Handler;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -79,6 +80,8 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       socket factory.</LI>
  *   <LI>Client Socket Factory:  The server will use the JVM-default client
  *       socket factory.</LI>
+ *   <LI>StartTLS Socket Factory:  The server will not support the StartTLS
+ *       extended operation.</LI>
  * </UL>
  */
 @NotExtensible()
@@ -134,6 +137,10 @@ public class InMemoryDirectoryServerConfig
   // The client socket factory to use for the listener.
   private SocketFactory clientSocketFactory;
 
+  // The SSL socket factory that will be used to SSL-encrypt client connections
+  // if a StartTLS extended request is received.
+  private SSLSocketFactory startTLSSocketFactory;
+
 
 
   /**
@@ -186,6 +193,7 @@ public class InMemoryDirectoryServerConfig
     schema                        = Schema.getDefaultStandardSchema();
     serverSocketFactory           = null;
     clientSocketFactory           = null;
+    startTLSSocketFactory         = null;
 
     extendedOperationHandlers =
          new ArrayList<InMemoryExtendedOperationHandler>(2);
@@ -230,6 +238,7 @@ public class InMemoryDirectoryServerConfig
     schema                        = cfg.schema;
     serverSocketFactory           = cfg.serverSocketFactory;
     clientSocketFactory           = cfg.clientSocketFactory;
+    startTLSSocketFactory         = cfg.startTLSSocketFactory;
   }
 
 
@@ -585,6 +594,43 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves the SSL socket factory that will be used to add SSL encryption to
+   * client connections on which a StartTLS extended request is received.  If no
+   * StartTLS socket factory is defined, then StartTLS extended requests will
+   * not be supported.
+   *
+   * @return  The SSL socket factory that will be used to add SSL encryption to
+   *           client connections on which a StartTLS extended request is
+   *           received, or {@code null} if StartTLS extended requests should
+   *           not be supported.
+   */
+  public SSLSocketFactory getStartTLSSocketFactory()
+  {
+    return startTLSSocketFactory;
+  }
+
+
+
+  /**
+   * Specifies the SSL socket factory that will be used to add SSL encryption to
+   * client connection on which a StartTLS extended request is received.
+   *
+   * @param  startTLSSocketFactory  The SSL socket factory that will be used to
+   *                                add SSL encryption to client connections on
+   *                                which a StartTLS extended request is
+   *                                received.  It may be {@code null} to
+   *                                indicate that StartTLS should not be
+   *                                supported.
+   */
+  public void setStartTLSSocketFactory(
+                   final SSLSocketFactory startTLSSocketFactory)
+  {
+    this.startTLSSocketFactory = startTLSSocketFactory;
+  }
+
+
+
+  /**
    * Retrieves the log handler that should be used to record access log messages
    * about operations processed by the server, if any.
    *
@@ -929,6 +975,13 @@ public class InMemoryDirectoryServerConfig
     {
       buffer.append(", clientSocketFactoryClass='");
       buffer.append(clientSocketFactory.getClass().getName());
+      buffer.append('\'');
+    }
+
+    if (startTLSSocketFactory != null)
+    {
+      buffer.append(", startTLSSocketFactoryClass='");
+      buffer.append(startTLSSocketFactory.getClass().getName());
       buffer.append('\'');
     }
 

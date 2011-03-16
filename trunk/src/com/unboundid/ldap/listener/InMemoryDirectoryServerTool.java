@@ -25,6 +25,7 @@ package com.unboundid.ldap.listener;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -113,35 +114,42 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *   <LI>"-Z" or "--useSSL" -- indicates that the server should encrypt all
  *       communication using SSL.  If this is provided, then the
  *       "--keyStorePath" and "--keyStorePassword" arguments must also be
- *       provided.</LI>
+ *       provided, and the "--useStartTLS" argument must not be provided.</LI>
+ *   <LI>"-q" or "--useStartTLS" -- indicates that the server should support the
+ *       use of the StartTLS extended request.  If this is provided, then the
+ *       "--keyStorePath" and "--keyStorePassword" arguments must also be
+ *       provided, and the "--useSSL" argument must not be provided.</LI>
  *   <LI>"-K {path}" or "--keyStorePath {path}" -- specifies the path to the JKS
  *       key store file that should be used to obtain the server certificate to
  *       use for SSL communication.  If this argument is provided, then the
- *       "--useSSL and "--keyStorePassword" arguments must also be
- *       provided.</LI>
+ *       "--keyStorePassword" argument must also be provided, along with exactly
+ *       one of the "--useSSL" or "--useStartTLS" arguments.</LI>
  *   <LI>"-W {password}" or "--keyStorePassword {password}" -- specifies the
  *       password that should be used to access the contents of the SSL key
- *       store.  If this argument is provided, then the "--useSSL" and
- *       "--keyStorePath" arguments must also be provided.</LI>
+ *       store.  If this argument is provided, then the "--keyStorePath"
+ *       argument must also be provided, along with exactly one of the
+ *       "--useSSL" or "--useStartTLS" arguments.</LI>
  *   <LI>"-P {path}" or "--trustStorePath {path}" -- specifies the path to the
  *       JKS trust store file that should be used to determine whether to trust
  *       any SSL certificates that may be presented by the client.  If this
- *       argument is provided, then the "--useSSL" argument must also be
- *       provided.  If this argument is not provided but SSL is to be used, then
- *       all client certificates will be automatically trusted.</LI>
+ *       argument is provided, then exactly one of the "--useSSL" or
+ *       "--useStartTLS" arguments must also be provided.  If this argument is
+ *       not provided but SSL or StartTLS is to be used, then all client
+ *       certificates will be automatically trusted.</LI>
  *   <LI>"-T {password}" or "--trustStorePassword {password}" -- specifies the
  *       password that should be used to access the contents of the SSL trust
- *       store.  If this argument is provided, then the "--useSSL" and
- *       "--trustStorePath" arguments must also be provided.  If an SSL trust
- *       store path was provided without a trust store password, then the server
- *       will attempt to use the trust store without a password.</LI>
+ *       store.  If this argument is provided, then the "--trustStorePath"
+ *       argument must also be provided, along with exactly one of the
+ *       "--useSSL" or "--useStartTLS" arguments.  If an SSL trust store path
+ *       was provided without a trust store password, then the server will
+ *       attempt to use the trust store without a password.</LI>
  * </UL>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class InMemoryDirectoryServerTool
        extends CommandLineTool
-       implements Serializable
+       implements Serializable, LDAPListenerExceptionHandler
 {
   /**
    * The serial version UID for this serializable class.
@@ -160,6 +168,10 @@ public final class InMemoryDirectoryServerTool
 
   // The argument used to indicate that the server should use SSL
   private BooleanArgument useSSLArgument;
+
+  // The argument used to indicate that the server should support the StartTLS
+  // extended operation
+  private BooleanArgument useStartTLSArgument;
 
   // The argument used to specify an additional bind DN to use for the server.
   private DNArgument additionalBindDNArgument;
@@ -278,6 +290,7 @@ public final class InMemoryDirectoryServerTool
     dontStartArgument              = null;
     useDefaultSchemaArgument       = null;
     useSSLArgument                 = null;
+    useStartTLSArgument            = null;
     additionalBindDNArgument       = null;
     baseDNArgument                 = null;
     accessLogFileArgument          = null;
@@ -383,6 +396,10 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_USE_SSL.get());
     parser.addArgument(useSSLArgument);
 
+    useStartTLSArgument = new BooleanArgument('q', "useStartTLS",
+         INFO_MEM_DS_TOOL_ARG_DESC_USE_START_TLS.get());
+    parser.addArgument(useStartTLSArgument);
+
     keyStorePathArgument = new FileArgument('K', "keyStorePath", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_PATH.get(), true, true, true,
@@ -412,6 +429,7 @@ public final class InMemoryDirectoryServerTool
 
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,
          useSchemaFileArgument);
+    parser.addExclusiveArgumentSet(useSSLArgument, useStartTLSArgument);
 
     parser.addDependentArgumentSet(additionalBindDNArgument,
          additionalBindPasswordArgument);
@@ -420,9 +438,15 @@ public final class InMemoryDirectoryServerTool
 
     parser.addDependentArgumentSet(useSSLArgument, keyStorePathArgument);
     parser.addDependentArgumentSet(useSSLArgument, keyStorePasswordArgument);
-    parser.addDependentArgumentSet(keyStorePathArgument, useSSLArgument);
-    parser.addDependentArgumentSet(keyStorePasswordArgument, useSSLArgument);
-    parser.addDependentArgumentSet(trustStorePathArgument, useSSLArgument);
+    parser.addDependentArgumentSet(useStartTLSArgument, keyStorePathArgument);
+    parser.addDependentArgumentSet(useStartTLSArgument,
+         keyStorePasswordArgument);
+    parser.addDependentArgumentSet(keyStorePathArgument, useSSLArgument,
+         useStartTLSArgument);
+    parser.addDependentArgumentSet(keyStorePasswordArgument, useSSLArgument,
+         useStartTLSArgument);
+    parser.addDependentArgumentSet(trustStorePathArgument, useSSLArgument,
+         useStartTLSArgument);
     parser.addDependentArgumentSet(trustStorePasswordArgument,
          trustStorePathArgument);
   }
@@ -650,7 +674,7 @@ public final class InMemoryDirectoryServerTool
 
 
     // If SSL is to be used, then create the corresponding socket factories.
-    if (useSSLArgument.isPresent())
+    if (useSSLArgument.isPresent() || useStartTLSArgument.isPresent())
     {
       try
       {
@@ -680,12 +704,20 @@ public final class InMemoryDirectoryServerTool
         }
 
         final SSLUtil serverSSLUtil = new SSLUtil(keyManager, trustManager);
-        serverConfig.setServerSocketFactory(
-             serverSSLUtil.createSSLServerSocketFactory());
 
-        final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
-        serverConfig.setClientSocketFactory(
-             clientSSLUtil.createSSLSocketFactory());
+        if (useSSLArgument.isPresent())
+        {
+          final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
+          serverConfig.setServerSocketFactory(
+               serverSSLUtil.createSSLServerSocketFactory());
+          serverConfig.setClientSocketFactory(
+               clientSSLUtil.createSSLSocketFactory());
+        }
+        else
+        {
+          serverConfig.setStartTLSSocketFactory(
+               serverSSLUtil.createSSLSocketFactory());
+        }
       }
       catch (final Exception e)
       {
@@ -744,5 +776,30 @@ public final class InMemoryDirectoryServerTool
   public InMemoryDirectoryServer getDirectoryServer()
   {
     return directoryServer;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void connectionCreationFailure(final Socket socket,
+                                        final Throwable cause)
+  {
+    err(ERR_MEM_DS_TOOL_ERROR_ACCEPTING_CONNECTION.get(
+         StaticUtils.getExceptionMessage(cause)));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void connectionTerminated(
+                   final LDAPListenerClientConnection connection,
+                   final LDAPException cause)
+  {
+    err(ERR_MEM_DS_TOOL_CONNECTION_TERMINATED_BY_EXCEPTION.get(
+         StaticUtils.getExceptionMessage(cause)));
   }
 }

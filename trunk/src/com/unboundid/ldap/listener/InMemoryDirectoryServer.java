@@ -119,9 +119,9 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *   <LI>It provides support for simple bind operations, and for the SASL PLAIN
  *       mechanism.  It also provides an API that can be used to add support for
  *       additional SASL mechanisms.</LI>
- *   <LI>It provides support for the password modify and "who am I?" extended
- *       operations, as well as an API that can be used to add support for
- *       additional types of extended operations.</LI>
+ *   <LI>It provides support for the password modify, StartTLS, and "who am I?"
+ *       extended operations, as well as an API that can be used to add support
+ *       for additional types of extended operations.</LI>
  *   <LI>It provides support for the LDAP assertions, authorization identity,
  *       don't use copy, manage DSA IT, permissive modify, pre-read, post-read,
  *       proxied authorization v1 and v2, server-side sort, simple paged
@@ -251,6 +251,12 @@ public final class InMemoryDirectoryServer
     inMemoryHandler = new InMemoryRequestHandler(config);
 
     LDAPListenerRequestHandler requestHandler = inMemoryHandler;
+
+    if (config.getStartTLSSocketFactory() != null)
+    {
+      requestHandler = new StartTLSRequestHandler(
+           config.getStartTLSSocketFactory(), requestHandler);
+    }
 
     if (config.getAccessLogHandler() != null)
     {

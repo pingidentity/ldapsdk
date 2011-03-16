@@ -110,6 +110,7 @@ import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
+import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
 import com.unboundid.ldif.LDIFException;
@@ -178,6 +179,9 @@ public final class InMemoryRequestHandler
   // appropriate.
   private final EntryValidator entryValidator;
 
+  // The configuration used to create this request handler.
+  private final InMemoryDirectoryServerConfig config;
+
   // A snapshot containing the server content as it initially appeared.  It
   // will not contain any user data, but may contain a changelog base entry.
   private final InMemoryDirectoryServerSnapshot initialSnapshot;
@@ -228,6 +232,8 @@ public final class InMemoryRequestHandler
   public InMemoryRequestHandler(final InMemoryDirectoryServerConfig config)
          throws LDAPException
   {
+    this.config = config;
+
     schema = config.getSchema();
     if (schema == null)
     {
@@ -367,6 +373,7 @@ public final class InMemoryRequestHandler
     authenticatedDN = DN.NULL_DN;
     connectionState = new LinkedHashMap<String,Object>(0);
 
+    config                        = parent.config;
     generateOperationalAttributes = parent.generateOperationalAttributes;
     additionalBindCredentials     = parent.additionalBindCredentials;
     baseDNs                       = parent.baseDNs;
@@ -3351,6 +3358,11 @@ findEntriesAndRefs:
       final String[] oidArray = new String[extendedRequestHandlers.size()];
       rootDSEEntry.addAttribute("supportedExtension",
            extendedRequestHandlers.keySet().toArray(oidArray));
+      if (config.getStartTLSSocketFactory() != null)
+      {
+        rootDSEEntry.addAttribute("supportedExtension",
+             StartTLSExtendedRequest.STARTTLS_REQUEST_OID);
+      }
     }
 
     if (! saslBindHandlers.isEmpty())

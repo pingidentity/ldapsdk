@@ -28,6 +28,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1StreamReader;
@@ -76,7 +79,11 @@ public final class LDAPListenerClientConnection
   private final ASN1Buffer asn1Buffer;
 
   // The ASN.1 stream reader used to read requests from the client.
-  private final ASN1StreamReader asn1Reader;
+  private volatile ASN1StreamReader asn1Reader;
+
+  // Indicates whether to suppress the next call to sendMessage to send a
+  // response to the client.
+  private final AtomicBoolean suppressNextResponse;
 
   // The set of intermediate response transformers for this connection.
   private final CopyOnWriteArrayList<IntermediateResponseTransformer>
@@ -103,10 +110,10 @@ public final class LDAPListenerClientConnection
   private final long connectionID;
 
   // The output stream used to write responses to the client.
-  private final OutputStream outputStream;
+  private volatile OutputStream outputStream;
 
   // The socket used to communicate with the client.
-  private final Socket socket;
+  private volatile Socket socket;
 
 
 
@@ -277,7 +284,8 @@ public final class LDAPListenerClientConnection
       throw le;
     }
 
-    asn1Buffer = new ASN1Buffer();
+    asn1Buffer           = new ASN1Buffer();
+    suppressNextResponse = new AtomicBoolean(false);
   }
 
 
@@ -287,7 +295,7 @@ public final class LDAPListenerClientConnection
    *
    * @throws  IOException  If a problem occurs while closing the socket.
    */
-  public void close()
+  public synchronized void close()
          throws IOException
   {
     try
@@ -514,6 +522,14 @@ public final class LDAPListenerClientConnection
   private synchronized void sendMessage(final LDAPMessage message)
           throws LDAPException
   {
+    // If we should suppress this response (which will only be because the
+    // response has already been sent through some other means, for example as
+    // part of StartTLS processing), then do so.
+    if (suppressNextResponse.compareAndSet(true, false))
+    {
+      return;
+    }
+
     asn1Buffer.clear();
 
     try
@@ -764,9 +780,62 @@ public final class LDAPListenerClientConnection
    *
    * @return  The socket used to communicate with the client.
    */
-  public Socket getSocket()
+  public synchronized Socket getSocket()
   {
     return socket;
+  }
+
+
+
+  /**
+   * Attempts to convert this unencrypted connection to one that uses TLS
+   * encryption, as would be used during the course of invoking the StartTLS
+   * extended operation.  If this is called, then the response that would have
+   * been returned from the associated request will be suppressed, so the
+   * returned output stream must be used to send the appropriate response to
+   * the client.
+   *
+   * @param  f  The SSL socket factory that will be used to convert the existing
+   *            {@code Socket} to an {@code SSLSocket}.
+   *
+   * @return  An output stream that can be used to send a clear-text message to
+   *          the client (e.g., the StartTLS response message).
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to convert
+   *                         the existing socket to an SSL socket.  If this is
+   *                         thrown, then the connection will have been closed.
+   */
+  public synchronized OutputStream convertToTLS(final SSLSocketFactory f)
+         throws LDAPException
+  {
+    final OutputStream clearOutputStream = outputStream;
+
+    final Socket origSocket = socket;
+    final String hostname   = origSocket.getInetAddress().getHostName();
+    final int port          = origSocket.getPort();
+
+    try
+    {
+      socket = f.createSocket(socket, hostname, port, true);
+      ((SSLSocket) socket).setUseClientMode(false);
+      outputStream = socket.getOutputStream();
+      asn1Reader = new ASN1StreamReader(socket.getInputStream());
+      suppressNextResponse.set(true);
+      return clearOutputStream;
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+
+      final LDAPException le = new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_CONN_CONVERT_TO_TLS_FAILURE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+
+      close(le);
+
+      throw le;
+    }
   }
 
 
