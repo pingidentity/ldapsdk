@@ -299,9 +299,9 @@ public final class ContentSyncDoneControl
 
     if (cookie != null)
     {
-      buffer.append("cookie=");
+      buffer.append("cookie='");
       StaticUtils.toHex(cookie.getValue(), buffer);
-      buffer.append(", ");
+      buffer.append("', ");
     }
 
     buffer.append("refreshDeletes=");

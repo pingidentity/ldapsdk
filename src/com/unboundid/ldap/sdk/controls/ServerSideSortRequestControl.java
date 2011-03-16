@@ -249,7 +249,9 @@ public final class ServerSideSortRequestControl
         buffer.append(", ");
       }
 
+      buffer.append('\'');
       sortKeys[i].toString(buffer);
+      buffer.append('\'');
     }
 
     buffer.append("})");

@@ -255,7 +255,9 @@ public final class PreReadRequestControl
       {
         buffer.append(", ");
       }
+      buffer.append('\'');
       buffer.append(attributes[i]);
+      buffer.append('\'');
     }
     buffer.append("}, isCritical=");
     buffer.append(isCritical());

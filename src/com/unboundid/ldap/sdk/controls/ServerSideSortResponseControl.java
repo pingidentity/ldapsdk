@@ -295,8 +295,9 @@ public final class ServerSideSortResponseControl
 
     if (attributeName != null)
     {
-      buffer.append(", attributeName=");
+      buffer.append(", attributeName='");
       buffer.append(attributeName);
+      buffer.append('\'');
     }
 
     buffer.append(')');

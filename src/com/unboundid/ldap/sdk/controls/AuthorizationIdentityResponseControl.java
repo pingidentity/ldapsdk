@@ -193,9 +193,9 @@ public final class AuthorizationIdentityResponseControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("AuthorizationIdentityResponseControl(authorizationID=");
+    buffer.append("AuthorizationIdentityResponseControl(authorizationID='");
     buffer.append(authorizationID);
-    buffer.append(", isCritical=");
+    buffer.append("', isCritical=");
     buffer.append(isCritical());
     buffer.append(')');
   }
