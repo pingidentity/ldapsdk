@@ -967,6 +967,17 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
+  public OperationType getOperationType()
+  {
+    return OperationType.MODIFY;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
   public ModifyRequest duplicate()
   {
     return duplicate(getControls());

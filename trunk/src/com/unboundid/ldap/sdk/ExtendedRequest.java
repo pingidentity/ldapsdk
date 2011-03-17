@@ -497,6 +497,17 @@ public class ExtendedRequest
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public final OperationType getOperationType()
+  {
+    return OperationType.EXTENDED;
+  }
+
+
+
+  /**
    * {@inheritDoc}.  Subclasses should override this method to return a
    * duplicate of the appropriate type.
    */

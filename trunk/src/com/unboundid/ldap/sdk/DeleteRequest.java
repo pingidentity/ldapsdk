@@ -587,6 +587,17 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
+  public OperationType getOperationType()
+  {
+    return OperationType.DELETE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
   public DeleteRequest duplicate()
   {
     return duplicate(getControls());

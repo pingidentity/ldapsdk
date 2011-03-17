@@ -103,6 +103,17 @@ public abstract class BindRequest
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public final OperationType getOperationType()
+  {
+    return OperationType.BIND;
+  }
+
+
+
+  /**
    * Retrieves a human-readable string that describes the type of bind request.
    *
    * @return  A human-readable string that describes the type of bind request.
