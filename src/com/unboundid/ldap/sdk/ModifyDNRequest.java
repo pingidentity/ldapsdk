@@ -939,6 +939,17 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
+  public OperationType getOperationType()
+  {
+    return OperationType.MODIFY_DN;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
   public ModifyDNRequest duplicate()
   {
     return duplicate(getControls());

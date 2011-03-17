@@ -1288,6 +1288,17 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
+  public OperationType getOperationType()
+  {
+    return OperationType.ADD;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
   public AddRequest duplicate()
   {
     return duplicate(getControls());

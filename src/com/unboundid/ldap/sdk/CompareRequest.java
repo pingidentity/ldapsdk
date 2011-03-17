@@ -901,6 +901,17 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
+  public OperationType getOperationType()
+  {
+    return OperationType.COMPARE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
   public CompareRequest duplicate()
   {
     return duplicate(getControls());

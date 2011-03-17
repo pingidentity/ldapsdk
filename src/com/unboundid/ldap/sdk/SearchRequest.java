@@ -1856,6 +1856,17 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
+  public OperationType getOperationType()
+  {
+    return OperationType.SEARCH;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
   public SearchRequest duplicate()
   {
     return duplicate(getControls());

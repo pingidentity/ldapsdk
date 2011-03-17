@@ -362,6 +362,15 @@ public abstract class LDAPRequest
 
 
   /**
+   * Retrieves the type of operation that is represented by this request.
+   *
+   * @return  The type of operation that is represented by this request.
+   */
+  public abstract OperationType getOperationType();
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
