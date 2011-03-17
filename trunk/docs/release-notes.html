@@ -68,6 +68,15 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Added a new <tt>Entry.mergeEntries</tt> method that can be used to create a new
+                  entry containing all of the attribute values present in at least one of the
+                  provided entries, and a new <tt>Entry.intersectEntries</tt> method that can be
+                  used to create a new entry containing only those attribute values present in all
+                  of the given entries.
+                  <br><br>
+                </li>
+
+                <li>
                   Fixed a bug in the <tt>LDAPPersister.modify</tt> method that prevented it from
                   including controls in the request sent to the directory server.
                   <br><br>
@@ -101,6 +110,15 @@ ${TARGET="offline"}                    <br>
                   Note that the previous behavior of preserving the original order is still
                   available, and will continue to be used unless the server set is explicitly
                   configured to allow re-ordering the list.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDIF reader to provide better handling for illegal trailing spaces.
+                  Previously, such spaces would be simply included in the content being read,
+                  which is always the wrong thing to do.  Now, there is an option to either reject
+                  entries and change records containing trailing spaces (which is the default) or
+                  to silently strip them out.
                   <br><br>
                 </li>
 

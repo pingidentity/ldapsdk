@@ -1804,6 +1804,75 @@ public class Entry
 
 
   /**
+   * Merges the contents of all provided entries so that the resulting entry
+   * will contain all attribute values present in at least one of the entries.
+   *
+   * @param  entries  The set of entries to be merged.  At least one entry must
+   *                  be provided.
+   *
+   * @return  An entry containing all attribute values present in at least one
+   *          of the entries.
+   */
+  public static Entry mergeEntries(final Entry... entries)
+  {
+    ensureNotNull(entries);
+    ensureTrue(entries.length > 0);
+
+    final Entry newEntry = entries[0].duplicate();
+
+    for (int i=1; i < entries.length; i++)
+    {
+      for (final Attribute a : entries[i].attributes.values())
+      {
+        newEntry.addAttribute(a);
+      }
+    }
+
+    return newEntry;
+  }
+
+
+
+  /**
+   * Intersects the contents of all provided entries so that the resulting
+   * entry will contain only attribute values present in all of the provided
+   * entries.
+   *
+   * @param  entries  The set of entries to be intersected.  At least one entry
+   *                  must be provided.
+   *
+   * @return  An entry containing only attribute values contained in all of the
+   *          provided entries.
+   */
+  public static Entry intersectEntries(final Entry... entries)
+  {
+    ensureNotNull(entries);
+    ensureTrue(entries.length > 0);
+
+    final Entry newEntry = entries[0].duplicate();
+
+    for (final Attribute a : entries[0].attributes.values())
+    {
+      final String name = a.getName();
+      for (final byte[] v : a.getValueByteArrays())
+      {
+        for (int i=1; i < entries.length; i++)
+        {
+          if (! entries[i].hasAttributeValue(name, v))
+          {
+            newEntry.removeAttributeValue(name, v);
+            break;
+          }
+        }
+      }
+    }
+
+    return newEntry;
+  }
+
+
+
+  /**
    * Creates a duplicate of the provided entry with the given set of
    * modifications applied to it.
    *
