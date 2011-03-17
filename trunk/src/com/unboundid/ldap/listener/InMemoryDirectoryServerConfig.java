@@ -24,10 +24,14 @@ package com.unboundid.ldap.listener;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Handler;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
@@ -35,6 +39,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Mutable;
@@ -53,6 +58,9 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * least one base DN must be specified.  For all other properties, the following
  * default values will be used unless an alternate configuration is provided:
  * <UL>
+ *   <LI>Allowed Operation Types:  All types of operations will be allowed.</LI>
+ *   <LI>Authentication Required Operation Types:  Authentication will not be
+ *       required for any types of operations.</LI>
  *   <LI>Listen Address:  The server will listen on all addresses on all
  *       interfaces.</LI>
  *   <LI>Listen Port:  The server will automatically select an available listen
@@ -134,6 +142,12 @@ public class InMemoryDirectoryServerConfig
   // The server socket factory to use for the listener.
   private ServerSocketFactory serverSocketFactory;
 
+  // The set of operation types that will be supported by the server.
+  private Set<OperationType> allowedOperationTypes;
+
+  // The set of operation types for which authentication will be required.
+  private Set<OperationType> authenticationRequiredOperationTypes;
+
   // The client socket factory to use for the listener.
   private SocketFactory clientSocketFactory;
 
@@ -182,18 +196,20 @@ public class InMemoryDirectoryServerConfig
 
     this.baseDNs = baseDNs;
 
-    additionalBindCredentials     = new LinkedHashMap<DN,byte[]>(1);
-    accessLogHandler              = null;
-    ldapDebugLogHandler           = null;
-    generateOperationalAttributes = true;
-    listenAddress                 = null;
-    listenPort                    = 0;
-    maxChangeLogEntries           = 0;
-    exceptionHandler              = null;
-    schema                        = Schema.getDefaultStandardSchema();
-    serverSocketFactory           = null;
-    clientSocketFactory           = null;
-    startTLSSocketFactory         = null;
+    additionalBindCredentials            = new LinkedHashMap<DN,byte[]>(1);
+    accessLogHandler                     = null;
+    ldapDebugLogHandler                  = null;
+    generateOperationalAttributes        = true;
+    listenAddress                        = null;
+    listenPort                           = 0;
+    maxChangeLogEntries                  = 0;
+    exceptionHandler                     = null;
+    schema                               = Schema.getDefaultStandardSchema();
+    serverSocketFactory                  = null;
+    clientSocketFactory                  = null;
+    startTLSSocketFactory                = null;
+    allowedOperationTypes                = EnumSet.allOf(OperationType.class);
+    authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
 
     extendedOperationHandlers =
          new ArrayList<InMemoryExtendedOperationHandler>(2);
@@ -228,17 +244,20 @@ public class InMemoryDirectoryServerConfig
     additionalBindCredentials =
          new LinkedHashMap<DN,byte[]>(cfg.additionalBindCredentials);
 
-    generateOperationalAttributes = cfg.generateOperationalAttributes;
-    accessLogHandler              = cfg.accessLogHandler;
-    ldapDebugLogHandler           = cfg.ldapDebugLogHandler;
-    listenAddress                 = cfg.listenAddress;
-    listenPort                    = cfg.listenPort;
-    maxChangeLogEntries           = cfg.maxChangeLogEntries;
-    exceptionHandler              = cfg.exceptionHandler;
-    schema                        = cfg.schema;
-    serverSocketFactory           = cfg.serverSocketFactory;
-    clientSocketFactory           = cfg.clientSocketFactory;
-    startTLSSocketFactory         = cfg.startTLSSocketFactory;
+    generateOperationalAttributes        = cfg.generateOperationalAttributes;
+    accessLogHandler                     = cfg.accessLogHandler;
+    ldapDebugLogHandler                  = cfg.ldapDebugLogHandler;
+    listenAddress                        = cfg.listenAddress;
+    listenPort                           = cfg.listenPort;
+    maxChangeLogEntries                  = cfg.maxChangeLogEntries;
+    exceptionHandler                     = cfg.exceptionHandler;
+    schema                               = cfg.schema;
+    serverSocketFactory                  = cfg.serverSocketFactory;
+    clientSocketFactory                  = cfg.clientSocketFactory;
+    startTLSSocketFactory                = cfg.startTLSSocketFactory;
+    allowedOperationTypes                = cfg.allowedOperationTypes;
+    authenticationRequiredOperationTypes =
+         cfg.authenticationRequiredOperationTypes;
   }
 
 
@@ -291,6 +310,121 @@ public class InMemoryDirectoryServerConfig
     }
 
     this.baseDNs = baseDNs;
+  }
+
+
+
+  /**
+   * Retrieves the set of operation types that will be allowed by the server.
+   * Note that if the server is configured to support StartTLS, then it will be
+   * allowed even if other types of extended operations are not allowed.
+   *
+   * @return  The set of operation types that will be allowed by the server.
+   */
+  public Set<OperationType> getAllowedOperationTypes()
+  {
+    return allowedOperationTypes;
+  }
+
+
+
+  /**
+   * Specifies the set of operation types that will be allowed by the server.
+   * Note that if the server is configured to support StartTLS, then it will be
+   * allowed even if other types of extended operations are not allowed.
+   *
+   * @param  operationTypes  The set of operation types that will be allowed by
+   *                         the server.
+   */
+  public void setAllowedOperationTypes(final OperationType... operationTypes)
+  {
+    allowedOperationTypes.clear();
+    if (operationTypes != null)
+    {
+      allowedOperationTypes.addAll(Arrays.asList(operationTypes));
+    }
+  }
+
+
+
+  /**
+   * Specifies the set of operation types that will be allowed by the server.
+   * Note that if the server is configured to support StartTLS, then it will be
+   * allowed even if other types of extended operations are not allowed.
+   *
+   * @param  operationTypes  The set of operation types that will be allowed by
+   *                         the server.
+   */
+  public void setAllowedOperationTypes(
+                   final Collection<OperationType> operationTypes)
+  {
+    allowedOperationTypes.clear();
+    if (operationTypes != null)
+    {
+      allowedOperationTypes.addAll(operationTypes);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the set of operation types that will only be allowed for
+   * authenticated clients.  Note that authentication will never be required for
+   * bind operations, and if the server is configured to support StartTLS, then
+   * authentication will never be required for StartTLS operations even if it
+   * is required for other types of extended operations.
+   *
+   * @return  The set of operation types that will only be allowed for
+   *          authenticated clients.
+   */
+  public Set<OperationType> getAuthenticationRequiredOperationTypes()
+  {
+    return authenticationRequiredOperationTypes;
+  }
+
+
+
+  /**
+   * Specifies the set of operation types that will only be allowed for
+   * authenticated clients.  Note that authentication will never be required for
+   * bind operations, and if the server is configured to support StartTLS, then
+   * authentication will never be required for StartTLS operations even if it
+   * is required for other types of extended operations.
+   *
+   * @param  operationTypes  The set of operation types that will be allowed for
+   *                         authenticated clients.
+   */
+  public void setAuthenticationRequiredOperationTypes(
+                   final OperationType... operationTypes)
+  {
+    authenticationRequiredOperationTypes.clear();
+    if (operationTypes != null)
+    {
+      authenticationRequiredOperationTypes.addAll(
+           Arrays.asList(operationTypes));
+    }
+  }
+
+
+
+  /**
+   * Specifies the set of operation types that will only be allowed for
+   * authenticated clients.  Note that authentication will never be required for
+   * bind operations, and if the server is configured to support StartTLS, then
+   * authentication will never be required for StartTLS operations even if it
+   * is required for other types of extended operations.
+   *
+   * @param  operationTypes  The set of operation types that will be allowed for
+   *                         authenticated clients.
+   */
+  public void setAuthenticationRequiredOperationTypes(
+                   final Collection<OperationType> operationTypes)
+  {
+    authenticationRequiredOperationTypes.clear();
+    if (operationTypes != null)
+    {
+      authenticationRequiredOperationTypes.addAll(operationTypes);
+    }
   }
 
 

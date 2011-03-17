@@ -79,6 +79,7 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -150,10 +151,14 @@ public final class InMemoryRequestHandler
 
   /**
    * The OID for a proprietary control that can be used to indicate that the
-   * NO-USER-MODIFICATION flag should be ignored when processing an add.
+   * associated operation should be considered an internal operation that was
+   * requested by a method call in the in-memory directory server class rather
+   * than from an LDAP client.  It may be used to bypass certain restrictions
+   * that might otherwise be enforced (e.g., allowed operation types, write
+   * access to NO-USER-MODIFICATION attributes, etc.).
    */
-  static final String OID_ADD_IGNORE_NO_USER_MODIFICATION =
-       "1.3.6.1.4.1.30221.2.5.5";
+  static final String OID_INTERNAL_OPERATION_REQUEST_CONTROL =
+       "1.3.6.1.4.1.30221.2.5.18";
 
 
 
@@ -312,7 +317,7 @@ public final class InMemoryRequestHandler
 
     baseDNs = Collections.unmodifiableSet(baseDNSet);
     generateOperationalAttributes = config.generateOperationalAttributes();
-    authenticatedDN               = DN.NULL_DN;
+    authenticatedDN               = new DN("cn=Internal Root User");
     connection                    = null;
     connectionState               = Collections.emptyMap();
     firstChangeNumber             = new AtomicLong(0L);
@@ -631,6 +636,31 @@ public final class InMemoryRequestHandler
     }
     final ArrayList<Control> responseControls = new ArrayList<Control>(1);
 
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.ADD)))
+    {
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.ADD)))
+    {
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_REQUIRES_AUTH.get(), null));
+    }
+
+
     // Get the entry to be added.  If a schema was provided, then make sure the
     // attributes are created with the appropriate matching rules.
     final Entry entry;
@@ -777,7 +807,7 @@ public final class InMemoryRequestHandler
                   StaticUtils.concatenateStrings(invalidReasons)), null));
       }
 
-      if (! controlMap.containsKey(OID_ADD_IGNORE_NO_USER_MODIFICATION))
+      if (! isInternalOp)
       {
         for (final Attribute a : entry.getAttributes())
         {
@@ -940,6 +970,15 @@ public final class InMemoryRequestHandler
                                        final BindRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    // If this operation type is not allowed, then reject it.
+    if (! config.getAllowedOperationTypes().contains(OperationType.BIND))
+    {
+      return new LDAPMessage(messageID, new BindResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_BIND_NOT_ALLOWED.get(), null, null));
+    }
+
+
     authenticatedDN = DN.NULL_DN;
 
     // Get the parsed bind DN.
@@ -1154,6 +1193,31 @@ public final class InMemoryRequestHandler
     }
     final ArrayList<Control> responseControls = new ArrayList<Control>(1);
 
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.COMPARE)))
+    {
+      return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_COMPARE_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.COMPARE)))
+    {
+      return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_COMPARE_REQUIRES_AUTH.get(), null));
+    }
+
+
     // Get the parsed target DN.
     final DN dn;
     try
@@ -1282,6 +1346,31 @@ public final class InMemoryRequestHandler
            le.getResultCode().intValue(), null, le.getMessage(), null));
     }
     final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.DELETE)))
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.DELETE)))
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_REQUIRES_AUTH.get(), null));
+    }
+
 
     // Get the parsed target DN.
     final DN dn;
@@ -1434,6 +1523,39 @@ public final class InMemoryRequestHandler
                           final ExtendedRequestProtocolOp request,
                           final List<Control> controls)
   {
+    boolean isInternalOp = false;
+    for (final Control c : controls)
+    {
+      if (c.getOID().equals(OID_INTERNAL_OPERATION_REQUEST_CONTROL))
+      {
+        isInternalOp = true;
+        break;
+      }
+    }
+
+
+    // If this operation type is not allowed, then reject it.
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.EXTENDED)))
+    {
+      return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_EXTENDED_NOT_ALLOWED.get(), null, null, null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.EXTENDED)))
+    {
+      return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_EXTENDED_REQUIRES_AUTH.get(), null, null, null));
+    }
+
+
     final String oid = request.getOID();
     final InMemoryExtendedOperationHandler handler =
          extendedRequestHandlers.get(oid);
@@ -1524,6 +1646,31 @@ public final class InMemoryRequestHandler
            le.getResultCode().intValue(), null, le.getMessage(), null));
     }
     final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.MODIFY)))
+    {
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MODIFY_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.MODIFY)))
+    {
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_MODIFY_REQUIRES_AUTH.get(), null));
+    }
+
 
     // Get the parsed target DN.
     final DN dn;
@@ -1625,7 +1772,7 @@ public final class InMemoryRequestHandler
         final Attribute a = m.getAttribute();
         final String baseName = a.getBaseName();
         final AttributeTypeDefinition at = schema.getAttributeType(baseName);
-        if ((at != null) && at.isNoUserModification())
+        if ((! isInternalOp) && (at != null) && at.isNoUserModification())
         {
           return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
                ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
@@ -1737,6 +1884,31 @@ public final class InMemoryRequestHandler
            le.getResultCode().intValue(), null, le.getMessage(), null));
     }
     final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.MODIFY_DN)))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MODIFY_DN_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.MODIFY_DN)))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_MODIFY_DN_REQUIRES_AUTH.get(), null));
+    }
+
 
     // Get the parsed target DN, new RDN, and new superior DN values.
     final DN dn;
@@ -1976,7 +2148,7 @@ public final class InMemoryRequestHandler
       {
         final String name = oldRDNNames[i];
         final AttributeTypeDefinition at = schema.getAttributeType(name);
-        if ((at != null) && at.isNoUserModification())
+        if ((! isInternalOp) && (at != null) && at.isNoUserModification())
         {
           final byte[] value = originalRDN.getByteArrayAttributeValues()[i];
           if (! updatedEntry.hasAttributeValue(name, value))
@@ -1994,7 +2166,7 @@ public final class InMemoryRequestHandler
       {
         final String name = newRDNNames[i];
         final AttributeTypeDefinition at = schema.getAttributeType(name);
-        if ((at != null) && at.isNoUserModification())
+        if ((! isInternalOp) && (at != null) && at.isNoUserModification())
         {
           final byte[] value = newRDN.getByteArrayAttributeValues()[i];
           if (! originalEntry.hasAttributeValue(name, value))
@@ -2234,6 +2406,31 @@ public final class InMemoryRequestHandler
            le.getResultCode().intValue(), null, le.getMessage(), null));
     }
     final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.SEARCH)))
+    {
+      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_SEARCH_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.SEARCH)))
+    {
+      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_SEARCH_REQUIRES_AUTH.get(), null));
+    }
+
 
     // Get the parsed base DN.
     final DN baseDN;
@@ -2907,7 +3104,7 @@ findEntriesAndRefs:
     if (ignoreNoUserModification)
     {
       controls = new ArrayList<Control>(1);
-      controls.add(new Control("1.3.6.1.4.1.30221.2.5.5", false));
+      controls.add(new Control(OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
     }
     else
     {
@@ -2962,44 +3159,6 @@ findEntriesAndRefs:
       {
         restoreSnapshot(snapshot);
       }
-    }
-  }
-
-
-
-  /**
-   * Attempts to delete the specified entry.  The attempt will fail if
-   * any of the following conditions is true:
-   * <UL>
-   *   <LI>The provided entry DN is malformed.</LI>
-   *   <LI>The target entry is the root DSE.</LI>
-   *   <LI>The target entry is the subschema subentry.</LI>
-   *   <LI>The target entry does not exist.</LI>
-   *   <LI>The target entry has one or more subordinate entries.</LI>
-   * </UL>
-   *
-   * @param  dn  The DN of the entry to remove.  It must not be {@code null}.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to delete the
-   *                         specified entry.
-   */
-  public void deleteEntry(final String dn)
-         throws LDAPException
-  {
-    final DeleteRequestProtocolOp deleteRequest =
-         new DeleteRequestProtocolOp(dn);
-
-    final LDAPMessage resultMessage = processDeleteRequest(-1, deleteRequest,
-         Collections.<Control>emptyList());
-
-    final DeleteResponseProtocolOp deleteResponse =
-         resultMessage.getDeleteResponseProtocolOp();
-    if (deleteResponse.getResultCode() != ResultCode.SUCCESS_INT_VALUE)
-    {
-      throw new LDAPException(
-           ResultCode.valueOf(deleteResponse.getResultCode()),
-           deleteResponse.getDiagnosticMessage(), deleteResponse.getMatchedDN(),
-           stringListToArray(deleteResponse.getReferralURLs()));
     }
   }
 
