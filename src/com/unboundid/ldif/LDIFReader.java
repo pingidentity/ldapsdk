@@ -155,6 +155,10 @@ public final class LDIFReader
   // Indicates whether to ignore duplicate values.
   private boolean ignoreDuplicateValues = true;
 
+  // Indicates whether to strip off illegal trailing spaces rather than
+  // rejecting any entry containing them.
+  private boolean stripTrailingSpaces = false;
+
   // The buffered reader that will be used to read LDIF data.
   private final BufferedReader reader;
 
@@ -505,6 +509,54 @@ public final class LDIFReader
   public void setIgnoreDuplicateValues(final boolean ignoreDuplicateValues)
   {
     this.ignoreDuplicateValues = ignoreDuplicateValues;
+  }
+
+
+
+  /**
+   * Indicates whether to strip off any illegal trailing spaces that may appear
+   * in LDIF records (e.g., after an entry DN or attribute value).  The LDIF
+   * specification requires that any value which legitimately contains trailing
+   * spaces, and any spaces which appear after the end of values are therefore
+   * invalid.  If any such trailing spaces are encountered in an LDIF record and
+   * they are not to be stripped, then an {@link LDIFException} will be thrown
+   * for that record.
+   * <BR><BR>
+   * Note that this applies only to spaces after the end of a value, and not to
+   * spaces which may appear at the end of a line for a value that is wrapped
+   * and continued on the next line.
+   *
+   * @return  {@code true} if illegal trailing spaces should be stripped off, or
+   *          {@code false} if LDIF records containing illegal trailing spaces
+   *          should be rejected.
+   */
+  public boolean stripTrailingSpaces()
+  {
+    return stripTrailingSpaces;
+  }
+
+
+
+  /**
+   * Specifies whether to strip off any illegal trailing spaces that may appear
+   * in LDIF records (e.g., after an entry DN or attribute value).  The LDIF
+   * specification requires that any value which legitimately contains trailing
+   * spaces, and any spaces which appear after the end of values are therefore
+   * invalid.  If any such trailing spaces are encountered in an LDIF record and
+   * they are not to be stripped, then an {@link LDIFException} will be thrown
+   * for that record.
+   * <BR><BR>
+   * Note that this applies only to spaces after the end of a value, and not to
+   * spaces which may appear at the end of a line for a value that is wrapped
+   * and continued on the next line.
+   *
+   * @param  stripTrailingSpaces  Indicates whether to strip off any illegal
+   *                              trailing spaces, or {@code false} if LDIF
+   *                              records containing them should be rejected.
+   */
+  public void setStripTrailingSpaces(final boolean stripTrailingSpaces)
+  {
+    this.stripTrailingSpaces = stripTrailingSpaces;
   }
 
 
@@ -1055,7 +1107,7 @@ public final class LDIFReader
         if (lineList.isEmpty())
         {
           return new UnparsedLDIFRecord(new ArrayList<StringBuilder>(0),
-                                        ignoreDuplicateValues, schema, -1);
+               ignoreDuplicateValues, stripTrailingSpaces, schema, -1);
         }
         else
         {
@@ -1115,8 +1167,8 @@ public final class LDIFReader
       }
     }
 
-    return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues, schema,
-                                  firstLineNumber);
+    return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues,
+         stripTrailingSpaces, schema, firstLineNumber);
   }
 
 
@@ -1138,7 +1190,7 @@ public final class LDIFReader
   public static Entry decodeEntry(final String... ldifLines)
          throws LDIFException
   {
-    final Entry e = decodeEntry(prepareRecord(true, null, ldifLines));
+    final Entry e = decodeEntry(prepareRecord(true, false, null, ldifLines));
     debugLDIFRead(e);
     return e;
   }
@@ -1169,8 +1221,8 @@ public final class LDIFReader
                                   final String... ldifLines)
          throws LDIFException
   {
-    final Entry e = decodeEntry(prepareRecord(ignoreDuplicateValues, schema,
-                                              ldifLines));
+    final Entry e = decodeEntry(prepareRecord(ignoreDuplicateValues, false,
+         schema, ldifLines));
     debugLDIFRead(e);
     return e;
   }
@@ -1226,7 +1278,8 @@ public final class LDIFReader
          throws LDIFException
   {
     final LDIFChangeRecord r =
-         decodeChangeRecord(prepareRecord(true, null, ldifLines), defaultAdd);
+         decodeChangeRecord(prepareRecord(true, false, null, ldifLines),
+              defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1268,8 +1321,8 @@ public final class LDIFReader
          throws LDIFException
   {
     final LDIFChangeRecord r =
-         decodeChangeRecord(prepareRecord(ignoreDuplicateValues, schema,
-                                          ldifLines), defaultAdd);
+         decodeChangeRecord(prepareRecord(ignoreDuplicateValues, false,
+              schema, ldifLines), defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1283,6 +1336,9 @@ public final class LDIFReader
    *
    * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
    *                                attribute values encountered while parsing.
+   * @param  stripTrailingSpaces    Indicates whether to strip off any illegal
+   *                                trailing spaces, or {@code false} if LDIF
+   *                                records containing them should be rejected.
    * @param  schema                 The schema to use when parsing the record,
    *                                if applicable.
    * @param  ldifLines              The set of lines that comprise the record to
@@ -1297,6 +1353,7 @@ public final class LDIFReader
    */
   private static UnparsedLDIFRecord
                       prepareRecord(final boolean ignoreDuplicateValues,
+                                    final boolean stripTrailingSpaces,
                                     final Schema schema,
                                     final String... ldifLines)
           throws LDIFException
@@ -1334,7 +1391,7 @@ public final class LDIFReader
           else
           {
             return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues,
-                                          schema, 0);
+                 stripTrailingSpaces, schema, 0);
           }
         }
       }
@@ -1372,7 +1429,8 @@ public final class LDIFReader
     }
     else
     {
-      return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues, schema, 0);
+      return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues,
+           stripTrailingSpaces, schema, 0);
     }
   }
 
@@ -1470,6 +1528,8 @@ public final class LDIFReader
 
     // The first line must be the entry DN, and it must start with "dn:".
     final StringBuilder line = iterator.next();
+    handleTrailingSpaces(line, null, firstLineNumber,
+         unparsedRecord.stripTrailingSpaces());
     final int colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
         (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
@@ -1542,9 +1602,9 @@ public final class LDIFReader
     }
 
     return new Entry(dn, parseAttributes(dn,
-                                         unparsedRecord.ignoreDuplicateValues(),
-                                         unparsedRecord.getSchema(),
-                                         ldifLines, iterator, firstLineNumber));
+         unparsedRecord.ignoreDuplicateValues(),
+         unparsedRecord.stripTrailingSpaces(), unparsedRecord.getSchema(),
+         ldifLines, iterator, firstLineNumber));
   }
 
 
@@ -1579,6 +1639,8 @@ public final class LDIFReader
 
     // The first line must be the entry DN, and it must start with "dn:".
     StringBuilder line = iterator.next();
+    handleTrailingSpaces(line, null, firstLineNumber,
+         unparsedRecord.stripTrailingSpaces());
     int colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
         (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
@@ -1662,6 +1724,8 @@ public final class LDIFReader
     else
     {
       line = iterator.next();
+      handleTrailingSpaces(line, dn, firstLineNumber,
+           unparsedRecord.stripTrailingSpaces());
       colonPos = line.indexOf(":");
       if ((colonPos < 0) ||
           (! line.substring(0, colonPos).equalsIgnoreCase("changetype")))
@@ -1738,8 +1802,9 @@ public final class LDIFReader
       {
         final Collection<Attribute> attrs =
              parseAttributes(dn, unparsedRecord.ignoreDuplicateValues(),
-                             unparsedRecord.getSchema(), ldifLines,
-                             iterator, firstLineNumber);
+                  unparsedRecord.stripTrailingSpaces(),
+                  unparsedRecord.getSchema(), ldifLines, iterator,
+                  firstLineNumber);
         final Attribute[] attributes = new Attribute[attrs.size()];
         final Iterator<Attribute> attrIterator = attrs.iterator();
         for (int i=0; i < attributes.length; i++)
@@ -1777,8 +1842,9 @@ public final class LDIFReader
       // Otherwise, parse the rest of the data as a set of modifications.
       if (iterator.hasNext())
       {
-        final Modification[] mods =
-             parseModifications(ldifLines, iterator, firstLineNumber);
+        final Modification[] mods = parseModifications(dn,
+             unparsedRecord.stripTrailingSpaces(), ldifLines, iterator,
+             firstLineNumber);
         return new LDIFModifyChangeRecord(dn, mods);
       }
       else
@@ -1795,7 +1861,7 @@ public final class LDIFReader
       if (iterator.hasNext())
       {
         return parseModifyDNChangeRecord(ldifLines, iterator, dn,
-                                         firstLineNumber);
+             unparsedRecord.stripTrailingSpaces(), firstLineNumber);
       }
       else
       {
@@ -1820,6 +1886,9 @@ public final class LDIFReader
    * @param  dn                     The DN of the record being read.
    * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
    *                                attribute values encountered while parsing.
+   * @param  stripTrailingSpaces    Indicates whether to strip off any illegal
+   *                                trailing spaces, or {@code false} if LDIF
+   *                                records containing them should be rejected.
    * @param  schema                 The schema to use when parsing the
    *                                attributes, or {@code null} if none is
    *                                needed.
@@ -1836,8 +1905,8 @@ public final class LDIFReader
    *                         set of attributes.
    */
   private static ArrayList<Attribute> parseAttributes(final String dn,
-       final boolean ignoreDuplicateValues, final Schema schema,
-       final ArrayList<StringBuilder> ldifLines,
+       final boolean ignoreDuplicateValues, final boolean stripTrailingSpaces,
+       final Schema schema, final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final long firstLineNumber)
           throws LDIFException
   {
@@ -1846,6 +1915,7 @@ public final class LDIFReader
     while (iterator.hasNext())
     {
       final StringBuilder line = iterator.next();
+      handleTrailingSpaces(line, dn, firstLineNumber, stripTrailingSpaces);
       final int colonPos = line.indexOf(":");
       if (colonPos <= 0)
       {
@@ -2157,18 +2227,24 @@ public final class LDIFReader
    * Parses the data available through the provided iterator into an array of
    * modifications suitable for use in a modify change record.
    *
-   * @param  ldifLines        The lines that comprise the LDIF representation of
-   *                          the full record being parsed.
-   * @param  iterator         The iterator to use to access the modification
-   *                          data.
-   * @param  firstLineNumber  The line number for the start of the record.
+   * @param  dn                   The DN of the entry being parsed.
+   * @param  stripTrailingSpaces  Indicates whether to strip off any illegal
+   *                              trailing spaces, or {@code false} if LDIF
+   *                              records containing them should be rejected.
+   * @param  ldifLines            The lines that comprise the LDIF
+   *                              representation of the full record being
+   *                              parsed.
+   * @param  iterator             The iterator to use to access the modification
+   *                              data.
+   * @param  firstLineNumber      The line number for the start of the record.
    *
    * @return  An array containing the modifications that were read.
    *
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         set of modifications.
    */
-  private static Modification[] parseModifications(
+  private static Modification[] parseModifications(final String dn,
+       final boolean stripTrailingSpaces,
        final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final long firstLineNumber)
        throws LDIFException
@@ -2181,6 +2257,7 @@ public final class LDIFReader
       // The first line must start with "add:", "delete:", "replace:", or
       // "increment:" followed by an attribute name.
       StringBuilder line = iterator.next();
+      handleTrailingSpaces(line, dn, firstLineNumber, stripTrailingSpaces);
       int colonPos = line.indexOf(":");
       if (colonPos < 0)
       {
@@ -2284,6 +2361,7 @@ public final class LDIFReader
       while (iterator.hasNext())
       {
         line = iterator.next();
+        handleTrailingSpaces(line, dn, firstLineNumber, stripTrailingSpaces);
         if (line.toString().equals("-"))
         {
           break;
@@ -2395,11 +2473,16 @@ public final class LDIFReader
    * modify DN change record (i.e., the newrdn, deleteoldrdn, and optional
    * newsuperior lines).
    *
-   * @param  ldifLines        The lines that comprise the LDIF representation of
-   *                          the full record being parsed.
-   * @param  iterator         The iterator to use to access the modify DN data.
-   * @param  dn               The current DN of the entry.
-   * @param  firstLineNumber  The line number for the start of the record.
+   * @param  ldifLines            The lines that comprise the LDIF
+   *                              representation of the full record being
+   *                              parsed.
+   * @param  iterator             The iterator to use to access the modify DN
+   *                              data.
+   * @param  dn                   The current DN of the entry.
+   * @param  stripTrailingSpaces  Indicates whether to strip off any illegal
+   *                              trailing spaces, or {@code false} if LDIF
+   *                              records containing them should be rejected.
+   * @param  firstLineNumber      The line number for the start of the record.
    *
    * @return  The decoded modify DN change record.
    *
@@ -2409,11 +2492,12 @@ public final class LDIFReader
   private static LDIFModifyDNChangeRecord parseModifyDNChangeRecord(
        final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final String dn,
-       final long firstLineNumber)
+       final boolean stripTrailingSpaces, final long firstLineNumber)
        throws LDIFException
   {
     // The next line must be the new RDN, and it must start with "newrdn:".
     StringBuilder line = iterator.next();
+    handleTrailingSpaces(line, dn, firstLineNumber, stripTrailingSpaces);
     int colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
         (! line.substring(0, colonPos).equalsIgnoreCase("newrdn")))
@@ -2495,6 +2579,7 @@ public final class LDIFReader
     }
 
     line = iterator.next();
+    handleTrailingSpaces(line, dn, firstLineNumber, stripTrailingSpaces);
     colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
         (! line.substring(0, colonPos).equalsIgnoreCase("deleteoldrdn")))
@@ -2594,6 +2679,7 @@ public final class LDIFReader
     if (iterator.hasNext())
     {
       line = iterator.next();
+      handleTrailingSpaces(line, dn, firstLineNumber, stripTrailingSpaces);
       colonPos = line.indexOf(":");
       if ((colonPos < 0) ||
           (! line.substring(0, colonPos).equalsIgnoreCase("newsuperior")))
@@ -2674,6 +2760,70 @@ public final class LDIFReader
 
 
   /**
+   * Examines the line contained in the provided buffer to determine whether it
+   * may contain one or more illegal trailing spaces.  If it does, then those
+   * spaces will either be stripped out or an exception will be thrown to
+   * indicate that they are illegal.
+   *
+   * @param  buffer               The buffer to be examined.
+   * @param  dn                   The DN of the LDIF record being parsed.  It
+   *                              may be {@code null} if the DN is not yet known
+   *                              (e.g., because the provided line is expected
+   *                              to contain that DN).
+   * @param  firstLineNumber      The approximate line number in the LDIF source
+   *                              on which the LDIF record begins.
+   * @param  stripTrailingSpaces  Indicates whether to strip off any illegal
+   *                              trailing spaces, or {@code false} if LDIF
+   *                              records containing them should be rejected.
+   *
+   * @throws  LDIFException  If the line contained in the provided buffer ends
+   *                         with one or more illegal trailing spaces and
+   *                         {@code stripTrailingSpaces} was provided with a
+   *                         value of {@code false}.
+   */
+  private static void handleTrailingSpaces(final StringBuilder buffer,
+                                           final String dn,
+                                           final long firstLineNumber,
+                                           final boolean stripTrailingSpaces)
+          throws LDIFException
+  {
+    int pos = buffer.length() - 1;
+    boolean trailingFound = false;
+    while ((pos >= 0) && (buffer.charAt(pos) == ' '))
+    {
+      trailingFound = true;
+      pos--;
+    }
+
+    if (trailingFound && (buffer.charAt(pos) != ':'))
+    {
+      if (stripTrailingSpaces)
+      {
+        buffer.setLength(pos+1);
+      }
+      else
+      {
+        if (dn == null)
+        {
+          throw new LDIFException(
+               ERR_READ_ILLEGAL_TRAILING_SPACE_WITHOUT_DN.get(firstLineNumber,
+                    buffer.toString()),
+               firstLineNumber, true);
+        }
+        else
+        {
+          throw new LDIFException(
+               ERR_READ_ILLEGAL_TRAILING_SPACE_WITH_DN.get(dn, firstLineNumber,
+                    buffer.toString()),
+               firstLineNumber, true);
+        }
+      }
+    }
+  }
+
+
+
+  /**
    * This represents an unparsed LDIFRecord.  It stores the line number of the
    * first line of the record and each line of the record.
    */
@@ -2683,6 +2833,7 @@ public final class LDIFReader
     private final long firstLineNumber;
     private final Exception failureCause;
     private final boolean ignoreDuplicateValues;
+    private final boolean stripTrailingSpaces;
     private final boolean isEOF;
     private final Schema schema;
 
@@ -2691,26 +2842,33 @@ public final class LDIFReader
     /**
      * Constructor.
      *
-     * @param lineList                The lines that comprise the LDIF record.
+     * @param  lineList               The lines that comprise the LDIF record.
      * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
      *                                attribute values encountered while
      *                                parsing.
-     * @param schema                  The schema to use when parsing, if
+     * @param  stripTrailingSpaces    Indicates whether to strip out any illegal
+     *                                trailing spaces, or {@code false} if LDIF
+     *                                records containing them should be
+     *                                rejected.
+     * @param  schema                 The schema to use when parsing, if
      *                                applicable.
-     * @param firstLineNumber         The first line number of the LDIF record.
+     * @param  firstLineNumber        The first line number of the LDIF record.
      */
     private UnparsedLDIFRecord(final ArrayList<StringBuilder> lineList,
                                final boolean ignoreDuplicateValues,
+                               final boolean stripTrailingSpaces,
                                final Schema schema,
                                final long firstLineNumber)
     {
-      this.lineList = lineList;
-      this.firstLineNumber = firstLineNumber;
+      this.lineList              = lineList;
+      this.firstLineNumber       = firstLineNumber;
       this.ignoreDuplicateValues = ignoreDuplicateValues;
-      this.schema = schema;
-      this.failureCause = null;
-      this.isEOF = (firstLineNumber < 0) ||
-                   ((lineList != null) && lineList.isEmpty());
+      this.stripTrailingSpaces   = stripTrailingSpaces;
+      this.schema                = schema;
+
+      failureCause = null;
+      isEOF =
+           (firstLineNumber < 0) || ((lineList != null) && lineList.isEmpty());
     }
 
 
@@ -2722,12 +2880,14 @@ public final class LDIFReader
      */
     private UnparsedLDIFRecord(final Exception failureCause)
     {
-      this.lineList = null;
-      this.firstLineNumber = 0;
-      this.ignoreDuplicateValues = true;
-      this.schema = null;
       this.failureCause = failureCause;
-      this.isEOF = false;
+
+      lineList              = null;
+      firstLineNumber       = 0;
+      ignoreDuplicateValues = true;
+      stripTrailingSpaces   = false;
+      schema                = null;
+      isEOF                 = false;
     }
 
 
@@ -2755,6 +2915,21 @@ public final class LDIFReader
     private boolean ignoreDuplicateValues()
     {
       return ignoreDuplicateValues;
+    }
+
+
+
+    /**
+     * Indicates whether to strip out illegal trailing spaces rather than
+     * throwing an exception if they are encountered.
+     *
+     * @return  {@code true} if illegal trailing spaces should be silently
+     *          stripped from the LDIF record, or {@code false} if an exception
+     *          should be thrown if such exceptions are found.
+     */
+    private boolean stripTrailingSpaces()
+    {
+      return stripTrailingSpaces;
     }
 
 
