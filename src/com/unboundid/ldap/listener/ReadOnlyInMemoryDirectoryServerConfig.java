@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Handler;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
@@ -33,6 +34,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -108,6 +110,62 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
   @Override()
   public void setBaseDNs(final DN... baseDNs)
          throws LDAPException, UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  The returned set will not be modifiable.
+   */
+  @Override()
+  public Set<OperationType> getAllowedOperationTypes()
+  {
+    return Collections.unmodifiableSet(super.getAllowedOperationTypes());
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setAllowedOperationTypes(final OperationType... operationTypes)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  The returned set will not be modifiable.
+   */
+  @Override()
+  public Set<OperationType> getAuthenticationRequiredOperationTypes()
+  {
+    return Collections.unmodifiableSet(
+         super.getAuthenticationRequiredOperationTypes());
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setAuthenticationRequiredOperationTypes(
+                   final OperationType... operationTypes)
+         throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
   }

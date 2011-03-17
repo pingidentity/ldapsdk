@@ -485,31 +485,10 @@ final class RequestControlPreProcessor
         }
       }
       else if (oid.equals(InMemoryRequestHandler.
-           OID_ADD_IGNORE_NO_USER_MODIFICATION))
+           OID_INTERNAL_OPERATION_REQUEST_CONTROL))
       {
-        switch (requestOpType)
-        {
-          case LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST:
-            // The control is acceptable for these operations.
-            break;
-
-          default:
-            if (control.isCritical())
-            {
-              throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
-                   ERR_CONTROL_PROCESSOR_UNSUPPORTED_FOR_OP.get(oid));
-            }
-            else
-            {
-              continue;
-            }
-        }
-
-        if (m.put(oid, control) != null)
-        {
-          throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
-               ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
-        }
+        // This control will always be allowed.
+        m.put(oid, control);
       }
       else if (control.isCritical())
       {

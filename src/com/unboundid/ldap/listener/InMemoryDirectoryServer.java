@@ -837,7 +837,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are
+   * allowed in the server.
    */
   public SearchResultEntry getEntry(final String dn, final String... attributes)
          throws LDAPException
@@ -852,7 +853,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    */
   public LDAPResult add(final String dn, final Attribute... attributes)
          throws LDAPException
@@ -866,7 +868,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    */
   public LDAPResult add(final String dn, final Collection<Attribute> attributes)
          throws LDAPException
@@ -880,7 +883,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    */
   public LDAPResult add(final Entry entry)
          throws LDAPException
@@ -894,7 +898,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    */
   public LDAPResult add(final String... ldifLines)
          throws LDIFException, LDAPException
@@ -908,15 +913,21 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    */
   public LDAPResult add(final AddRequest addRequest)
          throws LDAPException
   {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<Control>(addRequest.getControlList());
+    requestControlList.add(new Control(
+         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
+
     final LDAPMessage responseMessage = inMemoryHandler.processAddRequest(1,
          new AddRequestProtocolOp(addRequest.getDN(),
               addRequest.getAttributes()),
-         addRequest.getControlList());
+         requestControlList);
 
     final AddResponseProtocolOp addResponse =
          responseMessage.getAddResponseProtocolOp();
@@ -942,7 +953,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    */
   public LDAPResult add(final ReadOnlyAddRequest addRequest)
          throws LDAPException
@@ -959,7 +971,8 @@ public final class InMemoryDirectoryServer
    * called.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    *
    * @param  entries  The entries to be added to the server.
    *
@@ -981,7 +994,8 @@ public final class InMemoryDirectoryServer
    * called.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    *
    * @param  entries  The entries to be added to the server.
    *
@@ -1005,7 +1019,8 @@ public final class InMemoryDirectoryServer
    * the data it held before this method was called.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether add operations are allowed in
+   * the server.
    *
    * @param  ldifEntryLines  The lines comprising the LDIF representation of the
    *                         entries to be added.
@@ -1058,7 +1073,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether compare operations are
+   * allowed in the server.
    */
   public CompareResult compare(final String dn, final String attributeName,
                         final String assertionValue)
@@ -1073,16 +1089,22 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether compare operations are
+   * allowed in the server.
    */
   public CompareResult compare(final CompareRequest compareRequest)
          throws LDAPException
   {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<Control>(compareRequest.getControlList());
+    requestControlList.add(new Control(
+         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
+
     final LDAPMessage responseMessage = inMemoryHandler.processCompareRequest(1,
          new CompareRequestProtocolOp(compareRequest.getDN(),
               compareRequest.getAttributeName(),
               compareRequest.getRawAssertionValue()),
-         compareRequest.getControlList());
+         requestControlList);
 
     final CompareResponseProtocolOp compareResponse =
          responseMessage.getCompareResponseProtocolOp();
@@ -1109,7 +1131,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether compare operations are
+   * allowed in the server.
    */
   public CompareResult compare(final ReadOnlyCompareRequest compareRequest)
          throws LDAPException
@@ -1123,7 +1146,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether delete operations are
+   * allowed in the server.
    */
   public LDAPResult delete(final String dn)
          throws LDAPException
@@ -1137,14 +1161,20 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether delete operations are
+   * allowed in the server.
    */
   public LDAPResult delete(final DeleteRequest deleteRequest)
          throws LDAPException
   {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<Control>(deleteRequest.getControlList());
+    requestControlList.add(new Control(
+         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
+
     final LDAPMessage responseMessage = inMemoryHandler.processDeleteRequest(1,
          new DeleteRequestProtocolOp(deleteRequest.getDN()),
-         deleteRequest.getControlList());
+         requestControlList);
 
     final DeleteResponseProtocolOp deleteResponse =
          responseMessage.getDeleteResponseProtocolOp();
@@ -1170,7 +1200,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether delete operations are
+   * allowed in the server.
    */
   public LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
          throws LDAPException
@@ -1185,7 +1216,8 @@ public final class InMemoryDirectoryServer
    * server.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether compare operations are
+   * allowed in the server.
    *
    * @param  baseDN  The DN of the entry to remove, along with all of its
    *                 subordinates.
@@ -1218,7 +1250,8 @@ public final class InMemoryDirectoryServer
    * the operation was processed as expected.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether extended operations are
+   * allowed in the server.
    *
    * @param  requestOID  The OID for the extended request to process.  It must
    *                     not be {@code null}.
@@ -1254,7 +1287,8 @@ public final class InMemoryDirectoryServer
    * the operation was processed as expected.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether extended operations are
+   * allowed in the server.
    *
    * @param  requestOID    The OID for the extended request to process.  It must
    *                       not be {@code null}.
@@ -1294,7 +1328,8 @@ public final class InMemoryDirectoryServer
    * the result to determine whether the operation was processed as expected.
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether extended operations are
+   * allowed in the server.
    *
    * @param  extendedRequest  The extended request to be processed.  It must not
    *                          be {@code null}.
@@ -1312,11 +1347,17 @@ public final class InMemoryDirectoryServer
   {
     Validator.ensureNotNull(extendedRequest);
 
+    final ArrayList<Control> requestControlList =
+         new ArrayList<Control>(extendedRequest.getControlList());
+    requestControlList.add(new Control(
+         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
+
+
     final LDAPMessage responseMessage =
          inMemoryHandler.processExtendedRequest(1,
               new ExtendedRequestProtocolOp(extendedRequest.getOID(),
                    extendedRequest.getValue()),
-              extendedRequest.getControlList());
+              requestControlList);
 
     final ExtendedResponseProtocolOp extendedResponse =
          responseMessage.getExtendedResponseProtocolOp();
@@ -1384,7 +1425,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify operations are allowed
+   * in the server.
    */
   public LDAPResult modify(final String dn, final Modification mod)
          throws LDAPException
@@ -1398,7 +1440,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify operations are allowed
+   * in the server.
    */
   public LDAPResult modify(final String dn, final Modification... mods)
          throws LDAPException
@@ -1412,7 +1455,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify operations are allowed
+   * in the server.
    */
   public LDAPResult modify(final String dn, final List<Modification> mods)
          throws LDAPException
@@ -1426,7 +1470,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify operations are allowed
+   * in the server.
    */
   public LDAPResult modify(final String... ldifModificationLines)
          throws LDIFException, LDAPException
@@ -1440,15 +1485,21 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify operations are allowed
+   * in the server.
    */
   public LDAPResult modify(final ModifyRequest modifyRequest)
          throws LDAPException
   {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<Control>(modifyRequest.getControlList());
+    requestControlList.add(new Control(
+         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
+
     final LDAPMessage responseMessage = inMemoryHandler.processModifyRequest(1,
          new ModifyRequestProtocolOp(modifyRequest.getDN(),
               modifyRequest.getModifications()),
-         modifyRequest.getControlList());
+         requestControlList);
 
     final ModifyResponseProtocolOp modifyResponse =
          responseMessage.getModifyResponseProtocolOp();
@@ -1474,7 +1525,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify operations are allowed
+   * in the server.
    */
   public LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
          throws LDAPException
@@ -1488,7 +1540,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify DN operations are
+   * allowed in the server.
    */
   public LDAPResult modifyDN(final String dn, final String newRDN,
                              final boolean deleteOldRDN)
@@ -1503,7 +1556,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify DN operations are
+   * allowed in the server.
    */
   public LDAPResult modifyDN(final String dn, final String newRDN,
                              final boolean deleteOldRDN,
@@ -1520,16 +1574,22 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify DN operations are
+   * allowed in the server.
    */
   public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<Control>(modifyDNRequest.getControlList());
+    requestControlList.add(new Control(
+         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
+
     final LDAPMessage responseMessage = inMemoryHandler.processModifyDNRequest(
          1, new ModifyDNRequestProtocolOp(modifyDNRequest.getDN(),
               modifyDNRequest.getNewRDN(), modifyDNRequest.deleteOldRDN(),
               modifyDNRequest.getNewSuperiorDN()),
-         modifyDNRequest.getControlList());
+         requestControlList);
 
     final ModifyDNResponseProtocolOp modifyDNResponse =
          responseMessage.getModifyDNResponseProtocolOp();
@@ -1556,7 +1616,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether modify DN operations are
+   * allowed in the server.
    */
   public LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
          throws LDAPException
@@ -1570,7 +1631,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final String filter, final String... attributes)
@@ -1586,7 +1648,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final Filter filter, final String... attributes)
@@ -1601,7 +1664,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
@@ -1618,7 +1682,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
@@ -1635,7 +1700,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
@@ -1654,7 +1720,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
@@ -1673,7 +1740,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
@@ -1694,7 +1762,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
@@ -1714,11 +1783,17 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final SearchRequest searchRequest)
          throws LDAPSearchException
   {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<Control>(searchRequest.getControlList());
+    requestControlList.add(new Control(
+         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
+
     final List<SearchResultEntry> entryList =
          new ArrayList<SearchResultEntry>(10);
     final List<SearchResultReference> referenceList =
@@ -1730,7 +1805,7 @@ public final class InMemoryDirectoryServer
               searchRequest.getSizeLimit(), searchRequest.getTimeLimitSeconds(),
               searchRequest.typesOnly(), searchRequest.getFilter(),
               searchRequest.getAttributeList()),
-         searchRequest.getControlList(), entryList, referenceList);
+         requestControlList, entryList, referenceList);
 
 
     final List<SearchResultEntry> returnEntryList;
@@ -1810,7 +1885,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResult search(final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
@@ -1824,7 +1900,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
@@ -1842,7 +1919,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
@@ -1859,7 +1937,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
@@ -1880,7 +1959,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
@@ -1901,11 +1981,17 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
          throws LDAPSearchException
   {
+    final ArrayList<Control> requestControlList =
+         new ArrayList<Control>(searchRequest.getControlList());
+    requestControlList.add(new Control(
+         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
+
     final SearchRequest r;
     if ((searchRequest.getSizeLimit() == 1) &&
         (searchRequest.getSearchResultListener() == null))
@@ -1921,11 +2007,7 @@ public final class InMemoryDirectoryServer
 
       r.setFollowReferrals(InternalSDKHelper.followReferralsInternal(r));
       r.setResponseTimeoutMillis(searchRequest.getResponseTimeoutMillis(null));
-
-      if (searchRequest.hasControl())
-      {
-        r.setControls(searchRequest.getControls());
-      }
+      r.setControls(requestControlList);
     }
 
     final SearchResult result;
@@ -1961,7 +2043,8 @@ public final class InMemoryDirectoryServer
    * {@inheritDoc}
    * <BR><BR>
    * This method may be used regardless of whether the server is listening for
-   * client connections.
+   * client connections, and regardless of whether search operations are allowed
+   * in the server.
    */
   public SearchResultEntry searchForEntry(
                                 final ReadOnlySearchRequest searchRequest)
