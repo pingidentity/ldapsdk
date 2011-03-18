@@ -3517,10 +3517,15 @@ findEntriesAndRefs:
       final String[] oidArray = new String[extendedRequestHandlers.size()];
       rootDSEEntry.addAttribute("supportedExtension",
            extendedRequestHandlers.keySet().toArray(oidArray));
-      if (config.getStartTLSSocketFactory() != null)
+
+      for (final InMemoryListenerConfig c : config.getListenerConfigs())
       {
-        rootDSEEntry.addAttribute("supportedExtension",
-             StartTLSExtendedRequest.STARTTLS_REQUEST_OID);
+        if (c.getStartTLSSocketFactory() != null)
+        {
+          rootDSEEntry.addAttribute("supportedExtension",
+               StartTLSExtendedRequest.STARTTLS_REQUEST_OID);
+          break;
+        }
       }
     }
 

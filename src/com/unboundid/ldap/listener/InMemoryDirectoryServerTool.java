@@ -287,6 +287,7 @@ public final class InMemoryDirectoryServerTool
   {
     super(outStream, errStream);
 
+    directoryServer                = null;
     dontStartArgument              = null;
     useDefaultSchemaArgument       = null;
     useSSLArgument                 = null;
@@ -551,9 +552,10 @@ public final class InMemoryDirectoryServerTool
 
 
     // If a listen port was specified, then update the configuration to use it.
+    int listenPort = 0;
     if (portArgument.isPresent())
     {
-      serverConfig.setListenPort(portArgument.getValue());
+      listenPort = portArgument.getValue();
     }
 
 
@@ -708,15 +710,16 @@ public final class InMemoryDirectoryServerTool
         if (useSSLArgument.isPresent())
         {
           final SSLUtil clientSSLUtil = new SSLUtil(new TrustAllTrustManager());
-          serverConfig.setServerSocketFactory(
-               serverSSLUtil.createSSLServerSocketFactory());
-          serverConfig.setClientSocketFactory(
-               clientSSLUtil.createSSLSocketFactory());
+          serverConfig.setListenerConfigs(
+               InMemoryListenerConfig.createLDAPSConfig("LDAPS", null,
+                    listenPort, serverSSLUtil.createSSLServerSocketFactory(),
+                    clientSSLUtil.createSSLSocketFactory()));
         }
         else
         {
-          serverConfig.setStartTLSSocketFactory(
-               serverSSLUtil.createSSLSocketFactory());
+          serverConfig.setListenerConfigs(
+               InMemoryListenerConfig.createLDAPConfig("LDAP+StartTLS", null,
+                    listenPort, serverSSLUtil.createSSLSocketFactory()));
         }
       }
       catch (final Exception e)
@@ -727,6 +730,11 @@ public final class InMemoryDirectoryServerTool
                   StaticUtils.getExceptionMessage(e)),
              e);
       }
+    }
+    else
+    {
+      serverConfig.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig(
+           "LDAP", listenPort));
     }
 
     return serverConfig;

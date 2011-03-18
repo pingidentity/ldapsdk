@@ -22,20 +22,17 @@ package com.unboundid.ldap.listener;
 
 
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Handler;
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -58,13 +55,12 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * least one base DN must be specified.  For all other properties, the following
  * default values will be used unless an alternate configuration is provided:
  * <UL>
+ *   <LI>Listeners:  The server will provide a single listener that will use an
+ *       automatically-selected port on all interfaces, which will not use SSL
+ *       or StartTLS.</LI>
  *   <LI>Allowed Operation Types:  All types of operations will be allowed.</LI>
  *   <LI>Authentication Required Operation Types:  Authentication will not be
  *       required for any types of operations.</LI>
- *   <LI>Listen Address:  The server will listen on all addresses on all
- *       interfaces.</LI>
- *   <LI>Listen Port:  The server will automatically select an available listen
- *       port.</LI>
  *   <LI>Schema:  The server will use a schema with a number of standard
  *       attribute types and object classes.</LI>
  *   <LI>Additional Bind Credentials:  The server will not have any additional
@@ -84,12 +80,6 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       logging.</LI>
  *   <LI>Listener Exception Handler:  The server will not use a listener
  *       exception handler.</LI>
- *   <LI>Server Socket Factory:  The server will use the JVM-default server
- *       socket factory.</LI>
- *   <LI>Client Socket Factory:  The server will use the JVM-default client
- *       socket factory.</LI>
- *   <LI>StartTLS Socket Factory:  The server will not support the StartTLS
- *       extended operation.</LI>
  * </UL>
  */
 @NotExtensible()
@@ -111,17 +101,15 @@ public class InMemoryDirectoryServerConfig
   // messages about LDAP operations processed by the server.
   private Handler ldapDebugLogHandler;
 
-  // The address on which to listen for client connections.
-  private InetAddress listenAddress;
-
-  // The port on which to listen for client connections.
-  private int listenPort;
-
   // The maximum number of entries to retain in a generated changelog.
   private int maxChangeLogEntries;
 
   // The exception handler that should be used for the listener.
   private LDAPListenerExceptionHandler exceptionHandler;
+
+  // The listener configurations that should be used for accepting connections
+  // to the server.
+  private final List<InMemoryListenerConfig> listenerConfigs;
 
   // The extended operation handlers that may be used to process extended
   // operations in the server.
@@ -139,21 +127,11 @@ public class InMemoryDirectoryServerConfig
   // The schema to use for the server.
   private Schema schema;
 
-  // The server socket factory to use for the listener.
-  private ServerSocketFactory serverSocketFactory;
-
   // The set of operation types that will be supported by the server.
   private Set<OperationType> allowedOperationTypes;
 
   // The set of operation types for which authentication will be required.
   private Set<OperationType> authenticationRequiredOperationTypes;
-
-  // The client socket factory to use for the listener.
-  private SocketFactory clientSocketFactory;
-
-  // The SSL socket factory that will be used to SSL-encrypt client connections
-  // if a StartTLS extended request is received.
-  private SSLSocketFactory startTLSSocketFactory;
 
 
 
@@ -196,18 +174,16 @@ public class InMemoryDirectoryServerConfig
 
     this.baseDNs = baseDNs;
 
+    listenerConfigs = new ArrayList<InMemoryListenerConfig>(1);
+    listenerConfigs.add(InMemoryListenerConfig.createLDAPConfig("default"));
+
     additionalBindCredentials            = new LinkedHashMap<DN,byte[]>(1);
     accessLogHandler                     = null;
     ldapDebugLogHandler                  = null;
     generateOperationalAttributes        = true;
-    listenAddress                        = null;
-    listenPort                           = 0;
     maxChangeLogEntries                  = 0;
     exceptionHandler                     = null;
     schema                               = Schema.getDefaultStandardSchema();
-    serverSocketFactory                  = null;
-    clientSocketFactory                  = null;
-    startTLSSocketFactory                = null;
     allowedOperationTypes                = EnumSet.allOf(OperationType.class);
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
 
@@ -235,6 +211,9 @@ public class InMemoryDirectoryServerConfig
     baseDNs = new DN[cfg.baseDNs.length];
     System.arraycopy(cfg.baseDNs, 0, baseDNs, 0, baseDNs.length);
 
+    listenerConfigs = new ArrayList<InMemoryListenerConfig>(
+         cfg.listenerConfigs);
+
     extendedOperationHandlers = new ArrayList<InMemoryExtendedOperationHandler>(
          cfg.extendedOperationHandlers);
 
@@ -247,14 +226,9 @@ public class InMemoryDirectoryServerConfig
     generateOperationalAttributes        = cfg.generateOperationalAttributes;
     accessLogHandler                     = cfg.accessLogHandler;
     ldapDebugLogHandler                  = cfg.ldapDebugLogHandler;
-    listenAddress                        = cfg.listenAddress;
-    listenPort                           = cfg.listenPort;
     maxChangeLogEntries                  = cfg.maxChangeLogEntries;
     exceptionHandler                     = cfg.exceptionHandler;
     schema                               = cfg.schema;
-    serverSocketFactory                  = cfg.serverSocketFactory;
-    clientSocketFactory                  = cfg.clientSocketFactory;
-    startTLSSocketFactory                = cfg.startTLSSocketFactory;
     allowedOperationTypes                = cfg.allowedOperationTypes;
     authenticationRequiredOperationTypes =
          cfg.authenticationRequiredOperationTypes;
@@ -310,6 +284,85 @@ public class InMemoryDirectoryServerConfig
     }
 
     this.baseDNs = baseDNs;
+  }
+
+
+
+  /**
+   * Retrieves the list of listener configurations that should be used for the
+   * directory server.
+   *
+   * @return  The list of listener configurations that should be used for the
+   *          directory server.
+   */
+  public List<InMemoryListenerConfig> getListenerConfigs()
+  {
+    return listenerConfigs;
+  }
+
+
+
+  /**
+   * Specifies the configurations for all listeners that should be used for the
+   * directory server.
+   *
+   * @param  listenerConfigs  The configurations for all listeners that should
+   *                          be used for the directory server.  It must not be
+   *                          {@code null} or empty, and it must not contain
+   *                          multiple configurations with the same name.
+   *
+   * @throws  LDAPException  If there is a problem with the provided set of
+   *                         listener configurations.
+   */
+  public void setListenerConfigs(
+                   final InMemoryListenerConfig... listenerConfigs)
+         throws LDAPException
+  {
+    setListenerConfigs(StaticUtils.toList(listenerConfigs));
+  }
+
+
+
+  /**
+   * Specifies the configurations for all listeners that should be used for the
+   * directory server.
+   *
+   * @param  listenerConfigs  The configurations for all listeners that should
+   *                          be used for the directory server.  It must not be
+   *                          {@code null} or empty, and it must not contain
+   *                          multiple configurations with the same name.
+   *
+   * @throws  LDAPException  If there is a problem with the provided set of
+   *                         listener configurations.
+   */
+  public void setListenerConfigs(
+                   final Collection<InMemoryListenerConfig> listenerConfigs)
+         throws LDAPException
+  {
+    if ((listenerConfigs == null) || listenerConfigs.isEmpty())
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_MEM_DS_CFG_NO_LISTENERS.get());
+    }
+
+    final HashSet<String> listenerNames =
+         new HashSet<String>(listenerConfigs.size());
+    for (final InMemoryListenerConfig c : listenerConfigs)
+    {
+      final String name = StaticUtils.toLowerCase(c.getListenerName());
+      if (listenerNames.contains(name))
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_MEM_DS_CFG_CONFLICTING_LISTENER_NAMES.get(name));
+      }
+      else
+      {
+        listenerNames.add(name);
+      }
+    }
+
+    this.listenerConfigs.clear();
+    this.listenerConfigs.addAll(listenerConfigs);
   }
 
 
@@ -517,78 +570,6 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
-   * Retrieves the port on which the server should listen for client
-   * connections, if defined.
-   *
-   * @return  The port on which the server should listen for client connections,
-   *          or zero to indicate that the server should select a port from the
-   *          set of free ports available on the system.
-   */
-  public int getListenPort()
-  {
-    return listenPort;
-  }
-
-
-
-  /**
-   * Specifies the port on which the server should listen for client
-   * connections.  The specified port must be between 1 and 65535 in order to
-   * attempt to listen on that specific port, or it may be 0 to indicate that
-   * the server should attempt to automatically select an available port that
-   * is suitable for use.
-   *
-   * @param  listenPort  The port on which the server should listen for client
-   *                     connections.
-   *
-   * @throws  LDAPException  If there is a problem with the provided port value.
-   */
-  public void setListenPort(final int listenPort)
-         throws LDAPException
-  {
-    if ((listenPort < 0) || (listenPort > 65535))
-    {
-      throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_MEM_DS_CFG_INVALID_LISTEN_PORT.get(listenPort));
-    }
-
-    this.listenPort = listenPort;
-  }
-
-
-
-  /**
-   * Retrieves the address on which to listen for client connections, if
-   * defined.
-   *
-   * @return  The address on which to listen for client connections, or
-   *          {@code null} if the server should listen on all addresses
-   *          associated with the system.
-   */
-  public InetAddress getListenAddress()
-  {
-    return listenAddress;
-  }
-
-
-
-  /**
-   * Specifies the address on which the server should listen for client
-   * connections.
-   *
-   * @param  listenAddress  The address on which the server should listen for
-   *                        client connections.  It may be {@code null} to
-   *                        indicate that the server should listen on all
-   *                        addresses associated with the system.
-   */
-  public void setListenAddress(final InetAddress listenAddress)
-  {
-    this.listenAddress = listenAddress;
-  }
-
-
-
-  /**
    * Retrieves the object that should be used to handle any errors encountered
    * while attempting to interact with a client, if defined.
    *
@@ -648,118 +629,6 @@ public class InMemoryDirectoryServerConfig
   public void setSchema(final Schema schema)
   {
     this.schema = schema;
-  }
-
-
-
-  /**
-   * Retrieves the socket factory that should be used by the server in order to
-   * accept client connections, if defined.  This may be used to add support for
-   * SSL/TLS or other kinds of transformations in the communication between the
-   * client and the server.
-   *
-   * @return  The socket factory that should be used by the server in order to
-   *          accept client connections, or {@code null} if a server client
-   *          socket factory should be used.
-   */
-  public ServerSocketFactory getServerSocketFactory()
-  {
-    return serverSocketFactory;
-  }
-
-
-
-  /**
-   * Specifies the server socket factory that should be used by the server in
-   * order to accept client connections.  This may be used to add support for
-   * SSL/TLS or other kinds of transformations in the communication between the
-   * client and the server.  Note that when using a custom server socket
-   * factory, it may also be desirable to provide a custom client socket factory
-   * to make it easy to create client connections from the server object.
-   *
-   * @param  serverSocketFactory  The server socket factory that should be used
-   *                              by the server in order to accept client
-   *                              connections, or {@code null} if the default
-   *                              server socket factory should be used.
-   */
-  public void setServerSocketFactory(
-                   final ServerSocketFactory serverSocketFactory)
-  {
-    this.serverSocketFactory = serverSocketFactory;
-  }
-
-
-
-  /**
-   * Retrieves the socket factory that should be used to create client
-   * connections for communicating with with the server, if defined.  If a
-   * custom server socket factory is to be used, then it will likely be
-   * necessary to also provide a custom client socket factory to use when
-   * creating client connections to the server.
-   *
-   * @return  The socket factory that should be used to create client
-   *          connections for communicating with the server, or {@code null} if
-   *          the default client socket factory should be used.
-   */
-  public SocketFactory getClientSocketFactory()
-  {
-    return clientSocketFactory;
-  }
-
-
-
-  /**
-   * Specifies the socket factory that should be used to create client
-   * connections that may be used for communicating with the server.  If a
-   * custom server socket factory is to be used, then it will likely be
-   * necessary to also provide a custom client socket factory to use when
-   * creating client connections to the server.
-   *
-   * @param  clientSocketFactory  The socket factory that should be used to
-   *                              create client connections for communicating
-   *                              with the server, or {@code null} if the
-   *                              default client socket factory should be used.
-   */
-  public void setClientSocketFactory(final SocketFactory clientSocketFactory)
-  {
-    this.clientSocketFactory = clientSocketFactory;
-  }
-
-
-
-  /**
-   * Retrieves the SSL socket factory that will be used to add SSL encryption to
-   * client connections on which a StartTLS extended request is received.  If no
-   * StartTLS socket factory is defined, then StartTLS extended requests will
-   * not be supported.
-   *
-   * @return  The SSL socket factory that will be used to add SSL encryption to
-   *           client connections on which a StartTLS extended request is
-   *           received, or {@code null} if StartTLS extended requests should
-   *           not be supported.
-   */
-  public SSLSocketFactory getStartTLSSocketFactory()
-  {
-    return startTLSSocketFactory;
-  }
-
-
-
-  /**
-   * Specifies the SSL socket factory that will be used to add SSL encryption to
-   * client connection on which a StartTLS extended request is received.
-   *
-   * @param  startTLSSocketFactory  The SSL socket factory that will be used to
-   *                                add SSL encryption to client connections on
-   *                                which a StartTLS extended request is
-   *                                received.  It may be {@code null} to
-   *                                indicate that StartTLS should not be
-   *                                supported.
-   */
-  public void setStartTLSSocketFactory(
-                   final SSLSocketFactory startTLSSocketFactory)
-  {
-    this.startTLSSocketFactory = startTLSSocketFactory;
   }
 
 
@@ -1002,15 +871,19 @@ public class InMemoryDirectoryServerConfig
     }
     buffer.append('}');
 
-    if (listenAddress != null)
-    {
-      buffer.append(", listenAddress='");
-      buffer.append(listenAddress.getHostAddress());
-      buffer.append('\'');
-    }
+    buffer.append(", listenerConfigs={");
 
-    buffer.append(", listenPort=");
-    buffer.append(listenPort);
+    final Iterator<InMemoryListenerConfig> listenerCfgIterator =
+         listenerConfigs.iterator();
+    while(listenerCfgIterator.hasNext())
+    {
+      listenerCfgIterator.next().toString(buffer);
+      if (listenerCfgIterator.hasNext())
+      {
+        buffer.append(", ");
+      }
+    }
+    buffer.append('}');
 
     buffer.append(", schemaProvided=");
     buffer.append((schema != null));
@@ -1095,27 +968,6 @@ public class InMemoryDirectoryServerConfig
     {
       buffer.append(", listenerExceptionHandlerClass='");
       buffer.append(exceptionHandler.getClass().getName());
-      buffer.append('\'');
-    }
-
-    if (serverSocketFactory != null)
-    {
-      buffer.append(", serverSocketFactoryClass='");
-      buffer.append(serverSocketFactory.getClass().getName());
-      buffer.append('\'');
-    }
-
-    if (clientSocketFactory != null)
-    {
-      buffer.append(", clientSocketFactoryClass='");
-      buffer.append(clientSocketFactory.getClass().getName());
-      buffer.append('\'');
-    }
-
-    if (startTLSSocketFactory != null)
-    {
-      buffer.append(", startTLSSocketFactoryClass='");
-      buffer.append(startTLSSocketFactory.getClass().getName());
       buffer.append('\'');
     }
 
