@@ -226,6 +226,33 @@ public final class SSLUtil
 
 
   /**
+   * Retrieves the set of key managers configured for use by this class, if any.
+   *
+   * @return  The set of key managers configured for use by this class, or
+   *          {@code null} if none were provided.
+   */
+  public KeyManager[] getKeyManagers()
+  {
+    return keyManagers;
+  }
+
+
+
+  /**
+   * Retrieves the set of trust managers configured for use by this class, if
+   * any.
+   *
+   * @return  The set of trust managers configured for use by this class, or
+   *          {@code null} if none were provided.
+   */
+  public TrustManager[] getTrustManagers()
+  {
+    return trustManagers;
+  }
+
+
+
+  /**
    * Creates an initialized SSL context created with the configured key and
    * trust managers.  It will use the "TLSv1" protocol and the default provider.
    *

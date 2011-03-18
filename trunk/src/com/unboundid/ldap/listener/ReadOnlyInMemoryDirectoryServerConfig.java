@@ -22,15 +22,12 @@ package com.unboundid.ldap.listener;
 
 
 
-import java.net.InetAddress;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Handler;
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -110,6 +107,51 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
   @Override()
   public void setBaseDNs(final DN... baseDNs)
          throws LDAPException, UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  The returned list will not be modifiable.
+   */
+  @Override()
+  public List<InMemoryListenerConfig> getListenerConfigs()
+  {
+    return Collections.unmodifiableList(super.getListenerConfigs());
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setListenerConfigs(
+                   final InMemoryListenerConfig... listenerConfigs)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setListenerConfigs(
+                   final Collection<InMemoryListenerConfig> listenerConfigs)
+         throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
   }
@@ -225,38 +267,6 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    *                                         be altered.
    */
   @Override()
-  public void setListenPort(final int listenPort)
-         throws LDAPException, UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setListenAddress(final InetAddress listenAddress)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
   public void setListenerExceptionHandler(
                    final LDAPListenerExceptionHandler exceptionHandler)
          throws UnsupportedOperationException
@@ -275,56 +285,6 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setSchema(final Schema schema)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setServerSocketFactory(
-                   final ServerSocketFactory serverSocketFactory)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setClientSocketFactory(final SocketFactory clientSocketFactory)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setStartTLSSocketFactory(
-                   final SSLSocketFactory startTLSSocketFactory)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();

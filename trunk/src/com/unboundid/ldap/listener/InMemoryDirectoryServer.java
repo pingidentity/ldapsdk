@@ -22,13 +22,14 @@ package com.unboundid.ldap.listener;
 
 
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.net.SocketFactory;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -150,7 +151,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * server instance, and call the {@link #startListening} method to start
  * accepting connections from LDAP clients.  The {@link #getConnection} and
  * {@link #getConnectionPool} methods may be used to obtain connections to the
- * server, and you can also manually create connections using the information
+ * server and you can also manually create connections using the information
  * obtained via the {@link #getListenAddress}, {@link #getListenPort}, and
  * {@link #getClientSocketFactory} methods.  When the server is no longer
  * needed, the {@link #shutDown} method should be used to stop the server.  Any
@@ -166,7 +167,6 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * // Create a base configuration for the server.
  * InMemoryDirectoryServerConfig config =
  *      new InMemoryDirectoryServerConfig("dc=example,dc=com");
- * config.setSchema(Schema.getDefaultStandardSchema());
  * config.addAdditionalBindCredentials("cn=Directory Manager",
  *      "password");
  *
@@ -176,7 +176,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * server.initializeFromLDIF(true, "/tmp/test.ldif");
  *
  * // Start the server so it will accept client connections.
- * int listenPort = server.startListening();
+ * server.startListening();
  *
  * // Get a connection to the server.
  * LDAPConnection conn = server.getConnection();
@@ -199,16 +199,19 @@ public final class InMemoryDirectoryServer
   // The in-memory request handler that will be used for the server.
   private final InMemoryRequestHandler inMemoryHandler;
 
-  // The LDAP listener that will be used to interact with clients.
-  private final LDAPListener listener;
+  // The set of listeners that have been configured for this server, mapped by
+  // listener name.
+  private final Map<String,LDAPListener> listeners;
+
+  // The set of configurations for all the LDAP listeners to be used.
+  private final Map<String,LDAPListenerConfig> ldapListenerConfigs;
+
+  // The set of client socket factories associated with each of the listeners.
+  private final Map<String,SocketFactory> clientSocketFactories;
 
   // A read-only representation of the configuration used to create this
   // in-memory directory server.
   private final ReadOnlyInMemoryDirectoryServerConfig config;
-
-  // The socket factory that should be used when trying to create client
-  // connections.
-  private final SocketFactory clientSocketFactory;
 
 
 
@@ -235,28 +238,21 @@ public final class InMemoryDirectoryServer
    * Creates a new instance of an in-memory directory server with the provided
    * configuration.
    *
-   * @param  config  The configuration to use for the server.  It must not be
-   *                 {@code null}.
+   * @param  cfg  The configuration to use for the server.  It must not be
+   *              {@code null}.
    *
    * @throws  LDAPException  If a problem occurs while trying to initialize the
    *                         directory server with the provided configuration.
    */
-  public InMemoryDirectoryServer(final InMemoryDirectoryServerConfig config)
+  public InMemoryDirectoryServer(final InMemoryDirectoryServerConfig cfg)
          throws LDAPException
   {
-    Validator.ensureNotNull(config);
+    Validator.ensureNotNull(cfg);
 
-    this.config = new ReadOnlyInMemoryDirectoryServerConfig(config);
-
+    config = new ReadOnlyInMemoryDirectoryServerConfig(cfg);
     inMemoryHandler = new InMemoryRequestHandler(config);
 
     LDAPListenerRequestHandler requestHandler = inMemoryHandler;
-
-    if (config.getStartTLSSocketFactory() != null)
-    {
-      requestHandler = new StartTLSRequestHandler(
-           config.getStartTLSSocketFactory(), requestHandler);
-    }
 
     if (config.getAccessLogHandler() != null)
     {
@@ -270,53 +266,251 @@ public final class InMemoryDirectoryServer
            config.getLDAPDebugLogHandler(), requestHandler);
     }
 
-    final LDAPListenerConfig listenerConfig =
-         new LDAPListenerConfig(config.getListenPort(), requestHandler);
-    listenerConfig.setExceptionHandler(config.getListenerExceptionHandler());
-    listenerConfig.setListenAddress(config.getListenAddress());
-    listenerConfig.setServerSocketFactory(config.getServerSocketFactory());
 
-    listener = new LDAPListener(listenerConfig);
+    final List<InMemoryListenerConfig> listenerConfigs =
+         config.getListenerConfigs();
 
-    clientSocketFactory = config.getClientSocketFactory();
+    listeners = new LinkedHashMap<String,LDAPListener>(listenerConfigs.size());
+    ldapListenerConfigs =
+         new LinkedHashMap<String,LDAPListenerConfig>(listenerConfigs.size());
+    clientSocketFactories =
+         new LinkedHashMap<String,SocketFactory>(listenerConfigs.size());
+
+    for (final InMemoryListenerConfig c : listenerConfigs)
+    {
+      final String name = StaticUtils.toLowerCase(c.getListenerName());
+
+      final LDAPListenerRequestHandler listenerRequestHandler;
+      if (c.getStartTLSSocketFactory() == null)
+      {
+        listenerRequestHandler =  requestHandler;
+      }
+      else
+      {
+        listenerRequestHandler =
+             new StartTLSRequestHandler(c.getStartTLSSocketFactory(),
+                  requestHandler);
+      }
+
+      final LDAPListenerConfig listenerCfg = new LDAPListenerConfig(
+           c.getListenPort(), listenerRequestHandler);
+      listenerCfg.setExceptionHandler(config.getListenerExceptionHandler());
+      listenerCfg.setListenAddress(c.getListenAddress());
+      listenerCfg.setServerSocketFactory(c.getServerSocketFactory());
+
+      ldapListenerConfigs.put(name, listenerCfg);
+
+      if (c.getClientSocketFactory() != null)
+      {
+        clientSocketFactories.put(name, c.getClientSocketFactory());
+      }
+    }
   }
 
 
 
   /**
-   * Causes the server to start listening for client connections.  This method
-   * will return as soon as the listener has started.  This method may only be
-   * called once on a single object instance, so one a server has been shut
-   * down it cannot be re-started, and it will be necessary to create a new
-   * instance and start that.
+   * Attempts to start listening for client connections on all configured
+   * listeners.  Any listeners that are already running will be unaffected.
    *
-   * @return  The port on which the server is listening for client connections.
-   *
-   * @throws  IOException  If a problem occurs while attempting to create the
-   *                       listen socket.
+   * @throws  LDAPException  If a problem occurs while attempting to create any
+   *                         of the configured listeners.  Even if an exception
+   *                         is thrown, then as many listeners as possible will
+   *                         be started.
    */
-  public int startListening()
-         throws IOException
+  public synchronized void startListening()
+         throws LDAPException
   {
-    listener.startListening();
-    return listener.getListenPort();
+    final ArrayList<String> messages = new ArrayList<String>(listeners.size());
+
+    for (final Map.Entry<String,LDAPListenerConfig> cfgEntry :
+         ldapListenerConfigs.entrySet())
+    {
+      final String name = cfgEntry.getKey();
+
+      if (listeners.containsKey(name))
+      {
+        // This listener is already running.
+        continue;
+      }
+
+      final LDAPListenerConfig listenerConfig = cfgEntry.getValue();
+      final LDAPListener listener = new LDAPListener(listenerConfig);
+
+      try
+      {
+        listener.startListening();
+        listenerConfig.setListenPort(listener.getListenPort());
+        listeners.put(name, listener);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        messages.add(ERR_MEM_DS_START_FAILED.get(name,
+             StaticUtils.getExceptionMessage(e)));
+      }
+    }
+
+    if (! messages.isEmpty())
+    {
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           StaticUtils.concatenateStrings(messages));
+    }
   }
 
 
 
   /**
-   * Indicates that the server should stop accepting new connections.  It may
-   * optionally close all connections that have already been established.  Note
-   * that once a server instance has been shut down, it cannot be re-started,
-   * and a new instance will be required.
+   * Attempts to start listening for client connections on the specified
+   * listener.  If the listener is already running, then it will be unaffected.
+   *
+   * @param  listenerName  The name of the listener to be started.  It must not
+   *                       be {@code null}.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to start the
+   *                         requested listener.
+   */
+  public synchronized void startListening(final String listenerName)
+         throws LDAPException
+  {
+    // If the listener is already running, then there's nothing to do.
+    final String name = StaticUtils .toLowerCase(listenerName);
+    if (listeners.containsKey(name))
+    {
+      return;
+    }
+
+    // Get the configuration to use for the listener.
+    final LDAPListenerConfig listenerConfig = ldapListenerConfigs.get(name);
+    if (listenerConfig == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_MEM_DS_NO_SUCH_LISTENER.get(listenerName));
+    }
+
+
+    final LDAPListener listener = new LDAPListener(listenerConfig);
+
+    try
+    {
+      listener.startListening();
+      listenerConfig.setListenPort(listener.getListenPort());
+      listeners.put(name, listener);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_MEM_DS_START_FAILED.get(name,
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+  }
+
+
+
+  /**
+   * Shuts down all configured listeners.  Any listeners that are already
+   * stopped will be unaffected.
    *
    * @param  closeExistingConnections  Indicates whether to close all existing
    *                                   connections, or merely to stop accepting
    *                                   new connections.
    */
-  public void shutDown(final boolean closeExistingConnections)
+  public synchronized void shutDown(final boolean closeExistingConnections)
   {
-    listener.shutDown(closeExistingConnections);
+    for (final LDAPListener l : listeners.values())
+    {
+      try
+      {
+        l.shutDown(closeExistingConnections);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    listeners.clear();
+  }
+
+
+
+  /**
+   * Shuts down the specified listener.  If there is no such listener defined,
+   * or if the specified listener is not running, then no action will be taken.
+   *
+   * @param  listenerName              The name of the listener to be shut down.
+   *                                   It must not be {@code null}.
+   * @param  closeExistingConnections  Indicates whether to close all existing
+   *                                   connections, or merely to stop accepting
+   *                                   new connections.
+   */
+  public synchronized void shutDown(final String listenerName,
+                                    final boolean closeExistingConnections)
+  {
+    final String name = StaticUtils.toLowerCase(listenerName);
+    final LDAPListener listener = listeners.remove(name);
+    if (listener != null)
+    {
+      listener.shutDown(closeExistingConnections);
+    }
+  }
+
+
+
+  /**
+   * Attempts to restart all listeners defined in the server.  All running
+   * listeners will be stopped, and all configured listeners will be started.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to restart any
+   *                         of the listeners.  Even if an exception is thrown,
+   *                         as many listeners as possible will be started.
+   */
+  public synchronized void restartServer()
+         throws LDAPException
+  {
+    shutDown(true);
+
+    try
+    {
+      Thread.sleep(100L);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    startListening();
+  }
+
+
+
+  /**
+   * Attempts to restart the specified listener.  If it is running, it will be
+   * stopped.  It will then be started.
+   *
+   * @param  listenerName  The name of the listener to be restarted.  It must
+   *                       not be {@code null}.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to restart the
+   *                         specified listener.
+   */
+  public synchronized void restartListener(final String listenerName)
+         throws LDAPException
+  {
+    shutDown(listenerName, true);
+
+    try
+    {
+      Thread.sleep(100L);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    startListening(listenerName);
   }
 
 
@@ -385,49 +579,6 @@ public final class InMemoryDirectoryServer
 
 
   /**
-   * Retrieves the address on which the server is currently listening for client
-   * connections.
-   *
-   * @return  The address on which the server is currently listening for client
-   *          connections, or {@code null} if it is not currently listening.
-   */
-  public InetAddress getListenAddress()
-  {
-    return listener.getListenAddress();
-  }
-
-
-
-  /**
-   * Retrieves the port on which the server is currently listening for client
-   * connections.
-   *
-   * @return  The port on which the server is currently listening for client
-   *          connections, or -1 if it is not currently listening.
-   */
-  public int getListenPort()
-  {
-    return listener.getListenPort();
-  }
-
-
-
-  /**
-   * Retrieves the socket factory that should be used when establishing
-   * connections to the server, if defined.
-   *
-   * @return  The socket factory that should be used when establishing
-   *          connections to the server, or {@code null} if the JVM-default
-   *          socket factory should be used.
-   */
-  public SocketFactory getClientSocketFactory()
-  {
-    return clientSocketFactory;
-  }
-
-
-
-  /**
    * Retrieves the list of base DNs configured for use by the server.
    *
    * @return  The list of base DNs configured for use by the server.
@@ -440,7 +591,9 @@ public final class InMemoryDirectoryServer
 
 
   /**
-   * Attempts to establish a client connection to the server.
+   * Attempts to establish a client connection to the server.  If multiple
+   * listeners are configured, then it will attempt to establish a connection to
+   * the first configured listener that is running.
    *
    * @return  The client connection that has been established.
    *
@@ -450,7 +603,7 @@ public final class InMemoryDirectoryServer
   public LDAPConnection getConnection()
          throws LDAPException
   {
-    return getConnection(null);
+    return getConnection(null, null);
   }
 
 
@@ -470,16 +623,82 @@ public final class InMemoryDirectoryServer
   public LDAPConnection getConnection(final LDAPConnectionOptions options)
          throws LDAPException
   {
-    final int listenPort = listener.getListenPort();
-    if (listenPort < 0)
+    return getConnection(null, options);
+  }
+
+
+
+  /**
+   * Attempts to establish a client connection to the specified listener.
+   *
+   * @param  listenerName  The name of the listener to which to establish the
+   *                       connection.  It may be {@code null} if a connection
+   *                       should be established to the first available
+   *                       listener.
+   *
+   * @return  The client connection that has been established.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         create the connection.
+   */
+  public LDAPConnection getConnection(final String listenerName)
+         throws LDAPException
+  {
+    return getConnection(listenerName, null);
+  }
+
+
+
+  /**
+   * Attempts to establish a client connection to the specified listener.
+   *
+   * @param  listenerName  The name of the listener to which to establish the
+   *                       connection.  It may be {@code null} if a connection
+   *                       should be established to the first available
+   *                       listener.
+   * @param  options       The set of LDAP connection options to use for the
+   *                       connection that is created.
+   *
+   * @return  The client connection that has been established.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         create the connection.
+   */
+  public synchronized LDAPConnection getConnection(final String listenerName,
+                                          final LDAPConnectionOptions options)
+         throws LDAPException
+  {
+    final LDAPListenerConfig listenerConfig;
+    final SocketFactory clientSocketFactory;
+
+    if (listenerName == null)
     {
-      throw new LDAPException(ResultCode.CONNECT_ERROR,
-           ERR_MEM_DS_GET_CONNECTION_NOT_LISTENING.get());
+      final String name = getFirstListenerName();
+      if (name == null)
+      {
+        throw new LDAPException(ResultCode.CONNECT_ERROR,
+             ERR_MEM_DS_GET_CONNECTION_NO_LISTENERS.get());
+      }
+
+      listenerConfig      = ldapListenerConfigs.get(name);
+      clientSocketFactory = clientSocketFactories.get(name);
+    }
+    else
+    {
+      final String name = StaticUtils.toLowerCase(listenerName);
+      if (! listeners.containsKey(name))
+      {
+        throw new LDAPException(ResultCode.CONNECT_ERROR,
+             ERR_MEM_DS_GET_CONNECTION_LISTENER_NOT_RUNNING.get(listenerName));
+      }
+
+      listenerConfig      = ldapListenerConfigs.get(name);
+      clientSocketFactory = clientSocketFactories.get(name);
     }
 
     String hostAddress;
-    final InetAddress listenAddress = listener.getListenAddress();
-    if (listenAddress.isAnyLocalAddress())
+    final InetAddress listenAddress = listenerConfig.getListenAddress();
+    if ((listenAddress == null) || (listenAddress.isAnyLocalAddress()))
     {
       try
       {
@@ -497,7 +716,7 @@ public final class InMemoryDirectoryServer
     }
 
     return new LDAPConnection(clientSocketFactory, options, hostAddress,
-         listenPort);
+         listenerConfig.getListenPort());
   }
 
 
@@ -518,7 +737,7 @@ public final class InMemoryDirectoryServer
   public LDAPConnectionPool getConnectionPool(final int maxConnections)
          throws LDAPException
   {
-    return getConnectionPool(null, 1, maxConnections);
+    return getConnectionPool(null, null, 1, maxConnections);
   }
 
 
@@ -527,6 +746,8 @@ public final class InMemoryDirectoryServer
    * Attempts to establish a connection pool to the server with the provided
    * settings.
    *
+   * @param  listenerName        The name of the listener to which the
+   *                             connections should be established.
    * @param  options             The connection options to use when creating
    *                             connections for use in the pool.  It may be
    *                             {@code null} if a default set of options should
@@ -544,14 +765,188 @@ public final class InMemoryDirectoryServer
    * @throws  LDAPException  If a problem occurs while attempting to create the
    *                         connection pool.
    */
-  public LDAPConnectionPool getConnectionPool(
+  public LDAPConnectionPool getConnectionPool(final String listenerName,
                                  final LDAPConnectionOptions options,
                                  final int initialConnections,
                                  final int maxConnections)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection(options);
+    final LDAPConnection conn = getConnection(listenerName, options);
     return new LDAPConnectionPool(conn, initialConnections, maxConnections);
+  }
+
+
+
+  /**
+   * Retrieves the configured listen address for the first active listener, if
+   * defined.
+   *
+   * @return  The configured listen address for the first active listener, or
+   *          {@code null} if that listener does not have an
+   *          explicitly-configured listen address or there are no active
+   *          listeners.
+   */
+  public InetAddress getListenAddress()
+  {
+    return getListenAddress(null);
+  }
+
+
+
+  /**
+   * Retrieves the configured listen address for the specified listener, if
+   * defined.
+   *
+   * @param  listenerName  The name of the listener for which to retrieve the
+   *                       listen address.  It may be {@code null} in order to
+   *                       obtain the listen address for the first active
+   *                       listener.
+   *
+   * @return  The configured listen address for the specified listener, or
+   *          {@code null} if there is no such listener or the listener does not
+   *          have an explicitly-configured listen address.
+   */
+  public synchronized InetAddress getListenAddress(final String listenerName)
+  {
+    final String name;
+    if (listenerName == null)
+    {
+      name = getFirstListenerName();
+    }
+    else
+    {
+      name = StaticUtils.toLowerCase(listenerName);
+    }
+
+    final LDAPListenerConfig listenerCfg = ldapListenerConfigs.get(name);
+    if (listenerCfg == null)
+    {
+      return null;
+    }
+    else
+    {
+      return listenerCfg.getListenAddress();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the configured listen port for the first active listener.
+   *
+   * @return  The configured listen port for the first active listener, or -1 if
+   *          there are no active listeners.
+   */
+  public int getListenPort()
+  {
+    return getListenPort(null);
+  }
+
+
+
+  /**
+   * Retrieves the configured listen port for the specified listener, if
+   * available.
+   *
+   * @param  listenerName  The name of the listener for which to retrieve the
+   *                       listen port.  It may be {@code null} in order to
+   *                       obtain the listen port for the first active
+   *                       listener.
+   *
+   * @return  The configured listen port for the specified listener, or -1 if
+   *          there is no such listener or the listener is not active.
+   */
+  public synchronized int getListenPort(final String listenerName)
+  {
+    final String name;
+    if (listenerName == null)
+    {
+      name = getFirstListenerName();
+    }
+    else
+    {
+      name = StaticUtils.toLowerCase(listenerName);
+    }
+
+    final LDAPListener listener = listeners.get(name);
+    if (listener == null)
+    {
+      return -1;
+    }
+    else
+    {
+      return listener.getListenPort();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the configured client socket factory for the first active
+   * listener.
+   *
+   * @return  The configured client socket factory for the first active
+   *          listener, or {@code null} if that listener does not have an
+   *          explicitly-configured socket factory or there are no active
+   *          listeners.
+   */
+  public SocketFactory getClientSocketFactory()
+  {
+    return getClientSocketFactory(null);
+  }
+
+
+
+  /**
+   * Retrieves the configured client socket factory for the specified listener,
+   * if available.
+   *
+   * @param  listenerName  The name of the listener for which to retrieve the
+   *                       client socket factory.  It may be {@code null} in
+   *                       order to obtain the client socket factory for the
+   *                       first active listener.
+   *
+   * @return  The configured client socket factory for the specified listener,
+   *          or {@code null} if there is no such listener or that listener does
+   *          not have an explicitly-configured client socket factory.
+   */
+  public synchronized SocketFactory getClientSocketFactory(
+                                         final String listenerName)
+  {
+    final String name;
+    if (listenerName == null)
+    {
+      name = getFirstListenerName();
+    }
+    else
+    {
+      name = StaticUtils.toLowerCase(listenerName);
+    }
+
+    return clientSocketFactories.get(name);
+  }
+
+
+
+  /**
+   * Retrieves the name of the first running listener.
+   *
+   * @return  The name of the first running listener, or {@code null} if there
+   *          are no active listeners.
+   */
+  private String getFirstListenerName()
+  {
+    for (final Map.Entry<String,LDAPListenerConfig> e :
+         ldapListenerConfigs.entrySet())
+    {
+      final String name = e.getKey();
+      if (listeners.containsKey(name))
+      {
+        return name;
+      }
+    }
+
+    return null;
   }
 
 
