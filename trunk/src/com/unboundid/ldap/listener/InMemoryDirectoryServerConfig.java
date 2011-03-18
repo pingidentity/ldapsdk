@@ -51,9 +51,10 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 
 /**
  * This class provides a simple data structure with information that may be
- * used to control the behavior of an in-memory directory server instance.  At
- * least one base DN must be specified.  For all other properties, the following
- * default values will be used unless an alternate configuration is provided:
+ * used to control the behavior of an {@link InMemoryDirectoryServer} instance.
+ * At least one base DN must be specified.  For all other properties, the
+ * following default values will be used unless an alternate configuration is
+ * provided:
  * <UL>
  *   <LI>Listeners:  The server will provide a single listener that will use an
  *       automatically-selected port on all interfaces, which will not use SSL
