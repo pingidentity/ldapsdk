@@ -48,7 +48,9 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * server instance has the ability to have multiple listeners, and those
  * listeners may have different settings (e.g., listen on one port for
  * unencrypted LDAP communication with optional support for StartTLS, and listen
- * on a separate port for SSL-encrypted communication).
+ * on a separate port for SSL-encrypted communication).  If the server is to
+ * provide support for SSL and/or StartTLS, then the {@link SSLUtil} class can
+ * make it easy to create the necessary socket factories.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
