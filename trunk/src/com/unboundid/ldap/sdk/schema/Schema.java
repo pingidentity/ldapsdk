@@ -34,6 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
@@ -127,6 +128,14 @@ public final class Schema
    * with the schema information that governs a specified entry.
    */
   public static final String ATTR_SUBSCHEMA_SUBENTRY = "subschemaSubentry";
+
+
+
+  /**
+   * The default standard schema available for use in the LDAP SDK.
+   */
+  private static final AtomicReference<Schema> DEFAULT_STANDARD_SCHEMA =
+       new AtomicReference<Schema>();
 
 
 
@@ -878,23 +887,35 @@ public final class Schema
   public static Schema getDefaultStandardSchema()
          throws LDAPException
   {
-    try
+    synchronized (DEFAULT_STANDARD_SCHEMA)
     {
-      final ClassLoader classLoader = Schema.class.getClassLoader();
-      final InputStream inputStream =
-           classLoader.getResourceAsStream(DEFAULT_SCHEMA_RESOURCE_PATH);
-      final LDIFReader ldifReader = new LDIFReader(inputStream);
-      final Entry schemaEntry = ldifReader.readEntry();
-      ldifReader.close();
-      return new Schema(schemaEntry);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_SCHEMA_CANNOT_LOAD_DEFAULT_DEFINITIONS.get(
-                getExceptionMessage(e)),
-           e);
+      final Schema s = DEFAULT_STANDARD_SCHEMA.get();
+      if (s != null)
+      {
+        return s;
+      }
+
+      try
+      {
+        final ClassLoader classLoader = Schema.class.getClassLoader();
+        final InputStream inputStream =
+             classLoader.getResourceAsStream(DEFAULT_SCHEMA_RESOURCE_PATH);
+        final LDIFReader ldifReader = new LDIFReader(inputStream);
+        final Entry schemaEntry = ldifReader.readEntry();
+        ldifReader.close();
+
+        final Schema schema = new Schema(schemaEntry);
+        DEFAULT_STANDARD_SCHEMA.set(schema);
+        return schema;
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_SCHEMA_CANNOT_LOAD_DEFAULT_DEFINITIONS.get(
+                  getExceptionMessage(e)),
+             e);
+      }
     }
   }
 
