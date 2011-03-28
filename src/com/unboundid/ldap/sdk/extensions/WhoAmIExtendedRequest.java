@@ -92,7 +92,7 @@ public final class WhoAmIExtendedRequest
        extends ExtendedRequest
 {
   /**
-   * The OID for the "Who Am I?" extended request.
+   * The OID (1.3.6.1.4.1.4203.1.11.3) for the "Who Am I?" extended request.
    */
   public static final String WHO_AM_I_REQUEST_OID = "1.3.6.1.4.1.4203.1.11.3";
 

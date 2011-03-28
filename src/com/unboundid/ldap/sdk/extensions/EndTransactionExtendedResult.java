@@ -47,8 +47,10 @@ import static com.unboundid.util.StaticUtils.*;
 
 /**
  * This class provides an implementation of the end transaction extended result
- * as defined in RFC 5805.  It is able to decode a generic extended result to
- * extract the appropriate response information.
+ * as defined in
+ * <A HREF="http://www.ietf.org/rfc/rfc5805.txt">RFC 5805</A>.  It is able to
+ * decode a generic extended result to extract the appropriate response
+ * information.
  * <BR><BR>
  * See the documentation for the {@link StartTransactionExtendedRequest} class
  * for an example of performing a transaction.

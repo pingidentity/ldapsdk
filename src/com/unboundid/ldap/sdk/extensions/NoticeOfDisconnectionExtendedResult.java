@@ -35,8 +35,10 @@ import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
 
 /**
  * This class provides an implementation of the notice of disconnection extended
- * result as defined in RFC 4511.  It may be used as an unsolicited notification
- * to indicate that the directory server is closing the client connection.
+ * result as defined in
+ * <A HREF="http://www.ietf.org/rfc/rfc4511.txt">RFC 4511</A>.  It may be used
+ * as an unsolicited notification to indicate that the directory server is
+ * closing the client connection.
  * <BR><BR>
  * See the {@link com.unboundid.ldap.sdk.UnsolicitedNotificationHandler}
  * interface for a mechanism that can be used to receive and handle unsolicited
@@ -48,7 +50,8 @@ public final class NoticeOfDisconnectionExtendedResult
        extends ExtendedResult
 {
   /**
-   * The OID for the notice of disconnection extended result.
+   * The OID (1.3.6.1.4.1.1466.20036) for the notice of disconnection extended
+   * result.
    */
   public static final String NOTICE_OF_DISCONNECTION_RESULT_OID =
        "1.3.6.1.4.1.1466.20036";

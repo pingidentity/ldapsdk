@@ -90,7 +90,7 @@ public final class StartTLSExtendedRequest
        extends ExtendedRequest
 {
   /**
-   * The OID for the StartTLS extended request.
+   * The OID (1.3.6.1.4.1.1466.20037) for the StartTLS extended request.
    */
   public static final String STARTTLS_REQUEST_OID = "1.3.6.1.4.1.1466.20037";
 

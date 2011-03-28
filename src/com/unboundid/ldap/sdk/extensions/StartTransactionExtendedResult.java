@@ -36,9 +36,10 @@ import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
 
 /**
  * This class implements a data structure for storing the information from an
- * extended result for the start transaction extended request, as defined in RFC
- * 5805.  It is able to decode a generic extended result to extract the
- * transaction ID that it contains, if the operation was successful.
+ * extended result for the start transaction extended request, as defined in
+ * <A HREF="http://www.ietf.org/rfc/rfc5805.txt">RFC 5805</A>.  It is able to
+ * decode a generic extended result to extract the transaction ID that it
+ * contains, if the operation was successful.
  * <BR><BR>
  * See the documentation for the {@link StartTransactionExtendedRequest} class
  * for an example that demonstrates the use of LDAP transactions.
