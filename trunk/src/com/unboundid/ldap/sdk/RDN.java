@@ -30,6 +30,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.matchingrules.MatchingRule;
+import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -65,6 +68,10 @@ public final class RDN
   // The set of attribute values for this RDN.
   private final ASN1OctetString[] attributeValues;
 
+  // The schema to use to generate the normalized string representation of this
+  // RDN, if any.
+  private final Schema schema;
+
   // The normalized string representation for this RDN.
   private volatile String normalizedString;
 
@@ -86,7 +93,28 @@ public final class RDN
    */
   public RDN(final String attributeName, final String attributeValue)
   {
+    this(attributeName, attributeValue, null);
+  }
+
+
+
+  /**
+   * Creates a new single-valued RDN with the provided information.
+   *
+   * @param  attributeName   The attribute name for this RDN.  It must not be
+   *                         {@code null}.
+   * @param  attributeValue  The attribute value for this RDN.  It must not be
+   *                         {@code null}.
+   * @param  schema          The schema to use to generate the normalized string
+   *                         representation of this RDN.  It may be {@code null}
+   *                         if no schema is available.
+   */
+  public RDN(final String attributeName, final String attributeValue,
+             final Schema schema)
+  {
     ensureNotNull(attributeName, attributeValue);
+
+    this.schema = schema;
 
     attributeNames  = new String[] { attributeName };
     attributeValues =
@@ -105,7 +133,28 @@ public final class RDN
    */
   public RDN(final String attributeName, final byte[] attributeValue)
   {
+    this(attributeName, attributeValue, null);
+  }
+
+
+
+  /**
+   * Creates a new single-valued RDN with the provided information.
+   *
+   * @param  attributeName   The attribute name for this RDN.  It must not be
+   *                         {@code null}.
+   * @param  attributeValue  The attribute value for this RDN.  It must not be
+   *                         {@code null}.
+   * @param  schema          The schema to use to generate the normalized string
+   *                         representation of this RDN.  It may be {@code null}
+   *                         if no schema is available.
+   */
+  public RDN(final String attributeName, final byte[] attributeValue,
+             final Schema schema)
+  {
     ensureNotNull(attributeName, attributeValue);
+
+    this.schema = schema;
 
     attributeNames  = new String[] { attributeName };
     attributeValues =
@@ -126,6 +175,27 @@ public final class RDN
    */
   public RDN(final String[] attributeNames, final String[] attributeValues)
   {
+    this(attributeNames, attributeValues, null);
+  }
+
+
+
+  /**
+   * Creates a new (potentially multivalued) RDN.  The set of names must have
+   * the same number of elements as the set of values, and there must be at
+   * least one element in each array.
+   *
+   * @param  attributeNames   The set of attribute names for this RDN.  It must
+   *                          not be {@code null} or empty.
+   * @param  attributeValues  The set of attribute values for this RDN.  It must
+   *                          not be {@code null} or empty.
+   * @param  schema           The schema to use to generate the normalized
+   *                          string representation of this RDN.  It may be
+   *                          {@code null} if no schema is available.
+   */
+  public RDN(final String[] attributeNames, final String[] attributeValues,
+             final Schema schema)
+  {
     ensureNotNull(attributeNames, attributeValues);
     ensureTrue(attributeNames.length == attributeValues.length,
                "RDN.attributeNames and attributeValues must be the same size.");
@@ -133,6 +203,7 @@ public final class RDN
                "RDN.attributeNames must not be empty.");
 
     this.attributeNames = attributeNames;
+    this.schema         = schema;
 
     this.attributeValues = new ASN1OctetString[attributeValues.length];
     for (int i=0; i < attributeValues.length; i++)
@@ -155,6 +226,27 @@ public final class RDN
    */
   public RDN(final String[] attributeNames, final byte[][] attributeValues)
   {
+    this(attributeNames, attributeValues, null);
+  }
+
+
+
+  /**
+   * Creates a new (potentially multivalued) RDN.  The set of names must have
+   * the same number of elements as the set of values, and there must be at
+   * least one element in each array.
+   *
+   * @param  attributeNames   The set of attribute names for this RDN.  It must
+   *                          not be {@code null} or empty.
+   * @param  attributeValues  The set of attribute values for this RDN.  It must
+   *                          not be {@code null} or empty.
+   * @param  schema           The schema to use to generate the normalized
+   *                          string representation of this RDN.  It may be
+   *                          {@code null} if no schema is available.
+   */
+  public RDN(final String[] attributeNames, final byte[][] attributeValues,
+             final Schema schema)
+  {
     ensureNotNull(attributeNames, attributeValues);
     ensureTrue(attributeNames.length == attributeValues.length,
                "RDN.attributeNames and attributeValues must be the same size.");
@@ -162,6 +254,7 @@ public final class RDN
                "RDN.attributeNames must not be empty.");
 
     this.attributeNames = attributeNames;
+    this.schema         = schema;
 
     this.attributeValues = new ASN1OctetString[attributeValues.length];
     for (int i=0; i < attributeValues.length; i++)
@@ -177,12 +270,16 @@ public final class RDN
    *
    * @param  attributeName   The name to use for this RDN.
    * @param  attributeValue  The value to use for this RDN.
+   * @param  schema          The schema to use to generate the normalized string
+   *                         representation of this RDN.  It may be {@code null}
+   *                         if no schema is available.
    * @param  rdnString       The string representation for this RDN.
    */
   RDN(final String attributeName, final ASN1OctetString attributeValue,
-      final String rdnString)
+      final Schema schema, final String rdnString)
   {
     this.rdnString = rdnString;
+    this.schema    = schema;
 
     attributeNames  = new String[] { attributeName };
     attributeValues = new ASN1OctetString[] { attributeValue };
@@ -196,11 +293,15 @@ public final class RDN
    * @param  attributeNames   The set of names to use for this RDN.
    * @param  attributeValues  The set of values to use for this RDN.
    * @param  rdnString        The string representation for this RDN.
+   * @param  schema           The schema to use to generate the normalized
+   *                          string representation of this RDN.  It may be
+   *                          {@code null} if no schema is available.
    */
   RDN(final String[] attributeNames, final ASN1OctetString[] attributeValues,
-      final String rdnString)
+      final Schema schema, final String rdnString)
   {
     this.rdnString = rdnString;
+    this.schema    = schema;
 
     this.attributeNames  = attributeNames;
     this.attributeValues = attributeValues;
@@ -220,9 +321,30 @@ public final class RDN
   public RDN(final String rdnString)
          throws LDAPException
   {
+    this(rdnString, (Schema) null);
+  }
+
+
+
+  /**
+   * Creates a new RDN from the provided string representation.
+   *
+   * @param  rdnString  The string representation to use for this RDN.  It must
+   *                    not be empty or {@code null}.
+   * @param  schema     The schema to use to generate the normalized string
+   *                    representation of this RDN.  It may be {@code null} if
+   *                    no schema is available.
+   *
+   * @throws  LDAPException  If the provided string cannot be parsed as a valid
+   *                         RDN.
+   */
+  public RDN(final String rdnString, final Schema schema)
+         throws LDAPException
+  {
     ensureNotNull(rdnString);
 
     this.rdnString = rdnString;
+    this.schema    = schema;
 
     int pos = 0;
     final int length = rdnString.length();
@@ -1098,6 +1220,19 @@ valueLoop:
 
 
   /**
+   * Retrieves the schema that will be used for this RDN, if any.
+   *
+   * @return  The schema that will be used for this RDN, or {@code null} if none
+   *          has been provided.
+   */
+  Schema getSchema()
+  {
+    return schema;
+  }
+
+
+
+  /**
    * Indicates whether this RDN contains the specified attribute.
    *
    * @param  attributeName  The name of the attribute for which to make the
@@ -1139,9 +1274,10 @@ valueLoop:
     {
       if (attributeNames[i].equalsIgnoreCase(attributeName))
       {
-        final Attribute a = new Attribute(attributeName, attributeValue);
-        final Attribute b = new Attribute(attributeName,
-                                          attributeValues[i].stringValue());
+        final Attribute a =
+             new Attribute(attributeName, schema, attributeValue);
+        final Attribute b = new Attribute(attributeName, schema,
+             attributeValues[i].stringValue());
 
         if (a.equals(b))
         {
@@ -1173,9 +1309,10 @@ valueLoop:
     {
       if (attributeNames[i].equalsIgnoreCase(attributeName))
       {
-        final Attribute a = new Attribute(attributeName, attributeValue);
-        final Attribute b = new Attribute(attributeName,
-                                          attributeValues[i].getValue());
+        final Attribute a =
+             new Attribute(attributeName, schema, attributeValue);
+        final Attribute b = new Attribute(attributeName, schema,
+             attributeValues[i].getValue());
 
         if (a.equals(b))
         {
@@ -1362,9 +1499,10 @@ valueLoop:
     if (attributeNames.length == 1)
     {
       // It's a single-valued RDN, so there is no need to sort anything.
-      buffer.append(toLowerCase(attributeNames[0]));
+      final String name = normalizeAttrName(attributeNames[0]);
+      buffer.append(name);
       buffer.append('=');
-      buffer.append(normalizeValue(attributeValues[0]));
+      buffer.append(normalizeValue(name, attributeValues[0]));
     }
     else
     {
@@ -1373,7 +1511,8 @@ valueLoop:
            new TreeMap<String,ASN1OctetString>();
       for (int i=0; i < attributeNames.length; i++)
       {
-        valueMap.put(toLowerCase(attributeNames[i]), attributeValues[i]);
+        final String name = normalizeAttrName(attributeNames[i]);
+        valueMap.put(name, attributeValues[i]);
       }
 
       int i=0;
@@ -1386,9 +1525,33 @@ valueLoop:
 
         buffer.append(entry.getKey());
         buffer.append('=');
-        buffer.append(normalizeValue(entry.getValue()));
+        buffer.append(normalizeValue(entry.getKey(), entry.getValue()));
       }
     }
+  }
+
+
+
+  /**
+   * Obtains a normalized representation of the provided attribute name.
+   *
+   * @param  name  The name of the attribute for which to create the normalized
+   *               representation.
+   *
+   * @return  A normalized representation of the provided attribute name.
+   */
+  private String normalizeAttrName(final String name)
+  {
+    String n = name;
+    if (schema != null)
+    {
+      final AttributeTypeDefinition at = schema.getAttributeType(name);
+      if (at != null)
+      {
+        n = at.getNameOrOID();
+      }
+    }
+    return toLowerCase(n);
   }
 
 
@@ -1408,32 +1571,69 @@ valueLoop:
   public static String normalize(final String s)
          throws LDAPException
   {
-    return new RDN(s).toNormalizedString();
+    return normalize(s, null);
   }
 
 
 
   /**
-   * Normalizes the provided attribute value.
+   * Retrieves a normalized string representation of the RDN with the provided
+   * string representation.
    *
-   * @param  value  The value to be normalized.
+   * @param  s       The string representation of the RDN to normalize.  It must
+   *                 not be {@code null}.
+   * @param  schema  The schema to use to generate the normalized string
+   *                 representation of the RDN.  It may be {@code null} if no
+   *                 schema is available.
+   *
+   * @return  The normalized string representation of the RDN with the provided
+   *          string representation.
+   *
+   * @throws  LDAPException  If the provided string cannot be parsed as an RDN.
+   */
+  public static String normalize(final String s, final Schema schema)
+         throws LDAPException
+  {
+    return new RDN(s, schema).toNormalizedString();
+  }
+
+
+
+  /**
+   * Normalizes the provided attribute value for use in an RDN.
+   *
+   * @param  attributeName  The name of the attribute with which the value is
+   *                        associated.
+   * @param  value           The value to be normalized.
    *
    * @return  A string builder containing a normalized representation of the
    *          value in a suitable form for inclusion in an RDN.
    */
-  private static StringBuilder normalizeValue(final ASN1OctetString value)
+  private StringBuilder normalizeValue(final String attributeName,
+                                       final ASN1OctetString value)
   {
-    final String valueString = value.stringValue();
+    final MatchingRule matchingRule =
+         MatchingRule.selectEqualityMatchingRule(attributeName, schema);
+
+    ASN1OctetString rawNormValue;
+    try
+    {
+      rawNormValue = matchingRule.normalize(value);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      rawNormValue =
+           new ASN1OctetString(toLowerCase(value.stringValue()));
+    }
+
+    final String valueString = rawNormValue.stringValue();
     final int length = valueString.length();
     final StringBuilder buffer = new StringBuilder(length);
 
     for (int i=0; i < length; i++)
     {
-      char c = valueString.charAt(i);
-      if (Character.isUpperCase(c))
-      {
-        c = Character.toLowerCase(c);
-      }
+      final char c = valueString.charAt(i);
 
       switch (c)
       {
@@ -1475,11 +1675,6 @@ valueLoop:
             buffer.append(c);
           }
           break;
-      }
-
-      if ((c & 0x7F) != c)
-      {
-        // We'll always hex-encode non-ASCII values.
       }
     }
 
@@ -1554,7 +1749,7 @@ valueLoop:
       return false;
     }
 
-    return equals(new RDN(s));
+    return equals(new RDN(s, schema));
   }
 
 
@@ -1641,6 +1836,35 @@ valueLoop:
   public static int compare(final String s1, final String s2)
          throws LDAPException
   {
-    return new RDN(s1).compareTo(new RDN(s2));
+    return compare(s1, s2, null);
+  }
+
+
+
+  /**
+   * Compares the RDN values with the provided string representations to
+   * determine their relative order in a sorted list.
+   *
+   * @param  s1      The string representation of the first RDN to be compared.
+   *                 It must not be {@code null}.
+   * @param  s2      The string representation of the second RDN to be compared.
+   *                 It must not be {@code null}.
+   * @param  schema  The schema to use to generate the normalized string
+   *                 representations of the RDNs.  It may be {@code null} if no
+   *                 schema is available.
+   *
+   * @return  A negative integer if the first RDN should come before the second
+   *          RDN in a sorted list, a positive integer if the first RDN should
+   *          come after the second RDN in a sorted list, or zero if the two RDN
+   *          values can be considered equal.
+   *
+   * @throws  LDAPException  If either of the provided strings cannot be parsed
+   *                         as an RDN.
+   */
+  public static int compare(final String s1, final String s2,
+                            final Schema schema)
+         throws LDAPException
+  {
+    return new RDN(s1, schema).compareTo(new RDN(s2, schema));
   }
 }

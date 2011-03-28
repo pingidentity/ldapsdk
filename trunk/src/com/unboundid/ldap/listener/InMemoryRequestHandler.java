@@ -266,7 +266,7 @@ public final class InMemoryRequestHandler
            ERR_MEM_HANDLER_NULL_BASE_DN.get());
     }
 
-    changeLogBaseDN = new DN("cn=changelog");
+    changeLogBaseDN = new DN("cn=changelog", schema);
     if (baseDNSet.contains(changeLogBaseDN))
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -317,7 +317,7 @@ public final class InMemoryRequestHandler
 
     baseDNs = Collections.unmodifiableSet(baseDNSet);
     generateOperationalAttributes = config.generateOperationalAttributes();
-    authenticatedDN               = new DN("cn=Internal Root User");
+    authenticatedDN               = new DN("cn=Internal Root User", schema);
     connection                    = null;
     connectionState               = Collections.emptyMap();
     firstChangeNumber             = new AtomicLong(0L);
@@ -334,7 +334,7 @@ public final class InMemoryRequestHandler
     if (maxChangelogEntries > 0)
     {
       baseDNSet.add(changeLogBaseDN);
-      entryMap.put(changeLogBaseDN, new ReadOnlyEntry(changeLogBaseDN,
+      entryMap.put(changeLogBaseDN, new ReadOnlyEntry(changeLogBaseDN, schema,
            new Attribute("objectClass", "top", "namedObject"),
            new Attribute("cn", "changelog"),
            new Attribute("entryDN",
@@ -682,7 +682,7 @@ public final class InMemoryRequestHandler
              a.getRawValues()));
       }
 
-      entry = new Entry(request.getDN(), newAttrs);
+      entry = new Entry(request.getDN(), schema, newAttrs);
     }
 
     // Make sure that the DN is valid.
@@ -985,7 +985,7 @@ public final class InMemoryRequestHandler
     final DN bindDN;
     try
     {
-      bindDN = new DN(request.getBindDN());
+      bindDN = new DN(request.getBindDN(), schema);
     }
     catch (final LDAPException le)
     {
@@ -1222,7 +1222,7 @@ public final class InMemoryRequestHandler
     final DN dn;
     try
     {
-      dn = new DN(request.getDN());
+      dn = new DN(request.getDN(), schema);
     }
     catch (final LDAPException le)
     {
@@ -1376,7 +1376,7 @@ public final class InMemoryRequestHandler
     final DN dn;
     try
     {
-      dn = new DN(request.getDN());
+      dn = new DN(request.getDN(), schema);
     }
     catch (final LDAPException le)
     {
@@ -1676,7 +1676,7 @@ public final class InMemoryRequestHandler
     final DN dn;
     try
     {
-      dn = new DN(request.getDN());
+      dn = new DN(request.getDN(), schema);
     }
     catch (final LDAPException le)
     {
@@ -1914,7 +1914,7 @@ public final class InMemoryRequestHandler
     final DN dn;
     try
     {
-      dn = new DN(request.getDN());
+      dn = new DN(request.getDN(), schema);
     }
     catch (final LDAPException le)
     {
@@ -1929,7 +1929,7 @@ public final class InMemoryRequestHandler
     final RDN newRDN;
     try
     {
-      newRDN = new RDN(request.getNewRDN());
+      newRDN = new RDN(request.getNewRDN(), schema);
     }
     catch (final LDAPException le)
     {
@@ -1951,7 +1951,7 @@ public final class InMemoryRequestHandler
     {
       try
       {
-        newSuperiorDN = new DN(newSuperiorString);
+        newSuperiorDN = new DN(newSuperiorString, schema);
       }
       catch (final LDAPException le)
       {
@@ -2436,7 +2436,7 @@ public final class InMemoryRequestHandler
     final DN baseDN;
     try
     {
-      baseDN = new DN(request.getBaseDN());
+      baseDN = new DN(request.getBaseDN(), schema);
     }
     catch (final LDAPException le)
     {
@@ -2711,7 +2711,7 @@ findEntriesAndRefs:
       {
         final SortKey primarySortKey = sortRequestControl.getSortKeys()[0];
 
-        final Entry testEntry = new Entry("cn=test",
+        final Entry testEntry = new Entry("cn=test", schema,
              new Attribute(primarySortKey.getAttributeName(), assertionValue));
 
         final EntrySorter entrySorter =
@@ -2790,7 +2790,7 @@ findEntriesAndRefs:
            allUserAttrs.get(), allOpAttrs.get(), returnAttrs);
       if (request.typesOnly())
       {
-        final Entry typesOnlyEntry = new Entry(trimmedEntry.getDN());
+        final Entry typesOnlyEntry = new Entry(trimmedEntry.getDN(), schema);
         for (final Attribute a : trimmedEntry.getAttributes())
         {
           typesOnlyEntry.addAttribute(new Attribute(a.getName()));
@@ -2858,7 +2858,7 @@ findEntriesAndRefs:
   public synchronized int countEntriesBelow(final String baseDN)
          throws LDAPException
   {
-    final DN parsedBaseDN = new DN(baseDN);
+    final DN parsedBaseDN = new DN(baseDN, schema);
 
     int count = 0;
     for (final DN dn : entryMap.keySet())
@@ -3181,7 +3181,7 @@ findEntriesAndRefs:
   public synchronized int deleteSubtree(final String baseDN)
          throws LDAPException
   {
-    final DN dn = new DN(baseDN);
+    final DN dn = new DN(baseDN, schema);
     if (dn.isNullDN())
     {
       throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
@@ -3262,7 +3262,7 @@ findEntriesAndRefs:
   public synchronized ReadOnlyEntry getEntry(final String dn)
          throws LDAPException
   {
-    return getEntry(new DN(dn));
+    return getEntry(new DN(dn, schema));
   }
 
 
@@ -3326,7 +3326,7 @@ findEntriesAndRefs:
     final DN parsedDN;
     try
     {
-      parsedDN = new DN(baseDN);
+      parsedDN = new DN(baseDN, schema);
     }
     catch (final LDAPException le)
     {
@@ -3435,41 +3435,13 @@ findEntriesAndRefs:
 
 
   /**
-   * Parses the provided set of strings as DNs.
-   *
-   * @param  dnStrings  The array of strings to be parsed as DNs.
-   *
-   * @return  The array of parsed DNs.
-   *
-   * @throws  LDAPException  If any of the provided strings cannot be parsed as
-   *                         DNs.
-   */
-  static DN[] parseDNs(final String... dnStrings)
-         throws LDAPException
-  {
-    if (dnStrings == null)
-    {
-      return null;
-    }
-
-    final DN[] dns = new DN[dnStrings.length];
-    for (int i=0; i < dns.length; i++)
-    {
-      dns[i] = new DN(dnStrings[i]);
-    }
-    return dns;
-  }
-
-
-
-  /**
    * Generates an entry to use as the server root DSE.
    *
    * @return  The generated root DSE entry.
    */
   private ReadOnlyEntry generateRootDSE()
   {
-    final Entry rootDSEEntry = new Entry(DN.NULL_DN);
+    final Entry rootDSEEntry = new Entry(DN.NULL_DN, schema);
     rootDSEEntry.addAttribute("objectClass", "top", "ds-root-dse");
     rootDSEEntry.addAttribute(new Attribute("supportedLDAPVersion",
          IntegerMatchingRule.getInstance(), "3"));
@@ -3576,7 +3548,7 @@ findEntriesAndRefs:
 
     if (schema == null)
     {
-      e = new Entry("cn=schema");
+      e = new Entry("cn=schema", schema);
 
       e.addAttribute("objectClass", "namedObject", "ldapSubEntry",
            "subschema");
@@ -3589,7 +3561,7 @@ findEntriesAndRefs:
 
     try
     {
-      e.addAttribute("entryDN", DN.normalize(e.getDN()));
+      e.addAttribute("entryDN", DN.normalize(e.getDN(), schema));
     }
     catch (final LDAPException le)
     {
@@ -3920,7 +3892,7 @@ findEntriesAndRefs:
 
 
     // If we've gotten here, then we may only need to return a partial entry.
-    final Entry copy = new Entry(entry.getDN());
+    final Entry copy = new Entry(entry.getDN(), schema);
 
     for (final Attribute a : entry.getAttributes())
     {
@@ -4232,7 +4204,8 @@ findEntriesAndRefs:
   {
     // Construct the DN object to use for the entry and put it in the map.
     final long changeNumber = e.getChangeNumber();
-    final DN dn = new DN(new RDN("changeNumber", String.valueOf(changeNumber)),
+    final DN dn = new DN(
+         new RDN("changeNumber", String.valueOf(changeNumber), schema),
          changeLogBaseDN);
 
     final Entry entry = e.duplicate();
@@ -4280,7 +4253,7 @@ findEntriesAndRefs:
         // first change number.
         firstChangeNumber.incrementAndGet();
         entryMap.remove(new DN(
-             new RDN("changeNumber", String.valueOf(firstNumber)),
+             new RDN("changeNumber", String.valueOf(firstNumber), schema),
              changeLogBaseDN));
       }
     }
@@ -4311,7 +4284,7 @@ findEntriesAndRefs:
                    PROXIED_AUTHORIZATION_V1_REQUEST_OID);
     if (p1 != null)
     {
-      final DN authzDN = new DN(p1.getProxyDN());
+      final DN authzDN = new DN(p1.getProxyDN(), schema);
       if (authzDN.isNullDN() ||
           entryMap.containsKey(authzDN) ||
           additionalBindCredentials.containsKey(authzDN))
@@ -4365,7 +4338,7 @@ findEntriesAndRefs:
       }
       else
       {
-        final DN dn = new DN(authzID.substring(3));
+        final DN dn = new DN(authzID.substring(3), schema);
         if (entryMap.containsKey(dn) ||
             additionalBindCredentials.containsKey(dn))
         {
