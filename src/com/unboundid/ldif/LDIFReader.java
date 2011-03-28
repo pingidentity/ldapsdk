@@ -1598,10 +1598,10 @@ public final class LDIFReader
     // returned.
     if (! iterator.hasNext())
     {
-      return new Entry(dn);
+      return new Entry(dn, unparsedRecord.getSchema());
     }
 
-    return new Entry(dn, parseAttributes(dn,
+    return new Entry(dn, unparsedRecord.getSchema(), parseAttributes(dn,
          unparsedRecord.ignoreDuplicateValues(),
          unparsedRecord.stripTrailingSpaces(), unparsedRecord.getSchema(),
          ldifLines, iterator, firstLineNumber));

@@ -149,7 +149,7 @@ public final class PasswordModifyExtendedOperationHandler
       DN authDN;
       try
       {
-        authDN = new DN(userIdentity);
+        authDN = new DN(userIdentity, handler.getSchema());
       }
       catch (final LDAPException le)
       {

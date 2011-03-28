@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk;
 
 import java.util.Collection;
 
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
@@ -60,7 +61,24 @@ public class ReadOnlyEntry
    */
   public ReadOnlyEntry(final String dn, final Attribute... attributes)
   {
-    super(dn, attributes);
+    this(dn, null, attributes);
+  }
+
+
+
+  /**
+   * Creates a new read-only entry with the provided DN and set of attributes.
+   *
+   * @param  dn          The DN for this entry.  It must not be {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes for this entry.  It must not be
+   *                     {@code null}.
+   */
+  public ReadOnlyEntry(final String dn, final Schema schema,
+                       final Attribute... attributes)
+  {
+    super(dn, schema, attributes);
   }
 
 
@@ -74,7 +92,24 @@ public class ReadOnlyEntry
    */
   public ReadOnlyEntry(final DN dn, final Attribute... attributes)
   {
-    super(dn, attributes);
+    this(dn, null, attributes);
+  }
+
+
+
+  /**
+   * Creates a new read-only entry with the provided DN and set of attributes.
+   *
+   * @param  dn          The DN for this entry.  It must not be {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes for this entry.  It must not be
+   *                     {@code null}.
+   */
+  public ReadOnlyEntry(final DN dn, final Schema schema,
+                       final Attribute... attributes)
+  {
+    super(dn, schema, attributes);
   }
 
 
@@ -88,7 +123,24 @@ public class ReadOnlyEntry
    */
   public ReadOnlyEntry(final String dn, final Collection<Attribute> attributes)
   {
-    super(dn, attributes);
+    this(dn, null, attributes);
+  }
+
+
+
+  /**
+   * Creates a new read-only entry with the provided DN and set of attributes.
+   *
+   * @param  dn          The DN for this entry.  It must not be {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes for this entry.  It must not be
+   *                     {@code null}.
+   */
+  public ReadOnlyEntry(final String dn, final Schema schema,
+                       final Collection<Attribute> attributes)
+  {
+    super(dn, schema, attributes);
   }
 
 
@@ -102,7 +154,24 @@ public class ReadOnlyEntry
    */
   public ReadOnlyEntry(final DN dn, final Collection<Attribute> attributes)
   {
-    super(dn, attributes);
+    this(dn, null, attributes);
+  }
+
+
+
+  /**
+   * Creates a new read-only entry with the provided DN and set of attributes.
+   *
+   * @param  dn          The DN for this entry.  It must not be {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes for this entry.  It must not be
+   *                     {@code null}.
+   */
+  public ReadOnlyEntry(final DN dn, final Schema schema,
+                       final Collection<Attribute> attributes)
+  {
+    super(dn, schema, attributes);
   }
 
 
@@ -114,7 +183,7 @@ public class ReadOnlyEntry
    */
   public ReadOnlyEntry(final Entry entry)
   {
-    super(entry.getDN(), entry.getAttributes());
+    super(entry.getDN(), entry.getSchema(), entry.getAttributes());
   }
 
 
@@ -131,7 +200,26 @@ public class ReadOnlyEntry
   public ReadOnlyEntry(final String... ldifLines)
          throws LDIFException
   {
-    super(ldifLines);
+    this(null, ldifLines);
+  }
+
+
+
+  /**
+   * Creates a new read-only entry from the provided LDIF representation.
+   *
+   * @param  schema     The schema to use for operations involving this entry.
+   *                    It may be {@code null} if no schema is available.
+   * @param  ldifLines  The set of lines that comprise an LDIF representation
+   *                    of the entry.  It must not be {@code null} or empty.
+   *
+   * @throws  LDIFException  If the provided lines cannot be decoded as an entry
+   *                         in LDIF format.
+   */
+  public ReadOnlyEntry(final Schema schema, final String... ldifLines)
+         throws LDIFException
+  {
+    super(schema, ldifLines);
   }
 
 

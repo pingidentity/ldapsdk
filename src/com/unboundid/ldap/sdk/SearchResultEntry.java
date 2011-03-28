@@ -80,7 +80,7 @@ public final class SearchResultEntry
   public SearchResultEntry(final String dn, final Attribute[] attributes,
                            final Control... controls)
   {
-    this(-1, dn, attributes, controls);
+    this(-1, dn, null, attributes, controls);
   }
 
 
@@ -101,7 +101,30 @@ public final class SearchResultEntry
                            final Attribute[] attributes,
                            final Control... controls)
   {
-    super(dn, attributes);
+    this(messageID, dn, null, attributes, controls);
+  }
+
+
+
+  /**
+   * Creates a new search result entry with the provided information.
+   *
+   * @param  messageID   The message ID for the LDAP message containing this
+   *                     response.
+   * @param  dn          The DN for this search result entry.  It must not be
+   *                     {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes to include in this search result
+   *                     entry.  It must not be {@code null}.
+   * @param  controls    The set of controls for this search result entry.  It
+   *                     must not be {@code null}.
+   */
+  public SearchResultEntry(final int messageID, final String dn,
+                           final Schema schema, final Attribute[] attributes,
+                           final Control... controls)
+  {
+    super(dn, schema, attributes);
 
     ensureNotNull(controls);
 
@@ -125,7 +148,7 @@ public final class SearchResultEntry
                            final Collection<Attribute> attributes,
                            final Control... controls)
   {
-    this(-1, dn, attributes, controls);
+    this(-1, dn, null, attributes, controls);
   }
 
 
@@ -146,7 +169,31 @@ public final class SearchResultEntry
                            final Collection<Attribute> attributes,
                            final Control... controls)
   {
-    super(dn, attributes);
+    this(messageID, dn, null, attributes, controls);
+  }
+
+
+
+  /**
+   * Creates a new search result entry with the provided information.
+   *
+   * @param  messageID   The message ID for the LDAP message containing this
+   *                     response.
+   * @param  dn          The DN for this search result entry.  It must not be
+   *                     {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes to include in this search result
+   *                     entry.  It must not be {@code null}.
+   * @param  controls    The set of controls for this search result entry.  It
+   *                     must not be {@code null}.
+   */
+  public SearchResultEntry(final int messageID, final String dn,
+                           final Schema schema,
+                           final Collection<Attribute> attributes,
+                           final Control... controls)
+  {
+    super(dn, schema, attributes);
 
     ensureNotNull(controls);
 
@@ -245,7 +292,7 @@ public final class SearchResultEntry
         controlList.toArray(controls);
       }
 
-      return new SearchResultEntry(messageID, dn, attrList, controls);
+      return new SearchResultEntry(messageID, dn, schema, attrList, controls);
     }
     catch (LDAPException le)
     {

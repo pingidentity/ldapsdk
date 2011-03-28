@@ -103,6 +103,9 @@ public class Entry
   // The set of attributes for this entry.
   private final LinkedHashMap<String,Attribute> attributes;
 
+  // The schema to use for this entry.
+  private final Schema schema;
+
   // The DN for this entry.
   private String dn;
 
@@ -115,9 +118,24 @@ public class Entry
    */
   public Entry(final String dn)
   {
+    this(dn, (Schema) null);
+  }
+
+
+
+  /**
+   * Creates a new entry with the provided DN and no attributes.
+   *
+   * @param  dn      The DN for this entry.  It must not be {@code null}.
+   * @param  schema  The schema to use for operations involving this entry.  It
+   *                 may be {@code null} if no schema is available.
+   */
+  public Entry(final String dn, final Schema schema)
+  {
     ensureNotNull(dn);
 
-    this.dn = dn;
+    this.dn     = dn;
+    this.schema = schema;
 
     attributes = new LinkedHashMap<String,Attribute>();
   }
@@ -131,10 +149,25 @@ public class Entry
    */
   public Entry(final DN dn)
   {
+    this(dn, (Schema) null);
+  }
+
+
+
+  /**
+   * Creates a new entry with the provided DN and no attributes.
+   *
+   * @param  dn      The DN for this entry.  It must not be {@code null}.
+   * @param  schema  The schema to use for operations involving this entry.  It
+   *                 may be {@code null} if no schema is available.
+   */
+  public Entry(final DN dn, final Schema schema)
+  {
     ensureNotNull(dn);
 
-    parsedDN = dn;
-    this.dn  = parsedDN.toString();
+    parsedDN    = dn;
+    this.dn     = parsedDN.toString();
+    this.schema = schema;
 
     attributes = new LinkedHashMap<String,Attribute>();
   }
@@ -150,9 +183,27 @@ public class Entry
    */
   public Entry(final String dn, final Attribute... attributes)
   {
+    this(dn, null, attributes);
+  }
+
+
+
+  /**
+   * Creates a new entry with the provided DN and set of attributes.
+   *
+   * @param  dn          The DN for this entry.  It must not be {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes for this entry.  It must not be
+   *                     {@code null}.
+   */
+  public Entry(final String dn, final Schema schema,
+               final Attribute... attributes)
+  {
     ensureNotNull(dn, attributes);
 
-    this.dn = dn;
+    this.dn     = dn;
+    this.schema = schema;
 
     this.attributes = new LinkedHashMap<String,Attribute>(attributes.length);
     for (final Attribute a : attributes)
@@ -181,10 +232,27 @@ public class Entry
    */
   public Entry(final DN dn, final Attribute... attributes)
   {
+    this(dn, null, attributes);
+  }
+
+
+
+  /**
+   * Creates a new entry with the provided DN and set of attributes.
+   *
+   * @param  dn          The DN for this entry.  It must not be {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes for this entry.  It must not be
+   *                     {@code null}.
+   */
+  public Entry(final DN dn, final Schema schema, final Attribute... attributes)
+  {
     ensureNotNull(dn, attributes);
 
-    parsedDN = dn;
-    this.dn  = parsedDN.toString();
+    parsedDN    = dn;
+    this.dn     = parsedDN.toString();
+    this.schema = schema;
 
     this.attributes = new LinkedHashMap<String,Attribute>(attributes.length);
     for (final Attribute a : attributes)
@@ -213,9 +281,27 @@ public class Entry
    */
   public Entry(final String dn, final Collection<Attribute> attributes)
   {
+    this(dn, null, attributes);
+  }
+
+
+
+  /**
+   * Creates a new entry with the provided DN and set of attributes.
+   *
+   * @param  dn          The DN for this entry.  It must not be {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes for this entry.  It must not be
+   *                     {@code null}.
+   */
+  public Entry(final String dn, final Schema schema,
+               final Collection<Attribute> attributes)
+  {
     ensureNotNull(dn, attributes);
 
-    this.dn = dn;
+    this.dn     = dn;
+    this.schema = schema;
 
     this.attributes = new LinkedHashMap<String,Attribute>(attributes.size());
     for (final Attribute a : attributes)
@@ -244,10 +330,28 @@ public class Entry
    */
   public Entry(final DN dn, final Collection<Attribute> attributes)
   {
+    this(dn, null, attributes);
+  }
+
+
+
+  /**
+   * Creates a new entry with the provided DN and set of attributes.
+   *
+   * @param  dn          The DN for this entry.  It must not be {@code null}.
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  attributes  The set of attributes for this entry.  It must not be
+   *                     {@code null}.
+   */
+  public Entry(final DN dn, final Schema schema,
+               final Collection<Attribute> attributes)
+  {
     ensureNotNull(dn, attributes);
 
-    parsedDN = dn;
-    this.dn  = parsedDN.toString();
+    parsedDN    = dn;
+    this.dn     = parsedDN.toString();
+    this.schema = schema;
 
     this.attributes = new LinkedHashMap<String,Attribute>(attributes.size());
     for (final Attribute a : attributes)
@@ -279,7 +383,28 @@ public class Entry
   public Entry(final String... entryLines)
          throws LDIFException
   {
+    this(null, entryLines);
+  }
+
+
+
+  /**
+   * Creates a new entry from the provided LDIF representation.
+   *
+   * @param  schema      The schema to use for operations involving this entry.
+   *                     It may be {@code null} if no schema is available.
+   * @param  entryLines  The set of lines that comprise an LDIF representation
+   *                     of the entry.  It must not be {@code null} or empty.
+   *
+   * @throws  LDIFException  If the provided lines cannot be decoded as an entry
+   *                         in LDIF format.
+   */
+  public Entry(final Schema schema, final String... entryLines)
+         throws LDIFException
+  {
     final Entry e = LDIFReader.decodeEntry(entryLines);
+
+    this.schema = schema;
 
     dn         = e.dn;
     parsedDN   = e.parsedDN;
@@ -342,7 +467,7 @@ public class Entry
   {
     if (parsedDN == null)
     {
-      parsedDN = new DN(dn);
+      parsedDN = new DN(dn, schema);
     }
 
     return parsedDN;
@@ -378,7 +503,7 @@ public class Entry
   {
     if (parsedDN == null)
     {
-      parsedDN = new DN(dn);
+      parsedDN = new DN(dn, schema);
     }
 
     return parsedDN.getParent();
@@ -399,7 +524,7 @@ public class Entry
   {
     if (parsedDN == null)
     {
-      parsedDN = new DN(dn);
+      parsedDN = new DN(dn, schema);
     }
 
     final DN parentDN = parsedDN.getParent();
@@ -416,6 +541,19 @@ public class Entry
 
 
   /**
+   * Retrieves the schema that will be used for this entry, if any.
+   *
+   * @return  The schema that will be used for this entry, or {@code null} if
+   *          no schema was provided.
+   */
+  protected Schema getSchema()
+  {
+    return schema;
+  }
+
+
+
+  /**
    * Indicates whether this entry contains the specified attribute.
    *
    * @param  attributeName  The name of the attribute for which to make the
@@ -426,9 +564,7 @@ public class Entry
    */
   public final boolean hasAttribute(final String attributeName)
   {
-    ensureNotNull(attributeName);
-
-    return attributes.containsKey(toLowerCase(attributeName));
+    return hasAttribute(attributeName, schema);
   }
 
 
@@ -653,9 +789,7 @@ public class Entry
    */
   public final Attribute getAttribute(final String attributeName)
   {
-    ensureNotNull(attributeName);
-
-    return attributes.get(toLowerCase(attributeName));
+    return getAttribute(attributeName, schema);
   }
 
 
@@ -1107,7 +1241,7 @@ public class Entry
                               final String attributeValue)
   {
     ensureNotNull(attributeName, attributeValue);
-    return addAttribute(new Attribute(attributeName, attributeValue));
+    return addAttribute(new Attribute(attributeName, schema, attributeValue));
   }
 
 
@@ -1128,7 +1262,7 @@ public class Entry
                               final byte[] attributeValue)
   {
     ensureNotNull(attributeName, attributeValue);
-    return addAttribute(new Attribute(attributeName, attributeValue));
+    return addAttribute(new Attribute(attributeName, schema, attributeValue));
   }
 
 
@@ -1149,7 +1283,7 @@ public class Entry
                               final String... attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
-    return addAttribute(new Attribute(attributeName, attributeValues));
+    return addAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
 
@@ -1170,7 +1304,7 @@ public class Entry
                               final byte[]... attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
-    return addAttribute(new Attribute(attributeName, attributeValues));
+    return addAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
 
@@ -1401,7 +1535,8 @@ public class Entry
     ensureNotNull(attributeName, attributeValue);
 
     final String lowerName = toLowerCase(attributeName);
-    attributes.put(lowerName, new Attribute(attributeName, attributeValue));
+    attributes.put(lowerName,
+         new Attribute(attributeName, schema, attributeValue));
   }
 
 
@@ -1421,7 +1556,8 @@ public class Entry
     ensureNotNull(attributeName, attributeValue);
 
     final String lowerName = toLowerCase(attributeName);
-    attributes.put(lowerName, new Attribute(attributeName, attributeValue));
+    attributes.put(lowerName,
+         new Attribute(attributeName, schema, attributeValue));
   }
 
 
@@ -1441,7 +1577,8 @@ public class Entry
     ensureNotNull(attributeName, attributeValues);
 
     final String lowerName = toLowerCase(attributeName);
-    attributes.put(lowerName, new Attribute(attributeName, attributeValues));
+    attributes.put(lowerName,
+         new Attribute(attributeName, schema, attributeValues));
   }
 
 
@@ -1461,7 +1598,8 @@ public class Entry
     ensureNotNull(attributeName, attributeValues);
 
     final String lowerName = toLowerCase(attributeName);
-    attributes.put(lowerName, new Attribute(attributeName, attributeValues));
+    attributes.put(lowerName,
+         new Attribute(attributeName, schema, attributeValues));
   }
 
 
@@ -2274,7 +2412,7 @@ deleteValueLoop:
    */
   public Entry duplicate()
   {
-    return new Entry(dn, attributes.values());
+    return new Entry(dn, schema, attributes.values());
   }
 
 

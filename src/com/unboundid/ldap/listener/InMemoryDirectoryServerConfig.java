@@ -150,7 +150,7 @@ public class InMemoryDirectoryServerConfig
   public InMemoryDirectoryServerConfig(final String... baseDNs)
          throws LDAPException
   {
-    this(InMemoryRequestHandler.parseDNs(baseDNs));
+    this(parseDNs(Schema.getDefaultStandardSchema(), baseDNs));
   }
 
 
@@ -262,7 +262,7 @@ public class InMemoryDirectoryServerConfig
   public void setBaseDNs(final String... baseDNs)
          throws LDAPException
   {
-    setBaseDNs(InMemoryRequestHandler.parseDNs(baseDNs));
+    setBaseDNs(parseDNs(schema, baseDNs));
   }
 
 
@@ -552,7 +552,7 @@ public class InMemoryDirectoryServerConfig
            ERR_MEM_DS_CFG_NULL_ADDITIONAL_BIND_DN.get());
     }
 
-    final DN parsedDN = new DN(dn);
+    final DN parsedDN = new DN(dn, schema);
     if (parsedDN.isNullDN())
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -827,6 +827,36 @@ public class InMemoryDirectoryServerConfig
     {
       this.maxChangeLogEntries = maxChangeLogEntries;
     }
+  }
+
+
+
+  /**
+   * Parses the provided set of strings as DNs.
+   *
+   * @param  dnStrings  The array of strings to be parsed as DNs.
+   * @param  schema     The schema to use to generate the normalized
+   *                    representations of the DNs, if available.
+   *
+   * @return  The array of parsed DNs.
+   *
+   * @throws  LDAPException  If any of the provided strings cannot be parsed as
+   *                         DNs.
+   */
+  private static DN[] parseDNs(final Schema schema, final String... dnStrings)
+          throws LDAPException
+  {
+    if (dnStrings == null)
+    {
+      return null;
+    }
+
+    final DN[] dns = new DN[dnStrings.length];
+    for (int i=0; i < dns.length; i++)
+    {
+      dns[i] = new DN(dnStrings[i]);
+    }
+    return dns;
   }
 
 
