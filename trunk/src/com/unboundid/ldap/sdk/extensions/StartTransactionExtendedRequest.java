@@ -39,16 +39,18 @@ import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
 
 /**
  * This class provides an implementation of the start transaction extended
- * request as defined in RFC 5805.  It may be used to begin a transaction that
- * allows multiple write operations to be processed as a single atomic unit.
- * The {@link StartTransactionExtendedResult} that is returned will include a
- * transaction ID.  For each operation that is performed as part of the
- * transaction, this transaction ID should be included in the corresponding
- * request through the {@link TransactionSpecificationRequestControl}.
- * Finally, after all requests for the transaction have been submitted to the
- * server, the {@link EndTransactionExtendedRequest} should be used to commit
- * that transaction, or it may also be used to abort the transaction if it is
- * decided that it is no longer needed.
+ * request as defined in
+ * <A HREF="http://www.ietf.org/rfc/rfc5805.txt">RFC 5805</A>.  It may be used
+ * to begin a transaction that allows multiple write operations to be processed
+ * as a single atomic unit.  The {@link StartTransactionExtendedResult} that is
+ * returned will include a transaction ID.  For each operation that is performed
+ * as part of the transaction, this transaction ID should be included in the
+ * corresponding request through the
+ * {@link TransactionSpecificationRequestControl}.  Finally, after all requests
+ * for the transaction have been submitted to the server, the
+ * {@link EndTransactionExtendedRequest} should be used to commit that
+ * transaction, or it may also be used to abort the transaction if it is decided
+ * that it is no longer needed.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for using LDAP  transactions.
@@ -168,7 +170,7 @@ public final class StartTransactionExtendedRequest
        extends ExtendedRequest
 {
   /**
-   * The OID for the start transaction extended request.
+   * The OID (1.3.6.1.1.21.1) for the start transaction extended request.
    */
   public static final String START_TRANSACTION_REQUEST_OID = "1.3.6.1.1.21.1";
 

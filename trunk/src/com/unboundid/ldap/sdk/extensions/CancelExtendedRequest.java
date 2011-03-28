@@ -107,7 +107,7 @@ public final class CancelExtendedRequest
        extends ExtendedRequest
 {
   /**
-   * The OID for the cancel extended request.
+   * The OID (1.3.6.1.1.8) for the cancel extended request.
    */
   public static final String CANCEL_REQUEST_OID = "1.3.6.1.1.8";
 

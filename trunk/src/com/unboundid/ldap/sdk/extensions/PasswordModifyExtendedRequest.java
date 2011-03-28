@@ -109,7 +109,7 @@ public final class PasswordModifyExtendedRequest
        extends ExtendedRequest
 {
   /**
-   * The OID for the password modify extended request.
+   * The OID (1.3.6.1.4.1.4203.1.11.1) for the password modify extended request.
    */
   public static final String PASSWORD_MODIFY_REQUEST_OID =
        "1.3.6.1.4.1.4203.1.11.1";
