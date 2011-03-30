@@ -602,6 +602,10 @@ public final class InMemoryDirectoryServerTool
         }
       }
     }
+    else
+    {
+      serverConfig.setSchema(null);
+    }
 
 
     // If an additional bind DN and password are provided, then include them in
