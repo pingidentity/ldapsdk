@@ -117,8 +117,9 @@ public abstract class AbstractConnectionPool
    * @param  exception   The exception caught while processing an operation on
    *                     the connection.
    */
-  public void releaseConnectionAfterException(final LDAPConnection connection,
-                                              final LDAPException exception)
+  public final void releaseConnectionAfterException(
+                         final LDAPConnection connection,
+                         final LDAPException exception)
   {
     final LDAPConnectionPoolHealthCheck healthCheck = getHealthCheck();
 
@@ -133,6 +134,115 @@ public abstract class AbstractConnectionPool
       releaseDefunctConnection(connection);
     }
   }
+
+
+
+  /**
+   * Releases the provided connection as defunct and creates a new connection to
+   * replace it, if possible, optionally connected to a different directory
+   * server instance than the instance with which the original connection was
+   * established.
+   *
+   * @param  connection  The defunct connection to be replaced.
+   *
+   * @return  The newly-created connection intended to replace the provided
+   *          connection.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the new connection.  Note that even if an exception
+   *                         is thrown, then the provided connection must have
+   *                         been properly released as defunct.
+   */
+  public abstract LDAPConnection replaceDefunctConnection(
+                                      final LDAPConnection connection)
+         throws LDAPException;
+
+
+
+  /**
+   * Attempts to replace the provided connection.  However, if an exception is
+   * encountered while obtaining the new connection then an exception will be
+   * thrown based on the provided {@code Throwable} object.
+   *
+   * @param  t           The {@code Throwable} that was caught and prompted the
+   *                     connection to be replaced.
+   * @param  connection  The defunct connection to be replaced.
+   *
+   * @return  The newly-created connection intended to replace the provided
+   *          connection.
+   *
+   * @throws  LDAPException  If an exception is encountered while attempting to
+   *                         obtain the new connection.  Note that this
+   *                         exception will be generated from the provided
+   *                         {@code Throwable} rather than based on the
+   *                         exception caught while trying to create the new
+   *                         connection.
+   */
+  private LDAPConnection replaceDefunctConnection(final Throwable t,
+                              final LDAPConnection connection)
+          throws LDAPException
+  {
+    try
+    {
+      return replaceDefunctConnection(connection);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+
+      if (t instanceof LDAPException)
+      {
+        throw (LDAPException) t;
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
+      }
+    }
+  }
+
+
+
+  /**
+   * Indicates whether attempts to process operations should be retried on a
+   * newly-created connection if the initial attempt fails in a manner that
+   * indicates that the connection used to process that request may no longer
+   * be valid.  Only a single retry will be attempted for any operation.
+   * <BR><BR>
+   * Note that this only applies to methods used to process operations in the
+   * context pool (e.g., using methods that are part of {@link LDAPInterface}),
+   * and will not automatically be used for operations processed on connections
+   * checked out of the pool.
+   *
+   * @return  {@code true} if the connection pool should attempt to retry
+   *          operations on a newly-created connection if they fail in a way
+   *          that indicates the associated connection may no longer be usable,
+   *          or {@code false} if operations should only be attempted once.
+   */
+  public abstract boolean retryFailedOperationsDueToInvalidConnections();
+
+
+
+  /**
+   * Specifies whether attempts to process operations should be retried on a
+   * newly-created connection if the initial attempt fails in a manner that
+   * indicates that the connection used to process that request may no longer
+   * be valid.  Only a single retry will be attempted for any operation.
+   * <BR><BR>
+   * Note that this only applies to methods used to process operations in the
+   * context pool (e.g., using methods that are part of {@link LDAPInterface}),
+   * and will not automatically be used for operations processed on connections
+   * checked out of the pool.
+   *
+   * @param  retryFailedOperationsDueToInvalidConnections
+   *              Indicates whether attempts to process operations should be
+   *              retried on a newly-created connection if they fail in a way
+   *              that indicates the associated connection may no longer be
+   *              usable.
+   */
+  public abstract void setRetryFailedOperationsDueToInvalidConnections(
+              final boolean retryFailedOperationsDueToInvalidConnections);
 
 
 
@@ -247,7 +357,7 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server root DSE.
    */
-  public RootDSE getRootDSE()
+  public final RootDSE getRootDSE()
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -258,9 +368,24 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return rootDSE;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final RootDSE rootDSE = newConn.getRootDSE();
+        releaseConnection(newConn);
+        return rootDSE;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -284,24 +409,10 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
-  public Schema getSchema()
+  public final Schema getSchema()
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final Schema schema = conn.getSchema();
-      releaseConnection(conn);
-      return schema;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return getSchema("");
   }
 
 
@@ -326,7 +437,7 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
-  public Schema getSchema(final String entryDN)
+  public final Schema getSchema(final String entryDN)
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -339,7 +450,22 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final Schema schema = newConn.getSchema(entryDN);
+        releaseConnection(newConn);
+        return schema;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -362,24 +488,10 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  public SearchResultEntry getEntry(final String dn)
+  public final SearchResultEntry getEntry(final String dn)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final SearchResultEntry entry = conn.getEntry(dn);
-      releaseConnection(conn);
-      return entry;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return getEntry(dn, NO_STRINGS);
   }
 
 
@@ -401,7 +513,8 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  public SearchResultEntry getEntry(final String dn, final String... attributes)
+  public final SearchResultEntry getEntry(final String dn,
+                                          final String... attributes)
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -414,7 +527,22 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final SearchResultEntry entry = newConn.getEntry(dn, attributes);
+        releaseConnection(newConn);
+        return entry;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -438,24 +566,10 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult add(final String dn, final Attribute... attributes)
+  public final LDAPResult add(final String dn, final Attribute... attributes)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.add(dn, attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return add(new AddRequest(dn, attributes));
   }
 
 
@@ -475,24 +589,11 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult add(final String dn, final Collection<Attribute> attributes)
+  public final LDAPResult add(final String dn,
+                              final Collection<Attribute> attributes)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.add(dn, attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return add(new AddRequest(dn, attributes));
   }
 
 
@@ -509,24 +610,10 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult add(final Entry entry)
+  public final LDAPResult add(final Entry entry)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.add(entry);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return add(new AddRequest(entry));
   }
 
 
@@ -547,24 +634,10 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult add(final String... ldifLines)
+  public final LDAPResult add(final String... ldifLines)
          throws LDIFException, LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.add(ldifLines);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPOrLDIFException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return add(new AddRequest(ldifLines));
   }
 
 
@@ -582,7 +655,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult add(final AddRequest addRequest)
+  public final LDAPResult add(final AddRequest addRequest)
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -595,7 +668,22 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final LDAPResult result = newConn.add(addRequest);
+        releaseConnection(newConn);
+        return result;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -617,7 +705,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult add(final ReadOnlyAddRequest addRequest)
+  public final LDAPResult add(final ReadOnlyAddRequest addRequest)
          throws LDAPException
   {
     return add((AddRequest) addRequest);
@@ -644,24 +732,10 @@ public abstract class AbstractConnectionPool
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  public BindResult bind(final String bindDN, final String password)
+  public final BindResult bind(final String bindDN, final String password)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final BindResult result = conn.bind(bindDN, password);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return bind(new SimpleBindRequest(bindDN, password));
   }
 
 
@@ -684,7 +758,7 @@ public abstract class AbstractConnectionPool
    *                         problem occurs while sending the request or reading
    *                         the response.
    */
-  public BindResult bind(final BindRequest bindRequest)
+  public final BindResult bind(final BindRequest bindRequest)
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -697,7 +771,22 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final BindResult result = newConn.bind(bindRequest);
+        releaseConnection(newConn);
+        return result;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -723,26 +812,12 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public CompareResult compare(final String dn, final String attributeName,
-                               final String assertionValue)
+  public final CompareResult compare(final String dn,
+                                     final String attributeName,
+                                     final String assertionValue)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final CompareResult result =
-           conn.compare(dn, attributeName, assertionValue);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return compare(new CompareRequest(dn, attributeName, assertionValue));
   }
 
 
@@ -760,7 +835,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public CompareResult compare(final CompareRequest compareRequest)
+  public final CompareResult compare(final CompareRequest compareRequest)
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -773,7 +848,22 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final CompareResult result = newConn.compare(compareRequest);
+        releaseConnection(newConn);
+        return result;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -795,7 +885,8 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public CompareResult compare(final ReadOnlyCompareRequest compareRequest)
+  public final CompareResult compare(
+                                  final ReadOnlyCompareRequest compareRequest)
          throws LDAPException
   {
     return compare((CompareRequest) compareRequest);
@@ -815,24 +906,10 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult delete(final String dn)
+  public final LDAPResult delete(final String dn)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.delete(dn);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return delete(new DeleteRequest(dn));
   }
 
 
@@ -850,7 +927,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult delete(final DeleteRequest deleteRequest)
+  public final LDAPResult delete(final DeleteRequest deleteRequest)
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -863,7 +940,22 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final LDAPResult result = newConn.delete(deleteRequest);
+        releaseConnection(newConn);
+        return result;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -885,7 +977,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
+  public final LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
          throws LDAPException
   {
     return delete((DeleteRequest) deleteRequest);
@@ -909,30 +1001,10 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  public ExtendedResult processExtendedOperation(final String requestOID)
+  public final ExtendedResult processExtendedOperation(final String requestOID)
          throws LDAPException
   {
-    if (requestOID.equals(StartTLSExtendedRequest.STARTTLS_REQUEST_OID))
-    {
-      throw new LDAPException(ResultCode.NOT_SUPPORTED,
-                              ERR_POOL_STARTTLS_NOT_ALLOWED.get());
-    }
-
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final ExtendedResult result = conn.processExtendedOperation(requestOID);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return processExtendedOperation(new ExtendedRequest(requestOID));
   }
 
 
@@ -957,32 +1029,12 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  public ExtendedResult processExtendedOperation(final String requestOID,
-                             final ASN1OctetString requestValue)
+  public final ExtendedResult processExtendedOperation(final String requestOID,
+                                   final ASN1OctetString requestValue)
          throws LDAPException
   {
-    if (requestOID.equals(StartTLSExtendedRequest.STARTTLS_REQUEST_OID))
-    {
-      throw new LDAPException(ResultCode.NOT_SUPPORTED,
-                              ERR_POOL_STARTTLS_NOT_ALLOWED.get());
-    }
-
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final ExtendedResult result =
-           conn.processExtendedOperation(requestOID, requestValue);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return processExtendedOperation(new ExtendedRequest(requestOID,
+         requestValue));
   }
 
 
@@ -1003,12 +1055,12 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  public ExtendedResult processExtendedOperation(
-                               final ExtendedRequest extendedRequest)
+  public final ExtendedResult processExtendedOperation(
+                                   final ExtendedRequest extendedRequest)
          throws LDAPException
   {
     if (extendedRequest.getOID().equals(
-             StartTLSExtendedRequest.STARTTLS_REQUEST_OID))
+         StartTLSExtendedRequest.STARTTLS_REQUEST_OID))
     {
       throw new LDAPException(ResultCode.NOT_SUPPORTED,
                               ERR_POOL_STARTTLS_NOT_ALLOWED.get());
@@ -1025,7 +1077,23 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final ExtendedResult result =
+             newConn.processExtendedOperation(extendedRequest);
+        releaseConnection(newConn);
+        return result;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -1048,24 +1116,10 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult modify(final String dn, final Modification mod)
+  public final LDAPResult modify(final String dn, final Modification mod)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.modify(dn, mod);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return modify(new ModifyRequest(dn, mod));
   }
 
 
@@ -1083,24 +1137,10 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult modify(final String dn, final Modification... mods)
+  public final LDAPResult modify(final String dn, final Modification... mods)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.modify(dn, mods);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return modify(new ModifyRequest(dn, mods));
   }
 
 
@@ -1119,24 +1159,10 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult modify(final String dn, final List<Modification> mods)
+  public final LDAPResult modify(final String dn, final List<Modification> mods)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.modify(dn, mods);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return modify(new ModifyRequest(dn, mods));
   }
 
 
@@ -1159,24 +1185,10 @@ public abstract class AbstractConnectionPool
    *                         reading the response.
    *
    */
-  public LDAPResult modify(final String... ldifModificationLines)
+  public final LDAPResult modify(final String... ldifModificationLines)
          throws LDIFException, LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.modify(ldifModificationLines);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPOrLDIFException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return modify(new ModifyRequest(ldifModificationLines));
   }
 
 
@@ -1194,7 +1206,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult modify(final ModifyRequest modifyRequest)
+  public final LDAPResult modify(final ModifyRequest modifyRequest)
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -1207,7 +1219,22 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final LDAPResult result = newConn.modify(modifyRequest);
+        releaseConnection(newConn);
+        return result;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -1229,7 +1256,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  public LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
+  public final LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
          throws LDAPException
   {
     return modify((ModifyRequest) modifyRequest);
@@ -1254,25 +1281,11 @@ public abstract class AbstractConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
-  public LDAPResult modifyDN(final String dn, final String newRDN,
-                             final boolean deleteOldRDN)
+  public final LDAPResult modifyDN(final String dn, final String newRDN,
+                                   final boolean deleteOldRDN)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result = conn.modifyDN(dn, newRDN, deleteOldRDN);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return modifyDN(new ModifyDNRequest(dn, newRDN, deleteOldRDN));
   }
 
 
@@ -1297,27 +1310,13 @@ public abstract class AbstractConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
-  public LDAPResult modifyDN(final String dn, final String newRDN,
-                             final boolean deleteOldRDN,
-                             final String newSuperiorDN)
+  public final LDAPResult modifyDN(final String dn, final String newRDN,
+                                   final boolean deleteOldRDN,
+                                   final String newSuperiorDN)
          throws LDAPException
   {
-    final LDAPConnection conn = getConnection();
-
-    try
-    {
-      final LDAPResult result =
-           conn.modifyDN(dn, newRDN, deleteOldRDN, newSuperiorDN);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return modifyDN(new ModifyDNRequest(dn, newRDN, deleteOldRDN,
+         newSuperiorDN));
   }
 
 
@@ -1335,7 +1334,7 @@ public abstract class AbstractConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
-  public LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
+  public final LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
     final LDAPConnection conn = getConnection();
@@ -1348,7 +1347,22 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPException(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn = replaceDefunctConnection(t, conn);
+
+      try
+      {
+        final LDAPResult result = newConn.modifyDN(modifyDNRequest);
+        releaseConnection(newConn);
+        return result;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -1370,7 +1384,8 @@ public abstract class AbstractConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
-  public LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
+  public final LDAPResult modifyDN(
+                               final ReadOnlyModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
     return modifyDN((ModifyDNRequest) modifyDNRequest);
@@ -1405,35 +1420,13 @@ public abstract class AbstractConnectionPool
    *                               the provided filter string, sending the
    *                               request, or reading the response.
    */
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final String filter, final String... attributes)
+  public final SearchResult search(final String baseDN, final SearchScope scope,
+                                   final String filter,
+                                   final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResult result =
-           conn.search(baseDN, scope, filter, attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return search(new SearchRequest(baseDN, scope, parseFilter(filter),
+         attributes));
   }
 
 
@@ -1463,35 +1456,12 @@ public abstract class AbstractConnectionPool
    *                               or if a problem is encountered while sending
    *                               the request or reading the response.
    */
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final Filter filter, final String... attributes)
+  public final SearchResult search(final String baseDN, final SearchScope scope,
+                                   final Filter filter,
+                                   final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResult result =
-           conn.search(baseDN, scope, filter, attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return search(new SearchRequest(baseDN, scope, filter, attributes));
   }
 
 
@@ -1526,36 +1496,14 @@ public abstract class AbstractConnectionPool
    *                               the provided filter string, sending the
    *                               request, or reading the response.
    */
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final String filter, final String... attributes)
+  public final SearchResult
+       search(final SearchResultListener searchResultListener,
+              final String baseDN, final SearchScope scope, final String filter,
+              final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResult result =
-           conn.search(searchResultListener, baseDN, scope, filter, attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return search(new SearchRequest(searchResultListener, baseDN, scope,
+         parseFilter(filter), attributes));
   }
 
 
@@ -1588,36 +1536,14 @@ public abstract class AbstractConnectionPool
    *                               or if a problem is encountered while sending
    *                               the request or reading the response.
    */
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final Filter filter, final String... attributes)
+  public final SearchResult
+       search(final SearchResultListener searchResultListener,
+              final String baseDN, final SearchScope scope, final Filter filter,
+              final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResult result =
-           conn.search(searchResultListener, baseDN, scope, filter, attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return search(new SearchRequest(searchResultListener, baseDN, scope,
+         filter, attributes));
   }
 
 
@@ -1659,38 +1585,15 @@ public abstract class AbstractConnectionPool
    *                               the provided filter string, sending the
    *                               request, or reading the response.
    */
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final String filter,
-                             final String... attributes)
+  public final SearchResult search(final String baseDN, final SearchScope scope,
+                                   final DereferencePolicy derefPolicy,
+                                   final int sizeLimit, final int timeLimit,
+                                   final boolean typesOnly, final String filter,
+                                   final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResult result = conn.search(baseDN, scope, derefPolicy,
-           sizeLimit, timeLimit, typesOnly, filter, attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return search(new SearchRequest(baseDN, scope, derefPolicy, sizeLimit,
+         timeLimit, typesOnly, parseFilter(filter), attributes));
   }
 
 
@@ -1730,38 +1633,15 @@ public abstract class AbstractConnectionPool
    *                               or if a problem is encountered while sending
    *                               the request or reading the response.
    */
-  public SearchResult search(final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final Filter filter,
-                             final String... attributes)
+  public final SearchResult search(final String baseDN, final SearchScope scope,
+                                   final DereferencePolicy derefPolicy,
+                                   final int sizeLimit, final int timeLimit,
+                                   final boolean typesOnly, final Filter filter,
+                                   final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResult result = conn.search(baseDN, scope, derefPolicy,
-           sizeLimit, timeLimit, typesOnly, filter, attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return search(new SearchRequest(baseDN, scope, derefPolicy, sizeLimit,
+         timeLimit, typesOnly, filter, attributes));
   }
 
 
@@ -1809,40 +1689,17 @@ public abstract class AbstractConnectionPool
    *                               the provided filter string, sending the
    *                               request, or reading the response.
    */
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final String filter,
-                             final String... attributes)
+  public final SearchResult
+       search(final SearchResultListener searchResultListener,
+              final String baseDN, final SearchScope scope,
+              final DereferencePolicy derefPolicy, final int sizeLimit,
+              final int timeLimit, final boolean typesOnly, final String filter,
+              final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResult result = conn.search(searchResultListener, baseDN,
-           scope, derefPolicy, sizeLimit, timeLimit, typesOnly, filter,
-           attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return search(new SearchRequest(searchResultListener, baseDN, scope,
+         derefPolicy, sizeLimit, timeLimit, typesOnly, parseFilter(filter),
+         attributes));
   }
 
 
@@ -1889,40 +1746,16 @@ public abstract class AbstractConnectionPool
    *                               or if a problem is encountered while sending
    *                               the request or reading the response.
    */
-  public SearchResult search(final SearchResultListener searchResultListener,
-                             final String baseDN, final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final boolean typesOnly, final Filter filter,
-                             final String... attributes)
+  public final SearchResult
+        search(final SearchResultListener searchResultListener,
+               final String baseDN, final SearchScope scope,
+               final DereferencePolicy derefPolicy, final int sizeLimit,
+               final int timeLimit, final boolean typesOnly,
+               final Filter filter, final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResult result = conn.search(searchResultListener, baseDN,
-           scope, derefPolicy, sizeLimit, timeLimit, typesOnly, filter,
-           attributes);
-      releaseConnection(conn);
-      return result;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return search(new SearchRequest(searchResultListener, baseDN, scope,
+         derefPolicy, sizeLimit, timeLimit, typesOnly, filter, attributes));
   }
 
 
@@ -1942,7 +1775,7 @@ public abstract class AbstractConnectionPool
    *                               or if a problem is encountered while sending
    *                               the request or reading the response.
    */
-  public SearchResult search(final SearchRequest searchRequest)
+  public final SearchResult search(final SearchRequest searchRequest)
          throws LDAPSearchException
   {
     final LDAPConnection conn;
@@ -1964,7 +1797,31 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPSearchException(t, conn);
+      throwLDAPSearchExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn;
+      try
+      {
+        newConn = replaceDefunctConnection(t, conn);
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+        throw new LDAPSearchException(le);
+      }
+
+      try
+      {
+        final SearchResult result = newConn.search(searchRequest);
+        releaseConnection(newConn);
+        return result;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPSearchException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -1988,7 +1845,7 @@ public abstract class AbstractConnectionPool
    *                               or if a problem is encountered while sending
    *                               the request or reading the response.
    */
-  public SearchResult search(final ReadOnlySearchRequest searchRequest)
+  public final SearchResult search(final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
     return search((SearchRequest) searchRequest);
@@ -2024,37 +1881,15 @@ public abstract class AbstractConnectionPool
    *                               provided filter string, sending the request,
    *                               or reading the response.
    */
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final String filter,
-                                          final String... attributes)
+  public final SearchResultEntry searchForEntry(final String baseDN,
+                                                final SearchScope scope,
+                                                final String filter,
+                                                final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResultEntry entry = conn.searchForEntry(baseDN, scope,
-           filter, attributes);
-      releaseConnection(conn);
-      return entry;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return searchForEntry(new SearchRequest(baseDN, scope,
+         DereferencePolicy.NEVER, 1, 0, false, parseFilter(filter),
+         attributes));
   }
 
 
@@ -2087,37 +1922,14 @@ public abstract class AbstractConnectionPool
    *                               provided filter string, sending the request,
    *                               or reading the response.
    */
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final Filter filter,
-                                          final String... attributes)
+  public final SearchResultEntry searchForEntry(final String baseDN,
+                                                final SearchScope scope,
+                                                final Filter filter,
+                                                final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResultEntry entry = conn.searchForEntry(baseDN, scope,
-           filter, attributes);
-      releaseConnection(conn);
-      return entry;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return searchForEntry(new SearchRequest(baseDN, scope,
+         DereferencePolicy.NEVER, 1, 0, false, filter, attributes));
   }
 
 
@@ -2157,40 +1969,15 @@ public abstract class AbstractConnectionPool
    *                               provided filter string, sending the request,
    *                               or reading the response.
    */
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final DereferencePolicy derefPolicy,
-                                          final int timeLimit,
-                                          final boolean typesOnly,
-                                          final String filter,
-                                          final String... attributes)
+  public final SearchResultEntry
+       searchForEntry(final String baseDN, final SearchScope scope,
+                      final DereferencePolicy derefPolicy, final int timeLimit,
+                      final boolean typesOnly, final String filter,
+                      final String... attributes)
          throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResultEntry entry = conn.searchForEntry(baseDN, scope,
-           derefPolicy, timeLimit, typesOnly, filter, attributes);
-      releaseConnection(conn);
-      return entry;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return searchForEntry(new SearchRequest(baseDN, scope, derefPolicy, 1,
+         timeLimit, typesOnly, parseFilter(filter), attributes));
   }
 
 
@@ -2229,40 +2016,15 @@ public abstract class AbstractConnectionPool
    *                               provided filter string, sending the request,
    *                               or reading the response.
    */
-  public SearchResultEntry searchForEntry(final String baseDN,
-                                          final SearchScope scope,
-                                          final DereferencePolicy derefPolicy,
-                                          final int timeLimit,
-                                          final boolean typesOnly,
-                                          final Filter filter,
-                                          final String... attributes)
-       throws LDAPSearchException
+  public final SearchResultEntry
+       searchForEntry(final String baseDN, final SearchScope scope,
+                      final DereferencePolicy derefPolicy, final int timeLimit,
+                      final boolean typesOnly, final Filter filter,
+                      final String... attributes)
+         throws LDAPSearchException
   {
-    final LDAPConnection conn;
-    try
-    {
-      conn = getConnection();
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
-    }
-
-    try
-    {
-      final SearchResultEntry entry = conn.searchForEntry(baseDN, scope,
-           derefPolicy, timeLimit, typesOnly, filter, attributes);
-      releaseConnection(conn);
-      return entry;
-    }
-    catch (Throwable t)
-    {
-      throwLDAPSearchException(t, conn);
-
-      // This return statement should never be reached.
-      return null;
-    }
+    return searchForEntry(new SearchRequest(baseDN, scope, derefPolicy, 1,
+         timeLimit, typesOnly, filter, attributes));
   }
 
 
@@ -2293,7 +2055,8 @@ public abstract class AbstractConnectionPool
    *                               provided filter string, sending the request,
    *                               or reading the response.
    */
-  public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
+  public final SearchResultEntry searchForEntry(
+                                      final SearchRequest searchRequest)
          throws LDAPSearchException
   {
     final LDAPConnection conn;
@@ -2315,7 +2078,31 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPSearchException(t, conn);
+      throwLDAPSearchExceptionIfShouldNotRetry(t, conn);
+
+      // If we have gotten here, then we should retry the operation with a
+      // newly-created connection.
+      final LDAPConnection newConn;
+      try
+      {
+        newConn = replaceDefunctConnection(t, conn);
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+        throw new LDAPSearchException(le);
+      }
+
+      try
+      {
+        final SearchResultEntry entry = newConn.searchForEntry(searchRequest);
+        releaseConnection(newConn);
+        return entry;
+      }
+      catch (final Throwable t2)
+      {
+        throwLDAPSearchException(t2, newConn);
+      }
 
       // This return statement should never be reached.
       return null;
@@ -2345,8 +2132,8 @@ public abstract class AbstractConnectionPool
    *                               provided filter string, sending the request,
    *                               or reading the response.
    */
-  public SearchResultEntry searchForEntry(
-                                final ReadOnlySearchRequest searchRequest)
+  public final SearchResultEntry searchForEntry(
+                                      final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
     return searchForEntry((SearchRequest) searchRequest);
@@ -2355,8 +2142,37 @@ public abstract class AbstractConnectionPool
 
 
   /**
+   * Parses the provided string as a {@code Filter} object.
+   *
+   * @param  filterString  The string to parse as a {@code Filter}.
+   *
+   * @return  The parsed {@code Filter}.
+   *
+   * @throws  LDAPSearchException  If the provided string does not represent a
+   *                               valid search filter.
+   */
+  private static Filter parseFilter(final String filterString)
+          throws LDAPSearchException
+  {
+    try
+    {
+      return Filter.create(filterString);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw new LDAPSearchException(le);
+    }
+  }
+
+
+
+  /**
    * Processes multiple requests in the order they are provided over a single
-   * connection from this pool.
+   * connection from this pool.  Note that the
+   * {@link #retryFailedOperationsDueToInvalidConnections()} setting will be
+   * ignored when processing the provided operations, so that any failed
+   * operations will not be retried.
    *
    * @param  requests         The list of requests to be processed.  It must not
    *                          be {@code null} or empty.
@@ -2373,8 +2189,9 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while trying to obtain a
    *                         connection to use for the requests.
    */
-  public List<LDAPResult> processRequests(final List<LDAPRequest> requests,
-                                          final boolean continueOnError)
+  public final List<LDAPResult> processRequests(
+                                     final List<LDAPRequest> requests,
+                                     final boolean continueOnError)
          throws LDAPException
   {
     ensureNotNull(requests);
@@ -2466,6 +2283,89 @@ requestLoop:
 
 
   /**
+   * Examines the provided {@code Throwable} object to determine whether it
+   * represents an {@code LDAPException} that indicates the associated
+   * connection may no longer be valid.  If that is the case, and if such
+   * operations should be retried, then no exception will be thrown.  Otherwise,
+   * an appropriate {@code LDAPException} will be thrown.
+   *
+   * @param  t     The {@code Throwable} object that was caught.
+   * @param  conn  The connection to be released to the pool.
+   *
+   * @throws  LDAPException  To indicate that a problem occurred during LDAP
+   *                         processing and the operation should not be retried.
+   */
+  private void throwLDAPExceptionIfShouldNotRetry(final Throwable t,
+                                                  final LDAPConnection conn)
+          throws LDAPException
+  {
+    if ((t instanceof LDAPException) &&
+        retryFailedOperationsDueToInvalidConnections())
+    {
+      final LDAPException le = (LDAPException) t;
+      final LDAPConnectionPoolHealthCheck healthCheck = getHealthCheck();
+
+      try
+      {
+        healthCheck.ensureConnectionValidAfterException(conn, le);
+      }
+      catch (final Exception e)
+      {
+        // If we have gotten this exception, then it indicates that the
+        // connection is no longer valid and the operation should be retried.
+        debugException(e);
+        return;
+      }
+    }
+
+    throwLDAPException(t, conn);
+  }
+
+
+
+  /**
+   * Examines the provided {@code Throwable} object to determine whether it
+   * represents an {@code LDAPException} that indicates the associated
+   * connection may no longer be valid.  If that is the case, and if such
+   * operations should be retried, then no exception will be thrown.  Otherwise,
+   * an appropriate {@code LDAPSearchException} will be thrown.
+   *
+   * @param  t     The {@code Throwable} object that was caught.
+   * @param  conn  The connection to be released to the pool.
+   *
+   * @throws  LDAPSearchException  To indicate that a problem occurred during
+   *                               LDAP processing and the operation should not
+   *                               be retried.
+   */
+  private void throwLDAPSearchExceptionIfShouldNotRetry(final Throwable t,
+                    final LDAPConnection conn)
+          throws LDAPSearchException
+  {
+    if ((t instanceof LDAPException) &&
+        retryFailedOperationsDueToInvalidConnections())
+    {
+      final LDAPException le = (LDAPException) t;
+      final LDAPConnectionPoolHealthCheck healthCheck = getHealthCheck();
+
+      try
+      {
+        healthCheck.ensureConnectionValidAfterException(conn, le);
+      }
+      catch (final Exception e)
+      {
+        // If we have gotten this exception, then it indicates that the
+        // connection is no longer valid and the operation should be retried.
+        debugException(e);
+        return;
+      }
+    }
+
+    throwLDAPSearchException(t, conn);
+  }
+
+
+
+  /**
    * Handles the provided {@code Throwable} object by ensuring that the provided
    * connection is released to the pool and throwing an appropriate
    * {@code LDAPException} object.
@@ -2485,45 +2385,6 @@ requestLoop:
       final LDAPException le = (LDAPException) t;
       releaseConnectionAfterException(conn, le);
       throw le;
-    }
-    else
-    {
-      releaseDefunctConnection(conn);
-      throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
-    }
-  }
-
-
-
-  /**
-   * Handles the provided {@code Throwable} object by ensuring that the provided
-   * connection is released to the pool and throwing an appropriate
-   * {@code LDAPException} object.
-   *
-   * @param  t     The {@code Throwable} object that was caught.
-   * @param  conn  The connection to be released to the pool.
-   *
-   * @throws  LDAPException  To indicate that a problem occurred during LDAP
-   *                         processing.
-   *
-   * @throws  LDIFException  To indicate that a problem occurred during LDIF
-   *                         processing.
-   */
-  void throwLDAPOrLDIFException(final Throwable t, final LDAPConnection conn)
-       throws LDAPException, LDIFException
-  {
-    debugException(t);
-    if (t instanceof LDAPException)
-    {
-      final LDAPException le = (LDAPException) t;
-      releaseConnectionAfterException(conn, le);
-      throw le;
-    }
-    else if (t instanceof LDIFException)
-    {
-      releaseConnection(conn);
-      throw (LDIFException) t;
     }
     else
     {
