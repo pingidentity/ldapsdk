@@ -82,6 +82,11 @@ public final class LDAPThreadLocalConnectionPool
   // Indicates whether this connection pool has been closed.
   private volatile boolean closed;
 
+  // Indicates whether the connection pool should attempt to retry operations
+  // that fail in a manner that may be the result of a connection that is no
+  // longer valid.
+  private volatile boolean retryOnInvalidConnections;
+
   // The bind request to use to perform authentication whenever a new connection
   // is established.
   private final BindRequest bindRequest;
@@ -184,10 +189,11 @@ public final class LDAPThreadLocalConnectionPool
 
     this.postConnectProcessor = postConnectProcessor;
 
-    healthCheck         = new LDAPConnectionPoolHealthCheck();
-    healthCheckInterval = DEFAULT_HEALTH_CHECK_INTERVAL;
-    poolStatistics      = new LDAPConnectionPoolStatistics(this);
-    connectionPoolName  = null;
+    healthCheck               = new LDAPConnectionPoolHealthCheck();
+    healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
+    poolStatistics            = new LDAPConnectionPoolStatistics(this);
+    connectionPoolName        = null;
+    retryOnInvalidConnections = false;
 
     if (! connection.isConnected())
     {
@@ -263,10 +269,11 @@ public final class LDAPThreadLocalConnectionPool
     this.bindRequest          = bindRequest;
     this.postConnectProcessor = postConnectProcessor;
 
-    healthCheck         = new LDAPConnectionPoolHealthCheck();
-    healthCheckInterval = DEFAULT_HEALTH_CHECK_INTERVAL;
-    poolStatistics      = new LDAPConnectionPoolStatistics(this);
-    connectionPoolName  = null;
+    healthCheck               = new LDAPConnectionPoolHealthCheck();
+    healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
+    poolStatistics            = new LDAPConnectionPoolStatistics(this);
+    connectionPoolName        = null;
+    retryOnInvalidConnections = false;
 
     connections = new ConcurrentHashMap<Thread,LDAPConnection>();
 
@@ -625,6 +632,51 @@ public final class LDAPThreadLocalConnectionPool
     {
       debugException(le);
     }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public LDAPConnection replaceDefunctConnection(
+                             final LDAPConnection connection)
+         throws LDAPException
+  {
+    connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, null,
+                                 null);
+    connection.terminate(null);
+
+    if (closed)
+    {
+      throw new LDAPException(ResultCode.CONNECT_ERROR, ERR_POOL_CLOSED.get());
+    }
+
+    return createConnection();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean retryFailedOperationsDueToInvalidConnections()
+  {
+    return retryOnInvalidConnections;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void setRetryFailedOperationsDueToInvalidConnections(
+                   final boolean retryFailedOperationsDueToInvalidConnections)
+  {
+    retryOnInvalidConnections = retryFailedOperationsDueToInvalidConnections;
   }
 
 
