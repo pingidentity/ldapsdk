@@ -409,4 +409,50 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
   {
     throw new UnsupportedOperationException();
   }
+
+
+
+  /**
+   * {@inheritDoc}  The returned set will not be modifiable.
+   */
+  @Override()
+  public Set<String> getReferentialIntegrityAttributes()
+  {
+    return Collections.unmodifiableSet(
+         super.getReferentialIntegrityAttributes());
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setReferentialIntegrityAttributes(
+                   final String... referentialIntegrityAttributes)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setReferentialIntegrityAttributes(
+                   final Collection<String> referentialIntegrityAttributes)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
 }

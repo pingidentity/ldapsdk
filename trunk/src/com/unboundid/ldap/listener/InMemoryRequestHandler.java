@@ -219,6 +219,9 @@ public final class InMemoryRequestHandler
   // The set of base DNs for the server.
   private final Set<DN> baseDNs;
 
+  // The set of referential integrity attributes for the server.
+  private final Set<String> referentialIntegrityAttributes;
+
   // The map of entries currently held in the server.
   private final TreeMap<DN,ReadOnlyEntry> entryMap;
 
@@ -315,6 +318,9 @@ public final class InMemoryRequestHandler
     additionalBindCredentials = Collections.unmodifiableMap(
          config.getAdditionalBindCredentials());
 
+    referentialIntegrityAttributes = Collections.unmodifiableSet(
+         config.getReferentialIntegrityAttributes());
+
     baseDNs = Collections.unmodifiableSet(baseDNSet);
     generateOperationalAttributes = config.generateOperationalAttributes();
     authenticatedDN               = new DN("cn=Internal Root User", schema);
@@ -378,22 +384,23 @@ public final class InMemoryRequestHandler
     authenticatedDN = DN.NULL_DN;
     connectionState = new LinkedHashMap<String,Object>(0);
 
-    config                        = parent.config;
-    generateOperationalAttributes = parent.generateOperationalAttributes;
-    additionalBindCredentials     = parent.additionalBindCredentials;
-    baseDNs                       = parent.baseDNs;
-    changeLogBaseDN               = parent.changeLogBaseDN;
-    firstChangeNumber             = parent.firstChangeNumber;
-    lastChangeNumber              = parent.lastChangeNumber;
-    maxChangelogEntries           = parent.maxChangelogEntries;
-    entryMap                      = parent.entryMap;
-    entryValidator                = parent.entryValidator;
-    extendedRequestHandlers       = parent.extendedRequestHandlers;
-    saslBindHandlers              = parent.saslBindHandlers;
-    schema                        = parent.schema;
-    subschemaSubentry             = parent.subschemaSubentry;
-    subschemaSubentryDN           = parent.subschemaSubentryDN;
-    initialSnapshot               = parent.initialSnapshot;
+    config                         = parent.config;
+    generateOperationalAttributes  = parent.generateOperationalAttributes;
+    additionalBindCredentials      = parent.additionalBindCredentials;
+    baseDNs                        = parent.baseDNs;
+    changeLogBaseDN                = parent.changeLogBaseDN;
+    firstChangeNumber              = parent.firstChangeNumber;
+    lastChangeNumber               = parent.lastChangeNumber;
+    maxChangelogEntries            = parent.maxChangelogEntries;
+    referentialIntegrityAttributes = parent.referentialIntegrityAttributes;
+    entryMap                       = parent.entryMap;
+    entryValidator                 = parent.entryValidator;
+    extendedRequestHandlers        = parent.extendedRequestHandlers;
+    saslBindHandlers               = parent.saslBindHandlers;
+    schema                         = parent.schema;
+    subschemaSubentry              = parent.subschemaSubentry;
+    subschemaSubentryDN            = parent.subschemaSubentryDN;
+    initialSnapshot                = parent.initialSnapshot;
   }
 
 
@@ -1449,13 +1456,10 @@ public final class InMemoryRequestHandler
         (! controlMap.containsKey(
                SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID)))
     {
-      for (final DN mapEntryDN : entryMap.keySet())
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.NOT_ALLOWED_ON_NONLEAF_INT_VALUE, null,
-             ERR_MEM_HANDLER_DELETE_HAS_SUBORDINATES.get(request.getDN()),
-             null));
-      }
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.NOT_ALLOWED_ON_NONLEAF_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_HAS_SUBORDINATES.get(request.getDN()),
+           null));
     }
 
     // Handle the necessary processing for the assertion, pre-read, and proxied
@@ -1486,18 +1490,67 @@ public final class InMemoryRequestHandler
     // that the changelog will show the deletes in the appropriate order.
     for (int i=(subordinateDNs.size() - 1); i >= 0; i--)
     {
-      final Entry subEntry = entryMap.remove(subordinateDNs.get(i));
+      final DN subordinateDN = subordinateDNs.get(i);
+      final Entry subEntry = entryMap.remove(subordinateDN);
       addDeleteChangeLogEntry(subEntry, authzDN);
+      handleReferentialIntegrityDelete(subordinateDN);
     }
 
     // Finally, remove the target entry and create a changelog entry for it.
     entryMap.remove(dn);
     addDeleteChangeLogEntry(entry, authzDN);
+    handleReferentialIntegrityDelete(dn);
 
     return new LDAPMessage(messageID,
          new DeleteResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
               null),
          responseControls);
+  }
+
+
+
+  /**
+   * Handles any appropriate referential integrity processing for a delete
+   * operation.
+   *
+   * @param  dn  The DN of the entry that has been deleted.
+   */
+  private void handleReferentialIntegrityDelete(final DN dn)
+  {
+    if (referentialIntegrityAttributes.isEmpty())
+    {
+      return;
+    }
+
+    final ArrayList<DN> entryDNs = new ArrayList<DN>(entryMap.keySet());
+    for (final DN mapDN : entryDNs)
+    {
+      final ReadOnlyEntry e = entryMap.get(mapDN);
+
+      boolean referenceFound = false;
+      for (final String attrName : referentialIntegrityAttributes)
+      {
+        final Attribute a = e.getAttribute(attrName, schema);
+        if ((a != null) &&
+            a.hasValue(dn.toNormalizedString(),
+                 DistinguishedNameMatchingRule.getInstance()))
+        {
+          referenceFound = true;
+          break;
+        }
+      }
+
+      if (referenceFound)
+      {
+        final Entry copy = e.duplicate();
+        for (final String attrName : referentialIntegrityAttributes)
+        {
+          copy.removeAttributeValue(attrName, dn.toNormalizedString(),
+               DistinguishedNameMatchingRule.getInstance());
+        }
+        entryMap.put(mapDN, new ReadOnlyEntry(copy));
+      }
+    }
   }
 
 
@@ -2259,14 +2312,67 @@ public final class InMemoryRequestHandler
                newMapEntryDN.toNormalizedString()));
         }
         entryMap.put(newMapEntryDN, new ReadOnlyEntry(e));
+        handleReferentialIntegrityModifyDN(mapEntryDN, newMapEntryDN);
       }
     }
 
     addChangeLogEntry(request, authzDN);
+    handleReferentialIntegrityModifyDN(dn, newDN);
     return new LDAPMessage(messageID,
          new ModifyDNResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
               null, null),
          responseControls);
+  }
+
+
+
+  /**
+   * Handles any appropriate referential integrity processing for a modify DN
+   * operation.
+   *
+   * @param  oldDN  The old DN for the entry.
+   * @param  newDN  The new DN for the entry.
+   */
+  private void handleReferentialIntegrityModifyDN(final DN oldDN,
+                                                  final DN newDN)
+  {
+    if (referentialIntegrityAttributes.isEmpty())
+    {
+      return;
+    }
+
+    final ArrayList<DN> entryDNs = new ArrayList<DN>(entryMap.keySet());
+    for (final DN mapDN : entryDNs)
+    {
+      final ReadOnlyEntry e = entryMap.get(mapDN);
+
+      boolean referenceFound = false;
+      for (final String attrName : referentialIntegrityAttributes)
+      {
+        final Attribute a = e.getAttribute(attrName, schema);
+        if ((a != null) &&
+            a.hasValue(oldDN.toNormalizedString(),
+                 DistinguishedNameMatchingRule.getInstance()))
+        {
+          referenceFound = true;
+          break;
+        }
+      }
+
+      if (referenceFound)
+      {
+        final Entry copy = e.duplicate();
+        for (final String attrName : referentialIntegrityAttributes)
+        {
+          if (copy.removeAttributeValue(attrName, oldDN.toNormalizedString(),
+                   DistinguishedNameMatchingRule.getInstance()))
+          {
+            copy.addAttribute(attrName, newDN.toString());
+          }
+        }
+        entryMap.put(mapDN, new ReadOnlyEntry(copy));
+      }
+    }
   }
 
 

@@ -66,6 +66,8 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       attribute types and object classes.</LI>
  *   <LI>Additional Bind Credentials:  The server will not have any additional
  *       bind credentials.</LI>
+ *   <LI>Referential Integrity Attributes:  Referential integrity will not be
+ *       maintained.</LI>
  *   <LI>Generate Operational Attributes:  The server will automatically
  *       generate a number of operational attributes.</LI>
  *   <LI>Extended Operation Handlers:  The server will support the password
@@ -129,10 +131,13 @@ public class InMemoryDirectoryServerConfig
   private Schema schema;
 
   // The set of operation types that will be supported by the server.
-  private Set<OperationType> allowedOperationTypes;
+  private final Set<OperationType> allowedOperationTypes;
 
   // The set of operation types for which authentication will be required.
-  private Set<OperationType> authenticationRequiredOperationTypes;
+  private final Set<OperationType> authenticationRequiredOperationTypes;
+
+  // The set of attributes for which referential integrity should be maintained.
+  private final Set<String> referentialIntegrityAttributes;
 
 
 
@@ -187,6 +192,7 @@ public class InMemoryDirectoryServerConfig
     schema                               = Schema.getDefaultStandardSchema();
     allowedOperationTypes                = EnumSet.allOf(OperationType.class);
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
+    referentialIntegrityAttributes       = new HashSet<String>(0);
 
     extendedOperationHandlers =
          new ArrayList<InMemoryExtendedOperationHandler>(2);
@@ -224,15 +230,22 @@ public class InMemoryDirectoryServerConfig
     additionalBindCredentials =
          new LinkedHashMap<DN,byte[]>(cfg.additionalBindCredentials);
 
+    referentialIntegrityAttributes =
+         new HashSet<String>(cfg.referentialIntegrityAttributes);
+
+    allowedOperationTypes = EnumSet.noneOf(OperationType.class);
+    allowedOperationTypes.addAll(cfg.allowedOperationTypes);
+
+    authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
+    authenticationRequiredOperationTypes.addAll(
+         cfg.authenticationRequiredOperationTypes);
+
     generateOperationalAttributes        = cfg.generateOperationalAttributes;
     accessLogHandler                     = cfg.accessLogHandler;
     ldapDebugLogHandler                  = cfg.ldapDebugLogHandler;
     maxChangeLogEntries                  = cfg.maxChangeLogEntries;
     exceptionHandler                     = cfg.exceptionHandler;
     schema                               = cfg.schema;
-    allowedOperationTypes                = cfg.allowedOperationTypes;
-    authenticationRequiredOperationTypes =
-         cfg.authenticationRequiredOperationTypes;
   }
 
 
@@ -832,6 +845,82 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves the names of the attributes for which referential integrity
+   * should be maintained.  If referential integrity is to be provided and an
+   * entry is removed, then any other entries containing one of the specified
+   * attributes with a value equal to the DN of the entry that was removed, then
+   * that value will also be removed.  Similarly, if an entry is moved or
+   * renamed, then any references to that entry in one of the specified
+   * attributes will be updated to reflect the new DN.
+   *
+   * @return  The names of the attributes for which referential integrity should
+   *          be maintained, or an empty set if referential integrity should not
+   *          be maintained for any attributes.
+   */
+  public Set<String> getReferentialIntegrityAttributes()
+  {
+    return referentialIntegrityAttributes;
+  }
+
+
+
+  /**
+   * Specifies the names of the attributes for which referential integrity
+   * should be maintained.  If referential integrity is to be provided and an
+   * entry is removed, then any other entries containing one of the specified
+   * attributes with a value equal to the DN of the entry that was removed, then
+   * that value will also be removed.  Similarly, if an entry is moved or
+   * renamed, then any references to that entry in one of the specified
+   * attributes will be updated to reflect the new DN.
+   *
+   * @param  referentialIntegrityAttributes  The names of the attributes for
+   *                                          which referential integrity should
+   *                                          be maintained.  The values of
+   *                                          these attributes should be DNs.
+   *                                          It may be {@code null} or empty if
+   *                                          referential integrity should not
+   *                                          be maintained.
+   */
+  public void setReferentialIntegrityAttributes(
+                   final String... referentialIntegrityAttributes)
+  {
+    setReferentialIntegrityAttributes(
+         StaticUtils.toList(referentialIntegrityAttributes));
+  }
+
+
+
+  /**
+   * Specifies the names of the attributes for which referential integrity
+   * should be maintained.  If referential integrity is to be provided and an
+   * entry is removed, then any other entries containing one of the specified
+   * attributes with a value equal to the DN of the entry that was removed, then
+   * that value will also be removed.  Similarly, if an entry is moved or
+   * renamed, then any references to that entry in one of the specified
+   * attributes will be updated to reflect the new DN.
+   *
+   * @param  referentialIntegrityAttributes  The names of the attributes for
+   *                                          which referential integrity should
+   *                                          be maintained.  The values of
+   *                                          these attributes should be DNs.
+   *                                          It may be {@code null} or empty if
+   *                                          referential integrity should not
+   *                                          be maintained.
+   */
+  public void setReferentialIntegrityAttributes(
+                   final Collection<String> referentialIntegrityAttributes)
+  {
+    this.referentialIntegrityAttributes.clear();
+    if (referentialIntegrityAttributes != null)
+    {
+      this.referentialIntegrityAttributes.addAll(
+           referentialIntegrityAttributes);
+    }
+  }
+
+
+
+  /**
    * Parses the provided set of strings as DNs.
    *
    * @param  dnStrings  The array of strings to be parsed as DNs.
@@ -854,7 +943,7 @@ public class InMemoryDirectoryServerConfig
     final DN[] dns = new DN[dnStrings.length];
     for (int i=0; i < dns.length; i++)
     {
-      dns[i] = new DN(dnStrings[i]);
+      dns[i] = new DN(dnStrings[i], schema);
     }
     return dns;
   }
@@ -931,6 +1020,25 @@ public class InMemoryDirectoryServerConfig
         bindDNIterator.next().toString(buffer);
         buffer.append('\'');
         if (bindDNIterator.hasNext())
+        {
+          buffer.append(", ");
+        }
+      }
+      buffer.append('}');
+    }
+
+    if (! referentialIntegrityAttributes.isEmpty())
+    {
+      buffer.append(", referentialIntegrityAttributes={");
+
+      final Iterator<String> attrIterator =
+           referentialIntegrityAttributes.iterator();
+      while (attrIterator.hasNext())
+      {
+        buffer.append('\'');
+        buffer.append(attrIterator.next());
+        buffer.append('\'');
+        if (attrIterator.hasNext())
         {
           buffer.append(", ");
         }
