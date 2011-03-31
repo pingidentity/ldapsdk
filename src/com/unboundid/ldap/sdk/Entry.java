@@ -1322,7 +1322,23 @@ public class Entry
   {
     ensureNotNull(attributeName);
 
-    return (attributes.remove(toLowerCase(attributeName)) != null);
+    if (schema == null)
+    {
+      return (attributes.remove(toLowerCase(attributeName)) != null);
+    }
+    else
+    {
+      final Attribute a = getAttribute(attributeName,  schema);
+      if (a == null)
+      {
+        return false;
+      }
+      else
+      {
+        attributes.remove(toLowerCase(a.getName()));
+        return true;
+      }
+    }
   }
 
 
@@ -1344,18 +1360,44 @@ public class Entry
   public boolean removeAttributeValue(final String attributeName,
                                       final String attributeValue)
   {
+    return removeAttributeValue(attributeName, attributeValue, null);
+  }
+
+
+
+  /**
+   * Removes the specified attribute value from this entry if it is present.  If
+   * it is the last value for the attribute, then the entire attribute will be
+   * removed.  If the specified value is not present, then no change will be
+   * made.
+   *
+   * @param  attributeName   The name of the attribute from which to remove the
+   *                         value.  It must not be {@code null}.
+   * @param  attributeValue  The value to remove from the attribute.  It must
+   *                         not be {@code null}.
+   * @param  matchingRule    The matching rule to use for the attribute.  It may
+   *                         be {@code null} to use the matching rule associated
+   *                         with the attribute.
+   *
+   * @return  {@code true} if the attribute value was removed from the entry, or
+   *          {@code false} if it was not present.
+   */
+  public boolean removeAttributeValue(final String attributeName,
+                                      final String attributeValue,
+                                      final MatchingRule matchingRule)
+  {
     ensureNotNull(attributeName, attributeValue);
 
-    final String lowerName = toLowerCase(attributeName);
-    final Attribute attr = attributes.get(lowerName);
+    final Attribute attr = getAttribute(attributeName, schema);
     if (attr == null)
     {
       return false;
     }
     else
     {
+      final String lowerName = toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
-           new Attribute(attributeName, attributeValue));
+           new Attribute(attributeName, attributeValue), matchingRule);
       if (newAttr.hasValue())
       {
         attributes.put(lowerName, newAttr);
@@ -1388,18 +1430,44 @@ public class Entry
   public boolean removeAttributeValue(final String attributeName,
                                       final byte[] attributeValue)
   {
+    return removeAttributeValue(attributeName, attributeValue, null);
+  }
+
+
+
+  /**
+   * Removes the specified attribute value from this entry if it is present.  If
+   * it is the last value for the attribute, then the entire attribute will be
+   * removed.  If the specified value is not present, then no change will be
+   * made.
+   *
+   * @param  attributeName   The name of the attribute from which to remove the
+   *                         value.  It must not be {@code null}.
+   * @param  attributeValue  The value to remove from the attribute.  It must
+   *                         not be {@code null}.
+   * @param  matchingRule    The matching rule to use for the attribute.  It may
+   *                         be {@code null} to use the matching rule associated
+   *                         with the attribute.
+   *
+   * @return  {@code true} if the attribute value was removed from the entry, or
+   *          {@code false} if it was not present.
+   */
+  public boolean removeAttributeValue(final String attributeName,
+                                      final byte[] attributeValue,
+                                      final MatchingRule matchingRule)
+  {
     ensureNotNull(attributeName, attributeValue);
 
-    final String lowerName = toLowerCase(attributeName);
-    final Attribute attr = attributes.get(lowerName);
+    final Attribute attr = getAttribute(attributeName, schema);
     if (attr == null)
     {
       return false;
     }
     else
     {
+      final String lowerName = toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
-           new Attribute(attributeName, attributeValue));
+           new Attribute(attributeName, attributeValue), matchingRule);
       if (newAttr.hasValue())
       {
         attributes.put(lowerName, newAttr);
@@ -1434,14 +1502,14 @@ public class Entry
   {
     ensureNotNull(attributeName, attributeValues);
 
-    final String lowerName = toLowerCase(attributeName);
-    final Attribute attr = attributes.get(lowerName);
+    final Attribute attr = getAttribute(attributeName, schema);
     if (attr == null)
     {
       return false;
     }
     else
     {
+      final String lowerName = toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
            new Attribute(attributeName, attributeValues));
       if (newAttr.hasValue())
@@ -1478,14 +1546,14 @@ public class Entry
   {
     ensureNotNull(attributeName, attributeValues);
 
-    final String lowerName = toLowerCase(attributeName);
-    final Attribute attr = attributes.get(lowerName);
+    final Attribute attr = getAttribute(attributeName, schema);
     if (attr == null)
     {
       return false;
     }
     else
     {
+      final String lowerName = toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
            new Attribute(attributeName, attributeValues));
       if (newAttr.hasValue())
@@ -1514,7 +1582,17 @@ public class Entry
   {
     ensureNotNull(attribute);
 
-    final String lowerName = toLowerCase(attribute.getName());
+    final String lowerName;
+    final Attribute a = getAttribute(attribute.getName(), schema);
+    if (a == null)
+    {
+      lowerName = toLowerCase(attribute.getName());
+    }
+    else
+    {
+      lowerName = toLowerCase(a.getName());
+    }
+
     attributes.put(lowerName, attribute);
   }
 
@@ -1533,10 +1611,7 @@ public class Entry
                            final String attributeValue)
   {
     ensureNotNull(attributeName, attributeValue);
-
-    final String lowerName = toLowerCase(attributeName);
-    attributes.put(lowerName,
-         new Attribute(attributeName, schema, attributeValue));
+    setAttribute(new Attribute(attributeName, schema, attributeValue));
   }
 
 
@@ -1554,10 +1629,7 @@ public class Entry
                            final byte[] attributeValue)
   {
     ensureNotNull(attributeName, attributeValue);
-
-    final String lowerName = toLowerCase(attributeName);
-    attributes.put(lowerName,
-         new Attribute(attributeName, schema, attributeValue));
+    setAttribute(new Attribute(attributeName, schema, attributeValue));
   }
 
 
@@ -1572,13 +1644,10 @@ public class Entry
    *                          must not be {@code null}.
    */
   public void setAttribute(final String attributeName,
-                                 final String... attributeValues)
+                           final String... attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
-
-    final String lowerName = toLowerCase(attributeName);
-    attributes.put(lowerName,
-         new Attribute(attributeName, schema, attributeValues));
+    setAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
 
@@ -1593,13 +1662,10 @@ public class Entry
    *                          must not be {@code null}.
    */
   public void setAttribute(final String attributeName,
-                                 final byte[]... attributeValues)
+                           final byte[]... attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
-
-    final String lowerName = toLowerCase(attributeName);
-    attributes.put(lowerName,
-         new Attribute(attributeName, schema, attributeValues));
+    setAttribute(new Attribute(attributeName, schema, attributeValues));
   }
 
 

@@ -604,12 +604,48 @@ public final class Attribute
   public static Attribute removeValues(final Attribute attr1,
                                        final Attribute attr2)
   {
+    return removeValues(attr1, attr2, attr1.matchingRule);
+  }
+
+
+
+  /**
+   * Creates a new attribute containing all of the values of the first attribute
+   * that are not contained in the second attribute.  Any values contained in
+   * the second attribute that are not contained in the first will be ignored.
+   * The names of the provided attributes must be the same.
+   *
+   * @param  attr1         The attribute from which to remove the values.  It
+   *                       must not be {@code null}.
+   * @param  attr2         The attribute containing the values to remove.  It
+   *                       must not be {@code null}.
+   * @param  matchingRule  The matching rule to use to locate matching values.
+   *                       It may be {@code null} if the matching rule
+   *                       associated with the first attribute should be used.
+   *
+   * @return  A new attribute containing all of the values of the first
+   *          attribute not contained in the second.  It may contain zero values
+   *          if all the values of the first attribute were also contained in
+   *          the second.
+   */
+  public static Attribute removeValues(final Attribute attr1,
+                                       final Attribute attr2,
+                                       final MatchingRule matchingRule)
+  {
     ensureNotNull(attr1, attr2);
 
     final String name = attr1.name;
     ensureTrue(name.equalsIgnoreCase(attr2.name));
 
-    final MatchingRule matchingRule = attr1.matchingRule;
+    final MatchingRule mr;
+    if (matchingRule == null)
+    {
+      mr = attr1.matchingRule;
+    }
+    else
+    {
+      mr = matchingRule;
+    }
 
     final ArrayList<ASN1OctetString> newValues =
          new ArrayList<ASN1OctetString>(Arrays.asList(attr1.values));
@@ -617,7 +653,7 @@ public final class Attribute
     final Iterator<ASN1OctetString> iterator = newValues.iterator();
     while (iterator.hasNext())
     {
-      if (attr2.hasValue(iterator.next()))
+      if (attr2.hasValue(iterator.next(), mr))
       {
         iterator.remove();
       }
@@ -627,7 +663,7 @@ public final class Attribute
          new ASN1OctetString[newValues.size()];
     newValues.toArray(newValueArray);
 
-    return new Attribute(name, matchingRule, newValueArray);
+    return new Attribute(name, mr, newValueArray);
   }
 
 
