@@ -10,6 +10,63 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.1.1</h3>
+
+              <p>
+                The following changes were made between the 2.1.0 and 2.1.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated connection pool implementations to make it possible to configure the
+                  pools to automatically retry operations if the first attempt fails in a manner
+                  that indicates the connection may no longer be valid.  In such cases, a new
+                  connection will be created (which may be established to a different server if a
+                  server set is used) and used to retry the failed operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add the ability to make use of schema information when generating the normalized
+                  representation of DNs and RDNs, and for more operations when interacting with
+                  entries.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server to add support for referential integrity
+                  for delete and modify DN operations.  This can be used to remove or update
+                  references to an entry if that entry is deleted or renamed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the default standard schema to include a definition for the aci attribute
+                  type, which is not standard but is supported by a number of directory servers
+                  and may commonly appear in many data sets.  Also, update the groupOfNames and
+                  groupOfUniqueNames object classes to make it possible to have groups without any
+                  members which is nonstandard but allowed by many servers.  Finally, make it more
+                  efficient to retrieve the default standard schema for subsequent calls.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the javadoc documentation for controls and extended operations to make
+                  the OIDs used for those purposes more visible.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the command-line tool that may be used to interact with the
+                  in-memory directory server that made it impossible to run the server with no
+                  schema.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 2.1.0</h3>
 
               <p>
