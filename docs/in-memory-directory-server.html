@@ -90,7 +90,7 @@ ${TARGET="offline"}                    <br>
   </li>
 
   <li>
-    It provide support for LDAP referrals and search result references, so that clients can be
+    It provides support for LDAP referrals and search result references, so that clients can be
     instructed to look elsewhere for certain content.  The ManageDsaIT control can be used to
     treat referral entries as regular entries if desired.
     <br><br>
@@ -102,6 +102,18 @@ ${TARGET="offline"}                    <br>
     modifiersName, modifyTimestamp, and subschemaSubentry.  The modifiersName and modifyTimestamp
     attributes will be automatically updated whenever a modify or modify DN operation is
     processed, and entryDN will also be updated for modify DN operations.
+    <br><br>
+  </li>
+
+  <li>
+    It provides an option to maintain referential integrity for a specified set of attributes for
+    delete and modify DN operations.  If this capability is enabled and an entry is deleted, then
+    any other entries with a value equal to the DN of the deleted entry in one of the referential
+    integrity attributes will be updated to remove that reference (e.g., if a user entry is
+    deleted, then you can have that user automatically removed from static groups by specifying
+    referential integrity attributes of "member" and "uniqueMember").  Similarly, if a modify DN
+    operation is used to move or rename an entry, then referential integrity can be used to ensure
+    that references to that entry are also updated to contain the new DN.
     <br><br>
   </li>
 

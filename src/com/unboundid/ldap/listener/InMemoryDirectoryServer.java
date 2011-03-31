@@ -136,6 +136,9 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *   <LI>It provides an option to generate a number of operational attributes,
  *       including entryDN, entryUUID, creatorsName, createTimestamp,
  *       modifiersName, modifyTimestamp, and subschemaSubentry.</LI>
+ *   <LI>It provides support for referential integrity, in which case specified
+ *       attributes whose values are DNs may be updated if the entries they
+ *       reference are deleted or renamed.</LI>
  *   <LI>It provides methods for importing data from and exporting data to LDIF
  *       files, and it has the ability to capture a point-in-time snapshot of
  *       the data (including changelog information) that may be restored at any
