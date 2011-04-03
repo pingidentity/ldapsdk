@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -169,6 +170,12 @@ public final class LDAPListener
         catch (final Exception e)
         {
           Debug.debugException(e);
+
+          if ((e instanceof SocketException) &&
+              serverSocket.get().isClosed())
+          {
+            return;
+          }
 
           if (exceptionHandler != null)
           {

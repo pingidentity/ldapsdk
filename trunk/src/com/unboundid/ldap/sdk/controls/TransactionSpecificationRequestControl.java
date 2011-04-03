@@ -96,7 +96,8 @@ public final class TransactionSpecificationRequestControl
   public TransactionSpecificationRequestControl(
               final ASN1OctetString transactionID)
   {
-    super(TRANSACTION_SPECIFICATION_REQUEST_OID, true, transactionID);
+    super(TRANSACTION_SPECIFICATION_REQUEST_OID, true,
+         new ASN1OctetString(transactionID.getValue()));
 
     ensureNotNull(transactionID);
     this.transactionID = transactionID;

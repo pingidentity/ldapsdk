@@ -58,6 +58,7 @@ import com.unboundid.ldap.protocol.ModifyRequestProtocolOp;
 import com.unboundid.ldap.protocol.ModifyResponseProtocolOp;
 import com.unboundid.ldap.protocol.ModifyDNRequestProtocolOp;
 import com.unboundid.ldap.protocol.ModifyDNResponseProtocolOp;
+import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.ldap.protocol.SearchRequestProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultDoneProtocolOp;
 import com.unboundid.ldap.matchingrules.DistinguishedNameMatchingRule;
@@ -109,8 +110,10 @@ import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
+import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
+import com.unboundid.ldap.sdk.extensions.AbortedTransactionExtendedResult;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
@@ -665,6 +668,31 @@ public final class InMemoryRequestHandler
       return new LDAPMessage(messageID, new AddResponseProtocolOp(
            ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
            ERR_MEM_HANDLER_ADD_REQUIRES_AUTH.get(), null));
+    }
+
+
+    // See if this add request is part of a transaction.  If so, then perform
+    // appropriate processing for it and return success immediately without
+    // actually doing any further processing.
+    try
+    {
+      final ASN1OctetString txnID =
+           processTransactionRequest(messageID, request, controlMap);
+      if (txnID != null)
+      {
+        return new LDAPMessage(messageID, new AddResponseProtocolOp(
+             ResultCode.SUCCESS_INT_VALUE, null,
+             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID,
+           new AddResponseProtocolOp(le.getResultCode().intValue(),
+                le.getMatchedDN(), le.getDiagnosticMessage(),
+                StaticUtils.toList(le.getReferralURLs())),
+           le.getResponseControls());
     }
 
 
@@ -1379,6 +1407,31 @@ public final class InMemoryRequestHandler
     }
 
 
+    // See if this delete request is part of a transaction.  If so, then perform
+    // appropriate processing for it and return success immediately without
+    // actually doing any further processing.
+    try
+    {
+      final ASN1OctetString txnID =
+           processTransactionRequest(messageID, request, controlMap);
+      if (txnID != null)
+      {
+        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+             ResultCode.SUCCESS_INT_VALUE, null,
+             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID,
+           new DeleteResponseProtocolOp(le.getResultCode().intValue(),
+                le.getMatchedDN(), le.getDiagnosticMessage(),
+                StaticUtils.toList(le.getReferralURLs())),
+           le.getResponseControls());
+    }
+
+
     // Get the parsed target DN.
     final DN dn;
     try
@@ -1572,9 +1625,9 @@ public final class InMemoryRequestHandler
    *          {@code ExtendedResponseProtocolOp}.
    */
   @Override()
-  public LDAPMessage processExtendedRequest(final int messageID,
-                          final ExtendedRequestProtocolOp request,
-                          final List<Control> controls)
+  public synchronized LDAPMessage processExtendedRequest(final int messageID,
+                                       final ExtendedRequestProtocolOp request,
+                                       final List<Control> controls)
   {
     boolean isInternalOp = false;
     for (final Control c : controls)
@@ -1722,6 +1775,31 @@ public final class InMemoryRequestHandler
       return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
            ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
            ERR_MEM_HANDLER_MODIFY_REQUIRES_AUTH.get(), null));
+    }
+
+
+    // See if this modify request is part of a transaction.  If so, then perform
+    // appropriate processing for it and return success immediately without
+    // actually doing any further processing.
+    try
+    {
+      final ASN1OctetString txnID =
+           processTransactionRequest(messageID, request, controlMap);
+      if (txnID != null)
+      {
+        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+             ResultCode.SUCCESS_INT_VALUE, null,
+             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID,
+           new ModifyResponseProtocolOp(le.getResultCode().intValue(),
+                le.getMatchedDN(), le.getDiagnosticMessage(),
+                StaticUtils.toList(le.getReferralURLs())),
+           le.getResponseControls());
     }
 
 
@@ -1960,6 +2038,31 @@ public final class InMemoryRequestHandler
       return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
            ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
            ERR_MEM_HANDLER_MODIFY_DN_REQUIRES_AUTH.get(), null));
+    }
+
+
+    // See if this modify DN request is part of a transaction.  If so, then
+    // perform appropriate processing for it and return success immediately
+    // without actually doing any further processing.
+    try
+    {
+      final ASN1OctetString txnID =
+           processTransactionRequest(messageID, request, controlMap);
+      if (txnID != null)
+      {
+        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+             ResultCode.SUCCESS_INT_VALUE, null,
+             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID,
+           new ModifyDNResponseProtocolOp(le.getResultCode().intValue(),
+                le.getMatchedDN(), le.getDiagnosticMessage(),
+                StaticUtils.toList(le.getReferralURLs())),
+           le.getResponseControls());
     }
 
 
@@ -2918,6 +3021,83 @@ findEntriesAndRefs:
 
 
   /**
+   * Determines whether the provided set of controls includes a transaction
+   * specification request control.  If so, then it will verify that it
+   * references a valid transaction for the client.  If the request is part of a
+   * valid transaction, then the transaction specification request control will
+   * be removed and the request will be stashed in the client connection state
+   * so that it can be retrieved and processed when the transaction is
+   * committed.
+   *
+   * @param  messageID  The message ID for the request to be processed.
+   * @param  request    The protocol op for the request to be processed.
+   * @param  controls   The set of controls for the request to be processed.
+   *
+   * @return  The transaction ID for the associated transaction, or {@code null}
+   *          if the request is not part of any transaction.
+   *
+   * @throws  LDAPException  If the transaction specification request control is
+   *                         present but does not refer to a valid transaction
+   *                         for the associated client connection.
+   */
+  @SuppressWarnings("unchecked")
+  private ASN1OctetString processTransactionRequest(final int messageID,
+                               final ProtocolOp request,
+                               final Map<String,Control> controls)
+          throws LDAPException
+  {
+    final TransactionSpecificationRequestControl txnControl =
+         (TransactionSpecificationRequestControl)
+         controls.remove(TransactionSpecificationRequestControl.
+              TRANSACTION_SPECIFICATION_REQUEST_OID);
+    if (txnControl == null)
+    {
+      return null;
+    }
+
+    // See if the client has an active transaction.  If not, then fail.
+    final ASN1OctetString txnID = txnControl.getTransactionID();
+    final ObjectPair<ASN1OctetString,List<LDAPMessage>> txnInfo =
+         (ObjectPair<ASN1OctetString,List<LDAPMessage>>) connectionState.get(
+              TransactionExtendedOperationHandler.STATE_VARIABLE_TXN_INFO);
+    if (txnInfo == null)
+    {
+      throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
+           ERR_MEM_HANDLER_TXN_CONTROL_WITHOUT_TXN.get(txnID.stringValue()));
+    }
+
+
+    // Make sure that the active transaction has a transaction ID that matches
+    // the transaction ID from the control.  If not, then abort the existing
+    // transaction and fail.
+    final ASN1OctetString existingTxnID = txnInfo.getFirst();
+    if (! txnID.stringValue().equals(existingTxnID.stringValue()))
+    {
+      connectionState.remove(
+           TransactionExtendedOperationHandler.STATE_VARIABLE_TXN_INFO);
+      connection.sendUnsolicitedNotification(
+           new AbortedTransactionExtendedResult(existingTxnID,
+                ResultCode.CONSTRAINT_VIOLATION,
+                ERR_MEM_HANDLER_TXN_ABORTED_BY_CONTROL_TXN_ID_MISMATCH.get(
+                     existingTxnID.stringValue(), txnID.stringValue()),
+                null, null, null));
+      throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
+           ERR_MEM_HANDLER_TXN_CONTROL_ID_MISMATCH.get(txnID.stringValue(),
+                existingTxnID.stringValue()));
+    }
+
+
+    // Stash the request in the transaction state information so that it will
+    // be processed when the transaction is committed.
+    txnInfo.getSecond().add(new LDAPMessage(messageID, request,
+         new ArrayList<Control>(controls.values())));
+
+    return txnID;
+  }
+
+
+
+  /**
    * Retrieves the number of entries currently held in the server.
    *
    * @param  includeChangeLog  Indicates whether to include entries that are
@@ -3584,6 +3764,8 @@ findEntriesAndRefs:
     ctlSet.add(SimplePagedResultsControl.PAGED_RESULTS_OID);
     ctlSet.add(SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     ctlSet.add(SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
+    ctlSet.add(TransactionSpecificationRequestControl.
+         TRANSACTION_SPECIFICATION_REQUEST_OID);
     ctlSet.add(VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID);
 
     final String[] controlOIDs = new String[ctlSet.size()];

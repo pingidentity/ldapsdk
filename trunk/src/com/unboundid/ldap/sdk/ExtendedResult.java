@@ -121,6 +121,23 @@ public class ExtendedResult
 
 
   /**
+   * Creates a new extended result with the information contained in the
+   * provided LDAP result.  The extended result will not have an OID or value.
+   *
+   * @param  result  The LDAP result whose content should be used for this
+   *                 extended result.
+   */
+  public ExtendedResult(final LDAPResult result)
+  {
+    super(result);
+
+    oid   = null;
+    value = null;
+  }
+
+
+
+  /**
    * Creates a new extended result initialized from all of the elements of the
    * provided extended response.
    *
