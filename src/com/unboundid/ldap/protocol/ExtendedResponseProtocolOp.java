@@ -347,7 +347,7 @@ public final class ExtendedResponseProtocolOp
 
     if (responseValue != null)
     {
-      buffer.addElement(responseValue);
+      buffer.addOctetString(TYPE_RESPONSE_VALUE, responseValue.getValue());
     }
 
     opSequence.end();

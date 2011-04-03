@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
+import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
@@ -457,6 +458,37 @@ final class RequestControlPreProcessor
                ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
         }
       }
+      else if (oid.equals(TransactionSpecificationRequestControl.
+           TRANSACTION_SPECIFICATION_REQUEST_OID))
+      {
+        switch (requestOpType)
+        {
+          case LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST:
+          case LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST:
+          case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST:
+          case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST:
+            // The control is acceptable for these operations.
+            break;
+
+          default:
+            if (control.isCritical())
+            {
+              throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
+                   ERR_CONTROL_PROCESSOR_UNSUPPORTED_FOR_OP.get(oid));
+            }
+            else
+            {
+              continue;
+            }
+        }
+
+        if (m.put(oid, new TransactionSpecificationRequestControl(control)) !=
+             null)
+        {
+          throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
+               ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
+        }
+      }
       else if (oid.equals(VirtualListViewRequestControl.
            VIRTUAL_LIST_VIEW_REQUEST_OID))
       {
@@ -493,7 +525,7 @@ final class RequestControlPreProcessor
       else if (control.isCritical())
       {
         throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
-             ERR_CONTROL_PROCESSOR_UNSUPPORTED_ONTROL.get(oid));
+             ERR_CONTROL_PROCESSOR_UNSUPPORTED_CONTROL.get(oid));
       }
     }
 

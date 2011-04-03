@@ -291,7 +291,7 @@ public class Control
 
     if (value != null)
     {
-      writer.addElement(value);
+      writer.addOctetString(value.getValue());
     }
 
     controlSequence.end();
@@ -317,7 +317,7 @@ public class Control
 
     if (value != null)
     {
-      elementList.add(value);
+      elementList.add(new ASN1OctetString(value.getValue()));
     }
 
     return new ASN1Sequence(elementList);

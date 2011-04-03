@@ -189,7 +189,7 @@ public final class ExtendedRequestProtocolOp
 
     if (value != null)
     {
-      buffer.addElement(value);
+      buffer.addOctetString(TYPE_VALUE, value.getValue());
     }
     opSequence.end();
   }

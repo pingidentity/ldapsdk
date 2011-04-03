@@ -71,8 +71,9 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *   <LI>Generate Operational Attributes:  The server will automatically
  *       generate a number of operational attributes.</LI>
  *   <LI>Extended Operation Handlers:  The server will support the password
- *       modify extended operation as defined in RFC 3062 and the "Who Am I?"
- *       extended operation as defined in RFC 4532.</LI>
+ *       modify extended operation as defined in RFC 3062, the start and end
+ *       transaction extended operations as defined in RFC 5805, and the
+ *       "Who Am I?" extended operation as defined in RFC 4532.</LI>
  *   <LI>SASL Bind Handlers:  The server will support the SASL PLAIN mechanism
  *       as defined in RFC 4616.</LI>
  *   <LI>Max ChangeLog Entries:  The server will not provide an LDAP
@@ -195,8 +196,9 @@ public class InMemoryDirectoryServerConfig
     referentialIntegrityAttributes       = new HashSet<String>(0);
 
     extendedOperationHandlers =
-         new ArrayList<InMemoryExtendedOperationHandler>(2);
+         new ArrayList<InMemoryExtendedOperationHandler>(3);
     extendedOperationHandlers.add(new PasswordModifyExtendedOperationHandler());
+    extendedOperationHandlers.add(new TransactionExtendedOperationHandler());
     extendedOperationHandlers.add(new WhoAmIExtendedOperationHandler());
 
     saslBindHandlers = new ArrayList<InMemorySASLBindHandler>(1);
