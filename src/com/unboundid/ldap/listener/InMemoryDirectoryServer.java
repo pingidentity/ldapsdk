@@ -955,6 +955,38 @@ public final class InMemoryDirectoryServer
 
 
   /**
+   * Retrieves the delay in milliseconds that the server should impose before
+   * beginning processing for operations.
+   *
+   * @return  The delay in milliseconds that the server should impose before
+   *          beginning processing for operations, or 0 if there should be no
+   *          delay inserted when processing operations.
+   */
+  public long getProcessingDelayMillis()
+  {
+    return inMemoryHandler.getProcessingDelayMillis();
+  }
+
+
+
+  /**
+   * Specifies the delay in milliseconds that the server should impose before
+   * beginning processing for operations.
+   *
+   * @param  processingDelayMillis  The delay in milliseconds that the server
+   *                                should impose before beginning processing
+   *                                for operations.  A value less than or equal
+   *                                to zero may be used to indicate that there
+   *                                should be no delay.
+   */
+  public void setProcessingDelayMillis(final long processingDelayMillis)
+  {
+    inMemoryHandler.setProcessingDelayMillis(processingDelayMillis);
+  }
+
+
+
+  /**
    * Retrieves the number of entries currently held in the server.  The count
    * returned will not include entries which are part of the changelog.
    * <BR><BR>
