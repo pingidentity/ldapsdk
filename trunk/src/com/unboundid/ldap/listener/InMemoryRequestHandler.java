@@ -171,6 +171,9 @@ public final class InMemoryRequestHandler
   // The change number for the last changelog entry in the server.
   private final AtomicLong lastChangeNumber;
 
+  // A delay (in milliseconds) to insert before processing operations.
+  private final AtomicLong processingDelayMillis;
+
   // Indicates whether to generate operational attributes for writes.
   private final boolean generateOperationalAttributes;
 
@@ -331,6 +334,7 @@ public final class InMemoryRequestHandler
     connectionState               = Collections.emptyMap();
     firstChangeNumber             = new AtomicLong(0L);
     lastChangeNumber              = new AtomicLong(0L);
+    processingDelayMillis         = new AtomicLong(0L);
     subschemaSubentry             = generateSubschemaSubentry(schema);
     subschemaSubentryDN           = subschemaSubentry.getParsedDN();
 
@@ -394,6 +398,7 @@ public final class InMemoryRequestHandler
     changeLogBaseDN                = parent.changeLogBaseDN;
     firstChangeNumber              = parent.firstChangeNumber;
     lastChangeNumber               = parent.lastChangeNumber;
+    processingDelayMillis          = parent.processingDelayMillis;
     maxChangelogEntries            = parent.maxChangelogEntries;
     referentialIntegrityAttributes = parent.referentialIntegrityAttributes;
     entryMap                       = parent.entryMap;
@@ -595,6 +600,45 @@ public final class InMemoryRequestHandler
 
 
   /**
+   * Retrieves the delay in milliseconds that the server should impose before
+   * beginning processing for operations.
+   *
+   * @return  The delay in milliseconds that the server should impose before
+   *          beginning processing for operations, or 0 if there should be no
+   *          delay inserted when processing operations.
+   */
+  public long getProcessingDelayMillis()
+  {
+    return processingDelayMillis.get();
+  }
+
+
+
+  /**
+   * Specifies the delay in milliseconds that the server should impose before
+   * beginning processing for operations.
+   *
+   * @param  processingDelayMillis  The delay in milliseconds that the server
+   *                                should impose before beginning processing
+   *                                for operations.  A value less than or equal
+   *                                to zero may be used to indicate that there
+   *                                should be no delay.
+   */
+  public void setProcessingDelayMillis(final long processingDelayMillis)
+  {
+    if (processingDelayMillis > 0)
+    {
+      this.processingDelayMillis.set(processingDelayMillis);
+    }
+    else
+    {
+      this.processingDelayMillis.set(0L);
+    }
+  }
+
+
+
+  /**
    * Attempts to add an entry to the in-memory data set.  The attempt will fail
    * if any of the following conditions is true:
    * <UL>
@@ -631,6 +675,9 @@ public final class InMemoryRequestHandler
                                        final AddRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -1005,6 +1052,9 @@ public final class InMemoryRequestHandler
                                        final BindRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
     // If this operation type is not allowed, then reject it.
     if (! config.getAllowedOperationTypes().contains(OperationType.BIND))
     {
@@ -1213,6 +1263,9 @@ public final class InMemoryRequestHandler
                                        final CompareRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -1367,6 +1420,9 @@ public final class InMemoryRequestHandler
                                        final DeleteRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -1629,6 +1685,9 @@ public final class InMemoryRequestHandler
                                        final ExtendedRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
     boolean isInternalOp = false;
     for (final Control c : controls)
     {
@@ -1738,6 +1797,9 @@ public final class InMemoryRequestHandler
                                        final ModifyRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -2001,6 +2063,9 @@ public final class InMemoryRequestHandler
                                        final ModifyDNRequestProtocolOp request,
                                        final List<Control> controls)
   {
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -2601,6 +2666,9 @@ public final class InMemoryRequestHandler
                                 final List<SearchResultEntry> entryList,
                                 final List<SearchResultReference> referenceList)
   {
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -3093,6 +3161,28 @@ findEntriesAndRefs:
          new ArrayList<Control>(controls.values())));
 
     return txnID;
+  }
+
+
+
+  /**
+   * Sleeps for a period of time (if appropriate) before beginning processing
+   * for an operation.
+   */
+  private void sleepBeforeProcessing()
+  {
+    final long delay = processingDelayMillis.get();
+    if (delay > 0)
+    {
+      try
+      {
+        Thread.sleep(delay);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
   }
 
 
