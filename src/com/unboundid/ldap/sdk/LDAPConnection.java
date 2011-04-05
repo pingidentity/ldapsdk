@@ -1436,7 +1436,7 @@ public final class LDAPConnection
    *
    * @param  requestID  The async request ID for the request to abandon.
    * @param  controls   The set of controls to include in the abandon request.
-   *                    It may be {@code null} or {@code empty} if there are no
+   *                    It may be {@code null} or empty if there are no
    *                    controls.
    *
    * @throws  LDAPException  If a problem occurs while sending the request to
@@ -1460,6 +1460,33 @@ public final class LDAPConnection
     connectionStatistics.incrementNumAbandonRequests();
     sendMessage(new LDAPMessage(nextMessageID(),
          new AbandonRequestProtocolOp(requestID.getMessageID()), controls));
+  }
+
+
+
+  /**
+   * Sends an abandon request with the provided information.
+   *
+   * @param  messageID  The message ID for the request to abandon.
+   * @param  controls   The set of controls to include in the abandon request.
+   *                    It may be {@code null} or empty if there are no
+   *                    controls.
+   *
+   * @throws  LDAPException  If a problem occurs while sending the request to
+   *                         the server.
+   */
+  void abandon(final int messageID, final Control... controls)
+       throws LDAPException
+  {
+    if (debugEnabled(DebugType.LDAP))
+    {
+      debug(Level.INFO, DebugType.LDAP,
+            "Sending LDAP abandon request for message ID " + messageID);
+    }
+
+    connectionStatistics.incrementNumAbandonRequests();
+    sendMessage(new LDAPMessage(nextMessageID(),
+         new AbandonRequestProtocolOp(messageID), controls));
   }
 
 

@@ -755,8 +755,41 @@ public final class ModifyDNRequest
     connection.getConnectionStatistics().incrementNumModifyDNRequests();
     connection.sendMessage(message);
 
-    final LDAPResponse response = connection.readResponse(messageID);
-    return handleResponse(connection, response, requestTime, depth);
+    while (true)
+    {
+      final LDAPResponse response;
+      try
+      {
+        response = connection.readResponse(messageID);
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+
+        if ((le.getResultCode() == ResultCode.TIMEOUT) &&
+            connection.getConnectionOptions().abandonOnTimeout())
+        {
+          connection.abandon(messageID);
+        }
+
+        throw le;
+      }
+
+      if (response instanceof IntermediateResponse)
+      {
+        final IntermediateResponseListener listener =
+             getIntermediateResponseListener();
+        if (listener != null)
+        {
+          listener.intermediateResponseReturned(
+               (IntermediateResponse) response);
+        }
+      }
+      else
+      {
+        return handleResponse(connection, response, requestTime, depth);
+      }
+    }
   }
 
 
@@ -783,6 +816,11 @@ public final class ModifyDNRequest
     if (response == null)
     {
       final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
+      if (connection.getConnectionOptions().abandonOnTimeout())
+      {
+        connection.abandon(messageID);
+      }
+
       throw new LDAPException(ResultCode.TIMEOUT,
            ERR_MODIFY_DN_CLIENT_TIMEOUT.get(waitTime,
                 connection.getHostPort()));

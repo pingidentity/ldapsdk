@@ -1147,6 +1147,11 @@ public final class SearchRequest
 
         if (response == null)
         {
+          if (connection.getConnectionOptions().abandonOnTimeout())
+          {
+            connection.abandon(messageID);
+          }
+
           final SearchResult searchResult =
                new SearchResult(messageID, ResultCode.TIMEOUT,
                     ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
@@ -1426,10 +1431,31 @@ public final class SearchRequest
     ResultCode intermediateResultCode = ResultCode.SUCCESS;
     while (true)
     {
-      final LDAPResponse response = connection.readResponse(messageID);
+      final LDAPResponse response;
+      try
+      {
+        response = connection.readResponse(messageID);
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+
+        if ((le.getResultCode() == ResultCode.TIMEOUT) &&
+            connection.getConnectionOptions().abandonOnTimeout())
+        {
+          connection.abandon(messageID);
+        }
+
+        throw le;
+      }
 
       if (response == null)
       {
+        if (connection.getConnectionOptions().abandonOnTimeout())
+        {
+          connection.abandon(messageID);
+        }
+
         throw new LDAPException(ResultCode.TIMEOUT,
              ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
                   connection.getHostPort()));
