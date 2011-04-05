@@ -276,8 +276,7 @@ public final class AsyncRequestID
    * @throws  TimeoutException  If a timeout was encountered before the result
    *                            could be obtained.
    */
-  public LDAPResult get(final long timeout,
-                                     final TimeUnit timeUnit)
+  public LDAPResult get(final long timeout, final TimeUnit timeUnit)
          throws InterruptedException, TimeoutException
   {
     final LDAPResult newResult = resultQueue.poll();

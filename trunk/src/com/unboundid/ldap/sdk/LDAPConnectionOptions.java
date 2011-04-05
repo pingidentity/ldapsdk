@@ -82,6 +82,9 @@ import static com.unboundid.util.Validator.*;
  *       SDK should wait for a response from the server before failing.  By
  *       default, a timeout of 300,000 milliseconds (5 minutes) will be
  *       used.</LI>
+ *   <LI>A flag that indicates whether to attempt to abandon any request for
+ *       which no response is received after waiting for the maximum response
+ *       timeout.  By default, no abandon request will be sent.</LI>
  *   <LI>A value which specifies the largest LDAP message size that the SDK will
  *       be willing to read from the directory server.  By default, the SDK will
  *       not allow responses larger than 20971520 bytes (20MB).  If it
@@ -121,6 +124,15 @@ import static com.unboundid.util.Validator.*;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDAPConnectionOptions
 {
+  /**
+   * The default value ({@code false}) for the setting that controls whether to
+   * attempt to abandon any request for which no response is received within the
+   * maximum response timeout.
+   */
+  static final boolean DEFAULT_ABANDON_ON_TIMEOUT = false;
+
+
+
   /**
    * The default value ({@code false}) for the setting that controls whether to
    * automatically attempt to reconnect if a connection is unexpectedly lost.
@@ -257,6 +269,10 @@ public final class LDAPConnectionOptions
 
 
 
+  // Indicates whether to send an abandon request for any operation for which no
+  // response is received in the maximum response timeout.
+  private boolean abandonOnTimeout;
+
   // Indicates whether the connection should attempt to automatically reconnect
   // if the connection to the server is lost.
   private boolean autoReconnect;
@@ -330,6 +346,7 @@ public final class LDAPConnectionOptions
    */
   public LDAPConnectionOptions()
   {
+    abandonOnTimeout               = DEFAULT_ABANDON_ON_TIMEOUT;
     autoReconnect                  = DEFAULT_AUTO_RECONNECT;
     bindWithDNRequiresPassword     = DEFAULT_BIND_WITH_DN_REQUIRES_PASSWORD;
     captureConnectStackTrace       = DEFAULT_CAPTURE_CONNECT_STACK_TRACE;
@@ -365,6 +382,7 @@ public final class LDAPConnectionOptions
   {
     final LDAPConnectionOptions o = new LDAPConnectionOptions();
 
+    o.abandonOnTimeout               = abandonOnTimeout;
     o.autoReconnect                  = autoReconnect;
     o.bindWithDNRequiresPassword     = bindWithDNRequiresPassword;
     o.captureConnectStackTrace       = captureConnectStackTrace;
@@ -562,6 +580,37 @@ public final class LDAPConnectionOptions
     {
       this.responseTimeout = responseTimeout;
     }
+  }
+
+
+
+  /**
+   * Indicates whether the LDAP SDK should attempt to abandon any request for
+   * which no response is received in the maximum response timeout period.
+   *
+   * @return  {@code true} if the LDAP SDK should attempt to abandon any request
+   *          for which no response is received in the maximum response timeout
+   *          period, or {@code false} if no abandon attempt should be made in
+   *          this circumstance.
+   */
+  public boolean abandonOnTimeout()
+  {
+    return abandonOnTimeout;
+  }
+
+
+
+  /**
+   * Specifies whether the LDAP SDK should attempt to abandon any request for
+   * which no response is received in the maximum response timeout period.
+   *
+   * @param  abandonOnTimeout  Indicates whether the LDAP SDK should attempt to
+   *                           abandon any request for which no response is
+   *                           received in the maximum response timeout period.
+   */
+  public void setAbandonOnTimeout(final boolean abandonOnTimeout)
+  {
+    this.abandonOnTimeout = abandonOnTimeout;
   }
 
 
@@ -1077,12 +1126,19 @@ public final class LDAPConnectionOptions
   {
     buffer.append("LDAPConnectionOptions(autoReconnect=");
     buffer.append(autoReconnect);
+    buffer.append(", bindWithDNRequiresPassword=");
+    buffer.append(bindWithDNRequiresPassword);
     buffer.append(", followReferrals=");
     buffer.append(followReferrals);
     if (followReferrals)
     {
       buffer.append(", referralHopLimit=");
       buffer.append(referralHopLimit);
+    }
+    if (referralConnector != null)
+    {
+      buffer.append(", referralConnectorClass=");
+      buffer.append(referralConnector.getClass().getName());
     }
     buffer.append(", useKeepAlive=");
     buffer.append(useKeepAlive);
@@ -1110,12 +1166,24 @@ public final class LDAPConnectionOptions
     buffer.append(connectTimeout);
     buffer.append(", responseTimeoutMillis=");
     buffer.append(responseTimeout);
+    buffer.append(", abandonOnTimeout=");
+    buffer.append(abandonOnTimeout);
     buffer.append(", maxMessageSize=");
     buffer.append(maxMessageSize);
     buffer.append(", receiveBufferSize=");
     buffer.append(receiveBufferSize);
     buffer.append(", sendBufferSize=");
     buffer.append(sendBufferSize);
+    if (disconnectHandler != null)
+    {
+      buffer.append(", disconnectHandlerClass=");
+      buffer.append(disconnectHandler.getClass().getName());
+    }
+    if (unsolicitedNotificationHandler != null)
+    {
+      buffer.append(", unsolicitedNotificationHandlerClass=");
+      buffer.append(unsolicitedNotificationHandler.getClass().getName());
+    }
     buffer.append(')');
   }
 }
