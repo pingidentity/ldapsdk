@@ -166,8 +166,9 @@ import static com.unboundid.util.UtilityMessages.*;
  *     mech=GSSAPI
  *     <UL>
  *       <LI>Required SASL options:  authID</LI>
- *       <LI>Optional SASL options:  authzID, debug, protocol, realm,
- *                kdcAddress</LI>
+ *       <LI>Optional SASL options:  authzID, configFile, debug, protocol,
+ *                realm, kdcAddress, useTicketCache, requireCache,
+ *                renewTGT, ticketCachePath</LI>
  *     </UL>
  *   </LI>
  *   <LI>
@@ -261,6 +262,14 @@ public abstract class LDAPCommandLineTool
 
 
   /**
+   * The name of the SASL option that specifies the path to the JAAS config
+   * file.
+   */
+  private static final String SASL_OPTION_CONFIG_FILE = "configfile";
+
+
+
+  /**
    * The name of the SASL option that indicates whether debugging should be
    * enabled.
    */
@@ -291,9 +300,41 @@ public abstract class LDAPCommandLineTool
 
 
   /**
+   * The name of the SASL option that indicates whether to require an existing
+   * Kerberos session from the ticket cache.
+   */
+  private static final String SASL_OPTION_REQUIRE_CACHE = "requirecache";
+
+
+
+  /**
+   * The name of the SASL option that indicates whether to attempt to renew the
+   * Kerberos TGT for an existing session.
+   */
+  private static final String SASL_OPTION_RENEW_TGT = "renewtgt";
+
+
+
+  /**
+   * The name of the SASL option that specifies the path to the Kerberos ticket
+   * cache to use.
+   */
+  private static final String SASL_OPTION_TICKET_CACHE_PATH = "ticketcache";
+
+
+
+  /**
    * The name of the SASL option that specifies the trace string.
    */
   private static final String SASL_OPTION_TRACE = "trace";
+
+
+
+  /**
+   * The name of the SASL option that specifies whether to use a Kerberos ticket
+   * cache.
+   */
+  private static final String SASL_OPTION_USE_TICKET_CACHE = "useticketcache";
 
 
 
@@ -358,10 +399,15 @@ public abstract class LDAPCommandLineTool
          Arrays.asList(SASL_OPTION_AUTH_ID));
     OPTIONAL_SASL_OPTIONS.put(SASL_MECH_GSSAPI,
          Arrays.asList(SASL_OPTION_AUTHZ_ID,
+              SASL_OPTION_CONFIG_FILE,
               SASL_OPTION_DEBUG,
               SASL_OPTION_PROTOCOL,
               SASL_OPTION_REALM,
-              SASL_OPTION_KDC_ADDRESS));
+              SASL_OPTION_KDC_ADDRESS,
+              SASL_OPTION_RENEW_TGT,
+              SASL_OPTION_REQUIRE_CACHE,
+              SASL_OPTION_TICKET_CACHE_PATH,
+              SASL_OPTION_USE_TICKET_CACHE));
 
     REQUIRED_SASL_OPTIONS.put(SASL_MECH_PLAIN,
          Arrays.asList(SASL_OPTION_AUTH_ID));
@@ -1010,11 +1056,39 @@ public abstract class LDAPCommandLineTool
         gssapiProperties.setRealm(saslOptions.get(SASL_OPTION_REALM));
         gssapiProperties.setKDCAddress(
              saslOptions.get(SASL_OPTION_KDC_ADDRESS));
+        gssapiProperties.setConfigFilePath(
+             saslOptions.get(SASL_OPTION_CONFIG_FILE));
+        gssapiProperties.setTicketCachePath(
+             saslOptions.get(SASL_OPTION_TICKET_CACHE_PATH));
 
         final String protocol = saslOptions.get(SASL_OPTION_PROTOCOL);
         if (protocol != null)
         {
           gssapiProperties.setServicePrincipalProtocol(protocol);
+        }
+
+        final String useTicketCacheStr =
+             saslOptions.get(SASL_OPTION_USE_TICKET_CACHE);
+        if (useTicketCacheStr != null)
+        {
+          gssapiProperties.setUseTicketCache(
+               useTicketCacheStr.equalsIgnoreCase("true"));
+        }
+
+        final String requireCacheStr =
+             saslOptions.get(SASL_OPTION_REQUIRE_CACHE);
+        if (requireCacheStr != null)
+        {
+          gssapiProperties.setRequireCachedCredentials(
+               requireCacheStr.equalsIgnoreCase("true"));
+        }
+
+        final String renewTGTStr =
+             saslOptions.get(SASL_OPTION_RENEW_TGT);
+        if (renewTGTStr != null)
+        {
+          gssapiProperties.setRenewTGT(
+               renewTGTStr.equalsIgnoreCase("true"));
         }
 
         final String debugStr = saslOptions.get(SASL_OPTION_DEBUG);
