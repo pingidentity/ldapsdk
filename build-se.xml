@@ -39,6 +39,10 @@
   <property name="classes.dir"     location="${build.dir}/classes" />
   <property name="lib.dir"         location="${build.dir}/lib" />
   <property name="package.dir"     location="${build.dir}/package" />
+  <property name="me.src.dir"      location="${build.dir}/me-src" />
+  <property name="me.classes.dir"  location="${build.dir}/me-classes" />
+  <property name="me.docs.dir"     location="docs-me" />
+  <property name="me.distroot.dir" location="dist-root-me" />
 
 
   <!-- Define properties used for processing message files. -->
@@ -66,6 +70,12 @@
   <!-- Define properties used for checkstyle analysis. -->
   <property name="checkstyle.dir"       location="ext/checkstyle" />
   <property name="checkstyle.cache.dir" location=".checkstyle-cache" />
+
+
+  <!-- Define properties used for generating a minimal source build. -->
+  <property name="minsrc.src.dir"
+            location="${buildsrc.dir}/minimalsource" />
+  <property name="minsrc.classes.dir" location="${build.dir}/genminsrc" />
 
 
   <!-- Define properties used for Ant tasks -->
@@ -109,7 +119,7 @@
 
     <!-- Define and invoke the task. -->
     <taskdef name="genmsgs"
-             classname="com.unboundid.buildtools.messages.GenerateMessages">
+             className="com.unboundid.buildtools.messages.GenerateMessages">
       <classpath>
         <pathelement location="${messages.classes.dir}" />
       </classpath>
@@ -228,8 +238,12 @@
     <property name="se.buildid" value="${basename}-se" />
     <property name="se.package.dir"
               location="${package.dir}/${se.buildid}" />
-
     <antcall target="package-se" />
+
+    <property name="me.buildid" value="${basename}-me" />
+    <property name="me.package.dir"
+              location="${package.dir}/${me.buildid}" />
+    <antcall target="package-me" />
 
     <antcall target="sanitycheck" inheritAll="true" inheritRefs="true" />
   </target>
@@ -253,7 +267,7 @@
     </javac>
 
     <taskdef name="copydocs"
-             classname="com.unboundid.buildtools.copydocs.CopyDocs">
+             className="com.unboundid.buildtools.copydocs.CopyDocs">
       <classpath>
         <pathelement location="${copydocs.classes.dir}" />
       </classpath>
@@ -391,10 +405,12 @@
         <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
       </zipfileset>
       <zipfileset dir="${messages.dir}" filemode="644" dirmode="755">
-        <exclude name="unboundid-controls.properties" />
-        <exclude name="unboundid-extop.properties" />
+        <exclude name="log.properties" />
         <exclude name="monitor.properties" />
         <exclude name="task.properties" />
+        <exclude name="unboundid-controls.properties" />
+        <exclude name="unboundid-extop.properties" />
+        <exclude name="unboundidds.properties" />
       </zipfileset>
     </zip>
 
@@ -413,6 +429,182 @@
     </zip>
 
     <antcall target="create-maven-repository" />
+  </target>
+
+
+
+
+  <!-- Create a package for the minimal edition. -->
+  <target name="package-me">
+    <mkdir dir="${me.package.dir}" />
+    <mkdir dir="${me.package.dir}/docs" />
+    <mkdir dir="${me.package.dir}/docs/javadoc" />
+
+    <copy todir="${me.package.dir}">
+      <fileset dir="${me.distroot.dir}">
+        <include name="**/*" />
+        <exclude name="**/.svn" />
+      </fileset>
+    </copy>
+
+    <!--  Copy documentation files for the release. -->
+    <copydocs sourceDir="${me.docs.dir}" destinationDir="${me.package.dir}/docs"
+              headerFile="${resource.dir}/localdoc.header"
+              footerFile="${resource.dir}/localdoc.footer" extension="html"
+              target="offline" />
+
+    <copy todir="${me.package.dir}/docs">
+      <fileset dir="${me.package.dir}">
+        <include name="LICENSE*.txt" />
+      </fileset>
+    </copy>
+
+
+    <!-- Compile the Ant task used to generate a minimal source set. -->
+    <delete dir="${minsrc.classes.dir}" />
+    <mkdir  dir="${minsrc.classes.dir}" />
+    <javac srcdir="${minsrc.src.dir}" destdir="${minsrc.classes.dir}"
+           target="1.5" deprecation="true" fork="true"
+           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
+           optimize="true" debug="on" debuglevel="lines,source,vars">
+      <compilerarg value="-Xlint:all" />
+      <classpath>
+        <pathelement location="${classes.dir}" />
+        <fileset dir="${ant.lib.dir}">
+          <include name="*.jar" />
+        </fileset>
+      </classpath>
+    </javac>
+
+
+    <!-- Define and invoke a task to use to generate a minimal source set. -->
+    <taskdef name="genminsrc"
+             className="com.unboundid.buildtools.minimalsource.GenerateMinimalSource">
+      <classpath>
+        <pathelement location="${classes.dir}" />
+        <pathelement location="${minsrc.classes.dir}" />
+      </classpath>
+    </taskdef>
+
+    <genminsrc sourceDirectory="${src.dir}" targetDirectory="${me.src.dir}" />
+
+
+    <!-- Compile the minimal source files. -->
+    <delete dir="${me.classes.dir}" />
+    <mkdir  dir="${me.classes.dir}" />
+    <javac srcdir="${messages.gensrc.dir}" destdir="${me.classes.dir}"
+           source="1.5" target="1.5" deprecation="true" fork="true"
+           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
+           optimize="true" debug="on" debuglevel="lines,source">
+      <compilerarg value="-Xlint:all" />
+    </javac>
+
+    <delete dir="${me.classes.dir}/com/unboundid/ldap/listener" />
+    <delete dir="${me.classes.dir}/com/unboundid/ldap/sdk/controls" />
+    <delete dir="${me.classes.dir}/com/unboundid/ldap/sdk/persist" />
+    <delete dir="${me.classes.dir}/com/unboundid/ldap/sdk/unboundidds" />
+    <delete dir="${me.classes.dir}/com/unboundid/util/args" />
+
+    <javac srcdir="${me.src.dir}" destdir="${me.classes.dir}" source="1.5"
+           target="1.5" deprecation="true" fork="true"
+           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
+           optimize="true" debug="on" debuglevel="lines,source">
+      <compilerarg value="-Xlint:all" />
+      <classpath>
+        <pathelement location="${me.classes.dir}" />
+      </classpath>
+    </javac>
+
+    <copy todir="${me.classes.dir}">
+      <fileset dir="${messages.dir}">
+        <exclude name="args.properties" />
+        <exclude name="controls.properties" />
+        <exclude name="listener.properties" />
+        <exclude name="log.properties" />
+        <exclude name="monitor.properties" />
+        <exclude name="persist.properties" />
+        <exclude name="task.properties" />
+        <exclude name="unboundid-controls.properties" />
+        <exclude name="unboundid-extop.properties" />
+        <exclude name="unboundidds.properties" />
+      </fileset>
+    </copy>
+
+
+    <!-- Create a jar file with the minimal source. -->
+    <jar jarfile="${me.package.dir}/unboundid-ldapsdk-me.jar"
+         compress="true"
+         index="true">
+      <fileset dir="${me.classes.dir}" />
+      <manifest>
+        <attribute name="Build-Time" value="${timestamp}" />
+        <attribute name="Implementation-Title"
+                   value="${PRODUCT_NAME} (Minimal Edition)" />
+        <attribute name="Implementation-Version"
+                   value="${MMP}${VERSION_QUALIFIER}" />
+        <attribute name="Source-Path" value="${svn.path}" />
+        <attribute name="Source-Revision" value="${svn.version}" />
+        <attribute name="Implementation-Vendor" value="UnboundID Corp." />
+        <attribute name="Implementation-URL"
+                   value="http://www.unboundid.com/" />
+        <attribute name="Sealed" value="true" />
+      </manifest>
+    </jar>
+
+
+    <!-- Generate javadoc documentation for the minimal source. -->
+    <javadoc destdir="${me.package.dir}/docs/javadoc" source="1.5"
+             useexternalfile="true"
+             additionalparam="-quiet" linksource="yes"
+             windowtitle="UnboundID LDAP SDK for Java ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Minimal Edition)"
+             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Minimal Edition)"
+             maxmemory="${MEM}" access="protected"
+             stylesheetfile="${resource.dir}/unboundid-javadoc.css"
+             bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-2011-${year} &amp;ndash; UnboundID Corp. &amp;ndash; All Rights Reserved.&lt;/div&gt;">
+      <fileset dir="${me.src.dir}" defaultexcludes="yes">
+        <exclude name="**/*Helper*" />
+        <exclude name="**/*Constants*" />
+        <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
+        <exclude name="com/unboundid/util/parallel/**" />
+      </fileset>
+      <classpath>
+        <pathelement location="${me.classes.dir}" />
+      </classpath>
+    </javadoc>
+
+    <delete file="${me.package.dir}/docs/javadoc/resources/inherit.gif" />
+    <copy file="${resource.dir}/inherit.gif"
+          toFile="${me.package.dir}/docs/javadoc/resources/inherit.gif" />
+
+    <zip destfile="${me.package.dir}/src.zip" compress="true">
+      <zipfileset dir="${me.src.dir}" filemode="644" dirmode="755">
+        <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
+      </zipfileset>
+      <zipfileset dir="${messages.gensrc.dir}" filemode="644" dirmode="755">
+        <exclude name="com/unboundid/ldap/listener/**/*" />
+        <exclude name="com/unboundid/ldap/sdk/controls/**/*" />
+        <exclude name="com/unboundid/ldap/sdk/persist/**/*" />
+        <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
+        <exclude name="com/unboundid/util/args/**/*" />
+      </zipfileset>
+      <zipfileset dir="${messages.dir}" filemode="644" dirmode="755">
+        <exclude name="args.properties" />
+        <exclude name="controls.properties" />
+        <exclude name="listener.properties" />
+        <exclude name="log.properties" />
+        <exclude name="monitor.properties" />
+        <exclude name="persist.properties" />
+        <exclude name="task.properties" />
+        <exclude name="unboundid-controls.properties" />
+        <exclude name="unboundid-extop.properties" />
+        <exclude name="unboundidds.properties" />
+      </zipfileset>
+    </zip>
+
+    <zip destfile="${package.dir}/${me.buildid}.zip" compress="true">
+      <zipfileset dir="${package.dir}" includes="${me.buildid}/**/*"
+                  filemode="644" dirmode="755" />
+    </zip>
   </target>
 
 
@@ -485,7 +677,7 @@
     </javac>
 
     <taskdef name="gendigest"
-             classname="com.unboundid.buildtools.digest.GenerateDigest">
+             className="com.unboundid.buildtools.digest.GenerateDigest">
       <classpath>
         <pathelement location="${digest.classes.dir}" />
       </classpath>
@@ -522,7 +714,7 @@
 
 
 
-  <!-- Run sanity checks on the Standard Edition. -->
+  <!-- Run sanity checks on the Standard Edition and Minimal Edition. -->
   <target name="sanitycheck">
     <delete dir="${sc.classes.dir}" />
     <mkdir dir="${sc.classes.dir}" />
@@ -543,7 +735,7 @@
     </javac>
 
     <taskdef name="scse"
-             classname="com.unboundid.buildtools.sanitycheck.SanityCheckSE">
+             className="com.unboundid.buildtools.sanitycheck.SanityCheckSE">
       <classpath>
         <pathelement location="${sc.classes.dir}" />
         <fileset dir="${se.package.dir}">
@@ -553,6 +745,18 @@
     </taskdef>
 
     <scse baseDir="${se.package.dir}" dsHost="${ds.host}" dsPort="${ds.port}" />
+
+    <taskdef name="scme"
+             className="com.unboundid.buildtools.sanitycheck.SanityCheckME">
+      <classpath>
+        <pathelement location="${sc.classes.dir}" />
+        <fileset dir="${me.package.dir}">
+          <include name="*.jar" />
+        </fileset>
+      </classpath>
+    </taskdef>
+
+    <scme baseDir="${me.package.dir}" dsHost="${ds.host}" dsPort="${ds.port}" />
   </target>
 
 </project>

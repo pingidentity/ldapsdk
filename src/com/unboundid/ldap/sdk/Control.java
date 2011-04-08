@@ -113,8 +113,19 @@ public class Control
 
   static
   {
-    com.unboundid.ldap.sdk.controls.ControlHelper.
-         registerDefaultResponseControls();
+    try
+    {
+      final Class<?> unboundIDControlHelperClass = Class.forName(
+           "com.unboundid.ldap.sdk.controls.ControlHelper");
+      final Method method = unboundIDControlHelperClass.getMethod(
+           "registerDefaultResponseControls");
+      method.invoke(null);
+    }
+    catch (Exception e)
+    {
+      // This is expected in the minimal release, since it doesn't include any
+      // controls.
+    }
 
     try
     {
