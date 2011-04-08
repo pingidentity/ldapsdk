@@ -585,8 +585,24 @@ public final class SimpleBindRequest
     connection.getConnectionStatistics().incrementNumBindRequests();
     connection.sendMessage(message);
 
-    final LDAPResponse response = connection.readResponse(messageID);
-    return handleResponse(connection, response, requestTime);
+    while (true)
+    {
+      final LDAPResponse response = connection.readResponse(messageID);
+      if (response instanceof IntermediateResponse)
+      {
+        final IntermediateResponseListener listener =
+             getIntermediateResponseListener();
+        if (listener != null)
+        {
+          listener.intermediateResponseReturned(
+               (IntermediateResponse) response);
+        }
+      }
+      else
+      {
+        return handleResponse(connection, response, requestTime);
+      }
+    }
   }
 
 

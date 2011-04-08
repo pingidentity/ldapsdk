@@ -1488,6 +1488,16 @@ public final class SearchRequest
           throw new LDAPSearchException(searchResult);
         }
       }
+      else if (response instanceof IntermediateResponse)
+      {
+        final IntermediateResponseListener listener =
+             getIntermediateResponseListener();
+        if (listener != null)
+        {
+          listener.intermediateResponseReturned(
+               (IntermediateResponse) response);
+        }
+      }
       else if (response instanceof SearchResultEntry)
       {
         final SearchResultEntry searchEntry = (SearchResultEntry) response;
