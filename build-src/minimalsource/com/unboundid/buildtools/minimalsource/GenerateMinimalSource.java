@@ -12,9 +12,13 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -253,6 +257,25 @@ public final class GenerateMinimalSource
 
 
   /**
+   * The message files to be retained in the minimized version of the source.
+   * These messages will be
+   */
+  private static final String[] MESSAGE_FILES_TO_RETAIN =
+  {
+    "asn1.properties",
+    "extop.properties",
+    "ldap.properties",
+    "ldif.properties",
+    "matchingrules.properties",
+    "protocol.properties",
+    "schema.properties",
+    "ssl.properties",
+    "util.properties"
+  };
+
+
+
+  /**
    * The fully-qualified class names for annotation types to strip out of source
    * files.  Note that even though ThreadSafetyLevel isn't an annotation type,
    * we can lump it in with the rest of them since we want the import stripped.
@@ -289,6 +312,14 @@ public final class GenerateMinimalSource
 
 
 
+  // The path to the directory containing the message properties files to
+  // process.
+  private File messagesSourceDirectory;
+
+  // The path to the directory in which to write updated message properties
+  // files.
+  private File messagesTargetDirectory;
+
   // The path to the directory containing the original source files.
   private File sourceDirectory;
 
@@ -303,8 +334,10 @@ public final class GenerateMinimalSource
    */
   public GenerateMinimalSource()
   {
-    sourceDirectory = null;
-    targetDirectory = null;
+    messagesSourceDirectory = null;
+    messagesTargetDirectory = null;
+    sourceDirectory         = null;
+    targetDirectory         = null;
   }
 
 
@@ -334,6 +367,37 @@ public final class GenerateMinimalSource
   public void setTargetDirectory(final File targetDirectory)
   {
     this.targetDirectory = targetDirectory;
+  }
+
+
+
+  /**
+   * Specifies the path to the directory containing the message files that will
+   * be processed to create the minimized version of the LDAP SDK.
+   *
+   * @param  messagesSourceDirectory  The path to the directory containing the
+   *                                  source files that will be processed to
+   *                                  create the minimized version of the LDAP
+   *                                  SDK.
+   */
+  public void setMessagesSourceDirectory(final File messagesSourceDirectory)
+  {
+    this.messagesSourceDirectory = messagesSourceDirectory;
+  }
+
+
+
+  /**
+   * Specifies the path to the directory in which the minimized version of the
+   * messages files should be written.
+   *
+   * @param  messagesTargetDirectory  The path to the directory in which the
+   *                                  minimized version of the message files
+   *                                  should be written.
+   */
+  public void setMessagesTargetDirectory(final File messagesTargetDirectory)
+  {
+    this.messagesTargetDirectory = messagesTargetDirectory;
   }
 
 
@@ -384,11 +448,59 @@ public final class GenerateMinimalSource
       }
     }
 
+
+    if (messagesSourceDirectory == null)
+    {
+      throw new BuildException(
+           "ERROR:  messagesSourceDirectory not specified.");
+    }
+
+    if (! messagesSourceDirectory.exists())
+    {
+      throw new BuildException(
+           "ERROR:  messagesSourceDirectory does not exist.");
+    }
+
+    if (! messagesSourceDirectory.isDirectory())
+    {
+      throw new BuildException(
+           "ERROR: messageSourceDirectory is not a directory.");
+    }
+
+
+    if (messagesTargetDirectory == null)
+    {
+      throw new BuildException(
+           "ERROR:  messagesTargetDirectory not specified.");
+    }
+
+    if (messagesTargetDirectory.exists())
+    {
+      if (! messagesTargetDirectory.isDirectory())
+      {
+        throw new BuildException(
+             "ERROR:  messagesTargetDirectory is not a directory.");
+      }
+    }
+    else
+    {
+      if (! messagesTargetDirectory.mkdirs())
+      {
+        throw new BuildException(
+             "ERROR:  Could not create messagesTargetDirectory '" +
+                  messagesTargetDirectory.getAbsolutePath() + "'.");
+      }
+    }
+
+
+    final HashSet<String> messageIDs = new HashSet<String>(1000);
+    messageIDs.add("class.name");
+
     for (final String className : CLASSES_TO_RETAIN)
     {
       try
       {
-        processClass(className);
+        processClass(className, messageIDs);
       }
       catch (final BuildException be)
       {
@@ -397,8 +509,28 @@ public final class GenerateMinimalSource
       catch (final Exception e)
       {
         throw new BuildException(
-             "An error occurred during processing class " + className + ":  " +
+             "An error occurred while processing class " + className + ":  " +
                   StaticUtils.getExceptionMessage(e),
+             e);
+      }
+    }
+
+
+    for (final String messageFile : MESSAGE_FILES_TO_RETAIN)
+    {
+      try
+      {
+        processMessageFile(messageFile, messageIDs);
+      }
+      catch (final BuildException be)
+      {
+        throw be;
+      }
+      catch (final Exception e)
+      {
+        throw new BuildException(
+             "An error occurred while processing message file '" + messageFile +
+                  ":  " + StaticUtils.getExceptionMessage(e),
              e);
       }
     }
@@ -409,11 +541,14 @@ public final class GenerateMinimalSource
   /**
    * Performs all appropriate processing for a single class.
    *
-   * @param  className  The fully-qualified name of the class to process.
+   * @param  className   The fully-qualified name of the class to process.
+   * @param  messageIDs  A set to which the message IDs for any messages that
+   *                     are used in the retained source should be added.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
-  private void processClass(final String className)
+  private void processClass(final String className,
+                            final Set<String> messageIDs)
           throws Exception
   {
     // Get the source and target paths for the file.
@@ -466,6 +601,7 @@ lineLoop:
       // While we're reading, we can strip out import and annotation lines that
       // should be excluded.
       final String trimmedLine = line.trim();
+      extractMessageIDs(trimmedLine, messageIDs);
       for (final String annotationType : ANNOTATIONS_TO_STRIP)
       {
         if (trimmedLine.startsWith("import "))
@@ -524,5 +660,64 @@ lineLoop:
 
     reader.close();
     writer.close();
+  }
+
+
+
+  /**
+   * Parses the provided line to extract any message IDs contained in it.
+   *
+   * @param  line   The line to be examined.
+   * @param  idSet  The set to which extracted message IDs should be added.
+   */
+  private static void extractMessageIDs(final String line,
+                                        final Set<String> idSet)
+  {
+    final StringTokenizer tokenizer = new StringTokenizer(line, " (.,");
+    while (tokenizer.hasMoreTokens())
+    {
+      final String token = tokenizer.nextToken();
+      if (token.startsWith("INFO_") || token.startsWith("ERR_") ||
+          token.startsWith("WARN_"))
+      {
+        idSet.add(token);
+      }
+    }
+  }
+
+
+
+  /**
+   * Performs processing for the contents of the provided message file to strip
+   * out any messages that aren't used in the minimal version of the source.
+   *
+   * @param  messageFile  The name of the message file to process.
+   * @param  messageIDs   The set of message IDs to retain.
+   *
+   *
+   */
+  private void processMessageFile(final String messageFile,
+                                  final Set<String> messageIDs)
+          throws Exception
+  {
+    final File       sf = new File(messagesSourceDirectory, messageFile);
+    final Properties sp = new Properties();
+
+    final FileReader r = new FileReader(sf);
+    sp.load(r);
+    r.close();
+
+    final Properties tp = new Properties();
+    for (final String propertyName : sp.stringPropertyNames())
+    {
+      if (messageIDs.contains(propertyName))
+      {
+        tp.setProperty(propertyName, sp.getProperty(propertyName));
+      }
+    }
+
+    final File tf = new File(messagesTargetDirectory, messageFile);
+    final PrintWriter w = new PrintWriter(tf);
+    tp.store(w, null);
   }
 }

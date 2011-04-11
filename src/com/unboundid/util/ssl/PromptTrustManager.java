@@ -305,14 +305,14 @@ public final class PromptTrustManager
     {
       outsideValidityWindow = true;
       out.println();
-      out.println(WARNING_PROMPT_NOT_YET_VALID.get());
+      out.println(WARN_PROMPT_NOT_YET_VALID.get());
       out.println();
     }
     else if (currentDate.after(c.getNotAfter()))
     {
       outsideValidityWindow = true;
       out.println();
-      out.println(WARNING_PROMPT_EXPIRED.get());
+      out.println(WARN_PROMPT_EXPIRED.get());
       out.println();
     }
 
