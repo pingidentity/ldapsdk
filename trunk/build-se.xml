@@ -50,6 +50,10 @@
   <property name="messages.src.dir"     location="${buildsrc.dir}/messages" />
   <property name="messages.classes.dir" location="${build.dir}/messages" />
   <property name="messages.gensrc.dir"  location="${gensrc.dir}/messages" />
+  <property name="messages.me.dir"
+            location="${build.dir}/messages-me/messages" />
+  <property name="messages.me.gensrc.dir"
+            location="${build.dir}/messages-me/gen-src" />
 
 
   <!-- Define properties used for sanity checking the build. -->
@@ -463,6 +467,7 @@
     <!-- Compile the Ant task used to generate a minimal source set. -->
     <delete dir="${minsrc.classes.dir}" />
     <mkdir  dir="${minsrc.classes.dir}" />
+    <mkdir  dir="${messages.me.dir}" />
     <javac srcdir="${minsrc.src.dir}" destdir="${minsrc.classes.dir}"
            target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
@@ -486,24 +491,27 @@
       </classpath>
     </taskdef>
 
-    <genminsrc sourceDirectory="${src.dir}" targetDirectory="${me.src.dir}" />
+    <genminsrc sourceDirectory="${src.dir}" targetDirectory="${me.src.dir}"
+               messagesSourceDirectory="${messages.dir}"
+               messagesTargetDirectory="${messages.me.dir}" />
+
+
+    <!-- Build source for the pared-down message files. -->
+    <delete dir="${messages.me.gensrc.dir}" />
+    <mkdir  dir="${messages.me.gensrc.dir}" />
+    <genmsgs propertiesDir="${messages.me.dir}"
+             generatedSourceDir="${messages.me.gensrc.dir}" />
 
 
     <!-- Compile the minimal source files. -->
     <delete dir="${me.classes.dir}" />
     <mkdir  dir="${me.classes.dir}" />
-    <javac srcdir="${messages.gensrc.dir}" destdir="${me.classes.dir}"
+    <javac srcdir="${messages.me.gensrc.dir}" destdir="${me.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source">
       <compilerarg value="-Xlint:all" />
     </javac>
-
-    <delete dir="${me.classes.dir}/com/unboundid/ldap/listener" />
-    <delete dir="${me.classes.dir}/com/unboundid/ldap/sdk/controls" />
-    <delete dir="${me.classes.dir}/com/unboundid/ldap/sdk/persist" />
-    <delete dir="${me.classes.dir}/com/unboundid/ldap/sdk/unboundidds" />
-    <delete dir="${me.classes.dir}/com/unboundid/util/args" />
 
     <javac srcdir="${me.src.dir}" destdir="${me.classes.dir}" source="1.5"
            target="1.5" deprecation="true" fork="true"
@@ -516,17 +524,8 @@
     </javac>
 
     <copy todir="${me.classes.dir}">
-      <fileset dir="${messages.dir}">
-        <exclude name="args.properties" />
-        <exclude name="controls.properties" />
-        <exclude name="listener.properties" />
-        <exclude name="log.properties" />
-        <exclude name="monitor.properties" />
-        <exclude name="persist.properties" />
-        <exclude name="task.properties" />
-        <exclude name="unboundid-controls.properties" />
-        <exclude name="unboundid-extop.properties" />
-        <exclude name="unboundidds.properties" />
+      <fileset dir="${messages.me.dir}">
+        <include name="*.properties" />
       </fileset>
     </copy>
 
@@ -580,7 +579,7 @@
       <zipfileset dir="${me.src.dir}" filemode="644" dirmode="755">
         <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
       </zipfileset>
-      <zipfileset dir="${messages.gensrc.dir}" filemode="644" dirmode="755">
+      <zipfileset dir="${messages.me.gensrc.dir}" filemode="644" dirmode="755">
         <exclude name="com/unboundid/ldap/listener/**/*" />
         <exclude name="com/unboundid/ldap/sdk/controls/**/*" />
         <exclude name="com/unboundid/ldap/sdk/persist/**/*" />
