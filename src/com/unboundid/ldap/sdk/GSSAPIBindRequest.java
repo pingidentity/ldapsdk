@@ -157,6 +157,32 @@ public final class GSSAPIBindRequest
 
 
   /**
+   * The value for the java.security.auth.login.config property at the time that
+   * this class was loaded.  If this is set, then it will be used in place of
+   * an automatically-generated config file.
+   */
+  private static final String DEFAULT_CONFIG_FILE =
+       System.getProperty(PROPERTY_CONFIG_FILE);
+
+
+
+  /**
+   * The default KDC address that will be used if none is explicitly configured.
+   */
+  private static final String DEFAULT_KDC_ADDRESS =
+       System.getProperty(PROPERTY_KDC_ADDRESS);
+
+
+
+  /**
+   * The default realm that will be used if none is explicitly configured.
+   */
+  private static final String DEFAULT_REALM =
+       System.getProperty(PROPERTY_REALM);
+
+
+
+  /**
    * The name that will identify this client to the JAAS framework.
    */
   private static final String JAAS_CLIENT_NAME = "GSSAPIBindRequest";
@@ -312,8 +338,8 @@ public final class GSSAPIBindRequest
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
    * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if the authorization ID
-   *                           should be the same as the authentication ID.
+   *                           may be {@code null} if no alternate authorization
+   *                           ID should be used.
    * @param  password          The password for this bind request.  It must not
    *                           be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
@@ -349,8 +375,8 @@ public final class GSSAPIBindRequest
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
    * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if the authorization ID
-   *                           should be the same as the authentication ID.
+   *                           may be {@code null} if no alternate authorization
+   *                           ID should be used.
    * @param  password          The password for this bind request.  It must not
    *                           be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
@@ -386,8 +412,8 @@ public final class GSSAPIBindRequest
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
    * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if the authorization ID
-   *                           should be the same as the authentication ID.
+   *                           may be {@code null} if no alternate authorization
+   *                           ID should be used.
    * @param  password          The password for this bind request.  It must not
    *                           be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
@@ -426,8 +452,8 @@ public final class GSSAPIBindRequest
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
    * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if the authorization ID
-   *                           should be the same as the authentication ID.
+   *                           may be {@code null} if no alternate authorization
+   *                           ID should be used.
    * @param  password          The password for this bind request.  It must not
    *                           be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
@@ -497,7 +523,7 @@ public final class GSSAPIBindRequest
     final String authzID = gssapiProperties.getAuthorizationID();
     if (authzID == null)
     {
-      authorizationID = authenticationID;
+      authorizationID = null;
     }
     else
     {
@@ -507,7 +533,14 @@ public final class GSSAPIBindRequest
     final String cfgPath = gssapiProperties.getConfigFilePath();
     if (cfgPath == null)
     {
-      configFilePath = getConfigFilePath(gssapiProperties);
+      if (DEFAULT_CONFIG_FILE == null)
+      {
+        configFilePath = getConfigFilePath(gssapiProperties);
+      }
+      else
+      {
+        configFilePath = DEFAULT_CONFIG_FILE;
+      }
     }
     else
     {
@@ -828,15 +861,79 @@ public final class GSSAPIBindRequest
 
     System.setProperty(PROPERTY_CONFIG_FILE, configFilePath);
     System.setProperty(PROPERTY_SUBJECT_CREDS_ONLY, "true");
-
-    if (kdcAddress != null)
+    if (debugEnabled(DebugType.LDAP))
     {
-      System.setProperty(PROPERTY_KDC_ADDRESS, kdcAddress);
+      debug(Level.CONFIG, DebugType.LDAP,
+           "Using config file property " + PROPERTY_CONFIG_FILE + " = '" +
+                configFilePath + "'.");
+      debug(Level.CONFIG, DebugType.LDAP,
+           "Using subject creds only property " + PROPERTY_SUBJECT_CREDS_ONLY +
+                " = 'true'.");
     }
 
-    if (realm != null)
+    if (kdcAddress == null)
+    {
+      if (DEFAULT_KDC_ADDRESS == null)
+      {
+        System.clearProperty(PROPERTY_KDC_ADDRESS);
+        if (debugEnabled(DebugType.LDAP))
+        {
+          debug(Level.CONFIG, DebugType.LDAP,
+               "Clearing kdcAddress property '" + PROPERTY_KDC_ADDRESS + "'.");
+        }
+      }
+      else
+      {
+        System.setProperty(PROPERTY_KDC_ADDRESS, DEFAULT_KDC_ADDRESS);
+        if (debugEnabled(DebugType.LDAP))
+        {
+          debug(Level.CONFIG, DebugType.LDAP,
+               "Using default kdcAddress property " + PROPERTY_KDC_ADDRESS +
+                    " = '" + DEFAULT_KDC_ADDRESS + "'.");
+        }
+      }
+    }
+    else
+    {
+      System.setProperty(PROPERTY_KDC_ADDRESS, kdcAddress);
+      if (debugEnabled(DebugType.LDAP))
+      {
+        debug(Level.CONFIG, DebugType.LDAP,
+             "Using kdcAddress property " + PROPERTY_KDC_ADDRESS + " = '" +
+                  kdcAddress + "'.");
+      }
+    }
+
+    if (realm == null)
+    {
+      if (DEFAULT_REALM == null)
+      {
+        System.clearProperty(PROPERTY_REALM);
+        if (debugEnabled(DebugType.LDAP))
+        {
+          debug(Level.CONFIG, DebugType.LDAP,
+               "Clearing realm property '" + PROPERTY_REALM + "'.");
+        }
+      }
+      else
+      {
+        System.setProperty(PROPERTY_REALM, DEFAULT_REALM);
+        if (debugEnabled(DebugType.LDAP))
+        {
+          debug(Level.CONFIG, DebugType.LDAP,
+               "Using default realm property " + PROPERTY_REALM + " = '" +
+                    DEFAULT_REALM + "'.");
+        }
+      }
+    }
+    else
     {
       System.setProperty(PROPERTY_REALM, realm);
+      if (debugEnabled(DebugType.LDAP))
+      {
+        debug(Level.CONFIG, DebugType.LDAP,
+             "Using realm property " + PROPERTY_REALM + " = '" + realm + "'.");
+      }
     }
 
     try
@@ -978,8 +1075,17 @@ public final class GSSAPIBindRequest
       }
       else if (callback instanceof PasswordCallback)
       {
-        ((PasswordCallback) callback).setPassword(
-             password.stringValue().toCharArray());
+        if (password == null)
+        {
+          throw new LDAPRuntimeException(new LDAPException(
+               ResultCode.PARAM_ERROR,
+               ERR_GSSAPI_NO_PASSWORD_AVAILABLE.get()));
+        }
+        else
+        {
+          ((PasswordCallback) callback).setPassword(
+               password.stringValue().toCharArray());
+        }
       }
       else if (callback instanceof RealmCallback)
       {
