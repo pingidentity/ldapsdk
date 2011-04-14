@@ -221,6 +221,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldif.LDIFWriter",
     "com.unboundid.ldif.package-info",
 
+    "com.unboundid.util.AggregateInputStream",
     "com.unboundid.util.Base64",
     "com.unboundid.util.ByteString",
     "com.unboundid.util.ByteStringBuffer",

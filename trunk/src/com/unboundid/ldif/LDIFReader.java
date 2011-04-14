@@ -23,8 +23,10 @@ package com.unboundid.ldif;
 
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -48,6 +50,7 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.AggregateInputStream;
 import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPSDKThreadFactory;
 import com.unboundid.util.ThreadSafety;
@@ -251,11 +254,11 @@ public final class LDIFReader
 
   /**
    * Creates a new LDIF reader that will read data from the specified file
-   * and parses the LDIF records asynchronously using the specified number of
-   * threads.
+   * and optionally parses the LDIF records asynchronously using the specified
+   * number of threads.
    *
-   * @param  file  The file from which the data is to be read.  It must not be
-   *               {@code null}.
+   * @param  file             The file from which the data is to be read.  It
+   *                          must not be {@code null}.
    * @param  numParseThreads  If this value is greater than zero, then the
    *                          specified number of threads will be used to
    *                          asynchronously read and parse the LDIF file.
@@ -267,6 +270,87 @@ public final class LDIFReader
          throws IOException
   {
     this(new FileInputStream(file), numParseThreads);
+  }
+
+
+
+  /**
+   * Creates a new LDIF reader that will read data from the specified files in
+   * the order in which they are provided and optionally parses the LDIF records
+   * asynchronously using the specified number of threads.
+   *
+   * @param  files            The files from which the data is to be read.  It
+   *                          must not be {@code null} or empty.
+   * @param  numParseThreads  If this value is greater than zero, then the
+   *                          specified number of threads will be used to
+   *                          asynchronously read and parse the LDIF file.
+   *
+   * @throws  IOException  If a problem occurs while opening the file for
+   *                       reading.
+   */
+  public LDIFReader(final File[] files, final int numParseThreads)
+         throws IOException
+  {
+    this(createAggregateInputStream(files), numParseThreads);
+  }
+
+
+
+  /**
+   * Creates a new aggregate input stream that will read data from the specified
+   * files.  If there are multiple files, then a "padding" file will be inserted
+   * between them to ensure that there is at least one blank line between the
+   * end of one file and the beginning of another.
+   *
+   * @param  files  The files from which the data is to be read.  It must not be
+   *                {@code null} or empty.
+   *
+   * @return  The input stream to use to read data from the provided files.
+   *
+   * @throws  IOException  If a problem is encountered while attempting to
+   *                       create the input stream.
+   */
+  private static InputStream createAggregateInputStream(final File... files)
+          throws IOException
+  {
+    if (files.length == 0)
+    {
+      throw new IOException(ERR_READ_NO_LDIF_FILES.get());
+    }
+    else if (files.length == 1)
+    {
+      return new FileInputStream(files[0]);
+    }
+    else
+    {
+      final File spacerFile =
+           File.createTempFile("ldif-reader-spacer", ".ldif");
+      spacerFile.deleteOnExit();
+
+      final BufferedWriter spacerWriter =
+           new BufferedWriter(new FileWriter(spacerFile));
+      try
+      {
+        spacerWriter.newLine();
+        spacerWriter.newLine();
+      }
+      finally
+      {
+        spacerWriter.close();
+      }
+
+      final File[] returnArray = new File[(files.length * 2) - 1];
+      returnArray[0] = files[0];
+
+      int pos = 1;
+      for (int i=1; i < files.length; i++)
+      {
+        returnArray[pos++] = spacerFile;
+        returnArray[pos++] = files[i];
+      }
+
+      return new AggregateInputStream(returnArray);
+    }
   }
 
 
