@@ -284,14 +284,21 @@ public final class LDIFReader
    * @param  numParseThreads  If this value is greater than zero, then the
    *                          specified number of threads will be used to
    *                          asynchronously read and parse the LDIF file.
+   * @param entryTranslator   The LDIFReaderEntryTranslator to apply to entries
+   *                          before they are returned.  This is normally
+   *                          {@code null}, which causes entries to be returned
+   *                          unaltered. This is particularly useful when
+   *                          parsing the input file in parallel because the
+   *                          entry translation is also done in parallel.
    *
    * @throws  IOException  If a problem occurs while opening the file for
    *                       reading.
    */
-  public LDIFReader(final File[] files, final int numParseThreads)
+  public LDIFReader(final File[] files, final int numParseThreads,
+                    final LDIFReaderEntryTranslator entryTranslator)
          throws IOException
   {
-    this(createAggregateInputStream(files), numParseThreads);
+    this(createAggregateInputStream(files), numParseThreads, entryTranslator);
   }
 
 
@@ -405,10 +412,10 @@ public final class LDIFReader
    *                          specified number of threads will be used to
    *                          asynchronously read and parse the LDIF file.
    * @param entryTranslator  The LDIFReaderEntryTranslator to apply to read
-   *                         EntryS before they are returned.  This is normally
-   *                         {@code null}, which causes EntryS to be returned
+   *                         entries before they are returned.  This is normally
+   *                         {@code null}, which causes entries to be returned
    *                         unaltered. This is particularly useful when parsing
-   *                         the input file in parallel because the Entry
+   *                         the input file in parallel because the entry
    *                         translation is also done in parallel.
    *
    * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
@@ -486,10 +493,10 @@ public final class LDIFReader
    *                          records synchronously when one of the read
    *                          methods is called.
    * @param entryTranslator  The LDIFReaderEntryTranslator to apply to read
-   *                         EntryS before they are returned.  This is normally
-   *                         {@code null}, which causes EntryS to be returned
+   *                         entries before they are returned.  This is normally
+   *                         {@code null}, which causes entries to be returned
    *                         unaltered. This is particularly useful when parsing
-   *                         the input file in parallel because the Entry
+   *                         the input file in parallel because the entry
    *                         translation is also done in parallel.
    */
   public LDIFReader(final BufferedReader reader,
