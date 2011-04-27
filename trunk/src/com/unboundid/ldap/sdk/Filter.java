@@ -3090,7 +3090,7 @@ attrNameLoop:
   public boolean matchesEntry(final Entry entry)
          throws LDAPException
   {
-    return matchesEntry(entry, null);
+    return matchesEntry(entry, entry.getSchema());
   }
 
 
@@ -3192,7 +3192,7 @@ attrNameLoop:
              MatchingRule.selectOrderingMatchingRule(attrName, schema);
         for (final ASN1OctetString v : a.getRawValues())
         {
-          if (matchingRule.compareValues(assertionValue, v) >= 0)
+          if (matchingRule.compareValues(v, assertionValue) >= 0)
           {
             return true;
           }
@@ -3210,7 +3210,7 @@ attrNameLoop:
              MatchingRule.selectOrderingMatchingRule(attrName, schema);
         for (final ASN1OctetString v : a.getRawValues())
         {
-          if (matchingRule.compareValues(assertionValue, v) <= 0)
+          if (matchingRule.compareValues(v, assertionValue) <= 0)
           {
             return true;
           }
