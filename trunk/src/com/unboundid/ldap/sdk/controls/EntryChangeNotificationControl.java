@@ -35,6 +35,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -284,6 +285,44 @@ public final class EntryChangeNotificationControl
          throws LDAPException
   {
     return new EntryChangeNotificationControl(oid, isCritical, value);
+  }
+
+
+
+  /**
+   * Extracts an entry change notification control from the provided search
+   * result entry.
+   *
+   * @param  entry  The search result entry from which to retrieve the entry
+   *                change notification control.
+   *
+   * @return  The entry change notification control contained in the provided
+   *          search result entry, or {@code null} if the entry did not contain
+   *          an entry change notification control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the entry change notification control
+   *                         contained in the provided entry.
+   */
+  public static EntryChangeNotificationControl
+                     get(final SearchResultEntry entry)
+         throws LDAPException
+  {
+    final Control c = entry.getControl(ENTRY_CHANGE_NOTIFICATION_OID);
+    if (c == null)
+    {
+      return null;
+    }
+
+    if (c instanceof EntryChangeNotificationControl)
+    {
+      return (EntryChangeNotificationControl) c;
+    }
+    else
+    {
+      return new EntryChangeNotificationControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
   }
 
 

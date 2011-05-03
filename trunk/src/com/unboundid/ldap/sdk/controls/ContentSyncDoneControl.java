@@ -32,6 +32,7 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
@@ -245,6 +246,43 @@ public final class ContentSyncDoneControl
          throws LDAPException
   {
     return new ContentSyncDoneControl(oid, isCritical, value);
+  }
+
+
+
+  /**
+   * Extracts a content synchronization done control from the provided result.
+   *
+   * @param  result  The result from which to retrieve the content
+   *                 synchronization done control.
+   *
+   * @return  The content synchronization done control contained in the provided
+   *          result, or {@code null} if the result did not contain a content
+   *          synchronization done control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the content synchronization done control
+   *                         contained in the provided result.
+   */
+  public static ContentSyncDoneControl get(final LDAPResult result)
+         throws LDAPException
+  {
+    final Control c =
+         result.getResponseControl(SYNC_DONE_OID);
+    if (c == null)
+    {
+      return null;
+    }
+
+    if (c instanceof ContentSyncDoneControl)
+    {
+      return (ContentSyncDoneControl) c;
+    }
+    else
+    {
+      return new ContentSyncDoneControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
   }
 
 

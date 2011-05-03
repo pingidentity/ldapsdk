@@ -128,15 +128,12 @@ import static com.unboundid.util.Validator.*;
  *     // Do something with the entries that are returned.
  *
  *     contentCount = -1;
- *     for (Control c : searchResult.getResponseControls())
+ *     VirtualListViewResponseControl c =
+ *          VirtualListViewResponseControl.get(searchResult);
+ *     if (c != null)
  *     {
- *       if (c instanceof VirtualListViewResponseControl)
- *       {
- *         VirtualListViewResponseControl vlvResponse =
- *              (VirtualListViewResponseControl) c;
- *         contentCount = vlvResponse.getContentCount();
- *         contextID = vlvResponse.getContextID();
- *       }
+ *       contentCount = c.getContentCount();
+ *       contextID = c.getContextID();
  *     }
  *
  *     offset += 10;

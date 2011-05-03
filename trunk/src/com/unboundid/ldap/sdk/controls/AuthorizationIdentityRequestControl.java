@@ -62,15 +62,11 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  *                              new AuthorizationIdentityRequestControl());
  *
  *   BindResult bindResult = connection.bind(bindRequest);
- *   for (Control c : bindResult.getResponseControls())
+ *   AuthorizationIdentityResponseControl c =
+ *        AuthorizationIdentityResponseControl.get(bindResult);
+ *   if (c != null)
  *   {
- *     if (c instanceof AuthorizationIdentityResponseControl)
- *     {
- *       AuthorizationIdentityResponseControl authzResponseControl =
- *            (AuthorizationIdentityResponseControl) c;
- *       authzID = authzResponseControl.getAuthorizationID();
- *       break;
- *     }
+ *     authzID = c.getAuthorizationID();
  *   }
  * </PRE>
  */
