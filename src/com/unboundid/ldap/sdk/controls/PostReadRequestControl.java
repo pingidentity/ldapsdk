@@ -74,16 +74,10 @@ import static com.unboundid.util.Debug.*;
  *   LDAPResult modifyResult = connection.modify(modifyRequest);
  *
  *   Integer newValue = null;
- *   for (Control c : modifyResult.getResponseControls())
+ *   PostReadResponseControl c = PostReadResponseControl.get(modifyResult);
+ *   if (c != null)
  *   {
- *     if (c instanceof PostReadResponseControl)
- *     {
- *       ReadOnlyEntry e = ((PostReadResponseControl) c).getEntry();
- *       if (e.hasAttribute("testCounter"))
- *       {
- *         newValue = Integer.parseInt(e.getAttributeValue("testCounter"));
- *       }
- *     }
+ *     newValue = c.getEntry().getAttributeValueAsInteger("testCounter");
  *   }
  * </PRE>
  */

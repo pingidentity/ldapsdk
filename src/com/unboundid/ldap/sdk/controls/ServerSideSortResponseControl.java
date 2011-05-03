@@ -31,6 +31,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -206,6 +207,42 @@ public final class ServerSideSortResponseControl
          throws LDAPException
   {
     return new ServerSideSortResponseControl(oid, isCritical, value);
+  }
+
+
+
+  /**
+   * Extracts a server-side sort response control from the provided result.
+   *
+   * @param  result  The result from which to retrieve the server-side sort
+   *                 response control.
+   *
+   * @return  The server-side sort response control contained in the provided
+   *          result, or {@code null} if the result did not contain a
+   *          server-side sort response control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the server-side sort response control
+   *                         contained in the provided result.
+   */
+  public static ServerSideSortResponseControl get(final SearchResult result)
+         throws LDAPException
+  {
+    final Control c = result.getResponseControl(SERVER_SIDE_SORT_RESPONSE_OID);
+    if (c == null)
+    {
+      return null;
+    }
+
+    if (c instanceof ServerSideSortResponseControl)
+    {
+      return (ServerSideSortResponseControl) c;
+    }
+    else
+    {
+      return new ServerSideSortResponseControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
   }
 
 

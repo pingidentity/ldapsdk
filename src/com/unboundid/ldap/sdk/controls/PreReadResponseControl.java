@@ -33,6 +33,7 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -201,6 +202,42 @@ public final class PreReadResponseControl
          throws LDAPException
   {
     return new PreReadResponseControl(oid, isCritical, value);
+  }
+
+
+
+  /**
+   * Extracts a pre-read response control from the provided result.
+   *
+   * @param  result  The result from which to retrieve the pre-read response
+   *                 control.
+   *
+   * @return  The pre-read response control contained in the provided result, or
+   *          {@code null} if the result did not contain a pre-read response
+   *          control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the pre-read response control contained in
+   *                         the provided result.
+   */
+  public static PreReadResponseControl get(final LDAPResult result)
+         throws LDAPException
+  {
+    final Control c = result.getResponseControl(PRE_READ_RESPONSE_OID);
+    if (c == null)
+    {
+      return null;
+    }
+
+    if (c instanceof PreReadResponseControl)
+    {
+      return (PreReadResponseControl) c;
+    }
+    else
+    {
+      return new PreReadResponseControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
   }
 
 

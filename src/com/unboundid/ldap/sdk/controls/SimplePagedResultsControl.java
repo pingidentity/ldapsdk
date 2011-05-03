@@ -31,6 +31,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -104,12 +105,10 @@ import static com.unboundid.util.Debug.*;
  *     // Do something with the entries that are returned.
  *
  *     cookie = null;
- *     for (Control c : searchResult.getResponseControls())
+ *     SimplePagedResultControl c = SimplePagedResultControl.get(searchResult);
+ *     if (c != null)
  *     {
- *       if (c instanceof SimplePagedResultsControl)
- *       {
- *         cookie = ((SimplePagedResultsControl) c).getCookie();
- *       }
+ *       cookie = c.getCookie();
  *     }
  *   } while ((cookie != null) && (cookie.getValueLength() > 0));
  * </PRE>
@@ -338,6 +337,42 @@ public final class SimplePagedResultsControl
          throws LDAPException
   {
     return new SimplePagedResultsControl(oid, isCritical, value);
+  }
+
+
+
+  /**
+   * Extracts a simple paged results response control from the provided result.
+   *
+   * @param  result  The result from which to retrieve the simple paged results
+   *                 response control.
+   *
+   * @return  The simple paged results response control contained in the
+   *          provided result, or {@code null} if the result did not contain a
+   *          simple paged results response control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the simple paged results response control
+   *                         contained in the provided result.
+   */
+  public static SimplePagedResultsControl get(final SearchResult result)
+         throws LDAPException
+  {
+    final Control c = result.getResponseControl(PAGED_RESULTS_OID);
+    if (c == null)
+    {
+      return null;
+    }
+
+    if (c instanceof SimplePagedResultsControl)
+    {
+      return (SimplePagedResultsControl) c;
+    }
+    else
+    {
+      return new SimplePagedResultsControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
   }
 
 
