@@ -1709,6 +1709,34 @@ public final class LDAPObjectHandler<T>
 
 
   /**
+   * Retrieves a filter that will match any entry containing the structural and
+   * auxiliary classes for this object type.
+   *
+   * @return  A filter that will match any entry containing the structural and
+   *          auxiliary classes for this object type.
+   */
+  public Filter createBaseFilter()
+  {
+    if (auxiliaryClasses.length == 0)
+    {
+      return Filter.createEqualityFilter("objectClass", structuralClass);
+    }
+    else
+    {
+      final ArrayList<Filter> comps =
+           new ArrayList<Filter>(1+auxiliaryClasses.length);
+      comps.add(Filter.createEqualityFilter("objectClass", structuralClass));
+      for (final String s : auxiliaryClasses)
+      {
+        comps.add(Filter.createEqualityFilter("objectClass", s));
+      }
+      return Filter.createANDFilter(comps);
+    }
+  }
+
+
+
+  /**
    * Retrieves a filter that can be used to search for entries matching the
    * provided object.  It will be constructed as an AND search using all fields
    * with a non-{@code null} value and that have a {@link LDAPField} annotation
