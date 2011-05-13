@@ -464,7 +464,9 @@ public class LDAPResult
 
 
   /**
-   * Retrieves the set of controls from the response, if available.
+   * Retrieves the set of controls from the response, if available.  Individual
+   * response controls of a specific type may be retrieved and decoded using the
+   * {@code get} method in the response control class.
    *
    * @return  The set of controls from the response.  The array returned may be
    *          empty if the response did not include any controls.

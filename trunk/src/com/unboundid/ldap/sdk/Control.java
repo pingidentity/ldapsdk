@@ -71,6 +71,16 @@ import static com.unboundid.util.Validator.*;
  *       control.  Some controls do not take values, and the value encoding for
  *       controls which do take values varies based on the type of control.</LI>
  * </UL>
+ * Controls may be included in a request from the client to the server, as well
+ * as responses from the server to the client (including intermediate response,
+ * search result entry, and search result references, in addition to the final
+ * response message for an operation).  When using request controls, they may be
+ * included in the request object at the time it is created, or may be added
+ * after the fact for {@link UpdatableLDAPRequest} objects.  When using
+ * response controls, each response control class includes a {@code get} method
+ * that can be used to extract the appropriate control from an appropriate
+ * result (e.g.,  {@link LDAPResult}, {@link SearchResultEntry}, or
+ * {@link SearchResultReference}).
  */
 @Extensible()
 @NotMutable()
