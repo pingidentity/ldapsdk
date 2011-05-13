@@ -326,6 +326,8 @@ public class IntermediateResponse
 
   /**
    * Retrieves the set of controls returned with this intermediate response.
+   * Individual response controls of a specific type may be retrieved and
+   * decoded using the {@code get} method in the response control class.
    *
    * @return  The set of controls returned with this intermediate response.
    */

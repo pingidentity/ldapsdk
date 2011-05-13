@@ -470,6 +470,10 @@ public class LDAPException
 
   /**
    * Retrieves the set of response controls for this LDAP exception.
+   * Individual response controls of a specific type may be retrieved and
+   * decoded using the {@code get} method in the response control class, using
+   * the {@link #toLDAPResult()} method to convert this exception to an
+   * {@link LDAPResult}.
    *
    * @return  The set of response controls for this LDAP exception, or an empty
    *          array if there are none.

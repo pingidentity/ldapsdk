@@ -205,6 +205,8 @@ public final class SearchResultReference
 
   /**
    * Retrieves the set of controls returned with this search result reference.
+   * Individual response controls of a specific type may be retrieved and
+   * decoded using the {@code get} method in the response control class.
    *
    * @return  The set of controls returned with this search result reference.
    */
