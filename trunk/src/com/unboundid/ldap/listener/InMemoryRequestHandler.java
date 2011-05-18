@@ -845,31 +845,29 @@ public final class InMemoryRequestHandler
       final String[] objectClasses = entry.getObjectClassValues();
       if (objectClasses != null)
       {
-        final ArrayList<String> ocNames =
-             new ArrayList<String>(objectClasses.length);
-        final LinkedHashSet<ObjectClassDefinition> ocSet =
-             new LinkedHashSet<ObjectClassDefinition>(objectClasses.length);
+        final LinkedHashMap<String,String> ocMap =
+             new LinkedHashMap<String,String>(objectClasses.length);
         for (final String ocName : objectClasses)
         {
-          ocNames.add(ocName);
           final ObjectClassDefinition oc = schema.getObjectClass(ocName);
-          if (oc != null)
+          if (oc == null)
           {
-            ocSet.add(oc);
+            ocMap.put(StaticUtils.toLowerCase(ocName), ocName);
+          }
+          else
+          {
+            ocMap.put(StaticUtils.toLowerCase(oc.getNameOrOID()), ocName);
             for (final ObjectClassDefinition supClass :
                  oc.getSuperiorClasses(schema, true))
             {
-              if (! ocSet.contains(supClass))
-              {
-                ocSet.add(supClass);
-                ocNames.add(supClass.getNameOrOID());
-              }
+              ocMap.put(StaticUtils.toLowerCase(supClass.getNameOrOID()),
+                   supClass.getNameOrOID());
             }
           }
         }
 
-        final String[] newObjectClasses = new String[ocNames.size()];
-        ocNames.toArray(newObjectClasses);
+        final String[] newObjectClasses = new String[ocMap.size()];
+        ocMap.values().toArray(newObjectClasses);
         entry.setAttribute("objectClass", newObjectClasses);
       }
     }
