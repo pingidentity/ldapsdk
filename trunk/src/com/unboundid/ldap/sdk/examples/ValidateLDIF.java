@@ -144,6 +144,7 @@ public final class ValidateLDIF
   private BooleanArgument ignoreUndefinedObjectClasses;
   private BooleanArgument ignoreUndefinedAttributes;
   private BooleanArgument ignoreMalformedDNs;
+  private BooleanArgument ignoreMissingSuperiorObjectClasses;
   private BooleanArgument ignoreStructuralObjectClasses;
   private BooleanArgument ignoreProhibitedObjectClasses;
   private BooleanArgument ignoreProhibitedAttributes;
@@ -330,6 +331,13 @@ public final class ValidateLDIF
                              description);
     parser.addArgument(ignoreProhibitedObjectClasses);
 
+    description = "Ignore validation failures due to entries that are " +
+                  "one or more superior object classes.";
+    ignoreMissingSuperiorObjectClasses =
+         new BooleanArgument(null, "ignoreMissingSuperiorObjectClasses",
+              description);
+    parser.addArgument(ignoreMissingSuperiorObjectClasses);
+
     description = "Ignore validation failures due to entries with attributes " +
                   "that are not allowed.";
     ignoreProhibitedAttributes =
@@ -435,6 +443,8 @@ public final class ValidateLDIF
          !ignoreProhibitedAttributes.isPresent());
     entryValidator.setCheckProhibitedObjectClasses(
          !ignoreProhibitedObjectClasses.isPresent());
+    entryValidator.setCheckMissingSuperiorObjectClasses(
+         !ignoreMissingSuperiorObjectClasses.isPresent());
     entryValidator.setCheckSingleValuedAttributes(
          !ignoreSingleValuedAttributes.isPresent());
     entryValidator.setCheckStructuralObjectClasses(
