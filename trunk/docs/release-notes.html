@@ -143,6 +143,15 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Fixed a bug in the persistence framework that caused it to throw an exception
+                  when trying to perform a modify an object that had not been altered.  The code
+                  has been updated so that it will now return null (as an alternative to the
+                  LDAPResult that would be returned if a modification was actually attempted)
+                  rather than throwing an exception.
+                  <br><br>
+                </li>
+
+                <li>
                   Update the javadoc documentation for controls and extended operations to make
                   the OIDs used for those purposes more visible.
                   <br><br>

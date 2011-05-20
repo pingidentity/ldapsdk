@@ -713,6 +713,8 @@ public final class LDAPPersister<T>
    * modifications as efficient as possible.  Otherwise, the resulting
    * modifications will include attempts to replace every attribute which are
    * associated with fields or getters that should be used in modify operations.
+   * If there are no modifications, then no modification will be attempted, and
+   * this method will return {@code null} rather than an {@code LDAPResult}.
    *
    * @param  o                 The object for which to generate the list of
    *                           modifications.  It must not be {@code null}.
@@ -733,7 +735,9 @@ public final class LDAPPersister<T>
    *                           then all attributes marked for inclusion in the
    *                           modification will be examined.
    *
-   * @return  The result of processing the modify operation.
+   * @return  The result of processing the modify operation, or {@code null} if
+   *          there were no changes to apply (and therefore no modification was
+   *          performed).
    *
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
@@ -756,6 +760,8 @@ public final class LDAPPersister<T>
    * modifications as efficient as possible.  Otherwise, the resulting
    * modifications will include attempts to replace every attribute which are
    * associated with fields or getters that should be used in modify operations.
+   * If there are no modifications, then no modification will be attempted, and
+   * this method will return {@code null} rather than an {@code LDAPResult}.
    *
    * @param  o                 The object for which to generate the list of
    *                           modifications.  It must not be {@code null}.
@@ -778,7 +784,9 @@ public final class LDAPPersister<T>
    * @param  controls          The optional set of controls to include in the
    *                           modify request.
    *
-   * @return  The result of processing the modify operation.
+   * @return  The result of processing the modify operation, or {@code null} if
+   *          there were no changes to apply (and therefore no modification was
+   *          performed).
    *
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
@@ -791,6 +799,10 @@ public final class LDAPPersister<T>
     ensureNotNull(o, i);
     final List<Modification> mods =
          handler.getModifications(o, deleteNullValues, attributes);
+    if (mods.isEmpty())
+    {
+      return null;
+    }
 
     final String targetDN;
     if (dn == null)
