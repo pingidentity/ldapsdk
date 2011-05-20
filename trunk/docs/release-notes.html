@@ -10,13 +10,26 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
-              <h3>Version 2.1.1</h3>
+              <h3>Version 2.2.0</h3>
 
               <p>
-                The following changes were made between the 2.1.0 and 2.1.1 releases:
+                The following changes were made between the 2.1.0 and 2.2.0 releases:
               </p>
 
               <ul>
+                <li>
+                  Introduced a new way of packaging the LDAP SDK in a way that results in a
+                  significantly smaller jar file.  The Minimal Edition provides full support for
+                  LDAP communication and LDIF parsing, but strips out a number of optional
+                  features (e.g., SASL authentication, support for many controls and extended
+                  operations, examples, the LDAP listener package and in-memory directory server,
+                  the LDAP SDK persistence framework, migration support for JNDI and the Netscape
+                  SDK, command-line argument parsing).  The Minimal Edition is primarily intended
+                  for use in space-constrained environments (e.g., Android applications) in which
+                  the smallest possible jar file is desired.
+                  <br><br>
+                </li>
+
                 <li>
                   Updated connection pool implementations to make it possible to configure the
                   pools to automatically retry operations if the first attempt fails in a manner
@@ -41,12 +54,91 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Updated the in-memory directory server to add support for LDAP transactions as
+                  described in RFC 5805.  This can be used to add, delete, and/or modify multiple
+                  entries as a single atomic unit.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server to add the ability to insert an arbitrary
+                  delay before processing operations.  This can be useful in simulating
+                  environments with slower response times or higher network latencies.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved support for GSSAPI authentication to add a number of new options,
+                  including:  the ability to indicate whether a ticket cache should be  used, the
+                  ability to specify an alternate path to the ticket cache file, the ability to
+                  require the use of cached credentials, and the ability to request that the TGT
+                  be renewed.  It is also easier to obtain GSSAPI debugging information.
+                  <br><br>
+                </li>
+
+                <li>
                   Update the default standard schema to include a definition for the aci attribute
                   type, which is not standard but is supported by a number of directory servers
                   and may commonly appear in many data sets.  Also, update the groupOfNames and
                   groupOfUniqueNames object classes to make it possible to have groups without any
                   members which is nonstandard but allowed by many servers.  Finally, make it more
                   efficient to retrieve the default standard schema for subsequent calls.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>LDAPConnectionOptions</tt> object to add an option that can be
+                  used to send an abandon request to the server whenever a client-side response
+                  timeout has occurred.  Previously, the client would stop waiting for a response
+                  but would not attempt to prevent the server from completing processing on the
+                  operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDIF reader to provide an option to read from multiple LDIF files.
+                  If this option is used, then the contents of the files will be read in the order
+                  they were provided (e.g., all the records will be read from the first file, then
+                  all the records from the second file, etc.).  That is, this provides a way to
+                  treat multiple LDIF files as if they were a single file.
+                  <br><br>
+                </li>
+
+                <li>
+                  Introduced new methods to make it much easier to work with response controls.
+                  Each response control class now includes one or more static <tt>get</tt> methods
+                  that can be used to retrieve and decode the control from a response message.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK persistence framework so that the
+                  generate-source-from-schema tool will now generate methods that can make it
+                  easier to search for objects using arbitrary criteria.  The persistence
+                  framework previously only provided support for equality searches, but it is now
+                  possible to perform more advanced types of searches, including presence,
+                  substring, greater-or-equal, less-or-equal, and approximate matching.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK entry validator to make it possible to reject entries that
+                  were missing superior object classes.  This also fixed a bug in the in-memory
+                  directory server that made it possible for clients to perform modify operations
+                  to remove superior object classes from an entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the filter evaluation logic that caused it to return the wrong
+                  result for greater-or-equal and less-or-equal filters.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the in-memory directory server that could cause some superior
+                  object classes to appear twice in an entry if the superior class was specified
+                  after its subordinate class when the entry was added.
                   <br><br>
                 </li>
 
