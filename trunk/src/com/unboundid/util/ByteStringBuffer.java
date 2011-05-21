@@ -952,6 +952,97 @@ public final class ByteStringBuffer
 
 
   /**
+   * Deletes the specified number of bytes from the beginning of the buffer.
+   *
+   * @param  len  The number of bytes to delete.
+   *
+   * @return  A reference to this buffer.
+   *
+   * @throws  IndexOutOfBoundsException  If the specified length is negative,
+   *                                     or if it is greater than the number of
+   *                                     bytes currently contained in this
+   *                                     buffer.
+   */
+  public ByteStringBuffer delete(final int len)
+         throws IndexOutOfBoundsException
+  {
+    return delete(0, len);
+  }
+
+
+
+  /**
+   * Deletes the indicated number of bytes from the specified location in the
+   * buffer.
+   *
+   * @param  off  The position in the buffer at which the content to delete
+   *              begins.
+   * @param  len  The number of bytes to remove from the buffer.
+   *
+   * @return  A reference to this buffer.
+   *
+   * @throws  IndexOutOfBoundsException  If the offset or length is negative, or
+   *                                     if the combination of the offset and
+   *                                     length is greater than the end of the
+   *                                     content in the buffer.
+   */
+  public ByteStringBuffer delete(final int off, final int len)
+         throws IndexOutOfBoundsException
+  {
+    if (off < 0)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_OFFSET_NEGATIVE.get(off));
+    }
+    else if (len < 0)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_LENGTH_NEGATIVE.get(len));
+    }
+    else if ((off + len) > endPos)
+    {
+      throw new IndexOutOfBoundsException(
+           ERR_BS_BUFFER_OFFSET_PLUS_LENGTH_TOO_LARGE.get(off, len, endPos));
+    }
+    else if (len == 0)
+    {
+      return this;
+    }
+    else if (off == 0)
+    {
+      if (len == endPos)
+      {
+        endPos = 0;
+        return this;
+      }
+      else
+      {
+        final int newEndPos = endPos - len;
+        System.arraycopy(array, len, array, 0, newEndPos);
+        endPos = newEndPos;
+        return this;
+      }
+    }
+    else
+    {
+      if ((off + len) == endPos)
+      {
+        endPos = off;
+        return this;
+      }
+      else
+      {
+        final int bytesToCopy = endPos - (off+len);
+        System.arraycopy(array, (off+len), array, off, bytesToCopy);
+        endPos -= len;
+        return this;
+      }
+    }
+  }
+
+
+
+  /**
    * Sets the contents of this buffer to include only the provided boolean
    * value.
    *
