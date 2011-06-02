@@ -50,7 +50,9 @@ import static com.unboundid.util.Validator.*;
  *       of "{@code ldap}", but this implementation also supports the use of the
  *       "{@code ldaps}" scheme to indicate that clients should attempt to
  *       perform SSL-based communication with the target server (LDAPS) rather
- *       than unencrypted LDAP.</LI>
+ *       than unencrypted LDAP.  It will also accept "{@code ldapi}", which is
+ *       LDAP over UNIX domain sockets, although the LDAP SDK does not directly
+ *       support that mechanism of communication.</LI>
  *   <LI>Host -- This specifies the address of the directory server to which the
  *       URL refers.  If no host is provided, then it is expected that the
  *       client has some prior knowledge of the host (it often implies the same
@@ -61,7 +63,8 @@ import static com.unboundid.util.Validator.*;
  *       implies the same instance from which the URL was retrieved).  If a host
  *       is provided without a port, then it should be assumed that the standard
  *       LDAP port of 389 should be used (or the standard LDAPS port of 636 if
- *       the scheme is "{@code ldaps}").</LI>
+ *       the scheme is "{@code ldaps}", or a value of 0 if the scheme is
+ *       "{@code ldapi}").</LI>
  *   <LI>Base DN -- This specifies the base DN for the URL.  If no base DN is
  *       provided, then a default of the null DN should be assumed.</LI>
  *   <LI>Requested attributes -- This specifies the set of requested attributes
@@ -141,6 +144,14 @@ public final class LDAPURL
 
 
   /**
+   * The default port number that will be used for LDAPI URLs if none is
+   * provided.
+   */
+  public static final int DEFAULT_LDAPI_PORT = 0;
+
+
+
+  /**
    * The default scope that will be used if none is provided.
    */
   private static final SearchScope DEFAULT_SCOPE = SearchScope.BASE;
@@ -202,7 +213,7 @@ public final class LDAPURL
   private volatile String normalizedURLString;
 
   // The scheme used by this LDAP URL.  The standard only accepts "ldap", but
-  // we will also accept "ldaps".
+  // we will also accept "ldaps" and "ldapi".
   private final String scheme;
 
   // The string representation of this LDAP URL.
@@ -248,6 +259,10 @@ public final class LDAPURL
     else if (scheme.equals("ldaps"))
     {
       defaultPort = DEFAULT_LDAPS_PORT;
+    }
+    else if (scheme.equals("ldapi"))
+    {
+      defaultPort = DEFAULT_LDAPI_PORT;
     }
     else
     {
@@ -467,7 +482,8 @@ public final class LDAPURL
    * Creates a new LDAP URL with the provided information.
    *
    * @param  scheme      The scheme for this LDAP URL.  It must not be
-   *                     {@code null} and must be either "ldap" or "ldaps".
+   *                     {@code null} and must be either "ldap", "ldaps", or
+   *                     "ldapi".
    * @param  host        The host for this LDAP URL.  It may be {@code null} if
    *                     no host is to be included.
    * @param  port        The port for this LDAP URL.  It may be {@code null} if
@@ -505,6 +521,10 @@ public final class LDAPURL
     else if (scheme.equals("ldaps"))
     {
       defaultPort = DEFAULT_LDAPS_PORT;
+    }
+    else if (scheme.equals("ldapi"))
+    {
+      defaultPort = DEFAULT_LDAPI_PORT;
     }
     else
     {
@@ -1175,8 +1195,8 @@ public final class LDAPURL
 
 
   /**
-   * Retrieves the scheme for this LDAP URL.  It will either be "ldap" or
-   * "ldaps".
+   * Retrieves the scheme for this LDAP URL.  It will either be "ldap", "ldaps",
+   * or "ldapi".
    *
    * @return  The scheme for this LDAP URL.
    */
@@ -1458,8 +1478,12 @@ public final class LDAPURL
       }
     }
 
-    buffer.append(':');
-    buffer.append(port);
+    if (! scheme.equals("ldapi"))
+    {
+      buffer.append(':');
+      buffer.append(port);
+    }
+
     buffer.append('/');
     percentEncode(baseDN.toNormalizedString(), buffer);
     buffer.append('?');
