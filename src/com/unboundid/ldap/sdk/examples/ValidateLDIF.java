@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk.examples;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.TreeMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPInputStream;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -86,6 +88,8 @@ import static com.unboundid.util.StaticUtils.*;
  *       server.</LI>
  *   <LI>"-f {path}" or "--ldifFile {path}" -- specifies the path to the LDIF
  *       file to be validated.</LI>
+ *   <LI>"-c" or "--isCompressed" -- indicates that the LDIF file is
+ *       compressed.</LI>
  *   <LI>"-R {path}" or "--rejectFile {path}" -- specifies the path to the file
  *       to be written with information about all entries that failed
  *       validation.</LI>
@@ -152,6 +156,7 @@ public final class ValidateLDIF
   private BooleanArgument ignoreSingleValuedAttributes;
   private BooleanArgument ignoreAttributeSyntax;
   private BooleanArgument ignoreNameForms;
+  private BooleanArgument isCompressed;
   private FileArgument    schemaDirectory;
   private FileArgument    ldifFile;
   private FileArgument    rejectFile;
@@ -274,6 +279,11 @@ public final class ValidateLDIF
     ldifFile = new FileArgument('f', "ldifFile", true, 1, "{path}", description,
                                 true, true, true, false);
     parser.addArgument(ldifFile);
+
+    description = "Indicates that the specified LDIF file is compressed " +
+                  "using gzip compression.";
+    isCompressed = new BooleanArgument('c', "isCompressed", description);
+    parser.addArgument(isCompressed);
 
     description = "The path to the file to which rejected entries should be " +
                   "written.";
@@ -460,8 +470,12 @@ public final class ValidateLDIF
     rejectWriter = null;
     try
     {
-      ldifReader = new LDIFReader(new FileInputStream(ldifFile.getValue()),
-                                  numThreads.getValue(), this);
+      InputStream inputStream = new FileInputStream(ldifFile.getValue());
+      if (isCompressed.isPresent())
+      {
+        inputStream = new GZIPInputStream(inputStream);
+      }
+      ldifReader = new LDIFReader(inputStream, numThreads.getValue(), this);
     }
     catch (Exception e)
     {
