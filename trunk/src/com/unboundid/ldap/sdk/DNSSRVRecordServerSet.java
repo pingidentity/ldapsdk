@@ -176,17 +176,7 @@ public final class DNSSRVRecordServerSet
    *                            not specified, then a default URL of "dns:" will
    *                            be used, which will attempt to determine the
    *                            appropriate servers from the underlying system
-   *                            configuration.  A value like "dns://1.2.3.4:53"
-   *                            will attempt to communicate with the DNS server
-   *                            with IP address "1.2.3.4" on port 53.  Multiple
-   *                            servers can be specified by separating the URLs
-   *                            with spaces, like
-   *                            "dns://1.2.3.4:53 dns://5.6.7.8:53", in which
-   *                            case the servers will be tried in the order in
-   *                            which they are provided in the list.  See the
-   *                            JNDI DNS provider documentation for more
-   *                            information on the appropriate format for this
-   *                            URL.
+   *                            configuration.
    * @param  ttlMillis          Specifies the maximum length of time in
    *                            milliseconds that DNS information should be
    *                            cached before it needs to be retrieved again.  A
