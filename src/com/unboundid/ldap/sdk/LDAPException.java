@@ -515,8 +515,16 @@ public class LDAPException
    */
   public LDAPResult toLDAPResult()
   {
-    return new LDAPResult(-1, resultCode, diagnosticMessage, matchedDN,
-         referralURLs, responseControls);
+    if ((diagnosticMessage == null) && (getMessage() != null))
+    {
+      return new LDAPResult(-1, resultCode, getMessage(), matchedDN,
+           referralURLs, responseControls);
+    }
+    else
+    {
+      return new LDAPResult(-1, resultCode, diagnosticMessage, matchedDN,
+           referralURLs, responseControls);
+    }
   }
 
 
