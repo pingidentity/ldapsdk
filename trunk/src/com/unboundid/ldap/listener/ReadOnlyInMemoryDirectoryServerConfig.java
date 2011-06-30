@@ -186,6 +186,23 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
 
 
   /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setAllowedOperationTypes(
+                   final Collection<OperationType> operationTypes)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
    * {@inheritDoc}  The returned set will not be modifiable.
    */
   @Override()
@@ -207,6 +224,23 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
   @Override()
   public void setAuthenticationRequiredOperationTypes(
                    final OperationType... operationTypes)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setAuthenticationRequiredOperationTypes(
+                   final Collection<OperationType> operationTypes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -286,6 +320,32 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
   @Override()
   public void setSchema(final Schema schema)
          throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   */
+  @Override()
+  public void setEnforceAttributeSyntaxCompliance(
+                   final boolean enforceAttributeSyntaxCompliance)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   */
+  @Override()
+  public void setEnforceSingleStructuralObjectClass(
+                   final boolean enforceSingleStructuralObjectClass)
   {
     throw new UnsupportedOperationException();
   }
