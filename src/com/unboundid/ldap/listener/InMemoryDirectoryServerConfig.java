@@ -91,6 +91,14 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public class InMemoryDirectoryServerConfig
 {
+  // Indicates whether to enforce the requirement that attribute values comply
+  // with the associated attribute syntax.
+  private boolean enforceAttributeSyntaxCompliance;
+
+  // Indicates whether to enforce the requirement that entries contain exactly
+  // one structural object class.
+  private boolean enforceSingleStructuralObjectClass;
+
   // Indicates whether to automatically generate operational attributes.
   private boolean generateOperationalAttributes;
 
@@ -187,6 +195,8 @@ public class InMemoryDirectoryServerConfig
     additionalBindCredentials            = new LinkedHashMap<DN,byte[]>(1);
     accessLogHandler                     = null;
     ldapDebugLogHandler                  = null;
+    enforceAttributeSyntaxCompliance     = true;
+    enforceSingleStructuralObjectClass   = true;
     generateOperationalAttributes        = true;
     maxChangeLogEntries                  = 0;
     exceptionHandler                     = null;
@@ -242,12 +252,14 @@ public class InMemoryDirectoryServerConfig
     authenticationRequiredOperationTypes.addAll(
          cfg.authenticationRequiredOperationTypes);
 
-    generateOperationalAttributes        = cfg.generateOperationalAttributes;
-    accessLogHandler                     = cfg.accessLogHandler;
-    ldapDebugLogHandler                  = cfg.ldapDebugLogHandler;
-    maxChangeLogEntries                  = cfg.maxChangeLogEntries;
-    exceptionHandler                     = cfg.exceptionHandler;
-    schema                               = cfg.schema;
+    enforceAttributeSyntaxCompliance   = cfg.enforceAttributeSyntaxCompliance;
+    enforceSingleStructuralObjectClass = cfg.enforceSingleStructuralObjectClass;
+    generateOperationalAttributes      = cfg.generateOperationalAttributes;
+    accessLogHandler                   = cfg.accessLogHandler;
+    ldapDebugLogHandler                = cfg.ldapDebugLogHandler;
+    maxChangeLogEntries                = cfg.maxChangeLogEntries;
+    exceptionHandler                   = cfg.exceptionHandler;
+    schema                             = cfg.schema;
   }
 
 
@@ -650,6 +662,76 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Indicates whether the server should reject attribute values which violate
+   * the constraints of the associated syntax.  This setting will be ignored if
+   * a {@code null} schema is in place.
+   *
+   * @return  {@code true} if the server should reject attribute values which
+   *          violate the constraints of the associated syntax, or {@code false}
+   *          if not.
+   */
+  public boolean enforceAttributeSyntaxCompliance()
+  {
+    return enforceAttributeSyntaxCompliance;
+  }
+
+
+
+  /**
+   * Specifies whether the server should reject attribute values which violate
+   * the constraints of the associated syntax.  This setting will be ignored if
+   * a {@code null} schema is in place.
+   *
+   * @param  enforceAttributeSyntaxCompliance  Indicates whether the server
+   *                                           should reject attribute values
+   *                                           which violate the constraints of
+   *                                           the associated syntax.
+   */
+  public void setEnforceAttributeSyntaxCompliance(
+                   final boolean enforceAttributeSyntaxCompliance)
+  {
+    this.enforceAttributeSyntaxCompliance = enforceAttributeSyntaxCompliance;
+  }
+
+
+
+  /**
+   * Indicates whether the server should reject entries which do not contain
+   * exactly one structural object class.  This setting will be ignored if a
+   * {@code null} schema is in place.
+   *
+   * @return  {@code true} if the server should reject entries which do not
+   *          contain exactly one structural object class, or {@code false} if
+   *          it should allow entries which do not have any structural class or
+   *          that have multiple structural classes.
+   */
+  public boolean enforceSingleStructuralObjectClass()
+  {
+    return enforceSingleStructuralObjectClass;
+  }
+
+
+
+  /**
+   * Specifies whether the server should reject entries which do not contain
+   * exactly one structural object class.  This setting will be ignored if a
+   * {@code null} schema is in place.
+   *
+   * @param  enforceSingleStructuralObjectClass  Indicates whether the server
+   *                                             should reject entries which do
+   *                                             not contain exactly one
+   *                                             structural object class.
+   */
+  public void setEnforceSingleStructuralObjectClass(
+                   final boolean enforceSingleStructuralObjectClass)
+  {
+    this.enforceSingleStructuralObjectClass =
+         enforceSingleStructuralObjectClass;
+  }
+
+
+
+  /**
    * Retrieves the log handler that should be used to record access log messages
    * about operations processed by the server, if any.
    *
@@ -1009,6 +1091,10 @@ public class InMemoryDirectoryServerConfig
 
     buffer.append(", schemaProvided=");
     buffer.append((schema != null));
+    buffer.append(", enforceAttributeSyntaxCompliance=");
+    buffer.append(enforceAttributeSyntaxCompliance);
+    buffer.append(", enforceSingleStructuralObjectClass=");
+    buffer.append(enforceSingleStructuralObjectClass);
 
     if (! additionalBindCredentials.isEmpty())
     {

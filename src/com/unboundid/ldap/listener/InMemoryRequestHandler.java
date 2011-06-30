@@ -256,6 +256,10 @@ public final class InMemoryRequestHandler
     else
     {
       entryValidator = new EntryValidator(schema);
+      entryValidator.setCheckAttributeSyntax(
+           config.enforceAttributeSyntaxCompliance());
+      entryValidator.setCheckStructuralObjectClasses(
+           config.enforceSingleStructuralObjectClass());
     }
 
     final DN[] baseDNArray = config.getBaseDNs();
