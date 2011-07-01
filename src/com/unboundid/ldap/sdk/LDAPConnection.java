@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
@@ -276,6 +277,9 @@ public final class LDAPConnection
   // The disconnect cause for this client connection, if available.
   private volatile Throwable disconnectCause;
 
+  // A timer that may be used to enforce timeouts for asynchronous operations.
+  private Timer timer;
+
 
 
   /**
@@ -359,6 +363,7 @@ public final class LDAPConnection
     connectionName       = null;
     connectionPoolName   = null;
     cachedSchema         = null;
+    timer                = null;
 
     referralConnector = this.connectionOptions.getReferralConnector();
     if (referralConnector == null)
@@ -3673,6 +3678,12 @@ public final class LDAPConnection
     }
 
     cachedSchema = null;
+
+    if (timer != null)
+    {
+      timer.cancel();
+      timer = null;
+    }
   }
 
 
@@ -3718,6 +3729,23 @@ public final class LDAPConnection
     {
       internals.deregisterResponseAcceptor(messageID);
     }
+  }
+
+
+
+  /**
+   * Retrieves a timer for use with this connection, creating one if necessary.
+   *
+   * @return  A timer for use with this connection.
+   */
+  synchronized Timer getTimer()
+  {
+    if (timer == null)
+    {
+      timer = new Timer("Timer thread for " + toString(), true);
+    }
+
+    return timer;
   }
 
 

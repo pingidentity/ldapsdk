@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import com.unboundid.ldap.protocol.LDAPResponse;
@@ -39,7 +40,7 @@ import static com.unboundid.util.Debug.*;
  */
 @InternalUseOnly()
 final class AsyncCompareHelper
-      implements ResponseAcceptor, IntermediateResponseListener
+      implements CommonAsyncHelper, IntermediateResponseListener
 {
   /**
    * The serial version UID for this serializable class.
@@ -53,6 +54,9 @@ final class AsyncCompareHelper
 
   // The async request ID created for the associated operation.
   private final AsyncRequestID asyncRequestID;
+
+  // Indicates whether the final response has been returned.
+  private final AtomicBoolean responseReturned;
 
   // The intermediate response listener to be notified of any intermediate
   // response messages received.
@@ -89,20 +93,49 @@ final class AsyncCompareHelper
     this.resultListener               = resultListener;
     this.intermediateResponseListener = intermediateResponseListener;
 
-    asyncRequestID = new AsyncRequestID(messageID, connection);
-    createTime     = System.nanoTime();
+    asyncRequestID   = new AsyncRequestID(messageID, connection);
+    responseReturned = new AtomicBoolean(false);
+    createTime       = System.nanoTime();
   }
 
 
 
   /**
-   * Retrieves the async request ID created for the associated operation.
-   *
-   * @return  The async request ID created for the associated operation.
+   * {@inheritDoc}
    */
-  AsyncRequestID getAsyncRequestID()
+  public AsyncRequestID getAsyncRequestID()
   {
     return asyncRequestID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public LDAPConnection getConnection()
+  {
+    return connection;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public long getCreateTimeNanos()
+  {
+    return createTime;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public OperationType getOperationType()
+  {
+    return OperationType.COMPARE;
   }
 
 
@@ -114,6 +147,11 @@ final class AsyncCompareHelper
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
+    if (! responseReturned.compareAndSet(false, true))
+    {
+      return;
+    }
+
     if (response instanceof ConnectionClosedResponse)
     {
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;

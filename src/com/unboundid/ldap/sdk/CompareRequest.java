@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -651,6 +652,13 @@ public final class CompareRequest
                 getIntermediateResponseListener());
       connection.registerResponseAcceptor(messageID, compareHelper);
       asyncRequestID = compareHelper.getAsyncRequestID();
+
+      final long timeout = getResponseTimeoutMillis(connection);
+      if (timeout > 0L)
+      {
+        final Timer timer = connection.getTimer();
+        timer.schedule(new AsyncTimeoutTimerTask(compareHelper), timeout);
+      }
     }
 
 

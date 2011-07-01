@@ -22,9 +22,9 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
@@ -40,7 +40,7 @@ import static com.unboundid.util.Debug.*;
  */
 @InternalUseOnly()
 final class AsyncHelper
-      implements ResponseAcceptor, IntermediateResponseListener
+      implements CommonAsyncHelper, IntermediateResponseListener
 {
   /**
    * The serial version UID for this serializable class.
@@ -55,8 +55,11 @@ final class AsyncHelper
   // The async result listener to be notified when the response arrives.
   private final AsyncResultListener resultListener;
 
+  // Indicates whether the final response has been returned.
+  private final AtomicBoolean responseReturned;
+
   // The BER type for the operation with which this helper is associated.
-  private final byte opType;
+  private final OperationType operationType;
 
   // The intermediate response listener to be notified of any intermediate
   // response messages received.
@@ -76,8 +79,8 @@ final class AsyncHelper
    *
    * @param  connection                    The connection with which this async
    *                                       helper is associated.
-   * @param  opType                        The BER type for the expected
-   *                                       response protocol op for this helper.
+   * @param  operationType                 The operation type for the associated
+   *                                       operation.
    * @param  messageID                     The message ID for the associated
    *                                       operation.
    * @param  resultListener                The async result listener to be
@@ -87,29 +90,59 @@ final class AsyncHelper
    *                                       response messages received.
    */
   @InternalUseOnly()
-  AsyncHelper(final LDAPConnection connection, final byte opType,
-              final int messageID, final AsyncResultListener resultListener,
+  AsyncHelper(final LDAPConnection connection,
+              final OperationType operationType, final int messageID,
+              final AsyncResultListener resultListener,
               final IntermediateResponseListener intermediateResponseListener)
   {
-    this.resultListener               = resultListener;
-    this.opType                       = opType;
-    this.intermediateResponseListener = intermediateResponseListener;
     this.connection                   = connection;
+    this.operationType                = operationType;
+    this.resultListener               = resultListener;
+    this.intermediateResponseListener = intermediateResponseListener;
 
-    asyncRequestID = new AsyncRequestID(messageID, connection);
-    createTime     = System.nanoTime();
+    asyncRequestID   = new AsyncRequestID(messageID, connection);
+    responseReturned = new AtomicBoolean(false);
+    createTime       = System.nanoTime();
   }
 
 
 
   /**
-   * Retrieves the async request ID created for the associated operation.
-   *
-   * @return  The async request ID created for the associated operation.
+   * {@inheritDoc}
    */
-  AsyncRequestID getAsyncRequestID()
+  public AsyncRequestID getAsyncRequestID()
   {
     return asyncRequestID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public LDAPConnection getConnection()
+  {
+    return connection;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public long getCreateTimeNanos()
+  {
+    return createTime;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public OperationType getOperationType()
+  {
+    return operationType;
   }
 
 
@@ -121,6 +154,11 @@ final class AsyncHelper
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
+    if (! responseReturned.compareAndSet(false, true))
+    {
+      return;
+    }
+
     final long responseTime = System.nanoTime() - createTime;
     if (response instanceof ConnectionClosedResponse)
     {
@@ -140,21 +178,21 @@ final class AsyncHelper
 
     }
 
-    switch (opType)
+    switch (operationType)
     {
-      case LDAPMessage.PROTOCOL_OP_TYPE_ADD_RESPONSE:
+      case ADD:
         connection.getConnectionStatistics().incrementNumAddResponses(
              responseTime);
         break;
-      case LDAPMessage.PROTOCOL_OP_TYPE_DELETE_RESPONSE:
+      case DELETE:
         connection.getConnectionStatistics().incrementNumDeleteResponses(
              responseTime);
         break;
-      case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_RESPONSE:
+      case MODIFY:
         connection.getConnectionStatistics().incrementNumModifyResponses(
              responseTime);
         break;
-      case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_RESPONSE:
+      case MODIFY_DN:
         connection.getConnectionStatistics().incrementNumModifyDNResponses(
              responseTime);
         break;
