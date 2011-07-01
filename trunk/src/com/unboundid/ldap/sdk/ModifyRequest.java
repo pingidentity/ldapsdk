@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -716,10 +717,17 @@ public final class ModifyRequest
     else
     {
       final AsyncHelper helper = new AsyncHelper(connection,
-           LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_RESPONSE, messageID,
-           resultListener, getIntermediateResponseListener());
+           OperationType.MODIFY, messageID, resultListener,
+           getIntermediateResponseListener());
       connection.registerResponseAcceptor(messageID, helper);
       asyncRequestID = helper.getAsyncRequestID();
+
+      final long timeout = getResponseTimeoutMillis(connection);
+      if (timeout > 0L)
+      {
+        final Timer timer = connection.getTimer();
+        timer.schedule(new AsyncTimeoutTimerTask(helper), timeout);
+      }
     }
 
 

@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import com.unboundid.ldap.protocol.LDAPResponse;
@@ -39,7 +40,7 @@ import static com.unboundid.util.Debug.*;
  */
 @InternalUseOnly()
 final class AsyncSearchHelper
-      implements ResponseAcceptor, IntermediateResponseListener
+      implements CommonAsyncHelper, IntermediateResponseListener
 {
   /**
    * The serial version UID for this serializable class.
@@ -53,6 +54,9 @@ final class AsyncSearchHelper
 
   // The async result listener to be notified when the response arrives.
   private final AsyncSearchResultListener resultListener;
+
+  // Indicates whether the final response has been returned.
+  private final AtomicBoolean responseReturned;
 
   // The number of entries returned from this search.
   private int numEntries;
@@ -95,22 +99,75 @@ final class AsyncSearchHelper
     this.resultListener               = resultListener;
     this.intermediateResponseListener = intermediateResponseListener;
 
-    numEntries     = 0;
-    numReferences  = 0;
-    asyncRequestID = new AsyncRequestID(messageID, connection);
-    createTime     = System.nanoTime();
+    numEntries       = 0;
+    numReferences    = 0;
+    asyncRequestID   = new AsyncRequestID(messageID, connection);
+    responseReturned = new AtomicBoolean(false);
+    createTime       = System.nanoTime();
   }
 
 
 
   /**
-   * Retrieves the async request ID created for the associated operation.
-   *
-   * @return  The async request ID created for the associated operation.
+   * {@inheritDoc}
    */
-  AsyncRequestID getAsyncRequestID()
+  public AsyncRequestID getAsyncRequestID()
   {
     return asyncRequestID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public LDAPConnection getConnection()
+  {
+    return connection;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public long getCreateTimeNanos()
+  {
+    return createTime;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public OperationType getOperationType()
+  {
+    return OperationType.SEARCH;
+  }
+
+
+
+  /**
+   * Retrieves the number of entries returned for the search.
+   *
+   * @return  The number of entries returned for the search.
+   */
+  int getNumEntries()
+  {
+    return numEntries;
+  }
+
+
+
+  /**
+   * Retrieves the number of references returned for the search.
+   *
+   * @return  The number of references returned for the search.
+   */
+  int getNumReferences()
+  {
+    return numReferences;
   }
 
 
@@ -122,6 +179,11 @@ final class AsyncSearchHelper
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
+    if (responseReturned.get())
+    {
+      return;
+    }
+
     if (response instanceof ConnectionClosedResponse)
     {
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
@@ -150,6 +212,11 @@ final class AsyncSearchHelper
     }
     else
     {
+      if (! responseReturned.compareAndSet(false, true))
+      {
+        return;
+      }
+
       connection.getConnectionStatistics().incrementNumSearchResponses(
            numEntries, numReferences, System.nanoTime() - createTime);
 
