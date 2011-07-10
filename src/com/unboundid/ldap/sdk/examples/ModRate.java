@@ -155,6 +155,10 @@ public final class ModRate
   // The argument used to specify the number of threads.
   private IntegerArgument numThreads;
 
+  // The argument used to specify the seed to use for the random number
+  // generator.
+  private IntegerArgument randomSeed;
+
   // The target rate of modifies per second.
   private IntegerArgument ratePerSecond;
 
@@ -388,6 +392,11 @@ public final class ModRate
                   "display-friendly format";
     csvFormat = new BooleanArgument('c', "csv", 1, description);
     parser.addArgument(csvFormat);
+
+    description = "Specifies the seed to use for the random number generator.";
+    randomSeed = new IntegerArgument('R', "randomSeed", false, 1, "{value}",
+         description);
+    parser.addArgument(randomSeed);
   }
 
 
@@ -438,12 +447,23 @@ public final class ModRate
   @Override()
   public ResultCode doToolProcessing()
   {
+    // Determine the random seed to use.
+    final Long seed;
+    if (randomSeed.isPresent())
+    {
+      seed = Long.valueOf(randomSeed.getValue());
+    }
+    else
+    {
+      seed = null;
+    }
+
     // Create the value patterns for the target entry DN and proxied
     // authorization identities.
     final ValuePattern dnPattern;
     try
     {
-      dnPattern = new ValuePattern(entryDN.getValue());
+      dnPattern = new ValuePattern(entryDN.getValue(), seed);
     }
     catch (ParseException pe)
     {
@@ -456,7 +476,7 @@ public final class ModRate
     {
       try
       {
-        authzIDPattern = new ValuePattern(proxyAs.getValue());
+        authzIDPattern = new ValuePattern(proxyAs.getValue(), seed);
       }
       catch (ParseException pe)
       {

@@ -165,6 +165,10 @@ public final class AuthRate
   // The argument used to specify the number of threads.
   private IntegerArgument numThreads;
 
+  // The argument used to specify the seed to use for the random number
+  // generator.
+  private IntegerArgument randomSeed;
+
   // The target rate of auths per second.
   private IntegerArgument ratePerSecond;
 
@@ -415,6 +419,11 @@ public final class AuthRate
                   "display-friendly format";
     csvFormat = new BooleanArgument('c', "csv", 1, description);
     parser.addArgument(csvFormat);
+
+    description = "Specifies the seed to use for the random number generator.";
+    randomSeed = new IntegerArgument('R', "randomSeed", false, 1, "{value}",
+         description);
+    parser.addArgument(randomSeed);
   }
 
 
@@ -465,11 +474,22 @@ public final class AuthRate
   @Override()
   public ResultCode doToolProcessing()
   {
+    // Determine the random seed to use.
+    final Long seed;
+    if (randomSeed.isPresent())
+    {
+      seed = Long.valueOf(randomSeed.getValue());
+    }
+    else
+    {
+      seed = null;
+    }
+
     // Create value patterns for the base DN and filter.
     final ValuePattern dnPattern;
     try
     {
-      dnPattern = new ValuePattern(baseDN.getValue());
+      dnPattern = new ValuePattern(baseDN.getValue(), seed);
     }
     catch (ParseException pe)
     {
@@ -480,7 +500,7 @@ public final class AuthRate
     final ValuePattern filterPattern;
     try
     {
-      filterPattern = new ValuePattern(filter.getValue());
+      filterPattern = new ValuePattern(filter.getValue(), seed);
     }
     catch (ParseException pe)
     {
