@@ -181,6 +181,25 @@ public final class ValuePattern
   public ValuePattern(final String s)
          throws ParseException
   {
+    this(s, null);
+  }
+
+
+
+  /**
+   * Creates a new value pattern from the provided string.
+   *
+   * @param  s  The string representation of the value pattern to create.  It
+   *            must not be {@code null}.
+   * @param  r  The seed to use for the random number generator.  It may be
+   *            {@code null} if no seed is required.
+   *
+   * @throws  ParseException  If the provided string cannot be parsed as a valid
+   *                          value pattern string.
+   */
+  public ValuePattern(final String s, final Long r)
+         throws ParseException
+  {
     Validator.ensureNotNull(s);
 
     pattern  = s;
@@ -188,10 +207,20 @@ public final class ValuePattern
     buffers  = new ThreadLocal<StringBuilder>();
 
     final AtomicBoolean hasRef = new AtomicBoolean(false);
-    final Random r = new Random();
+
+    final Random random;
+    if (r == null)
+    {
+      random = new Random();
+    }
+    else
+    {
+      random = new Random(r);
+    }
+
     final ArrayList<ValuePatternComponent> l =
          new ArrayList<ValuePatternComponent>(3);
-    parse(s, 0, l, r, hasRef);
+    parse(s, 0, l, random, hasRef);
 
     hasBackReference = hasRef.get();
     if (hasBackReference)
