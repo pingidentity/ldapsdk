@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -545,6 +546,122 @@ public final class LDIFReader
 
       final LineReaderThread lineReaderThread = new LineReaderThread();
       lineReaderThread.start();
+    }
+  }
+
+
+
+  /**
+   * Reads entries from the LDIF file with the specified path and returns them
+   * as a {@code List}.  This is a convenience method that should only be used
+   * for data sets that are small enough so that running out of memory isn't a
+   * concern.
+   *
+   * @param  path  The path to the LDIF file containing the entries to be read.
+   *
+   * @return  A list of the entries read from the given LDIF file.
+   *
+   * @throws  IOException  If a problem occurs while attempting to read data
+   *                       from the specified file.
+   *
+   * @throws  LDIFException  If a problem is encountered while attempting to
+   *                         decode data read as LDIF.
+   */
+  public static List<Entry> readEntries(final String path)
+         throws IOException, LDIFException
+  {
+    return readEntries(new LDIFReader(path));
+  }
+
+
+
+  /**
+   * Reads entries from the specified LDIF file and returns them as a
+   * {@code List}.  This is a convenience method that should only be used for
+   * data sets that are small enough so that running out of memory isn't a
+   * concern.
+   *
+   * @param  file  A reference to the LDIF file containing the entries to be
+   *               read.
+   *
+   * @return  A list of the entries read from the given LDIF file.
+   *
+   * @throws  IOException  If a problem occurs while attempting to read data
+   *                       from the specified file.
+   *
+   * @throws  LDIFException  If a problem is encountered while attempting to
+   *                         decode data read as LDIF.
+   */
+  public static List<Entry> readEntries(final File file)
+         throws IOException, LDIFException
+  {
+    return readEntries(new LDIFReader(file));
+  }
+
+
+
+  /**
+   * Reads and decodes LDIF entries from the provided input stream and
+   * returns them as a {@code List}.  This is a convenience method that should
+   * only be used for data sets that are small enough so that running out of
+   * memory isn't a concern.
+   *
+   * @param  inputStream  The input stream from which the entries should be
+   *                      read.  The input stream will be closed before
+   *                      returning.
+   *
+   * @return  A list of the entries read from the given input stream.
+   *
+   * @throws  IOException  If a problem occurs while attempting to read data
+   *                       from the input stream.
+   *
+   * @throws  LDIFException  If a problem is encountered while attempting to
+   *                         decode data read as LDIF.
+   */
+  public static List<Entry> readEntries(final InputStream inputStream)
+         throws IOException, LDIFException
+  {
+    return readEntries(new LDIFReader(inputStream));
+  }
+
+
+
+  /**
+   * Reads entries from the provided LDIF reader and returns them as a list.
+   *
+   * @param  reader  The reader from which the entries should be read.  It will
+   *                 be closed before returning.
+   *
+   * @return  A list of the entries read from the provided reader.
+   *
+   * @throws  IOException  If a problem was encountered while attempting to read
+   *                       data from the LDIF data source.
+   *
+   * @throws  LDIFException  If a problem is encountered while attempting to
+   *                         decode data read as LDIF.
+   */
+  private static List<Entry> readEntries(final LDIFReader reader)
+          throws IOException, LDIFException
+  {
+    try
+    {
+      final ArrayList<Entry> entries = new ArrayList<Entry>(10);
+      while (true)
+      {
+        final Entry e = reader.readEntry();
+        if (e == null)
+        {
+          break;
+        }
+
+        entries.add(e);
+      }
+
+      return entries;
+    }
+    finally
+    {
+      reader.close();
     }
   }
 
