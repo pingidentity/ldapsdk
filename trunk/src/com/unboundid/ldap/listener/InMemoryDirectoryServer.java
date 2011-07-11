@@ -182,7 +182,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * // Create and start the server instance and populate it with an
  * // initial set of data from the file "/tmp/test.ldif".
  * InMemoryDirectoryServer server = new InMemoryDirectoryServer(config);
- * server.initializeFromLDIF(true, "/tmp/test.ldif");
+ * server.importFromLDIF(true, "/tmp/test.ldif");
  *
  * // Start the server so it will accept client connections.
  * server.startListening();
