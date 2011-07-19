@@ -1603,7 +1603,7 @@ public final class ByteStringBuffer
    */
   public ByteString toByteString()
   {
-    return new ASN1OctetString(array, 0, endPos);
+    return new ASN1OctetString(toByteArray());
   }
 
 
