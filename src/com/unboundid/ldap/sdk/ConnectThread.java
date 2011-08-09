@@ -113,7 +113,10 @@ final class ConnectThread
 
     try
     {
-      socket.set(socketFactory.createSocket(address, port));
+      synchronized (socketFactory)
+      {
+        socket.set(socketFactory.createSocket(address, port));
+      }
       connected.set(true);
     }
     catch (final Throwable t)

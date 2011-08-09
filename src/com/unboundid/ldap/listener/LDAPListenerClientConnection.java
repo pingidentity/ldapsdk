@@ -982,7 +982,10 @@ public final class LDAPListenerClientConnection
 
     try
     {
-      socket = f.createSocket(socket, hostname, port, true);
+      synchronized (f)
+      {
+        socket = f.createSocket(socket, hostname, port, true);
+      }
       ((SSLSocket) socket).setUseClientMode(false);
       outputStream = socket.getOutputStream();
       asn1Reader = new ASN1StreamReader(socket.getInputStream());

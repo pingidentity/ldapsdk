@@ -72,12 +72,18 @@ final class LDAPToJavaSocketFactory
   {
     if (f instanceof SocketFactory)
     {
-      return ((SocketFactory) f).createSocket(host, port);
+      synchronized (f)
+      {
+        return ((SocketFactory) f).createSocket(host, port);
+      }
     }
 
     try
     {
-      return f.makeSocket(host, port);
+      synchronized (f)
+      {
+        return f.makeSocket(host, port);
+      }
     }
     catch (Exception e)
     {
@@ -112,8 +118,11 @@ final class LDAPToJavaSocketFactory
   {
     if (f instanceof SocketFactory)
     {
-      return ((SocketFactory) f).createSocket(host, port, localAddress,
-           localPort);
+      synchronized (f)
+      {
+        return ((SocketFactory) f).createSocket(host, port, localAddress,
+             localPort);
+      }
     }
 
     return createSocket(host, port);
@@ -137,7 +146,10 @@ final class LDAPToJavaSocketFactory
   {
     if (f instanceof SocketFactory)
     {
-      return ((SocketFactory) f).createSocket(address, port);
+      synchronized (f)
+      {
+        return ((SocketFactory) f).createSocket(address, port);
+      }
     }
 
     return createSocket(address.getHostAddress(), port);
@@ -169,8 +181,11 @@ final class LDAPToJavaSocketFactory
   {
     if (f instanceof SocketFactory)
     {
-      return ((SocketFactory) f).createSocket(address, port, localAddress,
-           localPort);
+      synchronized (f)
+      {
+        return ((SocketFactory) f).createSocket(address, port, localAddress,
+             localPort);
+      }
     }
 
     return createSocket(address.getHostAddress(), port);

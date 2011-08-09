@@ -86,7 +86,10 @@ public final class JavaToLDAPSocketFactory
   public Socket createSocket(final String host, final int port)
          throws IOException
   {
-    return f.createSocket(host, port);
+    synchronized (f)
+    {
+      return f.createSocket(host, port);
+    }
   }
 
 
@@ -113,7 +116,10 @@ public final class JavaToLDAPSocketFactory
                              final int localPort)
          throws IOException
   {
-    return f.createSocket(host, port, localAddress, localPort);
+    synchronized (f)
+    {
+      return f.createSocket(host, port, localAddress, localPort);
+    }
   }
 
 
@@ -132,7 +138,10 @@ public final class JavaToLDAPSocketFactory
   public Socket createSocket(final InetAddress address, final int port)
          throws IOException
   {
-    return f.createSocket(address, port);
+    synchronized (f)
+    {
+      return f.createSocket(address, port);
+    }
   }
 
 
@@ -159,7 +168,10 @@ public final class JavaToLDAPSocketFactory
                              final int localPort)
          throws IOException
   {
-    return f.createSocket(address, port, localAddress, localPort);
+    synchronized (f)
+    {
+      return f.createSocket(address, port, localAddress, localPort);
+    }
   }
 
 
@@ -172,7 +184,10 @@ public final class JavaToLDAPSocketFactory
   {
     try
     {
-      return f.createSocket(host, port);
+      synchronized (f)
+      {
+        return f.createSocket(host, port);
+      }
     }
     catch (Exception e)
     {

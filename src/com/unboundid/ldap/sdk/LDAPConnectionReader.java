@@ -293,13 +293,16 @@ final class LDAPConnectionReader
                   socket.setSoTimeout(0);
                 }
 
+                final SSLSocket sslSocket;
                 final SSLSocketFactory socketFactory =
                      sslContext.getSocketFactory();
-                final SSLSocket sslSocket =
-                     (SSLSocket) socketFactory.createSocket(socket,
-                          connection.getConnectedAddress(), socket.getPort(),
-                          true);
-                sslSocket.startHandshake();
+                synchronized (socketFactory)
+                {
+                  sslSocket = (SSLSocket) socketFactory.createSocket(socket,
+                       connection.getConnectedAddress(), socket.getPort(),
+                       true);
+                  sslSocket.startHandshake();
+                }
                 inputStream =
                      new BufferedInputStream(sslSocket.getInputStream(),
                                              DEFAULT_INPUT_BUFFER_SIZE);
@@ -912,12 +915,14 @@ final class LDAPConnectionReader
           socket.setSoTimeout(0);
         }
 
+        final SSLSocket sslSocket;
         final SSLSocketFactory socketFactory = sslContext.getSocketFactory();
-        final SSLSocket sslSocket =
-             (SSLSocket) socketFactory.createSocket(socket,
-                  connection.getConnectedAddress(), socket.getPort(),
-                  true);
-        sslSocket.startHandshake();
+        synchronized (socketFactory)
+        {
+          sslSocket = (SSLSocket) socketFactory.createSocket(socket,
+               connection.getConnectedAddress(), socket.getPort(), true);
+          sslSocket.startHandshake();
+        }
         inputStream =
              new BufferedInputStream(sslSocket.getInputStream(),
                                      DEFAULT_INPUT_BUFFER_SIZE);
