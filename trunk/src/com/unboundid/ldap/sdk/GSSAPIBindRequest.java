@@ -785,51 +785,158 @@ public final class GSSAPIBindRequest
            File.createTempFile("GSSAPIBindRequest-JAAS-Config-", ".conf");
       f.deleteOnExit();
       final PrintWriter w = new PrintWriter(new FileWriter(f));
+
       try
       {
-        w.println(JAAS_CLIENT_NAME + " {");
-        w.println("  com.sun.security.auth.module.Krb5LoginModule required");
-        w.println("  client=true");
-
-        if (properties.useTicketCache())
+        // The JAAS configuration file may vary based on the JVM that we're
+        // using. For Sun-based JVMs, the module will be
+        // "com.sun.security.auth.module.Krb5LoginModule".
+        try
         {
-          w.println("  useTicketCache=true");
-          w.println("  renewTGT=" + properties.renewTGT());
-          w.println("  doNotPrompt=" + properties.requireCachedCredentials());
-
-          final String ticketCachePath = properties.getTicketCachePath();
-          if (ticketCachePath != null)
+          final Class<?> sunModuleClass =
+               Class.forName("com.sun.security.auth.module.Krb5LoginModule");
+          if (sunModuleClass != null)
           {
-            w.println("  ticketCache=\"" + ticketCachePath + '"');
+            writeSunJAASConfig(w, properties);
+            return f.getAbsolutePath();
           }
         }
-        else
+        catch (final ClassNotFoundException cnfe)
         {
-          w.println("  useTicketCache=false");
+          // This is fine.
+          debugException(cnfe);
         }
 
-        if (properties.enableGSSAPIDebugging())
+
+        // For the IBM JVMs, the module will be
+        // "com.ibm.security.auth.module.Krb5LoginModule".
+        try
         {
-          w.println(" debug=true");
+          final Class<?> ibmModuleClass =
+               Class.forName("com.ibm.security.auth.module.Krb5LoginModule");
+          if (ibmModuleClass != null)
+          {
+            writeIBMJAASConfig(w, properties);
+            return f.getAbsolutePath();
+          }
+        }
+        catch (final ClassNotFoundException cnfe)
+        {
+          // This is fine.
+          debugException(cnfe);
         }
 
-        w.println("  ;");
-        w.println("};");
+
+        // If we've gotten here, then we can't generate an appropriate
+        // configuration.
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_GSSAPI_CANNOT_CREATE_JAAS_CONFIG.get(
+                  ERR_GSSAPI_NO_SUPPORTED_JAAS_MODULE.get()));
       }
       finally
       {
         w.close();
       }
-
-      return f.getAbsolutePath();
     }
-    catch (Exception e)
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw le;
+    }
+    catch (final Exception e)
     {
       debugException(e);
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_GSSAPI_CANNOT_CREATE_JAAS_CONFIG.get(getExceptionMessage(e)), e);
     }
+  }
+
+
+
+  /**
+   * Writes a JAAS configuration file in a form appropriate for Sun VMs.
+   *
+   * @param  w  The writer to use to create the config file.
+   * @param  p  The properties to use for GSSAPI authentication.
+   */
+  private static void writeSunJAASConfig(final PrintWriter w,
+                                         final GSSAPIBindRequestProperties p)
+  {
+    w.println(JAAS_CLIENT_NAME + " {");
+    w.println("  com.sun.security.auth.module.Krb5LoginModule required");
+    w.println("  client=true");
+
+    if (p.useTicketCache())
+    {
+      w.println("  useTicketCache=true");
+      w.println("  renewTGT=" + p.renewTGT());
+      w.println("  doNotPrompt=" + p.requireCachedCredentials());
+
+      final String ticketCachePath = p.getTicketCachePath();
+      if (ticketCachePath != null)
+      {
+        w.println("  ticketCache=\"" + ticketCachePath + '"');
+      }
+    }
+    else
+    {
+      w.println("  useTicketCache=false");
+    }
+
+    if (p.enableGSSAPIDebugging())
+    {
+      w.println(" debug=true");
+    }
+
+    w.println("  ;");
+    w.println("};");
+  }
+
+
+
+  /**
+   * Writes a JAAS configuration file in a form appropriate for IBM VMs.
+   *
+   * @param  w  The writer to use to create the config file.
+   * @param  p  The properties to use for GSSAPI authentication.
+   */
+  private static void writeIBMJAASConfig(final PrintWriter w,
+                                         final GSSAPIBindRequestProperties p)
+  {
+    // NOTE:  It does not appear that the IBM GSSAPI implementation has any
+    // analog for the renewTGT or doNotPrompt properties, so they will be
+    // ignored.
+    w.println(JAAS_CLIENT_NAME + " {");
+    w.println("  com.ibm.security.auth.module.Krb5LoginModule required");
+    w.println("  credsType=initiator");
+
+    if (p.useTicketCache())
+    {
+      final String ticketCachePath = p.getTicketCachePath();
+      if (ticketCachePath == null)
+      {
+        w.println("  useDefaultCcache=true");
+      }
+      else
+      {
+        final File f = new File(ticketCachePath);
+        final String path = f.getAbsolutePath().replace('\\', '/');
+        w.println("  useCcache=\"file://" + path + '"');
+      }
+    }
+    else
+    {
+      w.println("  useDefaultCcache=false");
+    }
+
+    if (p.enableGSSAPIDebugging())
+    {
+      w.println(" debug=true");
+    }
+
+    w.println("  ;");
+    w.println("};");
   }
 
 
