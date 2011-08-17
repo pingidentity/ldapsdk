@@ -1731,4 +1731,31 @@ public final class StaticUtils
     l.addAll(Arrays.asList(array));
     return l;
   }
+
+
+
+  /**
+   * Creates a modifiable list with all of the items of the provided array in
+   * the same order.  This method behaves much like {@code Arrays.asList},
+   * except that if the provided array is {@code null}, then it will return an
+   * empty list rather than throwing an exception.
+   *
+   * @param  <T>  The type of item contained in the provided array.
+   *
+   * @param  array  The array of items to include in the list.
+   *
+   * @return  The list that was created, or an empty list if the provided array
+   *          was {@code null}.
+   */
+  public static <T> List<T> toNonNullList(final T[] array)
+  {
+    if (array == null)
+    {
+      return new ArrayList<T>(0);
+    }
+
+    final ArrayList<T> l = new ArrayList<T>(array.length);
+    l.addAll(Arrays.asList(array));
+    return l;
+  }
 }
