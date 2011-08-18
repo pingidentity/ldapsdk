@@ -515,4 +515,36 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
   {
     throw new UnsupportedOperationException();
   }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setVendorName(final String vendorName)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setVendorVersion(final String vendorVersion)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
 }

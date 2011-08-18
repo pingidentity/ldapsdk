@@ -158,6 +158,10 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       "--useSSL" or "--useStartTLS" arguments.  If an SSL trust store path
  *       was provided without a trust store password, then the server will
  *       attempt to use the trust store without a password.</LI>
+ *   <LI>"--vendorName {name}" -- specifies the vendor name value to appear in
+ *       the server root DSE.</LI>
+ *   <LI>"--vendorVersion {version}" -- specifies the vendor version value to
+ *       appear in the server root DSE.</LI>
  * </UL>
  */
 @NotMutable()
@@ -175,7 +179,7 @@ public final class InMemoryDirectoryServerTool
 
   // The argument used to indicate that access log information should be written
   // to standard output.
-  private BooleanArgument accessLogToStandardOut;
+  private BooleanArgument accessLogToStandardOutArgument;
 
   // The argument used to prevent the in-memory server from starting.  This is
   // only intended to be used for internal testing purposes.
@@ -183,7 +187,7 @@ public final class InMemoryDirectoryServerTool
 
   // The argument used to indicate that LDAP debug log information should be
   // written to standard output.
-  private BooleanArgument ldapDebugLogToStandardOut;
+  private BooleanArgument ldapDebugLogToStandardOutArgument;
 
   // The argument used to indicate that the default standard schema should be
   // used.
@@ -245,6 +249,12 @@ public final class InMemoryDirectoryServerTool
   // The argument used to specify the password to use to access the contents of
   // the SSL trust store
   private StringArgument trustStorePasswordArgument;
+
+  // The argument used to specify the server vendor name.
+  private StringArgument vendorNameArgument;
+
+  // The argument used to specify the server vendor veresion.
+  private StringArgument vendorVersionArgument;
 
 
 
@@ -310,26 +320,28 @@ public final class InMemoryDirectoryServerTool
   {
     super(outStream, errStream);
 
-    directoryServer                = null;
-    dontStartArgument              = null;
-    useDefaultSchemaArgument       = null;
-    useSSLArgument                 = null;
-    useStartTLSArgument            = null;
-    additionalBindDNArgument       = null;
-    baseDNArgument                 = null;
-    accessLogToStandardOut         = null;
-    accessLogFileArgument          = null;
-    keyStorePathArgument           = null;
-    ldapDebugLogToStandardOut      = null;
-    ldapDebugLogFileArgument       = null;
-    ldifFileArgument               = null;
-    trustStorePathArgument         = null;
-    useSchemaFileArgument          = null;
-    maxChangeLogEntriesArgument    = null;
-    portArgument                   = null;
-    additionalBindPasswordArgument = null;
-    keyStorePasswordArgument       = null;
-    trustStorePasswordArgument     = null;
+    directoryServer                   = null;
+    dontStartArgument                 = null;
+    useDefaultSchemaArgument          = null;
+    useSSLArgument                    = null;
+    useStartTLSArgument               = null;
+    additionalBindDNArgument          = null;
+    baseDNArgument                    = null;
+    accessLogToStandardOutArgument    = null;
+    accessLogFileArgument             = null;
+    keyStorePathArgument              = null;
+    ldapDebugLogToStandardOutArgument = null;
+    ldapDebugLogFileArgument          = null;
+    ldifFileArgument                  = null;
+    trustStorePathArgument            = null;
+    useSchemaFileArgument             = null;
+    maxChangeLogEntriesArgument       = null;
+    portArgument                      = null;
+    additionalBindPasswordArgument    = null;
+    keyStorePasswordArgument          = null;
+    trustStorePasswordArgument        = null;
+    vendorNameArgument                = null;
+    vendorVersionArgument             = null;
   }
 
 
@@ -396,9 +408,10 @@ public final class InMemoryDirectoryServerTool
          Integer.MAX_VALUE, 0);
     parser.addArgument(maxChangeLogEntriesArgument);
 
-    accessLogToStandardOut = new BooleanArgument('A', "accessLogToStandardOut",
+    accessLogToStandardOutArgument = new BooleanArgument('A',
+         "accessLogToStandardOut",
          INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_TO_STDOUT.get());
-    parser.addArgument(accessLogToStandardOut);
+    parser.addArgument(accessLogToStandardOutArgument);
 
     accessLogFileArgument = new FileArgument('a', "accessLogFile", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
@@ -406,10 +419,10 @@ public final class InMemoryDirectoryServerTool
          false);
     parser.addArgument(accessLogFileArgument);
 
-    ldapDebugLogToStandardOut = new BooleanArgument(null,
+    ldapDebugLogToStandardOutArgument = new BooleanArgument(null,
          "ldapDebugLogToStandardOut",
          INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_TO_STDOUT.get());
-    parser.addArgument(ldapDebugLogToStandardOut);
+    parser.addArgument(ldapDebugLogToStandardOutArgument);
 
     ldapDebugLogFileArgument = new FileArgument('d', "ldapDebugLogFile", false,
          1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
@@ -457,6 +470,16 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PW.get());
     parser.addArgument(trustStorePasswordArgument);
 
+    vendorNameArgument = new StringArgument(null, "vendorName", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_NAME.get());
+    parser.addArgument(vendorNameArgument);
+
+    vendorVersionArgument = new StringArgument(null, "vendorVersion", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_VERSION.get());
+    parser.addArgument(vendorVersionArgument);
+
     dontStartArgument = new BooleanArgument(null, "dontStart",
          INFO_MEM_DS_TOOL_ARG_DESC_DONT_START.get());
     dontStartArgument.setHidden(true);
@@ -466,9 +489,9 @@ public final class InMemoryDirectoryServerTool
          useSchemaFileArgument);
     parser.addExclusiveArgumentSet(useSSLArgument, useStartTLSArgument);
 
-    parser.addExclusiveArgumentSet(accessLogToStandardOut,
+    parser.addExclusiveArgumentSet(accessLogToStandardOutArgument,
          accessLogFileArgument);
-    parser.addExclusiveArgumentSet(ldapDebugLogToStandardOut,
+    parser.addExclusiveArgumentSet(ldapDebugLogToStandardOutArgument,
          ldapDebugLogFileArgument);
 
     parser.addDependentArgumentSet(additionalBindDNArgument,
@@ -668,7 +691,7 @@ public final class InMemoryDirectoryServerTool
 
     // If an access log file was specified, then create the appropriate log
     // handler.
-    if (accessLogToStandardOut.isPresent())
+    if (accessLogToStandardOutArgument.isPresent())
     {
       final StreamHandler handler = new StreamHandler(System.out,
            new MinimalLogFormatter(null, false, false, true));
@@ -701,7 +724,7 @@ public final class InMemoryDirectoryServerTool
 
     // If an LDAP debug log file was specified, then create the appropriate log
     // handler.
-    if (ldapDebugLogToStandardOut.isPresent())
+    if (ldapDebugLogToStandardOutArgument.isPresent())
     {
       final StreamHandler handler = new StreamHandler(System.out,
            new MinimalLogFormatter(null, false, false, true));
@@ -792,6 +815,19 @@ public final class InMemoryDirectoryServerTool
     {
       serverConfig.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig(
            "LDAP", listenPort));
+    }
+
+
+    // If vendor name and/or vendor version values were provided, then configure
+    // them for use.
+    if (vendorNameArgument.isPresent())
+    {
+      serverConfig.setVendorName(vendorNameArgument.getValue());
+    }
+
+    if (vendorVersionArgument.isPresent())
+    {
+      serverConfig.setVendorVersion(vendorVersionArgument.getValue());
     }
 
     return serverConfig;

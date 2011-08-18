@@ -87,7 +87,6 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
@@ -3823,8 +3822,19 @@ findEntriesAndRefs:
     rootDSEEntry.addAttribute("objectClass", "top", "ds-root-dse");
     rootDSEEntry.addAttribute(new Attribute("supportedLDAPVersion",
          IntegerMatchingRule.getInstance(), "3"));
-    rootDSEEntry.addAttribute("vendorName", "UnboundID Corp.");
-    rootDSEEntry.addAttribute("vendorVersion", Version.FULL_VERSION_STRING);
+
+    final String vendorName = config.getVendorName();
+    if (vendorName != null)
+    {
+      rootDSEEntry.addAttribute("vendorName", vendorName);
+    }
+
+    final String vendorVersion = config.getVendorVersion();
+    if (vendorVersion != null)
+    {
+      rootDSEEntry.addAttribute("vendorVersion", vendorVersion);
+    }
+
     rootDSEEntry.addAttribute(new Attribute("subschemaSubentry",
          DistinguishedNameMatchingRule.getInstance(),
          subschemaSubentryDN.toString()));
