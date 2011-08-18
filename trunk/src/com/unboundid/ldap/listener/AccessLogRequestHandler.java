@@ -24,6 +24,8 @@ package com.unboundid.ldap.listener;
 
 import java.net.Socket;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,20 +77,19 @@ public final class AccessLogRequestHandler
        implements SearchEntryTransformer
 {
   /**
-   * A map used to correlate the number of search result entries returned for a
-   * particular message ID.
-   */
-  private static final ConcurrentHashMap<Integer,AtomicLong> ENTRY_COUNTS =
-       new ConcurrentHashMap<Integer,AtomicLong>();
-
-
-
-  /**
    * The thread-local decimal formatters that will be used to format etime
    * values.
    */
   private static final ThreadLocal<DecimalFormat> DECIMAL_FORMATTERS =
        new ThreadLocal<DecimalFormat>();
+
+
+
+  /**
+   * The thread-local date formatters that will be used to format timestamps.
+   */
+  private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
+       new ThreadLocal<SimpleDateFormat>();
 
 
 
@@ -104,6 +105,11 @@ public final class AccessLogRequestHandler
   // The operation ID counter that will be used for this request handler
   // instance.
   private final AtomicLong nextOperationID;
+
+  // A map used to correlate the number of search result entries returned for a
+  // particular message ID.
+  private final ConcurrentHashMap<Integer,AtomicLong> entryCounts =
+       new ConcurrentHashMap<Integer,AtomicLong>();
 
   // The log handler that will be used to log the messages.
   private final Handler logHandler;
@@ -200,6 +206,7 @@ public final class AccessLogRequestHandler
     b.append('"');
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return h;
   }
@@ -214,6 +221,7 @@ public final class AccessLogRequestHandler
   {
     final StringBuilder b = getConnectionHeader("DISCONNECT");
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     requestHandler.closeInstance();
   }
@@ -235,6 +243,7 @@ public final class AccessLogRequestHandler
     b.append(request.getIDToAbandon());
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     requestHandler.processAbandonRequest(messageID, request, controls);
   }
@@ -258,6 +267,7 @@ public final class AccessLogRequestHandler
     b.append('"');
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
     final LDAPMessage responseMessage = requestHandler.processAddRequest(
@@ -271,6 +281,7 @@ public final class AccessLogRequestHandler
          protocolOp.getReferralURLs(), eTimeNanos);
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -310,6 +321,7 @@ public final class AccessLogRequestHandler
     b.append('"');
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
     final LDAPMessage responseMessage = requestHandler.processBindRequest(
@@ -323,6 +335,7 @@ public final class AccessLogRequestHandler
          protocolOp.getReferralURLs(), eTimeNanos);
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -348,6 +361,7 @@ public final class AccessLogRequestHandler
     b.append('"');
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
     final LDAPMessage responseMessage = requestHandler.processCompareRequest(
@@ -361,6 +375,7 @@ public final class AccessLogRequestHandler
          protocolOp.getReferralURLs(), eTimeNanos);
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -384,6 +399,7 @@ public final class AccessLogRequestHandler
     b.append('"');
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
     final LDAPMessage responseMessage = requestHandler.processDeleteRequest(
@@ -397,6 +413,7 @@ public final class AccessLogRequestHandler
          protocolOp.getReferralURLs(), eTimeNanos);
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -420,6 +437,7 @@ public final class AccessLogRequestHandler
     b.append('"');
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
     final LDAPMessage responseMessage = requestHandler.processExtendedRequest(
@@ -441,6 +459,7 @@ public final class AccessLogRequestHandler
     }
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -464,6 +483,7 @@ public final class AccessLogRequestHandler
     b.append('"');
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
     final LDAPMessage responseMessage = requestHandler.processModifyRequest(
@@ -477,6 +497,7 @@ public final class AccessLogRequestHandler
          protocolOp.getReferralURLs(), eTimeNanos);
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -511,6 +532,7 @@ public final class AccessLogRequestHandler
     }
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final long startTimeNanos = System.nanoTime();
     final LDAPMessage responseMessage = requestHandler.processModifyDNRequest(
@@ -524,6 +546,7 @@ public final class AccessLogRequestHandler
          protocolOp.getReferralURLs(), eTimeNanos);
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     return responseMessage;
   }
@@ -571,9 +594,10 @@ public final class AccessLogRequestHandler
     b.append('"');
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     final AtomicLong l = new AtomicLong(0L);
-    ENTRY_COUNTS.put(messageID, l);
+    entryCounts.put(messageID, l);
 
     try
     {
@@ -592,12 +616,13 @@ public final class AccessLogRequestHandler
       b.append(l.get());
 
       logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+      logHandler.flush();
 
       return responseMessage;
     }
     finally
     {
-      ENTRY_COUNTS.remove(messageID);
+      entryCounts.remove(messageID);
     }
   }
 
@@ -615,8 +640,51 @@ public final class AccessLogRequestHandler
          nextOperationID.getAndIncrement(), messageID);
 
     logHandler.publish(new LogRecord(Level.INFO, b.toString()));
+    logHandler.flush();
 
     requestHandler.processUnbindRequest(messageID, request, controls);
+  }
+
+
+
+  /**
+   * Retrieves a string builder that can be used to construct a log message.
+   *
+   * @return  A string builder that can be used to construct a log message.
+   */
+  private static StringBuilder getBuffer()
+  {
+    StringBuilder b = BUFFERS.get();
+    if (b == null)
+    {
+      b = new StringBuilder();
+      BUFFERS.set(b);
+    }
+    else
+    {
+      b.setLength(0);
+    }
+
+    return b;
+  }
+
+
+
+  /**
+   * Adds a timestamp to the beginning of the provided buffer.
+   *
+   * @param  buffer  The buffer to which the timestamp should be added.
+   */
+  private static void addTimestamp(final StringBuilder buffer)
+  {
+    SimpleDateFormat dateFormat = DATE_FORMATTERS.get();
+    if (dateFormat == null)
+    {
+      dateFormat = new SimpleDateFormat("'['dd/MMM/yyyy:HH:mm:ss Z']'");
+      DATE_FORMATTERS.set(dateFormat);
+    }
+
+    buffer.append(dateFormat.format(new Date()));
   }
 
 
@@ -632,17 +700,9 @@ public final class AccessLogRequestHandler
    */
   private StringBuilder getConnectionHeader(final String messageType)
   {
-    StringBuilder b = BUFFERS.get();
-    if (b == null)
-    {
-      b = new StringBuilder();
-      BUFFERS.set(b);
-    }
-    else
-    {
-      b.setLength(0);
-    }
-
+    final StringBuilder b = getBuffer();
+    addTimestamp(b);
+    b.append(' ');
     b.append(messageType);
     b.append(" conn=");
     b.append(clientConnection.getConnectionID());
@@ -666,17 +726,9 @@ public final class AccessLogRequestHandler
   private StringBuilder getRequestHeader(final String opType, final long opID,
                                          final int msgID)
   {
-    StringBuilder b = BUFFERS.get();
-    if (b == null)
-    {
-      b = new StringBuilder();
-      BUFFERS.set(b);
-    }
-    else
-    {
-      b.setLength(0);
-    }
-
+    final StringBuilder b = getBuffer();
+    addTimestamp(b);
+    b.append(' ');
     b.append(opType);
     b.append(" REQUEST conn=");
     b.append(clientConnection.getConnectionID());
@@ -716,6 +768,8 @@ public final class AccessLogRequestHandler
                                 final long eTimeNanos)
   {
     b.setLength(0);
+    addTimestamp(b);
+    b.append(' ');
     b.append(opType);
     b.append(" RESULT conn=");
     b.append(clientConnection.getConnectionID());
@@ -777,7 +831,7 @@ public final class AccessLogRequestHandler
               final int messageID, final SearchResultEntryProtocolOp entry,
               final Control[] controls)
   {
-    final AtomicLong l = ENTRY_COUNTS.get(messageID);
+    final AtomicLong l = entryCounts.get(messageID);
     if (l != null)
     {
       l.incrementAndGet();

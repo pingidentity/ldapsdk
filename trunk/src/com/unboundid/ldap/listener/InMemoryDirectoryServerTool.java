@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
+import java.util.logging.StreamHandler;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
 
@@ -93,12 +94,26 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       should be maintained.  If this argument is not provided, or if it is
  *       provided with a value of zero, then no changelog will be
  *       maintained.</LI>
+ *   <LI>"-A" or "--accessLogToStandardOut" -- indicates that access log
+ *       information should be written to standard output.  This cannot be
+ *       provided in conjunction with the "--accessLogFile" argument.  If
+ *       that should be used as a server access log.  This cannot be provided in
+ *       neither argument is provided, then no access logging will be
+ *       performed</LI>
  *   <LI>"-a {path}" or "--accessLogFile {path}" -- specifies the path to a file
- *       that should be used as a server access log.  If this is not provided,
- *       then no access logging will be performed.</LI>
+ *       that should be used as a server access log.  This cannot be provided in
+ *       conjunction with the "--accessLogToStandardOut" argument.  If neither
+ *       argument is provided, then no access logging will be performed</LI>
+ *   <LI>"--ldapDebugLogToStandardOut" -- Indicates that LDAP debug log
+ *       information should be written to standard output.  This cannot be
+ *       provided in conjunction with the "--ldapDebugLogFile" argument.  If
+ *       neither argument is provided, then no debug logging will be
+ *       performed.</LI>
  *   <LI>"-d {path}" or "--ldapDebugLogFile {path}" -- specifies the path to a
- *       file that should be used as a server LDAP debug log.  If this is not
- *       provided, then no LDAP debug logging will be performed.</LI>
+ *       file that should be used as a server LDAP debug log.  This cannot be
+ *       provided in conjunction with the "--ldapDebugLogToStandardOut"
+ *       argument.  If neither argument is provided, then no debug logging will
+ *       be performed.</LI>
  *   <LI>"-s" or "--useDefaultSchema" -- Indicates that the server should use
  *       the default standard schema provided as part of the LDAP SDK.  If
  *       neither this argument nor the "--useSchemaFile" argument is provided,
@@ -158,9 +173,17 @@ public final class InMemoryDirectoryServerTool
 
 
 
+  // The argument used to indicate that access log information should be written
+  // to standard output.
+  private BooleanArgument accessLogToStandardOut;
+
   // The argument used to prevent the in-memory server from starting.  This is
   // only intended to be used for internal testing purposes.
   private BooleanArgument dontStartArgument;
+
+  // The argument used to indicate that LDAP debug log information should be
+  // written to standard output.
+  private BooleanArgument ldapDebugLogToStandardOut;
 
   // The argument used to indicate that the default standard schema should be
   // used.
@@ -294,8 +317,10 @@ public final class InMemoryDirectoryServerTool
     useStartTLSArgument            = null;
     additionalBindDNArgument       = null;
     baseDNArgument                 = null;
+    accessLogToStandardOut         = null;
     accessLogFileArgument          = null;
     keyStorePathArgument           = null;
+    ldapDebugLogToStandardOut      = null;
     ldapDebugLogFileArgument       = null;
     ldifFileArgument               = null;
     trustStorePathArgument         = null;
@@ -371,11 +396,20 @@ public final class InMemoryDirectoryServerTool
          Integer.MAX_VALUE, 0);
     parser.addArgument(maxChangeLogEntriesArgument);
 
+    accessLogToStandardOut = new BooleanArgument('A', "accessLogToStandardOut",
+         INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_TO_STDOUT.get());
+    parser.addArgument(accessLogToStandardOut);
+
     accessLogFileArgument = new FileArgument('a', "accessLogFile", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_FILE.get(), false, true, true,
          false);
     parser.addArgument(accessLogFileArgument);
+
+    ldapDebugLogToStandardOut = new BooleanArgument(null,
+         "ldapDebugLogToStandardOut",
+         INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_TO_STDOUT.get());
+    parser.addArgument(ldapDebugLogToStandardOut);
 
     ldapDebugLogFileArgument = new FileArgument('d', "ldapDebugLogFile", false,
          1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
@@ -431,6 +465,11 @@ public final class InMemoryDirectoryServerTool
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,
          useSchemaFileArgument);
     parser.addExclusiveArgumentSet(useSSLArgument, useStartTLSArgument);
+
+    parser.addExclusiveArgumentSet(accessLogToStandardOut,
+         accessLogFileArgument);
+    parser.addExclusiveArgumentSet(ldapDebugLogToStandardOut,
+         ldapDebugLogFileArgument);
 
     parser.addDependentArgumentSet(additionalBindDNArgument,
          additionalBindPasswordArgument);
@@ -629,7 +668,14 @@ public final class InMemoryDirectoryServerTool
 
     // If an access log file was specified, then create the appropriate log
     // handler.
-    if (accessLogFileArgument.isPresent())
+    if (accessLogToStandardOut.isPresent())
+    {
+      final StreamHandler handler = new StreamHandler(System.out,
+           new MinimalLogFormatter(null, false, false, true));
+      handler.setLevel(Level.INFO);
+      serverConfig.setAccessLogHandler(handler);
+    }
+    else if (accessLogFileArgument.isPresent())
     {
       final File logFile = accessLogFileArgument.getValue();
       try
@@ -655,7 +701,14 @@ public final class InMemoryDirectoryServerTool
 
     // If an LDAP debug log file was specified, then create the appropriate log
     // handler.
-    if (ldapDebugLogFileArgument.isPresent())
+    if (ldapDebugLogToStandardOut.isPresent())
+    {
+      final StreamHandler handler = new StreamHandler(System.out,
+           new MinimalLogFormatter(null, false, false, true));
+      handler.setLevel(Level.INFO);
+      serverConfig.setLDAPDebugLogHandler(handler);
+    }
+    else if (ldapDebugLogFileArgument.isPresent())
     {
       final File logFile = ldapDebugLogFileArgument.getValue();
       try
