@@ -38,6 +38,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
@@ -148,6 +149,12 @@ public class InMemoryDirectoryServerConfig
   // The set of attributes for which referential integrity should be maintained.
   private final Set<String> referentialIntegrityAttributes;
 
+  // The vendor name to report in the server root DSE.
+  private String vendorName;
+
+  // The vendor version to report in the server root DSE.
+  private String vendorVersion;
+
 
 
   /**
@@ -204,6 +211,8 @@ public class InMemoryDirectoryServerConfig
     allowedOperationTypes                = EnumSet.allOf(OperationType.class);
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
     referentialIntegrityAttributes       = new HashSet<String>(0);
+    vendorName                           = "UnboundID Corp.";
+    vendorVersion                        = Version.FULL_VERSION_STRING;
 
     extendedOperationHandlers =
          new ArrayList<InMemoryExtendedOperationHandler>(3);
@@ -260,6 +269,8 @@ public class InMemoryDirectoryServerConfig
     maxChangeLogEntries                = cfg.maxChangeLogEntries;
     exceptionHandler                   = cfg.exceptionHandler;
     schema                             = cfg.schema;
+    vendorName                         = cfg.vendorName;
+    vendorVersion                      = cfg.vendorVersion;
   }
 
 
@@ -1005,6 +1016,59 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves the vendor name value to report in the server root DSE.
+   *
+   * @return  The vendor name value to report in the server root DSE, or
+   *          {@code null} if no vendor name should appear.
+   */
+  public String getVendorName()
+  {
+    return vendorName;
+  }
+
+
+
+  /**
+   * Specifies the vendor name value to report in the server root DSE.
+   *
+   * @param  vendorName  The vendor name value to report in the server root DSE.
+   *                     It may be {@code null} if no vendor name should appear.
+   */
+  public void setVendorName(final String vendorName)
+  {
+    this.vendorName = vendorName;
+  }
+
+
+
+  /**
+   * Retrieves the vendor version value to report in the server root DSE.
+   *
+   * @return  The vendor version value to report in the server root DSE, or
+   *          {@code null} if no vendor version should appear.
+   */
+  public String getVendorVersion()
+  {
+    return vendorVersion;
+  }
+
+
+
+  /**
+   * Specifies the vendor version value to report in the server root DSE.
+   *
+   * @param  vendorVersion  The vendor version value to report in the server
+   *                        root DSE.  It may be {@code null} if no vendor
+   *                        version should appear.
+   */
+  public void setVendorVersion(final String vendorVersion)
+  {
+    this.vendorVersion = vendorVersion;
+  }
+
+
+
+  /**
    * Parses the provided set of strings as DNs.
    *
    * @param  dnStrings  The array of strings to be parsed as DNs.
@@ -1195,6 +1259,20 @@ public class InMemoryDirectoryServerConfig
     {
       buffer.append(", listenerExceptionHandlerClass='");
       buffer.append(exceptionHandler.getClass().getName());
+      buffer.append('\'');
+    }
+
+    if (vendorName != null)
+    {
+      buffer.append(", vendorName='");
+      buffer.append(vendorName);
+      buffer.append('\'');
+    }
+
+    if (vendorVersion != null)
+    {
+      buffer.append(", vendorVersion='");
+      buffer.append(vendorVersion);
       buffer.append('\'');
     }
 
