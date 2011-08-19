@@ -905,8 +905,7 @@ public final class GSSAPIBindRequest
                                          final GSSAPIBindRequestProperties p)
   {
     // NOTE:  It does not appear that the IBM GSSAPI implementation has any
-    // analog for the renewTGT or doNotPrompt properties, so they will be
-    // ignored.
+    // analog for the renewTGT property, so it will be ignored.
     w.println(JAAS_CLIENT_NAME + " {");
     w.println("  com.ibm.security.auth.module.Krb5LoginModule required");
     w.println("  credsType=initiator");
@@ -916,7 +915,10 @@ public final class GSSAPIBindRequest
       final String ticketCachePath = p.getTicketCachePath();
       if (ticketCachePath == null)
       {
-        w.println("  useDefaultCcache=true");
+        if (p.requireCachedCredentials())
+        {
+          w.println("  useDefaultCcache=true");
+        }
       }
       else
       {
