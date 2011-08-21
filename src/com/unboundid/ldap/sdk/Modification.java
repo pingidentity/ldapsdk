@@ -37,6 +37,7 @@ import com.unboundid.asn1.ASN1Set;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
+import com.unboundid.util.Base64;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -680,10 +681,29 @@ public final class Modification
     buffer.append(", attr=");
     buffer.append(attributeName);
 
-    buffer.append(", values={");
-    if (values.length > 0)
+    if (values.length == 0)
     {
+      buffer.append(", values={");
+    }
+    else if (needsBase64Encoding())
+    {
+      buffer.append(", base64Values={'");
+
+      for (int i=0; i < values.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append("', '");
+        }
+
+        buffer.append(Base64.encode(values[i].getValue()));
+      }
+
       buffer.append('\'');
+    }
+    else
+    {
+      buffer.append(", values={'");
 
       for (int i=0; i < values.length; i++)
       {
@@ -699,5 +719,27 @@ public final class Modification
     }
 
     buffer.append("})");
+  }
+
+
+
+  /**
+   * Indicates whether this modification needs to be base64-encoded when
+   * represented as LDIF.
+   *
+   * @return  {@code true} if this modification needs to be base64-encoded when
+   *          represented as LDIF, or {@code false} if not.
+   */
+  private boolean needsBase64Encoding()
+  {
+    for (final ASN1OctetString s : values)
+    {
+      if (Attribute.needsBase64Encoding(s.getValue()))
+      {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
