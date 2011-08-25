@@ -1949,35 +1949,76 @@ public class Entry
       if (reversible ||
           ((targetRDN != null) && targetRDN.hasAttribute(targetAttr.getName())))
       {
-        final ArrayList<ASN1OctetString> addValues =
-             new ArrayList<ASN1OctetString>();
-        final ArrayList<ASN1OctetString> delValues =
-             new ArrayList<ASN1OctetString>();
-        for (final ASN1OctetString value : sourceAttr.getRawValues())
+        final ASN1OctetString[] sourceValueArray = sourceAttr.getRawValues();
+        final LinkedHashMap<ASN1OctetString,ASN1OctetString> sourceValues =
+             new LinkedHashMap<ASN1OctetString,ASN1OctetString>(
+                  sourceValueArray.length);
+        for (final ASN1OctetString s : sourceValueArray)
         {
-          if (! targetAttr.hasValue(value))
+          try
           {
-            if ((sourceRDN == null) ||
-                (! sourceRDN.hasAttributeValue(sourceAttr.getName(),
-                                               value.getValue())))
-            {
-              delValues.add(value);
-            }
+            sourceValues.put(sourceAttr.getMatchingRule().normalize(s), s);
+          }
+          catch (final Exception e)
+          {
+            debugException(e);
+            sourceValues.put(s, s);
           }
         }
 
-        for (final ASN1OctetString value : targetAttr.getRawValues())
+        final ASN1OctetString[] targetValueArray = targetAttr.getRawValues();
+        final LinkedHashMap<ASN1OctetString,ASN1OctetString> targetValues =
+             new LinkedHashMap<ASN1OctetString,ASN1OctetString>(
+                  targetValueArray.length);
+        for (final ASN1OctetString s : targetValueArray)
         {
-          if (! sourceAttr.hasValue(value))
+          try
           {
-            if ((targetRDN == null) ||
-                (! targetRDN.hasAttributeValue(targetAttr.getName(),
-                                               value.getValue())))
-            {
-              addValues.add(value);
-            }
+            targetValues.put(sourceAttr.getMatchingRule().normalize(s), s);
+          }
+          catch (final Exception e)
+          {
+            debugException(e);
+            targetValues.put(s, s);
           }
         }
+
+        final Iterator<Map.Entry<ASN1OctetString,ASN1OctetString>>
+             sourceIterator = sourceValues.entrySet().iterator();
+        while (sourceIterator.hasNext())
+        {
+          final Map.Entry<ASN1OctetString,ASN1OctetString> e =
+               sourceIterator.next();
+          if (targetValues.remove(e.getKey()) != null)
+          {
+            sourceIterator.remove();
+          }
+          else if ((sourceRDN != null) &&
+                   sourceRDN.hasAttributeValue(sourceAttr.getName(),
+                        e.getValue().getValue()))
+          {
+            sourceIterator.remove();
+          }
+        }
+
+        final Iterator<Map.Entry<ASN1OctetString,ASN1OctetString>>
+             targetIterator = targetValues.entrySet().iterator();
+        while (targetIterator.hasNext())
+        {
+          final Map.Entry<ASN1OctetString,ASN1OctetString> e =
+               targetIterator.next();
+          if ((targetRDN != null) &&
+              targetRDN.hasAttributeValue(targetAttr.getName(),
+                   e.getValue().getValue()))
+          {
+            targetIterator.remove();
+          }
+        }
+
+        final ArrayList<ASN1OctetString> addValues =
+             new ArrayList<ASN1OctetString>(targetValues.values());
+        final ArrayList<ASN1OctetString> delValues =
+             new ArrayList<ASN1OctetString>(sourceValues.values());
 
         if (! addValues.isEmpty())
         {
