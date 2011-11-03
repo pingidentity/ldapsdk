@@ -239,6 +239,7 @@ public final class GenerateMinimalSource
     "com.unboundid.util.StaticUtils",
     "com.unboundid.util.Validator",
     "com.unboundid.util.WakeableSleeper",
+    "com.unboundid.util.WeakHashSet",
     "com.unboundid.util.package-info",
 
     "com.unboundid.util.parallel.AsynchronousParallelProcessor",
