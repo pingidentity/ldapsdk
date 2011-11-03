@@ -252,7 +252,7 @@ public final class FieldInfo
     }
 
     final StringBuilder invalidReason = new StringBuilder();
-    if (! PersistUtils.isValidLDAPName(attributeName, invalidReason))
+    if (! PersistUtils.isValidLDAPName(attributeName, true, invalidReason))
     {
       throw new LDAPPersistException(ERR_FIELD_INFO_INVALID_ATTR_NAME.get(
            f.getName(), c.getName(), invalidReason.toString()));
