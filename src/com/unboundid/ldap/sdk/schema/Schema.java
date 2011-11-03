@@ -1592,4 +1592,176 @@ public final class Schema
 
     return ocMap.get(toLowerCase(name));
   }
+
+
+
+  /**
+   * Retrieves a hash code for this schema object.
+   *
+   * @return  A hash code for this schema object.
+   */
+  @Override()
+  public int hashCode()
+  {
+    int hc;
+    try
+    {
+      hc = schemaEntry.getParsedDN().hashCode();
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      hc = toLowerCase(schemaEntry.getDN()).hashCode();
+    }
+
+    Attribute a = schemaEntry.getAttribute(ATTR_ATTRIBUTE_SYNTAX);
+    if (a != null)
+    {
+      hc += a.hashCode();
+    }
+
+    a = schemaEntry.getAttribute(ATTR_MATCHING_RULE);
+    if (a != null)
+    {
+      hc += a.hashCode();
+    }
+
+    a = schemaEntry.getAttribute(ATTR_ATTRIBUTE_TYPE);
+    if (a != null)
+    {
+      hc += a.hashCode();
+    }
+
+    a = schemaEntry.getAttribute(ATTR_OBJECT_CLASS);
+    if (a != null)
+    {
+      hc += a.hashCode();
+    }
+
+    a = schemaEntry.getAttribute(ATTR_NAME_FORM);
+    if (a != null)
+    {
+      hc += a.hashCode();
+    }
+
+    a = schemaEntry.getAttribute(ATTR_DIT_CONTENT_RULE);
+    if (a != null)
+    {
+      hc += a.hashCode();
+    }
+
+    a = schemaEntry.getAttribute(ATTR_DIT_STRUCTURE_RULE);
+    if (a != null)
+    {
+      hc += a.hashCode();
+    }
+
+    a = schemaEntry.getAttribute(ATTR_MATCHING_RULE_USE);
+    if (a != null)
+    {
+      hc += a.hashCode();
+    }
+
+    return hc;
+  }
+
+
+
+  /**
+   * Indicates whether the provided object is equal to this schema object.
+   *
+   * @param  o  The object for which to make the determination.
+   *
+   * @return  {@code true} if the provided object is equal to this schema
+   *          object, or {@code false} if not.
+   */
+  @Override()
+  public boolean equals(final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof Schema))
+    {
+      return false;
+    }
+
+    final Schema s = (Schema) o;
+
+    try
+    {
+      if (! schemaEntry.getParsedDN().equals(s.schemaEntry.getParsedDN()))
+      {
+        return false;
+      }
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      if (! schemaEntry.getDN().equalsIgnoreCase(s.schemaEntry.getDN()))
+      {
+        return false;
+      }
+    }
+
+    return (attributeEquals(ATTR_ATTRIBUTE_SYNTAX, this, s) &&
+         attributeEquals(ATTR_MATCHING_RULE, this, s) &&
+         attributeEquals(ATTR_ATTRIBUTE_TYPE, this, s) &&
+         attributeEquals(ATTR_OBJECT_CLASS, this, s) &&
+         attributeEquals(ATTR_NAME_FORM, this, s) &&
+         attributeEquals(ATTR_DIT_CONTENT_RULE, this, s) &&
+         attributeEquals(ATTR_DIT_STRUCTURE_RULE, this, s) &&
+         attributeEquals(ATTR_MATCHING_RULE_USE, this, s));
+  }
+
+
+
+  /**
+   * Indicates whether the provided two schemas have the same values for the
+   * given attribute.
+   *
+   * @param  name  The name of the attribute for which to make the
+   *               determination.
+   * @param  s1    The first schema to examine.
+   * @param  s2    The second schema to examine.
+   *
+   * @return  {@code true} if both schemas have the same values for the
+   *          specified attribute (are or both missing the attribute), or
+   *          {@code false} if not.
+   */
+  private static boolean attributeEquals(final String name, final Schema s1,
+                                         final Schema s2)
+  {
+    final Attribute a1 = s1.schemaEntry.getAttribute(name);
+    final Attribute a2 = s2.schemaEntry.getAttribute(name);
+
+    if (a1 == null)
+    {
+      return (a2 == null);
+    }
+    else
+    {
+      return a1.equals(a2);
+    }
+  }
+
+
+
+  /**
+   * Retrieves a string representation of the associated schema entry.
+   *
+   * @return  A string representation of the associated schema entry.
+   */
+  @Override()
+  public String toString()
+  {
+    return schemaEntry.toString();
+  }
 }

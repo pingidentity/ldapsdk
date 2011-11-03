@@ -40,6 +40,7 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.WeakHashSet;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -201,6 +202,15 @@ public final class LDAPConnection
 
 
 
+  /**
+   * A set of weak references to schema objects that can be shared across
+   * connections if they are identical.
+   */
+  private static final WeakHashSet<Schema> SCHEMA_SET =
+       new WeakHashSet<Schema>();
+
+
+
   // The connection pool with which this connection is associated, if
   // applicable.
   private AbstractConnectionPool connectionPool;
@@ -244,7 +254,7 @@ public final class LDAPConnection
   private ReferralConnector referralConnector;
 
   // The cached schema read from the server.
-  private Schema cachedSchema;
+  private volatile Schema cachedSchema;
 
   // The socket factory used for the last connection attempt.
   private SocketFactory lastUsedSocketFactory;
@@ -716,7 +726,7 @@ public final class LDAPConnection
     {
       try
       {
-        cachedSchema = getSchema();
+        cachedSchema = getCachedSchema(this);
       }
       catch (Exception e)
       {
@@ -1769,17 +1779,34 @@ public final class LDAPConnection
 
     if (bindResult.getResultCode().equals(ResultCode.SUCCESS))
     {
-      lastBindRequest = bindRequest;
-
-      if (connectionOptions.useSchema())
+      // We don't want to update the last bind request or update the cached
+      // schema for this connection if it included the retain identity control.
+      // However, that's only available in the Commercial Edition, so just
+      // reference it by OID here.
+      boolean hasRetainIdentityControl = false;
+      for (final Control c : bindRequest.getControls())
       {
-        try
+        if (c.getOID().equals("1.3.6.1.4.1.30221.2.5.3"))
         {
-          cachedSchema = getSchema();
+          hasRetainIdentityControl = true;
+          break;
         }
-        catch (Exception e)
+      }
+
+      if (! hasRetainIdentityControl)
+      {
+        lastBindRequest = bindRequest;
+
+        if (connectionOptions.useSchema())
         {
-          debugException(e);
+          try
+          {
+            cachedSchema = getCachedSchema(this);
+          }
+          catch (Exception e)
+          {
+            debugException(e);
+          }
         }
       }
 
@@ -3962,6 +3989,32 @@ public final class LDAPConnection
       {
         return internals.getConnectionReader().getActiveOperationCount();
       }
+    }
+  }
+
+
+
+  /**
+   * Retrieves the schema from the provided connection.  If the retrieved schema
+   * matches schema that's already in use by other connections, the common
+   * schema will be used instead of the newly-retrieved version.
+   *
+   * @param  c  The connection for which to retrieve the schema.
+   *
+   * @return  The schema retrieved from the given connection, or a cached
+   *          schema if it matched a schema that was already in use.
+   *
+   * @throws  LDAPException  If a problem is encountered while retrieving or
+   *                         parsing the schema.
+   */
+  private static Schema getCachedSchema(final LDAPConnection c)
+         throws LDAPException
+  {
+    final Schema s = c.getSchema();
+
+    synchronized (SCHEMA_SET)
+    {
+      return SCHEMA_SET.addAndGet(s);
     }
   }
 
