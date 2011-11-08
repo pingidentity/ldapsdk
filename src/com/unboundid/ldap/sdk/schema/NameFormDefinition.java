@@ -669,6 +669,53 @@ public final class NameFormDefinition
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int hashCode()
+  {
+    return oid.hashCode();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean equals(final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof NameFormDefinition))
+    {
+      return false;
+    }
+
+    final NameFormDefinition d = (NameFormDefinition) o;
+    return (oid.equals(d.oid) &&
+         structuralClass.equalsIgnoreCase(d.structuralClass) &&
+         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
+              d.requiredAttributes) &&
+         stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
+                   d.optionalAttributes) &&
+         bothNullOrEqualIgnoreCase(description, d.description) &&
+         (isObsolete == d.isObsolete) &&
+         extensionsEqual(extensions, d.extensions));
+  }
+
+
+
+  /**
    * Retrieves a string representation of this name form definition, in the
    * format described in RFC 4512 section 4.1.7.2.
    *

@@ -1009,6 +1009,55 @@ public final class ObjectClassDefinition
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int hashCode()
+  {
+    return oid.hashCode();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean equals(final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof ObjectClassDefinition))
+    {
+      return false;
+    }
+
+    final ObjectClassDefinition d = (ObjectClassDefinition) o;
+    return (oid.equals(d.oid) &&
+         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
+              d.requiredAttributes) &&
+         stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
+              d.optionalAttributes) &&
+         stringsEqualIgnoreCaseOrderIndependent(superiorClasses,
+              d.superiorClasses) &&
+         bothNullOrEqual(objectClassType, d.objectClassType) &&
+         bothNullOrEqualIgnoreCase(description, d.description) &&
+         (isObsolete == d.isObsolete) &&
+         extensionsEqual(extensions, d.extensions));
+  }
+
+
+
+  /**
    * Retrieves a string representation of this object class definition, in the
    * format described in RFC 4512 section 4.1.1.
    *

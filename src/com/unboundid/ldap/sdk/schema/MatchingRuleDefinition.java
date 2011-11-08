@@ -518,6 +518,49 @@ public final class MatchingRuleDefinition
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int hashCode()
+  {
+    return oid.hashCode();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean equals(final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof MatchingRuleDefinition))
+    {
+      return false;
+    }
+
+    final MatchingRuleDefinition d = (MatchingRuleDefinition) o;
+    return (oid.equals(d.oid) &&
+         syntaxOID.equals(d.syntaxOID) &&
+         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         bothNullOrEqualIgnoreCase(description, d.description) &&
+         (isObsolete == d.isObsolete) &&
+         extensionsEqual(extensions, d.extensions));
+  }
+
+
+
+  /**
    * Retrieves a string representation of this matching rule definition, in the
    * format described in RFC 4512 section 4.1.3.
    *

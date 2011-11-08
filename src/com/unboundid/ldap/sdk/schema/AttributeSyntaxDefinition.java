@@ -319,6 +319,46 @@ public final class AttributeSyntaxDefinition
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int hashCode()
+  {
+    return oid.hashCode();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean equals(final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof AttributeSyntaxDefinition))
+    {
+      return false;
+    }
+
+    final AttributeSyntaxDefinition d = (AttributeSyntaxDefinition) o;
+    return (oid.equals(d.oid) &&
+         bothNullOrEqualIgnoreCase(description, d.description) &&
+         extensionsEqual(extensions, d.extensions));
+  }
+
+
+
+  /**
    * Retrieves a string representation of this attribute syntax, in the format
    * described in RFC 4512 section 4.1.5.
    *
