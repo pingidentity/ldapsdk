@@ -1214,6 +1214,60 @@ public final class AttributeTypeDefinition
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int hashCode()
+  {
+    return oid.hashCode();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean equals(final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof AttributeTypeDefinition))
+    {
+      return false;
+    }
+
+    final AttributeTypeDefinition d = (AttributeTypeDefinition) o;
+    return(oid.equals(d.oid) &&
+         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         bothNullOrEqual(usage, d.usage) &&
+         bothNullOrEqualIgnoreCase(description, d.description) &&
+         bothNullOrEqualIgnoreCase(equalityMatchingRule,
+              d.equalityMatchingRule) &&
+         bothNullOrEqualIgnoreCase(orderingMatchingRule,
+              d.orderingMatchingRule) &&
+         bothNullOrEqualIgnoreCase(substringMatchingRule,
+              d.substringMatchingRule) &&
+         bothNullOrEqualIgnoreCase(superiorType, d.superiorType) &&
+         bothNullOrEqualIgnoreCase(syntaxOID, d.syntaxOID) &&
+         (isCollective == d.isCollective) &&
+         (isNoUserModification == d.isNoUserModification) &&
+         (isObsolete == d.isObsolete) &&
+         (isSingleValued == d.isSingleValued) &&
+         extensionsEqual(extensions, d.extensions));
+  }
+
+
+
+  /**
    * Retrieves a string representation of this attribute type definition, in the
    * format described in RFC 4512 section 4.1.2.
    *

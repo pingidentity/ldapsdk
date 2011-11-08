@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -1757,5 +1758,156 @@ public final class StaticUtils
     final ArrayList<T> l = new ArrayList<T>(array.length);
     l.addAll(Arrays.asList(array));
     return l;
+  }
+
+
+
+  /**
+   * Indicates whether both of the provided objects are {@code null} or both
+   * are logically equal (using the {@code equals} method).
+   *
+   * @param  o1  The first object for which to make the determination.
+   * @param  o2  The second object for which to make the determination.
+   *
+   * @return  {@code true} if both objects are {@code null} or both are
+   *          logically equal, or {@code false} if only one of the objects is
+   *          {@code null} or they are not logically equal.
+   */
+  public static boolean bothNullOrEqual(final Object o1, final Object o2)
+  {
+    if (o1 == null)
+    {
+      return (o2 == null);
+    }
+    else if (o2 == null)
+    {
+      return false;
+    }
+
+    return o1.equals(o2);
+  }
+
+
+
+  /**
+   * Indicates whether both of the provided strings are {@code null} or both
+   * are logically equal ignoring differences in capitalization (using the
+   * {@code equalsIgnoreCase} method).
+   *
+   * @param  s1  The first string for which to make the determination.
+   * @param  s2  The second string for which to make the determination.
+   *
+   * @return  {@code true} if both strings are {@code null} or both are
+   *          logically equal ignoring differences in capitalization, or
+   *          {@code false} if only one of the objects is {@code null} or they
+   *          are not logically equal ignoring capitalization.
+   */
+  public static boolean bothNullOrEqualIgnoreCase(final String s1,
+                                                  final String s2)
+  {
+    if (s1 == null)
+    {
+      return (s2 == null);
+    }
+    else if (s2 == null)
+    {
+      return false;
+    }
+
+    return s1.equalsIgnoreCase(s2);
+  }
+
+
+
+  /**
+   * Indicates whether the provided string arrays have the same elements,
+   * ignoring the order in which they appear and differences in capitalization.
+   * It is assumed that neither array contains {@code null} strings, and that
+   * no string appears more than once in each array.
+   *
+   * @param  a1  The first array for which to make the determination.
+   * @param  a2  The second array for which to make the determination.
+   *
+   * @return  {@code true} if both arrays have the same set of strings, or
+   *          {@code false} if not.
+   */
+  public static boolean stringsEqualIgnoreCaseOrderIndependent(
+                             final String[] a1, final String[] a2)
+  {
+    if (a1 == null)
+    {
+      return (a2 == null);
+    }
+    else if (a2 == null)
+    {
+      return false;
+    }
+
+    if (a1.length != a2.length)
+    {
+      return false;
+    }
+
+    if (a1.length == 1)
+    {
+      return (a1[0].equalsIgnoreCase(a2[0]));
+    }
+
+    final HashSet<String> s1 = new HashSet<String>(a1.length);
+    for (final String s : a1)
+    {
+      s1.add(toLowerCase(s));
+    }
+
+    final HashSet<String> s2 = new HashSet<String>(a2.length);
+    for (final String s : a2)
+    {
+      s2.add(toLowerCase(s));
+    }
+
+    return s1.equals(s2);
+  }
+
+
+
+  /**
+   * Indicates whether the provided arrays have the same elements, ignoring the
+   * order in which they appear.  It is assumed that neither array contains
+   * {@code null} elements, and that no element appears more than once in each
+   * array.
+   *
+   * @param  <T>  The type of element contained in the arrays.
+   *
+   * @param  a1  The first array for which to make the determination.
+   * @param  a2  The second array for which to make the determination.
+   *
+   * @return  {@code true} if both arrays have the same set of elements, or
+   *          {@code false} if not.
+   */
+  public static <T> boolean arraysEqualOrderIndependent(final T[] a1,
+                                                        final T[] a2)
+  {
+    if (a1 == null)
+    {
+      return (a2 == null);
+    }
+    else if (a2 == null)
+    {
+      return false;
+    }
+
+    if (a1.length != a2.length)
+    {
+      return false;
+    }
+
+    if (a1.length == 1)
+    {
+      return (a1[0].equals(a2[0]));
+    }
+
+    final HashSet<T> s1 = new HashSet<T>(Arrays.asList(a1));
+    final HashSet<T> s2 = new HashSet<T>(Arrays.asList(a2));
+    return s1.equals(s2);
   }
 }

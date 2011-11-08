@@ -67,7 +67,7 @@ public final class MatchingRuleUseDefinition
   // The string representation of this matching rule use.
   private final String matchingRuleUseString;
 
-  // The OID for this matching rule use .
+  // The OID for this matching rule use.
   private final String oid;
 
   // The set of attribute types to to which this matching rule use applies.
@@ -537,6 +537,50 @@ public final class MatchingRuleUseDefinition
   public Map<String,String[]> getExtensions()
   {
     return extensions;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int hashCode()
+  {
+    return oid.hashCode();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean equals(final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof MatchingRuleUseDefinition))
+    {
+      return false;
+    }
+
+    final MatchingRuleUseDefinition d = (MatchingRuleUseDefinition) o;
+    return (oid.equals(d.oid) &&
+         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         stringsEqualIgnoreCaseOrderIndependent(applicableTypes,
+              d.applicableTypes) &&
+         bothNullOrEqualIgnoreCase(description, d.description) &&
+         (isObsolete == d.isObsolete) &&
+         extensionsEqual(extensions, d.extensions));
   }
 
 

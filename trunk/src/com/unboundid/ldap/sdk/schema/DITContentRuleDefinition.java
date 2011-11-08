@@ -774,6 +774,56 @@ public final class DITContentRuleDefinition
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int hashCode()
+  {
+    return oid.hashCode();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean equals(final Object o)
+  {
+    if (o == null)
+    {
+      return false;
+    }
+
+    if (o == this)
+    {
+      return true;
+    }
+
+    if (! (o instanceof DITContentRuleDefinition))
+    {
+      return false;
+    }
+
+    final DITContentRuleDefinition d = (DITContentRuleDefinition) o;
+    return (oid.equals(d.oid) &&
+         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
+         stringsEqualIgnoreCaseOrderIndependent(auxiliaryClasses,
+              d.auxiliaryClasses) &&
+         stringsEqualIgnoreCaseOrderIndependent(requiredAttributes,
+              d.requiredAttributes) &&
+         stringsEqualIgnoreCaseOrderIndependent(optionalAttributes,
+              d.optionalAttributes) &&
+         stringsEqualIgnoreCaseOrderIndependent(prohibitedAttributes,
+              d.prohibitedAttributes) &&
+         bothNullOrEqualIgnoreCase(description, d.description) &&
+         (isObsolete == d.isObsolete) &&
+         extensionsEqual(extensions, d.extensions));
+  }
+
+
+
+  /**
    * Retrieves a string representation of this DIT content rule definition, in
    * the format described in RFC 4512 section 4.1.6.
    *

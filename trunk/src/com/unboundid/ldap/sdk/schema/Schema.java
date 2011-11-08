@@ -1711,45 +1711,14 @@ public final class Schema
       }
     }
 
-    return (attributeEquals(ATTR_ATTRIBUTE_SYNTAX, this, s) &&
-         attributeEquals(ATTR_MATCHING_RULE, this, s) &&
-         attributeEquals(ATTR_ATTRIBUTE_TYPE, this, s) &&
-         attributeEquals(ATTR_OBJECT_CLASS, this, s) &&
-         attributeEquals(ATTR_NAME_FORM, this, s) &&
-         attributeEquals(ATTR_DIT_CONTENT_RULE, this, s) &&
-         attributeEquals(ATTR_DIT_STRUCTURE_RULE, this, s) &&
-         attributeEquals(ATTR_MATCHING_RULE_USE, this, s));
-  }
-
-
-
-  /**
-   * Indicates whether the provided two schemas have the same values for the
-   * given attribute.
-   *
-   * @param  name  The name of the attribute for which to make the
-   *               determination.
-   * @param  s1    The first schema to examine.
-   * @param  s2    The second schema to examine.
-   *
-   * @return  {@code true} if both schemas have the same values for the
-   *          specified attribute (are or both missing the attribute), or
-   *          {@code false} if not.
-   */
-  private static boolean attributeEquals(final String name, final Schema s1,
-                                         final Schema s2)
-  {
-    final Attribute a1 = s1.schemaEntry.getAttribute(name);
-    final Attribute a2 = s2.schemaEntry.getAttribute(name);
-
-    if (a1 == null)
-    {
-      return (a2 == null);
-    }
-    else
-    {
-      return a1.equals(a2);
-    }
+    return (asSet.equals(s.asSet) &&
+         mrSet.equals(s.mrSet) &&
+         atSet.equals(s.atSet) &&
+         ocSet.equals(s.ocSet) &&
+         nfSet.equals(s.nfSet) &&
+         dcrSet.equals(s.dcrSet) &&
+         dsrSet.equals(s.dsrSet) &&
+         mruSet.equals(s.mruSet));
   }
 
 
