@@ -1145,7 +1145,7 @@ public final class InMemoryRequestHandler
         if (controlMap.containsKey(AuthorizationIdentityRequestControl.
              AUTHORIZATION_IDENTITY_REQUEST_OID))
         {
-          responseControls.add(new AuthorizationIdentityResponseControl("dn:"));
+          responseControls.add(new AuthorizationIdentityResponseControl(""));
         }
         return new LDAPMessage(messageID,
              new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
