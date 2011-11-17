@@ -226,10 +226,20 @@ public final class PLAINBindHandler
     if (controlMap.containsKey(AuthorizationIdentityRequestControl.
              AUTHORIZATION_IDENTITY_REQUEST_OID))
     {
-      responseControls = new Control[]
+      if (authDN == null)
       {
-        new AuthorizationIdentityResponseControl(authID)
-      };
+        responseControls = new Control[]
+        {
+          new AuthorizationIdentityResponseControl("")
+        };
+      }
+      else
+      {
+        responseControls = new Control[]
+        {
+          new AuthorizationIdentityResponseControl("dn:" + authDN.toString())
+        };
+      }
     }
     else
     {
