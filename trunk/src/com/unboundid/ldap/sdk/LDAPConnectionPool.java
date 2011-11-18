@@ -22,12 +22,15 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.logging.Level;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -165,6 +168,11 @@ public final class LDAPConnectionPool
   // that fail in a manner that may be the result of a connection that is no
   // longer valid.
   private volatile boolean retryOnInvalidConnections;
+
+  // Indicates whether health check processing for connections in synchronous
+  // mode should include attempting to read with a very short timeout to attempt
+  // to detect closures and unsolicited notifications in a more timely manner.
+  private volatile boolean trySynchronousReadDuringHealthCheck;
 
   // The bind request to use to perform authentication whenever a new connection
   // is established.
@@ -341,6 +349,7 @@ public final class LDAPConnectionPool
 
     this.postConnectProcessor = postConnectProcessor;
 
+    trySynchronousReadDuringHealthCheck = true;
     healthCheck               = new LDAPConnectionPoolHealthCheck();
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
     poolStatistics            = new LDAPConnectionPoolStatistics(this);
@@ -1351,6 +1360,46 @@ public final class LDAPConnectionPool
 
 
   /**
+   * Indicates whether health check processing for connections operating in
+   * synchronous mode should include attempting to perform a read from each
+   * connection with a very short timeout.  This can help detect unsolicited
+   * responses and unexpected connection closures in a more timely manner.  This
+   * will be ignored for connections not operating in synchronous mode.
+   *
+   * @return  {@code true} if health check processing for connections operating
+   *          in synchronous mode should include a read attempt with a very
+   *          short timeout, or {@code false} if not.
+   */
+  public boolean trySynchronousReadDuringHealthCheck()
+  {
+    return trySynchronousReadDuringHealthCheck;
+  }
+
+
+
+  /**
+   * Specifies whether health check processing for connections operating in
+   * synchronous mode should include attempting to perform a read from each
+   * connection with a very short timeout.
+   *
+   * @param  trySynchronousReadDuringHealthCheck  Indicates whether health check
+   *                                              processing for connections
+   *                                              operating in synchronous mode
+   *                                              should include attempting to
+   *                                              perform a read from each
+   *                                              connection with a very short
+   *                                              timeout.
+   */
+  public void setTrySynchronousReadDuringHealthCheck(
+                   final boolean trySynchronousReadDuringHealthCheck)
+  {
+    this.trySynchronousReadDuringHealthCheck =
+         trySynchronousReadDuringHealthCheck;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -1417,6 +1466,125 @@ public final class LDAPConnectionPool
           catch (final LDAPException le)
           {
             debugException(le);
+          }
+        }
+
+
+        // If the connection is operating in synchronous mode, then try to read
+        // a message on it using an extremely short timeout.  This can help
+        // detect a connection closure or unsolicited notification in a more
+        // timely manner than if we had to wait for the client code to try to
+        // use the connection.
+        if (trySynchronousReadDuringHealthCheck && conn.synchronousMode())
+        {
+          int previousTimeout = Integer.MIN_VALUE;
+          final Socket s = conn.getConnectionInternals().getSocket();
+          try
+          {
+            previousTimeout = s.getSoTimeout();
+            s.setSoTimeout(1);
+
+            final LDAPResponse response = conn.readResponse(0);
+            if (response instanceof ConnectionClosedResponse)
+            {
+              conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
+                   ERR_POOL_HEALTH_CHECK_CONN_CLOSED.get(), null);
+              poolStatistics.incrementNumConnectionsClosedDefunct();
+              conn = handleDefunctConnection(conn);
+              if (conn != null)
+              {
+                examinedConnections.add(conn);
+              }
+              continue;
+            }
+            else if (response instanceof ExtendedResult)
+            {
+              // This means we got an unsolicited response.  It could be a
+              // notice of disconnection, or it could be something else, but in
+              // any case we'll send it to the connection's unsolicited
+              // notification handler (if one is defined).
+              final UnsolicitedNotificationHandler h = conn.
+                   getConnectionOptions().getUnsolicitedNotificationHandler();
+              if (h != null)
+              {
+                h.handleUnsolicitedNotification(conn,
+                     (ExtendedResult) response);
+              }
+            }
+            else if (response instanceof LDAPResult)
+            {
+              final LDAPResult r = (LDAPResult) response;
+              if (r.getResultCode() == ResultCode.SERVER_DOWN)
+              {
+                conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
+                     ERR_POOL_HEALTH_CHECK_CONN_CLOSED.get(), null);
+                poolStatistics.incrementNumConnectionsClosedDefunct();
+                conn = handleDefunctConnection(conn);
+                if (conn != null)
+                {
+                  examinedConnections.add(conn);
+                }
+                continue;
+              }
+            }
+          }
+          catch (final LDAPException le)
+          {
+            if (le.getResultCode() == ResultCode.TIMEOUT)
+            {
+              debugException(Level.FINEST, le);
+            }
+            else
+            {
+              debugException(le);
+              conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
+                   ERR_POOL_HEALTH_CHECK_READ_FAILURE.get(
+                        getExceptionMessage(le)), le);
+              poolStatistics.incrementNumConnectionsClosedDefunct();
+              conn = handleDefunctConnection(conn);
+              if (conn != null)
+              {
+                examinedConnections.add(conn);
+              }
+              continue;
+            }
+          }
+          catch (final Exception e)
+          {
+            debugException(e);
+            conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
+                 ERR_POOL_HEALTH_CHECK_READ_FAILURE.get(getExceptionMessage(e)),
+                 e);
+            poolStatistics.incrementNumConnectionsClosedDefunct();
+            conn = handleDefunctConnection(conn);
+            if (conn != null)
+            {
+              examinedConnections.add(conn);
+            }
+            continue;
+          }
+          finally
+          {
+            if (previousTimeout != Integer.MIN_VALUE)
+            {
+              try
+              {
+                s.setSoTimeout(previousTimeout);
+              }
+              catch (final Exception e)
+              {
+                debugException(e);
+                conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
+                     null, e);
+                poolStatistics.incrementNumConnectionsClosedDefunct();
+                conn = handleDefunctConnection(conn);
+                if (conn != null)
+                {
+                  examinedConnections.add(conn);
+                }
+                continue;
+              }
+            }
           }
         }
 
