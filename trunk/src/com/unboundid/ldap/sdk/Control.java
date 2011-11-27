@@ -148,7 +148,21 @@ public class Control
     catch (Exception e)
     {
       // This is expected in the open source release, since it doesn't contain
-      // the UnboundID-specific controls.
+      // the UnboundID-specific controls.  In that case, we'll try the
+      // experimental controls instead.
+      try
+      {
+        final Class<?> experimentalControlHelperClass = Class.forName(
+             "com.unboundid.ldap.sdk.experimental.ControlHelper");
+        final Method method = experimentalControlHelperClass.getMethod(
+             "registerDefaultResponseControls");
+        method.invoke(null);
+      }
+      catch (Exception e2)
+      {
+        // This is expected in the minimal release, since it doesn't contain any
+        // controls.
+      }
     }
   }
 
