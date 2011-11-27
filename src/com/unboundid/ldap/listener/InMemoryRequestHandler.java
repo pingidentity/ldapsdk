@@ -40,6 +40,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
@@ -80,6 +81,7 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
@@ -88,7 +90,11 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.ldap.sdk.schema.DITContentRuleDefinition;
+import com.unboundid.ldap.sdk.schema.DITStructureRuleDefinition;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
+import com.unboundid.ldap.sdk.schema.MatchingRuleUseDefinition;
+import com.unboundid.ldap.sdk.schema.NameFormDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
@@ -173,6 +179,16 @@ public final class InMemoryRequestHandler
   // A delay (in milliseconds) to insert before processing operations.
   private final AtomicLong processingDelayMillis;
 
+  // The reference to the entry validator that will be used for schema checking,
+  // if appropriate.
+  private final AtomicReference<EntryValidator> entryValidatorRef;
+
+  // The entry to use as the subschema subentry.
+  private final AtomicReference<ReadOnlyEntry> subschemaSubentryRef;
+
+  // The reference to the schema that will be used for this request handler.
+  private final AtomicReference<Schema> schemaRef;
+
   // Indicates whether to generate operational attributes for writes.
   private final boolean generateOperationalAttributes;
 
@@ -184,10 +200,6 @@ public final class InMemoryRequestHandler
 
   // The DN of the subschema subentry.
   private final DN subschemaSubentryDN;
-
-  // The entry validator that will be used for schema checking, if
-  // appropriate.
-  private final EntryValidator entryValidator;
 
   // The configuration used to create this request handler.
   private final InMemoryDirectoryServerConfig config;
@@ -215,12 +227,6 @@ public final class InMemoryRequestHandler
   // A map of state information specific to the associated connection.
   private final Map<String,Object> connectionState;
 
-  // The entry to use as the subschema subentry.
-  private final ReadOnlyEntry subschemaSubentry;
-
-  // The schema that will be used for this request handler.  It may be null.
-  private final Schema schema;
-
   // The set of base DNs for the server.
   private final Set<DN> baseDNs;
 
@@ -247,14 +253,16 @@ public final class InMemoryRequestHandler
   {
     this.config = config;
 
-    schema = config.getSchema();
-    if (schema == null)
+    schemaRef            = new AtomicReference<Schema>();
+    entryValidatorRef    = new AtomicReference<EntryValidator>();
+    subschemaSubentryRef = new AtomicReference<ReadOnlyEntry>();
+
+    final Schema schema = config.getSchema();
+    schemaRef.set(schema);
+    if (schema != null)
     {
-      entryValidator = null;
-    }
-    else
-    {
-      entryValidator = new EntryValidator(schema);
+      final EntryValidator entryValidator = new EntryValidator(schema);
+      entryValidatorRef.set(entryValidator);
       entryValidator.setCheckAttributeSyntax(
            config.enforceAttributeSyntaxCompliance());
       entryValidator.setCheckStructuralObjectClasses(
@@ -338,8 +346,10 @@ public final class InMemoryRequestHandler
     firstChangeNumber             = new AtomicLong(0L);
     lastChangeNumber              = new AtomicLong(0L);
     processingDelayMillis         = new AtomicLong(0L);
-    subschemaSubentry             = generateSubschemaSubentry(schema);
-    subschemaSubentryDN           = subschemaSubentry.getParsedDN();
+
+    final ReadOnlyEntry subschemaSubentry = generateSubschemaSubentry(schema);
+    subschemaSubentryRef.set(subschemaSubentry);
+    subschemaSubentryDN = subschemaSubentry.getParsedDN();
 
     if (baseDNs.contains(subschemaSubentryDN))
     {
@@ -405,11 +415,11 @@ public final class InMemoryRequestHandler
     maxChangelogEntries            = parent.maxChangelogEntries;
     referentialIntegrityAttributes = parent.referentialIntegrityAttributes;
     entryMap                       = parent.entryMap;
-    entryValidator                 = parent.entryValidator;
+    entryValidatorRef              = parent.entryValidatorRef;
     extendedRequestHandlers        = parent.extendedRequestHandlers;
     saslBindHandlers               = parent.saslBindHandlers;
-    schema                         = parent.schema;
-    subschemaSubentry              = parent.subschemaSubentry;
+    schemaRef                      = parent.schemaRef;
+    subschemaSubentryRef           = parent.subschemaSubentryRef;
     subschemaSubentryDN            = parent.subschemaSubentryDN;
     initialSnapshot                = parent.initialSnapshot;
   }
@@ -481,7 +491,7 @@ public final class InMemoryRequestHandler
    */
   public Schema getSchema()
   {
-    return schema;
+    return schemaRef.get();
   }
 
 
@@ -749,6 +759,7 @@ public final class InMemoryRequestHandler
     // Get the entry to be added.  If a schema was provided, then make sure the
     // attributes are created with the appropriate matching rules.
     final Entry entry;
+    final Schema schema = schemaRef.get();
     if (schema == null)
     {
       entry = new Entry(request.getDN(), request.getAttributes());
@@ -878,6 +889,7 @@ public final class InMemoryRequestHandler
     // If a schema was provided, then make sure the entry complies with it.
     // Also make sure that there are no attributes marked with
     // NO-USER-MODIFICATION.
+    final EntryValidator entryValidator = entryValidatorRef.get();
     if (entryValidator != null)
     {
       final ArrayList<String> invalidReasons =
@@ -1071,7 +1083,7 @@ public final class InMemoryRequestHandler
     final DN bindDN;
     try
     {
-      bindDN = new DN(request.getBindDN(), schema);
+      bindDN = new DN(request.getBindDN(), schemaRef.get());
     }
     catch (final LDAPException le)
     {
@@ -1311,7 +1323,7 @@ public final class InMemoryRequestHandler
     final DN dn;
     try
     {
-      dn = new DN(request.getDN(), schema);
+      dn = new DN(request.getDN(), schemaRef.get());
     }
     catch (final LDAPException le)
     {
@@ -1346,7 +1358,7 @@ public final class InMemoryRequestHandler
     }
     else if (dn.equals(subschemaSubentryDN))
     {
-      entry = subschemaSubentry;
+      entry = subschemaSubentryRef.get();
     }
     else
     {
@@ -1493,7 +1505,7 @@ public final class InMemoryRequestHandler
     final DN dn;
     try
     {
-      dn = new DN(request.getDN(), schema);
+      dn = new DN(request.getDN(), schemaRef.get());
     }
     catch (final LDAPException le)
     {
@@ -1638,6 +1650,7 @@ public final class InMemoryRequestHandler
       final ReadOnlyEntry e = entryMap.get(mapDN);
 
       boolean referenceFound = false;
+      final Schema schema = schemaRef.get();
       for (final String attrName : referentialIntegrityAttributes)
       {
         final Attribute a = e.getAttribute(attrName, schema);
@@ -1868,6 +1881,7 @@ public final class InMemoryRequestHandler
 
     // Get the parsed target DN.
     final DN dn;
+    final Schema schema = schemaRef.get();
     try
     {
       dn = new DN(request.getDN(), schema);
@@ -1906,10 +1920,16 @@ public final class InMemoryRequestHandler
     }
     else if (dn.equals(subschemaSubentryDN))
     {
-      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-           ERR_MEM_HANDLER_MOD_SCHEMA.get(subschemaSubentryDN.toString()),
-           null));
+      try
+      {
+        validateSchemaMods(request);
+      }
+      catch (final LDAPException le)
+      {
+        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+             le.getResultCode().intValue(), le.getMatchedDN(), le.getMessage(),
+             null));
+      }
     }
     else if (dn.isDescendantOf(changeLogBaseDN, true))
     {
@@ -1919,12 +1939,19 @@ public final class InMemoryRequestHandler
     }
 
     // Get the target entry.  If it does not exist, then fail.
-    final Entry entry = entryMap.get(dn);
+    Entry entry = entryMap.get(dn);
     if (entry == null)
     {
-      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-           ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
-           ERR_MEM_HANDLER_MOD_NO_SUCH_ENTRY.get(request.getDN()), null));
+      if (dn.equals(subschemaSubentryDN))
+      {
+        entry = subschemaSubentryRef.get().duplicate();
+      }
+      else
+      {
+        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+             ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
+             ERR_MEM_HANDLER_MOD_NO_SUCH_ENTRY.get(request.getDN()), null));
+      }
     }
 
 
@@ -1949,6 +1976,7 @@ public final class InMemoryRequestHandler
 
     // If a schema was provided, use it to validate the resulting entry.  Also,
     // ensure that no NO-USER-MODIFICATION attributes were targeted.
+    final EntryValidator entryValidator = entryValidatorRef.get();
     if (entryValidator != null)
     {
       final ArrayList<String> invalidReasons = new ArrayList<String>(1);
@@ -2020,12 +2048,155 @@ public final class InMemoryRequestHandler
 
 
     // Replace the entry in the map and return a success result.
-    entryMap.put(dn, new ReadOnlyEntry(modifiedEntry));
+    if (dn.equals(subschemaSubentryDN))
+    {
+      final Schema newSchema = new Schema(modifiedEntry);
+      subschemaSubentryRef.set(new ReadOnlyEntry(modifiedEntry));
+      schemaRef.set(newSchema);
+      entryValidatorRef.set(new EntryValidator(newSchema));
+    }
+    else
+    {
+      entryMap.put(dn, new ReadOnlyEntry(modifiedEntry));
+    }
     addChangeLogEntry(request, authzDN);
     return new LDAPMessage(messageID,
          new ModifyResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
               null),
          responseControls);
+  }
+
+
+
+  /**
+   * Validates a modify request targeting the server schema.  Modifications to
+   * attribute syntaxes and matching rules will not be allowed.  Modifications
+   * to other schema elements will only be allowed for add and delete
+   * modification types, and adds will only be allowed with a valid syntax.
+   *
+   * @param  request  The modify request to validate.
+   *
+   * @throws  LDAPException  If a problem is encountered.
+   */
+  private void validateSchemaMods(final ModifyRequestProtocolOp request)
+          throws LDAPException
+  {
+    // If there is no schema, then we won't allow modifications at all.
+    if (schemaRef.get() == null)
+    {
+      throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+           ERR_MEM_HANDLER_MOD_SCHEMA.get(subschemaSubentryDN.toString()));
+    }
+
+
+    for (final Modification m : request.getModifications())
+    {
+      // If the modification targets attribute syntaxes or matching rules, then
+      // reject it.
+      final String attrName = m.getAttributeName();
+      if (attrName.equalsIgnoreCase(Schema.ATTR_ATTRIBUTE_SYNTAX) ||
+           attrName.equalsIgnoreCase(Schema.ATTR_MATCHING_RULE))
+      {
+        throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+             ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_ATTR.get(attrName));
+      }
+      else if (attrName.equalsIgnoreCase(Schema.ATTR_ATTRIBUTE_TYPE))
+      {
+        if (m.getModificationType() == ModificationType.ADD)
+        {
+          for (final String value : m.getValues())
+          {
+            new AttributeTypeDefinition(value);
+          }
+        }
+        else if (m.getModificationType() != ModificationType.DELETE)
+        {
+          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
+                    m.getModificationType().getName(), attrName));
+        }
+      }
+      else if (attrName.equalsIgnoreCase(Schema.ATTR_OBJECT_CLASS))
+      {
+        if (m.getModificationType() == ModificationType.ADD)
+        {
+          for (final String value : m.getValues())
+          {
+            new ObjectClassDefinition(value);
+          }
+        }
+        else if (m.getModificationType() != ModificationType.DELETE)
+        {
+          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
+                    m.getModificationType().getName(), attrName));
+        }
+      }
+      else if (attrName.equalsIgnoreCase(Schema.ATTR_NAME_FORM))
+      {
+        if (m.getModificationType() == ModificationType.ADD)
+        {
+          for (final String value : m.getValues())
+          {
+            new NameFormDefinition(value);
+          }
+        }
+        else if (m.getModificationType() != ModificationType.DELETE)
+        {
+          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
+                    m.getModificationType().getName(), attrName));
+        }
+      }
+      else if (attrName.equalsIgnoreCase(Schema.ATTR_DIT_CONTENT_RULE))
+      {
+        if (m.getModificationType() == ModificationType.ADD)
+        {
+          for (final String value : m.getValues())
+          {
+            new DITContentRuleDefinition(value);
+          }
+        }
+        else if (m.getModificationType() != ModificationType.DELETE)
+        {
+          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
+                    m.getModificationType().getName(), attrName));
+        }
+      }
+      else if (attrName.equalsIgnoreCase(Schema.ATTR_DIT_STRUCTURE_RULE))
+      {
+        if (m.getModificationType() == ModificationType.ADD)
+        {
+          for (final String value : m.getValues())
+          {
+            new DITStructureRuleDefinition(value);
+          }
+        }
+        else if (m.getModificationType() != ModificationType.DELETE)
+        {
+          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
+                    m.getModificationType().getName(), attrName));
+        }
+      }
+      else if (attrName.equalsIgnoreCase(Schema.ATTR_MATCHING_RULE_USE))
+      {
+        if (m.getModificationType() == ModificationType.ADD)
+        {
+          for (final String value : m.getValues())
+          {
+            new MatchingRuleUseDefinition(value);
+          }
+        }
+        else if (m.getModificationType() != ModificationType.DELETE)
+        {
+          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
+                    m.getModificationType().getName(), attrName));
+        }
+      }
+    }
   }
 
 
@@ -2134,6 +2305,7 @@ public final class InMemoryRequestHandler
 
     // Get the parsed target DN, new RDN, and new superior DN values.
     final DN dn;
+    final Schema schema = schemaRef.get();
     try
     {
       dn = new DN(request.getDN(), schema);
@@ -2353,6 +2525,7 @@ public final class InMemoryRequestHandler
     // If a schema was provided, then make sure the updated entry conforms to
     // the schema.  Also, reject the attempt if any of the new RDN attributes
     // is marked with NO-USER-MODIFICATION.
+    final EntryValidator entryValidator = entryValidatorRef.get();
     if (entryValidator != null)
     {
       final ArrayList<String> invalidReasons = new ArrayList<String>(1);
@@ -2516,6 +2689,7 @@ public final class InMemoryRequestHandler
       final ReadOnlyEntry e = entryMap.get(mapDN);
 
       boolean referenceFound = false;
+      final Schema schema = schemaRef.get();
       for (final String attrName : referentialIntegrityAttributes)
       {
         final Attribute a = e.getAttribute(attrName, schema);
@@ -2712,6 +2886,7 @@ public final class InMemoryRequestHandler
 
     // Get the parsed base DN.
     final DN baseDN;
+    final Schema schema = schemaRef.get();
     try
     {
       baseDN = new DN(request.getBaseDN(), schema);
@@ -2752,7 +2927,7 @@ public final class InMemoryRequestHandler
     }
     else if (baseDN.equals(subschemaSubentryDN))
     {
-      baseEntry = subschemaSubentry;
+      baseEntry = subschemaSubentryRef.get();
     }
     else
     {
@@ -3235,7 +3410,7 @@ findEntriesAndRefs:
   public synchronized int countEntriesBelow(final String baseDN)
          throws LDAPException
   {
-    final DN parsedBaseDN = new DN(baseDN, schema);
+    final DN parsedBaseDN = new DN(baseDN, schemaRef.get());
 
     int count = 0;
     for (final DN dn : entryMap.keySet())
@@ -3558,7 +3733,7 @@ findEntriesAndRefs:
   public synchronized int deleteSubtree(final String baseDN)
          throws LDAPException
   {
-    final DN dn = new DN(baseDN, schema);
+    final DN dn = new DN(baseDN, schemaRef.get());
     if (dn.isNullDN())
     {
       throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
@@ -3639,7 +3814,7 @@ findEntriesAndRefs:
   public synchronized ReadOnlyEntry getEntry(final String dn)
          throws LDAPException
   {
-    return getEntry(new DN(dn, schema));
+    return getEntry(new DN(dn, schemaRef.get()));
   }
 
 
@@ -3661,7 +3836,7 @@ findEntriesAndRefs:
     }
     else if (dn.equals(subschemaSubentryDN))
     {
-      return subschemaSubentry;
+      return subschemaSubentryRef.get();
     }
     else
     {
@@ -3701,6 +3876,7 @@ findEntriesAndRefs:
          throws LDAPException
   {
     final DN parsedDN;
+    final Schema schema = schemaRef.get();
     try
     {
       parsedDN = new DN(baseDN, schema);
@@ -3720,7 +3896,7 @@ findEntriesAndRefs:
     }
     else if (parsedDN.equals(subschemaSubentryDN))
     {
-      baseEntry = subschemaSubentry;
+      baseEntry = subschemaSubentryRef.get();
     }
     else
     {
@@ -3818,7 +3994,7 @@ findEntriesAndRefs:
    */
   private ReadOnlyEntry generateRootDSE()
   {
-    final Entry rootDSEEntry = new Entry(DN.NULL_DN, schema);
+    final Entry rootDSEEntry = new Entry(DN.NULL_DN, schemaRef.get());
     rootDSEEntry.addAttribute("objectClass", "top", "ds-root-dse");
     rootDSEEntry.addAttribute(new Attribute("supportedLDAPVersion",
          IntegerMatchingRule.getInstance(), "3"));
@@ -3992,6 +4168,7 @@ findEntriesAndRefs:
       return Collections.emptyMap();
     }
 
+    final Schema schema = schemaRef.get();
     final HashMap<String,List<List<String>>> m =
          new HashMap<String,List<List<String>>>(attrList.size() * 2);
     for (final String s : attrList)
@@ -4176,6 +4353,7 @@ findEntriesAndRefs:
 
     // If a schema is available, then see if the attribute type has any
     // subordinate types.  If so, then add them.
+    final Schema schema = schemaRef.get();
     if (schema != null)
     {
       for (final AttributeTypeDefinition subordinateType :
@@ -4272,6 +4450,7 @@ findEntriesAndRefs:
                      final Map<String,List<List<String>>> returnAttrs)
   {
     // See if we can return the entry without paring it down.
+    final Schema schema = schemaRef.get();
     if (allUserAttrs)
     {
       if (allOpAttrs || (schema == null))
@@ -4594,6 +4773,7 @@ findEntriesAndRefs:
   {
     // Construct the DN object to use for the entry and put it in the map.
     final long changeNumber = e.getChangeNumber();
+    final Schema schema = schemaRef.get();
     final DN dn = new DN(
          new RDN("changeNumber", String.valueOf(changeNumber), schema),
          changeLogBaseDN);
@@ -4674,7 +4854,7 @@ findEntriesAndRefs:
                    PROXIED_AUTHORIZATION_V1_REQUEST_OID);
     if (p1 != null)
     {
-      final DN authzDN = new DN(p1.getProxyDN(), schema);
+      final DN authzDN = new DN(p1.getProxyDN(), schemaRef.get());
       if (authzDN.isNullDN() ||
           entryMap.containsKey(authzDN) ||
           additionalBindCredentials.containsKey(authzDN))
@@ -4728,7 +4908,7 @@ findEntriesAndRefs:
       }
       else
       {
-        final DN dn = new DN(authzID.substring(3), schema);
+        final DN dn = new DN(authzID.substring(3), schemaRef.get());
         if (entryMap.containsKey(dn) ||
             additionalBindCredentials.containsKey(dn))
         {
@@ -5027,7 +5207,7 @@ findEntriesAndRefs:
     final Filter f = Filter.create(filter);
     try
     {
-      return f.matchesEntry(e, schema);
+      return f.matchesEntry(e, schemaRef.get());
     }
     catch (final LDAPException le)
     {
@@ -5124,7 +5304,7 @@ findEntriesAndRefs:
     final Filter f = Filter.create(filter);
     try
     {
-      if (! f.matchesEntry(e, schema))
+      if (! f.matchesEntry(e, schemaRef.get()))
       {
         throw new AssertionError(
              ERR_MEM_HANDLER_TEST_ENTRY_DOES_NOT_MATCH_FILTER.get(dn, filter));
@@ -5168,6 +5348,7 @@ findEntriesAndRefs:
     final Collection<Attribute> attrs = entry.getAttributes();
     final List<String> messages = new ArrayList<String>(attrs.size());
 
+    final Schema schema = schemaRef.get();
     for (final Attribute a : entry.getAttributes())
     {
       final Filter presFilter = Filter.createPresenceFilter(a.getName());
@@ -5285,6 +5466,7 @@ findEntriesAndRefs:
       return null;
     }
 
+    final Schema schema = schemaRef.get();
     final List<String> missingAttrs =
          new ArrayList<String>(attributeNames.size());
     for (final String attr : attributeNames)
@@ -5370,6 +5552,7 @@ findEntriesAndRefs:
       return null;
     }
 
+    final Schema schema = schemaRef.get();
     final List<String> missingValues =
          new ArrayList<String>(attributeValues.size());
     for (final String value : attributeValues)
@@ -5422,7 +5605,7 @@ findEntriesAndRefs:
     // See if the attribute exists at all in the entry.
     final Entry e = getEntry(dn);
     final Filter f = Filter.createPresenceFilter(attributeName);
-    if (! f.matchesEntry(e,  schema))
+    if (! f.matchesEntry(e,  schemaRef.get()))
     {
       throw new AssertionError(
            ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(dn, attributeName));
@@ -5486,6 +5669,7 @@ findEntriesAndRefs:
       throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
     }
 
+    final Schema schema = schemaRef.get();
     final List<String> messages = new ArrayList<String>(attributeNames.size());
     for (final String name : attributeNames)
     {
@@ -5530,6 +5714,7 @@ findEntriesAndRefs:
       throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
     }
 
+    final Schema schema = schemaRef.get();
     final List<String> messages = new ArrayList<String>(attributeValues.size());
     for (final String value : attributeValues)
     {
