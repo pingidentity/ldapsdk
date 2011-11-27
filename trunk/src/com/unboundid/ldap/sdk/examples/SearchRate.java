@@ -37,6 +37,7 @@ import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
@@ -286,6 +287,19 @@ public final class SearchRate
   {
     return "Perform repeated searches against an " +
            "LDAP directory server.";
+  }
+
+
+
+  /**
+   * Retrieves the version string for this tool.
+   *
+   * @return  The version string for this tool.
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
   }
 
 

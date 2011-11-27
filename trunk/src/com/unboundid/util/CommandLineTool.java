@@ -42,8 +42,9 @@ import static com.unboundid.util.UtilityMessages.*;
 /**
  * This class provides a framework for developing command-line tools that use
  * the argument parser provided as part of the UnboundID LDAP SDK for Java.
- * This tool adds only a "-H" or "--help" option, which can be used to display
- * usage information for the program.
+ * This tool adds a "-H" or "--help" option, which can be used to display usage
+ * information for the program, and may also add a "-V" or "--version" option,
+ * which can display the tool version.
  * <BR><BR>
  * Subclasses should include their own {@code main} method that creates an
  * instance of a {@code CommandLineTool} and should invoke the
@@ -89,6 +90,9 @@ public abstract class CommandLineTool
 
   // The argument used to request tool help.
   private BooleanArgument helpArgument = null;
+
+  // The argument used to request the tool version.
+  private BooleanArgument versionArgument = null;
 
 
 
@@ -160,6 +164,12 @@ public abstract class CommandLineTool
       {
         out(parser.getUsageString(79));
         displayExampleUsages();
+        return ResultCode.SUCCESS;
+      }
+
+      if (versionArgument.isPresent())
+      {
+        out(getToolVersion());
         return ResultCode.SUCCESS;
       }
 
@@ -277,6 +287,19 @@ public abstract class CommandLineTool
 
 
   /**
+   * Retrieves a version string for this tool, if available.
+   *
+   * @return  A version string for this tool, or {@code null} if none is
+   *          available.
+   */
+  public String getToolVersion()
+  {
+    return null;
+  }
+
+
+
+  /**
    * Retrieves the maximum number of unnamed trailing arguments that may be
    * provided for this tool.  If a tool supports trailing arguments, then it
    * must override this method to return a nonzero value, and must also override
@@ -334,6 +357,26 @@ public abstract class CommandLineTool
     helpArgument.addShortIdentifier('?');
     helpArgument.setUsageArgument(true);
     parser.addArgument(helpArgument);
+
+    final String version = getToolVersion();
+    if ((version != null) && (version.length() > 0) &&
+        (parser.getNamedArgument("version") == null))
+    {
+      final Character shortIdentifier;
+      if (parser.getNamedArgument('V') == null)
+      {
+        shortIdentifier = 'V';
+      }
+      else
+      {
+        shortIdentifier = null;
+      }
+
+      versionArgument = new BooleanArgument(shortIdentifier, "version",
+           INFO_CL_TOOL_DESCRIPTION_VERSION.get());
+      versionArgument.setUsageArgument(true);
+      parser.addArgument(versionArgument);
+    }
 
     return parser;
   }

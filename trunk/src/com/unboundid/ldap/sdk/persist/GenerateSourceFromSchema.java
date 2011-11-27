@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassType;
@@ -204,6 +205,19 @@ public final class GenerateSourceFromSchema
   public String getToolDescription()
   {
     return INFO_GEN_SOURCE_TOOL_DESCRIPTION.get();
+  }
+
+
+
+  /**
+   * Retrieves the version string for this tool.
+   *
+   * @return  The version string for this tool.
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
   }
 
 

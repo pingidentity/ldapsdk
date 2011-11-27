@@ -38,6 +38,7 @@ import javax.net.ssl.TrustManager;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
@@ -364,6 +365,19 @@ public final class InMemoryDirectoryServerTool
   public String getToolDescription()
   {
     return INFO_MEM_DS_TOOL_DESC.get(InMemoryDirectoryServer.class.getName());
+  }
+
+
+
+  /**
+   * Retrieves the version string for this tool.
+   *
+   * @return  The version string for this tool.
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
   }
 
 

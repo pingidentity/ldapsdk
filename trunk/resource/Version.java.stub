@@ -149,6 +149,18 @@ public final class Version
 
 
   /**
+   *The version number string for the LDAP SDK, which contains just the major,
+   * minor, and point version, and optional version qualifier.  For this build,
+   * the version string is
+   * "${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}".
+   */
+  public static final String NUMERIC_VERSION_STRING =
+       MAJOR_VERSION + "." + MINOR_VERSION + '.' +
+       POINT_VERSION + VERSION_QUALIFIER;
+
+
+
+  /**
    * Prevent this class from being instantiated.
    */
   private Version()
