@@ -105,4 +105,12 @@ public @interface LDAPObject
    * the associated object type.
    */
   String[] auxiliaryClass() default {};
+
+
+
+  /**
+   * The name(s) of any superior object class(es) for the structural and/or
+   * auxiliary object classes that should be included in generated entries.
+   */
+  String[] superiorClass() default {};
 }
