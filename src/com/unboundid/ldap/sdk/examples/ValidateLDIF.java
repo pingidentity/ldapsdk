@@ -39,6 +39,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
 import com.unboundid.ldif.LDIFException;
@@ -259,6 +260,19 @@ public final class ValidateLDIF
   {
     return "Validate the contents of an LDIF file " +
            "against the server schema.";
+  }
+
+
+
+  /**
+   * Retrieves the version string for this tool.
+   *
+   * @return  The version string for this tool.
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
   }
 
 

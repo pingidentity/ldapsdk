@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
@@ -179,6 +180,19 @@ public final class LDAPModify
   {
     return "Perform add, delete, modify, and modify " +
            "DN operations in an LDAP directory server.";
+  }
+
+
+
+  /**
+   * Retrieves the version string for this tool.
+   *
+   * @return  The version string for this tool.
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
   }
 
 

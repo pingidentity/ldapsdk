@@ -36,6 +36,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
@@ -267,6 +268,19 @@ public final class ModRate
   {
     return "Perform repeated modifications against " +
            "an LDAP directory server.";
+  }
+
+
+
+  /**
+   * Retrieves the version string for this tool.
+   *
+   * @return  The version string for this tool.
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
   }
 
 

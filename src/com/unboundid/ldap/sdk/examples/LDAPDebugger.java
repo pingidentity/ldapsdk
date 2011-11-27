@@ -38,6 +38,7 @@ import com.unboundid.ldap.listener.LDAPListenerConfig;
 import com.unboundid.ldap.listener.ProxyRequestHandler;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.StaticUtils;
@@ -193,6 +194,19 @@ public final class LDAPDebugger
   public String getToolDescription()
   {
     return "Intercept and decode LDAP communication.";
+  }
+
+
+
+  /**
+   * Retrieves the version string for this tool.
+   *
+   * @return  The version string for this tool.
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
   }
 
 

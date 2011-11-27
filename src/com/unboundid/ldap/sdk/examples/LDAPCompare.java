@@ -33,6 +33,7 @@ import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.StaticUtils;
@@ -163,6 +164,19 @@ public final class LDAPCompare
   public String getToolDescription()
   {
     return "Process compare operations in LDAP directory server.";
+  }
+
+
+
+  /**
+   * Retrieves the version string for this tool.
+   *
+   * @return  The version string for this tool.
+   */
+  @Override()
+  public String getToolVersion()
+  {
+    return Version.NUMERIC_VERSION_STRING;
   }
 
 
