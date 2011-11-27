@@ -401,6 +401,30 @@ public final class GenerateSourceFromSchema
     }
 
 
+    // Determine the appropriate set of superior object classes.
+    final TreeMap<String,ObjectClassDefinition> superiorOCs =
+         new TreeMap<String,ObjectClassDefinition>();
+    for (final ObjectClassDefinition s :
+         structuralOC.getSuperiorClasses(schema, true))
+    {
+      superiorOCs.put(toLowerCase(s.getNameOrOID()), s);
+    }
+
+    for (final ObjectClassDefinition d : auxiliaryOCs.values())
+    {
+      for (final ObjectClassDefinition s : d.getSuperiorClasses(schema, true))
+      {
+        superiorOCs.put(toLowerCase(s.getNameOrOID()), s);
+      }
+    }
+
+    superiorOCs.remove(toLowerCase(structuralClassName));
+    for (final String s : auxiliaryOCs.keySet())
+    {
+      superiorOCs.remove(s);
+    }
+
+
     // Retrieve and process the operational attributes.
     final TreeMap<String,AttributeTypeDefinition> operationalAttrs =
          new TreeMap<String,AttributeTypeDefinition>();
@@ -624,6 +648,39 @@ public final class GenerateSourceFromSchema
         final Iterator<ObjectClassDefinition> iterator =
              auxiliaryOCs.values().iterator();
         writer.println("            auxiliaryClass={ \"" +
+             iterator.next().getNameOrOID() + "\",");
+        while (iterator.hasNext())
+        {
+          final String ocName = iterator.next().getNameOrOID();
+          if (iterator.hasNext())
+          {
+            writer.println("                             \"" + ocName +
+                 "\",");
+          }
+          else
+          {
+            writer.println("                             \"" + ocName +
+                 "\" },");
+          }
+        }
+        break;
+    }
+
+    switch (superiorOCs.size())
+    {
+      case 0:
+        // No action required.
+        break;
+
+      case 1:
+        writer.println("            superiorClass=\"" +
+             superiorOCs.values().iterator().next().getNameOrOID() + "\",");
+        break;
+
+      default:
+        final Iterator<ObjectClassDefinition> iterator =
+             superiorOCs.values().iterator();
+        writer.println("            superiorClass={ \"" +
              iterator.next().getNameOrOID() + "\",");
         while (iterator.hasNext())
         {

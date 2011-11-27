@@ -162,6 +162,10 @@ public final class LDAPObjectHandler<T>
   // The set of attributes that should be lazily loaded.
   private final String[] lazilyLoadedAttributes;
 
+  // The superior object classes that should should used for entries created
+  // from objects of the associated type.
+  private final String[] superiorClasses;
+
 
 
   /**
@@ -247,6 +251,21 @@ public final class LDAPObjectHandler<T>
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_INVALID_AUXILIARY_CLASS.get(type.getName(),
                   auxiliaryClass, invalidReason.toString()));
+      }
+    }
+
+    superiorClasses = ldapObject.superiorClass();
+    for (final String superiorClass : superiorClasses)
+    {
+      if (PersistUtils.isValidLDAPName(superiorClass, invalidReason))
+      {
+        objectClasses.put(toLowerCase(superiorClass), superiorClass);
+      }
+      else
+      {
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_INVALID_SUPERIOR_CLASS.get(type.getName(),
+                  superiorClass, invalidReason.toString()));
       }
     }
 
@@ -749,6 +768,21 @@ public final class LDAPObjectHandler<T>
   public String[] getAuxiliaryClasses()
   {
     return auxiliaryClasses;
+  }
+
+
+
+  /**
+   * Retrieves the names of the superior object classes for objects of the
+   * associated type.
+   *
+   * @return  The names of the superior object classes for objects of the
+   *          associated type.  It may be empty if no superior classes are
+   *          defined.
+   */
+  public String[] getSuperiorClasses()
+  {
+    return superiorClasses;
   }
 
 
