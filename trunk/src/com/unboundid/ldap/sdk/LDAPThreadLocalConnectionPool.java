@@ -22,9 +22,13 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -79,13 +83,12 @@ public final class LDAPThreadLocalConnectionPool
 
 
 
+  // The types of operations that should be retried if they fail in a manner
+  // that may be the result of a connection that is no longer valid.
+  private final AtomicReference<Set<OperationType>> retryOperationTypes;
+
   // Indicates whether this connection pool has been closed.
   private volatile boolean closed;
-
-  // Indicates whether the connection pool should attempt to retry operations
-  // that fail in a manner that may be the result of a connection that is no
-  // longer valid.
-  private volatile boolean retryOnInvalidConnections;
 
   // The bind request to use to perform authentication whenever a new connection
   // is established.
@@ -193,7 +196,8 @@ public final class LDAPThreadLocalConnectionPool
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
     poolStatistics            = new LDAPConnectionPoolStatistics(this);
     connectionPoolName        = null;
-    retryOnInvalidConnections = false;
+    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
+         Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
 
     if (! connection.isConnected())
     {
@@ -273,7 +277,8 @@ public final class LDAPThreadLocalConnectionPool
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
     poolStatistics            = new LDAPConnectionPoolStatistics(this);
     connectionPoolName        = null;
-    retryOnInvalidConnections = false;
+    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
+         Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
 
     connections = new ConcurrentHashMap<Thread,LDAPConnection>();
 
@@ -662,9 +667,9 @@ public final class LDAPThreadLocalConnectionPool
    * {@inheritDoc}
    */
   @Override()
-  public boolean retryFailedOperationsDueToInvalidConnections()
+  public Set<OperationType> getOperationTypesToRetryDueToInvalidConnections()
   {
-    return retryOnInvalidConnections;
+    return retryOperationTypes.get();
   }
 
 
@@ -674,9 +679,19 @@ public final class LDAPThreadLocalConnectionPool
    */
   @Override()
   public void setRetryFailedOperationsDueToInvalidConnections(
-                   final boolean retryFailedOperationsDueToInvalidConnections)
+                   final Set<OperationType> operationTypes)
   {
-    retryOnInvalidConnections = retryFailedOperationsDueToInvalidConnections;
+    if ((operationTypes == null) || operationTypes.isEmpty())
+    {
+      retryOperationTypes.set(
+           Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
+    }
+    else
+    {
+      final EnumSet<OperationType> s = EnumSet.noneOf(OperationType.class);
+      s.addAll(operationTypes);
+      retryOperationTypes.set(Collections.unmodifiableSet(s));
+    }
   }
 
 

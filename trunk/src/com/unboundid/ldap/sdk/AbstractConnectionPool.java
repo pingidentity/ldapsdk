@@ -24,7 +24,9 @@ package com.unboundid.ldap.sdk;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
@@ -214,13 +216,41 @@ public abstract class AbstractConnectionPool
    * context pool (e.g., using methods that are part of {@link LDAPInterface}),
    * and will not automatically be used for operations processed on connections
    * checked out of the pool.
+   * <BR><BR>
+   * This method is provided for the purpose of backward compatibility, but new
+   * functionality has been added to control retry on a per-operation-type
+   * basis via the {@link #setRetryFailedOperationsDueToInvalidConnections(Set)}
+   * method.  If retry is enabled for any operation type, then this method will
+   * return {@code true}, and it will only return {@code false} if retry should
+   * not be used for any operation type.  To determine the operation types for
+   * which failed operations may be retried, use the
+   * {@link #getOperationTypesToRetryDueToInvalidConnections()}  method.
    *
    * @return  {@code true} if the connection pool should attempt to retry
    *          operations on a newly-created connection if they fail in a way
    *          that indicates the associated connection may no longer be usable,
    *          or {@code false} if operations should only be attempted once.
    */
-  public abstract boolean retryFailedOperationsDueToInvalidConnections();
+  public final boolean retryFailedOperationsDueToInvalidConnections()
+  {
+    return (! getOperationTypesToRetryDueToInvalidConnections().isEmpty());
+  }
+
+
+
+  /**
+   * Retrieves the set of operation types for which operations should be
+   * retried if the initial attempt fails in a manner that indicates that the
+   * connection used to process the request may no longer be valid.
+   *
+   * @return  The set of operation types for which operations should be
+   *          retried if the initial attempt fails in a manner that indicates
+   *          that the connection used to process the request may no longer be
+   *          valid, or an empty set if retries should not be performed for any
+   *          type of operation.
+   */
+  public abstract Set<OperationType>
+              getOperationTypesToRetryDueToInvalidConnections();
 
 
 
@@ -234,6 +264,13 @@ public abstract class AbstractConnectionPool
    * context pool (e.g., using methods that are part of {@link LDAPInterface}),
    * and will not automatically be used for operations processed on connections
    * checked out of the pool.
+   * <BR><BR>
+   * This method is provided for the purpose of backward compatibility, but new
+   * functionality has been added to control retry on a per-operation-type
+   * basis via the {@link #setRetryFailedOperationsDueToInvalidConnections(Set)}
+   * method.  If this is called with a value of {@code true}, then retry will be
+   * enabled for all types of operations.  If it is called with a value of
+   * {@code false}, then retry will be disabled for all types of operations.
    *
    * @param  retryFailedOperationsDueToInvalidConnections
    *              Indicates whether attempts to process operations should be
@@ -241,8 +278,42 @@ public abstract class AbstractConnectionPool
    *              that indicates the associated connection may no longer be
    *              usable.
    */
+  public final void setRetryFailedOperationsDueToInvalidConnections(
+              final boolean retryFailedOperationsDueToInvalidConnections)
+  {
+    if (retryFailedOperationsDueToInvalidConnections)
+    {
+      setRetryFailedOperationsDueToInvalidConnections(
+           EnumSet.allOf(OperationType.class));
+    }
+    else
+    {
+      setRetryFailedOperationsDueToInvalidConnections(
+           EnumSet.noneOf(OperationType.class));
+    }
+  }
+
+
+
+  /**
+   * Specifies the types of operations that should be retried on a newly-created
+   * connection if the initial attempt fails in a manner that indicates that
+   * the connection used to process the request may no longer be valid.  Only a
+   * single retry will be attempted for any operation.
+   * <BR><BR>
+   * Note that this only applies to methods used to process operations in the
+   * context pool (e.g., using methods that are part of {@link LDAPInterface}),
+   * and will not automatically be used for operations processed on connections
+   * checked out of the pool.
+   *
+   * @param  operationTypes  The types of operations for which to retry failed
+   *                         operations if they fail in a way that indicates the
+   *                         associated connection may no longer be usable.  It
+   *                         may be {@code null} or empty to indicate that no
+   *                         types of operations should be retried.
+   */
   public abstract void setRetryFailedOperationsDueToInvalidConnections(
-              final boolean retryFailedOperationsDueToInvalidConnections);
+              final Set<OperationType> operationTypes);
 
 
 
@@ -370,7 +441,7 @@ public abstract class AbstractConnectionPool
     }
     catch (final Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.SEARCH, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -450,7 +521,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.SEARCH, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -527,7 +598,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.SEARCH, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -668,7 +739,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.ADD, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -771,7 +842,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.BIND, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -848,7 +919,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.COMPARE, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -940,7 +1011,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.DELETE, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -1077,7 +1148,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.EXTENDED, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -1219,7 +1290,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.MODIFY, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -1347,7 +1418,7 @@ public abstract class AbstractConnectionPool
     }
     catch (Throwable t)
     {
-      throwLDAPExceptionIfShouldNotRetry(t, conn);
+      throwLDAPExceptionIfShouldNotRetry(t, OperationType.MODIFY_DN, conn);
 
       // If we have gotten here, then we should retry the operation with a
       // newly-created connection.
@@ -2290,17 +2361,19 @@ requestLoop:
    * an appropriate {@code LDAPException} will be thrown.
    *
    * @param  t     The {@code Throwable} object that was caught.
+   * @param  o     The type of operation for which to make the determination.
    * @param  conn  The connection to be released to the pool.
    *
    * @throws  LDAPException  To indicate that a problem occurred during LDAP
    *                         processing and the operation should not be retried.
    */
   private void throwLDAPExceptionIfShouldNotRetry(final Throwable t,
+                                                  final OperationType o,
                                                   final LDAPConnection conn)
           throws LDAPException
   {
     if ((t instanceof LDAPException) &&
-        retryFailedOperationsDueToInvalidConnections())
+        getOperationTypesToRetryDueToInvalidConnections().contains(o))
     {
       final LDAPException le = (LDAPException) t;
       final LDAPConnectionPoolHealthCheck healthCheck = getHealthCheck();
@@ -2342,7 +2415,8 @@ requestLoop:
           throws LDAPSearchException
   {
     if ((t instanceof LDAPException) &&
-        retryFailedOperationsDueToInvalidConnections())
+        getOperationTypesToRetryDueToInvalidConnections().contains(
+             OperationType.SEARCH))
     {
       final LDAPException le = (LDAPException) t;
       final LDAPConnectionPoolHealthCheck healthCheck = getHealthCheck();
