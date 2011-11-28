@@ -2590,7 +2590,6 @@ class com.unboundid.ldap.sdk.LDAPConnectionPool constructor public com.unboundid
 class com.unboundid.ldap.sdk.LDAPConnectionPool constructor public com.unboundid.ldap.sdk.LDAPConnectionPool(com.unboundid.ldap.sdk.ServerSet,com.unboundid.ldap.sdk.BindRequest,int,int,com.unboundid.ldap.sdk.PostConnectProcessor) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public boolean getCreateIfNecessary()
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public boolean isClosed()
-class com.unboundid.ldap.sdk.LDAPConnectionPool method public boolean retryFailedOperationsDueToInvalidConnections()
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public com.unboundid.ldap.sdk.LDAPConnection getConnection() throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public com.unboundid.ldap.sdk.LDAPConnection replaceDefunctConnection(com.unboundid.ldap.sdk.LDAPConnection) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheck getHealthCheck()
@@ -2612,7 +2611,6 @@ class com.unboundid.ldap.sdk.LDAPConnectionPool method public void setHealthChec
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public void setMaxConnectionAgeMillis(long)
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public void setMaxWaitTimeMillis(long)
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public void setMinDisconnectIntervalMillis(long)
-class com.unboundid.ldap.sdk.LDAPConnectionPool method public void setRetryFailedOperationsDueToInvalidConnections(boolean)
 class com.unboundid.ldap.sdk.LDAPConnectionPool method public void toString(java.lang.StringBuilder)
 class com.unboundid.ldap.sdk.LDAPConnectionPoolStatistics constructor public com.unboundid.ldap.sdk.LDAPConnectionPoolStatistics(com.unboundid.ldap.sdk.AbstractConnectionPool)
 class com.unboundid.ldap.sdk.LDAPConnectionPoolStatistics method public int getMaximumAvailableConnections()
@@ -2784,7 +2782,6 @@ class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool constructor public co
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool constructor public com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool(com.unboundid.ldap.sdk.ServerSet,com.unboundid.ldap.sdk.BindRequest)
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool constructor public com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool(com.unboundid.ldap.sdk.ServerSet,com.unboundid.ldap.sdk.BindRequest,com.unboundid.ldap.sdk.PostConnectProcessor)
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public boolean isClosed()
-class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public boolean retryFailedOperationsDueToInvalidConnections()
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public com.unboundid.ldap.sdk.LDAPConnection getConnection() throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public com.unboundid.ldap.sdk.LDAPConnection replaceDefunctConnection(com.unboundid.ldap.sdk.LDAPConnection) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheck getHealthCheck()
@@ -2803,7 +2800,6 @@ class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public void se
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public void setHealthCheckIntervalMillis(long)
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public void setMaxConnectionAgeMillis(long)
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public void setMinDisconnectIntervalMillis(long)
-class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public void setRetryFailedOperationsDueToInvalidConnections(boolean)
 class com.unboundid.ldap.sdk.LDAPThreadLocalConnectionPool method public void toString(java.lang.StringBuilder)
 class com.unboundid.ldap.sdk.LDAPURL constructor public com.unboundid.ldap.sdk.LDAPURL(java.lang.String) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldap.sdk.LDAPURL constructor public com.unboundid.ldap.sdk.LDAPURL(java.lang.String,java.lang.String,java.lang.Integer,com.unboundid.ldap.sdk.DN,java.lang.String[],com.unboundid.ldap.sdk.SearchScope,com.unboundid.ldap.sdk.Filter) throws com.unboundid.ldap.sdk.LDAPException

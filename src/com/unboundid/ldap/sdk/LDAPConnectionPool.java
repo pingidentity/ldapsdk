@@ -24,11 +24,15 @@ package com.unboundid.ldap.sdk;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.ThreadSafety;
@@ -157,17 +161,16 @@ public final class LDAPConnectionPool
   // included in the pool.
   private final AtomicInteger failedReplaceCount;
 
+  // The types of operations that should be retried if they fail in a manner
+  // that may be the result of a connection that is no longer valid.
+  private final AtomicReference<Set<OperationType>> retryOperationTypes;
+
   // Indicates whether this connection pool has been closed.
   private volatile boolean closed;
 
   // Indicates whether to create a new connection if necessary rather than
   // waiting for a connection to become available.
   private boolean createIfNecessary;
-
-  // Indicates whether the connection pool should attempt to retry operations
-  // that fail in a manner that may be the result of a connection that is no
-  // longer valid.
-  private volatile boolean retryOnInvalidConnections;
 
   // Indicates whether health check processing for connections in synchronous
   // mode should include attempting to read with a very short timeout to attempt
@@ -354,7 +357,8 @@ public final class LDAPConnectionPool
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
     poolStatistics            = new LDAPConnectionPoolStatistics(this);
     connectionPoolName        = null;
-    retryOnInvalidConnections = false;
+    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
+         Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
 
     if (! connection.isConnected())
     {
@@ -546,7 +550,8 @@ public final class LDAPConnectionPool
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
     poolStatistics            = new LDAPConnectionPoolStatistics(this);
     connectionPoolName        = null;
-    retryOnInvalidConnections = false;
+    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
+         Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
 
     final ArrayList<LDAPConnection> connList =
          new ArrayList<LDAPConnection>(initialConnections);
@@ -1073,9 +1078,9 @@ public final class LDAPConnectionPool
    * {@inheritDoc}
    */
   @Override()
-  public boolean retryFailedOperationsDueToInvalidConnections()
+  public Set<OperationType> getOperationTypesToRetryDueToInvalidConnections()
   {
-    return retryOnInvalidConnections;
+    return retryOperationTypes.get();
   }
 
 
@@ -1085,9 +1090,19 @@ public final class LDAPConnectionPool
    */
   @Override()
   public void setRetryFailedOperationsDueToInvalidConnections(
-                   final boolean retryFailedOperationsDueToInvalidConnections)
+                   final Set<OperationType> operationTypes)
   {
-    retryOnInvalidConnections = retryFailedOperationsDueToInvalidConnections;
+    if ((operationTypes == null) || operationTypes.isEmpty())
+    {
+      retryOperationTypes.set(
+           Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
+    }
+    else
+    {
+      final EnumSet<OperationType> s = EnumSet.noneOf(OperationType.class);
+      s.addAll(operationTypes);
+      retryOperationTypes.set(Collections.unmodifiableSet(s));
+    }
   }
 
 
