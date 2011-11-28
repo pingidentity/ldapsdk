@@ -127,6 +127,10 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       containing a valid LDAP subschema subentry.  If the path is a
  *       directory, then its files will be processed in lexicographic order by
  *       name.</LI>
+ *   <LI>"-I {attr}" or "--equalityIndex {attr}" -- specifies that an equality
+ *       index should be maintained for the specified attribute.  The equality
+ *       index may be used to speed up certain kinds of searches, although it
+ *       will cause the server to consume more memory.</LI>
  *   <LI>"-Z" or "--useSSL" -- indicates that the server should encrypt all
  *       communication using SSL.  If this is provided, then the
  *       "--keyStorePath" and "--keyStorePassword" arguments must also be
@@ -243,6 +247,10 @@ public final class InMemoryDirectoryServerTool
   // The argument used to specify the password for the additional bind DN.
   private StringArgument additionalBindPasswordArgument;
 
+  // The argument used to specify the attributes for which to maintain equality
+  // indexes.
+  private StringArgument equalityIndexArgument;
+
   // The argument used to specify the password to use to access the contents of
   // the SSL key store
   private StringArgument keyStorePasswordArgument;
@@ -339,6 +347,7 @@ public final class InMemoryDirectoryServerTool
     maxChangeLogEntriesArgument       = null;
     portArgument                      = null;
     additionalBindPasswordArgument    = null;
+    equalityIndexArgument             = null;
     keyStorePasswordArgument          = null;
     trustStorePasswordArgument        = null;
     vendorNameArgument                = null;
@@ -453,6 +462,11 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_USE_SCHEMA_FILE.get(), true, true, false,
          false);
     parser.addArgument(useSchemaFileArgument);
+
+    equalityIndexArgument = new StringArgument('I', "equalityIndex", false, 0,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_ATTR.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_EQ_INDEX.get());
+    parser.addArgument(equalityIndexArgument);
 
     useSSLArgument = new BooleanArgument('Z', "useSSL",
          INFO_MEM_DS_TOOL_ARG_DESC_USE_SSL.get());
@@ -842,6 +856,14 @@ public final class InMemoryDirectoryServerTool
     if (vendorVersionArgument.isPresent())
     {
       serverConfig.setVendorVersion(vendorVersionArgument.getValue());
+    }
+
+
+    // If equality indexing is to be performed, then configure it.
+    if (equalityIndexArgument.isPresent())
+    {
+      serverConfig.setEqualityIndexAttributes(
+           equalityIndexArgument.getValues());
     }
 
     return serverConfig;

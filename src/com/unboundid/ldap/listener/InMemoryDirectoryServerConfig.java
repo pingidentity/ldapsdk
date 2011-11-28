@@ -133,6 +133,9 @@ public class InMemoryDirectoryServerConfig
   // the server.
   private final List<InMemorySASLBindHandler> saslBindHandlers;
 
+  // The names or OIDs of the attributes for which to maintain equality indexes.
+  private final List<String> equalityIndexAttributes;
+
   // A set of additional credentials that can be used for binding without
   // requiring a corresponding entry in the data set.
   private final Map<DN,byte[]> additionalBindCredentials;
@@ -207,6 +210,7 @@ public class InMemoryDirectoryServerConfig
     generateOperationalAttributes        = true;
     maxChangeLogEntries                  = 0;
     exceptionHandler                     = null;
+    equalityIndexAttributes              = new ArrayList<String>(10);
     schema                               = Schema.getDefaultStandardSchema();
     allowedOperationTypes                = EnumSet.allOf(OperationType.class);
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
@@ -260,6 +264,9 @@ public class InMemoryDirectoryServerConfig
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
     authenticationRequiredOperationTypes.addAll(
          cfg.authenticationRequiredOperationTypes);
+
+    equalityIndexAttributes =
+         new ArrayList<String>(cfg.equalityIndexAttributes);
 
     enforceAttributeSyntaxCompliance   = cfg.enforceAttributeSyntaxCompliance;
     enforceSingleStructuralObjectClass = cfg.enforceSingleStructuralObjectClass;
@@ -940,6 +947,65 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves a list containing the names or OIDs of the attribute types for
+   * which to maintain an equality index to improve the performance of certain
+   * kinds of searches.
+   *
+   * @return  A list containing the names or OIDs of the attribute types for
+   *          which to maintain an equality index to improve the performance of
+   *          certain kinds of searches, or an empty list if no equality indexes
+   *          should be created.
+   */
+  public List<String> getEqualityIndexAttributes()
+  {
+    return equalityIndexAttributes;
+  }
+
+
+
+  /**
+   * Specifies the names or OIDs of the attribute types for which to maintain an
+   * equality index to improve the performance of certain kinds of searches.
+   *
+   * @param  equalityIndexAttributes  The names or OIDs of the attributes for
+   *                                  which to maintain an equality index to
+   *                                  improve the performance of certain kinds
+   *                                  of searches.  It may be {@code null} or
+   *                                  empty to indicate that no equality indexes
+   *                                  should be maintained.
+   */
+  public void setEqualityIndexAttributes(
+                   final String... equalityIndexAttributes)
+  {
+    setEqualityIndexAttributes(StaticUtils.toList(equalityIndexAttributes));
+  }
+
+
+
+  /**
+   * Specifies the names or OIDs of the attribute types for which to maintain an
+   * equality index to improve the performance of certain kinds of searches.
+   *
+   * @param  equalityIndexAttributes  The names or OIDs of the attributes for
+   *                                  which to maintain an equality index to
+   *                                  improve the performance of certain kinds
+   *                                  of searches.  It may be {@code null} or
+   *                                  empty to indicate that no equality indexes
+   *                                  should be maintained.
+   */
+  public void setEqualityIndexAttributes(
+                   final Collection<String> equalityIndexAttributes)
+  {
+    this.equalityIndexAttributes.clear();
+    if (equalityIndexAttributes != null)
+    {
+      this.equalityIndexAttributes.addAll(equalityIndexAttributes);
+    }
+  }
+
+
+
+  /**
    * Retrieves the names of the attributes for which referential integrity
    * should be maintained.  If referential integrity is to be provided and an
    * entry is removed, then any other entries containing one of the specified
@@ -1172,6 +1238,24 @@ public class InMemoryDirectoryServerConfig
         bindDNIterator.next().toString(buffer);
         buffer.append('\'');
         if (bindDNIterator.hasNext())
+        {
+          buffer.append(", ");
+        }
+      }
+      buffer.append('}');
+    }
+
+    if (! equalityIndexAttributes.isEmpty())
+    {
+      buffer.append(", equalityIndexAttributes={");
+
+      final Iterator<String> attrIterator = equalityIndexAttributes.iterator();
+      while (attrIterator.hasNext())
+      {
+        buffer.append('\'');
+        buffer.append(attrIterator.next());
+        buffer.append('\'');
+        if (attrIterator.hasNext())
         {
           buffer.append(", ");
         }
