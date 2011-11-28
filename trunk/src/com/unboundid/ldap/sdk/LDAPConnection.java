@@ -3788,9 +3788,9 @@ public final class LDAPConnection
     final int    port = referralURL.getPort();
 
     BindRequest bindRequest = null;
-    if (lastBindRequest != null)
+    if (connection.lastBindRequest != null)
     {
-      bindRequest = lastBindRequest.getRebindRequest(host, port);
+      bindRequest = connection.lastBindRequest.getRebindRequest(host, port);
       if (bindRequest == null)
       {
         throw new LDAPException(ResultCode.REFERRAL,
@@ -3799,8 +3799,8 @@ public final class LDAPConnection
       }
     }
 
-    final LDAPConnection conn =
-         new LDAPConnection(socketFactory, connectionOptions, host, port);
+    final LDAPConnection conn = new LDAPConnection(connection.socketFactory,
+         connection.connectionOptions, host, port);
 
     if (bindRequest != null)
     {
@@ -3811,7 +3811,7 @@ public final class LDAPConnection
       catch (LDAPException le)
       {
         debugException(le);
-        setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
+        conn.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
         conn.close();
 
         throw le;
