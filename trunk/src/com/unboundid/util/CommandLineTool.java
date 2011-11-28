@@ -167,7 +167,7 @@ public abstract class CommandLineTool
         return ResultCode.SUCCESS;
       }
 
-      if (versionArgument.isPresent())
+      if ((versionArgument != null) && versionArgument.isPresent())
       {
         out(getToolVersion());
         return ResultCode.SUCCESS;
