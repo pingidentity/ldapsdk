@@ -473,6 +473,51 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
 
 
   /**
+   * {@inheritDoc}  The returned list will not be modifiable.
+   */
+  @Override()
+  public List<String> getEqualityIndexAttributes()
+  {
+    return Collections.unmodifiableList(super.getEqualityIndexAttributes());
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setEqualityIndexAttributes(
+                   final String... equalityIndexAttributes)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
+   * {@inheritDoc}  This method will always throw an
+   * {@code UnsupportedOperationException}.
+   *
+   * @throws  UnsupportedOperationException  To indicate that this object cannot
+   *                                         be altered.
+   */
+  @Override()
+  public void setEqualityIndexAttributes(
+                   final Collection<String> equalityIndexAttributes)
+         throws UnsupportedOperationException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+  /**
    * {@inheritDoc}  The returned set will not be modifiable.
    */
   @Override()

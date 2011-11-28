@@ -214,6 +214,10 @@ public final class InMemoryRequestHandler
   // The client connection for this request handler instance.
   private final LDAPListenerClientConnection connection;
 
+  // The set of equality indexes defined for the server.
+  private final Map<AttributeTypeDefinition,
+     InMemoryDirectoryServerEqualityAttributeIndex> equalityIndexes;
+
   // An additional set of credentials that may be used for bind operations.
   private final Map<DN,byte[]> additionalBindCredentials;
 
@@ -335,6 +339,16 @@ public final class InMemoryRequestHandler
     additionalBindCredentials = Collections.unmodifiableMap(
          config.getAdditionalBindCredentials());
 
+    final List<String> eqIndexAttrs = config.getEqualityIndexAttributes();
+    equalityIndexes = new HashMap<AttributeTypeDefinition,
+         InMemoryDirectoryServerEqualityAttributeIndex>(eqIndexAttrs.size());
+    for (final String s : eqIndexAttrs)
+    {
+      final InMemoryDirectoryServerEqualityAttributeIndex i =
+           new InMemoryDirectoryServerEqualityAttributeIndex(s, schema);
+      equalityIndexes.put(i.getAttributeType(), i);
+    }
+
     referentialIntegrityAttributes = Collections.unmodifiableSet(
          config.getReferentialIntegrityAttributes());
 
@@ -360,7 +374,9 @@ public final class InMemoryRequestHandler
     if (maxChangelogEntries > 0)
     {
       baseDNSet.add(changeLogBaseDN);
-      entryMap.put(changeLogBaseDN, new ReadOnlyEntry(changeLogBaseDN, schema,
+
+      final ReadOnlyEntry changeLogBaseEntry = new ReadOnlyEntry(
+           changeLogBaseDN, schema,
            new Attribute("objectClass", "top", "namedObject"),
            new Attribute("cn", "changelog"),
            new Attribute("entryDN",
@@ -381,7 +397,9 @@ public final class InMemoryRequestHandler
                 StaticUtils.encodeGeneralizedTime(new Date())),
            new Attribute("subschemaSubentry",
                 DistinguishedNameMatchingRule.getInstance(),
-                subschemaSubentryDN.toString())));
+                subschemaSubentryDN.toString()));
+      entryMap.put(changeLogBaseDN, changeLogBaseEntry);
+      indexAdd(changeLogBaseEntry);
     }
 
     initialSnapshot = createSnapshot();
@@ -413,6 +431,7 @@ public final class InMemoryRequestHandler
     lastChangeNumber               = parent.lastChangeNumber;
     processingDelayMillis          = parent.processingDelayMillis;
     maxChangelogEntries            = parent.maxChangelogEntries;
+    equalityIndexes                = parent.equalityIndexes;
     referentialIntegrityAttributes = parent.referentialIntegrityAttributes;
     entryMap                       = parent.entryMap;
     entryValidatorRef              = parent.entryValidatorRef;
@@ -476,6 +495,23 @@ public final class InMemoryRequestHandler
   {
     entryMap.clear();
     entryMap.putAll(snapshot.getEntryMap());
+
+    for (final InMemoryDirectoryServerEqualityAttributeIndex i :
+         equalityIndexes.values())
+    {
+      i.clear();
+      for (final Entry e : entryMap.values())
+      {
+        try
+        {
+          i.processAdd(e);
+        }
+        catch (final Exception ex)
+        {
+          Debug.debugException(ex);
+        }
+      }
+    }
 
     firstChangeNumber.set(snapshot.getFirstChangeNumber());
     lastChangeNumber.set(snapshot.getLastChangeNumber());
@@ -1005,6 +1041,7 @@ public final class InMemoryRequestHandler
     if (baseDNs.contains(dn))
     {
       entryMap.put(dn, new ReadOnlyEntry(entry));
+      indexAdd(entry);
       addChangeLogEntry(request, authzDN);
       return new LDAPMessage(messageID,
            new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
@@ -1017,6 +1054,7 @@ public final class InMemoryRequestHandler
     if ((parentDN != null) && entryMap.containsKey(parentDN))
     {
       entryMap.put(dn, new ReadOnlyEntry(entry));
+      indexAdd(entry);
       addChangeLogEntry(request, authzDN);
       return new LDAPMessage(messageID,
            new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
@@ -1614,12 +1652,14 @@ public final class InMemoryRequestHandler
     {
       final DN subordinateDN = subordinateDNs.get(i);
       final Entry subEntry = entryMap.remove(subordinateDN);
+      indexDelete(subEntry);
       addDeleteChangeLogEntry(subEntry, authzDN);
       handleReferentialIntegrityDelete(subordinateDN);
     }
 
     // Finally, remove the target entry and create a changelog entry for it.
     entryMap.remove(dn);
+    indexDelete(entry);
     addDeleteChangeLogEntry(entry, authzDN);
     handleReferentialIntegrityDelete(dn);
 
@@ -1672,6 +1712,8 @@ public final class InMemoryRequestHandler
                DistinguishedNameMatchingRule.getInstance());
         }
         entryMap.put(mapDN, new ReadOnlyEntry(copy));
+        indexDelete(e);
+        indexAdd(copy);
       }
     }
   }
@@ -2058,6 +2100,8 @@ public final class InMemoryRequestHandler
     else
     {
       entryMap.put(dn, new ReadOnlyEntry(modifiedEntry));
+      indexDelete(entry);
+      indexAdd(modifiedEntry);
     }
     addChangeLogEntry(request, authzDN);
     return new LDAPMessage(messageID,
@@ -2625,6 +2669,8 @@ public final class InMemoryRequestHandler
     // Remove the old entry and add the new one.
     entryMap.remove(dn);
     entryMap.put(newDN, new ReadOnlyEntry(updatedEntry));
+    indexDelete(originalEntry);
+    indexAdd(updatedEntry);
 
     // If the target entry had any subordinates, then rename them as well.
     final RDN[] oldDNComps = dn.getRDNs();
@@ -2634,7 +2680,8 @@ public final class InMemoryRequestHandler
     {
       if (mapEntryDN.isDescendantOf(dn, false))
       {
-        final Entry e = entryMap.remove(mapEntryDN).duplicate();
+        final Entry o = entryMap.remove(mapEntryDN);
+        final Entry e = o.duplicate();
 
         final RDN[] oldMapEntryComps = mapEntryDN.getRDNs();
         final int compsToSave = oldMapEntryComps.length - oldDNComps.length ;
@@ -2654,6 +2701,8 @@ public final class InMemoryRequestHandler
                newMapEntryDN.toNormalizedString()));
         }
         entryMap.put(newMapEntryDN, new ReadOnlyEntry(e));
+        indexDelete(o);
+        indexAdd(e);
         handleReferentialIntegrityModifyDN(mapEntryDN, newMapEntryDN);
       }
     }
@@ -2714,6 +2763,8 @@ public final class InMemoryRequestHandler
           }
         }
         entryMap.put(mapDN, new ReadOnlyEntry(copy));
+        indexDelete(e);
+        indexAdd(copy);
       }
     }
   }
@@ -3016,25 +3067,55 @@ findEntriesAndRefs:
         break findEntriesAndRefs;
       }
 
-      // Iterate through the map to find and return entries matching the
-      // criteria.  It is not necessary to consider the root DSE for non-base
+
+      // Try to use indexes to process the request.  If we can't use any
+      // indexes to get a candidate list, then just iterate over all the
+      // entries.  It's not necessary to consider the root DSE for non-base
       // scopes.
-      for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
+      final Set<DN> candidateDNs = indexSearch(filter);
+      if (candidateDNs == null)
       {
-        final DN dn = me.getKey();
-        final Entry entry = me.getValue();
-        try
+        for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
         {
-          if (dn.matchesBaseAndScope(baseDN, scope) &&
-              filter.matchesEntry(entry, schema))
+          final DN dn = me.getKey();
+          final Entry entry = me.getValue();
+          try
           {
-            processSearchEntry(entry, includeSubEntries, includeChangeLog,
-                 hasManageDsaIT, fullEntryList, referenceList);
+            if (dn.matchesBaseAndScope(baseDN, scope) &&
+                filter.matchesEntry(entry, schema))
+            {
+              processSearchEntry(entry, includeSubEntries, includeChangeLog,
+                   hasManageDsaIT, fullEntryList, referenceList);
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
           }
         }
-        catch (final Exception e)
+      }
+      else
+      {
+        for (final DN dn : candidateDNs)
         {
-          Debug.debugException(e);
+          try
+          {
+            if (! dn.matchesBaseAndScope(baseDN, scope))
+            {
+              continue;
+            }
+
+            final Entry entry = entryMap.get(dn);
+            if (filter.matchesEntry(entry, schema))
+            {
+              processSearchEntry(entry, includeSubEntries, includeChangeLog,
+                   hasManageDsaIT, fullEntryList, referenceList);
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+          }
         }
       }
     }
@@ -3260,6 +3341,163 @@ findEntriesAndRefs:
          new SearchResultDoneProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
               null, null),
          responseControls);
+  }
+
+
+
+  /**
+   * Performs any necessary index processing to add the provided entry.
+   *
+   * @param  entry  The entry that has been added.
+   */
+  private void indexAdd(final Entry entry)
+  {
+    for (final InMemoryDirectoryServerEqualityAttributeIndex i :
+         equalityIndexes.values())
+    {
+      try
+      {
+        i.processAdd(entry);
+      }
+      catch (final LDAPException le)
+      {
+        Debug.debugException(le);
+      }
+    }
+  }
+
+
+
+  /**
+   * Performs any necessary index processing to delete the provided entry.
+   *
+   * @param  entry  The entry that has been deleted.
+   */
+  private void indexDelete(final Entry entry)
+  {
+    for (final InMemoryDirectoryServerEqualityAttributeIndex i :
+         equalityIndexes.values())
+    {
+      try
+      {
+        i.processDelete(entry);
+      }
+      catch (final LDAPException le)
+      {
+        Debug.debugException(le);
+      }
+    }
+  }
+
+
+
+  /**
+   * Attempts to use indexes to obtain a candidate list for the provided filter.
+   *
+   * @param  filter  The filter to be processed.
+   *
+   * @return  The DNs of entries which may match the given filter, or
+   *          {@code null} if the filter is not indexed.
+   */
+  private Set<DN> indexSearch(final Filter filter)
+  {
+    switch (filter.getFilterType())
+    {
+      case Filter.FILTER_TYPE_AND:
+        Filter[] comps = filter.getComponents();
+        if (comps.length == 0)
+        {
+          return null;
+        }
+        else if (comps.length == 1)
+        {
+          return indexSearch(comps[0]);
+        }
+        else
+        {
+          Set<DN> candidateSet = null;
+          for (final Filter f : comps)
+          {
+            final Set<DN> dnSet = indexSearch(f);
+            if (dnSet != null)
+            {
+              if (candidateSet == null)
+              {
+                candidateSet = new TreeSet<DN>(dnSet);
+              }
+              else
+              {
+                candidateSet.retainAll(dnSet);
+              }
+            }
+          }
+          return candidateSet;
+        }
+
+      case Filter.FILTER_TYPE_OR:
+        comps = filter.getComponents();
+        if (comps.length == 0)
+        {
+          return Collections.emptySet();
+        }
+        else if (comps.length == 1)
+        {
+          return indexSearch(comps[0]);
+        }
+        else
+        {
+          Set<DN> candidateSet = null;
+          for (final Filter f : comps)
+          {
+            final Set<DN> dnSet = indexSearch(f);
+            if (dnSet == null)
+            {
+              return null;
+            }
+
+            if (candidateSet == null)
+            {
+              candidateSet = new TreeSet<DN>(dnSet);
+            }
+            else
+            {
+              candidateSet.addAll(dnSet);
+            }
+          }
+          return candidateSet;
+        }
+
+      case Filter.FILTER_TYPE_EQUALITY:
+        final Schema schema = schemaRef.get();
+        if (schema == null)
+        {
+          return null;
+        }
+        final AttributeTypeDefinition at =
+             schema.getAttributeType(filter.getAttributeName());
+        if (at == null)
+        {
+          return null;
+        }
+        final InMemoryDirectoryServerEqualityAttributeIndex i =
+             equalityIndexes.get(at);
+        if (i == null)
+        {
+          return null;
+        }
+        try
+        {
+          return i.getMatchingEntries(filter.getRawAssertionValue());
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          return null;
+        }
+
+      default:
+        return null;
+    }
   }
 
 
@@ -4805,6 +5043,7 @@ findEntriesAndRefs:
     }
 
     entryMap.put(dn, new ReadOnlyEntry(entry));
+    indexAdd(entry);
 
     // Update the first change number and/or trim the changelog if necessary.
     final long firstNumber = firstChangeNumber.get();
@@ -4822,9 +5061,10 @@ findEntriesAndRefs:
         // We need to delete the first changelog entry and increment the
         // first change number.
         firstChangeNumber.incrementAndGet();
-        entryMap.remove(new DN(
+        final Entry deletedEntry = entryMap.remove(new DN(
              new RDN("changeNumber", String.valueOf(firstNumber), schema),
              changeLogBaseDN));
+        indexDelete(deletedEntry);
       }
     }
   }
