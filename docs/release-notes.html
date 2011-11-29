@@ -10,6 +10,235 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.3.0</h3>
+
+              <p>
+                The following changes were made between the 2.2.0 and 2.3.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add a new <tt>DNSSrvRecordServerSet</tt> class, which is a <tt>ServerSet</tt>
+                  implementation that can use DNS SRV records (as described in RFC 2782) to
+                  discover available directory servers.  This new implementation can consider
+                  defined priorities and weights for SRV records so that some servers may be
+                  preferred over based on information contained in the DNS server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new <tt>SASLUtils</tt> class that can be used to more easily work with
+                  command-line tools that don't inherit from <tt>LDAPCommandLineTool</tt> but
+                  may still need to perform SASL binds.  It provides methods for getting access to
+                  supported SASL mechanisms and the options that they support.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new <tt>com.unboundid.ldap.sdk.experimental</tt> package with classes that
+                  may be used to support certain features that may still be works in progress and
+                  have the potential to change significantly (including in incompatible ways) in
+                  the future.  At present, this includes support for controls from
+                  draft-behera-ldap-password-policy-10 and draft-zeilenga-ldap-noop-12.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the connection support for schema caching so that if multiple connections
+                  reference equivalent schemas, then they will reference the same object rather
+                  than separate equivalent objects.  This can dramatically reduce memory
+                  consumption if schema caching is enabled.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug that could cause the output of <tt>ByteStringBuffer.toByteString</tt>
+                  to be unstable and reflect subsequent changes in the content of the associated
+                  <tt>ByteBuffer</tt>.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update support for asynchronous operations so that it is possible for them to
+                  respect a configured timeout.  Previously, operation timeouts were ignored for
+                  asynchronous operations.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the LDAP SDK persistence framework to add support for attributes with
+                  options.  It is now possible to use attribute names with options.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the LDAP SDK persistence framework to make it possible to specify
+                  superior object classes in the @LDAPObject annotation type.  If specified, these
+                  object classes will be included in generated entries.  The
+                  <tt>generate-source-from-schema</tt> tool has been updated to populate this
+                  element if appropriate.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server to make it possible to alter the server
+                  schema using LDAP modify operations.  Only add and delete modifications will be
+                  allowed for the attributeTypes, objectClasses, nameForms, dITContentRules,
+                  dITStructureRules, and matchingRuleUse attributes.  No modifications will be
+                  allowed for the ldapSyntaxes and matchingRules attributes.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server to make it possible to customize schema
+                  enforcement.  It is now possible to allow values which violate the associated
+                  attribute syntax, and/or to allow entries which do not have exactly one
+                  structural object class.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server so that it is possible to indicate that
+                  equality indexes should be maintained for specified attributes.  If enabled, the
+                  server may exhibit better performance for certain kinds of searches (those using
+                  an equality component targeting an indexed attribute, including those which may
+                  be included in AND or OR filters).
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server to make it possible to perform simple and
+                  SASL PLAIN binds directly against the server itself without the need to
+                  establish a connection to it.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server to make a number of logging-related
+                  improvements.  A race condition which could cause incorrect entry counts to be
+                  included in log messages has been fixed.  Log messages now include timestamps.
+                  Access and/or LDAP debug messages can now be written to standard output.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server to make it possible to customize the
+                  values included in the vendorName and vendorVersion attributes of the server
+                  root DSE.  This can help make it easier for the in-memory server to impersonate
+                  another type of directory to fool applications which will only work with certain
+                  types of servers and which use these attributes to make that determination.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server so that the authorization identity
+                  response control will always use the "dn:" form of the authorization identity,
+                  even for PLAIN binds that initially used the "u:" form.  Also, fix a bug in
+                  which it would incorrectly return "dn:" instead of just "" for an anonymous
+                  authorization identity.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update connection pool health checking support to make it possible to more
+                  quickly recognize server-initiated disconnects and unsolicited notifications for
+                  connections operating in synchronous mode.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update connection pool support for retrying failed operations to make it
+                  possible to control the types of operations that should be retried.  It was
+                  previously only possible to configure it on an all-or-nothing basis.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the default standard schema (which will be used by the in-memory
+                  directory server unless configured to do otherwise) so that it includes
+                  information about supported syntaxes and matching rules.  These ldapSyntaxes and
+                  matchingRules values will be included in the schema exposed by the in-memory
+                  directory server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the LDIF reader to add static methods that make it easy to read entries
+                  from an LDIF file and return them as a list.  This is a convenient way to read
+                  entries from small LDIF files (e.g., for use in unit tests).
+                  <br><br>
+                </li>
+
+                <li>
+                  Improve the efficiency of the <tt>Entry.diff</tt> method when using reversible
+                  form and working with entries with attributes that have a large number of
+                  values.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>CommandLineTool</tt> class to provide an optional
+                  <tt>getToolVersion</tt> method that may be used to retrieve the version string
+                  for the associated tool.  If a version string is made available, then a new
+                  "<tt>--version</tt>" argument may be automatically added to the tool to cause it
+                  to display the version string.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the support for LDAP URLs to provide support for URLs with the "ldapi"
+                  scheme.  Note that the LDAP SDK does not directly support LDAPI (although it may
+                  be possible to use with a third-party library that provides support for UNIX
+                  domain sockets), but it can now parse LDAP URLs with a scheme of "ldapi".
+                  <br><br>
+                </li>
+
+                <li>
+                  Update value pattern implementations to make it possible to specify a seed to
+                  use for the random number generator, which can provide for more reproducible
+                  results.  The searchrate, modrate, authrate, and search-adn-mod-rate tools have
+                  been updated to add a <tt>--randomSeed</tt> argument that can be used to specify
+                  a random seed if one is desired.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the validate-ldif tool to add support for working with gzip-compressed
+                  LDIF files.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>LDAPException.toLDAPResult</tt> method so that it will use the
+                  exception message as the diagnostic message for the resulting
+                  <tt>LDAPResult</tt> object if the exception does not have a specific diagnostic
+                  message.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>ObjectPair</tt> class to provide <tt>hashCode</tt>,
+                  <tt>equals</tt>, and <tt>toString</tt> methods.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update all uses of <tt>SocketFactory.createSocket</tt> methods are synchronized
+                  on the associated socket factory.  In some implementations (including those used
+                  by the IBM JVM), unsynchronized calls to these methods may result in unexpected
+                  exceptions or other strange behavior.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update support for the GSSAPI SASL mechanism to provide the ability to operate
+                  in IBM JVMs.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 2.2.0</h3>
 
               <p>
