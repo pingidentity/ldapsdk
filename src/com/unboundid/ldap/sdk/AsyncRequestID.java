@@ -92,6 +92,9 @@ public final class AsyncRequestID
   // The connection used to process the asynchronous operation.
   private final LDAPConnection connection;
 
+  // The timer task that will allow the associated request to be cancelled.
+  private volatile AsyncTimeoutTimerTask timerTask;
+
 
 
   /**
@@ -109,6 +112,7 @@ public final class AsyncRequestID
     resultQueue     = new ArrayBlockingQueue<LDAPResult>(1);
     cancelRequested = new AtomicBoolean(false);
     result          = new AtomicReference<LDAPResult>();
+    timerTask       = null;
   }
 
 
@@ -309,6 +313,21 @@ public final class AsyncRequestID
 
 
   /**
+   * Sets the timer task that may be used to cancel this result after a period
+   * of time.
+   *
+   * @param  timerTask  The timer task that may be used to cancel this result
+   *                    after a period of time.  It may be {@code null} if no
+   *                    timer task should be used.
+   */
+  void setTimerTask(final AsyncTimeoutTimerTask timerTask)
+  {
+    this.timerTask = timerTask;
+  }
+
+
+
+  /**
    * Sets the result for the associated operation.
    *
    * @param  result  The result for the associated operation.  It must not be
@@ -317,6 +336,14 @@ public final class AsyncRequestID
   void setResult(final LDAPResult result)
   {
     resultQueue.offer(result);
+
+    final AsyncTimeoutTimerTask t = timerTask;
+    if (t != null)
+    {
+      t.cancel();
+      connection.getTimer().purge();
+      timerTask = null;
+    }
   }
 
 

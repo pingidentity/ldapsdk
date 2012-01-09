@@ -657,7 +657,10 @@ public final class CompareRequest
       if (timeout > 0L)
       {
         final Timer timer = connection.getTimer();
-        timer.schedule(new AsyncTimeoutTimerTask(compareHelper), timeout);
+        final AsyncTimeoutTimerTask timerTask =
+             new AsyncTimeoutTimerTask(compareHelper);
+        timer.schedule(timerTask, timeout);
+        asyncRequestID.setTimerTask(timerTask);
       }
     }
 

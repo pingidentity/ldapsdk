@@ -1352,7 +1352,10 @@ public final class SearchRequest
       if (timeout > 0L)
       {
         final Timer timer = connection.getTimer();
-        timer.schedule(new AsyncTimeoutTimerTask(helper), timeout);
+        final AsyncTimeoutTimerTask timerTask =
+             new AsyncTimeoutTimerTask(helper);
+        timer.schedule(timerTask, timeout);
+        asyncRequestID.setTimerTask(timerTask);
       }
     }
 
