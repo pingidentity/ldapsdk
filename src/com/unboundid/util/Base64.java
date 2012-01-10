@@ -22,6 +22,7 @@ package com.unboundid.util;
 
 
 
+import java.io.IOException;
 import java.text.ParseException;
 
 import static com.unboundid.util.UtilityMessages.*;
@@ -71,10 +72,21 @@ import static com.unboundid.util.Validator.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class Base64
 {
-  // The set of characters in the base64 alphabet.
+  /**
+   * The set of characters in the base64 alphabet.
+   */
   private static final char[] BASE64_ALPHABET =
        ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
         "0123456789+/").toCharArray();
+
+
+
+  /**
+   * The set of characters in the base64url alphabet.
+   */
+  private static final char[] BASE64URL_ALPHABET =
+       ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
+        "0123456789-_").toCharArray();
 
 
 
@@ -116,7 +128,7 @@ public final class Base64
     ensureNotNull(data);
 
     final StringBuilder buffer = new StringBuilder(4*data.length/3+1);
-    encode(data, buffer);
+    encode(BASE64_ALPHABET, data, 0, data.length, buffer, "=");
     return buffer.toString();
   }
 
@@ -149,7 +161,7 @@ public final class Base64
    */
   public static void encode(final byte[] data, final StringBuilder buffer)
   {
-    encode(data, 0, data.length, buffer);
+    encode(BASE64_ALPHABET, data, 0, data.length, buffer, "=");
   }
 
 
@@ -168,45 +180,7 @@ public final class Base64
   public static void encode(final byte[] data, final int off, final int length,
                             final StringBuilder buffer)
   {
-    ensureNotNull(data);
-    ensureTrue(data.length >= off);
-    ensureTrue(data.length >= (off+length));
-
-    if (length == 0)
-    {
-      return;
-    }
-
-    int pos = off;
-    for (int i=0; i < (length / 3); i++)
-    {
-      final int intValue = ((data[pos++] & 0xFF) << 16) |
-                           ((data[pos++] & 0xFF) << 8) |
-                           (data[pos++] & 0xFF);
-
-      buffer.append(BASE64_ALPHABET[(intValue >> 18) & 0x3F]);
-      buffer.append(BASE64_ALPHABET[(intValue >> 12) & 0x3F]);
-      buffer.append(BASE64_ALPHABET[(intValue >> 6) & 0x3F]);
-      buffer.append(BASE64_ALPHABET[intValue & 0x3F]);
-    }
-
-    switch ((off+length) - pos)
-    {
-      case 1:
-        int intValue = (data[pos] & 0xFF) << 16;
-        buffer.append(BASE64_ALPHABET[(intValue >> 18) & 0x3F]);
-        buffer.append(BASE64_ALPHABET[(intValue >> 12) & 0x3F]);
-        buffer.append("==");
-        return;
-
-      case 2:
-        intValue = ((data[pos++] & 0xFF) << 16) | ((data[pos] & 0xFF) << 8);
-        buffer.append(BASE64_ALPHABET[(intValue >> 18) & 0x3F]);
-        buffer.append(BASE64_ALPHABET[(intValue >> 12) & 0x3F]);
-        buffer.append(BASE64_ALPHABET[(intValue >> 6) & 0x3F]);
-        buffer.append('=');
-        return;
-    }
+    encode(BASE64_ALPHABET, data, off, length, buffer, "=");
   }
 
 
@@ -221,7 +195,7 @@ public final class Base64
    */
   public static void encode(final byte[] data, final ByteStringBuffer buffer)
   {
-    encode(data, 0, data.length, buffer);
+    encode(BASE64_ALPHABET, data, 0, data.length, buffer, "=");
   }
 
 
@@ -239,6 +213,157 @@ public final class Base64
   public static void encode(final byte[] data, final int off, final int length,
                             final ByteStringBuffer buffer)
   {
+    encode(BASE64_ALPHABET, data, off, length, buffer, "=");
+  }
+
+
+
+  /**
+   * Retrieves a base64url-encoded representation of the provided data to the
+   * given buffer.
+   *
+   * @param  data  The raw data to be encoded.  It must not be {@code null}.
+   * @param  pad   Indicates whether to pad the URL if necessary.  Padding will
+   *               use "%3d", as the URL-escaped representation of the equal
+   *               sign.
+   *
+   * @return  A base64url-encoded representation of the provided data to the
+   *          given buffer.
+   */
+  public static String urlEncode(final String data, final boolean pad)
+  {
+    return urlEncode(StaticUtils.getBytes(data), pad);
+  }
+
+
+
+  /**
+   * Retrieves a base64url-encoded representation of the provided data to the
+   * given buffer.
+   *
+   * @param  data    The raw data to be encoded.  It must not be {@code null}.
+   * @param  buffer  The buffer to which the base64-encoded data is to be
+   *                 written.
+   * @param  pad     Indicates whether to pad the URL if necessary.  Padding
+   *                 will use "%3d", as the URL-escaped representation of the
+   *                 equal sign.
+   */
+  public static void urlEncode(final String data, final StringBuilder buffer,
+                               final boolean pad)
+  {
+    final byte[] dataBytes = StaticUtils.getBytes(data);
+    encode(BASE64_ALPHABET, dataBytes, 0, dataBytes.length, buffer,
+         (pad ? "%3d" : null));
+  }
+
+
+
+  /**
+   * Retrieves a base64url-encoded representation of the provided data to the
+   * given buffer.
+   *
+   * @param  data    The raw data to be encoded.  It must not be {@code null}.
+   * @param  buffer  The buffer to which the base64-encoded data is to be
+   *                 written.
+   * @param  pad     Indicates whether to pad the URL if necessary.  Padding
+   *                 will use "%3d", as the URL-escaped representation of the
+   *                 equal sign.
+   */
+  public static void urlEncode(final String data, final ByteStringBuffer buffer,
+                               final boolean pad)
+  {
+    final byte[] dataBytes = StaticUtils.getBytes(data);
+    encode(BASE64_ALPHABET, dataBytes, 0, dataBytes.length, buffer,
+         (pad ? "%3d" : null));
+  }
+
+
+
+  /**
+   * Retrieves a base64url-encoded representation of the provided data to the
+   * given buffer.
+   *
+   * @param  data  The raw data to be encoded.  It must not be {@code null}.
+   * @param  pad   Indicates whether to pad the URL if necessary.  Padding will
+   *               use "%3d", as the URL-escaped representation of the equal
+   *               sign.
+   *
+   * @return  A base64url-encoded representation of the provided data to the
+   *          given buffer.
+   */
+  public static String urlEncode(final byte[] data, final boolean pad)
+  {
+    final StringBuilder buffer = new StringBuilder(4*data.length/3+6);
+    encode(BASE64URL_ALPHABET, data, 0, data.length, buffer,
+         (pad ? "%3d" : null));
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a base64url-encoded representation of the provided data to the
+   * given buffer.
+   *
+   * @param  data    The raw data to be encoded.  It must not be {@code null}.
+   * @param  off     The offset in the array at which the data to encode begins.
+   * @param  length  The number of bytes to be encoded.
+   * @param  buffer  The buffer to which the base64-encoded data is to be
+   *                 written.
+   * @param  pad     Indicates whether to pad the URL if necessary.  Padding
+   *                 will use "%3d", as the URL-escaped representation of the
+   *                 equal sign.
+   */
+  public static void urlEncode(final byte[] data, final int off,
+                               final int length, final StringBuilder buffer,
+                               final boolean pad)
+  {
+    encode(BASE64URL_ALPHABET, data, off, length, buffer, (pad ? "%3d" : null));
+  }
+
+
+
+  /**
+   * Appends a base64url-encoded representation of the provided data to the
+   * given buffer.
+   *
+   * @param  data    The raw data to be encoded.  It must not be {@code null}.
+   * @param  off     The offset in the array at which the data to encode begins.
+   * @param  length  The number of bytes to be encoded.
+   * @param  buffer  The buffer to which the base64-encoded data is to be
+   *                 written.
+   * @param  pad     Indicates whether to pad the URL if necessary.  Padding
+   *                 will use "%3d", as the URL-escaped representation of the
+   *                 equal sign.
+   */
+  public static void urlEncode(final byte[] data, final int off,
+                               final int length, final ByteStringBuffer buffer,
+                               final boolean pad)
+  {
+    encode(BASE64URL_ALPHABET, data, off, length, buffer, (pad ? "%3d" : null));
+  }
+
+
+
+  /**
+   * Appends a base64-encoded representation of the provided data to the given
+   * buffer.
+   *
+   * @param  alphabet  The alphabet of base64 characters to use for the
+   *                   encoding.
+   * @param  data      The raw data to be encoded.  It must not be {@code null}.
+   * @param  off       The offset in the array at which the data to encode
+   *                   begins.
+   * @param  length    The number of bytes to be encoded.
+   * @param  buffer    The buffer to which the base64-encoded data is to be
+   *                   written.
+   * @param  padStr    The string to use for padding.  It may be {@code null} if
+   *                   no padding should be applied.
+   */
+  private static void encode(final char[] alphabet, final byte[] data,
+                             final int off, final int length,
+                             final Appendable buffer, final String padStr)
+  {
     ensureNotNull(data);
     ensureTrue(data.length >= off);
     ensureTrue(data.length >= (off+length));
@@ -248,35 +373,52 @@ public final class Base64
       return;
     }
 
-    int pos = off;
-    for (int i=0; i < (length / 3); i++)
+    try
     {
-      final int intValue = ((data[pos++] & 0xFF) << 16) |
-                           ((data[pos++] & 0xFF) << 8) |
-                           (data[pos++] & 0xFF);
+      int pos = off;
+      for (int i=0; i < (length / 3); i++)
+      {
+        final int intValue = ((data[pos++] & 0xFF) << 16) |
+             ((data[pos++] & 0xFF) << 8) |
+             (data[pos++] & 0xFF);
 
-      buffer.append(BASE64_ALPHABET[(intValue >> 18) & 0x3F]);
-      buffer.append(BASE64_ALPHABET[(intValue >> 12) & 0x3F]);
-      buffer.append(BASE64_ALPHABET[(intValue >> 6) & 0x3F]);
-      buffer.append(BASE64_ALPHABET[intValue & 0x3F]);
+        buffer.append(alphabet[(intValue >> 18) & 0x3F]);
+        buffer.append(alphabet[(intValue >> 12) & 0x3F]);
+        buffer.append(alphabet[(intValue >> 6) & 0x3F]);
+        buffer.append(alphabet[intValue & 0x3F]);
+      }
+
+      switch ((off+length) - pos)
+      {
+        case 1:
+          int intValue = (data[pos] & 0xFF) << 16;
+          buffer.append(alphabet[(intValue >> 18) & 0x3F]);
+          buffer.append(alphabet[(intValue >> 12) & 0x3F]);
+          if (padStr != null)
+          {
+            buffer.append(padStr);
+            buffer.append(padStr);
+          }
+          return;
+
+        case 2:
+          intValue = ((data[pos++] & 0xFF) << 16) | ((data[pos] & 0xFF) << 8);
+          buffer.append(alphabet[(intValue >> 18) & 0x3F]);
+          buffer.append(alphabet[(intValue >> 12) & 0x3F]);
+          buffer.append(alphabet[(intValue >> 6) & 0x3F]);
+          if (padStr != null)
+          {
+            buffer.append(padStr);
+          }
+          return;
+      }
     }
-
-    switch ((off+length) - pos)
+    catch (final IOException ioe)
     {
-      case 1:
-        int intValue = (data[pos] & 0xFF) << 16;
-        buffer.append(BASE64_ALPHABET[(intValue >> 18) & 0x3F]);
-        buffer.append(BASE64_ALPHABET[(intValue >> 12) & 0x3F]);
-        buffer.append("==");
-        return;
+      Debug.debugException(ioe);
 
-      case 2:
-        intValue = ((data[pos++] & 0xFF) << 16) | ((data[pos] & 0xFF) << 8);
-        buffer.append(BASE64_ALPHABET[(intValue >> 18) & 0x3F]);
-        buffer.append(BASE64_ALPHABET[(intValue >> 12) & 0x3F]);
-        buffer.append(BASE64_ALPHABET[(intValue >> 6) & 0x3F]);
-        buffer.append('=');
-        return;
+      // This should never happen.
+      throw new RuntimeException(ioe.getMessage(), ioe);
     }
   }
 
@@ -586,6 +728,313 @@ public final class Base64
     ensureNotNull(data);
 
     final byte[] decodedBytes = decode(data);
+    return StaticUtils.toUTF8String(decodedBytes);
+  }
+
+
+
+  /**
+   * Decodes the contents of the provided base64url-encoded string.
+   *
+   * @param  data  The base64url-encoded string to decode.  It must not be
+   *               {@code null}.
+   *
+   * @return  A byte array containing the decoded data.
+   *
+   * @throws  ParseException  If the contents of the provided string cannot be
+   *                          parsed as base64url-encoded data.
+   */
+  public static byte[] urlDecode(final String data)
+         throws ParseException
+  {
+    ensureNotNull(data);
+
+    final int length = data.length();
+    if (length == 0)
+    {
+      return new byte[0];
+    }
+
+    int stringPos = 0;
+    final ByteStringBuffer buffer = new ByteStringBuffer(length);
+decodeLoop:
+    while (stringPos < length)
+    {
+      int intValue = 0x00;
+      for (int i=0; i < 4; i++)
+      {
+        // Since the value may not be padded, then we need to handle the
+        // possibility of missing characters.
+        final char c;
+        if (stringPos >= length)
+        {
+          c = '=';
+          stringPos++;
+        }
+        else
+        {
+          c = data.charAt(stringPos++);
+        }
+
+        intValue <<= 6;
+        switch (c)
+        {
+          case 'A':
+            intValue |= 0x00;
+            break;
+          case 'B':
+            intValue |= 0x01;
+            break;
+          case 'C':
+            intValue |= 0x02;
+            break;
+          case 'D':
+            intValue |= 0x03;
+            break;
+          case 'E':
+            intValue |= 0x04;
+            break;
+          case 'F':
+            intValue |= 0x05;
+            break;
+          case 'G':
+            intValue |= 0x06;
+            break;
+          case 'H':
+            intValue |= 0x07;
+            break;
+          case 'I':
+            intValue |= 0x08;
+            break;
+          case 'J':
+            intValue |= 0x09;
+            break;
+          case 'K':
+            intValue |= 0x0A;
+            break;
+          case 'L':
+            intValue |= 0x0B;
+            break;
+          case 'M':
+            intValue |= 0x0C;
+            break;
+          case 'N':
+            intValue |= 0x0D;
+            break;
+          case 'O':
+            intValue |= 0x0E;
+            break;
+          case 'P':
+            intValue |= 0x0F;
+            break;
+          case 'Q':
+            intValue |= 0x10;
+            break;
+          case 'R':
+            intValue |= 0x11;
+            break;
+          case 'S':
+            intValue |= 0x12;
+            break;
+          case 'T':
+            intValue |= 0x13;
+            break;
+          case 'U':
+            intValue |= 0x14;
+            break;
+          case 'V':
+            intValue |= 0x15;
+            break;
+          case 'W':
+            intValue |= 0x16;
+            break;
+          case 'X':
+            intValue |= 0x17;
+            break;
+          case 'Y':
+            intValue |= 0x18;
+            break;
+          case 'Z':
+            intValue |= 0x19;
+            break;
+          case 'a':
+            intValue |= 0x1A;
+            break;
+          case 'b':
+            intValue |= 0x1B;
+            break;
+          case 'c':
+            intValue |= 0x1C;
+            break;
+          case 'd':
+            intValue |= 0x1D;
+            break;
+          case 'e':
+            intValue |= 0x1E;
+            break;
+          case 'f':
+            intValue |= 0x1F;
+            break;
+          case 'g':
+            intValue |= 0x20;
+            break;
+          case 'h':
+            intValue |= 0x21;
+            break;
+          case 'i':
+            intValue |= 0x22;
+            break;
+          case 'j':
+            intValue |= 0x23;
+            break;
+          case 'k':
+            intValue |= 0x24;
+            break;
+          case 'l':
+            intValue |= 0x25;
+            break;
+          case 'm':
+            intValue |= 0x26;
+            break;
+          case 'n':
+            intValue |= 0x27;
+            break;
+          case 'o':
+            intValue |= 0x28;
+            break;
+          case 'p':
+            intValue |= 0x29;
+            break;
+          case 'q':
+            intValue |= 0x2A;
+            break;
+          case 'r':
+            intValue |= 0x2B;
+            break;
+          case 's':
+            intValue |= 0x2C;
+            break;
+          case 't':
+            intValue |= 0x2D;
+            break;
+          case 'u':
+            intValue |= 0x2E;
+            break;
+          case 'v':
+            intValue |= 0x2F;
+            break;
+          case 'w':
+            intValue |= 0x30;
+            break;
+          case 'x':
+            intValue |= 0x31;
+            break;
+          case 'y':
+            intValue |= 0x32;
+            break;
+          case 'z':
+            intValue |= 0x33;
+            break;
+          case '0':
+            intValue |= 0x34;
+            break;
+          case '1':
+            intValue |= 0x35;
+            break;
+          case '2':
+            intValue |= 0x36;
+            break;
+          case '3':
+            intValue |= 0x37;
+            break;
+          case '4':
+            intValue |= 0x38;
+            break;
+          case '5':
+            intValue |= 0x39;
+            break;
+          case '6':
+            intValue |= 0x3A;
+            break;
+          case '7':
+            intValue |= 0x3B;
+            break;
+          case '8':
+            intValue |= 0x3C;
+            break;
+          case '9':
+            intValue |= 0x3D;
+            break;
+          case '-':
+            intValue |= 0x3E;
+            break;
+          case '_':
+            intValue |= 0x3F;
+            break;
+          case '=':
+          case '%':
+            switch ((stringPos-1) % 4)
+            {
+              case 2:
+                // The string should have two padding tokens, so only a single
+                // byte of data remains.  Shift the value ten bits to the right
+                // and read that single byte.
+                intValue >>= 10;
+                buffer.append((byte) (intValue & 0xFF));
+                break decodeLoop;
+              case 3:
+                // The string should have a single padding token, so two bytes
+                // of data remain.  Shift the value eight bits to the right and
+                // read those two bytes.
+                intValue >>= 8;
+                buffer.append((byte) ((intValue >> 8) & 0xFF));
+                buffer.append((byte) (intValue & 0xFF));
+                break decodeLoop;
+            }
+
+            // If we've gotten here, then that must mean the string had padding
+            // when none was needed, or it had an invalid length.  That's an
+            // error.
+            throw new ParseException(ERR_BASE64_URLDECODE_INVALID_LENGTH.get(),
+                 (stringPos-1));
+
+          default:
+            throw new ParseException(
+                 ERR_BASE64_DECODE_UNEXPECTED_CHAR.get(
+                      data.charAt(stringPos-1)),
+                 (stringPos-1));
+        }
+      }
+
+      buffer.append((byte) ((intValue >> 16) & 0xFF));
+      buffer.append((byte) ((intValue >> 8) & 0xFF));
+      buffer.append((byte) (intValue & 0xFF));
+    }
+
+    return buffer.toByteArray();
+  }
+
+
+
+  /**
+   * Decodes the contents of the provided base64-encoded string to a string
+   * containing the raw data using the UTF-8 encoding.
+   *
+   * @param  data  The base64-encoded string to decode.  It must not be
+   *               {@code null}.
+   *
+   * @return  A string containing the decoded data.
+   *
+   * @throws  ParseException  If the contents of the provided string cannot be
+   *                          parsed as base64-encoded data using the UTF-8
+   *                          encoding.
+   */
+  public static String urlDecodeToString(final String data)
+         throws ParseException
+  {
+    ensureNotNull(data);
+
+    final byte[] decodedBytes = urlDecode(data);
     return StaticUtils.toUTF8String(decodedBytes);
   }
 }
