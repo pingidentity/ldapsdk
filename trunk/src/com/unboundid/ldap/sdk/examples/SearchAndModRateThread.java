@@ -68,6 +68,10 @@ final class SearchAndModRateThread
   // The value that will be updated with total duration of the modifies.
   private final AtomicLong modDurations;
 
+  // The counter used to track the number of iterations remaining on the
+  // current connection.
+  private final AtomicLong remainingIterationsBeforeReconnect;
+
   // The counter used to track the number of searches performed.
   private final AtomicLong searchCounter;
 
@@ -91,6 +95,10 @@ final class SearchAndModRateThread
 
   // The connection to use for the searches.
   private LDAPConnection connection;
+
+  // The number of iterations to request on a connection before closing and
+  // re-establishing it.
+  private final long iterationsBeforeReconnect;
 
   // The random number generator to use for this thread.
   private final Random random;
@@ -125,46 +133,61 @@ final class SearchAndModRateThread
   /**
    * Creates a new search rate thread with the provided information.
    *
-   * @param  searchAndModRate  A reference to the associated tool.
-   * @param  threadNumber      The thread number for this thread.
-   * @param  connection        The connection to use for the searches.
-   * @param  baseDN            The value pattern to use for the base DNs.
-   * @param  scope             The scope to use for the searches.
-   * @param  filter            The value pattern for the filters.
-   * @param  returnAttributes  The set of attributes to return for searches.
-   * @param  modAttributes     The set of attributes to modify.
-   * @param  valueLength       The length to use for generated modify values.
-   * @param  charSet           The set of characters that may be included in
-   *                           modify values.
-   * @param  authzID           The value pattern to use to generate
-   *                           authorization identities for use with the proxied
-   *                           authorization control.  It may be {@code null} if
-   *                           proxied authorization should not be used.
-   * @param  randomSeed        The seed to use for the random number generator.
-   * @param  startBarrier      A barrier used to coordinate starting between all
-   *                           of the threads.
-   * @param  searchCounter     A value that will be used to keep track of the
-   *                           total number of searches performed.
-   * @param  modCounter        A value that will be used to keep track of the
-   *                           total number of modifications performed.
-   * @param  searchDurations   A value that will be used to keep track of the
-   *                           total duration for all searches.
-   * @param  modDurations      A value that will be used to keep track of the
-   *                           total duration for all modifications.
-   * @param  errorCounter      A value that will be used to keep track of the
-   *                           number of errors encountered while searching.
-   * @param  rcCounter         The result code counter to use for keeping track
-   *                           of the result codes for failed operations.
-   * @param  rateBarrier       The barrier to use for controlling the rate of
-   *                           searches.  {@code null} if no rate-limiting
-   *                           should be used.
+   * @param  searchAndModRate           A reference to the associated tool.
+   * @param  threadNumber               The thread number for this thread.
+   * @param  connection                 The connection to use for the searches.
+   * @param  baseDN                     The value pattern to use for the base
+   *                                    DNs.
+   * @param  scope                      The scope to use for the searches.
+   * @param  filter                     The value pattern for the filters.
+   * @param  returnAttributes           The set of attributes to return for
+   *                                    searches.
+   * @param  modAttributes              The set of attributes to modify.
+   * @param  valueLength                The length to use for generated modify
+   *                                    values.
+   * @param  charSet                    The set of characters that may be
+   *                                    included in modify values.
+   * @param  authzID                    The value pattern to use to generate
+   *                                    authorization identities for use with
+   *                                    the proxied authorization control.  It
+   *                                    may be {@code null} if proxied
+   *                                    authorization should not be used.
+   * @param  iterationsBeforeReconnect  The number of iterations that should be
+   *                                    processed on a connection before it is
+   *                                    closed and replaced with a
+   *                                    newly-established connection.
+   * @param  randomSeed                 The seed to use for the random number
+   *                                    generator.
+   * @param  startBarrier               A barrier used to coordinate starting
+   *                                    between all of the threads.
+   * @param  searchCounter              A value that will be used to keep track
+   *                                    of the total number of searches
+   *                                    performed.
+   * @param  modCounter                 A value that will be used to keep track
+   *                                    of the total number of modifications
+   *                                    performed.
+   * @param  searchDurations            A value that will be used to keep track
+   *                                    of the total duration for all searches.
+   * @param  modDurations               A value that will be used to keep track
+   *                                    of the total duration for all
+   *                                    modifications.
+   * @param  errorCounter               A value that will be used to keep track
+   *                                    of the number of errors encountered
+   *                                    while searching.
+   * @param  rcCounter                  The result code counter to use for
+   *                                    keeping track of the result codes for
+   *                                    failed operations.
+   * @param  rateBarrier                The barrier to use for controlling the
+   *                                    rate of searches.  {@code null} if no
+   *                                    rate-limiting should be used.
    */
   SearchAndModRateThread(final SearchAndModRate searchAndModRate,
        final int threadNumber, final LDAPConnection connection,
        final ValuePattern baseDN, final SearchScope scope,
        final ValuePattern filter, final String[] returnAttributes,
        final String[] modAttributes, final int valueLength,
-       final byte[] charSet, final ValuePattern authzID, final long randomSeed,
+       final byte[] charSet, final ValuePattern authzID,
+       final long iterationsBeforeReconnect, final long randomSeed,
        final CyclicBarrier startBarrier, final AtomicLong searchCounter,
        final AtomicLong modCounter, final AtomicLong searchDurations,
        final AtomicLong modDurations, final AtomicLong errorCounter,
@@ -173,22 +196,33 @@ final class SearchAndModRateThread
     setName("SearchRate Thread " + threadNumber);
     setDaemon(true);
 
-    this.searchAndModRate = searchAndModRate;
-    this.connection       = connection;
-    this.baseDN           = baseDN;
-    this.filter           = filter;
-    this.modAttributes    = modAttributes;
-    this.valueLength      = valueLength;
-    this.charSet          = charSet;
-    this.authzID          = authzID;
-    this.searchCounter    = searchCounter;
-    this.modCounter       = modCounter;
-    this.searchDurations  = searchDurations;
-    this.modDurations     = modDurations;
-    this.errorCounter     = errorCounter;
-    this.rcCounter        = rcCounter;
-    this.startBarrier     = startBarrier;
-    fixedRateBarrier      = rateBarrier;
+    this.searchAndModRate           = searchAndModRate;
+    this.connection                 = connection;
+    this.baseDN                     = baseDN;
+    this.filter                     = filter;
+    this.modAttributes              = modAttributes;
+    this.valueLength                = valueLength;
+    this.charSet                    = charSet;
+    this.authzID                    = authzID;
+    this.iterationsBeforeReconnect = iterationsBeforeReconnect;
+    this.searchCounter              = searchCounter;
+    this.modCounter                 = modCounter;
+    this.searchDurations            = searchDurations;
+    this.modDurations               = modDurations;
+    this.errorCounter               = errorCounter;
+    this.rcCounter                  = rcCounter;
+    this.startBarrier               = startBarrier;
+    fixedRateBarrier                = rateBarrier;
+
+    if (iterationsBeforeReconnect > 0L)
+    {
+      remainingIterationsBeforeReconnect =
+           new AtomicLong(iterationsBeforeReconnect);
+    }
+    else
+    {
+      remainingIterationsBeforeReconnect = null;
+    }
 
     connection.setConnectionName("search-and-mod-" + threadNumber);
 
@@ -226,6 +260,17 @@ final class SearchAndModRateThread
 
     while (! stopRequested.get())
     {
+      if ((iterationsBeforeReconnect > 0L) &&
+          (remainingIterationsBeforeReconnect.decrementAndGet() <= 0))
+      {
+        remainingIterationsBeforeReconnect.set(iterationsBeforeReconnect);
+        if (connection != null)
+        {
+          connection.close();
+          connection = null;
+        }
+      }
+
       if (connection == null)
       {
         try

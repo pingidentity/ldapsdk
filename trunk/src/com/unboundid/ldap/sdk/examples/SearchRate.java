@@ -111,6 +111,10 @@ import static com.unboundid.util.StaticUtils.*;
  *   <LI>"-I {num}" or "--numIntervals {num}" -- specifies the maximum number of
  *       intervals for which to run.  If this is not provided, then it will
  *       run forever.</LI>
+ *   <LI>"--iterationsBeforeReconnect {num}" -- specifies the number of search
+ *       iterations that should be performed on a connection before that
+ *       connection is closed and replaced with a newly-established (and
+ *       authenticated, if appropriate) connection.</LI>
  *   <LI>"-r {searches-per-second}" or "--ratePerSecond {searches-per-second}"
  *       -- specifies the target number of searches to perform per second.  It
  *       is still necessary to specify a sufficient number of threads for
@@ -165,6 +169,10 @@ public final class SearchRate
 
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
+
+  // The argument used to specify the number of search iterations on a
+  // connection before it is closed and re-established.
+  private IntegerArgument iterationsBeforeReconnect;
 
   // The argument used to specify the maximum number of outstanding asynchronous
   // requests.
@@ -374,6 +382,16 @@ public final class SearchRate
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
     parser.addArgument(numIntervals);
+
+    description = "The number of search iterations that should be processed " +
+                  "on a connection before that connection is closed and " +
+                  "replaced with a newly-established (and authenticated, if " +
+                  "appropriate) connection.  If this is not provided, then " +
+                  "connections will not be periodically closed and " +
+                  "re-established.";
+    iterationsBeforeReconnect = new IntegerArgument(null,
+         "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
+    parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of searches to perform per second.  It " +
                   "is still necessary to specify a sufficient number of " +
@@ -691,7 +709,8 @@ public final class SearchRate
 
       threads[i] = new SearchRateThread(this, i, connection,
            asynchronousMode.isPresent(), dnPattern, scopeArg.getValue(),
-           filterPattern, attrs, authzIDPattern, barrier, searchCounter,
+           filterPattern, attrs, authzIDPattern,
+           iterationsBeforeReconnect.getValue(), barrier, searchCounter,
            entryCounter, searchDurations, errorCounter, rcCounter,
            fixedRateBarrier, asyncSemaphore);
       threads[i].start();

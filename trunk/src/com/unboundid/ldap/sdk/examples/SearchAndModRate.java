@@ -125,6 +125,10 @@ import static com.unboundid.util.StaticUtils.*;
  *   <LI>"-I {num}" or "--numIntervals {num}" -- specifies the maximum number of
  *       intervals for which to run.  If this is not provided, then it will
  *       run forever.</LI>
+ *   <LI>"--iterationsBeforeReconnect {num}" -- specifies the number of search
+ *       iterations that should be performed on a connection before that
+ *       connection is closed and replaced with a newly-established (and
+ *       authenticated, if appropriate) connection.</LI>
  *   <LI>"-r {ops-per-second}" or "--ratePerSecond {ops-per-second}" --
  *       specifies the target number of operations to perform per second.  Each
  *       search and modify operation will be counted separately for this
@@ -172,6 +176,10 @@ public final class SearchAndModRate
 
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
+
+  // The argument used to specify the number of search and modify iterations on
+  // a connection before it is closed and re-established.
+  private IntegerArgument iterationsBeforeReconnect;
 
   // The argument used to specify the number of intervals.
   private IntegerArgument numIntervals;
@@ -415,6 +423,16 @@ public final class SearchAndModRate
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
     parser.addArgument(numIntervals);
+
+    description = "The number of search and modify iterations that should be " +
+                  "processed on a connection before that connection is " +
+                  "closed and replaced with a newly-established (and " +
+                  "authenticated, if appropriate) connection.  If this is " +
+                  "not provided, then connections will not be periodically " +
+                  "closed and re-established.";
+    iterationsBeforeReconnect = new IntegerArgument(null,
+         "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
+    parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of searches to perform per second.  It " +
                   "is still necessary to specify a sufficient number of " +
@@ -716,8 +734,9 @@ public final class SearchAndModRate
 
       threads[i] = new SearchAndModRateThread(this, i, connection, dnPattern,
            scopeArg.getValue(), filterPattern, returnAttrs, modAttrs,
-           valueLength.getValue(), charSet, authzIDPattern, random.nextLong(),
-           barrier, searchCounter, modCounter, searchDurations, modDurations,
+           valueLength.getValue(), charSet, authzIDPattern,
+           iterationsBeforeReconnect.getValue(), random.nextLong(), barrier,
+           searchCounter, modCounter, searchDurations, modDurations,
            errorCounter, rcCounter, fixedRateBarrier);
       threads[i].start();
     }

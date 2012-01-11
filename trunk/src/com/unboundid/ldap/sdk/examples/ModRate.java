@@ -106,6 +106,10 @@ import static com.unboundid.util.StaticUtils.*;
  *   <LI>"-I {num}" or "--numIntervals {num}" -- specifies the maximum number of
  *       intervals for which to run.  If this is not provided, then it will
  *       run forever.</LI>
+ *   <LI>"--iterationsBeforeReconnect {num}" -- specifies the number of modify
+ *       iterations that should be performed on a connection before that
+ *       connection is closed and replaced with a newly-established (and
+ *       authenticated, if appropriate) connection.</LI>
  *   <LI>"-r {modifies-per-second}" or "--ratePerSecond {modifies-per-second}"
  *       -- specifies the target number of modifies to perform per second.  It
  *       is still necessary to specify a sufficient number of threads for
@@ -149,6 +153,10 @@ public final class ModRate
 
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
+
+  // The argument used to specify the number of modify iterations on a
+  // connection before it is closed and re-established.
+  private IntegerArgument iterationsBeforeReconnect;
 
   // The argument used to specify the number of intervals.
   private IntegerArgument numIntervals;
@@ -355,6 +363,16 @@ public final class ModRate
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
     parser.addArgument(numIntervals);
+
+    description = "The number of modify iterations that should be processed " +
+                  "on a connection before that connection is closed and " +
+                  "replaced with a newly-established (and authenticated, if " +
+                  "appropriate) connection.  If this is not provided, then " +
+                  "connections will not be periodically closed and " +
+                  "re-established.";
+    iterationsBeforeReconnect = new IntegerArgument(null,
+         "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
+    parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of modifies to perform per second.  It " +
                   "is still necessary to specify a sufficient number of " +
@@ -624,8 +642,8 @@ public final class ModRate
 
       threads[i] = new ModRateThread(this, i, connection, dnPattern, attrs,
            charSet, valueLength.getValue(), authzIDPattern, random.nextLong(),
-           barrier, modCounter, modDurations, errorCounter, rcCounter,
-           fixedRateBarrier);
+           iterationsBeforeReconnect.getValue(), barrier, modCounter,
+           modDurations, errorCounter, rcCounter, fixedRateBarrier);
       threads[i].start();
     }
 
