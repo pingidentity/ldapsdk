@@ -32,7 +32,7 @@ import static com.unboundid.util.Validator.*;
 
 /**
  * This class provides methods for encoding and decoding data in base64 as
- * defined in <A HREF="http://www.ietf.org/rfc/rfc3548.txt">RFC 3548</A>.  It
+ * defined in <A HREF="http://www.ietf.org/rfc/rfc4648.txt">RFC 4648</A>.  It
  * provides a relatively compact way of representing binary data using only
  * printable characters.  It uses a six-bit encoding mechanism in which every
  * three bytes of raw data is converted to four bytes of base64-encoded data,
@@ -46,6 +46,13 @@ import static com.unboundid.util.Validator.*;
  * certificates) where it is desirable to deal with a string containing only
  * printable characters but the raw data may contain other characters outside of
  * that range.
+ * <BR><BR>
+ * This class also provides support for the URL-safe variant (called base64url)
+ * as described in RFC 4648 section 5.  This is nearly the same as base64,
+ * except that the '+' and '/' characters are replaced with '-' and '_',
+ * respectively.  The padding may be omitted if the context makes the data size
+ * clear, but if padding is to be used then the URL-encoded "%3d" will be used
+ * instead of "=".
  * <BR><BR>
  * <H2>Example</H2>
  * The following examples demonstrate the process for base64-encoding raw data,
@@ -143,6 +150,23 @@ public final class Base64
    *                 written.
    */
   public static void encode(final String data, final StringBuilder buffer)
+  {
+    ensureNotNull(data);
+
+    encode(StaticUtils.getBytes(data), buffer);
+  }
+
+
+
+  /**
+   * Appends a base64-encoded version of the contents of the provided buffer
+   * (using a UTF-8 representation) to the given buffer.
+   *
+   * @param  data    The raw data to be encoded.  It must not be {@code null}.
+   * @param  buffer  The buffer to which the base64-encoded data is to be
+   *                 written.
+   */
+  public static void encode(final String data, final ByteStringBuffer buffer)
   {
     ensureNotNull(data);
 
