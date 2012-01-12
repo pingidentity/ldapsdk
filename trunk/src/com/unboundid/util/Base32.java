@@ -359,81 +359,107 @@ public final class Base32
         switch (data.charAt(stringPos++))
         {
           case 'A':
+          case 'a':
             longValue |= 0x00L;
             break;
           case 'B':
+          case 'b':
             longValue |= 0x01L;
             break;
           case 'C':
+          case 'c':
             longValue |= 0x02L;
             break;
           case 'D':
+          case 'd':
             longValue |= 0x03L;
             break;
           case 'E':
+          case 'e':
             longValue |= 0x04L;
             break;
           case 'F':
+          case 'f':
             longValue |= 0x05L;
             break;
           case 'G':
+          case 'g':
             longValue |= 0x06L;
             break;
           case 'H':
+          case 'h':
             longValue |= 0x07L;
             break;
           case 'I':
+          case 'i':
             longValue |= 0x08L;
             break;
           case 'J':
+          case 'j':
             longValue |= 0x09L;
             break;
           case 'K':
+          case 'k':
             longValue |= 0x0AL;
             break;
           case 'L':
+          case 'l':
             longValue |= 0x0BL;
             break;
           case 'M':
+          case 'm':
             longValue |= 0x0CL;
             break;
           case 'N':
+          case 'n':
             longValue |= 0x0DL;
             break;
           case 'O':
+          case 'o':
             longValue |= 0x0EL;
             break;
           case 'P':
+          case 'p':
             longValue |= 0x0FL;
             break;
           case 'Q':
+          case 'q':
             longValue |= 0x10L;
             break;
           case 'R':
+          case 'r':
             longValue |= 0x11L;
             break;
           case 'S':
+          case 's':
             longValue |= 0x12L;
             break;
           case 'T':
+          case 't':
             longValue |= 0x13L;
             break;
           case 'U':
+          case 'u':
             longValue |= 0x14L;
             break;
           case 'V':
+          case 'v':
             longValue |= 0x15L;
             break;
           case 'W':
+          case 'w':
             longValue |= 0x16L;
             break;
           case 'X':
+          case 'x':
             longValue |= 0x17L;
             break;
           case 'Y':
+          case 'y':
             longValue |= 0x18L;
             break;
           case 'Z':
+          case 'z':
             longValue |= 0x19L;
             break;
           case '2':
