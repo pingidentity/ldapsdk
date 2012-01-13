@@ -400,4 +400,23 @@ public final class InternalSDKHelper
   {
     return request.followReferralsInternal();
   }
+
+
+
+  /**
+   * Retrieves the message ID that should be used for the next request sent
+   * over the provided connection.
+   *
+   * @param  connection  The LDAP connection for which to obtain the next
+   *                     request message ID.
+   *
+   * @return  The message ID that should be used for the next request sent over
+   *          the provided connection, or -1 if the connection is not
+   *          established.
+   */
+  @InternalUseOnly()
+  public static int nextMessageID(final LDAPConnection connection)
+  {
+    return connection.nextMessageID();
+  }
 }
