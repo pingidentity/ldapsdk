@@ -381,7 +381,14 @@ public class GenerateMessages
         w("      }");
         w("      else");
         w("      {");
-        w("        s = RESOURCE_BUNDLE.getString(name());");
+        w("        try");
+        w("        {");
+        w("          s = RESOURCE_BUNDLE.getString(name());");
+        w("        }");
+        w("        catch (final Exception e)");
+        w("        {");
+        w("          s = defaultText;");
+        w("        }");
         w("        MESSAGE_STRINGS.putIfAbsent(this, s);");
         w("      }");
         w("    }");
@@ -412,7 +419,15 @@ public class GenerateMessages
         w("      }");
         w("      else");
         w("      {");
-        w("        f = new MessageFormat(RESOURCE_BUNDLE.getString(name()));");
+        w("        try");
+        w("        {");
+        w("          f = new MessageFormat(RESOURCE_BUNDLE.getString(" +
+             "name()));");
+        w("        }");
+        w("        catch (final Exception e)");
+        w("        {");
+        w("          f = new MessageFormat(defaultText);");
+        w("        }");
         w("      }");
         w("      MESSAGES.putIfAbsent(this, f);");
         w("    }");
