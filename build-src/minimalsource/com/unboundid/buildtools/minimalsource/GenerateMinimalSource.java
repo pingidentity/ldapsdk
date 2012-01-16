@@ -266,15 +266,15 @@ public final class GenerateMinimalSource
    */
   private static final String[] MESSAGE_FILES_TO_RETAIN =
   {
-    "asn1.properties",
-    "extop.properties",
-    "ldap.properties",
-    "ldif.properties",
-    "matchingrules.properties",
-    "protocol.properties",
-    "schema.properties",
-    "ssl.properties",
-    "util.properties"
+    "unboundid-ldapsdk-asn1.properties",
+    "unboundid-ldapsdk-extop.properties",
+    "unboundid-ldapsdk-ldap.properties",
+    "unboundid-ldapsdk-ldif.properties",
+    "unboundid-ldapsdk-matchingrules.properties",
+    "unboundid-ldapsdk-protocol.properties",
+    "unboundid-ldapsdk-schema.properties",
+    "unboundid-ldapsdk-ssl.properties",
+    "unboundid-ldapsdk-util.properties"
   };
 
 
