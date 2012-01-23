@@ -562,8 +562,38 @@ public final class StaticUtils
    */
   public static void toHex(final byte[] b, final StringBuilder buffer)
   {
+    toHex(b, null, buffer);
+  }
+
+
+
+  /**
+   * Retrieves a hexadecimal representation of the contents of the provided byte
+   * array.  No delimiter character will be inserted between the hexadecimal
+   * digits for each byte.
+   *
+   * @param  b          The byte array to be represented as a hexadecimal
+   *                    string.  It must not be {@code null}.
+   * @param  delimiter  A delimiter to be inserted between bytes.  It may be
+   *                    {@code null} if no delimiter should be used.
+   * @param  buffer     A buffer to which the hexadecimal representation of the
+   *                    contents of the provided byte array should be appended.
+   */
+  public static void toHex(final byte[] b, final String delimiter,
+                           final StringBuilder buffer)
+  {
+    boolean first = true;
     for (final byte bt : b)
     {
+      if (first)
+      {
+        first = false;
+      }
+      else if (delimiter != null)
+      {
+        buffer.append(delimiter);
+      }
+
       toHex(bt, buffer);
     }
   }
