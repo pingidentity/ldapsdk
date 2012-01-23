@@ -30,11 +30,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.security.MessageDigest;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.net.ssl.X509TrustManager;
+import javax.security.auth.x500.X500Principal;
 
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -59,6 +61,49 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 public final class PromptTrustManager
        implements X509TrustManager
 {
+  /**
+   * The message digest that will be used for MD5 hashes.
+   */
+  private static final MessageDigest MD5;
+
+
+
+  /**
+   * The message digest that will be used for SHA-1 hashes.
+   */
+  private static final MessageDigest SHA1;
+
+
+
+  static
+  {
+    MessageDigest d = null;
+    try
+    {
+      d = MessageDigest.getInstance("MD5");
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new RuntimeException(e);
+    }
+    MD5 = d;
+
+    d = null;
+    try
+    {
+      d = MessageDigest.getInstance("SHA-1");
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new RuntimeException(e);
+    }
+    SHA1 = d;
+  }
+
+
+
   // Indicates whether to examine the validity dates for the certificate in
   // addition to whether the certificate has been previously trusted.
   private final boolean examineValidityDates;
@@ -246,74 +291,97 @@ public final class PromptTrustManager
   /**
    * Performs the necessary validity check for the provided certificate array.
    *
-   * @param  chain  The chain of certificates for which to make the
-   *                determination.
+   * @param  chain       The chain of certificates for which to make the
+   *                     determination.
+   * @param  serverCert  Indicates whether the certificate was presented as a
+   *                     server certificate or as a client certificate.
    *
    * @throws  CertificateException  If the provided certificate chain should not
    *                                be trusted.
    */
-  private synchronized void checkCertificateChain(final X509Certificate[] chain)
+  private synchronized void checkCertificateChain(final X509Certificate[] chain,
+                                                  final boolean serverCert)
           throws CertificateException
   {
-    // See if the certificate or any of its issuers exists in the cache.  If so,
-    // then check the validity dates if necessary and allow it.
+    // See if the certificate is currently within the validity window.
+    String validityWarning = null;
     final Date currentDate = new Date();
-    for (final X509Certificate c : chain)
+    final X509Certificate c = chain[0];
+    if (examineValidityDates)
+    {
+      if (currentDate.before(c.getNotBefore()))
+      {
+        validityWarning = WARN_PROMPT_NOT_YET_VALID.get();
+      }
+      else if (currentDate.after(c.getNotAfter()))
+      {
+        validityWarning = WARN_PROMPT_EXPIRED.get();
+      }
+    }
+
+
+    // If the certificate is within the validity window, or if we don't care
+    // about validity dates, then see if it's in the cache.
+    if ((! examineValidityDates) || (validityWarning == null))
     {
       final String certBytes = toLowerCase(toHex(c.getSignature()));
-      final Boolean acceptedWithValidity = acceptedCerts.get(certBytes);
-
-      if (acceptedWithValidity == null)
+      final Boolean accepted = acceptedCerts.get(certBytes);
+      if (accepted != null)
       {
-        continue;
-      }
-
-      if (acceptedWithValidity || (! examineValidityDates))
-      {
-        return;
-      }
-
-      if (currentDate.before(c.getNotBefore()) ||
-          currentDate.after(c.getNotAfter()))
-      {
-        // The certificate isn't valid, so we need to prompt the user.
-        break;
-      }
-      else
-      {
-        // The certificate is cached and within the validity window, so we'll
-        // accept it.
-        return;
+        if ((validityWarning == null) || (! examineValidityDates) ||
+            Boolean.TRUE.equals(accepted))
+        {
+          // The certificate was found in the cache.  It's either in the
+          // validity window, we don't care about the validity window, or has
+          // already been manually trusted outside of the validity window.
+          // We'll consider it trusted without the need to re-prompt.
+          return;
+        }
       }
     }
 
-    // If we've gotten here, then we couldn't find anything in the cache, or the
-    // certificate isn't in the validity window so we will need to prompt the
-    // user.
-    final X509Certificate c = chain[0];
 
-    out.println(INFO_PROMPT_HEADING.get());
-    out.println(INFO_PROMPT_SUBJECT.get(
-         String.valueOf(c.getSubjectX500Principal())));
-    out.println(INFO_PROMPT_ISSUER.get(
-         String.valueOf(c.getIssuerX500Principal())));
-    out.println(INFO_PROMPT_VALIDITY.get(
-         String.valueOf(c.getNotBefore()), String.valueOf(c.getNotAfter())));
-
-    boolean outsideValidityWindow = false;
-    if (currentDate.before(c.getNotBefore()))
+    // If we've gotten here, then we need to display a prompt to the user.
+    if (serverCert)
     {
-      outsideValidityWindow = true;
-      out.println();
-      out.println(WARN_PROMPT_NOT_YET_VALID.get());
-      out.println();
+      out.println(INFO_PROMPT_SERVER_HEADING.get());
     }
-    else if (currentDate.after(c.getNotAfter()))
+    else
     {
-      outsideValidityWindow = true;
+      out.println(INFO_PROMPT_CLIENT_HEADING.get());
+    }
+
+    out.println('\t' + INFO_PROMPT_SUBJECT.get(
+         c.getSubjectX500Principal().getName(X500Principal.CANONICAL)));
+    out.println("\t\t" + INFO_PROMPT_MD5_FINGERPRINT.get(
+         getFingerprint(c, MD5)));
+    out.println("\t\t" + INFO_PROMPT_SHA1_FINGERPRINT.get(
+         getFingerprint(c, SHA1)));
+
+    for (int i=1; i < chain.length; i++)
+    {
+      out.println('\t' + INFO_PROMPT_ISSUER_SUBJECT.get(i,
+           chain[i].getSubjectX500Principal().getName(
+                X500Principal.CANONICAL)));
+      out.println("\t\t" + INFO_PROMPT_MD5_FINGERPRINT.get(
+           getFingerprint(chain[i], MD5)));
+      out.println("\t\t" + INFO_PROMPT_SHA1_FINGERPRINT.get(
+           getFingerprint(chain[i], SHA1)));
+    }
+
+    out.println(INFO_PROMPT_VALIDITY.get(String.valueOf(c.getNotBefore()),
+         String.valueOf(c.getNotAfter())));
+
+    if (chain.length == 1)
+    {
       out.println();
-      out.println(WARN_PROMPT_EXPIRED.get());
+      out.println(WARN_PROMPT_SELF_SIGNED.get());
+    }
+
+    if (validityWarning != null)
+    {
       out.println();
+      out.println(validityWarning);
     }
 
     final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -348,7 +416,7 @@ public final class PromptTrustManager
     }
 
     final String certBytes = toLowerCase(toHex(c.getSignature()));
-    acceptedCerts.put(certBytes, outsideValidityWindow);
+    acceptedCerts.put(certBytes, (validityWarning != null));
 
     if (acceptedCertsFile != null)
     {
@@ -361,6 +429,37 @@ public final class PromptTrustManager
         debugException(e);
       }
     }
+  }
+
+
+
+  /**
+   * Computes the fingerprint for the provided certificate using the given
+   * digest.
+   *
+   * @param  c  The certificate for which to obtain the fingerprint.
+   * @param  d  The message digest to use when creating the fingerprint.
+   *
+   * @return  The generated certificate fingerprint.
+   *
+   * @throws  CertificateException  If a problem is encountered while generating
+   *                                the certificate fingerprint.
+   */
+  private static String getFingerprint(final X509Certificate c,
+                                       final MessageDigest d)
+          throws CertificateException
+  {
+    final byte[] encodedCertBytes = c.getEncoded();
+
+    final byte[] digestBytes;
+    synchronized (d)
+    {
+      digestBytes = d.digest(encodedCertBytes);
+    }
+
+    final StringBuilder buffer = new StringBuilder(3 * encodedCertBytes.length);
+    toHex(digestBytes, ":", buffer);
+    return buffer.toString();
   }
 
 
@@ -397,7 +496,7 @@ public final class PromptTrustManager
                                  final String authType)
          throws CertificateException
   {
-    checkCertificateChain(chain);
+    checkCertificateChain(chain, false);
   }
 
 
@@ -417,7 +516,7 @@ public final class PromptTrustManager
                                  final String authType)
          throws CertificateException
   {
-    checkCertificateChain(chain);
+    checkCertificateChain(chain, true);
   }
 
 
