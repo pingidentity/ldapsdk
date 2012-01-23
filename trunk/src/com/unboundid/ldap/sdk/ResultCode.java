@@ -36,8 +36,8 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
 /**
  * This class defines a number of constants associated with LDAP result codes.
  * The {@code ResultCode} constant values defined in this class are immutable,
- * at most one result code object will ever be created for a given int value,
- * so it is acceptable to compare result codes with either the
+ * and at most one result code object will ever be created for a given int
+ * value, so it is acceptable to compare result codes with either the
  * {@link ResultCode#equals} method or the "{@code ==}" operator.
  *<BR><BR>
  * The result codes that are currently defined include:
@@ -1570,6 +1570,32 @@ public final class ResultCode
    */
   public static ResultCode valueOf(final int intValue)
   {
+    return valueOf(intValue, null);
+  }
+
+
+
+  /**
+   * Retrieves the result code with the specified integer value.  If the
+   * provided integer value does not correspond to a predefined
+   * {@code ResultCode} object, then a new {@code ResultCode} object will be
+   * created and returned.  Any new result codes created will also be cached
+   * and returned for any subsequent requests with that integer value so the
+   * same object will always be returned for a given integer value.
+   *
+   * @param  intValue  The integer value for which to retrieve the corresponding
+   *                   result code.
+   * @param  name      The user-friendly name to use for the result code if no
+   *                   result code has been previously accessed with the same
+   *                   integer value.  It may be {@code null} if this is not
+   *                   known or a string representation of the integer value
+   *                   should be used.
+   *
+   * @return  The result code with the specified integer value, or a new result
+   *          code
+   */
+  public static ResultCode valueOf(final int intValue, final String name)
+  {
     switch (intValue)
     {
       case SUCCESS_INT_VALUE:
@@ -1715,7 +1741,15 @@ public final class ResultCode
       ResultCode rc = UNDEFINED_RESULT_CODES.get(intValue);
       if (rc == null)
       {
-        rc = new ResultCode(intValue);
+        if (name == null)
+        {
+          rc = new ResultCode(intValue);
+        }
+        else
+        {
+          rc = new ResultCode(name, intValue);
+        }
+
         UNDEFINED_RESULT_CODES.put(intValue, rc);
       }
 
@@ -1726,7 +1760,8 @@ public final class ResultCode
 
 
   /**
-   * Retrieves an array of all result codes defined in the LDAP SDK.
+   * Retrieves an array of all result codes defined in the LDAP SDK.  This will
+   * not include dynamically-generated values.
    *
    * @return  An array of all result codes defined in the LDAP SDK.
    */
