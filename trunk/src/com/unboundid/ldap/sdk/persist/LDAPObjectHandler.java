@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Collections;
@@ -1604,6 +1605,44 @@ public final class LDAPObjectHandler<T>
     else
     {
       originalEntry = null;
+    }
+
+    // If we have an original copy of the entry, then we can try encoding the
+    // updated object to
+    if (originalEntry != null)
+    {
+      try
+      {
+        final T decodedOrig = decode(originalEntry);
+        final Entry reEncodedOriginal =
+             encode(decodedOrig, originalEntry.getParentDNString());
+
+        final Entry newEntry = encode(o, originalEntry.getParentDNString());
+        final List<Modification> mods = Entry.diff(reEncodedOriginal, newEntry,
+             true, false, attributes);
+        if (! deleteNullValues)
+        {
+          final Iterator<Modification> iterator = mods.iterator();
+          while (iterator.hasNext())
+          {
+            final Modification m = iterator.next();
+            if (m.getRawValues().length == 0)
+            {
+              iterator.remove();
+            }
+          }
+        }
+
+        return mods;
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
+      finally
+      {
+        setDNAndEntryFields(o, originalEntry);
+      }
     }
 
     final HashSet<String> attrSet;
