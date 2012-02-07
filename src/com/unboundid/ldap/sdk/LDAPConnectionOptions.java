@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -118,6 +119,17 @@ import static com.unboundid.util.Validator.*;
  *       be transmitted over the network.  By default, the send buffer size will
  *       be automatically determined by the JVM based on the underlying system
  *       settings.</LI>
+ *  <LI>A flag which indicates whether to allow a single socket factory instance
+ *      (which may be shared across multiple connections) to be used to create
+ *      multiple concurrent connections.  This offers better and more
+ *      predictable performance on some JVM implementations (especially when
+ *      connection attempts fail as a result of a connection timeout), but some
+ *      JVMs are known to use non-threadsafe socket factory implementations and
+ *      may fail from concurrent use (for example, at least some IBM JVMs
+ *      exhibit this behavior).  By default, Sun/Oracle JVMs will allow
+ *      concurrent socket factory use, but JVMs from other vendors will use
+ *      synchronization to ensure that a socket factory will only be allowed to
+ *      create one connection at a time.</LI>
  * </UL>
  */
 @Mutable()
@@ -269,6 +281,23 @@ public final class LDAPConnectionOptions
 
 
 
+  /**
+   * The default value for the setting that controls the default behavior with
+   * regard to whether to allow concurrent use of a socket factory to create
+   * client connections.
+   */
+  static final boolean DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE;
+  static
+  {
+    final String vmVendor =
+         StaticUtils.toLowerCase(System.getProperty("java.vm.vendor"));
+    DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE = ((vmVendor != null) &&
+         (vmVendor.contains("sun microsystems") ||
+          vmVendor.contains("oracle")));
+  }
+
+
+
   // Indicates whether to send an abandon request for any operation for which no
   // response is received in the maximum response timeout.
   private boolean abandonOnTimeout;
@@ -286,6 +315,10 @@ public final class LDAPConnectionOptions
 
   // Indicates whether to attempt to follow any referrals that are encountered.
   private boolean followReferrals;
+
+  // Indicates whether to use synchronization prevent concurrent use of the
+  // socket factory instance associated with a connection or set of connections.
+  private boolean allowConcurrentSocketFactoryUse;
 
   // Indicates whether to use SO_KEEPALIVE for the underlying sockets.
   private boolean useKeepAlive;
@@ -367,6 +400,9 @@ public final class LDAPConnectionOptions
     disconnectHandler              = null;
     referralConnector              = null;
     unsolicitedNotificationHandler = null;
+
+    allowConcurrentSocketFactoryUse =
+         DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE;
   }
 
 
@@ -382,27 +418,28 @@ public final class LDAPConnectionOptions
   {
     final LDAPConnectionOptions o = new LDAPConnectionOptions();
 
-    o.abandonOnTimeout               = abandonOnTimeout;
-    o.autoReconnect                  = autoReconnect;
-    o.bindWithDNRequiresPassword     = bindWithDNRequiresPassword;
-    o.captureConnectStackTrace       = captureConnectStackTrace;
-    o.followReferrals                = followReferrals;
-    o.useKeepAlive                   = useKeepAlive;
-    o.useLinger                      = useLinger;
-    o.useReuseAddress                = useReuseAddress;
-    o.useSchema                      = useSchema;
-    o.useSynchronousMode             = useSynchronousMode;
-    o.useTCPNoDelay                  = useTCPNoDelay;
-    o.connectTimeout                 = connectTimeout;
-    o.lingerTimeout                  = lingerTimeout;
-    o.maxMessageSize                 = maxMessageSize;
-    o.responseTimeout                = responseTimeout;
-    o.referralConnector              = referralConnector;
-    o.referralHopLimit               = referralHopLimit;
-    o.disconnectHandler              = disconnectHandler;
-    o.unsolicitedNotificationHandler = unsolicitedNotificationHandler;
-    o.receiveBufferSize              = receiveBufferSize;
-    o.sendBufferSize                 = sendBufferSize;
+    o.abandonOnTimeout                = abandonOnTimeout;
+    o.allowConcurrentSocketFactoryUse = allowConcurrentSocketFactoryUse;
+    o.autoReconnect                   = autoReconnect;
+    o.bindWithDNRequiresPassword      = bindWithDNRequiresPassword;
+    o.captureConnectStackTrace        = captureConnectStackTrace;
+    o.followReferrals                 = followReferrals;
+    o.useKeepAlive                    = useKeepAlive;
+    o.useLinger                       = useLinger;
+    o.useReuseAddress                 = useReuseAddress;
+    o.useSchema                       = useSchema;
+    o.useSynchronousMode              = useSynchronousMode;
+    o.useTCPNoDelay                   = useTCPNoDelay;
+    o.connectTimeout                  = connectTimeout;
+    o.lingerTimeout                   = lingerTimeout;
+    o.maxMessageSize                  = maxMessageSize;
+    o.responseTimeout                 = responseTimeout;
+    o.referralConnector               = referralConnector;
+    o.referralHopLimit                = referralHopLimit;
+    o.disconnectHandler               = disconnectHandler;
+    o.unsolicitedNotificationHandler  = unsolicitedNotificationHandler;
+    o.receiveBufferSize               = receiveBufferSize;
+    o.sendBufferSize                  = sendBufferSize;
 
     return o;
   }
@@ -1101,6 +1138,55 @@ public final class LDAPConnectionOptions
 
 
   /**
+   * Indicates whether to allow a socket factory instance (which may be shared
+   * across multiple connections) to be used create multiple sockets
+   * concurrently.  In general, socket factory implementations are threadsafe
+   * and can be to create multiple connections simultaneously across separate
+   * threads, but this is known to not be the case in some VM implementations
+   * (e.g., SSL socket factories in IBM JVMs).  This setting may be used to
+   * indicate whether concurrent socket creation attempts should be allowed
+   * (which may allow for better and more consistent performance, especially in
+   * cases where a connection attempt fails due to a timeout) or prevented
+   * (which may be necessary for non-threadsafe socket factory implementations).
+   *
+   * @return  {@code true} if multiple threads should be able to concurrently
+   *          use the same socket factory instance, or {@code false} if Java
+   *          synchronization should be used to ensure that no more than one
+   *          thread is allowed to use a socket factory at any given time.
+   */
+  public boolean allowConcurrentSocketFactoryUse()
+  {
+    return allowConcurrentSocketFactoryUse;
+  }
+
+
+
+  /**
+   * Specifies whether to allow a socket factory instance (which may be shared
+   * across multiple connections) to be used create multiple sockets
+   * concurrently.  In general, socket factory implementations are threadsafe
+   * and can be to create multiple connections simultaneously across separate
+   * threads, but this is known to not be the case in some VM implementations
+   * (e.g., SSL socket factories in IBM JVMs).  This setting may be used to
+   * indicate whether concurrent socket creation attempts should be allowed
+   * (which may allow for better and more consistent performance, especially in
+   * cases where a connection attempt fails due to a timeout) or prevented
+   * (which may be necessary for non-threadsafe socket factory implementations).
+   *
+   * @param  allowConcurrentSocketFactoryUse  Indicates whether to allow a
+   *                                          socket factory instance to be used
+   *                                          to create multiple sockets
+   *                                          concurrently.
+   */
+  public void setAllowConcurrentSocketFactoryUse(
+                   final boolean allowConcurrentSocketFactoryUse)
+  {
+    this.allowConcurrentSocketFactoryUse = allowConcurrentSocketFactoryUse;
+  }
+
+
+
+  /**
    * Retrieves a string representation of this LDAP connection.
    *
    * @return  A string representation of this LDAP connection.
@@ -1174,6 +1260,8 @@ public final class LDAPConnectionOptions
     buffer.append(receiveBufferSize);
     buffer.append(", sendBufferSize=");
     buffer.append(sendBufferSize);
+    buffer.append(", allowConcurrentSocketFactoryUse=");
+    buffer.append(allowConcurrentSocketFactoryUse);
     if (disconnectHandler != null)
     {
       buffer.append(", disconnectHandlerClass=");

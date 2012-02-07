@@ -236,6 +236,7 @@ public final class GenerateMinimalSource
     "com.unboundid.util.LDAPSDKThreadFactory",
     "com.unboundid.util.LDAPSDKUsageException",
     "com.unboundid.util.ObjectPair",
+    "com.unboundid.util.SynchronizedSocketFactory",
     "com.unboundid.util.StaticUtils",
     "com.unboundid.util.Validator",
     "com.unboundid.util.WakeableSleeper",
