@@ -88,6 +88,7 @@ final class ConnectThread
                 final int port)
   {
     super("Background connect thread for " + address + ':' + port);
+    setDaemon(true);
 
     this.socketFactory = socketFactory;
     this.address       = address;
@@ -113,10 +114,7 @@ final class ConnectThread
 
     try
     {
-      synchronized (socketFactory)
-      {
-        socket.set(socketFactory.createSocket(address, port));
-      }
+      socket.set(socketFactory.createSocket(address, port));
       connected.set(true);
     }
     catch (final Throwable t)
@@ -174,13 +172,25 @@ final class ConnectThread
 
     try
     {
+      if (t != null)
+      {
+        t.interrupt();
+      }
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+    }
+
+    try
+    {
       final Socket s = socket.get();
       if (s != null)
       {
         s.close();
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }

@@ -38,6 +38,7 @@ import com.unboundid.ldap.protocol.UnbindRequestProtocolOp;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.DebugType;
+import com.unboundid.util.SynchronizedSocketFactory;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.WeakHashSet;
@@ -351,15 +352,6 @@ public final class LDAPConnection
   {
     connectionID = NEXT_CONNECTION_ID.getAndIncrement();
 
-    if (socketFactory == null)
-    {
-      this.socketFactory = DEFAULT_SOCKET_FACTORY;
-    }
-    else
-    {
-      this.socketFactory = socketFactory;
-    }
-
     if (connectionOptions == null)
     {
       this.connectionOptions = new LDAPConnectionOptions();
@@ -367,6 +359,25 @@ public final class LDAPConnection
     else
     {
       this.connectionOptions = connectionOptions.duplicate();
+    }
+
+    final SocketFactory f;
+    if (socketFactory == null)
+    {
+      f = DEFAULT_SOCKET_FACTORY;
+    }
+    else
+    {
+      f = socketFactory;
+    }
+
+    if (this.connectionOptions.allowConcurrentSocketFactoryUse())
+    {
+      this.socketFactory = f;
+    }
+    else
+    {
+      this.socketFactory = new SynchronizedSocketFactory(f);
     }
 
     connectionStatistics = new LDAPConnectionStatistics();
