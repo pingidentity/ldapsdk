@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.protocol.AbandonRequestProtocolOp;
@@ -39,6 +40,7 @@ import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.SynchronizedSocketFactory;
+import com.unboundid.util.SynchronizedSSLSocketFactory;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.WeakHashSet;
@@ -377,7 +379,15 @@ public final class LDAPConnection
     }
     else
     {
-      this.socketFactory = new SynchronizedSocketFactory(f);
+      if (f instanceof SSLSocketFactory)
+      {
+        this.socketFactory =
+             new SynchronizedSSLSocketFactory((SSLSocketFactory) f);
+      }
+      else
+      {
+        this.socketFactory = new SynchronizedSocketFactory(f);
+      }
     }
 
     connectionStatistics = new LDAPConnectionStatistics();
