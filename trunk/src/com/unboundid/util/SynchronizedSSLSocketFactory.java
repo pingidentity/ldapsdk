@@ -25,7 +25,7 @@ package com.unboundid.util;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 
 
@@ -37,11 +37,11 @@ import javax.net.SocketFactory;
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class SynchronizedSocketFactory
-       extends SocketFactory
+public final class SynchronizedSSLSocketFactory
+       extends SSLSocketFactory
 {
-  // The wrapped socket factory.
-  private final SocketFactory factory;
+  // The wrapped SSL socket factory.
+  private final SSLSocketFactory factory;
 
 
 
@@ -51,7 +51,7 @@ public final class SynchronizedSocketFactory
    *
    * @param  factory  The socket factory to be wrapped.
    */
-  public SynchronizedSocketFactory(final SocketFactory factory)
+  public SynchronizedSSLSocketFactory(final SSLSocketFactory factory)
   {
     this.factory = factory;
   }
@@ -59,13 +59,13 @@ public final class SynchronizedSocketFactory
 
 
   /**
-   * Retrieves the {@code SocketFactory} instance wrapped by this synchronized
-   * socket factory.
+   * Retrieves the {@code SSLSocketFactory} instance wrapped by this
+   * synchronized SSL socket factory.
    *
-   * @return  The {@code SocketFactory} instance wrapped by this synchronized
-   *          socket factory.
+   * @return  The {@code SSLSocketFactory} instance wrapped by this synchronized
+   *          SSL socket factory.
    */
-  public SocketFactory getWrappedSocketFactory()
+  public SSLSocketFactory getWrappedSocketFactory()
   {
     return factory;
   }
@@ -73,12 +73,12 @@ public final class SynchronizedSocketFactory
 
 
   /**
-   * Creates a new socket to the specified server.
+   * Creates a new SSL socket to the specified server.
    *
    * @param  host  The host to which the connection should be established.
    * @param  port  The port to which the connection should be established.
    *
-   * @return  The socket that was created.
+   * @return  The SSL socket that was created.
    *
    * @throws  IOException  If a problem occurs while creating the socket.
    */
@@ -95,7 +95,7 @@ public final class SynchronizedSocketFactory
 
 
   /**
-   * Creates a new socket to the specified server.
+   * Creates a new SSL socket to the specified server.
    *
    * @param  host          The host to which the connection should be
    *                       established.
@@ -106,7 +106,7 @@ public final class SynchronizedSocketFactory
    * @param  localPort     The local port to use for the connection.  This will
    *                       be ignored.
    *
-   * @return  The socket that was created.
+   * @return  The SSL socket that was created.
    *
    * @throws  IOException  If a problem occurs while creating the socket.
    */
@@ -125,12 +125,12 @@ public final class SynchronizedSocketFactory
 
 
   /**
-   * Creates a new socket to the specified server.
+   * Creates a new SSL socket to the specified server.
    *
    * @param  address  The address to which the connection should be established.
    * @param  port     The port to which the connection should be established.
    *
-   * @return  The socket that was created.
+   * @return  The SSL socket that was created.
    *
    * @throws  IOException  If a problem occurs while creating the socket.
    */
@@ -147,7 +147,7 @@ public final class SynchronizedSocketFactory
 
 
   /**
-   * Creates a new socket to the specified server.
+   * Creates a new SSL socket to the specified server.
    *
    * @param  address       The address to which the connection should be
    *                       established.
@@ -158,7 +158,7 @@ public final class SynchronizedSocketFactory
    * @param  localPort     The local port to use for the connection.  This will
    *                       be ignored.
    *
-   * @return  The socket that was created.
+   * @return  The SSL socket that was created.
    *
    * @throws  IOException  If a problem occurs while creating the socket.
    */
@@ -171,6 +171,65 @@ public final class SynchronizedSocketFactory
     synchronized (factory)
     {
       return factory.createSocket(address, port, localAddress, localPort);
+    }
+  }
+
+
+
+  /**
+   * Creates a new SSL socket that wraps the provided socket.
+   *
+   * @param  s          The existing socket to be wrapped to create an SSL
+   *                    socket.
+   * @param  host       The host to which the connection is established.
+   * @param  port       The port to which the connection is established.
+   * @param  autoClose  Indicates whether the provided socket should be closed
+   *                    when the created SSL socket is closed.
+   *
+   * @return  The SSL socket that was created.
+   *
+   * @throws  IOException  If a problem occurs while creating the socket.
+   */
+  @Override()
+  public Socket createSocket(final Socket s, final String host, final int port,
+                             final boolean autoClose)
+         throws IOException
+  {
+    synchronized (factory)
+    {
+      return factory.createSocket(s, host, port, autoClose);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the set of cipher suites which are enabled by default.
+   *
+   * @return  The set of cipher suites which are enabled by default.
+   */
+  @Override()
+  public String[] getDefaultCipherSuites()
+  {
+    synchronized (factory)
+    {
+      return factory.getDefaultCipherSuites();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the entire set of cipher suites that could be used.
+   *
+   * @return  The entire set of cipher suites that could be used.
+   */
+  @Override()
+  public String[] getSupportedCipherSuites()
+  {
+    synchronized (factory)
+    {
+      return factory.getSupportedCipherSuites();
     }
   }
 }
