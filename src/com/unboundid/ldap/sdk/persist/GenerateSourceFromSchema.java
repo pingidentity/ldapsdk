@@ -1835,7 +1835,7 @@ public final class GenerateSourceFromSchema
     writer.println("  /**");
     writer.println("   * Appends a string representation of this");
     writer.println("   * {@code " + className + "} object");
-    writer.println("     to the provided buffer.");
+    writer.println("   * to the provided buffer.");
     writer.println("   *");
     writer.println("   * @param  buffer  The buffer to which the string " +
          "representation should be");
