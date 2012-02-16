@@ -222,6 +222,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldif.LDIFRecord",
     "com.unboundid.ldif.LDIFWriter",
     "com.unboundid.ldif.package-info",
+    "com.unboundid.ldif.TrailingSpaceBehavior",
 
     "com.unboundid.util.AggregateInputStream",
     "com.unboundid.util.Base64",
