@@ -156,11 +156,12 @@ public final class LDIFReader
   // which normally implies EOF.
   private static final Entry SKIP_ENTRY = new Entry("cn=skipped");
 
-  // Indicates whether to ignore duplicate values.
-  private boolean ignoreDuplicateValues = true;
-
   // The buffered reader that will be used to read LDIF data.
   private final BufferedReader reader;
+
+  // The behavior that should be exhibited when encountering duplicate attribute
+  // values.
+  private volatile DuplicateValueBehavior duplicateValueBehavior;
 
   // A line number counter.
   private long lineNumberCounter = 0;
@@ -169,6 +170,10 @@ public final class LDIFReader
 
   // The schema that will be used when processing, if applicable.
   private Schema schema;
+
+  // The behavior that should be exhibited with regard to illegal trailing
+  // spaces in attribute values.
+  private volatile TrailingSpaceBehavior trailingSpaceBehavior;
 
   // True iff we are processing asynchronously.
   private final boolean isAsync;
@@ -187,10 +192,6 @@ public final class LDIFReader
   // The records that have been read and parsed.
   private final BlockingQueue<Result<UnparsedLDIFRecord, LDIFRecord>>
        asyncParsedRecords;
-
-  // The behavior that should be exhibited with regard to illegal trailing
-  // spaces in attribute values.
-  private volatile TrailingSpaceBehavior trailingSpaceBehavior;
 
 
 
@@ -511,7 +512,8 @@ public final class LDIFReader
     this.reader = reader;
     this.entryTranslator = entryTranslator;
 
-    trailingSpaceBehavior = TrailingSpaceBehavior.REJECT;
+    duplicateValueBehavior = DuplicateValueBehavior.IGNORE;
+    trailingSpaceBehavior  = TrailingSpaceBehavior.REJECT;
 
     if (numParseThreads == 0)
     {
@@ -700,10 +702,13 @@ public final class LDIFReader
    * @return  {@code true} if duplicate values should be ignored, or
    *          {@code false} if any LDIF records containing duplicate values
    *          should be rejected.
+   *
+   * @deprecated  Use the {@link #getDuplicateValueBehavior} method instead.
    */
+  @Deprecated()
   public boolean ignoreDuplicateValues()
   {
-    return ignoreDuplicateValues;
+    return (duplicateValueBehavior == DuplicateValueBehavior.IGNORE);
   }
 
 
@@ -715,10 +720,50 @@ public final class LDIFReader
    * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
    *                                attribute values encountered while reading
    *                                LDIF records.
+   *
+   * @deprecated  Use the {@link #setDuplicateValueBehavior} method instead.
    */
+  @Deprecated()
   public void setIgnoreDuplicateValues(final boolean ignoreDuplicateValues)
   {
-    this.ignoreDuplicateValues = ignoreDuplicateValues;
+    if (ignoreDuplicateValues)
+    {
+      duplicateValueBehavior = DuplicateValueBehavior.IGNORE;
+    }
+    else
+    {
+      duplicateValueBehavior = DuplicateValueBehavior.REJECT;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the behavior that should be exhibited if the LDIF reader
+   * encounters an entry with duplicate values.
+   *
+   * @return  The behavior that should be exhibited if the LDIF reader
+   *          encounters an entry with duplicate values.
+   */
+  public DuplicateValueBehavior getDuplicateValueBehavior()
+  {
+    return duplicateValueBehavior;
+  }
+
+
+
+  /**
+   * Specifies the behavior that should be exhibited if the LDIF reader
+   * encounters an entry with duplicate values.
+   *
+   * @param  duplicateValueBehavior  The behavior that should be exhibited if
+   *                                 the LDIF reader encounters an entry with
+   *                                 duplicate values.
+   */
+  public void setDuplicateValueBehavior(
+                   final DuplicateValueBehavior duplicateValueBehavior)
+  {
+    this.duplicateValueBehavior = duplicateValueBehavior;
   }
 
 
@@ -1365,7 +1410,7 @@ public final class LDIFReader
         if (lineList.isEmpty())
         {
           return new UnparsedLDIFRecord(new ArrayList<StringBuilder>(0),
-               ignoreDuplicateValues, trailingSpaceBehavior, schema, -1);
+               duplicateValueBehavior, trailingSpaceBehavior, schema, -1);
         }
         else
         {
@@ -1425,7 +1470,7 @@ public final class LDIFReader
       }
     }
 
-    return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues,
+    return new UnparsedLDIFRecord(lineList, duplicateValueBehavior,
          trailingSpaceBehavior, schema, firstLineNumber);
   }
 
@@ -1448,7 +1493,7 @@ public final class LDIFReader
   public static Entry decodeEntry(final String... ldifLines)
          throws LDIFException
   {
-    final Entry e = decodeEntry(prepareRecord(true,
+    final Entry e = decodeEntry(prepareRecord(DuplicateValueBehavior.IGNORE,
          TrailingSpaceBehavior.REJECT, null, ldifLines));
     debugLDIFRead(e);
     return e;
@@ -1480,7 +1525,10 @@ public final class LDIFReader
                                   final String... ldifLines)
          throws LDIFException
   {
-    final Entry e = decodeEntry(prepareRecord(ignoreDuplicateValues,
+    final Entry e = decodeEntry(prepareRecord(
+         (ignoreDuplicateValues
+              ? DuplicateValueBehavior.IGNORE
+              : DuplicateValueBehavior.REJECT),
          TrailingSpaceBehavior.REJECT, schema, ldifLines));
     debugLDIFRead(e);
     return e;
@@ -1538,8 +1586,8 @@ public final class LDIFReader
   {
     final LDIFChangeRecord r =
          decodeChangeRecord(
-              prepareRecord(true, TrailingSpaceBehavior.REJECT, null,
-                   ldifLines),
+              prepareRecord(DuplicateValueBehavior.IGNORE,
+                   TrailingSpaceBehavior.REJECT, null, ldifLines),
               defaultAdd);
     debugLDIFRead(r);
     return r;
@@ -1582,9 +1630,11 @@ public final class LDIFReader
          throws LDIFException
   {
     final LDIFChangeRecord r =
-         decodeChangeRecord(
-              prepareRecord(ignoreDuplicateValues, TrailingSpaceBehavior.REJECT,
-                   schema, ldifLines), defaultAdd);
+         decodeChangeRecord(prepareRecord(
+              (ignoreDuplicateValues
+                   ? DuplicateValueBehavior.IGNORE
+                   : DuplicateValueBehavior.REJECT),
+              TrailingSpaceBehavior.REJECT, schema, ldifLines), defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1596,16 +1646,17 @@ public final class LDIFReader
    * objects suitable for decoding into an entry or LDIF change record.
    * Comments will be ignored and wrapped lines will be unwrapped.
    *
-   * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
-   *                                attribute values encountered while parsing.
-   * @param  trailingSpaceBehavior  The behavior that should be exhibited when
-   *                                encountering attribute values which are not
-   *                                base64-encoded but contain trailing spaces.
-   * @param  schema                 The schema to use when parsing the record,
-   *                                if applicable.
-   * @param  ldifLines              The set of lines that comprise the record to
-   *                                decode.  It must not be {@code null} or
-   *                                empty.
+   * @param  duplicateValueBehavior  The behavior that should be exhibited if
+   *                                 the LDIF reader encounters an entry with
+   *                                 duplicate values.
+   * @param  trailingSpaceBehavior   The behavior that should be exhibited when
+   *                                 encountering attribute values which are not
+   *                                 base64-encoded but contain trailing spaces.
+   * @param  schema                  The schema to use when parsing the record,
+   *                                 if applicable.
+   * @param  ldifLines               The set of lines that comprise the record
+   *                                 to decode.  It must not be {@code null} or
+   *                                 empty.
    *
    * @return  The prepared list of {@code StringBuilder} objects ready to be
    *          decoded.
@@ -1614,7 +1665,7 @@ public final class LDIFReader
    *                         content.
    */
   private static UnparsedLDIFRecord prepareRecord(
-                      final boolean ignoreDuplicateValues,
+                      final DuplicateValueBehavior duplicateValueBehavior,
                       final TrailingSpaceBehavior trailingSpaceBehavior,
                       final Schema schema, final String... ldifLines)
           throws LDIFException
@@ -1651,7 +1702,7 @@ public final class LDIFReader
           }
           else
           {
-            return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues,
+            return new UnparsedLDIFRecord(lineList, duplicateValueBehavior,
                  trailingSpaceBehavior, schema, 0);
           }
         }
@@ -1690,7 +1741,7 @@ public final class LDIFReader
     }
     else
     {
-      return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues,
+      return new UnparsedLDIFRecord(lineList, duplicateValueBehavior,
            trailingSpaceBehavior, schema, 0);
     }
   }
@@ -1862,10 +1913,11 @@ public final class LDIFReader
       return new Entry(dn, unparsedRecord.getSchema());
     }
 
-    return new Entry(dn, unparsedRecord.getSchema(), parseAttributes(dn,
-         unparsedRecord.ignoreDuplicateValues(),
-         unparsedRecord.getTrailingSpaceBehavior(), unparsedRecord.getSchema(),
-         ldifLines, iterator, firstLineNumber));
+    return new Entry(dn, unparsedRecord.getSchema(),
+         parseAttributes(dn, unparsedRecord.getDuplicateValueBehavior(),
+              unparsedRecord.getTrailingSpaceBehavior(),
+              unparsedRecord.getSchema(), ldifLines, iterator,
+              firstLineNumber));
   }
 
 
@@ -2062,7 +2114,7 @@ public final class LDIFReader
       if (iterator.hasNext())
       {
         final Collection<Attribute> attrs =
-             parseAttributes(dn, unparsedRecord.ignoreDuplicateValues(),
+             parseAttributes(dn, unparsedRecord.getDuplicateValueBehavior(),
                   unparsedRecord.getTrailingSpaceBehavior(),
                   unparsedRecord.getSchema(), ldifLines, iterator,
                   firstLineNumber);
@@ -2144,21 +2196,23 @@ public final class LDIFReader
    * Parses the data available through the provided iterator as a collection of
    * attributes suitable for use in an entry or an add change record.
    *
-   * @param  dn                     The DN of the record being read.
-   * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
-   *                                attribute values encountered while parsing.
-   * @param  trailingSpaceBehavior  The behavior that should be exhibited when
-   *                                encountering attribute values which are not
-   *                                base64-encoded but contain trailing spaces.
-   * @param  schema                 The schema to use when parsing the
-   *                                attributes, or {@code null} if none is
-   *                                needed.
-   * @param  ldifLines              The lines that comprise the LDIF
-   *                                representation of the full record being
-   *                                parsed.
-   * @param  iterator               The iterator to use to access the attribute
-   *                                lines.
-   * @param  firstLineNumber        The line number for the start of the record.
+   * @param  dn                      The DN of the record being read.
+   * @param  duplicateValueBehavior  The behavior that should be exhibited if
+   *                                 the LDIF reader encounters an entry with
+   *                                 duplicate values.
+   * @param  trailingSpaceBehavior   The behavior that should be exhibited when
+   *                                 encountering attribute values which are not
+   *                                 base64-encoded but contain trailing spaces.
+   * @param  schema                  The schema to use when parsing the
+   *                                 attributes, or {@code null} if none is
+   *                                 needed.
+   * @param  ldifLines               The lines that comprise the LDIF
+   *                                 representation of the full record being
+   *                                 parsed.
+   * @param  iterator                The iterator to use to access the attribute
+   *                                 lines.
+   * @param  firstLineNumber         The line number for the start of the
+   *                                 record.
    *
    * @return  The collection of attributes that were read.
    *
@@ -2166,7 +2220,7 @@ public final class LDIFReader
    *                         set of attributes.
    */
   private static ArrayList<Attribute> parseAttributes(final String dn,
-       final boolean ignoreDuplicateValues,
+       final DuplicateValueBehavior duplicateValueBehavior,
        final TrailingSpaceBehavior trailingSpaceBehavior, final Schema schema,
        final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final long firstLineNumber)
@@ -2237,9 +2291,10 @@ public final class LDIFReader
         {
           try
           {
-            if (! ldifAttr.addValue(new ASN1OctetString()))
+            if (! ldifAttr.addValue(new ASN1OctetString(),
+                       duplicateValueBehavior))
             {
-              if (! ignoreDuplicateValues)
+              if (duplicateValueBehavior != DuplicateValueBehavior.IGNORE)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
@@ -2277,9 +2332,10 @@ public final class LDIFReader
           {
             try
             {
-              if (! ldifAttr.addValue(new ASN1OctetString(valueBytes)))
+              if (! ldifAttr.addValue(new ASN1OctetString(valueBytes),
+                         duplicateValueBehavior))
               {
-                if (! ignoreDuplicateValues)
+                if (duplicateValueBehavior != DuplicateValueBehavior.IGNORE)
                 {
                   throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                        firstLineNumber, attributeName), firstLineNumber, true,
@@ -2402,9 +2458,10 @@ public final class LDIFReader
           }
           else
           {
-            if (! ldifAttr.addValue(new ASN1OctetString(fileData)))
+            if (! ldifAttr.addValue(new ASN1OctetString(fileData),
+                       duplicateValueBehavior))
             {
-              if (! ignoreDuplicateValues)
+              if (duplicateValueBehavior != DuplicateValueBehavior.IGNORE)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
@@ -2446,9 +2503,10 @@ public final class LDIFReader
         {
           try
           {
-            if (! ldifAttr.addValue(new ASN1OctetString(valueString)))
+            if (! ldifAttr.addValue(new ASN1OctetString(valueString),
+                       duplicateValueBehavior))
             {
-              if (! ignoreDuplicateValues)
+              if (duplicateValueBehavior != DuplicateValueBehavior.IGNORE)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
@@ -3100,8 +3158,8 @@ public final class LDIFReader
     private final ArrayList<StringBuilder> lineList;
     private final long firstLineNumber;
     private final Exception failureCause;
-    private final boolean ignoreDuplicateValues;
     private final boolean isEOF;
+    private final DuplicateValueBehavior duplicateValueBehavior;
     private final Schema schema;
     private final TrailingSpaceBehavior trailingSpaceBehavior;
 
@@ -3110,27 +3168,26 @@ public final class LDIFReader
     /**
      * Constructor.
      *
-     * @param  lineList               The lines that comprise the LDIF record.
-     * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
-     *                                attribute values encountered while
-     *                                parsing.
-     * @param  trailingSpaceBehavior  Specifies the behavior to exhibit when
-     *                                encountering trailing spaces in
-     *                                non-base64-encoded attribute values.
-     * @param  schema                 The schema to use when parsing, if
-     *                                applicable.
-     * @param  firstLineNumber        The first line number of the LDIF record.
+     * @param  lineList                The lines that comprise the LDIF record.
+     * @param  duplicateValueBehavior  The behavior to exhibit if the entry
+     *                                 contains duplicate attribute values.
+     * @param  trailingSpaceBehavior   Specifies the behavior to exhibit when
+     *                                 encountering trailing spaces in
+     *                                 non-base64-encoded attribute values.
+     * @param  schema                  The schema to use when parsing, if
+     *                                 applicable.
+     * @param  firstLineNumber         The first line number of the LDIF record.
      */
     private UnparsedLDIFRecord(final ArrayList<StringBuilder> lineList,
-                 final boolean ignoreDuplicateValues,
+                 final DuplicateValueBehavior duplicateValueBehavior,
                  final TrailingSpaceBehavior trailingSpaceBehavior,
                  final Schema schema, final long firstLineNumber)
     {
-      this.lineList              = lineList;
-      this.firstLineNumber       = firstLineNumber;
-      this.ignoreDuplicateValues = ignoreDuplicateValues;
-      this.trailingSpaceBehavior = trailingSpaceBehavior;
-      this.schema                = schema;
+      this.lineList               = lineList;
+      this.firstLineNumber        = firstLineNumber;
+      this.duplicateValueBehavior = duplicateValueBehavior;
+      this.trailingSpaceBehavior  = trailingSpaceBehavior;
+      this.schema                 = schema;
 
       failureCause = null;
       isEOF =
@@ -3148,12 +3205,12 @@ public final class LDIFReader
     {
       this.failureCause = failureCause;
 
-      lineList              = null;
-      firstLineNumber       = 0;
-      ignoreDuplicateValues = true;
-      trailingSpaceBehavior = TrailingSpaceBehavior.REJECT;
-      schema                = null;
-      isEOF                 = false;
+      lineList               = null;
+      firstLineNumber        = 0;
+      duplicateValueBehavior = DuplicateValueBehavior.REJECT;
+      trailingSpaceBehavior  = TrailingSpaceBehavior.REJECT;
+      schema                 = null;
+      isEOF                  = false;
     }
 
 
@@ -3171,16 +3228,15 @@ public final class LDIFReader
 
 
     /**
-     * Indicates whether to ignore any duplicate attribute values encountered
-     * while parsing the record.
+     * Retrieves the behavior to exhibit when encountering duplicate attribute
+     * values.
      *
-     * @return  {@code true} if duplicate values should be ignored, or
-     *          {@code false} if they should cause the entry to be considered
-     *          invalid.
+     * @return  The behavior to exhibit when encountering duplicate attribute
+     *          values.
      */
-    private boolean ignoreDuplicateValues()
+    private DuplicateValueBehavior getDuplicateValueBehavior()
     {
-      return ignoreDuplicateValues;
+      return duplicateValueBehavior;
     }
 
 

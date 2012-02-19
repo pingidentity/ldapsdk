@@ -42,6 +42,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
+import com.unboundid.ldif.DuplicateValueBehavior;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFReaderEntryTranslator;
@@ -498,7 +499,14 @@ public final class ValidateLDIF
     }
 
     ldifReader.setSchema(schema);
-    ldifReader.setIgnoreDuplicateValues(ignoreDuplicateValues.isPresent());
+    if (ignoreDuplicateValues.isPresent())
+    {
+      ldifReader.setDuplicateValueBehavior(DuplicateValueBehavior.IGNORE);
+    }
+    else
+    {
+      ldifReader.setDuplicateValueBehavior(DuplicateValueBehavior.REJECT);
+    }
 
     try
     {

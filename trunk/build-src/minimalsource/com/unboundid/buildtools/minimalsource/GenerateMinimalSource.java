@@ -210,6 +210,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.schema.Schema",
     "com.unboundid.ldap.sdk.schema.package-info",
 
+    "com.unboundid.ldif.DuplicateValueBehavior",
     "com.unboundid.ldif.LDIFAddChangeRecord",
     "com.unboundid.ldif.LDIFAttribute",
     "com.unboundid.ldif.LDIFChangeRecord",

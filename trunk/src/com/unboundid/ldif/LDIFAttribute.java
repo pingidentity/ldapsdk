@@ -91,7 +91,10 @@ class LDIFAttribute
   /**
    * Adds the provided value to this attribute, if it does not already exist.
    *
-   * @param  value  The value to be added.
+   * @param  value                   The value to be added.
+   * @param  duplicateValueBehavior  The behavior that should be exhibited if
+   *                                 the LDIF reader encounters an entry with
+   *                                 duplicate values.
    *
    * @return  {@code true} if the value was added to this attribute, or
    *          {@code false} if the value was already present.
@@ -99,7 +102,8 @@ class LDIFAttribute
    * @throws  LDAPException  If the provided value is invalid according to the
    *                         associated syntax.
    */
-  boolean addValue(final ASN1OctetString value)
+  boolean addValue(final ASN1OctetString value,
+                   final DuplicateValueBehavior duplicateValueBehavior)
           throws LDAPException
   {
     if (normalizedValues == null)
@@ -118,7 +122,17 @@ class LDIFAttribute
     }
     else
     {
-      return false;
+      // This means the attribute already had the value.  Even though this is
+      // illegal, we may allow it based on the configuration.
+      if (duplicateValueBehavior == DuplicateValueBehavior.RETAIN)
+      {
+        values.add(value);
+        return true;
+      }
+      else
+      {
+        return false;
+      }
     }
   }
 
