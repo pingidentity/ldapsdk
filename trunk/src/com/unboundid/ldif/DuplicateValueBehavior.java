@@ -35,10 +35,10 @@ import com.unboundid.util.ThreadSafetyLevel;
 public enum DuplicateValueBehavior
 {
   /**
-   * Indicates that duplicate values should be ignored, so that the resulting
+   * Indicates that duplicate values should be stripped, so that the resulting
    * entry will have only one copy of the value.
    */
-  IGNORE,
+  STRIP,
 
 
 

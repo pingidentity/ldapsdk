@@ -512,7 +512,7 @@ public final class LDIFReader
     this.reader = reader;
     this.entryTranslator = entryTranslator;
 
-    duplicateValueBehavior = DuplicateValueBehavior.IGNORE;
+    duplicateValueBehavior = DuplicateValueBehavior.STRIP;
     trailingSpaceBehavior  = TrailingSpaceBehavior.REJECT;
 
     if (numParseThreads == 0)
@@ -708,7 +708,7 @@ public final class LDIFReader
   @Deprecated()
   public boolean ignoreDuplicateValues()
   {
-    return (duplicateValueBehavior == DuplicateValueBehavior.IGNORE);
+    return (duplicateValueBehavior == DuplicateValueBehavior.STRIP);
   }
 
 
@@ -728,7 +728,7 @@ public final class LDIFReader
   {
     if (ignoreDuplicateValues)
     {
-      duplicateValueBehavior = DuplicateValueBehavior.IGNORE;
+      duplicateValueBehavior = DuplicateValueBehavior.STRIP;
     }
     else
     {
@@ -1493,7 +1493,7 @@ public final class LDIFReader
   public static Entry decodeEntry(final String... ldifLines)
          throws LDIFException
   {
-    final Entry e = decodeEntry(prepareRecord(DuplicateValueBehavior.IGNORE,
+    final Entry e = decodeEntry(prepareRecord(DuplicateValueBehavior.STRIP,
          TrailingSpaceBehavior.REJECT, null, ldifLines));
     debugLDIFRead(e);
     return e;
@@ -1527,7 +1527,7 @@ public final class LDIFReader
   {
     final Entry e = decodeEntry(prepareRecord(
          (ignoreDuplicateValues
-              ? DuplicateValueBehavior.IGNORE
+              ? DuplicateValueBehavior.STRIP
               : DuplicateValueBehavior.REJECT),
          TrailingSpaceBehavior.REJECT, schema, ldifLines));
     debugLDIFRead(e);
@@ -1586,7 +1586,7 @@ public final class LDIFReader
   {
     final LDIFChangeRecord r =
          decodeChangeRecord(
-              prepareRecord(DuplicateValueBehavior.IGNORE,
+              prepareRecord(DuplicateValueBehavior.STRIP,
                    TrailingSpaceBehavior.REJECT, null, ldifLines),
               defaultAdd);
     debugLDIFRead(r);
@@ -1632,7 +1632,7 @@ public final class LDIFReader
     final LDIFChangeRecord r =
          decodeChangeRecord(prepareRecord(
               (ignoreDuplicateValues
-                   ? DuplicateValueBehavior.IGNORE
+                   ? DuplicateValueBehavior.STRIP
                    : DuplicateValueBehavior.REJECT),
               TrailingSpaceBehavior.REJECT, schema, ldifLines), defaultAdd);
     debugLDIFRead(r);
@@ -2294,7 +2294,7 @@ public final class LDIFReader
             if (! ldifAttr.addValue(new ASN1OctetString(),
                        duplicateValueBehavior))
             {
-              if (duplicateValueBehavior != DuplicateValueBehavior.IGNORE)
+              if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
@@ -2335,7 +2335,7 @@ public final class LDIFReader
               if (! ldifAttr.addValue(new ASN1OctetString(valueBytes),
                          duplicateValueBehavior))
               {
-                if (duplicateValueBehavior != DuplicateValueBehavior.IGNORE)
+                if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
                 {
                   throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                        firstLineNumber, attributeName), firstLineNumber, true,
@@ -2461,7 +2461,7 @@ public final class LDIFReader
             if (! ldifAttr.addValue(new ASN1OctetString(fileData),
                        duplicateValueBehavior))
             {
-              if (duplicateValueBehavior != DuplicateValueBehavior.IGNORE)
+              if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
@@ -2506,7 +2506,7 @@ public final class LDIFReader
             if (! ldifAttr.addValue(new ASN1OctetString(valueString),
                        duplicateValueBehavior))
             {
-              if (duplicateValueBehavior != DuplicateValueBehavior.IGNORE)
+              if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
