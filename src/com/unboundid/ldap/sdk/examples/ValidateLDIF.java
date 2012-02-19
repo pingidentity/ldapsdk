@@ -501,7 +501,7 @@ public final class ValidateLDIF
     ldifReader.setSchema(schema);
     if (ignoreDuplicateValues.isPresent())
     {
-      ldifReader.setDuplicateValueBehavior(DuplicateValueBehavior.IGNORE);
+      ldifReader.setDuplicateValueBehavior(DuplicateValueBehavior.STRIP);
     }
     else
     {
