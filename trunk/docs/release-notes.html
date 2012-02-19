@@ -10,6 +10,116 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.3.1</h3>
+
+              <p>
+                The following changes were made between the 2.3.0 and 2.3.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fix a bug that could result in memory pressure with a high volume of
+                  asynchronous operations.  This was a regression introduced by a change which
+                  made it possible for timeouts to be honored for asynchronous operations.
+                  <br><br>
+                </li>
+
+                <li>
+                  Made a number of improvements to SSL support, including the addition of a new
+                  aggregate trust manager (which can combine the result of multiple trust managers
+                  when deciding whether to trust a certificate), a validity date trust manager
+                  (which can reject a certificate based on its validity time period), and a
+                  hostname trust manager (which can reject a certificate based on a conflict
+                  between the expected server hostname and the value of the certificate's CN
+                  subject attribute or a subjectAltName extension).  In addition, the prompt trust
+                  manager now displays additional information, including MD5 and SHA-1
+                  fingerprints, to allow the user to make more informed decisions about whether to
+                  trust a certificate.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the persistence framework to provide more complete support for modify
+                  processing when the resulting entry may be altered via a post-encode method.  If
+                  the object has a field marked with @LDAPEntryField, then the updated object will
+                  be encoded and compared with the original entry to determine the appropriate set
+                  of modifications.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a connection option that controls whether multiple threads will be allowed
+                  to make concurrent use of the same socket factory instance to create multiple
+                  connections.  A change introduced in the 2.3.0 release made all socket factory
+                  interaction synchronized because it was observed that some IBM VMs do not
+                  support concurrent use of an SSL socket factory instance.  The default behavior
+                  is now to allow concurrent socket factory use for Sun and Oracle VMs, but to
+                  require synchronized use in other VMs.  However, this default can be overridden
+                  in the LDAPConnectionOptions class.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new fastest connect server set implementation which attempts to connect to
+                  all associated servers in parallel and will return the first connection to be
+                  established.  This may increase the connect-time load across all servers, but
+                  will minimize the length of time required to establish a connection in the event
+                  that any of the servers is having a problem.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the LDIF reader to add new options which can be used to have more control
+                  over the treatment of trailing spaces in non-base64-encoded values (reject,
+                  strip, or retain) and the treatment of duplicate attribute values (reject,
+                  strip, or retain).
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the searchrate, modrate, and search-and-mod-rate tools to provide a new
+                  "--iterationsBeforeReconnect" argument, which makes it possible to periodically
+                  close and re-establish each connection.  The default behavior, in which each
+                  thread will create its own connection that it will continue to use for the
+                  entire run, has not changed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the base64 encoding and decoding capabilities to support the base64url
+                  encoding as described in RFC 4648 section 5.  Also, add support for base32
+                  encoding and decoding as described in RFC 4648 section 6.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the ResultCode class to make it possible to provide a user-friendly name
+                  for result codes not defined in the out-of-the-box set included with the LDAP
+                  SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  Change the way that localization message files are stored and referenced within
+                  the code.  Some users have reported problems with their own applications having
+                  properties files with names that conflict with properties file names used by
+                  the LDAP SDK (e.g., "ldap.properties", "util.properties", etc.).  To avoid this
+                  problem, all LDAP SDK property files now have names starting with
+                  "unboundid-ldapsdk-".  In addition, the code has been updated to make even this
+                  unlikely conflict less troublesome.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the source for the Android LDAP client to use positional indicators in
+                  format strings with multiple substitutions.  It appears this is now required for
+                  recent versions of the Android SDK.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 2.3.0</h3>
 
               <p>
