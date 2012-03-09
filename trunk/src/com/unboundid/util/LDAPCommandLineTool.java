@@ -458,6 +458,44 @@ public abstract class LDAPCommandLineTool
   public final LDAPConnection getConnection()
          throws LDAPException
   {
+    final LDAPConnection connection = getUnauthenticatedConnection();
+
+    try
+    {
+      if (bindRequest != null)
+      {
+        connection.bind(bindRequest);
+      }
+    }
+    catch (LDAPException le)
+    {
+      debugException(le);
+      connection.close();
+      throw le;
+    }
+
+    return connection;
+  }
+
+
+
+  /**
+   * Retrieves an unauthenticated connection that may be used to communicate
+   * with the target directory server.
+   * <BR><BR>
+   * Note that this method is threadsafe and may be invoked by multiple threads
+   * accessing the same instance only while that instance is in the process of
+   * invoking the {@link #doToolProcessing} method.
+   *
+   * @return  An unauthenticated connection that may be used to communicate with
+   *          the target directory server.
+   *
+   * @throws  LDAPException  If a problem occurs while creating the connection.
+   */
+  @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  public final LDAPConnection getUnauthenticatedConnection()
+         throws LDAPException
+  {
     if (serverSet == null)
     {
       serverSet   = createServerSet();
@@ -486,20 +524,6 @@ public abstract class LDAPCommandLineTool
         connection.close();
         throw le;
       }
-    }
-
-    try
-    {
-      if (bindRequest != null)
-      {
-        connection.bind(bindRequest);
-      }
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      connection.close();
-      throw le;
     }
 
     return connection;
@@ -629,8 +653,8 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the SSLUtil
    *                         instance.
    */
-  private SSLUtil createSSLUtil()
-          throws LDAPException
+  public SSLUtil createSSLUtil()
+         throws LDAPException
   {
     if (useSSL.isPresent() || useStartTLS.isPresent())
     {
@@ -733,8 +757,8 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the bind
    *                         request.
    */
-  private BindRequest createBindRequest()
-          throws LDAPException
+  public BindRequest createBindRequest()
+         throws LDAPException
   {
     final String pw;
     if (bindPassword.isPresent())
