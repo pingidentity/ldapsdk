@@ -24,6 +24,7 @@ package com.unboundid.util.args;
 
 import java.util.concurrent.TimeUnit;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -416,15 +417,61 @@ public final class DurationArgument
            ERR_ARG_MAX_OCCURRENCES_EXCEEDED.get(getIdentifierString()));
     }
 
-
-    // The string must not be empty.
-    final String lowerStr = StaticUtils.toLowerCase(valueString);
-    if (lowerStr.length() == 0)
+    final long proposedValueNanos;
+    try
     {
-      throw new ArgumentException(ERR_DURATION_MALFORMED_VALUE.get(
-           valueString, getIdentifierString()));
+      proposedValueNanos = parseDuration(valueString, TimeUnit.NANOSECONDS);
+    }
+    catch (final ArgumentException ae)
+    {
+      Debug.debugException(ae);
+      throw new ArgumentException(
+           ERR_DURATION_MALFORMED_VALUE.get(valueString, getIdentifierString(),
+                ae.getMessage()),
+           ae);
     }
 
+    if (proposedValueNanos < minValueNanos)
+    {
+      throw new ArgumentException(ERR_DURATION_BELOW_LOWER_BOUND.get(
+           getIdentifierString(), lowerBoundStr));
+    }
+    else if (proposedValueNanos > maxValueNanos)
+    {
+      throw new ArgumentException(ERR_DURATION_ABOVE_UPPER_BOUND.get(
+           getIdentifierString(), upperBoundStr));
+    }
+    else
+    {
+      valueNanos = proposedValueNanos;
+    }
+  }
+
+
+
+  /**
+   * Parses the provided string representation of a duration to a corresponding
+   * numeric representation.
+   *
+   * @param  durationString  The string representation of the duration to be
+   *                         parsed.
+   * @param  timeUnit        The time unit to use for the return value.
+   *
+   * @return  The parsed duration as a count in the specified time unit.
+   *
+   * @throws  ArgumentException  If the provided string cannot be parsed as a
+   *                             valid duration.
+   */
+  public static long parseDuration(final String durationString,
+                                   final TimeUnit timeUnit)
+         throws ArgumentException
+  {
+    // The string must not be empty.
+    final String lowerStr = StaticUtils.toLowerCase(durationString);
+    if (lowerStr.length() == 0)
+    {
+      throw new ArgumentException(ERR_DURATION_EMPTY_VALUE.get());
+    }
 
     // Find the position of the first non-digit character.
     boolean digitFound    = false;
@@ -443,8 +490,7 @@ public final class DurationArgument
         nonDigitPos   = i;
         if (! digitFound)
         {
-          throw new ArgumentException(ERR_DURATION_MALFORMED_VALUE.get(
-               valueString, getIdentifierString()));
+          throw new ArgumentException(ERR_DURATION_NO_DIGIT.get());
         }
         break;
       }
@@ -452,26 +498,23 @@ public final class DurationArgument
 
     if (! nonDigitFound)
     {
-      throw new ArgumentException(ERR_DURATION_MALFORMED_VALUE.get(
-           valueString, getIdentifierString()));
+      throw new ArgumentException(ERR_DURATION_NO_UNIT.get());
     }
-
 
     // Separate the integer portion from the unit.
     final long integerPortion =
          Long.parseLong(lowerStr.substring(0, nonDigitPos));
     final String unitStr = lowerStr.substring(nonDigitPos).trim();
 
-
     // Parse the time unit.
-    final TimeUnit unit;
+    final TimeUnit unitFromString;
     if (unitStr.equals("ns") ||
         unitStr.equals("nano") ||
         unitStr.equals("nanos") ||
         unitStr.equals("nanosecond") ||
         unitStr.equals("nanoseconds"))
     {
-      unit = TimeUnit.NANOSECONDS;
+      unitFromString = TimeUnit.NANOSECONDS;
     }
     else if (unitStr.equals("us") ||
              unitStr.equals("micro") ||
@@ -479,7 +522,7 @@ public final class DurationArgument
              unitStr.equals("microsecond") ||
              unitStr.equals("microseconds"))
     {
-      unit = TimeUnit.MICROSECONDS;
+      unitFromString = TimeUnit.MICROSECONDS;
     }
     else if (unitStr.equals("ms") ||
              unitStr.equals("milli") ||
@@ -487,7 +530,7 @@ public final class DurationArgument
              unitStr.equals("millisecond") ||
              unitStr.equals("milliseconds"))
     {
-      unit = TimeUnit.MILLISECONDS;
+      unitFromString = TimeUnit.MILLISECONDS;
     }
     else if (unitStr.equals("s") ||
              unitStr.equals("sec") ||
@@ -495,7 +538,7 @@ public final class DurationArgument
              unitStr.equals("second") ||
              unitStr.equals("seconds"))
     {
-      unit = TimeUnit.SECONDS;
+      unitFromString = TimeUnit.SECONDS;
     }
     else if (unitStr.equals("m") ||
              unitStr.equals("min") ||
@@ -503,7 +546,7 @@ public final class DurationArgument
              unitStr.equals("minute") ||
              unitStr.equals("minutes"))
     {
-      unit = TimeUnit.MINUTES;
+      unitFromString = TimeUnit.MINUTES;
     }
     else if (unitStr.equals("h") ||
              unitStr.equals("hr") ||
@@ -511,37 +554,20 @@ public final class DurationArgument
              unitStr.equals("hour") ||
              unitStr.equals("hours"))
     {
-      unit = TimeUnit.HOURS;
+      unitFromString = TimeUnit.HOURS;
     }
     else if (unitStr.equals("d") ||
              unitStr.equals("day") ||
              unitStr.equals("days"))
     {
-      unit = TimeUnit.DAYS;
+      unitFromString = TimeUnit.DAYS;
     }
     else
     {
-      throw new ArgumentException(ERR_DURATION_UNRECOGNIZED_UNIT.get(
-           valueString, getIdentifierString(), unitStr));
+      throw new ArgumentException(ERR_DURATION_UNRECOGNIZED_UNIT.get(unitStr));
     }
 
-
-    final long proposedValueNanos =
-         TimeUnit.NANOSECONDS.convert(integerPortion, unit);
-    if (proposedValueNanos < minValueNanos)
-    {
-      throw new ArgumentException(ERR_DURATION_BELOW_LOWER_BOUND.get(
-           getIdentifierString(), lowerBoundStr));
-    }
-    else if (proposedValueNanos > maxValueNanos)
-    {
-      throw new ArgumentException(ERR_DURATION_ABOVE_UPPER_BOUND.get(
-           getIdentifierString(), upperBoundStr));
-    }
-    else
-    {
-      valueNanos = proposedValueNanos;
-    }
+    return timeUnit.convert(integerPortion, unitFromString);
   }
 
 
