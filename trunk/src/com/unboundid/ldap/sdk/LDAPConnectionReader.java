@@ -1135,6 +1135,8 @@ final class LDAPConnectionReader
   {
     final StringBuilder buffer = new StringBuilder();
     buffer.append("Connection reader for connection ");
+    buffer.append(connection.getConnectionID());
+    buffer.append(' ');
 
     String name = connection.getConnectionName();
     if (name != null)
