@@ -335,7 +335,19 @@ final class LDAPConnectionReader
             continue;
           }
 
-          debugException(le);
+          if (closeRequested || connection.closeRequested() ||
+              (connection.getDisconnectType() != null))
+          {
+            // This exception resulted from the connection being closed in a way
+            // that we already knew about.  We don't want to debug it at the
+            // same level as a newly-detected invalidity.
+            closeRequested = true;
+            debugException(Level.FINEST, le);
+          }
+          else
+          {
+            debugException(le);
+          }
 
           // We should terminate the connection regardless of the type of
           // exception, but might want to customize the debug message.
@@ -376,7 +388,8 @@ final class LDAPConnectionReader
 
           // If the connection is configured to try to auto-reconnect, then set
           // things up to do that.  Otherwise, terminate the connection.
-          if (connection.getConnectionOptions().autoReconnect())
+          if ((! closeRequested) &&
+              connection.getConnectionOptions().autoReconnect())
           {
             reconnect = true;
             break;
