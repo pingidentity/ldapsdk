@@ -819,7 +819,16 @@ public final class CompareRequest
       }
     }
 
-    final CompareResult result = (CompareResult) response;
+    final CompareResult result;
+    if (response instanceof CompareResult)
+    {
+      result = (CompareResult) response;
+    }
+    else
+    {
+      result = new CompareResult((LDAPResult) response);
+    }
+
     if ((result.getResultCode().equals(ResultCode.REFERRAL)) &&
         followReferrals(connection))
     {
