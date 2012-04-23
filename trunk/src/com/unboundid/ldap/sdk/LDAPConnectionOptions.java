@@ -293,7 +293,8 @@ public final class LDAPConnectionOptions
          StaticUtils.toLowerCase(System.getProperty("java.vm.vendor"));
     DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE = ((vmVendor != null) &&
          (vmVendor.contains("sun microsystems") ||
-          vmVendor.contains("oracle")));
+          vmVendor.contains("oracle") ||
+          vmVendor.contains("apple")));
   }
 
 
