@@ -143,18 +143,63 @@ public final class LDIFReader
    */
   public static final int DEFAULT_BUFFER_SIZE = 128 * 1024;
 
-  // When processing asynchronously, this determines how many of the allocated
-  // worker threads are used to parse each batch of read entries.
+
+
+  /*
+   * When processing asynchronously, this determines how many of the allocated
+   * worker threads are used to parse each batch of read entries.
+   */
   private static final int ASYNC_MIN_PER_PARSING_THREAD = 3;
 
-  // When processing asynchronously, this specifies the size of the pending
-  // and completed queues.
+
+
+  /**
+   * When processing asynchronously, this specifies the size of the pending and
+   * completed queues.
+   */
   private static final int ASYNC_QUEUE_SIZE = 500;
 
-  // Special entry used internally to signal that the LDIFReaderEntryTranslator
-  // has signalled that a read Entry should be skipped by returning null,
-  // which normally implies EOF.
+
+
+  /**
+   * Special entry used internally to signal that the LDIFReaderEntryTranslator
+   * has signalled that a read Entry should be skipped by returning null,
+   * which normally implies EOF.
+   */
   private static final Entry SKIP_ENTRY = new Entry("cn=skipped");
+
+
+
+  /**
+   * The default base path that will be prepended to relative paths.  It will
+   * end with a trailing slash.
+   */
+  private static final String DEFAULT_RELATIVE_BASE_PATH;
+  static
+  {
+    final File currentDir;
+    String currentDirString = System.getProperty("user.dir");
+    if (currentDirString == null)
+    {
+      currentDir = new File(".");
+    }
+    else
+    {
+      currentDir = new File(currentDirString);
+    }
+
+    final String currentDirAbsolutePath = currentDir.getAbsolutePath();
+    if (currentDirAbsolutePath.endsWith(File.separator))
+    {
+      DEFAULT_RELATIVE_BASE_PATH = currentDirAbsolutePath;
+    }
+    else
+    {
+      DEFAULT_RELATIVE_BASE_PATH = currentDirAbsolutePath + File.separator;
+    }
+  }
+
+
 
   // The buffered reader that will be used to read LDIF data.
   private final BufferedReader reader;
@@ -170,6 +215,10 @@ public final class LDIFReader
 
   // The schema that will be used when processing, if applicable.
   private Schema schema;
+
+  // Specifies the base path that will be prepended to relative paths for file
+  // URLs.
+  private volatile String relativeBasePath;
 
   // The behavior that should be exhibited with regard to illegal trailing
   // spaces in attribute values.
@@ -514,6 +563,8 @@ public final class LDIFReader
 
     duplicateValueBehavior = DuplicateValueBehavior.STRIP;
     trailingSpaceBehavior  = TrailingSpaceBehavior.REJECT;
+
+    relativeBasePath = DEFAULT_RELATIVE_BASE_PATH;
 
     if (numParseThreads == 0)
     {
@@ -860,6 +911,59 @@ public final class LDIFReader
                    final TrailingSpaceBehavior trailingSpaceBehavior)
   {
     this.trailingSpaceBehavior = trailingSpaceBehavior;
+  }
+
+
+
+  /**
+   * Retrieves the base path that will be prepended to relative paths in order
+   * to obtain an absolute path.  This will only be used for "file:" URLs that
+   * have paths which do not begin with a slash.
+   *
+   * @return  The base path that will be prepended to relative paths in order to
+   *          obtain an absolute path.
+   */
+  public String getRelativeBasePath()
+  {
+    return relativeBasePath;
+  }
+
+
+
+  /**
+   * Specifies the base path that will be prepended to relative paths in order
+   * to obtain an absolute path.  This will only be used for "file:" URLs that
+   * have paths which do not begin with a space.
+   *
+   * @param  relativeBasePath  The base path that will be prepended to relative
+   *                           paths in order to obtain an absolute path.
+   */
+  public void setRelativeBasePath(final String relativeBasePath)
+  {
+    setRelativeBasePath(new File(relativeBasePath));
+  }
+
+
+
+  /**
+   * Specifies the base path that will be prepended to relative paths in order
+   * to obtain an absolute path.  This will only be used for "file:" URLs that
+   * have paths which do not begin with a space.
+   *
+   * @param  relativeBasePath  The base path that will be prepended to relative
+   *                           paths in order to obtain an absolute path.
+   */
+  public void setRelativeBasePath(final File relativeBasePath)
+  {
+    final String path = relativeBasePath.getAbsolutePath();
+    if (path.endsWith(File.separator))
+    {
+      this.relativeBasePath = path;
+    }
+    else
+    {
+      this.relativeBasePath = path + File.separator;
+    }
   }
 
 
@@ -1304,7 +1408,7 @@ public final class LDIFReader
        throws IOException, LDIFException
   {
     final UnparsedLDIFRecord unparsedRecord = readUnparsedRecord();
-    return decodeRecord(unparsedRecord);
+    return decodeRecord(unparsedRecord, relativeBasePath);
   }
 
 
@@ -1331,7 +1435,7 @@ public final class LDIFReader
         return null;
       }
 
-      e = decodeEntry(unparsedRecord);
+      e = decodeEntry(unparsedRecord, relativeBasePath);
       debugLDIFRead(e);
 
       if (entryTranslator != null)
@@ -1372,7 +1476,8 @@ public final class LDIFReader
       return null;
     }
 
-    final LDIFChangeRecord r = decodeChangeRecord(unparsedRecord, defaultAdd);
+    final LDIFChangeRecord r =
+         decodeChangeRecord(unparsedRecord, relativeBasePath, defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1494,7 +1599,8 @@ public final class LDIFReader
          throws LDIFException
   {
     final Entry e = decodeEntry(prepareRecord(DuplicateValueBehavior.STRIP,
-         TrailingSpaceBehavior.REJECT, null, ldifLines));
+         TrailingSpaceBehavior.REJECT, null, ldifLines),
+         DEFAULT_RELATIVE_BASE_PATH);
     debugLDIFRead(e);
     return e;
   }
@@ -1526,10 +1632,11 @@ public final class LDIFReader
          throws LDIFException
   {
     final Entry e = decodeEntry(prepareRecord(
-         (ignoreDuplicateValues
-              ? DuplicateValueBehavior.STRIP
-              : DuplicateValueBehavior.REJECT),
-         TrailingSpaceBehavior.REJECT, schema, ldifLines));
+              (ignoreDuplicateValues
+                   ? DuplicateValueBehavior.STRIP
+                   : DuplicateValueBehavior.REJECT),
+              TrailingSpaceBehavior.REJECT, schema, ldifLines),
+         DEFAULT_RELATIVE_BASE_PATH);
     debugLDIFRead(e);
     return e;
   }
@@ -1588,7 +1695,7 @@ public final class LDIFReader
          decodeChangeRecord(
               prepareRecord(DuplicateValueBehavior.STRIP,
                    TrailingSpaceBehavior.REJECT, null, ldifLines),
-              defaultAdd);
+              DEFAULT_RELATIVE_BASE_PATH, defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1629,12 +1736,13 @@ public final class LDIFReader
                                       final String... ldifLines)
          throws LDIFException
   {
-    final LDIFChangeRecord r =
-         decodeChangeRecord(prepareRecord(
+    final LDIFChangeRecord r = decodeChangeRecord(
+         prepareRecord(
               (ignoreDuplicateValues
                    ? DuplicateValueBehavior.STRIP
                    : DuplicateValueBehavior.REJECT),
-              TrailingSpaceBehavior.REJECT, schema, ldifLines), defaultAdd);
+              TrailingSpaceBehavior.REJECT, schema, ldifLines),
+         DEFAULT_RELATIVE_BASE_PATH, defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1752,8 +1860,10 @@ public final class LDIFReader
    * Decodes the unparsed record that was read from the LDIF source.  It may be
    * either an entry or an LDIF change record.
    *
-   * @param  unparsedRecord  The unparsed LDIF record that was read from the
-   *                         input.  It must not be {@code null} or empty.
+   * @param  unparsedRecord    The unparsed LDIF record that was read from the
+   *                           input.  It must not be {@code null} or empty.
+   * @param  relativeBasePath  The base path that will be prepended to relative
+   *                           paths in order to obtain an absolute path.
    *
    * @return  The parsed record, or {@code null} if there are no more entries to
    *          be read.
@@ -1762,7 +1872,8 @@ public final class LDIFReader
    *                         an LDIF change record.
    */
   private static LDIFRecord decodeRecord(
-                                 final UnparsedLDIFRecord unparsedRecord)
+                                 final UnparsedLDIFRecord unparsedRecord,
+                                 final String relativeBasePath)
        throws LDIFException
   {
     // If there was an error reading from the input, then we rethrow it here.
@@ -1804,11 +1915,11 @@ public final class LDIFReader
     if ((lineList.size() > 1) &&
         toLowerCase(lineList.get(1).toString()).startsWith("changetype:"))
     {
-      r = decodeChangeRecord(unparsedRecord, false);
+      r = decodeChangeRecord(unparsedRecord, relativeBasePath, false);
     }
     else
     {
-      r = decodeEntry(unparsedRecord);
+      r = decodeEntry(unparsedRecord, relativeBasePath);
     }
 
     debugLDIFRead(r);
@@ -1824,13 +1935,16 @@ public final class LDIFReader
    *
    * @param  unparsedRecord   The unparsed LDIF record that was read from the
    *                          input.  It must not be {@code null} or empty.
+   * @param  relativeBasePath  The base path that will be prepended to relative
+   *                           paths in order to obtain an absolute path.
    *
    * @return  The entry read from LDIF.
    *
    * @throws  LDIFException  If the provided LDIF data cannot be read as an
    *                         entry.
    */
-  private static Entry decodeEntry(final UnparsedLDIFRecord unparsedRecord)
+  private static Entry decodeEntry(final UnparsedLDIFRecord unparsedRecord,
+                                   final String relativeBasePath)
           throws LDIFException
   {
     final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
@@ -1916,7 +2030,7 @@ public final class LDIFReader
     return new Entry(dn, unparsedRecord.getSchema(),
          parseAttributes(dn, unparsedRecord.getDuplicateValueBehavior(),
               unparsedRecord.getTrailingSpaceBehavior(),
-              unparsedRecord.getSchema(), ldifLines, iterator,
+              unparsedRecord.getSchema(), ldifLines, iterator, relativeBasePath,
               firstLineNumber));
   }
 
@@ -1927,13 +2041,15 @@ public final class LDIFReader
    * list must not contain any blank lines or comments, and lines are not
    * allowed to be wrapped.
    *
-   * @param  unparsedRecord   The unparsed LDIF record that was read from the
-   *                          input.  It must not be {@code null} or empty.
-   * @param  defaultAdd       Indicates whether an LDIF record not containing a
-   *                          changetype should be retrieved as an add change
-   *                          record.  If this is {@code false} and the record
-   *                          read does not include a changetype, then an
-   *                          {@link LDIFException} will be thrown.
+   * @param  unparsedRecord    The unparsed LDIF record that was read from the
+   *                           input.  It must not be {@code null} or empty.
+   * @param  relativeBasePath  The base path that will be prepended to relative
+   *                           paths in order to obtain an absolute path.
+   * @param  defaultAdd        Indicates whether an LDIF record not containing a
+   *                           changetype should be retrieved as an add change
+   *                           record.  If this is {@code false} and the record
+   *                           read does not include a changetype, then an
+   *                           {@link LDIFException} will be thrown.
    *
    * @return  The change record read from LDIF.
    *
@@ -1942,6 +2058,7 @@ public final class LDIFReader
    */
   private static LDIFChangeRecord decodeChangeRecord(
                                        final UnparsedLDIFRecord unparsedRecord,
+                                       final String relativeBasePath,
                                        final boolean defaultAdd)
           throws LDIFException
   {
@@ -2117,7 +2234,7 @@ public final class LDIFReader
              parseAttributes(dn, unparsedRecord.getDuplicateValueBehavior(),
                   unparsedRecord.getTrailingSpaceBehavior(),
                   unparsedRecord.getSchema(), ldifLines, iterator,
-                  firstLineNumber);
+                  relativeBasePath, firstLineNumber);
         final Attribute[] attributes = new Attribute[attrs.size()];
         final Iterator<Attribute> attrIterator = attrs.iterator();
         for (int i=0; i < attributes.length; i++)
@@ -2211,6 +2328,9 @@ public final class LDIFReader
    *                                 parsed.
    * @param  iterator                The iterator to use to access the attribute
    *                                 lines.
+   * @param  relativeBasePath        The base path that will be prepended to
+   *                                 relative paths in order to obtain an
+   *                                 absolute path.
    * @param  firstLineNumber         The line number for the start of the
    *                                 record.
    *
@@ -2223,7 +2343,8 @@ public final class LDIFReader
        final DuplicateValueBehavior duplicateValueBehavior,
        final TrailingSpaceBehavior trailingSpaceBehavior, final Schema schema,
        final ArrayList<StringBuilder> ldifLines,
-       final Iterator<StringBuilder> iterator, final long firstLineNumber)
+       final Iterator<StringBuilder> iterator, final String relativeBasePath,
+       final long firstLineNumber)
           throws LDIFException
   {
     final LinkedHashMap<String,Object> attributes =
@@ -2371,23 +2492,35 @@ public final class LDIFReader
           pos++;
         }
 
+        final String path;
         final String urlString = line.substring(pos);
-        if (! toLowerCase(urlString).startsWith("file:/"))
+        final String lowerURLString = toLowerCase(urlString);
+        if (lowerURLString.startsWith("file:/"))
+        {
+          pos = 6;
+          while ((pos < urlString.length()) && (urlString.charAt(pos) == '/'))
+          {
+            pos++;
+          }
+
+          path = urlString.substring(pos-1);
+        }
+        else if (lowerURLString.startsWith("file:"))
+        {
+          // A file: URL that doesn't include a slash will be interpreted as a
+          // relative path.
+          path = relativeBasePath + urlString.substring(5);
+        }
+        else
         {
           throw new LDIFException(ERR_READ_URL_INVALID_SCHEME.get(attributeName,
                                        urlString, firstLineNumber),
                                   firstLineNumber, true, ldifLines, null);
         }
 
-        pos = 6;
-        while ((pos < urlString.length()) && (urlString.charAt(pos) == '/'))
-        {
-          pos++;
-        }
-
         try
         {
-          final File f = new File(urlString.substring(pos-1));
+          final File f = new File(path);
           if (! f.exists())
           {
             throw new LDIFException(ERR_READ_URL_NO_SUCH_FILE.get(attributeName,
@@ -3410,7 +3543,7 @@ public final class LDIFReader
       public LDIFRecord process(final UnparsedLDIFRecord input)
            throws LDIFException
       {
-        LDIFRecord record = decodeRecord(input);
+        LDIFRecord record = decodeRecord(input, relativeBasePath);
 
         if ((record instanceof Entry) && (entryTranslator != null))
         {
