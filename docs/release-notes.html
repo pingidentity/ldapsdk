@@ -39,6 +39,14 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Updated support for the SASL EXTERNAL bind request so that it is now possible
+                  to request an authorization identity element in the SASL credentials.  It is
+                  now possible to create a SASL EXTERNAL bind request which does or does not
+                  include SASL credentials.
+                  <br><br>
+                </li>
+
+                <li>
                   Update the persistence framework to provide more complete support for modify
                   processing when the resulting entry may be altered via a post-encode method.  If
                   the object has a field marked with @LDAPEntryField, then the updated object will
@@ -77,6 +85,13 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Update the LDIF reader to add support for file URLs with relative paths.  By
+                  default, these paths will be relative to the JVM's current working directory,
+                  but it is possible to specify a custom base directory for relative paths.
+                  <br><br>
+                </li>
+
+                <li>
                   Update the searchrate, modrate, and search-and-mod-rate tools to provide a new
                   "--iterationsBeforeReconnect" argument, which makes it possible to periodically
                   close and re-establish each connection.  The default behavior, in which each
@@ -89,6 +104,23 @@ ${TARGET="offline"}                    <br>
                   Update the base64 encoding and decoding capabilities to support the base64url
                   encoding as described in RFC 4648 section 5.  Also, add support for base32
                   encoding and decoding as described in RFC 4648 section 6.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>LDAPCommandLineTool</tt> class to provide a new
+                  <tt>getUnauthenticatedConnection</tt> method that can be used to obtain a
+                  connection to the target server (including the use of SSL or StartTLS if so
+                  configured) but without performing any authentication on that connection.  Also
+                  make the <tt>createSSLUtil</tt> and <tt>createBindRequest</tt> methods public so
+                  that they can be used by third-party code.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>DurationArgument</tt> class to provide a public static method
+                  that can be used to parse a duration string to a numeric value based on a given
+                  time unit.
                   <br><br>
                 </li>
 
