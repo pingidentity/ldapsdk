@@ -797,6 +797,17 @@ public final class SearchRequest
    * Specifies the maximum number of entries that should be returned by the
    * server when processing this search request.  A value of zero indicates that
    * there should be no limit.
+   * <BR><BR>
+   * Note that if an attempt to process a search operation fails because the
+   * size limit has been exceeded, an {@link LDAPSearchException} will be
+   * thrown.  If one or more entries or references have already been returned
+   * for the search, then the {@code LDAPSearchException} methods like
+   * {@code getEntryCount}, {@code getSearchEntries}, {@code getReferenceCount},
+   * and {@code getSearchReferences} may be used to obtain information about
+   * those entries and references (although if a search result listener was
+   * provided, then it will have been used to make any entries and references
+   * available, and they will not be available through the
+   * {@code getSearchEntries} and {@code getSearchReferences} methods).
    *
    * @param  sizeLimit  The maximum number of entries that should be returned by
    *                    the server when processing this search request.
@@ -829,6 +840,17 @@ public final class SearchRequest
    * Specifies the maximum length of time in seconds that the server should
    * spend processing this search request.  A value of zero indicates that there
    * should be no limit.
+   * <BR><BR>
+   * Note that if an attempt to process a search operation fails because the
+   * time limit has been exceeded, an {@link LDAPSearchException} will be
+   * thrown.  If one or more entries or references have already been returned
+   * for the search, then the {@code LDAPSearchException} methods like
+   * {@code getEntryCount}, {@code getSearchEntries}, {@code getReferenceCount},
+   * and {@code getSearchReferences} may be used to obtain information about
+   * those entries and references (although if a search result listener was
+   * provided, then it will have been used to make any entries and references
+   * available, and they will not be available through the
+   * {@code getSearchEntries} and {@code getSearchReferences} methods).
    *
    * @param  timeLimit  The maximum length of time in seconds that the server
    *                    should spend processing this search request.
