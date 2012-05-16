@@ -3315,8 +3315,8 @@ findEntriesAndRefs:
       {
         return new LDAPMessage(messageID,
              new SearchResultDoneProtocolOp(
-                  ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE,
-                  ERR_MEM_HANDLER_SEARCH_SIZE_LIMIT_EXCEEDED.get(), null, null),
+                  ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE, null,
+                  ERR_MEM_HANDLER_SEARCH_SIZE_LIMIT_EXCEEDED.get(), null),
              responseControls);
       }
 
