@@ -1469,6 +1469,15 @@ public abstract class AbstractConnectionPool
    * connection from this connection pool.  The search result entries and
    * references will be collected internally and included in the
    * {@code SearchResult} object that is returned.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  baseDN      The base DN for the search request.  It must not be
    *                     {@code null}.
@@ -1489,7 +1498,12 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while parsing
    *                               the provided filter string, sending the
-   *                               request, or reading the response.
+   *                               request, or reading the response.  If one or
+   *                               more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult search(final String baseDN, final SearchScope scope,
                                    final String filter,
@@ -1507,6 +1521,15 @@ public abstract class AbstractConnectionPool
    * connection from this connection pool.  The search result entries and
    * references will be collected internally and included in the
    * {@code SearchResult} object that is returned.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  baseDN      The base DN for the search request.  It must not be
    *                     {@code null}.
@@ -1525,7 +1548,12 @@ public abstract class AbstractConnectionPool
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.
+   *                               the request or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult search(final String baseDN, final SearchScope scope,
                                    final Filter filter,
@@ -1540,6 +1568,18 @@ public abstract class AbstractConnectionPool
   /**
    * Processes a search operation with the provided information using a
    * connection from this connection pool.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references (although if a search result listener was provided,
+   * then it will have been used to make any entries and references available,
+   * and they will not be available through the {@code getSearchEntries} and
+   * {@code getSearchReferences} methods).
    *
    * @param  searchResultListener  The search result listener that should be
    *                               used to return results to the client.  It may
@@ -1565,7 +1605,12 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while parsing
    *                               the provided filter string, sending the
-   *                               request, or reading the response.
+   *                               request, or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult
        search(final SearchResultListener searchResultListener,
@@ -1582,6 +1627,18 @@ public abstract class AbstractConnectionPool
   /**
    * Processes a search operation with the provided information using a
    * connection from this connection pool.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references (although if a search result listener was provided,
+   * then it will have been used to make any entries and references available,
+   * and they will not be available through the {@code getSearchEntries} and
+   * {@code getSearchReferences} methods).
    *
    * @param  searchResultListener  The search result listener that should be
    *                               used to return results to the client.  It may
@@ -1605,7 +1662,12 @@ public abstract class AbstractConnectionPool
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.
+   *                               the request or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult
        search(final SearchResultListener searchResultListener,
@@ -1624,6 +1686,15 @@ public abstract class AbstractConnectionPool
    * connection from this connection pool.  The search result entries and
    * references will be collected internally and included in the
    * {@code SearchResult} object that is returned.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  baseDN       The base DN for the search request.  It must not be
    *                      {@code null}.
@@ -1654,7 +1725,12 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while parsing
    *                               the provided filter string, sending the
-   *                               request, or reading the response.
+   *                               request, or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult search(final String baseDN, final SearchScope scope,
                                    final DereferencePolicy derefPolicy,
@@ -1674,6 +1750,15 @@ public abstract class AbstractConnectionPool
    * connection from this connection pool.  The search result entries and
    * references will be collected internally and included in the
    * {@code SearchResult} object that is returned.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  baseDN       The base DN for the search request.  It must not be
    *                      {@code null}.
@@ -1702,7 +1787,12 @@ public abstract class AbstractConnectionPool
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.
+   *                               the request or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult search(final String baseDN, final SearchScope scope,
                                    final DereferencePolicy derefPolicy,
@@ -1720,6 +1810,18 @@ public abstract class AbstractConnectionPool
   /**
    * Processes a search operation with the provided information using a
    * connection from this connection pool.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references (although if a search result listener was provided,
+   * then it will have been used to make any entries and references available,
+   * and they will not be available through the {@code getSearchEntries} and
+   * {@code getSearchReferences} methods).
    *
    * @param  searchResultListener  The search result listener that should be
    *                               used to return results to the client.  It may
@@ -1758,7 +1860,12 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while parsing
    *                               the provided filter string, sending the
-   *                               request, or reading the response.
+   *                               request, or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult
        search(final SearchResultListener searchResultListener,
@@ -1778,7 +1885,18 @@ public abstract class AbstractConnectionPool
   /**
    * Processes a search operation with the provided information using a
    * connection from this connection pool.
-   *
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references (although if a search result listener was provided,
+   * then it will have been used to make any entries and references available,
+   * and they will not be available through the {@code getSearchEntries} and
+   * {@code getSearchReferences} methods).
    *
    * @param  searchResultListener  The search result listener that should be
    *                               used to return results to the client.  It may
@@ -1815,7 +1933,12 @@ public abstract class AbstractConnectionPool
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.
+   *                               the request or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult
         search(final SearchResultListener searchResultListener,
@@ -1834,6 +1957,18 @@ public abstract class AbstractConnectionPool
   /**
    * Processes the provided search request using a connection from this
    * connection pool.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references (although if a search result listener was provided,
+   * then it will have been used to make any entries and references available,
+   * and they will not be available through the {@code getSearchEntries} and
+   * {@code getSearchReferences} methods).
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}.
@@ -1844,7 +1979,12 @@ public abstract class AbstractConnectionPool
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.
+   *                               the request or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult search(final SearchRequest searchRequest)
          throws LDAPSearchException
@@ -1904,6 +2044,18 @@ public abstract class AbstractConnectionPool
   /**
    * Processes the provided search request using a connection from this
    * connection pool.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references (although if a search result listener was provided,
+   * then it will have been used to make any entries and references available,
+   * and they will not be available through the {@code getSearchEntries} and
+   * {@code getSearchReferences} methods).
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}.
@@ -1914,7 +2066,12 @@ public abstract class AbstractConnectionPool
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.
+   *                               the request or reading the response.  If one
+   *                               or more entries or references were returned
+   *                               before the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResult search(final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
@@ -1930,6 +2087,15 @@ public abstract class AbstractConnectionPool
    * entry will be returned from the search, and that no additional content from
    * the successful search result (e.g., diagnostic message or response
    * controls) are needed.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  baseDN      The base DN for the search request.  It must not be
    *                     {@code null}.
@@ -1950,7 +2116,12 @@ public abstract class AbstractConnectionPool
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.
+   *                               or reading the response.  If one or more
+   *                               entries or references were returned before
+   *                               the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResultEntry searchForEntry(final String baseDN,
                                                 final SearchScope scope,
@@ -1971,6 +2142,15 @@ public abstract class AbstractConnectionPool
    * entry will be returned from the search, and that no additional content from
    * the successful search result (e.g., diagnostic message or response
    * controls) are needed.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  baseDN      The base DN for the search request.  It must not be
    *                     {@code null}.
@@ -1991,7 +2171,12 @@ public abstract class AbstractConnectionPool
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.
+   *                               or reading the response.  If one or more
+   *                               entries or references were returned before
+   *                               the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResultEntry searchForEntry(final String baseDN,
                                                 final SearchScope scope,
@@ -2011,6 +2196,15 @@ public abstract class AbstractConnectionPool
    * entry will be returned from the search, and that no additional content from
    * the successful search result (e.g., diagnostic message or response
    * controls) are needed.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  baseDN       The base DN for the search request.  It must not be
    *                      {@code null}.
@@ -2038,7 +2232,12 @@ public abstract class AbstractConnectionPool
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.
+   *                               or reading the response.  If one or more
+   *                               entries or references were returned before
+   *                               the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResultEntry
        searchForEntry(final String baseDN, final SearchScope scope,
@@ -2059,6 +2258,15 @@ public abstract class AbstractConnectionPool
    * entry will be returned from the search, and that no additional content from
    * the successful search result (e.g., diagnostic message or response
    * controls) are needed.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  baseDN       The base DN for the search request.  It must not be
    *                      {@code null}.
@@ -2085,7 +2293,12 @@ public abstract class AbstractConnectionPool
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.
+   *                               or reading the response.  If one or more
+   *                               entries or references were returned before
+   *                               the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResultEntry
        searchForEntry(final String baseDN, final SearchScope scope,
@@ -2106,16 +2319,20 @@ public abstract class AbstractConnectionPool
    * entry will be returned from the search, and that no additional content from
    * the successful search result (e.g., diagnostic message or response
    * controls) are needed.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  searchRequest  The search request to be processed.  If it is
    *                        configured with a search result listener or a size
    *                        limit other than one, then the provided request will
    *                        be duplicated with the appropriate settings.
-   *
-   * It must not be
-   *                        {@code null}, it must not be configured with a
-   *                        search result listener, and it should be configured
-   *                        with a size limit of one.
    *
    * @return  The entry that was returned from the search, or {@code null} if no
    *          entry was returned or the base entry does not exist.
@@ -2124,7 +2341,12 @@ public abstract class AbstractConnectionPool
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.
+   *                               or reading the response.  If one or more
+   *                               entries or references were returned before
+   *                               the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResultEntry searchForEntry(
                                       final SearchRequest searchRequest)
@@ -2188,6 +2410,15 @@ public abstract class AbstractConnectionPool
    * entry will be returned from the search, and that no additional content from
    * the successful search result (e.g., diagnostic message or response
    * controls) are needed.
+   * <BR><BR>
+   * Note that if the search does not complete successfully, an
+   * {@code LDAPSearchException} will be thrown  In some cases, one or more
+   * search result entries or references may have been returned before the
+   * failure response is received.  In this case, the
+   * {@code LDAPSearchException} methods like {@code getEntryCount},
+   * {@code getSearchEntries}, {@code getReferenceCount}, and
+   * {@code getSearchReferences} may be used to obtain information about those
+   * entries and references.
    *
    * @param  searchRequest  The search request to be processed.  If it is
    *                        configured with a search result listener or a size
@@ -2201,7 +2432,12 @@ public abstract class AbstractConnectionPool
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.
+   *                               or reading the response.  If one or more
+   *                               entries or references were returned before
+   *                               the failure was encountered, then the
+   *                               {@code LDAPSearchException} object may be
+   *                               examined to obtain information about those
+   *                               entries and/or references.
    */
   public final SearchResultEntry searchForEntry(
                                       final ReadOnlySearchRequest searchRequest)
