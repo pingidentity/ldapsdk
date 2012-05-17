@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
+import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
@@ -421,9 +422,12 @@ public final class DefaultObjectEncoder
       syntaxOID = getSyntaxOID(typeInfo.getComponentType());
     }
 
+    final MatchingRule mr = MatchingRule.selectMatchingRuleForSyntax(syntaxOID);
     return new AttributeTypeDefinition(oid, new String[] { attrName }, null,
-         false, null, null, null, null, syntaxOID, isSingleValued, false, false,
-         AttributeUsage.USER_APPLICATIONS, null);
+         false, null, mr.getEqualityMatchingRuleNameOrOID(),
+         mr.getOrderingMatchingRuleNameOrOID(),
+         mr.getSubstringMatchingRuleNameOrOID(), syntaxOID, isSingleValued,
+         false, false, AttributeUsage.USER_APPLICATIONS, null);
   }
 
 
