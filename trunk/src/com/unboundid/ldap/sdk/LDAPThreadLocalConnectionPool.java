@@ -504,7 +504,7 @@ public final class LDAPThreadLocalConnectionPool
     {
       debugException(le);
 
-      conn.close(null);
+      conn.terminate(null);
       connections.remove(t);
 
       if (created)
