@@ -22,6 +22,7 @@ package com.unboundid.ldap.protocol;
 
 
 
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.SocketTimeoutException;
@@ -778,7 +779,8 @@ public final class LDAPMessage
     }
     catch (IOException ioe)
     {
-      if (! (ioe instanceof SocketTimeoutException))
+      if (! ((ioe instanceof SocketTimeoutException) ||
+             (ioe instanceof InterruptedIOException)))
       {
         debugException(ioe);
       }
@@ -889,22 +891,24 @@ public final class LDAPMessage
       debugException(le);
       throw le;
     }
-    catch (SocketTimeoutException ste)
-    {
-      debugException(ste);
-
-      // We don't want to provide this exception as the cause because we want
-      // to ensure that a failure in the middle of the response causes the
-      // connection to be terminated.
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(ste)));
-    }
     catch (IOException ioe)
     {
       debugException(ioe);
 
-      throw new LDAPException(ResultCode.SERVER_DOWN,
-           ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
+      if ((ioe instanceof SocketTimeoutException) ||
+          (ioe instanceof InterruptedIOException))
+      {
+        // We don't want to provide this exception as the cause because we want
+        // to ensure that a failure in the middle of the response causes the
+        // connection to be terminated.
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(ioe)));
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.SERVER_DOWN,
+             ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
+      }
     }
     catch (Exception e)
     {
@@ -986,7 +990,8 @@ public final class LDAPMessage
     }
     catch (IOException ioe)
     {
-      if (! (ioe instanceof SocketTimeoutException))
+      if (! ((ioe instanceof SocketTimeoutException) ||
+             (ioe instanceof InterruptedIOException)))
       {
         debugException(ioe);
       }
@@ -1069,22 +1074,24 @@ public final class LDAPMessage
       debugException(le);
       throw le;
     }
-    catch (SocketTimeoutException ste)
-    {
-      debugException(ste);
-
-      // We don't want to provide this exception as the cause because we want
-      // to ensure that a failure in the middle of the response causes the
-      // connection to be terminated.
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(ste)));
-    }
     catch (IOException ioe)
     {
       debugException(ioe);
 
-      throw new LDAPException(ResultCode.SERVER_DOWN,
-           ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
+      if ((ioe instanceof SocketTimeoutException) ||
+          (ioe instanceof InterruptedIOException))
+      {
+        // We don't want to provide this exception as the cause because we want
+        // to ensure that a failure in the middle of the response causes the
+        // connection to be terminated.
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MESSAGE_CANNOT_DECODE.get(getExceptionMessage(ioe)));
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.SERVER_DOWN,
+             ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
+      }
     }
     catch (Exception e)
     {
