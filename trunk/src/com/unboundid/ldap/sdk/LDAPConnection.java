@@ -1243,6 +1243,7 @@ public final class LDAPConnection
       try
       {
         unbindRequestSent = true;
+        setDisconnectInfo(DisconnectType.UNBIND, null, null);
         if (debugEnabled(DebugType.LDAP))
         {
           debug(Level.INFO, DebugType.LDAP, "Sending LDAP unbind request.");
@@ -3953,6 +3954,28 @@ public final class LDAPConnection
    */
   void setClosed()
   {
+    if (disconnectType == null)
+    {
+      try
+      {
+        final StackTraceElement[] stackElements =
+             Thread.currentThread().getStackTrace();
+        final StackTraceElement[] parentStackElements =
+             new StackTraceElement[stackElements.length - 1];
+        System.arraycopy(stackElements, 1, parentStackElements, 0,
+             parentStackElements.length);
+
+        setDisconnectInfo(DisconnectType.OTHER,
+             ERR_CONN_CLOSED_BY_UNEXPECTED_CALL_PATH.get(
+                  getStackTrace(parentStackElements)),
+             null);
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
+    }
+
     connectionStatistics.incrementNumDisconnects();
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals != null)
