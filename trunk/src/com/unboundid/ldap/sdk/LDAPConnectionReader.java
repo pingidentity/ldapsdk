@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
@@ -359,6 +360,15 @@ final class LDAPConnectionReader
             connection.setDisconnectInfo(DisconnectType.DECODE_ERROR,
                  le.getMessage(), t);
             message = le.getMessage();
+            debugLevel = Level.WARNING;
+          }
+          else if ((t instanceof InterruptedIOException) && socket.isClosed())
+          {
+            connection.setDisconnectInfo(
+                 DisconnectType.SERVER_CLOSED_WITHOUT_NOTICE, le.getMessage(),
+                 t);
+            message = ERR_READER_CLOSING_DUE_TO_INTERRUPTED_IO.get(
+                 connection.getHostPort());
             debugLevel = Level.WARNING;
           }
           else if (t instanceof IOException)
