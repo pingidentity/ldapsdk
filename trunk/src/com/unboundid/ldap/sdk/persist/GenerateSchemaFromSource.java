@@ -31,10 +31,14 @@ import java.util.List;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
+import com.unboundid.ldif.LDIFModifyChangeRecord;
+import com.unboundid.ldif.LDIFRecord;
 import com.unboundid.ldif.LDIFWriter;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Mutable;
@@ -42,6 +46,7 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.StringArgument;
 
@@ -72,8 +77,9 @@ public final class GenerateSchemaFromSource
 
 
   // Arguments used by this tool.
-  private FileArgument   outputFileArg;
-  private StringArgument classNameArg;
+  private BooleanArgument modifyFormatArg;
+  private FileArgument    outputFileArg;
+  private StringArgument  classNameArg;
 
 
 
@@ -189,6 +195,10 @@ public final class GenerateSchemaFromSource
          INFO_GEN_SCHEMA_ARG_DESCRIPTION_OUTPUT_FILE.get(), false, true, true,
          false);
     parser.addArgument(outputFileArg);
+
+    modifyFormatArg = new BooleanArgument('m', "modifyFormat",
+         INFO_GEN_SCHEMA_ARG_DESCRIPTION_MODIFY_FORMAT.get());
+    parser.addArgument(modifyFormatArg);
   }
 
 
@@ -277,12 +287,23 @@ public final class GenerateSchemaFromSource
     }
 
 
-    // Construct a schema entry to be written.
-    final Entry schemaEntry = new Entry("cn=schema",
-         new Attribute("objectClass", "top", "ldapSubentry", "subschema"),
-         new Attribute("cn", "schema"),
-         new Attribute("attributeTypes", attrTypeValues),
-         new Attribute("objectClasses", ocValues));
+    // Construct the LDIF record to be written.
+    final LDIFRecord schemaRecord;
+    if (modifyFormatArg.isPresent())
+    {
+      schemaRecord = new LDIFModifyChangeRecord("cn=schema",
+           new Modification(ModificationType.ADD, "attributeTypes",
+                attrTypeValues),
+           new Modification(ModificationType.ADD, "objectClasses", ocValues));
+    }
+    else
+    {
+      schemaRecord = new Entry("cn=schema",
+           new Attribute("objectClass", "top", "ldapSubentry", "subschema"),
+           new Attribute("cn", "schema"),
+           new Attribute("attributeTypes", attrTypeValues),
+           new Attribute("objectClasses", ocValues));
+    }
 
 
     // Write the schema entry to the specified file.
@@ -290,7 +311,7 @@ public final class GenerateSchemaFromSource
     try
     {
       final LDIFWriter ldifWriter = new LDIFWriter(outputFile);
-      ldifWriter.writeEntry(schemaEntry);
+      ldifWriter.writeLDIFRecord(schemaRecord);
       ldifWriter.close();
     }
     catch (final Exception e)
