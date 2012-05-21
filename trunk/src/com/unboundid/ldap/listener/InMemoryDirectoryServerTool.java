@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.FileHandler;
@@ -457,7 +458,7 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_USE_DEFAULT_SCHEMA.get());
     parser.addArgument(useDefaultSchemaArgument);
 
-    useSchemaFileArgument = new FileArgument('S', "useSchemaFile", false, 1,
+    useSchemaFileArgument = new FileArgument('S', "useSchemaFile", false, 0,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_USE_SCHEMA_FILE.get(), true, true, false,
          false);
@@ -656,40 +657,56 @@ public final class InMemoryDirectoryServerTool
     }
     else if (useSchemaFileArgument.isPresent())
     {
-      final File f = useSchemaFileArgument.getValue();
-      if (f.exists())
+      final ArrayList<File> schemaFiles = new ArrayList<File>(10);
+      for (final File f : useSchemaFileArgument.getValues())
       {
-        final ArrayList<File> schemaFiles = new ArrayList<File>(1);
-        if (f.isFile())
+        if (f.exists())
         {
-          schemaFiles.add(f);
-        }
-        else
-        {
-          for (final File subFile : f.listFiles())
+          if (f.isFile())
           {
-            if (subFile.isFile())
+            schemaFiles.add(f);
+          }
+          else
+          {
+            for (final File subFile : f.listFiles())
             {
-              schemaFiles.add(subFile);
+              if (subFile.isFile())
+              {
+                schemaFiles.add(subFile);
+              }
             }
           }
         }
-
-        if (! schemaFiles.isEmpty())
+        else
         {
-          try
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_MEM_DS_TOOL_NO_SUCH_SCHEMA_FILE.get(f.getAbsolutePath()));
+        }
+      }
+
+      try
+      {
+        serverConfig.setSchema(Schema.getSchema(schemaFiles));
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+
+        final StringBuilder fileList = new StringBuilder();
+        final Iterator<File> fileIterator = schemaFiles.iterator();
+        while (fileIterator.hasNext())
+        {
+          fileList.append(fileIterator.next().getAbsolutePath());
+          if (fileIterator.hasNext())
           {
-            serverConfig.setSchema(Schema.getSchema(schemaFiles));
-          }
-          catch (final Exception e)
-          {
-            Debug.debugException(e);
-            throw new LDAPException(ResultCode.LOCAL_ERROR,
-                 ERR_MEM_DS_TOOL_ERROR_READING_SCHEMA.get(
-                      f.getAbsolutePath(), StaticUtils.getExceptionMessage(e)),
-                 e);
+            fileList.append(", ");
           }
         }
+
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MEM_DS_TOOL_ERROR_READING_SCHEMA.get(
+                  fileList, StaticUtils.getExceptionMessage(e)),
+             e);
       }
     }
     else
