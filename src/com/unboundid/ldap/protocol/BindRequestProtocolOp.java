@@ -24,7 +24,10 @@ package com.unboundid.ldap.protocol;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -259,6 +262,34 @@ public final class BindRequestProtocolOp
 
 
   /**
+   * Creates a new bind request protocol op with the provided information.
+   *
+   * @param  version          The protocol version.
+   * @param  bindDN           The bind DN.  It must not be {@code null} (but may
+   *                          be empty).
+   * @param  credentialsType  The type of credentials supplied.
+   * @param  simplePassword   The password for simple authentication, if
+   *                          appropriate.
+   * @param  saslMechanism    The name of the SASL mechanism, if appropriate.
+   * @param  saslCredentials  The SASL credentials, if appropriate.
+   */
+  private BindRequestProtocolOp(final int version, final String bindDN,
+                                final byte credentialsType,
+                                final ASN1OctetString simplePassword,
+                                final String saslMechanism,
+                                final ASN1OctetString saslCredentials)
+  {
+    this.version         = version;
+    this.bindDN          = bindDN;
+    this.credentialsType = credentialsType;
+    this.simplePassword  = simplePassword;
+    this.saslMechanism   = saslMechanism;
+    this.saslCredentials = saslCredentials;
+  }
+
+
+
+  /**
    * Retrieves the protocol version for this bind request.
    *
    * @return  The protocol version for this bind request.
@@ -342,6 +373,115 @@ public final class BindRequestProtocolOp
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public ASN1Element encodeProtocolOp()
+  {
+    final ASN1Element credentials;
+    if (credentialsType == CRED_TYPE_SIMPLE)
+    {
+      credentials = simplePassword;
+    }
+    else
+    {
+      if (saslCredentials == null)
+      {
+        credentials = new ASN1Sequence(CRED_TYPE_SASL,
+             new ASN1OctetString(saslMechanism));
+      }
+      else
+      {
+        credentials = new ASN1Sequence(CRED_TYPE_SASL,
+             new ASN1OctetString(saslMechanism),
+             saslCredentials);
+      }
+    }
+
+    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST,
+         new ASN1Integer(version),
+         new ASN1OctetString(bindDN),
+         credentials);
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as a bind request protocol op.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The decoded bind request protocol op.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         a bind request protocol op.
+   */
+  public static BindRequestProtocolOp decodeProtocolOp(
+                                           final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      final ASN1Element[] elements =
+           ASN1Sequence.decodeAsSequence(element).elements();
+      final int version = ASN1Integer.decodeAsInteger(elements[0]).intValue();
+      final String bindDN =
+           ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
+
+      final ASN1OctetString saslCredentials;
+      final ASN1OctetString simplePassword;
+      final String saslMechanism;
+      switch (elements[2].getType())
+      {
+        case CRED_TYPE_SIMPLE:
+          simplePassword  = ASN1OctetString.decodeAsOctetString(elements[2]);
+          saslMechanism   = null;
+          saslCredentials = null;
+          break;
+
+        case CRED_TYPE_SASL:
+          final ASN1Element[] saslElements =
+               ASN1Sequence.decodeAsSequence(elements[2]).elements();
+          saslMechanism = ASN1OctetString.decodeAsOctetString(saslElements[0]).
+               stringValue();
+          if (saslElements.length == 1)
+          {
+            saslCredentials = null;
+          }
+          else
+          {
+            saslCredentials =
+                 ASN1OctetString.decodeAsOctetString(saslElements[1]);
+          }
+
+          simplePassword = null;
+          break;
+
+        default:
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_BIND_REQUEST_INVALID_CRED_TYPE.get(
+                    toHex(elements[2].getType())));
+      }
+
+      return new BindRequestProtocolOp(version, bindDN, elements[2].getType(),
+           simplePassword, saslMechanism, saslCredentials);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw le;
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_BIND_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 

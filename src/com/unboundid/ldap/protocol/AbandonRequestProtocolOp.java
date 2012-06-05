@@ -23,6 +23,8 @@ package com.unboundid.ldap.protocol;
 
 
 import com.unboundid.asn1.ASN1Buffer;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -116,6 +118,47 @@ public final class AbandonRequestProtocolOp
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public ASN1Element encodeProtocolOp()
+  {
+    return new ASN1Integer(LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST,
+         idToAbandon);
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as an abandon request protocol op.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The decoded abandon request protocol op.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         an abandon request protocol op.
+   */
+  public static AbandonRequestProtocolOp decodeProtocolOp(
+                                              final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      return new AbandonRequestProtocolOp(
+           ASN1Integer.decodeAsInteger(element).intValue());
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ABANDON_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 

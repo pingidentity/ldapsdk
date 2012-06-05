@@ -267,7 +267,7 @@ public class ExtendedRequest
    *
    * @return  The ASN.1 element with the encoded extended request protocol op.
    */
-  ASN1Element encodeProtocolOp()
+  public ASN1Element encodeProtocolOp()
   {
     // Create the extended request protocol op.
     final ASN1Element[] protocolOpElements;

@@ -1066,7 +1066,7 @@ public final class SearchRequest
    *
    * @return  The ASN.1 element with the encoded search request protocol op.
    */
-  ASN1Element encodeProtocolOp()
+  public ASN1Element encodeProtocolOp()
   {
     // Create the search request protocol op.
     final ASN1Element[] attrElements = new ASN1Element[attributes.length];

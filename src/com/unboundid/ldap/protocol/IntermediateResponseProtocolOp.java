@@ -22,9 +22,13 @@ package com.unboundid.ldap.protocol;
 
 
 
+import java.util.ArrayList;
+
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -194,6 +198,83 @@ public final class IntermediateResponseProtocolOp
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_INTERMEDIATE_RESPONSE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public ASN1Element encodeProtocolOp()
+  {
+    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
+
+    if (oid != null)
+    {
+      elements.add(new ASN1OctetString(TYPE_OID, oid));
+    }
+
+    if (value != null)
+    {
+      elements.add(value);
+    }
+
+    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_INTERMEDIATE_RESPONSE,
+         elements);
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as a intermediate response protocol op.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The decoded intermediate response protocol op.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         a intermediate response protocol op.
+   */
+  public static IntermediateResponseProtocolOp decodeProtocolOp(
+                                                    final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      String oid = null;
+      ASN1OctetString value = null;
+      for (final ASN1Element e :
+           ASN1Sequence.decodeAsSequence(element).elements())
+      {
+        switch (e.getType())
+        {
+          case TYPE_OID:
+            oid = ASN1OctetString.decodeAsOctetString(e).stringValue();
+            break;
+          case TYPE_VALUE:
+            value = ASN1OctetString.decodeAsOctetString(e);
+            break;
+          default:
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_INTERMEDIATE_RESPONSE_INVALID_ELEMENT.get(
+                      toHex(e.getType())));
+        }
+      }
+
+      return new IntermediateResponseProtocolOp(oid, value);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw le;
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_COMPARE_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 

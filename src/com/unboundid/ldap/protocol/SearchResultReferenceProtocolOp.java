@@ -29,6 +29,9 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -133,6 +136,64 @@ public final class SearchResultReferenceProtocolOp
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_REFERENCE;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public ASN1Element encodeProtocolOp()
+  {
+    final ArrayList<ASN1Element> urlElements =
+         new ArrayList<ASN1Element>(referralURLs.size());
+    for (final String url : referralURLs)
+    {
+      urlElements.add(new ASN1OctetString(url));
+    }
+
+    return new ASN1Sequence(
+         LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_REFERENCE,
+         urlElements);
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as a search result reference protocol
+   * op.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The decoded search result reference protocol op.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         a search result reference protocol op.
+   */
+  public static SearchResultReferenceProtocolOp decodeProtocolOp(
+                                                     final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      final ASN1Element[] urlElements =
+           ASN1Sequence.decodeAsSequence(element).elements();
+      final ArrayList<String> referralURLs =
+           new ArrayList<String>(urlElements.length);
+      for (final ASN1Element e : urlElements)
+      {
+        referralURLs.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
+      }
+
+      return new SearchResultReferenceProtocolOp(referralURLs);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_SEARCH_REFERENCE_CANNOT_DECODE.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 

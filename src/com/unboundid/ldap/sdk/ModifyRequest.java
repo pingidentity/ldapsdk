@@ -596,7 +596,7 @@ public final class ModifyRequest
    *
    * @return  The ASN.1 element with the encoded modify request protocol op.
    */
-  ASN1Element encodeProtocolOp()
+  public ASN1Element encodeProtocolOp()
   {
     final ASN1Element[] modElements = new ASN1Element[modifications.size()];
     for (int i=0; i < modElements.length; i++)

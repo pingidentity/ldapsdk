@@ -558,7 +558,7 @@ public final class ModifyDNRequest
    *
    * @return  The ASN.1 element with the encoded modify DN request protocol op.
    */
-  ASN1Element encodeProtocolOp()
+  public ASN1Element encodeProtocolOp()
   {
     final ASN1Element[] protocolOpElements;
     if (newSuperiorDN == null)

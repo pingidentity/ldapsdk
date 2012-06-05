@@ -29,6 +29,9 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.Attribute;
@@ -158,6 +161,67 @@ public final class AddRequestProtocolOp
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public ASN1Element encodeProtocolOp()
+  {
+    final ArrayList<ASN1Element> attrElements =
+         new ArrayList<ASN1Element>(attributes.size());
+    for (final Attribute a : attributes)
+    {
+      attrElements.add(a.encode());
+    }
+
+    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST,
+         new ASN1OctetString(dn),
+         new ASN1Sequence(attrElements));
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as an add request protocol op.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The decoded add request protocol op.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         an add request protocol op.
+   */
+  public static AddRequestProtocolOp decodeProtocolOp(final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      final ASN1Element[] elements =
+           ASN1Sequence.decodeAsSequence(element).elements();
+      final String dn =
+           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
+
+      final ASN1Element[] attrElements =
+           ASN1Sequence.decodeAsSequence(elements[1]).elements();
+      final ArrayList<Attribute> attributes =
+           new ArrayList<Attribute>(attrElements.length);
+      for (final ASN1Element ae : attrElements)
+      {
+        attributes.add(Attribute.decode(ASN1Sequence.decodeAsSequence(ae)));
+      }
+
+      return new AddRequestProtocolOp(dn, attributes);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_ADD_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 

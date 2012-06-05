@@ -527,7 +527,7 @@ public final class CompareRequest
    *
    * @return  The ASN.1 element with the encoded compare request protocol op.
    */
-  ASN1Element encodeProtocolOp()
+  public ASN1Element encodeProtocolOp()
   {
     // Create the compare request protocol op.
     final ASN1Element[] avaElements =

@@ -231,7 +231,7 @@ public final class DeleteRequest
    *
    * @return  The ASN.1 element with the encoded delete request protocol op.
    */
-  ASN1Element encodeProtocolOp()
+  public ASN1Element encodeProtocolOp()
   {
     return new ASN1OctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
   }

@@ -936,7 +936,7 @@ public final class AddRequest
    *
    * @return  The ASN.1 element with the encoded add request protocol op.
    */
-  ASN1Element encodeProtocolOp()
+  public ASN1Element encodeProtocolOp()
   {
     // Create the add request protocol op.
     final ASN1Element[] attrElements = new ASN1Element[attributes.size()];
