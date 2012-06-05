@@ -29,6 +29,9 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -160,6 +163,68 @@ public final class ModifyRequestProtocolOp
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public ASN1Element encodeProtocolOp()
+  {
+    final ArrayList<ASN1Element> modElements =
+         new ArrayList<ASN1Element>(modifications.size());
+    for (final Modification m : modifications)
+    {
+      modElements.add(m.encode());
+    }
+
+    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST,
+         new ASN1OctetString(dn),
+         new ASN1Sequence(modElements));
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as a modify request protocol op.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The decoded modify request protocol op.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         a modify request protocol op.
+   */
+  public static ModifyRequestProtocolOp decodeProtocolOp(
+                                             final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      final ASN1Element[] elements =
+           ASN1Sequence.decodeAsSequence(element).elements();
+      final String dn =
+           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
+
+      final ASN1Element[] modElements =
+           ASN1Sequence.decodeAsSequence(elements[1]).elements();
+      final ArrayList<Modification> mods =
+           new ArrayList<Modification>(modElements.length);
+      for (final ASN1Element e : modElements)
+      {
+        mods.add(Modification.decode(ASN1Sequence.decodeAsSequence(e)));
+      }
+
+      return new ModifyRequestProtocolOp(dn, mods);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_MODIFY_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 

@@ -34,6 +34,9 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1Integer;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.Control;
@@ -711,6 +714,164 @@ public final class LDAPMessage
   public List<Control> getControls()
   {
     return controls;
+  }
+
+
+
+  /**
+   * Encodes this LDAP message to an ASN.1 element.
+   *
+   * @return  The ASN.1 element containing the encoded representation of this
+   *          LDAP message.
+   */
+  public ASN1Element encode()
+  {
+    if (controls.isEmpty())
+    {
+      return new ASN1Sequence(
+           new ASN1Integer(messageID),
+           protocolOp.encodeProtocolOp());
+    }
+    else
+    {
+      final Control[] controlArray = new Control[controls.size()];
+      controls.toArray(controlArray);
+
+      return new ASN1Sequence(
+           new ASN1Integer(messageID),
+           protocolOp.encodeProtocolOp(),
+           Control.encodeControls(controlArray));
+    }
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as an LDAP message.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The LDAP message decoded from the provided ASN.1 element.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         a valid LDAP message.
+   */
+  public static LDAPMessage decode(final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      final ASN1Element[] elements =
+           ASN1Sequence.decodeAsSequence(element).elements();
+      if ((elements.length < 2) || (elements.length > 3))
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+             ERR_MESSAGE_DECODE_VALUE_SEQUENCE_INVALID_ELEMENT_COUNT.get(
+                  elements.length));
+      }
+
+      final int messageID = ASN1Integer.decodeAsInteger(elements[0]).intValue();
+
+      final ProtocolOp protocolOp;
+      switch (elements[1].getType())
+      {
+        case PROTOCOL_OP_TYPE_ABANDON_REQUEST:
+          protocolOp = AbandonRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_ADD_REQUEST:
+          protocolOp = AddRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_ADD_RESPONSE:
+          protocolOp = AddResponseProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_BIND_REQUEST:
+          protocolOp = BindRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_BIND_RESPONSE:
+          protocolOp = BindResponseProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_COMPARE_REQUEST:
+          protocolOp = CompareRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_COMPARE_RESPONSE:
+          protocolOp = CompareResponseProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_DELETE_REQUEST:
+          protocolOp = DeleteRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_DELETE_RESPONSE:
+          protocolOp = DeleteResponseProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_EXTENDED_REQUEST:
+          protocolOp = ExtendedRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_EXTENDED_RESPONSE:
+          protocolOp = ExtendedResponseProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_INTERMEDIATE_RESPONSE:
+          protocolOp =
+               IntermediateResponseProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_MODIFY_REQUEST:
+          protocolOp = ModifyRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_MODIFY_RESPONSE:
+          protocolOp = ModifyResponseProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST:
+          protocolOp = ModifyDNRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_MODIFY_DN_RESPONSE:
+          protocolOp = ModifyDNResponseProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_SEARCH_REQUEST:
+          protocolOp = SearchRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_SEARCH_RESULT_DONE:
+          protocolOp = SearchResultDoneProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_SEARCH_RESULT_ENTRY:
+          protocolOp =
+               SearchResultEntryProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_SEARCH_RESULT_REFERENCE:
+          protocolOp =
+               SearchResultReferenceProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        case PROTOCOL_OP_TYPE_UNBIND_REQUEST:
+          protocolOp = UnbindRequestProtocolOp.decodeProtocolOp(elements[1]);
+          break;
+        default:
+          throw new LDAPException(ResultCode.DECODING_ERROR,
+               ERR_MESSAGE_DECODE_INVALID_PROTOCOL_OP_TYPE.get(
+                    toHex(elements[1].getType())));
+      }
+
+      final Control[] controls;
+      if (elements.length == 3)
+      {
+        controls =
+             Control.decodeControls(ASN1Sequence.decodeAsSequence(elements[2]));
+      }
+      else
+      {
+        controls = null;
+      }
+
+      return new LDAPMessage(messageID, protocolOp, controls);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      throw le;
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_MESSAGE_DECODE_ERROR.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 

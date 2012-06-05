@@ -23,6 +23,8 @@ package com.unboundid.ldap.protocol;
 
 
 import com.unboundid.asn1.ASN1Buffer;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -118,6 +120,46 @@ public final class DeleteRequestProtocolOp
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public ASN1Element encodeProtocolOp()
+  {
+    return new ASN1OctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as a delete request protocol op.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The decoded delete request protocol op.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         a delete request protocol op.
+   */
+  public static DeleteRequestProtocolOp decodeProtocolOp(
+                                             final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      return new DeleteRequestProtocolOp(
+           ASN1OctetString.decodeAsOctetString(element).stringValue());
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_DELETE_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 

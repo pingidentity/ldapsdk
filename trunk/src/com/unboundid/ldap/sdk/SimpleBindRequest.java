@@ -28,11 +28,15 @@ import java.util.concurrent.TimeUnit;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -465,6 +469,33 @@ public final class SimpleBindRequest
     }
 
     requestSequence.end();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   * Use of this method is only supported if the bind request was created with a
+   * static password.  It is not allowed if the password will be obtained
+   * through a password provider.
+   *
+   * @throws  LDAPSDKUsageException  If this bind request was created with a
+   *                                 password provider rather than a static
+   *                                 password.
+   */
+  public ASN1Element encodeProtocolOp()
+         throws LDAPSDKUsageException
+  {
+    if (password == null)
+    {
+      throw new LDAPSDKUsageException(
+           ERR_SIMPLE_BIND_ENCODE_PROTOCOL_OP_WITH_PROVIDER.get());
+    }
+
+    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST,
+         new ASN1Integer(3),
+         bindDN,
+         password);
   }
 
 

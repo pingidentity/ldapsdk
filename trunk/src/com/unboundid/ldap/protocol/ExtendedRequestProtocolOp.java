@@ -24,7 +24,9 @@ package com.unboundid.ldap.protocol;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
+import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -174,6 +176,70 @@ public final class ExtendedRequestProtocolOp
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public ASN1Element encodeProtocolOp()
+  {
+    if (value ==  null)
+    {
+      return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST,
+           new ASN1OctetString(TYPE_OID, oid));
+    }
+    else
+    {
+      return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST,
+           new ASN1OctetString(TYPE_OID, oid),
+           value);
+    }
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as an extended request protocol op.
+   *
+   * @param  element  The ASN.1 element to be decoded.
+   *
+   * @return  The decoded extended request protocol op.
+   *
+   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
+   *                         an extended request protocol op.
+   */
+  public static ExtendedRequestProtocolOp decodeProtocolOp(
+                                               final ASN1Element element)
+         throws LDAPException
+  {
+    try
+    {
+      final ASN1Element[] elements =
+           ASN1Sequence.decodeAsSequence(element).elements();
+      final String oid =
+           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
+
+      final ASN1OctetString value;
+      if (elements.length == 1)
+      {
+        value = null;
+      }
+      else
+      {
+        value = ASN1OctetString.decodeAsOctetString(elements[1]);
+      }
+
+      return new ExtendedRequestProtocolOp(oid, value);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_EXTENDED_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
+           e);
+    }
   }
 
 
