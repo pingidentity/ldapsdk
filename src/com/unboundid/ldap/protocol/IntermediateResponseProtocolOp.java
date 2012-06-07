@@ -31,6 +31,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -105,6 +107,21 @@ public final class IntermediateResponseProtocolOp
     {
       this.value = new ASN1OctetString(TYPE_VALUE, value.getValue());
     }
+  }
+
+
+
+  /**
+   * Creates a new intermediate response protocol op from the provided
+   * intermediate response object.
+   *
+   * @param  response  The intermediate response object to use to create this
+   *                   protocol op.
+   */
+  public IntermediateResponseProtocolOp(final IntermediateResponse response)
+  {
+    oid   = response.getOID();
+    value = response.getValue();
   }
 
 
@@ -298,6 +315,22 @@ public final class IntermediateResponseProtocolOp
     }
 
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a intermediate response from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the intermediate
+   *                   response.  It may be empty or {@code null} if no controls
+   *                   should be included.
+   *
+   * @return  The intermediate response that was created.
+   */
+  public IntermediateResponse toIntermediateResponse(final Control... controls)
+  {
+    return new IntermediateResponse(-1, oid, value, controls);
   }
 
 

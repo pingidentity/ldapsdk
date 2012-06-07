@@ -34,7 +34,9 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -83,6 +85,19 @@ public final class AddRequestProtocolOp
   {
     this.dn         = dn;
     this.attributes = Collections.unmodifiableList(attributes);
+  }
+
+
+
+  /**
+   * Creates a new add request protocol op from the provided add request object.
+   *
+   * @param  request  The add request object to use to create this protocol op.
+   */
+  public AddRequestProtocolOp(final AddRequest request)
+  {
+    dn          = request.getDN();
+    attributes = request.getAttributes();
   }
 
 
@@ -242,6 +257,22 @@ public final class AddRequestProtocolOp
     }
     attrSequence.end();
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates an add request from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the add request.  It
+   *                   may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The add request that was created.
+   */
+  public AddRequest toAddRequest(final Control... controls)
+  {
+    return new AddRequest(dn, attributes, controls);
   }
 
 

@@ -30,8 +30,13 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.BindRequest;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.GenericSASLBindRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SimpleBindRequest;
+import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
@@ -189,6 +194,56 @@ public final class BindRequestProtocolOp
     version         = 3;
     credentialsType = CRED_TYPE_SASL;
     simplePassword  = null;
+  }
+
+
+
+  /**
+   * Creates a new bind request protocol op from the provided bind request
+   * object.
+   *
+   * @param  request  The simple bind request to use to create this protocol op.
+   *                  It must have been created with a static password rather
+   *                  than using a password provider.
+   *
+   * @throws  LDAPSDKUsageException  If the provided simple bind request is
+   *                                 configured to use a password provider
+   *                                 rather than a static password.
+   */
+  public BindRequestProtocolOp(final SimpleBindRequest request)
+         throws LDAPSDKUsageException
+  {
+    version         = 3;
+    credentialsType = CRED_TYPE_SIMPLE;
+    bindDN          = request.getBindDN();
+    simplePassword  = request.getPassword();
+    saslMechanism   = null;
+    saslCredentials = null;
+
+    if (simplePassword == null)
+    {
+      throw new LDAPSDKUsageException(
+           ERR_BIND_REQUEST_CANNOT_CREATE_WITH_PASSWORD_PROVIDER.get());
+    }
+  }
+
+
+
+  /**
+   * Creates a new bind request protocol op from the provided bind request
+   * object.
+   *
+   * @param  request  The generic SASL bind request to use to create this
+   *                  protocol op.
+   */
+  public BindRequestProtocolOp(final GenericSASLBindRequest request)
+  {
+    version         = 3;
+    credentialsType = CRED_TYPE_SASL;
+    bindDN          = request.getBindDN();
+    simplePassword  = null;
+    saslMechanism   = request.getSASLMechanismName();
+    saslCredentials = request.getCredentials();
   }
 
 
@@ -513,6 +568,31 @@ public final class BindRequestProtocolOp
     }
     opSequence.end();
     buffer.setZeroBufferOnClear();
+  }
+
+
+
+  /**
+   * Creates a new bind request object from this bind request protocol op.
+   *
+   * @param  controls  The set of controls to include in the bind request.  It
+   *                   may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The bind request that was created.
+   */
+  public BindRequest toBindRequest(final Control... controls)
+  {
+    if (credentialsType == CRED_TYPE_SIMPLE)
+    {
+      return new SimpleBindRequest(bindDN, simplePassword.getValue(),
+           controls);
+    }
+    else
+    {
+      return new GenericSASLBindRequest(bindDN, saslMechanism,
+           saslCredentials, controls);
+    }
   }
 
 

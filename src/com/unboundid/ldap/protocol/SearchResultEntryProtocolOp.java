@@ -35,8 +35,11 @@ import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
@@ -87,6 +90,20 @@ public final class SearchResultEntryProtocolOp
   {
     this.dn         = dn;
     this.attributes = Collections.unmodifiableList(attributes);
+  }
+
+
+
+  /**
+   * Creates a new search result entry protocol op from the provided entry.
+   *
+   * @param  entry  The entry to use to create this protocol op.
+   */
+  public SearchResultEntryProtocolOp(final Entry entry)
+  {
+    dn = entry.getDN();
+    attributes = Collections.unmodifiableList(new ArrayList<Attribute>(
+         entry.getAttributes()));
   }
 
 
@@ -247,6 +264,22 @@ public final class SearchResultEntryProtocolOp
     }
     attrSequence.end();
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a search result entry from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the search result
+   *                   entry.  It may be empty or {@code null} if no controls
+   *                   should be included.
+   *
+   * @return  The search result entry that was created.
+   */
+  public SearchResultEntry toSearchResultEntry(final Control... controls)
+  {
+    return new SearchResultEntry(dn, attributes, controls);
   }
 
 

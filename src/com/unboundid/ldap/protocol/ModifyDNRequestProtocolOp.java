@@ -30,7 +30,9 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -98,6 +100,23 @@ public final class ModifyDNRequestProtocolOp
     this.newRDN        = newRDN;
     this.deleteOldRDN  = deleteOldRDN;
     this.newSuperiorDN = newSuperiorDN;
+  }
+
+
+
+  /**
+   * Creates a new modify DN request protocol op from the provided modify DN
+   * request object.
+   *
+   * @param  request  The modify DN request object to use to create this
+   *                  protocol op.
+   */
+  public ModifyDNRequestProtocolOp(final ModifyDNRequest request)
+  {
+    dn            = request.getDN();
+    newRDN        = request.getNewRDN();
+    deleteOldRDN  = request.deleteOldRDN();
+    newSuperiorDN = request.getNewSuperiorDN();
   }
 
 
@@ -293,6 +312,23 @@ public final class ModifyDNRequestProtocolOp
       buffer.addOctetString(TYPE_NEW_SUPERIOR, newSuperiorDN);
     }
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a modify DN request from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the modify DN request.
+   *                   It may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The modify DN request that was created.
+   */
+  public ModifyDNRequest toModifyDNRequest(final Control... controls)
+  {
+    return new ModifyDNRequest(dn, newRDN, deleteOldRDN, newSuperiorDN,
+         controls);
   }
 
 

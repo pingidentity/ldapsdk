@@ -29,6 +29,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -102,6 +104,21 @@ public final class ExtendedRequestProtocolOp
     {
       this.value = new ASN1OctetString(TYPE_VALUE, value.getValue());
     }
+  }
+
+
+
+  /**
+   * Creates a new extended request protocol op from the provided extended
+   * request object.
+   *
+   * @param  request  The extended request object to use to create this protocol
+   *                  op.
+   */
+  public ExtendedRequestProtocolOp(final ExtendedRequest request)
+  {
+    oid   = request.getOID();
+    value = request.getValue();
   }
 
 
@@ -258,6 +275,22 @@ public final class ExtendedRequestProtocolOp
       buffer.addOctetString(TYPE_VALUE, value.getValue());
     }
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates an extended request from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the extended request.
+   *                   It may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The extended request that was created.
+   */
+  public ExtendedRequest toExtendedRequest(final Control... controls)
+  {
+    return new ExtendedRequest(oid, value, controls);
   }
 
 

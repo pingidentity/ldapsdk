@@ -31,6 +31,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
@@ -76,6 +77,22 @@ public final class AddResponseProtocolOp
   {
     super(LDAPMessage.PROTOCOL_OP_TYPE_ADD_RESPONSE, resultCode, matchedDN,
           diagnosticMessage, referralURLs);
+  }
+
+
+
+  /**
+   * Creates a new add response protocol op from the provided LDAP result
+   * object.
+   *
+   * @param  result  The LDAP result object to use to create this protocol op.
+   */
+  public AddResponseProtocolOp(final LDAPResult result)
+  {
+    super(LDAPMessage.PROTOCOL_OP_TYPE_ADD_RESPONSE,
+         result.getResultCode().intValue(), result.getMatchedDN(),
+         result.getDiagnosticMessage(),
+         StaticUtils.toList(result.getReferralURLs()));
   }
 
 

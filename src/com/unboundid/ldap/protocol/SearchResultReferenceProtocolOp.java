@@ -34,8 +34,10 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
@@ -79,6 +81,20 @@ public final class SearchResultReferenceProtocolOp
   public SearchResultReferenceProtocolOp(final List<String> referralURLs)
   {
     this.referralURLs = Collections.unmodifiableList(referralURLs);
+  }
+
+
+
+  /**
+   * Creates a new search result reference protocol op from the provided search
+   * result reference.
+   *
+   * @param  reference  The search result reference to use to create this
+   *                    protocol op.
+   */
+  public SearchResultReferenceProtocolOp(final SearchResultReference reference)
+  {
+    referralURLs = toList(reference.getReferralURLs());
   }
 
 
@@ -210,6 +226,26 @@ public final class SearchResultReferenceProtocolOp
       buffer.addOctetString(s);
     }
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a search result reference from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the search result
+   *                   reference.  It may be empty or {@code null} if no
+   *                   controls should be included.
+   *
+   * @return  The search result reference that was created.
+   */
+  public SearchResultReference toSearchResultReference(
+                                    final Control... controls)
+  {
+    final String[] referralArray = new String[referralURLs.size()];
+    referralURLs.toArray(referralArray);
+
+    return new SearchResultReference(referralArray, controls);
   }
 
 

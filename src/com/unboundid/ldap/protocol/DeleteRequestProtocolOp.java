@@ -26,6 +26,8 @@ import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1StreamReader;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -69,6 +71,20 @@ public final class DeleteRequestProtocolOp
   public DeleteRequestProtocolOp(final String dn)
   {
     this.dn = dn;
+  }
+
+
+
+  /**
+   * Creates a new delete request protocol op from the provided delete request
+   * object.
+   *
+   * @param  request  The delete request object to use to create this protocol
+   *                  op.
+   */
+  public DeleteRequestProtocolOp(final DeleteRequest request)
+  {
+    dn = request.getDN();
   }
 
 
@@ -170,6 +186,22 @@ public final class DeleteRequestProtocolOp
   public void writeTo(final ASN1Buffer buffer)
   {
     buffer.addOctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
+  }
+
+
+
+  /**
+   * Creates a delete request from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the delete request.
+   *                   It may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The delete request that was created.
+   */
+  public DeleteRequest toDeleteRequest(final Control... controls)
+  {
+    return new DeleteRequest(dn, controls);
   }
 
 
