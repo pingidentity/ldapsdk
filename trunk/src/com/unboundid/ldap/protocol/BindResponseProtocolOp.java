@@ -35,6 +35,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -130,6 +132,23 @@ public final class BindResponseProtocolOp
       this.serverSASLCredentials = new ASN1OctetString(
            TYPE_SERVER_SASL_CREDENTIALS, serverSASLCredentials.getValue());
     }
+  }
+
+
+
+  /**
+   * Creates a new bind response protocol op from the provided bind result
+   * object.
+   *
+   * @param  result  The LDAP result object to use to create this protocol op.
+   */
+  public BindResponseProtocolOp(final BindResult result)
+  {
+    resultCode            = result.getResultCode().intValue();
+    matchedDN             = result.getMatchedDN();
+    diagnosticMessage     = result.getDiagnosticMessage();
+    referralURLs          = toList(result.getReferralURLs());
+    serverSASLCredentials = result.getServerSASLCredentials();
   }
 
 
@@ -466,6 +485,34 @@ public final class BindResponseProtocolOp
     }
 
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a new LDAP result object from this response protocol op.
+   *
+   * @param  controls  The set of controls to include in the LDAP result.  It
+   *                   may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The LDAP result that was created.
+   */
+  public BindResult toBindResult(final Control... controls)
+  {
+    final String[] refs;
+    if (referralURLs.isEmpty())
+    {
+      refs = NO_STRINGS;
+    }
+    else
+    {
+      refs = new String[referralURLs.size()];
+      referralURLs.toArray(refs);
+    }
+
+    return new BindResult(-1, ResultCode.valueOf(resultCode), diagnosticMessage,
+         matchedDN, refs, controls, serverSASLCredentials);
   }
 
 

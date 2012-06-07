@@ -34,8 +34,10 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -85,6 +87,21 @@ public final class ModifyRequestProtocolOp
   {
     this.dn            = dn;
     this.modifications = Collections.unmodifiableList(modifications);
+  }
+
+
+
+  /**
+   * Creates a new modify request protocol op from the provided modify request
+   * object.
+   *
+   * @param  request  The modify request object to use to create this protocol
+   *                  op.
+   */
+  public ModifyRequestProtocolOp(final ModifyRequest request)
+  {
+    dn            = request.getDN();
+    modifications = request.getModifications();
   }
 
 
@@ -245,6 +262,22 @@ public final class ModifyRequestProtocolOp
     }
     modSequence.end();
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a modify request from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the modify request.
+   *                   It may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The modify request that was created.
+   */
+  public ModifyRequest toModifyRequest(final Control... controls)
+  {
+    return new ModifyRequest(dn, modifications, controls);
   }
 
 

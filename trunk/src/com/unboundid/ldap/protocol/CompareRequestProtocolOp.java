@@ -28,6 +28,8 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
+import com.unboundid.ldap.sdk.CompareRequest;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -82,6 +84,22 @@ public final class CompareRequestProtocolOp
     this.dn             = dn;
     this.attributeName  = attributeName;
     this.assertionValue = assertionValue;
+  }
+
+
+
+  /**
+   * Creates a new compare request protocol op from the provided compare request
+   * object.
+   *
+   * @param  request  The compare request object to use to create this protocol
+   *                  op.
+   */
+  public CompareRequestProtocolOp(final CompareRequest request)
+  {
+    dn             = request.getDN();
+    attributeName  = request.getAttributeName();
+    assertionValue = request.getRawAssertionValue();
   }
 
 
@@ -235,6 +253,23 @@ public final class CompareRequestProtocolOp
     buffer.addElement(assertionValue);
     avaSequence.end();
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a compare request from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the compare request.
+   *                   It may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The compare request that was created.
+   */
+  public CompareRequest toCompareRequest(final Control... controls)
+  {
+    return new CompareRequest(dn, attributeName, assertionValue.getValue(),
+         controls);
   }
 
 

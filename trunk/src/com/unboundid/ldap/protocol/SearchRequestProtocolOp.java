@@ -37,10 +37,12 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -157,6 +159,27 @@ public final class SearchRequestProtocolOp
     {
       this.attributes = Collections.unmodifiableList(attributes);
     }
+  }
+
+
+
+  /**
+   * Creates a new search request protocol op from the provided search request
+   * object.
+   *
+   * @param  request  The search request object to use to create this protocol
+   *                  op.
+   */
+  public SearchRequestProtocolOp(final SearchRequest request)
+  {
+    baseDN      = request.getBaseDN();
+    scope       = request.getScope();
+    derefPolicy = request.getDereferencePolicy();
+    sizeLimit   = request.getSizeLimit();
+    timeLimit   = request.getTimeLimitSeconds();
+    typesOnly   = request.typesOnly();
+    filter      = request.getFilter();
+    attributes  = request.getAttributeList();
   }
 
 
@@ -422,6 +445,26 @@ public final class SearchRequestProtocolOp
     }
     attrSequence.end();
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a search request from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the search request.
+   *                   It may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The search request that was created.
+   */
+  public SearchRequest toSearchRequest(final Control... controls)
+  {
+    final String[] attrArray = new String[attributes.size()];
+    attributes.toArray(attrArray);
+
+    return new SearchRequest(null, controls, baseDN, scope, derefPolicy,
+         sizeLimit, timeLimit, typesOnly, filter, attrArray);
   }
 
 

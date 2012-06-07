@@ -35,6 +35,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -142,6 +144,25 @@ public final class ExtendedResponseProtocolOp
       this.responseValue =
            new ASN1OctetString(TYPE_RESPONSE_VALUE, responseValue.getValue());
     }
+  }
+
+
+
+  /**
+   * Creates a new extended response protocol op from the provided extended
+   * result object.
+   *
+   * @param  result  The extended result object to use to create this protocol
+   *                 op.
+   */
+  public ExtendedResponseProtocolOp(final ExtendedResult result)
+  {
+    resultCode        = result.getResultCode().intValue();
+    matchedDN         = result.getMatchedDN();
+    diagnosticMessage = result.getDiagnosticMessage();
+    referralURLs      = toList(result.getReferralURLs());
+    responseOID       = result.getOID();
+    responseValue     = result.getValue();
   }
 
 
@@ -512,6 +533,27 @@ public final class ExtendedResponseProtocolOp
     }
 
     opSequence.end();
+  }
+
+
+
+  /**
+   * Creates a extended result from this protocol op.
+   *
+   * @param  controls  The set of controls to include in the extended result.
+   *                   It may be empty or {@code null} if no controls should be
+   *                   included.
+   *
+   * @return  The extended result that was created.
+   */
+  public ExtendedResult toExtendedResult(final Control... controls)
+  {
+    final String[] referralArray = new String[referralURLs.size()];
+    referralURLs.toArray(referralArray);
+
+    return new ExtendedResult(-1, ResultCode.valueOf(resultCode),
+         diagnosticMessage, matchedDN, referralArray, responseOID,
+         responseValue, controls);
   }
 
 
