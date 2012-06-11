@@ -38,6 +38,7 @@ import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -142,13 +143,22 @@ public final class BindResponseProtocolOp
    *
    * @param  result  The LDAP result object to use to create this protocol op.
    */
-  public BindResponseProtocolOp(final BindResult result)
+  public BindResponseProtocolOp(final LDAPResult result)
   {
     resultCode            = result.getResultCode().intValue();
     matchedDN             = result.getMatchedDN();
     diagnosticMessage     = result.getDiagnosticMessage();
     referralURLs          = toList(result.getReferralURLs());
-    serverSASLCredentials = result.getServerSASLCredentials();
+
+    if (result instanceof BindResult)
+    {
+      final BindResult br = (BindResult) result;
+      serverSASLCredentials = br.getServerSASLCredentials();
+    }
+    else
+    {
+      serverSASLCredentials = null;
+    }
   }
 
 
