@@ -38,6 +38,7 @@ import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -155,14 +156,24 @@ public final class ExtendedResponseProtocolOp
    * @param  result  The extended result object to use to create this protocol
    *                 op.
    */
-  public ExtendedResponseProtocolOp(final ExtendedResult result)
+  public ExtendedResponseProtocolOp(final LDAPResult result)
   {
     resultCode        = result.getResultCode().intValue();
     matchedDN         = result.getMatchedDN();
     diagnosticMessage = result.getDiagnosticMessage();
     referralURLs      = toList(result.getReferralURLs());
-    responseOID       = result.getOID();
-    responseValue     = result.getValue();
+
+    if (result instanceof ExtendedResult)
+    {
+      final ExtendedResult r = (ExtendedResult) result;
+      responseOID   = r.getOID();
+      responseValue = r.getValue();
+    }
+    else
+    {
+      responseOID   = null;
+      responseValue = null;
+    }
   }
 
 
