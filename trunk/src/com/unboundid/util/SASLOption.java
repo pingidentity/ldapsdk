@@ -68,8 +68,8 @@ public final class SASLOption
    * @param  isMultiValued  Indicates whether this option is allowed to be
    *                        specified multiple times for a single bind request.
    */
-  SASLOption(final String name, final String description,
-             final boolean isRequired, final boolean isMultiValued)
+  public SASLOption(final String name, final String description,
+                    final boolean isRequired, final boolean isMultiValued)
   {
     this.name          = name;
     this.description   = description;

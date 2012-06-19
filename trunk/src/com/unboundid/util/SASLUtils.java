@@ -22,6 +22,8 @@ package com.unboundid.util;
 
 
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -236,6 +238,24 @@ public final class SASLUtils
                    INFO_SASL_PLAIN_OPTION_AUTH_ID.get(), true, false),
               new SASLOption(SASL_OPTION_AUTHZ_ID,
                    INFO_SASL_PLAIN_OPTION_AUTHZ_ID.get(), false, false)));
+
+
+    // If Commercial Edition classes are available, then register support for
+    // any additional SASL mechanisms that it provides.
+    try
+    {
+      final Class<?> c =
+           Class.forName("com.unboundid.ldap.sdk.unboundidds.SASLHelper");
+      final Method addCESASLInfoMethod =
+           c.getMethod("addCESASLInfo", Map.class);
+      addCESASLInfoMethod.invoke(null, m);
+    }
+    catch (final Exception e)
+    {
+        // This is fine.  It simply means that the Commercial Edition classes
+        // are not available.
+      Debug.debugException(e);
+    }
 
     SASL_MECHANISMS = Collections.unmodifiableMap(m);
   }
@@ -493,6 +513,40 @@ public final class SASLUtils
     }
     else
     {
+      // If Commercial Edition classes are available, then see if the
+      // authentication attempt is for one of the Commercial Edition mechanisms.
+      try
+      {
+        final Class<?> c =
+             Class.forName("com.unboundid.ldap.sdk.unboundidds.SASLHelper");
+        final Method createBindRequestMethod = c.getMethod("createBindRequest",
+             String.class, StaticUtils.NO_BYTES.getClass(), String.class,
+             Map.class, StaticUtils.NO_CONTROLS.getClass());
+        final Object bindRequestObject = createBindRequestMethod.invoke(null,
+             bindDN, password, mech, optionsMap, controls);
+        if (bindRequestObject != null)
+        {
+          return (SASLBindRequest) bindRequestObject;
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+
+        // This may mean that there was a problem with the provided arguments.
+        // If it's an InvocationTargetException that wraps an LDAPException,
+        // then throw that LDAPException.
+        if (e instanceof InvocationTargetException)
+        {
+          final InvocationTargetException ite = (InvocationTargetException) e;
+          final Throwable t = ite.getTargetException();
+          if (t instanceof LDAPException)
+          {
+            throw (LDAPException) t;
+          }
+        }
+      }
+
       throw new LDAPException(ResultCode.PARAM_ERROR,
            ERR_SASL_OPTION_UNSUPPORTED_MECH.get(mech));
     }
@@ -857,16 +911,17 @@ public final class SASLUtils
 
   /**
    * Ensures that the provided map is empty, and will throw an exception if it
-   * isn't.
+   * isn't.  This method is intended for internal use only.
    *
    * @param  options    The map of options to ensure is empty.
    * @param  mechanism  The associated SASL mechanism.
    *
    * @throws  LDAPException  If the map of SASL options is not empty.
    */
-  private static void ensureNoUnsupportedOptions(
-                           final Map<String,String> options,
-                           final String mechanism)
+  @InternalUseOnly()
+  public static void ensureNoUnsupportedOptions(
+                          final Map<String,String> options,
+                          final String mechanism)
           throws LDAPException
   {
     if (! options.isEmpty())
