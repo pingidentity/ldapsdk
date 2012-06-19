@@ -66,9 +66,10 @@ public final class SASLMechanismInfo
    * @param  options           The set of options that are associated with the
    *                           SASL mechanism.
    */
-  SASLMechanismInfo(final String name, final String description,
-                    final boolean acceptsPassword,
-                    final boolean requiresPassword, final SASLOption... options)
+  public SASLMechanismInfo(final String name, final String description,
+                           final boolean acceptsPassword,
+                           final boolean requiresPassword,
+                           final SASLOption... options)
   {
     this.name             = name;
     this.description      = description;
