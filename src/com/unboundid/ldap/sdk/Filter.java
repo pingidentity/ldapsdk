@@ -2763,7 +2763,8 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the set of filter components used in this AND or OR filter.
+   * Retrieves the set of filter components used in this AND or OR filter.  This
+   * is not applicable for any other filter type.
    *
    * @return  The set of filter components used in this AND or OR filter, or an
    *          empty array if this is some other type of filter or if there are
@@ -2777,7 +2778,8 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the filter component used in this NOT filter.
+   * Retrieves the filter component used in this NOT filter.  This is not
+   * applicable for any other filter type.
    *
    * @return  The filter component used in this NOT filter, or {@code null} if
    *          this is some other type of filter.
@@ -2790,7 +2792,17 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the name of the attribute type for this search filter.
+   * Retrieves the name of the attribute type for this search filter.  This is
+   * applicable for the following types of filters:
+   * <UL>
+   *   <LI>Equality</LI>
+   *   <LI>Substring</LI>
+   *   <LI>Greater or Equal</LI>
+   *   <LI>Less or Equal</LI>
+   *   <LI>Presence</LI>
+   *   <LI>Approximate Match</LI>
+   *   <LI>Extensible Match</LI>
+   * </UL>
    *
    * @return  The name of the attribute type for this search filter, or
    *          {@code null} if it is not applicable for this type of filter.
@@ -2804,7 +2816,14 @@ attrNameLoop:
 
   /**
    * Retrieves the string representation of the assertion value for this search
-   * filter.
+   * filter.  This is applicable for the following types of filters:
+   * <UL>
+   *   <LI>Equality</LI>
+   *   <LI>Greater or Equal</LI>
+   *   <LI>Less or Equal</LI>
+   *   <LI>Approximate Match</LI>
+   *   <LI>Extensible Match</LI>
+   * </UL>
    *
    * @return  The string representation of the assertion value for this search
    *          filter, or {@code null} if it is not applicable for this type of
@@ -2826,7 +2845,14 @@ attrNameLoop:
 
   /**
    * Retrieves the binary representation of the assertion value for this search
-   * filter.
+   * filter.  This is applicable for the following types of filters:
+   * <UL>
+   *   <LI>Equality</LI>
+   *   <LI>Greater or Equal</LI>
+   *   <LI>Less or Equal</LI>
+   *   <LI>Approximate Match</LI>
+   *   <LI>Extensible Match</LI>
+   * </UL>
    *
    * @return  The binary representation of the assertion value for this search
    *          filter, or {@code null} if it is not applicable for this type of
@@ -2848,7 +2874,14 @@ attrNameLoop:
 
   /**
    * Retrieves the raw assertion value for this search filter as an ASN.1
-   * octet string.
+   * octet string.  This is applicable for the following types of filters:
+   * <UL>
+   *   <LI>Equality</LI>
+   *   <LI>Greater or Equal</LI>
+   *   <LI>Less or Equal</LI>
+   *   <LI>Approximate Match</LI>
+   *   <LI>Extensible Match</LI>
+   * </UL>
    *
    * @return  The raw assertion value for this search filter as an ASN.1 octet
    *          string, or {@code null} if it is not applicable for this type of
@@ -2863,7 +2896,7 @@ attrNameLoop:
 
   /**
    * Retrieves the string representation of the subInitial element for this
-   * substring filter.
+   * substring filter.  This is not applicable for any other filter type.
    *
    * @return  The string representation of the subInitial element for this
    *          substring filter, or {@code null} if this is some other type of
@@ -2885,7 +2918,7 @@ attrNameLoop:
 
   /**
    * Retrieves the binary representation of the subInitial element for this
-   * substring filter.
+   * substring filter.  This is not applicable for any other filter type.
    *
    * @return  The binary representation of the subInitial element for this
    *          substring filter, or {@code null} if this is some other type of
@@ -2907,7 +2940,7 @@ attrNameLoop:
 
   /**
    * Retrieves the raw subInitial element for this filter as an ASN.1 octet
-   * string.
+   * string.  This is not applicable for any other filter type.
    *
    * @return  The raw subInitial element for this filter as an ASN.1 octet
    *          string, or {@code null} if this is not a substring filter, or if
@@ -2922,7 +2955,7 @@ attrNameLoop:
 
   /**
    * Retrieves the string representations of the subAny elements for this
-   * substring filter.
+   * substring filter.  This is not applicable for any other filter type.
    *
    * @return  The string representations of the subAny elements for this
    *          substring filter, or an empty array if this is some other type of
@@ -2943,7 +2976,7 @@ attrNameLoop:
 
   /**
    * Retrieves the binary representations of the subAny elements for this
-   * substring filter.
+   * substring filter.  This is not applicable for any other filter type.
    *
    * @return  The binary representations of the subAny elements for this
    *          substring filter, or an empty array if this is some other type of
@@ -2963,7 +2996,8 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the raw subAny values for this substring filter.
+   * Retrieves the raw subAny values for this substring filter.  This is not
+   * applicable for any other filter type.
    *
    * @return  The raw subAny values for this substring filter, or an empty array
    *          if this is some other type of filter, or if it is a substring
@@ -2978,7 +3012,7 @@ attrNameLoop:
 
   /**
    * Retrieves the string representation of the subFinal element for this
-   * substring filter.
+   * substring filter.  This is not applicable for any other filter type.
    *
    * @return  The string representation of the subFinal element for this
    *          substring filter, or {@code null} if this is some other type of
@@ -3000,7 +3034,7 @@ attrNameLoop:
 
   /**
    * Retrieves the binary representation of the subFinal element for this
-   * substring filter.
+   * substring filter.  This is not applicable for any other filter type.
    *
    * @return  The binary representation of the subFinal element for this
    *          substring filter, or {@code null} if this is some other type of
@@ -3022,7 +3056,7 @@ attrNameLoop:
 
   /**
    * Retrieves the raw subFinal element for this filter as an ASN.1 octet
-   * string.
+   * string.  This is not applicable for any other filter type.
    *
    * @return  The raw subFinal element for this filter as an ASN.1 octet
    *          string, or {@code null} if this is not a substring filter, or if
@@ -3036,7 +3070,8 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the matching rule ID for this extensible match filter.
+   * Retrieves the matching rule ID for this extensible match filter.  This is
+   * not applicable for any other filter type.
    *
    * @return  The matching rule ID for this extensible match filter, or
    *          {@code null} if this is some other type of filter, or if this
@@ -3050,7 +3085,8 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the dnAttributes flag for this extensible match filter.
+   * Retrieves the dnAttributes flag for this extensible match filter.  This is
+   * not applicable for any other filter type.
    *
    * @return  The dnAttributes flag for this extensible match filter.
    */
