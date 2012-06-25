@@ -25,6 +25,7 @@ package com.unboundid.util.args;
 import java.util.concurrent.TimeUnit;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -212,30 +213,39 @@ public final class DurationArgument
       }
 
       minValueNanos = lowerBoundUnit.toNanos(lowerBound);
-      switch (lowerBoundUnit)
+      final String lowerBoundUnitName = lowerBoundUnit.name();
+      if (lowerBoundUnitName.equals("NANOSECONDS"))
       {
-        case MICROSECONDS:
-          lowerBoundStr = lowerBound + "us";
-          break;
-        case MILLISECONDS:
-          lowerBoundStr = lowerBound + "ms";
-          break;
-        case SECONDS:
-          lowerBoundStr = lowerBound + "s";
-          break;
-        case MINUTES:
-          lowerBoundStr = lowerBound + "m";
-          break;
-        case HOURS:
-          lowerBoundStr = lowerBound + "h";
-          break;
-        case DAYS:
-          lowerBoundStr = lowerBound + "d";
-          break;
-        case NANOSECONDS:
-        default:
-          lowerBoundStr = minValueNanos + "ns";
-          break;
+        lowerBoundStr = minValueNanos + "ns";
+      }
+      else if (lowerBoundUnitName.equals("MICROSECONDS"))
+      {
+        lowerBoundStr = lowerBound + "us";
+      }
+      else if (lowerBoundUnitName.equals("MILLISECONDS"))
+      {
+        lowerBoundStr = lowerBound + "ms";
+      }
+      else if (lowerBoundUnitName.equals("SECONDS"))
+      {
+        lowerBoundStr = lowerBound + "s";
+      }
+      else if (lowerBoundUnitName.equals("MINUTES"))
+      {
+        lowerBoundStr = lowerBound + "m";
+      }
+      else if (lowerBoundUnitName.equals("HOURS"))
+      {
+        lowerBoundStr = lowerBound + "h";
+      }
+      else if (lowerBoundUnitName.equals("DAYS"))
+      {
+        lowerBoundStr = lowerBound + "d";
+      }
+      else
+      {
+        throw new LDAPSDKUsageException(
+             ERR_DURATION_UNSUPPORTED_LOWER_BOUND_UNIT.get(lowerBoundUnitName));
       }
     }
 
@@ -253,30 +263,39 @@ public final class DurationArgument
       }
 
       maxValueNanos = upperBoundUnit.toNanos(upperBound);
-      switch (upperBoundUnit)
+      final String upperBoundUnitName = upperBoundUnit.name();
+      if (upperBoundUnitName.equals("NANOSECONDS"))
       {
-        case MICROSECONDS:
-          upperBoundStr = upperBound + "us";
-          break;
-        case MILLISECONDS:
-          upperBoundStr = upperBound + "ms";
-          break;
-        case SECONDS:
-          upperBoundStr = upperBound + "s";
-          break;
-        case MINUTES:
-          upperBoundStr = upperBound + "m";
-          break;
-        case HOURS:
-          upperBoundStr = upperBound + "h";
-          break;
-        case DAYS:
-          upperBoundStr = upperBound + "d";
-          break;
-        case NANOSECONDS:
-        default:
-          upperBoundStr = maxValueNanos + "ns";
-          break;
+        upperBoundStr = minValueNanos + "ns";
+      }
+      else if (upperBoundUnitName.equals("MICROSECONDS"))
+      {
+        upperBoundStr = upperBound + "us";
+      }
+      else if (upperBoundUnitName.equals("MILLISECONDS"))
+      {
+        upperBoundStr = upperBound + "ms";
+      }
+      else if (upperBoundUnitName.equals("SECONDS"))
+      {
+        upperBoundStr = upperBound + "s";
+      }
+      else if (upperBoundUnitName.equals("MINUTES"))
+      {
+        upperBoundStr = upperBound + "m";
+      }
+      else if (upperBoundUnitName.equals("HOURS"))
+      {
+        upperBoundStr = upperBound + "h";
+      }
+      else if (upperBoundUnitName.equals("DAYS"))
+      {
+        upperBoundStr = upperBound + "d";
+      }
+      else
+      {
+        throw new LDAPSDKUsageException(
+             ERR_DURATION_UNSUPPORTED_UPPER_BOUND_UNIT.get(upperBoundUnitName));
       }
     }
 
@@ -502,8 +521,7 @@ public final class DurationArgument
     }
 
     // Separate the integer portion from the unit.
-    final long integerPortion =
-         Long.parseLong(lowerStr.substring(0, nonDigitPos));
+    long integerPortion = Long.parseLong(lowerStr.substring(0, nonDigitPos));
     final String unitStr = lowerStr.substring(nonDigitPos).trim();
 
     // Parse the time unit.
@@ -546,7 +564,8 @@ public final class DurationArgument
              unitStr.equals("minute") ||
              unitStr.equals("minutes"))
     {
-      unitFromString = TimeUnit.MINUTES;
+      integerPortion *= 60L;
+      unitFromString = TimeUnit.SECONDS;
     }
     else if (unitStr.equals("h") ||
              unitStr.equals("hr") ||
@@ -554,13 +573,15 @@ public final class DurationArgument
              unitStr.equals("hour") ||
              unitStr.equals("hours"))
     {
-      unitFromString = TimeUnit.HOURS;
+      integerPortion *= 3600L;
+      unitFromString = TimeUnit.SECONDS;
     }
     else if (unitStr.equals("d") ||
              unitStr.equals("day") ||
              unitStr.equals("days"))
     {
-      unitFromString = TimeUnit.DAYS;
+      integerPortion *= 86400L;
+      unitFromString = TimeUnit.SECONDS;
     }
     else
     {
