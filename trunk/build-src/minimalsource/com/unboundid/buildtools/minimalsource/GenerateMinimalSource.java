@@ -8,10 +8,13 @@ package com.unboundid.buildtools.minimalsource;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -713,13 +716,15 @@ lineLoop:
     final File       sf = new File(messagesSourceDirectory, messageFile);
     final Properties sp = new Properties();
 
-    final FileReader r = new FileReader(sf);
-    sp.load(r);
-    r.close();
+    final FileInputStream is = new FileInputStream(sf);
+    sp.load(is);
+    is.close();
 
     final Properties tp = new Properties();
-    for (final String propertyName : sp.stringPropertyNames())
+    final Enumeration<?> nameEnum = sp.propertyNames();
+    while (nameEnum.hasMoreElements())
     {
+      final String propertyName = String.valueOf(nameEnum.nextElement());
       if (messageIDs.contains(propertyName))
       {
         tp.setProperty(propertyName, sp.getProperty(propertyName));
@@ -727,7 +732,8 @@ lineLoop:
     }
 
     final File tf = new File(messagesTargetDirectory, messageFile);
-    final PrintWriter w = new PrintWriter(tf);
-    tp.store(w, null);
+    final FileOutputStream os = new FileOutputStream(tf);
+    tp.store(os, null);
+    os.close();
   }
 }
