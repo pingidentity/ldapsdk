@@ -858,8 +858,10 @@ public final class GenerateSourceFromSchema
          "initializing this");
     writer.println("   * object from an LDAP entry.");
     writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If the generated " +
-         "entry should not be used.");
+    writer.println("   * @throws  LDAPPersistException  If there is a " +
+         "problem with the object after");
+    writer.println("   *                                it has been decoded " +
+         "from an LDAP entry.");
     writer.println("   */");
     writer.println("  private void doPostDecode()");
     writer.println("          throws LDAPPersistException");
@@ -881,10 +883,8 @@ public final class GenerateSourceFromSchema
          "It may be altered if");
     writer.println("   *                desired.");
     writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If there is a " +
-         "problem with the object after");
-    writer.println("   *                                it has been decoded " +
-         "from an LDAP entry.");
+    writer.println("   * @throws  LDAPPersistException  If the generated " +
+         "entry should not be used.");
     writer.println("   */");
     writer.println("  private void doPostEncode(final Entry entry)");
     writer.println("          throws LDAPPersistException");
