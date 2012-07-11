@@ -101,7 +101,7 @@ public final class LDAPListenerConfig
   public LDAPListenerConfig(final int listenPort,
                             final LDAPListenerRequestHandler requestHandler)
   {
-    Validator.ensureTrue((listenPort >=0) && (listenPort <= 65535));
+    Validator.ensureTrue((listenPort >= 0) && (listenPort <= 65535));
     Validator.ensureNotNull(requestHandler);
 
     this.listenPort     = listenPort;
