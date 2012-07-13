@@ -1612,9 +1612,10 @@ public final class LDAPConnectionPool
         if (trySynchronousReadDuringHealthCheck && conn.synchronousMode())
         {
           int previousTimeout = Integer.MIN_VALUE;
-          final Socket s = conn.getConnectionInternals().getSocket();
+          Socket s = null;
           try
           {
+            s = conn.getConnectionInternals(true).getSocket();
             previousTimeout = s.getSoTimeout();
             s.setSoTimeout(1);
 
