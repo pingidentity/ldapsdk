@@ -4121,12 +4121,31 @@ public final class LDAPConnection
    * Retrieves an instance of the {@code LDAPConnectionInternals} object for
    * this connection.
    *
+   * @param  throwIfDisconnected  Indicates whether to throw an
+   *                              {@code LDAPException} if the connection is not
+   *                              established.
+   *
    * @return  The {@code LDAPConnectionInternals} object for this connection, or
-   *          {@code null} if the connection is not established.
+   *          {@code null} if the connection is not established and no exception
+   *          should be thrown.
+   *
+   * @throws  LDAPException  If the connection is not established and
+   *                         {@code throwIfDisconnected} is {@code true}.
    */
-  LDAPConnectionInternals getConnectionInternals()
+  LDAPConnectionInternals getConnectionInternals(
+                               final boolean throwIfDisconnected)
+       throws LDAPException
   {
-    return connectionInternals;
+    final LDAPConnectionInternals internals = connectionInternals;
+    if ((internals == null) && throwIfDisconnected)
+    {
+      throw new LDAPException(ResultCode.SERVER_DOWN,
+           ERR_CONN_NOT_ESTABLISHED.get());
+    }
+    else
+    {
+      return internals;
+    }
   }
 
 

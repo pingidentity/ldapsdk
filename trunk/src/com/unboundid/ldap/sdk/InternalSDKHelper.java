@@ -77,7 +77,7 @@ public final class InternalSDKHelper
          throws LDAPException
   {
     final LDAPConnectionReader connectionReader =
-         connection.getConnectionInternals().getConnectionReader();
+         connection.getConnectionInternals(true).getConnectionReader();
     if (connectionReader != null)
     {
       connectionReader.setSoTimeout(soTimeout);

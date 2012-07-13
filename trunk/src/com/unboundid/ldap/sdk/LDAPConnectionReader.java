@@ -1135,7 +1135,14 @@ final class LDAPConnectionReader
     final Thread t = thread;
     if (t != null)
     {
-      t.setName(constructThreadName(connection.getConnectionInternals()));
+      try
+      {
+        t.setName(constructThreadName(connection.getConnectionInternals(true)));
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
     }
   }
 
