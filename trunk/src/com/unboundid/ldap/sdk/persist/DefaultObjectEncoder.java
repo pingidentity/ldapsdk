@@ -74,7 +74,8 @@ import static com.unboundid.util.StaticUtils.*;
  * <BR><BR>
  * The following basic types will be supported, with the following encodings:
  * <UL>
- *   <LI>Any kind of enumeration.</LI>
+ *   <LI>Any kind of enumeration -- Encoded using the name of the enum
+ *       value</LI>
  *   <LI>{@code java.util.concurrent.atomic.AtomicInteger} -- Encoded using the
  *       string representation of the value</LI>
  *   <LI>{@code java.util.concurrent.atomic.AtomicLong} -- Encoded using the
@@ -108,8 +109,8 @@ import static com.unboundid.util.StaticUtils.*;
  *       the value</LI>
  *   <LI>{@code com.unboundid.ldap.sdk.LDAPURL} -- Encoded using the string
  *       representation of the value</LI>
- *   <LI>{@code long -- Encoded using the string representation of the
- *       value}</LI>
+ *   <LI>{@code long} -- Encoded using the string representation of the
+ *       value</LI>
  *   <LI>{@code java.lang.Long} -- Encoded using the string representation of
  *       the value</LI>
  *   <LI>{@code com.unboundid.ldap.sdk.RDN} -- Encoded using the string
