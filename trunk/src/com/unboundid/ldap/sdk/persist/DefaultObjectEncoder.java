@@ -22,6 +22,11 @@ package com.unboundid.ldap.sdk.persist;
 
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -131,6 +136,16 @@ import static com.unboundid.util.StaticUtils.*;
  *   <LI>{@code java.util.UUID} -- Encoded using the string representation of
  *       the value</LI>
  * </UL>
+ * Serializable objects are also supported, in which case the raw bytes that
+ * comprise the serialized representation will be used.  This may be
+ * undesirable, because the value may only be interpretable by Java-based
+ * clients.  If you wish to better control the encoding for serialized objects,
+ * have them implement custom {@code writeObject}, {@code readObject}, and
+ * {@code readObjectNoData} methods that use the desired encoding.  Alternately,
+ * you may create a custom {@link ObjectEncoder} implementation for that object
+ * type, or use getter/setter methods that convert between string/byte[]
+ * representations and the desired object types.
+ * <BR><BR>
  * In addition, arrays of all of the above types are also supported, in which
  * case each element of the array will be a separate value in the corresponding
  * LDAP attribute.  Lists (including {@code ArrayList}, {@code LinkedList}, and
@@ -276,6 +291,11 @@ public final class DefaultObjectEncoder
     if (c.isEnum())
     {
       return true;
+    }
+
+    if (Serializable.class.isAssignableFrom(c))
+    {
+      return (! (c.isArray() || Collection.class.isAssignableFrom(c)));
     }
 
     return false;
@@ -556,6 +576,10 @@ public final class DefaultObjectEncoder
     {
       return "1.3.6.1.4.1.1466.115.121.1.15";
     }
+    else if (Serializable.class.isAssignableFrom(t))
+    {
+      return "1.3.6.1.4.1.1466.115.121.1.40";
+    }
 
     return null;
   }
@@ -734,6 +758,25 @@ public final class DefaultObjectEncoder
       return encodeCollection(typeInfo.getComponentType(),
            (Collection<?>) value, name);
     }
+    else if (Serializable.class.isAssignableFrom(c))
+    {
+      try
+      {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(value);
+        oos.close();
+        return new Attribute(name, baos.toByteArray());
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        throw new LDAPPersistException(
+             ERR_DEFAULT_ENCODER_CANNOT_SERIALIZE.get(name,
+                  getExceptionMessage(e)),
+             e);
+      }
+    }
 
     throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
          String.valueOf(type)));
@@ -828,6 +871,25 @@ public final class DefaultObjectEncoder
       {
         final Enum<?> e = (Enum<?>) o;
         values[i] = new ASN1OctetString(e.name());
+      }
+      else if (Serializable.class.isAssignableFrom(arrayType))
+      {
+        try
+        {
+          final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+          final ObjectOutputStream oos = new ObjectOutputStream(baos);
+          oos.writeObject(o);
+          oos.close();
+          values[i] = new ASN1OctetString(baos.toByteArray());
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+          throw new LDAPPersistException(
+               ERR_DEFAULT_ENCODER_CANNOT_SERIALIZE.get(attributeName,
+                    getExceptionMessage(e)),
+               e);
+        }
       }
       else
       {
@@ -929,6 +991,25 @@ public final class DefaultObjectEncoder
       {
         final Enum<?> e = (Enum<?>) o;
         values[i] = new ASN1OctetString(e.name());
+      }
+      else if (Serializable.class.isAssignableFrom(genericType))
+      {
+        try
+        {
+          final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+          final ObjectOutputStream oos = new ObjectOutputStream(baos);
+          oos.writeObject(o);
+          oos.close();
+          values[i] = new ASN1OctetString(baos.toByteArray());
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+          throw new LDAPPersistException(
+               ERR_DEFAULT_ENCODER_CANNOT_SERIALIZE.get(attributeName,
+                    getExceptionMessage(e)),
+               e);
+        }
       }
       else
       {
@@ -1394,6 +1475,33 @@ public final class DefaultObjectEncoder
         throw new LDAPPersistException(
              ERR_DEFAULT_ENCODER_VALUE_INVALID_ENUM.get(v.stringValue(),
                   getExceptionMessage(e)), e);
+      }
+    }
+    else if (Serializable.class.isAssignableFrom(t))
+    {
+      // We shouldn't attempt to work on arrays/collections themselves.  Return
+      // null and then we'll work on each element.
+      if (t.isArray() || Collection.class.isAssignableFrom(t))
+      {
+        return null;
+      }
+
+      try
+      {
+        final ByteArrayInputStream bais =
+             new ByteArrayInputStream(v.getValue());
+        final ObjectInputStream ois = new ObjectInputStream(bais);
+        final Object o = ois.readObject();
+        ois.close();
+        return o;
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        throw new LDAPPersistException(
+             ERR_DEFAULT_ENCODER_CANNOT_DESERIALIZE.get(a.getName(),
+                  getExceptionMessage(e)),
+             e);
       }
     }
 
