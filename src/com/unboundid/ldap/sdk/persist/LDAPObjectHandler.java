@@ -1608,7 +1608,7 @@ public final class LDAPObjectHandler<T>
     }
 
     // If we have an original copy of the entry, then we can try encoding the
-    // updated object to
+    // updated object to a new entry and diff the two entries.
     if (originalEntry != null)
     {
       try
@@ -1627,6 +1627,46 @@ public final class LDAPObjectHandler<T>
           {
             final Modification m = iterator.next();
             if (m.getRawValues().length == 0)
+            {
+              iterator.remove();
+            }
+          }
+        }
+
+        // If there are any attributes that should be excluded from
+        // modifications, then strip them out.
+        HashSet<String> stripAttrs = null;
+        for (final FieldInfo i : fieldMap.values())
+        {
+          if (! i.includeInModify())
+          {
+            if (stripAttrs == null)
+            {
+              stripAttrs = new HashSet<String>(10);
+            }
+            stripAttrs.add(toLowerCase(i.getAttributeName()));
+          }
+        }
+
+        for (final GetterInfo i : getterMap.values())
+        {
+          if (! i.includeInModify())
+          {
+            if (stripAttrs == null)
+            {
+              stripAttrs = new HashSet<String>(10);
+            }
+            stripAttrs.add(toLowerCase(i.getAttributeName()));
+          }
+        }
+
+        if (stripAttrs != null)
+        {
+          final Iterator<Modification> iterator = mods.iterator();
+          while (iterator.hasNext())
+          {
+            final Modification m = iterator.next();
+            if (stripAttrs.contains(toLowerCase(m.getAttributeName())))
             {
               iterator.remove();
             }
