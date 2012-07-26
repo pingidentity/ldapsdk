@@ -223,7 +223,8 @@
 
     <checkstyle config="${checkstyle.dir}/ldapsdk-checkstyle.xml"
                 classpath="${classes.dir}" failOnViolation="true">
-      <fileset dir="${src.dir}" includes="**/*.java" />
+      <fileset dir="${src.dir}" includes="**/*.java"
+               excludes="**/Version.java" />
       <formatter type="plain" />
     </checkstyle>
   </target>
