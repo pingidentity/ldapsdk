@@ -1528,6 +1528,7 @@ public final class LDIFReader
         // It's a blank line.  If we have read entry data, then this signals the
         // end of the entry.  Otherwise, it's an extra space between entries,
         // which is OK.
+        lastWasComment = false;
         if (lineList.isEmpty())
         {
           firstLineNumber++;
@@ -1542,16 +1543,23 @@ public final class LDIFReader
       if (line.charAt(0) == ' ')
       {
         // The line starts with a space, which means that it must be a
-        // continuation of the previous line.
-        if (lineList.isEmpty())
+        // continuation of the previous line.  This is true even if the last
+        // line was a comment.
+        if (lastWasComment)
+        {
+          // What we've read is part of a comment, so we don't care about its
+          // content.
+        }
+        else if (lineList.isEmpty())
         {
           throw new LDIFException(
                          ERR_READ_UNEXPECTED_FIRST_SPACE.get(lineNumberCounter),
                          lineNumberCounter, false);
         }
-        else if(! lastWasComment)
+        else
         {
           lineList.get(lineList.size() - 1).append(line.substring(1));
+          lastWasComment = false;
         }
       }
       else if (line.charAt(0) == '#')
