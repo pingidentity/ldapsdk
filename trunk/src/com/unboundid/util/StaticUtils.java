@@ -148,6 +148,97 @@ public final class StaticUtils
 
 
   /**
+   * Indicates whether the contents of the provided byte array represent an
+   * ASCII string, which is also known in LDAP terminology as an IA5 string.
+   * An ASCII string is one that contains only bytes in which the most
+   * significant bit is zero.
+   *
+   * @param  b  The byte array for which to make the determination.  It must
+   *            not be {@code null}.
+   *
+   * @return  {@code true} if the contents of the provided array represent an
+   *          ASCII string, or {@code false} if not.
+   */
+  public static boolean isASCIIString(final byte[] b)
+  {
+    for (final byte by : b)
+    {
+      if ((by & 0x80) == 0x80)
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether the contents of the provided byte array represent a
+   * printable LDAP string, as per RFC 4517 section 3.2.  The only characters
+   * allowed in a printable string are:
+   * <UL>
+   *   <LI>All uppercase and lowercase ASCII alphabetic letters</LI>
+   *   <LI>All ASCII numeric digits</LI>
+   *   <LI>The following additional ASCII characters:  single quote, left
+   *       parenthesis, right parenthesis, plus, comma, hyphen, period, equals,
+   *       forward slash, colon, question mark, space.</LI>
+   * </UL>
+   * If the provided array contains anything other than the above characters
+   * (i.e., if the byte array contains any non-ASCII characters, or any ASCII
+   * control characters, or if it contains excluded ASCII characters like
+   * the exclamation point, double quote, octothorpe, dollar sign, etc.), then
+   * it will not be considered printable.
+   *
+   * @param  b  The byte array for which to make the determination.  It must
+   *            not be {@code null}.
+   *
+   * @return  {@code true} if the contents of the provided byte array represent
+   *          a printable LDAP string, or {@code false} if not.
+   */
+  public static boolean isPrintableString(final byte[] b)
+  {
+    for (final byte by : b)
+    {
+      if ((by & 0x80) == 0x80)
+      {
+        return false;
+      }
+
+      if (((by >= 'a') && (by <= 'z')) ||
+          ((by >= 'A') && (by <= 'Z')) ||
+          ((by >= '0') && (by <= '9')))
+      {
+        continue;
+      }
+
+      switch (by)
+      {
+        case '\'':
+        case '(':
+        case ')':
+        case '+':
+        case ',':
+        case '-':
+        case '.':
+        case '=':
+        case '/':
+        case ':':
+        case '?':
+        case ' ':
+          continue;
+        default:
+          return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
    * Retrieves a string generated from the provided byte array using the UTF-8
    * encoding.
    *
