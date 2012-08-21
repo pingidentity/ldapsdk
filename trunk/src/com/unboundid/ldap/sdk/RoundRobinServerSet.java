@@ -275,7 +275,7 @@ public final class RoundRobinServerSet
    * {@inheritDoc}
    */
   @Override()
-  public synchronized LDAPConnection getConnection()
+  public LDAPConnection getConnection()
          throws LDAPException
   {
     return getConnection(null);
@@ -287,8 +287,8 @@ public final class RoundRobinServerSet
    * {@inheritDoc}
    */
   @Override()
-  public LDAPConnection getConnection(
-                             final LDAPConnectionPoolHealthCheck healthCheck)
+  public synchronized LDAPConnection getConnection(
+                           final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
     final int initialSlotNumber = nextSlot++;

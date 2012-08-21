@@ -277,7 +277,7 @@ public final class FastestConnectServerSet
    * {@inheritDoc}
    */
   @Override()
-  public synchronized LDAPConnection getConnection()
+  public LDAPConnection getConnection()
          throws LDAPException
   {
     return getConnection(null);
