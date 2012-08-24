@@ -34,6 +34,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.ssl.SSLUtil;
 
 import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -179,7 +180,8 @@ public final class StartTLSExtendedRequest
     {
       try
       {
-        this.sslContext = SSLContext.getInstance("SSL");
+        this.sslContext =
+             SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
         this.sslContext.init(null, null, null);
       }
       catch (Exception e)

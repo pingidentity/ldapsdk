@@ -23,6 +23,7 @@ package com.unboundid.util.ssl;
 
 
 import java.security.GeneralSecurityException;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -72,6 +73,15 @@ import static com.unboundid.util.Validator.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class SSLUtil
 {
+  /**
+   * The default protocol string that will be used to create SSL contexts when
+   * no explicit protocol is specified.
+   */
+  private static final AtomicReference<String> DEFAULT_SSL_PROTOCOL =
+       new AtomicReference<String>("TLSv1");
+
+
+
   // The set of key managers to be used.
   private final KeyManager[] keyManagers;
 
@@ -254,7 +264,8 @@ public final class SSLUtil
 
   /**
    * Creates an initialized SSL context created with the configured key and
-   * trust managers.  It will use the "TLSv1" protocol and the default provider.
+   * trust managers.  It will use the protocol returned by the
+   * {@link #getDefaultSSLProtocol} method and the JVM-default provider.
    *
    * @return  The created SSL context.
    *
@@ -455,5 +466,39 @@ public final class SSLUtil
          throws GeneralSecurityException
   {
     return createSSLContext(protocol, provider).getServerSocketFactory();
+  }
+
+
+
+  /**
+   * Retrieves the SSL protocol string that will be used by calls to
+   * {@link #createSSLContext()} that do not explicitly specify which protocol
+   * to use.
+   *
+   * @return  The SSL protocol string that will be used by calls to create an
+   *          SSL context that do not explicitly specify which protocol to use.
+   */
+  public static String getDefaultSSLProtocol()
+  {
+    return DEFAULT_SSL_PROTOCOL.get();
+  }
+
+
+
+  /**
+   * Specifies the SSL protocol string that will be used by calls to
+   * {@link #createSSLContext()} that do not explicitly specify which protocol
+   * to use.
+   *
+   * @param  defaultSSLProtocol  The SSL protocol string that will be used by
+   *                             calls to create an SSL context that do not
+   *                             explicitly specify which protocol to use.  It
+   *                             must not be {@code null}.
+   */
+  public static void setDefaultSSLProtocol(final String defaultSSLProtocol)
+  {
+    ensureNotNull(defaultSSLProtocol);
+
+    DEFAULT_SSL_PROTOCOL.set(defaultSSLProtocol);
   }
 }
