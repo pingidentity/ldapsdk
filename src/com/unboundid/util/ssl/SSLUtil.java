@@ -22,7 +22,10 @@ package com.unboundid.util.ssl;
 
 
 
+import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -30,6 +33,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.TrustManager;
 
+import com.unboundid.util.Debug;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -79,6 +83,53 @@ public final class SSLUtil
    */
   private static final AtomicReference<String> DEFAULT_SSL_PROTOCOL =
        new AtomicReference<String>("TLSv1");
+
+  static
+  {
+    // Ideally, we should be able to discover the SSL protocol that offers the
+    // best mix of security and compatibility.  Unfortunately, Java SE 5 doesn't
+    // expose the methods necessary to allow us to do that, but if the running
+    // JVM is Java SE 6 or later, then we can use reflection to invoke those
+    // methods and make the appropriate determination.
+
+    try
+    {
+      final Method getDefaultMethod =
+           SSLContext.class.getMethod("getDefault");
+      final SSLContext defaultContext =
+           (SSLContext) getDefaultMethod.invoke(null);
+
+      final Method getSupportedParamsMethod =
+           SSLContext.class.getMethod("getSupportedSSLParameters");
+      final Object paramsObj = getSupportedParamsMethod.invoke(defaultContext);
+
+      final Class<?> sslParamsClass =
+           Class.forName("javax.net.ssl.SSLParameters");
+      final Method getProtocolsMethod =
+           sslParamsClass.getMethod("getProtocols");
+      final String[] supportedProtocols =
+           (String[]) getProtocolsMethod.invoke(paramsObj);
+
+      final HashSet<String> protocolMap =
+           new HashSet<String>(Arrays.asList(supportedProtocols));
+      if (protocolMap.contains("TLSv1.2"))
+      {
+        DEFAULT_SSL_PROTOCOL.set("TLSv1.2");
+      }
+      else if (protocolMap.contains("TLSv1.1"))
+      {
+        DEFAULT_SSL_PROTOCOL.set("TLSv1.1");
+      }
+      else if (protocolMap.contains("TLSv1"))
+      {
+        DEFAULT_SSL_PROTOCOL.set("TLSv1");
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+  }
 
 
 
@@ -275,7 +326,7 @@ public final class SSLUtil
   public SSLContext createSSLContext()
          throws GeneralSecurityException
   {
-    return createSSLContext("TLSv1");
+    return createSSLContext(DEFAULT_SSL_PROTOCOL.get());
   }
 
 
@@ -337,7 +388,8 @@ public final class SSLUtil
 
   /**
    * Creates an SSL socket factory using the configured key and trust manager
-   * providers.  It will use the "TLSv1" protocol and the default provider.
+   * providers.  It will use the protocol returned by the
+   * {@link #getDefaultSSLProtocol} method and the JVM-default provider.
    *
    * @return  The created SSL socket factory.
    *
@@ -400,8 +452,8 @@ public final class SSLUtil
 
   /**
    * Creates an SSL server socket factory using the configured key and trust
-   * manager providers.  It will use the "TLSv1" protocol and the default
-   * provider.
+   * manager providers.  It will use the protocol returned by the
+   * {@link #getDefaultSSLProtocol} method and the JVM-default provider.
    *
    * @return  The created SSL server socket factory.
    *
@@ -419,8 +471,7 @@ public final class SSLUtil
 
   /**
    * Creates an SSL server socket factory using the configured key and trust
-   * manager providers.  It will use the "TLSv1" protocol and the default
-   * provider.
+   * manager providers.  It will use the JVM-default provider.
    *
    * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
    *                   Architecture document, the set of supported protocols
@@ -444,8 +495,7 @@ public final class SSLUtil
 
   /**
    * Creates an SSL server socket factory using the configured key and trust
-   * manager providers.  It will use the "TLSv1" protocol and the default
-   * provider.
+   * manager providers.
    *
    * @param  protocol  The protocol to use.  As per the Java SE 6 Cryptography
    *                   Architecture document, the set of supported protocols
