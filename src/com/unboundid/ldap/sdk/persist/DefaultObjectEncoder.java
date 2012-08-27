@@ -330,6 +330,7 @@ public final class DefaultObjectEncoder
    * @return  The created list, or {@code null} if it is not a supported list
    *          type.
    */
+  @SuppressWarnings("rawtypes")
   private static List<?> createList(final Class<?> t, final int size)
   {
     if (t.equals(List.class) || t.equals(ArrayList.class))
@@ -378,6 +379,7 @@ public final class DefaultObjectEncoder
    * @return  The created list, or {@code null} if it is not a supported set
    *          type.
    */
+  @SuppressWarnings("rawtypes")
   private static Set<?> createSet(final Class<?> t, final int size)
   {
     if (t.equals(Set.class) || t.equals(LinkedHashSet.class))

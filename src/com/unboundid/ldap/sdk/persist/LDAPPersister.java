@@ -155,7 +155,7 @@ public final class LDAPPersister<T>
     LDAPPersister<T> p = (LDAPPersister<T>) INSTANCES.get(type);
     if (p == null)
     {
-      p = new LDAPPersister(type);
+      p = new LDAPPersister<T>(type);
       INSTANCES.put(type, p);
     }
 

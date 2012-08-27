@@ -110,7 +110,7 @@
 
     <!-- Compile the Ant task used to generate the messages source files. -->
     <javac srcdir="${messages.src.dir}" destdir="${messages.classes.dir}"
-           target="1.5" deprecation="true" fork="true"
+           source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
@@ -260,7 +260,7 @@
   <target name="define-copydocs">
     <mkdir dir="${copydocs.classes.dir}" />
     <javac srcdir="${copydocs.src.dir}" destdir="${copydocs.classes.dir}"
-           target="1.5" deprecation="true" fork="true"
+           source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
@@ -470,7 +470,7 @@
     <mkdir  dir="${minsrc.classes.dir}" />
     <mkdir  dir="${messages.me.dir}" />
     <javac srcdir="${minsrc.src.dir}" destdir="${minsrc.classes.dir}"
-           target="1.5" deprecation="true" fork="true"
+           source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
@@ -666,7 +666,7 @@
     <mkdir  dir="${digest.classes.dir}" />
 
     <javac srcdir="${digest.src.dir}" destdir="${digest.classes.dir}"
-           target="1.5" deprecation="true" fork="true"
+           source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
@@ -720,10 +720,10 @@
     <delete dir="${sc.classes.dir}" />
     <mkdir dir="${sc.classes.dir}" />
 
-    <javac srcdir="${sc.src.dir}" destdir="${sc.classes.dir}" target="1.5"
-           deprecation="true" fork="true" memoryInitialSize="${MEM}"
-           memoryMaximumSize="${MEM}" optimize="true" debug="on"
-           debuglevel="lines,source,vars">
+    <javac srcdir="${sc.src.dir}" destdir="${sc.classes.dir}" source="1.5"
+           target="1.5" deprecation="true" fork="true"
+           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
+           optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
       <classpath>
         <fileset dir="${ant.lib.dir}">
