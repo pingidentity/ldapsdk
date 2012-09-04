@@ -1383,6 +1383,23 @@ public final class StaticUtils
    * Retrieves a single string which is a concatenation of all of the provided
    * strings.
    *
+   * @param  a  The array of strings to concatenate.  It must not be
+   *            {@code null}.
+   *
+   * @return  A string containing a concatenation of all of the strings in the
+   *          provided array.
+   */
+  public static String concatenateStrings(final String... a)
+  {
+    return concatenateStrings(Arrays.asList(a));
+  }
+
+
+
+  /**
+   * Retrieves a single string which is a concatenation of all of the provided
+   * strings.
+   *
    * @param  l  The list of strings to concatenate.  It must not be
    *            {@code null}.
    *
