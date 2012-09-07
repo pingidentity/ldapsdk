@@ -1787,4 +1787,68 @@ public final class LDAPPersister<T>
       throw new LDAPPersistException(le);
     }
   }
+
+
+
+  /**
+   * Performs a search in the directory with an attempt to find all objects of
+   * the specified type below the given base DN (or below the default parent DN
+   * if no base DN is specified).  Note that this may result in an unindexed
+   * search, which may be expensive to conduct.  Some servers may require
+   * special permissions of clients wishing to perform unindexed searches.
+   *
+   * @param  i         The connection to use to communicate with the
+   *                   directory server.  It must not be {@code null}.
+   * @param  baseDN    The base DN to use for the search.  It may be
+   *                   {@code null} if the {@link LDAPObject#defaultParentDN}
+   *                   element in the {@code LDAPObject} should be used as the
+   *                   base DN.
+   * @param  l         The object search result listener that will be used to
+   *                   receive objects decoded from entries returned for the
+   *                   search.  It must not be {@code null}.
+   * @param  controls  An optional set of controls to include in the search
+   *                   request.  It may be empty or {@code null} if no controls
+   *                   are needed.
+   *
+   * @return  The result of the search operation that was processed.
+   *
+   * @throws  LDAPPersistException  If an error occurs while preparing or
+   *                                sending the search request.
+   */
+  public SearchResult getAll(final LDAPInterface i, final String baseDN,
+                             final ObjectSearchListener<T> l,
+                             final Control... controls)
+         throws LDAPPersistException
+  {
+    ensureNotNull(i, l);
+
+    final String base;
+    if (baseDN == null)
+    {
+      base = handler.getDefaultParentDN().toString();
+    }
+    else
+    {
+      base = baseDN;
+    }
+
+    final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
+    final SearchRequest searchRequest = new SearchRequest(bridge, base,
+         SearchScope.SUB, DereferencePolicy.NEVER, 0, 0, false,
+         handler.createBaseFilter(), handler.getAttributesToRequest());
+    if (controls != null)
+    {
+      searchRequest.setControls(controls);
+    }
+
+    try
+    {
+      return i.search(searchRequest);
+    }
+    catch (LDAPException le)
+    {
+      debugException(le);
+      throw new LDAPPersistException(le);
+    }
+  }
 }
