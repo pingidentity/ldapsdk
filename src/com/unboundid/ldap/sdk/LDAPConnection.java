@@ -254,7 +254,7 @@ public final class LDAPConnection
 
   // The referral connector that will be used to establish connections to remote
   // servers when following a referral.
-  private ReferralConnector referralConnector;
+  private volatile ReferralConnector referralConnector;
 
   // The cached schema read from the server.
   private volatile Schema cachedSchema;
@@ -264,7 +264,7 @@ public final class LDAPConnection
 
   // The socket factory used to create sockets for subsequent connection
   // attempts.
-  private SocketFactory socketFactory;
+  private volatile SocketFactory socketFactory;
 
   // A stack trace of the thread that last established this connection.
   private StackTraceElement[] connectStackTrace;
@@ -916,6 +916,16 @@ public final class LDAPConnection
       }
 
       this.connectionOptions = newOptions;
+    }
+
+    final ReferralConnector rc = this.connectionOptions.getReferralConnector();
+    if (rc == null)
+    {
+      referralConnector = this;
+    }
+    else
+    {
+      referralConnector = rc;
     }
   }
 
