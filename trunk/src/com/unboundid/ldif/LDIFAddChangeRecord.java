@@ -169,6 +169,18 @@ public final class LDIFAddChangeRecord
 
 
   /**
+   * Retrieves the entry that would be created by this add change record.
+   *
+   * @return  The entry that would be created by this add change record.
+   */
+  public Entry getEntryToAdd()
+  {
+    return new Entry(getDN(), attributes);
+  }
+
+
+
+  /**
    * Creates an add request from this LDIF add change record.
    *
    * @return  The add request created from this LDIF add change record.
