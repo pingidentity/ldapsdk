@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -428,18 +429,55 @@ public final class LDAPThreadLocalConnectionPool
   @Override()
   public void close()
   {
+    close(true, 1);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void close(final boolean unbind, final int numThreads)
+  {
     closed = true;
     healthCheckThread.stopRunning();
 
-    final Iterator<Map.Entry<Thread,LDAPConnection>> iterator =
-         connections.entrySet().iterator();
-    while (iterator.hasNext())
+    if (numThreads > 1)
     {
-      final LDAPConnection conn = iterator.next().getValue();
-      iterator.remove();
+      final ArrayList<LDAPConnection> connList =
+           new ArrayList<LDAPConnection>(connections.size());
+      final Iterator<LDAPConnection> iterator = connections.values().iterator();
+      while (iterator.hasNext())
+      {
+        connList.add(iterator.next());
+        iterator.remove();
+      }
 
-      conn.setDisconnectInfo(DisconnectType.POOL_CLOSED, null, null);
-      conn.terminate(null);
+      final ParallelPoolCloser closer =
+           new ParallelPoolCloser(connList, unbind, numThreads);
+      closer.closeConnections();
+    }
+    else
+    {
+      final Iterator<Map.Entry<Thread,LDAPConnection>> iterator =
+           connections.entrySet().iterator();
+      while (iterator.hasNext())
+      {
+        final LDAPConnection conn = iterator.next().getValue();
+        iterator.remove();
+
+        poolStatistics.incrementNumConnectionsClosedUnneeded();
+        conn.setDisconnectInfo(DisconnectType.POOL_CLOSED, null, null);
+        if (unbind)
+        {
+          conn.terminate(null);
+        }
+        else
+        {
+          conn.setClosed();
+        }
+      }
     }
   }
 

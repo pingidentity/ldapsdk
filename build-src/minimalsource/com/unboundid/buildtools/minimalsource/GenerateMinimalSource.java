@@ -164,6 +164,8 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.ModifyRequest",
     "com.unboundid.ldap.sdk.ModifyDNRequest",
     "com.unboundid.ldap.sdk.OperationType",
+    "com.unboundid.ldap.sdk.ParallelPoolCloser",
+    "com.unboundid.ldap.sdk.ParallelPoolCloserTask",
     "com.unboundid.ldap.sdk.ParallelPoolConnector",
     "com.unboundid.ldap.sdk.ParallelPoolConnectorTask",
     "com.unboundid.ldap.sdk.PasswordProvider",
