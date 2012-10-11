@@ -1001,21 +1001,52 @@ public final class LDAPConnectionPool
   @Override()
   public void close()
   {
+    close(true, 1);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void close(final boolean unbind, final int numThreads)
+  {
     closed = true;
     healthCheckThread.stopRunning();
 
-    while (true)
+    if (numThreads > 1)
     {
-      final LDAPConnection conn = availableConnections.poll();
-      if (conn == null)
+      final ArrayList<LDAPConnection> connList =
+           new ArrayList<LDAPConnection>(availableConnections.size());
+      availableConnections.drainTo(connList);
+
+      final ParallelPoolCloser closer =
+           new ParallelPoolCloser(connList, unbind, numThreads);
+      closer.closeConnections();
+    }
+    else
+    {
+      while (true)
       {
-        return;
-      }
-      else
-      {
-        poolStatistics.incrementNumConnectionsClosedUnneeded();
-        conn.setDisconnectInfo(DisconnectType.POOL_CLOSED, null, null);
-        conn.terminate(null);
+        final LDAPConnection conn = availableConnections.poll();
+        if (conn == null)
+        {
+          return;
+        }
+        else
+        {
+          poolStatistics.incrementNumConnectionsClosedUnneeded();
+          conn.setDisconnectInfo(DisconnectType.POOL_CLOSED, null, null);
+          if (unbind)
+          {
+            conn.terminate(null);
+          }
+          else
+          {
+            conn.setClosed();
+          }
+        }
       }
     }
   }

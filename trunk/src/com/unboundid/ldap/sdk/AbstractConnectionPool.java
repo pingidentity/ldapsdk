@@ -62,6 +62,19 @@ public abstract class AbstractConnectionPool
 
 
   /**
+   * Closes this connection pool, optionally using multiple threads to close the
+   * connections in parallel.
+   *
+   * @param  unbind      Indicates whether to try to send an unbind request to
+   *                     the server before closing the connection.
+   * @param  numThreads  The number of threads to use when closing the
+   *                     connections.
+   */
+  public abstract void close(final boolean unbind, final int numThreads);
+
+
+
+  /**
    * Indicates whether this connection pool has been closed.
    *
    * @return  {@code true} if this connection pool has been closed, or

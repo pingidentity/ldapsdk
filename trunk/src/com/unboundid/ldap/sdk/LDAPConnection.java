@@ -1038,6 +1038,20 @@ public final class LDAPConnection
 
 
   /**
+   * Retrieves the connection pool with which this connection is associated, if
+   * any.
+   *
+   * @return  The connection pool with which this connection is associated, or
+   *          {@code null} if it is not associated with any connection pool.
+   */
+  AbstractConnectionPool getConnectionPool()
+  {
+    return connectionPool;
+  }
+
+
+
+  /**
    * Retrieves the user-friendly name that has been assigned to the connection
    * pool with which this connection is associated.
    *
