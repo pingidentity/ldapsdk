@@ -49,7 +49,7 @@ import static com.unboundid.util.Validator.*;
  *
  *   LDAPConnection connection = new LDAPConnection("server.example.com", 389);
  *   ExtendedResult startTLSResult = connection.processExtendedOperation(
- *        new StartTLSExtendedOperation(sslContext);
+ *        new StartTLSExtendedRequest(sslContext);
  *   BindResult bindResult = connection.bind(
  *        "uid=john.doe,ou=People,dc=example,dc=com", "password");
  *
