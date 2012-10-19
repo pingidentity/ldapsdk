@@ -184,6 +184,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.ResultCode",
     "com.unboundid.ldap.sdk.RootDSE",
     "com.unboundid.ldap.sdk.RoundRobinServerSet",
+    "com.unboundid.ldap.sdk.SASLBindInProgressException",
     "com.unboundid.ldap.sdk.SASLBindRequest",
     "com.unboundid.ldap.sdk.SearchRequest",
     "com.unboundid.ldap.sdk.SearchResult",
