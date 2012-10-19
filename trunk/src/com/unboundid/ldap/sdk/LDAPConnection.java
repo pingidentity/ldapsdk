@@ -1859,7 +1859,14 @@ public final class LDAPConnection
       return bindResult;
     }
 
-    throw new LDAPException(bindResult);
+    if (bindResult.getResultCode().equals(ResultCode.SASL_BIND_IN_PROGRESS))
+    {
+      throw new SASLBindInProgressException(bindResult);
+    }
+    else
+    {
+      throw new LDAPException(bindResult);
+    }
   }
 
 
