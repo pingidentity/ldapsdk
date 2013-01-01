@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2012 UnboundID Corp.
+ * Copyright 2009-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.digest;
