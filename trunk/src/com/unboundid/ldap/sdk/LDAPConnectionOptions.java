@@ -473,7 +473,9 @@ public final class LDAPConnectionOptions
    * connection.  Also note that this option will not have any effect on pooled
    * connections because defunct pooled connections will be replaced by
    * newly-created connections rather than attempting to re-establish the
-   * existing connection.
+   * existing connection.  Further, auto-reconnect should not be used with
+   * connections that use StartTLS or some other mechanism to alter the state
+   * of the connection beyond authentication.
    *
    * @param  autoReconnect  Specifies whether associated connections should
    *                        attempt to automatically reconnect to the target

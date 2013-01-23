@@ -509,7 +509,8 @@ public final class SimpleBindRequest
   {
     if (connection.synchronousMode())
     {
-      return processSync(connection);
+      return processSync(connection,
+           connection.getConnectionOptions().autoReconnect());
     }
 
     // See if a bind DN was provided without a password.  If that is the case
@@ -566,7 +567,7 @@ public final class SimpleBindRequest
              ERR_BIND_INTERRUPTED.get(connection.getHostPort()), ie);
       }
 
-      return handleResponse(connection, response, requestTime);
+      return handleResponse(connection, response, requestTime, false);
     }
     finally
     {
@@ -582,6 +583,10 @@ public final class SimpleBindRequest
    *
    * @param  connection  The connection to use to communicate with the directory
    *                     server.
+   * @param  allowRetry  Indicates whether the request may be re-tried on a
+   *                     re-established connection if the initial attempt fails
+   *                     in a way that indicates the connection is no longer
+   *                     valid and autoReconnect is true.
    *
    * @return  An LDAP result object that provides information about the result
    *          of the bind processing.
@@ -589,13 +594,14 @@ public final class SimpleBindRequest
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  private BindResult processSync(final LDAPConnection connection)
+  private BindResult processSync(final LDAPConnection connection,
+                                 final boolean allowRetry)
           throws LDAPException
   {
     // Create the LDAP message.
     messageID = connection.nextMessageID();
     final LDAPMessage message =
-         new LDAPMessage(messageID,  this, getControls());
+         new LDAPMessage(messageID, this, getControls());
 
 
     // Set the appropriate timeout on the socket.
@@ -614,7 +620,24 @@ public final class SimpleBindRequest
     final long requestTime = System.nanoTime();
     debugLDAPRequest(this);
     connection.getConnectionStatistics().incrementNumBindRequests();
-    connection.sendMessage(message);
+    try
+    {
+      connection.sendMessage(message);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+
+      if (allowRetry)
+      {
+        final BindResult bindResult = reconnectAndRetry(connection,
+             le.getResultCode());
+        if (bindResult != null)
+        {
+          return bindResult;
+        }
+      }
+    }
 
     while (true)
     {
@@ -631,7 +654,7 @@ public final class SimpleBindRequest
       }
       else
       {
-        return handleResponse(connection, response, requestTime);
+        return handleResponse(connection, response, requestTime, allowRetry);
       }
     }
   }
@@ -644,6 +667,10 @@ public final class SimpleBindRequest
    * @param  connection   The connection used to read the response.
    * @param  response     The response to be processed.
    * @param  requestTime  The time the request was sent to the server.
+   * @param  allowRetry   Indicates whether the request may be re-tried on a
+   *                      re-established connection if the initial attempt fails
+   *                      in a way that indicates the connection is no longer
+   *                      valid and autoReconnect is true.
    *
    * @return  The bind result.
    *
@@ -651,7 +678,8 @@ public final class SimpleBindRequest
    */
   private BindResult handleResponse(final LDAPConnection connection,
                                     final LDAPResponse response,
-                                    final long requestTime)
+                                    final long requestTime,
+                                    final boolean allowRetry)
           throws LDAPException
   {
     if (response == null)
@@ -666,6 +694,16 @@ public final class SimpleBindRequest
     if (response instanceof ConnectionClosedResponse)
     {
       // The connection was closed while waiting for the response.
+      if (allowRetry)
+      {
+        final BindResult retryResult = reconnectAndRetry(connection,
+             ResultCode.SERVER_DOWN);
+        if (retryResult != null)
+        {
+          return retryResult;
+        }
+      }
+
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
       final String message = ccr.getMessage();
       if (message == null)
@@ -682,7 +720,54 @@ public final class SimpleBindRequest
       }
     }
 
+    final BindResult bindResult = (BindResult) response;
+    if (allowRetry)
+    {
+      final BindResult retryResult = reconnectAndRetry(connection,
+           ResultCode.SERVER_DOWN);
+      if (retryResult != null)
+      {
+        return retryResult;
+      }
+    }
+
     return (BindResult) response;
+  }
+
+
+
+  /**
+   * Attempts to re-establish the connection and retry processing this request
+   * on it.
+   *
+   * @param  connection  The connection to be re-established.
+   * @param  resultCode  The result code for the previous operation attempt.
+   *
+   * @return  The result from re-trying the bind, or {@code null} if it could
+   *          not be re-tried.
+   */
+  private BindResult reconnectAndRetry(final LDAPConnection connection,
+                                       final ResultCode resultCode)
+  {
+    try
+    {
+      // We will only want to retry for certain result codes that indicate a
+      // connection problem.
+      switch (resultCode.intValue())
+      {
+        case ResultCode.SERVER_DOWN_INT_VALUE:
+        case ResultCode.DECODING_ERROR_INT_VALUE:
+        case ResultCode.CONNECT_ERROR_INT_VALUE:
+          connection.reconnect();
+          return processSync(connection, false);
+      }
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+    }
+
+    return null;
   }
 
 
