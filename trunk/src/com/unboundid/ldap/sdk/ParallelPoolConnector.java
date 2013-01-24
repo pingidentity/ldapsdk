@@ -143,7 +143,7 @@ final class ParallelPoolConnector
       {
         for (final LDAPConnection c : connList)
         {
-          c.close();
+          c.terminate(null);
         }
         connList.clear();
         throw le;
