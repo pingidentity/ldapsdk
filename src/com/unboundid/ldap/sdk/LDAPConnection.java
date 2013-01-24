@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
@@ -218,6 +219,9 @@ public final class LDAPConnection
   // applicable.
   private AbstractConnectionPool connectionPool;
 
+  // Indicates whether to perform a reconnect before the next write.
+  private final AtomicBoolean needsReconnect;
+
   // The last successful bind request processed on this connection.
   private BindRequest lastBindRequest;
 
@@ -352,6 +356,8 @@ public final class LDAPConnection
   public LDAPConnection(final SocketFactory socketFactory,
                         final LDAPConnectionOptions connectionOptions)
   {
+    needsReconnect = new AtomicBoolean(false);
+
     connectionID = NEXT_CONNECTION_ID.getAndIncrement();
 
     if (connectionOptions == null)
@@ -709,6 +715,7 @@ public final class LDAPConnection
   {
     ensureNotNull(host, port);
 
+    needsReconnect.set(false);
     hostPort = host + ':' + port;
 
     if (isConnected())
@@ -768,6 +775,7 @@ public final class LDAPConnection
   public void reconnect()
          throws LDAPException
   {
+    needsReconnect.set(false);
     if ((System.currentTimeMillis() - lastReconnectTime) < 1000L)
     {
       // If the last reconnect attempt was less than 1 second ago, then abort.
@@ -819,6 +827,17 @@ public final class LDAPConnection
 
 
   /**
+   * Sets a flag indicating that the connection should be re-established before
+   * sending the next request.
+   */
+  void setNeedsReconnect()
+  {
+    needsReconnect.set(true);
+  }
+
+
+
+  /**
    * Indicates whether this connection is currently established.
    *
    * @return  {@code true} if this connection is currently established, or
@@ -839,7 +858,7 @@ public final class LDAPConnection
       return false;
     }
 
-    return true;
+    return (! needsReconnect.get());
   }
 
 
@@ -3865,6 +3884,11 @@ public final class LDAPConnection
   void sendMessage(final LDAPMessage message)
          throws LDAPException
   {
+    if (needsReconnect.compareAndSet(true, false))
+    {
+      reconnect();
+    }
+
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals == null)
     {
@@ -3985,6 +4009,7 @@ public final class LDAPConnection
    */
   void setClosed()
   {
+    needsReconnect.set(false);
     if (disconnectType == null)
     {
       try
@@ -4040,6 +4065,11 @@ public final class LDAPConnection
                                 final ResponseAcceptor responseAcceptor)
        throws LDAPException
   {
+    if (needsReconnect.compareAndSet(true, false))
+    {
+      reconnect();
+    }
+
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals == null)
     {

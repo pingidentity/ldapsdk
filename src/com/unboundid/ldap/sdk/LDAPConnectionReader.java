@@ -631,7 +631,7 @@ final class LDAPConnectionReader
     {
       try
       {
-        connection.reconnect();
+        connection.setNeedsReconnect();
       }
       catch (Exception e)
       {
