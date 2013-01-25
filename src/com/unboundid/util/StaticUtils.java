@@ -1391,7 +1391,7 @@ public final class StaticUtils
    */
   public static String concatenateStrings(final String... a)
   {
-    return concatenateStrings(Arrays.asList(a));
+    return concatenateStrings(null, null, "  ", null, null, a);
   }
 
 
@@ -1408,18 +1408,118 @@ public final class StaticUtils
    */
   public static String concatenateStrings(final List<String> l)
   {
+    return concatenateStrings(null, null, "  ", null, null, l);
+  }
+
+
+
+  /**
+   * Retrieves a single string which is a concatenation of all of the provided
+   * strings.
+   *
+   * @param  beforeList       A string that should be placed at the beginning of
+   *                          the list.  It may be {@code null} or empty if
+   *                          nothing should be placed at the beginning of the
+   *                          list.
+   * @param  beforeElement    A string that should be placed before each element
+   *                          in the list.  It may be {@code null} or empty if
+   *                          nothing should be placed before each element.
+   * @param  betweenElements  The separator that should be placed between
+   *                          elements in the list.  It may be {@code null} or
+   *                          empty if no separator should be placed between
+   *                          elements.
+   * @param  afterElement     A string that should be placed after each element
+   *                          in the list.  It may be {@code null} or empty if
+   *                          nothing should be placed after each element.
+   * @param  afterList        A string that should be placed at the end of the
+   *                          list.  It may be {@code null} or empty if nothing
+   *                          should be placed at the end of the list.
+   * @param  a                The array of strings to concatenate.  It must not
+   *                          be {@code null}.
+   *
+   * @return  A string containing a concatenation of all of the strings in the
+   *          provided list.
+   */
+  public static String concatenateStrings(final String beforeList,
+                                          final String beforeElement,
+                                          final String betweenElements,
+                                          final String afterElement,
+                                          final String afterList,
+                                          final String... a)
+  {
+    return concatenateStrings(beforeList, beforeElement, betweenElements,
+         afterElement, afterList, Arrays.asList(a));
+  }
+
+
+
+  /**
+   * Retrieves a single string which is a concatenation of all of the provided
+   * strings.
+   *
+   * @param  beforeList       A string that should be placed at the beginning of
+   *                          the list.  It may be {@code null} or empty if
+   *                          nothing should be placed at the beginning of the
+   *                          list.
+   * @param  beforeElement    A string that should be placed before each element
+   *                          in the list.  It may be {@code null} or empty if
+   *                          nothing should be placed before each element.
+   * @param  betweenElements  The separator that should be placed between
+   *                          elements in the list.  It may be {@code null} or
+   *                          empty if no separator should be placed between
+   *                          elements.
+   * @param  afterElement     A string that should be placed after each element
+   *                          in the list.  It may be {@code null} or empty if
+   *                          nothing should be placed after each element.
+   * @param  afterList        A string that should be placed at the end of the
+   *                          list.  It may be {@code null} or empty if nothing
+   *                          should be placed at the end of the list.
+   * @param  l                The list of strings to concatenate.  It must not
+   *                          be {@code null}.
+   *
+   * @return  A string containing a concatenation of all of the strings in the
+   *          provided list.
+   */
+  public static String concatenateStrings(final String beforeList,
+                                          final String beforeElement,
+                                          final String betweenElements,
+                                          final String afterElement,
+                                          final String afterList,
+                                          final List<String> l)
+  {
     ensureNotNull(l);
 
     final StringBuilder buffer = new StringBuilder();
 
+    if (beforeList != null)
+    {
+      buffer.append(beforeList);
+    }
+
     final Iterator<String> iterator = l.iterator();
     while (iterator.hasNext())
     {
-      buffer.append(iterator.next());
-      if (iterator.hasNext())
+      if (beforeElement != null)
       {
-        buffer.append("  ");
+        buffer.append(beforeElement);
       }
+
+      buffer.append(iterator.next());
+
+      if (afterElement != null)
+      {
+        buffer.append(afterElement);
+      }
+
+      if ((betweenElements != null) && iterator.hasNext())
+      {
+        buffer.append(betweenElements);
+      }
+    }
+
+    if (afterList != null)
+    {
+      buffer.append(afterList);
     }
 
     return buffer.toString();

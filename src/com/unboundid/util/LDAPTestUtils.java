@@ -1238,21 +1238,22 @@ public final class LDAPTestUtils
       return;
     }
 
-    // See if the target attribute exists in the entry at all.
-    final SearchResult searchResult = conn.search(dn, SearchScope.BASE,
-         Filter.createPresenceFilter(attributeName), "1.1");
-    if (searchResult.getEntryCount() == 0)
+    // Get the entry and see if the attribute exists in it at all.
+    final Entry entry = conn.getEntry(dn, attributeName);
+    if ((entry != null) && entry.hasAttribute(attributeName))
+    {
+      final Attribute a = entry.getAttribute(attributeName);
+      throw new AssertionError(ERR_TEST_ATTR_MISSING_VALUE.get(dn,
+           attributeName,
+           StaticUtils.concatenateStrings("{", " '", ",", "'", " }",
+                a.getValues()),
+           StaticUtils.concatenateStrings("{", " '", ",", "'", " }",
+                missingValues)));
+    }
+    else
     {
       throw new AssertionError(ERR_TEST_ATTR_MISSING.get(dn, attributeName));
     }
-
-    final List<String> messages = new ArrayList<String>(missingValues.size());
-    for (final String value : missingValues)
-    {
-      messages.add(ERR_TEST_VALUE_MISSING.get(dn, attributeName, value));
-    }
-
-    throw new AssertionError(StaticUtils.concatenateStrings(messages));
   }
 
 
@@ -1334,10 +1335,21 @@ public final class LDAPTestUtils
       try
       {
         final SearchResult searchResult = conn.search(dn, SearchScope.BASE,
-             Filter.createPresenceFilter(attrName), "1.1");
+             Filter.createPresenceFilter(attrName), attrName);
         if (searchResult.getEntryCount() == 1)
         {
-          messages.add(ERR_TEST_ATTR_EXISTS.get(dn, attrName));
+          final Attribute a =
+               searchResult.getSearchEntries().get(0).getAttribute(attrName);
+          if (a == null)
+          {
+            messages.add(ERR_TEST_ATTR_EXISTS.get(dn, attrName));
+          }
+          else
+          {
+            messages.add(ERR_TEST_ATTR_EXISTS_WITH_VALUES.get(dn, attrName,
+                 StaticUtils.concatenateStrings("{", " '", ",", "'", " }",
+                                 a.getValues())));
+          }
         }
       }
       catch (final LDAPException le)
