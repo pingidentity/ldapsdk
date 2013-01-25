@@ -159,6 +159,11 @@ public final class LDAPListenerClientConnection
   {
     Validator.ensureNotNull(socket, requestHandler);
 
+    setName("LDAPListener client connection reader for connection from " +
+         socket.getInetAddress().getHostAddress() + ':' +
+         socket.getPort() + " to " + socket.getLocalAddress().getHostAddress() +
+         ':' + socket.getLocalPort());
+
     this.listener         = listener;
     this.socket           = socket;
     this.exceptionHandler = exceptionHandler;
