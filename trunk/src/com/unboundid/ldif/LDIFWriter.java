@@ -86,6 +86,9 @@ public final class LDIFWriter
   // It will only be used when operating synchronously.
   private final ByteStringBuffer buffer;
 
+  // The translator to use for entries to be written, if any.
+  private final LDIFWriterEntryTranslator entryTranslator;
+
   // The column at which to wrap long lines.
   private int wrapColumn = 0;
 
@@ -150,8 +153,8 @@ public final class LDIFWriter
    * stream optionally using parallelThreads when writing batches of LDIF
    * records.
    *
-   * @param  outputStream  The output stream to which the data is to be written.
-   *                       It must not be {@code null}.
+   * @param  outputStream     The output stream to which the data is to be
+   *                          written.  It must not be {@code null}.
    * @param  parallelThreads  If this value is greater than zero, then the
    *                          specified number of threads will be used to
    *                          encode entries before writing them to the output
@@ -171,10 +174,46 @@ public final class LDIFWriter
    */
   public LDIFWriter(final OutputStream outputStream, final int parallelThreads)
   {
+    this(outputStream, parallelThreads, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF writer that will write entries to the provided output
+   * stream optionally using parallelThreads when writing batches of LDIF
+   * records.
+   *
+   * @param  outputStream     The output stream to which the data is to be
+   *                          written.  It must not be {@code null}.
+   * @param  parallelThreads  If this value is greater than zero, then the
+   *                          specified number of threads will be used to
+   *                          encode entries before writing them to the output
+   *                          for the {@code writeLDIFRecords(List)} method.
+   *                          Note this is the only output method that will
+   *                          use multiple threads.
+   *                          This should only be set to greater than zero when
+   *                          performance analysis has demonstrated that writing
+   *                          the LDIF is a bottleneck.  The default
+   *                          synchronous processing is normally fast enough.
+   *                          There is no benefit in passing in a value
+   *                          greater than the number of processors in the
+   *                          system.  A value of zero implies the
+   *                          default behavior of reading and parsing LDIF
+   *                          records synchronously when one of the read
+   *                          methods is called.
+   * @param  entryTranslator  An optional translator that will be used to alter
+   *                          entries before they are actually written.  This
+   *                          may be {@code null} if no translator is needed.
+   */
+  public LDIFWriter(final OutputStream outputStream, final int parallelThreads,
+                    final LDIFWriterEntryTranslator entryTranslator)
+  {
     ensureNotNull(outputStream);
     ensureTrue(parallelThreads >= 0,
                "LDIFWriter.parallelThreads must not be negative.");
 
+    this.entryTranslator = entryTranslator;
     buffer = new ByteStringBuffer();
 
     if (outputStream instanceof BufferedOutputStream)
@@ -199,7 +238,23 @@ public final class LDIFWriter
              public ByteStringBuffer process(final LDIFRecord input)
                     throws IOException
              {
-               return toLDIFBytes(input);
+               final LDIFRecord r;
+               if ((entryTranslator != null) && (input instanceof Entry))
+               {
+                 r = entryTranslator.translateEntryToWrite((Entry) input);
+                 if (r == null)
+                 {
+                   return null;
+                 }
+               }
+               else
+               {
+                 r = input;
+               }
+
+               final ByteStringBuffer b = new ByteStringBuffer(200);
+               r.toLDIF(b, wrapColumn);
+               return b;
              }
            }, threadFactory, parallelThreads, 5);
     }
@@ -291,10 +346,7 @@ public final class LDIFWriter
   public void writeEntry(final Entry entry)
          throws IOException
   {
-    ensureNotNull(entry);
-
-    debugLDIFWrite(entry);
-    writeLDIF(entry);
+    writeEntry(entry, null);
   }
 
 
@@ -314,12 +366,27 @@ public final class LDIFWriter
   {
     ensureNotNull(entry);
 
+    final Entry e;
+    if (entryTranslator == null)
+    {
+      e = entry;
+    }
+    else
+    {
+      e = entryTranslator.translateEntryToWrite(entry);
+      if (e == null)
+      {
+        return;
+      }
+    }
+
     if (comment != null)
     {
       writeComment(comment, false, false);
     }
 
-    writeEntry(entry);
+    debugLDIFWrite(entry);
+    writeLDIF(entry);
   }
 
 
@@ -382,10 +449,7 @@ public final class LDIFWriter
   public void writeLDIFRecord(final LDIFRecord record)
          throws IOException
   {
-    ensureNotNull(record);
-
-    debugLDIFWrite(record);
-    writeLDIF(record);
+    writeLDIFRecord(record, null);
   }
 
 
@@ -405,13 +469,27 @@ public final class LDIFWriter
   {
     ensureNotNull(record);
 
-    debugLDIFWrite(record);
+    final LDIFRecord r;
+    if ((entryTranslator != null) && (record instanceof Entry))
+    {
+      r = entryTranslator.translateEntryToWrite((Entry) record);
+      if (r == null)
+      {
+        return;
+      }
+    }
+    else
+    {
+      r = record;
+    }
+
+    debugLDIFWrite(r);
     if (comment != null)
     {
       writeComment(comment, false, false);
     }
 
-    writeLDIF(record);
+    writeLDIF(r);
   }
 
 
@@ -452,8 +530,13 @@ public final class LDIFWriter
       for (final Result<LDIFRecord,ByteStringBuffer> result: results)
       {
         rethrow(result.getFailureCause());
-        result.getOutput().write(writer);
-        writer.write(EOL_BYTES);
+
+        final ByteStringBuffer encodedBytes = result.getOutput();
+        if (encodedBytes != null)
+        {
+          encodedBytes.write(writer);
+          writer.write(EOL_BYTES);
+        }
       }
     }
   }
@@ -617,25 +700,6 @@ public final class LDIFWriter
     }
 
     buffer.write(writer);
-  }
-
-
-
-  /**
-   * Returns the provided LDIFRecord encoded in ASCII LDIF bytes.
-   *
-   * @param  record  The set of lines to be written to the LDIF target.
-   *
-   * @return  A ByteStringBuffer containing the ASCII encoded bytes of LDIF.
-   *
-   * @throws  IOException  If a problem occurs while writing the LDIF data.
-   */
-  private ByteStringBuffer toLDIFBytes(final LDIFRecord record)
-          throws IOException
-  {
-    final ByteStringBuffer b = new ByteStringBuffer(200);
-    record.toLDIF(b, wrapColumn);
-    return b;
   }
 
 
