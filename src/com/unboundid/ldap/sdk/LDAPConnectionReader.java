@@ -797,20 +797,11 @@ final class LDAPConnectionReader
         }
 
         debug(debugLevel, DebugType.LDAP, message, t);
-
-        // If the connection is configured to try to auto-reconnect, then set
-        // things up to do that.  Otherwise, terminate the connection.
-        if (connection.getConnectionOptions().autoReconnect() &&
-             (! closeRequested))
-        {
-          connection.reconnect();
-        }
-        else
+        if (! connection.getConnectionOptions().autoReconnect())
         {
           closeRequested = true;
-          closeInternal(true, message);
         }
-
+        closeInternal(true, message);
         throw le;
       }
       catch (Exception e)
@@ -842,20 +833,11 @@ final class LDAPConnectionReader
         }
 
         debug(debugLevel, DebugType.LDAP, message, e);
-
-        // If the connection is configured to try to auto-reconnect, then set
-        // things up to do that.  Otherwise, terminate the connection.
-        if (connection.getConnectionOptions().autoReconnect() &&
-             (! closeRequested))
-        {
-          connection.reconnect();
-        }
-        else
+        if (! connection.getConnectionOptions().autoReconnect())
         {
           closeRequested = true;
-          closeInternal(true, message);
         }
-
+        closeInternal(true, message);
         throw new LDAPException(ResultCode.SERVER_DOWN,  message, e);
       }
     }
