@@ -403,11 +403,13 @@ final class LDAPConnectionInternals
   /**
    * Sends the provided LDAP message to the directory server.
    *
-   * @param  message  The LDAP message to be sent.
+   * @param  message     The LDAP message to be sent.
+   * @param  allowRetry  Indicates whether to allow retrying the send after a
+   *                     reconnect.
    *
    * @throws  LDAPException  If a problem occurs while sending the message.
    */
-  void sendMessage(final LDAPMessage message)
+  void sendMessage(final LDAPMessage message, final boolean allowRetry)
        throws LDAPException
   {
     if (! isConnected())
@@ -456,9 +458,19 @@ final class LDAPConnectionInternals
       final LDAPConnectionOptions connectionOptions =
            connection.getConnectionOptions();
       final boolean closeRequested = connection.closeRequested();
-      if (connectionOptions.autoReconnect() && (! closeRequested))
+      if (allowRetry && (! closeRequested) && (! connection.synchronousMode()))
       {
         connection.reconnect();
+
+        try
+        {
+          sendMessage(message, false);
+          return;
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+        }
       }
 
       throw new LDAPException(ResultCode.SERVER_DOWN,

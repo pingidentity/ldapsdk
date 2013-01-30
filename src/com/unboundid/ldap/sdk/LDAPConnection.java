@@ -3897,7 +3897,7 @@ public final class LDAPConnection
     }
     else
     {
-      internals.sendMessage(message);
+      internals.sendMessage(message, connectionOptions.autoReconnect());
     }
   }
 
