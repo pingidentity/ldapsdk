@@ -656,7 +656,31 @@ public abstract class LDAPCommandLineTool
   public SSLUtil createSSLUtil()
          throws LDAPException
   {
-    if (useSSL.isPresent() || useStartTLS.isPresent())
+    return createSSLUtil(false);
+  }
+
+
+
+  /**
+   * Creates the SSLUtil instance to use for secure communication.
+   *
+   * @param  force  Indicates whether to create the SSLUtil object even if
+   *                neither the "--useSSL" nor the "--useStartTLS" argument was
+   *                provided.  The key store and/or trust store paths must still
+   *                have been provided.  This may be useful for tools that
+   *                accept SSL-based communication but do not themselves intend
+   *                to perform SSL-based communication as an LDAP client.
+   *
+   * @return  The SSLUtil instance to use for secure communication, or
+   *          {@code null} if secure communication is not needed.
+   *
+   * @throws  LDAPException  If a problem occurs while creating the SSLUtil
+   *                         instance.
+   */
+  public SSLUtil createSSLUtil(final boolean force)
+         throws LDAPException
+  {
+    if (force || useSSL.isPresent() || useStartTLS.isPresent())
     {
       KeyManager keyManager = null;
       if (keyStorePath.isPresent())
