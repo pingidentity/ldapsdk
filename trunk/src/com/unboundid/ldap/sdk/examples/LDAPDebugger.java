@@ -46,6 +46,7 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
@@ -92,6 +93,9 @@ public final class LDAPDebugger
   private static final long serialVersionUID = -8942937427428190983L;
 
 
+
+  // The argument used to specify the output file for the decoded content.
+  private BooleanArgument listenUsingSSL;
 
   // The argument used to specify the output file for the decoded content.
   private FileArgument outputFile;
@@ -239,6 +243,14 @@ public final class LDAPDebugger
     parser.addArgument(listenPort);
 
 
+    description = "Use SSL when accepting client connections.  This is " +
+         "independent of the '--useSSL' option, which applies only to " +
+         "communication between the LDAP debugger and the backend server.";
+    listenUsingSSL = new BooleanArgument('S', "listenUsingSSL", 1,
+         description);
+    parser.addArgument(listenUsingSSL);
+
+
     description = "The path to the output file to be written.  If no value " +
          "is provided, then the output will be written to standard output.";
     outputFile = new FileArgument('f', "outputFile", false, 1, "{path}",
@@ -321,6 +333,21 @@ public final class LDAPDebugger
       }
     }
 
+    if (listenUsingSSL.isPresent())
+    {
+      try
+      {
+        config.setServerSocketFactory(
+             createSSLUtil(true).createSSLServerSocketFactory());
+      }
+      catch (final Exception e)
+      {
+        err("Unable to create a server socket factory to accept SSL-based " +
+             "client connections:  ", StaticUtils.getExceptionMessage(e));
+        return ResultCode.LOCAL_ERROR;
+      }
+    }
+
     listener = new LDAPListener(config);
 
     try
@@ -348,7 +375,14 @@ public final class LDAPDebugger
       port = listener.getListenPort();
     }
 
-    out("Listening for LDAP client connections on port ", port);
+    if (listenUsingSSL.isPresent())
+    {
+      out("Listening for SSL-based LDAP client connections on port ", port);
+    }
+    else
+    {
+      out("Listening for LDAP client connections on port ", port);
+    }
 
     // Note that at this point, the listener will continue running in a
     // separate thread, so we can return from this thread without exiting the
