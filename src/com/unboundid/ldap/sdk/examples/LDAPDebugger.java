@@ -77,6 +77,9 @@ import com.unboundid.util.args.StringArgument;
  *       on which to listen for requests from clients.</LI>
  *   <LI>"-L {port}" or "--listenPort {port}" -- Specifies the port on which to
  *       listen for requests from clients.</LI>
+ *   <LI>"-S" or "--listenUsingSSL" -- Indicates that the listener should
+ *       accept connections from SSL-based clients rather than those using
+ *       unencrypted LDAP.</LI>
  *   <LI>"-f {path}" or "--outputFile {path}" -- Specifies the path to the
  *       output file to be written.  If this is not provided, then the output
  *       will be written to standard output.</LI>
