@@ -4227,6 +4227,19 @@ public final class LDAPConnection
 
 
   /**
+   * Sets the cached schema for this connection.
+   *
+   * @param  cachedSchema  The cached schema for this connection.  It may be
+   *                       {@code null} if no cached schema is available.
+   */
+  void setCachedSchema(final Schema cachedSchema)
+  {
+    this.cachedSchema = cachedSchema;
+  }
+
+
+
+  /**
    * Indicates whether this connection is operating in synchronous mode.
    *
    * @return  {@code true} if this connection is operating in synchronous mode,
