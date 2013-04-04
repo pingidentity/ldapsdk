@@ -36,6 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.protocol.LDAPResponse;
+import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -218,6 +220,10 @@ public final class LDAPConnectionPool
   // The minimum length of time in milliseconds that must pass between
   // disconnects of connections that have exceeded the maximum connection age.
   private volatile long minDisconnectInterval;
+
+  // The schema that should be shared for connections in this pool, along with
+  // its expiration time.
+  private volatile ObjectPair<Long,Schema> pooledSchema;
 
   // The post-connect processor for this connection pool, if any.
   private final PostConnectProcessor postConnectProcessor;
@@ -475,6 +481,7 @@ public final class LDAPConnectionPool
     healthCheck               = new LDAPConnectionPoolHealthCheck();
     healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
     poolStatistics            = new LDAPConnectionPoolStatistics(this);
+    pooledSchema              = null;
     connectionPoolName        = null;
     retryOperationTypes       = new AtomicReference<Set<OperationType>>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
@@ -494,6 +501,35 @@ public final class LDAPConnectionPool
                                     connection.getLastUsedSocketFactory(),
                                     connection.getConnectionOptions());
     bindRequest = connection.getLastBindRequest();
+
+    final LDAPConnectionOptions opts = connection.getConnectionOptions();
+    if (opts.usePooledSchema())
+    {
+      try
+      {
+        final Schema schema = connection.getSchema();
+        if (schema != null)
+        {
+          connection.setCachedSchema(schema);
+
+          final long currentTime = System.currentTimeMillis();
+          final long timeout = opts.getPooledSchemaTimeoutMillis();
+          if ((timeout <= 0L) || (timeout+currentTime <= 0L))
+          {
+            pooledSchema = new ObjectPair<Long,Schema>(Long.MAX_VALUE, schema);
+          }
+          else
+          {
+            pooledSchema =
+                 new ObjectPair<Long,Schema>(timeout+currentTime, schema);
+          }
+        }
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
+    }
 
     final List<LDAPConnection> connList;
     if (initialConnectThreads > 1)
@@ -987,8 +1023,52 @@ public final class LDAPConnectionPool
       }
     }
 
+    if (opts.usePooledSchema())
+    {
+      final long currentTime = System.currentTimeMillis();
+      if ((pooledSchema == null) || (currentTime > pooledSchema.getFirst()))
+      {
+        try
+        {
+          final Schema schema = c.getSchema();
+          if (schema != null)
+          {
+            c.setCachedSchema(schema);
+
+            final long timeout = opts.getPooledSchemaTimeoutMillis();
+            if ((timeout <= 0L) || (currentTime + timeout <= 0L))
+            {
+              pooledSchema =
+                   new ObjectPair<Long,Schema>(Long.MAX_VALUE, schema);
+            }
+            else
+            {
+              pooledSchema =
+                   new ObjectPair<Long,Schema>((currentTime+timeout), schema);
+            }
+          }
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+
+          // There was a problem retrieving the schema from the server, but if
+          // we have an earlier copy then we can assume it's still valid.
+          if (pooledSchema != null)
+          {
+            c.setCachedSchema(pooledSchema.getSecond());
+          }
+        }
+      }
+      else
+      {
+        c.setCachedSchema(pooledSchema.getSecond());
+      }
+    }
+
     c.setConnectionPoolName(connectionPoolName);
     poolStatistics.incrementNumSuccessfulConnectionAttempts();
+
     return c;
   }
 
