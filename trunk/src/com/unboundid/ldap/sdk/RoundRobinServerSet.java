@@ -58,7 +58,7 @@ import static com.unboundid.util.Validator.*;
  *   {
  *     389,
  *     389
- *   }
+ *   };
  *   RoundRobinServerSet roundRobinSet =
  *        new RoundRobinServerSet(addresses, ports);
  * </PRE>

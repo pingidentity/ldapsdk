@@ -70,8 +70,8 @@ import static com.unboundid.util.Validator.*;
  *   String trustStoreFile  = "/path/to/trust/store/file";
  *   SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStoreFile));
  *
- *   ExtendedResult extendedResult = conn.processExtendedOperation(
- *        new StartTLSExtendedRequest(h.createSSLContext()));
+ *   ExtendedResult extendedResult = connection.processExtendedOperation(
+ *        new StartTLSExtendedRequest(sslUtil.createSSLContext()));
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
