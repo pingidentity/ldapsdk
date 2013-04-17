@@ -2597,4 +2597,46 @@ public final class LDAPTestUtils
       }
     }
   }
+
+
+
+  /**
+   * Ensures that the two provided strings represent the same DN.
+   *
+   * @param  s1  The first string to compare.
+   * @param  s2  The second string to compare.
+   *
+   * @throws  AssertionError  If either string doesn't represent a valid DN, or
+   *                          if they do not represent the same DN.
+   */
+  public static void assertDNsEqual(final String s1, final String s2)
+         throws AssertionError
+  {
+    final DN dn1;
+    try
+    {
+      dn1 = new DN(s1);
+    }
+    catch (final Exception e)
+    {
+      throw new AssertionError(ERR_TEST_VALUE_NOT_VALID_DN.get(s1,
+           StaticUtils.getExceptionMessage(e)));
+    }
+
+    final DN dn2;
+    try
+    {
+      dn2 = new DN(s2);
+    }
+    catch (final Exception e)
+    {
+      throw new AssertionError(ERR_TEST_VALUE_NOT_VALID_DN.get(s2,
+           StaticUtils.getExceptionMessage(e)));
+    }
+
+    if (! dn1.equals(dn2))
+    {
+      throw new AssertionError(ERR_TEST_DNS_NOT_EQUAL.get(s1, s2));
+    }
+  }
 }
