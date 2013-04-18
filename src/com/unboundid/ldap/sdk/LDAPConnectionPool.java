@@ -1144,6 +1144,170 @@ public final class LDAPConnectionPool
 
 
   /**
+   * Processes a simple bind using a connection from this connection pool, and
+   * then reverts that authentication by re-binding as the same user used to
+   * authenticate new connections.  If new connections are unauthenticated, then
+   * the subsequent bind will be an anonymous simple bind.  This method attempts
+   * to ensure that processing the provided bind operation does not have a
+   * lasting impact the authentication state of the connection used to process
+   * it.
+   * <BR><BR>
+   * If the second bind attempt (the one used to restore the authentication
+   * identity) fails, the connection will be closed as defunct so that a new
+   * connection will be created to take its place.
+   *
+   * @param  bindDN    The bind DN for the simple bind request.
+   * @param  password  The password for the simple bind request.
+   * @param  controls  The optional set of controls for the simple bind request.
+   *
+   * @return  The result of processing the provided bind operation.
+   *
+   * @throws  LDAPException  If the server rejects the bind request, or if a
+   *                         problem occurs while sending the request or reading
+   *                         the response.
+   */
+  public BindResult bindAndRevertAuthentication(final String bindDN,
+                                                final String password,
+                                                final Control... controls)
+         throws LDAPException
+  {
+    return bindAndRevertAuthentication(
+         new SimpleBindRequest(bindDN, password, controls));
+  }
+
+
+
+  /**
+   * Processes the provided bind request using a connection from this connection
+   * pool, and then reverts that authentication by re-binding as the same user
+   * used to authenticate new connections.  If new connections are
+   * unauthenticated, then the subsequent bind will be an anonymous simple bind.
+   * This method attempts to ensure that processing the provided bind operation
+   * does not have a lasting impact the authentication state of the connection
+   * used to process it.
+   * <BR><BR>
+   * If the second bind attempt (the one used to restore the authentication
+   * identity) fails, the connection will be closed as defunct so that a new
+   * connection will be created to take its place.
+   *
+   * @param  bindRequest  The bind request to be processed.  It must not be
+   *                      {@code null}.
+   *
+   * @return  The result of processing the provided bind operation.
+   *
+   * @throws  LDAPException  If the server rejects the bind request, or if a
+   *                         problem occurs while sending the request or reading
+   *                         the response.
+   */
+  public BindResult bindAndRevertAuthentication(final BindRequest bindRequest)
+         throws LDAPException
+  {
+    LDAPConnection conn = getConnection();
+
+    try
+    {
+      final BindResult result = conn.bind(bindRequest);
+      releaseAndReAuthenticateConnection(conn);
+      return result;
+    }
+    catch (final Throwable t)
+    {
+      debugException(t);
+
+      if (t instanceof LDAPException)
+      {
+        final LDAPException le = (LDAPException) t;
+
+        boolean shouldThrow;
+        try
+        {
+          healthCheck.ensureConnectionValidAfterException(conn, le);
+
+          // The above call will throw an exception if the connection doesn't
+          // seem to be valid, so if we've gotten here then we should assume
+          // that it is valid and we will pass the exception onto the client
+          // without retrying the operation.
+          releaseAndReAuthenticateConnection(conn);
+          shouldThrow = true;
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+
+          // This implies that the connection is not valid.  If the pool is
+          // configured to re-try bind operations on a newly-established
+          // connection, then that will be done later in this method.
+          // Otherwise, release the connection as defunct and pass the bind
+          // exception onto the client.
+          if (! getOperationTypesToRetryDueToInvalidConnections().contains(
+                     OperationType.BIND))
+          {
+            releaseDefunctConnection(conn);
+            shouldThrow = true;
+          }
+          else
+          {
+            shouldThrow = false;
+          }
+        }
+
+        if (shouldThrow)
+        {
+          throw le;
+        }
+      }
+      else
+      {
+        releaseDefunctConnection(conn);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
+      }
+    }
+
+
+    // If we've gotten here, then the bind operation should be re-tried on a
+    // newly-established connection.
+    conn = replaceDefunctConnection(conn);
+
+    try
+    {
+      final BindResult result = conn.bind(bindRequest);
+      releaseAndReAuthenticateConnection(conn);
+      return result;
+    }
+    catch (final Throwable t)
+    {
+      debugException(t);
+
+      if (t instanceof LDAPException)
+      {
+        final LDAPException le = (LDAPException) t;
+
+        try
+        {
+          healthCheck.ensureConnectionValidAfterException(conn, le);
+          releaseAndReAuthenticateConnection(conn);
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+          releaseDefunctConnection(conn);
+        }
+
+        throw le;
+      }
+      else
+      {
+        releaseDefunctConnection(conn);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
+      }
+    }
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -1352,6 +1516,48 @@ public final class LDAPConnectionPool
     if (closed)
     {
       close();
+    }
+  }
+
+
+
+  /**
+   * Performs a bind on the provided connection before releasing it back to the
+   * pool, so that it will be authenticated as the same user as
+   * newly-established connections.  If newly-established connections are
+   * unauthenticated, then this method will perform an anonymous simple bind to
+   * ensure that the resulting connection is unauthenticated.
+   *
+   * Releases the provided connection back to this pool.
+   *
+   * @param  connection  The connection to be released back to the pool after
+   *                     being re-authenticated.
+   */
+  public void releaseAndReAuthenticateConnection(
+                   final LDAPConnection connection)
+  {
+    if (connection == null)
+    {
+      return;
+    }
+
+    try
+    {
+      if (bindRequest == null)
+      {
+        connection.bind("", "");
+      }
+      else
+      {
+        connection.bind(bindRequest);
+      }
+
+      releaseConnection(connection);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      releaseDefunctConnection(connection);
     }
   }
 
