@@ -10,6 +10,269 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.3.2</h3>
+
+              <p>
+                The following changes were made between the 2.3.1 and 2.3.2 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Update the <tt>LDAPConnectionPool</tt> class to make it possible to successfully
+                  create a connection pool even if a failure is encountered while attempting to
+                  establish one or more of the initial connections.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>LDAPConnectionPool</tt> class to make it possible to use multiple
+                  threads to establish the initial set of connections more quickly.  This can
+                  dramatically reduce the length of time required to create a pool, especially
+                  when establishing a large number of connections and/or when connecting to a
+                  remote or slow-to-respond server.  It is also now possible to use multiple
+                  threads to close connections in parallel and optionally skip sending an unbind
+                  request before closing the connections.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update connection pooling support when connections are configured to
+                  automatically retrieve schema information from the server.  In a connection
+                  pool, it is now possible to cache the schema so that it will not be retrieved
+                  for every connection that is established.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update connection pool support to a method that can be used to process a bind,
+                  and then immediately re-bind with the credentials that were initially used when
+                  the connection was established.  Also add a method that can be used to release a
+                  connection and have it be re-authenticated using the credentials that were
+                  initially used when the connection was established.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server to make it possible to specify multiple
+                  schema files that will all be combined to generate the server schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the persistence framework so that the default object encoder includes
+                  support for serialized objects.  This may result in attribute values that aren't
+                  useful to non-Java clients, but may still provide a convenient way to store some
+                  complex information in LDAP entries.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the persistence framework to provide a new <tt>getAll</tt> method that
+                  makes it possible to retrieve all objects of the associated type below a given
+                  base DN.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the generate-schema-from-source tool so that it will include default
+                  values for the equality, ordering and/or substring matching rules for all
+                  attribute types that it creates.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the generate-schema-from-source tool so that it provides a new
+                  "--modifyFormat" argument that will cause the tool to generate new schema
+                  elements as LDIF modify change records instead of as attributes in an LDIF
+                  entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the javadoc for getter methods in the <tt>Filter</tt> class to make it
+                  clearer which methods may be used with which filter types.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the javadoc for methods that may be used for performing searches, as well
+                  as for methods that may be used to set search size and time limits, to make it
+                  clear that if an LDAPSearchException is thrown, it may include information about
+                  any entries and/or references that were returned before the exception was
+                  thrown.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>SSLUtil</tt> class to the ability to specify the default SSL/TLS
+                  protocol string that will be used for creating SSL contexts when the caller
+                  doesn't explicitly specify a protocol.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the LDAP listener canned response request handler to add the ability to
+                  return a specified set of entries and/or references for every search operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that disconnect information is always set for a connection that is being
+                  closed.  If the connection is closed through an unexpected code path, then it
+                  will now include a stack trace that provides information about the call path
+                  that resulted in the connection closure.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new <tt>MultiServerLDAPCommandLineTool</tt> API that can be used to easily
+                  create command-line tools that need to interact with multiple LDAP servers.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the LDAP SDK command-line tool API to add convenience methods for
+                  registering a JVM shutdown hook that will be invoked when the JVM in which the
+                  tool is running is shut down (e.g., when all non-daemon threads have completed
+                  running the JVM receives a break or kill signal).
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a convenience method to the <tt>LDIFAddChangeRecord</tt> class that makes it
+                  easy to get the entry to be added.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new <tt>SASLBindInProgressException</tt> that extends
+                  <tt>LDAPException</tt> and will be thrown instead of a generic
+                  <tt>LDAPException</tt> if the server returns a "SASL bind in progress" result.
+                  This will most likely occur when processing a SASL bind using the
+                  <tt>GenericSASLBindRequest</tt> class.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new <tt>LDIFWriterEntryTranslator</tt> class that can be used to transform
+                  or suppress entries to be written to an LDIF file.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the LDAP debugger tool so that it can be used to accept SSL-based
+                  connections from clients.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improve the <tt>Attribute.equals</tt> method to make it much more efficient for
+                  attributes with multiple values.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new <tt>LDAPTestUtils.assertDNsEqual</tt> method that can be used to
+                  ensure that two strings represent equivalent LDAP DNs.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improve the amount of detail provided by the <tt>assertValueExists</tt> and
+                  <tt>assertAttributeMissing</tt> methods in the <tt>LDAPTestUtils</tt> class if
+                  the assertion fails.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the LDIF reader that could prevent it from properly handling
+                  comment lines that had been wrapped.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a synchronization bug in the round-robin server set that could cause it to
+                  throw an exception under highly concurrent load.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the in-memory directory server that could cause it to send an
+                  incorrectly-formatted search result done message for the case in which the size
+                  size limit was exceeded.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the <tt>LDAPThreadLocalConnectionPool</tt> that could cause it to
+                  establish an extra connection if a health check is configured for the pool and
+                  the <tt>ensureConnectionValidForCheckout</tt> method indicates that the existing
+                  connection is not valid.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug that could prevent connections from using the referral behavior
+                  specified in the LDAP connection options that were set after the connection was
+                  already established.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a number of bugs that could interfere with the ability for a connection to
+                  be automatically re-established if it becomes invalid.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>DurationArgument</tt> class to eliminate its dependency on the
+                  <tt>MINUTES</tt>, <tt>HOURS</tt>, and <tt>DAYS</tt> values for the
+                  <tt>TimeUnit</tt> enum.  These values were not added until Java SE 6, and
+                  attempts to use the <tt>DurationArgument</tt> class in a Java SE 5 environment
+                  could result in errors.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the persistence framework in which the <tt>inModify</tt> element of
+                  <tt>LDAPField</tt> and <tt>LDAPGetter</tt> annotations may not be honored if the
+                  object being modified was retrieved from a directory and references a copy of
+                  the original entry in a field marked with <tt>LDAPEntryField</tt>.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the persistence framework that can interfere with the ability to
+                  generate search filters when using annotated objects that extend other annotated
+                  objects.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a potential null pointer exception that could arise in some cases when
+                  trying to use a connection that was not established.  An LDAP exception will now
+                  be thrown instead.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a potential null pointer exception that could be thrown when creating a
+                  connection pool and a problem was encountered while attempting to establish one
+                  of the initial connections after at least one connection had already been
+                  established.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a problem with the LDAP SDK build process that prevented building it with
+                  Java SE 7, and clean up the code to remove a number of warnings generated when
+                  building with Java SE 7.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 2.3.1</h3>
 
               <p>
