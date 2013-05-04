@@ -621,6 +621,11 @@
           toFile="${maven.dir}/unboundid-ldapsdk-${MMP}.jar" />
     <copy file="${se.package.dir}/src.zip"
           toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-sources.jar" />
+    <jar jarfile="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar"
+         compress="true"
+         index="true">
+      <fileset dir="${se.package.dir}/docs/javadoc" />
+    </jar>
 
 
     <!-- Generate the POM. -->
@@ -706,6 +711,12 @@
                algorithm="MD5" />
     <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}-sources.jar"
                toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-sources.jar.sha1"
+               algorithm="SHA-1" />
+    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar"
+               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar.md5"
+               algorithm="MD5" />
+    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar"
+               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar.sha1"
                algorithm="SHA-1" />
 
 
