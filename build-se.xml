@@ -614,7 +614,7 @@
   <!-- Generate the appropriate structure for a Maven repository. -->
   <target name="create-maven-repository">
     <property name="maven.dir"
-              location="${package.dir}/maven/com/unboundid/unboundid-ldapsdk/${MMP}" />
+              location="${package.dir}/unboundid-ldapsdk-${MMP}-maven" />
     <mkdir dir="${maven.dir}" />
 
     <copy file="${se.package.dir}/unboundid-ldapsdk-se.jar"
@@ -719,15 +719,82 @@
                toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar.sha1"
                algorithm="SHA-1" />
 
+    <antcall target="sign-maven-components" />
 
-    <zip destfile="${package.dir}/maven.zip" compress="true">
-      <zipfileset dir="${package.dir}" includes="maven/**/*" filemode="644"
-                  dirmode="755" />
-    </zip>
+    <jar jarfile="${package.dir}/unboundid-ldapsdk-${MMP}-maven.jar"
+         compress="true"
+         index="true">
+      <fileset dir="${maven.dir}" />
+    </jar>
 
-    <delete dir="${package.dir}/maven" />
+    <delete dir="${maven.dir}" />
   </target>
 
+
+
+
+  <!-- Sign the Maven components with GPG if the key is available. -->
+  <target name="sign-maven-components" if="env.GPG_PASSPHRASE">
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.pom.asc unboundid-ldapsdk-${MMP}.pom" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.pom.md5.asc unboundid-ldapsdk-${MMP}.pom.md5" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.pom.sha1.asc unboundid-ldapsdk-${MMP}.pom.sha1" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.jar.asc unboundid-ldapsdk-${MMP}.jar" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.jar.md5.asc unboundid-ldapsdk-${MMP}.jar.md5" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.jar.sha1.asc unboundid-ldapsdk-${MMP}.jar.sha1" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-sources.jar.asc unboundid-ldapsdk-${MMP}-sources.jar" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-sources.jar.md5.asc unboundid-ldapsdk-${MMP}-sources.jar.md5" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-sources.jar.sha1.asc unboundid-ldapsdk-${MMP}-sources.jar.sha1" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-javadoc.jar.asc unboundid-ldapsdk-${MMP}-javadoc.jar" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-javadoc.jar.md5.asc unboundid-ldapsdk-${MMP}-javadoc.jar.md5" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-javadoc.jar.sha1.asc unboundid-ldapsdk-${MMP}-javadoc.jar.sha1" />
+    </exec>
+  </target>
 
 
 
