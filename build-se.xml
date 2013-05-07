@@ -642,6 +642,11 @@
     reading and writing LDIF, encoding and decoding data using base64 and ASN.1
     BER, and performing secure communication.</description>
   <url>http://www.unboundid.com/</url>
+  <inceptionYear>2009</inceptionYear>
+  <organization>
+    <name>UnboundID Corp.</name>
+    <url>http://www.unboundid.com/</url>
+  </organization>
   <developers>
     <id>dirmgr</id>
     <name>Neil Wilson</name>
@@ -687,38 +692,6 @@
       </classpath>
     </javac>
 
-    <taskdef name="gendigest"
-             className="com.unboundid.buildtools.digest.GenerateDigest">
-      <classpath>
-        <pathelement location="${digest.classes.dir}" />
-      </classpath>
-    </taskdef>
-
-    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}.jar"
-               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}.jar.md5"
-               algorithm="MD5" />
-    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}.jar"
-               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}.jar.sha1"
-               algorithm="SHA-1" />
-    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}.pom"
-               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}.pom.md5"
-               algorithm="MD5" />
-    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}.pom"
-               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}.pom.sha1"
-               algorithm="SHA-1" />
-    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}-sources.jar"
-               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-sources.jar.md5"
-               algorithm="MD5" />
-    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}-sources.jar"
-               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-sources.jar.sha1"
-               algorithm="SHA-1" />
-    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar"
-               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar.md5"
-               algorithm="MD5" />
-    <gendigest file="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar"
-               toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar.sha1"
-               algorithm="SHA-1" />
-
     <antcall target="sign-maven-components" />
 
     <jar jarfile="${package.dir}/unboundid-ldapsdk-${MMP}-maven.jar"
@@ -742,27 +715,7 @@
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.pom.md5.asc unboundid-ldapsdk-${MMP}.pom.md5" />
-    </exec>
-
-    <exec dir="${maven.dir}" executable="gpg"
-          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.pom.sha1.asc unboundid-ldapsdk-${MMP}.pom.sha1" />
-    </exec>
-
-    <exec dir="${maven.dir}" executable="gpg"
-          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
       <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.jar.asc unboundid-ldapsdk-${MMP}.jar" />
-    </exec>
-
-    <exec dir="${maven.dir}" executable="gpg"
-          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.jar.md5.asc unboundid-ldapsdk-${MMP}.jar.md5" />
-    </exec>
-
-    <exec dir="${maven.dir}" executable="gpg"
-          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.jar.sha1.asc unboundid-ldapsdk-${MMP}.jar.sha1" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
@@ -772,27 +725,7 @@
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-sources.jar.md5.asc unboundid-ldapsdk-${MMP}-sources.jar.md5" />
-    </exec>
-
-    <exec dir="${maven.dir}" executable="gpg"
-          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-sources.jar.sha1.asc unboundid-ldapsdk-${MMP}-sources.jar.sha1" />
-    </exec>
-
-    <exec dir="${maven.dir}" executable="gpg"
-          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
       <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-javadoc.jar.asc unboundid-ldapsdk-${MMP}-javadoc.jar" />
-    </exec>
-
-    <exec dir="${maven.dir}" executable="gpg"
-          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-javadoc.jar.md5.asc unboundid-ldapsdk-${MMP}-javadoc.jar.md5" />
-    </exec>
-
-    <exec dir="${maven.dir}" executable="gpg"
-          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-javadoc.jar.sha1.asc unboundid-ldapsdk-${MMP}-javadoc.jar.sha1" />
     </exec>
   </target>
 
