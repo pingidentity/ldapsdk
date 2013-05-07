@@ -645,8 +645,7 @@
 
     <!-- Generate a jar file with all the Maven artifacts. -->
     <jar jarfile="${package.dir}/unboundid-ldapsdk-${MMP}-maven.jar"
-         compress="true"
-         index="true">
+         compress="true" index="false">
       <fileset dir="${maven.dir}" />
     </jar>
 
