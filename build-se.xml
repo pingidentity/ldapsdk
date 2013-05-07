@@ -628,72 +628,22 @@
     </jar>
 
 
-    <!-- Generate the POM. -->
-    <echoxml file="${maven.dir}/unboundid-ldapsdk-${MMP}.pom" append="no">
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.unboundid</groupId>
-  <artifactId>unboundid-ldapsdk</artifactId>
-  <packaging>jar</packaging>
-  <name>UnboundID LDAP SDK for Java</name>
-  <version>${MMP}</version>
-  <description>A fast, comprehensive, and easy-to-use Java API for
-    communicating with LDAP directory servers and performing related tasks like
-    reading and writing LDIF, encoding and decoding data using base64 and ASN.1
-    BER, and performing secure communication.</description>
-  <url>http://www.unboundid.com/</url>
-  <inceptionYear>2009</inceptionYear>
-  <organization>
-    <name>UnboundID Corp.</name>
-    <url>http://www.unboundid.com/</url>
-  </organization>
-  <developers>
-    <id>dirmgr</id>
-    <name>Neil Wilson</name>
-    <email>neil.wilson@unboundid.com</email>
-  </developers>
-  <licenses>
-    <license>
-      <name>GNU General Public License version 2</name>
-      <url>http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt</url>
-    </license>
-    <license>
-      <name>GNU Lesser General Public License version 2.1</name>
-      <url>http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
-    </license>
-    <license>
-      <name>UnboundID LDAP SDK Free Use License</name>
-      <url>http://www.unboundid.com/products/ldapsdk/docs/LICENSE-UnboundID-LDAPSDK.txt</url>
-    </license>
-  </licenses>
-  <scm>
-    <connection>scm:svn:https://ldap-sdk.svn.sourceforge.net/svnroot/ldap-sdk/trunk</connection>
-    <developerConnection>scm:svn:https://ldap-sdk.svn.sourceforge.net/svnroot/ldap-sdk/trunk</developerConnection>
-    <tag>HEAD</tag>
-    <url>http://ldap-sdk.svn.sourceforge.net/viewvc/ldap-sdk/trunk/</url>
-  </scm>
-</project>
-    </echoxml>
+    <!-- Copy the POM into place. -->
+    <copy file="${resource.dir}/unboundid-ldapsdk.pom"
+          tofile="${maven.dir}/unboundid-ldapsdk-${MMP}.pom"
+          overwrite="true">
+      <filterchain>
+        <expandproperties />
+      </filterchain>
+    </copy>
 
 
-    <!-- Generate SHA-1 and MD5 digests for all of the files. -->
-    <delete dir="${digest.classes.dir}" />
-    <mkdir  dir="${digest.classes.dir}" />
-
-    <javac srcdir="${digest.src.dir}" destdir="${digest.classes.dir}"
-           source="1.5" target="1.5" deprecation="true" fork="true"
-           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars">
-      <compilerarg value="-Xlint:all" />
-      <classpath>
-        <fileset dir="${ant.lib.dir}">
-          <include name="*.jar" />
-        </fileset>
-      </classpath>
-    </javac>
-
+    <!-- Sign the Maven artifacts.  This will only actually be done for
+         release builds (if the env.GPG_PASSPHRASE property is set). -->
     <antcall target="sign-maven-components" />
 
+
+    <!-- Generate a jar file with all the Maven artifacts. -->
     <jar jarfile="${package.dir}/unboundid-ldapsdk-${MMP}-maven.jar"
          compress="true"
          index="true">
