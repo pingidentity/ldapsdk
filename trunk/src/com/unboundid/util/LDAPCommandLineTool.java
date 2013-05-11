@@ -87,6 +87,8 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI>"-j {path}" or "--bindPasswordFile {path}" -- Specifies the path to the
  *       file containing the password to use when binding with simple
  *       authentication or a password-based SASL mechanism.</LI>
+ *   <LI>"--promptForBindPassword" -- Indicates that the tool should
+ *       interactively prompt the user for the bind password.</LI>
  *   <LI>"-Z" or "--useSSL" -- Indicates that the communication with the server
  *       should be secured using SSL.</LI>
  *   <LI>"-q" or "--useStartTLS" -- Indicates that the communication with the
@@ -100,6 +102,8 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI>"-u {path}" or "--keyStorePasswordFile {path}" -- Specifies the path to
  *       the file containing the password to use to access the contents of the
  *       key store.</LI>
+ *   <LI>"--promptForKeyStorePassword" -- Indicates that the tool should
+ *       interactively prompt the user for the key store password.</LI>
  *   <LI>"--keyStoreFormat {format}" -- Specifies the format to use for the key
  *       store file.</LI>
  *   <LI>"-P {path}" or "--trustStorePath {path}" -- Specifies the path to the
@@ -110,6 +114,8 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI>"-U {path}" or "--trustStorePasswordFile {path}" -- Specifies the path
  *       to the file containing the password to use to access the contents of
  *       the trust store.</LI>
+ *   <LI>"--promptForTrustStorePassword" -- Indicates that the tool should
+ *       interactively prompt the user for the trust store password.</LI>
  *   <LI>"--trustStoreFormat {format}" -- Specifies the format to use for the
  *       trust store file.</LI>
  *   <LI>"-N {nickname}" or "--certNickname {nickname}" -- Specifies the
@@ -185,24 +191,27 @@ public abstract class LDAPCommandLineTool
 
 
   // Arguments used to communicate with an LDAP directory server.
-  private BooleanArgument trustAll               = null;
-  private BooleanArgument useSSL                 = null;
-  private BooleanArgument useStartTLS            = null;
-  private DNArgument      bindDN                 = null;
-  private FileArgument    bindPasswordFile       = null;
-  private FileArgument    keyStorePasswordFile   = null;
-  private FileArgument    trustStorePasswordFile = null;
-  private IntegerArgument port                   = null;
-  private StringArgument  bindPassword           = null;
-  private StringArgument  certificateNickname    = null;
-  private StringArgument  host                   = null;
-  private StringArgument  keyStoreFormat         = null;
-  private StringArgument  keyStorePath           = null;
-  private StringArgument  keyStorePassword       = null;
-  private StringArgument  saslOption             = null;
-  private StringArgument  trustStoreFormat       = null;
-  private StringArgument  trustStorePath         = null;
-  private StringArgument  trustStorePassword     = null;
+  private BooleanArgument promptForBindPassword       = null;
+  private BooleanArgument promptForKeyStorePassword   = null;
+  private BooleanArgument promptForTrustStorePassword = null;
+  private BooleanArgument trustAll                    = null;
+  private BooleanArgument useSSL                      = null;
+  private BooleanArgument useStartTLS                 = null;
+  private DNArgument      bindDN                      = null;
+  private FileArgument    bindPasswordFile            = null;
+  private FileArgument    keyStorePasswordFile        = null;
+  private FileArgument    trustStorePasswordFile      = null;
+  private IntegerArgument port                        = null;
+  private StringArgument  bindPassword                = null;
+  private StringArgument  certificateNickname         = null;
+  private StringArgument  host                        = null;
+  private StringArgument  keyStoreFormat              = null;
+  private StringArgument  keyStorePath                = null;
+  private StringArgument  keyStorePassword            = null;
+  private StringArgument  saslOption                  = null;
+  private StringArgument  trustStoreFormat            = null;
+  private StringArgument  trustStorePath              = null;
+  private StringArgument  trustStorePassword          = null;
 
   // Variables used when creating and authenticating connections.
   private BindRequest bindRequest     = null;
@@ -260,21 +269,29 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65535, 389);
     parser.addArgument(port);
 
-    bindDN = new DNArgument('D', "bindDN", false, 1,
-         INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
-         INFO_LDAP_TOOL_DESCRIPTION_BIND_DN.get());
-    parser.addArgument(bindDN);
+    final boolean supportsAuthentication = supportsAuthentication();
+    if (supportsAuthentication)
+    {
+      bindDN = new DNArgument('D', "bindDN", false, 1,
+           INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
+           INFO_LDAP_TOOL_DESCRIPTION_BIND_DN.get());
+      parser.addArgument(bindDN);
 
-    bindPassword = new StringArgument('w', "bindPassword", false, 1,
-         INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
-         INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
-    parser.addArgument(bindPassword);
+      bindPassword = new StringArgument('w', "bindPassword", false, 1,
+           INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
+           INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
+      parser.addArgument(bindPassword);
 
-    bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
-         INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
-         INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
-         false);
-    parser.addArgument(bindPasswordFile);
+      bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
+           INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
+           INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
+           false);
+      parser.addArgument(bindPasswordFile);
+
+      promptForBindPassword = new BooleanArgument(null, "promptForBindPassword",
+           1, INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_PROMPT.get());
+      parser.addArgument(promptForBindPassword);
+    }
 
     useSSL = new BooleanArgument('Z', "useSSL", 1,
          INFO_LDAP_TOOL_DESCRIPTION_USE_SSL.get());
@@ -303,6 +320,11 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_FILE.get());
     parser.addArgument(keyStorePasswordFile);
 
+    promptForKeyStorePassword = new BooleanArgument(null,
+         "promptForKeyStorePassword", 1,
+         INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_PROMPT.get());
+    parser.addArgument(promptForKeyStorePassword);
+
     keyStoreFormat = new StringArgument(null, "keyStoreFormat", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_FORMAT.get());
@@ -323,6 +345,11 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_FILE.get());
     parser.addArgument(trustStorePasswordFile);
 
+    promptForTrustStorePassword = new BooleanArgument(null,
+         "promptForTrustStorePassword", 1,
+         INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_PROMPT.get());
+    parser.addArgument(promptForTrustStorePassword);
+
     trustStoreFormat = new StringArgument(null, "trustStoreFormat", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_FORMAT.get());
@@ -333,19 +360,68 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_CERT_NICKNAME.get());
     parser.addArgument(certificateNickname);
 
-    saslOption = new StringArgument('o', "saslOption", false, 0,
-         INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
-         INFO_LDAP_TOOL_DESCRIPTION_SASL_OPTION.get());
-    parser.addArgument(saslOption);
+    if (supportsAuthentication)
+    {
+      saslOption = new StringArgument('o', "saslOption", false, 0,
+           INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
+           INFO_LDAP_TOOL_DESCRIPTION_SASL_OPTION.get());
+      parser.addArgument(saslOption);
+    }
 
 
-    parser.addDependentArgumentSet(bindDN, bindPassword, bindPasswordFile);
-
+    // Both useSSL and useStartTLS cannot be used together.
     parser.addExclusiveArgumentSet(useSSL, useStartTLS);
-    parser.addExclusiveArgumentSet(bindPassword, bindPasswordFile);
-    parser.addExclusiveArgumentSet(keyStorePassword, keyStorePasswordFile);
-    parser.addExclusiveArgumentSet(trustStorePassword, trustStorePasswordFile);
+
+    // Only one option may be used for specifying the key store password.
+    parser.addExclusiveArgumentSet(keyStorePassword, keyStorePasswordFile,
+         promptForKeyStorePassword);
+
+    // Only one option may be used for specifying the trust store password.
+    parser.addExclusiveArgumentSet(trustStorePassword, trustStorePasswordFile,
+         promptForTrustStorePassword);
+
+    // It doesn't make sense to provide a trust store path if any server
+    // certificate should be trusted.
     parser.addExclusiveArgumentSet(trustAll, trustStorePath);
+
+    // If a key store password is provided, then a key store path must have also
+    // been provided.
+    parser.addDependentArgumentSet(keyStorePassword, keyStorePath);
+    parser.addDependentArgumentSet(keyStorePasswordFile, keyStorePath);
+    parser.addDependentArgumentSet(promptForKeyStorePassword, keyStorePath);
+
+    // If a trust store password is provided, then a trust store path must have
+    // also been provided.
+    parser.addDependentArgumentSet(trustStorePassword, trustStorePath);
+    parser.addDependentArgumentSet(trustStorePasswordFile, trustStorePath);
+    parser.addDependentArgumentSet(promptForTrustStorePassword, trustStorePath);
+
+    // If a key or trust store path is provided, then the tool must either use
+    // SSL or StartTLS.
+    parser.addDependentArgumentSet(keyStorePath, useSSL, useStartTLS);
+    parser.addDependentArgumentSet(trustStorePath, useSSL, useStartTLS);
+
+    // If the tool should trust all server certificates, then the tool must
+    // either use SSL or StartTLS.
+    parser.addDependentArgumentSet(trustAll, useSSL, useStartTLS);
+
+    if (supportsAuthentication)
+    {
+      // If a bind DN was provided, then a bind password must have also been
+      // provided.
+      parser.addDependentArgumentSet(bindDN, bindPassword, bindPasswordFile,
+           promptForBindPassword);
+
+      // Only one option may be used for specifying the bind password.
+      parser.addExclusiveArgumentSet(bindPassword, bindPasswordFile,
+           promptForBindPassword);
+
+      // If a bind password was provided, then the a bind DN or SASL option
+      // must have also been provided.
+      parser.addDependentArgumentSet(bindPassword, bindDN, saslOption);
+      parser.addDependentArgumentSet(bindPasswordFile, bindDN, saslOption);
+      parser.addDependentArgumentSet(promptForBindPassword, bindDN, saslOption);
+    }
 
     addNonLDAPArguments(parser);
   }
@@ -387,6 +463,21 @@ public abstract class LDAPCommandLineTool
 
 
     doExtendedNonLDAPArgumentValidation();
+  }
+
+
+
+  /**
+   * Indicates whether this tool should provide the arguments that allow it to
+   * bind via simple or SASL authentication.
+   *
+   * @return  {@code true} if this tool should provide the arguments that allow
+   *          it to bind via simple or SASL authentication, or {@code false} if
+   *          not.
+   */
+  protected boolean supportsAuthentication()
+  {
+    return true;
   }
 
 
@@ -705,6 +796,13 @@ public abstract class LDAPCommandLineTool
                       getExceptionMessage(e)), e);
           }
         }
+        else if (promptForKeyStorePassword.isPresent())
+        {
+          getOut().print(INFO_LDAP_TOOL_ENTER_KEY_STORE_PASSWORD.get());
+          pw = StaticUtils.toUTF8String(
+               PasswordReader.readPassword()).toCharArray();
+          getOut().println();
+        }
 
         try
         {
@@ -746,6 +844,13 @@ public abstract class LDAPCommandLineTool
                  ERR_LDAP_TOOL_CANNOT_READ_TRUST_STORE_PASSWORD.get(
                       getExceptionMessage(e)), e);
           }
+        }
+        else if (promptForTrustStorePassword.isPresent())
+        {
+          getOut().print(INFO_LDAP_TOOL_ENTER_TRUST_STORE_PASSWORD.get());
+          pw = StaticUtils.toUTF8String(
+               PasswordReader.readPassword()).toCharArray();
+          getOut().println();
         }
 
         trustManager = new TrustStoreTrustManager(trustStorePath.getValue(), pw,
@@ -802,6 +907,12 @@ public abstract class LDAPCommandLineTool
              ERR_LDAP_TOOL_CANNOT_READ_BIND_PASSWORD.get(
                   getExceptionMessage(e)), e);
       }
+    }
+    else if (promptForBindPassword.isPresent())
+    {
+      getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+      pw = StaticUtils.toUTF8String(PasswordReader.readPassword());
+      getOut().println();
     }
     else
     {
