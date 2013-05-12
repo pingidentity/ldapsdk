@@ -889,6 +889,11 @@ public abstract class LDAPCommandLineTool
   public BindRequest createBindRequest()
          throws LDAPException
   {
+    if (! supportsAuthentication())
+    {
+      return null;
+    }
+
     final String pw;
     if (bindPassword.isPresent())
     {
