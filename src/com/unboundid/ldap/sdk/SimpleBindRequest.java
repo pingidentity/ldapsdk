@@ -724,14 +724,14 @@ public final class SimpleBindRequest
     if (allowRetry)
     {
       final BindResult retryResult = reconnectAndRetry(connection,
-           ResultCode.SERVER_DOWN);
+           bindResult.getResultCode());
       if (retryResult != null)
       {
         return retryResult;
       }
     }
 
-    return (BindResult) response;
+    return bindResult;
   }
 
 
