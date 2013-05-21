@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
@@ -231,9 +232,8 @@ public final class LDAPConnection
   // Indicates whether an unbind request has been sent over this connection.
   private volatile boolean unbindRequestSent;
 
-  // The disconnect type that explains the reason that this connection was
-  // disconnected, if applicable.
-  private volatile DisconnectType disconnectType;
+  // The disconnect information for this connection.
+  private final AtomicReference<DisconnectInfo> disconnectInfo;
 
   // The port of the server to which a connection should be re-established.
   private int reconnectPort = -1;
@@ -287,12 +287,6 @@ public final class LDAPConnection
 
   // The address of the server to which a connection should be re-established.
   private String reconnectAddress;
-
-  // The disconnect message for this client connection, if available.
-  private volatile String disconnectMessage;
-
-  // The disconnect cause for this client connection, if available.
-  private volatile Throwable disconnectCause;
 
   // A timer that may be used to enforce timeouts for asynchronous operations.
   private Timer timer;
@@ -357,6 +351,7 @@ public final class LDAPConnection
                         final LDAPConnectionOptions connectionOptions)
   {
     needsReconnect = new AtomicBoolean(false);
+    disconnectInfo = new AtomicReference<DisconnectInfo>();
 
     connectionID = NEXT_CONNECTION_ID.getAndIncrement();
 
@@ -725,13 +720,12 @@ public final class LDAPConnection
     }
 
     lastUsedSocketFactory = socketFactory;
-    disconnectType        = null;
-    disconnectMessage     = null;
-    disconnectCause       = null;
     reconnectAddress      = host;
     reconnectPort         = port;
     cachedSchema          = null;
     unbindRequestSent     = false;
+
+    disconnectInfo.set(null);
 
     try
     {
@@ -3926,6 +3920,19 @@ public final class LDAPConnection
 
 
   /**
+   * Retrieves the disconnect info object for this connection, if available.
+   *
+   * @return  The disconnect info for this connection, or {@code null} if none
+   *          is set.
+   */
+  DisconnectInfo getDisconnectInfo()
+  {
+    return disconnectInfo.get();
+  }
+
+
+
+  /**
    * Sets the disconnect type, message, and cause for this connection, if those
    * values have not been previously set.  It will not overwrite any values that
    * had been previously set.
@@ -3943,21 +3950,27 @@ public final class LDAPConnection
    *                  It may be {@code null} if the disconnect was not triggered
    *                  by an exception.
    */
-  public synchronized void setDisconnectInfo(final DisconnectType type,
-                                             final String message,
-                                             final Throwable cause)
+  public void setDisconnectInfo(final DisconnectType type, final String message,
+                                final Throwable cause)
   {
-    ensureNotNull(type);
+    disconnectInfo.compareAndSet(null,
+         new DisconnectInfo(this, type, message, cause));
+  }
 
-    // Don't overwrite any previous disconnect information.
-    if (disconnectType != null)
-    {
-      return;
-    }
 
-    disconnectType    = type;
-    disconnectMessage = message;
-    disconnectCause   = cause;
+
+  /**
+   * Sets the disconnect info for this connection, if it is not already set.
+   *
+   * @param  info  The disconnect info to be set, if it is not already set.
+   *
+   * @return  The disconnect info set for the connection, whether it was
+   *          previously or newly set.
+   */
+  DisconnectInfo setDisconnectInfo(final DisconnectInfo info)
+  {
+    disconnectInfo.compareAndSet(null, info);
+    return disconnectInfo.get();
   }
 
 
@@ -3970,7 +3983,15 @@ public final class LDAPConnection
    */
   public DisconnectType getDisconnectType()
   {
-    return disconnectType;
+    final DisconnectInfo di = disconnectInfo.get();
+    if (di == null)
+    {
+      return null;
+    }
+    else
+    {
+      return di.getType();
+    }
   }
 
 
@@ -3984,7 +4005,15 @@ public final class LDAPConnection
    */
   public String getDisconnectMessage()
   {
-    return disconnectMessage;
+    final DisconnectInfo di = disconnectInfo.get();
+    if (di == null)
+    {
+      return null;
+    }
+    else
+    {
+      return di.getMessage();
+    }
   }
 
 
@@ -3998,7 +4027,15 @@ public final class LDAPConnection
    */
   public Throwable getDisconnectCause()
   {
-    return disconnectCause;
+    final DisconnectInfo di = disconnectInfo.get();
+    if (di == null)
+    {
+      return null;
+    }
+    else
+    {
+      return di.getCause();
+    }
   }
 
 
@@ -4010,7 +4047,8 @@ public final class LDAPConnection
   void setClosed()
   {
     needsReconnect.set(false);
-    if (disconnectType == null)
+
+    if (disconnectInfo.get() == null)
     {
       try
       {
@@ -4285,15 +4323,16 @@ public final class LDAPConnection
     }
     else
     {
-      if (disconnectType == null)
+      final DisconnectInfo di = disconnectInfo.get();
+      if (di == null)
       {
         return new ConnectionClosedResponse(ResultCode.CONNECT_ERROR,
              ERR_CONN_READ_RESPONSE_NOT_ESTABLISHED.get());
       }
       else
       {
-        return new ConnectionClosedResponse(disconnectType.getResultCode(),
-             disconnectMessage);
+        return new ConnectionClosedResponse(di.getType().getResultCode(),
+             di.getMessage());
       }
     }
   }
@@ -4406,7 +4445,7 @@ public final class LDAPConnection
     super.finalize();
 
     setDisconnectInfo(DisconnectType.CLOSED_BY_FINALIZER, null, null);
-    terminate(null);
+    setClosed();
   }
 
 
