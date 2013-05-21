@@ -52,10 +52,6 @@ final class LDAPConnectionInternals
   // sending requests to the server.
   private final AtomicInteger nextMessageID;
 
-  // Indicates whether the disconnect handler has been notified of the
-  // disconnect.
-  private volatile boolean disconnectHandlerNotified;
-
   // Indicates whether to operate in synchronous mode.
   private final boolean synchronousMode;
 
@@ -126,7 +122,6 @@ final class LDAPConnectionInternals
 
     connectTime               = System.currentTimeMillis();
     nextMessageID             = new AtomicInteger(0);
-    disconnectHandlerNotified = false;
     synchronousMode           = options.useSynchronousMode();
 
     try
@@ -500,13 +495,16 @@ final class LDAPConnectionInternals
    */
   void close()
   {
-    DisconnectType       disconnectType    = connection.getDisconnectType();
-    final String         disconnectMessage = connection.getDisconnectMessage();
-    final Throwable      disconnectCause   = connection.getDisconnectCause();
+    DisconnectInfo disconnectInfo = connection.getDisconnectInfo();
+    if (disconnectInfo == null)
+    {
+      disconnectInfo = connection.setDisconnectInfo(
+           new DisconnectInfo(connection, DisconnectType.UNKNOWN, null, null));
+    }
 
     // Determine if this connection was closed by a finalizer.
     final boolean closedByFinalizer =
-         ((disconnectType == DisconnectType.CLOSED_BY_FINALIZER) &&
+         ((disconnectInfo.getType() == DisconnectType.CLOSED_BY_FINALIZER) &&
           socket.isConnected());
 
 
@@ -538,58 +536,14 @@ final class LDAPConnectionInternals
       debugException(e);
     }
 
-    if (disconnectType == null)
-    {
-      if (debugEnabled(DebugType.LDAP))
-      {
-        debug(Level.WARNING, DebugType.LDAP,
-              "No disconnect type set for connection closed with stack " +
-              "trace " + getStackTrace(Thread.currentThread().getStackTrace()));
-      }
-
-      disconnectType = DisconnectType.UNKNOWN;
-    }
-    debugDisconnect(host, port, connection, disconnectType, disconnectMessage,
-                    disconnectCause);
+    debugDisconnect(host, port, connection, disconnectInfo.getType(),
+         disconnectInfo.getMessage(), disconnectInfo.getCause());
     if (closedByFinalizer && debugEnabled(DebugType.LDAP))
     {
       debug(Level.WARNING, DebugType.LDAP,
             "Connection closed by LDAP SDK finalizer:  " + toString());
     }
-
-    final LDAPConnectionOptions connectionOptions =
-         connection.getConnectionOptions();
-    final DisconnectHandler disconnectHandler =
-         connectionOptions.getDisconnectHandler();
-    if ((disconnectHandler != null) && (! disconnectHandlerNotified))
-    {
-      // Temporarily unset the disconnect handler for this connection so that
-      // any attempt to close the connection in the course of invoking the
-      // disconnect handler won't cause it to be recursively re-invoked.  Make
-      // sure to re-register the disconnect handler after it has been invoked.
-      connectionOptions.setDisconnectHandler(null);
-
-      try
-      {
-        disconnectHandlerNotified = true;
-        disconnectHandler.handleDisconnect(connection, host, port,
-             disconnectType, disconnectMessage, disconnectCause);
-      }
-      catch (Exception e)
-      {
-        debugException(e);
-      }
-      finally
-      {
-        if (connectionOptions.getDisconnectHandler() == null)
-        {
-          connectionOptions.setDisconnectHandler(disconnectHandler);
-        }
-      }
-
-      connection.setDisconnectInfo(disconnectType, disconnectMessage,
-                                   disconnectCause);
-    }
+    disconnectInfo.notifyDisconnectHandler();
   }
 
 
