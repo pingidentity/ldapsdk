@@ -167,7 +167,16 @@ public final class DITStructureRuleDefinition
         pos++;
       }
 
-      final String token = ditStructureRuleString.substring(tokenStartPos, pos);
+      // It's possible that the token could be smashed right up against the
+      // closing parenthesis.  If that's the case, then extract just the token
+      // and handle the closing parenthesis the next time through.
+      String token = ditStructureRuleString.substring(tokenStartPos, pos);
+      if ((token.length() > 1) && (token.endsWith(")")))
+      {
+        token = token.substring(0, token.length() - 1);
+        pos--;
+      }
+
       final String lowerToken = toLowerCase(token);
       if (lowerToken.equals(")"))
       {
