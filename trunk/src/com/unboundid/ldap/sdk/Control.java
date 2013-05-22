@@ -140,6 +140,20 @@ public class Control
     try
     {
       final Class<?> unboundIDControlHelperClass = Class.forName(
+           "com.unboundid.ldap.sdk.experimental.ControlHelper");
+      final Method method = unboundIDControlHelperClass.getMethod(
+           "registerDefaultResponseControls");
+      method.invoke(null);
+    }
+    catch (Exception e)
+    {
+      // This is expected in the minimal release, since it doesn't include any
+      // controls.
+    }
+
+    try
+    {
+      final Class<?> unboundIDControlHelperClass = Class.forName(
            "com.unboundid.ldap.sdk.unboundidds.controls.ControlHelper");
       final Method method = unboundIDControlHelperClass.getMethod(
            "registerDefaultResponseControls");
@@ -148,14 +162,14 @@ public class Control
     catch (Exception e)
     {
       // This is expected in the open source release, since it doesn't contain
-      // the UnboundID-specific controls.  In that case, we'll try the
-      // experimental controls instead.
+      // the UnboundID-specific controls.  In that case, we'll try enable some
+      // additional experimental controls instead.
       try
       {
         final Class<?> experimentalControlHelperClass = Class.forName(
              "com.unboundid.ldap.sdk.experimental.ControlHelper");
         final Method method = experimentalControlHelperClass.getMethod(
-             "registerDefaultResponseControls");
+             "registerNonCommercialResponseControls");
         method.invoke(null);
       }
       catch (Exception e2)
