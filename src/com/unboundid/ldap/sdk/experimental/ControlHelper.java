@@ -59,6 +59,22 @@ public final class ControlHelper
   public static void registerDefaultResponseControls()
   {
     Control.registerDecodeableControl(
+         ActiveDirectoryDirSyncControl.DIRSYNC_OID,
+         new ActiveDirectoryDirSyncControl());
+  }
+
+
+
+  /**
+   * Registers all "out-of-the-box" response UnboundID-specific controls
+   * provided with this SDK so that they may be properly decoded if they are
+   * received in an LDAP response.  This method is intended only for internal
+   * use only and should not be called by external applications.
+   */
+  @InternalUseOnly()
+  public static void registerNonCommercialResponseControls()
+  {
+    Control.registerDecodeableControl(
          DraftBeheraLDAPPasswordPolicy10ResponseControl.
               PASSWORD_POLICY_RESPONSE_OID,
          new DraftBeheraLDAPPasswordPolicy10ResponseControl());
