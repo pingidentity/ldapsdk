@@ -30,6 +30,7 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
@@ -54,6 +55,47 @@ import static com.unboundid.ldap.sdk.experimental.ExperimentalMessages.*;
  * values of the flags are documented at
  * <A HREF="http://msdn.microsoft.com/en-us/library/cc223347.aspx">
  * http://msdn.microsoft.com/en-us/library/cc223347.aspx</A>.
+ * <BR><BR>
+ * <H2>Example</H2>
+ * The following example demonstrates the process for using the DirSync control
+ * to identify changes to user entries below "dc=example,dc=com":
+ * <PRE>
+ *   // Create a search request that will be used to identify all users below
+ *   // "dc=example,dc=com".
+ *   final SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
+ *        SearchScope.SUB, Filter.createEqualityFilter("objectClass", "User"));
+ *
+ *   // Define the components that will be included in the DirSync request
+ *   // control.
+ *   ASN1OctetString cookie = null;
+ *   final int flags = ActiveDirectoryDirSyncControl.FLAG_INCREMENTAL_VALUES |
+ *        ActiveDirectoryDirSyncControl.FLAG_OBJECT_SECURITY;
+ *
+ *   // Create a loop that will be used to keep polling for changes.
+ *   while (keepLooping)
+ *   {
+ *     // Update the controls that will be used for the search request.
+ *     searchRequest.setControls(new ActiveDirectoryDirSyncControl(true, flags,
+ *          50, cookie));
+ *
+ *     // Process the search and get the response control.
+ *     final SearchResult searchResult = connection.search(searchRequest);
+ *     ActiveDirectoryDirSyncControl dirSyncResponse =
+ *          ActiveDirectoryDirSyncControl.get(searchResult);
+ *     cookie = dirSyncResponse.getCookie();
+ *
+ *     // Process the search result entries because they represent entries that
+ *     // have been created or modified.
+ *     for (final SearchResultEntry updatedEntry :
+ *          searchResult.getSearchEntries())
+ *     {
+ *       // Do something with the entry.
+ *     }
+ *
+ *     // If the client might want to continue the search even after shutting
+ *     // down and starting back up later, then persist the cookie now.
+ *   }
+ * </PRE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -292,11 +334,47 @@ public final class ActiveDirectoryDirSyncControl
    * if available.
    *
    * @return  A cookie that may be used to resume a previous DirSync search, or
-   *          {@code null} if
+   *          a zero-length cookie if there is none.
    */
   public ASN1OctetString getCookie()
   {
     return cookie;
+  }
+
+
+
+  /**
+   * Extracts a DirSync response control from the provided result.
+   *
+   * @param  result  The result from which to retrieve the DirSync response
+   *                 control.
+   *
+   * @return  The DirSync response control contained in the provided result, or
+   *          {@code null} if the result did not include a DirSync response
+   *          control.
+   *
+   * @throws  LDAPException  If a problem is encountered while attempting to
+   *                         decode the DirSync response control contained in
+   *                         the provided result.
+   */
+  public static ActiveDirectoryDirSyncControl get(final SearchResult result)
+         throws LDAPException
+  {
+    final Control c = result.getResponseControl(DIRSYNC_OID);
+    if (c == null)
+    {
+      return null;
+    }
+
+    if (c instanceof ActiveDirectoryDirSyncControl)
+    {
+      return (ActiveDirectoryDirSyncControl) c;
+    }
+    else
+    {
+      return new ActiveDirectoryDirSyncControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
   }
 
 
