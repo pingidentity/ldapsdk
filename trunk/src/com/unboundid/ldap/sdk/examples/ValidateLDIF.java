@@ -772,4 +772,16 @@ public final class ValidateLDIF
 
     return examples;
   }
+
+
+
+  /**
+   * @return EntryValidator
+   *
+   * Returns the EntryValidator
+   */
+  public EntryValidator getEntryValidator()
+  {
+    return entryValidator;
+  }
 }

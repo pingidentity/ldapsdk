@@ -1874,7 +1874,7 @@ public final class EntryValidator
     {
       pct = 100 * numMultipleStructural / numEntries;
       messages.add(INFO_ENTRY_MULTIPLE_STRUCTURAL_OCS_COUNT.get(
-           numMissingStructural, numEntries, pct));
+           numMultipleStructural, numEntries, pct));
     }
 
     final long numNFViolations = nameFormViolations.get();
