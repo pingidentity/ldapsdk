@@ -482,7 +482,7 @@ public final class IdentifyReferencesToMissingEntries
       "--baseDN", "dc=example,dc=com",
       "--attribute", "member",
       "--attribute", "uniqueMember",
-      "--pageSize", "100"
+      "--simplePageSize", "100"
     };
     exampleMap.put(args,
          "Identify all entries below dc=example,dc=com in which either the " +

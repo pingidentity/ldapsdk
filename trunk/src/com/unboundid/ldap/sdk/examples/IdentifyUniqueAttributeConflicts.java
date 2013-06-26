@@ -592,7 +592,7 @@ public final class IdentifyUniqueAttributeConflicts
       "--bindPassword", "password",
       "--baseDN", "dc=example,dc=com",
       "--attribute", "uid",
-      "--pageSize", "100"
+      "--simplePageSize", "100"
     };
     exampleMap.put(args,
          "Identify any values of the uid attribute that are not unique " +
