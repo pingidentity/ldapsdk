@@ -49,7 +49,8 @@ import static com.unboundid.util.Validator.*;
  * <H2>Example 1</H2>
  * The following example demonstrates the use of the SSL helper to create an
  * SSL-based LDAP connection that will blindly trust any certificate that the
- * server presents:
+ * server presents.  Using the {@code TrustAllTrustManager} is only recommended
+ * for testing purposes, since blindly trusting any certificate is not secure.
  * <PRE>
  *   SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
  *
