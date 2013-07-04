@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.List;
 import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -48,6 +49,10 @@ final class SASLHelper
   // The connection to use to communicate with the Directory Server.
   private final LDAPConnection connection;
 
+  // A list that will be updated with messages about any unhandled callbacks
+  // encountered during processing.
+  private final List<String> unhandledCallbackMessages;
+
   // The maximum length of time in milliseconds to wait for a response from the
   // server.
   private final long responseTimeoutMillis;
@@ -66,27 +71,32 @@ final class SASLHelper
   /**
    * Creates a new SASL client with the provided information.
    *
-   * @param  bindRequest            The SASL bind request being processed.
-   * @param  connection             The connection to use to communicate with
-   *                                the directory server.
-   * @param  mechanism              The name of the SASL mechanism to use.
-   * @param  saslClient             The Java SASL client instance to use to
-   *                                perform the processing.
-   * @param  controls               The set of controls to include in the
-   *                                request.
-   * @param  responseTimeoutMillis  The maximum length of time in milliseconds
-   *                                to wait for a response from the server.
+   * @param  bindRequest                The SASL bind request being processed.
+   * @param  connection                 The connection to use to communicate
+   *                                    with the directory server.
+   * @param  mechanism                  The name of the SASL mechanism to use.
+   * @param  saslClient                 The Java SASL client instance to use to
+   *                                    perform the processing.
+   * @param  controls                   The set of controls to include in the
+   *                                    request.
+   * @param  responseTimeoutMillis      The maximum length of time in
+   *                                    milliseconds to wait for a response from
+   *                                    the server.
+   * @param  unhandledCallbackMessages  A list that will be updated with
+   *                                    messages about any unhandled callbacks.
    */
   SASLHelper(final SASLBindRequest bindRequest, final LDAPConnection connection,
              final String mechanism, final SaslClient saslClient,
-             final Control[] controls, final long responseTimeoutMillis)
+             final Control[] controls, final long responseTimeoutMillis,
+             final List<String> unhandledCallbackMessages)
   {
-    this.bindRequest           = bindRequest;
-    this.connection            = connection;
-    this.mechanism             = mechanism;
-    this.saslClient            = saslClient;
-    this.controls              = controls;
-    this.responseTimeoutMillis = responseTimeoutMillis;
+    this.bindRequest               = bindRequest;
+    this.connection                = connection;
+    this.mechanism                 = mechanism;
+    this.saslClient                = saslClient;
+    this.controls                  = controls;
+    this.responseTimeoutMillis     = responseTimeoutMillis;
+    this.unhandledCallbackMessages = unhandledCallbackMessages;
 
     messageID = -1;
   }
@@ -117,9 +127,20 @@ final class SASLHelper
       catch (Exception e)
       {
         debugException(e);
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_SASL_CANNOT_CREATE_INITIAL_REQUEST.get(mechanism,
-                  getExceptionMessage(e)), e);
+        if (unhandledCallbackMessages.isEmpty())
+        {
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_SASL_CANNOT_CREATE_INITIAL_REQUEST.get(mechanism,
+                    getExceptionMessage(e)), e);
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_SASL_CANNOT_CREATE_INITIAL_REQUEST_UNHANDLED_CALLBACKS.get(
+                    mechanism, getExceptionMessage(e),
+                    concatenateStrings(unhandledCallbackMessages)),
+               e);
+        }
       }
 
       ASN1OctetString saslCredentials;
@@ -151,9 +172,20 @@ final class SASLHelper
         catch (Exception e)
         {
           debugException(e);
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_SASL_CANNOT_CREATE_SUBSEQUENT_REQUEST.get(mechanism,
-                    getExceptionMessage(e)), e);
+          if (unhandledCallbackMessages.isEmpty())
+          {
+            throw new LDAPException(ResultCode.LOCAL_ERROR,
+                 ERR_SASL_CANNOT_CREATE_SUBSEQUENT_REQUEST.get(mechanism,
+                      getExceptionMessage(e)), e);
+          }
+          else
+          {
+            throw new LDAPException(ResultCode.LOCAL_ERROR,
+                 ERR_SASL_CANNOT_CREATE_SUBSEQUENT_REQUEST_UNHANDLED_CALLBACKS.
+                      get(mechanism, getExceptionMessage(e),
+                           concatenateStrings(unhandledCallbackMessages)),
+                 e);
+          }
         }
 
         // Create the bind request protocol op.

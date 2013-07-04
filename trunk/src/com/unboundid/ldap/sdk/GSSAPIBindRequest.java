@@ -26,7 +26,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.security.auth.Subject;
@@ -34,6 +36,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.Sasl;
@@ -219,6 +222,10 @@ public final class GSSAPIBindRequest
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID;
+
+  // A list that will be updated with messages about any unhandled callbacks
+  // encountered during processing.
+  private final List<String> unhandledCallbackMessages;
 
   // The authentication ID string for the GSSAPI bind request.
   private final String authenticationID;
@@ -516,6 +523,8 @@ public final class GSSAPIBindRequest
     requireCachedCredentials = gssapiProperties.requireCachedCredentials();
     renewTGT                 = gssapiProperties.renewTGT();
     ticketCachePath          = gssapiProperties.getTicketCachePath();
+
+    unhandledCallbackMessages = new ArrayList<String>(5);
 
     conn      = new AtomicReference<LDAPConnection>();
     messageID = -1;
@@ -1100,6 +1109,8 @@ public final class GSSAPIBindRequest
   public Object run()
          throws LDAPException
   {
+    unhandledCallbackMessages.clear();
+
     final LDAPConnection connection = conn.get();
 
     final String[] mechanisms = { GSSAPI_MECHANISM_NAME };
@@ -1124,7 +1135,7 @@ public final class GSSAPIBindRequest
 
     final SASLHelper helper = new SASLHelper(this, connection,
          GSSAPI_MECHANISM_NAME, saslClient, getControls(),
-         getResponseTimeoutMillis(connection));
+         getResponseTimeoutMillis(connection), unhandledCallbackMessages);
 
     try
     {
@@ -1172,9 +1183,13 @@ public final class GSSAPIBindRequest
    * Handles any necessary callbacks required for SASL authentication.
    *
    * @param  callbacks  The set of callbacks to be handled.
+   *
+   * @throws  UnsupportedCallbackException  If an unsupported type of callback
+   *                                        was received.
    */
   @InternalUseOnly()
   public void handle(final Callback[] callbacks)
+         throws UnsupportedCallbackException
   {
     for (final Callback callback : callbacks)
     {
@@ -1186,9 +1201,8 @@ public final class GSSAPIBindRequest
       {
         if (password == null)
         {
-          throw new LDAPRuntimeException(new LDAPException(
-               ResultCode.PARAM_ERROR,
-               ERR_GSSAPI_NO_PASSWORD_AVAILABLE.get()));
+          throw new UnsupportedCallbackException(callback,
+               ERR_GSSAPI_NO_PASSWORD_AVAILABLE.get());
         }
         else
         {
@@ -1198,9 +1212,15 @@ public final class GSSAPIBindRequest
       }
       else if (callback instanceof RealmCallback)
       {
-        if (realm != null)
+        final RealmCallback rc = (RealmCallback) callback;
+        if (realm == null)
         {
-          ((RealmCallback) callback).setText(realm);
+          unhandledCallbackMessages.add(
+               ERR_GSSAPI_REALM_REQUIRED_BUT_NONE_PROVIDED.get(rc.getPrompt()));
+        }
+        else
+        {
+          rc.setText(realm);
         }
       }
       else
@@ -1212,6 +1232,9 @@ public final class GSSAPIBindRequest
                 "Unexpected GSSAPI SASL callback of type " +
                 callback.getClass().getName());
         }
+
+        unhandledCallbackMessages.add(ERR_GSSAPI_UNEXPECTED_CALLBACK.get(
+             callback.getClass().getName()));
       }
     }
   }
