@@ -385,8 +385,8 @@ public final class LDIFWriter
       writeComment(comment, false, false);
     }
 
-    debugLDIFWrite(entry);
-    writeLDIF(entry);
+    debugLDIFWrite(e);
+    writeLDIF(e);
   }
 
 
