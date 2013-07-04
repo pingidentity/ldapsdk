@@ -22,7 +22,9 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -121,6 +123,10 @@ public final class DIGESTMD5BindRequest
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
+
+  // A list that will be updated with messages about any unhandled callbacks
+  // encountered during processing.
+  private final List<String> unhandledCallbackMessages;
 
   // The authentication ID string for this bind request.
   private final String authenticationID;
@@ -280,6 +286,8 @@ public final class DIGESTMD5BindRequest
     this.authorizationID  = authorizationID;
     this.password         = password;
     this.realm            = realm;
+
+    unhandledCallbackMessages = new ArrayList<String>(5);
   }
 
 
@@ -376,6 +384,8 @@ public final class DIGESTMD5BindRequest
   protected BindResult process(final LDAPConnection connection, final int depth)
             throws LDAPException
   {
+    unhandledCallbackMessages.clear();
+
     final String[] mechanisms = { DIGESTMD5_MECHANISM_NAME };
 
     final HashMap<String,Object> saslProperties = new HashMap<String,Object>();
@@ -399,7 +409,7 @@ public final class DIGESTMD5BindRequest
 
     final SASLHelper helper = new SASLHelper(this, connection,
          DIGESTMD5_MECHANISM_NAME, saslClient, getControls(),
-         getResponseTimeoutMillis(connection));
+         getResponseTimeoutMillis(connection), unhandledCallbackMessages);
 
     try
     {
@@ -447,16 +457,31 @@ public final class DIGESTMD5BindRequest
       }
       else if (callback instanceof RealmCallback)
       {
-        if (realm != null)
+        final RealmCallback rc = (RealmCallback) callback;
+        if (realm == null)
         {
-          ((RealmCallback) callback).setText(realm);
+          unhandledCallbackMessages.add(
+               ERR_DIGESTMD5_REALM_REQUIRED_BUT_NONE_PROVIDED.get(
+                    String.valueOf(rc.getPrompt())));
+        }
+        else
+        {
+          rc.setText(realm);
         }
       }
       else if (callback instanceof RealmChoiceCallback)
       {
-        if (realm != null)
+        final RealmChoiceCallback rcc = (RealmChoiceCallback) callback;
+        if (realm == null)
         {
-          final RealmChoiceCallback rcc = (RealmChoiceCallback) callback;
+          final String choices =
+               concatenateStrings("{", " '", ",", "'", " }", rcc.getChoices());
+          unhandledCallbackMessages.add(
+               ERR_DIGESTMD5_REALM_REQUIRED_BUT_NONE_PROVIDED.get(
+                    rcc.getPrompt(), choices));
+        }
+        else
+        {
           final String[] choices = rcc.getChoices();
           for (int i=0; i < choices.length; i++)
           {
@@ -474,9 +499,12 @@ public final class DIGESTMD5BindRequest
         if (debugEnabled(DebugType.LDAP))
         {
           debug(Level.WARNING, DebugType.LDAP,
-                "Unexpected DIGEST-MD5 SASL callback of type " +
-                callback.getClass().getName());
+               "Unexpected DIGEST-MD5 SASL callback of type " +
+                    callback.getClass().getName());
         }
+
+        unhandledCallbackMessages.add(ERR_DIGESTMD5_UNEXPECTED_CALLBACK.get(
+             callback.getClass().getName()));
       }
     }
   }

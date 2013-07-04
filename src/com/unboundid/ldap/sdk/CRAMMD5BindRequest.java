@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -108,6 +110,10 @@ public final class CRAMMD5BindRequest
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
+
+  // A list that will be updated with messages about any unhandled callbacks
+  // encountered during processing.
+  private final List<String> unhandledCallbackMessages;
 
   // The authentication ID string for this bind request.
   private final String authenticationID;
@@ -229,6 +235,8 @@ public final class CRAMMD5BindRequest
 
     this.authenticationID = authenticationID;
     this.password         = password;
+
+    unhandledCallbackMessages = new ArrayList<String>(5);
   }
 
 
@@ -299,6 +307,8 @@ public final class CRAMMD5BindRequest
   protected BindResult process(final LDAPConnection connection, final int depth)
             throws LDAPException
   {
+    unhandledCallbackMessages.clear();
+
     final SaslClient saslClient;
     final String[] mechanisms = { CRAMMD5_MECHANISM_NAME };
 
@@ -318,7 +328,7 @@ public final class CRAMMD5BindRequest
 
     final SASLHelper helper = new SASLHelper(this, connection,
          CRAMMD5_MECHANISM_NAME, saslClient, getControls(),
-         getResponseTimeoutMillis(connection));
+         getResponseTimeoutMillis(connection), unhandledCallbackMessages);
 
     try
     {
@@ -371,6 +381,9 @@ public final class CRAMMD5BindRequest
                 "Unexpected CRAM-MD5 SASL callback of type " +
                 callback.getClass().getName());
         }
+
+        unhandledCallbackMessages.add(ERR_CRAMMD5_UNEXPECTED_CALLBACK.get(
+             callback.getClass().getName()));
       }
     }
   }
