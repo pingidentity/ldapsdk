@@ -56,9 +56,40 @@ public final class LDIFModifyChangeRecord
        extends LDIFChangeRecord
 {
   /**
+   * The name of the system property that will be used to indicate whether
+   * to always include a trailing dash after the last change in the LDIF
+   * representation of a modify change record.  By default, the dash will always
+   * be included.
+   */
+  public static final  String PROPERTY_ALWAYS_INCLUDE_TRAILING_DASH =
+       "com.unboundid.ldif.modify.alwaysIncludeTrailingDash";
+
+
+
+  /**
+   * Indicates whether to always include a trailing dash after the last change
+   * in the LDIF representation.
+   */
+  private static boolean alwaysIncludeTrailingDash = true;
+
+
+
+  static
+  {
+    final String propValue =
+         System.getProperty(PROPERTY_ALWAYS_INCLUDE_TRAILING_DASH);
+    if ((propValue != null) && (propValue.equalsIgnoreCase("false")))
+    {
+      alwaysIncludeTrailingDash = false;
+    }
+  }
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 6317289692291736272L;
+  private static final long serialVersionUID = 5110058180807614819L;
 
 
 
@@ -83,7 +114,7 @@ public final class LDIFModifyChangeRecord
 
     ensureNotNull(modifications);
     ensureTrue(modifications.length > 0,
-               "LDIFModifyChangeRecord.modifications must not be empty.");
+         "LDIFModifyChangeRecord.modifications must not be empty.");
 
     this.modifications = modifications;
   }
@@ -106,7 +137,7 @@ public final class LDIFModifyChangeRecord
 
     ensureNotNull(modifications);
     ensureFalse(modifications.isEmpty(),
-                "LDIFModifyChangeRecord.modifications must not be empty.");
+         "LDIFModifyChangeRecord.modifications must not be empty.");
 
     this.modifications = new Modification[modifications.size()];
     modifications.toArray(this.modifications);
@@ -132,6 +163,39 @@ public final class LDIFModifyChangeRecord
     {
       modifications[i] = iterator.next();
     }
+  }
+
+
+
+  /**
+   * Indicates whether the LDIF representation of a modify change record should
+   * always include a trailing dash after the last (or only) change.
+   *
+   * @return  {@code true} if the LDIF representation of a modify change record
+   *          should always include a trailing dash after the last (or only)
+   *          change, or {@code false} if not.
+   */
+  public static boolean alwaysIncludeTrailingDash()
+  {
+    return alwaysIncludeTrailingDash;
+  }
+
+
+
+  /**
+   * Specifies whether the LDIF representation of a modify change record should
+   * always include a trailing dash after the last (or only) change.
+   *
+   * @param  alwaysIncludeTrailingDash  Indicates whether the LDIF
+   *                                    representation of a modify change record
+   *                                    should always include a trailing dash
+   *                                    after the last (or only) change.
+   */
+  public static void setAlwaysIncludeTrailingDash(
+                          final boolean alwaysIncludeTrailingDash)
+  {
+    LDIFModifyChangeRecord.alwaysIncludeTrailingDash =
+         alwaysIncludeTrailingDash;
   }
 
 
@@ -223,7 +287,7 @@ public final class LDIFModifyChangeRecord
         ldifLines.add(LDIFWriter.encodeNameAndValue(attrName, value));
       }
 
-      if (i < (modifications.length - 1))
+      if (alwaysIncludeTrailingDash || (i < (modifications.length - 1)))
       {
         ldifLines.add("-");
       }
@@ -293,7 +357,7 @@ public final class LDIFModifyChangeRecord
         buffer.append(EOL_BYTES);
       }
 
-      if (i < (modifications.length - 1))
+      if (alwaysIncludeTrailingDash || (i < (modifications.length - 1)))
       {
         buffer.append('-');
         buffer.append(EOL_BYTES);
@@ -355,7 +419,7 @@ public final class LDIFModifyChangeRecord
         buffer.append(EOL);
       }
 
-      if (i < (modifications.length - 1))
+      if (alwaysIncludeTrailingDash || (i < (modifications.length - 1)))
       {
         buffer.append('-');
         buffer.append(EOL);
