@@ -85,6 +85,8 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       logging.</LI>
  *   <LI>Listener Exception Handler:  The server will not use a listener
  *       exception handler.</LI>
+ *   <LI>Maximum Size Limit:  The server will not enforce a maximum search size
+ *       limit.</LI>
  * </UL>
  */
 @NotExtensible()
@@ -116,6 +118,10 @@ public class InMemoryDirectoryServerConfig
 
   // The maximum number of entries to retain in a generated changelog.
   private int maxChangeLogEntries;
+
+  // The maximum number of entries that may be returned in any single search
+  // operation.
+  private int maxSizeLimit;
 
   // The exception handler that should be used for the listener.
   private LDAPListenerExceptionHandler exceptionHandler;
@@ -209,6 +215,7 @@ public class InMemoryDirectoryServerConfig
     enforceSingleStructuralObjectClass   = true;
     generateOperationalAttributes        = true;
     maxChangeLogEntries                  = 0;
+    maxSizeLimit                         = 0;
     exceptionHandler                     = null;
     equalityIndexAttributes              = new ArrayList<String>(10);
     schema                               = Schema.getDefaultStandardSchema();
@@ -274,6 +281,7 @@ public class InMemoryDirectoryServerConfig
     accessLogHandler                   = cfg.accessLogHandler;
     ldapDebugLogHandler                = cfg.ldapDebugLogHandler;
     maxChangeLogEntries                = cfg.maxChangeLogEntries;
+    maxSizeLimit                       = cfg.maxSizeLimit;
     exceptionHandler                   = cfg.exceptionHandler;
     schema                             = cfg.schema;
     vendorName                         = cfg.vendorName;
@@ -947,6 +955,42 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves the maximum number of entries that the server should return in
+   * any search operation.
+   *
+   * @return  The maximum number of entries that the server should return in any
+   *          search operation, or zero if no limit should be enforced.
+   */
+  public int getMaxSizeLimit()
+  {
+    return maxSizeLimit;
+  }
+
+
+
+  /**
+   * Specifies the maximum number of entries that the server should return in
+   * any search operation.  A value less than or equal to zero indicates that no
+   * maximum limit should be enforced.
+   *
+   * @param  maxSizeLimit  The maximim number of entries that the server should
+   *                       return in any search operation.
+   */
+  public void setMaxSizeLimit(final int maxSizeLimit)
+  {
+    if (maxSizeLimit > 0)
+    {
+      this.maxSizeLimit = maxSizeLimit;
+    }
+    else
+    {
+      this.maxSizeLimit = 0;
+    }
+  }
+
+
+
+  /**
    * Retrieves a list containing the names or OIDs of the attribute types for
    * which to maintain an equality index to improve the performance of certain
    * kinds of searches.
@@ -1290,6 +1334,9 @@ public class InMemoryDirectoryServerConfig
       buffer.append(", maxChangelogEntries=");
       buffer.append(maxChangeLogEntries);
     }
+
+    buffer.append(", maxSizeLimit=");
+    buffer.append(maxSizeLimit);
 
     if (! extendedOperationHandlers.isEmpty())
     {

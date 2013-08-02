@@ -211,6 +211,9 @@ public final class InMemoryRequestHandler
   // The maximum number of changelog entries to maintain.
   private final int maxChangelogEntries;
 
+  // The maximum number of entries to return from any single search.
+  private final int maxSizeLimit;
+
   // The client connection for this request handler instance.
   private final LDAPListenerClientConnection connection;
 
@@ -298,6 +301,15 @@ public final class InMemoryRequestHandler
     }
 
     maxChangelogEntries = config.getMaxChangeLogEntries();
+
+    if (config.getMaxSizeLimit() <= 0)
+    {
+      maxSizeLimit = Integer.MAX_VALUE;
+    }
+    else
+    {
+      maxSizeLimit = config.getMaxSizeLimit();
+    }
 
     final TreeMap<String,InMemoryExtendedOperationHandler> extOpHandlers =
          new TreeMap<String,InMemoryExtendedOperationHandler>();
@@ -431,6 +443,7 @@ public final class InMemoryRequestHandler
     lastChangeNumber               = parent.lastChangeNumber;
     processingDelayMillis          = parent.processingDelayMillis;
     maxChangelogEntries            = parent.maxChangelogEntries;
+    maxSizeLimit                   = parent.maxSizeLimit;
     equalityIndexes                = parent.equalityIndexes;
     referentialIntegrityAttributes = parent.referentialIntegrityAttributes;
     entryMap                       = parent.entryMap;
@@ -3300,11 +3313,11 @@ findEntriesAndRefs:
     final int sizeLimit;
     if (request.getSizeLimit() > 0)
     {
-      sizeLimit = request.getSizeLimit();
+      sizeLimit = Math.min(request.getSizeLimit(), maxSizeLimit);
     }
     else
     {
-      sizeLimit = Integer.MAX_VALUE;
+      sizeLimit = maxSizeLimit;
     }
 
     int entryCount = 0;
