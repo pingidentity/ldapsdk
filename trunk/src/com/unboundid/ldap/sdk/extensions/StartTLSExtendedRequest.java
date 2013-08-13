@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk.extensions;
 
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedRequest;
@@ -104,8 +105,8 @@ public final class StartTLSExtendedRequest
 
 
 
-  // The SSL context to use to perform the negotiation.
-  private final SSLContext sslContext;
+  // The SSL socket factory used to perform the negotiation.
+  private final SSLSocketFactory sslSocketFactory;
 
 
 
@@ -118,7 +119,7 @@ public final class StartTLSExtendedRequest
   public StartTLSExtendedRequest()
          throws LDAPException
   {
-    this(null, null);
+    this((SSLSocketFactory) null, null);
   }
 
 
@@ -134,7 +135,7 @@ public final class StartTLSExtendedRequest
   public StartTLSExtendedRequest(final Control[] controls)
          throws LDAPException
   {
-    this(null, controls);
+    this((SSLSocketFactory) null, controls);
   }
 
 
@@ -154,6 +155,26 @@ public final class StartTLSExtendedRequest
          throws LDAPException
   {
     this(sslContext, null);
+  }
+
+
+
+  /**
+   * Creates a new StartTLS extended request using the provided SSL socket
+   * factory.
+   *
+   * @param  sslSocketFactory  The SSL socket factory to use to convert an
+   *                           insecure connection into a secure connection.  It
+   *                           may be {@code null} to indicate that a default
+   *                           SSL socket factory should be used.
+   *
+   * @throws  LDAPException  If a problem occurs while trying to initialize a
+   *                         default SSL socket factory.
+   */
+  public StartTLSExtendedRequest(final SSLSocketFactory sslSocketFactory)
+         throws LDAPException
+  {
+    this(sslSocketFactory, null);
   }
 
 
@@ -180,9 +201,10 @@ public final class StartTLSExtendedRequest
     {
       try
       {
-        this.sslContext =
+        final SSLContext ctx =
              SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
-        this.sslContext.init(null, null, null);
+        ctx.init(null, null, null);
+        sslSocketFactory = ctx.getSocketFactory();
       }
       catch (Exception e)
       {
@@ -193,7 +215,49 @@ public final class StartTLSExtendedRequest
     }
     else
     {
-      this.sslContext = sslContext;
+      sslSocketFactory = sslContext.getSocketFactory();
+    }
+  }
+
+
+
+  /**
+   * Creates a new StartTLS extended request.
+   *
+   * @param  sslSocketFactory  The SSL socket factory to use to convert an
+   *                           insecure connection into a secure connection.  It
+   *                           may be {@code null} to indicate that a default
+   *                           SSL socket factory should be used.
+   * @param  controls          The set of controls to include in the request.
+   *
+   * @throws  LDAPException  If a problem occurs while trying to initialize a
+   *                         default SSL context.
+   */
+  public StartTLSExtendedRequest(final SSLSocketFactory sslSocketFactory,
+                                 final Control[] controls)
+         throws LDAPException
+  {
+    super(STARTTLS_REQUEST_OID, controls);
+
+    if (sslSocketFactory == null)
+    {
+      try
+      {
+        final SSLContext ctx =
+             SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
+        ctx.init(null, null, null);
+        this.sslSocketFactory = ctx.getSocketFactory();
+      }
+      catch (Exception e)
+      {
+        debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_STARTTLS_REQUEST_CANNOT_CREATE_DEFAULT_CONTEXT.get(e), e);
+      }
+    }
+    else
+    {
+      this.sslSocketFactory = sslSocketFactory;
     }
   }
 
@@ -237,7 +301,7 @@ public final class StartTLSExtendedRequest
     final ExtendedResult result = super.process(connection, depth);
     if (result.getResultCode() == ResultCode.SUCCESS)
     {
-      InternalSDKHelper.convertToTLS(connection, sslContext);
+      InternalSDKHelper.convertToTLS(connection, sslSocketFactory);
     }
 
     return result;
@@ -265,7 +329,7 @@ public final class StartTLSExtendedRequest
     try
     {
       final StartTLSExtendedRequest r =
-           new StartTLSExtendedRequest(sslContext, controls);
+           new StartTLSExtendedRequest(sslSocketFactory, controls);
       r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
       return r;
     }

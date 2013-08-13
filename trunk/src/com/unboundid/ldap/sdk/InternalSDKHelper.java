@@ -22,7 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
@@ -92,19 +92,20 @@ public final class InternalSDKHelper
    * use as a helper for processing in the course of the StartTLS extended
    * operation and should not be used for other purposes.
    *
-   * @param  connection  The LDAP connection to be converted to use TLS.
-   * @param  sslContext  The SSL context to use when performing the negotiation.
-   *                     It must not be {@code null}.
+   * @param  connection        The LDAP connection to be converted to use TLS.
+   * @param  sslSocketFactory  The SSL socket factory to use to convert an
+   *                           insecure connection into a secure connection.  It
+   *                           must not be {@code null}.
    *
    * @throws  LDAPException  If a problem occurs while converting the provided
    *                         connection to use TLS.
    */
   @InternalUseOnly()
   public static void convertToTLS(final LDAPConnection connection,
-                                  final SSLContext sslContext)
+                                  final SSLSocketFactory sslSocketFactory)
          throws LDAPException
   {
-    connection.convertToTLS(sslContext);
+    connection.convertToTLS(sslSocketFactory);
   }
 
 

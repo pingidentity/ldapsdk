@@ -28,7 +28,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.ldap.protocol.LDAPMessage;
@@ -301,16 +301,17 @@ final class LDAPConnectionInternals
    * helper for processing in the course of the StartTLS extended operation and
    * should not be used for other purposes.
    *
-   * @param  sslContext  The SSL context to use when performing the negotiation.
-   *                     It must not be {@code null}.
+   * @param  sslSocketFactory  The SSL socket factory to use to convert an
+   *                           insecure connection into a secure connection.  It
+   *                           must not be {@code null}.
    *
    * @throws  LDAPException  If a problem occurs while converting this
    *                         connection to use TLS.
    */
-  void convertToTLS(final SSLContext sslContext)
+  void convertToTLS(final SSLSocketFactory sslSocketFactory)
        throws LDAPException
   {
-    outputStream = connectionReader.doStartTLS(sslContext);
+    outputStream = connectionReader.doStartTLS(sslSocketFactory);
   }
 
 
