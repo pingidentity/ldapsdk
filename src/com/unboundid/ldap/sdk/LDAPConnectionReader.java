@@ -33,7 +33,6 @@ import java.net.SocketTimeoutException;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -95,9 +94,10 @@ final class LDAPConnectionReader
   // The socket with which this reader is associated.
   private volatile Socket socket;
 
-  // The SSL context to use to perform StartTLS negotiation.  It will be null
-  // unless there is an outstanding StartTLS request.
-  private volatile SSLContext sslContext;
+  // The SSL socket factory to use to convert an insecure connection to a secure
+  // one when performing StartTLS processing.  It will be null unless there is
+  // an outstanding StartTLS request.
+  private volatile SSLSocketFactory sslSocketFactory;
 
   // The thread that is used to read data from the client.
   private volatile Thread thread;
@@ -136,7 +136,7 @@ final class LDAPConnectionReader
 
     acceptorMap          = new ConcurrentHashMap<Integer,ResponseAcceptor>();
     closeRequested       = false;
-    sslContext           = null;
+    sslSocketFactory     = null;
     startTLSException    = null;
     startTLSOutputStream = null;
     startTLSSleeper      = new WakeableSleeper();
@@ -264,7 +264,7 @@ final class LDAPConnectionReader
             // this exception only visible at a verbose log level.
             final SocketTimeoutException ste = (SocketTimeoutException) t;
             debugException(Level.FINEST,  ste);
-            if (sslContext != null)
+            if (sslSocketFactory != null)
             {
               try
               {
@@ -295,11 +295,9 @@ final class LDAPConnectionReader
                 }
 
                 final SSLSocket sslSocket;
-                final SSLSocketFactory socketFactory =
-                     sslContext.getSocketFactory();
-                synchronized (socketFactory)
+                synchronized (sslSocketFactory)
                 {
-                  sslSocket = (SSLSocket) socketFactory.createSocket(socket,
+                  sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
                        connection.getConnectedAddress(), socket.getPort(),
                        true);
                   sslSocket.startHandshake();
@@ -330,7 +328,7 @@ final class LDAPConnectionReader
                 return;
               }
 
-              sslContext = null;
+              sslSocketFactory = null;
             }
 
             continue;
@@ -879,7 +877,9 @@ final class LDAPConnectionReader
   /**
    * Converts this clear-text connection to one that uses TLS.
    *
-   * @param  sslContext  The SSL context to use to perform the negotiation.
+   * @param  sslSocketFactory  The SSL socket factory to use to convert an
+   *                           insecure connection into a secure connection.  It
+   *                           must not be {@code null}.
    *
    * @return  The TLS-enabled output stream that may be used to send encrypted
    *          requests to the server.
@@ -887,7 +887,7 @@ final class LDAPConnectionReader
    * @throws  LDAPException  If a problem occurs while attempting to convert the
    *                         connection to use TLS security.
    */
-  OutputStream doStartTLS(final SSLContext sslContext)
+  OutputStream doStartTLS(final SSLSocketFactory sslSocketFactory)
        throws LDAPException
   {
     if (connection.synchronousMode())
@@ -921,10 +921,9 @@ final class LDAPConnectionReader
         }
 
         final SSLSocket sslSocket;
-        final SSLSocketFactory socketFactory = sslContext.getSocketFactory();
-        synchronized (socketFactory)
+        synchronized (sslSocketFactory)
         {
-          sslSocket = (SSLSocket) socketFactory.createSocket(socket,
+          sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
                connection.getConnectedAddress(), socket.getPort(), true);
           sslSocket.startHandshake();
         }
@@ -953,7 +952,7 @@ final class LDAPConnectionReader
     }
     else
     {
-      this.sslContext = sslContext;
+      this.sslSocketFactory = sslSocketFactory;
 
       while (true)
       {
