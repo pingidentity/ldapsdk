@@ -82,6 +82,9 @@ public final class GSSAPIBindRequestProperties
   // The realm for the GSSAPI bind request, if available.
   private String realm;
 
+  // The server name to use when creating the SASL client.
+  private String saslClientServerName;
+
   // The protocol that should be used in the Kerberos service principal for
   // the server system.
   private String servicePrincipalProtocol;
@@ -176,6 +179,7 @@ public final class GSSAPIBindRequestProperties
     renewTGT                 = false;
     useTicketCache           = true;
     requireCachedCredentials = false;
+    saslClientServerName     = null;
     ticketCachePath          = null;
   }
 
@@ -393,6 +397,39 @@ public final class GSSAPIBindRequestProperties
   public void setConfigFilePath(final String configFilePath)
   {
     this.configFilePath = configFilePath;
+  }
+
+
+
+  /**
+   * Retrieves the server name that should be used when creating the Java
+   * {@code SaslClient}, if one is defined.
+   *
+   * @return  The server name that should be used when creating the Java
+   *          {@code SaslClient}, or {@code null} if none is defined and the
+   *          {@code SaslClient} should use the address specified when
+   *          establishing the connection.
+   */
+  public String getSASLClientServerName()
+  {
+    return saslClientServerName;
+  }
+
+
+
+  /**
+   * Specifies the server name that should be used when creating the Java
+   * {@code SaslClient}.
+   *
+   * @param  saslClientServerName  The server name that should be used when
+   *                               creating the Java {@code SaslClient}.  It may
+   *                               be {@code null} to indicate that the
+   *                               {@code SaslClient} should be created with the
+   *
+   */
+  public void setSASLClientServerName(final String saslClientServerName)
+  {
+    this.saslClientServerName = saslClientServerName;
   }
 
 
@@ -672,6 +709,13 @@ public final class GSSAPIBindRequestProperties
     {
       buffer.append("configFilePath='");
       buffer.append(configFilePath);
+      buffer.append("', ");
+    }
+
+    if (saslClientServerName != null)
+    {
+      buffer.append("saslClientServerName='");
+      buffer.append(saslClientServerName);
       buffer.append("', ");
     }
 

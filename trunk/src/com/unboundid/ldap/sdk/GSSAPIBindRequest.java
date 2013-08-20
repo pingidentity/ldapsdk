@@ -242,6 +242,10 @@ public final class GSSAPIBindRequest
   // The realm for the GSSAPI bind request, if available.
   private final String realm;
 
+  // The server name that should be used when creating the Java SaslClient, if
+  // defined.
+  private final String saslClientServerName;
+
   // The protocol that should be used in the Kerberos service principal for
   // the server system.
   private final String servicePrincipalProtocol;
@@ -517,6 +521,7 @@ public final class GSSAPIBindRequest
     password                 = gssapiProperties.getPassword();
     realm                    = gssapiProperties.getRealm();
     kdcAddress               = gssapiProperties.getKDCAddress();
+    saslClientServerName     = gssapiProperties.getSASLClientServerName();
     servicePrincipalProtocol = gssapiProperties.getServicePrincipalProtocol();
     enableGSSAPIDebugging    = gssapiProperties.enableGSSAPIDebugging();
     useTicketCache           = gssapiProperties.useTicketCache();
@@ -1122,9 +1127,14 @@ public final class GSSAPIBindRequest
     final SaslClient saslClient;
     try
     {
+      String serverName = saslClientServerName;
+      if (serverName == null)
+      {
+        serverName = connection.getConnectedAddress();
+      }
+
       saslClient = Sasl.createSaslClient(mechanisms, authorizationID,
-           servicePrincipalProtocol, connection.getConnectedAddress(),
-           saslProperties, this);
+           servicePrincipalProtocol, serverName, saslProperties, this);
     }
     catch (Exception e)
     {
@@ -1166,6 +1176,7 @@ public final class GSSAPIBindRequest
       gssapiProperties.setRenewTGT(renewTGT);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
+      gssapiProperties.setSASLClientServerName(saslClientServerName);
 
       return new GSSAPIBindRequest(gssapiProperties, getControls());
     }
@@ -1280,6 +1291,7 @@ public final class GSSAPIBindRequest
       gssapiProperties.setRenewTGT(renewTGT);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
+      gssapiProperties.setSASLClientServerName(saslClientServerName);
 
       final GSSAPIBindRequest bindRequest =
            new GSSAPIBindRequest(gssapiProperties, controls);
