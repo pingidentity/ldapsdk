@@ -49,6 +49,9 @@ public final class WakeableSleeper
   // A flag used to prevent multiple concurrent attempts to sleep.
   private final AtomicBoolean sleeping;
 
+  // A flag used to indicate that this WakeableSleeper has been shut down.
+  private final AtomicBoolean shutDown;
+
   // The number of attempts to wake up this sleeper.
   private final AtomicLong wakeupCount;
 
@@ -60,7 +63,23 @@ public final class WakeableSleeper
   public WakeableSleeper()
   {
     sleeping    = new AtomicBoolean(false);
+    shutDown    = new AtomicBoolean(false);
     wakeupCount = new AtomicLong(0L);
+  }
+
+
+
+  /**
+   * Return {@code true} if this {@code WakeableSleeper} instance has been
+   * shutdown via the {@code shutDown()} method and {@code false} otherwise.
+   *
+   * @return  {@code true} if this {@code WakeableSleeper} instance has been
+   *          shutdown via the {@code shutDown()} method and {@code false}
+   *          otherwise.
+   */
+  public boolean isShutDown()
+  {
+    return shutDown.get();
   }
 
 
@@ -69,7 +88,9 @@ public final class WakeableSleeper
    * Attempts to sleep for the specified length of time in milliseconds, subject
    * to the accuracy available within the JVM and underlying system.  It may
    * wake up prematurely if the wakeup method is called, or if the thread is
-   * interrupted.
+   * interrupted.  If {@code shutDown()} is called, then any active caller of
+   * this method will return immediately, and subsequent calls will return
+   * without sleeping.
    * <BR><BR>
    * This method must not be called on the same {@code WakeableSleeper} instance
    * by multiple threads at the same time.
@@ -84,6 +105,11 @@ public final class WakeableSleeper
   {
     synchronized (wakeupCount)
     {
+      if (isShutDown())
+      {
+        return false;
+      }
+
       Validator.ensureTrue(sleeping.compareAndSet(false, true),
            "WakeableSleeper.sleep() must not be invoked concurrently by " +
                 "multiple threads against the same instance.");
@@ -105,6 +131,21 @@ public final class WakeableSleeper
         sleeping.set(false);
       }
     }
+  }
+
+
+
+  /**
+   * Permanently shuts down this {@code WakeableSleeper} instance.  If a thread
+   * is currently blocked in the {@code sleep} method, it will return
+   * immediately, and all subsequent calls to that method will return without
+   * sleeping.  It is safe to call this method multiple times.
+   */
+  @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+  public void shutDown()
+  {
+    shutDown.set(true);
+    wakeup();
   }
 
 
