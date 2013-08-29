@@ -1960,17 +1960,31 @@ public final class LDIFReader
 
     final Iterator<StringBuilder> iterator = ldifLines.iterator();
 
-    // The first line must be the entry DN, and it must start with "dn:".
-    final StringBuilder line = iterator.next();
+    // The first line must start with either "version:" or "dn:".  If the first
+    // line starts with "version:" then the second must start with "dn:".
+    StringBuilder line = iterator.next();
     handleTrailingSpaces(line, null, firstLineNumber,
          unparsedRecord.getTrailingSpaceBehavior());
-    final int colonPos = line.indexOf(":");
+    int colonPos = line.indexOf(":");
+    if ((colonPos > 0) &&
+        line.substring(0, colonPos).equalsIgnoreCase("version"))
+    {
+      // The first line is "version:".  Under most conditions, this will be
+      // handled by the LDIF reader, but this can happen if you call
+      // decodeEntry with a set of data that includes a version.  At any rate,
+      // read the next line, which must specify the DN.
+      line = iterator.next();
+      handleTrailingSpaces(line, null, firstLineNumber,
+           unparsedRecord.getTrailingSpaceBehavior());
+    }
+
+    colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
-        (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
+         (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
     {
       throw new LDIFException(
-                     ERR_READ_DN_LINE_DOESNT_START_WITH_DN.get(firstLineNumber),
-                     firstLineNumber, true, ldifLines, null);
+           ERR_READ_DN_LINE_DOESNT_START_WITH_DN.get(firstLineNumber),
+           firstLineNumber, true, ldifLines, null);
     }
 
     final String dn;
@@ -2075,16 +2089,30 @@ public final class LDIFReader
 
     final Iterator<StringBuilder> iterator = ldifLines.iterator();
 
-    // The first line must be the entry DN, and it must start with "dn:".
+    // The first line must start with either "version:" or "dn:".  If the first
+    // line starts with "version:" then the second must start with "dn:".
     StringBuilder line = iterator.next();
     handleTrailingSpaces(line, null, firstLineNumber,
          unparsedRecord.getTrailingSpaceBehavior());
     int colonPos = line.indexOf(":");
+    if ((colonPos > 0) &&
+        line.substring(0, colonPos).equalsIgnoreCase("version"))
+    {
+      // The first line is "version:".  Under most conditions, this will be
+      // handled by the LDIF reader, but this can happen if you call
+      // decodeEntry with a set of data that includes a version.  At any rate,
+      // read the next line, which must specify the DN.
+      line = iterator.next();
+      handleTrailingSpaces(line, null, firstLineNumber,
+           unparsedRecord.getTrailingSpaceBehavior());
+    }
+
+    colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
-        (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
+         (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
     {
       throw new LDIFException(
-           ERR_READ_CR_DN_LINE_DOESNT_START_WITH_DN.get(firstLineNumber),
+           ERR_READ_DN_LINE_DOESNT_START_WITH_DN.get(firstLineNumber),
            firstLineNumber, true, ldifLines, null);
     }
 
