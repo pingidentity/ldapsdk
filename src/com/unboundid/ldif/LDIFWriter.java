@@ -73,6 +73,14 @@ import static com.unboundid.util.Validator.*;
 public final class LDIFWriter
 {
   /**
+   * The bytes that comprise the LDIF version header.
+   */
+  private static final byte[] VERSION_1_HEADER_BYTES =
+       getBytes("version: 1" + EOL);
+
+
+
+  /**
    * The default buffer size (128KB) that will be used when writing LDIF data
    * to the appropriate destination.
    */
@@ -332,6 +340,21 @@ public final class LDIFWriter
     this.wrapColumn = wrapColumn;
 
     wrapColumnMinusTwo = wrapColumn - 2;
+  }
+
+
+
+  /**
+   * Writes the LDIF version header (i.e.,"version: 1").  If a version header
+   * is to be added to the LDIF content, it should be done before any entries or
+   * change records have been written.
+   *
+   * @throws  IOException  If a problem occurs while writing the version header.
+   */
+  public void writeVersionHeader()
+         throws IOException
+  {
+    writer.write(VERSION_1_HEADER_BYTES);
   }
 
 
