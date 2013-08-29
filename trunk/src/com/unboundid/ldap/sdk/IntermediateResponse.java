@@ -249,6 +249,8 @@ public class IntermediateResponse
             value = new ASN1OctetString(type, reader.readBytes());
             break;
           default:
+            throw new LDAPException(ResultCode.DECODING_ERROR,
+                 ERR_INTERMEDIATE_RESPONSE_INVALID_ELEMENT.get(toHex(type)));
         }
       }
 
