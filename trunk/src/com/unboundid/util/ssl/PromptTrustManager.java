@@ -289,6 +289,50 @@ public final class PromptTrustManager
 
 
   /**
+   * Indicates whether this trust manager would interactively prompt the user
+   * about whether to trust the provided certificate chain.
+   *
+   * @param  chain  The chain of certificates for which to make the
+   *                determination.
+   *
+   * @return  {@code true} if this trust manger would interactively prompt the
+   *          user about whether to trust the certificate chain, or
+   *          {@code false} if not (e.g., because the certificate is already
+   *          known to be trusted).
+   */
+  public synchronized boolean wouldPrompt(final X509Certificate[] chain)
+  {
+    // See if the certificate is in the cache.  If it isn't then we will
+    // prompt no matter what.
+    final X509Certificate c = chain[0];
+    final String certBytes = toLowerCase(toHex(c.getSignature()));
+    final Boolean acceptedRegardlessOfValidity = acceptedCerts.get(certBytes);
+    if (acceptedRegardlessOfValidity == null)
+    {
+      return true;
+    }
+
+
+    // If we shouldn't check validity dates, or if the certificate has already
+    // been accepted when it's outside the validity window, then we won't
+    // prompt.
+    if (acceptedRegardlessOfValidity || (! examineValidityDates))
+    {
+      return false;
+    }
+
+
+    // If the certificate is within the validity window, then we won't prompt.
+    // If it's outside the validity window, then we will prompt to make sure the
+    // user still wants to trust it.
+    final Date currentDate = new Date();
+    return (! (currentDate.before(c.getNotBefore()) ||
+               currentDate.after(c.getNotAfter())));
+  }
+
+
+
+  /**
    * Performs the necessary validity check for the provided certificate array.
    *
    * @param  chain       The chain of certificates for which to make the
@@ -390,7 +434,7 @@ public final class PromptTrustManager
       try
       {
         out.println();
-        out.println(INFO_PROMPT_MESSAGE.get());
+        out.print(INFO_PROMPT_MESSAGE.get());
         out.flush();
         final String line = reader.readLine();
         if (line.equalsIgnoreCase("y") || line.equalsIgnoreCase("yes"))
