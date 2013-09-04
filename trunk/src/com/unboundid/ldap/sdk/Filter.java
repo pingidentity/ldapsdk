@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -44,6 +43,7 @@ import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -1279,13 +1279,13 @@ public final class Filter
         // Now we should be able to read the value, handling any escape
         // characters as we go.
         l++;
-        final StringBuilder valueBuffer = new StringBuilder(r - l + 1);
+        final ByteStringBuffer valueBuffer = new ByteStringBuffer(r - l + 1);
         while (l <= r)
         {
           final char c = filterString.charAt(l);
           if (c == '\\')
           {
-            l = readEscapedHexString(filterString, ++l, r, valueBuffer);
+            l = readEscapedHexString(filterString, ++l, valueBuffer);
           }
           else if (c == '(')
           {
@@ -1303,7 +1303,7 @@ public final class Filter
             l++;
           }
         }
-        assertionValue = new ASN1OctetString(valueBuffer.toString());
+        assertionValue = new ASN1OctetString(valueBuffer.toByteArray());
         break;
 
 
@@ -1570,7 +1570,7 @@ attrNameLoop:
           ASN1OctetString tempSubFinal   = null;
           final ArrayList<ASN1OctetString> subAnyList =
                new ArrayList<ASN1OctetString>(1);
-          StringBuilder buffer = new StringBuilder(r - l + 1);
+          ByteStringBuffer buffer = new ByteStringBuffer(r - l + 1);
           while (l <= r)
           {
             final char c = filterString.charAt(l++);
@@ -1606,8 +1606,9 @@ attrNameLoop:
                       }
                       else
                       {
-                        subAnyList.add(new ASN1OctetString(buffer.toString()));
-                        buffer = new StringBuilder(r - l + 1);
+                        subAnyList.add(
+                             new ASN1OctetString(buffer.toByteArray()));
+                        buffer = new ByteStringBuffer(r - l + 1);
                       }
                     }
                     else
@@ -1615,8 +1616,9 @@ attrNameLoop:
                       // We haven't yet set the filter type, so the buffer must
                       // contain the subInitial portion.  We also know it's not
                       // empty because of an earlier check.
-                      tempSubInitial = new ASN1OctetString(buffer.toString());
-                      buffer = new StringBuilder(r - l + 1);
+                      tempSubInitial =
+                           new ASN1OctetString(buffer.toByteArray());
+                      buffer = new ByteStringBuffer(r - l + 1);
                     }
                   }
 
@@ -1625,7 +1627,7 @@ attrNameLoop:
                 break;
 
               case '\\':
-                l = readEscapedHexString(filterString, l, r, buffer);
+                l = readEscapedHexString(filterString, l, buffer);
                 break;
 
               case '(':
@@ -1648,7 +1650,7 @@ attrNameLoop:
               (buffer.length() > 0))
           {
             // The buffer must contain the subFinal portion.
-            tempSubFinal = new ASN1OctetString(buffer.toString());
+            tempSubFinal = new ASN1OctetString(buffer.toByteArray());
           }
 
           subInitial = tempSubInitial;
@@ -1661,7 +1663,7 @@ attrNameLoop:
           }
           else
           {
-            assertionValue = new ASN1OctetString(buffer.toString());
+            assertionValue = new ASN1OctetString(buffer.toByteArray());
           }
         }
 
@@ -1778,8 +1780,6 @@ attrNameLoop:
    * @param  startPos      The position at which to start reading.  This should
    *                       be the position of first hex character immediately
    *                       after the initial backslash.
-   * @param  endPos        The position of the last possible character that can
-   *                       be read.
    * @param  buffer        The buffer to which the decoded string portion should
    *                       be appended.
    *
@@ -1789,165 +1789,137 @@ attrNameLoop:
    *                         bytes.
    */
   private static int readEscapedHexString(final String filterString,
-                                          final int startPos, final int endPos,
-                                          final StringBuilder buffer)
+                                          final int startPos,
+                                          final ByteStringBuffer buffer)
           throws LDAPException
   {
-    int pos = startPos;
-
-    final ByteBuffer byteBuffer = ByteBuffer.allocate(endPos - startPos);
-    while (pos <= endPos)
+    byte b;
+    switch (filterString.charAt(startPos))
     {
-      byte b;
-      switch (filterString.charAt(pos++))
-      {
-        case '0':
-          b = 0x00;
-          break;
-        case '1':
-          b = 0x10;
-          break;
-        case '2':
-          b = 0x20;
-          break;
-        case '3':
-          b = 0x30;
-          break;
-        case '4':
-          b = 0x40;
-          break;
-        case '5':
-          b = 0x50;
-          break;
-        case '6':
-          b = 0x60;
-          break;
-        case '7':
-          b = 0x70;
-          break;
-        case '8':
-          b = (byte) 0x80;
-          break;
-        case '9':
-          b = (byte) 0x90;
-          break;
-        case 'a':
-        case 'A':
-          b = (byte) 0xA0;
-          break;
-        case 'b':
-        case 'B':
-          b = (byte) 0xB0;
-          break;
-        case 'c':
-        case 'C':
-          b = (byte) 0xC0;
-          break;
-        case 'd':
-        case 'D':
-          b = (byte) 0xD0;
-          break;
-        case 'e':
-        case 'E':
-          b = (byte) 0xE0;
-          break;
-        case 'f':
-        case 'F':
-          b = (byte) 0xF0;
-          break;
-        default:
-          throw new LDAPException(ResultCode.FILTER_ERROR,
-                                  ERR_FILTER_INVALID_HEX_CHAR.get(
-                                       filterString.charAt(pos-1), (pos-1)));
-      }
-
-      if (pos > endPos)
-      {
-        throw new LDAPException(ResultCode.FILTER_ERROR,
-                                ERR_FILTER_INVALID_ESCAPED_END_CHAR.get(
-                                     filterString.charAt(pos-1)));
-      }
-
-      switch (filterString.charAt(pos++))
-      {
-        case '0':
-          // No action is required.
-          break;
-        case '1':
-          b |= 0x01;
-          break;
-        case '2':
-          b |= 0x02;
-          break;
-        case '3':
-          b |= 0x03;
-          break;
-        case '4':
-          b |= 0x04;
-          break;
-        case '5':
-          b |= 0x05;
-          break;
-        case '6':
-          b |= 0x06;
-          break;
-        case '7':
-          b |= 0x07;
-          break;
-        case '8':
-          b |= 0x08;
-          break;
-        case '9':
-          b |= 0x09;
-          break;
-        case 'a':
-        case 'A':
-          b |= 0x0A;
-          break;
-        case 'b':
-        case 'B':
-          b |= 0x0B;
-          break;
-        case 'c':
-        case 'C':
-          b |= 0x0C;
-          break;
-        case 'd':
-        case 'D':
-          b |= 0x0D;
-          break;
-        case 'e':
-        case 'E':
-          b |= 0x0E;
-          break;
-        case 'f':
-        case 'F':
-          b |= 0x0F;
-          break;
-        default:
-          throw new LDAPException(ResultCode.FILTER_ERROR,
-                                  ERR_FILTER_INVALID_HEX_CHAR.get(
-                                       filterString.charAt(pos-1), (pos-1)));
-      }
-
-      byteBuffer.put(b);
-      if ((pos <= endPos) && (filterString.charAt(pos) == '\\'))
-      {
-        pos++;
-        continue;
-      }
-      else
-      {
+      case '0':
+        b = 0x00;
         break;
-      }
+      case '1':
+        b = 0x10;
+        break;
+      case '2':
+        b = 0x20;
+        break;
+      case '3':
+        b = 0x30;
+        break;
+      case '4':
+        b = 0x40;
+        break;
+      case '5':
+        b = 0x50;
+        break;
+      case '6':
+        b = 0x60;
+        break;
+      case '7':
+        b = 0x70;
+        break;
+      case '8':
+        b = (byte) 0x80;
+        break;
+      case '9':
+        b = (byte) 0x90;
+        break;
+      case 'a':
+      case 'A':
+        b = (byte) 0xA0;
+        break;
+      case 'b':
+      case 'B':
+        b = (byte) 0xB0;
+        break;
+      case 'c':
+      case 'C':
+        b = (byte) 0xC0;
+        break;
+      case 'd':
+      case 'D':
+        b = (byte) 0xD0;
+        break;
+      case 'e':
+      case 'E':
+        b = (byte) 0xE0;
+        break;
+      case 'f':
+      case 'F':
+        b = (byte) 0xF0;
+        break;
+      default:
+        throw new LDAPException(ResultCode.FILTER_ERROR,
+             ERR_FILTER_INVALID_HEX_CHAR.get(filterString.charAt(startPos),
+                  startPos));
     }
 
-    byteBuffer.flip();
-    final byte[] byteArray = new byte[byteBuffer.limit()];
-    byteBuffer.get(byteArray);
+    switch (filterString.charAt(startPos+1))
+    {
+      case '0':
+        // No action is required.
+        break;
+      case '1':
+        b |= 0x01;
+        break;
+      case '2':
+        b |= 0x02;
+        break;
+      case '3':
+        b |= 0x03;
+        break;
+      case '4':
+        b |= 0x04;
+        break;
+      case '5':
+        b |= 0x05;
+        break;
+      case '6':
+        b |= 0x06;
+        break;
+      case '7':
+        b |= 0x07;
+        break;
+      case '8':
+        b |= 0x08;
+        break;
+      case '9':
+        b |= 0x09;
+        break;
+      case 'a':
+      case 'A':
+        b |= 0x0A;
+        break;
+      case 'b':
+      case 'B':
+        b |= 0x0B;
+        break;
+      case 'c':
+      case 'C':
+        b |= 0x0C;
+        break;
+      case 'd':
+      case 'D':
+        b |= 0x0D;
+        break;
+      case 'e':
+      case 'E':
+        b |= 0x0E;
+        break;
+      case 'f':
+      case 'F':
+        b |= 0x0F;
+        break;
+      default:
+        throw new LDAPException(ResultCode.FILTER_ERROR,
+             ERR_FILTER_INVALID_HEX_CHAR.get(filterString.charAt(startPos+1),
+                  (startPos+1)));
+    }
 
-    buffer.append(toUTF8String(byteArray));
-    return pos;
+    buffer.append(b);
+    return startPos+2;
   }
 
 
@@ -3903,29 +3875,87 @@ attrNameLoop:
   private static void encodeValue(final ASN1OctetString value,
                                   final StringBuilder buffer)
   {
-    final String valueString = value.stringValue();
-    final int length = valueString.length();
-    for (int i=0; i < length; i++)
+    final byte[] valueBytes = value.getValue();
+    for (int i=0; i < valueBytes.length; i++)
     {
-      final char c = valueString.charAt(i);
-      switch (c)
+      switch (numBytesInUTF8CharacterWithFirstByte(valueBytes[i]))
       {
-        case '\u0000':
-        case '(':
-        case ')':
-        case '*':
-        case '\\':
-          hexEncode(c, buffer);
-          break;
-
-        default:
-          if (c <= 0x7F)
+        case 1:
+          // This character is ASCII, but might still need to be escaped.  We'll
+          // escape anything
+          if ((valueBytes[i] <= 0x1F) || // Non-printable ASCII characters.
+              (valueBytes[i] == 0x28) || // Open parenthesis
+              (valueBytes[i] == 0x29) || // Close parenthesis
+              (valueBytes[i] == 0x2A) || // Asterisk
+              (valueBytes[i] == 0x5C) || // Backslash
+              (valueBytes[i] == 0x7F))   // DEL
           {
-            buffer.append(c);
+            buffer.append('\\');
+            toHex(valueBytes[i], buffer);
           }
           else
           {
-            hexEncode(c, buffer);
+            buffer.append((char) valueBytes[i]);
+          }
+          break;
+
+        case 2:
+          // If there are at least two bytes left, then we'll hex-encode the
+          // next two bytes.  Otherwise we'll hex-encode whatever is left.
+          buffer.append('\\');
+          toHex(valueBytes[i++], buffer);
+          if (i < valueBytes.length)
+          {
+            buffer.append('\\');
+            toHex(valueBytes[i], buffer);
+          }
+          break;
+
+        case 3:
+          // If there are at least three bytes left, then we'll hex-encode the
+          // next three bytes.  Otherwise we'll hex-encode whatever is left.
+          buffer.append('\\');
+          toHex(valueBytes[i++], buffer);
+          if (i < valueBytes.length)
+          {
+            buffer.append('\\');
+            toHex(valueBytes[i++], buffer);
+          }
+          if (i < valueBytes.length)
+          {
+            buffer.append('\\');
+            toHex(valueBytes[i], buffer);
+          }
+          break;
+
+        case 4:
+          // If there are at least four bytes left, then we'll hex-encode the
+          // next four bytes.  Otherwise we'll hex-encode whatever is left.
+          buffer.append('\\');
+          toHex(valueBytes[i++], buffer);
+          if (i < valueBytes.length)
+          {
+            buffer.append('\\');
+            toHex(valueBytes[i++], buffer);
+          }
+          if (i < valueBytes.length)
+          {
+            buffer.append('\\');
+            toHex(valueBytes[i++], buffer);
+          }
+          if (i < valueBytes.length)
+          {
+            buffer.append('\\');
+            toHex(valueBytes[i], buffer);
+          }
+          break;
+
+        default:
+          // We'll hex-encode whatever is left in the buffer.
+          while (i < valueBytes.length)
+          {
+            buffer.append('\\');
+            toHex(valueBytes[i++], buffer);
           }
           break;
       }
