@@ -79,6 +79,17 @@ import static com.unboundid.util.Validator.*;
 public final class SSLUtil
 {
   /**
+   * The name of the system property that can be used to specify the initial
+   * value for the default SSL protocol that should be used.  If this is not
+   * set, then the default SSL protocol will be dynamically determined.  This
+   * can be overridden via the {@link #setDefaultSSLProtocol(String)} method.
+   */
+  public static final String PROPERTY_DEFAULT_SSL_PROTOCOL =
+       "com.unboundid.util.SSLUtil.defaultSSLProtocol";
+
+
+
+  /**
    * The default protocol string that will be used to create SSL contexts when
    * no explicit protocol is specified.
    */
@@ -87,48 +98,59 @@ public final class SSLUtil
 
   static
   {
-    // Ideally, we should be able to discover the SSL protocol that offers the
-    // best mix of security and compatibility.  Unfortunately, Java SE 5 doesn't
-    // expose the methods necessary to allow us to do that, but if the running
-    // JVM is Java SE 6 or later, then we can use reflection to invoke those
-    // methods and make the appropriate determination.
-
-    try
+    // See if there is a system property that specifies what the default SSL
+    // protocol should be.  If not, then try to dynamically determine it.
+    final String propValue = System.getProperty(PROPERTY_DEFAULT_SSL_PROTOCOL);
+    if ((propValue != null) && (propValue.length() > 0))
     {
-      final Method getDefaultMethod =
-           SSLContext.class.getMethod("getDefault");
-      final SSLContext defaultContext =
-           (SSLContext) getDefaultMethod.invoke(null);
-
-      final Method getSupportedParamsMethod =
-           SSLContext.class.getMethod("getSupportedSSLParameters");
-      final Object paramsObj = getSupportedParamsMethod.invoke(defaultContext);
-
-      final Class<?> sslParamsClass =
-           Class.forName("javax.net.ssl.SSLParameters");
-      final Method getProtocolsMethod =
-           sslParamsClass.getMethod("getProtocols");
-      final String[] supportedProtocols =
-           (String[]) getProtocolsMethod.invoke(paramsObj);
-
-      final HashSet<String> protocolMap =
-           new HashSet<String>(Arrays.asList(supportedProtocols));
-      if (protocolMap.contains("TLSv1.2"))
-      {
-        DEFAULT_SSL_PROTOCOL.set("TLSv1.2");
-      }
-      else if (protocolMap.contains("TLSv1.1"))
-      {
-        DEFAULT_SSL_PROTOCOL.set("TLSv1.1");
-      }
-      else if (protocolMap.contains("TLSv1"))
-      {
-        DEFAULT_SSL_PROTOCOL.set("TLSv1");
-      }
+      DEFAULT_SSL_PROTOCOL.set(propValue);
     }
-    catch (final Exception e)
+    else
     {
-      Debug.debugException(e);
+      // Ideally, we should be able to discover the SSL protocol that offers the
+      // best mix of security and compatibility.  Unfortunately, Java SE 5
+      // doesn't expose the methods necessary to allow us to do that, but if the
+      // running JVM is Java SE 6 or later, then we can use reflection to invoke
+      // those methods and make the appropriate determination.
+
+      try
+      {
+        final Method getDefaultMethod =
+             SSLContext.class.getMethod("getDefault");
+        final SSLContext defaultContext =
+             (SSLContext) getDefaultMethod.invoke(null);
+
+        final Method getSupportedParamsMethod =
+             SSLContext.class.getMethod("getSupportedSSLParameters");
+        final Object paramsObj =
+             getSupportedParamsMethod.invoke(defaultContext);
+
+        final Class<?> sslParamsClass =
+             Class.forName("javax.net.ssl.SSLParameters");
+        final Method getProtocolsMethod =
+             sslParamsClass.getMethod("getProtocols");
+        final String[] supportedProtocols =
+             (String[]) getProtocolsMethod.invoke(paramsObj);
+
+        final HashSet<String> protocolMap =
+             new HashSet<String>(Arrays.asList(supportedProtocols));
+        if (protocolMap.contains("TLSv1.2"))
+        {
+          DEFAULT_SSL_PROTOCOL.set("TLSv1.2");
+        }
+        else if (protocolMap.contains("TLSv1.1"))
+        {
+          DEFAULT_SSL_PROTOCOL.set("TLSv1.1");
+        }
+        else if (protocolMap.contains("TLSv1"))
+        {
+          DEFAULT_SSL_PROTOCOL.set("TLSv1");
+        }
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
     }
   }
 
