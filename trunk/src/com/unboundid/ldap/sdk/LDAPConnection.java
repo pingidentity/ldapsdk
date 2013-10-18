@@ -4319,7 +4319,10 @@ public final class LDAPConnection
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals != null)
     {
-      return internals.getConnectionReader().readResponse(messageID);
+      final LDAPResponse response =
+           internals.getConnectionReader().readResponse(messageID);
+      debugLDAPResult(response, this);
+      return response;
     }
     else
     {

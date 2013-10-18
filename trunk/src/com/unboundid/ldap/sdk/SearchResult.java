@@ -414,10 +414,17 @@ public final class SearchResult
       buffer.append('}');
     }
 
-    buffer.append(", entriesReturned=");
-    buffer.append(numEntries);
-    buffer.append(", referencesReturned=");
-    buffer.append(numReferences);
+    if (numEntries >= 0)
+    {
+      buffer.append(", entriesReturned=");
+      buffer.append(numEntries);
+    }
+
+    if (numReferences >= 0)
+    {
+      buffer.append(", referencesReturned=");
+      buffer.append(numReferences);
+    }
 
     final Control[] responseControls = getResponseControls();
     if (responseControls.length > 0)
