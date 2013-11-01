@@ -1310,6 +1310,27 @@ public class Entry
 
 
   /**
+   * Adds the provided attribute to this entry.  If this entry already contains
+   * an attribute with the same name, then their values will be merged.
+   *
+   * @param  attributeName    The name for the attribute to be added.  It must
+   *                          not be {@code null}.
+   * @param  attributeValues  The value for the attribute to be added.  It must
+   *                          not be {@code null}.
+   *
+   * @return  {@code true} if the entry was updated, or {@code false} because
+   *          the specified attribute already existed with all provided values.
+   */
+  public boolean addAttribute(final String attributeName,
+                              final Collection<String> attributeValues)
+  {
+    ensureNotNull(attributeName, attributeValues);
+    return addAttribute(new Attribute(attributeName, schema, attributeValues));
+  }
+
+
+
+  /**
    * Removes the specified attribute from this entry.
    *
    * @param  attributeName  The name of the attribute to remove.  It must not be
@@ -1663,6 +1684,24 @@ public class Entry
    */
   public void setAttribute(final String attributeName,
                            final byte[]... attributeValues)
+  {
+    ensureNotNull(attributeName, attributeValues);
+    setAttribute(new Attribute(attributeName, schema, attributeValues));
+  }
+
+
+
+  /**
+   * Adds the provided attribute to this entry, replacing any existing set of
+   * values for the associated attribute.
+   *
+   * @param  attributeName    The name to use for the attribute.  It must not be
+   *                          {@code null}.
+   * @param  attributeValues  The set of values to use for the attribute.  It
+   *                          must not be {@code null}.
+   */
+  public void setAttribute(final String attributeName,
+                           final Collection<String> attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
     setAttribute(new Attribute(attributeName, schema, attributeValues));
