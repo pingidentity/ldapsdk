@@ -171,7 +171,8 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process that can be used to create,
- * start, and use an in-memory directory server instance:
+ * start, and use an in-memory directory server instance, including support for
+ * secure communication using both SSL and StartTLS:
  * <PRE>
  * // Create a base configuration for the server.
  * InMemoryDirectoryServerConfig config =
@@ -179,21 +180,47 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * config.addAdditionalBindCredentials("cn=Directory Manager",
  *      "password");
  *
- * // Create and start the server instance and populate it with an
- * // initial set of data from the file "/tmp/test.ldif".
+ * // Update the configuration to support LDAP (with StartTLS) and LDAPS
+ * // listeners.
+ * final SSLUtil serverSSLUtil = new SSLUtil(
+ *      new KeyStoreKeyManager(serverKeyStorePath, serverKeyStorePIN, "JKS",
+ *           "server-cert"),
+ *      new TrustStoreTrustManager(serverTrustStorePath));
+ * final SSLUtil clientSSLUtil = new SSLUtil(
+ *      new TrustStoreTrustManager(clientTrustStorePath));
+ * config.setListenerConfigs(
+ *      InMemoryListenerConfig.createLDAPConfig("LDAP", // Listener name
+ *           null, // Listen address. (null = listen on all interfaces)
+ *           0, // Listen port (0 = automatically choose an available port)
+ *           serverSSLUtil.createSSLSocketFactory()), // StartTLS factory
+ *      InMemoryListenerConfig.createLDAPSConfig("LDAPS", // Listener name
+ *           null, // Listen address. (null = listen on all interfaces)
+ *           0, // Listen port (0 = automatically choose an available port)
+ *           serverSSLUtil.createSSLServerSocketFactory(), // Server factory
+ *           clientSSLUtil.createSSLSocketFactory())); // Client factory
+ *
+ * // Create and start the server instance and populate it with an initial set
+ * // of data from an LDIF file.
  * InMemoryDirectoryServer server = new InMemoryDirectoryServer(config);
- * server.importFromLDIF(true, "/tmp/test.ldif");
+ * server.importFromLDIF(true, ldifFilePath);
  *
  * // Start the server so it will accept client connections.
  * server.startListening();
  *
- * // Get a connection to the server.
- * LDAPConnection conn = server.getConnection();
+ * // Get an unencrypted connection to the server's LDAP listener, then use
+ * // StartTLS to secure that connection.  Make sure the connection is usable
+ * // by retrieving the server root DSE.
+ * LDAPConnection connection = server.getConnection("LDAP");
+ * connection.processExtendedOperation(new StartTLSExtendedRequest(
+ *      clientSSLUtil.createSSLContext()));
+ * LDAPTestUtils.assertEntryExists(connection, "");
+ * connection.close();
  *
- * // Perform various operations in the server....
- *
- * // Close the connection.
- * conn.close();
+ * // Establish an SSL-based connection to the LDAPS listener, and make sure
+ * // that connection is also usable.
+ * connection = server.getConnection("LDAPS");
+ * LDAPTestUtils.assertEntryExists(connection, "");
+ * connection.close();
  *
  * // Shut down the server so that it will no longer accept client
  * // connections, and close all existing connections.

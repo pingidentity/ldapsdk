@@ -60,41 +60,41 @@ import static com.unboundid.ldap.sdk.experimental.ExperimentalMessages.*;
  * The following example demonstrates the process for using the DirSync control
  * to identify changes to user entries below "dc=example,dc=com":
  * <PRE>
- *   // Create a search request that will be used to identify all users below
- *   // "dc=example,dc=com".
- *   final SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
- *        SearchScope.SUB, Filter.createEqualityFilter("objectClass", "User"));
+ * // Create a search request that will be used to identify all users below
+ * // "dc=example,dc=com".
+ * final SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
+ *      SearchScope.SUB, Filter.createEqualityFilter("objectClass", "User"));
  *
- *   // Define the components that will be included in the DirSync request
- *   // control.
- *   ASN1OctetString cookie = null;
- *   final int flags = ActiveDirectoryDirSyncControl.FLAG_INCREMENTAL_VALUES |
- *        ActiveDirectoryDirSyncControl.FLAG_OBJECT_SECURITY;
+ * // Define the components that will be included in the DirSync request
+ * // control.
+ * ASN1OctetString cookie = null;
+ * final int flags = ActiveDirectoryDirSyncControl.FLAG_INCREMENTAL_VALUES |
+ *      ActiveDirectoryDirSyncControl.FLAG_OBJECT_SECURITY;
  *
- *   // Create a loop that will be used to keep polling for changes.
- *   while (keepLooping)
+ * // Create a loop that will be used to keep polling for changes.
+ * while (keepLooping)
+ * {
+ *   // Update the controls that will be used for the search request.
+ *   searchRequest.setControls(new ActiveDirectoryDirSyncControl(true, flags,
+ *        50, cookie));
+ *
+ *   // Process the search and get the response control.
+ *   final SearchResult searchResult = connection.search(searchRequest);
+ *   ActiveDirectoryDirSyncControl dirSyncResponse =
+ *        ActiveDirectoryDirSyncControl.get(searchResult);
+ *   cookie = dirSyncResponse.getCookie();
+ *
+ *   // Process the search result entries because they represent entries that
+ *   // have been created or modified.
+ *   for (final SearchResultEntry updatedEntry :
+ *        searchResult.getSearchEntries())
  *   {
- *     // Update the controls that will be used for the search request.
- *     searchRequest.setControls(new ActiveDirectoryDirSyncControl(true, flags,
- *          50, cookie));
- *
- *     // Process the search and get the response control.
- *     final SearchResult searchResult = connection.search(searchRequest);
- *     ActiveDirectoryDirSyncControl dirSyncResponse =
- *          ActiveDirectoryDirSyncControl.get(searchResult);
- *     cookie = dirSyncResponse.getCookie();
- *
- *     // Process the search result entries because they represent entries that
- *     // have been created or modified.
- *     for (final SearchResultEntry updatedEntry :
- *          searchResult.getSearchEntries())
- *     {
- *       // Do something with the entry.
- *     }
- *
- *     // If the client might want to continue the search even after shutting
- *     // down and starting back up later, then persist the cookie now.
+ *     // Do something with the entry.
  *   }
+ *
+ *   // If the client might want to continue the search even after shutting
+ *   // down and starting back up later, then persist the cookie now.
+ * }
  * </PRE>
  */
 @NotMutable()

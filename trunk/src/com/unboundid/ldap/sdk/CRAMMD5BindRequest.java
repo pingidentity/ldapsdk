@@ -72,17 +72,21 @@ import static com.unboundid.util.Validator.*;
  * bind against a directory server with a username of "john.doe" and a password
  * of "password":
  * <PRE>
- *   CRAMMD5BindRequest bindRequest =
- *        new CRAMMD5BindRequest("u:john.doe", "password");
- *   try
- *   {
- *     BindResult bindResult = connection.bind(bindRequest);
- *     // If we get here, then the bind was successful.
- *   }
- *   catch (LDAPException le)
- *   {
- *     // The bind failed for some reason.
- *   }
+ * CRAMMD5BindRequest bindRequest =
+ *      new CRAMMD5BindRequest("u:john.doe", "password");
+ * BindResult bindResult;
+ * try
+ * {
+ *   bindResult = connection.bind(bindRequest);
+ *   // If we get here, then the bind was successful.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The bind failed for some reason.
+ *   bindResult = new BindResult(le.toLDAPResult());
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @NotMutable()

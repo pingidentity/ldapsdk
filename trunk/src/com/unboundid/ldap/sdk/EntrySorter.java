@@ -71,10 +71,13 @@ import static com.unboundid.util.StaticUtils.*;
  * entries, ordered first by sn and then by givenName, without consideration for
  * hierarchy:
  * <PRE>
- *   EntrySorter entrySorter = new EntrySorter(false,
- *        new SortKey("sn"), new SortKey("givenName"));
- *   SortedSet&lt;Entry&gt; sortedEntries =
- *        entrySorter.sort(searchResult.getSearchEntries())
+ * SearchResult searchResult = connection.search("dc=example,dc=com",
+ *      SearchScope.SUB, Filter.createEqualityFilter("sn", "Smith"));
+ *
+ * EntrySorter entrySorter = new EntrySorter(false,
+ *      new SortKey("sn"), new SortKey("givenName"));
+ * SortedSet&lt;Entry&gt; sortedEntries =
+ *     entrySorter.sort(searchResult.getSearchEntries());
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

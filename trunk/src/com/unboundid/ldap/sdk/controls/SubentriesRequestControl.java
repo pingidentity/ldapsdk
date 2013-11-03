@@ -51,19 +51,26 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  * There is no corresponding response control.
  * <BR><BR>
  * <H2>Example</H2>
- * The following example illustrates the use of the subentries request control.
- * It attempts to retrieve all subentries defined below "dc=example,dc=com":
+ * The following example illustrates the use of the subentries request control
+ * to retrieve subentries that may not otherwise be returned.
  * <PRE>
- *   SearchRequest searchRequest =
- *        new SearchRequest("dc=example,dc=com", SearchScope.SUB,
- *                          "(objectClass=ldapSubentry)");
- *   searchRequest.addControl(new SubentriesRequestControl());
- *   SearchResult searchResult = connection.search(searchRequest());
+ * // First, perform a search to retrieve an entry with a cn of "test subentry"
+ * // but without including the subentries request control.  This should not
+ * // return any matching entries.
+ * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
+ *      SearchScope.SUB, Filter.createEqualityFilter("cn", "test subentry"));
+ * SearchResult resultWithoutControl = connection.search(searchRequest);
+ * LDAPTestUtils.assertResultCodeEquals(resultWithoutControl,
+ *      ResultCode.SUCCESS);
+ * LDAPTestUtils.assertEntriesReturnedEquals(resultWithoutControl, 0);
  *
- *   for (SearchResultEntry e : searchResult.getSearchEntries())
- *   {
- *     // Do something with the entry.
- *   }
+ * // Update the search request to add a subentries request control so that
+ * // subentries should be included in search results.  This should cause the
+ * // subentry to be returned.
+ * searchRequest.addControl(new SubentriesRequestControl());
+ * SearchResult resultWithControl = connection.search(searchRequest);
+ * LDAPTestUtils.assertResultCodeEquals(resultWithControl, ResultCode.SUCCESS);
+ * LDAPTestUtils.assertEntriesReturnedEquals(resultWithControl, 1);
  * </PRE>
  */
 @NotMutable()

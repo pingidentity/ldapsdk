@@ -62,48 +62,54 @@ import static com.unboundid.util.Validator.*;
  * across all entries containing the {@code person} object class using the LDAP
  * entry source API:
  * <PRE>
- *   SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
- *        SearchScope.SUB, "(objectClass=person)");
- *   LDAPEntrySource entrySource = new LDAPEntrySource(connection,
- *        searchRequest, false);
+ * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
+ *      SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
+ * LDAPEntrySource entrySource = new LDAPEntrySource(connection,
+ *      searchRequest, false);
  *
- *   try
+ * int entriesRead = 0;
+ * int referencesRead = 0;
+ * int exceptionsCaught = 0;
+ * try
+ * {
+ *   while (true)
  *   {
- *     while (true)
+ *     try
  *     {
- *       try
+ *       Entry entry = entrySource.nextEntry();
+ *       if (entry == null)
  *       {
- *         Entry entry = entrySource.nextEntry();
- *         if (entry == null)
- *         {
- *           // There are no more entries to be read.
- *           break;
- *         }
- *         else
- *         {
- *           // Do something with the entry here.
- *         }
+ *         // There are no more entries to be read.
+ *         break;
  *       }
- *       catch (SearchResultReferenceEntrySourceException e)
+ *       else
  *       {
- *         // The directory server returned a search result reference.
- *         SearchResultReference searchReference = e.getSearchReference();
+ *         // Do something with the entry here.
+ *         entriesRead++;
  *       }
- *       catch (EntrySourceException e)
+ *     }
+ *     catch (SearchResultReferenceEntrySourceException e)
+ *     {
+ *       // The directory server returned a search result reference.
+ *       SearchResultReference searchReference = e.getSearchReference();
+ *       referencesRead++;
+ *     }
+ *     catch (EntrySourceException e)
+ *     {
+ *       // Some kind of problem was encountered (e.g., the connection is no
+ *       // longer valid).  See if we can continue reading entries.
+ *       exceptionsCaught++;
+ *       if (! e.mayContinueReading())
  *       {
- *         // Some kind of problem was encountered (e.g., the connection is no
- *         // longer valid).  See if we can continue reading entries.
- *         if (! e.mayContinueReading())
- *         {
- *           break;
- *         }
+ *         break;
  *       }
  *     }
  *   }
- *   finally
- *   {
- *     entrySource.close();
- *   }
+ * }
+ * finally
+ * {
+ *   entrySource.close();
+ * }
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

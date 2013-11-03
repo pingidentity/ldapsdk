@@ -57,37 +57,60 @@ import static com.unboundid.util.Debug.*;
  * simple bind to authenticate against the server and handle any password
  * expired or password expiring control that may be included in the response:
  * <PRE>
- *   BindRequest bindRequest =
- *        new SimpleBindRequest("uid=john.doe,ou=People,dc=example,dc=com",
- *                              "password");
- *   try
+ * // Send a simple bind request to the directory server.
+ * BindRequest bindRequest =
+ *      new SimpleBindRequest("uid=test.user,ou=People,dc=example,dc=com",
+ *           "password");
+ * BindResult bindResult;
+ * boolean bindSuccessful;
+ * boolean passwordExpired;
+ * boolean passwordAboutToExpire;
+ * try
+ * {
+ *   bindResult = connection.bind(bindRequest);
+ *
+ *   // If we got here, the bind was successful and we know the password was
+ *   // not expired.  However, we shouldn't ignore the result because the
+ *   // password might be about to expire.  To determine whether that is the
+ *   // case, we should see if the bind result included a password expiring
+ *   // control.
+ *   bindSuccessful = true;
+ *   passwordExpired = false;
+ *
+ *   PasswordExpiringControl expiringControl =
+ *        PasswordExpiringControl.get(bindResult);
+ *   if (expiringControl != null)
  *   {
- *     BindResult bindResult = connection.bind(bindRequest);
- *     for (Control c : bindResult.getResponseControls())
- *     {
- *       if (c instanceof PasswordExpiringControl)
- *       {
- *         System.err.println("WARNING:  Your password will expire in " +
- *              ((PasswordExpiringControl) c).getSecondsUntilExpiration() +
- *              " seconds.");
- *       }
- *       else if (c instanceof PasswordExpiredControl)
- *       {
- *         System.err.println("WARNING:  You must change your password " +
- *              "before you will be allowed to perform any other operations.");
- *       }
- *     }
+ *     passwordAboutToExpire = true;
+ *     int secondsToExpiration = expiringControl.getSecondsUntilExpiration();
  *   }
- *   catch (LDAPException le)
+ *   else
  *   {
- *     for (Control c : le.getResponseControls())
- *     {
- *       if (c instanceof PasswordExpiredControl)
- *       {
- *         System.err.println("ERROR:  Your password is expired.");
- *       }
- *     }
+ *     passwordAboutToExpire = false;
  *   }
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // If we got here, then the bind failed.  The failure may or may not have
+ *   // been due to an expired password.  To determine that, we should see if
+ *   // the bind result included a password expired control.
+ *   bindSuccessful = false;
+ *   passwordAboutToExpire = false;
+ *   bindResult = new BindResult(le.toLDAPResult());
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ *
+ *   PasswordExpiredControl expiredControl =
+ *        PasswordExpiredControl.get(bindResult);
+ *   if (expiredControl != null)
+ *   {
+ *     passwordExpired = true;
+ *   }
+ *   else
+ *   {
+ *     passwordExpired = false;
+ *   }
+ * }
  * </PRE>
  */
 @NotMutable()

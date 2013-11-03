@@ -41,15 +41,20 @@ import com.unboundid.util.ThreadSafetyLevel;
  * The following example demonstrates the process for performing an EXTERNAL
  * bind against a directory server:
  * <PRE>
- *   try
- *   {
- *     BindResult bindResult = connection.bind(new EXTERNALBindRequest());
- *     // If we get here, then the bind was successful.
- *   }
- *   catch (LDAPException le)
- *   {
- *     // The bind failed for some reason.
- *   }
+ * EXTERNALBindRequest bindRequest = new EXTERNALBindRequest("");
+ * BindResult bindResult;
+ * try
+ * {
+ *   bindResult = connection.bind(bindRequest);
+ *   // If we get here, then the bind was successful.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The bind failed for some reason.
+ *   bindResult = new BindResult(le.toLDAPResult());
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @NotMutable()

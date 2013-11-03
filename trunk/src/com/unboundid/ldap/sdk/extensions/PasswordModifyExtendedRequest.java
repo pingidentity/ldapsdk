@@ -74,33 +74,37 @@ import static com.unboundid.util.StaticUtils.*;
  * <H2>Example</H2>
  * The following example demonstrates the use of the password modify extended
  * operation to change the password for user
- * "uid=john.doe,ou=People,dc=example,dc=com".  Neither the current password nor
- * a new password will be provided, so the server will generate a new password
- * for the user.
+ * "uid=test.user,ou=People,dc=example,dc=com".  Neither the current password
+ * nor a new password will be provided, so the server will generate a new
+ * password for the user.
  * <PRE>
- *   PasswordModifyExtendedRequest passwordModifyRequest =
- *        new PasswordModifyExtendedRequest(
- *                 "uid=john.doe,ou=People,dc=example,dc=com", null, null);
- *   PasswordModifyExtendedResult passwordModifyResult =
- *        (PasswordModifyExtendedResult)
+ * PasswordModifyExtendedRequest passwordModifyRequest =
+ *      new PasswordModifyExtendedRequest(
+ *           "uid=test.user,ou=People,dc=example,dc=com", // The user to update
+ *           (String) null, // The current password for the user.
+ *           (String) null); // The new password.  null = server will generate
+ *
+ * PasswordModifyExtendedResult passwordModifyResult;
+ * try
+ * {
+ *   passwordModifyResult = (PasswordModifyExtendedResult)
  *        connection.processExtendedOperation(passwordModifyRequest);
+ *   // This doesn't necessarily mean that the operation was successful, since
+ *   // some kinds of extended operations return non-success results under
+ *   // normal conditions.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // For an extended operation, this generally means that a problem was
+ *   // encountered while trying to send the request or read the result.
+ *   passwordModifyResult = new PasswordModifyExtendedResult(
+ *        new ExtendedResult(le.toLDAPResult()));
+ * }
  *
- *   // NOTE:  The processExtendedOperation method will only throw an exception
- *   // if a problem occurs while trying to send the request or read the
- *   // response.  It will not throw an exception because of a non-success
- *   // response.
- *
- *   if (passwordModifyResult.getResultCode() == ResultCode.SUCCESS)
- *   {
- *     System.out.println("The password change was successful.");
- *     System.out.println("The new password for the user is " +
- *          passwordModifyResult.getGeneratedPassword());
- *   }
- *   else
- *   {
- *     System.err.println("An error occurred while attempting to process " +
- *                        "the password modify extended request.");
- *   }
+ * LDAPTestUtils.assertResultCodeEquals(passwordModifyResult,
+ *      ResultCode.SUCCESS);
+ * String serverGeneratedNewPassword =
+ *      passwordModifyResult.getGeneratedPassword();
  * </PRE>
  */
 @NotMutable()

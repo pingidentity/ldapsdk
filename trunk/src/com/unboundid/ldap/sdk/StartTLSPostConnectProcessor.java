@@ -43,20 +43,30 @@ import static com.unboundid.util.Validator.*;
  * processor to create an LDAP connection pool whose connections are secured
  * using StartTLS:
  * <PRE>
- *   SSLUtil sslUtil =
- *        new SSLUtil(new TrustStoreTrustManager("/my/trust/store/file"));
- *   SSLContext sslContext = sslUtil.createSSLContext();
+ * // Configure an SSLUtil instance and use it to obtain an SSLContext.
+ * SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
+ * SSLContext sslContext = sslUtil.createSSLContext();
  *
- *   LDAPConnection connection = new LDAPConnection("server.example.com", 389);
- *   ExtendedResult startTLSResult = connection.processExtendedOperation(
- *        new StartTLSExtendedRequest(sslContext);
- *   BindResult bindResult = connection.bind(
- *        "uid=john.doe,ou=People,dc=example,dc=com", "password");
+ * // Establish an insecure connection to the directory server.
+ * LDAPConnection connection = new LDAPConnection(serverAddress, nonSSLPort);
  *
- *   StartTLSPostConnectProcessor startTLSProcessor =
- *        new StartTLSPostConnectProcessor(sslContext);
- *   LDAPConnectionPool pool =
- *        new LDAPConnectionPool(connection, 1, 10, startTLSProcessor);
+ * // Use the StartTLS extended operation to secure the connection.
+ * ExtendedResult startTLSResult = connection.processExtendedOperation(
+ *      new StartTLSExtendedRequest(sslContext));
+ *
+ * // Create a connection pool that will secure its connections with StartTLS.
+ * BindResult bindResult = connection.bind(
+ *      "uid=john.doe,ou=People,dc=example,dc=com", "password");
+ * StartTLSPostConnectProcessor startTLSProcessor =
+ *      new StartTLSPostConnectProcessor(sslContext);
+ * LDAPConnectionPool pool =
+ *      new LDAPConnectionPool(connection, 1, 10, startTLSProcessor);
+ *
+ * // Verify that we can use the pool to communicate with the directory server.
+ * RootDSE rootDSE = pool.getRootDSE();
+ *
+ * // Close the connection pool.
+ * pool.close();
  * </PRE>
  */
 @NotMutable()

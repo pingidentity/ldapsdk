@@ -50,25 +50,59 @@ import static com.unboundid.util.Validator.*;
  * entry and using a {@code DNEntrySource} to iterate across the members of that
  * group:
  * <PRE>
- *   Entry groupEntry =
- *        connection.getEntry("cn=My Group,ou=Groups,dc=example,dc=com");
- *   String[] memberValues = groupEntry.getAttributeValues("member");
- *   if (memberValues != null)
+ * Entry groupEntry =
+ *      connection.getEntry("cn=My Group,ou=Groups,dc=example,dc=com");
+ * String[] memberValues = groupEntry.getAttributeValues("member");
+ * int entriesReturned = 0;
+ * int exceptionsCaught = 0;
+ *
+ * if (memberValues != null)
+ * {
+ *   DNEntrySource entrySource =
+ *        new DNEntrySource(connection, memberValues, "cn");
+ *   try
  *   {
- *     DNEntrySource entrySource =
- *          new DNEntrySource(connection, memberValues, "cn");
  *     while (true)
  *     {
- *       Entry memberEntry = entrySource.nextEntry();
- *       if (memberEntry == null)
+ *       Entry memberEntry;
+ *       try
  *       {
- *         break;
+ *         memberEntry = entrySource.nextEntry();
+ *       }
+ *       catch (EntrySourceException ese)
+ *       {
+ *         // A problem was encountered while attempting to obtain an entry.
+ *         // We may be able to continue reading entries (e.g., if the problem
+ *         // was that the group referenced an entry that doesn't exist), or
+ *         // we may not (e.g., if the problem was a significant search error
+ *         // or problem with the connection).
+ *         exceptionsCaught++;
+ *         if (ese.mayContinueReading())
+ *         {
+ *           continue;
+ *         }
+ *         else
+ *         {
+ *           break;
+ *         }
  *       }
  *
- *       System.out.println("Retrieved member entry:  " +
- *            memberEntry.getAttributeValue("cn"));
+ *       if (memberEntry == null)
+ *       {
+ *         // We've retrieved all of the entries for the given set of DNs.
+ *         break;
+ *       }
+ *       else
+ *       {
+ *         entriesReturned++;
+ *       }
  *     }
  *   }
+ *   finally
+ *   {
+ *     entrySource.close();
+ *   }
+ * }
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

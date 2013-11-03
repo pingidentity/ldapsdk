@@ -159,29 +159,34 @@ import static com.unboundid.util.Validator.*;
  * <H2>Example</H2>
  * The following example demonstrates a simple search operation in which the
  * client performs a search to find all users in the "Sales" department and then
- * prints out the name and e-mail address for each matching user:
+ * retrieves the name and e-mail address for each matching user:
  * <PRE>
- *   Filter filter = Filter.createEqualityFilter("ou", "Sales");
+ * // Construct a filter that can be used to find everyone in the Sales
+ * // department, and then create a search request to find all such users
+ * // in the directory.
+ * Filter filter = Filter.createEqualityFilter("ou", "Sales");
+ * SearchRequest searchRequest =
+ *      new SearchRequest("dc=example,dc=com", SearchScope.SUB, filter,
+ *           "cn", "mail");
+ * SearchResult searchResult;
  *
- *   SearchRequest searchRequest =
- *        new SearchRequest("dc=example,dc=com", SearchScope.SUB, filter,
- *                          "cn", "mail");
+ * try
+ * {
+ *   searchResult = connection.search(searchRequest);
  *
- *   try
+ *   for (SearchResultEntry entry : searchResult.getSearchEntries())
  *   {
- *     SearchResult searchResult = connection.search(searchRequest);
- *
- *     for (SearchResultEntry entry : searchResult.getSearchEntries())
- *     {
- *       String name = entry.getAttributeValue("cn");
- *       String mail = entry.getAttributeValue("mail");
- *       System.out.println(name + "\t" + mail);
- *     }
+ *     String name = entry.getAttributeValue("cn");
+ *     String mail = entry.getAttributeValue("mail");
  *   }
- *   catch (LDAPSearchException lse)
- *   {
- *     System.err.println("The search failed.");
- *   }
+ * }
+ * catch (LDAPSearchException lse)
+ * {
+ *   // The search failed for some reason.
+ *   searchResult = lse.getSearchResult();
+ *   ResultCode resultCode = lse.getResultCode();
+ *   String errorMessageFromServer = lse.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @Mutable()

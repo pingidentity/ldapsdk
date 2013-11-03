@@ -45,62 +45,70 @@ import static com.unboundid.util.Validator.*;
  * The following example iterates through all of the change records contained in
  * an LDIF file and attempts to apply those changes to a directory server:
  * <PRE>
- *   LDIFReader ldifReader = new LDIFReader(pathToLDIFFile);
+ * LDIFReader ldifReader = new LDIFReader(pathToLDIFFile);
  *
- *   while (true)
+ * int changesRead = 0;
+ * int changesProcessed = 0;
+ * int errorsEncountered = 0;
+ * while (true)
+ * {
+ *   LDIFChangeRecord changeRecord;
+ *   try
  *   {
- *     LDIFChangeRecord changeRecord;
- *     try
+ *     changeRecord = ldifReader.readChangeRecord();
+ *     if (changeRecord == null)
  *     {
- *       changeRecord = ldifReader.readChangeRecord();
- *       if (changeRecord == null)
- *       {
- *         System.err.println("All changes have been processed.");
- *         break;
- *       }
- *     }
- *     catch (LDIFException le)
- *     {
- *       if (le.mayContinueReading())
- *       {
- *         System.err.println("A recoverable occurred while attempting to " +
- *              "read a change record at or near line number " +
- *              le.getLineNumber() + ":  " + le.getMessage());
- *         System.err.println("The change record will be skipped.");
- *         continue;
- *       }
- *       else
- *       {
- *         System.err.println("An unrecoverable occurred while attempting to " +
- *              "read a change record at or near line number " +
- *              le.getLineNumber() + ":  " + le.getMessage());
- *         System.err.println("LDIF processing will be aborted.");
- *         break;
- *       }
- *     }
- *     catch (IOException ioe)
- *     {
- *       System.err.println("An I/O error occurred while attempting to read " +
- *            "from the LDIF file:  " + ioe.getMessage());
- *       System.err.println("LDIF processing will be aborted.");
+ *       // All changes have been processed.
  *       break;
  *     }
  *
- *     try
+ *     changesRead++;
+ *   }
+ *   catch (LDIFException le)
+ *   {
+ *     errorsEncountered++;
+ *     if (le.mayContinueReading())
  *     {
- *       LDAPResult result = changeRecord.processChange(connection);
- *       System.out.println(changeRecord.getChangeType().getName() +
- *            " successful for entry " + changeRecord.getDN());
+ *       // A recoverable error occurred while attempting to read a change
+ *       // record, at or near line number le.getLineNumber()
+ *       // The change record will be skipped, but we'll try to keep reading
+ *       // from the LDIF file.
+ *       continue;
  *     }
- *     catch (LDAPException le)
+ *     else
  *     {
- *       System.err.println(changeRecord.getChangeType().getName() +
- *            " failed for entry " + changeRecord.getDN() + " -- " +
- *            le.getMessage());
+ *       // An unrecoverable error occurred while attempting to read a change
+ *       // record, at or near line number le.getLineNumber()
+ *       // No further LDIF processing will be performed.
+ *       break;
  *     }
  *   }
+ *   catch (IOException ioe)
+ *   {
+ *     // An I/O error occurred while attempting to read from the LDIF file.
+ *     // No further LDIF processing will be performed.
+ *     errorsEncountered++;
+ *     break;
+ *   }
  *
- *   ldifReader.close();
+ *   // Try to process the change in a directory server.
+ *   LDAPResult operationResult;
+ *   try
+ *   {
+ *     operationResult = changeRecord.processChange(connection);
+ *     // If we got here, then the change should have been processed
+ *     // successfully.
+ *     changesProcessed++;
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     // If we got here, then the change attempt failed.
+ *     operationResult = le.toLDAPResult();
+ *     errorsEncountered++;
+ *   }
+ * }
+ *
+ * ldifReader.close();
  * </PRE>
  */
 @NotExtensible()

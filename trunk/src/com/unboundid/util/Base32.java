@@ -45,21 +45,20 @@ import static com.unboundid.util.Validator.*;
  * and for decoding a string containing base32-encoded data back to the raw
  * data used to create it:
  * <PRE>
- *   // Base32-encode some raw data:
- *   String base32String = Base32.encode(rawDataBytes);
- *   System.out.println("Base32 encoded representation of the raw data is " +
- *                      base32String);
+ * // Base32-encode some raw data:
+ * String base32String = Base32.encode(rawDataBytes);
  *
- *   // Decode a base32 string back to raw data:
- *   try
- *   {
- *     byte[] decodedRawDataBytes = base32.decode(base32String);
- *   }
- *   catch (ParseException pe)
- *   {
- *     System.err.println("The string did not contain valid base32-encoded " +
- *                        "data:  " + pe.getMessage());
- *   }
+ * // Decode a base32 string back to raw data:
+ * byte[] decodedRawDataBytes;
+ * try
+ * {
+ *   decodedRawDataBytes = Base32.decode(base32String);
+ * }
+ * catch (ParseException pe)
+ * {
+ *   // The string did not represent a valid base32 encoding.
+ *   decodedRawDataBytes = null;
+ * }
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

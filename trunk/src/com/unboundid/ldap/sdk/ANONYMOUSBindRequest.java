@@ -40,19 +40,24 @@ import com.unboundid.util.ThreadSafetyLevel;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for performing an ANONYMOUS
- * bind, including a trace string of "Hello, world!" against a directory server:
+ * bind, including a trace string of "Demo Application" against a directory
+ * server:
  * <PRE>
- *   ANONYMOUSBindRequest bindRequest =
- *        new ANONYMOUSBindRequest("Hello, world!");
- *   try
- *   {
- *     BindResult bindResult = connection.bind(bindRequest);
- *     // If we get here, then the bind was successful.
- *   }
- *   catch (LDAPException le)
- *   {
- *     // The bind failed for some reason.
- *   }
+ * ANONYMOUSBindRequest bindRequest =
+ *      new ANONYMOUSBindRequest("Demo Application");
+ * BindResult bindResult;
+ * try
+ * {
+ *   bindResult = connection.bind(bindRequest);
+ *   // If we get here, then the bind was successful.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The bind failed for some reason.
+ *   bindResult = new BindResult(le.toLDAPResult());
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @NotMutable()

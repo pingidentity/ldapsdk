@@ -54,114 +54,98 @@ import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for using LDAP  transactions.
- * It will modify two different entries as a single atomic unit.  In each case,
- * it will use the post-read control to retrieve a copy of the updated entry.
+ * It will modify two different entries as a single atomic unit.
  * <PRE>
- *   // Send the start transaction operation and get the transaction ID.
- *   StartTransactionExtendedRequest startTxnRequest =
- *        new StartTransactionExtendedRequest();
- *   StartTransactionExtendedResult startTxnResult =
- *        (StartTransactionExtendedResult)
- *        connection.processExtendedOperation(startTxnRequest);
- *   if (startTxnResult.getResultCode() != ResultCode.SUCCESS)
- *   {
- *     throw new LDAPException(startTxnResult);
- *   }
- *   ASN1OctetString txnID = startTxnResult.getTransactionID();
+ * // Use the start transaction extended operation to begin a transaction.
+ * StartTransactionExtendedResult startTxnResult;
+ * try
+ * {
+ *   startTxnResult = (StartTransactionExtendedResult)
+ *        connection.processExtendedOperation(
+ *             new StartTransactionExtendedRequest());
+ *   // This doesn't necessarily mean that the operation was successful, since
+ *   // some kinds of extended operations return non-success results under
+ *   // normal conditions.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // For an extended operation, this generally means that a problem was
+ *   // encountered while trying to send the request or read the result.
+ *   startTxnResult = new StartTransactionExtendedResult(new ExtendedResult(
+ *        le.toLDAPResult()));
+ * }
+ * LDAPTestUtils.assertResultCodeEquals(startTxnResult, ResultCode.SUCCESS);
+ * ASN1OctetString txnID = startTxnResult.getTransactionID();
  *
- *   // At this point, we have a transaction available for use.  If any error
- *   // occurs, we will want to make sure that the transaction is aborted, so
- *   // use a try/finally block to handle that.
- *   boolean shouldAbort = true;
+ *
+ * // At this point, we have a transaction available for use.  If any problem
+ * // arises, we want to ensure that the transaction is aborted, so create a
+ * // try block to process the operations and a finally block to commit or
+ * // abort the transaction.
+ * boolean commit = false;
+ * try
+ * {
+ *   // Create and process a modify operation to update a first entry as part
+ *   // of the transaction.  Make sure to include the transaction specification
+ *   // control in the request to indicate that it should be part of the
+ *   // transaction.
+ *   ModifyRequest firstModifyRequest = new ModifyRequest(
+ *        "cn=first,dc=example,dc=com",
+ *        new Modification(ModificationType.REPLACE, "description", "first"));
+ *   firstModifyRequest.addControl(
+ *        new TransactionSpecificationRequestControl(txnID));
+ *   LDAPResult firstModifyResult;
  *   try
  *   {
- *     // Create and send the first modify request as part of the transaction.
- *     // Make sure to include the transaction specification control and the
- *     // post-read request control in the modify request.
- *     ModifyRequest modifyRequest1 = new ModifyRequest(
- *          "cn=first,dc=example,dc=com",
- *          new Modification(ModificationType.REPLACE, "description", "first");
- *     modifyRequest1.addControl(new TransactionSpecificationControl(txnID));
- *     modifyRequest1.addControl(new PostReadRequestControl());
- *     LDAPResult modifyResult1 = connection.modify(modifyRequest1);
- *
- *     // Create and send the second modify request as part of the transaction.
- *     // Again, make sure to include the appropriate controls in the request.
- *     ModifyRequest modifyRequest2 = new ModifyRequest(
- *          "cn=second,dc=example,dc=com",
- *          new Modification(ModificationType.REPLACE, "description", "second");
- *     modifyRequest2.addControl(new TransactionSpecificationControl(txnID));
- *     modifyRequest2.addControl(new PostReadRequestControl());
- *     LDAPResult modifyResult2 = connection.modify(modifyRequest1);
- *
- *     // Now we're ready to commit, which we can do with the end transaction
- *     // request with the commit flag set to true.
- *     EndTransactionExtendedRequest commitRequest =
- *          new EndTransactionExtendedRequest(txnID, true);
- *     EndTransactionExtendedResult commitResult =
- *          (EndTransactionExtendedResult)
- *          connection.processExtendedOperation(commitRequest);
- *     if (commitResult.getResultCode() == ResultCode.SUCCESS)
- *     {
- *       System.out.println("The transaction was committed successfully.");
- *
- *       // Everything was successful, so we don't need to abort anything.
- *       shouldAbort = false;
- *
- *       // Get the post-read response control for the first modify operation.
- *       // It's the same process for the second, but this example is already
- *       // long enough so we'll skip it.
- *       Control[] controls = commitResult.getOperationResponseControls(
- *            modifyResult1.getMessageID());
- *       if (controls != null)
- *       {
- *         for (Control c : controls)
- *         {
- *           if (c instanceof PostReadResponseControl)
- *           {
- *             PostReadResponseControl postReadResponse =
- *                  (PostReadResponseControl) c;
- *             System.out.println("First entry after the modification:");
- *             System.out.println(postReadResponse.getEntry().toLDIFString());
- *           }
- *         }
- *       }
- *     }
- *     else
- *     {
- *       // The transaction failed for some reason.  The response should tell us
- *       // whether it failed because of one of the operations.
- *       int failedOpMessageID = commitResult.getFailedOpMessageID();
- *       if (failedOpMessageID == modifyResult1.getMessageID())
- *       {
- *         System.err.println("The transaction failed because of a failure " +
- *              "encountered while processing the first modification.");
- *       }
- *       else if (failedOpMessageID == modifyResult2.getMessageID())
- *       {
- *         System.err.println("The transaction failed because of a failure " +
- *              "encountered while processing the second modification.");
- *       }
- *       else
- *       {
- *         System.err.println("The transaction failed for some reason other " +
- *              "than either of the modify operations.");
- *       }
- *
- *       throw new LDAPException(commitResult);
- *     }
+ *     firstModifyResult = connection.modify(firstModifyRequest);
  *   }
- *   finally
+ *   catch (LDAPException le)
  *   {
- *     if (shouldAbort)
- *     {
- *       // Setting the commit flag to false in the end transaction request will
- *       // will cause the transaction to be aborted rather than committed.
- *       EndTransactionExtendedRequest abortRequest =
- *             new EndTransactionExtendedRequest(txnID, false);
- *       connection.processExtendedOperation(abortRequest);
- *     }
+ *     firstModifyResult = le.toLDAPResult();
  *   }
+ *   LDAPTestUtils.assertResultCodeEquals(firstModifyResult,
+ *        ResultCode.SUCCESS);
+ *
+ *   // Perform a second modify operation as part of the transaction.
+ *   ModifyRequest secondModifyRequest = new ModifyRequest(
+ *        "cn=second,dc=example,dc=com",
+ *        new Modification(ModificationType.REPLACE, "description", "second"));
+ *   secondModifyRequest.addControl(
+ *        new TransactionSpecificationRequestControl(txnID));
+ *   LDAPResult secondModifyResult;
+ *   try
+ *   {
+ *     secondModifyResult = connection.modify(secondModifyRequest);
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     secondModifyResult = le.toLDAPResult();
+ *   }
+ *   LDAPTestUtils.assertResultCodeEquals(secondModifyResult,
+ *        ResultCode.SUCCESS);
+ *
+ *   // If we've gotten here, then all writes have been processed successfully
+ *   // and we can indicate that the transaction should be committed rather
+ *   // than aborted.
+ *   commit = true;
+ * }
+ * finally
+ * {
+ *   // Commit or abort the transaction.
+ *   EndTransactionExtendedResult endTxnResult;
+ *   try
+ *   {
+ *     endTxnResult = (EndTransactionExtendedResult)
+ *          connection.processExtendedOperation(
+ *               new EndTransactionExtendedRequest(txnID, commit));
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     endTxnResult = new EndTransactionExtendedResult(new ExtendedResult(
+ *          le.toLDAPResult()));
+ *   }
+ *   LDAPTestUtils.assertResultCodeEquals(endTxnResult, ResultCode.SUCCESS);
+ * }
  * </PRE>
  */
 @NotMutable()

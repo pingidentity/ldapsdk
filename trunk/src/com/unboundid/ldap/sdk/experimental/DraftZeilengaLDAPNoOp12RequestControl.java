@@ -69,27 +69,29 @@ import static com.unboundid.ldap.sdk.experimental.ExperimentalMessages.*;
  * modify operation including the LDAP no-op control so that the change is not
  * actually applied:
  * <PRE>
- *   ModifyRequest modifyRequest = new ModifyRequest("dc=example,dc=com",
- *        new Modification(ModificationType.REPLACE, "description",
- *                         "new value"))
- *   modifyRequest.addControl(new NoOpRequestControl());
+ * ModifyRequest modifyRequest = new ModifyRequest("dc=example,dc=com",
+ *      new Modification(ModificationType.REPLACE, "description",
+ *           "new value"));
+ * modifyRequest.addControl(new DraftZeilengaLDAPNoOp12RequestControl());
  *
- *   try
+ * try
+ * {
+ *   LDAPResult result = connection.modify(modifyRequest);
+ *   if (result.getResultCode() == ResultCode.NO_OPERATION)
  *   {
- *     LDAPResult result = connection.modify(modifyRequest);
- *     if (result.getResultCode() == ResultCode.NO_OPERATION)
- *     {
- *       System.out.println("The modify would likely have succeeded.");
- *     }
- *     else
- *     {
- *       System.err.println("The modify would have failed.");
- *     }
+ *     // The modification would likely have succeeded if the no-op control
+ *     // hadn't been included in the request.
  *   }
- *   catch (LDAPException le)
+ *   else
  *   {
- *     System.err.println("The modify would have failed.");
+ *     // The modification would likely have failed if the no-op control
+ *     // hadn't been included in the request.
  *   }
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The modification failed even with the no-op control in the request.
+ * }
  * </PRE>
  */
 @NotMutable()

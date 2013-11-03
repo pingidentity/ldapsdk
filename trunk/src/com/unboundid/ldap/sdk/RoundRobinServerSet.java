@@ -49,18 +49,35 @@ import static com.unboundid.util.Validator.*;
  * will first try one of the servers, but will fail over to the other if the
  * first one attempted is not available:
  * <PRE>
- *   String[] addresses =
- *   {
- *     "ds1.example.com",
- *     "ds2.example.com",
- *   };
- *   int[] ports =
- *   {
- *     389,
- *     389
- *   };
- *   RoundRobinServerSet roundRobinSet =
- *        new RoundRobinServerSet(addresses, ports);
+ * // Create arrays with the addresses and ports of the directory server
+ * // instances.
+ * String[] addresses =
+ * {
+ *   server1Address,
+ *   server2Address
+ * };
+ * int[] ports =
+ * {
+ *   server1Port,
+ *   server2Port
+ * };
+ *
+ * // Create the server set using the address and port arrays.
+ * RoundRobinServerSet roundRobinSet =
+ *      new RoundRobinServerSet(addresses, ports);
+ *
+ * // Verify that we can establish a single connection using the server set.
+ * LDAPConnection connection = roundRobinSet.getConnection();
+ * RootDSE rootDSEFromConnection = connection.getRootDSE();
+ * connection.close();
+ *
+ * // Verify that we can establish a connection pool using the server set.
+ * SimpleBindRequest bindRequest =
+ *      new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
+ * LDAPConnectionPool pool =
+ *      new LDAPConnectionPool(roundRobinSet, bindRequest, 10);
+ * RootDSE rootDSEFromPool = pool.getRootDSE();
+ * pool.close();
  * </PRE>
  */
 @NotMutable()
