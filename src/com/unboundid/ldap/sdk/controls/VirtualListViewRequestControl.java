@@ -105,39 +105,47 @@ import static com.unboundid.util.Validator.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the virtual list view request
- * control to iterate through all users in the "Sales" department, retrieving
- * up to 10 entries at a time:
+ * control to iterate through all users, retrieving up to 10 entries at a time:
  * <PRE>
- *   ServerSideSortRequestControl sortRequest =
+ * // Perform a search to retrieve all users in the server, but only retrieving
+ * // ten at a time.  Ensure that the users are sorted in ascending order by
+ * // last name, then first name.
+ * int numSearches = 0;
+ * int totalEntriesReturned = 0;
+ * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
+ *      SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
+ * int vlvOffset = 1;
+ * int vlvContentCount = 0;
+ * ASN1OctetString vlvContextID = null;
+ * while (true)
+ * {
+ *   // Note that the VLV control always requires the server-side sort
+ *   // control.
+ *   searchRequest.setControls(
  *        new ServerSideSortRequestControl(new SortKey("sn"),
- *                                         new SortKey("givenName"));
- *   SearchRequest searchRequest =
- *        new SearchRequest("dc=example,dc=com", SearchScope.SUB, "(ou=Sales)");
- *
- *   int offset = 1;
- *   int contentCount = 0;
- *   ASN1OctetString contextID = null;
- *   do
+ *             new SortKey("givenName")),
+ *        new VirtualListViewRequestControl(vlvOffset, 0, 9, vlvContentCount,
+ *             vlvContextID));
+ *   SearchResult searchResult = connection.search(searchRequest);
+ *   numSearches++;
+ *   totalEntriesReturned += searchResult.getEntryCount();
+ *   for (SearchResultEntry e : searchResult.getSearchEntries())
  *   {
- *     VirtualListViewRequestControl vlvRequest =
- *          new VirtualListViewRequestControl(offset, 0, 9, contentCount,
- *                                            contextID);
- *     searchRequest.setControls(new Control[] { sortRequest, vlvRequest });
- *     SearchResult searchResult = connection.search();
+ *     // Do something with each entry...
+ *   }
  *
- *     // Do something with the entries that are returned.
- *
- *     contentCount = -1;
- *     VirtualListViewResponseControl c =
- *          VirtualListViewResponseControl.get(searchResult);
- *     if (c != null)
- *     {
- *       contentCount = c.getContentCount();
- *       contextID = c.getContextID();
- *     }
- *
- *     offset += 10;
- *   } while (offset &lt;= contentCount);
+ *   LDAPTestUtils.assertHasControl(searchResult,
+ *        VirtualListViewResponseControl.VIRTUAL_LIST_VIEW_RESPONSE_OID);
+ *   VirtualListViewResponseControl vlvResponseControl =
+ *        VirtualListViewResponseControl.get(searchResult);
+ *   vlvContentCount = vlvResponseControl.getContentCount();
+ *   vlvOffset += 10;
+ *   vlvContextID = vlvResponseControl.getContextID();
+ *   if (vlvOffset > vlvContentCount)
+ *   {
+ *     break;
+ *   }
+ * }
  * </PRE>
  */
 @NotMutable()

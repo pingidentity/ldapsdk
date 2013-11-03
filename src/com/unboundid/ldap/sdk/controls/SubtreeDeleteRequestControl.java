@@ -51,10 +51,46 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  * <H2>Example</H2>
  * The following example demonstrates the use of the subtree delete control:
  * <PRE>
- *   DeleteRequest deleteRequest =
- *        new DeleteRequest("cn=small subtree,dc=example,dc=com");
- *   deleteRequest.addControl(new SubtreeDeleteRequestControl());
- *   LDAPResult deleteResult = connection.delete(deleteRequest);
+ * // First, try to delete an entry that has children, but don't include the
+ * // subtree delete control.  This delete attempt should fail, and the
+ * // "NOT_ALLOWED_ON_NONLEAF" result is most appropriate if the failure reason
+ * // is that the entry has subordinates.
+ * DeleteRequest deleteRequest =
+ *      new DeleteRequest("ou=entry with children,dc=example,dc=com");
+ * LDAPResult resultWithoutControl;
+ * try
+ * {
+ *   resultWithoutControl = connection.delete(deleteRequest);
+ *   // We shouldn't get here because the delete should fail.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // This is expected because the entry has children.
+ *   resultWithoutControl = le.toLDAPResult();
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
+ * LDAPTestUtils.assertResultCodeEquals(resultWithoutControl,
+ *      ResultCode.NOT_ALLOWED_ON_NONLEAF);
+ *
+ * // Update the delete request to include the subtree delete request control
+ * // and try again.
+ * deleteRequest.addControl(new SubtreeDeleteRequestControl());
+ * LDAPResult resultWithControl;
+ * try
+ * {
+ *   resultWithControl = connection.delete(deleteRequest);
+ *   // The delete should no longer be rejected just because the target entry
+ *   // has children.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The delete still failed for some other reason.
+ *   resultWithControl = le.toLDAPResult();
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
+ * LDAPTestUtils.assertResultCodeEquals(resultWithControl, ResultCode.SUCCESS);
  * </PRE>
  */
 @NotMutable()

@@ -75,19 +75,22 @@ import static com.unboundid.util.Validator.*;
  * operation.  In this case, it will rename "ou=People,dc=example,dc=com" to
  * "ou=Users,dc=example,dc=com".  It will not move the entry below a new parent.
  * <PRE>
- *   ModifyDNRequest modifyDNRequest =
- *        new ModifyDNRequest("ou=People,dc=example,dc=com", "ou=Users", true);
+ * ModifyDNRequest modifyDNRequest =
+ *      new ModifyDNRequest("ou=People,dc=example,dc=com", "ou=Users", true);
+ * LDAPResult modifyDNResult;
  *
- *   try
- *   {
- *     LDAPResult modifyDNResult = connection.modifyDN(modifyDNRequest);
- *
- *     System.out.println("The entry was renamed successfully.");
- *   }
- *   catch (LDAPException le)
- *   {
- *     System.err.println("The modify DN operation failed.");
- *   }
+ * try
+ * {
+ *   modifyDNResult = connection.modifyDN(modifyDNRequest);
+ *   // If we get here, the delete was successful.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The modify DN operation failed.
+ *   modifyDNResult = le.toLDAPResult();
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @Mutable()

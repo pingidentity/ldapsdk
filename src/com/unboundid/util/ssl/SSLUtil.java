@@ -52,11 +52,19 @@ import static com.unboundid.util.Validator.*;
  * server presents.  Using the {@code TrustAllTrustManager} is only recommended
  * for testing purposes, since blindly trusting any certificate is not secure.
  * <PRE>
- *   SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+ * // Create an SSLUtil instance that is configured to trust any certificate,
+ * // and use it to create a socket factory.
+ * SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+ * SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
  *
- *   LDAPConnection connection =
- *        new LDAPConnection(sslUtil.createSSLSocketFactory());
- *   connection.connect("server.example.com", 636);
+ * // Establish a secure connection using the socket factory.
+ * LDAPConnection connection = new LDAPConnection(sslSocketFactory);
+ * connection.connect(serverAddress, serverSSLPort);
+ *
+ * // Process operations using the connection....
+ * RootDSE rootDSE = connection.getRootDSE();
+ *
+ * connection.close();
  * </PRE>
  * <BR>
  * <H2>Example 2</H2>
@@ -65,14 +73,33 @@ import static com.unboundid.util.Validator.*;
  * secure it.  It will use a trust store to determine whether to trust the
  * server certificate.
  * <PRE>
- *   LDAPConnection connection = new LDAPConnection();
- *   connection.connect("server.example.com", 389);
+ * // Establish a non-secure connection to the server.
+ * LDAPConnection connection = new LDAPConnection(serverAddress, serverPort);
  *
- *   String trustStoreFile  = "/path/to/trust/store/file";
- *   SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStoreFile));
+ * // Create an SSLUtil instance that is configured to trust certificates in
+ * // a specified trust store file, and use it to create an SSLContext that
+ * // will be used for StartTLS processing.
+ * SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
+ * SSLContext sslContext = sslUtil.createSSLContext();
  *
- *   ExtendedResult extendedResult = connection.processExtendedOperation(
- *        new StartTLSExtendedRequest(sslUtil.createSSLContext()));
+ * // Use the StartTLS extended operation to secure the connection.
+ * StartTLSExtendedRequest startTLSRequest =
+ *      new StartTLSExtendedRequest(sslContext);
+ * ExtendedResult startTLSResult;
+ * try
+ * {
+ *   startTLSResult = connection.processExtendedOperation(startTLSRequest);
+ * }
+ * catch (LDAPException le)
+ * {
+ *   startTLSResult = new ExtendedResult(le.toLDAPResult());
+ * }
+ * LDAPTestUtils.assertResultCodeEquals(startTLSResult, ResultCode.SUCCESS);
+ *
+ * // Process operations using the connection....
+ * RootDSE rootDSE = connection.getRootDSE();
+ *
+ * connection.close();
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

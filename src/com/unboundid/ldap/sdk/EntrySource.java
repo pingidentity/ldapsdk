@@ -54,39 +54,46 @@ import com.unboundid.util.ThreadSafetyLevel;
  * The following example demonstrates the process that may be used for iterating
  * across the entries provided by an entry source:
  * <PRE>
- *   try
+ * LDIFReader ldifReader = new LDIFReader(ldifFilePath);
+ * EntrySource entrySource = new LDIFEntrySource(ldifReader);
+ *
+ * int entriesRead = 0;
+ * int exceptionsCaught = 0;
+ * try
+ * {
+ *   while (true)
  *   {
- *     while (true)
+ *     try
  *     {
- *       try
+ *       Entry entry = entrySource.nextEntry();
+ *       if (entry == null)
  *       {
- *         Entry entry = entrySource.nextEntry();
- *         if (entry == null)
- *         {
- *           // There are no more entries to be read.
- *           break;
- *         }
- *         else
- *         {
- *           // Do something with the entry here.
- *         }
+ *         // There are no more entries to be read.
+ *         break;
  *       }
- *       catch (EntrySourceException e)
+ *       else
  *       {
- *         // Some kind of problem was encountered (e.g., a malformed entry
- *         // found in an LDIF file, or a referral returned from a directory).
- *         // See if we can continue reading entries.
- *         if (! e.mayContinueReading())
- *         {
- *           break;
- *         }
+ *         // Do something with the entry here.
+ *         entriesRead++;
+ *       }
+ *     }
+ *     catch (EntrySourceException e)
+ *     {
+ *       // Some kind of problem was encountered (e.g., a malformed entry
+ *       // found in an LDIF file, or a referral returned from a directory).
+ *       // See if we can continue reading entries.
+ *       exceptionsCaught++;
+ *       if (! e.mayContinueReading())
+ *       {
+ *         break;
  *       }
  *     }
  *   }
- *   finally
- *   {
- *     entrySource.close();
- *   }
+ * }
+ * finally
+ * {
+ *   entrySource.close();
+ * }
  * </PRE>
  */
 @NotExtensible()

@@ -57,33 +57,34 @@ import static com.unboundid.util.Debug.*;
  * The following example attempts to use the StartTLS extended request in order
  * to secure communication on a previously insecure connection.  In this case,
  * it will use the {@link com.unboundid.util.ssl.SSLUtil} class in conjunction
- * with the {@link com.unboundid.util.ssl.TrustAllTrustManager} class to
- * simplify the process of performing the SSL negotiation by blindly trusting
- * whatever certificate the server might happen to present.  In real-world
- * applications, if stronger verification is required then it is recommended
- * that you use an {@link SSLContext} that is configured to perform an
- * appropriate level of validation.
+ * with the {@link com.unboundid.util.ssl.TrustStoreTrustManager} class to
+ * ensure that only certificates from trusted authorities will be accepted.
  * <PRE>
- *   SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
- *   SSLContext sslContext = sslUtil.createSSLContext();
- *   ExtendedResult extendedResult = connection.processExtendedOperation(
- *        new StartTLSExtendedRequest(sslContext));
+ * // Create an SSLContext that will be used to perform the cryptographic
+ * // processing.
+ * SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
+ * SSLContext sslContext = sslUtil.createSSLContext();
  *
- *   // NOTE:  The processExtendedOperation method will only throw an exception
- *   // if a problem occurs while trying to send the request or read the
- *   // response.  It will not throw an exception because of a non-success
- *   // response.
+ *  // Create and process the extended request to secure a connection.
+ * StartTLSExtendedRequest startTLSRequest =
+ *      new StartTLSExtendedRequest(sslContext);
+ * ExtendedResult startTLSResult;
+ * try
+ * {
+ *   startTLSResult = connection.processExtendedOperation(startTLSRequest);
+ *   // This doesn't necessarily mean that the operation was successful, since
+ *   // some kinds of extended operations return non-success results under
+ *   // normal conditions.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // For an extended operation, this generally means that a problem was
+ *   // encountered while trying to send the request or read the result.
+ *   startTLSResult = new ExtendedResult(le.toLDAPResult());
+ * }
  *
- *   if (extendedResult.getResultCode() == ResultCode.SUCCESS)
- *   {
- *     System.out.println("Communication with the server is now secure.");
- *   }
- *   else
- *   {
- *     System.err.println("An error occurred while attempting to perform " +
- *          "StartTLS negotiation.  The connection can no longer be used.");
- *     connection.close();
- *   }
+ * // Make sure that we can use the connection to interact with the server.
+ * RootDSE rootDSE = connection.getRootDSE();
  * </PRE>
  */
 @NotMutable()

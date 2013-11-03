@@ -55,15 +55,44 @@ import static com.unboundid.util.Validator.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the matched values request
- * control.  It will cause only values of the "{@code myIntValues}" attribute
- * to be returned in which those values are greater than or equal to five:
+ * control.  It will cause only values of the "{@code description}" attribute
+ * to be returned in which those values start with the letter f:
  * <PRE>
- *   SearchRequest searchRequest =
- *        new SearchRequest("uid=john.doe,ou=People,dc=example,dc=com",
- *                          SearchScope.BASE, "(objectClass=*)", "myIntValues");
- *   searchRequest.addControl(new MatchedValuesRequestControl(
- *        MatchedValuesFilter.createGreaterOrEqualFilter("myIntValues", "5"));
- *   SearchResult result = connection.search(searchRequest);
+ * // Ensure that a test user has multiple description values.
+ * LDAPResult modifyResult = connection.modify(
+ *      "uid=test.user,ou=People,dc=example,dc=com",
+ *      new Modification(ModificationType.REPLACE,
+ *           "description", // Attribute name
+ *           "first", "second", "third", "fourth")); // Attribute values.
+ * assertResultCodeEquals(modifyResult, ResultCode.SUCCESS);
+ *
+ * // Perform a search to retrieve the test user entry without using the
+ * // matched values request control.  This should return all four description
+ * // values.
+ * SearchRequest searchRequest = new SearchRequest(
+ *      "uid=test.user,ou=People,dc=example,dc=com", // Base DN
+ *      SearchScope.BASE, // Scope
+ *      Filter.createPresenceFilter("objectClass"), // Filter
+ *      "description"); // Attributes to return.
+ * SearchResultEntry entryRetrievedWithoutControl =
+ *      connection.searchForEntry(searchRequest);
+ * Attribute fullDescriptionAttribute =
+ *      entryRetrievedWithoutControl.getAttribute("description");
+ * int numFullDescriptionValues = fullDescriptionAttribute.size();
+ *
+ * // Update the search request to include a matched values control that will
+ * // only return values that start with the letter "f".  In our test entry,
+ * // this should just match two values ("first" and "fourth").
+ * searchRequest.addControl(new MatchedValuesRequestControl(
+ *      MatchedValuesFilter.createSubstringFilter("description", // Attribute
+ *           "f", // subInitial component
+ *           null, // subAny components
+ *           null))); // subFinal component
+ * SearchResultEntry entryRetrievedWithControl =
+ *      connection.searchForEntry(searchRequest);
+ * Attribute partialDescriptionAttribute =
+ *      entryRetrievedWithControl.getAttribute("description");
+ * int numPartialDescriptionValues = partialDescriptionAttribute.size();
  * </PRE>
  */
 @NotMutable()

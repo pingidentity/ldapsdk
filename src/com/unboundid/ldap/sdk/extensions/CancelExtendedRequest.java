@@ -56,49 +56,55 @@ import static com.unboundid.util.Debug.*;
  * The following example initiates an asynchronous modify operation and then
  * attempts to cancel it:
  * <PRE>
- *   Modification mod = new Modification(ModificationType.REPLACE,
- *        "description", "This is the new description.");
- *   ModifyRequest modifyRequest =
- *        new ModifyRequest("dc=example,dc=com", mod);
+ * Modification mod = new Modification(ModificationType.REPLACE,
+ *      "description", "This is the new description.");
+ * ModifyRequest modifyRequest =
+ *      new ModifyRequest("dc=example,dc=com", mod);
  *
- *   AsyncRequestID asyncRequestID =
- *        connection.asyncModify(modifyRequest, myAsyncResultListener);
+ * AsyncRequestID asyncRequestID =
+ *      connection.asyncModify(modifyRequest, myAsyncResultListener);
  *
- *   // Assume that we've waited a reasonable amount of time but the modify
- *   // hasn't completed yet so we'll try to cancel it.
+ * // Assume that we've waited a reasonable amount of time but the modify
+ * // hasn't completed yet so we'll try to cancel it.
  *
- *   CancelExtendedRequest cancelRequest =
- *        new CancelExtendedRequest(asyncRequestID);
+ * ExtendedResult cancelResult;
+ * try
+ * {
+ *   cancelResult = connection.processExtendedOperation(
+ *        new CancelExtendedRequest(asyncRequestID));
+ *   // This doesn't necessarily mean that the operation was successful, since
+ *   // some kinds of extended operations (like cancel) return non-success
+ *   // results under normal conditions.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // For an extended operation, this generally means that a problem was
+ *   // encountered while trying to send the request or read the result.
+ *   cancelResult = new ExtendedResult(le.toLDAPResult());
+ * }
  *
- *   // NOTE:  The processExtendedOperation method will only throw an exception
- *   // if a problem occurs while trying to send the request or read the
- *   // response.  It will not throw an exception because of a non-success
- *   // response.  That's good for us in this case because the cancel result
- *   // should never be "SUCCESS".
- *   ExtendedResult cancelResult =
- *        connection.processExtendedOperation(cancelRequest);
- *   switch (cancelResult.getResultCode())
- *   {
- *     case ResultCode.CANCELED:
- *       System.out.println("The operation was successfully canceled.");
- *       break;
- *     case ResultCode.NO_SUCH_OPERATION:
- *       System.out.println("The server didn't know anything about the " +
- *                          "operation.  Maybe it's already completed.");
- *       break;
- *     case ResultCode.TOO_LATE:
- *       System.out.println("It was too late in the operation processing " +
- *                          "to cancel the operation.");
- *       break;
- *     case ResultCode.CANNOT_CANCEL:
- *       System.out.println("The target operation is not one that could be " +
- *                          "canceled.");
- *       break;
- *     default:
- *       System.err.println("An error occurred while processing the cancel " +
- *                          "request.");
- *       break;
- *   }
+ * switch (cancelResult.getResultCode().intValue())
+ * {
+ *   case ResultCode.CANCELED_INT_VALUE:
+ *     // The modify operation was successfully canceled.
+ *     break;
+ *   case ResultCode.CANNOT_CANCEL_INT_VALUE:
+ *     // This indicates that the server isn't capable of canceling that
+ *     // type of operation.  This probably won't happen for  this kind of
+ *     // modify operation, but it could happen for other kinds of operations.
+ *     break;
+ *   case ResultCode.TOO_LATE_INT_VALUE:
+ *     // This indicates that the cancel request was received too late and the
+ *     // server is intending to process the operation.
+ *     break;
+ *   case ResultCode.NO_SUCH_OPERATION_INT_VALUE:
+ *     // This indicates that the server doesn't know anything about the
+ *     // operation, most likely because it has already completed.
+ *     break;
+ *   default:
+ *     // This suggests that the operation failed for some other reason.
+ *     break;
+ * }
  * </PRE>
  */
 @NotMutable()

@@ -43,42 +43,46 @@ import static com.unboundid.util.Validator.*;
  * The following example demonstrates the process that may be used for iterating
  * through all entries in an LDIF file using the entry source API:
  * <PRE>
- *   LDIFEntrySource entrySource =
- *        new LDIFEntrySource(new LDIFReader(pathToLDIFFile));
+ * LDIFEntrySource entrySource =
+ *      new LDIFEntrySource(new LDIFReader(pathToLDIFFile));
  *
- *   try
+ * int entriesRead = 0;
+ * int errorsEncountered = 0;
+ * try
+ * {
+ *   while (true)
  *   {
- *     while (true)
+ *     try
  *     {
- *       try
+ *       Entry entry = entrySource.nextEntry();
+ *       if (entry == null)
  *       {
- *         Entry entry = entrySource.nextEntry();
- *         if (entry == null)
- *         {
- *           // There are no more entries to be read.
- *           break;
- *         }
- *         else
- *           {
- *           // Do something with the entry here.
- *         }
+ *         // There are no more entries to be read.
+ *         break;
  *       }
- *       catch (EntrySourceException e)
+ *       else
  *       {
- *         // Some kind of problem was encountered (e.g., a malformed entry
- *         // found in the LDIF file, or an I/O error when trying to read).  See
- *         // if we can continue reading entries.
- *         if (! e.mayContinueReading())
- *         {
- *           break;
- *         }
+ *         // Do something with the entry here.
+ *         entriesRead++;
+ *       }
+ *     }
+ *     catch (EntrySourceException e)
+ *     {
+ *       // Some kind of problem was encountered (e.g., a malformed entry
+ *       // found in the LDIF file, or an I/O error when trying to read).  See
+ *       // if we can continue reading entries.
+ *       errorsEncountered++;
+ *       if (! e.mayContinueReading())
+ *       {
+ *         break;
  *       }
  *     }
  *   }
- *   finally
- *   {
- *     entrySource.close();
- *   }
+ * }
+ * finally
+ * {
+ *   entrySource.close();
+ * }
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

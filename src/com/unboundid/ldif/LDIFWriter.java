@@ -57,16 +57,31 @@ import static com.unboundid.util.Validator.*;
  * The following example performs a search to find all users in the "Sales"
  * department and then writes their entries to an LDIF file:
  * <PRE>
- *   SearchResult searchResult =
- *        connection.search("dc=example,dc=com", SearchScope.SUB, "(ou=Sales)");
+ * // Perform a search to find all users who are members of the sales
+ * // department.
+ * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
+ *      SearchScope.SUB, Filter.createEqualityFilter("ou", "Sales"));
+ * SearchResult searchResult;
+ * try
+ * {
+ *   searchResult = connection.search(searchRequest);
+ * }
+ * catch (LDAPSearchException lse)
+ * {
+ *   searchResult = lse.getSearchResult();
+ * }
+ * LDAPTestUtils.assertResultCodeEquals(searchResult, ResultCode.SUCCESS);
  *
- *   LDIFWriter ldifWriter = new LDIFWriter(pathToLDIF);
- *   for (SearchResultEntry entry : searchResult.getSearchEntries())
- *   {
- *     ldifWriter.writeEntry(entry);
- *   }
+ * // Write all of the matching entries to LDIF.
+ * int entriesWritten = 0;
+ * LDIFWriter ldifWriter = new LDIFWriter(pathToLDIF);
+ * for (SearchResultEntry entry : searchResult.getSearchEntries())
+ * {
+ *   ldifWriter.writeEntry(entry);
+ *   entriesWritten++;
+ * }
  *
- *   ldifWriter.close();
+ * ldifWriter.close();
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

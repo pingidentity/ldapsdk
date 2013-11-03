@@ -99,17 +99,26 @@ import static com.unboundid.util.Validator.*;
  * against a directory server with a username of "john.doe" and a password
  * of "password":
  * <PRE>
- *   GSSAPIBindRequest bindRequest =
- *        new GSSAPIBindRequest("john.doe@EXAMPLE.COM", "password");
- *   try
- *   {
- *     BindResult bindResult = connection.bind(bindRequest);
- *     // If we get here, then the bind was successful.
- *   }
- *   catch (LDAPException le)
- *   {
- *     // The bind failed for some reason.
- *   }
+ * GSSAPIBindRequestProperties gssapiProperties =
+ *      new GSSAPIBindRequestProperties("john.doe@EXAMPLE.COM", "password");
+ * gssapiProperties.setKDCAddress("kdc.example.com");
+ * gssapiProperties.setRealm("EXAMPLE.COM");
+ *
+ * GSSAPIBindRequest bindRequest =
+ *      new GSSAPIBindRequest(gssapiProperties);
+ * BindResult bindResult;
+ * try
+ * {
+ *   bindResult = connection.bind(bindRequest);
+ *   // If we get here, then the bind was successful.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The bind failed for some reason.
+ *   bindResult = new BindResult(le.toLDAPResult());
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @NotMutable()

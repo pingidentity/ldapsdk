@@ -78,60 +78,69 @@ import static com.unboundid.util.Validator.*;
  * The following example iterates through all entries contained in an LDIF file
  * and attempts to add them to a directory server:
  * <PRE>
- *   LDIFReader ldifReader = new LDIFReader(pathToLDIFFile);
+ * LDIFReader ldifReader = new LDIFReader(pathToLDIFFile);
  *
- *   while (true)
+ * int entriesRead = 0;
+ * int entriesAdded = 0;
+ * int errorsEncountered = 0;
+ * while (true)
+ * {
+ *   Entry entry;
+ *   try
  *   {
- *     Entry entry;
- *     try
+ *     entry = ldifReader.readEntry();
+ *     if (entry == null)
  *     {
- *       entry = ldifReader.readEntry();
- *       if (entry == null)
- *       {
- *         System.err.println("All entries have been processed.");
- *         break;
- *       }
- *     }
- *     catch (LDIFException le)
- *     {
- *       if (le.mayContinueReading())
- *       {
- *         System.err.println("A recoverable occurred while attempting to " +
- *              "read an entry at or near line number " + le.getLineNumber() +
- *              ":  " + le.getMessage());
- *         System.err.println("The entry will be skipped.");
- *         continue;
- *       }
- *       else
- *       {
- *         System.err.println("An unrecoverable occurred while attempting to " +
- *              "read an entry at or near line number " + le.getLineNumber() +
- *              ":  " + le.getMessage());
- *         System.err.println("LDIF processing will be aborted.");
- *         break;
- *       }
- *     }
- *     catch (IOException ioe)
- *     {
- *       System.err.println("An I/O error occurred while attempting to read " +
- *            "from the LDIF file:  " + ioe.getMessage());
- *       System.err.println("LDIF processing will be aborted.");
+ *       // All entries have been read.
  *       break;
  *     }
  *
- *     try
+ *     entriesRead++;
+ *   }
+ *   catch (LDIFException le)
+ *   {
+ *     errorsEncountered++;
+ *     if (le.mayContinueReading())
  *     {
- *       connection.add(entry);
- *       System.out.println("Successfully added entry " + entry.getDN());
+ *       // A recoverable error occurred while attempting to read a change
+ *       // record, at or near line number le.getLineNumber()
+ *       // The entry will be skipped, but we'll try to keep reading from the
+ *       // LDIF file.
+ *       continue;
  *     }
- *     catch (LDAPException le)
+ *     else
  *     {
- *       System.err.println("Unable to add entry " + entry.getDN() + " -- " +
- *            le.getMessage());
+ *       // An unrecoverable error occurred while attempting to read an entry
+ *       // at or near line number le.getLineNumber()
+ *       // No further LDIF processing will be performed.
+ *       break;
  *     }
  *   }
+ *   catch (IOException ioe)
+ *   {
+ *     // An I/O error occurred while attempting to read from the LDIF file.
+ *     // No further LDIF processing will be performed.
+ *     errorsEncountered++;
+ *     break;
+ *   }
  *
- *   ldifReader.close();
+ *   LDAPResult addResult;
+ *   try
+ *   {
+ *     addResult = connection.add(entry);
+ *     // If we got here, then the change should have been processed
+ *     // successfully.
+ *     entriesAdded++;
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     // If we got here, then the change attempt failed.
+ *     addResult = le.toLDAPResult();
+ *     errorsEncountered++;
+ *   }
+ * }
+ *
+ * ldifReader.close();
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

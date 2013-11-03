@@ -68,29 +68,31 @@ import static com.unboundid.util.Validator.*;
  * The following example demonstrates the process for performing a compare
  * operation:
  * <PRE>
- *   CompareRequest compareRequest =
- *        new CompareRequest("dc=example,dc=com", "description", "test");
+ * CompareRequest compareRequest =
+ *      new CompareRequest("dc=example,dc=com", "description", "test");
+ * CompareResult compareResult;
+ * try
+ * {
+ *   compareResult = connection.compare(compareRequest);
  *
- *   try
+ *   // The compare operation didn't throw an exception, so we can try to
+ *   // determine whether the compare matched.
+ *   if (compareResult.compareMatched())
  *   {
- *     CompareResult compareResult = connection.compare(compareRequest);
- *
- *     // The compare operation didn't throw an exception, so we can try to
- *     // determine whether the compare matched.
- *     if (compareResult.compareMatched())
- *     {
- *       System.out.println("The entry does have a description value of test");
- *     }
- *     else
- *     {
- *       System.out.println("The entry does not have a description value of " +
- *                          "test");
- *     }
+ *     // The entry does have a description value of test.
  *   }
- *   catch (LDAPException le)
+ *   else
  *   {
- *     System.err.println("The compare operation failed.");
+ *     // The entry does not have a description value of test.
  *   }
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The compare operation failed.
+ *   compareResult = new CompareResult(le.toLDAPResult());
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @Mutable()

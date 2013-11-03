@@ -51,18 +51,18 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * The following example initiates an asynchronous modify operation and then
  * attempts to abandon it:
  * <PRE>
- *   Modification mod = new Modification(ModificationType.REPLACE,
- *        "description", "This is the new description.");
- *   ModifyRequest modifyRequest =
- *        new ModifyRequest("dc=example,dc=com", mod);
+ * Modification mod = new Modification(ModificationType.REPLACE,
+ *      "description", "This is the new description.");
+ * ModifyRequest modifyRequest =
+ *      new ModifyRequest("dc=example,dc=com", mod);
  *
- *   AsyncRequestID asyncRequestID =
- *        connection.asyncModify(modifyRequest, myAsyncResultListener);
+ * AsyncRequestID asyncRequestID =
+ *      connection.asyncModify(modifyRequest, myAsyncResultListener);
  *
- *   // Assume that we've waited a reasonable amount of time but the modify
- *   // hasn't completed yet so we'll try to abandon it.
+ * // Assume that we've waited a reasonable amount of time but the modify
+ * // hasn't completed yet so we'll try to abandon it.
  *
- *   connection.abandon(asyncRequestID);
+ * connection.abandon(asyncRequestID);
  * </PRE>
  */
 @NotMutable()

@@ -57,20 +57,24 @@ import static com.unboundid.util.Validator.*;
  * </UL>
  * <H2>Example</H2>
  * The following example demonstrates the process for performing a PLAIN bind
- * against a directory server with a username of "john.doe" and a password of
+ * against a directory server with a username of "test.user" and a password of
  * "password":
  * <PRE>
- *   PLAINBindRequest bindRequest =
- *        new PLAINBindRequest("u:john.doe", "password");
- *   try
- *   {
- *     BindResult bindResult = connection.bind(bindRequest);
- *     // If we get here, then the bind was successful.
- *   }
- *   catch (LDAPException le)
- *   {
- *     // The bind failed for some reason.
- *   }
+ * PLAINBindRequest bindRequest =
+ *      new PLAINBindRequest("u:test.user", "password");
+ * BindResult bindResult;
+ * try
+ * {
+ *   bindResult = connection.bind(bindRequest);
+ *   // If we get here, then the bind was successful.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The bind failed for some reason.
+ *   bindResult = new BindResult(le.toLDAPResult());
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @NotMutable()

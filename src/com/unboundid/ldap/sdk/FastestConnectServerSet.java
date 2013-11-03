@@ -57,18 +57,35 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * will try both in parallel and will return the first connection that it is
  * able to establish:
  * <PRE>
- *   String[] addresses =
- *   {
- *     "ds1.example.com",
- *     "ds2.example.com",
- *   };
- *   int[] ports =
- *   {
- *     389,
- *     389
- *   }
- *   FastestConnectServerSet fastestConnectSet =
- *        new FastestConnectServerSet(addresses, ports);
+ * // Create arrays with the addresses and ports of the directory server
+ * // instances.
+ * String[] addresses =
+ * {
+ *   server1Address,
+ *   server2Address
+ * };
+ * int[] ports =
+ * {
+ *   server1Port,
+ *   server2Port
+ * };
+ *
+ * // Create the server set using the address and port arrays.
+ * FastestConnectServerSet fastestConnectSet =
+ *      new FastestConnectServerSet(addresses, ports);
+ *
+ * // Verify that we can establish a single connection using the server set.
+ * LDAPConnection connection = fastestConnectSet.getConnection();
+ * RootDSE rootDSEFromConnection = connection.getRootDSE();
+ * connection.close();
+ *
+ * // Verify that we can establish a connection pool using the server set.
+ * SimpleBindRequest bindRequest =
+ *      new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
+ * LDAPConnectionPool pool =
+ *      new LDAPConnectionPool(fastestConnectSet, bindRequest, 10);
+ * RootDSE rootDSEFromPool = pool.getRootDSE();
+ * pool.close();
  * </PRE>
  */
 @NotMutable()

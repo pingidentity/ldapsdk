@@ -60,19 +60,21 @@ import static com.unboundid.util.Validator.*;
  * The following example demonstrates the process for performing a delete
  * operation:
  * <PRE>
- *   DeleteRequest deleteRequest =
- *        new DeleteRequest("cn=entry to delete,dc=example,dc=com");
- *
- *   try
- *   {
- *     LDAPResult deleteResult = connection.delete(deleteRequest);
- *
- *     System.out.println("The entry was successfully deleted.");
- *   }
- *   catch (LDAPException le)
- *   {
- *     System.err.println("The delete operation failed.");
- *   }
+ * DeleteRequest deleteRequest =
+ *      new DeleteRequest("cn=entry to delete,dc=example,dc=com");
+ * LDAPResult deleteResult;
+ * try
+ * {
+ *   deleteResult = connection.delete(deleteRequest);
+ *   // If we get here, the delete was successful.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   // The delete operation failed.
+ *   deleteResult = le.toLDAPResult();
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ * }
  * </PRE>
  */
 @Mutable()

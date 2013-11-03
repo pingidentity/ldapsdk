@@ -54,17 +54,34 @@ import static com.unboundid.util.Validator.*;
  * to ds1.example.com:389, but if that fails then it will try connecting to
  * ds2.example.com:389:
  * <PRE>
- *   String[] addresses =
- *   {
- *     "ds1.example.com",
- *     "ds2.example.com"
- *   };
- *   int[] ports =
- *   {
- *     389,
- *     389
- *   };
- *   FailoverServerSet failoverSet = new FailoverServerSet(addresses, ports);
+ * // Create arrays with the addresses and ports of the directory server
+ * // instances.
+ * String[] addresses =
+ * {
+ *   server1Address,
+ *   server2Address
+ * };
+ * int[] ports =
+ * {
+ *   server1Port,
+ *   server2Port
+ * };
+ *
+ * // Create the server set using the address and port arrays.
+ * FailoverServerSet failoverSet = new FailoverServerSet(addresses, ports);
+ *
+ * // Verify that we can establish a single connection using the server set.
+ * LDAPConnection connection = failoverSet.getConnection();
+ * RootDSE rootDSEFromConnection = connection.getRootDSE();
+ * connection.close();
+ *
+ * // Verify that we can establish a connection pool using the server set.
+ * SimpleBindRequest bindRequest =
+ *      new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
+ * LDAPConnectionPool pool =
+ *      new LDAPConnectionPool(failoverSet, bindRequest, 10);
+ * RootDSE rootDSEFromPool = pool.getRootDSE();
+ * pool.close();
  * </PRE>
  * This second example demonstrates the process for creating a failover server
  * set which actually fails over between two different data centers (east and
@@ -75,33 +92,51 @@ import static com.unboundid.util.Validator.*;
  * will try to connect to one of the servers in the west data center, and
  * finally as a last resort the other server in the west data center:
  * <PRE>
- *   String[] eastAddresses =
- *   {
- *     "ds-east-1.example.com",
- *     "ds-east-2.example.com",
- *   };
- *   int[] eastPorts =
- *   {
- *     389,
- *     389
- *   }
- *   RoundRobinServerSet eastSet =
- *        new RoundRobinServerSet(eastAddresses, eastPorts);
+ * // Create a round-robin server set for the servers in the "east" data
+ * // center.
+ * String[] eastAddresses =
+ * {
+ *   eastServer1Address,
+ *   eastServer2Address
+ * };
+ * int[] eastPorts =
+ * {
+ *   eastServer1Port,
+ *   eastServer2Port
+ * };
+ * RoundRobinServerSet eastSet =
+ *      new RoundRobinServerSet(eastAddresses, eastPorts);
  *
- *   String[] westAddresses =
- *   {
- *     "ds-west-1.example.com",
- *     "ds-west-2.example.com",
- *   };
- *   int[] westPorts =
- *   {
- *     389,
- *     389
- *   }
- *   RoundRobinServerSet westSet =
- *        new RoundRobinServerSet(westAddresses, westPorts);
+ * // Create a round-robin server set for the servers in the "west" data
+ * // center.
+ * String[] westAddresses =
+ * {
+ *   westServer1Address,
+ *   westServer2Address
+ * };
+ * int[] westPorts =
+ * {
+ *   westServer1Port,
+ *   westServer2Port
+ * };
+ * RoundRobinServerSet westSet =
+ *      new RoundRobinServerSet(westAddresses, westPorts);
  *
- *   FailoverServerSet failoverSet = new FailoverServerSet(eastSet, westSet);
+ * // Create the failover server set across the east and west round-robin sets.
+ * FailoverServerSet failoverSet = new FailoverServerSet(eastSet, westSet);
+ *
+ * // Verify that we can establish a single connection using the server set.
+ * LDAPConnection connection = failoverSet.getConnection();
+ * RootDSE rootDSEFromConnection = connection.getRootDSE();
+ * connection.close();
+ *
+ * // Verify that we can establish a connection pool using the server set.
+ * SimpleBindRequest bindRequest =
+ *      new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
+ * LDAPConnectionPool pool =
+ *      new LDAPConnectionPool(failoverSet, bindRequest, 10);
+ * RootDSE rootDSEFromPool = pool.getRootDSE();
+ * pool.close();
  * </PRE>
  */
 @NotMutable()

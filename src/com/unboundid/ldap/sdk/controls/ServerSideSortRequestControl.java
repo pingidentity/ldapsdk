@@ -57,14 +57,65 @@ import static com.unboundid.util.Validator.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the server-side sort controls
- * to retrieve all users in the Sales department, sorted by last name and then
- * by first name:
+ * to retrieve users in different sort orders.
  * <PRE>
- *   SearchRequest searchRequest =
- *        new SearchRequest("dc=example,dc=com", SearchScope.SUB, "(ou=Sales)");
- *   searchRequest.addControl(new ServerSideSortRequestControl(
- *        new SortKey("sn"), new SortKey("givenName")));
- *   SearchResult searchResult = connection.search(searchRequest);
+ * // Perform a search to get all user entries sorted by last name, then by
+ * // first name, both in ascending order.
+ * SearchRequest searchRequest = new SearchRequest(
+ *      "ou=People,dc=example,dc=com", SearchScope.SUB,
+ *      Filter.createEqualityFilter("objectClass", "person"));
+ * searchRequest.addControl(new ServerSideSortRequestControl(
+ *      new SortKey("sn"), new SortKey("givenName")));
+ * SearchResult lastNameAscendingResult;
+ * try
+ * {
+ *   lastNameAscendingResult = connection.search(searchRequest);
+ *   // If we got here, then the search was successful.
+ * }
+ * catch (LDAPSearchException lse)
+ * {
+ *   // The search failed for some reason.
+ *   lastNameAscendingResult = lse.getSearchResult();
+ *   ResultCode resultCode = lse.getResultCode();
+ *   String errorMessageFromServer = lse.getDiagnosticMessage();
+ * }
+ *
+ * // Get the response control and retrieve the result code for the sort
+ * // processing.
+ * LDAPTestUtils.assertHasControl(lastNameAscendingResult,
+ *      ServerSideSortResponseControl.SERVER_SIDE_SORT_RESPONSE_OID);
+ * ServerSideSortResponseControl lastNameAscendingResponseControl =
+ *      ServerSideSortResponseControl.get(lastNameAscendingResult);
+ * ResultCode lastNameSortResult =
+ *      lastNameAscendingResponseControl.getResultCode();
+ *
+ *
+ * // Perform the same search, but this time request the results to be sorted
+ * // in descending order by first name, then last name.
+ * searchRequest.setControls(new ServerSideSortRequestControl(
+ *      new SortKey("givenName", true), new SortKey("sn", true)));
+ * SearchResult firstNameDescendingResult;
+ * try
+ * {
+ *   firstNameDescendingResult = connection.search(searchRequest);
+ *   // If we got here, then the search was successful.
+ * }
+ * catch (LDAPSearchException lse)
+ * {
+ *   // The search failed for some reason.
+ *   firstNameDescendingResult = lse.getSearchResult();
+ *   ResultCode resultCode = lse.getResultCode();
+ *   String errorMessageFromServer = lse.getDiagnosticMessage();
+ * }
+ *
+ * // Get the response control and retrieve the result code for the sort
+ * // processing.
+ * LDAPTestUtils.assertHasControl(firstNameDescendingResult,
+ *      ServerSideSortResponseControl.SERVER_SIDE_SORT_RESPONSE_OID);
+ * ServerSideSortResponseControl firstNameDescendingResponseControl =
+ *      ServerSideSortResponseControl.get(firstNameDescendingResult);
+ * ResultCode firstNameSortResult =
+ *      firstNameDescendingResponseControl.getResultCode();
  * </PRE>
  * <BR><BR>
  * <H2>Client-Side Sorting</H2>

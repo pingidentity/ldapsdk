@@ -64,30 +64,34 @@ import static com.unboundid.util.Debug.*;
  * It shows an attempt to modify an entry's "accountBalance" attribute to set
  * the value to "543.21" only if the current value is "1234.56":
  * <PRE>
- *   Modification mod = new Modification(ModificationType.REPLACE,
- *                                       "accountBalance", "543.21");
- *   ModifyRequest modifyRequest =
- *        new ModifyRequest("uid=john.doe,ou=People,dc=example,dc=com", mod);
- *   modifyRequest.addControl(
- *        new AssertionRequestControl("(accountBalance=1234.56)"));
+ * Modification mod = new Modification(ModificationType.REPLACE,
+ *      "accountBalance", "543.21");
+ * ModifyRequest modifyRequest =
+ *      new ModifyRequest("uid=john.doe,ou=People,dc=example,dc=com", mod);
+ * modifyRequest.addControl(
+ *      new AssertionRequestControl("(accountBalance=1234.56)"));
  *
- *   try
+ * LDAPResult modifyResult;
+ * try
+ * {
+ *   modifyResult = connection.modify(modifyRequest);
+ *   // If we've gotten here, then the modification was successful.
+ * }
+ * catch (LDAPException le)
+ * {
+ *   modifyResult = le.toLDAPResult();
+ *   ResultCode resultCode = le.getResultCode();
+ *   String errorMessageFromServer = le.getDiagnosticMessage();
+ *   if (resultCode == ResultCode.ASSERTION_FAILED)
  *   {
- *     LDAPResult modifyResult = connection.modify(modifyRequest);
- *     // If we've gotten here, then the modification was successful.
+ *     // The modification failed because the account balance value wasn't
+ *     // what we thought it was.
  *   }
- *   catch (LDAPException le)
+ *   else
  *   {
- *     if (le.getResultCode() == ResultCode.ASSERTION_FAILED)
- *     {
- *       The modification failed because the accountBalance value wasn't what
- *       we thought it was.
- *     }
- *     else
- *     {
- *       The modification failed for some other reason.
- *     }
+ *     // The modification failed for some other reason.
  *   }
+ * }
  * </PRE>
  */
 @NotMutable()
