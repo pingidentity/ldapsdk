@@ -25,7 +25,7 @@
  * This package contains a number of simple programs that intend to demonstrate
  * how to use the UnboundID LDAP SDK for Java to perform various types of
  * operations.
- * <BR<BR>
+ * <BR><BR>
  * Note that the scope of these programs has been intentionally kept small so
  * that they are easier to understand, even though this may limit the real-world
  * usefulness of these examples.  Further, these programs do not include

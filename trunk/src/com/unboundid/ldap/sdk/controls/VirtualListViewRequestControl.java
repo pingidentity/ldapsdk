@@ -141,7 +141,7 @@ import static com.unboundid.util.Validator.*;
  *   vlvContentCount = vlvResponseControl.getContentCount();
  *   vlvOffset += 10;
  *   vlvContextID = vlvResponseControl.getContextID();
- *   if (vlvOffset > vlvContentCount)
+ *   if (vlvOffset &gt; vlvContentCount)
  *   {
  *     break;
  *   }
