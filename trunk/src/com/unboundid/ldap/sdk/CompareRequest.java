@@ -837,7 +837,8 @@ public final class CompareRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_COMPARE_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
+           ERR_COMPARE_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
+                connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumCompareResponses(

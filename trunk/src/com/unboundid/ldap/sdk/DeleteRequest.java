@@ -526,7 +526,8 @@ public final class DeleteRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_DELETE_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
+           ERR_DELETE_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
+                connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumDeleteResponses(
