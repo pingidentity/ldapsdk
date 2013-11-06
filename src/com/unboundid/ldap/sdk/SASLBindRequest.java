@@ -308,7 +308,8 @@ public abstract class SASLBindRequest
     {
       final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_BIND_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
+           ERR_SASL_BIND_CLIENT_TIMEOUT.get(waitTime, getSASLMechanismName(),
+                messageID, connection.getHostPort()));
     }
 
     if (response instanceof ConnectionClosedResponse)

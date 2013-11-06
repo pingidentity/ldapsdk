@@ -1183,7 +1183,8 @@ public final class SearchRequest
 
           final SearchResult searchResult =
                new SearchResult(messageID, ResultCode.TIMEOUT,
-                    ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
+                    ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout, messageID,
+                         baseDN, scope.getName(), filter.toString(),
                          connection.getHostPort()),
                     null, null, entryList, referenceList, numEntries,
                     numReferences, null);
@@ -1529,7 +1530,8 @@ public final class SearchRequest
         }
 
         throw new LDAPException(ResultCode.TIMEOUT,
-             ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
+             ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout, messageID, baseDN,
+                  scope.getName(), filter.toString(),
                   connection.getHostPort()));
       }
       else if (response instanceof ConnectionClosedResponse)

@@ -472,7 +472,8 @@ public class ExtendedRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_EXTENDED_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
+           ERR_EXTENDED_CLIENT_TIMEOUT.get(waitTime, messageID, oid,
+                connection.getHostPort()));
     }
 
     if (response instanceof ConnectionClosedResponse)

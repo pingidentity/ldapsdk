@@ -1243,7 +1243,8 @@ public final class AddRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_ADD_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
+           ERR_ADD_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
+                connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumAddResponses(

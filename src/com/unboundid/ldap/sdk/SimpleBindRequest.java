@@ -686,7 +686,8 @@ public final class SimpleBindRequest
     {
       final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_BIND_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
+           ERR_SIMPLE_BIND_CLIENT_TIMEOUT.get(waitTime, messageID,
+                bindDN.stringValue(), connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumBindResponses(

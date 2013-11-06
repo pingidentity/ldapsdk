@@ -877,7 +877,7 @@ public final class ModifyDNRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_MODIFY_DN_CLIENT_TIMEOUT.get(waitTime,
+           ERR_MODIFY_DN_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
                 connection.getHostPort()));
     }
 
