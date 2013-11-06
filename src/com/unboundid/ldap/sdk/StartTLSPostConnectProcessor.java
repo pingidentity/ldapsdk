@@ -101,8 +101,18 @@ public final class StartTLSPostConnectProcessor
   public void processPreAuthenticatedConnection(final LDAPConnection connection)
          throws LDAPException
   {
-    final ExtendedResult r = connection.processExtendedOperation(
-         new StartTLSExtendedRequest(sslContext));
+    final StartTLSExtendedRequest startTLSRequest =
+         new StartTLSExtendedRequest(sslContext);
+
+    // Since the StartTLS processing will occur during the course of
+    // establishing the connection for use in the pool, set the connect timeout
+    // for the operation to be equal to the connect timeout from the connection
+    // options.
+    final LDAPConnectionOptions opts = connection.getConnectionOptions();
+    startTLSRequest.setResponseTimeoutMillis(opts.getConnectTimeoutMillis());
+
+    final ExtendedResult r =
+         connection.processExtendedOperation(startTLSRequest);
     if (! r.getResultCode().equals(ResultCode.SUCCESS))
     {
       throw new LDAPException(r);
