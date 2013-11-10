@@ -255,6 +255,10 @@ public final class LDAPConnection
   // The time of the last rebind attempt.
   private long lastReconnectTime;
 
+  // The most recent time that an LDAP message was sent or received on this
+  // connection.
+  private volatile long lastCommunicationTime;
+
   // The referral connector that will be used to establish connections to remote
   // servers when following a referral.
   private volatile ReferralConnector referralConnector;
@@ -351,6 +355,7 @@ public final class LDAPConnection
   {
     needsReconnect = new AtomicBoolean(false);
     disconnectInfo = new AtomicReference<DisconnectInfo>();
+    lastCommunicationTime = -1L;
 
     connectionID = NEXT_CONNECTION_ID.getAndIncrement();
 
@@ -711,6 +716,7 @@ public final class LDAPConnection
 
     needsReconnect.set(false);
     hostPort = host + ':' + port;
+    lastCommunicationTime = -1L;
 
     if (isConnected())
     {
@@ -732,6 +738,7 @@ public final class LDAPConnection
       connectionInternals = new LDAPConnectionInternals(this, connectionOptions,
            lastUsedSocketFactory, host, port, timeout);
       connectionInternals.startConnectionReader();
+      lastCommunicationTime = System.currentTimeMillis();
     }
     catch (Exception e)
     {
@@ -3892,6 +3899,7 @@ public final class LDAPConnection
     else
     {
       internals.sendMessage(message, connectionOptions.autoReconnect());
+      lastCommunicationTime = System.currentTimeMillis();
     }
   }
 
@@ -4079,6 +4087,7 @@ public final class LDAPConnection
     }
 
     cachedSchema = null;
+    lastCommunicationTime = -1L;
 
     if (timer != null)
     {
@@ -4361,6 +4370,44 @@ public final class LDAPConnection
     {
       return -1L;
     }
+  }
+
+
+
+  /**
+   * Retrieves the time that this connection was last used to send or receive an
+   * LDAP message.  The value will represent the number of milliseconds since
+   * January 1, 1970 UTC (the same format used by
+   * {@code System.currentTimeMillis}.
+   *
+   * @return  The time that this connection was last used to send or receive an
+   *          LDAP message.  If the connection is not established, then -1 will
+   *          be returned.  If the connection is established but no
+   *          communication has been performed over the connection since it was
+   *          established, then the value of {@link #getConnectTime()} will be
+   *          returned.
+   */
+  public long getLastCommunicationTime()
+  {
+    if (lastCommunicationTime > 0L)
+    {
+      return lastCommunicationTime;
+    }
+    else
+    {
+      return getConnectTime();
+    }
+  }
+
+
+
+  /**
+   * Updates the last communication time for this connection to be the current
+   * time.
+   */
+  void setLastCommunicationTime()
+  {
+    lastCommunicationTime = System.currentTimeMillis();
   }
 
 
