@@ -440,6 +440,7 @@ final class LDAPConnectionReader
         }
 
         debugLDAPResult(response, connection);
+        connection.setLastCommunicationTime();
 
         final ResponseAcceptor responseAcceptor;
         if ((response instanceof SearchResultEntry) ||
@@ -674,6 +675,7 @@ final class LDAPConnectionReader
           return new ConnectionClosedResponse(ResultCode.SERVER_DOWN, null);
         }
 
+        connection.setLastCommunicationTime();
         if (response.getMessageID() == messageID)
         {
           return response;
