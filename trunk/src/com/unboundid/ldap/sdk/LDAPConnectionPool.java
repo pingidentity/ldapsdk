@@ -1447,6 +1447,75 @@ public final class LDAPConnectionPool
 
 
   /**
+   * Attempts to retrieve a connection from the pool that is established to the
+   * specified server.  Note that this method will only attempt to return an
+   * existing connection that is currently available, and will not create a
+   * connection or wait for any checked-out connections to be returned.
+   *
+   * @param  host  The address of the server to which the desired connection
+   *               should be established.  This must not be {@code null}, and
+   *               this must exactly match the address provided for the initial
+   *               connection or the {@code ServerSet} used to create the pool.
+   * @param  port  The port of the server to which the desired connection should
+   *               be established.
+   *
+   * @return  A connection that is established to the specified server, or
+   *          {@code null} if there are no available connections established to
+   *          the specified server.
+   */
+  public LDAPConnection getConnection(final String host, final int port)
+  {
+    if (closed)
+    {
+      poolStatistics.incrementNumFailedCheckouts();
+      return null;
+    }
+
+    final HashSet<LDAPConnection> examinedConnections =
+         new HashSet<LDAPConnection>(numConnections);
+    while (true)
+    {
+      final LDAPConnection conn = availableConnections.poll();
+      if (conn == null)
+      {
+        poolStatistics.incrementNumFailedCheckouts();
+        return null;
+      }
+
+      if (examinedConnections.contains(conn))
+      {
+        availableConnections.offer(conn);
+        poolStatistics.incrementNumFailedCheckouts();
+        return null;
+      }
+
+      if (conn.getConnectedAddress().equals(host) &&
+          (port == conn.getConnectedPort()))
+      {
+        try
+        {
+          healthCheck.ensureConnectionValidForCheckout(conn);
+          poolStatistics.incrementNumSuccessfulCheckoutsWithoutWaiting();
+          return conn;
+        }
+        catch (final LDAPException le)
+        {
+          debugException(le);
+          handleDefunctConnection(conn);
+          continue;
+        }
+      }
+
+      if (availableConnections.offer(conn))
+      {
+        examinedConnections.add(conn);
+      }
+    }
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -1470,7 +1539,6 @@ public final class LDAPConnectionPool
           connection.terminate(null);
           poolStatistics.incrementNumConnectionsClosedExpired();
           lastExpiredDisconnectTime = System.currentTimeMillis();
-          return;
         }
         else
         {
@@ -1484,6 +1552,7 @@ public final class LDAPConnectionPool
       {
         debugException(le);
       }
+      return;
     }
 
     try
