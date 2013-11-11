@@ -1591,6 +1591,37 @@ public final class LDAPConnectionPool
 
 
   /**
+   * Indicates that the provided connection should be removed from the pool,
+   * and that no new connection should be created to take its place.  This may
+   * be used to shrink the pool if such functionality is desired.
+   *
+   * @param  connection  The connection to be discarded.
+   */
+  public void discardConnection(final LDAPConnection connection)
+  {
+    if (connection == null)
+    {
+      return;
+    }
+
+    connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_UNNEEDED,
+         null, null);
+    connection.terminate(null);
+    poolStatistics.incrementNumConnectionsClosedUnneeded();
+
+    if (availableConnections.remainingCapacity() > 0)
+    {
+      final int newReplaceCount = failedReplaceCount.incrementAndGet();
+      if (newReplaceCount > numConnections)
+      {
+        failedReplaceCount.set(numConnections);
+      }
+    }
+  }
+
+
+
+  /**
    * Performs a bind on the provided connection before releasing it back to the
    * pool, so that it will be authenticated as the same user as
    * newly-established connections.  If newly-established connections are
@@ -1695,7 +1726,11 @@ public final class LDAPConnectionPool
     catch (LDAPException le)
     {
       debugException(le);
-      failedReplaceCount.incrementAndGet();
+      final int newReplaceCount = failedReplaceCount.incrementAndGet();
+      if (newReplaceCount > numConnections)
+      {
+        failedReplaceCount.set(numConnections);
+      }
       return null;
     }
   }
