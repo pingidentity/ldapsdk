@@ -175,6 +175,10 @@ public final class LDAPConnectionPool
   // waiting for a connection to become available.
   private boolean createIfNecessary;
 
+  // Indicates whether to check the connection age when releasing a connection
+  // back to the pool.
+  private volatile boolean checkConnectionAgeOnRelease;
+
   // Indicates whether health check processing for connections in synchronous
   // mode should include attempting to read with a very short timeout to attempt
   // to detect closures and unsolicited notifications in a more timely manner.
@@ -581,14 +585,15 @@ public final class LDAPConnectionPool
 
     availableConnections.addAll(connList);
 
-    failedReplaceCount        =
+    failedReplaceCount          =
          new AtomicInteger(maxConnections - availableConnections.size());
-    createIfNecessary         = true;
-    maxConnectionAge          = 0L;
-    minDisconnectInterval     = 0L;
-    lastExpiredDisconnectTime = 0L;
-    maxWaitTime               = 5000L;
-    closed                    = false;
+    createIfNecessary           = true;
+    checkConnectionAgeOnRelease = false;
+    maxConnectionAge            = 0L;
+    minDisconnectInterval       = 0L;
+    lastExpiredDisconnectTime   = 0L;
+    maxWaitTime                 = 5000L;
+    closed                      = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -886,14 +891,15 @@ public final class LDAPConnectionPool
          new LinkedBlockingQueue<LDAPConnection>(numConnections);
     availableConnections.addAll(connList);
 
-    failedReplaceCount        =
+    failedReplaceCount          =
          new AtomicInteger(maxConnections - availableConnections.size());
-    createIfNecessary         = true;
-    maxConnectionAge          = 0L;
-    minDisconnectInterval     = 0L;
-    lastExpiredDisconnectTime = 0L;
-    maxWaitTime               = 5000L;
-    closed                    = false;
+    createIfNecessary           = true;
+    checkConnectionAgeOnRelease = false;
+    maxConnectionAge            = 0L;
+    minDisconnectInterval       = 0L;
+    lastExpiredDisconnectTime   = 0L;
+    maxWaitTime                 = 5000L;
+    closed                      = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -1527,7 +1533,7 @@ public final class LDAPConnectionPool
     }
 
     connection.setConnectionPoolName(connectionPoolName);
-    if (connectionIsExpired(connection))
+    if (checkConnectionAgeOnRelease && connectionIsExpired(connection))
     {
       try
       {
@@ -1962,6 +1968,76 @@ public final class LDAPConnectionPool
     {
       this.maxConnectionAge = 0L;
     }
+  }
+
+
+
+  /**
+   * Indicates whether to check the age of a connection against the configured
+   * maximum connection age whenever it is released to the pool.  By default,
+   * connection age is evaluated in the background using the health check
+   * thread, but it is also possible to configure the pool to additionally
+   * examine the age of a connection when it is returned to the pool.
+   * <BR><BR>
+   * Performing connection age evaluation only in the background will ensure
+   * that connections are only closed and re-established in a single-threaded
+   * manner, which helps minimize the load against the target server, but only
+   * checks connections that are not in use when the health check thread is
+   * active.  If the pool is configured to also evaluate the connection age when
+   * connections are returned to the pool, then it may help ensure that the
+   * maximum connection age is honored more strictly for all connections, but
+   * in busy applications may lead to cases in which multiple connections are
+   * closed and re-established simultaneously, which may increase load against
+   * the directory server.  The {@link #setMinDisconnectIntervalMillis(long)}
+   * method may be used to help mitigate the potential performance impact of
+   * closing and re-establishing multiple connections simultaneously.
+   *
+   * @return  {@code true} if the connection pool should check connection age in
+   *          both the background health check thread and when connections are
+   *          released to the pool, or {@code false} if the connection age
+   *          should only be checked by the background health check thread.
+   */
+  public boolean checkConnectionAgeOnRelease()
+  {
+    return checkConnectionAgeOnRelease;
+  }
+
+
+
+  /**
+   * Specifies whether to check the age of a connection against the configured
+   * maximum connection age whenever it is released to the pool.  By default,
+   * connection age is evaluated in the background using the health check
+   * thread, but it is also possible to configure the pool to additionally
+   * examine the age of a connection when it is returned to the pool.
+   * <BR><BR>
+   * Performing connection age evaluation only in the background will ensure
+   * that connections are only closed and re-established in a single-threaded
+   * manner, which helps minimize the load against the target server, but only
+   * checks connections that are not in use when the health check thread is
+   * active.  If the pool is configured to also evaluate the connection age when
+   * connections are returned to the pool, then it may help ensure that the
+   * maximum connection age is honored more strictly for all connections, but
+   * in busy applications may lead to cases in which multiple connections are
+   * closed and re-established simultaneously, which may increase load against
+   * the directory server.  The {@link #setMinDisconnectIntervalMillis(long)}
+   * method may be used to help mitigate the potential performance impact of
+   * closing and re-establishing multiple connections simultaneously.
+   *
+   * @param  checkConnectionAgeOnRelease  If {@code true}, this indicates that
+   *                                      the connection pool should check
+   *                                      connection age in both the background
+   *                                      health check thread and when
+   *                                      connections are released to the pool.
+   *                                      If {@code false}, this indicates that
+   *                                      the connection pool should check
+   *                                      connection age only in the background
+   *                                      health check thread.
+   */
+  public void setCheckConnectionAgeOnRelease(
+                   final boolean checkConnectionAgeOnRelease)
+  {
+    this.checkConnectionAgeOnRelease = checkConnectionAgeOnRelease;
   }
 
 
