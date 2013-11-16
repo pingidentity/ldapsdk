@@ -116,6 +116,15 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Update the connection pool so that it is possible to set a different maximum
+                  connection age for connections that were created to replace defunct connections
+                  than connections that were created under normal conditions.  This can help
+                  ensure a faster fail-back to a more normal allocation of connections in a pool
+                  that may have connections balanced across multiple servers.
+                  <br><br>
+                </li>
+
+                <li>
                   Add two new example tools:  identify-references-to-missing-entries (which can be
                   used to identify any entries which contain attributes whose values are DNs that
                   reference nonexistent entries), and identify-unique-attribute-conflicts (which
