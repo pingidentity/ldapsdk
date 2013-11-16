@@ -158,6 +158,15 @@ public final class LDAPConnectionPool
 
 
 
+  /**
+   * The name of the connection property that may be used to indicate that a
+   * connection was created to replace a connection that was closed as defunct.
+   */
+  private static final String ATTACHMENT_NAME_DEFUNCT_CONNECTION_REPLACEMENT =
+       LDAPConnectionPool.class.getName() + ".defunctConnectionReplacement";
+
+
+
   // A counter used to keep track of the number of times that the pool failed to
   // replace a defunct connection.  It may also be initialized to the difference
   // between the initial and maximum number of connections that should be
@@ -216,6 +225,10 @@ public final class LDAPConnectionPool
   // allowed to be established before terminating and re-establishing the
   // connection.
   private volatile long maxConnectionAge;
+
+  // The maximum connection age that should be used for connections created to
+  // replace connections that are released as defunct.
+  private volatile Long maxDefunctReplacementConnectionAge;
 
   // The maximum length of time in milliseconds to wait for a connection to be
   // available.
@@ -585,15 +598,16 @@ public final class LDAPConnectionPool
 
     availableConnections.addAll(connList);
 
-    failedReplaceCount          =
+    failedReplaceCount                 =
          new AtomicInteger(maxConnections - availableConnections.size());
-    createIfNecessary           = true;
-    checkConnectionAgeOnRelease = false;
-    maxConnectionAge            = 0L;
-    minDisconnectInterval       = 0L;
-    lastExpiredDisconnectTime   = 0L;
-    maxWaitTime                 = 5000L;
-    closed                      = false;
+    createIfNecessary                  = true;
+    checkConnectionAgeOnRelease        = false;
+    maxConnectionAge                   = 0L;
+    maxDefunctReplacementConnectionAge = null;
+    minDisconnectInterval              = 0L;
+    lastExpiredDisconnectTime          = 0L;
+    maxWaitTime                        = 5000L;
+    closed                             = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -891,15 +905,16 @@ public final class LDAPConnectionPool
          new LinkedBlockingQueue<LDAPConnection>(numConnections);
     availableConnections.addAll(connList);
 
-    failedReplaceCount          =
+    failedReplaceCount                 =
          new AtomicInteger(maxConnections - availableConnections.size());
-    createIfNecessary           = true;
-    checkConnectionAgeOnRelease = false;
-    maxConnectionAge            = 0L;
-    minDisconnectInterval       = 0L;
-    lastExpiredDisconnectTime   = 0L;
-    maxWaitTime                 = 5000L;
-    closed                      = false;
+    createIfNecessary                  = true;
+    checkConnectionAgeOnRelease        = false;
+    maxConnectionAge                   = 0L;
+    maxDefunctReplacementConnectionAge = null;
+    minDisconnectInterval              = 0L;
+    lastExpiredDisconnectTime          = 0L;
+    maxWaitTime                        = 5000L;
+    closed                             = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -1719,6 +1734,9 @@ public final class LDAPConnectionPool
     try
     {
       final LDAPConnection conn = createConnection();
+      conn.setAttachment(ATTACHMENT_NAME_DEFUNCT_CONNECTION_REPLACEMENT,
+           Boolean.TRUE);
+
       if (! availableConnections.offer(conn))
       {
         conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_UNNEEDED,
@@ -1808,8 +1826,27 @@ public final class LDAPConnectionPool
    */
   private boolean connectionIsExpired(final LDAPConnection connection)
   {
+    final long maxAge;
+    if (maxDefunctReplacementConnectionAge != null)
+    {
+      final Object defunctReplacementObj = connection.getAttachment(
+           ATTACHMENT_NAME_DEFUNCT_CONNECTION_REPLACEMENT);
+      if (defunctReplacementObj == Boolean.TRUE)
+      {
+        maxAge = maxDefunctReplacementConnectionAge;
+      }
+      else
+      {
+        maxAge = maxConnectionAge;
+      }
+    }
+    else
+    {
+      maxAge = maxConnectionAge;
+    }
+
     // If connection expiration is not enabled, then there is nothing to do.
-    if (maxConnectionAge <= 0L)
+    if (maxAge <= 0L)
     {
       return false;
     }
@@ -1824,7 +1861,7 @@ public final class LDAPConnectionPool
 
     // Get the age of the connection and see if it is expired.
     final long connectionAge = currentTime - connection.getConnectTime();
-    return (connectionAge > maxConnectionAge);
+    return (connectionAge > maxAge);
   }
 
 
@@ -1967,6 +2004,72 @@ public final class LDAPConnectionPool
     else
     {
       this.maxConnectionAge = 0L;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the maximum connection age that should be used for connections
+   * that were created in order to replace defunct connections.  It is possible
+   * to define a custom maximum connection age for these connections to allow
+   * them to be closed and re-established more quickly to allow for a
+   * potentially quicker fail-back to a normal state.  Note, that if this
+   * capability is to be used, then the maximum age for these connections should
+   * be long enough to allow the problematic server to become available again
+   * under normal circumstances (e.g., it should be long enough for at least a
+   * shutdown and restart of the server, plus some overhead for potentially
+   * performing routine maintenance while the server is offline, or a chance for
+   * an administrator to be made available that a server has gone down).
+   *
+   * @return  The maximum connection age that should be used for connections
+   *          that were created in order to replace defunct connections, a value
+   *          of zero to indicate that no maximum age should be enforced, or
+   *          {@code null} if the value returned by the
+   *          {@link #getMaxConnectionAgeMillis()} method should be used.
+   */
+  public Long getMaxDefunctReplacementConnectionAgeMillis()
+  {
+    return maxDefunctReplacementConnectionAge;
+  }
+
+
+
+  /**
+   * Specifies the maximum connection age that should be used for connections
+   * that were created in order to replace defunct connections.  It is possible
+   * to define a custom maximum connection age for these connections to allow
+   * them to be closed and re-established more quickly to allow for a
+   * potentially quicker fail-back to a normal state.  Note, that if this
+   * capability is to be used, then the maximum age for these connections should
+   * be long enough to allow the problematic server to become available again
+   * under normal circumstances (e.g., it should be long enough for at least a
+   * shutdown and restart of the server, plus some overhead for potentially
+   * performing routine maintenance while the server is offline, or a chance for
+   * an administrator to be made available that a server has gone down).
+   *
+   * @param  maxDefunctReplacementConnectionAge  The maximum connection age that
+   *              should be used for connections that were created in order to
+   *              replace defunct connections.  It may be zero if no maximum age
+   *              should be enforced for such connections, or it may be
+   *              {@code null} if the value returned by the
+   *              {@link #getMaxConnectionAgeMillis()} method should be used.
+   */
+  public void setMaxDefunctReplacementConnectionAgeMillis(
+                   final Long maxDefunctReplacementConnectionAge)
+  {
+    if (maxDefunctReplacementConnectionAge == null)
+    {
+      this.maxDefunctReplacementConnectionAge = null;
+    }
+    else if (maxDefunctReplacementConnectionAge > 0L)
+    {
+      this.maxDefunctReplacementConnectionAge =
+           maxDefunctReplacementConnectionAge;
+    }
+    else
+    {
+      this.maxDefunctReplacementConnectionAge = 0L;
     }
   }
 

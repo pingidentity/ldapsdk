@@ -23,7 +23,9 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -259,6 +261,9 @@ public final class LDAPConnection
   // connection.
   private volatile long lastCommunicationTime;
 
+  // A map in which arbitrary attachments may be stored or managed.
+  private Map<String,Object> attachments;
+
   // The referral connector that will be used to establish connections to remote
   // servers when following a referral.
   private volatile ReferralConnector referralConnector;
@@ -395,6 +400,7 @@ public final class LDAPConnection
       }
     }
 
+    attachments          = null;
     connectionStatistics = new LDAPConnectionStatistics();
     connectionName       = null;
     connectionPoolName   = null;
@@ -4477,6 +4483,57 @@ public final class LDAPConnection
     synchronized (SCHEMA_SET)
     {
       return SCHEMA_SET.addAndGet(s);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the connection attachment with the specified name.
+   *
+   * @param  name  The name of the attachment to retrieve.  It must not be
+   *               {@code null}.
+   *
+   * @return  The connection attachment with the specified name, or {@code null}
+   *          if there is no such attachment.
+   */
+  synchronized Object getAttachment(final String name)
+  {
+    if (attachments == null)
+    {
+      return null;
+    }
+    else
+    {
+      return attachments.get(name);
+    }
+  }
+
+
+
+  /**
+   * Sets a connection attachment with the specified name and value.
+   *
+   * @param  name   The name of the attachment to set.  It must not be
+   *                {@code null}.
+   * @param  value  The value to use for the attachment.  It may be {@code null}
+   *                if an attachment with the specified name should be cleared
+   *                rather than overwritten.
+   */
+  synchronized void setAttachment(final String name, final Object value)
+  {
+    if (attachments == null)
+    {
+      attachments = new HashMap<String,Object>(10);
+    }
+
+    if (value == null)
+    {
+      attachments.remove(name);
+    }
+    else
+    {
+      attachments.put(name, value);
     }
   }
 
