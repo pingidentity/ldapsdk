@@ -83,6 +83,17 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Update the <tt>FailoverServerSet</tt> to make it possible to specify an alternate
+                  maximum connection age that will be used for "failover" connections (i.e.,
+                  connections established to any server except the first server in the list, or that
+                  are created using any server set other than the first set in the list).  This will
+                  only have any effect if the server set is used to create an
+                  <tt>LDAPConnectionPool</tt>, but it can be used to help ensure a faster fail-back
+                  to a "preferred" configuration after a connection failure is encountered.
+                  <br><br>
+                </li>
+
+                <li>
                   Add a new <tt>LDAPConnection.getLastCommunicationTime</tt> method that can be
                   used to determine the time that the connection was last used to send a request or
                   read a response (and therefore determine how long the connection has been idle).

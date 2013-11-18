@@ -160,10 +160,11 @@ public final class LDAPConnectionPool
 
   /**
    * The name of the connection property that may be used to indicate that a
-   * connection was created to replace a connection that was closed as defunct.
+   * particular connection should have a different maximum connection age than
+   * the default for this pool.
    */
-  private static final String ATTACHMENT_NAME_DEFUNCT_CONNECTION_REPLACEMENT =
-       LDAPConnectionPool.class.getName() + ".defunctConnectionReplacement";
+  static final String ATTACHMENT_NAME_MAX_CONNECTION_AGE =
+       LDAPConnectionPool.class.getName() + ".maxConnectionAge";
 
 
 
@@ -1734,8 +1735,16 @@ public final class LDAPConnectionPool
     try
     {
       final LDAPConnection conn = createConnection();
-      conn.setAttachment(ATTACHMENT_NAME_DEFUNCT_CONNECTION_REPLACEMENT,
-           Boolean.TRUE);
+      if (maxDefunctReplacementConnectionAge != null)
+      {
+        // Only set the maximum age if there isn't one already set for the
+        // connection (i.e., because it was defined by the server set).
+        if (conn.getAttachment(ATTACHMENT_NAME_MAX_CONNECTION_AGE) == null)
+        {
+          conn.setAttachment(ATTACHMENT_NAME_MAX_CONNECTION_AGE,
+               maxDefunctReplacementConnectionAge);
+        }
+      }
 
       if (! availableConnections.offer(conn))
       {
@@ -1826,19 +1835,15 @@ public final class LDAPConnectionPool
    */
   private boolean connectionIsExpired(final LDAPConnection connection)
   {
+    // There may be a custom maximum connection age for the connection.  If that
+    // is the case, then use that custom max age rather than the pool-default
+    // max age.
     final long maxAge;
-    if (maxDefunctReplacementConnectionAge != null)
+    final Object maxAgeObj =
+         connection.getAttachment(ATTACHMENT_NAME_MAX_CONNECTION_AGE);
+    if ((maxAgeObj != null) && (maxAgeObj instanceof Long))
     {
-      final Object defunctReplacementObj = connection.getAttachment(
-           ATTACHMENT_NAME_DEFUNCT_CONNECTION_REPLACEMENT);
-      if (defunctReplacementObj == Boolean.TRUE)
-      {
-        maxAge = maxDefunctReplacementConnectionAge;
-      }
-      else
-      {
-        maxAge = maxConnectionAge;
-      }
+      maxAge = (Long) maxAgeObj;
     }
     else
     {

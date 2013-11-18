@@ -147,6 +147,10 @@ public final class FailoverServerSet
   // Indicates whether to re-order the server set list if failover occurs.
   private final AtomicBoolean reOrderOnFailover;
 
+  // The maximum connection age that should be set for connections established
+  // using anything but the first server set.
+  private volatile Long maxFailoverConnectionAge;
+
   // The server sets for which we will allow failover.
   private final ServerSet[] serverSets;
 
@@ -257,6 +261,7 @@ public final class FailoverServerSet
          "FailoverServerSet addresses and ports arrays must be the same size.");
 
     reOrderOnFailover = new AtomicBoolean(false);
+    maxFailoverConnectionAge = null;
 
     final SocketFactory sf;
     if (socketFactory == null)
@@ -278,7 +283,6 @@ public final class FailoverServerSet
       co = connectionOptions;
     }
 
-
     serverSets = new ServerSet[addresses.length];
     for (int i=0; i < serverSets.length; i++)
     {
@@ -299,11 +303,12 @@ public final class FailoverServerSet
   {
     ensureNotNull(serverSets);
     ensureFalse(serverSets.length == 0,
-                "FailoverServerSet.serverSets must not be empty.");
+         "FailoverServerSet.serverSets must not be empty.");
 
     this.serverSets = serverSets;
 
     reOrderOnFailover = new AtomicBoolean(false);
+    maxFailoverConnectionAge = null;
   }
 
 
@@ -325,6 +330,7 @@ public final class FailoverServerSet
     serverSets.toArray(this.serverSets);
 
     reOrderOnFailover = new AtomicBoolean(false);
+    maxFailoverConnectionAge = null;
   }
 
 
@@ -382,6 +388,63 @@ public final class FailoverServerSet
   public void setReOrderOnFailover(final boolean reOrderOnFailover)
   {
     this.reOrderOnFailover.set(reOrderOnFailover);
+  }
+
+
+
+  /**
+   * Retrieves the maximum connection age that should be used for "failover"
+   * connections (i.e., connections that are established to any server other
+   * than the most-preferred server, or established using any server set other
+   * than the most-preferred set).  This will only be used if this failover
+   * server set is used to create an {@link LDAPConnectionPool}, for connections
+   * within that pool.
+   *
+   * @return  The maximum connection age that should be used for failover
+   *          connections, a value of zero to indicate that no maximum age
+   *          should apply to those connections, or {@code null} if the maximum
+   *          connection age should be determined by the associated connection
+   *          pool.
+   */
+  public Long getMaxFailoverConnectionAgeMillis()
+  {
+    return maxFailoverConnectionAge;
+  }
+
+
+
+  /**
+   * Specifies the maximum connection age that should be used for "failover"
+   * connections (i.e., connections that are established to any server other
+   * than the most-preferred server, or established using any server set other
+   * than the most-preferred set).  This will only be used if this failover
+   * server set is used to create an {@link LDAPConnectionPool}, for connections
+   * within that pool.
+   *
+   * @param  maxFailoverConnectionAge  The maximum connection age that should be
+   *                                   used for failover connections.  It may be
+   *                                   less than or equal to zero to indicate
+   *                                   that no maximum age should apply to such
+   *                                   connections, or {@code null} to indicate
+   *                                   that the maximum connection age should be
+   *                                   determined by the associated connection
+   *                                   pool.
+   */
+  public void setMaxFailoverConnectionAgeMillis(
+                   final Long maxFailoverConnectionAge)
+  {
+    if (maxFailoverConnectionAge == null)
+    {
+      this.maxFailoverConnectionAge = null;
+    }
+    else if (maxFailoverConnectionAge > 0L)
+    {
+      this.maxFailoverConnectionAge = maxFailoverConnectionAge;
+    }
+    else
+    {
+      this.maxFailoverConnectionAge = 0L;
+    }
   }
 
 
@@ -456,6 +519,12 @@ public final class FailoverServerSet
           }
 
           System.arraycopy(setCopy, 0, serverSets, 0, setCopy.length);
+          if (maxFailoverConnectionAge != null)
+          {
+            conn.setAttachment(
+                 LDAPConnectionPool.ATTACHMENT_NAME_MAX_CONNECTION_AGE,
+                 maxFailoverConnectionAge);
+          }
           return conn;
         }
         else
@@ -468,14 +537,23 @@ public final class FailoverServerSet
     {
       LDAPException lastException = null;
 
+      boolean first = true;
       for (final ServerSet s : serverSets)
       {
         try
         {
-          return s.getConnection(healthCheck);
+          final LDAPConnection conn = s.getConnection(healthCheck);
+          if ((! first) && (maxFailoverConnectionAge != null))
+          {
+            conn.setAttachment(
+                 LDAPConnectionPool.ATTACHMENT_NAME_MAX_CONNECTION_AGE,
+                 maxFailoverConnectionAge);
+          }
+          return conn;
         }
         catch (LDAPException le)
         {
+          first = false;
           debugException(le);
           lastException = le;
         }
