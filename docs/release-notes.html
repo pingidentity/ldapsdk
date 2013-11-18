@@ -74,9 +74,11 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
-                  Add new <tt>addAttribute</tt> and <tt>setAttribute</tt> methods to the entry
-                  class that make it possible to specify multiple string values for the attributes
-                  using a collection.
+                  Add a new <tt>FewestConnectionServerSet</tt> class that can be used to cause
+                  connections to be established to the server with the fewest number of established
+                  connections (based only on connections already created by that server set
+                  instance).  This can help ensure that the distribution of connections across
+                  multiple servers remains relatively even.
                   <br><br>
                 </li>
 
@@ -121,6 +123,13 @@ ${TARGET="offline"}                    <br>
                   than connections that were created under normal conditions.  This can help
                   ensure a faster fail-back to a more normal allocation of connections in a pool
                   that may have connections balanced across multiple servers.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add new <tt>addAttribute</tt> and <tt>setAttribute</tt> methods to the entry
+                  class that make it possible to specify multiple string values for the attributes
+                  using a collection.
                   <br><br>
                 </li>
 
