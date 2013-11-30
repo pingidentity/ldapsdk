@@ -2060,26 +2060,14 @@ public final class InMemoryRequestHandler
     }
 
 
+    // Perform the appropriate processing for the assertion and proxied
+    // authorization controls.
     // Perform the appropriate processing for the assertion, pre-read,
     // post-read, and proxied authorization controls.
     final DN authzDN;
     try
     {
       handleAssertionRequestControl(controlMap, entry);
-
-      final PreReadResponseControl preReadResponse =
-           handlePreReadControl(controlMap, entry);
-      if (preReadResponse != null)
-      {
-        responseControls.add(preReadResponse);
-      }
-
-      final PostReadResponseControl postReadResponse =
-           handlePostReadControl(controlMap, modifiedEntry);
-      if (postReadResponse != null)
-      {
-        responseControls.add(postReadResponse);
-      }
 
       authzDN = handleProxiedAuthControl(controlMap);
     }
@@ -2099,6 +2087,22 @@ public final class InMemoryRequestHandler
       modifiedEntry.setAttribute(new Attribute("modifyTimestamp",
            GeneralizedTimeMatchingRule.getInstance(),
            StaticUtils.encodeGeneralizedTime(new Date())));
+    }
+
+    // Perform the appropriate processing for the pre-read and post-read
+    // controls.
+    final PreReadResponseControl preReadResponse =
+         handlePreReadControl(controlMap, entry);
+    if (preReadResponse != null)
+    {
+      responseControls.add(preReadResponse);
+    }
+
+    final PostReadResponseControl postReadResponse =
+         handlePostReadControl(controlMap, modifiedEntry);
+    if (postReadResponse != null)
+    {
+      responseControls.add(postReadResponse);
     }
 
 
@@ -2632,28 +2636,12 @@ public final class InMemoryRequestHandler
       }
     }
 
-    // Perform the appropriate processing for the assertion, pre-read,
-    // post-read, and proxied authorization controls
-    // Perform the appropriate processing for the assertion, pre-read,
-    // post-read, and proxied authorization controls.
+    // Perform the appropriate processing for the assertion and proxied
+    // authorization controls
     final DN authzDN;
     try
     {
       handleAssertionRequestControl(controlMap, originalEntry);
-
-      final PreReadResponseControl preReadResponse =
-           handlePreReadControl(controlMap, originalEntry);
-      if (preReadResponse != null)
-      {
-        responseControls.add(preReadResponse);
-      }
-
-      final PostReadResponseControl postReadResponse =
-           handlePostReadControl(controlMap, updatedEntry);
-      if (postReadResponse != null)
-      {
-        responseControls.add(postReadResponse);
-      }
 
       authzDN = handleProxiedAuthControl(controlMap);
     }
@@ -2677,6 +2665,22 @@ public final class InMemoryRequestHandler
       updatedEntry.setAttribute(new Attribute("entryDN",
            DistinguishedNameMatchingRule.getInstance(),
            newDN.toNormalizedString()));
+    }
+
+    // Perform the appropriate processing for the pre-read and post-read
+    // controls.
+    final PreReadResponseControl preReadResponse =
+         handlePreReadControl(controlMap, originalEntry);
+    if (preReadResponse != null)
+    {
+      responseControls.add(preReadResponse);
+    }
+
+    final PostReadResponseControl postReadResponse =
+         handlePostReadControl(controlMap, updatedEntry);
+    if (postReadResponse != null)
+    {
+      responseControls.add(postReadResponse);
     }
 
     // Remove the old entry and add the new one.
