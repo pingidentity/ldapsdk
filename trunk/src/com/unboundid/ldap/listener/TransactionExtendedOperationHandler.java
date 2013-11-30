@@ -148,7 +148,7 @@ public final class TransactionExtendedOperationHandler
           catch (final LDAPException le)
           {
             Debug.debugException(le);
-            return new ExtendedResult(le.toLDAPResult());
+            return new ExtendedResult(le);
           }
         }
 
@@ -213,7 +213,7 @@ public final class TransactionExtendedOperationHandler
       {
         Debug.debugException(le);
         return new StartTransactionExtendedResult(
-             new ExtendedResult(le.toLDAPResult()));
+             new ExtendedResult(le));
       }
     }
 

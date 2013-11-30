@@ -71,8 +71,8 @@ import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
  * {
  *   // For an extended operation, this generally means that a problem was
  *   // encountered while trying to send the request or read the result.
- *   startTxnResult = new StartTransactionExtendedResult(new ExtendedResult(
- *        le.toLDAPResult()));
+ *   startTxnResult = new StartTransactionExtendedResult(
+ *        new ExtendedResult(le));
  * }
  * LDAPTestUtils.assertResultCodeEquals(startTxnResult, ResultCode.SUCCESS);
  * ASN1OctetString txnID = startTxnResult.getTransactionID();
@@ -141,8 +141,7 @@ import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
  *   }
  *   catch (LDAPException le)
  *   {
- *     endTxnResult = new EndTransactionExtendedResult(new ExtendedResult(
- *          le.toLDAPResult()));
+ *     endTxnResult = new EndTransactionExtendedResult(new ExtendedResult(le));
  *   }
  *   LDAPTestUtils.assertResultCodeEquals(endTxnResult, ResultCode.SUCCESS);
  * }

@@ -71,8 +71,7 @@ import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
  * {
  *   // For an extended operation, this generally means that a problem was
  *   // encountered while trying to send the request or read the result.
- *   whoAmIResult =
- *        new WhoAmIExtendedResult(new ExtendedResult(le.toLDAPResult()));
+ *   whoAmIResult = new WhoAmIExtendedResult(new ExtendedResult(le));
  * }
  *
  * LDAPTestUtils.assertResultCodeEquals(whoAmIResult, ResultCode.SUCCESS);

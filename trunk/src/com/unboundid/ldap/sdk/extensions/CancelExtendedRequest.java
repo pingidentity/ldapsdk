@@ -80,7 +80,7 @@ import static com.unboundid.util.Debug.*;
  * {
  *   // For an extended operation, this generally means that a problem was
  *   // encountered while trying to send the request or read the result.
- *   cancelResult = new ExtendedResult(le.toLDAPResult());
+ *   cancelResult = new ExtendedResult(le);
  * }
  *
  * switch (cancelResult.getResultCode().intValue())

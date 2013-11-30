@@ -138,6 +138,20 @@ public class ExtendedResult
 
 
   /**
+   * Creates a new extended result from the provided {@code LDAPException}.
+   * The extended result will not have an OID or value.
+   *
+   * @param  exception  The {@code LDAPException} to use to create this extended
+   *                    result.
+   */
+  public ExtendedResult(final LDAPException exception)
+  {
+    this(exception.toLDAPResult());
+  }
+
+
+
+  /**
    * Creates a new extended result initialized from all of the elements of the
    * provided extended response.
    *
