@@ -140,6 +140,21 @@ public class BindResult
 
 
   /**
+   * Creates a new bind result from the provided {@code LDAPException}.
+   *
+   * @param  exception  The {@code LDAPException} to use to create this bind
+   *                    result.
+   */
+  public BindResult(final LDAPException exception)
+  {
+    super(exception.toLDAPResult());
+
+    serverSASLCredentials = null;
+  }
+
+
+
+  /**
    * Creates a new bind result from the provided bind result.  This constructor
    * may be used in creating custom subclasses.
    *

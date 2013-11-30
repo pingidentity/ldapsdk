@@ -63,6 +63,19 @@ public final class CompareResult
 
 
   /**
+   * Creates a new compare result from the provided {@code LDAPException}.
+   *
+   * @param  exception  The {@code LDAPException} to use to create this compare
+   *                    result.
+   */
+  public CompareResult(final LDAPException exception)
+  {
+    super(exception.toLDAPResult());
+  }
+
+
+
+  /**
    * Creates a new compare result with the provided information.
    *
    * @param  messageID          The message ID for the LDAP message that is

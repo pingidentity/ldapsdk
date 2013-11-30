@@ -98,7 +98,7 @@ import static com.unboundid.util.StaticUtils.*;
  *   // For an extended operation, this generally means that a problem was
  *   // encountered while trying to send the request or read the result.
  *   passwordModifyResult = new PasswordModifyExtendedResult(
- *        new ExtendedResult(le.toLDAPResult()));
+ *        new ExtendedResult(le));
  * }
  *
  * LDAPTestUtils.assertResultCodeEquals(passwordModifyResult,

@@ -92,7 +92,7 @@ import static com.unboundid.util.Validator.*;
  * }
  * catch (LDAPException le)
  * {
- *   startTLSResult = new ExtendedResult(le.toLDAPResult());
+ *   startTLSResult = new ExtendedResult(le);
  * }
  * LDAPTestUtils.assertResultCodeEquals(startTLSResult, ResultCode.SUCCESS);
  *

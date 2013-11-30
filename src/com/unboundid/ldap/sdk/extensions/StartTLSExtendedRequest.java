@@ -80,7 +80,7 @@ import static com.unboundid.util.Debug.*;
  * {
  *   // For an extended operation, this generally means that a problem was
  *   // encountered while trying to send the request or read the result.
- *   startTLSResult = new ExtendedResult(le.toLDAPResult());
+ *   startTLSResult = new ExtendedResult(le);
  * }
  *
  * // Make sure that we can use the connection to interact with the server.
