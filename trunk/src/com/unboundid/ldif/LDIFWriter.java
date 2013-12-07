@@ -1003,65 +1003,7 @@ public final class LDIFWriter
     try
     {
       buffer.append(name);
-      buffer.append(':');
-
-      final byte[] valueBytes = value.getValue();
-      final int length = valueBytes.length;
-      if (length == 0)
-      {
-        buffer.append(' ');
-        return;
-      }
-
-      // If the value starts with a space, colon, or less-than character, then
-      // it must be base64-encoded.
-      switch (valueBytes[0])
-      {
-        case ' ':
-        case ':':
-        case '<':
-          buffer.append(':');
-          buffer.append(' ');
-          Base64.encode(valueBytes, buffer);
-          return;
-      }
-
-      // If the value ends with a space, then it should be base64-encoded.
-      if (valueBytes[length-1] == ' ')
-      {
-        buffer.append(':');
-        buffer.append(' ');
-        Base64.encode(valueBytes, buffer);
-        return;
-      }
-
-      // If any character in the value is outside the ASCII range, or is the
-      // NUL, LF, or CR character, then the value should be base64-encoded.
-      for (int i=0; i < length; i++)
-      {
-        if ((valueBytes[i] & 0x7F) != (valueBytes[i] & 0xFF))
-        {
-          buffer.append(':');
-          buffer.append(' ');
-          Base64.encode(valueBytes, buffer);
-          return;
-        }
-
-        switch (valueBytes[i])
-        {
-          case 0x00:  // The NUL character
-          case 0x0A:  // The LF character
-          case 0x0D:  // The CR character
-            buffer.append(':');
-            buffer.append(' ');
-            Base64.encode(valueBytes, buffer);
-            return;
-        }
-      }
-
-      // If we've gotten here, then the string value is acceptable.
-      buffer.append(' ');
-      buffer.append(valueBytes);
+      encodeValue(value, buffer);
     }
     finally
     {
@@ -1087,6 +1029,81 @@ public final class LDIFWriter
         }
       }
     }
+  }
+
+
+
+  /**
+   * Appends a string to the provided buffer consisting of the properly-encoded
+   * representation of the provided value, including the necessary colon(s) and
+   * space that precede it.  Depending on the content of the value, it will
+   * either be used as-is or base64-encoded.
+   *
+   * @param  value   The value for the attribute.
+   * @param  buffer  The buffer to which the value is to be written.
+   */
+  static void encodeValue(final ASN1OctetString value,
+                          final ByteStringBuffer buffer)
+  {
+    buffer.append(':');
+
+    final byte[] valueBytes = value.getValue();
+    final int length = valueBytes.length;
+    if (length == 0)
+    {
+      buffer.append(' ');
+      return;
+    }
+
+    // If the value starts with a space, colon, or less-than character, then
+    // it must be base64-encoded.
+    switch (valueBytes[0])
+    {
+      case ' ':
+      case ':':
+      case '<':
+        buffer.append(':');
+        buffer.append(' ');
+        Base64.encode(valueBytes, buffer);
+        return;
+    }
+
+    // If the value ends with a space, then it should be base64-encoded.
+    if (valueBytes[length-1] == ' ')
+    {
+      buffer.append(':');
+      buffer.append(' ');
+      Base64.encode(valueBytes, buffer);
+      return;
+    }
+
+    // If any character in the value is outside the ASCII range, or is the
+    // NUL, LF, or CR character, then the value should be base64-encoded.
+    for (int i=0; i < length; i++)
+    {
+      if ((valueBytes[i] & 0x7F) != (valueBytes[i] & 0xFF))
+      {
+        buffer.append(':');
+        buffer.append(' ');
+        Base64.encode(valueBytes, buffer);
+        return;
+      }
+
+      switch (valueBytes[i])
+      {
+        case 0x00:  // The NUL character
+        case 0x0A:  // The LF character
+        case 0x0D:  // The CR character
+          buffer.append(':');
+          buffer.append(' ');
+          Base64.encode(valueBytes, buffer);
+          return;
+      }
+    }
+
+    // If we've gotten here, then the string value is acceptable.
+    buffer.append(' ');
+    buffer.append(valueBytes);
   }
 
 

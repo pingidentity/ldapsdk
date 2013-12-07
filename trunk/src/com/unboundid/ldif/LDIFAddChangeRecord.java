@@ -24,6 +24,7 @@ package com.unboundid.ldif;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.ChangeType;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
@@ -60,7 +62,7 @@ public final class LDIFAddChangeRecord
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 5717427836786488295L;
+  private static final long serialVersionUID = 4722916031463878423L;
 
 
 
@@ -79,7 +81,26 @@ public final class LDIFAddChangeRecord
    */
   public LDIFAddChangeRecord(final String dn, final Attribute... attributes)
   {
-    super(dn);
+    this(dn, attributes, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF add change record with the provided DN and attributes.
+   *
+   * @param  dn          The DN for this LDIF add change record.  It must not be
+   *                     {@code null}.
+   * @param  attributes  The set of attributes for this LDIF add change record.
+   *                     It must not be {@code null} or empty.
+   * @param  controls    The set of controls for this LDIF add change record.
+   *                     It may be {@code null} or empty if there are no
+   *                     controls.
+   */
+  public LDIFAddChangeRecord(final String dn, final Attribute[] attributes,
+                             final List<Control> controls)
+  {
+    super(dn, controls);
 
     ensureNotNull(attributes);
     ensureTrue(attributes.length > 0,
@@ -100,7 +121,26 @@ public final class LDIFAddChangeRecord
    */
   public LDIFAddChangeRecord(final String dn, final List<Attribute> attributes)
   {
-    super(dn);
+    this(dn, attributes, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF add change record with the provided DN and attributes.
+   *
+   * @param  dn          The DN for this LDIF add change record.  It must not be
+   *                     {@code null}.
+   * @param  attributes  The set of attributes for this LDIF add change record.
+   *                     It must not be {@code null} or empty.
+   * @param  controls    The set of controls for this LDIF add change record.
+   *                     It may be {@code null} or empty if there are no
+   *                     controls.
+   */
+  public LDIFAddChangeRecord(final String dn, final List<Attribute> attributes,
+                             final List<Control> controls)
+  {
+    super(dn, controls);
 
     ensureNotNull(attributes);
     ensureFalse(attributes.isEmpty(),
@@ -120,7 +160,22 @@ public final class LDIFAddChangeRecord
    */
   public LDIFAddChangeRecord(final Entry entry)
   {
-    super(entry.getDN());
+    this(entry, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF add change record from the provided entry.
+   *
+   * @param  entry     The entry to use to create this LDIF add change record.
+   *                   It must not be {@code null}.
+   * @param  controls  The set of controls for this LDIF add change record.  It
+   *                   may be {@code null} or empty if there are no controls.
+   */
+  public LDIFAddChangeRecord(final Entry entry, final List<Control> controls)
+  {
+    super(entry.getDN(), controls);
 
     final Collection<Attribute> attrs = entry.getAttributes();
     attributes = new Attribute[attrs.size()];
@@ -142,7 +197,7 @@ public final class LDIFAddChangeRecord
    */
   public LDIFAddChangeRecord(final AddRequest addRequest)
   {
-    super(addRequest.getDN());
+    super(addRequest.getDN(), addRequest.getControlList());
 
     final List<Attribute> attrs = addRequest.getAttributes();
     attributes = new Attribute[attrs.size()];
@@ -181,13 +236,36 @@ public final class LDIFAddChangeRecord
 
 
   /**
-   * Creates an add request from this LDIF add change record.
+   * Creates an add request from this LDIF add change record.    Any controls
+   * included in this change record will be included in the request.
    *
    * @return  The add request created from this LDIF add change record.
    */
   public AddRequest toAddRequest()
   {
-    return new AddRequest(getDN(), attributes);
+    return toAddRequest(true);
+  }
+
+
+
+  /**
+   * Creates an add request from this LDIF add change record, optionally
+   * including any change record controls in the request.
+   *
+   * @param  includeControls  Indicates whether to include any controls in the
+   *                          request.
+   *
+   * @return  The add request created from this LDIF add change record.
+   */
+  public AddRequest toAddRequest(final boolean includeControls)
+  {
+    final AddRequest addRequest = new AddRequest(getDN(), attributes);
+    if (includeControls)
+    {
+      addRequest.setControls(getControls());
+    }
+
+    return addRequest;
   }
 
 
@@ -207,10 +285,11 @@ public final class LDIFAddChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult processChange(final LDAPInterface connection)
+  public LDAPResult processChange(final LDAPInterface connection,
+                                  final boolean includeControls)
          throws LDAPException
   {
-    return connection.add(toAddRequest());
+    return connection.add(toAddRequest(includeControls));
   }
 
 
@@ -223,7 +302,14 @@ public final class LDIFAddChangeRecord
   {
     List<String> ldifLines = new ArrayList<String>(2*attributes.length);
     ldifLines.add(LDIFWriter.encodeNameAndValue("dn",
-                                                new ASN1OctetString(getDN())));
+         new ASN1OctetString(getDN())));
+
+    for (final Control c : getControls())
+    {
+      ldifLines.add(LDIFWriter.encodeNameAndValue("control",
+           encodeControlString(c)));
+    }
+
     ldifLines.add("changetype: add");
 
     for (final Attribute a : attributes)
@@ -254,8 +340,16 @@ public final class LDIFAddChangeRecord
   public void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
-                                  wrapColumn);
+         wrapColumn);
     buffer.append(EOL_BYTES);
+
+    for (final Control c : getControls())
+    {
+      LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
+           wrapColumn);
+      buffer.append(EOL_BYTES);
+    }
+
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("add"),
                                   buffer, wrapColumn);
     buffer.append(EOL_BYTES);
@@ -280,8 +374,15 @@ public final class LDIFAddChangeRecord
   public void toLDIFString(final StringBuilder buffer, final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
-                                  wrapColumn);
+         wrapColumn);
     buffer.append(EOL);
+
+    for (final Control c : getControls())
+    {
+      LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
+           wrapColumn);
+      buffer.append(EOL);
+    }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("add"),
                                   buffer, wrapColumn);
@@ -316,7 +417,7 @@ public final class LDIFAddChangeRecord
 
       return hashCode;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return new Entry(getDN(), attributes).hashCode();
@@ -348,6 +449,13 @@ public final class LDIFAddChangeRecord
 
     final LDIFAddChangeRecord r = (LDIFAddChangeRecord) o;
 
+    final HashSet<Control> c1 = new HashSet<Control>(getControls());
+    final HashSet<Control> c2 = new HashSet<Control>(r.getControls());
+    if (! c1.equals(c2))
+    {
+      return false;
+    }
+
     final Entry e1 = new Entry(getDN(), attributes);
     final Entry e2 = new Entry(r.getDN(), r.attributes);
     return e1.equals(e2);
@@ -373,7 +481,26 @@ public final class LDIFAddChangeRecord
       }
       attributes[i].toString(buffer);
     }
+    buffer.append('}');
 
-    buffer.append("})");
+    final List<Control> controls = getControls();
+    if (! controls.isEmpty())
+    {
+      buffer.append(", controls={");
+
+      final Iterator<Control> iterator = controls.iterator();
+      while (iterator.hasNext())
+      {
+        iterator.next().toString(buffer);
+        if (iterator.hasNext())
+        {
+          buffer.append(',');
+        }
+      }
+
+      buffer.append('}');
+    }
+
+    buffer.append(')');
   }
 }

@@ -22,11 +22,14 @@ package com.unboundid.ldif;
 
 
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ChangeType;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
@@ -55,7 +58,7 @@ public final class LDIFDeleteChangeRecord
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 486284031156138191L;
+  private static final long serialVersionUID = 9173178539060889790L;
 
 
 
@@ -66,7 +69,22 @@ public final class LDIFDeleteChangeRecord
    */
   public LDIFDeleteChangeRecord(final String dn)
   {
-    super(dn);
+    this(dn, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF delete change record with the provided DN.
+   *
+   * @param  dn        The DN of the entry to delete.  It must not be
+   *                   {@code null}.
+   * @param  controls  The set of controls for this LDIF delete change record.
+   *                   It may be {@code null} or empty if there are no controls.
+   */
+  public LDIFDeleteChangeRecord(final String dn, final List<Control> controls)
+  {
+    super(dn, controls);
   }
 
 
@@ -79,19 +97,42 @@ public final class LDIFDeleteChangeRecord
    */
   public LDIFDeleteChangeRecord(final DeleteRequest deleteRequest)
   {
-    super(deleteRequest.getDN());
+    super(deleteRequest.getDN(), deleteRequest.getControlList());
   }
 
 
 
   /**
-   * Creates a delete request from this LDIF delete change record.
+   * Creates a delete request from this LDIF delete change record. Any change
+   * record controls will be included in the request
    *
-   * @return  The delete request created from this LDIF delete change record.
+   * @return The delete request created from this LDIF delete change record.
    */
   public DeleteRequest toDeleteRequest()
   {
-    return new DeleteRequest(getDN());
+    return toDeleteRequest(true);
+  }
+
+
+
+  /**
+   * Creates a delete request from this LDIF delete change record, optionally
+   * including any change record controls in the request.
+   *
+   * @param  includeControls  Indicates whether to include any controls in the
+   *                          request.
+   *
+   * @return The delete request created from this LDIF delete change record.
+   */
+  public DeleteRequest toDeleteRequest(final boolean includeControls)
+  {
+    final DeleteRequest deleteRequest = new DeleteRequest(getDN());
+    if (includeControls)
+    {
+      deleteRequest.setControls(getControls());
+    }
+
+    return deleteRequest;
   }
 
 
@@ -111,10 +152,11 @@ public final class LDIFDeleteChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult processChange(final LDAPInterface connection)
+  public LDAPResult processChange(final LDAPInterface connection,
+                                  final boolean includeControls)
          throws LDAPException
   {
-    return connection.delete(toDeleteRequest());
+    return connection.delete(toDeleteRequest(includeControls));
   }
 
 
@@ -125,25 +167,26 @@ public final class LDIFDeleteChangeRecord
   @Override()
   public String[] toLDIF(final int wrapColumn)
   {
-    if (wrapColumn > 0)
-    {
-      List<String> ldifLines = Arrays.asList(
-           LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN())),
-           "changetype: delete");
+    List<String> ldifLines = new ArrayList<String>(5);
+    ldifLines.add(LDIFWriter.encodeNameAndValue("dn",
+         new ASN1OctetString(getDN())));
 
+    for (final Control c : getControls())
+    {
+      ldifLines.add(LDIFWriter.encodeNameAndValue("control",
+           encodeControlString(c)));
+    }
+
+    ldifLines.add("changetype: delete");
+
+    if (wrapColumn > 2)
+    {
       ldifLines = LDIFWriter.wrapLines(wrapColumn, ldifLines);
+    }
 
-      final String[] lineArray = new String[ldifLines.size()];
-      return ldifLines.toArray(lineArray);
-    }
-    else
-    {
-      return new String[]
-      {
-        LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN())),
-        "changetype: delete"
-      };
-    }
+    final String[] ldifArray = new String[ldifLines.size()];
+    ldifLines.toArray(ldifArray);
+    return ldifArray;
   }
 
 
@@ -155,8 +198,16 @@ public final class LDIFDeleteChangeRecord
   public void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
-                                  wrapColumn);
+         wrapColumn);
     buffer.append(EOL_BYTES);
+
+    for (final Control c : getControls())
+    {
+      LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
+           wrapColumn);
+      buffer.append(EOL_BYTES);
+    }
+
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("delete"),
                                   buffer, wrapColumn);
     buffer.append(EOL_BYTES);
@@ -171,8 +222,16 @@ public final class LDIFDeleteChangeRecord
   public void toLDIFString(final StringBuilder buffer, final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
-                                  wrapColumn);
+         wrapColumn);
     buffer.append(EOL);
+
+    for (final Control c : getControls())
+    {
+      LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
+           wrapColumn);
+      buffer.append(EOL);
+    }
+
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("delete"),
                                   buffer, wrapColumn);
     buffer.append(EOL);
@@ -222,6 +281,13 @@ public final class LDIFDeleteChangeRecord
 
     final LDIFDeleteChangeRecord r = (LDIFDeleteChangeRecord) o;
 
+    final HashSet<Control> c1 = new HashSet<Control>(getControls());
+    final HashSet<Control> c2 = new HashSet<Control>(r.getControls());
+    if (! c1.equals(c2))
+    {
+      return false;
+    }
+
     try
     {
       return getParsedDN().equals(r.getParsedDN());
@@ -243,6 +309,26 @@ public final class LDIFDeleteChangeRecord
   {
     buffer.append("LDIFDeleteChangeRecord(dn='");
     buffer.append(getDN());
-    buffer.append("')");
+    buffer.append('\'');
+
+    final List<Control> controls = getControls();
+    if (! controls.isEmpty())
+    {
+      buffer.append(", controls={");
+
+      final Iterator<Control> iterator = controls.iterator();
+      while (iterator.hasNext())
+      {
+        iterator.next().toString(buffer);
+        if (iterator.hasNext())
+        {
+          buffer.append(',');
+        }
+      }
+
+      buffer.append('}');
+    }
+
+    buffer.append(')');
   }
 }
