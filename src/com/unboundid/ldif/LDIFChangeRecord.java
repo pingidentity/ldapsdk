@@ -22,7 +22,12 @@ package com.unboundid.ldif;
 
 
 
+import java.util.Collections;
+import java.util.List;
+
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ChangeType;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -119,9 +124,12 @@ public abstract class LDIFChangeRecord
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 2394617613961232499L;
+  private static final long serialVersionUID = 6917212392170911115L;
 
 
+
+  // The set of controls for the LDIF change record.
+  private final List<Control> controls;
 
   // The parsed DN for this LDIF change record.
   private volatile DN parsedDN;
@@ -134,14 +142,26 @@ public abstract class LDIFChangeRecord
   /**
    * Creates a new LDIF change record with the provided DN.
    *
-   * @param  dn  The DN of the LDIF change record to create.  It must not be
-   *             {@code null}.
+   * @param  dn        The DN of the LDIF change record to create.  It must not
+   *                   be {@code null}.
+   * @param  controls  The set of controls for the change record to create.  It
+   *                   may be {@code null} or empty if no controls are needed.
    */
-  protected LDIFChangeRecord(final String dn)
+  protected LDIFChangeRecord(final String dn, final List<Control> controls)
   {
     ensureNotNull(dn);
 
     this.dn = dn;
+    parsedDN = null;
+
+    if (controls == null)
+    {
+      this.controls = Collections.emptyList();
+    }
+    else
+    {
+      this.controls = Collections.unmodifiableList(controls);
+    }
   }
 
 
@@ -188,8 +208,22 @@ public abstract class LDIFChangeRecord
 
 
   /**
+   * Retrieves the set of controls for this LDIF change record.
+   *
+   * @return  The set of controls for this LDIF change record, or an empty array
+   *          if there are no controls.
+   */
+  public List<Control> getControls()
+  {
+    return controls;
+  }
+
+
+
+  /**
    * Apply the change represented by this LDIF change record to a directory
-   * server using the provided connection.
+   * server using the provided connection.  Any controls included in the
+   * change record will be included in the request.
    *
    * @param  connection  The connection to use to apply the change.
    *
@@ -198,7 +232,30 @@ public abstract class LDIFChangeRecord
    * @throws  LDAPException  If an error occurs while processing this change
    *                         in the associated directory server.
    */
-  public abstract LDAPResult processChange(final LDAPInterface connection)
+  public final LDAPResult processChange(final LDAPInterface connection)
+         throws LDAPException
+  {
+    return processChange(connection, true);
+  }
+
+
+
+  /**
+   * Apply the change represented by this LDIF change record to a directory
+   * server using the provided connection, optionally including any change
+   * record controls in the request.
+   *
+   * @param  connection       The connection to use to apply the change.
+   * @param  includeControls  Indicates whether to include any controls in the
+   *                          request.
+   *
+   * @return  An object providing information about the result of the operation.
+   *
+   * @throws  LDAPException  If an error occurs while processing this change
+   *                         in the associated directory server.
+   */
+  public abstract LDAPResult processChange(final LDAPInterface connection,
+                                           final boolean includeControls)
          throws LDAPException;
 
 
@@ -365,6 +422,39 @@ public abstract class LDIFChangeRecord
    */
   @Override()
   public abstract boolean equals(final Object o);
+
+
+
+  /**
+   * Encodes a string representation of the provided control for use in the
+   * LDIF representation of the change record.
+   *
+   * @param  c  The control to be encoded.
+   *
+   * @return  The string representation of the control.
+   */
+  static ASN1OctetString encodeControlString(final Control c)
+  {
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.append(c.getOID());
+
+    if (c.isCritical())
+    {
+      buffer.append(" true");
+    }
+    else
+    {
+      buffer.append(" false");
+    }
+
+    final ASN1OctetString value = c.getValue();
+    if (value != null)
+    {
+      LDIFWriter.encodeValue(value, buffer);
+    }
+
+    return buffer.toByteString().toASN1OctetString();
+  }
 
 
 
