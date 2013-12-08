@@ -1930,14 +1930,22 @@ public final class LDIFReader
     }
 
     final LDIFRecord r;
-    if ((lineList.size() > 1) &&
-        toLowerCase(lineList.get(1).toString()).startsWith("changetype:"))
+    if (lineList.size() == 1)
     {
-      r = decodeChangeRecord(unparsedRecord, relativeBasePath, false);
+      r = decodeEntry(unparsedRecord, relativeBasePath);
     }
     else
     {
-      r = decodeEntry(unparsedRecord, relativeBasePath);
+      final String lowerSecondLine = toLowerCase(lineList.get(1).toString());
+      if (lowerSecondLine.startsWith("control:") ||
+          lowerSecondLine.startsWith("changetype:"))
+      {
+        r = decodeChangeRecord(unparsedRecord, relativeBasePath, true);
+      }
+      else
+      {
+        r = decodeEntry(unparsedRecord, relativeBasePath);
+      }
     }
 
     debugLDIFRead(r);
