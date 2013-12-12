@@ -1070,7 +1070,7 @@ public final class LDAPConnection
    * @return  The connection pool with which this connection is associated, or
    *          {@code null} if it is not associated with any connection pool.
    */
-  AbstractConnectionPool getConnectionPool()
+  public AbstractConnectionPool getConnectionPool()
   {
     return connectionPool;
   }
