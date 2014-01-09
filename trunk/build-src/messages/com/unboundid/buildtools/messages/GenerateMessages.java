@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2013 UnboundID Corp.
+ * Copyright 2008-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.messages;

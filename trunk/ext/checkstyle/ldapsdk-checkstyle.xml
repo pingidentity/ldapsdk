@@ -4,7 +4,7 @@
     "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 
 <!--
- ! Copyright 2007-2013 UnboundID Corp.
+ ! Copyright 2007-2014 UnboundID Corp.
  ! All Rights Reserved.
  -->
 
@@ -47,7 +47,7 @@
     <!-- Ensure that all source files have the appropriate header. -->
     <module name="RegexpHeader">
       <property name="header"
-                value="/*\n * Copyright (\d\d\d\d-)?2013 UnboundID Corp.\n * All Rights Reserved.\n */" />
+                value="/*\n * Copyright (\d\d\d\d-)?2014 UnboundID Corp.\n * All Rights Reserved.\n */" />
     </module>
 
 
