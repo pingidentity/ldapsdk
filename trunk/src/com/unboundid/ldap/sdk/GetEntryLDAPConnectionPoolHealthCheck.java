@@ -365,7 +365,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
   {
     try
     {
-      final SearchResult result = conn.search(searchRequest);
+      final SearchResult result = conn.search(searchRequest.duplicate());
       if (result.getEntryCount() != 1)
       {
         throw new LDAPException(ResultCode.NO_RESULTS_RETURNED,
