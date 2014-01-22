@@ -1728,8 +1728,10 @@ public final class LDAPConnection
    * @param  addRequest      The add request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the add operation.  It must not be
-   *                         {@code null}.
+   *                         response for the add operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -1739,7 +1741,7 @@ public final class LDAPConnection
                                  final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(addRequest, resultListener);
+    ensureNotNull(addRequest);
 
     if (synchronousMode())
     {
@@ -1747,7 +1749,17 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return addRequest.processAsync(this, resultListener);
+    final AsyncResultListener listener;
+    if (resultListener == null)
+    {
+      listener = DiscardAsyncListener.getInstance();
+    }
+    else
+    {
+      listener = resultListener;
+    }
+
+    return addRequest.processAsync(this, listener);
   }
 
 
@@ -1758,8 +1770,10 @@ public final class LDAPConnection
    * @param  addRequest      The add request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the add operation.  It must not be
-   *                         {@code null}.
+   *                         response for the add operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -1981,8 +1995,10 @@ public final class LDAPConnection
    * @param  compareRequest  The compare request to be processed.  It must not
    *                         be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the compare operation.  It must not be
-   *                         {@code null}.
+   *                         response for the compare operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -1992,7 +2008,7 @@ public final class LDAPConnection
                              final AsyncCompareResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(compareRequest, resultListener);
+    ensureNotNull(compareRequest);
 
     if (synchronousMode())
     {
@@ -2000,7 +2016,17 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return compareRequest.processAsync(this, resultListener);
+    final AsyncCompareResultListener listener;
+    if (resultListener == null)
+    {
+      listener = DiscardAsyncListener.getInstance();
+    }
+    else
+    {
+      listener = resultListener;
+    }
+
+    return compareRequest.processAsync(this, listener);
   }
 
 
@@ -2011,8 +2037,10 @@ public final class LDAPConnection
    * @param  compareRequest  The compare request to be processed.  It must not
    *                         be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the compare operation.  It must not be
-   *                         {@code null}.
+   *                         response for the compare operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2111,8 +2139,10 @@ public final class LDAPConnection
    * @param  deleteRequest   The delete request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the delete operation.  It must not be
-   *                         {@code null}.
+   *                         response for the delete operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2122,7 +2152,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(deleteRequest, resultListener);
+    ensureNotNull(deleteRequest);
 
     if (synchronousMode())
     {
@@ -2130,7 +2160,17 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return deleteRequest.processAsync(this, resultListener);
+    final AsyncResultListener listener;
+    if (resultListener == null)
+    {
+      listener = DiscardAsyncListener.getInstance();
+    }
+    else
+    {
+      listener = resultListener;
+    }
+
+    return deleteRequest.processAsync(this, listener);
   }
 
 
@@ -2141,8 +2181,10 @@ public final class LDAPConnection
    * @param  deleteRequest   The delete request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the delete operation.  It must not be
-   *                         {@code null}.
+   *                         response for the delete operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2471,8 +2513,10 @@ public final class LDAPConnection
    * @param  modifyRequest   The modify request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify operation.  It must not be
-   *                         {@code null}.
+   *                         response for the modify operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2482,7 +2526,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(modifyRequest, resultListener);
+    ensureNotNull(modifyRequest);
 
     if (synchronousMode())
     {
@@ -2490,7 +2534,17 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return modifyRequest.processAsync(this, resultListener);
+    final AsyncResultListener listener;
+    if (resultListener == null)
+    {
+      listener = DiscardAsyncListener.getInstance();
+    }
+    else
+    {
+      listener = resultListener;
+    }
+
+    return modifyRequest.processAsync(this, listener);
   }
 
 
@@ -2501,8 +2555,10 @@ public final class LDAPConnection
    * @param  modifyRequest   The modify request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify operation.  It must not be
-   *                         {@code null}.
+   *                         response for the modify operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2640,8 +2696,10 @@ public final class LDAPConnection
    * @param  modifyDNRequest  The modify DN request to be processed.  It must
    *                          not be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify DN operation.  It must not
-   *                         be {@code null}.
+   *                         response for the modify DN operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2651,7 +2709,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(modifyDNRequest, resultListener);
+    ensureNotNull(modifyDNRequest);
 
     if (synchronousMode())
     {
@@ -2659,7 +2717,17 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    return modifyDNRequest.processAsync(this, resultListener);
+    final AsyncResultListener listener;
+    if (resultListener == null)
+    {
+      listener = DiscardAsyncListener.getInstance();
+    }
+    else
+    {
+      listener = resultListener;
+    }
+
+    return modifyDNRequest.processAsync(this, listener);
   }
 
 
@@ -2670,8 +2738,10 @@ public final class LDAPConnection
    * @param  modifyDNRequest  The modify DN request to be processed.  It must
    *                          not be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify DN operation.  It must not
-   *                         be {@code null}.
+   *                         response for the modify DN operation.  It may be
+   *                         {@code null} if the result is going to be obtained
+   *                         from the returned {@code AsyncRequestID} object via
+   *                         the {@code Future} API.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -3743,7 +3813,7 @@ public final class LDAPConnection
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}, and it must be configured with a
-   *                        search result listener that is an
+   *                        search result listener that is also an
    *                        {@code AsyncSearchResultListener}.
    *
    * @return  An async request ID that may be used to reference the operation.
@@ -3792,7 +3862,7 @@ public final class LDAPConnection
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}, and it must be configured with a
-   *                        search result listener that is an
+   *                        search result listener that is also an
    *                        {@code AsyncSearchResultListener}.
    *
    * @return  An async request ID that may be used to reference the operation.

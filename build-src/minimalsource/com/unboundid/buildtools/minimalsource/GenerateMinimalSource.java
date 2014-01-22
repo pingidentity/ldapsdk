@@ -131,6 +131,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.DecodeableControl",
     "com.unboundid.ldap.sdk.DeleteRequest",
     "com.unboundid.ldap.sdk.DereferencePolicy",
+    "com.unboundid.ldap.sdk.DiscardAsyncListener",
     "com.unboundid.ldap.sdk.DisconnectHandler",
     "com.unboundid.ldap.sdk.DisconnectInfo",
     "com.unboundid.ldap.sdk.DisconnectType",
