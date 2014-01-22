@@ -760,7 +760,7 @@ public final class LDAPThreadLocalConnectionPool
     }
 
     boolean created = false;
-    if (conn == null)
+    if ((conn == null) || (! conn.isConnected()))
     {
       conn = createConnection();
       connections.put(t, conn);
