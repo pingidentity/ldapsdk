@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.List;
+import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -161,7 +162,16 @@ final class SASLHelper
         return bindResult;
       }
 
-      byte[] serverCredBytes = bindResult.getServerSASLCredentials().getValue();
+      byte[] serverCredBytes;
+      ASN1OctetString serverCreds = bindResult.getServerSASLCredentials();
+      if (serverCreds == null)
+      {
+        serverCredBytes = null;
+      }
+      else
+      {
+        serverCredBytes = serverCreds.getValue();
+      }
 
       while (true)
       {
@@ -203,21 +213,69 @@ final class SASLHelper
         if (! bindResult.getResultCode().equals(
                    ResultCode.SASL_BIND_IN_PROGRESS))
         {
+          // Even if this is the final response, the server credentials may
+          // still have information useful to the SASL client (e.g., cipher
+          // information to use for applying quality of protection).  Feed that
+          // to the SASL client.
+          final ASN1OctetString serverCredentials =
+               bindResult.getServerSASLCredentials();
+          if (serverCredentials != null)
+          {
+            try
+            {
+              saslClient.evaluateChallenge(serverCredentials.getValue());
+            }
+            catch (final Exception e)
+            {
+              debugException(e);
+            }
+          }
+
           return bindResult;
         }
 
-        serverCredBytes = bindResult.getServerSASLCredentials().getValue();
+        serverCreds = bindResult.getServerSASLCredentials();
+        if (serverCreds == null)
+        {
+          serverCredBytes = null;
+        }
+        else
+        {
+          serverCredBytes = serverCreds.getValue();
+        }
       }
     }
     finally
     {
-      try
+      boolean hasNegotiatedSecurity = false;
+      if (saslClient.isComplete())
       {
-        saslClient.dispose();
+        final Object qopObject = saslClient.getNegotiatedProperty(Sasl.QOP);
+        if (qopObject != null)
+        {
+          final String qopString = toLowerCase(String.valueOf(qopObject));
+          if (qopString.contains(SASLQualityOfProtection.AUTH_INT.toString()) ||
+               qopString.contains(SASLQualityOfProtection.AUTH_CONF.toString()))
+          {
+            hasNegotiatedSecurity = true;
+          }
+        }
       }
-      catch (Exception e)
+
+      if (hasNegotiatedSecurity)
       {
-        debugException(e);
+        connection.applySASLQoP(saslClient);
+      }
+      else
+      {
+        try
+        {
+          saslClient.dispose();
+        }
+        catch (Exception e)
+        {
+          debugException(e);
+        }
       }
     }
   }

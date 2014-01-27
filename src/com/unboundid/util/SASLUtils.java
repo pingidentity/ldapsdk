@@ -35,6 +35,7 @@ import com.unboundid.ldap.sdk.ANONYMOUSBindRequest;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.CRAMMD5BindRequest;
 import com.unboundid.ldap.sdk.DIGESTMD5BindRequest;
+import com.unboundid.ldap.sdk.DIGESTMD5BindRequestProperties;
 import com.unboundid.ldap.sdk.EXTERNALBindRequest;
 import com.unboundid.ldap.sdk.GSSAPIBindRequest;
 import com.unboundid.ldap.sdk.GSSAPIBindRequestProperties;
@@ -42,6 +43,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.PLAINBindRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLBindRequest;
+import com.unboundid.ldap.sdk.SASLQualityOfProtection;
 
 import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
@@ -110,6 +112,15 @@ public final class SASLUtils
    * protocol.  It may be used in conjunction with the GSSAPI mechanism.
    */
   public static final String SASL_OPTION_PROTOCOL = "protocol";
+
+
+
+  /**
+   * The name of the SASL option that specifies the quality of protection that
+   * should be used for communication that occurs after the authentication has
+   * completed.
+   */
+  public static final String SASL_OPTION_QOP = "qop";
 
 
 
@@ -197,7 +208,9 @@ public final class SASLUtils
               new SASLOption(SASL_OPTION_AUTHZ_ID,
                    INFO_SASL_DIGEST_MD5_OPTION_AUTHZ_ID.get(), false, false),
               new SASLOption(SASL_OPTION_REALM,
-                   INFO_SASL_DIGEST_MD5_OPTION_REALM.get(), false, false)));
+                   INFO_SASL_DIGEST_MD5_OPTION_REALM.get(), false, false),
+              new SASLOption(SASL_OPTION_QOP,
+                   INFO_SASL_DIGEST_MD5_OPTION_QOP.get(), false, false)));
 
     m.put(toLowerCase(EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME),
          new SASLMechanismInfo(EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME,
@@ -220,6 +233,8 @@ public final class SASLUtils
                    INFO_SASL_GSSAPI_OPTION_PROTOCOL.get(), false, false),
               new SASLOption(SASL_OPTION_REALM,
                    INFO_SASL_GSSAPI_OPTION_REALM.get(), false, false),
+              new SASLOption(SASL_OPTION_QOP,
+                   INFO_SASL_GSSAPI_OPTION_QOP.get(), false, false),
               new SASLOption(SASL_OPTION_RENEW_TGT,
                    INFO_SASL_GSSAPI_OPTION_RENEW_TGT.get(), false, false),
               new SASLOption(SASL_OPTION_REQUIRE_CACHE,
@@ -673,17 +688,30 @@ public final class SASLUtils
                 CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
     }
 
+    final DIGESTMD5BindRequestProperties properties =
+         new DIGESTMD5BindRequestProperties(authID, password);
+
     // The authzID option is optional.
-    final String authzID = options.remove(toLowerCase(SASL_OPTION_AUTHZ_ID));
+    properties.setAuthorizationID(
+         options.remove(toLowerCase(SASL_OPTION_AUTHZ_ID)));
 
     // The realm option is optional.
-    final String realm = options.remove(toLowerCase(SASL_OPTION_REALM));
+    properties.setRealm(options.remove(toLowerCase(SASL_OPTION_REALM)));
+
+    // The QoP option is optional, and may contain multiple values that need to
+    // be parsed.
+    final String qopString = options.remove(toLowerCase(SASL_OPTION_QOP));
+    if (qopString != null)
+    {
+      properties.setAllowedQoP(
+           SASLQualityOfProtection.decodeQoPList(qopString));
+    }
 
     // Ensure no unsupported options were provided.
     ensureNoUnsupportedOptions(options,
          DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME);
 
-    return new DIGESTMD5BindRequest(authID, authzID, password, realm, controls);
+    return new DIGESTMD5BindRequest(properties, controls);
   }
 
 
@@ -777,6 +805,15 @@ public final class SASLUtils
 
     // The realm option is optional.
     gssapiProperties.setRealm(options.remove(toLowerCase(SASL_OPTION_REALM)));
+
+    // The QoP option is optional, and may contain multiple values that need to
+    // be parsed.
+    final String qopString = options.remove(toLowerCase(SASL_OPTION_QOP));
+    if (qopString != null)
+    {
+      gssapiProperties.setAllowedQoP(
+           SASLQualityOfProtection.decodeQoPList(qopString));
+    }
 
     // The renewTGT option is optional.
     gssapiProperties.setRenewTGT(getBooleanValue(options, SASL_OPTION_RENEW_TGT,

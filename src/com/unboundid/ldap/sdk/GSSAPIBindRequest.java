@@ -232,6 +232,10 @@ public final class GSSAPIBindRequest
   // The message ID from the last LDAP message sent from this request.
   private int messageID;
 
+  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
+  // request.
+  private final List<SASLQualityOfProtection> allowedQoP;
+
   // A list that will be updated with messages about any unhandled callbacks
   // encountered during processing.
   private final List<String> unhandledCallbackMessages;
@@ -529,6 +533,7 @@ public final class GSSAPIBindRequest
     authenticationID         = gssapiProperties.getAuthenticationID();
     password                 = gssapiProperties.getPassword();
     realm                    = gssapiProperties.getRealm();
+    allowedQoP               = gssapiProperties.getAllowedQoP();
     kdcAddress               = gssapiProperties.getKDCAddress();
     saslClientServerName     = gssapiProperties.getSASLClientServerName();
     servicePrincipalProtocol = gssapiProperties.getServicePrincipalProtocol();
@@ -662,6 +667,23 @@ public final class GSSAPIBindRequest
   public String getRealm()
   {
     return realm;
+  }
+
+
+
+  /**
+   * Retrieves the list of allowed qualities of protection that may be used for
+   * communication that occurs on the connection after the authentication has
+   * completed, in order from most preferred to least preferred.
+   *
+   * @return  The list of allowed qualities of protection that may be used for
+   *          communication that occurs on the connection after the
+   *          authentication has completed, in order from most preferred to
+   *          least preferred.
+   */
+  public List<SASLQualityOfProtection> getAllowedQoP()
+  {
+    return allowedQoP;
   }
 
 
@@ -1130,7 +1152,7 @@ public final class GSSAPIBindRequest
     final String[] mechanisms = { GSSAPI_MECHANISM_NAME };
 
     final HashMap<String,Object> saslProperties = new HashMap<String,Object>(2);
-    saslProperties.put(Sasl.QOP, "auth");
+    saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
     saslProperties.put(Sasl.SERVER_AUTH, "true");
 
     final SaslClient saslClient;
@@ -1179,6 +1201,7 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequestProperties gssapiProperties =
            new GSSAPIBindRequestProperties(authenticationID, authorizationID,
                 password, realm, kdcAddress, configFilePath);
+      gssapiProperties.setAllowedQoP(allowedQoP);
       gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
@@ -1294,6 +1317,7 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequestProperties gssapiProperties =
            new GSSAPIBindRequestProperties(authenticationID, authorizationID,
                 password, realm, kdcAddress, configFilePath);
+      gssapiProperties.setAllowedQoP(allowedQoP);
       gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
@@ -1340,6 +1364,10 @@ public final class GSSAPIBindRequest
       buffer.append(realm);
       buffer.append('\'');
     }
+
+    buffer.append(", qop='");
+    buffer.append(SASLQualityOfProtection.toString(allowedQoP));
+    buffer.append('\'');
 
     if (kdcAddress != null)
     {

@@ -23,10 +23,12 @@ package com.unboundid.asn1;
 
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.logging.Level;
+import javax.security.sasl.SaslClient;
 
 import com.unboundid.util.Mutable;
 import com.unboundid.util.ThreadSafety;
@@ -59,6 +61,10 @@ public final class ASN1StreamReader
   // subsequent reads of an element.
   private boolean ignoreSubsequentSocketTimeout;
 
+  // The input stream that will be used for reading data after it has been
+  // unwrapped by SASL processing.
+  private volatile ByteArrayInputStream saslInputStream;
+
   // The input stream from which data will be read.
   private final InputStream inputStream;
 
@@ -67,6 +73,10 @@ public final class ASN1StreamReader
 
   // The total number of bytes read from the underlying input stream.
   private long totalBytesRead;
+
+  // The SASL client that will be used to unwrap any data read over this
+  // stream reader.
+  private volatile SaslClient saslClient;
 
 
 
@@ -125,6 +135,8 @@ public final class ASN1StreamReader
     totalBytesRead                = 0L;
     ignoreInitialSocketTimeout    = false;
     ignoreSubsequentSocketTimeout = false;
+    saslClient                    = null;
+    saslInputStream               = null;
   }
 
 
@@ -273,9 +285,24 @@ public final class ASN1StreamReader
   public int peek()
          throws IOException
   {
-    inputStream.mark(1);
+    final InputStream is;
+    if (saslClient == null)
+    {
+      is = inputStream;
+    }
+    else
+    {
+      if (saslInputStream == null)
+      {
+        readAndDecodeSASLData(-1);
+      }
+
+      is = saslInputStream;
+    }
+
+    is.mark(1);
     final int byteRead = read(true);
-    inputStream.reset();
+    is.reset();
 
     return byteRead;
   }
@@ -384,6 +411,31 @@ public final class ASN1StreamReader
       return;
     }
 
+    if (saslClient != null)
+    {
+      int skippedSoFar = 0;
+      final byte[] skipBuffer = new byte[numBytes];
+      while (true)
+      {
+        final int bytesRead = read(skipBuffer, skippedSoFar,
+             (numBytes - skippedSoFar));
+        if (bytesRead < 0)
+        {
+          // We unexpectedly hit the end of the stream.  We'll just return since
+          // we clearly can't skip any more, and subsequent read attempts will
+          // fail.
+          return;
+        }
+
+        skippedSoFar += bytesRead;
+        totalBytesRead += bytesRead;
+        if (skippedSoFar >= numBytes)
+        {
+          return;
+        }
+      }
+    }
+
     long totalBytesSkipped = inputStream.skip(numBytes);
     while (totalBytesSkipped < numBytes)
     {
@@ -441,7 +493,7 @@ public final class ASN1StreamReader
     final byte[] value = new byte[length];
     while (valueBytesRead < length)
     {
-      final int bytesRead = read(false, value, valueBytesRead, bytesRemaining);
+      final int bytesRead = read(value, valueBytesRead, bytesRemaining);
       if (bytesRead < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -760,7 +812,7 @@ public final class ASN1StreamReader
     final byte[] value = new byte[length];
     while (valueBytesRead < length)
     {
-      final int bytesRead = read(false, value, valueBytesRead, bytesRemaining);
+      final int bytesRead = read(value, valueBytesRead, bytesRemaining);
       if (bytesRead < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -807,7 +859,7 @@ public final class ASN1StreamReader
     final byte[] value = new byte[length];
     while (valueBytesRead < length)
     {
-      final int bytesRead = read(false, value, valueBytesRead, bytesRemaining);
+      final int bytesRead = read(value, valueBytesRead, bytesRemaining);
       if (bytesRead < 0)
       {
         throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
@@ -906,9 +958,35 @@ public final class ASN1StreamReader
   private int read(final boolean initial)
           throws IOException
   {
+    if (saslClient != null)
+    {
+      if (saslInputStream != null)
+      {
+        final int b = saslInputStream.read();
+        if (b >= 0)
+        {
+          return b;
+        }
+      }
+
+      readAndDecodeSASLData(-1);
+      return saslInputStream.read();
+    }
+
     try
     {
-      return inputStream.read();
+      final int b = inputStream.read();
+      if ((saslClient == null) || (b < 0))
+      {
+        return b;
+      }
+      else
+      {
+        // This should only happen the first time after the SASL client has been
+        // installed.
+        readAndDecodeSASLData(b);
+        return saslInputStream.read();
+      }
     }
     catch (SocketTimeoutException ste)
     {
@@ -942,7 +1020,6 @@ public final class ASN1StreamReader
    * Reads data from the underlying input stream, optionally ignoring socket
    * timeout exceptions.
    *
-   * @param  initial  Indicates whether this is the initial read for an element.
    * @param  buffer   The buffer into which the data should be read.
    * @param  offset   The position at which to start placing the data that was
    *                  read.
@@ -953,10 +1030,24 @@ public final class ASN1StreamReader
    *
    * @throws  IOException  If a problem occurs while reading data.
    */
-  private int read(final boolean initial, final byte[] buffer, final int offset,
-                   final int length)
+  private int read(final byte[] buffer, final int offset, final int length)
           throws IOException
   {
+    if (saslClient != null)
+    {
+      if (saslInputStream != null)
+      {
+        final int bytesRead = saslInputStream.read(buffer, offset, length);
+        if (bytesRead > 0)
+        {
+          return bytesRead;
+        }
+      }
+
+      readAndDecodeSASLData(-1);
+      return saslInputStream.read(buffer, offset, length);
+    }
+
     try
     {
       return inputStream.read(buffer, offset, length);
@@ -964,8 +1055,7 @@ public final class ASN1StreamReader
     catch (SocketTimeoutException ste)
     {
       debugException(Level.FINEST, ste);
-      if ((initial && ignoreInitialSocketTimeout) ||
-          ((! initial) && ignoreSubsequentSocketTimeout))
+      if (ignoreSubsequentSocketTimeout)
       {
         while (true)
         {
@@ -984,5 +1074,103 @@ public final class ASN1StreamReader
         throw ste;
       }
     }
+  }
+
+
+
+  /**
+   * Sets the SASL client to use to unwrap any data read over this ASN.1 stream
+   * reader.
+   *
+   * @param  saslClient  The SASL client to use to unwrap any data read over
+   *                     this ASN.1 stream reader.
+   */
+  void setSASLClient(final SaslClient saslClient)
+  {
+    this.saslClient = saslClient;
+  }
+
+
+
+  /**
+   * Reads data from the underlying input stream, unwraps it using the
+   * configured SASL client, and makes the result available in a byte array
+   * input stream that will be used for subsequent reads.
+   *
+   * @param  firstByte  The first byte that has already been read.  This should
+   *                    only be used if the value is greater than or equal to
+   *                    zero.
+   *
+   * @throws  IOException  If a problem is encountered while reading from the
+   *                       underlying input stream or  decoding the data that
+   *                       has been read.
+   */
+  private void readAndDecodeSASLData(final int firstByte)
+          throws IOException
+  {
+    // The first four bytes must be the number of bytes of data to unwrap.
+    int numWrappedBytes = 0;
+    int numLengthBytes = 4;
+    if (firstByte >= 0)
+    {
+      numLengthBytes = 3;
+      numWrappedBytes = firstByte;
+    }
+
+    for (int i=0; i < numLengthBytes; i++)
+    {
+      final int b = inputStream.read();
+      if (b < 0)
+      {
+        if ((i == 0) && (firstByte < 0))
+        {
+          // This means that we hit the end of the input stream without
+          // reading any data.  This is fine and just means that the end of
+          // the input stream has been reached.
+          saslInputStream = new ByteArrayInputStream(NO_BYTES);
+        }
+        else
+        {
+          // This means that we hit the end of the input stream after having
+          // read a portion of the number of wrapped bytes.  This is an error.
+          throw new IOException(
+               ERR_STREAM_READER_EOS_READING_SASL_LENGTH.get(i));
+        }
+      }
+      else
+      {
+        numWrappedBytes = (numWrappedBytes << 8) | (b & 0xFF);
+      }
+    }
+
+    if ((maxElementSize > 0) && (numWrappedBytes > maxElementSize))
+    {
+      throw new IOException(ERR_READ_SASL_LENGTH_EXCEEDS_MAX.get(
+           numWrappedBytes, maxElementSize));
+    }
+
+    int wrappedDataPos = 0;
+    final byte[] wrappedData = new byte[numWrappedBytes];
+    while (true)
+    {
+      final int numBytesRead = inputStream.read(wrappedData, wrappedDataPos,
+           (numWrappedBytes - wrappedDataPos));
+      if (numBytesRead < 0)
+      {
+        throw new IOException(ERR_STREAM_READER_EOS_READING_SASL_DATA.get(
+             wrappedDataPos, numWrappedBytes));
+      }
+
+      wrappedDataPos += numBytesRead;
+      if (wrappedDataPos >= numWrappedBytes)
+      {
+        break;
+      }
+    }
+
+    final byte[] unwrappedData =
+         saslClient.unwrap(wrappedData, 0, numWrappedBytes);
+    saslInputStream = new ByteArrayInputStream(unwrappedData, 0,
+         unwrappedData.length);
   }
 }

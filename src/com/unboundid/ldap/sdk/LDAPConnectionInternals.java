@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -29,6 +30,7 @@ import java.util.logging.Level;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.ldap.protocol.LDAPMessage;
@@ -70,6 +72,9 @@ final class LDAPConnectionInternals
 
   // The output stream used to send requests to the server.
   private volatile OutputStream outputStream;
+
+  // The SASL client used to provide communication security via QoP.
+  private volatile SaslClient saslClient;
 
   // The socket used to communicate with the directory server.
   private final Socket socket;
@@ -120,9 +125,10 @@ final class LDAPConnectionInternals
       connection.setConnectStackTrace(Thread.currentThread().getStackTrace());
     }
 
-    connectTime               = System.currentTimeMillis();
-    nextMessageID             = new AtomicInteger(0);
-    synchronousMode           = options.useSynchronousMode();
+    connectTime     = System.currentTimeMillis();
+    nextMessageID   = new AtomicInteger(0);
+    synchronousMode = options.useSynchronousMode();
+    saslClient      = null;
 
     try
     {
@@ -131,7 +137,7 @@ final class LDAPConnectionInternals
       connectThread.start();
       socket = connectThread.getConnectedSocket(timeout);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new IOException(le.getMessage());
@@ -156,17 +162,17 @@ final class LDAPConnectionInternals
                          options.getLingerTimeoutSeconds());
       socket.setTcpNoDelay(options.useTCPNoDelay());
 
-      outputStream     = socket.getOutputStream();
+      outputStream     = new BufferedOutputStream(socket.getOutputStream());
       connectionReader = new LDAPConnectionReader(connection, this);
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       debugException(ioe);
       try
       {
         socket.close();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -315,6 +321,26 @@ final class LDAPConnectionInternals
   }
 
 
+
+  /**
+   * Converts this clear-text connection to one that uses SASL integrity and/or
+   * confidentiality.
+   *
+   * @param  saslClient  The SASL client that will be used to secure the
+   *                     communication.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to convert the
+   *                         connection to use SASL QoP.
+   */
+  void applySASLQoP(final SaslClient saslClient)
+       throws LDAPException
+  {
+    this.saslClient = saslClient;
+    connectionReader.applySASLQoP(saslClient);
+  }
+
+
+
   /**
    * Retrieves the message ID that should be used for the next message to send
    * to the directory server.
@@ -435,10 +461,29 @@ final class LDAPConnectionInternals
     try
     {
       final OutputStream os = outputStream;
-      buffer.writeTo(os);
+      if (saslClient == null)
+      {
+        buffer.writeTo(os);
+      }
+      else
+      {
+        // We need to wrap the data that was read using the SASL client, but we
+        // also need to precede that wrapped data with four bytes that specify
+        // the number of bytes of wrapped data.
+        final byte[] clearBytes = buffer.toByteArray();
+        final byte[] saslBytes =
+             saslClient.wrap(clearBytes, 0, clearBytes.length);
+        final byte[] lengthBytes = new byte[4];
+        lengthBytes[0] = (byte) ((saslBytes.length >> 24) & 0xFF);
+        lengthBytes[1] = (byte) ((saslBytes.length >> 16) & 0xFF);
+        lengthBytes[2] = (byte) ((saslBytes.length >> 8) & 0xFF);
+        lengthBytes[3] = (byte) (saslBytes.length & 0xFF);
+        os.write(lengthBytes);
+        os.write(saslBytes);
+      }
       os.flush();
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       debugException(ioe);
 
@@ -451,8 +496,6 @@ final class LDAPConnectionInternals
         return;
       }
 
-      final LDAPConnectionOptions connectionOptions =
-           connection.getConnectionOptions();
       final boolean closeRequested = connection.closeRequested();
       if (allowRetry && (! closeRequested) && (! connection.synchronousMode()))
       {
@@ -473,7 +516,7 @@ final class LDAPConnectionInternals
            ERR_CONN_SEND_ERROR.get(host + ':' + port, getExceptionMessage(ioe)),
            ioe);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -514,7 +557,7 @@ final class LDAPConnectionInternals
     {
       connectionReader.close(false);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -523,7 +566,7 @@ final class LDAPConnectionInternals
     {
       outputStream.close();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -532,9 +575,25 @@ final class LDAPConnectionInternals
     {
       socket.close();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
+    }
+
+    if (saslClient != null)
+    {
+      try
+      {
+        saslClient.dispose();
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
+      finally
+      {
+        saslClient = null;
+      }
     }
 
     debugDisconnect(host, port, connection, disconnectInfo.getType(),

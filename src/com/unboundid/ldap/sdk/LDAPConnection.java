@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.protocol.AbandonRequestProtocolOp;
@@ -896,6 +897,34 @@ public final class LDAPConnection
       internals.convertToTLS(sslSocketFactory);
     }
   }
+
+
+
+  /**
+   * Converts this clear-text connection to one that uses SASL integrity and/or
+   * confidentiality.
+   *
+   * @param  saslClient  The SASL client that will be used to secure the
+   *                     communication.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to convert the
+   *                         connection to use SASL QoP.
+   */
+  void applySASLQoP(final SaslClient saslClient)
+       throws LDAPException
+  {
+    final LDAPConnectionInternals internals = connectionInternals;
+    if (internals == null)
+    {
+      throw new LDAPException(ResultCode.SERVER_DOWN,
+           ERR_CONN_NOT_ESTABLISHED.get());
+    }
+    else
+    {
+      internals.applySASLQoP(saslClient);
+    }
+  }
+
 
 
   /**
