@@ -23,6 +23,8 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -128,6 +130,10 @@ public final class DIGESTMD5BindRequest
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
 
+  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
+  // request.
+  private final List<SASLQualityOfProtection> allowedQoP;
+
   // A list that will be updated with messages about any unhandled callbacks
   // encountered during processing.
   private final List<String> unhandledCallbackMessages;
@@ -204,8 +210,7 @@ public final class DIGESTMD5BindRequest
 
 
   /**
-   * Creates a new SASL DIGEST-MD5 bind request with the provided authentication
-   * ID and password.  It will not include an authorization ID or any controls.
+   * Creates a new SASL DIGEST-MD5 bind request with the provided information.
    *
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
@@ -233,8 +238,7 @@ public final class DIGESTMD5BindRequest
 
 
   /**
-   * Creates a new SASL DIGEST-MD5 bind request with the provided authentication
-   * ID and password.  It will not include an authorization ID or any controls.
+   * Creates a new SASL DIGEST-MD5 bind request with the provided information.
    *
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
@@ -262,8 +266,7 @@ public final class DIGESTMD5BindRequest
 
 
   /**
-   * Creates a new SASL DIGEST-MD5 bind request with the provided authentication
-   * ID and password.  It will not include an authorization ID or any controls.
+   * Creates a new SASL DIGEST-MD5 bind request with the provided information.
    *
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
@@ -290,6 +293,34 @@ public final class DIGESTMD5BindRequest
     this.authorizationID  = authorizationID;
     this.password         = password;
     this.realm            = realm;
+
+    allowedQoP = Collections.unmodifiableList(
+         Arrays.asList(SASLQualityOfProtection.AUTH));
+
+    unhandledCallbackMessages = new ArrayList<String>(5);
+  }
+
+
+
+  /**
+   * Creates a new SASL DIGEST-MD5 bind request with the provided set of
+   * properties.
+   *
+   * @param  properties  The properties to use for this
+   * @param  controls    The set of controls to include in the request.
+   */
+  public DIGESTMD5BindRequest(final DIGESTMD5BindRequestProperties properties,
+                              final Control... controls)
+  {
+    super(controls);
+
+    ensureNotNull(properties);
+
+    authenticationID = properties.getAuthenticationID();
+    authorizationID  = properties.getAuthorizationID();
+    password         = properties.getPassword();
+    realm            = properties.getRealm();
+    allowedQoP       = properties.getAllowedQoP();
 
     unhandledCallbackMessages = new ArrayList<String>(5);
   }
@@ -370,6 +401,23 @@ public final class DIGESTMD5BindRequest
 
 
   /**
+   * Retrieves the list of allowed qualities of protection that may be used for
+   * communication that occurs on the connection after the authentication has
+   * completed, in order from most preferred to least preferred.
+   *
+   * @return  The list of allowed qualities of protection that may be used for
+   *          communication that occurs on the connection after the
+   *          authentication has completed, in order from most preferred to
+   *          least preferred.
+   */
+  public List<SASLQualityOfProtection> getAllowedQoP()
+  {
+    return allowedQoP;
+  }
+
+
+
+  /**
    * Sends this bind request to the target server over the provided connection
    * and returns the corresponding response.
    *
@@ -393,7 +441,7 @@ public final class DIGESTMD5BindRequest
     final String[] mechanisms = { DIGESTMD5_MECHANISM_NAME };
 
     final HashMap<String,Object> saslProperties = new HashMap<String,Object>();
-    saslProperties.put(Sasl.QOP, "auth");
+    saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
     saslProperties.put(Sasl.SERVER_AUTH, "false");
 
     final SaslClient saslClient;
@@ -434,8 +482,13 @@ public final class DIGESTMD5BindRequest
   public DIGESTMD5BindRequest getRebindRequest(final String host,
                                                final int port)
   {
-    return new DIGESTMD5BindRequest(authenticationID, authorizationID, password,
-                                    realm, getControls());
+    final DIGESTMD5BindRequestProperties properties =
+         new DIGESTMD5BindRequestProperties(authenticationID, password);
+    properties.setAuthorizationID(authorizationID);
+    properties.setRealm(realm);
+    properties.setAllowedQoP(allowedQoP);
+
+    return new DIGESTMD5BindRequest(properties, getControls());
   }
 
 
@@ -464,9 +517,17 @@ public final class DIGESTMD5BindRequest
         final RealmCallback rc = (RealmCallback) callback;
         if (realm == null)
         {
-          unhandledCallbackMessages.add(
-               ERR_DIGESTMD5_REALM_REQUIRED_BUT_NONE_PROVIDED.get(
-                    String.valueOf(rc.getPrompt())));
+          final String defaultRealm = rc.getDefaultText();
+          if (defaultRealm == null)
+          {
+            unhandledCallbackMessages.add(
+                 ERR_DIGESTMD5_REALM_REQUIRED_BUT_NONE_PROVIDED.get(
+                      String.valueOf(rc.getPrompt())));
+          }
+          else
+          {
+            rc.setText(defaultRealm);
+          }
         }
         else
         {
@@ -543,9 +604,14 @@ public final class DIGESTMD5BindRequest
   @Override()
   public DIGESTMD5BindRequest duplicate(final Control[] controls)
   {
+    final DIGESTMD5BindRequestProperties properties =
+         new DIGESTMD5BindRequestProperties(authenticationID, password);
+    properties.setAuthorizationID(authorizationID);
+    properties.setRealm(realm);
+    properties.setAllowedQoP(allowedQoP);
+
     final DIGESTMD5BindRequest bindRequest =
-         new DIGESTMD5BindRequest(authenticationID, authorizationID, password,
-              realm, controls);
+         new DIGESTMD5BindRequest(properties, controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
     return bindRequest;
   }
@@ -575,6 +641,10 @@ public final class DIGESTMD5BindRequest
       buffer.append(realm);
       buffer.append('\'');
     }
+
+    buffer.append(", qop='");
+    buffer.append(SASLQualityOfProtection.toString(allowedQoP));
+    buffer.append('\'');
 
     final Control[] controls = getControls();
     if (controls.length > 0)

@@ -63,6 +63,7 @@ public final class GenerateMinimalSource
     "com.unboundid.asn1.ASN1StreamReaderSequence",
     "com.unboundid.asn1.ASN1StreamReaderSet",
     "com.unboundid.asn1.ASN1Writer",
+    "com.unboundid.asn1.InternalASN1Helper",
     "com.unboundid.asn1.package-info",
 
     "com.unboundid.ldap.matchingrules.AcceptAllSimpleMatchingRule",
