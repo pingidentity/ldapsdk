@@ -1130,6 +1130,25 @@ public final class InMemoryRequestHandler
 
     authenticatedDN = DN.NULL_DN;
 
+
+    // If this operation type requires authentication and it is a simple bind
+    // request , then ensure that the request includes credentials.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.BIND)))
+    {
+      if ((request.getCredentialsType() ==
+           BindRequestProtocolOp.CRED_TYPE_SIMPLE) &&
+           ((request.getSimplePassword() == null) ||
+                request.getSimplePassword().getValueLength() == 0))
+      {
+        return new LDAPMessage(messageID, new BindResponseProtocolOp(
+             ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
+             ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
+      }
+    }
+
+
     // Get the parsed bind DN.
     final DN bindDN;
     try
@@ -1164,6 +1183,19 @@ public final class InMemoryRequestHandler
       {
         final BindResult bindResult = handler.processSASLBind(this, messageID,
              bindDN, request.getSASLCredentials(), controls);
+
+        // If the SASL bind was successful but the connection is
+        // unauthenticated, then see if we allow that.
+        if ((bindResult.getResultCode() == ResultCode.SUCCESS) &&
+            (authenticatedDN == DN.NULL_DN) &&
+            config.getAuthenticationRequiredOperationTypes().contains(
+                 OperationType.BIND))
+        {
+          return new LDAPMessage(messageID, new BindResponseProtocolOp(
+               ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
+               ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
+        }
+
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
              bindResult.getResultCode().intValue(),
              bindResult.getMatchedDN(), bindResult.getDiagnosticMessage(),
