@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -186,19 +187,33 @@ final class AsyncSearchHelper
 
     if (response instanceof ConnectionClosedResponse)
     {
-      final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
-      final String message = ccr.getMessage();
-      if (message == null)
+      if (! responseReturned.compareAndSet(false, true))
       {
-        throw new LDAPException(ccr.getResultCode(),
-             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get());
+        return;
+      }
+
+      final String message;
+      final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
+      final String ccrMessage = ccr.getMessage();
+      if (ccrMessage == null)
+      {
+        message = ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get();
       }
       else
       {
-        throw new LDAPException(ccr.getResultCode(),
-             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(
-                  message));
+        message = ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(
+             ccrMessage);
       }
+
+      connection.getConnectionStatistics().incrementNumSearchResponses(
+           numEntries, numReferences, System.nanoTime() - createTime);
+
+      final SearchResult searchResult = new SearchResult(
+           asyncRequestID.getMessageID(), ccr.getResultCode(), message, null,
+           StaticUtils.NO_STRINGS, numEntries, numReferences,
+           StaticUtils.NO_CONTROLS);
+      resultListener.searchResultReceived(asyncRequestID, searchResult);
+      asyncRequestID.setResult(searchResult);
     }
     else if (response instanceof SearchResultEntry)
     {
