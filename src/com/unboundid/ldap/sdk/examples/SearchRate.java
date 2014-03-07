@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.ParseException;
@@ -45,6 +46,7 @@ import com.unboundid.util.HorizontalAlignment;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OutputFormat;
+import com.unboundid.util.RateAdjustor;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -52,6 +54,7 @@ import com.unboundid.util.ValuePattern;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
@@ -120,6 +123,11 @@ import static com.unboundid.util.StaticUtils.*;
  *       is still necessary to specify a sufficient number of threads for
  *       achieving this rate.  If this option is not provided, then the tool
  *       will run at the maximum rate for the specified number of threads.</LI>
+ *   <LI>"--variableRateData {path}" -- specifies the path to a file containing
+ *       information needed to allow the tool to vary the target rate over time.
+ *       If this option is not provided, then the tool will either use a fixed
+ *       target rate as specified by the "--ratePerSecond" argument, or it will
+ *       run at the maximum rate.</LI>
  *   <LI>"--warmUpIntervals {num}" -- specifies the number of intervals to
  *       complete before beginning overall statistics collection.</LI>
  *   <LI>"--timestampFormat {format}" -- specifies the format to use for
@@ -190,6 +198,9 @@ public final class SearchRate
 
   // The target rate of searches per second.
   private IntegerArgument ratePerSecond;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument variableRateData;
 
   // The number of warm-up intervals to perform.
   private IntegerArgument warmUpIntervals;
@@ -395,13 +406,20 @@ public final class SearchRate
 
     description = "The target number of searches to perform per second.  It " +
                   "is still necessary to specify a sufficient number of " +
-                  "threads for achieving this rate.  If this option is not " +
-                  "provided, then the tool will run at the maximum rate for " +
-                  "the specified number of threads.";
+                  "threads for achieving this rate.  If neither this option " +
+                  "nor --variableRateData is provided, then the tool will " +
+                  "run at the maximum rate for the specified number of " +
+                  "threads.";
     ratePerSecond = new IntegerArgument('r', "ratePerSecond", false, 1,
                                         "{searches-per-second}", description,
                                         1, Integer.MAX_VALUE);
     parser.addArgument(ratePerSecond);
+
+    description = RateAdjustor.getInputDescription();
+    variableRateData = new FileArgument(null, "variableRateData", false, 1,
+                                    "{path}", description, true, true, true,
+                                    false);
+    parser.addArgument(variableRateData);
 
     description = "The number of intervals to complete before beginning " +
                   "overall statistics collection.  Specifying a nonzero " +
@@ -590,13 +608,41 @@ public final class SearchRate
     // If the --ratePerSecond option was specified, then limit the rate
     // accordingly.
     FixedRateBarrier fixedRateBarrier = null;
-    if (ratePerSecond.isPresent())
+    if (ratePerSecond.isPresent() || variableRateData.isPresent())
     {
+      // We might not have a rate per second if --variableRateData is specified.
+      // The rate typically doesn't matter except when we have warm-up
+      // intervals.  In this case, we'll run at the max rate.
+      final int ratePerInterval =
+           (ratePerSecond.getValue() == null) ? Integer.MAX_VALUE :
+                                                ratePerSecond.getValue();
+
       final int intervalSeconds = collectionInterval.getValue();
-      final int ratePerInterval = ratePerSecond.getValue() * intervalSeconds;
 
       fixedRateBarrier =
            new FixedRateBarrier(1000L * intervalSeconds, ratePerInterval);
+    }
+
+
+    // If --variableRateData was specified, then initialize a RateAdjustor.
+    RateAdjustor rateAdjustor = null;
+    if (variableRateData.isPresent())
+    {
+      try
+      {
+        rateAdjustor = RateAdjustor.newInstance(fixedRateBarrier,
+             ratePerSecond.getValue(), variableRateData.getValue());
+      }
+      catch (IOException e)
+      {
+        err("Initializing the variable rates failed: " + e.getMessage());
+        return ResultCode.PARAM_ERROR;
+      }
+      catch (IllegalArgumentException e)
+      {
+        err("Initializing the variable rates failed: " + e.getMessage());
+        return ResultCode.PARAM_ERROR;
+      }
     }
 
 
@@ -724,6 +770,15 @@ public final class SearchRate
     }
 
 
+    // Start the RateAdjustor before the threads so that the initial value is
+    // in place before any load is generated unless we're doing a warm-up in
+    // which case, we'll start it after the warm-up is complete.
+    if ((rateAdjustor != null) && (remainingWarmUpIntervals <= 0))
+    {
+      rateAdjustor.start();
+    }
+
+
     // Indicate that the threads can start running.
     try
     {
@@ -741,6 +796,16 @@ public final class SearchRate
     long    lastEndTime         = System.nanoTime();
     for (long i=0; i < totalIntervals; i++)
     {
+      if (rateAdjustor != null)
+      {
+        if (! rateAdjustor.isAlive())
+        {
+          out("All of the rates in " + variableRateData.getValue().getName() +
+              " have been completed.");
+          break;
+        }
+      }
+
       final long startTimeMillis = System.currentTimeMillis();
       final long sleepTimeMillis = nextIntervalStartTime - startTimeMillis;
       nextIntervalStartTime += intervalMillis;
@@ -808,6 +873,10 @@ public final class SearchRate
         {
           out("Warm-up completed.  Beginning overall statistics collection.");
           setOverallStartTime = true;
+          if (rateAdjustor != null)
+          {
+            rateAdjustor.start();
+          }
         }
       }
       else
@@ -854,6 +923,13 @@ public final class SearchRate
       }
 
       lastEndTime = endTime;
+    }
+
+
+    // Shut down the RateAdjustor if we have one.
+    if (rateAdjustor != null)
+    {
+      rateAdjustor.shutDown();
     }
 
 
