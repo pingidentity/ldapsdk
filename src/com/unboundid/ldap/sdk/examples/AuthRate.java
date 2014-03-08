@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -50,6 +51,7 @@ import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ValuePattern;
+import com.unboundid.util.WakeableSleeper;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
@@ -58,6 +60,7 @@ import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
 
+import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
 
 
@@ -158,6 +161,9 @@ public final class AuthRate
 
 
 
+  // Indicates whether a request has been made to stop running.
+  private final AtomicBoolean stopRequested;
+
   // The argument used to indicate whether to generate output in CSV format.
   private BooleanArgument csvFormat;
 
@@ -207,6 +213,12 @@ public final class AuthRate
 
   // The argument used to specify the password to use to authenticate.
   private StringArgument userPassword;
+
+  // The thread currently being used to run the searchrate tool.
+  private volatile Thread runningThread;
+
+  // A wakeable sleeper that will be used to sleep between reporting intervals.
+  private final WakeableSleeper sleeper;
 
 
 
@@ -264,6 +276,9 @@ public final class AuthRate
   public AuthRate(final OutputStream outStream, final OutputStream errStream)
   {
     super(outStream, errStream);
+
+    stopRequested = new AtomicBoolean(false);
+    sleeper = new WakeableSleeper();
   }
 
 
@@ -506,6 +521,29 @@ public final class AuthRate
   @Override()
   public ResultCode doToolProcessing()
   {
+    runningThread = Thread.currentThread();
+
+    try
+    {
+      return doToolProcessingInternal();
+    }
+    finally
+    {
+      runningThread = null;
+    }
+  }
+
+
+
+  /**
+   * Performs the actual processing for this tool.  In this case, it gets a
+   * connection to the directory server and uses it to perform the requested
+   * searches.
+   *
+   * @return  The result code for the processing that was performed.
+   */
+  private ResultCode doToolProcessingInternal()
+  {
     // Determine the random seed to use.
     final Long seed;
     if (randomSeed.isPresent())
@@ -525,6 +563,7 @@ public final class AuthRate
     }
     catch (ParseException pe)
     {
+      debugException(pe);
       err("Unable to parse the base DN value pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -536,6 +575,7 @@ public final class AuthRate
     }
     catch (ParseException pe)
     {
+      debugException(pe);
       err("Unable to parse the filter pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -585,11 +625,13 @@ public final class AuthRate
       }
       catch (IOException e)
       {
+        debugException(e);
         err("Initializing the variable rates failed: " + e.getMessage());
         return ResultCode.PARAM_ERROR;
       }
       catch (IllegalArgumentException e)
       {
+        debugException(e);
         err("Initializing the variable rates failed: " + e.getMessage());
         return ResultCode.PARAM_ERROR;
       }
@@ -683,6 +725,7 @@ public final class AuthRate
       }
       catch (LDAPException le)
       {
+        debugException(le);
         err("Unable to connect to the directory server:  ",
             getExceptionMessage(le));
         return le.getResultCode();
@@ -716,7 +759,12 @@ public final class AuthRate
     try
     {
       barrier.await();
-    } catch (Exception e) {}
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+    }
+
     long overallStartTime = System.nanoTime();
     long nextIntervalStartTime = System.currentTimeMillis() + intervalMillis;
 
@@ -741,13 +789,15 @@ public final class AuthRate
       final long startTimeMillis = System.currentTimeMillis();
       final long sleepTimeMillis = nextIntervalStartTime - startTimeMillis;
       nextIntervalStartTime += intervalMillis;
-      try
+      if (sleepTimeMillis > 0)
       {
-        if (sleepTimeMillis > 0)
-        {
-          Thread.sleep(sleepTimeMillis);
-        }
-      } catch (Exception e) {}
+        sleeper.sleep(sleepTimeMillis);
+      }
+
+      if (stopRequested.get())
+      {
+        break;
+      }
 
       final long endTime          = System.nanoTime();
       final long intervalDuration = endTime - lastEndTime;
@@ -866,6 +916,31 @@ public final class AuthRate
     }
 
     return resultCode;
+  }
+
+
+
+  /**
+   * Requests that this tool stop running.  This method will attempt to wait
+   * for all threads to complete before returning control to the caller.
+   */
+  public void stopRunning()
+  {
+    stopRequested.set(true);
+    sleeper.wakeup();
+
+    final Thread t = runningThread;
+    if (t != null)
+    {
+      try
+      {
+        t.join();
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
+    }
   }
 
 
