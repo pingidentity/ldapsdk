@@ -450,14 +450,24 @@ public final class RateAdjustor extends Thread
 
       do
       {
-        for (final ObjectPair<Double,Long> rateAndDuration: ratesAndDurations)
+        final List<ObjectPair<Double,Long>> ratesAndEndTimes =
+             new ArrayList<ObjectPair<Double,Long>>(ratesAndDurations.size());
+        long endTime = System.currentTimeMillis();
+        for (final ObjectPair<Double,Long> rateAndDuration : ratesAndDurations)
+        {
+          endTime += rateAndDuration.getSecond();
+          ratesAndEndTimes.add(new ObjectPair<Double,Long>(
+               rateAndDuration.getFirst(), endTime));
+        }
+
+        for (final ObjectPair<Double,Long> rateAndEndTime: ratesAndEndTimes)
         {
           if (shutDown)
           {
             return;
           }
 
-          final double rate = rateAndDuration.getFirst();
+          final double rate = rateAndEndTime.getFirst();
           final long intervalMillis = barrier.getTargetRate().getFirst();
           final int perInterval = calculatePerInterval(intervalMillis, rate);
 
@@ -470,8 +480,12 @@ public final class RateAdjustor extends Thread
           }
 
           // Hold at this rate for the specified duration.
-          final long durationMillis = rateAndDuration.getSecond();
-          sleeper.sleep(durationMillis);
+          final long durationMillis =
+               rateAndEndTime.getSecond() - System.currentTimeMillis();
+          if (durationMillis > 0L)
+          {
+            sleeper.sleep(durationMillis);
+          }
         }
       }
       while (repeat);
