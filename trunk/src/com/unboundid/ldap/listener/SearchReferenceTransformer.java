@@ -34,7 +34,9 @@ import com.unboundid.util.ObjectPair;
 /**
  * This interface may be implemented by a class which wishes to intercept and
  * alter search result references in some way before they are returned to the
- * client, and/or to prevent them from being returned altogether.
+ * client, and/or to prevent them from being returned altogether.  Search
+ * reference transformers may be enabled or disabled by adding them to or
+ * removing them from an {@link LDAPListenerClientConnection}.
  */
 @Extensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)

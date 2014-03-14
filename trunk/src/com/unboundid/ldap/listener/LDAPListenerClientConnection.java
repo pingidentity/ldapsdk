@@ -730,15 +730,28 @@ public final class LDAPListenerClientConnection
 
       for (final SearchEntryTransformer t : searchEntryTransformers)
       {
-        final ObjectPair<SearchResultEntryProtocolOp,Control[]> p =
-             t.transformEntry(messageID, op, c);
-        if (p == null)
+        try
         {
-          return;
-        }
+          final ObjectPair<SearchResultEntryProtocolOp,Control[]> p =
+               t.transformEntry(messageID, op, c);
+          if (p == null)
+          {
+            return;
+          }
 
-        op = p.getFirst();
-        c  = p.getSecond();
+          op = p.getFirst();
+          c  = p.getSecond();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          sendMessage(new LDAPMessage(messageID, protocolOp, c));
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_CONN_SEARCH_ENTRY_TRANSFORMER_EXCEPTION.get(
+                    t.getClass().getName(), String.valueOf(op),
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -819,15 +832,28 @@ public final class LDAPListenerClientConnection
 
       for (final SearchReferenceTransformer t : searchReferenceTransformers)
       {
-        final ObjectPair<SearchResultReferenceProtocolOp,Control[]> p =
-             t.transformReference(messageID, op, c);
-        if (p == null)
+        try
         {
-          return;
-        }
+          final ObjectPair<SearchResultReferenceProtocolOp,Control[]> p =
+               t.transformReference(messageID, op, c);
+          if (p == null)
+          {
+            return;
+          }
 
-        op = p.getFirst();
-        c  = p.getSecond();
+          op = p.getFirst();
+          c  = p.getSecond();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          sendMessage(new LDAPMessage(messageID, protocolOp, c));
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_CONN_SEARCH_REFERENCE_TRANSFORMER_EXCEPTION.get(
+                    t.getClass().getName(), String.valueOf(op),
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -879,15 +905,28 @@ public final class LDAPListenerClientConnection
       for (final IntermediateResponseTransformer t :
            intermediateResponseTransformers)
       {
-        final ObjectPair<IntermediateResponseProtocolOp,Control[]> p =
-             t.transformIntermediateResponse(messageID, op, c);
-        if (p == null)
+        try
         {
-          return;
-        }
+          final ObjectPair<IntermediateResponseProtocolOp,Control[]> p =
+               t.transformIntermediateResponse(messageID, op, c);
+          if (p == null)
+          {
+            return;
+          }
 
-        op = p.getFirst();
-        c  = p.getSecond();
+          op = p.getFirst();
+          c  = p.getSecond();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          sendMessage(new LDAPMessage(messageID, protocolOp, c));
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_CONN_INTERMEDIATE_RESPONSE_TRANSFORMER_EXCEPTION.get(
+                    t.getClass().getName(), String.valueOf(op),
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -916,7 +955,8 @@ public final class LDAPListenerClientConnection
               result.getMatchedDN(), result.getDiagnosticMessage(),
               StaticUtils.toList(result.getReferralURLs()), result.getOID(),
               result.getValue()),
-         result.getResponseControls());
+         result.getResponseControls()
+    );
   }
 
 
