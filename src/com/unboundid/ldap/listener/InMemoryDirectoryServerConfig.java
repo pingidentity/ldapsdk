@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Handler;
 
+import com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
@@ -126,14 +127,18 @@ public class InMemoryDirectoryServerConfig
   // The exception handler that should be used for the listener.
   private LDAPListenerExceptionHandler exceptionHandler;
 
-  // The listener configurations that should be used for accepting connections
-  // to the server.
-  private final List<InMemoryListenerConfig> listenerConfigs;
-
   // The extended operation handlers that may be used to process extended
   // operations in the server.
   private final List<InMemoryExtendedOperationHandler>
        extendedOperationHandlers;
+
+  // The listener configurations that should be used for accepting connections
+  // to the server.
+  private final List<InMemoryListenerConfig> listenerConfigs;
+
+  // The operation interceptors that should be used with the in-memory directory
+  // server.
+  private final List<InMemoryOperationInterceptor> operationInterceptors;
 
   // The SASL bind handlers that may be used to process SASL bind requests in
   // the server.
@@ -225,6 +230,8 @@ public class InMemoryDirectoryServerConfig
     vendorName                           = "UnboundID Corp.";
     vendorVersion                        = Version.FULL_VERSION_STRING;
 
+    operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(5);
+
     extendedOperationHandlers =
          new ArrayList<InMemoryExtendedOperationHandler>(3);
     extendedOperationHandlers.add(new PasswordModifyExtendedOperationHandler());
@@ -252,6 +259,9 @@ public class InMemoryDirectoryServerConfig
 
     listenerConfigs = new ArrayList<InMemoryListenerConfig>(
          cfg.listenerConfigs);
+
+    operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(
+         cfg.operationInterceptors);
 
     extendedOperationHandlers = new ArrayList<InMemoryExtendedOperationHandler>(
          cfg.extendedOperationHandlers);
@@ -823,6 +833,40 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves a list of the operation interceptors that may be used to
+   * intercept and transform requests before they are processed by the in-memory
+   * directory server, and/or to intercept and transform responses before they
+   * are returned to the client.  The contents of the list may be altered by the
+   * caller.
+   *
+   * @return  An updatable list of the operation interceptors that may be used
+   *          to intercept and transform requests and/or responses.
+   */
+  public List<InMemoryOperationInterceptor> getOperationInterceptors()
+  {
+    return operationInterceptors;
+  }
+
+
+
+  /**
+   * Adds the provided operation interceptor to the list of operation
+   * interceptors that may be used to transform requests before they are
+   * processed by the in-memory directory server, and/or to transform responses
+   * before they are returned to the client.
+   *
+   * @param  interceptor  The operation interceptor that should be invoked in
+   *                      the course of processing requests and responses.
+   */
+  public void addInMemoryOperationInterceptor(
+                   final InMemoryOperationInterceptor interceptor)
+  {
+    operationInterceptors.add(interceptor);
+  }
+
+
+
+  /**
    * Retrieves a list of the extended operation handlers that may be used to
    * process extended operations in the server.  The contents of the list may
    * be altered by the caller.
@@ -973,7 +1017,7 @@ public class InMemoryDirectoryServerConfig
    * any search operation.  A value less than or equal to zero indicates that no
    * maximum limit should be enforced.
    *
-   * @param  maxSizeLimit  The maximim number of entries that the server should
+   * @param  maxSizeLimit  The maximum number of entries that the server should
    *                       return in any search operation.
    */
   public void setMaxSizeLimit(final int maxSizeLimit)
