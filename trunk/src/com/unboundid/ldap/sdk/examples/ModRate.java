@@ -637,12 +637,11 @@ public final class ModRate
       // We might not have a rate per second if --variableRateData is specified.
       // The rate typically doesn't matter except when we have warm-up
       // intervals.  In this case, we'll run at the max rate.
-      final int ratePerInterval =
-           (ratePerSecond.getValue() == null) ? Integer.MAX_VALUE :
-                                                ratePerSecond.getValue();
-
       final int intervalSeconds = collectionInterval.getValue();
-
+      final int ratePerInterval =
+           (ratePerSecond.getValue() == null)
+           ? Integer.MAX_VALUE
+           : ratePerSecond.getValue() * intervalSeconds;
       fixedRateBarrier =
            new FixedRateBarrier(1000L * intervalSeconds, ratePerInterval);
     }
