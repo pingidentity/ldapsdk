@@ -131,6 +131,10 @@ import static com.unboundid.util.StaticUtils.*;
  *       If this option is not provided, then the tool will either use a fixed
  *       target rate as specified by the "--ratePerSecond" argument, or it will
  *       run at the maximum rate.</LI>
+ *   <LI>"--generateSampleRateFile {path}" -- specifies the path to a file to
+ *       which sample data will be written illustrating and describing the
+ *       format of the file expected to be used in conjunction with the
+ *       "--variableRateData" argument.</LI>
  *   <LI>"--warmUpIntervals {num}" -- specifies the number of intervals to
  *       complete before beginning overall statistics collection.</LI>
  *   <LI>"--timestampFormat {format}" -- specifies the format to use for
@@ -204,6 +208,9 @@ public final class SearchRate
 
   // The target rate of searches per second.
   private IntegerArgument ratePerSecond;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument sampleRateFile;
 
   // The argument used to specify a variable rate file.
   private FileArgument variableRateData;
@@ -430,11 +437,23 @@ public final class SearchRate
                                         1, Integer.MAX_VALUE);
     parser.addArgument(ratePerSecond);
 
-    description = RateAdjustor.getInputDescription();
-    variableRateData = new FileArgument(null, "variableRateData", false, 1,
-                                    "{path}", description, true, true, true,
-                                    false);
+    final String variableRateDataArgName = "variableRateData";
+    final String generateSampleRateFileArgName = "generateSampleRateFile";
+    description = RateAdjustor.getVariableRateDataArgumentDescription(
+         generateSampleRateFileArgName);
+    variableRateData = new FileArgument(null, variableRateDataArgName, false, 1,
+                                        "{path}", description, true, true, true,
+                                        false);
     parser.addArgument(variableRateData);
+
+    description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
+         variableRateDataArgName);
+    sampleRateFile = new FileArgument(null, generateSampleRateFileArgName,
+                                      false, 1, "{path}", description, false,
+                                      true, true, false);
+    sampleRateFile.setUsageArgument(true);
+    parser.addArgument(sampleRateFile);
+    parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
 
     description = "The number of intervals to complete before beginning " +
                   "overall statistics collection.  Specifying a nonzero " +
@@ -574,6 +593,26 @@ public final class SearchRate
    */
   private ResultCode doToolProcessingInternal()
   {
+    // If the sample rate file argument was specified, then generate the sample
+    // variable rate data file and return.
+    if (sampleRateFile.isPresent())
+    {
+      try
+      {
+        RateAdjustor.writeSampleVariableRateFile(sampleRateFile.getValue());
+        return ResultCode.SUCCESS;
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        err("An error occurred while trying to write sample variable data " +
+             "rate file '", sampleRateFile.getValue().getAbsolutePath(),
+             "':  ", getExceptionMessage(e));
+        return ResultCode.LOCAL_ERROR;
+      }
+    }
+
+
     // Determine the random seed to use.
     final Long seed;
     if (randomSeed.isPresent())
@@ -1059,9 +1098,9 @@ public final class SearchRate
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>();
+         new LinkedHashMap<String[],String>(2);
 
-    final String[] args =
+    String[] args =
     {
       "--hostname", "server.example.com",
       "--port", "389",
@@ -1075,11 +1114,22 @@ public final class SearchRate
       "--attribute", "mail",
       "--numThreads", "10"
     };
-    final String description =
+    String description =
          "Test search performance by searching randomly across a set " +
          "of one million users located below 'dc=example,dc=com' with ten " +
          "concurrent threads.  The entries returned to the client will " +
          "include the givenName, sn, and mail attributes.";
+    examples.put(args, description);
+
+    args = new String[]
+    {
+      "--generateSampleRateFile", "variable-rate-data.txt"
+    };
+    description =
+         "Generate a sample variable rate definition file that may be used " +
+         "in conjunction with the --variableRateData argument.  The sample " +
+         "file will include comments that describe the format for data to be " +
+         "included in this file.";
     examples.put(args, description);
 
     return examples;
