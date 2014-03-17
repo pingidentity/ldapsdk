@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.unboundid.util.args.ArgumentException;
@@ -107,6 +107,14 @@ public final class RateAdjustor extends Thread
 
 
   /**
+   * The text that must appear on a line by itself in order to denote that the
+   * end of the file header has been reached.
+   */
+  public static final String END_HEADER_TEXT = "END HEADER";
+
+
+
+  /**
    * The header key that represents the default duration.
    */
   public static final String DEFAULT_DURATION_KEY = "default-duration";
@@ -124,7 +132,7 @@ public final class RateAdjustor extends Thread
    * The value of the format key that represents a list of rates and durations
    * within the input file.
    */
-  public static final String FORMAT_VALUE_RATE_DURATION = "rate-duration";
+  public static final String FORMAT_VALUE_RATE_DURATION = "rate-and-duration";
 
 
 
@@ -159,6 +167,11 @@ public final class RateAdjustor extends Thread
   // * rate-change-behavior, so you can specify the behavior that should be
   //   exhibited when transitioning from one rate to another (e.g., instant
   //   jump, linear acceleration, sine-based acceleration, etc.).
+  // * jitter, so we can introduce some amount of random jitter in the target
+  //   rate (in which the actual target rate may be frequently adjusted to be
+  //   slightly higher or lower than the designated target rate).
+  // * spike, so we can introduce periodic, substantial increases in the target
+  //   rate.
 
 
 
@@ -217,15 +230,202 @@ public final class RateAdjustor extends Thread
 
 
   /**
-   * Return a description for the format of the input file that is fit to
-   * include in a command line tool argument description help.
+   * Retrieves a string that may be used as the description of the argument that
+   * specifies the path to a variable rate data file for use in conjunction with
+   * this rate adjustor.
    *
-   * @return   A description for the format of the input file that is fit to
-   * include in a command line tool argument description help.
+   * @param  genArgName  The name of the argument that may be used to generate a
+   *                     sample variable rate data file.
+   *
+   * @return   A string that may be used as the description of the argument that
+   *           specifies the path to a variable rate data file for use in
+   *           conjunction with this rate adjustor.
    */
-  public static String getInputDescription()
+  public static String getVariableRateDataArgumentDescription(
+                            final String genArgName)
   {
-    return INFO_RATE_ADJUSTOR_INPUT_DESCRIPTION.get(COMMENT_START);
+    return INFO_RATE_ADJUSTOR_VARIABLE_RATE_DATA_ARG_DESCRIPTION.get(
+         genArgName);
+  }
+
+
+
+  /**
+   * Retrieves a string that may be used as the description of the argument that
+   * generates a sample variable rate data file that serves as documentation of
+   * the variable rate data format.
+   *
+   * @param  dataFileArgName  The name of the argument that specifies the path
+   *                          to a file
+   *
+   * @return   A string that may be used as the description of the argument that
+   *           generates a sample variable rate data file that serves as
+   *           documentation of the variable rate data format.
+   */
+  public static String getGenerateSampleVariableRateFileDescription(
+                            final String dataFileArgName)
+  {
+    return INFO_RATE_ADJUSTOR_GENERATE_SAMPLE_RATE_FILE_ARG_DESCRIPTION.get(
+         dataFileArgName);
+  }
+
+
+
+  /**
+   * Writes a sample variable write data file to the specified location.
+   *
+   * @param  f  The path to the file to be written.
+   *
+   * @throws  IOException  If a problem is encountered while writing to the
+   *                       specified file.
+   */
+  public static void writeSampleVariableRateFile(final File f)
+         throws IOException
+  {
+    final PrintWriter w = new PrintWriter(f);
+    try
+    {
+      w.println("# This is an example variable rate data file.  All blank " +
+           "lines will be ignored.");
+      w.println("# All lines starting with the '#' character are considered " +
+           "comments and will");
+      w.println("# also be ignored.");
+      w.println();
+      w.println("# The beginning of the file must be a header containing " +
+           "properties pertaining");
+      w.println("# to the variable rate data.  All headers must be in the " +
+           "format 'name=value',");
+      w.println("# in which any spaces surrounding the equal sign will be " +
+           "ignored.");
+      w.println();
+      w.println("# The first header should be the 'format' header, which " +
+           "specifies the format");
+      w.println("# for the variable rate data file.  This header is " +
+           "required.  At present, the");
+      w.println("# only supported format is 'rate-and-duration', although " +
+           "additional formats may");
+      w.println("# be added in the future.");
+      w.println("format = rate-and-duration");
+      w.println();
+      w.println("# The optional 'default-duration' header may be used to " +
+           "specify a duration that");
+      w.println("# will be used for any interval that does not explicitly " +
+           "specify a duration.");
+      w.println("# The duration must consist of a positive integer value " +
+           "followed by a time");
+      w.println("# unit (with zero or more spaces separating the integer " +
+           "value from the unit).");
+      w.println("# The supported time units are:");
+      w.println("#");
+      w.println("# - nanoseconds, nanosecond, nanos, nano, ns");
+      w.println("# - microseconds, microseconds, micros, micro, us");
+      w.println("# - milliseconds, millisecond, millis, milli, ms");
+      w.println("# - seconds, second, secs, sec, s");
+      w.println("# - minutes, minute, mins, min, m");
+      w.println("# - hours, hour, hrs, hr, h");
+      w.println("# - days, day, d");
+      w.println("#");
+      w.println("# If no 'default-duration' header is present, then every " +
+           "data interval must");
+      w.println("# include an explicitly-specified duration.");
+      w.println("default-duration = 10 seconds");
+      w.println();
+      w.println("# The optional 'repeat' header may be used to indicate how " +
+           "the tool should");
+      w.println("# behave once the end of the variable rate data definitions " +
+           "has been reached.");
+      w.println("# If the 'repeat' header is present with a value of 'true', " +
+           "then the tool will");
+      w.println("# operate in an endless loop, returning to the beginning of " +
+           "the variable rate");
+      w.println("# definitions once the end has been reached.  If the " +
+           "'repeat' header is present");
+      w.println("# with a value of 'false', or if the 'repeat' header is " +
+           "absent, then the tool");
+      w.println("# will exit after it has processed all of the variable " +
+           "rate definitions.");
+      w.println("repeat = true");
+      w.println();
+      w.println("# After all header properties have been specified, the end " +
+           "of the header must");
+      w.println("# be signified with a line containing only the text 'END " +
+           "HEADER'.");
+      w.println("END HEADER");
+      w.println();
+      w.println();
+      w.println("# After the header is complete, the variable rate " +
+           "definitions should be");
+      w.println("# provided.  Each definition should be given on a line by " +
+           "itself, and should");
+      w.println("# contain a target rate per second and an optional length " +
+           "of time to maintain");
+      w.println("# that rate.");
+      w.println("#");
+      w.println("# The target rate must always be present in a variable " +
+           "rate definition.  It may");
+      w.println("# be either a positive integer value that specifies the " +
+           "absolute target rate");
+      w.println("# per second (e.g., a value of '1000' indicates a target " +
+           "rate of 1000");
+      w.println("# operations per second), or it may be a floating-point " +
+           "value followed by the");
+      w.println("# letter 'x' to indicate that it is a multiplier of the " +
+           "value specified by the");
+      w.println("# '--ratePerSecond' argument (e.g., if the " +
+           "'--ratePerSecond' argument is");
+      w.println("# present with a value of 1000, then a target rate value " +
+           "of '0.75x' indicates a");
+      w.println("# target rate that is 75% of the '--ratePerSecond' value, " +
+           "or 750 operations per");
+      w.println("# second).  If the latter format is used, then the " +
+           "'--ratePerSecond' argument");
+      w.println("# must be provided.");
+      w.println("#");
+      w.println("# The duration may optionally be present in a variable " +
+           "rate definition.  If");
+      w.println("# present, it must be separated from the target rate by a " +
+           "comma (and there may");
+      w.println("# be zero or more spaces on either side of the comma).  " +
+           "The duration must be in");
+      w.println("# the same format as specified in the description of the " +
+           "'default-duration'");
+      w.println("# header above (i.e., a positive integer followed by a " +
+           "time unit).  If a");
+      w.println("# variable rate definition does not include a duration, " +
+           "then the");
+      w.println("# 'default-duration' header must have been specified, and " +
+           "that default duration");
+      w.println("# will be used for that variable rate definition.");
+      w.println("#");
+      w.println("# The following variable rate definitions may be used to " +
+           "stairstep the target");
+      w.println("# rate from 1000 operations per second to 10000 operations " +
+           "per second, in");
+      w.println("# increments of 1000 operations per second, spending one " +
+           "minute at each level.");
+      w.println("# If the 'repeat' header is present with a value of 'true', " +
+           "then the process");
+      w.println("# will start back over at 1000 operations per second after " +
+           "completing one");
+      w.println("# minute at 10000 operations per second.  Otherwise, the " +
+           "tool will exit after");
+      w.println("# completing the 10000 operation-per-second interval.");
+      w.println("1000, 1 minute");
+      w.println("2000, 1 minute");
+      w.println("3000, 1 minute");
+      w.println("4000, 1 minute");
+      w.println("5000, 1 minute");
+      w.println("6000, 1 minute");
+      w.println("7000, 1 minute");
+      w.println("8000, 1 minute");
+      w.println("9000, 1 minute,");
+      w.println("10000, 1 minute");
+      w.println();
+    }
+    finally
+    {
+      w.close();
+    }
   }
 
 
@@ -549,57 +749,84 @@ public final class RateAdjustor extends Thread
 
 
   /**
-   * This removes all comment lines from the start of the list of lines and
-   * returns a map for lines that match key=value.  Each line can only have
-   * a single key=value pair.  The key cannot include any white space.  The
-   * value can include white space, but the white space at the beginning and
-   * end is ignored.
+   * This reads the header at the start of the file.  All blank lines and
+   * comment lines will be ignored.  The end of the header will be signified by
+   * a line containing only the text "END HEADER".  All non-blank, non-comment
+   * lines in the header must be in the format "name=value", where there may be
+   * zero or more spaces on either side of the equal sign, the name must not
+   * contain either the space or the equal sign character, and the value must
+   * not begin or end with a space.  Header lines must not contain partial-line
+   * comments.
    *
    * @param  lines  The lines of input that include the header.
    *
    * @return  A map of key/value pairs extracted from the header.
    *
-   * @throws  IllegalArgumentException  If there are multiple values for the
-   *                                    same key.
+   * @throws  IllegalArgumentException  If a problem is encountered while
+   *                                    parsing the header (e.g., a malformed
+   *                                    header line is encountered, multiple
+   *                                    headers have the same key, there is no
+   *                                    end of header marker, etc.).
    */
   static Map<String,String> consumeHeader(final List<String> lines)
          throws IllegalArgumentException
   {
     // The header will look like this:
-    //  # key1=value
-    //  #key2 = value
-    // The keys cannot have spaces, but the values could.
+    // key1=value1
+    // key2 = value2
+    // END HEADER
+    boolean endHeaderFound = false;
     final Map<String,String> headerMap = new LinkedHashMap<String,String>(3);
-    final Pattern headerPattern =
-         Pattern.compile(COMMENT_START + "+\\s*([^\\s=]+)\\s*=\\s*(.*)");
     final Iterator<String> lineIter = lines.iterator();
     while (lineIter.hasNext())
     {
       final String line = lineIter.next().trim();
-
-      // Break after the first non-comment line.
-      if (! line.startsWith(String.valueOf(COMMENT_START)))
-      {
-        break;
-      }
       lineIter.remove();
 
-      final Matcher matcher = headerPattern.matcher(line);
-      if (matcher.matches())
+      if ((line.length() == 0) ||
+           line.startsWith(String.valueOf(COMMENT_START)))
       {
-        final String key = matcher.group(1);
-        final String value = matcher.group(2);
-
-        final String existingValue = headerMap.get(key);
-        if (existingValue != null)
-        {
-          throw new IllegalArgumentException(
-               ERR_RATE_ADJUSTOR_DUPLICATE_HEADER_KEY.get(key, existingValue,
-                    value));
-        }
-
-        headerMap.put(key, value);
+        continue;
       }
+
+      if (line.equalsIgnoreCase(END_HEADER_TEXT))
+      {
+        endHeaderFound = true;
+        break;
+      }
+
+      final int equalPos = line.indexOf('=');
+      if (equalPos < 0)
+      {
+        throw new IllegalArgumentException(
+             ERR_RATE_ADJUSTOR_HEADER_NO_EQUAL.get(line));
+      }
+
+      final String key = line.substring(0, equalPos).trim();
+      if (key.length() == 0)
+      {
+        throw new IllegalArgumentException(
+             ERR_RATE_ADJUSTOR_HEADER_EMPTY_KEY.get(line));
+      }
+
+      final String newValue = line.substring(equalPos+1).trim();
+      final String existingValue = headerMap.get(key);
+      if (existingValue != null)
+      {
+        throw new IllegalArgumentException(
+             ERR_RATE_ADJUSTOR_DUPLICATE_HEADER_KEY.get(key, existingValue,
+                  newValue));
+      }
+
+      headerMap.put(key, newValue);
+    }
+
+    if (! endHeaderFound)
+    {
+      // This means we iterated across all lines without finding the end header
+      // marker.
+      throw new IllegalArgumentException(
+           ERR_RATE_ADJUSTOR_NO_END_HEADER_FOUND.get(END_HEADER_TEXT));
     }
 
     return headerMap;
