@@ -61,9 +61,7 @@ import static com.unboundid.util.Validator.*;
  * <A HREF="http://www.ietf.org/rfc/rfc4752.txt">RFC 4752</A>.  It provides the
  * ability to authenticate to a directory server using Kerberos V, which can
  * serve as a kind of single sign-on mechanism that may be shared across
- * client applications that support Kerberos.  At present, this implementation
- * may only be used for authentication, as it does not yet offer support for
- * integrity or confidentiality.
+ * client applications that support Kerberos.
  * <BR><BR>
  * This class uses the Java Authentication and Authorization Service (JAAS)
  * behind the scenes to perform all Kerberos processing.  This framework
