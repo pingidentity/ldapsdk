@@ -1601,9 +1601,20 @@ public final class LDAPConnection
            ERR_ABANDON_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
+    final int messageID = requestID.getMessageID();
+    try
+    {
+      connectionInternals.getConnectionReader().deregisterResponseAcceptor(
+           messageID);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+    }
+
     connectionStatistics.incrementNumAbandonRequests();
     sendMessage(new LDAPMessage(nextMessageID(),
-         new AbandonRequestProtocolOp(requestID.getMessageID()), controls));
+         new AbandonRequestProtocolOp(messageID), controls));
   }
 
 
@@ -1626,6 +1637,16 @@ public final class LDAPConnection
     {
       debug(Level.INFO, DebugType.LDAP,
             "Sending LDAP abandon request for message ID " + messageID);
+    }
+
+    try
+    {
+      connectionInternals.getConnectionReader().deregisterResponseAcceptor(
+           messageID);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
     }
 
     connectionStatistics.incrementNumAbandonRequests();
