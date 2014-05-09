@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -51,18 +51,18 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * The following example initiates an asynchronous modify operation and then
  * attempts to abandon it:
  * <PRE>
- * Modification mod = new Modification(ModificationType.REPLACE,
- *      "description", "This is the new description.");
- * ModifyRequest modifyRequest =
- *      new ModifyRequest("dc=example,dc=com", mod);
+ *   Modification mod = new Modification(ModificationType.REPLACE,
+ *        "description", "This is the new description.");
+ *   ModifyRequest modifyRequest =
+ *        new ModifyRequest("dc=example,dc=com", mod);
  *
- * AsyncRequestID asyncRequestID =
- *      connection.asyncModify(modifyRequest, myAsyncResultListener);
+ *   AsyncRequestID asyncRequestID =
+ *        connection.asyncModify(modifyRequest, myAsyncResultListener);
  *
- * // Assume that we've waited a reasonable amount of time but the modify
- * // hasn't completed yet so we'll try to abandon it.
+ *   // Assume that we've waited a reasonable amount of time but the modify
+ *   // hasn't completed yet so we'll try to abandon it.
  *
- * connection.abandon(asyncRequestID);
+ *   connection.abandon(asyncRequestID);
  * </PRE>
  */
 @NotMutable()
@@ -92,9 +92,6 @@ public final class AsyncRequestID
   // The connection used to process the asynchronous operation.
   private final LDAPConnection connection;
 
-  // The timer task that will allow the associated request to be cancelled.
-  private volatile AsyncTimeoutTimerTask timerTask;
-
 
 
   /**
@@ -112,7 +109,6 @@ public final class AsyncRequestID
     resultQueue     = new ArrayBlockingQueue<LDAPResult>(1);
     cancelRequested = new AtomicBoolean(false);
     result          = new AtomicReference<LDAPResult>();
-    timerTask       = null;
   }
 
 
@@ -280,7 +276,8 @@ public final class AsyncRequestID
    * @throws  TimeoutException  If a timeout was encountered before the result
    *                            could be obtained.
    */
-  public LDAPResult get(final long timeout, final TimeUnit timeUnit)
+  public LDAPResult get(final long timeout,
+                                     final TimeUnit timeUnit)
          throws InterruptedException, TimeoutException
   {
     final LDAPResult newResult = resultQueue.poll();
@@ -313,21 +310,6 @@ public final class AsyncRequestID
 
 
   /**
-   * Sets the timer task that may be used to cancel this result after a period
-   * of time.
-   *
-   * @param  timerTask  The timer task that may be used to cancel this result
-   *                    after a period of time.  It may be {@code null} if no
-   *                    timer task should be used.
-   */
-  void setTimerTask(final AsyncTimeoutTimerTask timerTask)
-  {
-    this.timerTask = timerTask;
-  }
-
-
-
-  /**
    * Sets the result for the associated operation.
    *
    * @param  result  The result for the associated operation.  It must not be
@@ -336,14 +318,6 @@ public final class AsyncRequestID
   void setResult(final LDAPResult result)
   {
     resultQueue.offer(result);
-
-    final AsyncTimeoutTimerTask t = timerTask;
-    if (t != null)
-    {
-      t.cancel();
-      connection.getTimer().purge();
-      timerTask = null;
-    }
   }
 
 

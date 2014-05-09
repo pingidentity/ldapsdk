@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -26,9 +26,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.security.auth.Subject;
@@ -36,7 +34,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.Sasl;
@@ -61,7 +58,9 @@ import static com.unboundid.util.Validator.*;
  * <A HREF="http://www.ietf.org/rfc/rfc4752.txt">RFC 4752</A>.  It provides the
  * ability to authenticate to a directory server using Kerberos V, which can
  * serve as a kind of single sign-on mechanism that may be shared across
- * client applications that support Kerberos.
+ * client applications that support Kerberos.  At present, this implementation
+ * may only be used for authentication, as it does not yet offer support for
+ * integrity or confidentiality.
  * <BR><BR>
  * This class uses the Java Authentication and Authorization Service (JAAS)
  * behind the scenes to perform all Kerberos processing.  This framework
@@ -97,26 +96,17 @@ import static com.unboundid.util.Validator.*;
  * against a directory server with a username of "john.doe" and a password
  * of "password":
  * <PRE>
- * GSSAPIBindRequestProperties gssapiProperties =
- *      new GSSAPIBindRequestProperties("john.doe@EXAMPLE.COM", "password");
- * gssapiProperties.setKDCAddress("kdc.example.com");
- * gssapiProperties.setRealm("EXAMPLE.COM");
- *
- * GSSAPIBindRequest bindRequest =
- *      new GSSAPIBindRequest(gssapiProperties);
- * BindResult bindResult;
- * try
- * {
- *   bindResult = connection.bind(bindRequest);
- *   // If we get here, then the bind was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // The bind failed for some reason.
- *   bindResult = new BindResult(le.toLDAPResult());
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   GSSAPIBindRequest bindRequest =
+ *        new GSSAPIBindRequest("john.doe@EXAMPLE.COM", "password");
+ *   try
+ *   {
+ *     BindResult bindResult = connection.bind(bindRequest);
+ *     // If we get here, then the bind was successful.
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     // The bind failed for some reason.
+ *   }
  * </PRE>
  */
 @NotMutable()
@@ -167,28 +157,20 @@ public final class GSSAPIBindRequest
 
 
   /**
-   * The value for the java.security.auth.login.config property at the time that
-   * this class was loaded.  If this is set, then it will be used in place of
-   * an automatically-generated config file.
+   * The path to the default JAAS config file with debugging enabled, if one has
+   * been defined.
    */
-  private static final String DEFAULT_CONFIG_FILE =
-       System.getProperty(PROPERTY_CONFIG_FILE);
+  private static final AtomicReference<String>
+       DEFAULT_CONFIG_FILE_PATH_WITH_DEBUG = new AtomicReference<String>();
 
 
 
   /**
-   * The default KDC address that will be used if none is explicitly configured.
+   * The path to the default JAAS config file with debugging disabled, if one
+   * has been defined.
    */
-  private static final String DEFAULT_KDC_ADDRESS =
-       System.getProperty(PROPERTY_KDC_ADDRESS);
-
-
-
-  /**
-   * The default realm that will be used if none is explicitly configured.
-   */
-  private static final String DEFAULT_REALM =
-       System.getProperty(PROPERTY_REALM);
+  private static final AtomicReference<String>
+       DEFAULT_CONFIG_FILE_PATH_WITHOUT_DEBUG = new AtomicReference<String>();
 
 
 
@@ -215,28 +197,8 @@ public final class GSSAPIBindRequest
   // Indicates whether to enable JVM-level debugging for GSSAPI processing.
   private final boolean enableGSSAPIDebugging;
 
-  // Indicates whether to attempt to renew the client's existing ticket-granting
-  // ticket if authentication uses an existing Kerberos session.
-  private boolean renewTGT;
-
-  // Indicates whether to require that the credentials be obtained from the
-  // ticket cache such that authentication will fail if the client does not have
-  // an existing Kerberos session.
-  private boolean requireCachedCredentials;
-
-  // Indicates whether to enable the use pf a ticket cache.
-  private boolean useTicketCache;
-
   // The message ID from the last LDAP message sent from this request.
   private int messageID;
-
-  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
-  // request.
-  private final List<SASLQualityOfProtection> allowedQoP;
-
-  // A list that will be updated with messages about any unhandled callbacks
-  // encountered during processing.
-  private final List<String> unhandledCallbackMessages;
 
   // The authentication ID string for the GSSAPI bind request.
   private final String authenticationID;
@@ -250,19 +212,12 @@ public final class GSSAPIBindRequest
   // The KDC address for the GSSAPI bind request, if available.
   private final String kdcAddress;
 
-  // The realm for the GSSAPI bind request, if available.
-  private final String realm;
-
-  // The server name that should be used when creating the Java SaslClient, if
-  // defined.
-  private final String saslClientServerName;
-
   // The protocol that should be used in the Kerberos service principal for
   // the server system.
   private final String servicePrincipalProtocol;
 
-  // The path to the Kerberos ticket cache to use.
-  private String ticketCachePath;
+  // The realm for the GSSAPI bind request, if available.
+  private final String realm;
 
 
 
@@ -360,8 +315,8 @@ public final class GSSAPIBindRequest
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
    * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if no alternate authorization
-   *                           ID should be used.
+   *                           may be {@code null} if the authorization ID
+   *                           should be the same as the authentication ID.
    * @param  password          The password for this bind request.  It must not
    *                           be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
@@ -397,8 +352,8 @@ public final class GSSAPIBindRequest
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
    * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if no alternate authorization
-   *                           ID should be used.
+   *                           may be {@code null} if the authorization ID
+   *                           should be the same as the authentication ID.
    * @param  password          The password for this bind request.  It must not
    *                           be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
@@ -434,8 +389,8 @@ public final class GSSAPIBindRequest
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
    * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if no alternate authorization
-   *                           ID should be used.
+   *                           may be {@code null} if the authorization ID
+   *                           should be the same as the authentication ID.
    * @param  password          The password for this bind request.  It must not
    *                           be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
@@ -474,8 +429,8 @@ public final class GSSAPIBindRequest
    * @param  authenticationID  The authentication ID for this bind request.  It
    *                           must not be {@code null}.
    * @param  authorizationID   The authorization ID for this bind request.  It
-   *                           may be {@code null} if no alternate authorization
-   *                           ID should be used.
+   *                           may be {@code null} if the authorization ID
+   *                           should be the same as the authentication ID.
    * @param  password          The password for this bind request.  It must not
    *                           be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
@@ -531,17 +486,9 @@ public final class GSSAPIBindRequest
     authenticationID         = gssapiProperties.getAuthenticationID();
     password                 = gssapiProperties.getPassword();
     realm                    = gssapiProperties.getRealm();
-    allowedQoP               = gssapiProperties.getAllowedQoP();
     kdcAddress               = gssapiProperties.getKDCAddress();
-    saslClientServerName     = gssapiProperties.getSASLClientServerName();
     servicePrincipalProtocol = gssapiProperties.getServicePrincipalProtocol();
     enableGSSAPIDebugging    = gssapiProperties.enableGSSAPIDebugging();
-    useTicketCache           = gssapiProperties.useTicketCache();
-    requireCachedCredentials = gssapiProperties.requireCachedCredentials();
-    renewTGT                 = gssapiProperties.renewTGT();
-    ticketCachePath          = gssapiProperties.getTicketCachePath();
-
-    unhandledCallbackMessages = new ArrayList<String>(5);
 
     conn      = new AtomicReference<LDAPConnection>();
     messageID = -1;
@@ -549,7 +496,7 @@ public final class GSSAPIBindRequest
     final String authzID = gssapiProperties.getAuthorizationID();
     if (authzID == null)
     {
-      authorizationID = null;
+      authorizationID = authenticationID;
     }
     else
     {
@@ -559,14 +506,7 @@ public final class GSSAPIBindRequest
     final String cfgPath = gssapiProperties.getConfigFilePath();
     if (cfgPath == null)
     {
-      if (DEFAULT_CONFIG_FILE == null)
-      {
-        configFilePath = getConfigFilePath(gssapiProperties);
-      }
-      else
-      {
-        configFilePath = DEFAULT_CONFIG_FILE;
-      }
+      configFilePath = getDefaultConfigFilePath(enableGSSAPIDebugging);
     }
     else
     {
@@ -588,10 +528,9 @@ public final class GSSAPIBindRequest
 
 
   /**
-   * Retrieves the authentication ID for the GSSAPI bind request, if defined.
+   * Retrieves the authentication ID for this bind request.
    *
-   * @return  The authentication ID for the GSSAPI bind request, or {@code null}
-   *          if an existing Kerberos session should be used.
+   * @return  The authentication ID for this bind request.
    */
   public String getAuthenticationID()
   {
@@ -614,43 +553,25 @@ public final class GSSAPIBindRequest
 
 
   /**
-   * Retrieves the string representation of the password for this bind request,
-   * if defined.
+   * Retrieves the string representation of the password for this bind request.
    *
-   * @return  The string representation of the password for this bind request,
-   *          or {@code null} if an existing Kerberos session should be used.
+   * @return  The string representation of the password for this bind request.
    */
   public String getPasswordString()
   {
-    if (password == null)
-    {
-      return null;
-    }
-    else
-    {
-      return password.stringValue();
-    }
+    return password.stringValue();
   }
 
 
 
   /**
-   * Retrieves the bytes that comprise the the password for this bind request,
-   * if defined.
+   * Retrieves the bytes that comprise the the password for this bind request.
    *
-   * @return  The bytes that comprise the password for this bind request, or
-   *          {@code null} if an existing Kerberos session should be used.
+   * @return  The bytes that comprise the password for this bind request.
    */
   public byte[] getPasswordBytes()
   {
-    if (password == null)
-    {
-      return null;
-    }
-    else
-    {
-      return password.getValue();
-    }
+    return password.getValue();
   }
 
 
@@ -665,23 +586,6 @@ public final class GSSAPIBindRequest
   public String getRealm()
   {
     return realm;
-  }
-
-
-
-  /**
-   * Retrieves the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @return  The list of allowed qualities of protection that may be used for
-   *          communication that occurs on the connection after the
-   *          authentication has completed, in order from most preferred to
-   *          least preferred.
-   */
-  public List<SASLQualityOfProtection> getAllowedQoP()
-  {
-    return allowedQoP;
   }
 
 
@@ -729,68 +633,6 @@ public final class GSSAPIBindRequest
 
 
   /**
-   * Indicates whether to enable the use of a ticket cache to to avoid the need
-   * to supply credentials if the client already has an existing Kerberos
-   * session.
-   *
-   * @return  {@code true} if a ticket cache may be used to take advantage of an
-   *          existing Kerberos session, or {@code false} if Kerberos
-   *          credentials should always be provided.
-   */
-  public boolean useTicketCache()
-  {
-    return useTicketCache;
-  }
-
-
-
-  /**
-   * Indicates whether GSSAPI authentication should only occur using an existing
-   * Kerberos session.
-   *
-   * @return  {@code true} if GSSAPI authentication should only use an existing
-   *          Kerberos session and should fail if the client does not have an
-   *          existing session, or {@code false} if the client will be allowed
-   *          to create a new session if one does not already exist.
-   */
-  public boolean requireCachedCredentials()
-  {
-    return requireCachedCredentials;
-  }
-
-
-
-  /**
-   * Retrieves the path to the Kerberos ticket cache file that should be used
-   * during authentication, if defined.
-   *
-   * @return  The path to the Kerberos ticket cache file that should be used
-   *          during authentication, or {@code null} if the default ticket cache
-   *          file should be used.
-   */
-  public String getTicketCachePath()
-  {
-    return ticketCachePath;
-  }
-
-
-
-  /**
-   * Indicates whether to attempt to renew the client's ticket-granting ticket
-   * (TGT) if an existing Kerberos session is used to authenticate.
-   *
-   * @return  {@code true} if the client should attempt to renew its
-   *          ticket-granting ticket if the authentication is processed using an
-   *          existing Kerberos session, or {@code false} if not.
-   */
-  public boolean renewTGT()
-  {
-    return renewTGT;
-  }
-
-
-
-  /**
    * Indicates whether JVM-level debugging should be enabled for GSSAPI bind
    * processing.
    *
@@ -809,8 +651,7 @@ public final class GSSAPIBindRequest
    * if no file was explicitly provided.  A new file may be created if
    * necessary.
    *
-   * @param  properties  The GSSAPI properties that should be used for
-   *                     authentication.
+   * @param  enableDebug  Indicates whether JVM-level GSSAPI should be enabled.
    *
    * @return  The path to the default JAAS configuration file that will be used
    *          if no file was explicitly provided.
@@ -818,170 +659,77 @@ public final class GSSAPIBindRequest
    * @throws  LDAPException  If an error occurs while attempting to create the
    *                         configuration file.
    */
-  private static String getConfigFilePath(
-                             final GSSAPIBindRequestProperties properties)
+  private static String getDefaultConfigFilePath(final boolean enableDebug)
           throws LDAPException
   {
     try
     {
-      final File f =
-           File.createTempFile("GSSAPIBindRequest-JAAS-Config-", ".conf");
-      f.deleteOnExit();
-      final PrintWriter w = new PrintWriter(new FileWriter(f));
-
-      try
+      String value;
+      if (enableDebug)
       {
-        // The JAAS configuration file may vary based on the JVM that we're
-        // using. For Sun-based JVMs, the module will be
-        // "com.sun.security.auth.module.Krb5LoginModule".
+        value = DEFAULT_CONFIG_FILE_PATH_WITH_DEBUG.get();
+      }
+      else
+      {
+        value = DEFAULT_CONFIG_FILE_PATH_WITHOUT_DEBUG.get();
+      }
+
+      if (value == null)
+      {
+        final File f =
+             File.createTempFile("GSSAPIBindRequest-JAAS-Config-", ".conf");
+        f.deleteOnExit();
+        final PrintWriter w = new PrintWriter(new FileWriter(f));
         try
         {
-          final Class<?> sunModuleClass =
-               Class.forName("com.sun.security.auth.module.Krb5LoginModule");
-          if (sunModuleClass != null)
+          w.println(JAAS_CLIENT_NAME + " {");
+          w.print("  com.sun.security.auth.module.Krb5LoginModule required " +
+                    "client=true useTicketCache=true");
+
+          if (enableDebug)
           {
-            writeSunJAASConfig(w, properties);
-            return f.getAbsolutePath();
+            w.print(" debug=true");
           }
+
+          w.println(";");
+          w.println("};");
         }
-        catch (final ClassNotFoundException cnfe)
+        finally
         {
-          // This is fine.
-          debugException(cnfe);
+          w.close();
         }
 
-
-        // For the IBM JVMs, the module will be
-        // "com.ibm.security.auth.module.Krb5LoginModule".
-        try
+        if (enableDebug)
         {
-          final Class<?> ibmModuleClass =
-               Class.forName("com.ibm.security.auth.module.Krb5LoginModule");
-          if (ibmModuleClass != null)
+          if (! DEFAULT_CONFIG_FILE_PATH_WITH_DEBUG.compareAndSet(null,
+               f.getAbsolutePath()))
           {
-            writeIBMJAASConfig(w, properties);
-            return f.getAbsolutePath();
+            f.delete();
           }
+
+          value = DEFAULT_CONFIG_FILE_PATH_WITH_DEBUG.get();
         }
-        catch (final ClassNotFoundException cnfe)
+        else
         {
-          // This is fine.
-          debugException(cnfe);
+          if (! DEFAULT_CONFIG_FILE_PATH_WITHOUT_DEBUG.compareAndSet(null,
+               f.getAbsolutePath()))
+          {
+            f.delete();
+          }
+
+          value = DEFAULT_CONFIG_FILE_PATH_WITHOUT_DEBUG.get();
         }
-
-
-        // If we've gotten here, then we can't generate an appropriate
-        // configuration.
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_GSSAPI_CANNOT_CREATE_JAAS_CONFIG.get(
-                  ERR_GSSAPI_NO_SUPPORTED_JAAS_MODULE.get()));
       }
-      finally
-      {
-        w.close();
-      }
+
+      return value;
     }
-    catch (final LDAPException le)
-    {
-      debugException(le);
-      throw le;
-    }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
 
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_GSSAPI_CANNOT_CREATE_JAAS_CONFIG.get(getExceptionMessage(e)), e);
     }
-  }
-
-
-
-  /**
-   * Writes a JAAS configuration file in a form appropriate for Sun VMs.
-   *
-   * @param  w  The writer to use to create the config file.
-   * @param  p  The properties to use for GSSAPI authentication.
-   */
-  private static void writeSunJAASConfig(final PrintWriter w,
-                                         final GSSAPIBindRequestProperties p)
-  {
-    w.println(JAAS_CLIENT_NAME + " {");
-    w.println("  com.sun.security.auth.module.Krb5LoginModule required");
-    w.println("  client=true");
-
-    if (p.useTicketCache())
-    {
-      w.println("  useTicketCache=true");
-      w.println("  renewTGT=" + p.renewTGT());
-      w.println("  doNotPrompt=" + p.requireCachedCredentials());
-
-      final String ticketCachePath = p.getTicketCachePath();
-      if (ticketCachePath != null)
-      {
-        w.println("  ticketCache=\"" + ticketCachePath + '"');
-      }
-    }
-    else
-    {
-      w.println("  useTicketCache=false");
-    }
-
-    if (p.enableGSSAPIDebugging())
-    {
-      w.println(" debug=true");
-    }
-
-    w.println("  ;");
-    w.println("};");
-  }
-
-
-
-  /**
-   * Writes a JAAS configuration file in a form appropriate for IBM VMs.
-   *
-   * @param  w  The writer to use to create the config file.
-   * @param  p  The properties to use for GSSAPI authentication.
-   */
-  private static void writeIBMJAASConfig(final PrintWriter w,
-                                         final GSSAPIBindRequestProperties p)
-  {
-    // NOTE:  It does not appear that the IBM GSSAPI implementation has any
-    // analog for the renewTGT property, so it will be ignored.
-    w.println(JAAS_CLIENT_NAME + " {");
-    w.println("  com.ibm.security.auth.module.Krb5LoginModule required");
-    w.println("  credsType=initiator");
-
-    if (p.useTicketCache())
-    {
-      final String ticketCachePath = p.getTicketCachePath();
-      if (ticketCachePath == null)
-      {
-        if (p.requireCachedCredentials())
-        {
-          w.println("  useDefaultCcache=true");
-        }
-      }
-      else
-      {
-        final File f = new File(ticketCachePath);
-        final String path = f.getAbsolutePath().replace('\\', '/');
-        w.println("  useCcache=\"file://" + path + '"');
-      }
-    }
-    else
-    {
-      w.println("  useDefaultCcache=false");
-    }
-
-    if (p.enableGSSAPIDebugging())
-    {
-      w.println(" debug=true");
-    }
-
-    w.println("  ;");
-    w.println("};");
   }
 
 
@@ -1013,79 +761,15 @@ public final class GSSAPIBindRequest
 
     System.setProperty(PROPERTY_CONFIG_FILE, configFilePath);
     System.setProperty(PROPERTY_SUBJECT_CREDS_ONLY, "true");
-    if (debugEnabled(DebugType.LDAP))
-    {
-      debug(Level.CONFIG, DebugType.LDAP,
-           "Using config file property " + PROPERTY_CONFIG_FILE + " = '" +
-                configFilePath + "'.");
-      debug(Level.CONFIG, DebugType.LDAP,
-           "Using subject creds only property " + PROPERTY_SUBJECT_CREDS_ONLY +
-                " = 'true'.");
-    }
 
-    if (kdcAddress == null)
-    {
-      if (DEFAULT_KDC_ADDRESS == null)
-      {
-        System.clearProperty(PROPERTY_KDC_ADDRESS);
-        if (debugEnabled(DebugType.LDAP))
-        {
-          debug(Level.CONFIG, DebugType.LDAP,
-               "Clearing kdcAddress property '" + PROPERTY_KDC_ADDRESS + "'.");
-        }
-      }
-      else
-      {
-        System.setProperty(PROPERTY_KDC_ADDRESS, DEFAULT_KDC_ADDRESS);
-        if (debugEnabled(DebugType.LDAP))
-        {
-          debug(Level.CONFIG, DebugType.LDAP,
-               "Using default kdcAddress property " + PROPERTY_KDC_ADDRESS +
-                    " = '" + DEFAULT_KDC_ADDRESS + "'.");
-        }
-      }
-    }
-    else
+    if (kdcAddress != null)
     {
       System.setProperty(PROPERTY_KDC_ADDRESS, kdcAddress);
-      if (debugEnabled(DebugType.LDAP))
-      {
-        debug(Level.CONFIG, DebugType.LDAP,
-             "Using kdcAddress property " + PROPERTY_KDC_ADDRESS + " = '" +
-                  kdcAddress + "'.");
-      }
     }
 
-    if (realm == null)
-    {
-      if (DEFAULT_REALM == null)
-      {
-        System.clearProperty(PROPERTY_REALM);
-        if (debugEnabled(DebugType.LDAP))
-        {
-          debug(Level.CONFIG, DebugType.LDAP,
-               "Clearing realm property '" + PROPERTY_REALM + "'.");
-        }
-      }
-      else
-      {
-        System.setProperty(PROPERTY_REALM, DEFAULT_REALM);
-        if (debugEnabled(DebugType.LDAP))
-        {
-          debug(Level.CONFIG, DebugType.LDAP,
-               "Using default realm property " + PROPERTY_REALM + " = '" +
-                    DEFAULT_REALM + "'.");
-        }
-      }
-    }
-    else
+    if (realm != null)
     {
       System.setProperty(PROPERTY_REALM, realm);
-      if (debugEnabled(DebugType.LDAP))
-      {
-        debug(Level.CONFIG, DebugType.LDAP,
-             "Using realm property " + PROPERTY_REALM + " = '" + realm + "'.");
-      }
     }
 
     try
@@ -1143,27 +827,20 @@ public final class GSSAPIBindRequest
   public Object run()
          throws LDAPException
   {
-    unhandledCallbackMessages.clear();
-
     final LDAPConnection connection = conn.get();
 
     final String[] mechanisms = { GSSAPI_MECHANISM_NAME };
 
-    final HashMap<String,Object> saslProperties = new HashMap<String,Object>(2);
-    saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
+    final HashMap<String,Object> saslProperties = new HashMap<String,Object>();
+    saslProperties.put(Sasl.QOP, "auth");
     saslProperties.put(Sasl.SERVER_AUTH, "true");
 
     final SaslClient saslClient;
     try
     {
-      String serverName = saslClientServerName;
-      if (serverName == null)
-      {
-        serverName = connection.getConnectedAddress();
-      }
-
       saslClient = Sasl.createSaslClient(mechanisms, authorizationID,
-           servicePrincipalProtocol, serverName, saslProperties, this);
+           servicePrincipalProtocol, connection.getConnectedAddress(),
+           saslProperties, this);
     }
     catch (Exception e)
     {
@@ -1174,7 +851,7 @@ public final class GSSAPIBindRequest
 
     final SASLHelper helper = new SASLHelper(this, connection,
          GSSAPI_MECHANISM_NAME, saslClient, getControls(),
-         getResponseTimeoutMillis(connection), unhandledCallbackMessages);
+         getResponseTimeoutMillis(connection));
 
     try
     {
@@ -1199,14 +876,8 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequestProperties gssapiProperties =
            new GSSAPIBindRequestProperties(authenticationID, authorizationID,
                 password, realm, kdcAddress, configFilePath);
-      gssapiProperties.setAllowedQoP(allowedQoP);
       gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
-      gssapiProperties.setUseTicketCache(useTicketCache);
-      gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
-      gssapiProperties.setRenewTGT(renewTGT);
-      gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
-      gssapiProperties.setSASLClientServerName(saslClientServerName);
 
       return new GSSAPIBindRequest(gssapiProperties, getControls());
     }
@@ -1224,13 +895,9 @@ public final class GSSAPIBindRequest
    * Handles any necessary callbacks required for SASL authentication.
    *
    * @param  callbacks  The set of callbacks to be handled.
-   *
-   * @throws  UnsupportedCallbackException  If an unsupported type of callback
-   *                                        was received.
    */
   @InternalUseOnly()
   public void handle(final Callback[] callbacks)
-         throws UnsupportedCallbackException
   {
     for (final Callback callback : callbacks)
     {
@@ -1240,28 +907,14 @@ public final class GSSAPIBindRequest
       }
       else if (callback instanceof PasswordCallback)
       {
-        if (password == null)
-        {
-          throw new UnsupportedCallbackException(callback,
-               ERR_GSSAPI_NO_PASSWORD_AVAILABLE.get());
-        }
-        else
-        {
-          ((PasswordCallback) callback).setPassword(
-               password.stringValue().toCharArray());
-        }
+        ((PasswordCallback) callback).setPassword(
+             password.stringValue().toCharArray());
       }
       else if (callback instanceof RealmCallback)
       {
-        final RealmCallback rc = (RealmCallback) callback;
-        if (realm == null)
+        if (realm != null)
         {
-          unhandledCallbackMessages.add(
-               ERR_GSSAPI_REALM_REQUIRED_BUT_NONE_PROVIDED.get(rc.getPrompt()));
-        }
-        else
-        {
-          rc.setText(realm);
+          ((RealmCallback) callback).setText(realm);
         }
       }
       else
@@ -1273,9 +926,6 @@ public final class GSSAPIBindRequest
                 "Unexpected GSSAPI SASL callback of type " +
                 callback.getClass().getName());
         }
-
-        unhandledCallbackMessages.add(ERR_GSSAPI_UNEXPECTED_CALLBACK.get(
-             callback.getClass().getName()));
       }
     }
   }
@@ -1315,14 +965,8 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequestProperties gssapiProperties =
            new GSSAPIBindRequestProperties(authenticationID, authorizationID,
                 password, realm, kdcAddress, configFilePath);
-      gssapiProperties.setAllowedQoP(allowedQoP);
       gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
-      gssapiProperties.setUseTicketCache(useTicketCache);
-      gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
-      gssapiProperties.setRenewTGT(renewTGT);
-      gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
-      gssapiProperties.setSASLClientServerName(saslClientServerName);
 
       final GSSAPIBindRequest bindRequest =
            new GSSAPIBindRequest(gssapiProperties, controls);
@@ -1362,10 +1006,6 @@ public final class GSSAPIBindRequest
       buffer.append(realm);
       buffer.append('\'');
     }
-
-    buffer.append(", qop='");
-    buffer.append(SASLQualityOfProtection.toString(allowedQoP));
-    buffer.append('\'');
 
     if (kdcAddress != null)
     {

@@ -19,8 +19,7 @@ ${TARGET="offline"}                    <br>
               <ul>
                 <li>
                   Full support for all LDAPv3 operations (abandon, add, bind, compare, delete,
-                  extended, modify, modify DN, search, and unbind operations).  Intermediate
-                  response and unsolicited notification messages are also supported.
+                  extended, modify, modify DN, search, and unbind operations)
                 </li>
 
                 <li>
@@ -34,6 +33,10 @@ ${TARGET="offline"}                    <br>
 
                 <li>
                   Support for connection-based failover and load balancing
+                </li>
+
+                <li>
+                  Support for unsolicited notifications
                 </li>
 
                 <li>
@@ -83,8 +86,6 @@ ${TARGET="offline"}                    <br>
               <ul>
                 <li>Authorization Identity (RFC 3829)</li>
                 <li>LDAP Assertions (RFC 4528)</li>
-                <li>LDAP Content Synchronization (RFC 4533)</li>
-                <li>LDAP Don't Use Copy (RFC 6171)</li>
                 <li>LDAP Subentries (draft-ietf-ldup-subentry)</li>
                 <li>ManageDsaIT (RFC 3296)</li>
                 <li>Matched Values (RFC 3876)</li>
@@ -96,18 +97,13 @@ ${TARGET="offline"}                    <br>
                 <li>Proxied Authorization V2 (RFC 4370)</li>
                 <li>Server-Side Sort (RFC 2891)</li>
                 <li>Simple Paged Results (RFC 2696)</li>
-                <li>Subtree Delete (draft-armijo-ldap-treedelete)</li>
-                <li>Transaction Specification (RFC 5805)</li>
                 <li>Virtual List View (draft-ietf-ldapext-ldapv3-vlv)</li>
               </ul>
 
               <b>Supported Standard Extended Operations</b>
               <ul>
-                <li>Aborted Transaction Unsolicited Notification (RFC 5805)</li>
                 <li>Cancel (RFC 3909)</li>
-                <li>Notice of Disconnection Unsolicited Notification (RFC 4511)</li>
                 <li>Password Modify (RFC 3062)</li>
-                <li>Start and End Transaction (RFC 5805)</li>
                 <li>StartTLS (RFC 4511)</li>
                 <li>Who Am I? (RFC 4532)</li>
               </ul>

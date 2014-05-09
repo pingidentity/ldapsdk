@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -45,16 +45,18 @@ import static com.unboundid.util.Debug.*;
  * of a directory server and using it to determine whether it supports the
  * {@link com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl}:
  * <PRE>
- * RootDSE rootDSE = connection.getRootDSE();
- * if (rootDSE.supportsControl(
- *      ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID))
- * {
- *   // The directory server does support the server-side sort control.
- * }
- * else
- * {
- *   // The directory server does not support the server-side sort control.
- * }
+ *   RootDSE rootDSE = connection.getRootDSE();
+ *   if (rootDSE.supportsControl(
+ *            ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID))
+ *   {
+ *     System.out.println("The directory server supports the use of the " +
+ *                        "server-side sort request control.");
+ *   }
+ *   else
+ *   {
+ *     System.out.println("The directory server does not support the use of " +
+ *                        "the server-side sort request control.");
+ *   }
  * </PRE>
  */
 @NotMutable()

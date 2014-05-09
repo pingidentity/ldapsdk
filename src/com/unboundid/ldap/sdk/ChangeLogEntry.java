@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -242,7 +242,7 @@ public class ChangeLogEntry
 
       case MODIFY:
         attributes    = null;
-        modifications = parseModificationList(entry, targetDN);
+        modifications = parseModificationList(entry, targetDN, false);
         newRDN        = null;
         deleteOldRDN  = false;
         newSuperior   = null;
@@ -250,7 +250,7 @@ public class ChangeLogEntry
 
       case MODIFY_DN:
         attributes    = null;
-        modifications = parseModificationList(entry, targetDN);
+        modifications = parseModificationList(entry, targetDN, true);
         newSuperior   = getAttributeValue(ATTR_NEW_SUPERIOR);
 
         final Attribute newRDNAttr = getAttribute(ATTR_NEW_RDN);
@@ -553,29 +553,36 @@ public class ChangeLogEntry
    * Parses the modification list from a changelog entry representing a modify
    * operation.
    *
-   * @param  entry     The entry containing the data to parse.
-   * @param  targetDN  The DN of the target entry.
+   * @param  entry         The entry containing the data to parse.
+   * @param  targetDN      The DN of the target entry.
+   * @param  allowMissing  Indicates whether it is acceptable for the changes
+   *                       attribute to be absent from the entry.
    *
    * @return  The parsed modification list, or {@code null} if the changelog
-   *          entry does not include any modifications.
+   *          entry does not include any modifications and modifications are
+   *          not required.
    *
    * @throws  LDAPException  If an error occurs while parsing the modification
    *                         list.
    */
-  private static List<Modification> parseModificationList(final Entry entry,
-                                                          final String targetDN)
+  private static List<Modification> parseModificationList(
+                                         final Entry entry,
+                                         final String targetDN,
+                                         final boolean allowMissing)
           throws LDAPException
   {
     final Attribute changesAttr = entry.getAttribute(ATTR_CHANGES);
     if ((changesAttr == null) || (! changesAttr.hasValue()))
     {
-      return null;
-    }
-
-    final byte[] valueBytes = changesAttr.getValueByteArray();
-    if (valueBytes.length == 0)
-    {
-      return null;
+      if (allowMissing)
+      {
+        return null;
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+                                ERR_CHANGELOG_MISSING_CHANGES.get());
+      }
     }
 
 
@@ -588,6 +595,7 @@ public class ChangeLogEntry
     // may terminate the changes value with a null character (\u0000).  If that
     // is the case, then we'll need to strip it off before trying to parse it.
     final StringTokenizer tokenizer;
+    final byte[] valueBytes = changesAttr.getValueByteArray();
     if ((valueBytes.length > 0) && (valueBytes[valueBytes.length-1] == 0x00))
     {
       final String fullValue = changesAttr.getValue();

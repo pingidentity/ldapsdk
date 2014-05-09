@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -470,10 +470,6 @@ public class LDAPException
 
   /**
    * Retrieves the set of response controls for this LDAP exception.
-   * Individual response controls of a specific type may be retrieved and
-   * decoded using the {@code get} method in the response control class, using
-   * the {@link #toLDAPResult()} method to convert this exception to an
-   * {@link LDAPResult}.
    *
    * @return  The set of response controls for this LDAP exception, or an empty
    *          array if there are none.
@@ -515,16 +511,8 @@ public class LDAPException
    */
   public LDAPResult toLDAPResult()
   {
-    if ((diagnosticMessage == null) && (getMessage() != null))
-    {
-      return new LDAPResult(-1, resultCode, getMessage(), matchedDN,
-           referralURLs, responseControls);
-    }
-    else
-    {
-      return new LDAPResult(-1, resultCode, diagnosticMessage, matchedDN,
-           referralURLs, responseControls);
-    }
+    return new LDAPResult(-1, resultCode, diagnosticMessage, matchedDN,
+         referralURLs, responseControls);
   }
 
 

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -605,48 +604,12 @@ public final class Attribute
   public static Attribute removeValues(final Attribute attr1,
                                        final Attribute attr2)
   {
-    return removeValues(attr1, attr2, attr1.matchingRule);
-  }
-
-
-
-  /**
-   * Creates a new attribute containing all of the values of the first attribute
-   * that are not contained in the second attribute.  Any values contained in
-   * the second attribute that are not contained in the first will be ignored.
-   * The names of the provided attributes must be the same.
-   *
-   * @param  attr1         The attribute from which to remove the values.  It
-   *                       must not be {@code null}.
-   * @param  attr2         The attribute containing the values to remove.  It
-   *                       must not be {@code null}.
-   * @param  matchingRule  The matching rule to use to locate matching values.
-   *                       It may be {@code null} if the matching rule
-   *                       associated with the first attribute should be used.
-   *
-   * @return  A new attribute containing all of the values of the first
-   *          attribute not contained in the second.  It may contain zero values
-   *          if all the values of the first attribute were also contained in
-   *          the second.
-   */
-  public static Attribute removeValues(final Attribute attr1,
-                                       final Attribute attr2,
-                                       final MatchingRule matchingRule)
-  {
     ensureNotNull(attr1, attr2);
 
     final String name = attr1.name;
     ensureTrue(name.equalsIgnoreCase(attr2.name));
 
-    final MatchingRule mr;
-    if (matchingRule == null)
-    {
-      mr = attr1.matchingRule;
-    }
-    else
-    {
-      mr = matchingRule;
-    }
+    final MatchingRule matchingRule = attr1.matchingRule;
 
     final ArrayList<ASN1OctetString> newValues =
          new ArrayList<ASN1OctetString>(Arrays.asList(attr1.values));
@@ -654,7 +617,7 @@ public final class Attribute
     final Iterator<ASN1OctetString> iterator = newValues.iterator();
     while (iterator.hasNext())
     {
-      if (attr2.hasValue(iterator.next(), mr))
+      if (attr2.hasValue(iterator.next()))
       {
         iterator.remove();
       }
@@ -664,7 +627,7 @@ public final class Attribute
          new ASN1OctetString[newValues.size()];
     newValues.toArray(newValueArray);
 
-    return new Attribute(name, mr, newValueArray);
+    return new Attribute(name, matchingRule, newValueArray);
   }
 
 
@@ -1356,13 +1319,7 @@ public final class Attribute
       catch (final LDAPException le)
       {
         debugException(le);
-
-        // The value cannot be normalized, but we'll still consider it a match
-        // if the values are exactly the same.
-        if (existingValue.equals(value))
-        {
-          return true;
-        }
+        // We'll ignore this.
       }
     }
 
@@ -1710,77 +1667,11 @@ public final class Attribute
       return false;
     }
 
-    // For a small set of values, we can just iterate through the values of one
-    // and see if they are all present in the other.  However, that can be very
-    // expensive for a large set of values, so we'll try to go with a more
-    // efficient approach.
-    if (values.length > 10)
+    for (final ASN1OctetString value : values)
     {
-      // First, create a hash set containing the un-normalized values of the
-      // first attribute.
-      final HashSet<ASN1OctetString> unNormalizedValues =
-           new HashSet<ASN1OctetString>(values.length);
-      Collections.addAll(unNormalizedValues, values);
-
-      // Next, iterate through the values of the second attribute.  For any
-      // values that exist in the un-normalized set, remove them from that
-      // set.  For any values that aren't in the un-normalized set, create a
-      // new set with the normalized representations of those values.
-      HashSet<ASN1OctetString> normalizedMissingValues = null;
-      for (final ASN1OctetString value : a.values)
+      if (! a.hasValue(value))
       {
-        if (! unNormalizedValues.remove(value))
-        {
-          if (normalizedMissingValues == null)
-          {
-            normalizedMissingValues =
-                 new HashSet<ASN1OctetString>(values.length);
-          }
-
-          try
-          {
-            normalizedMissingValues.add(matchingRule.normalize(value));
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            return false;
-          }
-        }
-      }
-
-      // If the un-normalized set is empty, then that means all the values
-      // exactly match without the need to compare the normalized
-      // representations.  For any values that are left, then we will need to
-      // compare their normalized representations.
-      if (normalizedMissingValues != null)
-      {
-        for (final ASN1OctetString value : unNormalizedValues)
-        {
-          try
-          {
-            if (! normalizedMissingValues.contains(
-                       matchingRule.normalize(value)))
-            {
-              return false;
-            }
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            return false;
-          }
-        }
-      }
-    }
-    else
-    {
-      for (final ASN1OctetString value : values)
-      {
-        if (! a.hasValue(value))
-        {
-          return false;
-        }
+        return false;
       }
     }
 

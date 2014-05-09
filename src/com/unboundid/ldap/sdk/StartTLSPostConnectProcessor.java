@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -43,30 +43,20 @@ import static com.unboundid.util.Validator.*;
  * processor to create an LDAP connection pool whose connections are secured
  * using StartTLS:
  * <PRE>
- * // Configure an SSLUtil instance and use it to obtain an SSLContext.
- * SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
- * SSLContext sslContext = sslUtil.createSSLContext();
+ *   SSLUtil sslUtil =
+ *        new SSLUtil(new TrustStoreTrustManager("/my/trust/store/file"));
+ *   SSLContext sslContext = sslUtil.createSSLContext();
  *
- * // Establish an insecure connection to the directory server.
- * LDAPConnection connection = new LDAPConnection(serverAddress, nonSSLPort);
+ *   LDAPConnection connection = new LDAPConnection("server.example.com", 389);
+ *   ExtendedResult startTLSResult = connection.processExtendedOperation(
+ *        new StartTLSExtendedOperation(sslContext);
+ *   BindResult bindResult = connection.bind(
+ *        "uid=john.doe,ou=People,dc=example,dc=com", "password");
  *
- * // Use the StartTLS extended operation to secure the connection.
- * ExtendedResult startTLSResult = connection.processExtendedOperation(
- *      new StartTLSExtendedRequest(sslContext));
- *
- * // Create a connection pool that will secure its connections with StartTLS.
- * BindResult bindResult = connection.bind(
- *      "uid=john.doe,ou=People,dc=example,dc=com", "password");
- * StartTLSPostConnectProcessor startTLSProcessor =
- *      new StartTLSPostConnectProcessor(sslContext);
- * LDAPConnectionPool pool =
- *      new LDAPConnectionPool(connection, 1, 10, startTLSProcessor);
- *
- * // Verify that we can use the pool to communicate with the directory server.
- * RootDSE rootDSE = pool.getRootDSE();
- *
- * // Close the connection pool.
- * pool.close();
+ *   StartTLSPostConnectProcessor startTLSProcessor =
+ *        new StartTLSPostConnectProcessor(sslContext);
+ *   LDAPConnectionPool pool =
+ *        new LDAPConnectionPool(connection, 1, 10, startTLSProcessor);
  * </PRE>
  */
 @NotMutable()
@@ -101,18 +91,8 @@ public final class StartTLSPostConnectProcessor
   public void processPreAuthenticatedConnection(final LDAPConnection connection)
          throws LDAPException
   {
-    final StartTLSExtendedRequest startTLSRequest =
-         new StartTLSExtendedRequest(sslContext);
-
-    // Since the StartTLS processing will occur during the course of
-    // establishing the connection for use in the pool, set the connect timeout
-    // for the operation to be equal to the connect timeout from the connection
-    // options.
-    final LDAPConnectionOptions opts = connection.getConnectionOptions();
-    startTLSRequest.setResponseTimeoutMillis(opts.getConnectTimeoutMillis());
-
-    final ExtendedResult r =
-         connection.processExtendedOperation(startTLSRequest);
+    final ExtendedResult r = connection.processExtendedOperation(
+         new StartTLSExtendedRequest(sslContext));
     if (! r.getResultCode().equals(ResultCode.SUCCESS))
     {
       throw new LDAPException(r);

@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -72,18 +72,12 @@ final class LDAPToJavaSocketFactory
   {
     if (f instanceof SocketFactory)
     {
-      synchronized (f)
-      {
-        return ((SocketFactory) f).createSocket(host, port);
-      }
+      return ((SocketFactory) f).createSocket(host, port);
     }
 
     try
     {
-      synchronized (f)
-      {
-        return f.makeSocket(host, port);
-      }
+      return f.makeSocket(host, port);
     }
     catch (Exception e)
     {
@@ -118,11 +112,8 @@ final class LDAPToJavaSocketFactory
   {
     if (f instanceof SocketFactory)
     {
-      synchronized (f)
-      {
-        return ((SocketFactory) f).createSocket(host, port, localAddress,
-             localPort);
-      }
+      return ((SocketFactory) f).createSocket(host, port, localAddress,
+           localPort);
     }
 
     return createSocket(host, port);
@@ -146,10 +137,7 @@ final class LDAPToJavaSocketFactory
   {
     if (f instanceof SocketFactory)
     {
-      synchronized (f)
-      {
-        return ((SocketFactory) f).createSocket(address, port);
-      }
+      return ((SocketFactory) f).createSocket(address, port);
     }
 
     return createSocket(address.getHostAddress(), port);
@@ -181,11 +169,8 @@ final class LDAPToJavaSocketFactory
   {
     if (f instanceof SocketFactory)
     {
-      synchronized (f)
-      {
-        return ((SocketFactory) f).createSocket(address, port, localAddress,
-             localPort);
-      }
+      return ((SocketFactory) f).createSocket(address, port, localAddress,
+           localPort);
     }
 
     return createSocket(address.getHostAddress(), port);

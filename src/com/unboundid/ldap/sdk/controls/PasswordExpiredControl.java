@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -26,7 +26,6 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -57,60 +56,37 @@ import static com.unboundid.util.Debug.*;
  * simple bind to authenticate against the server and handle any password
  * expired or password expiring control that may be included in the response:
  * <PRE>
- * // Send a simple bind request to the directory server.
- * BindRequest bindRequest =
- *      new SimpleBindRequest("uid=test.user,ou=People,dc=example,dc=com",
- *           "password");
- * BindResult bindResult;
- * boolean bindSuccessful;
- * boolean passwordExpired;
- * boolean passwordAboutToExpire;
- * try
- * {
- *   bindResult = connection.bind(bindRequest);
- *
- *   // If we got here, the bind was successful and we know the password was
- *   // not expired.  However, we shouldn't ignore the result because the
- *   // password might be about to expire.  To determine whether that is the
- *   // case, we should see if the bind result included a password expiring
- *   // control.
- *   bindSuccessful = true;
- *   passwordExpired = false;
- *
- *   PasswordExpiringControl expiringControl =
- *        PasswordExpiringControl.get(bindResult);
- *   if (expiringControl != null)
+ *   BindRequest bindRequest =
+ *        new SimpleBindRequest("uid=john.doe,ou=People,dc=example,dc=com",
+ *                              "password");
+ *   try
  *   {
- *     passwordAboutToExpire = true;
- *     int secondsToExpiration = expiringControl.getSecondsUntilExpiration();
+ *     BindResult bindResult = connection.bind(bindRequest);
+ *     for (Control c : bindResult.getResponseControls())
+ *     {
+ *       if (c instanceof PasswordExpiringControl)
+ *       {
+ *         System.err.println("WARNING:  Your password will expire in " +
+ *              ((PasswordExpiringControl) c).getSecondsUntilExpiration() +
+ *              " seconds.");
+ *       }
+ *       else if (c instanceof PasswordExpiredControl)
+ *       {
+ *         System.err.println("WARNING:  You must change your password " +
+ *              "before you will be allowed to perform any other operations.");
+ *       }
+ *     }
  *   }
- *   else
+ *   catch (LDAPException le)
  *   {
- *     passwordAboutToExpire = false;
+ *     for (Control c : le.getResponseControls())
+ *     {
+ *       if (c instanceof PasswordExpiredControl)
+ *       {
+ *         System.err.println("ERROR:  Your password is expired.");
+ *       }
+ *     }
  *   }
- * }
- * catch (LDAPException le)
- * {
- *   // If we got here, then the bind failed.  The failure may or may not have
- *   // been due to an expired password.  To determine that, we should see if
- *   // the bind result included a password expired control.
- *   bindSuccessful = false;
- *   passwordAboutToExpire = false;
- *   bindResult = new BindResult(le.toLDAPResult());
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- *
- *   PasswordExpiredControl expiredControl =
- *        PasswordExpiredControl.get(le);
- *   if (expiredControl != null)
- *   {
- *     passwordExpired = true;
- *   }
- *   else
- *   {
- *     passwordExpired = false;
- *   }
- * }
  * </PRE>
  */
 @NotMutable()
@@ -191,64 +167,6 @@ public final class PasswordExpiredControl
          throws LDAPException
   {
     return new PasswordExpiredControl(oid, isCritical, value);
-  }
-
-
-
-  /**
-   * Extracts a password expired control from the provided result.
-   *
-   * @param  result  The result from which to retrieve the password expired
-   *                 control.
-   *
-   * @return  The password expired control contained in the provided result, or
-   *          {@code null} if the result did not contain a password expired
-   *          control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the password expired control contained in
-   *                         the provided result.
-   */
-  public static PasswordExpiredControl get(final LDAPResult result)
-         throws LDAPException
-  {
-    final Control c = result.getResponseControl(PASSWORD_EXPIRED_OID);
-    if (c == null)
-    {
-      return null;
-    }
-
-    if (c instanceof PasswordExpiredControl)
-    {
-      return (PasswordExpiredControl) c;
-    }
-    else
-    {
-      return new PasswordExpiredControl(c.getOID(), c.isCritical(),
-           c.getValue());
-    }
-  }
-
-
-
-  /**
-   * Extracts a password expired control from the provided exception.
-   *
-   * @param  exception  The exception from which to retrieve the password
-   *                    expired control.
-   *
-   * @return  The password expired control contained in the provided exception,
-   *          or {@code null} if the exception did not contain a password
-   *          expired control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the password expired control contained in
-   *                         the provided exception.
-   */
-  public static PasswordExpiredControl get(final LDAPException exception)
-         throws LDAPException
-  {
-    return get(exception.toLDAPResult());
   }
 
 

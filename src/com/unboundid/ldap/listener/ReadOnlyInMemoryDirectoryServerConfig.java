@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -186,23 +186,6 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
 
 
   /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setAllowedOperationTypes(
-                   final Collection<OperationType> operationTypes)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
    * {@inheritDoc}  The returned set will not be modifiable.
    */
   @Override()
@@ -224,23 +207,6 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
   @Override()
   public void setAuthenticationRequiredOperationTypes(
                    final OperationType... operationTypes)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setAuthenticationRequiredOperationTypes(
-                   final Collection<OperationType> operationTypes)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();
@@ -320,32 +286,6 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
   @Override()
   public void setSchema(final Schema schema)
          throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   */
-  @Override()
-  public void setEnforceAttributeSyntaxCompliance(
-                   final boolean enforceAttributeSyntaxCompliance)
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   */
-  @Override()
-  public void setEnforceSingleStructuralObjectClass(
-                   final boolean enforceSingleStructuralObjectClass)
   {
     throw new UnsupportedOperationException();
   }
@@ -465,129 +405,6 @@ public final class ReadOnlyInMemoryDirectoryServerConfig
    */
   @Override()
   public void setMaxChangeLogEntries(final int maxChangeLogEntries)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  The returned list will not be modifiable.
-   */
-  @Override()
-  public List<String> getEqualityIndexAttributes()
-  {
-    return Collections.unmodifiableList(super.getEqualityIndexAttributes());
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setEqualityIndexAttributes(
-                   final String... equalityIndexAttributes)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setEqualityIndexAttributes(
-                   final Collection<String> equalityIndexAttributes)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  The returned set will not be modifiable.
-   */
-  @Override()
-  public Set<String> getReferentialIntegrityAttributes()
-  {
-    return Collections.unmodifiableSet(
-         super.getReferentialIntegrityAttributes());
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setReferentialIntegrityAttributes(
-                   final String... referentialIntegrityAttributes)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setReferentialIntegrityAttributes(
-                   final Collection<String> referentialIntegrityAttributes)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setVendorName(final String vendorName)
-         throws UnsupportedOperationException
-  {
-    throw new UnsupportedOperationException();
-  }
-
-
-
-  /**
-   * {@inheritDoc}  This method will always throw an
-   * {@code UnsupportedOperationException}.
-   *
-   * @throws  UnsupportedOperationException  To indicate that this object cannot
-   *                                         be altered.
-   */
-  @Override()
-  public void setVendorVersion(final String vendorVersion)
          throws UnsupportedOperationException
   {
     throw new UnsupportedOperationException();

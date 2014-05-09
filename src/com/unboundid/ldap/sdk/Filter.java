@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,7 +44,6 @@ import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.schema.Schema;
-import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -1279,13 +1279,13 @@ public final class Filter
         // Now we should be able to read the value, handling any escape
         // characters as we go.
         l++;
-        final ByteStringBuffer valueBuffer = new ByteStringBuffer(r - l + 1);
+        final StringBuilder valueBuffer = new StringBuilder(r - l + 1);
         while (l <= r)
         {
           final char c = filterString.charAt(l);
           if (c == '\\')
           {
-            l = readEscapedHexString(filterString, ++l, valueBuffer);
+            l = readEscapedHexString(filterString, ++l, r, valueBuffer);
           }
           else if (c == '(')
           {
@@ -1303,7 +1303,7 @@ public final class Filter
             l++;
           }
         }
-        assertionValue = new ASN1OctetString(valueBuffer.toByteArray());
+        assertionValue = new ASN1OctetString(valueBuffer.toString());
         break;
 
 
@@ -1570,7 +1570,7 @@ attrNameLoop:
           ASN1OctetString tempSubFinal   = null;
           final ArrayList<ASN1OctetString> subAnyList =
                new ArrayList<ASN1OctetString>(1);
-          ByteStringBuffer buffer = new ByteStringBuffer(r - l + 1);
+          StringBuilder buffer = new StringBuilder(r - l + 1);
           while (l <= r)
           {
             final char c = filterString.charAt(l++);
@@ -1606,9 +1606,8 @@ attrNameLoop:
                       }
                       else
                       {
-                        subAnyList.add(
-                             new ASN1OctetString(buffer.toByteArray()));
-                        buffer = new ByteStringBuffer(r - l + 1);
+                        subAnyList.add(new ASN1OctetString(buffer.toString()));
+                        buffer = new StringBuilder(r - l + 1);
                       }
                     }
                     else
@@ -1616,9 +1615,8 @@ attrNameLoop:
                       // We haven't yet set the filter type, so the buffer must
                       // contain the subInitial portion.  We also know it's not
                       // empty because of an earlier check.
-                      tempSubInitial =
-                           new ASN1OctetString(buffer.toByteArray());
-                      buffer = new ByteStringBuffer(r - l + 1);
+                      tempSubInitial = new ASN1OctetString(buffer.toString());
+                      buffer = new StringBuilder(r - l + 1);
                     }
                   }
 
@@ -1627,7 +1625,7 @@ attrNameLoop:
                 break;
 
               case '\\':
-                l = readEscapedHexString(filterString, l, buffer);
+                l = readEscapedHexString(filterString, l, r, buffer);
                 break;
 
               case '(':
@@ -1650,7 +1648,7 @@ attrNameLoop:
               (buffer.length() > 0))
           {
             // The buffer must contain the subFinal portion.
-            tempSubFinal = new ASN1OctetString(buffer.toByteArray());
+            tempSubFinal = new ASN1OctetString(buffer.toString());
           }
 
           subInitial = tempSubInitial;
@@ -1663,7 +1661,7 @@ attrNameLoop:
           }
           else
           {
-            assertionValue = new ASN1OctetString(buffer.toByteArray());
+            assertionValue = new ASN1OctetString(buffer.toString());
           }
         }
 
@@ -1780,6 +1778,8 @@ attrNameLoop:
    * @param  startPos      The position at which to start reading.  This should
    *                       be the position of first hex character immediately
    *                       after the initial backslash.
+   * @param  endPos        The position of the last possible character that can
+   *                       be read.
    * @param  buffer        The buffer to which the decoded string portion should
    *                       be appended.
    *
@@ -1789,137 +1789,165 @@ attrNameLoop:
    *                         bytes.
    */
   private static int readEscapedHexString(final String filterString,
-                                          final int startPos,
-                                          final ByteStringBuffer buffer)
+                                          final int startPos, final int endPos,
+                                          final StringBuilder buffer)
           throws LDAPException
   {
-    byte b;
-    switch (filterString.charAt(startPos))
+    int pos = startPos;
+
+    final ByteBuffer byteBuffer = ByteBuffer.allocate(endPos - startPos);
+    while (pos <= endPos)
     {
-      case '0':
-        b = 0x00;
-        break;
-      case '1':
-        b = 0x10;
-        break;
-      case '2':
-        b = 0x20;
-        break;
-      case '3':
-        b = 0x30;
-        break;
-      case '4':
-        b = 0x40;
-        break;
-      case '5':
-        b = 0x50;
-        break;
-      case '6':
-        b = 0x60;
-        break;
-      case '7':
-        b = 0x70;
-        break;
-      case '8':
-        b = (byte) 0x80;
-        break;
-      case '9':
-        b = (byte) 0x90;
-        break;
-      case 'a':
-      case 'A':
-        b = (byte) 0xA0;
-        break;
-      case 'b':
-      case 'B':
-        b = (byte) 0xB0;
-        break;
-      case 'c':
-      case 'C':
-        b = (byte) 0xC0;
-        break;
-      case 'd':
-      case 'D':
-        b = (byte) 0xD0;
-        break;
-      case 'e':
-      case 'E':
-        b = (byte) 0xE0;
-        break;
-      case 'f':
-      case 'F':
-        b = (byte) 0xF0;
-        break;
-      default:
+      byte b;
+      switch (filterString.charAt(pos++))
+      {
+        case '0':
+          b = 0x00;
+          break;
+        case '1':
+          b = 0x10;
+          break;
+        case '2':
+          b = 0x20;
+          break;
+        case '3':
+          b = 0x30;
+          break;
+        case '4':
+          b = 0x40;
+          break;
+        case '5':
+          b = 0x50;
+          break;
+        case '6':
+          b = 0x60;
+          break;
+        case '7':
+          b = 0x70;
+          break;
+        case '8':
+          b = (byte) 0x80;
+          break;
+        case '9':
+          b = (byte) 0x90;
+          break;
+        case 'a':
+        case 'A':
+          b = (byte) 0xA0;
+          break;
+        case 'b':
+        case 'B':
+          b = (byte) 0xB0;
+          break;
+        case 'c':
+        case 'C':
+          b = (byte) 0xC0;
+          break;
+        case 'd':
+        case 'D':
+          b = (byte) 0xD0;
+          break;
+        case 'e':
+        case 'E':
+          b = (byte) 0xE0;
+          break;
+        case 'f':
+        case 'F':
+          b = (byte) 0xF0;
+          break;
+        default:
+          throw new LDAPException(ResultCode.FILTER_ERROR,
+                                  ERR_FILTER_INVALID_HEX_CHAR.get(
+                                       filterString.charAt(pos-1), (pos-1)));
+      }
+
+      if (pos > endPos)
+      {
         throw new LDAPException(ResultCode.FILTER_ERROR,
-             ERR_FILTER_INVALID_HEX_CHAR.get(filterString.charAt(startPos),
-                  startPos));
+                                ERR_FILTER_INVALID_ESCAPED_END_CHAR.get(
+                                     filterString.charAt(pos-1)));
+      }
+
+      switch (filterString.charAt(pos++))
+      {
+        case '0':
+          // No action is required.
+          break;
+        case '1':
+          b |= 0x01;
+          break;
+        case '2':
+          b |= 0x02;
+          break;
+        case '3':
+          b |= 0x03;
+          break;
+        case '4':
+          b |= 0x04;
+          break;
+        case '5':
+          b |= 0x05;
+          break;
+        case '6':
+          b |= 0x06;
+          break;
+        case '7':
+          b |= 0x07;
+          break;
+        case '8':
+          b |= 0x08;
+          break;
+        case '9':
+          b |= 0x09;
+          break;
+        case 'a':
+        case 'A':
+          b |= 0x0A;
+          break;
+        case 'b':
+        case 'B':
+          b |= 0x0B;
+          break;
+        case 'c':
+        case 'C':
+          b |= 0x0C;
+          break;
+        case 'd':
+        case 'D':
+          b |= 0x0D;
+          break;
+        case 'e':
+        case 'E':
+          b |= 0x0E;
+          break;
+        case 'f':
+        case 'F':
+          b |= 0x0F;
+          break;
+        default:
+          throw new LDAPException(ResultCode.FILTER_ERROR,
+                                  ERR_FILTER_INVALID_HEX_CHAR.get(
+                                       filterString.charAt(pos-1), (pos-1)));
+      }
+
+      byteBuffer.put(b);
+      if ((pos <= endPos) && (filterString.charAt(pos) == '\\'))
+      {
+        pos++;
+        continue;
+      }
+      else
+      {
+        break;
+      }
     }
 
-    switch (filterString.charAt(startPos+1))
-    {
-      case '0':
-        // No action is required.
-        break;
-      case '1':
-        b |= 0x01;
-        break;
-      case '2':
-        b |= 0x02;
-        break;
-      case '3':
-        b |= 0x03;
-        break;
-      case '4':
-        b |= 0x04;
-        break;
-      case '5':
-        b |= 0x05;
-        break;
-      case '6':
-        b |= 0x06;
-        break;
-      case '7':
-        b |= 0x07;
-        break;
-      case '8':
-        b |= 0x08;
-        break;
-      case '9':
-        b |= 0x09;
-        break;
-      case 'a':
-      case 'A':
-        b |= 0x0A;
-        break;
-      case 'b':
-      case 'B':
-        b |= 0x0B;
-        break;
-      case 'c':
-      case 'C':
-        b |= 0x0C;
-        break;
-      case 'd':
-      case 'D':
-        b |= 0x0D;
-        break;
-      case 'e':
-      case 'E':
-        b |= 0x0E;
-        break;
-      case 'f':
-      case 'F':
-        b |= 0x0F;
-        break;
-      default:
-        throw new LDAPException(ResultCode.FILTER_ERROR,
-             ERR_FILTER_INVALID_HEX_CHAR.get(filterString.charAt(startPos+1),
-                  (startPos+1)));
-    }
+    byteBuffer.flip();
+    final byte[] byteArray = new byte[byteBuffer.limit()];
+    byteBuffer.get(byteArray);
 
-    buffer.append(b);
-    return startPos+2;
+    buffer.append(toUTF8String(byteArray));
+    return pos;
   }
 
 
@@ -2735,8 +2763,7 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the set of filter components used in this AND or OR filter.  This
-   * is not applicable for any other filter type.
+   * Retrieves the set of filter components used in this AND or OR filter.
    *
    * @return  The set of filter components used in this AND or OR filter, or an
    *          empty array if this is some other type of filter or if there are
@@ -2750,8 +2777,7 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the filter component used in this NOT filter.  This is not
-   * applicable for any other filter type.
+   * Retrieves the filter component used in this NOT filter.
    *
    * @return  The filter component used in this NOT filter, or {@code null} if
    *          this is some other type of filter.
@@ -2764,17 +2790,7 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the name of the attribute type for this search filter.  This is
-   * applicable for the following types of filters:
-   * <UL>
-   *   <LI>Equality</LI>
-   *   <LI>Substring</LI>
-   *   <LI>Greater or Equal</LI>
-   *   <LI>Less or Equal</LI>
-   *   <LI>Presence</LI>
-   *   <LI>Approximate Match</LI>
-   *   <LI>Extensible Match</LI>
-   * </UL>
+   * Retrieves the name of the attribute type for this search filter.
    *
    * @return  The name of the attribute type for this search filter, or
    *          {@code null} if it is not applicable for this type of filter.
@@ -2788,14 +2804,7 @@ attrNameLoop:
 
   /**
    * Retrieves the string representation of the assertion value for this search
-   * filter.  This is applicable for the following types of filters:
-   * <UL>
-   *   <LI>Equality</LI>
-   *   <LI>Greater or Equal</LI>
-   *   <LI>Less or Equal</LI>
-   *   <LI>Approximate Match</LI>
-   *   <LI>Extensible Match</LI>
-   * </UL>
+   * filter.
    *
    * @return  The string representation of the assertion value for this search
    *          filter, or {@code null} if it is not applicable for this type of
@@ -2817,14 +2826,7 @@ attrNameLoop:
 
   /**
    * Retrieves the binary representation of the assertion value for this search
-   * filter.  This is applicable for the following types of filters:
-   * <UL>
-   *   <LI>Equality</LI>
-   *   <LI>Greater or Equal</LI>
-   *   <LI>Less or Equal</LI>
-   *   <LI>Approximate Match</LI>
-   *   <LI>Extensible Match</LI>
-   * </UL>
+   * filter.
    *
    * @return  The binary representation of the assertion value for this search
    *          filter, or {@code null} if it is not applicable for this type of
@@ -2846,14 +2848,7 @@ attrNameLoop:
 
   /**
    * Retrieves the raw assertion value for this search filter as an ASN.1
-   * octet string.  This is applicable for the following types of filters:
-   * <UL>
-   *   <LI>Equality</LI>
-   *   <LI>Greater or Equal</LI>
-   *   <LI>Less or Equal</LI>
-   *   <LI>Approximate Match</LI>
-   *   <LI>Extensible Match</LI>
-   * </UL>
+   * octet string.
    *
    * @return  The raw assertion value for this search filter as an ASN.1 octet
    *          string, or {@code null} if it is not applicable for this type of
@@ -2868,7 +2863,7 @@ attrNameLoop:
 
   /**
    * Retrieves the string representation of the subInitial element for this
-   * substring filter.  This is not applicable for any other filter type.
+   * substring filter.
    *
    * @return  The string representation of the subInitial element for this
    *          substring filter, or {@code null} if this is some other type of
@@ -2890,7 +2885,7 @@ attrNameLoop:
 
   /**
    * Retrieves the binary representation of the subInitial element for this
-   * substring filter.  This is not applicable for any other filter type.
+   * substring filter.
    *
    * @return  The binary representation of the subInitial element for this
    *          substring filter, or {@code null} if this is some other type of
@@ -2912,7 +2907,7 @@ attrNameLoop:
 
   /**
    * Retrieves the raw subInitial element for this filter as an ASN.1 octet
-   * string.  This is not applicable for any other filter type.
+   * string.
    *
    * @return  The raw subInitial element for this filter as an ASN.1 octet
    *          string, or {@code null} if this is not a substring filter, or if
@@ -2927,7 +2922,7 @@ attrNameLoop:
 
   /**
    * Retrieves the string representations of the subAny elements for this
-   * substring filter.  This is not applicable for any other filter type.
+   * substring filter.
    *
    * @return  The string representations of the subAny elements for this
    *          substring filter, or an empty array if this is some other type of
@@ -2948,7 +2943,7 @@ attrNameLoop:
 
   /**
    * Retrieves the binary representations of the subAny elements for this
-   * substring filter.  This is not applicable for any other filter type.
+   * substring filter.
    *
    * @return  The binary representations of the subAny elements for this
    *          substring filter, or an empty array if this is some other type of
@@ -2968,8 +2963,7 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the raw subAny values for this substring filter.  This is not
-   * applicable for any other filter type.
+   * Retrieves the raw subAny values for this substring filter.
    *
    * @return  The raw subAny values for this substring filter, or an empty array
    *          if this is some other type of filter, or if it is a substring
@@ -2984,7 +2978,7 @@ attrNameLoop:
 
   /**
    * Retrieves the string representation of the subFinal element for this
-   * substring filter.  This is not applicable for any other filter type.
+   * substring filter.
    *
    * @return  The string representation of the subFinal element for this
    *          substring filter, or {@code null} if this is some other type of
@@ -3006,7 +3000,7 @@ attrNameLoop:
 
   /**
    * Retrieves the binary representation of the subFinal element for this
-   * substring filter.  This is not applicable for any other filter type.
+   * substring filter.
    *
    * @return  The binary representation of the subFinal element for this
    *          substring filter, or {@code null} if this is some other type of
@@ -3028,7 +3022,7 @@ attrNameLoop:
 
   /**
    * Retrieves the raw subFinal element for this filter as an ASN.1 octet
-   * string.  This is not applicable for any other filter type.
+   * string.
    *
    * @return  The raw subFinal element for this filter as an ASN.1 octet
    *          string, or {@code null} if this is not a substring filter, or if
@@ -3042,8 +3036,7 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the matching rule ID for this extensible match filter.  This is
-   * not applicable for any other filter type.
+   * Retrieves the matching rule ID for this extensible match filter.
    *
    * @return  The matching rule ID for this extensible match filter, or
    *          {@code null} if this is some other type of filter, or if this
@@ -3057,8 +3050,7 @@ attrNameLoop:
 
 
   /**
-   * Retrieves the dnAttributes flag for this extensible match filter.  This is
-   * not applicable for any other filter type.
+   * Retrieves the dnAttributes flag for this extensible match filter.
    *
    * @return  The dnAttributes flag for this extensible match filter.
    */
@@ -3098,7 +3090,7 @@ attrNameLoop:
   public boolean matchesEntry(final Entry entry)
          throws LDAPException
   {
-    return matchesEntry(entry, entry.getSchema());
+    return matchesEntry(entry, null);
   }
 
 
@@ -3200,7 +3192,7 @@ attrNameLoop:
              MatchingRule.selectOrderingMatchingRule(attrName, schema);
         for (final ASN1OctetString v : a.getRawValues())
         {
-          if (matchingRule.compareValues(v, assertionValue) >= 0)
+          if (matchingRule.compareValues(assertionValue, v) >= 0)
           {
             return true;
           }
@@ -3218,7 +3210,7 @@ attrNameLoop:
              MatchingRule.selectOrderingMatchingRule(attrName, schema);
         for (final ASN1OctetString v : a.getRawValues())
         {
-          if (matchingRule.compareValues(v, assertionValue) <= 0)
+          if (matchingRule.compareValues(assertionValue, v) <= 0)
           {
             return true;
           }
@@ -3875,87 +3867,29 @@ attrNameLoop:
   private static void encodeValue(final ASN1OctetString value,
                                   final StringBuilder buffer)
   {
-    final byte[] valueBytes = value.getValue();
-    for (int i=0; i < valueBytes.length; i++)
+    final String valueString = value.stringValue();
+    final int length = valueString.length();
+    for (int i=0; i < length; i++)
     {
-      switch (numBytesInUTF8CharacterWithFirstByte(valueBytes[i]))
+      final char c = valueString.charAt(i);
+      switch (c)
       {
-        case 1:
-          // This character is ASCII, but might still need to be escaped.  We'll
-          // escape anything
-          if ((valueBytes[i] <= 0x1F) || // Non-printable ASCII characters.
-              (valueBytes[i] == 0x28) || // Open parenthesis
-              (valueBytes[i] == 0x29) || // Close parenthesis
-              (valueBytes[i] == 0x2A) || // Asterisk
-              (valueBytes[i] == 0x5C) || // Backslash
-              (valueBytes[i] == 0x7F))   // DEL
-          {
-            buffer.append('\\');
-            toHex(valueBytes[i], buffer);
-          }
-          else
-          {
-            buffer.append((char) valueBytes[i]);
-          }
-          break;
-
-        case 2:
-          // If there are at least two bytes left, then we'll hex-encode the
-          // next two bytes.  Otherwise we'll hex-encode whatever is left.
-          buffer.append('\\');
-          toHex(valueBytes[i++], buffer);
-          if (i < valueBytes.length)
-          {
-            buffer.append('\\');
-            toHex(valueBytes[i], buffer);
-          }
-          break;
-
-        case 3:
-          // If there are at least three bytes left, then we'll hex-encode the
-          // next three bytes.  Otherwise we'll hex-encode whatever is left.
-          buffer.append('\\');
-          toHex(valueBytes[i++], buffer);
-          if (i < valueBytes.length)
-          {
-            buffer.append('\\');
-            toHex(valueBytes[i++], buffer);
-          }
-          if (i < valueBytes.length)
-          {
-            buffer.append('\\');
-            toHex(valueBytes[i], buffer);
-          }
-          break;
-
-        case 4:
-          // If there are at least four bytes left, then we'll hex-encode the
-          // next four bytes.  Otherwise we'll hex-encode whatever is left.
-          buffer.append('\\');
-          toHex(valueBytes[i++], buffer);
-          if (i < valueBytes.length)
-          {
-            buffer.append('\\');
-            toHex(valueBytes[i++], buffer);
-          }
-          if (i < valueBytes.length)
-          {
-            buffer.append('\\');
-            toHex(valueBytes[i++], buffer);
-          }
-          if (i < valueBytes.length)
-          {
-            buffer.append('\\');
-            toHex(valueBytes[i], buffer);
-          }
+        case '\u0000':
+        case '(':
+        case ')':
+        case '*':
+        case '\\':
+          hexEncode(c, buffer);
           break;
 
         default:
-          // We'll hex-encode whatever is left in the buffer.
-          while (i < valueBytes.length)
+          if (c <= 0x7F)
           {
-            buffer.append('\\');
-            toHex(valueBytes[i++], buffer);
+            buffer.append(c);
+          }
+          else
+          {
+            hexEncode(c, buffer);
           }
           break;
       }

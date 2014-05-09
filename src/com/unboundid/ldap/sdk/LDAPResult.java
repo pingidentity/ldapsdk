@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -464,9 +464,7 @@ public class LDAPResult
 
 
   /**
-   * Retrieves the set of controls from the response, if available.  Individual
-   * response controls of a specific type may be retrieved and decoded using the
-   * {@code get} method in the response control class.
+   * Retrieves the set of controls from the response, if available.
    *
    * @return  The set of controls from the response.  The array returned may be
    *          empty if the response did not include any controls.

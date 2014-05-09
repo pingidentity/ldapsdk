@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -86,10 +86,7 @@ public final class JavaToLDAPSocketFactory
   public Socket createSocket(final String host, final int port)
          throws IOException
   {
-    synchronized (f)
-    {
-      return f.createSocket(host, port);
-    }
+    return f.createSocket(host, port);
   }
 
 
@@ -116,10 +113,7 @@ public final class JavaToLDAPSocketFactory
                              final int localPort)
          throws IOException
   {
-    synchronized (f)
-    {
-      return f.createSocket(host, port, localAddress, localPort);
-    }
+    return f.createSocket(host, port, localAddress, localPort);
   }
 
 
@@ -138,10 +132,7 @@ public final class JavaToLDAPSocketFactory
   public Socket createSocket(final InetAddress address, final int port)
          throws IOException
   {
-    synchronized (f)
-    {
-      return f.createSocket(address, port);
-    }
+    return f.createSocket(address, port);
   }
 
 
@@ -168,10 +159,7 @@ public final class JavaToLDAPSocketFactory
                              final int localPort)
          throws IOException
   {
-    synchronized (f)
-    {
-      return f.createSocket(address, port, localAddress, localPort);
-    }
+    return f.createSocket(address, port, localAddress, localPort);
   }
 
 
@@ -184,10 +172,7 @@ public final class JavaToLDAPSocketFactory
   {
     try
     {
-      synchronized (f)
-      {
-        return f.createSocket(host, port);
-      }
+      return f.createSocket(host, port);
     }
     catch (Exception e)
     {

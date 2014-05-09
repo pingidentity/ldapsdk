@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -155,7 +155,7 @@ public final class LDAPPersister<T>
     LDAPPersister<T> p = (LDAPPersister<T>) INSTANCES.get(type);
     if (p == null)
     {
-      p = new LDAPPersister<T>(type);
+      p = new LDAPPersister(type);
       INSTANCES.put(type, p);
     }
 
@@ -713,8 +713,6 @@ public final class LDAPPersister<T>
    * modifications as efficient as possible.  Otherwise, the resulting
    * modifications will include attempts to replace every attribute which are
    * associated with fields or getters that should be used in modify operations.
-   * If there are no modifications, then no modification will be attempted, and
-   * this method will return {@code null} rather than an {@code LDAPResult}.
    *
    * @param  o                 The object for which to generate the list of
    *                           modifications.  It must not be {@code null}.
@@ -735,9 +733,7 @@ public final class LDAPPersister<T>
    *                           then all attributes marked for inclusion in the
    *                           modification will be examined.
    *
-   * @return  The result of processing the modify operation, or {@code null} if
-   *          there were no changes to apply (and therefore no modification was
-   *          performed).
+   * @return  The result of processing the modify operation.
    *
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
@@ -760,8 +756,6 @@ public final class LDAPPersister<T>
    * modifications as efficient as possible.  Otherwise, the resulting
    * modifications will include attempts to replace every attribute which are
    * associated with fields or getters that should be used in modify operations.
-   * If there are no modifications, then no modification will be attempted, and
-   * this method will return {@code null} rather than an {@code LDAPResult}.
    *
    * @param  o                 The object for which to generate the list of
    *                           modifications.  It must not be {@code null}.
@@ -784,9 +778,7 @@ public final class LDAPPersister<T>
    * @param  controls          The optional set of controls to include in the
    *                           modify request.
    *
-   * @return  The result of processing the modify operation, or {@code null} if
-   *          there were no changes to apply (and therefore no modification was
-   *          performed).
+   * @return  The result of processing the modify operation.
    *
    * @throws  LDAPPersistException  If a problem occurs while computing the set
    *                                of modifications.
@@ -799,10 +791,6 @@ public final class LDAPPersister<T>
     ensureNotNull(o, i);
     final List<Modification> mods =
          handler.getModifications(o, deleteNullValues, attributes);
-    if (mods.isEmpty())
-    {
-      return null;
-    }
 
     final String targetDN;
     if (dn == null)
@@ -1328,7 +1316,8 @@ public final class LDAPPersister<T>
    *                 receive objects decoded from entries returned for the
    *                 search.  It must not be {@code null}.
    *
-   * @return  The result of the search operation that was processed.
+   * @return  A results object that may be used to iterate through the objects
+   *          returned from the search.
    *
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
@@ -1381,7 +1370,8 @@ public final class LDAPPersister<T>
    *                      request.  It may be empty or {@code null} if no
    *                      controls are needed.
    *
-   * @return  The result of the search operation that was processed.
+   * @return  A results object that may be used to iterate through the objects
+   *          returned from the search.
    *
    * @throws  LDAPPersistException  If an error occurs while preparing or
    *                                sending the search request.
@@ -1421,168 +1411,6 @@ public final class LDAPPersister<T>
 
     final SearchRequest searchRequest = new SearchRequest(bridge, base, scope,
          derefPolicy, sizeLimit, timeLimit, false, filter,
-         handler.getAttributesToRequest());
-    if (controls != null)
-    {
-      searchRequest.setControls(controls);
-    }
-
-    try
-    {
-      return i.search(searchRequest);
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPPersistException(le);
-    }
-  }
-
-
-
-  /**
-   * Performs a search in the directory using the provided search criteria and
-   * decodes all entries returned as objects of the associated type.
-   *
-   * @param  c            The connection to use to communicate with the
-   *                      directory server.  It must not be {@code null}.
-   * @param  baseDN       The base DN to use for the search.  It may be
-   *                      {@code null} if the {@link LDAPObject#defaultParentDN}
-   *                      element in the {@code LDAPObject} should be used as
-   *                      the base DN.
-   * @param  scope        The scope to use for the search operation.  It must
-   *                      not be {@code null}.
-   * @param  derefPolicy  The dereference policy to use for the search
-   *                      operation.  It must not be {@code null}.
-   * @param  sizeLimit    The maximum number of entries to retrieve from the
-   *                      directory.  A value of zero indicates that no
-   *                      client-requested size limit should be enforced.
-   * @param  timeLimit    The maximum length of time in seconds that the server
-   *                      should spend processing the search.  A value of zero
-   *                      indicates that no client-requested time limit should
-   *                      be enforced.
-   * @param  filter       The filter to use for the search.  It must not be
-   *                      {@code null}.  It will automatically be ANDed with a
-   *                      filter that will match entries with the structural and
-   *                      auxiliary classes.
-   * @param  controls     An optional set of controls to include in the search
-   *                      request.  It may be empty or {@code null} if no
-   *                      controls are needed.
-   *
-   * @return  The result of the search operation that was processed.
-   *
-   * @throws  LDAPPersistException  If an error occurs while preparing or
-   *                                sending the search request.
-   */
-  public PersistedObjects<T> search(final LDAPConnection c, final String baseDN,
-                                    final SearchScope scope,
-                                    final DereferencePolicy derefPolicy,
-                                    final int sizeLimit, final int timeLimit,
-                                    final Filter filter,
-                                    final Control... controls)
-         throws LDAPPersistException
-  {
-    ensureNotNull(c, scope, derefPolicy, filter);
-
-    final String base;
-    if (baseDN == null)
-    {
-      base = handler.getDefaultParentDN().toString();
-    }
-    else
-    {
-      base = baseDN;
-    }
-
-    final Filter f = Filter.createANDFilter(filter, handler.createBaseFilter());
-
-    final SearchRequest searchRequest = new SearchRequest(base, scope,
-         derefPolicy, sizeLimit, timeLimit, false, f,
-         handler.getAttributesToRequest());
-    if (controls != null)
-    {
-      searchRequest.setControls(controls);
-    }
-
-    final LDAPEntrySource entrySource;
-    try
-    {
-      entrySource = new LDAPEntrySource(c, searchRequest, false);
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPPersistException(le);
-    }
-
-    return new PersistedObjects<T>(this, entrySource);
-  }
-
-
-
-  /**
-   * Performs a search in the directory using the provided search criteria and
-   * decodes all entries returned as objects of the associated type.
-   *
-   * @param  i            The connection to use to communicate with the
-   *                      directory server.  It must not be {@code null}.
-   * @param  baseDN       The base DN to use for the search.  It may be
-   *                      {@code null} if the {@link LDAPObject#defaultParentDN}
-   *                      element in the {@code LDAPObject} should be used as
-   *                      the base DN.
-   * @param  scope        The scope to use for the search operation.  It must
-   *                      not be {@code null}.
-   * @param  derefPolicy  The dereference policy to use for the search
-   *                      operation.  It must not be {@code null}.
-   * @param  sizeLimit    The maximum number of entries to retrieve from the
-   *                      directory.  A value of zero indicates that no
-   *                      client-requested size limit should be enforced.
-   * @param  timeLimit    The maximum length of time in seconds that the server
-   *                      should spend processing the search.  A value of zero
-   *                      indicates that no client-requested time limit should
-   *                      be enforced.
-   * @param  filter       The filter to use for the search.  It must not be
-   *                      {@code null}.  It will automatically be ANDed with a
-   *                      filter that will match entries with the structural and
-   *                      auxiliary classes.
-   * @param  l            The object search result listener that will be used
-   *                      to receive objects decoded from entries returned for
-   *                      the search.  It must not be {@code null}.
-   * @param  controls     An optional set of controls to include in the search
-   *                      request.  It may be empty or {@code null} if no
-   *                      controls are needed.
-   *
-   * @return  The result of the search operation that was processed.
-   *
-   * @throws  LDAPPersistException  If an error occurs while preparing or
-   *                                sending the search request.
-   */
-  public SearchResult search(final LDAPInterface i, final String baseDN,
-                             final SearchScope scope,
-                             final DereferencePolicy derefPolicy,
-                             final int sizeLimit, final int timeLimit,
-                             final Filter filter,
-                             final ObjectSearchListener<T> l,
-                             final Control... controls)
-         throws LDAPPersistException
-  {
-    ensureNotNull(i, scope, derefPolicy, filter, l);
-
-    final String base;
-    if (baseDN == null)
-    {
-      base = handler.getDefaultParentDN().toString();
-    }
-    else
-    {
-      base = baseDN;
-    }
-
-    final Filter f = Filter.createANDFilter(filter, handler.createBaseFilter());
-    final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
-
-    final SearchRequest searchRequest = new SearchRequest(bridge, base, scope,
-         derefPolicy, sizeLimit, timeLimit, false, f,
          handler.getAttributesToRequest());
     if (controls != null)
     {
@@ -1780,70 +1608,6 @@ public final class LDAPPersister<T>
     {
       debugException(lpe);
       throw lpe;
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPPersistException(le);
-    }
-  }
-
-
-
-  /**
-   * Performs a search in the directory with an attempt to find all objects of
-   * the specified type below the given base DN (or below the default parent DN
-   * if no base DN is specified).  Note that this may result in an unindexed
-   * search, which may be expensive to conduct.  Some servers may require
-   * special permissions of clients wishing to perform unindexed searches.
-   *
-   * @param  i         The connection to use to communicate with the
-   *                   directory server.  It must not be {@code null}.
-   * @param  baseDN    The base DN to use for the search.  It may be
-   *                   {@code null} if the {@link LDAPObject#defaultParentDN}
-   *                   element in the {@code LDAPObject} should be used as the
-   *                   base DN.
-   * @param  l         The object search result listener that will be used to
-   *                   receive objects decoded from entries returned for the
-   *                   search.  It must not be {@code null}.
-   * @param  controls  An optional set of controls to include in the search
-   *                   request.  It may be empty or {@code null} if no controls
-   *                   are needed.
-   *
-   * @return  The result of the search operation that was processed.
-   *
-   * @throws  LDAPPersistException  If an error occurs while preparing or
-   *                                sending the search request.
-   */
-  public SearchResult getAll(final LDAPInterface i, final String baseDN,
-                             final ObjectSearchListener<T> l,
-                             final Control... controls)
-         throws LDAPPersistException
-  {
-    ensureNotNull(i, l);
-
-    final String base;
-    if (baseDN == null)
-    {
-      base = handler.getDefaultParentDN().toString();
-    }
-    else
-    {
-      base = baseDN;
-    }
-
-    final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
-    final SearchRequest searchRequest = new SearchRequest(bridge, base,
-         SearchScope.SUB, DereferencePolicy.NEVER, 0, 0, false,
-         handler.createBaseFilter(), handler.getAttributesToRequest());
-    if (controls != null)
-    {
-      searchRequest.setControls(controls);
-    }
-
-    try
-    {
-      return i.search(searchRequest);
     }
     catch (LDAPException le)
     {

@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -40,7 +40,6 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
@@ -59,7 +58,6 @@ import com.unboundid.ldap.protocol.ModifyRequestProtocolOp;
 import com.unboundid.ldap.protocol.ModifyResponseProtocolOp;
 import com.unboundid.ldap.protocol.ModifyDNRequestProtocolOp;
 import com.unboundid.ldap.protocol.ModifyDNResponseProtocolOp;
-import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.ldap.protocol.SearchRequestProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultDoneProtocolOp;
 import com.unboundid.ldap.matchingrules.DistinguishedNameMatchingRule;
@@ -81,7 +79,6 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPURL;
 import com.unboundid.ldap.sdk.Modification;
-import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
@@ -89,12 +86,9 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
-import com.unboundid.ldap.sdk.schema.DITContentRuleDefinition;
-import com.unboundid.ldap.sdk.schema.DITStructureRuleDefinition;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
-import com.unboundid.ldap.sdk.schema.MatchingRuleUseDefinition;
-import com.unboundid.ldap.sdk.schema.NameFormDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
@@ -115,10 +109,8 @@ import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
-import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
-import com.unboundid.ldap.sdk.extensions.AbortedTransactionExtendedResult;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
@@ -176,19 +168,6 @@ public final class InMemoryRequestHandler
   // The change number for the last changelog entry in the server.
   private final AtomicLong lastChangeNumber;
 
-  // A delay (in milliseconds) to insert before processing operations.
-  private final AtomicLong processingDelayMillis;
-
-  // The reference to the entry validator that will be used for schema checking,
-  // if appropriate.
-  private final AtomicReference<EntryValidator> entryValidatorRef;
-
-  // The entry to use as the subschema subentry.
-  private final AtomicReference<ReadOnlyEntry> subschemaSubentryRef;
-
-  // The reference to the schema that will be used for this request handler.
-  private final AtomicReference<Schema> schemaRef;
-
   // Indicates whether to generate operational attributes for writes.
   private final boolean generateOperationalAttributes;
 
@@ -201,6 +180,10 @@ public final class InMemoryRequestHandler
   // The DN of the subschema subentry.
   private final DN subschemaSubentryDN;
 
+  // The entry validator that will be used for schema checking, if
+  // appropriate.
+  private final EntryValidator entryValidator;
+
   // The configuration used to create this request handler.
   private final InMemoryDirectoryServerConfig config;
 
@@ -211,15 +194,8 @@ public final class InMemoryRequestHandler
   // The maximum number of changelog entries to maintain.
   private final int maxChangelogEntries;
 
-  // The maximum number of entries to return from any single search.
-  private final int maxSizeLimit;
-
   // The client connection for this request handler instance.
   private final LDAPListenerClientConnection connection;
-
-  // The set of equality indexes defined for the server.
-  private final Map<AttributeTypeDefinition,
-     InMemoryDirectoryServerEqualityAttributeIndex> equalityIndexes;
 
   // An additional set of credentials that may be used for bind operations.
   private final Map<DN,byte[]> additionalBindCredentials;
@@ -234,11 +210,14 @@ public final class InMemoryRequestHandler
   // A map of state information specific to the associated connection.
   private final Map<String,Object> connectionState;
 
+  // The entry to use as the subschema subentry.
+  private final ReadOnlyEntry subschemaSubentry;
+
+  // The schema that will be used for this request handler.  It may be null.
+  private final Schema schema;
+
   // The set of base DNs for the server.
   private final Set<DN> baseDNs;
-
-  // The set of referential integrity attributes for the server.
-  private final Set<String> referentialIntegrityAttributes;
 
   // The map of entries currently held in the server.
   private final TreeMap<DN,ReadOnlyEntry> entryMap;
@@ -260,20 +239,14 @@ public final class InMemoryRequestHandler
   {
     this.config = config;
 
-    schemaRef            = new AtomicReference<Schema>();
-    entryValidatorRef    = new AtomicReference<EntryValidator>();
-    subschemaSubentryRef = new AtomicReference<ReadOnlyEntry>();
-
-    final Schema schema = config.getSchema();
-    schemaRef.set(schema);
-    if (schema != null)
+    schema = config.getSchema();
+    if (schema == null)
     {
-      final EntryValidator entryValidator = new EntryValidator(schema);
-      entryValidatorRef.set(entryValidator);
-      entryValidator.setCheckAttributeSyntax(
-           config.enforceAttributeSyntaxCompliance());
-      entryValidator.setCheckStructuralObjectClasses(
-           config.enforceSingleStructuralObjectClass());
+      entryValidator = null;
+    }
+    else
+    {
+      entryValidator = new EntryValidator(schema);
     }
 
     final DN[] baseDNArray = config.getBaseDNs();
@@ -293,7 +266,7 @@ public final class InMemoryRequestHandler
            ERR_MEM_HANDLER_NULL_BASE_DN.get());
     }
 
-    changeLogBaseDN = new DN("cn=changelog", schema);
+    changeLogBaseDN = new DN("cn=changelog");
     if (baseDNSet.contains(changeLogBaseDN))
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -301,15 +274,6 @@ public final class InMemoryRequestHandler
     }
 
     maxChangelogEntries = config.getMaxChangeLogEntries();
-
-    if (config.getMaxSizeLimit() <= 0)
-    {
-      maxSizeLimit = Integer.MAX_VALUE;
-    }
-    else
-    {
-      maxSizeLimit = config.getMaxSizeLimit();
-    }
 
     final TreeMap<String,InMemoryExtendedOperationHandler> extOpHandlers =
          new TreeMap<String,InMemoryExtendedOperationHandler>();
@@ -351,31 +315,15 @@ public final class InMemoryRequestHandler
     additionalBindCredentials = Collections.unmodifiableMap(
          config.getAdditionalBindCredentials());
 
-    final List<String> eqIndexAttrs = config.getEqualityIndexAttributes();
-    equalityIndexes = new HashMap<AttributeTypeDefinition,
-         InMemoryDirectoryServerEqualityAttributeIndex>(eqIndexAttrs.size());
-    for (final String s : eqIndexAttrs)
-    {
-      final InMemoryDirectoryServerEqualityAttributeIndex i =
-           new InMemoryDirectoryServerEqualityAttributeIndex(s, schema);
-      equalityIndexes.put(i.getAttributeType(), i);
-    }
-
-    referentialIntegrityAttributes = Collections.unmodifiableSet(
-         config.getReferentialIntegrityAttributes());
-
     baseDNs = Collections.unmodifiableSet(baseDNSet);
     generateOperationalAttributes = config.generateOperationalAttributes();
-    authenticatedDN               = new DN("cn=Internal Root User", schema);
+    authenticatedDN               = new DN("cn=Internal Root User");
     connection                    = null;
     connectionState               = Collections.emptyMap();
     firstChangeNumber             = new AtomicLong(0L);
     lastChangeNumber              = new AtomicLong(0L);
-    processingDelayMillis         = new AtomicLong(0L);
-
-    final ReadOnlyEntry subschemaSubentry = generateSubschemaSubentry(schema);
-    subschemaSubentryRef.set(subschemaSubentry);
-    subschemaSubentryDN = subschemaSubentry.getParsedDN();
+    subschemaSubentry             = generateSubschemaSubentry(schema);
+    subschemaSubentryDN           = subschemaSubentry.getParsedDN();
 
     if (baseDNs.contains(subschemaSubentryDN))
     {
@@ -386,9 +334,7 @@ public final class InMemoryRequestHandler
     if (maxChangelogEntries > 0)
     {
       baseDNSet.add(changeLogBaseDN);
-
-      final ReadOnlyEntry changeLogBaseEntry = new ReadOnlyEntry(
-           changeLogBaseDN, schema,
+      entryMap.put(changeLogBaseDN, new ReadOnlyEntry(changeLogBaseDN,
            new Attribute("objectClass", "top", "namedObject"),
            new Attribute("cn", "changelog"),
            new Attribute("entryDN",
@@ -409,9 +355,7 @@ public final class InMemoryRequestHandler
                 StaticUtils.encodeGeneralizedTime(new Date())),
            new Attribute("subschemaSubentry",
                 DistinguishedNameMatchingRule.getInstance(),
-                subschemaSubentryDN.toString()));
-      entryMap.put(changeLogBaseDN, changeLogBaseEntry);
-      indexAdd(changeLogBaseEntry);
+                subschemaSubentryDN.toString())));
     }
 
     initialSnapshot = createSnapshot();
@@ -434,26 +378,22 @@ public final class InMemoryRequestHandler
     authenticatedDN = DN.NULL_DN;
     connectionState = new LinkedHashMap<String,Object>(0);
 
-    config                         = parent.config;
-    generateOperationalAttributes  = parent.generateOperationalAttributes;
-    additionalBindCredentials      = parent.additionalBindCredentials;
-    baseDNs                        = parent.baseDNs;
-    changeLogBaseDN                = parent.changeLogBaseDN;
-    firstChangeNumber              = parent.firstChangeNumber;
-    lastChangeNumber               = parent.lastChangeNumber;
-    processingDelayMillis          = parent.processingDelayMillis;
-    maxChangelogEntries            = parent.maxChangelogEntries;
-    maxSizeLimit                   = parent.maxSizeLimit;
-    equalityIndexes                = parent.equalityIndexes;
-    referentialIntegrityAttributes = parent.referentialIntegrityAttributes;
-    entryMap                       = parent.entryMap;
-    entryValidatorRef              = parent.entryValidatorRef;
-    extendedRequestHandlers        = parent.extendedRequestHandlers;
-    saslBindHandlers               = parent.saslBindHandlers;
-    schemaRef                      = parent.schemaRef;
-    subschemaSubentryRef           = parent.subschemaSubentryRef;
-    subschemaSubentryDN            = parent.subschemaSubentryDN;
-    initialSnapshot                = parent.initialSnapshot;
+    config                        = parent.config;
+    generateOperationalAttributes = parent.generateOperationalAttributes;
+    additionalBindCredentials     = parent.additionalBindCredentials;
+    baseDNs                       = parent.baseDNs;
+    changeLogBaseDN               = parent.changeLogBaseDN;
+    firstChangeNumber             = parent.firstChangeNumber;
+    lastChangeNumber              = parent.lastChangeNumber;
+    maxChangelogEntries           = parent.maxChangelogEntries;
+    entryMap                      = parent.entryMap;
+    entryValidator                = parent.entryValidator;
+    extendedRequestHandlers       = parent.extendedRequestHandlers;
+    saslBindHandlers              = parent.saslBindHandlers;
+    schema                        = parent.schema;
+    subschemaSubentry             = parent.subschemaSubentry;
+    subschemaSubentryDN           = parent.subschemaSubentryDN;
+    initialSnapshot               = parent.initialSnapshot;
   }
 
 
@@ -509,23 +449,6 @@ public final class InMemoryRequestHandler
     entryMap.clear();
     entryMap.putAll(snapshot.getEntryMap());
 
-    for (final InMemoryDirectoryServerEqualityAttributeIndex i :
-         equalityIndexes.values())
-    {
-      i.clear();
-      for (final Entry e : entryMap.values())
-      {
-        try
-        {
-          i.processAdd(e);
-        }
-        catch (final Exception ex)
-        {
-          Debug.debugException(ex);
-        }
-      }
-    }
-
     firstChangeNumber.set(snapshot.getFirstChangeNumber());
     lastChangeNumber.set(snapshot.getLastChangeNumber());
   }
@@ -540,7 +463,7 @@ public final class InMemoryRequestHandler
    */
   public Schema getSchema()
   {
-    return schemaRef.get();
+    return schema;
   }
 
 
@@ -662,45 +585,6 @@ public final class InMemoryRequestHandler
 
 
   /**
-   * Retrieves the delay in milliseconds that the server should impose before
-   * beginning processing for operations.
-   *
-   * @return  The delay in milliseconds that the server should impose before
-   *          beginning processing for operations, or 0 if there should be no
-   *          delay inserted when processing operations.
-   */
-  public long getProcessingDelayMillis()
-  {
-    return processingDelayMillis.get();
-  }
-
-
-
-  /**
-   * Specifies the delay in milliseconds that the server should impose before
-   * beginning processing for operations.
-   *
-   * @param  processingDelayMillis  The delay in milliseconds that the server
-   *                                should impose before beginning processing
-   *                                for operations.  A value less than or equal
-   *                                to zero may be used to indicate that there
-   *                                should be no delay.
-   */
-  public void setProcessingDelayMillis(final long processingDelayMillis)
-  {
-    if (processingDelayMillis > 0)
-    {
-      this.processingDelayMillis.set(processingDelayMillis);
-    }
-    else
-    {
-      this.processingDelayMillis.set(0L);
-    }
-  }
-
-
-
-  /**
    * Attempts to add an entry to the in-memory data set.  The attempt will fail
    * if any of the following conditions is true:
    * <UL>
@@ -737,9 +621,6 @@ public final class InMemoryRequestHandler
                                        final AddRequestProtocolOp request,
                                        final List<Control> controls)
   {
-    // Sleep before processing, if appropriate.
-    sleepBeforeProcessing();
-
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -780,35 +661,9 @@ public final class InMemoryRequestHandler
     }
 
 
-    // See if this add request is part of a transaction.  If so, then perform
-    // appropriate processing for it and return success immediately without
-    // actually doing any further processing.
-    try
-    {
-      final ASN1OctetString txnID =
-           processTransactionRequest(messageID, request, controlMap);
-      if (txnID != null)
-      {
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             ResultCode.SUCCESS_INT_VALUE, null,
-             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
-      }
-    }
-    catch (final LDAPException le)
-    {
-      Debug.debugException(le);
-      return new LDAPMessage(messageID,
-           new AddResponseProtocolOp(le.getResultCode().intValue(),
-                le.getMatchedDN(), le.getDiagnosticMessage(),
-                StaticUtils.toList(le.getReferralURLs())),
-           le.getResponseControls());
-    }
-
-
     // Get the entry to be added.  If a schema was provided, then make sure the
     // attributes are created with the appropriate matching rules.
     final Entry entry;
-    final Schema schema = schemaRef.get();
     if (schema == null)
     {
       entry = new Entry(request.getDN(), request.getAttributes());
@@ -827,7 +682,7 @@ public final class InMemoryRequestHandler
              a.getRawValues()));
       }
 
-      entry = new Entry(request.getDN(), schema, newAttrs);
+      entry = new Entry(request.getDN(), newAttrs);
     }
 
     // Make sure that the DN is valid.
@@ -908,29 +763,31 @@ public final class InMemoryRequestHandler
       final String[] objectClasses = entry.getObjectClassValues();
       if (objectClasses != null)
       {
-        final LinkedHashMap<String,String> ocMap =
-             new LinkedHashMap<String,String>(objectClasses.length);
+        final ArrayList<String> ocNames =
+             new ArrayList<String>(objectClasses.length);
+        final LinkedHashSet<ObjectClassDefinition> ocSet =
+             new LinkedHashSet<ObjectClassDefinition>(objectClasses.length);
         for (final String ocName : objectClasses)
         {
+          ocNames.add(ocName);
           final ObjectClassDefinition oc = schema.getObjectClass(ocName);
-          if (oc == null)
+          if (oc != null)
           {
-            ocMap.put(StaticUtils.toLowerCase(ocName), ocName);
-          }
-          else
-          {
-            ocMap.put(StaticUtils.toLowerCase(oc.getNameOrOID()), ocName);
+            ocSet.add(oc);
             for (final ObjectClassDefinition supClass :
                  oc.getSuperiorClasses(schema, true))
             {
-              ocMap.put(StaticUtils.toLowerCase(supClass.getNameOrOID()),
-                   supClass.getNameOrOID());
+              if (! ocSet.contains(supClass))
+              {
+                ocSet.add(supClass);
+                ocNames.add(supClass.getNameOrOID());
+              }
             }
           }
         }
 
-        final String[] newObjectClasses = new String[ocMap.size()];
-        ocMap.values().toArray(newObjectClasses);
+        final String[] newObjectClasses = new String[ocNames.size()];
+        ocNames.toArray(newObjectClasses);
         entry.setAttribute("objectClass", newObjectClasses);
       }
     }
@@ -938,7 +795,6 @@ public final class InMemoryRequestHandler
     // If a schema was provided, then make sure the entry complies with it.
     // Also make sure that there are no attributes marked with
     // NO-USER-MODIFICATION.
-    final EntryValidator entryValidator = entryValidatorRef.get();
     if (entryValidator != null)
     {
       final ArrayList<String> invalidReasons =
@@ -1054,7 +910,6 @@ public final class InMemoryRequestHandler
     if (baseDNs.contains(dn))
     {
       entryMap.put(dn, new ReadOnlyEntry(entry));
-      indexAdd(entry);
       addChangeLogEntry(request, authzDN);
       return new LDAPMessage(messageID,
            new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
@@ -1067,7 +922,6 @@ public final class InMemoryRequestHandler
     if ((parentDN != null) && entryMap.containsKey(parentDN))
     {
       entryMap.put(dn, new ReadOnlyEntry(entry));
-      indexAdd(entry);
       addChangeLogEntry(request, authzDN);
       return new LDAPMessage(messageID,
            new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
@@ -1116,9 +970,6 @@ public final class InMemoryRequestHandler
                                        final BindRequestProtocolOp request,
                                        final List<Control> controls)
   {
-    // Sleep before processing, if appropriate.
-    sleepBeforeProcessing();
-
     // If this operation type is not allowed, then reject it.
     if (! config.getAllowedOperationTypes().contains(OperationType.BIND))
     {
@@ -1130,30 +981,11 @@ public final class InMemoryRequestHandler
 
     authenticatedDN = DN.NULL_DN;
 
-
-    // If this operation type requires authentication and it is a simple bind
-    // request , then ensure that the request includes credentials.
-    if ((authenticatedDN.isNullDN() &&
-        config.getAuthenticationRequiredOperationTypes().contains(
-             OperationType.BIND)))
-    {
-      if ((request.getCredentialsType() ==
-           BindRequestProtocolOp.CRED_TYPE_SIMPLE) &&
-           ((request.getSimplePassword() == null) ||
-                request.getSimplePassword().getValueLength() == 0))
-      {
-        return new LDAPMessage(messageID, new BindResponseProtocolOp(
-             ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
-             ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
-      }
-    }
-
-
     // Get the parsed bind DN.
     final DN bindDN;
     try
     {
-      bindDN = new DN(request.getBindDN(), schemaRef.get());
+      bindDN = new DN(request.getBindDN());
     }
     catch (final LDAPException le)
     {
@@ -1183,19 +1015,6 @@ public final class InMemoryRequestHandler
       {
         final BindResult bindResult = handler.processSASLBind(this, messageID,
              bindDN, request.getSASLCredentials(), controls);
-
-        // If the SASL bind was successful but the connection is
-        // unauthenticated, then see if we allow that.
-        if ((bindResult.getResultCode() == ResultCode.SUCCESS) &&
-            (authenticatedDN == DN.NULL_DN) &&
-            config.getAuthenticationRequiredOperationTypes().contains(
-                 OperationType.BIND))
-        {
-          return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
-               ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
-        }
-
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
              bindResult.getResultCode().intValue(),
              bindResult.getMatchedDN(), bindResult.getDiagnosticMessage(),
@@ -1240,7 +1059,7 @@ public final class InMemoryRequestHandler
         if (controlMap.containsKey(AuthorizationIdentityRequestControl.
              AUTHORIZATION_IDENTITY_REQUEST_OID))
         {
-          responseControls.add(new AuthorizationIdentityResponseControl(""));
+          responseControls.add(new AuthorizationIdentityResponseControl("dn:"));
         }
         return new LDAPMessage(messageID,
              new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
@@ -1359,9 +1178,6 @@ public final class InMemoryRequestHandler
                                        final CompareRequestProtocolOp request,
                                        final List<Control> controls)
   {
-    // Sleep before processing, if appropriate.
-    sleepBeforeProcessing();
-
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -1406,7 +1222,7 @@ public final class InMemoryRequestHandler
     final DN dn;
     try
     {
-      dn = new DN(request.getDN(), schemaRef.get());
+      dn = new DN(request.getDN());
     }
     catch (final LDAPException le)
     {
@@ -1441,7 +1257,7 @@ public final class InMemoryRequestHandler
     }
     else if (dn.equals(subschemaSubentryDN))
     {
-      entry = subschemaSubentryRef.get();
+      entry = subschemaSubentry;
     }
     else
     {
@@ -1516,9 +1332,6 @@ public final class InMemoryRequestHandler
                                        final DeleteRequestProtocolOp request,
                                        final List<Control> controls)
   {
-    // Sleep before processing, if appropriate.
-    sleepBeforeProcessing();
-
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -1559,36 +1372,11 @@ public final class InMemoryRequestHandler
     }
 
 
-    // See if this delete request is part of a transaction.  If so, then perform
-    // appropriate processing for it and return success immediately without
-    // actually doing any further processing.
-    try
-    {
-      final ASN1OctetString txnID =
-           processTransactionRequest(messageID, request, controlMap);
-      if (txnID != null)
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.SUCCESS_INT_VALUE, null,
-             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
-      }
-    }
-    catch (final LDAPException le)
-    {
-      Debug.debugException(le);
-      return new LDAPMessage(messageID,
-           new DeleteResponseProtocolOp(le.getResultCode().intValue(),
-                le.getMatchedDN(), le.getDiagnosticMessage(),
-                StaticUtils.toList(le.getReferralURLs())),
-           le.getResponseControls());
-    }
-
-
     // Get the parsed target DN.
     final DN dn;
     try
     {
-      dn = new DN(request.getDN(), schemaRef.get());
+      dn = new DN(request.getDN());
     }
     catch (final LDAPException le)
     {
@@ -1661,10 +1449,13 @@ public final class InMemoryRequestHandler
         (! controlMap.containsKey(
                SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID)))
     {
-      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-           ResultCode.NOT_ALLOWED_ON_NONLEAF_INT_VALUE, null,
-           ERR_MEM_HANDLER_DELETE_HAS_SUBORDINATES.get(request.getDN()),
-           null));
+      for (final DN mapEntryDN : entryMap.keySet())
+      {
+        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+             ResultCode.NOT_ALLOWED_ON_NONLEAF_INT_VALUE, null,
+             ERR_MEM_HANDLER_DELETE_HAS_SUBORDINATES.get(request.getDN()),
+             null));
+      }
     }
 
     // Handle the necessary processing for the assertion, pre-read, and proxied
@@ -1695,72 +1486,18 @@ public final class InMemoryRequestHandler
     // that the changelog will show the deletes in the appropriate order.
     for (int i=(subordinateDNs.size() - 1); i >= 0; i--)
     {
-      final DN subordinateDN = subordinateDNs.get(i);
-      final Entry subEntry = entryMap.remove(subordinateDN);
-      indexDelete(subEntry);
+      final Entry subEntry = entryMap.remove(subordinateDNs.get(i));
       addDeleteChangeLogEntry(subEntry, authzDN);
-      handleReferentialIntegrityDelete(subordinateDN);
     }
 
     // Finally, remove the target entry and create a changelog entry for it.
     entryMap.remove(dn);
-    indexDelete(entry);
     addDeleteChangeLogEntry(entry, authzDN);
-    handleReferentialIntegrityDelete(dn);
 
     return new LDAPMessage(messageID,
          new DeleteResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
               null),
          responseControls);
-  }
-
-
-
-  /**
-   * Handles any appropriate referential integrity processing for a delete
-   * operation.
-   *
-   * @param  dn  The DN of the entry that has been deleted.
-   */
-  private void handleReferentialIntegrityDelete(final DN dn)
-  {
-    if (referentialIntegrityAttributes.isEmpty())
-    {
-      return;
-    }
-
-    final ArrayList<DN> entryDNs = new ArrayList<DN>(entryMap.keySet());
-    for (final DN mapDN : entryDNs)
-    {
-      final ReadOnlyEntry e = entryMap.get(mapDN);
-
-      boolean referenceFound = false;
-      final Schema schema = schemaRef.get();
-      for (final String attrName : referentialIntegrityAttributes)
-      {
-        final Attribute a = e.getAttribute(attrName, schema);
-        if ((a != null) &&
-            a.hasValue(dn.toNormalizedString(),
-                 DistinguishedNameMatchingRule.getInstance()))
-        {
-          referenceFound = true;
-          break;
-        }
-      }
-
-      if (referenceFound)
-      {
-        final Entry copy = e.duplicate();
-        for (final String attrName : referentialIntegrityAttributes)
-        {
-          copy.removeAttributeValue(attrName, dn.toNormalizedString(),
-               DistinguishedNameMatchingRule.getInstance());
-        }
-        entryMap.put(mapDN, new ReadOnlyEntry(copy));
-        indexDelete(e);
-        indexAdd(copy);
-      }
-    }
   }
 
 
@@ -1782,13 +1519,10 @@ public final class InMemoryRequestHandler
    *          {@code ExtendedResponseProtocolOp}.
    */
   @Override()
-  public synchronized LDAPMessage processExtendedRequest(final int messageID,
-                                       final ExtendedRequestProtocolOp request,
-                                       final List<Control> controls)
+  public LDAPMessage processExtendedRequest(final int messageID,
+                          final ExtendedRequestProtocolOp request,
+                          final List<Control> controls)
   {
-    // Sleep before processing, if appropriate.
-    sleepBeforeProcessing();
-
     boolean isInternalOp = false;
     for (final Control c : controls)
     {
@@ -1898,9 +1632,6 @@ public final class InMemoryRequestHandler
                                        final ModifyRequestProtocolOp request,
                                        final List<Control> controls)
   {
-    // Sleep before processing, if appropriate.
-    sleepBeforeProcessing();
-
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -1941,37 +1672,11 @@ public final class InMemoryRequestHandler
     }
 
 
-    // See if this modify request is part of a transaction.  If so, then perform
-    // appropriate processing for it and return success immediately without
-    // actually doing any further processing.
-    try
-    {
-      final ASN1OctetString txnID =
-           processTransactionRequest(messageID, request, controlMap);
-      if (txnID != null)
-      {
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             ResultCode.SUCCESS_INT_VALUE, null,
-             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
-      }
-    }
-    catch (final LDAPException le)
-    {
-      Debug.debugException(le);
-      return new LDAPMessage(messageID,
-           new ModifyResponseProtocolOp(le.getResultCode().intValue(),
-                le.getMatchedDN(), le.getDiagnosticMessage(),
-                StaticUtils.toList(le.getReferralURLs())),
-           le.getResponseControls());
-    }
-
-
     // Get the parsed target DN.
     final DN dn;
-    final Schema schema = schemaRef.get();
     try
     {
-      dn = new DN(request.getDN(), schema);
+      dn = new DN(request.getDN());
     }
     catch (final LDAPException le)
     {
@@ -2007,16 +1712,10 @@ public final class InMemoryRequestHandler
     }
     else if (dn.equals(subschemaSubentryDN))
     {
-      try
-      {
-        validateSchemaMods(request);
-      }
-      catch (final LDAPException le)
-      {
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             le.getResultCode().intValue(), le.getMatchedDN(), le.getMessage(),
-             null));
-      }
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_SCHEMA.get(subschemaSubentryDN.toString()),
+           null));
     }
     else if (dn.isDescendantOf(changeLogBaseDN, true))
     {
@@ -2026,19 +1725,12 @@ public final class InMemoryRequestHandler
     }
 
     // Get the target entry.  If it does not exist, then fail.
-    Entry entry = entryMap.get(dn);
+    final Entry entry = entryMap.get(dn);
     if (entry == null)
     {
-      if (dn.equals(subschemaSubentryDN))
-      {
-        entry = subschemaSubentryRef.get().duplicate();
-      }
-      else
-      {
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
-             ERR_MEM_HANDLER_MOD_NO_SUCH_ENTRY.get(request.getDN()), null));
-      }
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
+           ERR_MEM_HANDLER_MOD_NO_SUCH_ENTRY.get(request.getDN()), null));
     }
 
 
@@ -2063,7 +1755,6 @@ public final class InMemoryRequestHandler
 
     // If a schema was provided, use it to validate the resulting entry.  Also,
     // ensure that no NO-USER-MODIFICATION attributes were targeted.
-    final EntryValidator entryValidator = entryValidatorRef.get();
     if (entryValidator != null)
     {
       final ArrayList<String> invalidReasons = new ArrayList<String>(1);
@@ -2092,14 +1783,26 @@ public final class InMemoryRequestHandler
     }
 
 
-    // Perform the appropriate processing for the assertion and proxied
-    // authorization controls.
     // Perform the appropriate processing for the assertion, pre-read,
     // post-read, and proxied authorization controls.
     final DN authzDN;
     try
     {
       handleAssertionRequestControl(controlMap, entry);
+
+      final PreReadResponseControl preReadResponse =
+           handlePreReadControl(controlMap, entry);
+      if (preReadResponse != null)
+      {
+        responseControls.add(preReadResponse);
+      }
+
+      final PostReadResponseControl postReadResponse =
+           handlePostReadControl(controlMap, modifiedEntry);
+      if (postReadResponse != null)
+      {
+        responseControls.add(postReadResponse);
+      }
 
       authzDN = handleProxiedAuthControl(controlMap);
     }
@@ -2121,175 +1824,14 @@ public final class InMemoryRequestHandler
            StaticUtils.encodeGeneralizedTime(new Date())));
     }
 
-    // Perform the appropriate processing for the pre-read and post-read
-    // controls.
-    final PreReadResponseControl preReadResponse =
-         handlePreReadControl(controlMap, entry);
-    if (preReadResponse != null)
-    {
-      responseControls.add(preReadResponse);
-    }
-
-    final PostReadResponseControl postReadResponse =
-         handlePostReadControl(controlMap, modifiedEntry);
-    if (postReadResponse != null)
-    {
-      responseControls.add(postReadResponse);
-    }
-
 
     // Replace the entry in the map and return a success result.
-    if (dn.equals(subschemaSubentryDN))
-    {
-      final Schema newSchema = new Schema(modifiedEntry);
-      subschemaSubentryRef.set(new ReadOnlyEntry(modifiedEntry));
-      schemaRef.set(newSchema);
-      entryValidatorRef.set(new EntryValidator(newSchema));
-    }
-    else
-    {
-      entryMap.put(dn, new ReadOnlyEntry(modifiedEntry));
-      indexDelete(entry);
-      indexAdd(modifiedEntry);
-    }
+    entryMap.put(dn, new ReadOnlyEntry(modifiedEntry));
     addChangeLogEntry(request, authzDN);
     return new LDAPMessage(messageID,
          new ModifyResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
               null),
          responseControls);
-  }
-
-
-
-  /**
-   * Validates a modify request targeting the server schema.  Modifications to
-   * attribute syntaxes and matching rules will not be allowed.  Modifications
-   * to other schema elements will only be allowed for add and delete
-   * modification types, and adds will only be allowed with a valid syntax.
-   *
-   * @param  request  The modify request to validate.
-   *
-   * @throws  LDAPException  If a problem is encountered.
-   */
-  private void validateSchemaMods(final ModifyRequestProtocolOp request)
-          throws LDAPException
-  {
-    // If there is no schema, then we won't allow modifications at all.
-    if (schemaRef.get() == null)
-    {
-      throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-           ERR_MEM_HANDLER_MOD_SCHEMA.get(subschemaSubentryDN.toString()));
-    }
-
-
-    for (final Modification m : request.getModifications())
-    {
-      // If the modification targets attribute syntaxes or matching rules, then
-      // reject it.
-      final String attrName = m.getAttributeName();
-      if (attrName.equalsIgnoreCase(Schema.ATTR_ATTRIBUTE_SYNTAX) ||
-           attrName.equalsIgnoreCase(Schema.ATTR_MATCHING_RULE))
-      {
-        throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-             ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_ATTR.get(attrName));
-      }
-      else if (attrName.equalsIgnoreCase(Schema.ATTR_ATTRIBUTE_TYPE))
-      {
-        if (m.getModificationType() == ModificationType.ADD)
-        {
-          for (final String value : m.getValues())
-          {
-            new AttributeTypeDefinition(value);
-          }
-        }
-        else if (m.getModificationType() != ModificationType.DELETE)
-        {
-          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
-                    m.getModificationType().getName(), attrName));
-        }
-      }
-      else if (attrName.equalsIgnoreCase(Schema.ATTR_OBJECT_CLASS))
-      {
-        if (m.getModificationType() == ModificationType.ADD)
-        {
-          for (final String value : m.getValues())
-          {
-            new ObjectClassDefinition(value);
-          }
-        }
-        else if (m.getModificationType() != ModificationType.DELETE)
-        {
-          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
-                    m.getModificationType().getName(), attrName));
-        }
-      }
-      else if (attrName.equalsIgnoreCase(Schema.ATTR_NAME_FORM))
-      {
-        if (m.getModificationType() == ModificationType.ADD)
-        {
-          for (final String value : m.getValues())
-          {
-            new NameFormDefinition(value);
-          }
-        }
-        else if (m.getModificationType() != ModificationType.DELETE)
-        {
-          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
-                    m.getModificationType().getName(), attrName));
-        }
-      }
-      else if (attrName.equalsIgnoreCase(Schema.ATTR_DIT_CONTENT_RULE))
-      {
-        if (m.getModificationType() == ModificationType.ADD)
-        {
-          for (final String value : m.getValues())
-          {
-            new DITContentRuleDefinition(value);
-          }
-        }
-        else if (m.getModificationType() != ModificationType.DELETE)
-        {
-          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
-                    m.getModificationType().getName(), attrName));
-        }
-      }
-      else if (attrName.equalsIgnoreCase(Schema.ATTR_DIT_STRUCTURE_RULE))
-      {
-        if (m.getModificationType() == ModificationType.ADD)
-        {
-          for (final String value : m.getValues())
-          {
-            new DITStructureRuleDefinition(value);
-          }
-        }
-        else if (m.getModificationType() != ModificationType.DELETE)
-        {
-          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
-                    m.getModificationType().getName(), attrName));
-        }
-      }
-      else if (attrName.equalsIgnoreCase(Schema.ATTR_MATCHING_RULE_USE))
-      {
-        if (m.getModificationType() == ModificationType.ADD)
-        {
-          for (final String value : m.getValues())
-          {
-            new MatchingRuleUseDefinition(value);
-          }
-        }
-        else if (m.getModificationType() != ModificationType.DELETE)
-        {
-          throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-               ERR_MEM_HANDLER_MOD_SCHEMA_DISALLOWED_MOD_TYPE.get(
-                    m.getModificationType().getName(), attrName));
-        }
-      }
-    }
   }
 
 
@@ -2328,9 +1870,6 @@ public final class InMemoryRequestHandler
                                        final ModifyDNRequestProtocolOp request,
                                        final List<Control> controls)
   {
-    // Sleep before processing, if appropriate.
-    sleepBeforeProcessing();
-
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -2371,37 +1910,11 @@ public final class InMemoryRequestHandler
     }
 
 
-    // See if this modify DN request is part of a transaction.  If so, then
-    // perform appropriate processing for it and return success immediately
-    // without actually doing any further processing.
-    try
-    {
-      final ASN1OctetString txnID =
-           processTransactionRequest(messageID, request, controlMap);
-      if (txnID != null)
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.SUCCESS_INT_VALUE, null,
-             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
-      }
-    }
-    catch (final LDAPException le)
-    {
-      Debug.debugException(le);
-      return new LDAPMessage(messageID,
-           new ModifyDNResponseProtocolOp(le.getResultCode().intValue(),
-                le.getMatchedDN(), le.getDiagnosticMessage(),
-                StaticUtils.toList(le.getReferralURLs())),
-           le.getResponseControls());
-    }
-
-
     // Get the parsed target DN, new RDN, and new superior DN values.
     final DN dn;
-    final Schema schema = schemaRef.get();
     try
     {
-      dn = new DN(request.getDN(), schema);
+      dn = new DN(request.getDN());
     }
     catch (final LDAPException le)
     {
@@ -2416,7 +1929,7 @@ public final class InMemoryRequestHandler
     final RDN newRDN;
     try
     {
-      newRDN = new RDN(request.getNewRDN(), schema);
+      newRDN = new RDN(request.getNewRDN());
     }
     catch (final LDAPException le)
     {
@@ -2438,7 +1951,7 @@ public final class InMemoryRequestHandler
     {
       try
       {
-        newSuperiorDN = new DN(newSuperiorString, schema);
+        newSuperiorDN = new DN(newSuperiorString);
       }
       catch (final LDAPException le)
       {
@@ -2618,7 +2131,6 @@ public final class InMemoryRequestHandler
     // If a schema was provided, then make sure the updated entry conforms to
     // the schema.  Also, reject the attempt if any of the new RDN attributes
     // is marked with NO-USER-MODIFICATION.
-    final EntryValidator entryValidator = entryValidatorRef.get();
     if (entryValidator != null)
     {
       final ArrayList<String> invalidReasons = new ArrayList<String>(1);
@@ -2668,12 +2180,28 @@ public final class InMemoryRequestHandler
       }
     }
 
-    // Perform the appropriate processing for the assertion and proxied
-    // authorization controls
+    // Perform the appropriate processing for the assertion, pre-read,
+    // post-read, and proxied authorization controls
+    // Perform the appropriate processing for the assertion, pre-read,
+    // post-read, and proxied authorization controls.
     final DN authzDN;
     try
     {
       handleAssertionRequestControl(controlMap, originalEntry);
+
+      final PreReadResponseControl preReadResponse =
+           handlePreReadControl(controlMap, originalEntry);
+      if (preReadResponse != null)
+      {
+        responseControls.add(preReadResponse);
+      }
+
+      final PostReadResponseControl postReadResponse =
+           handlePostReadControl(controlMap, updatedEntry);
+      if (postReadResponse != null)
+      {
+        responseControls.add(postReadResponse);
+      }
 
       authzDN = handleProxiedAuthControl(controlMap);
     }
@@ -2699,27 +2227,9 @@ public final class InMemoryRequestHandler
            newDN.toNormalizedString()));
     }
 
-    // Perform the appropriate processing for the pre-read and post-read
-    // controls.
-    final PreReadResponseControl preReadResponse =
-         handlePreReadControl(controlMap, originalEntry);
-    if (preReadResponse != null)
-    {
-      responseControls.add(preReadResponse);
-    }
-
-    final PostReadResponseControl postReadResponse =
-         handlePostReadControl(controlMap, updatedEntry);
-    if (postReadResponse != null)
-    {
-      responseControls.add(postReadResponse);
-    }
-
     // Remove the old entry and add the new one.
     entryMap.remove(dn);
     entryMap.put(newDN, new ReadOnlyEntry(updatedEntry));
-    indexDelete(originalEntry);
-    indexAdd(updatedEntry);
 
     // If the target entry had any subordinates, then rename them as well.
     final RDN[] oldDNComps = dn.getRDNs();
@@ -2729,8 +2239,7 @@ public final class InMemoryRequestHandler
     {
       if (mapEntryDN.isDescendantOf(dn, false))
       {
-        final Entry o = entryMap.remove(mapEntryDN);
-        final Entry e = o.duplicate();
+        final Entry e = entryMap.remove(mapEntryDN).duplicate();
 
         final RDN[] oldMapEntryComps = mapEntryDN.getRDNs();
         final int compsToSave = oldMapEntryComps.length - oldDNComps.length ;
@@ -2750,72 +2259,14 @@ public final class InMemoryRequestHandler
                newMapEntryDN.toNormalizedString()));
         }
         entryMap.put(newMapEntryDN, new ReadOnlyEntry(e));
-        indexDelete(o);
-        indexAdd(e);
-        handleReferentialIntegrityModifyDN(mapEntryDN, newMapEntryDN);
       }
     }
 
     addChangeLogEntry(request, authzDN);
-    handleReferentialIntegrityModifyDN(dn, newDN);
     return new LDAPMessage(messageID,
          new ModifyDNResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
               null, null),
          responseControls);
-  }
-
-
-
-  /**
-   * Handles any appropriate referential integrity processing for a modify DN
-   * operation.
-   *
-   * @param  oldDN  The old DN for the entry.
-   * @param  newDN  The new DN for the entry.
-   */
-  private void handleReferentialIntegrityModifyDN(final DN oldDN,
-                                                  final DN newDN)
-  {
-    if (referentialIntegrityAttributes.isEmpty())
-    {
-      return;
-    }
-
-    final ArrayList<DN> entryDNs = new ArrayList<DN>(entryMap.keySet());
-    for (final DN mapDN : entryDNs)
-    {
-      final ReadOnlyEntry e = entryMap.get(mapDN);
-
-      boolean referenceFound = false;
-      final Schema schema = schemaRef.get();
-      for (final String attrName : referentialIntegrityAttributes)
-      {
-        final Attribute a = e.getAttribute(attrName, schema);
-        if ((a != null) &&
-            a.hasValue(oldDN.toNormalizedString(),
-                 DistinguishedNameMatchingRule.getInstance()))
-        {
-          referenceFound = true;
-          break;
-        }
-      }
-
-      if (referenceFound)
-      {
-        final Entry copy = e.duplicate();
-        for (final String attrName : referentialIntegrityAttributes)
-        {
-          if (copy.removeAttributeValue(attrName, oldDN.toNormalizedString(),
-                   DistinguishedNameMatchingRule.getInstance()))
-          {
-            copy.addAttribute(attrName, newDN.toString());
-          }
-        }
-        entryMap.put(mapDN, new ReadOnlyEntry(copy));
-        indexDelete(e);
-        indexAdd(copy);
-      }
-    }
   }
 
 
@@ -2941,9 +2392,6 @@ public final class InMemoryRequestHandler
                                 final List<SearchResultEntry> entryList,
                                 final List<SearchResultReference> referenceList)
   {
-    // Sleep before processing, if appropriate.
-    sleepBeforeProcessing();
-
     // Process the provided request controls.
     final Map<String,Control> controlMap;
     try
@@ -2986,10 +2434,9 @@ public final class InMemoryRequestHandler
 
     // Get the parsed base DN.
     final DN baseDN;
-    final Schema schema = schemaRef.get();
     try
     {
-      baseDN = new DN(request.getBaseDN(), schema);
+      baseDN = new DN(request.getBaseDN());
     }
     catch (final LDAPException le)
     {
@@ -3027,7 +2474,7 @@ public final class InMemoryRequestHandler
     }
     else if (baseDN.equals(subschemaSubentryDN))
     {
-      baseEntry = subschemaSubentryRef.get();
+      baseEntry = subschemaSubentry;
     }
     else
     {
@@ -3116,55 +2563,25 @@ findEntriesAndRefs:
         break findEntriesAndRefs;
       }
 
-
-      // Try to use indexes to process the request.  If we can't use any
-      // indexes to get a candidate list, then just iterate over all the
-      // entries.  It's not necessary to consider the root DSE for non-base
+      // Iterate through the map to find and return entries matching the
+      // criteria.  It is not necessary to consider the root DSE for non-base
       // scopes.
-      final Set<DN> candidateDNs = indexSearch(filter);
-      if (candidateDNs == null)
+      for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
       {
-        for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
+        final DN dn = me.getKey();
+        final Entry entry = me.getValue();
+        try
         {
-          final DN dn = me.getKey();
-          final Entry entry = me.getValue();
-          try
+          if (dn.matchesBaseAndScope(baseDN, scope) &&
+              filter.matchesEntry(entry, schema))
           {
-            if (dn.matchesBaseAndScope(baseDN, scope) &&
-                filter.matchesEntry(entry, schema))
-            {
-              processSearchEntry(entry, includeSubEntries, includeChangeLog,
-                   hasManageDsaIT, fullEntryList, referenceList);
-            }
-          }
-          catch (final Exception e)
-          {
-            Debug.debugException(e);
+            processSearchEntry(entry, includeSubEntries, includeChangeLog,
+                 hasManageDsaIT, fullEntryList, referenceList);
           }
         }
-      }
-      else
-      {
-        for (final DN dn : candidateDNs)
+        catch (final Exception e)
         {
-          try
-          {
-            if (! dn.matchesBaseAndScope(baseDN, scope))
-            {
-              continue;
-            }
-
-            final Entry entry = entryMap.get(dn);
-            if (filter.matchesEntry(entry, schema))
-            {
-              processSearchEntry(entry, includeSubEntries, includeChangeLog,
-                   hasManageDsaIT, fullEntryList, referenceList);
-            }
-          }
-          catch (final Exception e)
-          {
-            Debug.debugException(e);
-          }
+          Debug.debugException(e);
         }
       }
     }
@@ -3294,7 +2711,7 @@ findEntriesAndRefs:
       {
         final SortKey primarySortKey = sortRequestControl.getSortKeys()[0];
 
-        final Entry testEntry = new Entry("cn=test", schema,
+        final Entry testEntry = new Entry("cn=test",
              new Attribute(primarySortKey.getAttributeName(), assertionValue));
 
         final EntrySorter entrySorter =
@@ -3349,11 +2766,11 @@ findEntriesAndRefs:
     final int sizeLimit;
     if (request.getSizeLimit() > 0)
     {
-      sizeLimit = Math.min(request.getSizeLimit(), maxSizeLimit);
+      sizeLimit = request.getSizeLimit();
     }
     else
     {
-      sizeLimit = maxSizeLimit;
+      sizeLimit = Integer.MAX_VALUE;
     }
 
     int entryCount = 0;
@@ -3364,8 +2781,8 @@ findEntriesAndRefs:
       {
         return new LDAPMessage(messageID,
              new SearchResultDoneProtocolOp(
-                  ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE, null,
-                  ERR_MEM_HANDLER_SEARCH_SIZE_LIMIT_EXCEEDED.get(), null),
+                  ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE,
+                  ERR_MEM_HANDLER_SEARCH_SIZE_LIMIT_EXCEEDED.get(), null, null),
              responseControls);
       }
 
@@ -3373,7 +2790,7 @@ findEntriesAndRefs:
            allUserAttrs.get(), allOpAttrs.get(), returnAttrs);
       if (request.typesOnly())
       {
-        final Entry typesOnlyEntry = new Entry(trimmedEntry.getDN(), schema);
+        final Entry typesOnlyEntry = new Entry(trimmedEntry.getDN());
         for (final Attribute a : trimmedEntry.getAttributes())
         {
           typesOnlyEntry.addAttribute(new Attribute(a.getName()));
@@ -3390,262 +2807,6 @@ findEntriesAndRefs:
          new SearchResultDoneProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
               null, null),
          responseControls);
-  }
-
-
-
-  /**
-   * Performs any necessary index processing to add the provided entry.
-   *
-   * @param  entry  The entry that has been added.
-   */
-  private void indexAdd(final Entry entry)
-  {
-    for (final InMemoryDirectoryServerEqualityAttributeIndex i :
-         equalityIndexes.values())
-    {
-      try
-      {
-        i.processAdd(entry);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-      }
-    }
-  }
-
-
-
-  /**
-   * Performs any necessary index processing to delete the provided entry.
-   *
-   * @param  entry  The entry that has been deleted.
-   */
-  private void indexDelete(final Entry entry)
-  {
-    for (final InMemoryDirectoryServerEqualityAttributeIndex i :
-         equalityIndexes.values())
-    {
-      try
-      {
-        i.processDelete(entry);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-      }
-    }
-  }
-
-
-
-  /**
-   * Attempts to use indexes to obtain a candidate list for the provided filter.
-   *
-   * @param  filter  The filter to be processed.
-   *
-   * @return  The DNs of entries which may match the given filter, or
-   *          {@code null} if the filter is not indexed.
-   */
-  private Set<DN> indexSearch(final Filter filter)
-  {
-    switch (filter.getFilterType())
-    {
-      case Filter.FILTER_TYPE_AND:
-        Filter[] comps = filter.getComponents();
-        if (comps.length == 0)
-        {
-          return null;
-        }
-        else if (comps.length == 1)
-        {
-          return indexSearch(comps[0]);
-        }
-        else
-        {
-          Set<DN> candidateSet = null;
-          for (final Filter f : comps)
-          {
-            final Set<DN> dnSet = indexSearch(f);
-            if (dnSet != null)
-            {
-              if (candidateSet == null)
-              {
-                candidateSet = new TreeSet<DN>(dnSet);
-              }
-              else
-              {
-                candidateSet.retainAll(dnSet);
-              }
-            }
-          }
-          return candidateSet;
-        }
-
-      case Filter.FILTER_TYPE_OR:
-        comps = filter.getComponents();
-        if (comps.length == 0)
-        {
-          return Collections.emptySet();
-        }
-        else if (comps.length == 1)
-        {
-          return indexSearch(comps[0]);
-        }
-        else
-        {
-          Set<DN> candidateSet = null;
-          for (final Filter f : comps)
-          {
-            final Set<DN> dnSet = indexSearch(f);
-            if (dnSet == null)
-            {
-              return null;
-            }
-
-            if (candidateSet == null)
-            {
-              candidateSet = new TreeSet<DN>(dnSet);
-            }
-            else
-            {
-              candidateSet.addAll(dnSet);
-            }
-          }
-          return candidateSet;
-        }
-
-      case Filter.FILTER_TYPE_EQUALITY:
-        final Schema schema = schemaRef.get();
-        if (schema == null)
-        {
-          return null;
-        }
-        final AttributeTypeDefinition at =
-             schema.getAttributeType(filter.getAttributeName());
-        if (at == null)
-        {
-          return null;
-        }
-        final InMemoryDirectoryServerEqualityAttributeIndex i =
-             equalityIndexes.get(at);
-        if (i == null)
-        {
-          return null;
-        }
-        try
-        {
-          return i.getMatchingEntries(filter.getRawAssertionValue());
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          return null;
-        }
-
-      default:
-        return null;
-    }
-  }
-
-
-
-  /**
-   * Determines whether the provided set of controls includes a transaction
-   * specification request control.  If so, then it will verify that it
-   * references a valid transaction for the client.  If the request is part of a
-   * valid transaction, then the transaction specification request control will
-   * be removed and the request will be stashed in the client connection state
-   * so that it can be retrieved and processed when the transaction is
-   * committed.
-   *
-   * @param  messageID  The message ID for the request to be processed.
-   * @param  request    The protocol op for the request to be processed.
-   * @param  controls   The set of controls for the request to be processed.
-   *
-   * @return  The transaction ID for the associated transaction, or {@code null}
-   *          if the request is not part of any transaction.
-   *
-   * @throws  LDAPException  If the transaction specification request control is
-   *                         present but does not refer to a valid transaction
-   *                         for the associated client connection.
-   */
-  @SuppressWarnings("unchecked")
-  private ASN1OctetString processTransactionRequest(final int messageID,
-                               final ProtocolOp request,
-                               final Map<String,Control> controls)
-          throws LDAPException
-  {
-    final TransactionSpecificationRequestControl txnControl =
-         (TransactionSpecificationRequestControl)
-         controls.remove(TransactionSpecificationRequestControl.
-              TRANSACTION_SPECIFICATION_REQUEST_OID);
-    if (txnControl == null)
-    {
-      return null;
-    }
-
-    // See if the client has an active transaction.  If not, then fail.
-    final ASN1OctetString txnID = txnControl.getTransactionID();
-    final ObjectPair<ASN1OctetString,List<LDAPMessage>> txnInfo =
-         (ObjectPair<ASN1OctetString,List<LDAPMessage>>) connectionState.get(
-              TransactionExtendedOperationHandler.STATE_VARIABLE_TXN_INFO);
-    if (txnInfo == null)
-    {
-      throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
-           ERR_MEM_HANDLER_TXN_CONTROL_WITHOUT_TXN.get(txnID.stringValue()));
-    }
-
-
-    // Make sure that the active transaction has a transaction ID that matches
-    // the transaction ID from the control.  If not, then abort the existing
-    // transaction and fail.
-    final ASN1OctetString existingTxnID = txnInfo.getFirst();
-    if (! txnID.stringValue().equals(existingTxnID.stringValue()))
-    {
-      connectionState.remove(
-           TransactionExtendedOperationHandler.STATE_VARIABLE_TXN_INFO);
-      connection.sendUnsolicitedNotification(
-           new AbortedTransactionExtendedResult(existingTxnID,
-                ResultCode.CONSTRAINT_VIOLATION,
-                ERR_MEM_HANDLER_TXN_ABORTED_BY_CONTROL_TXN_ID_MISMATCH.get(
-                     existingTxnID.stringValue(), txnID.stringValue()),
-                null, null, null));
-      throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
-           ERR_MEM_HANDLER_TXN_CONTROL_ID_MISMATCH.get(txnID.stringValue(),
-                existingTxnID.stringValue()));
-    }
-
-
-    // Stash the request in the transaction state information so that it will
-    // be processed when the transaction is committed.
-    txnInfo.getSecond().add(new LDAPMessage(messageID, request,
-         new ArrayList<Control>(controls.values())));
-
-    return txnID;
-  }
-
-
-
-  /**
-   * Sleeps for a period of time (if appropriate) before beginning processing
-   * for an operation.
-   */
-  private void sleepBeforeProcessing()
-  {
-    final long delay = processingDelayMillis.get();
-    if (delay > 0)
-    {
-      try
-      {
-        Thread.sleep(delay);
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
-    }
   }
 
 
@@ -3697,7 +2858,7 @@ findEntriesAndRefs:
   public synchronized int countEntriesBelow(final String baseDN)
          throws LDAPException
   {
-    final DN parsedBaseDN = new DN(baseDN, schemaRef.get());
+    final DN parsedBaseDN = new DN(baseDN);
 
     int count = 0;
     for (final DN dn : entryMap.keySet())
@@ -4020,7 +3181,7 @@ findEntriesAndRefs:
   public synchronized int deleteSubtree(final String baseDN)
          throws LDAPException
   {
-    final DN dn = new DN(baseDN, schemaRef.get());
+    final DN dn = new DN(baseDN);
     if (dn.isNullDN())
     {
       throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
@@ -4101,7 +3262,7 @@ findEntriesAndRefs:
   public synchronized ReadOnlyEntry getEntry(final String dn)
          throws LDAPException
   {
-    return getEntry(new DN(dn, schemaRef.get()));
+    return getEntry(new DN(dn));
   }
 
 
@@ -4123,7 +3284,7 @@ findEntriesAndRefs:
     }
     else if (dn.equals(subschemaSubentryDN))
     {
-      return subschemaSubentryRef.get();
+      return subschemaSubentry;
     }
     else
     {
@@ -4163,10 +3324,9 @@ findEntriesAndRefs:
          throws LDAPException
   {
     final DN parsedDN;
-    final Schema schema = schemaRef.get();
     try
     {
-      parsedDN = new DN(baseDN, schema);
+      parsedDN = new DN(baseDN);
     }
     catch (final LDAPException le)
     {
@@ -4183,7 +3343,7 @@ findEntriesAndRefs:
     }
     else if (parsedDN.equals(subschemaSubentryDN))
     {
-      baseEntry = subschemaSubentryRef.get();
+      baseEntry = subschemaSubentry;
     }
     else
     {
@@ -4275,29 +3435,46 @@ findEntriesAndRefs:
 
 
   /**
+   * Parses the provided set of strings as DNs.
+   *
+   * @param  dnStrings  The array of strings to be parsed as DNs.
+   *
+   * @return  The array of parsed DNs.
+   *
+   * @throws  LDAPException  If any of the provided strings cannot be parsed as
+   *                         DNs.
+   */
+  static DN[] parseDNs(final String... dnStrings)
+         throws LDAPException
+  {
+    if (dnStrings == null)
+    {
+      return null;
+    }
+
+    final DN[] dns = new DN[dnStrings.length];
+    for (int i=0; i < dns.length; i++)
+    {
+      dns[i] = new DN(dnStrings[i]);
+    }
+    return dns;
+  }
+
+
+
+  /**
    * Generates an entry to use as the server root DSE.
    *
    * @return  The generated root DSE entry.
    */
   private ReadOnlyEntry generateRootDSE()
   {
-    final Entry rootDSEEntry = new Entry(DN.NULL_DN, schemaRef.get());
+    final Entry rootDSEEntry = new Entry(DN.NULL_DN);
     rootDSEEntry.addAttribute("objectClass", "top", "ds-root-dse");
     rootDSEEntry.addAttribute(new Attribute("supportedLDAPVersion",
          IntegerMatchingRule.getInstance(), "3"));
-
-    final String vendorName = config.getVendorName();
-    if (vendorName != null)
-    {
-      rootDSEEntry.addAttribute("vendorName", vendorName);
-    }
-
-    final String vendorVersion = config.getVendorVersion();
-    if (vendorVersion != null)
-    {
-      rootDSEEntry.addAttribute("vendorVersion", vendorVersion);
-    }
-
+    rootDSEEntry.addAttribute("vendorName", "UnboundID Corp.");
+    rootDSEEntry.addAttribute("vendorVersion", Version.FULL_VERSION_STRING);
     rootDSEEntry.addAttribute(new Attribute("subschemaSubentry",
          DistinguishedNameMatchingRule.getInstance(),
          subschemaSubentryDN.toString()));
@@ -4329,8 +3506,6 @@ findEntriesAndRefs:
     ctlSet.add(SimplePagedResultsControl.PAGED_RESULTS_OID);
     ctlSet.add(SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
     ctlSet.add(SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
-    ctlSet.add(TransactionSpecificationRequestControl.
-         TRANSACTION_SPECIFICATION_REQUEST_OID);
     ctlSet.add(VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID);
 
     final String[] controlOIDs = new String[ctlSet.size()];
@@ -4401,7 +3576,7 @@ findEntriesAndRefs:
 
     if (schema == null)
     {
-      e = new Entry("cn=schema", schema);
+      e = new Entry("cn=schema");
 
       e.addAttribute("objectClass", "namedObject", "ldapSubEntry",
            "subschema");
@@ -4414,7 +3589,7 @@ findEntriesAndRefs:
 
     try
     {
-      e.addAttribute("entryDN", DN.normalize(e.getDN(), schema));
+      e.addAttribute("entryDN", DN.normalize(e.getDN()));
     }
     catch (final LDAPException le)
     {
@@ -4455,7 +3630,6 @@ findEntriesAndRefs:
       return Collections.emptyMap();
     }
 
-    final Schema schema = schemaRef.get();
     final HashMap<String,List<List<String>>> m =
          new HashMap<String,List<List<String>>>(attrList.size() * 2);
     for (final String s : attrList)
@@ -4640,7 +3814,6 @@ findEntriesAndRefs:
 
     // If a schema is available, then see if the attribute type has any
     // subordinate types.  If so, then add them.
-    final Schema schema = schemaRef.get();
     if (schema != null)
     {
       for (final AttributeTypeDefinition subordinateType :
@@ -4737,7 +3910,6 @@ findEntriesAndRefs:
                      final Map<String,List<List<String>>> returnAttrs)
   {
     // See if we can return the entry without paring it down.
-    final Schema schema = schemaRef.get();
     if (allUserAttrs)
     {
       if (allOpAttrs || (schema == null))
@@ -4748,7 +3920,7 @@ findEntriesAndRefs:
 
 
     // If we've gotten here, then we may only need to return a partial entry.
-    final Entry copy = new Entry(entry.getDN(), schema);
+    final Entry copy = new Entry(entry.getDN());
 
     for (final Attribute a : entry.getAttributes())
     {
@@ -5060,9 +4232,7 @@ findEntriesAndRefs:
   {
     // Construct the DN object to use for the entry and put it in the map.
     final long changeNumber = e.getChangeNumber();
-    final Schema schema = schemaRef.get();
-    final DN dn = new DN(
-         new RDN("changeNumber", String.valueOf(changeNumber), schema),
+    final DN dn = new DN(new RDN("changeNumber", String.valueOf(changeNumber)),
          changeLogBaseDN);
 
     final Entry entry = e.duplicate();
@@ -5092,7 +4262,6 @@ findEntriesAndRefs:
     }
 
     entryMap.put(dn, new ReadOnlyEntry(entry));
-    indexAdd(entry);
 
     // Update the first change number and/or trim the changelog if necessary.
     final long firstNumber = firstChangeNumber.get();
@@ -5110,10 +4279,9 @@ findEntriesAndRefs:
         // We need to delete the first changelog entry and increment the
         // first change number.
         firstChangeNumber.incrementAndGet();
-        final Entry deletedEntry = entryMap.remove(new DN(
-             new RDN("changeNumber", String.valueOf(firstNumber), schema),
+        entryMap.remove(new DN(
+             new RDN("changeNumber", String.valueOf(firstNumber)),
              changeLogBaseDN));
-        indexDelete(deletedEntry);
       }
     }
   }
@@ -5143,7 +4311,7 @@ findEntriesAndRefs:
                    PROXIED_AUTHORIZATION_V1_REQUEST_OID);
     if (p1 != null)
     {
-      final DN authzDN = new DN(p1.getProxyDN(), schemaRef.get());
+      final DN authzDN = new DN(p1.getProxyDN());
       if (authzDN.isNullDN() ||
           entryMap.containsKey(authzDN) ||
           additionalBindCredentials.containsKey(authzDN))
@@ -5197,7 +4365,7 @@ findEntriesAndRefs:
       }
       else
       {
-        final DN dn = new DN(authzID.substring(3), schemaRef.get());
+        final DN dn = new DN(authzID.substring(3));
         if (entryMap.containsKey(dn) ||
             additionalBindCredentials.containsKey(dn))
         {
@@ -5496,7 +4664,7 @@ findEntriesAndRefs:
     final Filter f = Filter.create(filter);
     try
     {
-      return f.matchesEntry(e, schemaRef.get());
+      return f.matchesEntry(e, schema);
     }
     catch (final LDAPException le)
     {
@@ -5593,7 +4761,7 @@ findEntriesAndRefs:
     final Filter f = Filter.create(filter);
     try
     {
-      if (! f.matchesEntry(e, schemaRef.get()))
+      if (! f.matchesEntry(e, schema))
       {
         throw new AssertionError(
              ERR_MEM_HANDLER_TEST_ENTRY_DOES_NOT_MATCH_FILTER.get(dn, filter));
@@ -5637,7 +4805,6 @@ findEntriesAndRefs:
     final Collection<Attribute> attrs = entry.getAttributes();
     final List<String> messages = new ArrayList<String>(attrs.size());
 
-    final Schema schema = schemaRef.get();
     for (final Attribute a : entry.getAttributes())
     {
       final Filter presFilter = Filter.createPresenceFilter(a.getName());
@@ -5755,7 +4922,6 @@ findEntriesAndRefs:
       return null;
     }
 
-    final Schema schema = schemaRef.get();
     final List<String> missingAttrs =
          new ArrayList<String>(attributeNames.size());
     for (final String attr : attributeNames)
@@ -5841,7 +5007,6 @@ findEntriesAndRefs:
       return null;
     }
 
-    final Schema schema = schemaRef.get();
     final List<String> missingValues =
          new ArrayList<String>(attributeValues.size());
     for (final String value : attributeValues)
@@ -5894,7 +5059,7 @@ findEntriesAndRefs:
     // See if the attribute exists at all in the entry.
     final Entry e = getEntry(dn);
     final Filter f = Filter.createPresenceFilter(attributeName);
-    if (! f.matchesEntry(e,  schemaRef.get()))
+    if (! f.matchesEntry(e,  schema))
     {
       throw new AssertionError(
            ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(dn, attributeName));
@@ -5958,7 +5123,6 @@ findEntriesAndRefs:
       throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
     }
 
-    final Schema schema = schemaRef.get();
     final List<String> messages = new ArrayList<String>(attributeNames.size());
     for (final String name : attributeNames)
     {
@@ -6003,7 +5167,6 @@ findEntriesAndRefs:
       throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
     }
 
-    final Schema schema = schemaRef.get();
     final List<String> messages = new ArrayList<String>(attributeValues.size());
     for (final String value : attributeValues)
     {

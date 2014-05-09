@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -71,16 +71,6 @@ import static com.unboundid.util.Validator.*;
  *       control.  Some controls do not take values, and the value encoding for
  *       controls which do take values varies based on the type of control.</LI>
  * </UL>
- * Controls may be included in a request from the client to the server, as well
- * as responses from the server to the client (including intermediate response,
- * search result entry, and search result references, in addition to the final
- * response message for an operation).  When using request controls, they may be
- * included in the request object at the time it is created, or may be added
- * after the fact for {@link UpdatableLDAPRequest} objects.  When using
- * response controls, each response control class includes a {@code get} method
- * that can be used to extract the appropriate control from an appropriate
- * result (e.g.,  {@link LDAPResult}, {@link SearchResultEntry}, or
- * {@link SearchResultReference}).
  */
 @Extensible()
 @NotMutable()
@@ -123,33 +113,8 @@ public class Control
 
   static
   {
-    try
-    {
-      final Class<?> unboundIDControlHelperClass = Class.forName(
-           "com.unboundid.ldap.sdk.controls.ControlHelper");
-      final Method method = unboundIDControlHelperClass.getMethod(
-           "registerDefaultResponseControls");
-      method.invoke(null);
-    }
-    catch (Exception e)
-    {
-      // This is expected in the minimal release, since it doesn't include any
-      // controls.
-    }
-
-    try
-    {
-      final Class<?> unboundIDControlHelperClass = Class.forName(
-           "com.unboundid.ldap.sdk.experimental.ControlHelper");
-      final Method method = unboundIDControlHelperClass.getMethod(
-           "registerDefaultResponseControls");
-      method.invoke(null);
-    }
-    catch (Exception e)
-    {
-      // This is expected in the minimal release, since it doesn't include any
-      // controls.
-    }
+    com.unboundid.ldap.sdk.controls.ControlHelper.
+         registerDefaultResponseControls();
 
     try
     {
@@ -162,21 +127,7 @@ public class Control
     catch (Exception e)
     {
       // This is expected in the open source release, since it doesn't contain
-      // the UnboundID-specific controls.  In that case, we'll try enable some
-      // additional experimental controls instead.
-      try
-      {
-        final Class<?> experimentalControlHelperClass = Class.forName(
-             "com.unboundid.ldap.sdk.experimental.ControlHelper");
-        final Method method = experimentalControlHelperClass.getMethod(
-             "registerNonCommercialResponseControls");
-        method.invoke(null);
-      }
-      catch (Exception e2)
-      {
-        // This is expected in the minimal release, since it doesn't contain any
-        // controls.
-      }
+      // the UnboundID-specific controls.
     }
   }
 
@@ -340,7 +291,7 @@ public class Control
 
     if (value != null)
     {
-      writer.addOctetString(value.getValue());
+      writer.addElement(value);
     }
 
     controlSequence.end();
@@ -366,7 +317,7 @@ public class Control
 
     if (value != null)
     {
-      elementList.add(new ASN1OctetString(value.getValue()));
+      elementList.add(value);
     }
 
     return new ASN1Sequence(elementList);

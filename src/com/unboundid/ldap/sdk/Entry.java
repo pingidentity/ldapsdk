@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -103,9 +103,6 @@ public class Entry
   // The set of attributes for this entry.
   private final LinkedHashMap<String,Attribute> attributes;
 
-  // The schema to use for this entry.
-  private final Schema schema;
-
   // The DN for this entry.
   private String dn;
 
@@ -118,24 +115,9 @@ public class Entry
    */
   public Entry(final String dn)
   {
-    this(dn, (Schema) null);
-  }
-
-
-
-  /**
-   * Creates a new entry with the provided DN and no attributes.
-   *
-   * @param  dn      The DN for this entry.  It must not be {@code null}.
-   * @param  schema  The schema to use for operations involving this entry.  It
-   *                 may be {@code null} if no schema is available.
-   */
-  public Entry(final String dn, final Schema schema)
-  {
     ensureNotNull(dn);
 
-    this.dn     = dn;
-    this.schema = schema;
+    this.dn = dn;
 
     attributes = new LinkedHashMap<String,Attribute>();
   }
@@ -149,25 +131,10 @@ public class Entry
    */
   public Entry(final DN dn)
   {
-    this(dn, (Schema) null);
-  }
-
-
-
-  /**
-   * Creates a new entry with the provided DN and no attributes.
-   *
-   * @param  dn      The DN for this entry.  It must not be {@code null}.
-   * @param  schema  The schema to use for operations involving this entry.  It
-   *                 may be {@code null} if no schema is available.
-   */
-  public Entry(final DN dn, final Schema schema)
-  {
     ensureNotNull(dn);
 
-    parsedDN    = dn;
-    this.dn     = parsedDN.toString();
-    this.schema = schema;
+    parsedDN = dn;
+    this.dn  = parsedDN.toString();
 
     attributes = new LinkedHashMap<String,Attribute>();
   }
@@ -183,27 +150,9 @@ public class Entry
    */
   public Entry(final String dn, final Attribute... attributes)
   {
-    this(dn, null, attributes);
-  }
-
-
-
-  /**
-   * Creates a new entry with the provided DN and set of attributes.
-   *
-   * @param  dn          The DN for this entry.  It must not be {@code null}.
-   * @param  schema      The schema to use for operations involving this entry.
-   *                     It may be {@code null} if no schema is available.
-   * @param  attributes  The set of attributes for this entry.  It must not be
-   *                     {@code null}.
-   */
-  public Entry(final String dn, final Schema schema,
-               final Attribute... attributes)
-  {
     ensureNotNull(dn, attributes);
 
-    this.dn     = dn;
-    this.schema = schema;
+    this.dn = dn;
 
     this.attributes = new LinkedHashMap<String,Attribute>(attributes.length);
     for (final Attribute a : attributes)
@@ -232,27 +181,10 @@ public class Entry
    */
   public Entry(final DN dn, final Attribute... attributes)
   {
-    this(dn, null, attributes);
-  }
-
-
-
-  /**
-   * Creates a new entry with the provided DN and set of attributes.
-   *
-   * @param  dn          The DN for this entry.  It must not be {@code null}.
-   * @param  schema      The schema to use for operations involving this entry.
-   *                     It may be {@code null} if no schema is available.
-   * @param  attributes  The set of attributes for this entry.  It must not be
-   *                     {@code null}.
-   */
-  public Entry(final DN dn, final Schema schema, final Attribute... attributes)
-  {
     ensureNotNull(dn, attributes);
 
-    parsedDN    = dn;
-    this.dn     = parsedDN.toString();
-    this.schema = schema;
+    parsedDN = dn;
+    this.dn  = parsedDN.toString();
 
     this.attributes = new LinkedHashMap<String,Attribute>(attributes.length);
     for (final Attribute a : attributes)
@@ -281,27 +213,9 @@ public class Entry
    */
   public Entry(final String dn, final Collection<Attribute> attributes)
   {
-    this(dn, null, attributes);
-  }
-
-
-
-  /**
-   * Creates a new entry with the provided DN and set of attributes.
-   *
-   * @param  dn          The DN for this entry.  It must not be {@code null}.
-   * @param  schema      The schema to use for operations involving this entry.
-   *                     It may be {@code null} if no schema is available.
-   * @param  attributes  The set of attributes for this entry.  It must not be
-   *                     {@code null}.
-   */
-  public Entry(final String dn, final Schema schema,
-               final Collection<Attribute> attributes)
-  {
     ensureNotNull(dn, attributes);
 
-    this.dn     = dn;
-    this.schema = schema;
+    this.dn = dn;
 
     this.attributes = new LinkedHashMap<String,Attribute>(attributes.size());
     for (final Attribute a : attributes)
@@ -330,28 +244,10 @@ public class Entry
    */
   public Entry(final DN dn, final Collection<Attribute> attributes)
   {
-    this(dn, null, attributes);
-  }
-
-
-
-  /**
-   * Creates a new entry with the provided DN and set of attributes.
-   *
-   * @param  dn          The DN for this entry.  It must not be {@code null}.
-   * @param  schema      The schema to use for operations involving this entry.
-   *                     It may be {@code null} if no schema is available.
-   * @param  attributes  The set of attributes for this entry.  It must not be
-   *                     {@code null}.
-   */
-  public Entry(final DN dn, final Schema schema,
-               final Collection<Attribute> attributes)
-  {
     ensureNotNull(dn, attributes);
 
-    parsedDN    = dn;
-    this.dn     = parsedDN.toString();
-    this.schema = schema;
+    parsedDN = dn;
+    this.dn  = parsedDN.toString();
 
     this.attributes = new LinkedHashMap<String,Attribute>(attributes.size());
     for (final Attribute a : attributes)
@@ -383,28 +279,7 @@ public class Entry
   public Entry(final String... entryLines)
          throws LDIFException
   {
-    this(null, entryLines);
-  }
-
-
-
-  /**
-   * Creates a new entry from the provided LDIF representation.
-   *
-   * @param  schema      The schema to use for operations involving this entry.
-   *                     It may be {@code null} if no schema is available.
-   * @param  entryLines  The set of lines that comprise an LDIF representation
-   *                     of the entry.  It must not be {@code null} or empty.
-   *
-   * @throws  LDIFException  If the provided lines cannot be decoded as an entry
-   *                         in LDIF format.
-   */
-  public Entry(final Schema schema, final String... entryLines)
-         throws LDIFException
-  {
     final Entry e = LDIFReader.decodeEntry(entryLines);
-
-    this.schema = schema;
 
     dn         = e.dn;
     parsedDN   = e.parsedDN;
@@ -467,7 +342,7 @@ public class Entry
   {
     if (parsedDN == null)
     {
-      parsedDN = new DN(dn, schema);
+      parsedDN = new DN(dn);
     }
 
     return parsedDN;
@@ -503,7 +378,7 @@ public class Entry
   {
     if (parsedDN == null)
     {
-      parsedDN = new DN(dn, schema);
+      parsedDN = new DN(dn);
     }
 
     return parsedDN.getParent();
@@ -524,7 +399,7 @@ public class Entry
   {
     if (parsedDN == null)
     {
-      parsedDN = new DN(dn, schema);
+      parsedDN = new DN(dn);
     }
 
     final DN parentDN = parsedDN.getParent();
@@ -541,19 +416,6 @@ public class Entry
 
 
   /**
-   * Retrieves the schema that will be used for this entry, if any.
-   *
-   * @return  The schema that will be used for this entry, or {@code null} if
-   *          no schema was provided.
-   */
-  protected Schema getSchema()
-  {
-    return schema;
-  }
-
-
-
-  /**
    * Indicates whether this entry contains the specified attribute.
    *
    * @param  attributeName  The name of the attribute for which to make the
@@ -564,7 +426,9 @@ public class Entry
    */
   public final boolean hasAttribute(final String attributeName)
   {
-    return hasAttribute(attributeName, schema);
+    ensureNotNull(attributeName);
+
+    return attributes.containsKey(toLowerCase(attributeName));
   }
 
 
@@ -789,7 +653,9 @@ public class Entry
    */
   public final Attribute getAttribute(final String attributeName)
   {
-    return getAttribute(attributeName, schema);
+    ensureNotNull(attributeName);
+
+    return attributes.get(toLowerCase(attributeName));
   }
 
 
@@ -1241,7 +1107,7 @@ public class Entry
                               final String attributeValue)
   {
     ensureNotNull(attributeName, attributeValue);
-    return addAttribute(new Attribute(attributeName, schema, attributeValue));
+    return addAttribute(new Attribute(attributeName, attributeValue));
   }
 
 
@@ -1262,7 +1128,7 @@ public class Entry
                               final byte[] attributeValue)
   {
     ensureNotNull(attributeName, attributeValue);
-    return addAttribute(new Attribute(attributeName, schema, attributeValue));
+    return addAttribute(new Attribute(attributeName, attributeValue));
   }
 
 
@@ -1283,7 +1149,7 @@ public class Entry
                               final String... attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
-    return addAttribute(new Attribute(attributeName, schema, attributeValues));
+    return addAttribute(new Attribute(attributeName, attributeValues));
   }
 
 
@@ -1304,28 +1170,7 @@ public class Entry
                               final byte[]... attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
-    return addAttribute(new Attribute(attributeName, schema, attributeValues));
-  }
-
-
-
-  /**
-   * Adds the provided attribute to this entry.  If this entry already contains
-   * an attribute with the same name, then their values will be merged.
-   *
-   * @param  attributeName    The name for the attribute to be added.  It must
-   *                          not be {@code null}.
-   * @param  attributeValues  The value for the attribute to be added.  It must
-   *                          not be {@code null}.
-   *
-   * @return  {@code true} if the entry was updated, or {@code false} because
-   *          the specified attribute already existed with all provided values.
-   */
-  public boolean addAttribute(final String attributeName,
-                              final Collection<String> attributeValues)
-  {
-    ensureNotNull(attributeName, attributeValues);
-    return addAttribute(new Attribute(attributeName, schema, attributeValues));
+    return addAttribute(new Attribute(attributeName, attributeValues));
   }
 
 
@@ -1343,23 +1188,7 @@ public class Entry
   {
     ensureNotNull(attributeName);
 
-    if (schema == null)
-    {
-      return (attributes.remove(toLowerCase(attributeName)) != null);
-    }
-    else
-    {
-      final Attribute a = getAttribute(attributeName,  schema);
-      if (a == null)
-      {
-        return false;
-      }
-      else
-      {
-        attributes.remove(toLowerCase(a.getName()));
-        return true;
-      }
-    }
+    return (attributes.remove(toLowerCase(attributeName)) != null);
   }
 
 
@@ -1381,44 +1210,18 @@ public class Entry
   public boolean removeAttributeValue(final String attributeName,
                                       final String attributeValue)
   {
-    return removeAttributeValue(attributeName, attributeValue, null);
-  }
-
-
-
-  /**
-   * Removes the specified attribute value from this entry if it is present.  If
-   * it is the last value for the attribute, then the entire attribute will be
-   * removed.  If the specified value is not present, then no change will be
-   * made.
-   *
-   * @param  attributeName   The name of the attribute from which to remove the
-   *                         value.  It must not be {@code null}.
-   * @param  attributeValue  The value to remove from the attribute.  It must
-   *                         not be {@code null}.
-   * @param  matchingRule    The matching rule to use for the attribute.  It may
-   *                         be {@code null} to use the matching rule associated
-   *                         with the attribute.
-   *
-   * @return  {@code true} if the attribute value was removed from the entry, or
-   *          {@code false} if it was not present.
-   */
-  public boolean removeAttributeValue(final String attributeName,
-                                      final String attributeValue,
-                                      final MatchingRule matchingRule)
-  {
     ensureNotNull(attributeName, attributeValue);
 
-    final Attribute attr = getAttribute(attributeName, schema);
+    final String lowerName = toLowerCase(attributeName);
+    final Attribute attr = attributes.get(lowerName);
     if (attr == null)
     {
       return false;
     }
     else
     {
-      final String lowerName = toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
-           new Attribute(attributeName, attributeValue), matchingRule);
+           new Attribute(attributeName, attributeValue));
       if (newAttr.hasValue())
       {
         attributes.put(lowerName, newAttr);
@@ -1451,44 +1254,18 @@ public class Entry
   public boolean removeAttributeValue(final String attributeName,
                                       final byte[] attributeValue)
   {
-    return removeAttributeValue(attributeName, attributeValue, null);
-  }
-
-
-
-  /**
-   * Removes the specified attribute value from this entry if it is present.  If
-   * it is the last value for the attribute, then the entire attribute will be
-   * removed.  If the specified value is not present, then no change will be
-   * made.
-   *
-   * @param  attributeName   The name of the attribute from which to remove the
-   *                         value.  It must not be {@code null}.
-   * @param  attributeValue  The value to remove from the attribute.  It must
-   *                         not be {@code null}.
-   * @param  matchingRule    The matching rule to use for the attribute.  It may
-   *                         be {@code null} to use the matching rule associated
-   *                         with the attribute.
-   *
-   * @return  {@code true} if the attribute value was removed from the entry, or
-   *          {@code false} if it was not present.
-   */
-  public boolean removeAttributeValue(final String attributeName,
-                                      final byte[] attributeValue,
-                                      final MatchingRule matchingRule)
-  {
     ensureNotNull(attributeName, attributeValue);
 
-    final Attribute attr = getAttribute(attributeName, schema);
+    final String lowerName = toLowerCase(attributeName);
+    final Attribute attr = attributes.get(lowerName);
     if (attr == null)
     {
       return false;
     }
     else
     {
-      final String lowerName = toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
-           new Attribute(attributeName, attributeValue), matchingRule);
+           new Attribute(attributeName, attributeValue));
       if (newAttr.hasValue())
       {
         attributes.put(lowerName, newAttr);
@@ -1523,14 +1300,14 @@ public class Entry
   {
     ensureNotNull(attributeName, attributeValues);
 
-    final Attribute attr = getAttribute(attributeName, schema);
+    final String lowerName = toLowerCase(attributeName);
+    final Attribute attr = attributes.get(lowerName);
     if (attr == null)
     {
       return false;
     }
     else
     {
-      final String lowerName = toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
            new Attribute(attributeName, attributeValues));
       if (newAttr.hasValue())
@@ -1567,14 +1344,14 @@ public class Entry
   {
     ensureNotNull(attributeName, attributeValues);
 
-    final Attribute attr = getAttribute(attributeName, schema);
+    final String lowerName = toLowerCase(attributeName);
+    final Attribute attr = attributes.get(lowerName);
     if (attr == null)
     {
       return false;
     }
     else
     {
-      final String lowerName = toLowerCase(attr.getName());
       final Attribute newAttr = Attribute.removeValues(attr,
            new Attribute(attributeName, attributeValues));
       if (newAttr.hasValue())
@@ -1603,17 +1380,7 @@ public class Entry
   {
     ensureNotNull(attribute);
 
-    final String lowerName;
-    final Attribute a = getAttribute(attribute.getName(), schema);
-    if (a == null)
-    {
-      lowerName = toLowerCase(attribute.getName());
-    }
-    else
-    {
-      lowerName = toLowerCase(a.getName());
-    }
-
+    final String lowerName = toLowerCase(attribute.getName());
     attributes.put(lowerName, attribute);
   }
 
@@ -1632,7 +1399,9 @@ public class Entry
                            final String attributeValue)
   {
     ensureNotNull(attributeName, attributeValue);
-    setAttribute(new Attribute(attributeName, schema, attributeValue));
+
+    final String lowerName = toLowerCase(attributeName);
+    attributes.put(lowerName, new Attribute(attributeName, attributeValue));
   }
 
 
@@ -1650,7 +1419,9 @@ public class Entry
                            final byte[] attributeValue)
   {
     ensureNotNull(attributeName, attributeValue);
-    setAttribute(new Attribute(attributeName, schema, attributeValue));
+
+    final String lowerName = toLowerCase(attributeName);
+    attributes.put(lowerName, new Attribute(attributeName, attributeValue));
   }
 
 
@@ -1665,10 +1436,12 @@ public class Entry
    *                          must not be {@code null}.
    */
   public void setAttribute(final String attributeName,
-                           final String... attributeValues)
+                                 final String... attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
-    setAttribute(new Attribute(attributeName, schema, attributeValues));
+
+    final String lowerName = toLowerCase(attributeName);
+    attributes.put(lowerName, new Attribute(attributeName, attributeValues));
   }
 
 
@@ -1683,28 +1456,12 @@ public class Entry
    *                          must not be {@code null}.
    */
   public void setAttribute(final String attributeName,
-                           final byte[]... attributeValues)
+                                 final byte[]... attributeValues)
   {
     ensureNotNull(attributeName, attributeValues);
-    setAttribute(new Attribute(attributeName, schema, attributeValues));
-  }
 
-
-
-  /**
-   * Adds the provided attribute to this entry, replacing any existing set of
-   * values for the associated attribute.
-   *
-   * @param  attributeName    The name to use for the attribute.  It must not be
-   *                          {@code null}.
-   * @param  attributeValues  The set of values to use for the attribute.  It
-   *                          must not be {@code null}.
-   */
-  public void setAttribute(final String attributeName,
-                           final Collection<String> attributeValues)
-  {
-    ensureNotNull(attributeName, attributeValues);
-    setAttribute(new Attribute(attributeName, schema, attributeValues));
+    final String lowerName = toLowerCase(attributeName);
+    attributes.put(lowerName, new Attribute(attributeName, attributeValues));
   }
 
 
@@ -1988,76 +1745,35 @@ public class Entry
       if (reversible ||
           ((targetRDN != null) && targetRDN.hasAttribute(targetAttr.getName())))
       {
-        final ASN1OctetString[] sourceValueArray = sourceAttr.getRawValues();
-        final LinkedHashMap<ASN1OctetString,ASN1OctetString> sourceValues =
-             new LinkedHashMap<ASN1OctetString,ASN1OctetString>(
-                  sourceValueArray.length);
-        for (final ASN1OctetString s : sourceValueArray)
-        {
-          try
-          {
-            sourceValues.put(sourceAttr.getMatchingRule().normalize(s), s);
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            sourceValues.put(s, s);
-          }
-        }
-
-        final ASN1OctetString[] targetValueArray = targetAttr.getRawValues();
-        final LinkedHashMap<ASN1OctetString,ASN1OctetString> targetValues =
-             new LinkedHashMap<ASN1OctetString,ASN1OctetString>(
-                  targetValueArray.length);
-        for (final ASN1OctetString s : targetValueArray)
-        {
-          try
-          {
-            targetValues.put(sourceAttr.getMatchingRule().normalize(s), s);
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            targetValues.put(s, s);
-          }
-        }
-
-        final Iterator<Map.Entry<ASN1OctetString,ASN1OctetString>>
-             sourceIterator = sourceValues.entrySet().iterator();
-        while (sourceIterator.hasNext())
-        {
-          final Map.Entry<ASN1OctetString,ASN1OctetString> e =
-               sourceIterator.next();
-          if (targetValues.remove(e.getKey()) != null)
-          {
-            sourceIterator.remove();
-          }
-          else if ((sourceRDN != null) &&
-                   sourceRDN.hasAttributeValue(sourceAttr.getName(),
-                        e.getValue().getValue()))
-          {
-            sourceIterator.remove();
-          }
-        }
-
-        final Iterator<Map.Entry<ASN1OctetString,ASN1OctetString>>
-             targetIterator = targetValues.entrySet().iterator();
-        while (targetIterator.hasNext())
-        {
-          final Map.Entry<ASN1OctetString,ASN1OctetString> e =
-               targetIterator.next();
-          if ((targetRDN != null) &&
-              targetRDN.hasAttributeValue(targetAttr.getName(),
-                   e.getValue().getValue()))
-          {
-            targetIterator.remove();
-          }
-        }
-
         final ArrayList<ASN1OctetString> addValues =
-             new ArrayList<ASN1OctetString>(targetValues.values());
+             new ArrayList<ASN1OctetString>();
         final ArrayList<ASN1OctetString> delValues =
-             new ArrayList<ASN1OctetString>(sourceValues.values());
+             new ArrayList<ASN1OctetString>();
+        for (final ASN1OctetString value : sourceAttr.getRawValues())
+        {
+          if (! targetAttr.hasValue(value))
+          {
+            if ((sourceRDN == null) ||
+                (! sourceRDN.hasAttributeValue(sourceAttr.getName(),
+                                               value.getValue())))
+            {
+              delValues.add(value);
+            }
+          }
+        }
+
+        for (final ASN1OctetString value : targetAttr.getRawValues())
+        {
+          if (! sourceAttr.hasValue(value))
+          {
+            if ((targetRDN == null) ||
+                (! targetRDN.hasAttributeValue(targetAttr.getName(),
+                                               value.getValue())))
+            {
+              addValues.add(value);
+            }
+          }
+        }
 
         if (! addValues.isEmpty())
         {
@@ -2558,7 +2274,7 @@ deleteValueLoop:
    */
   public Entry duplicate()
   {
-    return new Entry(dn, schema, attributes.values());
+    return new Entry(dn, attributes.values());
   }
 
 

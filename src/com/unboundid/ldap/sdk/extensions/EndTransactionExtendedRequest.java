@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -44,12 +44,10 @@ import static com.unboundid.util.Validator.*;
 
 /**
  * This class provides an implementation of the end transaction extended
- * request as defined in
- * <A HREF="http://www.ietf.org/rfc/rfc5805.txt">RFC 5805</A>.  It may be used
- * to either commit or abort a transaction that was created using the start
- * transaction request.  See the documentation for the
- * {@link StartTransactionExtendedRequest} class for an example of processing an
- * LDAP transaction.
+ * request as defined in RFC 5805.  It may be used to either commit or abort a
+ * transaction that was created using the start transaction request.  See the
+ * documentation for the {@link StartTransactionExtendedRequest} class for an
+ * example of processing an LDAP transaction.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
@@ -57,7 +55,7 @@ public final class EndTransactionExtendedRequest
        extends ExtendedRequest
 {
   /**
-   * The OID (1.3.6.1.1.21.3) for the end transaction extended request.
+   * The OID for the end transaction extended request.
    */
   public static final String END_TRANSACTION_REQUEST_OID = "1.3.6.1.1.21.3";
 

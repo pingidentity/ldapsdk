@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.messages;
@@ -381,14 +381,7 @@ public class GenerateMessages
         w("      }");
         w("      else");
         w("      {");
-        w("        try");
-        w("        {");
-        w("          s = RESOURCE_BUNDLE.getString(name());");
-        w("        }");
-        w("        catch (final Exception e)");
-        w("        {");
-        w("          s = defaultText;");
-        w("        }");
+        w("        s = RESOURCE_BUNDLE.getString(name());");
         w("        MESSAGE_STRINGS.putIfAbsent(this, s);");
         w("      }");
         w("    }");
@@ -419,15 +412,7 @@ public class GenerateMessages
         w("      }");
         w("      else");
         w("      {");
-        w("        try");
-        w("        {");
-        w("          f = new MessageFormat(RESOURCE_BUNDLE.getString(" +
-             "name()));");
-        w("        }");
-        w("        catch (final Exception e)");
-        w("        {");
-        w("          f = new MessageFormat(defaultText);");
-        w("        }");
+        w("        f = new MessageFormat(RESOURCE_BUNDLE.getString(name()));");
         w("      }");
         w("      MESSAGES.putIfAbsent(this, f);");
         w("    }");

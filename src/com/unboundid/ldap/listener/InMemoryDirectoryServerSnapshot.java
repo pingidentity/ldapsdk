@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -84,7 +84,7 @@ public final class InMemoryDirectoryServerSnapshot
     this.firstChangeNumber = firstChangeNumber;
     this.lastChangeNumber  = lastChangeNumber;
 
-    entryMap = Collections.unmodifiableMap(new TreeMap<DN,ReadOnlyEntry>(m));
+    entryMap  = Collections.unmodifiableMap(new TreeMap<DN,ReadOnlyEntry>(m));
   }
 
 

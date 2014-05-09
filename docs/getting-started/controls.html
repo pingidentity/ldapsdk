@@ -107,15 +107,19 @@ ${TARGET="offline"}                    <br>
               <pre>
 String authzID = null;
 BindRequest bindRequest =
-     new SimpleBindRequest("uid=test.user,ou=People,dc=example,dc=com",
-          "password", new AuthorizationIdentityRequestControl());
-
+     new SimpleBindRequest("uid=john.doe,ou=People,dc=example,dc=com",
+                           "password",
+                           new AuthorizationIdentityRequestControl());
 BindResult bindResult = connection.bind(bindRequest);
-AuthorizationIdentityResponseControl authzIdentityResponse =
-     AuthorizationIdentityResponseControl.get(bindResult);
-if (authzIdentityResponse != null)
+for (Control c : bindResult.getResponseControls())
 {
-  authzID = authzIdentityResponse.getAuthorizationID();
+  if (c instanceof AuthorizationIdentityResponseControl)
+  {
+    AuthorizationIdentityResponseControl authzControl =
+         (AuthorizationIdentityResponseControl) c;
+    authzID = authzControl.getAuthorizationID();
+    break;
+  }
 }
 </pre>
 
@@ -140,27 +144,22 @@ if (authzIdentityResponse != null)
               </p>
 
               <pre>
-Modification mod = new Modification(ModificationType.REPLACE,
-     "accountBalance", "543.21");
+Modification mod =
+     new Modification(ModificationType.REPLACE, "accountBalance", "543.21");
 ModifyRequest modifyRequest =
      new ModifyRequest("uid=john.doe,ou=People,dc=example,dc=com", mod);
 modifyRequest.addControl(
      new AssertionRequestControl("(accountBalance=1234.56)"));
-
-LDAPResult modifyResult;
 try
 {
-  modifyResult = connection.modify(modifyRequest);
+  LDAPResult modifyResult = connection.modify(modifyRequest);
   // If we've gotten here, then the modification was successful.
 }
 catch (LDAPException le)
 {
-  modifyResult = le.toLDAPResult();
-  ResultCode resultCode = le.getResultCode();
-  String errorMessageFromServer = le.getDiagnosticMessage();
-  if (resultCode == ResultCode.ASSERTION_FAILED)
+  if (le.getResultCode() == ResultCode.ASSERTION_FAILED)
   {
-    // The modification failed because the account balance value wasn't
+    // The modification failed because the accountBalance value wasn't
     // what we thought it was.
   }
   else
@@ -193,58 +192,31 @@ catch (LDAPException le)
               </p>
 
               <p>
-                For example, the following code will increment the value of the "test-counter"
+                For example, the following code will increment the value of the "testCounter"
                 attribute by one and will then use the post-read controls to determine what the new
                 value is:
               </p>
 
               <pre>
-// Create a modify request that we can use to increment the value of a
-// custom attribute named "test-counter".
-ModifyRequest modifyRequest = new ModifyRequest(
-     "uid=test.user,ou=People,dc=example,dc=com",
-     new Modification(ModificationType.INCREMENT,
-          "test-counter", // The attribute to increment.
-          "1")); // The amount by which to increment the value.
+Modification mod = new Modification(ModificationType.INCREMENT,
+                                    "testCounter", 1);
+ModifyRequest modifyRequest =
+     new ModifyRequest("uid=john.doe,ou=People,dc=example,dc=com", mod);
+modifyRequest.addControl(new PostReadRequestControl("testCounter"));
+LDAPResult modifyResult = connection.modify(modifyRequest);
 
-// Update the modify request to add both pre-read and post-read request
-// controls to see what the entry value was before and after the change.
-// We only care about getting the test-counter attribute.
-modifyRequest.setControls(
-     new PreReadRequestControl("test-counter"),
-     new PostReadRequestControl("test-counter"));
-
-// Process the modify operation in the server.
-LDAPResult modifyResult;
-try
+Integer newValue = null;
+for (Control c : modifyResult.getResponseControls())
 {
-  modifyResult = connection.modify(modifyRequest);
-  // If we got here, then the modification should have been successful.
+  if (c instanceof PostReadResponseControl)
+  {
+    ReadOnlyEntry e = ((PostReadResponseControl) c).getEntry();
+    if (e.hasAttribute("testCounter"))
+    {
+      newValue = Integer.parseInt(e.getAttributeValue("testCounter"));
+    }
+  }
 }
-catch (LDAPException le)
-{
-  // This indicates that the operation did not complete successfully.
-  modifyResult = le.toLDAPResult();
-  ResultCode resultCode = le.getResultCode();
-  String errorMessageFromServer = le.getDiagnosticMessage();
-}
-LDAPTestUtils.assertResultCodeEquals(modifyResult, ResultCode.SUCCESS);
-
-// Get the pre-read and post-read response controls from the server and
-// retrieve the before and after values for the test-counter attribute.
-LDAPTestUtils.assertHasControl(modifyResult,
-     PreReadResponseControl.PRE_READ_RESPONSE_OID);
-PreReadResponseControl preReadResponse =
-     PreReadResponseControl.get(modifyResult);
-Integer beforeValue =
-     preReadResponse.getEntry().getAttributeValueAsInteger("test-counter");
-
-LDAPTestUtils.assertHasControl(modifyResult,
-     PostReadResponseControl.POST_READ_RESPONSE_OID);
-PostReadResponseControl postReadResponse =
-     PostReadResponseControl.get(modifyResult);
-Integer afterValue =
-     postReadResponse.getEntry().getAttributeValueAsInteger("test-counter");
 </pre>
 
               <p></p>
@@ -259,27 +231,20 @@ Integer afterValue =
 
               <p>
                 The following example illustrates the use of the LDAP subentries request control to
-                retrieve a known subentry that will not be retrieved with a normal search.
+                retrieve all subentries defined below "dc=example,dc=com":
               </p>
 
               <pre>
-// First, perform a search to retrieve an entry with a cn of "test subentry"
-// but without including the subentries request control.  This should not
-// return any matching entries.
-SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
-     SearchScope.SUB, Filter.createEqualityFilter("cn", "test subentry"));
-SearchResult resultWithoutControl = connection.search(searchRequest);
-LDAPTestUtils.assertResultCodeEquals(resultWithoutControl,
-     ResultCode.SUCCESS);
-LDAPTestUtils.assertEntriesReturnedEquals(resultWithoutControl, 0);
-
-// Update the search request to add a subentries request control so that
-// subentries should be included in search results.  This should cause the
-// subentry to be returned.
+SearchRequest searchRequest =
+     new SearchRequest("dc=example,dc=com", SearchScope.SUB,
+                       "(objectClass=ldapSubentry)");
 searchRequest.addControl(new SubentriesRequestControl());
-SearchResult resultWithControl = connection.search(searchRequest);
-LDAPTestUtils.assertResultCodeEquals(resultWithControl, ResultCode.SUCCESS);
-LDAPTestUtils.assertEntriesReturnedEquals(resultWithControl, 1);
+SearchResult searchResult = connection.search(searchRequest);
+
+for (SearchResultEntry e : searchResult.getSearchEntries())
+{
+  // Do something with the entry.
+}
 </pre>
 
               <p></p>
@@ -292,65 +257,22 @@ LDAPTestUtils.assertEntriesReturnedEquals(resultWithControl, 1);
               </p>
 
               <p>
-                For example, if the entry "ou=referral entry,dc=example,dc=com" is actually a
-                smart referral that points to an entry on another server, then normal attempts to
-                interact with that entry would cause the server to send a referral informing the
-                client that it should send the request to the other server.  If you really do
-                want to interact with the "ou=referral entry,dc=example,dc=com" smart referral
-                entry (e.g., to delete or update the referral), then it will be necessary to
-                include the ManageDsaIT request control, as follows:
+                For example, if the entry "uid=john.doe,ou=People,dc=example,dc=com" is actually a
+                smart referral that points to the entry
+                "uid=johnathan.doe,ou=People,dc=example,dc=com", then normal attempts to interact
+                with the "uid=john.doe,ou=People,dc=example,dc=com" entry would cause the server to
+                send a referral informing the client that it should operate on the
+                "uid=johnathan.doe,ou=People,dc=example,dc=com" entry instead.  If you really do
+                want to interact with the "uid=john.doe,ou=People,dc=example,dc=com" entry (e.g.,
+                to delete the referral), then it will be necessary to include the ManageDsaIT
+                request control, as follows:
               </p>
 
               <pre>
-// Establish a connection to the directory server.  Even though it's the
-// default behavior, we'll explicitly configure the connection to not follow
-// referrals.
-LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
-connectionOptions.setFollowReferrals(false);
-LDAPConnection connection = new LDAPConnection(connectionOptions,
-     serverAddress, serverPort, bindDN, bindPassword);
-
-// Try to delete an entry that will result in a referral.  Without the
-// ManageDsaIT request control, we should get an exception.
 DeleteRequest deleteRequest =
-     new DeleteRequest("ou=referral entry,dc=example,dc=com");
-LDAPResult deleteResult;
-try
-{
-  deleteResult = connection.delete(deleteRequest);
-}
-catch (LDAPException le)
-{
-  // This exception is expected because we should get a referral, and
-  // the connection is configured to not follow referrals.
-  deleteResult = le.toLDAPResult();
-  ResultCode resultCode = le.getResultCode();
-  String errorMessageFromServer = le.getDiagnosticMessage();
-  String[] referralURLs = le.getReferralURLs();
-}
-LDAPTestUtils.assertResultCodeEquals(deleteResult, ResultCode.REFERRAL);
-LDAPTestUtils.assertHasReferral(deleteResult);
-
-// Update the delete request to include the ManageDsaIT request control,
-// which will cause the server to try to delete the referral entry instead
-// of returning a referral response.  We'll assume that the delete is
-// successful.
+     new DeleteRequest("uid=john.doe,ou=People,dc=example,dc=com");
 deleteRequest.addControl(new ManageDsaITRequestControl());
-try
-{
-  deleteResult = connection.delete(deleteRequest);
-}
-catch (LDAPException le)
-{
-  // The delete shouldn't trigger a referral, but it's possible that the
-  // operation failed for some other reason (e.g., entry doesn't exist, the
-  // user doesn't have permission to delete it, etc.).
-  deleteResult = le.toLDAPResult();
-}
-LDAPTestUtils.assertResultCodeEquals(deleteResult, ResultCode.SUCCESS);
-LDAPTestUtils.assertMissingReferral(deleteResult);
-
-connection.close();
+LDAPResult deleteResult = connection.delete(deleteRequest);
 </pre>
 
               <p></p>
@@ -365,46 +287,18 @@ connection.close();
               </p>
 
               <p>
-                The following code demonstrates the use of the matched values control to retrieve
-                only a portion of the values for an attribute:
+                For example, the following code will cause only "myIntValues" values to be returned
+                which are greater than or equal to 5:
               </p>
 
               <pre>
-// Ensure that a test user has multiple description values.
-LDAPResult modifyResult = connection.modify(
-     "uid=test.user,ou=People,dc=example,dc=com",
-     new Modification(ModificationType.REPLACE,
-          "description", // Attribute name
-          "first", "second", "third", "fourth")); // Attribute values.
-assertResultCodeEquals(modifyResult, ResultCode.SUCCESS);
-
-// Perform a search to retrieve the test user entry without using the
-// matched values request control.  This should return all four description
-// values.
-SearchRequest searchRequest = new SearchRequest(
-     "uid=test.user,ou=People,dc=example,dc=com", // Base DN
-     SearchScope.BASE, // Scope
-     Filter.createPresenceFilter("objectClass"), // Filter
-     "description"); // Attributes to return.
-SearchResultEntry entryRetrievedWithoutControl =
-     connection.searchForEntry(searchRequest);
-Attribute fullDescriptionAttribute =
-     entryRetrievedWithoutControl.getAttribute("description");
-int numFullDescriptionValues = fullDescriptionAttribute.size();
-
-// Update the search request to include a matched values control that will
-// only return values that start with the letter "f".  In our test entry,
-// this should just match two values ("first" and "fourth").
+SearchRequest searchRequest =
+     new SearchRequest("uid=john.doe,ou=People,dc=example,dc=com",
+                       SearchScope.BASE, "(objectClass=*)",
+                       "myIntValues");
 searchRequest.addControl(new MatchedValuesRequestControl(
-     MatchedValuesFilter.createSubstringFilter("description", // Attribute
-          "f", // subInitial component
-          null, // subAny components
-          null))); // subFinal component
-SearchResultEntry entryRetrievedWithControl =
-     connection.searchForEntry(searchRequest);
-Attribute partialDescriptionAttribute =
-     entryRetrievedWithControl.getAttribute("description");
-int numPartialDescriptionValues = partialDescriptionAttribute.size();
+     MatchedValuesFilter.createGreaterOrEqualFilter("myIntValues", "5"));
+SearchResult searchResult = connection.search(searchRequest);
 </pre>
 
               <p></p>
@@ -423,58 +317,35 @@ int numPartialDescriptionValues = partialDescriptionAttribute.size();
               </p>
 
               <pre>
-// Send a simple bind request to the directory server.
 BindRequest bindRequest =
-     new SimpleBindRequest("uid=test.user,ou=People,dc=example,dc=com",
-          "password");
-BindResult bindResult;
-boolean bindSuccessful;
-boolean passwordExpired;
-boolean passwordAboutToExpire;
+     new SimpleBindRequest("uid=john.doe,ou=People,dc=example,dc=com",
+                           "password");
 try
 {
-  bindResult = connection.bind(bindRequest);
-
-  // If we got here, the bind was successful and we know the password was
-  // not expired.  However, we shouldn't ignore the result because the
-  // password might be about to expire.  To determine whether that is the
-  // case, we should see if the bind result included a password expiring
-  // control.
-  bindSuccessful = true;
-  passwordExpired = false;
-
-  PasswordExpiringControl expiringControl =
-       PasswordExpiringControl.get(bindResult);
-  if (expiringControl != null)
+  BindResult bindResult = connection.bind(bindRequest);
+  for (Control c : bindResult.getResponseControls())
   {
-    passwordAboutToExpire = true;
-    int secondsToExpiration = expiringControl.getSecondsUntilExpiration();
-  }
-  else
-  {
-    passwordAboutToExpire = false;
+    if (c instanceof PasswordExpiringControl)
+    {
+      System.err.println("WARNING:  Your password will expire in " +
+           ((PasswordExpiringControl) c).getSecondsUntilExpiration() +
+           " seconds.");
+    }
+    else if (c instanceof PasswordExpiredControl)
+    {
+      System.err.println("WARNING:  You must change your password " +
+           "before you will be allowed to perform any other operations.");
+    }
   }
 }
 catch (LDAPException le)
 {
-  // If we got here, then the bind failed.  The failure may or may not have
-  // been due to an expired password.  To determine that, we should see if
-  // the bind result included a password expired control.
-  bindSuccessful = false;
-  passwordAboutToExpire = false;
-  bindResult = new BindResult(le.toLDAPResult());
-  ResultCode resultCode = le.getResultCode();
-  String errorMessageFromServer = le.getDiagnosticMessage();
-
-  PasswordExpiredControl expiredControl =
-       PasswordExpiredControl.get(bindResult);
-  if (expiredControl != null)
+  for (Control c : le.getResponseControls())
   {
-    passwordExpired = true;
-  }
-  else
-  {
-    passwordExpired = false;
+    if (c instanceof PasswordExpiredControl)
+    {
+      System.err.println("ERROR:  Your password is expired.");
+    }
   }
 }
 </pre>
@@ -510,29 +381,12 @@ catch (LDAPException le)
               </p>
 
               <pre>
-SearchRequest persistentSearchRequest = new SearchRequest(
-     asyncSearchListener, "dc=example,dc=com", SearchScope.SUB,
-     Filter.createPresenceFilter("objectClass"));
-persistentSearchRequest.addControl(new PersistentSearchRequestControl(
-     PersistentSearchChangeType.allChangeTypes(), // Notify change types.
-     true, // Only return new changes, don't match existing entries.
-     true)); // Include change notification controls in search entries.
-
-// Launch the persistent search as an asynchronous operation.
-AsyncRequestID persistentSearchRequestID =
-     connection.asyncSearch(persistentSearchRequest);
-
-// Modify an entry that matches the persistent search criteria.  This
-// should cause the persistent search listener to be notified.
-LDAPResult modifyResult = connection.modify(
-     "uid=test.user,ou=People,dc=example,dc=com",
-     new Modification(ModificationType.REPLACE, "description", "test"));
-
-// Verify that the persistent search listener was notified....
-
-// Since persistent search operations don't end on their own, we need to
-// abandon the search when we don't need it anymore.
-connection.abandon(persistentSearchRequestID);
+SearchRequest searchRequest =
+     new SearchRequest(myAsyncSearchListener, "dc=example,dc=com",
+                       SearchScope.SUB, "(objectClass=*)");
+searchRequest.addControl(new PersistentSearchRequestControl(
+     PersistentSearchChangeType.allChangeTypes(), true, true);
+AsyncRequestID asyncRequestID = connection.asyncSearch(searchRequest);
 </pre>
 
               <p></p>
@@ -566,37 +420,30 @@ connection.abandon(persistentSearchRequestID);
               <p>
                 For example, the following code demonstrates the use of the proxied authorization
                 V2 request control to delete an entry under the authority of the user with DN
-                "uid=alternate.user,ou=People,dc=example,dc=com":
+                "uid=john.doe,ou=People,dc=example,dc=com":
               </p>
 
               <pre>
-// Create a delete request to delete an entry.  Include the proxied
-// authorization v2 request control in the delete request so that the
-// delete will be processed as the user with username "alternate.user"
-// instead of the user that's actually authenticated on the connection.
 DeleteRequest deleteRequest =
-     new DeleteRequest("uid=test.user,ou=People,dc=example,dc=com");
+     new DeleteRequest("cn=no longer needed,dc=example,dc=com");
 deleteRequest.addControl(new ProxiedAuthorizationV2RequestControl(
-     "u:alternate.user"));
-
-LDAPResult deleteResult;
+     "dn:uid=john.doe,ou=People,dc=example,dc=com"));
 try
 {
-  deleteResult = connection.delete(deleteRequest);
-  // If we got here, then the delete was successful.
+  LDAPResult deleteResult = connection.delete(deleteRequest);
+  // If we get here, then the delete was successful.
 }
 catch (LDAPException le)
 {
-  // The delete failed for some reason.  In addition to all of the normal
-  // reasons a delete could fail (e.g., the entry doesn't exist, or has one
-  // or more subordinates), proxied-authorization specific failures may
-  // include that the authenticated user doesn't have permission to use the
-  // proxied authorization control to impersonate the alternate user, that
-  // the alternate user doesn't exist, or that the alternate user doesn't
-  // have permission to perform the requested operation.
-  deleteResult = le.toLDAPResult();
-  ResultCode resultCode = le.getResultCode();
-  String errorMessageFromServer = le.getDiagnosticMessage();
+  if (le.getResultCode() == ResultCode.AUTHORIZATION_DENIED)
+  {
+    // The authenticated user does not have permission to use the proxied
+    // authorization control.
+  }
+  else
+  {
+    // Some other problem occurred that prevented the delete from succeeding.
+  }
 }
 </pre>
 
@@ -620,67 +467,16 @@ catch (LDAPException le)
 
               <p>
                 The following example demonstrates the use of the server-side sort controls to
-                request entries matching a search request in varying orders:
+                request that the server return all users in the sales department, sorted by last
+                name and then by first name.
               </p>
 
               <pre>
-// Perform a search to get all user entries sorted by last name, then by
-// first name, both in ascending order.
-SearchRequest searchRequest = new SearchRequest(
-     "ou=People,dc=example,dc=com", SearchScope.SUB,
-     Filter.createEqualityFilter("objectClass", "person"));
+SearchRequest searchRequest =
+     new SearchRequest("dc=example,dc=com", SearchScope.SUB, "(ou=Sales)");
 searchRequest.addControl(new ServerSideSortRequestControl(
      new SortKey("sn"), new SortKey("givenName")));
-SearchResult lastNameAscendingResult;
-try
-{
-  lastNameAscendingResult = connection.search(searchRequest);
-  // If we got here, then the search was successful.
-}
-catch (LDAPSearchException lse)
-{
-  // The search failed for some reason.
-  lastNameAscendingResult = lse.getSearchResult();
-  ResultCode resultCode = lse.getResultCode();
-  String errorMessageFromServer = lse.getDiagnosticMessage();
-}
-
-// Get the response control and retrieve the result code for the sort
-// processing.
-LDAPTestUtils.assertHasControl(lastNameAscendingResult,
-     ServerSideSortResponseControl.SERVER_SIDE_SORT_RESPONSE_OID);
-ServerSideSortResponseControl lastNameAscendingResponseControl =
-     ServerSideSortResponseControl.get(lastNameAscendingResult);
-ResultCode lastNameSortResult =
-     lastNameAscendingResponseControl.getResultCode();
-
-
-// Perform the same search, but this time request the results to be sorted
-// in descending order by first name, then last name.
-searchRequest.setControls(new ServerSideSortRequestControl(
-     new SortKey("givenName", true), new SortKey("sn", true)));
-SearchResult firstNameDescendingResult;
-try
-{
-  firstNameDescendingResult = connection.search(searchRequest);
-  // If we got here, then the search was successful.
-}
-catch (LDAPSearchException lse)
-{
-  // The search failed for some reason.
-  firstNameDescendingResult = lse.getSearchResult();
-  ResultCode resultCode = lse.getResultCode();
-  String errorMessageFromServer = lse.getDiagnosticMessage();
-}
-
-// Get the response control and retrieve the result code for the sort
-// processing.
-LDAPTestUtils.assertHasControl(firstNameDescendingResult,
-     ServerSideSortResponseControl.SERVER_SIDE_SORT_RESPONSE_OID);
-ServerSideSortResponseControl firstNameDescendingResponseControl =
-     ServerSideSortResponseControl.get(firstNameDescendingResult);
-ResultCode firstNameSortResult =
-     firstNameDescendingResponseControl.getResultCode();
+SearchResult searchResult = connection.search(searchRequest);
 </pre>
 
               <p></p>
@@ -709,44 +505,31 @@ ResultCode firstNameSortResult =
 
               <p>
                 The following code demonstrates the use of the simple paged results control to
-                return all users in the server, retrieving up to 10 entries at a time:
+                return all users in the "Sales" department, retrieving up to 10 entries at a time:
               </p>
 
               <pre>
-// Perform a search to retrieve all users in the server, but only retrieving
-// ten at a time.
-int numSearches = 0;
-int totalEntriesReturned = 0;
-SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
-     SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
-ASN1OctetString resumeCookie = null;
-while (true)
+SearchRequest searchRequest =
+     new SearchRequest("dc=example,dc=com", SearchScope.SCOPE_SUB,
+                       "(ou=Sales)");
+ASN1OctetString cookie = null;
+do
 {
   searchRequest.setControls(
-       new SimplePagedResultsControl(10, resumeCookie));
+       new Control[] { new SimplePagedResultsControl(10, cookie) });
   SearchResult searchResult = connection.search(searchRequest);
-  numSearches++;
-  totalEntriesReturned += searchResult.getEntryCount();
-  for (SearchResultEntry e : searchResult.getSearchEntries())
-  {
-    // Do something with each entry...
-  }
 
-  LDAPTestUtils.assertHasControl(searchResult,
-       SimplePagedResultsControl.PAGED_RESULTS_OID);
-  SimplePagedResultsControl responseControl =
-       SimplePagedResultsControl.get(searchResult);
-  if (responseControl.moreResultsToReturn())
+  // Do something with the entries that are returned.
+
+  cookie = null;
+  for (Control c : searchResult.getResponseControls())
   {
-    // The resume cookie can be included in the simple paged results
-    // control included in the next search to get the next page of results.
-    resumeCookie = responseControl.getCookie();
+    if (c instanceof SimplePagedResultsControl)
+    {
+      cookie = ((SimplePagedResultsControl) c).getCookie();
+    }
   }
-  else
-  {
-    break;
-  }
-}
+} while (cookie != null);
 </pre>
 
               <p></p>
@@ -772,46 +555,10 @@ while (true)
               </p>
 
               <pre>
-// First, try to delete an entry that has children, but don't include the
-// subtree delete control.  This delete attempt should fail, and the
-// "NOT_ALLOWED_ON_NONLEAF" result is most appropriate if the failure reason
-// is that the entry has subordinates.
 DeleteRequest deleteRequest =
-     new DeleteRequest("ou=entry with children,dc=example,dc=com");
-LDAPResult resultWithoutControl;
-try
-{
-  resultWithoutControl = connection.delete(deleteRequest);
-  // We shouldn't get here because the delete should fail.
-}
-catch (LDAPException le)
-{
-  // This is expected because the entry has children.
-  resultWithoutControl = le.toLDAPResult();
-  ResultCode resultCode = le.getResultCode();
-  String errorMessageFromServer = le.getDiagnosticMessage();
-}
-LDAPTestUtils.assertResultCodeEquals(resultWithoutControl,
-     ResultCode.NOT_ALLOWED_ON_NONLEAF);
-
-// Update the delete request to include the subtree delete request control
-// and try again.
+     new DeleteRequest("cn=small subtree,dc=example,dc=com");
 deleteRequest.addControl(new SubtreeDeleteRequestControl());
-LDAPResult resultWithControl;
-try
-{
-  resultWithControl = connection.delete(deleteRequest);
-  // The delete should no longer be rejected just because the target entry
-  // has children.
-}
-catch (LDAPException le)
-{
-  // The delete still failed for some other reason.
-  resultWithControl = le.toLDAPResult();
-  ResultCode resultCode = le.getResultCode();
-  String errorMessageFromServer = le.getDiagnosticMessage();
-}
-LDAPTestUtils.assertResultCodeEquals(resultWithControl, ResultCode.SUCCESS);
+LDAPResult deleteResult = connection.delete(deleteRequest);
 </pre>
 
               <p></p>
@@ -839,45 +586,44 @@ LDAPTestUtils.assertResultCodeEquals(resultWithControl, ResultCode.SUCCESS);
 
               <p>
                 The following example illustrates the use of the virtual list view request control
-                to return all users in server, retrieving up to 10 entries at a time:
+                to return all users in the "Sales" department, retrieving up to 10 entries at a
+                time:
               </p>
 
               <pre>
-// Perform a search to retrieve all users in the server, but only retrieving
-// ten at a time.  Ensure that the users are sorted in ascending order by
-// last name, then first name.
-int numSearches = 0;
-int totalEntriesReturned = 0;
-SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
-     SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
-int vlvOffset = 1;
-int vlvContentCount = 0;
-ASN1OctetString vlvContextID = null;
+ServerSideSortRequestControl sortRequest =
+     new ServerSideSortRequestControl(new SortKey("sn"),
+                                      new SortKey("givenName"));
+SearchRequest searchRequest =
+     new SearchRequest("dc=example,dc=com", SearchScope.SCOPE_SUB,
+                       "(ou=Sales)");
+int offset = 1;
+int contentCount = 0;
+ASN1OctetString contextID = null;
 while (true)
 {
-  // Note that the VLV control always requires the server-side sort
-  // control.
-  searchRequest.setControls(
-       new ServerSideSortRequestControl(new SortKey("sn"),
-            new SortKey("givenName")),
-       new VirtualListViewRequestControl(vlvOffset, 0, 9, vlvContentCount,
-            vlvContextID));
+  VirtualListViewRequestControl vlvRequest =
+       new VirtualListViewRequestControl(offset, 0, 9, contentCount,
+                                         contextID);
+  searchRequest.setControls(new Control[] { sortRequest, vlvRequest });
   SearchResult searchResult = connection.search(searchRequest);
-  numSearches++;
-  totalEntriesReturned += searchResult.getEntryCount();
-  for (SearchResultEntry e : searchResult.getSearchEntries())
+
+  // Do something with the entries that are returned.
+
+  contentCount = -1;
+  for (Control c : searchResult.getResponseControls())
   {
-    // Do something with each entry...
+    if (c instanceof VirtualListViewResponseControl)
+    {
+      VirtualListViewResponseControl vlvResponse =
+           (VirtualListViewResponseControl) c;
+      contentCount = vlvResponse.getContentCount();
+      contextID = vlvResponse.getContextID();
+    }
   }
 
-  LDAPTestUtils.assertHasControl(searchResult,
-       VirtualListViewResponseControl.VIRTUAL_LIST_VIEW_RESPONSE_OID);
-  VirtualListViewResponseControl vlvResponseControl =
-       VirtualListViewResponseControl.get(searchResult);
-  vlvContentCount = vlvResponseControl.getContentCount();
-  vlvOffset += 10;
-  vlvContextID = vlvResponseControl.getContextID();
-  if (vlvOffset &gt; vlvContentCount)
+  offset += 10;
+  if (offset &gt; contentCount)
   {
     break;
   }

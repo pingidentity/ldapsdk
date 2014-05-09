@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,14 +23,9 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Mutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -50,7 +45,7 @@ public final class GSSAPIBindRequestProperties
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 6872295509330315713L;
+  private static final long serialVersionUID = -8177334654843710502L;
 
 
 
@@ -59,22 +54,6 @@ public final class GSSAPIBindRequestProperties
 
   // Indicates whether to enable JVM-level debugging for GSSAPI processing.
   private boolean enableGSSAPIDebugging;
-
-  // Indicates whether to attempt to renew the client's existing ticket-granting
-  // ticket if authentication uses an existing Kerberos session.
-  private boolean renewTGT;
-
-  // Indicates whether to require that the credentials be obtained from the
-  // ticket cache such that authentication will fail if the client does not have
-  // an existing Kerberos session.
-  private boolean requireCachedCredentials;
-
-  // Indicates whether to enable the use of a ticket cache.
-  private boolean useTicketCache;
-
-  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
-  // request.
-  private List<SASLQualityOfProtection> allowedQoP;
 
   // The authentication ID string for the GSSAPI bind request.
   private String authenticationID;
@@ -88,18 +67,12 @@ public final class GSSAPIBindRequestProperties
   // The KDC address for the GSSAPI bind request, if available.
   private String kdcAddress;
 
-  // The realm for the GSSAPI bind request, if available.
-  private String realm;
-
-  // The server name to use when creating the SASL client.
-  private String saslClientServerName;
-
   // The protocol that should be used in the Kerberos service principal for
   // the server system.
   private String servicePrincipalProtocol;
 
-  // The path to the Kerberos ticket cache to use.
-  private String ticketCachePath;
+  // The realm for the GSSAPI bind request, if available.
+  private String realm;
 
 
 
@@ -108,17 +81,14 @@ public final class GSSAPIBindRequestProperties
    * information.
    *
    * @param  authenticationID  The authentication ID for the GSSAPI bind
-   *                           request.  It may be {@code null} if an existing
-   *                           Kerberos session should be used.
-   * @param  password          The password for the GSSAPI bind request.  It may
-   *                           be {@code null} if an existing Kerberos session
-   *                           should be used.
+   *                           request.  It must not be {@code null}.
+   * @param  password          The password for the GSSAPI bind request.  It
+   *                           must not be {@code null}.
    */
   public GSSAPIBindRequestProperties(final String authenticationID,
                                      final String password)
   {
-    this(authenticationID, null,
-         (password == null ? null : new ASN1OctetString(password)), null, null,
+    this(authenticationID, null, new ASN1OctetString(password), null, null,
          null);
   }
 
@@ -129,17 +99,14 @@ public final class GSSAPIBindRequestProperties
    * information.
    *
    * @param  authenticationID  The authentication ID for the GSSAPI bind
-   *                           request.  It may be {@code null} if an existing
-   *                           Kerberos session should be used.
-   * @param  password          The password for the GSSAPI bind request.  It may
-   *                           be {@code null} if an existing Kerberos session
-   *                           should be used.
+   *                           request.  It must not be {@code null}.
+   * @param  password          The password for the GSSAPI bind request.  It
+   *                           must not be {@code null}.
    */
   public GSSAPIBindRequestProperties(final String authenticationID,
                                      final byte[] password)
   {
-    this(authenticationID, null,
-         (password == null ? null : new ASN1OctetString(password)), null, null,
+    this(authenticationID, null, new ASN1OctetString(password), null, null,
          null);
   }
 
@@ -150,14 +117,12 @@ public final class GSSAPIBindRequestProperties
    * information.
    *
    * @param  authenticationID  The authentication ID for the GSSAPI bind
-   *                           request.  It may be {@code null} if an existing
-   *                           Kerberos session should be used.
+   *                           request.  It must not be {@code null}.
    * @param  authorizationID   The authorization ID for the GSSAPI bind request.
    *                           It may be {@code null} if the authorization ID
    *                           should be the same as the authentication ID.
-   * @param  password          The password for the GSSAPI bind request.  It may
-   *                           be {@code null} if an existing Kerberos session
-   *                           should be used.
+   * @param  password          The password for the GSSAPI bind request.  It
+   *                           must not be {@code null}.
    * @param  realm             The realm to use for the authentication.  It may
    *                           be {@code null} to attempt to use the default
    *                           realm from the system configuration.
@@ -176,6 +141,9 @@ public final class GSSAPIBindRequestProperties
                               final String kdcAddress,
                               final String configFilePath)
   {
+    Validator.ensureNotNull(authenticationID);
+    Validator.ensureNotNull(password);
+
     this.authenticationID = authenticationID;
     this.authorizationID  = authorizationID;
     this.password         = password;
@@ -185,22 +153,14 @@ public final class GSSAPIBindRequestProperties
 
     servicePrincipalProtocol = "ldap";
     enableGSSAPIDebugging    = false;
-    renewTGT                 = false;
-    useTicketCache           = true;
-    requireCachedCredentials = false;
-    saslClientServerName     = null;
-    ticketCachePath          = null;
-    allowedQoP               = Collections.unmodifiableList(Arrays.asList(
-         SASLQualityOfProtection.AUTH));
   }
 
 
 
   /**
-   * Retrieves the authentication ID for the GSSAPI bind request, if defined.
+   * Retrieves the authentication ID for the GSSAPI bind request.
    *
-   * @return  The authentication ID for the GSSAPI bind request, or {@code null}
-   *          if an existing Kerberos session should be used.
+   * @return  The authentication ID for the GSSAPI bind request.
    */
   public String getAuthenticationID()
   {
@@ -213,11 +173,12 @@ public final class GSSAPIBindRequestProperties
    * Sets the authentication ID for the GSSAPI bind request.
    *
    * @param  authenticationID  The authentication ID for the GSSAPI bind
-   *                           request.  It may be {@code null} if an existing
-   *                           Kerberos session should be used.
+   *                           request.  It must not be {@code null}.
    */
   public void setAuthenticationID(final String authenticationID)
   {
+    Validator.ensureNotNull(authenticationID);
+
     this.authenticationID = authenticationID;
   }
 
@@ -252,11 +213,9 @@ public final class GSSAPIBindRequestProperties
 
 
   /**
-   * Retrieves the password that should be used for the GSSAPI bind request, if
-   * defined.
+   * Retrieves the password that should be used for the GSSAPI bind request.
    *
-   * @return  The password that should be used for the GSSAPI bind request, or
-   *          {@code null} if an existing Kerberos session should be used.
+   * @return  The password that should be used for the GSSAPI bind request.
    */
   public ASN1OctetString getPassword()
   {
@@ -269,19 +228,13 @@ public final class GSSAPIBindRequestProperties
    * Specifies the password that should be used for the GSSAPI bind request.
    *
    * @param  password  The password that should be used for the GSSAPI bind
-   *                   request.  It may be {@code null} if an existing
-   *                   Kerberos session should be used.
+   *                   request.  It must not be {@code null}.
    */
   public void setPassword(final String password)
   {
-    if (password == null)
-    {
-      this.password = null;
-    }
-    else
-    {
-      this.password = new ASN1OctetString(password);
-    }
+    Validator.ensureNotNull(password);
+
+    this.password = new ASN1OctetString(password);
   }
 
 
@@ -290,19 +243,13 @@ public final class GSSAPIBindRequestProperties
    * Specifies the password that should be used for the GSSAPI bind request.
    *
    * @param  password  The password that should be used for the GSSAPI bind
-   *                   request.  It may be {@code null} if an existing
-   *                   Kerberos session should be used.
+   *                   request.  It must not be {@code null}.
    */
   public void setPassword(final byte[] password)
   {
-    if (password == null)
-    {
-      this.password = null;
-    }
-    else
-    {
-      this.password = new ASN1OctetString(password);
-    }
+    Validator.ensureNotNull(password);
+
+    this.password = new ASN1OctetString(password);
   }
 
 
@@ -311,11 +258,12 @@ public final class GSSAPIBindRequestProperties
    * Specifies the password that should be used for the GSSAPI bind request.
    *
    * @param  password  The password that should be used for the GSSAPI bind
-   *                   request.  It may be {@code null} if an existing
-   *                   Kerberos session should be used.
+   *                   request.  It must not be {@code null}.
    */
   public void setPassword(final ASN1OctetString password)
   {
+    Validator.ensureNotNull(password);
+
     this.password = password;
   }
 
@@ -345,72 +293,6 @@ public final class GSSAPIBindRequestProperties
   public void setRealm(final String realm)
   {
     this.realm = realm;
-  }
-
-
-
-  /**
-   * Retrieves the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @return  The list of allowed qualities of protection that may be used for
-   *          communication that occurs on the connection after the
-   *          authentication has completed, in order from most preferred to
-   *          least preferred.
-   */
-  public List<SASLQualityOfProtection> getAllowedQoP()
-  {
-    return allowedQoP;
-  }
-
-
-
-  /**
-   * Specifies the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @param  allowedQoP  The list of allowed qualities of protection that may be
-   *                     used for communication that occurs on the connection
-   *                     after the authentication has completed, in order from
-   *                     most preferred to least preferred.  If this is
-   *                     {@code null} or empty, then a list containing only the
-   *                     {@link SASLQualityOfProtection#AUTH} quality of
-   *                     protection value will be used.
-   */
-  public void setAllowedQoP(final List<SASLQualityOfProtection> allowedQoP)
-  {
-    if ((allowedQoP == null) || allowedQoP.isEmpty())
-    {
-      this.allowedQoP = Collections.unmodifiableList(Arrays.asList(
-           SASLQualityOfProtection.AUTH));
-    }
-    else
-    {
-      this.allowedQoP = Collections.unmodifiableList(
-           new ArrayList<SASLQualityOfProtection>(allowedQoP));
-    }
-  }
-
-
-
-  /**
-   * Specifies the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @param  allowedQoP  The list of allowed qualities of protection that may be
-   *                     used for communication that occurs on the connection
-   *                     after the authentication has completed, in order from
-   *                     most preferred to least preferred.  If this is
-   *                     {@code null} or empty, then a list containing only the
-   *                     {@link SASLQualityOfProtection#AUTH} quality of
-   *                     protection value will be used.
-   */
-  public void setAllowedQoP(final SASLQualityOfProtection... allowedQoP)
-  {
-    setAllowedQoP(StaticUtils.toList(allowedQoP));
   }
 
 
@@ -479,39 +361,6 @@ public final class GSSAPIBindRequestProperties
 
 
   /**
-   * Retrieves the server name that should be used when creating the Java
-   * {@code SaslClient}, if one is defined.
-   *
-   * @return  The server name that should be used when creating the Java
-   *          {@code SaslClient}, or {@code null} if none is defined and the
-   *          {@code SaslClient} should use the address specified when
-   *          establishing the connection.
-   */
-  public String getSASLClientServerName()
-  {
-    return saslClientServerName;
-  }
-
-
-
-  /**
-   * Specifies the server name that should be used when creating the Java
-   * {@code SaslClient}.
-   *
-   * @param  saslClientServerName  The server name that should be used when
-   *                               creating the Java {@code SaslClient}.  It may
-   *                               be {@code null} to indicate that the
-   *                               {@code SaslClient} should be created with the
-   *
-   */
-  public void setSASLClientServerName(final String saslClientServerName)
-  {
-    this.saslClientServerName = saslClientServerName;
-  }
-
-
-
-  /**
    * Retrieves the protocol specified in the service principal that the
    * directory server uses for its communication with the KDC.  The service
    * principal is usually something like "ldap/directory.example.com", where
@@ -544,136 +393,6 @@ public final class GSSAPIBindRequestProperties
     Validator.ensureNotNull(servicePrincipalProtocol);
 
     this.servicePrincipalProtocol = servicePrincipalProtocol;
-  }
-
-
-
-  /**
-   * Indicates whether to enable the use of a ticket cache to to avoid the need
-   * to supply credentials if the client already has an existing Kerberos
-   * session.
-   *
-   * @return  {@code true} if a ticket cache may be used to take advantage of an
-   *          existing Kerberos session, or {@code false} if Kerberos
-   *          credentials should always be provided.
-   */
-  public boolean useTicketCache()
-  {
-    return useTicketCache;
-  }
-
-
-
-  /**
-   * Specifies whether to enable the use of a ticket cache to to avoid the need
-   * to supply credentials if the client already has an existing Kerberos
-   * session.
-   *
-   * @param  useTicketCache  Indicates whether to enable the use of a ticket
-   *                         cache to to avoid the need to supply credentials if
-   *                         the client already has an existing Kerberos
-   *                         session.
-   */
-  public void setUseTicketCache(final boolean useTicketCache)
-  {
-    this.useTicketCache = useTicketCache;
-  }
-
-
-
-  /**
-   * Indicates whether GSSAPI authentication should only occur using an existing
-   * Kerberos session.
-   *
-   * @return  {@code true} if GSSAPI authentication should only use an existing
-   *          Kerberos session and should fail if the client does not have an
-   *          existing session, or {@code false} if the client will be allowed
-   *          to create a new session if one does not already exist.
-   */
-  public boolean requireCachedCredentials()
-  {
-    return requireCachedCredentials;
-  }
-
-
-
-  /**
-   * Specifies whether an GSSAPI authentication should only occur using an
-   * existing Kerberos session.
-   *
-   * @param  requireCachedCredentials  Indicates whether an existing Kerberos
-   *                                   session will be required for
-   *                                   authentication.  If {@code true}, then
-   *                                   authentication will fail if the client
-   *                                   does not already have an existing
-   *                                   Kerberos session.  This will be ignored
-   *                                   if {@code useTicketCache} is false.
-   */
-  public void setRequireCachedCredentials(
-                   final boolean requireCachedCredentials)
-  {
-    this.requireCachedCredentials = requireCachedCredentials;
-  }
-
-
-
-  /**
-   * Retrieves the path to the Kerberos ticket cache file that should be used
-   * during authentication, if defined.
-   *
-   * @return  The path to the Kerberos ticket cache file that should be used
-   *          during authentication, or {@code null} if the default ticket cache
-   *          file should be used.
-   */
-  public String getTicketCachePath()
-  {
-    return ticketCachePath;
-  }
-
-
-
-  /**
-   * Specifies the path to the Kerberos ticket cache file that should be used
-   * during authentication.
-   *
-   * @param  ticketCachePath  The path to the Kerberos ticket cache file that
-   *                          should be used during authentication.  It may be
-   *                          {@code null} if the default ticket cache file
-   *                          should be used.
-   */
-  public void setTicketCachePath(final String ticketCachePath)
-  {
-    this.ticketCachePath = ticketCachePath;
-  }
-
-
-
-  /**
-   * Indicates whether to attempt to renew the client's ticket-granting ticket
-   * (TGT) if an existing Kerberos session is used to authenticate.
-   *
-   * @return  {@code true} if the client should attempt to renew its
-   *          ticket-granting ticket if the authentication is processed using an
-   *          existing Kerberos session, or {@code false} if not.
-   */
-  public boolean renewTGT()
-  {
-    return renewTGT;
-  }
-
-
-
-  /**
-   * Specifies whether to attempt to renew the client's ticket-granting ticket
-   * (TGT) if an existing Kerberos session is used to authenticate.
-   *
-   * @param  renewTGT  Indicates whether to attempt to renew the client's
-   *                   ticket-granting ticket if an existing Kerberos session is
-   *                   used to authenticate.
-   */
-  public void setRenewTGT(final boolean renewTGT)
-  {
-    this.renewTGT = renewTGT;
   }
 
 
@@ -733,74 +452,39 @@ public final class GSSAPIBindRequestProperties
    */
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("GSSAPIBindRequestProperties(");
-    if (authenticationID != null)
-    {
-      buffer.append("authenticationID='");
-      buffer.append(authenticationID);
-      buffer.append("', ");
-    }
+    buffer.append("GSSAPIBindRequestProperties(authenticationID='");
+    buffer.append(authenticationID);
+    buffer.append('\'');
 
     if (authorizationID != null)
     {
-      buffer.append("authorizationID='");
+      buffer.append(", authorizationID='");
       buffer.append(authorizationID);
-      buffer.append("', ");
+      buffer.append('\'');
     }
 
     if (realm != null)
     {
-      buffer.append("realm='");
+      buffer.append(", realm='");
       buffer.append(realm);
-      buffer.append("', ");
+      buffer.append('\'');
     }
-
-    buffer.append("qop='");
-    buffer.append(SASLQualityOfProtection.toString(allowedQoP));
-    buffer.append("', ");
 
     if (kdcAddress != null)
     {
-      buffer.append("kdcAddress='");
+      buffer.append(", kdcAddress='");
       buffer.append(kdcAddress);
-      buffer.append("', ");
-    }
-
-    if (useTicketCache)
-    {
-      buffer.append("useTicketCache=true, requireCachedCredentials=");
-      buffer.append(requireCachedCredentials);
-      buffer.append(", renewTGT=");
-      buffer.append(renewTGT);
-      buffer.append(", ");
-
-      if (ticketCachePath != null)
-      {
-        buffer.append("ticketCachePath='");
-        buffer.append(ticketCachePath);
-        buffer.append("', ");
-      }
-    }
-    else
-    {
-      buffer.append("useTicketCache=false, ");
+      buffer.append('\'');
     }
 
     if (configFilePath != null)
     {
-      buffer.append("configFilePath='");
+      buffer.append(", configFilePath='");
       buffer.append(configFilePath);
-      buffer.append("', ");
+      buffer.append('\'');
     }
 
-    if (saslClientServerName != null)
-    {
-      buffer.append("saslClientServerName='");
-      buffer.append(saslClientServerName);
-      buffer.append("', ");
-    }
-
-    buffer.append("servicePrincipalProtocol='");
+    buffer.append(", servicePrincipalProtocol='");
     buffer.append(servicePrincipalProtocol);
     buffer.append("', enableGSSAPIDebugging=");
     buffer.append(enableGSSAPIDebugging);

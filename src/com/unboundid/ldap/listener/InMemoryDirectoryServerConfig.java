@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -34,12 +34,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Handler;
 
-import com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
@@ -68,14 +66,11 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       attribute types and object classes.</LI>
  *   <LI>Additional Bind Credentials:  The server will not have any additional
  *       bind credentials.</LI>
- *   <LI>Referential Integrity Attributes:  Referential integrity will not be
- *       maintained.</LI>
  *   <LI>Generate Operational Attributes:  The server will automatically
  *       generate a number of operational attributes.</LI>
  *   <LI>Extended Operation Handlers:  The server will support the password
- *       modify extended operation as defined in RFC 3062, the start and end
- *       transaction extended operations as defined in RFC 5805, and the
- *       "Who Am I?" extended operation as defined in RFC 4532.</LI>
+ *       modify extended operation as defined in RFC 3062 and the "Who Am I?"
+ *       extended operation as defined in RFC 4532.</LI>
  *   <LI>SASL Bind Handlers:  The server will support the SASL PLAIN mechanism
  *       as defined in RFC 4616.</LI>
  *   <LI>Max ChangeLog Entries:  The server will not provide an LDAP
@@ -86,8 +81,6 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       logging.</LI>
  *   <LI>Listener Exception Handler:  The server will not use a listener
  *       exception handler.</LI>
- *   <LI>Maximum Size Limit:  The server will not enforce a maximum search size
- *       limit.</LI>
  * </UL>
  */
 @NotExtensible()
@@ -95,14 +88,6 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public class InMemoryDirectoryServerConfig
 {
-  // Indicates whether to enforce the requirement that attribute values comply
-  // with the associated attribute syntax.
-  private boolean enforceAttributeSyntaxCompliance;
-
-  // Indicates whether to enforce the requirement that entries contain exactly
-  // one structural object class.
-  private boolean enforceSingleStructuralObjectClass;
-
   // Indicates whether to automatically generate operational attributes.
   private boolean generateOperationalAttributes;
 
@@ -120,32 +105,21 @@ public class InMemoryDirectoryServerConfig
   // The maximum number of entries to retain in a generated changelog.
   private int maxChangeLogEntries;
 
-  // The maximum number of entries that may be returned in any single search
-  // operation.
-  private int maxSizeLimit;
-
   // The exception handler that should be used for the listener.
   private LDAPListenerExceptionHandler exceptionHandler;
+
+  // The listener configurations that should be used for accepting connections
+  // to the server.
+  private final List<InMemoryListenerConfig> listenerConfigs;
 
   // The extended operation handlers that may be used to process extended
   // operations in the server.
   private final List<InMemoryExtendedOperationHandler>
        extendedOperationHandlers;
 
-  // The listener configurations that should be used for accepting connections
-  // to the server.
-  private final List<InMemoryListenerConfig> listenerConfigs;
-
-  // The operation interceptors that should be used with the in-memory directory
-  // server.
-  private final List<InMemoryOperationInterceptor> operationInterceptors;
-
   // The SASL bind handlers that may be used to process SASL bind requests in
   // the server.
   private final List<InMemorySASLBindHandler> saslBindHandlers;
-
-  // The names or OIDs of the attributes for which to maintain equality indexes.
-  private final List<String> equalityIndexAttributes;
 
   // A set of additional credentials that can be used for binding without
   // requiring a corresponding entry in the data set.
@@ -155,19 +129,10 @@ public class InMemoryDirectoryServerConfig
   private Schema schema;
 
   // The set of operation types that will be supported by the server.
-  private final Set<OperationType> allowedOperationTypes;
+  private Set<OperationType> allowedOperationTypes;
 
   // The set of operation types for which authentication will be required.
-  private final Set<OperationType> authenticationRequiredOperationTypes;
-
-  // The set of attributes for which referential integrity should be maintained.
-  private final Set<String> referentialIntegrityAttributes;
-
-  // The vendor name to report in the server root DSE.
-  private String vendorName;
-
-  // The vendor version to report in the server root DSE.
-  private String vendorVersion;
+  private Set<OperationType> authenticationRequiredOperationTypes;
 
 
 
@@ -185,7 +150,7 @@ public class InMemoryDirectoryServerConfig
   public InMemoryDirectoryServerConfig(final String... baseDNs)
          throws LDAPException
   {
-    this(parseDNs(Schema.getDefaultStandardSchema(), baseDNs));
+    this(InMemoryRequestHandler.parseDNs(baseDNs));
   }
 
 
@@ -216,26 +181,16 @@ public class InMemoryDirectoryServerConfig
     additionalBindCredentials            = new LinkedHashMap<DN,byte[]>(1);
     accessLogHandler                     = null;
     ldapDebugLogHandler                  = null;
-    enforceAttributeSyntaxCompliance     = true;
-    enforceSingleStructuralObjectClass   = true;
     generateOperationalAttributes        = true;
     maxChangeLogEntries                  = 0;
-    maxSizeLimit                         = 0;
     exceptionHandler                     = null;
-    equalityIndexAttributes              = new ArrayList<String>(10);
     schema                               = Schema.getDefaultStandardSchema();
     allowedOperationTypes                = EnumSet.allOf(OperationType.class);
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
-    referentialIntegrityAttributes       = new HashSet<String>(0);
-    vendorName                           = "UnboundID Corp.";
-    vendorVersion                        = Version.FULL_VERSION_STRING;
-
-    operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(5);
 
     extendedOperationHandlers =
-         new ArrayList<InMemoryExtendedOperationHandler>(3);
+         new ArrayList<InMemoryExtendedOperationHandler>(2);
     extendedOperationHandlers.add(new PasswordModifyExtendedOperationHandler());
-    extendedOperationHandlers.add(new TransactionExtendedOperationHandler());
     extendedOperationHandlers.add(new WhoAmIExtendedOperationHandler());
 
     saslBindHandlers = new ArrayList<InMemorySASLBindHandler>(1);
@@ -260,9 +215,6 @@ public class InMemoryDirectoryServerConfig
     listenerConfigs = new ArrayList<InMemoryListenerConfig>(
          cfg.listenerConfigs);
 
-    operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(
-         cfg.operationInterceptors);
-
     extendedOperationHandlers = new ArrayList<InMemoryExtendedOperationHandler>(
          cfg.extendedOperationHandlers);
 
@@ -272,30 +224,15 @@ public class InMemoryDirectoryServerConfig
     additionalBindCredentials =
          new LinkedHashMap<DN,byte[]>(cfg.additionalBindCredentials);
 
-    referentialIntegrityAttributes =
-         new HashSet<String>(cfg.referentialIntegrityAttributes);
-
-    allowedOperationTypes = EnumSet.noneOf(OperationType.class);
-    allowedOperationTypes.addAll(cfg.allowedOperationTypes);
-
-    authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
-    authenticationRequiredOperationTypes.addAll(
-         cfg.authenticationRequiredOperationTypes);
-
-    equalityIndexAttributes =
-         new ArrayList<String>(cfg.equalityIndexAttributes);
-
-    enforceAttributeSyntaxCompliance   = cfg.enforceAttributeSyntaxCompliance;
-    enforceSingleStructuralObjectClass = cfg.enforceSingleStructuralObjectClass;
-    generateOperationalAttributes      = cfg.generateOperationalAttributes;
-    accessLogHandler                   = cfg.accessLogHandler;
-    ldapDebugLogHandler                = cfg.ldapDebugLogHandler;
-    maxChangeLogEntries                = cfg.maxChangeLogEntries;
-    maxSizeLimit                       = cfg.maxSizeLimit;
-    exceptionHandler                   = cfg.exceptionHandler;
-    schema                             = cfg.schema;
-    vendorName                         = cfg.vendorName;
-    vendorVersion                      = cfg.vendorVersion;
+    generateOperationalAttributes        = cfg.generateOperationalAttributes;
+    accessLogHandler                     = cfg.accessLogHandler;
+    ldapDebugLogHandler                  = cfg.ldapDebugLogHandler;
+    maxChangeLogEntries                  = cfg.maxChangeLogEntries;
+    exceptionHandler                     = cfg.exceptionHandler;
+    schema                               = cfg.schema;
+    allowedOperationTypes                = cfg.allowedOperationTypes;
+    authenticationRequiredOperationTypes =
+         cfg.authenticationRequiredOperationTypes;
   }
 
 
@@ -325,7 +262,7 @@ public class InMemoryDirectoryServerConfig
   public void setBaseDNs(final String... baseDNs)
          throws LDAPException
   {
-    setBaseDNs(parseDNs(schema, baseDNs));
+    setBaseDNs(InMemoryRequestHandler.parseDNs(baseDNs));
   }
 
 
@@ -615,7 +552,7 @@ public class InMemoryDirectoryServerConfig
            ERR_MEM_DS_CFG_NULL_ADDITIONAL_BIND_DN.get());
     }
 
-    final DN parsedDN = new DN(dn, schema);
+    final DN parsedDN = new DN(dn);
     if (parsedDN.isNullDN())
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
@@ -698,76 +635,6 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
-   * Indicates whether the server should reject attribute values which violate
-   * the constraints of the associated syntax.  This setting will be ignored if
-   * a {@code null} schema is in place.
-   *
-   * @return  {@code true} if the server should reject attribute values which
-   *          violate the constraints of the associated syntax, or {@code false}
-   *          if not.
-   */
-  public boolean enforceAttributeSyntaxCompliance()
-  {
-    return enforceAttributeSyntaxCompliance;
-  }
-
-
-
-  /**
-   * Specifies whether the server should reject attribute values which violate
-   * the constraints of the associated syntax.  This setting will be ignored if
-   * a {@code null} schema is in place.
-   *
-   * @param  enforceAttributeSyntaxCompliance  Indicates whether the server
-   *                                           should reject attribute values
-   *                                           which violate the constraints of
-   *                                           the associated syntax.
-   */
-  public void setEnforceAttributeSyntaxCompliance(
-                   final boolean enforceAttributeSyntaxCompliance)
-  {
-    this.enforceAttributeSyntaxCompliance = enforceAttributeSyntaxCompliance;
-  }
-
-
-
-  /**
-   * Indicates whether the server should reject entries which do not contain
-   * exactly one structural object class.  This setting will be ignored if a
-   * {@code null} schema is in place.
-   *
-   * @return  {@code true} if the server should reject entries which do not
-   *          contain exactly one structural object class, or {@code false} if
-   *          it should allow entries which do not have any structural class or
-   *          that have multiple structural classes.
-   */
-  public boolean enforceSingleStructuralObjectClass()
-  {
-    return enforceSingleStructuralObjectClass;
-  }
-
-
-
-  /**
-   * Specifies whether the server should reject entries which do not contain
-   * exactly one structural object class.  This setting will be ignored if a
-   * {@code null} schema is in place.
-   *
-   * @param  enforceSingleStructuralObjectClass  Indicates whether the server
-   *                                             should reject entries which do
-   *                                             not contain exactly one
-   *                                             structural object class.
-   */
-  public void setEnforceSingleStructuralObjectClass(
-                   final boolean enforceSingleStructuralObjectClass)
-  {
-    this.enforceSingleStructuralObjectClass =
-         enforceSingleStructuralObjectClass;
-  }
-
-
-
-  /**
    * Retrieves the log handler that should be used to record access log messages
    * about operations processed by the server, if any.
    *
@@ -828,40 +695,6 @@ public class InMemoryDirectoryServerConfig
   public void setLDAPDebugLogHandler(final Handler ldapDebugLogHandler)
   {
     this.ldapDebugLogHandler = ldapDebugLogHandler;
-  }
-
-
-
-  /**
-   * Retrieves a list of the operation interceptors that may be used to
-   * intercept and transform requests before they are processed by the in-memory
-   * directory server, and/or to intercept and transform responses before they
-   * are returned to the client.  The contents of the list may be altered by the
-   * caller.
-   *
-   * @return  An updatable list of the operation interceptors that may be used
-   *          to intercept and transform requests and/or responses.
-   */
-  public List<InMemoryOperationInterceptor> getOperationInterceptors()
-  {
-    return operationInterceptors;
-  }
-
-
-
-  /**
-   * Adds the provided operation interceptor to the list of operation
-   * interceptors that may be used to transform requests before they are
-   * processed by the in-memory directory server, and/or to transform responses
-   * before they are returned to the client.
-   *
-   * @param  interceptor  The operation interceptor that should be invoked in
-   *                      the course of processing requests and responses.
-   */
-  public void addInMemoryOperationInterceptor(
-                   final InMemoryOperationInterceptor interceptor)
-  {
-    operationInterceptors.add(interceptor);
   }
 
 
@@ -999,260 +832,6 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
-   * Retrieves the maximum number of entries that the server should return in
-   * any search operation.
-   *
-   * @return  The maximum number of entries that the server should return in any
-   *          search operation, or zero if no limit should be enforced.
-   */
-  public int getMaxSizeLimit()
-  {
-    return maxSizeLimit;
-  }
-
-
-
-  /**
-   * Specifies the maximum number of entries that the server should return in
-   * any search operation.  A value less than or equal to zero indicates that no
-   * maximum limit should be enforced.
-   *
-   * @param  maxSizeLimit  The maximum number of entries that the server should
-   *                       return in any search operation.
-   */
-  public void setMaxSizeLimit(final int maxSizeLimit)
-  {
-    if (maxSizeLimit > 0)
-    {
-      this.maxSizeLimit = maxSizeLimit;
-    }
-    else
-    {
-      this.maxSizeLimit = 0;
-    }
-  }
-
-
-
-  /**
-   * Retrieves a list containing the names or OIDs of the attribute types for
-   * which to maintain an equality index to improve the performance of certain
-   * kinds of searches.
-   *
-   * @return  A list containing the names or OIDs of the attribute types for
-   *          which to maintain an equality index to improve the performance of
-   *          certain kinds of searches, or an empty list if no equality indexes
-   *          should be created.
-   */
-  public List<String> getEqualityIndexAttributes()
-  {
-    return equalityIndexAttributes;
-  }
-
-
-
-  /**
-   * Specifies the names or OIDs of the attribute types for which to maintain an
-   * equality index to improve the performance of certain kinds of searches.
-   *
-   * @param  equalityIndexAttributes  The names or OIDs of the attributes for
-   *                                  which to maintain an equality index to
-   *                                  improve the performance of certain kinds
-   *                                  of searches.  It may be {@code null} or
-   *                                  empty to indicate that no equality indexes
-   *                                  should be maintained.
-   */
-  public void setEqualityIndexAttributes(
-                   final String... equalityIndexAttributes)
-  {
-    setEqualityIndexAttributes(StaticUtils.toList(equalityIndexAttributes));
-  }
-
-
-
-  /**
-   * Specifies the names or OIDs of the attribute types for which to maintain an
-   * equality index to improve the performance of certain kinds of searches.
-   *
-   * @param  equalityIndexAttributes  The names or OIDs of the attributes for
-   *                                  which to maintain an equality index to
-   *                                  improve the performance of certain kinds
-   *                                  of searches.  It may be {@code null} or
-   *                                  empty to indicate that no equality indexes
-   *                                  should be maintained.
-   */
-  public void setEqualityIndexAttributes(
-                   final Collection<String> equalityIndexAttributes)
-  {
-    this.equalityIndexAttributes.clear();
-    if (equalityIndexAttributes != null)
-    {
-      this.equalityIndexAttributes.addAll(equalityIndexAttributes);
-    }
-  }
-
-
-
-  /**
-   * Retrieves the names of the attributes for which referential integrity
-   * should be maintained.  If referential integrity is to be provided and an
-   * entry is removed, then any other entries containing one of the specified
-   * attributes with a value equal to the DN of the entry that was removed, then
-   * that value will also be removed.  Similarly, if an entry is moved or
-   * renamed, then any references to that entry in one of the specified
-   * attributes will be updated to reflect the new DN.
-   *
-   * @return  The names of the attributes for which referential integrity should
-   *          be maintained, or an empty set if referential integrity should not
-   *          be maintained for any attributes.
-   */
-  public Set<String> getReferentialIntegrityAttributes()
-  {
-    return referentialIntegrityAttributes;
-  }
-
-
-
-  /**
-   * Specifies the names of the attributes for which referential integrity
-   * should be maintained.  If referential integrity is to be provided and an
-   * entry is removed, then any other entries containing one of the specified
-   * attributes with a value equal to the DN of the entry that was removed, then
-   * that value will also be removed.  Similarly, if an entry is moved or
-   * renamed, then any references to that entry in one of the specified
-   * attributes will be updated to reflect the new DN.
-   *
-   * @param  referentialIntegrityAttributes  The names of the attributes for
-   *                                          which referential integrity should
-   *                                          be maintained.  The values of
-   *                                          these attributes should be DNs.
-   *                                          It may be {@code null} or empty if
-   *                                          referential integrity should not
-   *                                          be maintained.
-   */
-  public void setReferentialIntegrityAttributes(
-                   final String... referentialIntegrityAttributes)
-  {
-    setReferentialIntegrityAttributes(
-         StaticUtils.toList(referentialIntegrityAttributes));
-  }
-
-
-
-  /**
-   * Specifies the names of the attributes for which referential integrity
-   * should be maintained.  If referential integrity is to be provided and an
-   * entry is removed, then any other entries containing one of the specified
-   * attributes with a value equal to the DN of the entry that was removed, then
-   * that value will also be removed.  Similarly, if an entry is moved or
-   * renamed, then any references to that entry in one of the specified
-   * attributes will be updated to reflect the new DN.
-   *
-   * @param  referentialIntegrityAttributes  The names of the attributes for
-   *                                          which referential integrity should
-   *                                          be maintained.  The values of
-   *                                          these attributes should be DNs.
-   *                                          It may be {@code null} or empty if
-   *                                          referential integrity should not
-   *                                          be maintained.
-   */
-  public void setReferentialIntegrityAttributes(
-                   final Collection<String> referentialIntegrityAttributes)
-  {
-    this.referentialIntegrityAttributes.clear();
-    if (referentialIntegrityAttributes != null)
-    {
-      this.referentialIntegrityAttributes.addAll(
-           referentialIntegrityAttributes);
-    }
-  }
-
-
-
-  /**
-   * Retrieves the vendor name value to report in the server root DSE.
-   *
-   * @return  The vendor name value to report in the server root DSE, or
-   *          {@code null} if no vendor name should appear.
-   */
-  public String getVendorName()
-  {
-    return vendorName;
-  }
-
-
-
-  /**
-   * Specifies the vendor name value to report in the server root DSE.
-   *
-   * @param  vendorName  The vendor name value to report in the server root DSE.
-   *                     It may be {@code null} if no vendor name should appear.
-   */
-  public void setVendorName(final String vendorName)
-  {
-    this.vendorName = vendorName;
-  }
-
-
-
-  /**
-   * Retrieves the vendor version value to report in the server root DSE.
-   *
-   * @return  The vendor version value to report in the server root DSE, or
-   *          {@code null} if no vendor version should appear.
-   */
-  public String getVendorVersion()
-  {
-    return vendorVersion;
-  }
-
-
-
-  /**
-   * Specifies the vendor version value to report in the server root DSE.
-   *
-   * @param  vendorVersion  The vendor version value to report in the server
-   *                        root DSE.  It may be {@code null} if no vendor
-   *                        version should appear.
-   */
-  public void setVendorVersion(final String vendorVersion)
-  {
-    this.vendorVersion = vendorVersion;
-  }
-
-
-
-  /**
-   * Parses the provided set of strings as DNs.
-   *
-   * @param  dnStrings  The array of strings to be parsed as DNs.
-   * @param  schema     The schema to use to generate the normalized
-   *                    representations of the DNs, if available.
-   *
-   * @return  The array of parsed DNs.
-   *
-   * @throws  LDAPException  If any of the provided strings cannot be parsed as
-   *                         DNs.
-   */
-  private static DN[] parseDNs(final Schema schema, final String... dnStrings)
-          throws LDAPException
-  {
-    if (dnStrings == null)
-    {
-      return null;
-    }
-
-    final DN[] dns = new DN[dnStrings.length];
-    for (int i=0; i < dns.length; i++)
-    {
-      dns[i] = new DN(dnStrings[i], schema);
-    }
-    return dns;
-  }
-
-
-
-  /**
    * Retrieves a string representation of this in-memory directory server
    * configuration.
    *
@@ -1309,10 +888,6 @@ public class InMemoryDirectoryServerConfig
 
     buffer.append(", schemaProvided=");
     buffer.append((schema != null));
-    buffer.append(", enforceAttributeSyntaxCompliance=");
-    buffer.append(enforceAttributeSyntaxCompliance);
-    buffer.append(", enforceSingleStructuralObjectClass=");
-    buffer.append(enforceSingleStructuralObjectClass);
 
     if (! additionalBindCredentials.isEmpty())
     {
@@ -1333,43 +908,6 @@ public class InMemoryDirectoryServerConfig
       buffer.append('}');
     }
 
-    if (! equalityIndexAttributes.isEmpty())
-    {
-      buffer.append(", equalityIndexAttributes={");
-
-      final Iterator<String> attrIterator = equalityIndexAttributes.iterator();
-      while (attrIterator.hasNext())
-      {
-        buffer.append('\'');
-        buffer.append(attrIterator.next());
-        buffer.append('\'');
-        if (attrIterator.hasNext())
-        {
-          buffer.append(", ");
-        }
-      }
-      buffer.append('}');
-    }
-
-    if (! referentialIntegrityAttributes.isEmpty())
-    {
-      buffer.append(", referentialIntegrityAttributes={");
-
-      final Iterator<String> attrIterator =
-           referentialIntegrityAttributes.iterator();
-      while (attrIterator.hasNext())
-      {
-        buffer.append('\'');
-        buffer.append(attrIterator.next());
-        buffer.append('\'');
-        if (attrIterator.hasNext())
-        {
-          buffer.append(", ");
-        }
-      }
-      buffer.append('}');
-    }
-
     buffer.append(", generateOperationalAttributes=");
     buffer.append(generateOperationalAttributes);
 
@@ -1378,9 +916,6 @@ public class InMemoryDirectoryServerConfig
       buffer.append(", maxChangelogEntries=");
       buffer.append(maxChangeLogEntries);
     }
-
-    buffer.append(", maxSizeLimit=");
-    buffer.append(maxSizeLimit);
 
     if (! extendedOperationHandlers.isEmpty())
     {
@@ -1434,20 +969,6 @@ public class InMemoryDirectoryServerConfig
     {
       buffer.append(", listenerExceptionHandlerClass='");
       buffer.append(exceptionHandler.getClass().getName());
-      buffer.append('\'');
-    }
-
-    if (vendorName != null)
-    {
-      buffer.append(", vendorName='");
-      buffer.append(vendorName);
-      buffer.append('\'');
-    }
-
-    if (vendorVersion != null)
-    {
-      buffer.append(", vendorVersion='");
-      buffer.append(vendorVersion);
       buffer.append('\'');
     }
 
