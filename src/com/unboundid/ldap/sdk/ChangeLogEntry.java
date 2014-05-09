@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -35,12 +35,6 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFModifyDNChangeRecord;
 import com.unboundid.ldif.LDIFReader;
-import com.unboundid.ldap.matchingrules.BooleanMatchingRule;
-import com.unboundid.ldap.matchingrules.DistinguishedNameMatchingRule;
-import com.unboundid.ldap.matchingrules.IntegerMatchingRule;
-import com.unboundid.ldap.matchingrules.OctetStringMatchingRule;
-import com.unboundid.util.Debug;
-import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -58,10 +52,9 @@ import static com.unboundid.util.StaticUtils.*;
  * parsed from entries, and they may be converted to LDIF change records or
  * processed as LDAP operations.
  */
-@NotExtensible()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public class ChangeLogEntry
+public final class ChangeLogEntry
        extends ReadOnlyEntry
 {
   /**
@@ -192,7 +185,6 @@ public class ChangeLogEntry
     }
     catch (NumberFormatException nfe)
     {
-      Debug.debugException(nfe);
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_CHANGELOG_INVALID_CHANGE_NUMBER.get(changeNumberAttr.getValue()),
            nfe);
@@ -225,7 +217,7 @@ public class ChangeLogEntry
     switch (changeType)
     {
       case ADD:
-        attributes    = parseAddAttributeList(entry, ATTR_CHANGES, targetDN);
+        attributes    = parseAddAttributeList(entry, targetDN);
         modifications = null;
         newRDN        = null;
         deleteOldRDN  = false;
@@ -242,7 +234,7 @@ public class ChangeLogEntry
 
       case MODIFY:
         attributes    = null;
-        modifications = parseModificationList(entry, targetDN);
+        modifications = parseModificationList(entry, targetDN, false);
         newRDN        = null;
         deleteOldRDN  = false;
         newSuperior   = null;
@@ -250,7 +242,7 @@ public class ChangeLogEntry
 
       case MODIFY_DN:
         attributes    = null;
-        modifications = parseModificationList(entry, targetDN);
+        modifications = parseModificationList(entry, targetDN, true);
         newSuperior   = getAttributeValue(ATTR_NEW_SUPERIOR);
 
         final Attribute newRDNAttr = getAttribute(ATTR_NEW_RDN);
@@ -293,103 +285,10 @@ public class ChangeLogEntry
 
 
   /**
-   * Constructs a changelog entry from information contained in the provided
-   * LDIF change record.
-   *
-   * @param  changeNumber  The change number to use for the constructed
-   *                       changelog entry.
-   * @param  changeRecord  The LDIF change record with the information to
-   *                       include in the generated changelog entry.
-   *
-   * @return  The changelog entry constructed from the provided change record.
-   *
-   * @throws  LDAPException  If a problem is encountered while constructing the
-   *                         changelog entry.
-   */
-  public static ChangeLogEntry constructChangeLogEntry(final long changeNumber,
-                                    final LDIFChangeRecord changeRecord)
-         throws LDAPException
-  {
-    final Entry e =
-         new Entry(ATTR_CHANGE_NUMBER + '=' + changeNumber + ",cn=changelog");
-    e.addAttribute("objectClass", "top", "changeLogEntry");
-    e.addAttribute(new Attribute(ATTR_CHANGE_NUMBER,
-         IntegerMatchingRule.getInstance(), String.valueOf(changeNumber)));
-    e.addAttribute(new Attribute(ATTR_TARGET_DN,
-         DistinguishedNameMatchingRule.getInstance(), changeRecord.getDN()));
-    e.addAttribute(ATTR_CHANGE_TYPE, changeRecord.getChangeType().getName());
-
-    switch (changeRecord.getChangeType())
-    {
-      case ADD:
-        // The changes attribute should be an LDIF-encoded representation of the
-        // attributes from the entry, which is the LDIF representation of the
-        // entry without the first line (which contains the DN).
-        final LDIFAddChangeRecord addRecord =
-             (LDIFAddChangeRecord) changeRecord;
-        final Entry addEntry = new Entry(addRecord.getDN(),
-             addRecord.getAttributes());
-        final String[] entryLdifLines = addEntry.toLDIF(0);
-        final StringBuilder entryLDIFBuffer = new StringBuilder();
-        for (int i=1; i < entryLdifLines.length; i++)
-        {
-          entryLDIFBuffer.append(entryLdifLines[i]);
-          entryLDIFBuffer.append(EOL);
-        }
-        e.addAttribute(new Attribute(ATTR_CHANGES,
-             OctetStringMatchingRule.getInstance(),
-             entryLDIFBuffer.toString()));
-        break;
-
-      case DELETE:
-        // No additional information is needed.
-        break;
-
-      case MODIFY:
-        // The changes attribute should be an LDIF-encoded representation of the
-        // modification, with the first two lines (the DN and changetype)
-        // removed.
-        final String[] modLdifLines = changeRecord.toLDIF(0);
-        final StringBuilder modLDIFBuffer = new StringBuilder();
-        for (int i=2; i < modLdifLines.length; i++)
-        {
-          modLDIFBuffer.append(modLdifLines[i]);
-          modLDIFBuffer.append(EOL);
-        }
-        e.addAttribute(new Attribute(ATTR_CHANGES,
-             OctetStringMatchingRule.getInstance(), modLDIFBuffer.toString()));
-        break;
-
-      case MODIFY_DN:
-        final LDIFModifyDNChangeRecord modDNRecord =
-             (LDIFModifyDNChangeRecord) changeRecord;
-        e.addAttribute(new Attribute(ATTR_NEW_RDN,
-             DistinguishedNameMatchingRule.getInstance(),
-             modDNRecord.getNewRDN()));
-        e.addAttribute(new Attribute(ATTR_DELETE_OLD_RDN,
-             BooleanMatchingRule.getInstance(),
-             (modDNRecord.deleteOldRDN() ? "TRUE" : "FALSE")));
-        if (modDNRecord.getNewSuperiorDN() != null)
-        {
-          e.addAttribute(new Attribute(ATTR_NEW_SUPERIOR,
-               DistinguishedNameMatchingRule.getInstance(),
-               modDNRecord.getNewSuperiorDN()));
-        }
-        break;
-    }
-
-    return new ChangeLogEntry(e);
-  }
-
-
-
-  /**
-   * Parses the attribute list from the specified attribute in a changelog
-   * entry.
+   * Parses the attribute list from a changelog entry representing an add
+   * operation.
    *
    * @param  entry     The entry containing the data to parse.
-   * @param  attrName  The name of the attribute from which to parse the
-   *                   attribute list.
    * @param  targetDN  The DN of the target entry.
    *
    * @return  The parsed attribute list.
@@ -397,12 +296,11 @@ public class ChangeLogEntry
    * @throws  LDAPException  If an error occurs while parsing the attribute
    *                         list.
    */
-  protected static List<Attribute> parseAddAttributeList(final Entry entry,
-                                                         final String attrName,
-                                                         final String targetDN)
-            throws LDAPException
+  private static List<Attribute> parseAddAttributeList(final Entry entry,
+                                                       final String targetDN)
+          throws LDAPException
   {
-    final Attribute changesAttr = entry.getAttribute(attrName);
+    final Attribute changesAttr = entry.getAttribute(ATTR_CHANGES);
     if ((changesAttr == null) || (! changesAttr.hasValue()))
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -430,11 +328,8 @@ public class ChangeLogEntry
     }
     catch (LDIFException le)
     {
-      Debug.debugException(le);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_CHANGELOG_CANNOT_PARSE_ATTR_LIST.get(attrName,
-                getExceptionMessage(le)),
-           le);
+           ERR_CHANGELOG_CANNOT_PARSE_CHANGES.get(getExceptionMessage(le)), le);
     }
   }
 
@@ -510,7 +405,6 @@ public class ChangeLogEntry
       }
       catch (LDIFException le)
       {
-        Debug.debugException(le);
         throw new LDAPException(ResultCode.DECODING_ERROR,
              ERR_CHANGELOG_INVALID_DELENTRYATTRS_MODS.get(
                   ATTR_DELETED_ENTRY_ATTRS, getExceptionMessage(le)), le);
@@ -539,7 +433,6 @@ public class ChangeLogEntry
       }
       catch (LDIFException le)
       {
-        Debug.debugException(le);
         throw new LDAPException(ResultCode.DECODING_ERROR,
              ERR_CHANGELOG_CANNOT_PARSE_DELENTRYATTRS.get(
                   ATTR_DELETED_ENTRY_ATTRS, getExceptionMessage(le)), le);
@@ -553,29 +446,36 @@ public class ChangeLogEntry
    * Parses the modification list from a changelog entry representing a modify
    * operation.
    *
-   * @param  entry     The entry containing the data to parse.
-   * @param  targetDN  The DN of the target entry.
+   * @param  entry         The entry containing the data to parse.
+   * @param  targetDN      The DN of the target entry.
+   * @param  allowMissing  Indicates whether it is acceptable for the changes
+   *                       attribute to be absent from the entry.
    *
    * @return  The parsed modification list, or {@code null} if the changelog
-   *          entry does not include any modifications.
+   *          entry does not include any modifications and modifications are
+   *          not required.
    *
    * @throws  LDAPException  If an error occurs while parsing the modification
    *                         list.
    */
-  private static List<Modification> parseModificationList(final Entry entry,
-                                                          final String targetDN)
+  private static List<Modification> parseModificationList(
+                                         final Entry entry,
+                                         final String targetDN,
+                                         final boolean allowMissing)
           throws LDAPException
   {
     final Attribute changesAttr = entry.getAttribute(ATTR_CHANGES);
     if ((changesAttr == null) || (! changesAttr.hasValue()))
     {
-      return null;
-    }
-
-    final byte[] valueBytes = changesAttr.getValueByteArray();
-    if (valueBytes.length == 0)
-    {
-      return null;
+      if (allowMissing)
+      {
+        return null;
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.DECODING_ERROR,
+                                ERR_CHANGELOG_MISSING_CHANGES.get());
+      }
     }
 
 
@@ -588,6 +488,7 @@ public class ChangeLogEntry
     // may terminate the changes value with a null character (\u0000).  If that
     // is the case, then we'll need to strip it off before trying to parse it.
     final StringTokenizer tokenizer;
+    final byte[] valueBytes = changesAttr.getValueByteArray();
     if ((valueBytes.length > 0) && (valueBytes[valueBytes.length-1] == 0x00))
     {
       final String fullValue = changesAttr.getValue();
@@ -616,11 +517,8 @@ public class ChangeLogEntry
     }
     catch (LDIFException le)
     {
-      Debug.debugException(le);
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_CHANGELOG_CANNOT_PARSE_MOD_LIST.get(ATTR_CHANGES,
-                getExceptionMessage(le)),
-           le);
+           ERR_CHANGELOG_CANNOT_PARSE_CHANGES.get(getExceptionMessage(le)), le);
     }
   }
 
@@ -631,7 +529,7 @@ public class ChangeLogEntry
    *
    * @return  The change number for this changelog entry.
    */
-  public final long getChangeNumber()
+  public long getChangeNumber()
   {
     return changeNumber;
   }
@@ -643,7 +541,7 @@ public class ChangeLogEntry
    *
    * @return  The target DN for this changelog entry.
    */
-  public final String getTargetDN()
+  public String getTargetDN()
   {
     return targetDN;
   }
@@ -655,7 +553,7 @@ public class ChangeLogEntry
    *
    * @return  The change type for this changelog entry.
    */
-  public final ChangeType getChangeType()
+  public ChangeType getChangeType()
   {
     return changeType;
   }
@@ -668,7 +566,7 @@ public class ChangeLogEntry
    * @return  The attribute list for an add changelog entry, or {@code null} if
    *          this changelog entry does not represent an add operation.
    */
-  public final List<Attribute> getAddAttributes()
+  public List<Attribute> getAddAttributes()
   {
     if (changeType == ChangeType.ADD)
     {
@@ -693,7 +591,7 @@ public class ChangeLogEntry
    *          operation or no deleted entry attributes were included in the
    *          changelog entry.
    */
-  public final List<Attribute> getDeletedEntryAttributes()
+  public List<Attribute> getDeletedEntryAttributes()
   {
     if (changeType == ChangeType.DELETE)
     {
@@ -718,7 +616,7 @@ public class ChangeLogEntry
    *          not represent a modify operation or a modify DN operation with
    *          additional changes.
    */
-  public final List<Modification> getModifications()
+  public List<Modification> getModifications()
   {
     return modifications;
   }
@@ -731,7 +629,7 @@ public class ChangeLogEntry
    * @return  The new RDN for a modify DN changelog entry, or {@code null} if
    *          this changelog entry does not represent a modify DN operation.
    */
-  public final String getNewRDN()
+  public String getNewRDN()
   {
     return newRDN;
   }
@@ -746,7 +644,7 @@ public class ChangeLogEntry
    *          entry, or {@code false} if not or if this changelog entry does not
    *          represent a modify DN operation.
    */
-  public final boolean deleteOldRDN()
+  public boolean deleteOldRDN()
   {
     return deleteOldRDN;
   }
@@ -760,69 +658,9 @@ public class ChangeLogEntry
    *          {@code null} if there is no new superior DN, or if this changelog
    *          entry does not represent a modify DN operation.
    */
-  public final String getNewSuperior()
+  public String getNewSuperior()
   {
     return newSuperior;
-  }
-
-
-
-  /**
-   * Retrieves the DN of the entry after the change has been processed.  For an
-   * add or modify operation, the new DN will be the same as the target DN.  For
-   * a modify DN operation, the new DN will be constructed from the original DN,
-   * the new RDN, and the new superior DN.  For a delete operation, it will be
-   * {@code null} because the entry will no longer exist.
-   *
-   * @return  The DN of the entry after the change has been processed, or
-   *          {@code null} if the entry no longer exists.
-   */
-  public final String getNewDN()
-  {
-    switch (changeType)
-    {
-      case ADD:
-      case MODIFY:
-        return targetDN;
-
-      case MODIFY_DN:
-        // This will be handled below.
-        break;
-
-      case DELETE:
-      default:
-        return null;
-    }
-
-    try
-    {
-      final RDN parsedNewRDN = new RDN(newRDN);
-
-      if (newSuperior == null)
-      {
-        final DN parsedTargetDN = new DN(targetDN);
-        final DN parentDN = parsedTargetDN.getParent();
-        if (parentDN == null)
-        {
-          return new DN(parsedNewRDN).toString();
-        }
-        else
-        {
-          return new DN(parsedNewRDN, parentDN).toString();
-        }
-      }
-      else
-      {
-        final DN parsedNewSuperior = new DN(newSuperior);
-        return new DN(parsedNewRDN, parsedNewSuperior).toString();
-      }
-    }
-    catch (final Exception e)
-    {
-      // This should never happen.
-      Debug.debugException(e);
-      return null;
-    }
   }
 
 
@@ -834,7 +672,7 @@ public class ChangeLogEntry
    * @return  An LDIF change record that is analogous to the operation
    *          represented by this changelog entry.
    */
-  public final LDIFChangeRecord toLDIFChangeRecord()
+  public LDIFChangeRecord toLDIFChangeRecord()
   {
     switch (changeType)
     {
@@ -871,7 +709,7 @@ public class ChangeLogEntry
    * @throws  LDAPException  If the operation could not be processed
    *                         successfully.
    */
-  public final LDAPResult processChange(final LDAPInterface connection)
+  public LDAPResult processChange(final LDAPInterface connection)
          throws LDAPException
   {
     switch (changeType)

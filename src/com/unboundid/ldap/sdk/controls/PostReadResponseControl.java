@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,7 +33,6 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -203,42 +202,6 @@ public final class PostReadResponseControl
          throws LDAPException
   {
     return new PostReadResponseControl(oid, isCritical, value);
-  }
-
-
-
-  /**
-   * Extracts a post-read response control from the provided result.
-   *
-   * @param  result  The result from which to retrieve the post-read response
-   *                 control.
-   *
-   * @return  The post-read response control contained in the provided result,
-   *          or {@code null} if the result did not contain a post-read response
-   *          control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the post-read response control contained in
-   *                         the provided result.
-   */
-  public static PostReadResponseControl get(final LDAPResult result)
-         throws LDAPException
-  {
-    final Control c = result.getResponseControl(POST_READ_RESPONSE_OID);
-    if (c == null)
-    {
-      return null;
-    }
-
-    if (c instanceof PostReadResponseControl)
-    {
-      return (PostReadResponseControl) c;
-    }
-    else
-    {
-      return new PostReadResponseControl(c.getOID(), c.isCritical(),
-           c.getValue());
-    }
   }
 
 

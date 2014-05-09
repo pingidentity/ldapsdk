@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -25,7 +25,6 @@ package com.unboundid.ldap.sdk;
 import java.util.List;
 
 import com.unboundid.util.NotMutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -66,7 +65,7 @@ public final class LDAPSearchException
     super(resultCode, errorMessage);
 
     searchResult = new SearchResult(-1, resultCode, errorMessage, null,
-         StaticUtils.NO_STRINGS, 0, 0, StaticUtils.NO_CONTROLS);
+                                    NO_REFERRALS, 0, 0, NO_CONTROLS);
   }
 
 
@@ -85,7 +84,7 @@ public final class LDAPSearchException
     super(resultCode, errorMessage, cause);
 
     searchResult = new SearchResult(-1, resultCode, errorMessage, null,
-         StaticUtils.NO_STRINGS , 0, 0, StaticUtils.NO_CONTROLS);
+                                    NO_REFERRALS, 0, 0, NO_CONTROLS);
   }
 
 
@@ -204,19 +203,6 @@ public final class LDAPSearchException
   public List<SearchResultReference> getSearchReferences()
   {
     return searchResult.getSearchReferences();
-  }
-
-
-
-  /**
-   * Creates a new {@code SearchResult} object from this exception.
-   *
-   * @return  The {@code SearchResult} object created from this exception.
-   */
-  @Override()
-  public SearchResult toLDAPResult()
-  {
-    return searchResult;
   }
 
 

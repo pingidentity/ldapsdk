@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -99,17 +99,6 @@ public abstract class BindRequest
   protected abstract BindResult process(final LDAPConnection connection,
                                         final int depth)
             throws LDAPException;
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public final OperationType getOperationType()
-  {
-    return OperationType.BIND;
-  }
 
 
 

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -52,55 +52,10 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  * The following example demonstrates the use of the ManageDsaIT control to
  * delete an entry that may or may not be a referral:
  * <PRE>
- * // Establish a connection to the directory server.  Even though it's the
- * // default behavior, we'll explicitly configure the connection to not follow
- * // referrals.
- * LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
- * connectionOptions.setFollowReferrals(false);
- * LDAPConnection connection = new LDAPConnection(connectionOptions,
- *      serverAddress, serverPort, bindDN, bindPassword);
- *
- * // Try to delete an entry that will result in a referral.  Without the
- * // ManageDsaIT request control, we should get an exception.
- * DeleteRequest deleteRequest =
- *      new DeleteRequest("ou=referral entry,dc=example,dc=com");
- * LDAPResult deleteResult;
- * try
- * {
- *   deleteResult = connection.delete(deleteRequest);
- * }
- * catch (LDAPException le)
- * {
- *   // This exception is expected because we should get a referral, and
- *   // the connection is configured to not follow referrals.
- *   deleteResult = le.toLDAPResult();
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- *   String[] referralURLs = le.getReferralURLs();
- * }
- * LDAPTestUtils.assertResultCodeEquals(deleteResult, ResultCode.REFERRAL);
- * LDAPTestUtils.assertHasReferral(deleteResult);
- *
- * // Update the delete request to include the ManageDsaIT request control,
- * // which will cause the server to try to delete the referral entry instead
- * // of returning a referral response.  We'll assume that the delete is
- * // successful.
- * deleteRequest.addControl(new ManageDsaITRequestControl());
- * try
- * {
- *   deleteResult = connection.delete(deleteRequest);
- * }
- * catch (LDAPException le)
- * {
- *   // The delete shouldn't trigger a referral, but it's possible that the
- *   // operation failed for some other reason (e.g., entry doesn't exist, the
- *   // user doesn't have permission to delete it, etc.).
- *   deleteResult = le.toLDAPResult();
- * }
- * LDAPTestUtils.assertResultCodeEquals(deleteResult, ResultCode.SUCCESS);
- * LDAPTestUtils.assertMissingReferral(deleteResult);
- *
- * connection.close();
+ *   DeleteRequest deleteRequest =
+ *     new DeleteRequest("uid=john.doe,ou=People,dc=example,dc=com");
+ *   deleteRequest.addControl(new ManageDsaITRequestControl());
+ *   LDAPResult deleteResult = connection.delete(deleteRequest);
  * </PRE>
  */
 @NotMutable()

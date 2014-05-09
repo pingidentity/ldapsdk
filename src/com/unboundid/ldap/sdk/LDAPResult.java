@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1StreamReader;
@@ -84,6 +83,20 @@ import static com.unboundid.util.StaticUtils.*;
 public class LDAPResult
        implements Serializable, LDAPResponse
 {
+  /**
+   * An array that will be used when no controls were provided.
+   */
+  static final Control[] NO_CONTROLS = new Control[0];
+
+
+
+  /**
+   * An array that will be used when no referral URLs were provided.
+   */
+  static final String[] NO_REFERRALS = new String[0];
+
+
+
   /**
    * The BER type for the set of referral URLs.
    */
@@ -150,7 +163,7 @@ public class LDAPResult
    */
   public LDAPResult(final int messageID, final ResultCode resultCode)
   {
-    this(null, messageID, resultCode, null, null, NO_STRINGS, NO_CONTROLS);
+    this(null, messageID, resultCode, null, null, null, null);
   }
 
 
@@ -173,31 +186,6 @@ public class LDAPResult
                     final String diagnosticMessage, final String matchedDN,
                     final String[] referralURLs,
                     final Control[] responseControls)
-  {
-    this(null, messageID, resultCode, diagnosticMessage, matchedDN,
-         referralURLs, responseControls);
-  }
-
-
-
-  /**
-   * Creates a new LDAP result object with the provided information.
-   *
-   * @param  messageID          The message ID for the LDAP message that is
-   *                            associated with this LDAP result.
-   * @param  resultCode         The result code from the response.
-   * @param  diagnosticMessage  The diagnostic message from the response, if
-   *                            available.
-   * @param  matchedDN          The matched DN from the response, if available.
-   * @param  referralURLs       The set of referral URLs from the response, if
-   *                            available.
-   * @param  responseControls   The set of controls from the response, if
-   *                            available.
-   */
-  public LDAPResult(final int messageID, final ResultCode resultCode,
-                    final String diagnosticMessage, final String matchedDN,
-                    final List<String> referralURLs,
-                    final List<Control> responseControls)
   {
     this(null, messageID, resultCode, diagnosticMessage, matchedDN,
          referralURLs, responseControls);
@@ -235,7 +223,7 @@ public class LDAPResult
 
     if (referralURLs == null)
     {
-      this.referralURLs = NO_STRINGS;
+      this.referralURLs = NO_REFERRALS;
     }
     else
     {
@@ -249,57 +237,6 @@ public class LDAPResult
     else
     {
       this.responseControls = responseControls;
-    }
-  }
-
-
-
-  /**
-   * Creates a new LDAP result object with the provided information.
-   *
-   * @param  protocolOpType     The protocol op type for this result, if
-   *                            available.
-   * @param  messageID          The message ID for the LDAP message that is
-   *                            associated with this LDAP result.
-   * @param  resultCode         The result code from the response.
-   * @param  diagnosticMessage  The diagnostic message from the response, if
-   *                            available.
-   * @param  matchedDN          The matched DN from the response, if available.
-   * @param  referralURLs       The set of referral URLs from the response, if
-   *                            available.
-   * @param  responseControls   The set of controls from the response, if
-   *                            available.
-   */
-  private LDAPResult(final Byte protocolOpType, final int messageID,
-                     final ResultCode resultCode,
-                     final String diagnosticMessage, final String matchedDN,
-                     final List<String> referralURLs,
-                     final List<Control> responseControls)
-  {
-    this.protocolOpType    = protocolOpType;
-    this.messageID         = messageID;
-    this.resultCode        = resultCode;
-    this.diagnosticMessage = diagnosticMessage;
-    this.matchedDN         = matchedDN;
-
-    if ((referralURLs == null) || referralURLs.isEmpty())
-    {
-      this.referralURLs = NO_STRINGS;
-    }
-    else
-    {
-      this.referralURLs = new String[referralURLs.size()];
-      referralURLs.toArray(this.referralURLs);
-    }
-
-    if ((responseControls == null) || responseControls.isEmpty())
-    {
-      this.responseControls = NO_CONTROLS;
-    }
-    else
-    {
-      this.responseControls = new Control[responseControls.size()];
-      responseControls.toArray(this.responseControls);
     }
   }
 
@@ -346,7 +283,7 @@ public class LDAPResult
         diagnosticMessage = null;
       }
 
-      String[] referralURLs = NO_STRINGS;
+      String[] referralURLs = NO_REFERRALS;
       if (protocolOpSequence.hasMoreElements())
       {
         final ArrayList<String> refList = new ArrayList<String>(1);
@@ -464,9 +401,7 @@ public class LDAPResult
 
 
   /**
-   * Retrieves the set of controls from the response, if available.  Individual
-   * response controls of a specific type may be retrieved and decoded using the
-   * {@code get} method in the response control class.
+   * Retrieves the set of controls from the response, if available.
    *
    * @return  The set of controls from the response.  The array returned may be
    *          empty if the response did not include any controls.

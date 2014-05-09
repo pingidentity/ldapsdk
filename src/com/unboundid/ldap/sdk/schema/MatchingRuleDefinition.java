@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -48,6 +48,13 @@ import static com.unboundid.util.Validator.*;
 public final class MatchingRuleDefinition
        extends SchemaElement
 {
+  /**
+   * A pre-allocated zero-element string array.
+   */
+  private static final String[] NO_STRINGS = new String[0];
+
+
+
   /**
    * The serial version UID for this serializable class.
    */
@@ -141,16 +148,7 @@ public final class MatchingRuleDefinition
         pos++;
       }
 
-      // It's possible that the token could be smashed right up against the
-      // closing parenthesis.  If that's the case, then extract just the token
-      // and handle the closing parenthesis the next time through.
-      String token = matchingRuleString.substring(tokenStartPos, pos);
-      if ((token.length() > 1) && (token.endsWith(")")))
-      {
-        token = token.substring(0, token.length() - 1);
-        pos--;
-      }
-
+      final String token = matchingRuleString.substring(tokenStartPos, pos);
       final String lowerToken = toLowerCase(token);
       if (lowerToken.equals(")"))
       {
@@ -522,49 +520,6 @@ public final class MatchingRuleDefinition
   public Map<String,String[]> getExtensions()
   {
     return extensions;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public int hashCode()
-  {
-    return oid.hashCode();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public boolean equals(final Object o)
-  {
-    if (o == null)
-    {
-      return false;
-    }
-
-    if (o == this)
-    {
-      return true;
-    }
-
-    if (! (o instanceof MatchingRuleDefinition))
-    {
-      return false;
-    }
-
-    final MatchingRuleDefinition d = (MatchingRuleDefinition) o;
-    return (oid.equals(d.oid) &&
-         syntaxOID.equals(d.syntaxOID) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
-         (isObsolete == d.isObsolete) &&
-         extensionsEqual(extensions, d.extensions));
   }
 
 

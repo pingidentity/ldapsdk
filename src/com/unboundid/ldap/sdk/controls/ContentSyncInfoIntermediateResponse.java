@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -642,15 +642,14 @@ public final class ContentSyncInfoIntermediateResponse
       buffer.append(", ");
     }
 
-    buffer.append("type='");
+    buffer.append("type=");
     buffer.append(type.name());
-    buffer.append('\'');
 
     if (cookie != null)
     {
-      buffer.append(", cookie='");
+      buffer.append(", cookie=");
       StaticUtils.toHex(cookie.getValue(), buffer);
-      buffer.append("', ");
+      buffer.append(", ");
     }
 
     switch (type)
@@ -671,9 +670,7 @@ public final class ContentSyncInfoIntermediateResponse
         final Iterator<UUID> iterator = entryUUIDs.iterator();
         while (iterator.hasNext())
         {
-          buffer.append('\'');
           buffer.append(iterator.next());
-          buffer.append('\'');
           if (iterator.hasNext())
           {
             buffer.append(',');

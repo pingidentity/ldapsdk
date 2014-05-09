@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -38,13 +38,12 @@ import static com.unboundid.util.Validator.*;
 
 /**
  * This class provides an implementation of the transaction specification
- * request control as defined in
- * <A HREF="http://www.ietf.org/rfc/rfc5805.txt">RFC 5805</A>.  It may be used
- * to indicate that the associated add, delete, modify, modify DN, or password
- * modify operation is part of an LDAP transaction.  The transaction should be
- * created with the start transaction extended operation, which will obtain a
- * transaction ID, and the transaction may be committed or aborted using the end
- * transaction extended operation.
+ * request control as defined in RFC 5805.  It may be used to indicate that the
+ * associated add, delete, modify, modify DN, or password modify operation is
+ * part of an LDAP transaction.  The transaction should be created with the
+ * start transaction extended operation, which will obtain a transaction ID, and
+ * the transaction may be committed or aborted using the end transaction
+ * extended operation.
  * <BR><BR>
  * See the documentation for the {@link StartTransactionExtendedRequest} class
  * for an example of processing an LDAP transaction.
@@ -55,7 +54,7 @@ public final class TransactionSpecificationRequestControl
        extends Control
 {
   /**
-   * The OID (1.3.6.1.1.21.2) for the transaction specification request control.
+   * The OID for the transaction specification request control.
    */
   public static final String TRANSACTION_SPECIFICATION_REQUEST_OID =
        "1.3.6.1.1.21.2";
@@ -96,8 +95,7 @@ public final class TransactionSpecificationRequestControl
   public TransactionSpecificationRequestControl(
               final ASN1OctetString transactionID)
   {
-    super(TRANSACTION_SPECIFICATION_REQUEST_OID, true,
-         new ASN1OctetString(transactionID.getValue()));
+    super(TRANSACTION_SPECIFICATION_REQUEST_OID, true, transactionID);
 
     ensureNotNull(transactionID);
     this.transactionID = transactionID;

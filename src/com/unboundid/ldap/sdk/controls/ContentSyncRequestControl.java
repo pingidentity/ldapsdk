@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -421,15 +421,13 @@ public final class ContentSyncRequestControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("ContentSyncRequestControl(mode='");
+    buffer.append("ContentSyncRequestControl(mode=");
     buffer.append(mode.name());
-    buffer.append('\'');
 
     if (cookie != null)
     {
-      buffer.append(", cookie='");
+      buffer.append(", cookie=");
       StaticUtils.toHex(cookie.getValue(), buffer);
-      buffer.append('\'');
     }
 
     buffer.append(", reloadHint=");

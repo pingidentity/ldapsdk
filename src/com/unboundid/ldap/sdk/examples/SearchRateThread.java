@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -40,7 +40,6 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
-import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
@@ -70,10 +69,6 @@ final class SearchRateThread
   // The counter used to track the number of errors encountered while searching.
   private final AtomicLong errorCounter;
 
-  // The counter used to track the number of iterations remaining on the
-  // current connection.
-  private final AtomicLong remainingIterationsBeforeReconnect;
-
   // The counter used to track the number of searches performed.
   private final AtomicLong searchCounter;
 
@@ -87,7 +82,7 @@ final class SearchRateThread
   private final boolean async;
 
   // The connection to use for the searches.
-  private LDAPConnection connection;
+  private final LDAPConnection connection;
 
   // The result code for this thread.
   private final AtomicReference<ResultCode> resultCode;
@@ -95,15 +90,8 @@ final class SearchRateThread
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
 
-  // The number of iterations to request on a connection before closing and
-  // re-establishing it.
-  private final long iterationsBeforeReconnect;
-
   // The result code counter to use for failed operations.
   private final ResultCodeCounter rcCounter;
-
-  // A reference to the searchrate tool.
-  private final SearchRate searchRate;
 
   // The search request to generate.
   private final SearchRequest searchRequest;
@@ -136,54 +124,39 @@ final class SearchRateThread
   /**
    * Creates a new search rate thread with the provided information.
    *
-   * @param  searchRate                 A reference to the associated searchrate
-   *                                    tool.
-   * @param  threadNumber               The thread number for this thread.
-   * @param  connection                 The connection to use for the searches.
-   * @param  async                      Indicates whether to operate in
-   *                                    asynchronous mode.
-   * @param  baseDN                     The value pattern to use for the base
-   *                                    DNs.
-   * @param  scope                      The scope to use for the searches.
-   * @param  filter                     The value pattern for the filters.
-   * @param  attributes                 The set of attributes to return.
-   * @param  authzID                    The value pattern to use to generate
-   *                                    authorization identities for use with
-   *                                    the proxied authorization control.  It
-   *                                    may be {@code null} if proxied
-   *                                    authorization should not be used.
-   * @param  iterationsBeforeReconnect  The number of iterations that should be
-   *                                    processed on a connection before it is
-   *                                    closed and replaced with a
-   *                                    newly-established connection.
-   * @param  startBarrier               A barrier used to coordinate starting
-   *                                    between all of the threads.
-   * @param  searchCounter              A value that will be used to keep track
-   *                                    of the total number of searches
-   *                                    performed.
-   * @param  entryCounter               A value that will be used to keep track
-   *                                    of the total number of entries returned.
-   * @param  searchDurations            A value that will be used to keep track
-   *                                    of the total duration for all searches.
-   * @param  errorCounter               A value that will be used to keep track
-   *                                    of the number of errors encountered
-   *                                    while searching.
-   * @param  rcCounter                  The result code counter to use for
-   *                                    keeping track of the result codes for
-   *                                    failed operations.
-   * @param  rateBarrier                The barrier to use for controlling the
-   *                                    rate of searches.  {@code null} if no
-   *                                    rate-limiting should be used.
-   * @param  asyncSemaphore             The semaphore used ot limit the total
-   *                                    number of outstanding asynchronous
-   *                                    requests.
+   * @param  threadNumber     The thread number for this thread.
+   * @param  connection       The connection to use for the searches.
+   * @param  async            Indicates whether to operate in asynchronous mode.
+   * @param  baseDN           The value pattern to use for the base DNs.
+   * @param  scope            The scope to use for the searches.
+   * @param  filter           The value pattern for the filters.
+   * @param  attributes       The set of attributes to return.
+   * @param  authzID          The value pattern to use to generate authorization
+   *                          identities for use with the proxied authorization
+   *                          control.  It may be {@code null} if proxied
+   *                          authorization should not be used.
+   * @param  startBarrier     A barrier used to coordinate starting between all
+   *                          of the threads.
+   * @param  searchCounter    A value that will be used to keep track of the
+   *                          total number of searches performed.
+   * @param  entryCounter     A value that will be used to keep track of the
+   *                          total number of entries returned.
+   * @param  searchDurations  A value that will be used to keep track of the
+   *                          total duration for all searches.
+   * @param  errorCounter     A value that will be used to keep track of the
+   *                          number of errors encountered while searching.
+   * @param  rcCounter        The result code counter to use for keeping track
+   *                          of the result codes for failed operations.
+   * @param  rateBarrier      The barrier to use for controlling the rate of
+   *                          searches.  {@code null} if no rate-limiting
+   *                          should be used.
+   * @param  asyncSemaphore   The semaphore used ot limit the total number of
+   *                          outstanding asynchronous requests.
    */
-  SearchRateThread(final SearchRate searchRate, final int threadNumber,
-                   final LDAPConnection connection, final boolean async,
-                   final ValuePattern baseDN, final SearchScope scope,
-                   final ValuePattern filter, final String[] attributes,
-                   final ValuePattern authzID,
-                   final long iterationsBeforeReconnect,
+  SearchRateThread(final int threadNumber, final LDAPConnection connection,
+                   final boolean async, final ValuePattern baseDN,
+                   final SearchScope scope, final ValuePattern filter,
+                   final String[] attributes, final ValuePattern authzID,
                    final CyclicBarrier startBarrier,
                    final AtomicLong searchCounter,
                    final AtomicLong entryCounter,
@@ -196,33 +169,21 @@ final class SearchRateThread
     setName("SearchRate Thread " + threadNumber);
     setDaemon(true);
 
-    this.searchRate                = searchRate;
-    this.connection                = connection;
-    this.async                     = async;
-    this.baseDN                    = baseDN;
-    this.scope                     = scope;
-    this.filter                    = filter;
-    this.attributes                = attributes;
-    this.authzID                   = authzID;
-    this.iterationsBeforeReconnect = iterationsBeforeReconnect;
-    this.searchCounter             = searchCounter;
-    this.entryCounter              = entryCounter;
-    this.searchDurations           = searchDurations;
-    this.errorCounter              = errorCounter;
-    this.rcCounter                 = rcCounter;
-    this.startBarrier              = startBarrier;
-    this.asyncSemaphore            = asyncSemaphore;
-    fixedRateBarrier               = rateBarrier;
-
-    if (iterationsBeforeReconnect > 0L)
-    {
-      remainingIterationsBeforeReconnect =
-           new AtomicLong(iterationsBeforeReconnect);
-    }
-    else
-    {
-      remainingIterationsBeforeReconnect = null;
-    }
+    this.connection      = connection;
+    this.async           = async;
+    this.baseDN          = baseDN;
+    this.scope           = scope;
+    this.filter          = filter;
+    this.attributes      = attributes;
+    this.authzID         = authzID;
+    this.searchCounter   = searchCounter;
+    this.entryCounter    = entryCounter;
+    this.searchDurations = searchDurations;
+    this.errorCounter    = errorCounter;
+    this.rcCounter       = rcCounter;
+    this.startBarrier    = startBarrier;
+    this.asyncSemaphore  = asyncSemaphore;
+    fixedRateBarrier     = rateBarrier;
 
     connection.setConnectionName("search-" + threadNumber);
 
@@ -246,50 +207,10 @@ final class SearchRateThread
     try
     {
       startBarrier.await();
-    }
-    catch (Exception e)
-    {
-      Debug.debugException(e);
-    }
+    } catch (Exception e) {}
 
     while (! stopRequested.get())
     {
-      if ((iterationsBeforeReconnect > 0L) &&
-          (remainingIterationsBeforeReconnect.decrementAndGet() <= 0))
-      {
-        remainingIterationsBeforeReconnect.set(iterationsBeforeReconnect);
-        if (connection != null)
-        {
-          connection.close();
-          connection = null;
-        }
-      }
-
-      if (connection == null)
-      {
-        try
-        {
-          connection = searchRate.getConnection();
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
-          if (fixedRateBarrier != null)
-          {
-            fixedRateBarrier.await();
-          }
-
-          continue;
-        }
-      }
-
       // If we're trying for a specific target rate, then we might need to
       // wait until issuing the next search.
       if (fixedRateBarrier != null)
@@ -307,7 +228,6 @@ final class SearchRateThread
           }
           catch (final Exception e)
           {
-            Debug.debugException(e);
             errorCounter.incrementAndGet();
 
             final ResultCode rc = ResultCode.LOCAL_ERROR;
@@ -328,7 +248,6 @@ final class SearchRateThread
         }
         catch (final LDAPException le)
         {
-          Debug.debugException(le);
           errorCounter.incrementAndGet();
 
           final ResultCode rc = le.getResultCode();
@@ -358,7 +277,6 @@ final class SearchRateThread
         }
         catch (LDAPException le)
         {
-          Debug.debugException(le);
           errorCounter.incrementAndGet();
 
           final ResultCode rc = le.getResultCode();
@@ -376,7 +294,6 @@ final class SearchRateThread
         }
         catch (LDAPSearchException lse)
         {
-          Debug.debugException(lse);
           errorCounter.incrementAndGet();
           entryCounter.addAndGet(lse.getEntryCount());
 
@@ -386,8 +303,10 @@ final class SearchRateThread
 
           if (! lse.getResultCode().isConnectionUsable())
           {
-            connection.close();
-            connection = null;
+            try
+            {
+              connection.reconnect();
+            } catch (final LDAPException le2) {}
           }
         }
 
@@ -396,39 +315,19 @@ final class SearchRateThread
       }
     }
 
-    // Wait for all outstanding asynchronous searches to complete before closing
-    // the connection.
-    if (asyncSemaphore != null)
-    {
-      while (asyncSemaphore.availablePermits() <
-           searchRate.getMaxOutstandingRequests())
-      {
-        try
-        {
-          Thread.sleep(1L);
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-        }
-      }
-    }
-
-    if (connection != null)
-    {
-      connection.close();
-    }
-
+    connection.close();
     searchThread.set(null);
   }
 
 
 
   /**
-   * Indicates that this thread should stop running.  It will not wait for the
-   * thread to complete before returning.
+   * Indicates that this thread should stop running.
+   *
+   * @return  A result code that provides information about whether any errors
+   *          were encountered during processing.
    */
-  void signalShutdown()
+  public ResultCode stopRunning()
   {
     stopRequested.set(true);
 
@@ -436,29 +335,14 @@ final class SearchRateThread
     {
       fixedRateBarrier.shutdownRequested();
     }
-  }
 
-
-
-  /**
-   * Waits for this thread to stop running.
-   *
-   * @return  A result code that provides information about whether any errors
-   *          were encountered during processing.
-   */
-  ResultCode waitForShutdown()
-  {
     final Thread t = searchThread.get();
     if (t != null)
     {
       try
       {
         t.join();
-      }
-      catch (Exception e)
-      {
-        Debug.debugException(e);
-      }
+      } catch (Exception e) {}
     }
 
     resultCode.compareAndSet(null, ResultCode.SUCCESS);

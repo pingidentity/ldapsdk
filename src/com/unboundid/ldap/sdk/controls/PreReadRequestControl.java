@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,7 +29,6 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -79,7 +78,7 @@ public final class PreReadRequestControl
   /**
    * The set of requested attributes that will be used if none are provided.
    */
-  private static final String[] NO_ATTRIBUTES = StaticUtils.NO_STRINGS;
+  private static final String[] NO_ATTRIBUTES = new String[0];
 
 
 
@@ -255,9 +254,7 @@ public final class PreReadRequestControl
       {
         buffer.append(", ");
       }
-      buffer.append('\'');
       buffer.append(attributes[i]);
-      buffer.append('\'');
     }
     buffer.append("}, isCritical=");
     buffer.append(isCritical());

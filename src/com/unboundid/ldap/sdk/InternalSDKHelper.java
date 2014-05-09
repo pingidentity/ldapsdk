@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,7 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
 
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
@@ -56,56 +56,24 @@ public final class InternalSDKHelper
 
 
   /**
-   * Sets the SO_TIMEOUT socket option on the socket associated with this
-   * connection, which will take effect for the next blocking operation that is
-   * performed on the socket.  This will have no effect for connections that are
-   * operating in synchronous mode.
-   *
-   * @param  connection  The connection for which the SO_TIMEOUT option will be
-   *                     set.
-   * @param  soTimeout   The SO_TIMEOUT value (in milliseconds) that should be
-   *                     used for the connection.  It must be greater than or
-   *                     equal to zero, with a timeout of zero indicating an
-   *                     unlimited timeout.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         set the SO_TIMEOUT value.
-   */
-  @InternalUseOnly()
-  public static void setSoTimeout(final LDAPConnection connection,
-                                  final int soTimeout)
-         throws LDAPException
-  {
-    final LDAPConnectionReader connectionReader =
-         connection.getConnectionInternals(true).getConnectionReader();
-    if (connectionReader != null)
-    {
-      connectionReader.setSoTimeout(soTimeout);
-    }
-  }
-
-
-
-  /**
    * Converts the provided clear-text connection to one that encrypts all
    * communication using Transport Layer Security.  This method is intended for
    * use as a helper for processing in the course of the StartTLS extended
    * operation and should not be used for other purposes.
    *
-   * @param  connection        The LDAP connection to be converted to use TLS.
-   * @param  sslSocketFactory  The SSL socket factory to use to convert an
-   *                           insecure connection into a secure connection.  It
-   *                           must not be {@code null}.
+   * @param  connection  The LDAP connection to be converted to use TLS.
+   * @param  sslContext  The SSL context to use when performing the negotiation.
+   *                     It must not be {@code null}.
    *
    * @throws  LDAPException  If a problem occurs while converting the provided
    *                         connection to use TLS.
    */
   @InternalUseOnly()
   public static void convertToTLS(final LDAPConnection connection,
-                                  final SSLSocketFactory sslSocketFactory)
+                                  final SSLContext sslContext)
          throws LDAPException
   {
-    connection.convertToTLS(sslSocketFactory);
+    connection.convertToTLS(sslContext);
   }
 
 
@@ -115,16 +83,13 @@ public final class InternalSDKHelper
    *
    * @param  targetMessageID  The message ID to use for the asynchronous request
    *                          ID.
-   * @param  connection       The connection on which the associated request has
-   *                          been sent.
    *
    * @return  The new asynchronous request ID.
    */
   @InternalUseOnly()
-  public static AsyncRequestID createAsyncRequestID(final int targetMessageID,
-                                    final LDAPConnection connection)
+  public static AsyncRequestID createAsyncRequestID(final int targetMessageID)
   {
-    return new AsyncRequestID(targetMessageID, connection);
+    return new AsyncRequestID(targetMessageID);
   }
 
 
@@ -382,42 +347,5 @@ public final class InternalSDKHelper
          throws LDAPException
   {
     return IntermediateResponse.readFrom(messageID, messageSequence, reader);
-  }
-
-
-
-  /**
-   * Indicates whether automatic referral following is enabled for the provided
-   * request.
-   *
-   * @param  request  The request for which to make the determination.
-   *
-   * @return  {@code Boolean.TRUE} if automatic referral following is enabled
-   *          for this request, {@code Boolean.FALSE} if not, or {@code null} if
-   *          a per-request behavior is not specified.
-   */
-  @InternalUseOnly()
-  public static Boolean followReferralsInternal(final LDAPRequest request)
-  {
-    return request.followReferralsInternal();
-  }
-
-
-
-  /**
-   * Retrieves the message ID that should be used for the next request sent
-   * over the provided connection.
-   *
-   * @param  connection  The LDAP connection for which to obtain the next
-   *                     request message ID.
-   *
-   * @return  The message ID that should be used for the next request sent over
-   *          the provided connection, or -1 if the connection is not
-   *          established.
-   */
-  @InternalUseOnly()
-  public static int nextMessageID(final LDAPConnection connection)
-  {
-    return connection.nextMessageID();
   }
 }

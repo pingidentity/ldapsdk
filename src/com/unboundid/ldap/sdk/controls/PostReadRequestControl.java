@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,7 +29,6 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -61,57 +60,30 @@ import static com.unboundid.util.Debug.*;
  * included.
  * <BR><BR>
  * <H2>Example</H2>
- * The following example demonstrates the use of the pre-read and post-read
- * controls.  It will modify an entry to increment the value of the
- * {@code test-counter} attribute by one, and will use the pre-read and
- * post-read controls to determine what the previous and updated values are:
+ * The following example demonstrates the use of the post-read controls.  It
+ * will modify an entry to increment the value of the {@code testCounter}
+ * attribute by one, and will use the post-read controls to determine what the
+ * new value is:
  * <PRE>
- * // Create a modify request that we can use to increment the value of a
- * // custom attribute named "test-counter".
- * ModifyRequest modifyRequest = new ModifyRequest(
- *      "uid=test.user,ou=People,dc=example,dc=com",
- *      new Modification(ModificationType.INCREMENT,
- *           "test-counter", // The attribute to increment.
- *           "1")); // The amount by which to increment the value.
+ *   Modification mod =
+ *        new Modification(ModificationType.INCREMENT, "testCounter", "1");
+ *   ModifyRequest modifyRequest =
+ *        new ModifyRequest("uid=john.doe,ou=People,dc=example,dc=com", mod);
+ *   modifyRequest.addControl(new PostReadRequestControl("testCounter"));
+ *   LDAPResult modifyResult = connection.modify(modifyRequest);
  *
- * // Update the modify request to add both pre-read and post-read request
- * // controls to see what the entry value was before and after the change.
- * // We only care about getting the test-counter attribute.
- * modifyRequest.setControls(
- *      new PreReadRequestControl("test-counter"),
- *      new PostReadRequestControl("test-counter"));
- *
- * // Process the modify operation in the server.
- * LDAPResult modifyResult;
- * try
- * {
- *   modifyResult = connection.modify(modifyRequest);
- *   // If we got here, then the modification should have been successful.
- * }
- * catch (LDAPException le)
- * {
- *   // This indicates that the operation did not complete successfully.
- *   modifyResult = le.toLDAPResult();
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
- * LDAPTestUtils.assertResultCodeEquals(modifyResult, ResultCode.SUCCESS);
- *
- * // Get the pre-read and post-read response controls from the server and
- * // retrieve the before and after values for the test-counter attribute.
- * LDAPTestUtils.assertHasControl(modifyResult,
- *      PreReadResponseControl.PRE_READ_RESPONSE_OID);
- * PreReadResponseControl preReadResponse =
- *      PreReadResponseControl.get(modifyResult);
- * Integer beforeValue =
- *      preReadResponse.getEntry().getAttributeValueAsInteger("test-counter");
- *
- * LDAPTestUtils.assertHasControl(modifyResult,
- *      PostReadResponseControl.POST_READ_RESPONSE_OID);
- * PostReadResponseControl postReadResponse =
- *      PostReadResponseControl.get(modifyResult);
- * Integer afterValue =
- *      postReadResponse.getEntry().getAttributeValueAsInteger("test-counter");
+ *   Integer newValue = null;
+ *   for (Control c : modifyResult.getResponseControls())
+ *   {
+ *     if (c instanceof PostReadResponseControl)
+ *     {
+ *       ReadOnlyEntry e = ((PostReadResponseControl) c).getEntry();
+ *       if (e.hasAttribute("testCounter"))
+ *       {
+ *         newValue = Integer.parseInt(e.getAttributeValue("testCounter"));
+ *       }
+ *     }
+ *   }
  * </PRE>
  */
 @NotMutable()
@@ -129,7 +101,7 @@ public final class PostReadRequestControl
   /**
    * The set of requested attributes that will be used if none are provided.
    */
-  private static final String[] NO_ATTRIBUTES = StaticUtils.NO_STRINGS;
+  private static final String[] NO_ATTRIBUTES = new String[0];
 
 
 
@@ -305,9 +277,7 @@ public final class PostReadRequestControl
       {
         buffer.append(", ");
       }
-      buffer.append('\'');
       buffer.append(attributes[i]);
-      buffer.append('\'');
     }
     buffer.append("}, isCritical=");
     buffer.append(isCritical());

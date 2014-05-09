@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -26,7 +26,6 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -154,42 +153,6 @@ public final class PasswordExpiringControl
          throws LDAPException
   {
     return new PasswordExpiringControl(oid, isCritical, value);
-  }
-
-
-
-  /**
-   * Extracts a password expiring control from the provided result.
-   *
-   * @param  result  The result from which to retrieve the password expiring
-   *                 control.
-   *
-   * @return  The password expiring control contained in the provided result, or
-   *          {@code null} if the result did not contain a password expiring
-   *          control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the password expiring control contained in
-   *                         the provided result.
-   */
-  public static PasswordExpiringControl get(final LDAPResult result)
-         throws LDAPException
-  {
-    final Control c = result.getResponseControl(PASSWORD_EXPIRING_OID);
-    if (c == null)
-    {
-      return null;
-    }
-
-    if (c instanceof PasswordExpiringControl)
-    {
-      return (PasswordExpiringControl) c;
-    }
-    else
-    {
-      return new PasswordExpiringControl(c.getOID(), c.isCritical(),
-           c.getValue());
-    }
   }
 
 

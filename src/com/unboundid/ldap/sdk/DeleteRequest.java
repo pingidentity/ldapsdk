@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,7 +22,6 @@ package com.unboundid.ldap.sdk;
 
 
 
-import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -60,21 +59,19 @@ import static com.unboundid.util.Validator.*;
  * The following example demonstrates the process for performing a delete
  * operation:
  * <PRE>
- * DeleteRequest deleteRequest =
- *      new DeleteRequest("cn=entry to delete,dc=example,dc=com");
- * LDAPResult deleteResult;
- * try
- * {
- *   deleteResult = connection.delete(deleteRequest);
- *   // If we get here, the delete was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // The delete operation failed.
- *   deleteResult = le.toLDAPResult();
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   DeleteRequest deleteRequest =
+ *        new DeleteRequest("cn=entry to delete,dc=example,dc=com");
+ *
+ *   try
+ *   {
+ *     LDAPResult deleteResult = connection.delete(deleteRequest);
+ *
+ *     System.out.println("The entry was successfully deleted.");
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     System.err.println("The delete operation failed.");
+ *   }
  * </PRE>
  */
 @Mutable()
@@ -233,7 +230,7 @@ public final class DeleteRequest
    *
    * @return  The ASN.1 element with the encoded delete request protocol op.
    */
-  public ASN1Element encodeProtocolOp()
+  ASN1Element encodeProtocolOp()
   {
     return new ASN1OctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
   }
@@ -262,8 +259,7 @@ public final class DeleteRequest
   {
     if (connection.synchronousMode())
     {
-      return processSync(connection, depth,
-           connection.getConnectionOptions().autoReconnect());
+      return processSync(connection, depth);
     }
 
     final long requestTime = System.nanoTime();
@@ -292,7 +288,7 @@ public final class DeleteRequest
              ERR_DELETE_INTERRUPTED.get(connection.getHostPort()), ie);
       }
 
-      return handleResponse(connection, response,  requestTime, depth, false);
+      return handleResponse(connection, response,  requestTime, depth);
     }
     finally
     {
@@ -313,15 +309,14 @@ public final class DeleteRequest
    *                         {@code null} only if the result is to be processed
    *                         by this class.
    *
-   * @return  The async request ID created for the operation, or {@code null} if
-   *          the provided {@code resultListener} is {@code null} and the
-   *          operation will not actually be processed asynchronously.
+   * @return  The LDAP message ID for the delete request that was sent to the
+   *          server.
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncResultListener resultListener)
-                 throws LDAPException
+  int processAsync(final LDAPConnection connection,
+                   final AsyncResultListener resultListener)
+      throws LDAPException
   {
     // Create the LDAP message.
     messageID = connection.nextMessageID();
@@ -331,29 +326,16 @@ public final class DeleteRequest
     // If the provided async result listener is {@code null}, then we'll use
     // this class as the message acceptor.  Otherwise, create an async helper
     // and use it as the message acceptor.
-    final AsyncRequestID asyncRequestID;
     if (resultListener == null)
     {
-      asyncRequestID = null;
       connection.registerResponseAcceptor(messageID, this);
     }
     else
     {
       final AsyncHelper helper = new AsyncHelper(connection,
-           OperationType.DELETE, messageID, resultListener,
+           LDAPMessage.PROTOCOL_OP_TYPE_DELETE_RESPONSE, resultListener,
            getIntermediateResponseListener());
       connection.registerResponseAcceptor(messageID, helper);
-      asyncRequestID = helper.getAsyncRequestID();
-
-      final long timeout = getResponseTimeoutMillis(connection);
-      if (timeout > 0L)
-      {
-        final Timer timer = connection.getTimer();
-        final AsyncTimeoutTimerTask timerTask =
-             new AsyncTimeoutTimerTask(helper);
-        timer.schedule(timerTask, timeout);
-        asyncRequestID.setTimerTask(timerTask);
-      }
     }
 
 
@@ -363,7 +345,7 @@ public final class DeleteRequest
       debugLDAPRequest(this);
       connection.getConnectionStatistics().incrementNumDeleteRequests();
       connection.sendMessage(message);
-      return asyncRequestID;
+      return messageID;
     }
     catch (LDAPException le)
     {
@@ -385,10 +367,6 @@ public final class DeleteRequest
    * @param  depth       The current referral depth for this request.  It should
    *                     always be one for the initial request, and should only
    *                     be incremented when following referrals.
-   * @param  allowRetry  Indicates whether the request may be re-tried on a
-   *                     re-established connection if the initial attempt fails
-   *                     in a way that indicates the connection is no longer
-   *                     valid and autoReconnect is true.
    *
    * @return  An LDAP result object that provides information about the result
    *          of the delete processing.
@@ -397,7 +375,7 @@ public final class DeleteRequest
    *                         reading the response.
    */
   private LDAPResult processSync(final LDAPConnection connection,
-                                 final int depth, final boolean allowRetry)
+                                 final int depth)
           throws LDAPException
   {
     // Create the LDAP message.
@@ -409,7 +387,7 @@ public final class DeleteRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      connection.getConnectionInternals().getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
     catch (Exception e)
@@ -422,73 +400,10 @@ public final class DeleteRequest
     final long requestTime = System.nanoTime();
     debugLDAPRequest(this);
     connection.getConnectionStatistics().incrementNumDeleteRequests();
-    try
-    {
-      connection.sendMessage(message);
-    }
-    catch (final LDAPException le)
-    {
-      debugException(le);
+    connection.sendMessage(message);
 
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             le.getResultCode());
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
-      throw le;
-    }
-
-    while (true)
-    {
-      final LDAPResponse response;
-      try
-      {
-        response = connection.readResponse(messageID);
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-
-        if ((le.getResultCode() == ResultCode.TIMEOUT) &&
-            connection.getConnectionOptions().abandonOnTimeout())
-        {
-          connection.abandon(messageID);
-        }
-
-        if (allowRetry)
-        {
-          final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-               le.getResultCode());
-          if (retryResult != null)
-          {
-            return retryResult;
-          }
-        }
-
-        throw le;
-      }
-
-      if (response instanceof IntermediateResponse)
-      {
-        final IntermediateResponseListener listener =
-             getIntermediateResponseListener();
-        if (listener != null)
-        {
-          listener.intermediateResponseReturned(
-               (IntermediateResponse) response);
-        }
-      }
-      else
-      {
-        return handleResponse(connection, response, requestTime, depth,
-             allowRetry);
-      }
-    }
+    final LDAPResponse response = connection.readResponse(messageID);
+    return handleResponse(connection, response, requestTime, depth);
   }
 
 
@@ -502,10 +417,6 @@ public final class DeleteRequest
    * @param  depth        The current referral depth for this request.  It
    *                      should always be one for the initial request, and
    *                      should only be incremented when following referrals.
-   * @param  allowRetry   Indicates whether the request may be re-tried on a
-   *                      re-established connection if the initial attempt fails
-   *                      in a way that indicates the connection is no longer
-   *                      valid and autoReconnect is true.
    *
    * @return  The delete result.
    *
@@ -513,21 +424,14 @@ public final class DeleteRequest
    */
   private LDAPResult handleResponse(final LDAPConnection connection,
                                     final LDAPResponse response,
-                                    final long requestTime, final int depth,
-                                    final boolean allowRetry)
+                                    final long requestTime, final int depth)
           throws LDAPException
   {
     if (response == null)
     {
       final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
-      if (connection.getConnectionOptions().abandonOnTimeout())
-      {
-        connection.abandon(messageID);
-      }
-
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_DELETE_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
-                connection.getHostPort()));
+           ERR_DELETE_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumDeleteResponses(
@@ -535,16 +439,6 @@ public final class DeleteRequest
     if (response instanceof ConnectionClosedResponse)
     {
       // The connection was closed while waiting for the response.
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             ResultCode.SERVER_DOWN);
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
       final String message = ccr.getMessage();
       if (message == null)
@@ -577,58 +471,8 @@ public final class DeleteRequest
     }
     else
     {
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             result.getResultCode());
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
       return result;
     }
-  }
-
-
-
-  /**
-   * Attempts to re-establish the connection and retry processing this request
-   * on it.
-   *
-   * @param  connection  The connection to be re-established.
-   * @param  depth       The current referral depth for this request.  It should
-   *                     always be one for the initial request, and should only
-   *                     be incremented when following referrals.
-   * @param  resultCode  The result code for the previous operation attempt.
-   *
-   * @return  The result from re-trying the add, or {@code null} if it could not
-   *          be re-tried.
-   */
-  private LDAPResult reconnectAndRetry(final LDAPConnection connection,
-                                       final int depth,
-                                       final ResultCode resultCode)
-  {
-    try
-    {
-      // We will only want to retry for certain result codes that indicate a
-      // connection problem.
-      switch (resultCode.intValue())
-      {
-        case ResultCode.SERVER_DOWN_INT_VALUE:
-        case ResultCode.DECODING_ERROR_INT_VALUE:
-        case ResultCode.CONNECT_ERROR_INT_VALUE:
-          connection.reconnect();
-          return processSync(connection, depth, false);
-      }
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-    return null;
   }
 
 
@@ -679,8 +523,8 @@ public final class DeleteRequest
           deleteRequest = this;
         }
 
-        final LDAPConnection referralConn = connection.getReferralConnector().
-             getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn =
+             connection.getReferralConnection(referralURL, connection);
         try
         {
           return deleteRequest.process(referralConn, depth+1);
@@ -732,17 +576,6 @@ public final class DeleteRequest
   public int getLastMessageID()
   {
     return messageID;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public OperationType getOperationType()
-  {
-    return OperationType.DELETE;
   }
 
 

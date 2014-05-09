@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -80,62 +80,10 @@ public final class KeyStoreKeyManager
    * @throws  KeyStoreException  If a problem occurs while initializing this key
    *                             manager.
    */
-  public KeyStoreKeyManager(final File keyStoreFile, final char[] keyStorePIN)
-         throws KeyStoreException
-  {
-    this(keyStoreFile.getAbsolutePath(), keyStorePIN, null, null);
-  }
-
-
-
-  /**
-   * Creates a new instance of this key store key manager that provides the
-   * ability to retrieve certificates from the specified key store file.  It
-   * will use the default key store format.
-   *
-   * @param  keyStoreFile  The path to the key store file to use.  It must not
-   *                       be {@code null}.
-   * @param  keyStorePIN   The PIN to use to access the contents of the key
-   *                       store.  It may be {@code null} if no PIN is required.
-   *
-   * @throws  KeyStoreException  If a problem occurs while initializing this key
-   *                             manager.
-   */
   public KeyStoreKeyManager(final String keyStoreFile, final char[] keyStorePIN)
          throws KeyStoreException
   {
     this(keyStoreFile, keyStorePIN, null, null);
-  }
-
-
-
-  /**
-   * Creates a new instance of this key store key manager that provides the
-   * ability to retrieve certificates from the specified key store file.
-   *
-   * @param  keyStoreFile      The path to the key store file to use.  It must
-   *                           not be {@code null}.
-   * @param  keyStorePIN       The PIN to use to access the contents of the key
-   *                           store.  It may be {@code null} if no PIN is
-   *                           required.
-   * @param  keyStoreFormat    The format to use for the key store.  It may be
-   *                           {@code null} if the default format should be
-   *                           used.
-   * @param  certificateAlias  The nickname of the certificate that should be
-   *                           selected.  It may be {@code null} if any
-   *                           acceptable certificate found in the keystore may
-   *                           be used.
-   *
-   * @throws  KeyStoreException  If a problem occurs while initializing this key
-   *                             manager.
-   */
-  public KeyStoreKeyManager(final File keyStoreFile, final char[] keyStorePIN,
-                            final String keyStoreFormat,
-                            final String certificateAlias)
-         throws KeyStoreException
-  {
-    this(keyStoreFile.getAbsolutePath(), keyStorePIN, keyStoreFormat,
-         certificateAlias);
   }
 
 

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,10 +23,8 @@ package com.unboundid.ldif;
 
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -35,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -46,15 +43,12 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.Schema;
-import com.unboundid.util.AggregateInputStream;
 import com.unboundid.util.Base64;
-import com.unboundid.util.LDAPSDKThreadFactory;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.parallel.AsynchronousParallelProcessor;
@@ -79,69 +73,60 @@ import static com.unboundid.util.Validator.*;
  * The following example iterates through all entries contained in an LDIF file
  * and attempts to add them to a directory server:
  * <PRE>
- * LDIFReader ldifReader = new LDIFReader(pathToLDIFFile);
+ *   LDIFReader ldifReader = new LDIFReader(pathToLDIFFile);
  *
- * int entriesRead = 0;
- * int entriesAdded = 0;
- * int errorsEncountered = 0;
- * while (true)
- * {
- *   Entry entry;
- *   try
+ *   while (true)
  *   {
- *     entry = ldifReader.readEntry();
- *     if (entry == null)
+ *     Entry entry;
+ *     try
  *     {
- *       // All entries have been read.
+ *       entry = ldifReader.readEntry();
+ *       if (entry == null)
+ *       {
+ *         System.err.println("All entries have been processed.");
+ *         break;
+ *       }
+ *     }
+ *     catch (LDIFException le)
+ *     {
+ *       if (le.mayContinueReading())
+ *       {
+ *         System.err.println("A recoverable occurred while attempting to " +
+ *              "read an entry at or near line number " + le.getLineNumber() +
+ *              ":  " + le.getMessage());
+ *         System.err.println("The entry will be skipped.");
+ *         continue;
+ *       }
+ *       else
+ *       {
+ *         System.err.println("An unrecoverable occurred while attempting to " +
+ *              "read an entry at or near line number " + le.getLineNumber() +
+ *              ":  " + le.getMessage());
+ *         System.err.println("LDIF processing will be aborted.");
+ *         break;
+ *       }
+ *     }
+ *     catch (IOException ioe)
+ *     {
+ *       System.err.println("An I/O error occurred while attempting to read " +
+ *            "from the LDIF file:  " + ioe.getMessage());
+ *       System.err.println("LDIF processing will be aborted.");
  *       break;
  *     }
  *
- *     entriesRead++;
- *   }
- *   catch (LDIFException le)
- *   {
- *     errorsEncountered++;
- *     if (le.mayContinueReading())
+ *     try
  *     {
- *       // A recoverable error occurred while attempting to read a change
- *       // record, at or near line number le.getLineNumber()
- *       // The entry will be skipped, but we'll try to keep reading from the
- *       // LDIF file.
- *       continue;
+ *       connection.add(entry);
+ *       System.out.println("Successfully added entry " + entry.getDN());
  *     }
- *     else
+ *     catch (LDAPException le)
  *     {
- *       // An unrecoverable error occurred while attempting to read an entry
- *       // at or near line number le.getLineNumber()
- *       // No further LDIF processing will be performed.
- *       break;
+ *       System.err.println("Unable to add entry " + entry.getDN() + " -- " +
+ *            le.getMessage());
  *     }
  *   }
- *   catch (IOException ioe)
- *   {
- *     // An I/O error occurred while attempting to read from the LDIF file.
- *     // No further LDIF processing will be performed.
- *     errorsEncountered++;
- *     break;
- *   }
  *
- *   LDAPResult addResult;
- *   try
- *   {
- *     addResult = connection.add(entry);
- *     // If we got here, then the change should have been processed
- *     // successfully.
- *     entriesAdded++;
- *   }
- *   catch (LDAPException le)
- *   {
- *     // If we got here, then the change attempt failed.
- *     addResult = le.toLDAPResult();
- *     errorsEncountered++;
- *   }
- * }
- *
- * ldifReader.close();
+ *   ldifReader.close();
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
@@ -153,70 +138,24 @@ public final class LDIFReader
    */
   public static final int DEFAULT_BUFFER_SIZE = 128 * 1024;
 
-
-
-  /*
-   * When processing asynchronously, this determines how many of the allocated
-   * worker threads are used to parse each batch of read entries.
-   */
+  // When processing asynchronously, this determines how many of the allocated
+  // worker threads are used to parse each batch of read entries.
   private static final int ASYNC_MIN_PER_PARSING_THREAD = 3;
 
-
-
-  /**
-   * When processing asynchronously, this specifies the size of the pending and
-   * completed queues.
-   */
+  // When processing asynchronously, this specifies the size of the pending
+  // and completed queues.
   private static final int ASYNC_QUEUE_SIZE = 500;
 
-
-
-  /**
-   * Special entry used internally to signal that the LDIFReaderEntryTranslator
-   * has signalled that a read Entry should be skipped by returning null,
-   * which normally implies EOF.
-   */
+  // Special entry used internally to signal that the LDIFReaderEntryTranslator
+  // has signalled that a read Entry should be skipped by returning null,
+  // which normally implies EOF.
   private static final Entry SKIP_ENTRY = new Entry("cn=skipped");
 
-
-
-  /**
-   * The default base path that will be prepended to relative paths.  It will
-   * end with a trailing slash.
-   */
-  private static final String DEFAULT_RELATIVE_BASE_PATH;
-  static
-  {
-    final File currentDir;
-    String currentDirString = System.getProperty("user.dir");
-    if (currentDirString == null)
-    {
-      currentDir = new File(".");
-    }
-    else
-    {
-      currentDir = new File(currentDirString);
-    }
-
-    final String currentDirAbsolutePath = currentDir.getAbsolutePath();
-    if (currentDirAbsolutePath.endsWith(File.separator))
-    {
-      DEFAULT_RELATIVE_BASE_PATH = currentDirAbsolutePath;
-    }
-    else
-    {
-      DEFAULT_RELATIVE_BASE_PATH = currentDirAbsolutePath + File.separator;
-    }
-  }
-
-
+  // Indicates whether to ignore duplicate values.
+  private boolean ignoreDuplicateValues = true;
 
   // The buffered reader that will be used to read LDIF data.
   private final BufferedReader reader;
-
-  // The behavior that should be exhibited when encountering duplicate attribute
-  // values.
-  private volatile DuplicateValueBehavior duplicateValueBehavior;
 
   // A line number counter.
   private long lineNumberCounter = 0;
@@ -225,14 +164,6 @@ public final class LDIFReader
 
   // The schema that will be used when processing, if applicable.
   private Schema schema;
-
-  // Specifies the base path that will be prepended to relative paths for file
-  // URLs.
-  private volatile String relativeBasePath;
-
-  // The behavior that should be exhibited with regard to illegal trailing
-  // spaces in attribute values.
-  private volatile TrailingSpaceBehavior trailingSpaceBehavior;
 
   // True iff we are processing asynchronously.
   private final boolean isAsync;
@@ -315,11 +246,11 @@ public final class LDIFReader
 
   /**
    * Creates a new LDIF reader that will read data from the specified file
-   * and optionally parses the LDIF records asynchronously using the specified
-   * number of threads.
+   * and parses the LDIF records asynchronously using the specified number of
+   * threads.
    *
-   * @param  file             The file from which the data is to be read.  It
-   *                          must not be {@code null}.
+   * @param  file  The file from which the data is to be read.  It must not be
+   *               {@code null}.
    * @param  numParseThreads  If this value is greater than zero, then the
    *                          specified number of threads will be used to
    *                          asynchronously read and parse the LDIF file.
@@ -331,94 +262,6 @@ public final class LDIFReader
          throws IOException
   {
     this(new FileInputStream(file), numParseThreads);
-  }
-
-
-
-  /**
-   * Creates a new LDIF reader that will read data from the specified files in
-   * the order in which they are provided and optionally parses the LDIF records
-   * asynchronously using the specified number of threads.
-   *
-   * @param  files            The files from which the data is to be read.  It
-   *                          must not be {@code null} or empty.
-   * @param  numParseThreads  If this value is greater than zero, then the
-   *                          specified number of threads will be used to
-   *                          asynchronously read and parse the LDIF file.
-   * @param entryTranslator   The LDIFReaderEntryTranslator to apply to entries
-   *                          before they are returned.  This is normally
-   *                          {@code null}, which causes entries to be returned
-   *                          unaltered. This is particularly useful when
-   *                          parsing the input file in parallel because the
-   *                          entry translation is also done in parallel.
-   *
-   * @throws  IOException  If a problem occurs while opening the file for
-   *                       reading.
-   */
-  public LDIFReader(final File[] files, final int numParseThreads,
-                    final LDIFReaderEntryTranslator entryTranslator)
-         throws IOException
-  {
-    this(createAggregateInputStream(files), numParseThreads, entryTranslator);
-  }
-
-
-
-  /**
-   * Creates a new aggregate input stream that will read data from the specified
-   * files.  If there are multiple files, then a "padding" file will be inserted
-   * between them to ensure that there is at least one blank line between the
-   * end of one file and the beginning of another.
-   *
-   * @param  files  The files from which the data is to be read.  It must not be
-   *                {@code null} or empty.
-   *
-   * @return  The input stream to use to read data from the provided files.
-   *
-   * @throws  IOException  If a problem is encountered while attempting to
-   *                       create the input stream.
-   */
-  private static InputStream createAggregateInputStream(final File... files)
-          throws IOException
-  {
-    if (files.length == 0)
-    {
-      throw new IOException(ERR_READ_NO_LDIF_FILES.get());
-    }
-    else if (files.length == 1)
-    {
-      return new FileInputStream(files[0]);
-    }
-    else
-    {
-      final File spacerFile =
-           File.createTempFile("ldif-reader-spacer", ".ldif");
-      spacerFile.deleteOnExit();
-
-      final BufferedWriter spacerWriter =
-           new BufferedWriter(new FileWriter(spacerFile));
-      try
-      {
-        spacerWriter.newLine();
-        spacerWriter.newLine();
-      }
-      finally
-      {
-        spacerWriter.close();
-      }
-
-      final File[] returnArray = new File[(files.length * 2) - 1];
-      returnArray[0] = files[0];
-
-      int pos = 1;
-      for (int i=1; i < files.length; i++)
-      {
-        returnArray[pos++] = spacerFile;
-        returnArray[pos++] = files[i];
-      }
-
-      return new AggregateInputStream(returnArray);
-    }
   }
 
 
@@ -473,10 +316,10 @@ public final class LDIFReader
    *                          specified number of threads will be used to
    *                          asynchronously read and parse the LDIF file.
    * @param entryTranslator  The LDIFReaderEntryTranslator to apply to read
-   *                         entries before they are returned.  This is normally
-   *                         {@code null}, which causes entries to be returned
+   *                         EntryS before they are returned.  This is normally
+   *                         {@code null}, which causes EntryS to be returned
    *                         unaltered. This is particularly useful when parsing
-   *                         the input file in parallel because the entry
+   *                         the input file in parallel because the Entry
    *                         translation is also done in parallel.
    *
    * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
@@ -554,10 +397,10 @@ public final class LDIFReader
    *                          records synchronously when one of the read
    *                          methods is called.
    * @param entryTranslator  The LDIFReaderEntryTranslator to apply to read
-   *                         entries before they are returned.  This is normally
-   *                         {@code null}, which causes entries to be returned
+   *                         EntryS before they are returned.  This is normally
+   *                         {@code null}, which causes EntryS to be returned
    *                         unaltered. This is particularly useful when parsing
-   *                         the input file in parallel because the entry
+   *                         the input file in parallel because the Entry
    *                         translation is also done in parallel.
    */
   public LDIFReader(final BufferedReader reader,
@@ -570,11 +413,6 @@ public final class LDIFReader
 
     this.reader = reader;
     this.entryTranslator = entryTranslator;
-
-    duplicateValueBehavior = DuplicateValueBehavior.STRIP;
-    trailingSpaceBehavior  = TrailingSpaceBehavior.REJECT;
-
-    relativeBasePath = DEFAULT_RELATIVE_BASE_PATH;
 
     if (numParseThreads == 0)
     {
@@ -589,12 +427,9 @@ public final class LDIFReader
       asyncParsingComplete = new AtomicBoolean(false);
 
       // Decodes entries in parallel.
-      final LDAPSDKThreadFactory threadFactory =
-           new LDAPSDKThreadFactory("LDIFReader Worker", true, null);
       final ParallelProcessor<UnparsedLDIFRecord, LDIFRecord> parallelParser =
-           new ParallelProcessor<UnparsedLDIFRecord, LDIFRecord>(
-                new RecordParser(), threadFactory, numParseThreads,
-                ASYNC_MIN_PER_PARSING_THREAD);
+          new ParallelProcessor<UnparsedLDIFRecord, LDIFRecord>(
+             new RecordParser(), numParseThreads, ASYNC_MIN_PER_PARSING_THREAD);
 
       final BlockingQueue<UnparsedLDIFRecord> pendingQueue = new
            ArrayBlockingQueue<UnparsedLDIFRecord>(ASYNC_QUEUE_SIZE);
@@ -611,122 +446,6 @@ public final class LDIFReader
 
       final LineReaderThread lineReaderThread = new LineReaderThread();
       lineReaderThread.start();
-    }
-  }
-
-
-
-  /**
-   * Reads entries from the LDIF file with the specified path and returns them
-   * as a {@code List}.  This is a convenience method that should only be used
-   * for data sets that are small enough so that running out of memory isn't a
-   * concern.
-   *
-   * @param  path  The path to the LDIF file containing the entries to be read.
-   *
-   * @return  A list of the entries read from the given LDIF file.
-   *
-   * @throws  IOException  If a problem occurs while attempting to read data
-   *                       from the specified file.
-   *
-   * @throws  LDIFException  If a problem is encountered while attempting to
-   *                         decode data read as LDIF.
-   */
-  public static List<Entry> readEntries(final String path)
-         throws IOException, LDIFException
-  {
-    return readEntries(new LDIFReader(path));
-  }
-
-
-
-  /**
-   * Reads entries from the specified LDIF file and returns them as a
-   * {@code List}.  This is a convenience method that should only be used for
-   * data sets that are small enough so that running out of memory isn't a
-   * concern.
-   *
-   * @param  file  A reference to the LDIF file containing the entries to be
-   *               read.
-   *
-   * @return  A list of the entries read from the given LDIF file.
-   *
-   * @throws  IOException  If a problem occurs while attempting to read data
-   *                       from the specified file.
-   *
-   * @throws  LDIFException  If a problem is encountered while attempting to
-   *                         decode data read as LDIF.
-   */
-  public static List<Entry> readEntries(final File file)
-         throws IOException, LDIFException
-  {
-    return readEntries(new LDIFReader(file));
-  }
-
-
-
-  /**
-   * Reads and decodes LDIF entries from the provided input stream and
-   * returns them as a {@code List}.  This is a convenience method that should
-   * only be used for data sets that are small enough so that running out of
-   * memory isn't a concern.
-   *
-   * @param  inputStream  The input stream from which the entries should be
-   *                      read.  The input stream will be closed before
-   *                      returning.
-   *
-   * @return  A list of the entries read from the given input stream.
-   *
-   * @throws  IOException  If a problem occurs while attempting to read data
-   *                       from the input stream.
-   *
-   * @throws  LDIFException  If a problem is encountered while attempting to
-   *                         decode data read as LDIF.
-   */
-  public static List<Entry> readEntries(final InputStream inputStream)
-         throws IOException, LDIFException
-  {
-    return readEntries(new LDIFReader(inputStream));
-  }
-
-
-
-  /**
-   * Reads entries from the provided LDIF reader and returns them as a list.
-   *
-   * @param  reader  The reader from which the entries should be read.  It will
-   *                 be closed before returning.
-   *
-   * @return  A list of the entries read from the provided reader.
-   *
-   * @throws  IOException  If a problem was encountered while attempting to read
-   *                       data from the LDIF data source.
-   *
-   * @throws  LDIFException  If a problem is encountered while attempting to
-   *                         decode data read as LDIF.
-   */
-  private static List<Entry> readEntries(final LDIFReader reader)
-          throws IOException, LDIFException
-  {
-    try
-    {
-      final ArrayList<Entry> entries = new ArrayList<Entry>(10);
-      while (true)
-      {
-        final Entry e = reader.readEntry();
-        if (e == null)
-        {
-          break;
-        }
-
-        entries.add(e);
-      }
-
-      return entries;
-    }
-    finally
-    {
-      reader.close();
     }
   }
 
@@ -763,13 +482,10 @@ public final class LDIFReader
    * @return  {@code true} if duplicate values should be ignored, or
    *          {@code false} if any LDIF records containing duplicate values
    *          should be rejected.
-   *
-   * @deprecated  Use the {@link #getDuplicateValueBehavior} method instead.
    */
-  @Deprecated()
   public boolean ignoreDuplicateValues()
   {
-    return (duplicateValueBehavior == DuplicateValueBehavior.STRIP);
+    return ignoreDuplicateValues;
   }
 
 
@@ -781,199 +497,10 @@ public final class LDIFReader
    * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
    *                                attribute values encountered while reading
    *                                LDIF records.
-   *
-   * @deprecated  Use the {@link #setDuplicateValueBehavior} method instead.
    */
-  @Deprecated()
   public void setIgnoreDuplicateValues(final boolean ignoreDuplicateValues)
   {
-    if (ignoreDuplicateValues)
-    {
-      duplicateValueBehavior = DuplicateValueBehavior.STRIP;
-    }
-    else
-    {
-      duplicateValueBehavior = DuplicateValueBehavior.REJECT;
-    }
-  }
-
-
-
-  /**
-   * Retrieves the behavior that should be exhibited if the LDIF reader
-   * encounters an entry with duplicate values.
-   *
-   * @return  The behavior that should be exhibited if the LDIF reader
-   *          encounters an entry with duplicate values.
-   */
-  public DuplicateValueBehavior getDuplicateValueBehavior()
-  {
-    return duplicateValueBehavior;
-  }
-
-
-
-  /**
-   * Specifies the behavior that should be exhibited if the LDIF reader
-   * encounters an entry with duplicate values.
-   *
-   * @param  duplicateValueBehavior  The behavior that should be exhibited if
-   *                                 the LDIF reader encounters an entry with
-   *                                 duplicate values.
-   */
-  public void setDuplicateValueBehavior(
-                   final DuplicateValueBehavior duplicateValueBehavior)
-  {
-    this.duplicateValueBehavior = duplicateValueBehavior;
-  }
-
-
-
-  /**
-   * Indicates whether to strip off any illegal trailing spaces that may appear
-   * in LDIF records (e.g., after an entry DN or attribute value).  The LDIF
-   * specification strongly recommends that any value which legitimately
-   * contains trailing spaces be base64-encoded, and any spaces which appear
-   * after the end of non-base64-encoded values may therefore be considered
-   * invalid.  If any such trailing spaces are encountered in an LDIF record and
-   * they are not to be stripped, then an {@link LDIFException} will be thrown
-   * for that record.
-   * <BR><BR>
-   * Note that this applies only to spaces after the end of a value, and not to
-   * spaces which may appear at the end of a line for a value that is wrapped
-   * and continued on the next line.
-   *
-   * @return  {@code true} if illegal trailing spaces should be stripped off, or
-   *          {@code false} if LDIF records containing illegal trailing spaces
-   *          should be rejected.
-   *
-   * @deprecated  Use the {@link #getTrailingSpaceBehavior} method instead.
-   */
-  @Deprecated()
-  public boolean stripTrailingSpaces()
-  {
-    return (trailingSpaceBehavior == TrailingSpaceBehavior.STRIP);
-  }
-
-
-
-  /**
-   * Specifies whether to strip off any illegal trailing spaces that may appear
-   * in LDIF records (e.g., after an entry DN or attribute value).  The LDIF
-   * specification strongly recommends that any value which legitimately
-   * contains trailing spaces be base64-encoded, and any spaces which appear
-   * after the end of non-base64-encoded values may therefore be considered
-   * invalid.  If any such trailing spaces are encountered in an LDIF record and
-   * they are not to be stripped, then an {@link LDIFException} will be thrown
-   * for that record.
-   * <BR><BR>
-   * Note that this applies only to spaces after the end of a value, and not to
-   * spaces which may appear at the end of a line for a value that is wrapped
-   * and continued on the next line.
-   *
-   * @param  stripTrailingSpaces  Indicates whether to strip off any illegal
-   *                              trailing spaces, or {@code false} if LDIF
-   *                              records containing them should be rejected.
-   *
-   * @deprecated  Use the {@link #setTrailingSpaceBehavior} method instead.
-   */
-  @Deprecated()
-  public void setStripTrailingSpaces(final boolean stripTrailingSpaces)
-  {
-    trailingSpaceBehavior = stripTrailingSpaces
-         ? TrailingSpaceBehavior.STRIP
-         : TrailingSpaceBehavior.REJECT;
-  }
-
-
-
-  /**
-   * Retrieves the behavior that should be exhibited when encountering attribute
-   * values which are not base64-encoded but contain trailing spaces.  The LDIF
-   * specification strongly recommends that any value which legitimately
-   * contains trailing spaces be base64-encoded, but the LDAP SDK LDIF parser
-   * may be configured to automatically strip these spaces, to preserve them, or
-   * to reject any entry or change record containing them.
-   *
-   * @return  The behavior that should be exhibited when encountering attribute
-   *          values which are not base64-encoded but contain trailing spaces.
-   */
-  public TrailingSpaceBehavior getTrailingSpaceBehavior()
-  {
-    return trailingSpaceBehavior;
-  }
-
-
-
-  /**
-   * Specifies the behavior that should be exhibited when encountering attribute
-   * values which are not base64-encoded but contain trailing spaces.  The LDIF
-   * specification strongly recommends that any value which legitimately
-   * contains trailing spaces be base64-encoded, but the LDAP SDK LDIF parser
-   * may be configured to automatically strip these spaces, to preserve them, or
-   * to reject any entry or change record containing them.
-   *
-   * @param  trailingSpaceBehavior  The behavior that should be exhibited when
-   *                                encountering attribute values which are not
-   *                                base64-encoded but contain trailing spaces.
-   */
-  public void setTrailingSpaceBehavior(
-                   final TrailingSpaceBehavior trailingSpaceBehavior)
-  {
-    this.trailingSpaceBehavior = trailingSpaceBehavior;
-  }
-
-
-
-  /**
-   * Retrieves the base path that will be prepended to relative paths in order
-   * to obtain an absolute path.  This will only be used for "file:" URLs that
-   * have paths which do not begin with a slash.
-   *
-   * @return  The base path that will be prepended to relative paths in order to
-   *          obtain an absolute path.
-   */
-  public String getRelativeBasePath()
-  {
-    return relativeBasePath;
-  }
-
-
-
-  /**
-   * Specifies the base path that will be prepended to relative paths in order
-   * to obtain an absolute path.  This will only be used for "file:" URLs that
-   * have paths which do not begin with a space.
-   *
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
-   */
-  public void setRelativeBasePath(final String relativeBasePath)
-  {
-    setRelativeBasePath(new File(relativeBasePath));
-  }
-
-
-
-  /**
-   * Specifies the base path that will be prepended to relative paths in order
-   * to obtain an absolute path.  This will only be used for "file:" URLs that
-   * have paths which do not begin with a space.
-   *
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
-   */
-  public void setRelativeBasePath(final File relativeBasePath)
-  {
-    final String path = relativeBasePath.getAbsolutePath();
-    if (path.endsWith(File.separator))
-    {
-      this.relativeBasePath = path;
-    }
-    else
-    {
-      this.relativeBasePath = path + File.separator;
-    }
+    this.ignoreDuplicateValues = ignoreDuplicateValues;
   }
 
 
@@ -1418,7 +945,7 @@ public final class LDIFReader
        throws IOException, LDIFException
   {
     final UnparsedLDIFRecord unparsedRecord = readUnparsedRecord();
-    return decodeRecord(unparsedRecord, relativeBasePath);
+    return decodeRecord(unparsedRecord);
   }
 
 
@@ -1445,7 +972,7 @@ public final class LDIFReader
         return null;
       }
 
-      e = decodeEntry(unparsedRecord, relativeBasePath);
+      e = decodeEntry(unparsedRecord);
       debugLDIFRead(e);
 
       if (entryTranslator != null)
@@ -1486,8 +1013,7 @@ public final class LDIFReader
       return null;
     }
 
-    final LDIFChangeRecord r =
-         decodeChangeRecord(unparsedRecord, relativeBasePath, defaultAdd);
+    final LDIFChangeRecord r = decodeChangeRecord(unparsedRecord, defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1525,7 +1051,7 @@ public final class LDIFReader
         if (lineList.isEmpty())
         {
           return new UnparsedLDIFRecord(new ArrayList<StringBuilder>(0),
-               duplicateValueBehavior, trailingSpaceBehavior, schema, -1);
+                                        ignoreDuplicateValues, schema, -1);
         }
         else
         {
@@ -1538,7 +1064,6 @@ public final class LDIFReader
         // It's a blank line.  If we have read entry data, then this signals the
         // end of the entry.  Otherwise, it's an extra space between entries,
         // which is OK.
-        lastWasComment = false;
         if (lineList.isEmpty())
         {
           firstLineNumber++;
@@ -1553,23 +1078,16 @@ public final class LDIFReader
       if (line.charAt(0) == ' ')
       {
         // The line starts with a space, which means that it must be a
-        // continuation of the previous line.  This is true even if the last
-        // line was a comment.
-        if (lastWasComment)
-        {
-          // What we've read is part of a comment, so we don't care about its
-          // content.
-        }
-        else if (lineList.isEmpty())
+        // continuation of the previous line.
+        if (lineList.isEmpty())
         {
           throw new LDIFException(
                          ERR_READ_UNEXPECTED_FIRST_SPACE.get(lineNumberCounter),
                          lineNumberCounter, false);
         }
-        else
+        else if(! lastWasComment)
         {
           lineList.get(lineList.size() - 1).append(line.substring(1));
-          lastWasComment = false;
         }
       }
       else if (line.charAt(0) == '#')
@@ -1593,8 +1111,8 @@ public final class LDIFReader
       }
     }
 
-    return new UnparsedLDIFRecord(lineList, duplicateValueBehavior,
-         trailingSpaceBehavior, schema, firstLineNumber);
+    return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues, schema,
+                                  firstLineNumber);
   }
 
 
@@ -1616,9 +1134,7 @@ public final class LDIFReader
   public static Entry decodeEntry(final String... ldifLines)
          throws LDIFException
   {
-    final Entry e = decodeEntry(prepareRecord(DuplicateValueBehavior.STRIP,
-         TrailingSpaceBehavior.REJECT, null, ldifLines),
-         DEFAULT_RELATIVE_BASE_PATH);
+    final Entry e = decodeEntry(prepareRecord(true, null, ldifLines));
     debugLDIFRead(e);
     return e;
   }
@@ -1649,12 +1165,8 @@ public final class LDIFReader
                                   final String... ldifLines)
          throws LDIFException
   {
-    final Entry e = decodeEntry(prepareRecord(
-              (ignoreDuplicateValues
-                   ? DuplicateValueBehavior.STRIP
-                   : DuplicateValueBehavior.REJECT),
-              TrailingSpaceBehavior.REJECT, schema, ldifLines),
-         DEFAULT_RELATIVE_BASE_PATH);
+    final Entry e = decodeEntry(prepareRecord(ignoreDuplicateValues, schema,
+                                              ldifLines));
     debugLDIFRead(e);
     return e;
   }
@@ -1710,10 +1222,7 @@ public final class LDIFReader
          throws LDIFException
   {
     final LDIFChangeRecord r =
-         decodeChangeRecord(
-              prepareRecord(DuplicateValueBehavior.STRIP,
-                   TrailingSpaceBehavior.REJECT, null, ldifLines),
-              DEFAULT_RELATIVE_BASE_PATH, defaultAdd);
+         decodeChangeRecord(prepareRecord(true, null, ldifLines), defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1754,13 +1263,9 @@ public final class LDIFReader
                                       final String... ldifLines)
          throws LDIFException
   {
-    final LDIFChangeRecord r = decodeChangeRecord(
-         prepareRecord(
-              (ignoreDuplicateValues
-                   ? DuplicateValueBehavior.STRIP
-                   : DuplicateValueBehavior.REJECT),
-              TrailingSpaceBehavior.REJECT, schema, ldifLines),
-         DEFAULT_RELATIVE_BASE_PATH, defaultAdd);
+    final LDIFChangeRecord r =
+         decodeChangeRecord(prepareRecord(ignoreDuplicateValues, schema,
+                                          ldifLines), defaultAdd);
     debugLDIFRead(r);
     return r;
   }
@@ -1772,17 +1277,13 @@ public final class LDIFReader
    * objects suitable for decoding into an entry or LDIF change record.
    * Comments will be ignored and wrapped lines will be unwrapped.
    *
-   * @param  duplicateValueBehavior  The behavior that should be exhibited if
-   *                                 the LDIF reader encounters an entry with
-   *                                 duplicate values.
-   * @param  trailingSpaceBehavior   The behavior that should be exhibited when
-   *                                 encountering attribute values which are not
-   *                                 base64-encoded but contain trailing spaces.
-   * @param  schema                  The schema to use when parsing the record,
-   *                                 if applicable.
-   * @param  ldifLines               The set of lines that comprise the record
-   *                                 to decode.  It must not be {@code null} or
-   *                                 empty.
+   * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
+   *                                attribute values encountered while parsing.
+   * @param  schema                 The schema to use when parsing the record,
+   *                                if applicable.
+   * @param  ldifLines              The set of lines that comprise the record to
+   *                                decode.  It must not be {@code null} or
+   *                                empty.
    *
    * @return  The prepared list of {@code StringBuilder} objects ready to be
    *          decoded.
@@ -1790,10 +1291,10 @@ public final class LDIFReader
    * @throws  LDIFException  If the provided lines do not contain valid LDIF
    *                         content.
    */
-  private static UnparsedLDIFRecord prepareRecord(
-                      final DuplicateValueBehavior duplicateValueBehavior,
-                      final TrailingSpaceBehavior trailingSpaceBehavior,
-                      final Schema schema, final String... ldifLines)
+  private static UnparsedLDIFRecord
+                      prepareRecord(final boolean ignoreDuplicateValues,
+                                    final Schema schema,
+                                    final String... ldifLines)
           throws LDIFException
   {
     ensureNotNull(ldifLines);
@@ -1828,8 +1329,8 @@ public final class LDIFReader
           }
           else
           {
-            return new UnparsedLDIFRecord(lineList, duplicateValueBehavior,
-                 trailingSpaceBehavior, schema, 0);
+            return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues,
+                                          schema, 0);
           }
         }
       }
@@ -1867,8 +1368,7 @@ public final class LDIFReader
     }
     else
     {
-      return new UnparsedLDIFRecord(lineList, duplicateValueBehavior,
-           trailingSpaceBehavior, schema, 0);
+      return new UnparsedLDIFRecord(lineList, ignoreDuplicateValues, schema, 0);
     }
   }
 
@@ -1878,10 +1378,8 @@ public final class LDIFReader
    * Decodes the unparsed record that was read from the LDIF source.  It may be
    * either an entry or an LDIF change record.
    *
-   * @param  unparsedRecord    The unparsed LDIF record that was read from the
-   *                           input.  It must not be {@code null} or empty.
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
+   * @param  unparsedRecord  The unparsed LDIF record that was read from the
+   *                         input.  It must not be {@code null} or empty.
    *
    * @return  The parsed record, or {@code null} if there are no more entries to
    *          be read.
@@ -1890,8 +1388,7 @@ public final class LDIFReader
    *                         an LDIF change record.
    */
   private static LDIFRecord decodeRecord(
-                                 final UnparsedLDIFRecord unparsedRecord,
-                                 final String relativeBasePath)
+                                 final UnparsedLDIFRecord unparsedRecord)
        throws LDIFException
   {
     // If there was an error reading from the input, then we rethrow it here.
@@ -1930,22 +1427,14 @@ public final class LDIFReader
     }
 
     final LDIFRecord r;
-    if (lineList.size() == 1)
+    if ((lineList.size() > 1) &&
+        toLowerCase(lineList.get(1).toString()).startsWith("changetype:"))
     {
-      r = decodeEntry(unparsedRecord, relativeBasePath);
+      r = decodeChangeRecord(unparsedRecord, false);
     }
     else
     {
-      final String lowerSecondLine = toLowerCase(lineList.get(1).toString());
-      if (lowerSecondLine.startsWith("control:") ||
-          lowerSecondLine.startsWith("changetype:"))
-      {
-        r = decodeChangeRecord(unparsedRecord, relativeBasePath, true);
-      }
-      else
-      {
-        r = decodeEntry(unparsedRecord, relativeBasePath);
-      }
+      r = decodeEntry(unparsedRecord);
     }
 
     debugLDIFRead(r);
@@ -1961,16 +1450,13 @@ public final class LDIFReader
    *
    * @param  unparsedRecord   The unparsed LDIF record that was read from the
    *                          input.  It must not be {@code null} or empty.
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
    *
    * @return  The entry read from LDIF.
    *
    * @throws  LDIFException  If the provided LDIF data cannot be read as an
    *                         entry.
    */
-  private static Entry decodeEntry(final UnparsedLDIFRecord unparsedRecord,
-                                   final String relativeBasePath)
+  private static Entry decodeEntry(final UnparsedLDIFRecord unparsedRecord)
           throws LDIFException
   {
     final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
@@ -1978,31 +1464,15 @@ public final class LDIFReader
 
     final Iterator<StringBuilder> iterator = ldifLines.iterator();
 
-    // The first line must start with either "version:" or "dn:".  If the first
-    // line starts with "version:" then the second must start with "dn:".
-    StringBuilder line = iterator.next();
-    handleTrailingSpaces(line, null, firstLineNumber,
-         unparsedRecord.getTrailingSpaceBehavior());
-    int colonPos = line.indexOf(":");
-    if ((colonPos > 0) &&
-        line.substring(0, colonPos).equalsIgnoreCase("version"))
-    {
-      // The first line is "version:".  Under most conditions, this will be
-      // handled by the LDIF reader, but this can happen if you call
-      // decodeEntry with a set of data that includes a version.  At any rate,
-      // read the next line, which must specify the DN.
-      line = iterator.next();
-      handleTrailingSpaces(line, null, firstLineNumber,
-           unparsedRecord.getTrailingSpaceBehavior());
-    }
-
-    colonPos = line.indexOf(":");
+    // The first line must be the entry DN, and it must start with "dn:".
+    final StringBuilder line = iterator.next();
+    final int colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
-         (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
+        (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
     {
       throw new LDIFException(
-           ERR_READ_DN_LINE_DOESNT_START_WITH_DN.get(firstLineNumber),
-           firstLineNumber, true, ldifLines, null);
+                     ERR_READ_DN_LINE_DOESNT_START_WITH_DN.get(firstLineNumber),
+                     firstLineNumber, true, ldifLines, null);
     }
 
     final String dn;
@@ -2064,14 +1534,13 @@ public final class LDIFReader
     // returned.
     if (! iterator.hasNext())
     {
-      return new Entry(dn, unparsedRecord.getSchema());
+      return new Entry(dn);
     }
 
-    return new Entry(dn, unparsedRecord.getSchema(),
-         parseAttributes(dn, unparsedRecord.getDuplicateValueBehavior(),
-              unparsedRecord.getTrailingSpaceBehavior(),
-              unparsedRecord.getSchema(), ldifLines, iterator, relativeBasePath,
-              firstLineNumber));
+    return new Entry(dn, parseAttributes(dn,
+                                         unparsedRecord.ignoreDuplicateValues(),
+                                         unparsedRecord.getSchema(),
+                                         ldifLines, iterator, firstLineNumber));
   }
 
 
@@ -2081,15 +1550,13 @@ public final class LDIFReader
    * list must not contain any blank lines or comments, and lines are not
    * allowed to be wrapped.
    *
-   * @param  unparsedRecord    The unparsed LDIF record that was read from the
-   *                           input.  It must not be {@code null} or empty.
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
-   * @param  defaultAdd        Indicates whether an LDIF record not containing a
-   *                           changetype should be retrieved as an add change
-   *                           record.  If this is {@code false} and the record
-   *                           read does not include a changetype, then an
-   *                           {@link LDIFException} will be thrown.
+   * @param  unparsedRecord   The unparsed LDIF record that was read from the
+   *                          input.  It must not be {@code null} or empty.
+   * @param  defaultAdd       Indicates whether an LDIF record not containing a
+   *                          changetype should be retrieved as an add change
+   *                          record.  If this is {@code false} and the record
+   *                          read does not include a changetype, then an
+   *                          {@link LDIFException} will be thrown.
    *
    * @return  The change record read from LDIF.
    *
@@ -2098,41 +1565,22 @@ public final class LDIFReader
    */
   private static LDIFChangeRecord decodeChangeRecord(
                                        final UnparsedLDIFRecord unparsedRecord,
-                                       final String relativeBasePath,
                                        final boolean defaultAdd)
           throws LDIFException
   {
     final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
     final long firstLineNumber = unparsedRecord.getFirstLineNumber();
 
-    Iterator<StringBuilder> iterator = ldifLines.iterator();
+    final Iterator<StringBuilder> iterator = ldifLines.iterator();
 
-    // The first line must start with either "version:" or "dn:".  If the first
-    // line starts with "version:" then the second must start with "dn:".
+    // The first line must be the entry DN, and it must start with "dn:".
     StringBuilder line = iterator.next();
-    handleTrailingSpaces(line, null, firstLineNumber,
-         unparsedRecord.getTrailingSpaceBehavior());
     int colonPos = line.indexOf(":");
-    int linesRead = 1;
-    if ((colonPos > 0) &&
-        line.substring(0, colonPos).equalsIgnoreCase("version"))
-    {
-      // The first line is "version:".  Under most conditions, this will be
-      // handled by the LDIF reader, but this can happen if you call
-      // decodeEntry with a set of data that includes a version.  At any rate,
-      // read the next line, which must specify the DN.
-      line = iterator.next();
-      linesRead++;
-      handleTrailingSpaces(line, null, firstLineNumber,
-           unparsedRecord.getTrailingSpaceBehavior());
-    }
-
-    colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
-         (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
+        (! line.substring(0, colonPos).equalsIgnoreCase("dn")))
     {
       throw new LDIFException(
-           ERR_READ_DN_LINE_DOESNT_START_WITH_DN.get(firstLineNumber),
+           ERR_READ_CR_DN_LINE_DOESNT_START_WITH_DN.get(firstLineNumber),
            firstLineNumber, true, ldifLines, null);
     }
 
@@ -2190,72 +1638,88 @@ public final class LDIFReader
     }
 
 
-    // An LDIF change record may contain zero or more controls, with the end of
-    // the controls signified by the changetype.  The changetype element must be
-    // present, unless defaultAdd is true in which case the first thing that is
-    // neither control or changetype will trigger the start of add attribute
-    // parsing.
+    // The second line must be the change type, and it must start with
+    // "changetype:".
     if (! iterator.hasNext())
     {
       throw new LDIFException(ERR_READ_CR_TOO_SHORT.get(firstLineNumber),
                               firstLineNumber, true, ldifLines, null);
     }
 
-    String changeType = null;
-    ArrayList<Control> controls = null;
-    while (true)
+
+    // If defaultAdd is true, then the change record may or may not have a
+    // changetype.  If it is false, then the record must have a changetype.
+    final String changeType;
+    if (defaultAdd &&
+        (! toLowerCase(ldifLines.get(1).toString()).startsWith("changetype:")))
+    {
+      changeType = "add";
+    }
+    else
     {
       line = iterator.next();
-      handleTrailingSpaces(line, dn, firstLineNumber,
-           unparsedRecord.getTrailingSpaceBehavior());
       colonPos = line.indexOf(":");
-      if (colonPos < 0)
+      if ((colonPos < 0) ||
+          (! line.substring(0, colonPos).equalsIgnoreCase("changetype")))
       {
         throw new LDIFException(
-             ERR_READ_CR_SECOND_LINE_MISSING_COLON.get(firstLineNumber),
+             ERR_READ_CR_CT_LINE_DOESNT_START_WITH_CT.get(firstLineNumber),
              firstLineNumber, true, ldifLines, null);
       }
 
-      final String token = toLowerCase(line.substring(0, colonPos));
-      if (token.equals("control"))
+      length = line.length();
+      if (length == (colonPos+1))
       {
-        if (controls == null)
+        // The colon was the last character on the line.  This is not
+        // acceptable.
+        throw new LDIFException(
+             ERR_READ_CT_LINE_NO_CT_VALUE.get(firstLineNumber), firstLineNumber,
+             true, ldifLines, null);
+      }
+      else if (line.charAt(colonPos+1) == ':')
+      {
+        // Skip over any spaces leading up to the value, and then the rest of
+        // the string is the base64-encoded changetype.  This is unusual and
+        // unnecessary, but is nevertheless acceptable.
+        int pos = colonPos+2;
+        while ((pos < length) && (line.charAt(pos) == ' '))
         {
-          controls = new ArrayList<Control>(5);
+          pos++;
         }
 
-        controls.add(decodeControl(line, colonPos, firstLineNumber, ldifLines,
-             relativeBasePath));
-      }
-      else if (token.equals("changetype"))
-      {
-        changeType =
-             decodeChangeType(line, colonPos, firstLineNumber, ldifLines);
-        break;
-      }
-      else if (defaultAdd)
-      {
-        // The line we read wasn't a control or changetype declaration, so we'll
-        // assume it's an attribute in an add record.  However, we're not ready
-        // for that yet, and since we can't rewind an iterator we'll create a
-        // new one that hasn't yet gotten to this line.
-        changeType = "add";
-        iterator = ldifLines.iterator();
-        for (int i=0; i < linesRead; i++)
+        try
         {
-          iterator.next();
+          final byte[] changeTypeBytes = Base64.decode(line.substring(pos));
+          changeType = new String(changeTypeBytes, "UTF-8");
         }
-        break;
+        catch (final ParseException pe)
+        {
+          debugException(pe);
+          throw new LDIFException(
+                         ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber,
+                                                              pe.getMessage()),
+                         firstLineNumber, true, ldifLines, pe);
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+          throw new LDIFException(
+               ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber, e),
+               firstLineNumber, true, ldifLines, e);
+        }
       }
       else
       {
-        throw new LDIFException(
-             ERR_READ_CR_CT_LINE_DOESNT_START_WITH_CONTROL_OR_CT.get(
-                  firstLineNumber),
-             firstLineNumber, true, ldifLines, null);
-      }
+        // Skip over any spaces leading up to the value, and then the rest of
+        // the string is the changetype.
+        int pos = colonPos+1;
+        while ((pos < length) && (line.charAt(pos) == ' '))
+        {
+          pos++;
+        }
 
-      linesRead++;
+        changeType = line.substring(pos);
+      }
     }
 
 
@@ -2269,10 +1733,9 @@ public final class LDIFReader
       if (iterator.hasNext())
       {
         final Collection<Attribute> attrs =
-             parseAttributes(dn, unparsedRecord.getDuplicateValueBehavior(),
-                  unparsedRecord.getTrailingSpaceBehavior(),
-                  unparsedRecord.getSchema(), ldifLines, iterator,
-                  relativeBasePath, firstLineNumber);
+             parseAttributes(dn, unparsedRecord.ignoreDuplicateValues(),
+                             unparsedRecord.getSchema(), ldifLines,
+                             iterator, firstLineNumber);
         final Attribute[] attributes = new Attribute[attrs.size()];
         final Iterator<Attribute> attrIterator = attrs.iterator();
         for (int i=0; i < attributes.length; i++)
@@ -2280,7 +1743,7 @@ public final class LDIFReader
           attributes[i] = attrIterator.next();
         }
 
-        return new LDIFAddChangeRecord(dn, attributes, controls);
+        return new LDIFAddChangeRecord(dn, attributes);
       }
       else
       {
@@ -2301,7 +1764,7 @@ public final class LDIFReader
       }
       else
       {
-        return new LDIFDeleteChangeRecord(dn, controls);
+        return new LDIFDeleteChangeRecord(dn);
       }
     }
     else if (lowerChangeType.equals("modify"))
@@ -2310,10 +1773,9 @@ public final class LDIFReader
       // Otherwise, parse the rest of the data as a set of modifications.
       if (iterator.hasNext())
       {
-        final Modification[] mods = parseModifications(dn,
-             unparsedRecord.getTrailingSpaceBehavior(), ldifLines, iterator,
-             firstLineNumber);
-        return new LDIFModifyChangeRecord(dn, mods, controls);
+        final Modification[] mods =
+             parseModifications(ldifLines, iterator, firstLineNumber);
+        return new LDIFModifyChangeRecord(dn, mods);
       }
       else
       {
@@ -2328,8 +1790,8 @@ public final class LDIFReader
       // Otherwise, parse the rest of the data as a set of modifications.
       if (iterator.hasNext())
       {
-        return parseModifyDNChangeRecord(ldifLines, iterator, dn, controls,
-             unparsedRecord.getTrailingSpaceBehavior(), firstLineNumber);
+        return parseModifyDNChangeRecord(ldifLines, iterator, dn,
+                                         firstLineNumber);
       }
       else
       {
@@ -2348,376 +1810,21 @@ public final class LDIFReader
 
 
   /**
-   * Decodes information about a control from the provided line.
-   *
-   * @param  line              The line to process.
-   * @param  colonPos          The position of the colon that separates the
-   *                           control token string from tbe encoded control.
-   * @param  firstLineNumber   The line number for the start of the record.
-   * @param  ldifLines         The lines that comprise the LDIF representation
-   *                           of the full record being parsed.
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
-   *
-   * @return  The decoded control.
-   *
-   * @throws  LDIFException  If a problem is encountered while trying to decode
-   *                         the changetype.
-   */
-  private static Control decodeControl(final StringBuilder line,
-                                       final int colonPos,
-                                       final long firstLineNumber,
-                                       final ArrayList<StringBuilder> ldifLines,
-                                       final String relativeBasePath)
-          throws LDIFException
-  {
-    final String controlString;
-    int length = line.length();
-    if (length == (colonPos+1))
-    {
-      // The colon was the last character on the line.  This is not
-      // acceptable.
-      throw new LDIFException(
-           ERR_READ_CONTROL_LINE_NO_CONTROL_VALUE.get(firstLineNumber),
-           firstLineNumber, true, ldifLines, null);
-    }
-    else if (line.charAt(colonPos+1) == ':')
-    {
-      // Skip over any spaces leading up to the value, and then the rest of
-      // the string is the base64-encoded control representation.  This is
-      // unusual and unnecessary, but is nevertheless acceptable.
-      int pos = colonPos+2;
-      while ((pos < length) && (line.charAt(pos) == ' '))
-      {
-        pos++;
-      }
-
-      try
-      {
-        final byte[] controlBytes = Base64.decode(line.substring(pos));
-        controlString =  new String(controlBytes, "UTF-8");
-      }
-      catch (final ParseException pe)
-      {
-        debugException(pe);
-        throw new LDIFException(
-                       ERR_READ_CANNOT_BASE64_DECODE_CONTROL.get(
-                            firstLineNumber, pe.getMessage()),
-                       firstLineNumber, true, ldifLines, pe);
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-        throw new LDIFException(
-             ERR_READ_CANNOT_BASE64_DECODE_CONTROL.get(firstLineNumber, e),
-             firstLineNumber, true, ldifLines, e);
-      }
-    }
-    else
-    {
-      // Skip over any spaces leading up to the value, and then the rest of
-      // the string is the encoded control.
-      int pos = colonPos+1;
-      while ((pos < length) && (line.charAt(pos) == ' '))
-      {
-        pos++;
-      }
-
-      controlString = line.substring(pos);
-    }
-
-    // If the resulting control definition is empty, then that's invalid.
-    if (controlString.length() == 0)
-    {
-      throw new LDIFException(
-           ERR_READ_CONTROL_LINE_NO_CONTROL_VALUE.get(firstLineNumber),
-           firstLineNumber, true, ldifLines, null);
-    }
-
-
-    // The first element of the control must be the OID, and it must be followed
-    // by a space (to separate it from the criticality), a colon (to separate it
-    // from the value and indicate a default criticality of false), or the end
-    // of the line (to indicate a default criticality of false and no value).
-    String oid = null;
-    boolean hasCriticality = false;
-    boolean hasValue = false;
-    int pos = 0;
-    length = controlString.length();
-    while (pos < length)
-    {
-      final char c = controlString.charAt(pos);
-      if (c == ':')
-      {
-        // This indicates that there is no criticality and that the value
-        // immediately follows the OID.
-        oid = controlString.substring(0, pos++);
-        hasValue = true;
-        break;
-      }
-      else if (c == ' ')
-      {
-        // This indicates that there is a criticality.  We don't know anything
-        // about the presence of a value yet.
-        oid = controlString.substring(0, pos++);
-        hasCriticality = true;
-        break;
-      }
-      else
-      {
-        pos++;
-      }
-    }
-
-    if (oid == null)
-    {
-      // This indicates that the string representation of the control is only
-      // the OID.
-      return new Control(controlString, false);
-    }
-
-
-    // See if we need to read the criticality.  If so, then do so now.
-    // Otherwise, assume a default criticality of false.
-    final boolean isCritical;
-    if (hasCriticality)
-    {
-      // Skip over any spaces before the criticality.
-      while (controlString.charAt(pos) == ' ')
-      {
-        pos++;
-      }
-
-      // Read until we find a colon or the end of the string.
-      final int criticalityStartPos = pos;
-      while (pos < length)
-      {
-        final char c = controlString.charAt(pos);
-        if (c == ':')
-        {
-          hasValue = true;
-          break;
-        }
-        else
-        {
-          pos++;
-        }
-      }
-
-      final String criticalityString =
-           toLowerCase(controlString.substring(criticalityStartPos, pos));
-      if (criticalityString.equals("true"))
-      {
-        isCritical = true;
-      }
-      else if (criticalityString.equals("false"))
-      {
-        isCritical = false;
-      }
-      else
-      {
-        throw new LDIFException(
-             ERR_READ_CONTROL_LINE_INVALID_CRITICALITY.get(criticalityString,
-                  firstLineNumber),
-             firstLineNumber, true, ldifLines, null);
-      }
-
-      if (hasValue)
-      {
-        pos++;
-      }
-    }
-    else
-    {
-      isCritical = false;
-    }
-
-    // See if we need to read the value.  If so, then do so now.  It may be
-    // a string, or it may be base64-encoded.  It could conceivably even be read
-    // from a URL.
-    final ASN1OctetString value;
-    if (hasValue)
-    {
-      // The character immediately after the colon that precedes the value may
-      // be one of the following:
-      // - A second colon (optionally followed by a single space) to indicate
-      //   that the value is base64-encoded.
-      // - A less-than symbol to indicate that the value should be read from a
-      //   location specified by a URL.
-      // - A single space that precedes the non-base64-encoded value.
-      // - The first character of the non-base64-encoded value.
-      switch (controlString.charAt(pos))
-      {
-        case ':':
-          try
-          {
-            if (controlString.length() == (pos+1))
-            {
-              value = new ASN1OctetString();
-            }
-            else if (controlString.charAt(pos+1) == ' ')
-            {
-              value = new ASN1OctetString(
-                   Base64.decode(controlString.substring(pos+2)));
-            }
-            else
-            {
-              value = new ASN1OctetString(
-                   Base64.decode(controlString.substring(pos+1)));
-            }
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            throw new LDIFException(
-                 ERR_READ_CONTROL_LINE_CANNOT_BASE64_DECODE_VALUE.get(
-                      firstLineNumber, getExceptionMessage(e)),
-                 firstLineNumber, true, ldifLines, e);
-          }
-          break;
-        case '<':
-          try
-          {
-            final String urlString;
-            if (controlString.charAt(pos+1) == ' ')
-            {
-              urlString = controlString.substring(pos+2);
-            }
-            else
-            {
-              urlString = controlString.substring(pos+1);
-            }
-            value = new ASN1OctetString(retrieveURLBytes(urlString,
-                 relativeBasePath, firstLineNumber));
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            throw new LDIFException(
-                 ERR_READ_CONTROL_LINE_CANNOT_RETRIEVE_VALUE_FROM_URL.get(
-                      firstLineNumber, getExceptionMessage(e)),
-                 firstLineNumber, true, ldifLines, e);
-          }
-          break;
-        case ' ':
-          value = new ASN1OctetString(controlString.substring(pos+1));
-          break;
-        default:
-          value = new ASN1OctetString(controlString.substring(pos));
-          break;
-      }
-    }
-    else
-    {
-      value = null;
-    }
-
-    return new Control(oid, isCritical, value);
-  }
-
-
-
-  /**
-   * Decodes the changetype element from the provided line.
-   *
-   * @param  line             The line to process.
-   * @param  colonPos         The position of the colon that separates the
-   *                          changetype string from its value.
-   * @param  firstLineNumber  The line number for the start of the record.
-   * @param  ldifLines        The lines that comprise the LDIF representation of
-   *                          the full record being parsed.
-   *
-   * @return  The decoded changetype string.
-   *
-   * @throws  LDIFException  If a problem is encountered while trying to decode
-   *                         the changetype.
-   */
-  private static String decodeChangeType(final StringBuilder line,
-                             final int colonPos, final long firstLineNumber,
-                             final ArrayList<StringBuilder> ldifLines)
-          throws LDIFException
-  {
-    final int length = line.length();
-    if (length == (colonPos+1))
-    {
-      // The colon was the last character on the line.  This is not
-      // acceptable.
-      throw new LDIFException(
-           ERR_READ_CT_LINE_NO_CT_VALUE.get(firstLineNumber), firstLineNumber,
-           true, ldifLines, null);
-    }
-    else if (line.charAt(colonPos+1) == ':')
-    {
-      // Skip over any spaces leading up to the value, and then the rest of
-      // the string is the base64-encoded changetype.  This is unusual and
-      // unnecessary, but is nevertheless acceptable.
-      int pos = colonPos+2;
-      while ((pos < length) && (line.charAt(pos) == ' '))
-      {
-        pos++;
-      }
-
-      try
-      {
-        final byte[] changeTypeBytes = Base64.decode(line.substring(pos));
-        return new String(changeTypeBytes, "UTF-8");
-      }
-      catch (final ParseException pe)
-      {
-        debugException(pe);
-        throw new LDIFException(
-                       ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber,
-                                                            pe.getMessage()),
-                       firstLineNumber, true, ldifLines, pe);
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-        throw new LDIFException(
-             ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber, e),
-             firstLineNumber, true, ldifLines, e);
-      }
-    }
-    else
-    {
-      // Skip over any spaces leading up to the value, and then the rest of
-      // the string is the changetype.
-      int pos = colonPos+1;
-      while ((pos < length) && (line.charAt(pos) == ' '))
-      {
-        pos++;
-      }
-
-      return line.substring(pos);
-    }
-  }
-
-
-
-  /**
    * Parses the data available through the provided iterator as a collection of
    * attributes suitable for use in an entry or an add change record.
    *
-   * @param  dn                      The DN of the record being read.
-   * @param  duplicateValueBehavior  The behavior that should be exhibited if
-   *                                 the LDIF reader encounters an entry with
-   *                                 duplicate values.
-   * @param  trailingSpaceBehavior   The behavior that should be exhibited when
-   *                                 encountering attribute values which are not
-   *                                 base64-encoded but contain trailing spaces.
-   * @param  schema                  The schema to use when parsing the
-   *                                 attributes, or {@code null} if none is
-   *                                 needed.
-   * @param  ldifLines               The lines that comprise the LDIF
-   *                                 representation of the full record being
-   *                                 parsed.
-   * @param  iterator                The iterator to use to access the attribute
-   *                                 lines.
-   * @param  relativeBasePath        The base path that will be prepended to
-   *                                 relative paths in order to obtain an
-   *                                 absolute path.
-   * @param  firstLineNumber         The line number for the start of the
-   *                                 record.
+   * @param  dn                     The DN of the record being read.
+   * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
+   *                                attribute values encountered while parsing.
+   * @param  schema                 The schema to use when parsing the
+   *                                attributes, or {@code null} if none is
+   *                                needed.
+   * @param  ldifLines              The lines that comprise the LDIF
+   *                                representation of the full record being
+   *                                parsed.
+   * @param  iterator               The iterator to use to access the attribute
+   *                                lines.
+   * @param  firstLineNumber        The line number for the start of the record.
    *
    * @return  The collection of attributes that were read.
    *
@@ -2725,11 +1832,9 @@ public final class LDIFReader
    *                         set of attributes.
    */
   private static ArrayList<Attribute> parseAttributes(final String dn,
-       final DuplicateValueBehavior duplicateValueBehavior,
-       final TrailingSpaceBehavior trailingSpaceBehavior, final Schema schema,
+       final boolean ignoreDuplicateValues, final Schema schema,
        final ArrayList<StringBuilder> ldifLines,
-       final Iterator<StringBuilder> iterator, final String relativeBasePath,
-       final long firstLineNumber)
+       final Iterator<StringBuilder> iterator, final long firstLineNumber)
           throws LDIFException
   {
     final LinkedHashMap<String,Object> attributes =
@@ -2737,7 +1842,6 @@ public final class LDIFReader
     while (iterator.hasNext())
     {
       final StringBuilder line = iterator.next();
-      handleTrailingSpaces(line, dn, firstLineNumber, trailingSpaceBehavior);
       final int colonPos = line.indexOf(":");
       if (colonPos <= 0)
       {
@@ -2797,10 +1901,9 @@ public final class LDIFReader
         {
           try
           {
-            if (! ldifAttr.addValue(new ASN1OctetString(),
-                       duplicateValueBehavior))
+            if (! ldifAttr.addValue(new ASN1OctetString()))
             {
-              if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
+              if (! ignoreDuplicateValues)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
@@ -2838,10 +1941,9 @@ public final class LDIFReader
           {
             try
             {
-              if (! ldifAttr.addValue(new ASN1OctetString(valueBytes),
-                         duplicateValueBehavior))
+              if (! ldifAttr.addValue(new ASN1OctetString(valueBytes)))
               {
-                if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
+                if (! ignoreDuplicateValues)
                 {
                   throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                        firstLineNumber, attributeName), firstLineNumber, true,
@@ -2877,35 +1979,96 @@ public final class LDIFReader
           pos++;
         }
 
-        final byte[] urlBytes;
         final String urlString = line.substring(pos);
-        try
+        if (! toLowerCase(urlString).startsWith("file:/"))
         {
-          urlBytes =
-               retrieveURLBytes(urlString, relativeBasePath, firstLineNumber);
-        }
-        catch (final Exception e)
-        {
-          debugException(e);
-          throw new LDIFException(
-               ERR_READ_URL_EXCEPTION.get(attributeName, urlString,
-                    firstLineNumber, e),
-               firstLineNumber, true, ldifLines, e);
+          throw new LDIFException(ERR_READ_URL_INVALID_SCHEME.get(attributeName,
+                                       urlString, firstLineNumber),
+                                  firstLineNumber, true, ldifLines, null);
         }
 
-        if (attrObject == null)
+        pos = 6;
+        while ((pos < urlString.length()) && (urlString.charAt(pos) == '/'))
         {
-          attr = new Attribute(attributeName, urlBytes);
-          attributes.put(lowerName, attr);
+          pos++;
         }
-        else
+
+        try
         {
+          final File f = new File(urlString.substring(pos-1));
+          if (! f.exists())
+          {
+            throw new LDIFException(ERR_READ_URL_NO_SUCH_FILE.get(attributeName,
+                                         urlString, firstLineNumber,
+                                         f.getAbsolutePath()),
+                                    firstLineNumber, true, ldifLines, null);
+          }
+
+          // In order to conserve memory, we'll only allow values to be read
+          // from files no larger than 10 megabytes.
+          final long fileSize = f.length();
+          if (fileSize > (10 * 1024 * 1024))
+          {
+            throw new LDIFException(ERR_READ_URL_FILE_TOO_LARGE.get(
+                                         attributeName, urlString,
+                                         firstLineNumber, f.getAbsolutePath(),
+                                         (10*1024*1024)),
+                                    firstLineNumber, true, ldifLines, null);
+          }
+
+          int fileBytesRead              = 0;
+          int fileBytesRemaining         = (int) fileSize;
+          final byte[]          fileData = new byte[(int) fileSize];
+          final FileInputStream fis      = new FileInputStream(f);
           try
           {
-            if (! ldifAttr.addValue(new ASN1OctetString(urlBytes),
-                 duplicateValueBehavior))
+            while (fileBytesRead < fileSize)
             {
-              if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
+              final int bytesRead =
+                   fis.read(fileData, fileBytesRead, fileBytesRemaining);
+              if (bytesRead < 0)
+              {
+                // We hit the end of the file before we expected to.  This
+                // shouldn't happen unless the file size changed since we first
+                // looked at it, which we won't allow.
+                throw new LDIFException(ERR_READ_URL_FILE_SIZE_CHANGED.get(
+                                             attributeName, urlString,
+                                             firstLineNumber,
+                                             f.getAbsolutePath()),
+                                        firstLineNumber, true, ldifLines, null);
+              }
+
+              fileBytesRead      += bytesRead;
+              fileBytesRemaining -= bytesRead;
+            }
+
+            if (fis.read() != -1)
+            {
+              // There is still more data to read.  This shouldn't happen unless
+              // the file size changed since we first looked at it, which we
+              // won't allow.
+              throw new LDIFException(ERR_READ_URL_FILE_SIZE_CHANGED.get(
+                                           attributeName, urlString,
+                                           firstLineNumber,
+                                           f.getAbsolutePath()),
+                                      firstLineNumber, true, ldifLines, null);
+            }
+          }
+          finally
+          {
+            fis.close();
+          }
+
+          if (attrObject == null)
+          {
+            attr = new Attribute(attributeName, fileData);
+            attributes.put(lowerName, attr);
+          }
+          else
+          {
+            if (! ldifAttr.addValue(new ASN1OctetString(fileData)))
+            {
+              if (! ignoreDuplicateValues)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
@@ -2913,19 +2076,18 @@ public final class LDIFReader
               }
             }
           }
-          catch (final LDIFException le)
-          {
-            debugException(le);
-            throw le;
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            throw new LDIFException(
-                 ERR_READ_URL_EXCEPTION.get(attributeName, urlString,
-                      firstLineNumber, e),
-                 firstLineNumber, true, ldifLines, e);
-          }
+        }
+        catch (LDIFException le)
+        {
+          debugException(le);
+          throw le;
+        }
+        catch (Exception e)
+        {
+          debugException(e);
+          throw new LDIFException(ERR_READ_URL_EXCEPTION.get(attributeName,
+                                       urlString, firstLineNumber, e),
+                                  firstLineNumber, true, ldifLines, e);
         }
       }
       else
@@ -2948,10 +2110,9 @@ public final class LDIFReader
         {
           try
           {
-            if (! ldifAttr.addValue(new ASN1OctetString(valueString),
-                       duplicateValueBehavior))
+            if (! ldifAttr.addValue(new ASN1OctetString(valueString)))
             {
-              if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
+              if (! ignoreDuplicateValues)
               {
                 throw new LDIFException(ERR_READ_DUPLICATE_VALUE.get(dn,
                      firstLineNumber, attributeName), firstLineNumber, true,
@@ -2989,137 +2150,21 @@ public final class LDIFReader
 
 
   /**
-   * Retrieves the bytes that make up the file referenced by the given URL.
-   *
-   * @param  urlString         The string representation of the URL to retrieve.
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
-   * @param  firstLineNumber   The line number for the start of the record.
-   *
-   * @return  The bytes contained in the specified file, or an empty array if
-   *          the specified file is empty.
-   *
-   * @throws  LDIFException  If the provided URL is malformed or references a
-   *                         nonexistent file.
-   *
-   * @throws  IOException  If a problem is encountered while attempting to read
-   *                       from the target file.
-   */
-  private static byte[] retrieveURLBytes(final String urlString,
-                                         final String relativeBasePath,
-                                         final long firstLineNumber)
-          throws LDIFException, IOException
-  {
-    int pos;
-    String path;
-    final String lowerURLString = toLowerCase(urlString);
-    if (lowerURLString.startsWith("file:/"))
-    {
-      pos = 6;
-      while ((pos < urlString.length()) && (urlString.charAt(pos) == '/'))
-      {
-        pos++;
-      }
-
-      path = urlString.substring(pos-1);
-    }
-    else if (lowerURLString.startsWith("file:"))
-    {
-      // A file: URL that doesn't include a slash will be interpreted as a
-      // relative path.
-      path = relativeBasePath + urlString.substring(5);
-    }
-    else
-    {
-      throw new LDIFException(ERR_READ_URL_INVALID_SCHEME.get(urlString),
-           firstLineNumber, true);
-    }
-
-    final File f = new File(path);
-    if (! f.exists())
-    {
-      throw new LDIFException(
-           ERR_READ_URL_NO_SUCH_FILE.get(urlString, f.getAbsolutePath()),
-           firstLineNumber, true);
-    }
-
-    // In order to conserve memory, we'll only allow values to be read from
-    // files no larger than 10 megabytes.
-    final long fileSize = f.length();
-    if (fileSize > (10 * 1024 * 1024))
-    {
-      throw new LDIFException(
-           ERR_READ_URL_FILE_TOO_LARGE.get(urlString, f.getAbsolutePath(),
-                (10*1024*1024)),
-           firstLineNumber, true);
-    }
-
-    int fileBytesRemaining = (int) fileSize;
-    final byte[] fileData = new byte[(int) fileSize];
-    final FileInputStream fis = new FileInputStream(f);
-    try
-    {
-      int fileBytesRead = 0;
-      while (fileBytesRead < fileSize)
-      {
-        final int bytesRead =
-             fis.read(fileData, fileBytesRead, fileBytesRemaining);
-        if (bytesRead < 0)
-        {
-          // We hit the end of the file before we expected to.  This shouldn't
-          // happen unless the file size changed since we first looked at it,
-          // which we won't allow.
-          throw new LDIFException(
-               ERR_READ_URL_FILE_SIZE_CHANGED.get(urlString,
-                    f.getAbsolutePath()),
-               firstLineNumber, true);
-        }
-
-        fileBytesRead      += bytesRead;
-        fileBytesRemaining -= bytesRead;
-      }
-
-      if (fis.read() != -1)
-      {
-        // There is still more data to read.  This shouldn't happen unless the
-        // file size changed since we first looked at it, which we won't allow.
-        throw new LDIFException(
-             ERR_READ_URL_FILE_SIZE_CHANGED.get(urlString, f.getAbsolutePath()),
-             firstLineNumber, true);
-      }
-    }
-    finally
-    {
-      fis.close();
-    }
-
-    return fileData;
-  }
-
-
-
-  /**
    * Parses the data available through the provided iterator into an array of
    * modifications suitable for use in a modify change record.
    *
-   * @param  dn                     The DN of the entry being parsed.
-   * @param  trailingSpaceBehavior  The behavior that should be exhibited when
-   *                                encountering attribute values which are not
-   *                                base64-encoded but contain trailing spaces.
-   * @param  ldifLines              The lines that comprise the LDIF
-   *                                representation of the full record being
-   *                                parsed.
-   * @param  iterator               The iterator to use to access the
-   *                                modification data.
-   * @param  firstLineNumber        The line number for the start of the record.
+   * @param  ldifLines        The lines that comprise the LDIF representation of
+   *                          the full record being parsed.
+   * @param  iterator         The iterator to use to access the modification
+   *                          data.
+   * @param  firstLineNumber  The line number for the start of the record.
    *
    * @return  An array containing the modifications that were read.
    *
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
    *                         set of modifications.
    */
-  private static Modification[] parseModifications(final String dn,
-       final TrailingSpaceBehavior trailingSpaceBehavior,
+  private static Modification[] parseModifications(
        final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final long firstLineNumber)
        throws LDIFException
@@ -3132,7 +2177,6 @@ public final class LDIFReader
       // The first line must start with "add:", "delete:", "replace:", or
       // "increment:" followed by an attribute name.
       StringBuilder line = iterator.next();
-      handleTrailingSpaces(line, dn, firstLineNumber, trailingSpaceBehavior);
       int colonPos = line.indexOf(":");
       if (colonPos < 0)
       {
@@ -3236,7 +2280,6 @@ public final class LDIFReader
       while (iterator.hasNext())
       {
         line = iterator.next();
-        handleTrailingSpaces(line, dn, firstLineNumber, trailingSpaceBehavior);
         if (line.toString().equals("-"))
         {
           break;
@@ -3348,18 +2391,11 @@ public final class LDIFReader
    * modify DN change record (i.e., the newrdn, deleteoldrdn, and optional
    * newsuperior lines).
    *
-   * @param  ldifLines              The lines that comprise the LDIF
-   *                                representation of the full record being
-   *                                parsed.
-   * @param  iterator               The iterator to use to access the modify DN
-   *                                data.
-   * @param  dn                     The current DN of the entry.
-   * @param  controls               The set of controls to include in the change
-   *                                record.
-   * @param  trailingSpaceBehavior  The behavior that should be exhibited when
-   *                                encountering attribute values which are not
-   *                                base64-encoded but contain trailing spaces.
-   * @param  firstLineNumber        The line number for the start of the record.
+   * @param  ldifLines        The lines that comprise the LDIF representation of
+   *                          the full record being parsed.
+   * @param  iterator         The iterator to use to access the modify DN data.
+   * @param  dn               The current DN of the entry.
+   * @param  firstLineNumber  The line number for the start of the record.
    *
    * @return  The decoded modify DN change record.
    *
@@ -3369,14 +2405,11 @@ public final class LDIFReader
   private static LDIFModifyDNChangeRecord parseModifyDNChangeRecord(
        final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final String dn,
-       final List<Control> controls,
-       final TrailingSpaceBehavior trailingSpaceBehavior,
        final long firstLineNumber)
        throws LDIFException
   {
     // The next line must be the new RDN, and it must start with "newrdn:".
     StringBuilder line = iterator.next();
-    handleTrailingSpaces(line, dn, firstLineNumber, trailingSpaceBehavior);
     int colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
         (! line.substring(0, colonPos).equalsIgnoreCase("newrdn")))
@@ -3458,7 +2491,6 @@ public final class LDIFReader
     }
 
     line = iterator.next();
-    handleTrailingSpaces(line, dn, firstLineNumber, trailingSpaceBehavior);
     colonPos = line.indexOf(":");
     if ((colonPos < 0) ||
         (! line.substring(0, colonPos).equalsIgnoreCase("deleteoldrdn")))
@@ -3558,7 +2590,6 @@ public final class LDIFReader
     if (iterator.hasNext())
     {
       line = iterator.next();
-      handleTrailingSpaces(line, dn, firstLineNumber, trailingSpaceBehavior);
       colonPos = line.indexOf(":");
       if ((colonPos < 0) ||
           (! line.substring(0, colonPos).equalsIgnoreCase("newsuperior")))
@@ -3633,76 +2664,7 @@ public final class LDIFReader
     }
 
     return new LDIFModifyDNChangeRecord(dn, newRDN, deleteOldRDN,
-         newSuperiorDN, controls);
-  }
-
-
-
-  /**
-   * Examines the line contained in the provided buffer to determine whether it
-   * may contain one or more illegal trailing spaces.  If it does, then those
-   * spaces will either be stripped out or an exception will be thrown to
-   * indicate that they are illegal.
-   *
-   * @param  buffer                 The buffer to be examined.
-   * @param  dn                     The DN of the LDIF record being parsed.  It
-   *                                may be {@code null} if the DN is not yet
-   *                                known (e.g., because the provided line is
-   *                                expected to contain that DN).
-   * @param  firstLineNumber        The approximate line number in the LDIF
-   *                                source on which the LDIF record begins.
-   * @param  trailingSpaceBehavior  The behavior that should be exhibited when
-   *                                encountering attribute values which are not
-   *                                base64-encoded but contain trailing spaces.
-   *
-   * @throws  LDIFException  If the line contained in the provided buffer ends
-   *                         with one or more illegal trailing spaces and
-   *                         {@code stripTrailingSpaces} was provided with a
-   *                         value of {@code false}.
-   */
-  private static void handleTrailingSpaces(final StringBuilder buffer,
-                           final String dn, final long firstLineNumber,
-                           final TrailingSpaceBehavior trailingSpaceBehavior)
-          throws LDIFException
-  {
-    int pos = buffer.length() - 1;
-    boolean trailingFound = false;
-    while ((pos >= 0) && (buffer.charAt(pos) == ' '))
-    {
-      trailingFound = true;
-      pos--;
-    }
-
-    if (trailingFound && (buffer.charAt(pos) != ':'))
-    {
-      switch (trailingSpaceBehavior)
-      {
-        case STRIP:
-          buffer.setLength(pos+1);
-          break;
-
-        case REJECT:
-          if (dn == null)
-          {
-            throw new LDIFException(
-                 ERR_READ_ILLEGAL_TRAILING_SPACE_WITHOUT_DN.get(firstLineNumber,
-                      buffer.toString()),
-                 firstLineNumber, true);
-          }
-          else
-          {
-            throw new LDIFException(
-                 ERR_READ_ILLEGAL_TRAILING_SPACE_WITH_DN.get(dn,
-                      firstLineNumber, buffer.toString()),
-                 firstLineNumber, true);
-          }
-
-        case RETAIN:
-        default:
-          // No action will be taken.
-          break;
-      }
-    }
+                                        newSuperiorDN);
   }
 
 
@@ -3716,40 +2678,35 @@ public final class LDIFReader
     private final ArrayList<StringBuilder> lineList;
     private final long firstLineNumber;
     private final Exception failureCause;
+    private final boolean ignoreDuplicateValues;
     private final boolean isEOF;
-    private final DuplicateValueBehavior duplicateValueBehavior;
     private final Schema schema;
-    private final TrailingSpaceBehavior trailingSpaceBehavior;
 
 
 
     /**
      * Constructor.
      *
-     * @param  lineList                The lines that comprise the LDIF record.
-     * @param  duplicateValueBehavior  The behavior to exhibit if the entry
-     *                                 contains duplicate attribute values.
-     * @param  trailingSpaceBehavior   Specifies the behavior to exhibit when
-     *                                 encountering trailing spaces in
-     *                                 non-base64-encoded attribute values.
-     * @param  schema                  The schema to use when parsing, if
-     *                                 applicable.
-     * @param  firstLineNumber         The first line number of the LDIF record.
+     * @param lineList                The lines that comprise the LDIF record.
+     * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
+     *                                attribute values encountered while
+     *                                parsing.
+     * @param schema                  The schema to use when parsing, if
+     *                                applicable.
+     * @param firstLineNumber         The first line number of the LDIF record.
      */
     private UnparsedLDIFRecord(final ArrayList<StringBuilder> lineList,
-                 final DuplicateValueBehavior duplicateValueBehavior,
-                 final TrailingSpaceBehavior trailingSpaceBehavior,
-                 final Schema schema, final long firstLineNumber)
+                               final boolean ignoreDuplicateValues,
+                               final Schema schema,
+                               final long firstLineNumber)
     {
-      this.lineList               = lineList;
-      this.firstLineNumber        = firstLineNumber;
-      this.duplicateValueBehavior = duplicateValueBehavior;
-      this.trailingSpaceBehavior  = trailingSpaceBehavior;
-      this.schema                 = schema;
-
-      failureCause = null;
-      isEOF =
-           (firstLineNumber < 0) || ((lineList != null) && lineList.isEmpty());
+      this.lineList = lineList;
+      this.firstLineNumber = firstLineNumber;
+      this.ignoreDuplicateValues = ignoreDuplicateValues;
+      this.schema = schema;
+      this.failureCause = null;
+      this.isEOF = (firstLineNumber < 0) ||
+                   ((lineList != null) && lineList.isEmpty());
     }
 
 
@@ -3761,14 +2718,12 @@ public final class LDIFReader
      */
     private UnparsedLDIFRecord(final Exception failureCause)
     {
+      this.lineList = null;
+      this.firstLineNumber = 0;
+      this.ignoreDuplicateValues = true;
+      this.schema = null;
       this.failureCause = failureCause;
-
-      lineList               = null;
-      firstLineNumber        = 0;
-      duplicateValueBehavior = DuplicateValueBehavior.REJECT;
-      trailingSpaceBehavior  = TrailingSpaceBehavior.REJECT;
-      schema                 = null;
-      isEOF                  = false;
+      this.isEOF = false;
     }
 
 
@@ -3786,34 +2741,16 @@ public final class LDIFReader
 
 
     /**
-     * Retrieves the behavior to exhibit when encountering duplicate attribute
-     * values.
+     * Indicates whether to ignore any duplicate attribute values encountered
+     * while parsing the record.
      *
-     * @return  The behavior to exhibit when encountering duplicate attribute
-     *          values.
+     * @return  {@code true} if duplicate values should be ignored, or
+     *          {@code false} if they should cause the entry to be considered
+     *          invalid.
      */
-    private DuplicateValueBehavior getDuplicateValueBehavior()
+    private boolean ignoreDuplicateValues()
     {
-      return duplicateValueBehavior;
-    }
-
-
-
-    /**
-     * Retrieves the behavior that should be exhibited when encountering
-     * attribute values which are not base64-encoded but contain trailing
-     * spaces.  The LDIF specification strongly recommends that any value which
-     * legitimately contains trailing spaces be base64-encoded, but the LDAP SDK
-     * LDIF parser may be configured to automatically strip these spaces, to
-     * preserve them, or to reject any entry or change record containing them.
-     *
-     * @return  The behavior that should be exhibited when encountering
-     *          attribute values which are not base64-encoded but contain
-     *          trailing spaces.
-     */
-    private TrailingSpaceBehavior getTrailingSpaceBehavior()
-    {
-      return trailingSpaceBehavior;
+      return ignoreDuplicateValues;
     }
 
 
@@ -3962,25 +2899,25 @@ public final class LDIFReader
   private final class RecordParser implements Processor<UnparsedLDIFRecord,
                                                         LDIFRecord>
   {
-    /**
-     * {@inheritDoc}
-     */
-    public LDIFRecord process(final UnparsedLDIFRecord input)
+      /**
+       * {@inheritDoc}
+       */
+      public LDIFRecord process(final UnparsedLDIFRecord input)
            throws LDIFException
-    {
-      LDIFRecord record = decodeRecord(input, relativeBasePath);
-
-      if ((record instanceof Entry) && (entryTranslator != null))
       {
-        record = entryTranslator.translate((Entry) record,
-             input.getFirstLineNumber());
+        LDIFRecord record = decodeRecord(input);
 
-        if (record == null)
+        if ((record instanceof Entry) && (entryTranslator != null))
         {
-          record = SKIP_ENTRY;
+          record = entryTranslator.translate((Entry) record,
+                                   input.getFirstLineNumber());
+
+          if (record == null)
+          {
+            record = SKIP_ENTRY;
+          }
         }
+        return record;
       }
-      return record;
-    }
   }
 }

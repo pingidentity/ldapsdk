@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -27,7 +27,6 @@ import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.args.ArgumentException;
@@ -43,9 +42,8 @@ import static com.unboundid.util.UtilityMessages.*;
 /**
  * This class provides a framework for developing command-line tools that use
  * the argument parser provided as part of the UnboundID LDAP SDK for Java.
- * This tool adds a "-H" or "--help" option, which can be used to display usage
- * information for the program, and may also add a "-V" or "--version" option,
- * which can display the tool version.
+ * This tool adds only a "-H" or "--help" option, which can be used to display
+ * usage information for the program.
  * <BR><BR>
  * Subclasses should include their own {@code main} method that creates an
  * instance of a {@code CommandLineTool} and should invoke the
@@ -76,7 +74,7 @@ import static com.unboundid.util.UtilityMessages.*;
  * </PRE>.
  * <BR><BR>
  * Note that in general, methods in this class are not threadsafe.  However, the
- * {@link #out(Object...)} and {@link #err(Object...)} methods may be invoked
+ * {@link #out(Object[])} and {@link #err(Object[])} methods may be invoked
  * concurrently by any number of threads.
  */
 @Extensible()
@@ -91,9 +89,6 @@ public abstract class CommandLineTool
 
   // The argument used to request tool help.
   private BooleanArgument helpArgument = null;
-
-  // The argument used to request the tool version.
-  private BooleanArgument versionArgument = null;
 
 
 
@@ -168,12 +163,6 @@ public abstract class CommandLineTool
         return ResultCode.SUCCESS;
       }
 
-      if ((versionArgument != null) && versionArgument.isPresent())
-      {
-        out(getToolVersion());
-        return ResultCode.SUCCESS;
-      }
-
       doExtendedArgumentValidation();
     }
     catch (ArgumentException ae)
@@ -183,28 +172,16 @@ public abstract class CommandLineTool
       return ResultCode.PARAM_ERROR;
     }
 
-
-    final AtomicReference<ResultCode> exitCode =
-         new AtomicReference<ResultCode>();
-    if (registerShutdownHook())
-    {
-      final CommandLineToolShutdownHook shutdownHook =
-           new CommandLineToolShutdownHook(this, exitCode);
-      Runtime.getRuntime().addShutdownHook(shutdownHook);
-    }
-
     try
     {
-      exitCode.set(doToolProcessing());
+      return doToolProcessing();
     }
     catch (Exception e)
     {
       debugException(e);
       err(getExceptionMessage(e));
-      exitCode.set(ResultCode.LOCAL_ERROR);
+      return ResultCode.LOCAL_ERROR;
     }
-
-    return exitCode.get();
   }
 
 
@@ -280,6 +257,7 @@ public abstract class CommandLineTool
 
 
 
+
   /**
    * Retrieves the name of this tool.  It should be the name of the command used
    * to invoke this tool.
@@ -296,19 +274,6 @@ public abstract class CommandLineTool
    * @return  A human-readable description for this tool.
    */
   public abstract String getToolDescription();
-
-
-
-  /**
-   * Retrieves a version string for this tool, if available.
-   *
-   * @return  A version string for this tool, or {@code null} if none is
-   *          available.
-   */
-  public String getToolVersion()
-  {
-    return null;
-  }
 
 
 
@@ -371,26 +336,6 @@ public abstract class CommandLineTool
     helpArgument.setUsageArgument(true);
     parser.addArgument(helpArgument);
 
-    final String version = getToolVersion();
-    if ((version != null) && (version.length() > 0) &&
-        (parser.getNamedArgument("version") == null))
-    {
-      final Character shortIdentifier;
-      if (parser.getNamedArgument('V') == null)
-      {
-        shortIdentifier = 'V';
-      }
-      else
-      {
-        shortIdentifier = null;
-      }
-
-      versionArgument = new BooleanArgument(shortIdentifier, "version",
-           INFO_CL_TOOL_DESCRIPTION_VERSION.get());
-      versionArgument.setUsageArgument(true);
-      parser.addArgument(versionArgument);
-    }
-
     return parser;
   }
 
@@ -437,61 +382,6 @@ public abstract class CommandLineTool
    *          successfully.
    */
   public abstract ResultCode doToolProcessing();
-
-
-
-  /**
-   * Indicates whether this tool should register a shutdown hook with the JVM.
-   * Shutdown hooks allow for a best-effort attempt to perform a specified set
-   * of processing when the JVM is shutting down under various conditions,
-   * including:
-   * <UL>
-   *   <LI>When all non-daemon threads have stopped running (i.e., the tool has
-   *       completed processing).</LI>
-   *   <LI>When {@code System.exit()} or {@code Runtime.exit()} is called.</LI>
-   *   <LI>When the JVM receives an external kill signal (e.g., via the use of
-   *       the kill tool or interrupting the JVM with Ctrl+C).</LI>
-   * </UL>
-   * Shutdown hooks may not be invoked if the process is forcefully killed
-   * (e.g., using "kill -9", or the {@code System.halt()} or
-   * {@code Runtime.halt()} methods).
-   * <BR><BR>
-   * If this method is overridden to return {@code true}, then the
-   * {@link #doShutdownHookProcessing(ResultCode)} method should also be
-   * overridden to contain the logic that will be invoked when the JVM is
-   * shutting down in a manner that calls shutdown hooks.
-   *
-   * @return  {@code true} if this tool should register a shutdown hook, or
-   *          {@code false} if not.
-   */
-  protected boolean registerShutdownHook()
-  {
-    return false;
-  }
-
-
-
-  /**
-   * Performs any processing that may be needed when the JVM is shutting down,
-   * whether because tool processing has completed or because it has been
-   * interrupted (e.g., by a kill or break signal).
-   * <BR><BR>
-   * Note that because shutdown hooks run at a delicate time in the life of the
-   * JVM, they should complete quickly and minimize access to external
-   * resources.  See the documentation for the
-   * {@code java.lang.Runtime.addShutdownHook} method for recommendations and
-   * restrictions about writing shutdown hooks.
-   *
-   * @param  resultCode  The result code returned by the tool.  It may be
-   *                     {@code null} if the tool was interrupted before it
-   *                     completed processing.
-   */
-  protected void doShutdownHookProcessing(final ResultCode resultCode)
-  {
-    throw new LDAPSDKUsageException(
-         ERR_COMMAND_LINE_TOOL_SHUTDOWN_HOOK_NOT_IMPLEMENTED.get(
-              getToolName()));
-  }
 
 
 

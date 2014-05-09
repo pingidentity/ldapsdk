@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,12 +23,6 @@ package com.unboundid.util;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-
-import static com.unboundid.util.Debug.*;
 
 
 
@@ -74,87 +68,32 @@ public final class FixedRateBarrier
    */
   private static final long serialVersionUID = -3490156685189909611L;
 
-  /**
-   * The minimum number of milliseconds that Thread.sleep() can handle
-   * accurately.  This varies from platform to platform, so we measure it
-   * once in the static initializer below.  When using a low rate (such as
-   * 100 per second), we can often sleep between iterations instead of having
-   * to spin calling Thread.yield().
-   */
-  private static final long minSleepMillis;
-
-  static
-  {
-    // Calibrate the minimum number of milliseconds that we can reliably
-    // sleep on this system.  We take several measurements and take the median,
-    // which keeps us from choosing an outlier.
-    //
-    // It varies from system to system.  Testing on three systems, yielded
-    // three different measurements Solaris x86 (10 ms), RedHat Linux (2 ms),
-    // Windows 7 (1 ms).
-
-    final List<Long> minSleepMillisMeasurements = new ArrayList<Long>();
-
-    for (int i = 0; i < 11; i++)
-    {
-      final long timeBefore = System.currentTimeMillis();
-      try
-      {
-        Thread.sleep(1);
-      }
-      catch (InterruptedException e)
-      {
-        debugException(e);
-      }
-      final long sleepMillis = System.currentTimeMillis() - timeBefore;
-      minSleepMillisMeasurements.add(sleepMillis);
-    }
-
-    Collections.sort(minSleepMillisMeasurements);
-    final long medianSleepMillis = minSleepMillisMeasurements.get(
-            minSleepMillisMeasurements.size()/2);
-
-    minSleepMillis = Math.max(medianSleepMillis, 1);
-
-    final String message = "Calibrated FixedRateBarrier to use " +
-          "minSleepMillis=" + minSleepMillis + ".  " +
-          "Minimum sleep measurements = " + minSleepMillisMeasurements;
-    debug(Level.INFO, DebugType.OTHER, message);
-  }
 
 
-  // This tracks when this class is shut down.  Calls to await() after
+  // The duration of the target interval in nano-seconds.
+  private final long intervalDurationNanos;
+
+  // The target number of times to release a thread per interval.
+  private final int perInterval;
+
+  // This tracks when this class is shutdown.  Calls to await() after
   // shutdownRequested() is called, will return immediately with a value of
   // true.
   private volatile boolean shutdownRequested = false;
-
 
   //
   // The following class variables are guarded by synchronized(this).
   //
 
-  // The duration of the target interval in nano-seconds.
-  private long intervalDurationNanos;
-
-  // This tracks the number of milliseconds between each iteration if they
-  // were evenly spaced.
-  //
-  // If intervalDurationMs=1000 and perInterval=100, then this is 100.
-  // If intervalDurationMs=1000 and perInterval=10000, then this is .1.
-  private double millisBetweenIterations;
-
-  // The target number of times to release a thread per interval.
-  private int perInterval;
-
   // A count of the number of times that await has returned within the current
   // interval.
-  private long countInThisInterval;
+  private long countInThisInterval = 0;
 
   // The start of this interval in terms of System.nanoTime().
-  private long intervalStartNanos;
+  private long intervalStartNanos = 0;
 
   // The end of this interval in terms of System.nanoTime().
-  private long intervalEndNanos;
+  private long intervalEndNanos = 0;
 
 
 
@@ -168,22 +107,6 @@ public final class FixedRateBarrier
    */
   public FixedRateBarrier(final long intervalDurationMs, final int perInterval)
   {
-    setRate(intervalDurationMs, perInterval);
-  }
-
-
-
-  /**
-   * Updates the rates associated with this FixedRateBarrier.  The new rate
-   * will be in effect when this method returns.
-   *
-   * @param  intervalDurationMs  The duration of the interval in milliseconds.
-   * @param  perInterval  The target number of times that {@link #await} should
-   *                      return per interval.
-   */
-  public synchronized void setRate(final long intervalDurationMs,
-                                   final int perInterval)
-  {
     Validator.ensureTrue(intervalDurationMs > 0,
          "FixedRateBarrier.intervalDurationMs must be at least 1.");
     Validator.ensureTrue(perInterval > 0,
@@ -192,13 +115,6 @@ public final class FixedRateBarrier
     this.perInterval = perInterval;
 
     intervalDurationNanos = 1000L * 1000L * intervalDurationMs;
-
-    millisBetweenIterations = (double)intervalDurationMs/(double)perInterval;
-
-    // Reset the intervals and all of the counters.
-    countInThisInterval = 0;
-    intervalStartNanos = 0;
-    intervalEndNanos = 0;
   }
 
 
@@ -271,59 +187,15 @@ public final class FixedRateBarrier
       }
       else
       {
-        // If we can sleep until it's time to leave this barrier, then do
-        // so to keep from spinning on a CPU doing Thread.yield().
-
-        final double gapIterations = expectedRemaining - actualRemaining;
-        final long remainingMillis =
-             (long) Math.floor(millisBetweenIterations * gapIterations);
-
-        if (remainingMillis >= minSleepMillis)
-        {
-          // Cap how long we sleep so that we can respond to a change in the
-          // rate without too much delay.
-          final long waitTime = Math.min(remainingMillis, 10);
-          try
-          {
-            // We need to wait here instead of Thread.sleep so that we don't
-            // block setRate.
-            this.wait(waitTime);
-          }
-          catch (InterruptedException e)
-          {
-            debugException(e);
-          }
-        }
-        else
-        {
-          // We're ahead of schedule so yield to other threads, and then try
-          // again.  Note: this is the most costly part of the algorithm because
-          // we have to busy wait due to the lack of sleeping for very small
-          // amounts of time.
-          Thread.yield();
-        }
+        // We're ahead of schedule so yield to other threads, and then try
+        // again.  Note: this is the most costly part of the algorithm because
+        // we have to busy wait due to the lack of sleeping for very small
+        // amounts of time.
+        Thread.yield();
       }
     }
 
     return shutdownRequested;
-  }
-
-
-
-  /**
-   * Retrieves information about the current target rate for this barrier.  The
-   * value returned will include a {@code Long} that specifies the duration of
-   * the current interval in milliseconds and an {@code Integer} that specifies
-   * the number of times that the {@link #await} method should return per
-   * interval.
-   *
-   * @return  Information about hte current target rate for this barrier.
-   */
-  public synchronized ObjectPair<Long,Integer> getTargetRate()
-  {
-    return new ObjectPair<Long,Integer>(
-         (intervalDurationNanos / (1000L * 1000L)),
-         perInterval);
   }
 
 

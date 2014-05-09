@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk.schema;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,21 +33,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
-import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.ldap.sdk.schema.SchemaMessages.*;
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.Validator.*;
@@ -132,14 +128,6 @@ public final class Schema
 
 
   /**
-   * The default standard schema available for use in the LDAP SDK.
-   */
-  private static final AtomicReference<Schema> DEFAULT_STANDARD_SCHEMA =
-       new AtomicReference<Schema>();
-
-
-
-  /**
    * The set of request attributes that will be used when retrieving the server
    * subschema subentry in order to retrieve all of the schema elements.
    */
@@ -170,25 +158,11 @@ public final class Schema
 
 
   /**
-   * Retrieves the resource path that may be used to obtain a file with a number
-   * of standard schema definitions.
-   */
-  private static final String DEFAULT_SCHEMA_RESOURCE_PATH =
-       "com/unboundid/ldap/sdk/schema/standard-schema.ldif";
-
-
-
-  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 8081839633831517925L;
 
 
-
-  // A map of all subordinate attribute type definitions for each attribute
-  // type definition.
-  private final Map<AttributeTypeDefinition,List<AttributeTypeDefinition>>
-       subordinateAttributeTypes;
 
   // The set of attribute syntaxes mapped from lowercase name/OID to syntax.
   private final Map<String,AttributeSyntaxDefinition> asMap;
@@ -627,29 +601,6 @@ public final class Schema
       auxiliaryOCSet  = Collections.unmodifiableSet(sAuxiliary);
       structuralOCSet = Collections.unmodifiableSet(sStructural);
     }
-
-
-    // Populate the map of subordinate attribute types.
-    final LinkedHashMap<AttributeTypeDefinition,List<AttributeTypeDefinition>>
-         subAttrTypes = new LinkedHashMap<AttributeTypeDefinition,
-              List<AttributeTypeDefinition>>(atSet.size());
-    for (final AttributeTypeDefinition d : atSet)
-    {
-      AttributeTypeDefinition sup = d.getSuperiorType(this);
-      while (sup != null)
-      {
-        List<AttributeTypeDefinition> l = subAttrTypes.get(sup);
-        if (l == null)
-        {
-          l = new ArrayList<AttributeTypeDefinition>(1);
-          subAttrTypes.put(sup, l);
-        }
-        l.add(d);
-
-        sup = sup.getSuperiorType(this);
-      }
-    }
-    subordinateAttributeTypes = Collections.unmodifiableMap(subAttrTypes);
   }
 
 
@@ -873,201 +824,6 @@ public final class Schema
 
 
   /**
-   * Retrieves a schema object that contains definitions for a number of
-   * standard attribute types and object classes from LDAP-related RFCs and
-   * Internet Drafts.
-   *
-   * @return  A schema object that contains definitions for a number of standard
-   *          attribute types and object classes from LDAP-related RFCs and
-   *          Internet Drafts.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to obtain or
-   *                         parse the default standard schema definitions.
-   */
-  public static Schema getDefaultStandardSchema()
-         throws LDAPException
-  {
-    synchronized (DEFAULT_STANDARD_SCHEMA)
-    {
-      final Schema s = DEFAULT_STANDARD_SCHEMA.get();
-      if (s != null)
-      {
-        return s;
-      }
-
-      try
-      {
-        final ClassLoader classLoader = Schema.class.getClassLoader();
-        final InputStream inputStream =
-             classLoader.getResourceAsStream(DEFAULT_SCHEMA_RESOURCE_PATH);
-        final LDIFReader ldifReader = new LDIFReader(inputStream);
-        final Entry schemaEntry = ldifReader.readEntry();
-        ldifReader.close();
-
-        final Schema schema = new Schema(schemaEntry);
-        DEFAULT_STANDARD_SCHEMA.set(schema);
-        return schema;
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_SCHEMA_CANNOT_LOAD_DEFAULT_DEFINITIONS.get(
-                  getExceptionMessage(e)),
-             e);
-      }
-    }
-  }
-
-
-
-  /**
-   * Retrieves a schema containing all of the elements of each of the provided
-   * schemas.
-   *
-   * @param  schemas  The schemas to be merged.  It must not be {@code null} or
-   *                  empty.
-   *
-   * @return  A merged representation of the provided schemas.
-   */
-  public static Schema mergeSchemas(final Schema... schemas)
-  {
-    if ((schemas == null) || (schemas.length == 0))
-    {
-      return null;
-    }
-    else if (schemas.length == 1)
-    {
-      return schemas[0];
-    }
-
-    final LinkedHashMap<String,String> asMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> atMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> dcrMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<Integer,String> dsrMap =
-         new LinkedHashMap<Integer,String>();
-    final LinkedHashMap<String,String> mrMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> mruMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> nfMap =
-         new LinkedHashMap<String,String>();
-    final LinkedHashMap<String,String> ocMap =
-         new LinkedHashMap<String,String>();
-
-    for (final Schema s : schemas)
-    {
-      for (final AttributeSyntaxDefinition as : s.asSet)
-      {
-        asMap.put(toLowerCase(as.getOID()), as.toString());
-      }
-
-      for (final AttributeTypeDefinition at : s.atSet)
-      {
-        atMap.put(toLowerCase(at.getOID()), at.toString());
-      }
-
-      for (final DITContentRuleDefinition dcr : s.dcrSet)
-      {
-        dcrMap.put(toLowerCase(dcr.getOID()), dcr.toString());
-      }
-
-      for (final DITStructureRuleDefinition dsr : s.dsrSet)
-      {
-        dsrMap.put(dsr.getRuleID(), dsr.toString());
-      }
-
-      for (final MatchingRuleDefinition mr : s.mrSet)
-      {
-        mrMap.put(toLowerCase(mr.getOID()), mr.toString());
-      }
-
-      for (final MatchingRuleUseDefinition mru : s.mruSet)
-      {
-        mruMap.put(toLowerCase(mru.getOID()), mru.toString());
-      }
-
-      for (final NameFormDefinition nf : s.nfSet)
-      {
-        nfMap.put(toLowerCase(nf.getOID()), nf.toString());
-      }
-
-      for (final ObjectClassDefinition oc : s.ocSet)
-      {
-        ocMap.put(toLowerCase(oc.getOID()), oc.toString());
-      }
-    }
-
-    final Entry e = new Entry(schemas[0].getSchemaEntry().getDN());
-
-    final Attribute ocAttr =
-         schemas[0].getSchemaEntry().getObjectClassAttribute();
-    if (ocAttr == null)
-    {
-      e.addAttribute("objectClass", "top", "ldapSubEntry", "subschema");
-    }
-    else
-    {
-      e.addAttribute(ocAttr);
-    }
-
-    if (! asMap.isEmpty())
-    {
-      final String[] values = new String[asMap.size()];
-      e.addAttribute(ATTR_ATTRIBUTE_SYNTAX, asMap.values().toArray(values));
-    }
-
-    if (! mrMap.isEmpty())
-    {
-      final String[] values = new String[mrMap.size()];
-      e.addAttribute(ATTR_MATCHING_RULE, mrMap.values().toArray(values));
-    }
-
-    if (! atMap.isEmpty())
-    {
-      final String[] values = new String[atMap.size()];
-      e.addAttribute(ATTR_ATTRIBUTE_TYPE, atMap.values().toArray(values));
-    }
-
-    if (! ocMap.isEmpty())
-    {
-      final String[] values = new String[ocMap.size()];
-      e.addAttribute(ATTR_OBJECT_CLASS, ocMap.values().toArray(values));
-    }
-
-    if (! dcrMap.isEmpty())
-    {
-      final String[] values = new String[dcrMap.size()];
-      e.addAttribute(ATTR_DIT_CONTENT_RULE, dcrMap.values().toArray(values));
-    }
-
-    if (! dsrMap.isEmpty())
-    {
-      final String[] values = new String[dsrMap.size()];
-      e.addAttribute(ATTR_DIT_STRUCTURE_RULE, dsrMap.values().toArray(values));
-    }
-
-    if (! nfMap.isEmpty())
-    {
-      final String[] values = new String[nfMap.size()];
-      e.addAttribute(ATTR_NAME_FORM, nfMap.values().toArray(values));
-    }
-
-    if (! mruMap.isEmpty())
-    {
-      final String[] values = new String[mruMap.size()];
-      e.addAttribute(ATTR_MATCHING_RULE_USE, mruMap.values().toArray(values));
-    }
-
-    return new Schema(e);
-  }
-
-
-
-  /**
    * Retrieves the entry used to create this schema object.
    *
    * @return  The entry used to create this schema object.
@@ -1266,36 +1022,6 @@ public final class Schema
     ensureNotNull(name);
 
     return atMap.get(toLowerCase(name));
-  }
-
-
-
-  /**
-   * Retrieves a list of all subordinate attribute type definitions for the
-   * provided attribute type definition.
-   *
-   * @param  d  The attribute type definition for which to retrieve all
-   *            subordinate attribute types.  It must not be {@code null}.
-   *
-   * @return  A list of all subordinate attribute type definitions for the
-   *          provided attribute type definition, or an empty list if it does
-   *          not have any subordinate types or the provided attribute type is
-   *          not defined in the schema.
-   */
-  public List<AttributeTypeDefinition> getSubordinateAttributeTypes(
-                                            final AttributeTypeDefinition d)
-  {
-    ensureNotNull(d);
-
-    final List<AttributeTypeDefinition> l = subordinateAttributeTypes.get(d);
-    if (l == null)
-    {
-      return Collections.emptyList();
-    }
-    else
-    {
-      return Collections.unmodifiableList(l);
-    }
   }
 
 
@@ -1591,146 +1317,5 @@ public final class Schema
     ensureNotNull(name);
 
     return ocMap.get(toLowerCase(name));
-  }
-
-
-
-  /**
-   * Retrieves a hash code for this schema object.
-   *
-   * @return  A hash code for this schema object.
-   */
-  @Override()
-  public int hashCode()
-  {
-    int hc;
-    try
-    {
-      hc = schemaEntry.getParsedDN().hashCode();
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      hc = toLowerCase(schemaEntry.getDN()).hashCode();
-    }
-
-    Attribute a = schemaEntry.getAttribute(ATTR_ATTRIBUTE_SYNTAX);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_MATCHING_RULE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_ATTRIBUTE_TYPE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_OBJECT_CLASS);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_NAME_FORM);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_DIT_CONTENT_RULE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_DIT_STRUCTURE_RULE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_MATCHING_RULE_USE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    return hc;
-  }
-
-
-
-  /**
-   * Indicates whether the provided object is equal to this schema object.
-   *
-   * @param  o  The object for which to make the determination.
-   *
-   * @return  {@code true} if the provided object is equal to this schema
-   *          object, or {@code false} if not.
-   */
-  @Override()
-  public boolean equals(final Object o)
-  {
-    if (o == null)
-    {
-      return false;
-    }
-
-    if (o == this)
-    {
-      return true;
-    }
-
-    if (! (o instanceof Schema))
-    {
-      return false;
-    }
-
-    final Schema s = (Schema) o;
-
-    try
-    {
-      if (! schemaEntry.getParsedDN().equals(s.schemaEntry.getParsedDN()))
-      {
-        return false;
-      }
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      if (! schemaEntry.getDN().equalsIgnoreCase(s.schemaEntry.getDN()))
-      {
-        return false;
-      }
-    }
-
-    return (asSet.equals(s.asSet) &&
-         mrSet.equals(s.mrSet) &&
-         atSet.equals(s.atSet) &&
-         ocSet.equals(s.ocSet) &&
-         nfSet.equals(s.nfSet) &&
-         dcrSet.equals(s.dcrSet) &&
-         dsrSet.equals(s.dsrSet) &&
-         mruSet.equals(s.mruSet));
-  }
-
-
-
-  /**
-   * Retrieves a string representation of the associated schema entry.
-   *
-   * @return  A string representation of the associated schema entry.
-   */
-  @Override()
-  public String toString()
-  {
-    return schemaEntry.toString();
   }
 }

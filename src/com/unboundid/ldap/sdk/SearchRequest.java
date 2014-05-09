@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -159,34 +158,29 @@ import static com.unboundid.util.Validator.*;
  * <H2>Example</H2>
  * The following example demonstrates a simple search operation in which the
  * client performs a search to find all users in the "Sales" department and then
- * retrieves the name and e-mail address for each matching user:
+ * prints out the name and e-mail address for each matching user:
  * <PRE>
- * // Construct a filter that can be used to find everyone in the Sales
- * // department, and then create a search request to find all such users
- * // in the directory.
- * Filter filter = Filter.createEqualityFilter("ou", "Sales");
- * SearchRequest searchRequest =
- *      new SearchRequest("dc=example,dc=com", SearchScope.SUB, filter,
- *           "cn", "mail");
- * SearchResult searchResult;
+ *   Filter filter = Filter.createEqualityFilter("ou", "Sales");
  *
- * try
- * {
- *   searchResult = connection.search(searchRequest);
+ *   SearchRequest searchRequest =
+ *        new SearchRequest("dc=example,dc=com", SearchScope.SUB, filter,
+ *                          "cn", "mail");
  *
- *   for (SearchResultEntry entry : searchResult.getSearchEntries())
+ *   try
  *   {
- *     String name = entry.getAttributeValue("cn");
- *     String mail = entry.getAttributeValue("mail");
+ *     SearchResult searchResult = connection.search(searchRequest);
+ *
+ *     for (SearchResultEntry entry : searchResult.getSearchEntries())
+ *     {
+ *       String name = entry.getAttributeValue("cn");
+ *       String mail = entry.getAttributeValue("mail");
+ *       System.out.println(name + "\t" + mail);
+ *     }
  *   }
- * }
- * catch (LDAPSearchException lse)
- * {
- *   // The search failed for some reason.
- *   searchResult = lse.getSearchResult();
- *   ResultCode resultCode = lse.getResultCode();
- *   String errorMessageFromServer = lse.getDiagnosticMessage();
- * }
+ *   catch (LDAPSearchException lse)
+ *   {
+ *     System.err.println("The search failed.");
+ *   }
  * </PRE>
  */
 @Mutable()
@@ -225,7 +219,7 @@ public final class SearchRequest
    * The default set of requested attributes that will be used, which will
    * return all user attributes but no operational attributes.
    */
-  public static final String[] REQUEST_ATTRS_DEFAULT = NO_STRINGS;
+  public static final String[] REQUEST_ATTRS_DEFAULT = new String[0];
 
 
 
@@ -802,17 +796,6 @@ public final class SearchRequest
    * Specifies the maximum number of entries that should be returned by the
    * server when processing this search request.  A value of zero indicates that
    * there should be no limit.
-   * <BR><BR>
-   * Note that if an attempt to process a search operation fails because the
-   * size limit has been exceeded, an {@link LDAPSearchException} will be
-   * thrown.  If one or more entries or references have already been returned
-   * for the search, then the {@code LDAPSearchException} methods like
-   * {@code getEntryCount}, {@code getSearchEntries}, {@code getReferenceCount},
-   * and {@code getSearchReferences} may be used to obtain information about
-   * those entries and references (although if a search result listener was
-   * provided, then it will have been used to make any entries and references
-   * available, and they will not be available through the
-   * {@code getSearchEntries} and {@code getSearchReferences} methods).
    *
    * @param  sizeLimit  The maximum number of entries that should be returned by
    *                    the server when processing this search request.
@@ -845,17 +828,6 @@ public final class SearchRequest
    * Specifies the maximum length of time in seconds that the server should
    * spend processing this search request.  A value of zero indicates that there
    * should be no limit.
-   * <BR><BR>
-   * Note that if an attempt to process a search operation fails because the
-   * time limit has been exceeded, an {@link LDAPSearchException} will be
-   * thrown.  If one or more entries or references have already been returned
-   * for the search, then the {@code LDAPSearchException} methods like
-   * {@code getEntryCount}, {@code getSearchEntries}, {@code getReferenceCount},
-   * and {@code getSearchReferences} may be used to obtain information about
-   * those entries and references (although if a search result listener was
-   * provided, then it will have been used to make any entries and references
-   * available, and they will not be available through the
-   * {@code getSearchEntries} and {@code getSearchReferences} methods).
    *
    * @param  timeLimit  The maximum length of time in seconds that the server
    *                    should spend processing this search request.
@@ -1071,7 +1043,7 @@ public final class SearchRequest
    *
    * @return  The ASN.1 element with the encoded search request protocol op.
    */
-  public ASN1Element encodeProtocolOp()
+  ASN1Element encodeProtocolOp()
   {
     // Create the search request protocol op.
     final ASN1Element[] attrElements = new ASN1Element[attributes.length];
@@ -1125,8 +1097,7 @@ public final class SearchRequest
   {
     if (connection.synchronousMode())
     {
-      return processSync(connection, depth,
-           connection.getConnectionOptions().autoReconnect());
+      return processSync(connection, depth);
     }
 
     final long requestTime = System.nanoTime();
@@ -1176,15 +1147,9 @@ public final class SearchRequest
 
         if (response == null)
         {
-          if (connection.getConnectionOptions().abandonOnTimeout())
-          {
-            connection.abandon(messageID);
-          }
-
           final SearchResult searchResult =
                new SearchResult(messageID, ResultCode.TIMEOUT,
-                    ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout, messageID,
-                         baseDN, scope.getName(), filter.toString(),
+                    ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
                          connection.getHostPort()),
                     null, null, entryList, referenceList, numEntries,
                     numReferences, null);
@@ -1346,15 +1311,14 @@ public final class SearchRequest
    *                         {@code null} only if the result is to be processed
    *                         by this class.
    *
-   * @return  The async request ID created for the operation, or {@code null} if
-   *          the provided {@code resultListener} is {@code null} and the
-   *          operation will not actually be processed asynchronously.
+   * @return  The LDAP message ID for the search request that was sent to the
+   *          server.
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncSearchResultListener resultListener)
-                 throws LDAPException
+  int processAsync(final LDAPConnection connection,
+                   final AsyncSearchResultListener resultListener)
+      throws LDAPException
   {
     // Create the LDAP message.
     messageID = connection.nextMessageID();
@@ -1364,28 +1328,15 @@ public final class SearchRequest
     // If the provided async result listener is {@code null}, then we'll use
     // this class as the message acceptor.  Otherwise, create an async helper
     // and use it as the message acceptor.
-    final AsyncRequestID asyncRequestID;
     if (resultListener == null)
     {
-      asyncRequestID = null;
       connection.registerResponseAcceptor(messageID, this);
     }
     else
     {
       final AsyncSearchHelper helper = new AsyncSearchHelper(connection,
-           messageID, resultListener, getIntermediateResponseListener());
+           resultListener, getIntermediateResponseListener());
       connection.registerResponseAcceptor(messageID, helper);
-      asyncRequestID = helper.getAsyncRequestID();
-
-      final long timeout = getResponseTimeoutMillis(connection);
-      if (timeout > 0L)
-      {
-        final Timer timer = connection.getTimer();
-        final AsyncTimeoutTimerTask timerTask =
-             new AsyncTimeoutTimerTask(helper);
-        timer.schedule(timerTask, timeout);
-        asyncRequestID.setTimerTask(timerTask);
-      }
     }
 
 
@@ -1395,7 +1346,7 @@ public final class SearchRequest
       debugLDAPRequest(this);
       connection.getConnectionStatistics().incrementNumSearchRequests();
       connection.sendMessage(message);
-      return asyncRequestID;
+      return messageID;
     }
     catch (LDAPException le)
     {
@@ -1417,10 +1368,6 @@ public final class SearchRequest
    * @param  depth       The current referral depth for this request.  It should
    *                     always be one for the initial request, and should only
    *                     be incremented when following referrals.
-   * @param  allowRetry  Indicates whether the request may be re-tried on a
-   *                     re-established connection if the initial attempt fails
-   *                     in a way that indicates the connection is no longer
-   *                     valid and autoReconnect is true.
    *
    * @return  An LDAP result object that provides information about the result
    *          of the search processing.
@@ -1429,7 +1376,7 @@ public final class SearchRequest
    *                         reading the response.
    */
   private SearchResult processSync(final LDAPConnection connection,
-                                   final int depth, final boolean allowRetry)
+                                   final int depth)
           throws LDAPException
   {
     // Create the LDAP message.
@@ -1442,7 +1389,7 @@ public final class SearchRequest
     final long responseTimeout = getResponseTimeoutMillis(connection);
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      connection.getConnectionInternals().getSocket().setSoTimeout(
            (int) responseTimeout);
     }
     catch (Exception e)
@@ -1455,26 +1402,7 @@ public final class SearchRequest
     final long requestTime = System.nanoTime();
     debugLDAPRequest(this);
     connection.getConnectionStatistics().incrementNumSearchRequests();
-    try
-    {
-      connection.sendMessage(message);
-    }
-    catch (final LDAPException le)
-    {
-      debugException(le);
-
-      if (allowRetry)
-      {
-        final SearchResult retryResult = reconnectAndRetry(connection, depth,
-             le.getResultCode(), 0, 0);
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
-      throw le;
-    }
+    connection.sendMessage(message);
 
     final ArrayList<SearchResultEntry> entryList;
     final ArrayList<SearchResultReference> referenceList;
@@ -1494,59 +1422,16 @@ public final class SearchRequest
     ResultCode intermediateResultCode = ResultCode.SUCCESS;
     while (true)
     {
-      final LDAPResponse response;
-      try
-      {
-        response = connection.readResponse(messageID);
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-
-        if ((le.getResultCode() == ResultCode.TIMEOUT) &&
-            connection.getConnectionOptions().abandonOnTimeout())
-        {
-          connection.abandon(messageID);
-        }
-
-        if (allowRetry)
-        {
-          final SearchResult retryResult = reconnectAndRetry(connection, depth,
-               le.getResultCode(), numEntries, numReferences);
-          if (retryResult != null)
-          {
-            return retryResult;
-          }
-        }
-
-        throw le;
-      }
+      final LDAPResponse response = connection.readResponse(messageID);
 
       if (response == null)
       {
-        if (connection.getConnectionOptions().abandonOnTimeout())
-        {
-          connection.abandon(messageID);
-        }
-
         throw new LDAPException(ResultCode.TIMEOUT,
-             ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout, messageID, baseDN,
-                  scope.getName(), filter.toString(),
+             ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
                   connection.getHostPort()));
       }
       else if (response instanceof ConnectionClosedResponse)
       {
-
-        if (allowRetry)
-        {
-          final SearchResult retryResult = reconnectAndRetry(connection, depth,
-               ResultCode.SERVER_DOWN, numEntries, numReferences);
-          if (retryResult != null)
-          {
-            return retryResult;
-          }
-        }
-
         final ConnectionClosedResponse ccr =
              (ConnectionClosedResponse) response;
         final String msg = ccr.getMessage();
@@ -1571,16 +1456,6 @@ public final class SearchRequest
                     null, null, entryList, referenceList, numEntries,
                     numReferences, null);
           throw new LDAPSearchException(searchResult);
-        }
-      }
-      else if (response instanceof IntermediateResponse)
-      {
-        final IntermediateResponseListener listener =
-             getIntermediateResponseListener();
-        if (listener != null)
-        {
-          listener.intermediateResponseReturned(
-               (IntermediateResponse) response);
         }
       }
       else if (response instanceof SearchResultEntry)
@@ -1650,75 +1525,11 @@ public final class SearchRequest
       }
       else
       {
-        final SearchResult result = (SearchResult) response;
-        if (allowRetry)
-        {
-          final SearchResult retryResult = reconnectAndRetry(connection,
-               depth, result.getResultCode(), numEntries, numReferences);
-          if (retryResult != null)
-          {
-            return retryResult;
-          }
-        }
-
         return handleResponse(connection, response, requestTime, depth,
                               numEntries, numReferences, entryList,
                               referenceList, intermediateResultCode);
       }
     }
-  }
-
-
-
-  /**
-   * Attempts to re-establish the connection and retry processing this request
-   * on it.
-   *
-   * @param  connection     The connection to be re-established.
-   * @param  depth          The current referral depth for this request.  It
-   *                        should always be one for the initial request, and
-   *                        should only be incremented when following referrals.
-   * @param  resultCode     The result code for the previous operation attempt.
-   * @param  numEntries     The number of search result entries already sent for
-   *                        the search operation.
-   * @param  numReferences  The number of search result references already sent
-   *                        for the search operation.
-   *
-   * @return  The result from re-trying the search, or {@code null} if it could
-   *          not be re-tried.
-   */
-  private SearchResult reconnectAndRetry(final LDAPConnection connection,
-                                         final int depth,
-                                         final ResultCode resultCode,
-                                         final int numEntries,
-                                         final int numReferences)
-  {
-    try
-    {
-      // We will only want to retry for certain result codes that indicate a
-      // connection problem.
-      switch (resultCode.intValue())
-      {
-        case ResultCode.SERVER_DOWN_INT_VALUE:
-        case ResultCode.DECODING_ERROR_INT_VALUE:
-        case ResultCode.CONNECT_ERROR_INT_VALUE:
-          // We want to try to re-establish the connection no matter what, but
-          // we only want to retry the search if we haven't yet sent any
-          // results.
-          connection.reconnect();
-          if ((numEntries == 0) && (numReferences == 0))
-          {
-            return processSync(connection, depth, false);
-          }
-          break;
-      }
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-    return null;
   }
 
 
@@ -1872,8 +1683,8 @@ public final class SearchRequest
                                sizeLimit, timeLimit, typesOnly, requestFilter,
                                attributes);
 
-        final LDAPConnection referralConn = connection.getReferralConnector().
-             getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn =
+             connection.getReferralConnection(referralURL, connection);
 
         try
         {
@@ -1976,8 +1787,8 @@ public final class SearchRequest
                                sizeLimit, timeLimit, typesOnly, requestFilter,
                                attributes);
 
-        final LDAPConnection referralConn = connection.getReferralConnector().
-             getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn =
+             connection.getReferralConnection(referralURL, connection);
         try
         {
           return searchRequest.process(referralConn, depth+1);
@@ -2034,17 +1845,6 @@ public final class SearchRequest
   public int getLastMessageID()
   {
     return messageID;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public OperationType getOperationType()
-  {
-    return OperationType.SEARCH;
   }
 
 

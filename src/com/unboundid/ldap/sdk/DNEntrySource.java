@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -50,65 +50,38 @@ import static com.unboundid.util.Validator.*;
  * entry and using a {@code DNEntrySource} to iterate across the members of that
  * group:
  * <PRE>
- * Entry groupEntry =
- *      connection.getEntry("cn=My Group,ou=Groups,dc=example,dc=com");
- * String[] memberValues = groupEntry.getAttributeValues("member");
- * int entriesReturned = 0;
- * int exceptionsCaught = 0;
- *
- * if (memberValues != null)
- * {
- *   DNEntrySource entrySource =
- *        new DNEntrySource(connection, memberValues, "cn");
- *   try
+ *   Entry groupEntry =
+ *        connection.getEntry("cn=My Group,ou=Groups,dc=example,dc=com");
+ *   String[] memberValues = groupEntry.getAttributeValues("member");
+ *   if (memberValues != null)
  *   {
+ *     DNEntrySource entrySource =
+ *          new DNEntrySource(connection, memberValues, "cn");
  *     while (true)
  *     {
- *       Entry memberEntry;
- *       try
- *       {
- *         memberEntry = entrySource.nextEntry();
- *       }
- *       catch (EntrySourceException ese)
- *       {
- *         // A problem was encountered while attempting to obtain an entry.
- *         // We may be able to continue reading entries (e.g., if the problem
- *         // was that the group referenced an entry that doesn't exist), or
- *         // we may not (e.g., if the problem was a significant search error
- *         // or problem with the connection).
- *         exceptionsCaught++;
- *         if (ese.mayContinueReading())
- *         {
- *           continue;
- *         }
- *         else
- *         {
- *           break;
- *         }
- *       }
- *
+ *       Entry memberEntry = entrySource.nextEntry();
  *       if (memberEntry == null)
  *       {
- *         // We've retrieved all of the entries for the given set of DNs.
  *         break;
  *       }
- *       else
- *       {
- *         entriesReturned++;
- *       }
+ *
+ *       System.out.println("Retrieved member entry:  " +
+ *            memberEntry.getAttributeValue("cn"));
  *     }
  *   }
- *   finally
- *   {
- *     entrySource.close();
- *   }
- * }
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class DNEntrySource
        extends EntrySource
 {
+  /**
+   * A pre-allocated array of no strings.
+   */
+  private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
+
+
   // The iterator to use to access the DNs.  It will either be across DN or
   // String objects.
   private final Iterator<?> dnIterator;
@@ -142,7 +115,7 @@ public final class DNEntrySource
 
     if (attributes == null)
     {
-      this.attributes = NO_STRINGS;
+      this.attributes = EMPTY_STRING_ARRAY;
     }
     else
     {
@@ -192,7 +165,7 @@ public final class DNEntrySource
 
     if (attributes == null)
     {
-      this.attributes = NO_STRINGS;
+      this.attributes = EMPTY_STRING_ARRAY;
     }
     else
     {

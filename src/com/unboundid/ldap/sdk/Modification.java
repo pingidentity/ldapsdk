@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -37,7 +37,6 @@ import com.unboundid.asn1.ASN1Set;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSet;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
-import com.unboundid.util.Base64;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -70,6 +69,14 @@ public final class Modification
    * values.
    */
   private static final ASN1OctetString[] NO_VALUES = new ASN1OctetString[0];
+
+
+
+  /**
+   * The string value array that will be used when the modification does not
+   * have any values.
+   */
+  private static final String[] NO_STRING_VALUES = new String[0];
 
 
 
@@ -297,7 +304,7 @@ public final class Modification
   {
     if (values.length == 0)
     {
-      return NO_STRINGS;
+      return NO_STRING_VALUES;
     }
     else
     {
@@ -681,29 +688,10 @@ public final class Modification
     buffer.append(", attr=");
     buffer.append(attributeName);
 
-    if (values.length == 0)
+    buffer.append(", values={");
+    if (values.length > 0)
     {
-      buffer.append(", values={");
-    }
-    else if (needsBase64Encoding())
-    {
-      buffer.append(", base64Values={'");
-
-      for (int i=0; i < values.length; i++)
-      {
-        if (i > 0)
-        {
-          buffer.append("', '");
-        }
-
-        buffer.append(Base64.encode(values[i].getValue()));
-      }
-
       buffer.append('\'');
-    }
-    else
-    {
-      buffer.append(", values={'");
 
       for (int i=0; i < values.length; i++)
       {
@@ -719,27 +707,5 @@ public final class Modification
     }
 
     buffer.append("})");
-  }
-
-
-
-  /**
-   * Indicates whether this modification needs to be base64-encoded when
-   * represented as LDIF.
-   *
-   * @return  {@code true} if this modification needs to be base64-encoded when
-   *          represented as LDIF, or {@code false} if not.
-   */
-  private boolean needsBase64Encoding()
-  {
-    for (final ASN1OctetString s : values)
-    {
-      if (Attribute.needsBase64Encoding(s.getValue()))
-      {
-        return true;
-      }
-    }
-
-    return false;
   }
 }

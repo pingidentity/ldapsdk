@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,7 +22,6 @@ package com.unboundid.ldap.sdk;
 
 
 
-import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -68,31 +67,29 @@ import static com.unboundid.util.Validator.*;
  * The following example demonstrates the process for performing a compare
  * operation:
  * <PRE>
- * CompareRequest compareRequest =
- *      new CompareRequest("dc=example,dc=com", "description", "test");
- * CompareResult compareResult;
- * try
- * {
- *   compareResult = connection.compare(compareRequest);
+ *   CompareRequest compareRequest =
+ *        new CompareRequest("dc=example,dc=com", "description", "test");
  *
- *   // The compare operation didn't throw an exception, so we can try to
- *   // determine whether the compare matched.
- *   if (compareResult.compareMatched())
+ *   try
  *   {
- *     // The entry does have a description value of test.
+ *     CompareResult compareResult = connection.compare(compareRequest);
+ *
+ *     // The compare operation didn't throw an exception, so we can try to
+ *     // determine whether the compare matched.
+ *     if (compareResult.compareMatched())
+ *     {
+ *       System.out.println("The entry does have a description value of test");
+ *     }
+ *     else
+ *     {
+ *       System.out.println("The entry does not have a description value of " +
+ *                          "test");
+ *     }
  *   }
- *   else
+ *   catch (LDAPException le)
  *   {
- *     // The entry does not have a description value of test.
+ *     System.err.println("The compare operation failed.");
  *   }
- * }
- * catch (LDAPException le)
- * {
- *   // The compare operation failed.
- *   compareResult = new CompareResult(le.toLDAPResult());
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
  * </PRE>
  */
 @Mutable()
@@ -529,7 +526,7 @@ public final class CompareRequest
    *
    * @return  The ASN.1 element with the encoded compare request protocol op.
    */
-  public ASN1Element encodeProtocolOp()
+  ASN1Element encodeProtocolOp()
   {
     // Create the compare request protocol op.
     final ASN1Element[] avaElements =
@@ -573,8 +570,7 @@ public final class CompareRequest
   {
     if (connection.synchronousMode())
     {
-      return processSync(connection, depth,
-           connection.getConnectionOptions().autoReconnect());
+      return processSync(connection, depth);
     }
 
     final long requestTime = System.nanoTime();
@@ -603,7 +599,7 @@ public final class CompareRequest
              ERR_COMPARE_INTERRUPTED.get(connection.getHostPort()), ie);
       }
 
-      return handleResponse(connection, response,  requestTime, depth, false);
+      return handleResponse(connection, response,  requestTime, depth);
     }
     finally
     {
@@ -624,15 +620,14 @@ public final class CompareRequest
    *                         {@code null} only if the result is to be processed
    *                         by this class.
    *
-   * @return  The async request ID created for the operation, or {@code null} if
-   *          the provided {@code resultListener} is {@code null} and the
-   *          operation will not actually be processed asynchronously.
+   * @return  The LDAP message ID for the compare request that was sent to the
+   *          server.
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncCompareResultListener resultListener)
-                 throws LDAPException
+  int processAsync(final LDAPConnection connection,
+                   final AsyncCompareResultListener resultListener)
+      throws LDAPException
   {
     // Create the LDAP message.
     messageID = connection.nextMessageID();
@@ -642,29 +637,15 @@ public final class CompareRequest
     // If the provided async result listener is {@code null}, then we'll use
     // this class as the message acceptor.  Otherwise, create an async helper
     // and use it as the message acceptor.
-    final AsyncRequestID asyncRequestID;
     if (resultListener == null)
     {
-      asyncRequestID = null;
       connection.registerResponseAcceptor(messageID, this);
     }
     else
     {
-      final AsyncCompareHelper compareHelper =
-           new AsyncCompareHelper(connection, messageID, resultListener,
-                getIntermediateResponseListener());
-      connection.registerResponseAcceptor(messageID, compareHelper);
-      asyncRequestID = compareHelper.getAsyncRequestID();
-
-      final long timeout = getResponseTimeoutMillis(connection);
-      if (timeout > 0L)
-      {
-        final Timer timer = connection.getTimer();
-        final AsyncTimeoutTimerTask timerTask =
-             new AsyncTimeoutTimerTask(compareHelper);
-        timer.schedule(timerTask, timeout);
-        asyncRequestID.setTimerTask(timerTask);
-      }
+      final AsyncCompareHelper helper = new AsyncCompareHelper(connection,
+           resultListener, getIntermediateResponseListener());
+      connection.registerResponseAcceptor(messageID, helper);
     }
 
 
@@ -674,7 +655,7 @@ public final class CompareRequest
       debugLDAPRequest(this);
       connection.getConnectionStatistics().incrementNumCompareRequests();
       connection.sendMessage(message);
-      return asyncRequestID;
+      return messageID;
     }
     catch (LDAPException le)
     {
@@ -696,10 +677,6 @@ public final class CompareRequest
    * @param  depth       The current referral depth for this request.  It should
    *                     always be one for the initial request, and should only
    *                     be incremented when following referrals.
-   * @param  allowRetry   Indicates whether the request may be re-tried on a
-   *                      re-established connection if the initial attempt fails
-   *                      in a way that indicates the connection is no longer
-   *                      valid and autoReconnect is true.
    *
    * @return  An LDAP result object that provides information about the result
    *          of the compare processing.
@@ -708,7 +685,7 @@ public final class CompareRequest
    *                         reading the response.
    */
   private CompareResult processSync(final LDAPConnection connection,
-                                    final int depth, final boolean allowRetry)
+                                    final int depth)
           throws LDAPException
   {
     // Create the LDAP message.
@@ -720,7 +697,7 @@ public final class CompareRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      connection.getConnectionInternals().getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
     catch (Exception e)
@@ -733,73 +710,10 @@ public final class CompareRequest
     final long requestTime = System.nanoTime();
     debugLDAPRequest(this);
     connection.getConnectionStatistics().incrementNumCompareRequests();
-    try
-    {
-      connection.sendMessage(message);
-    }
-    catch (final LDAPException le)
-    {
-      debugException(le);
+    connection.sendMessage(message);
 
-      if (allowRetry)
-      {
-        final CompareResult retryResult = reconnectAndRetry(connection, depth,
-             le.getResultCode());
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
-      throw le;
-    }
-
-    while (true)
-    {
-      final LDAPResponse response;
-      try
-      {
-        response = connection.readResponse(messageID);
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-
-        if ((le.getResultCode() == ResultCode.TIMEOUT) &&
-            connection.getConnectionOptions().abandonOnTimeout())
-        {
-          connection.abandon(messageID);
-        }
-
-        if (allowRetry)
-        {
-          final CompareResult retryResult = reconnectAndRetry(connection, depth,
-               le.getResultCode());
-          if (retryResult != null)
-          {
-            return retryResult;
-          }
-        }
-
-        throw le;
-      }
-
-      if (response instanceof IntermediateResponse)
-      {
-        final IntermediateResponseListener listener =
-             getIntermediateResponseListener();
-        if (listener != null)
-        {
-          listener.intermediateResponseReturned(
-               (IntermediateResponse) response);
-        }
-      }
-      else
-      {
-        return handleResponse(connection, response, requestTime, depth,
-             allowRetry);
-      }
-    }
+    final LDAPResponse response = connection.readResponse(messageID);
+    return handleResponse(connection, response, requestTime, depth);
   }
 
 
@@ -813,10 +727,6 @@ public final class CompareRequest
    * @param  depth        The current referral depth for this request.  It
    *                      should always be one for the initial request, and
    *                      should only be incremented when following referrals.
-   * @param  allowRetry   Indicates whether the request may be re-tried on a
-   *                      re-established connection if the initial attempt fails
-   *                      in a way that indicates the connection is no longer
-   *                      valid and autoReconnect is true.
    *
    * @return  The compare result.
    *
@@ -824,21 +734,14 @@ public final class CompareRequest
    */
   private CompareResult handleResponse(final LDAPConnection connection,
                                        final LDAPResponse response,
-                                       final long requestTime, final int depth,
-                                       final boolean allowRetry)
+                                       final long requestTime, final int depth)
           throws LDAPException
   {
     if (response == null)
     {
       final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
-      if (connection.getConnectionOptions().abandonOnTimeout())
-      {
-        connection.abandon(messageID);
-      }
-
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_COMPARE_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
-                connection.getHostPort()));
+           ERR_COMPARE_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumCompareResponses(
@@ -846,16 +749,6 @@ public final class CompareRequest
     if (response instanceof ConnectionClosedResponse)
     {
       // The connection was closed while waiting for the response.
-      if (allowRetry)
-      {
-        final CompareResult retryResult = reconnectAndRetry(connection, depth,
-             ResultCode.SERVER_DOWN);
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
       final String message = ccr.getMessage();
       if (message == null)
@@ -872,16 +765,7 @@ public final class CompareRequest
       }
     }
 
-    final CompareResult result;
-    if (response instanceof CompareResult)
-    {
-      result = (CompareResult) response;
-    }
-    else
-    {
-      result = new CompareResult((LDAPResult) response);
-    }
-
+    final CompareResult result = (CompareResult) response;
     if ((result.getResultCode().equals(ResultCode.REFERRAL)) &&
         followReferrals(connection))
     {
@@ -899,58 +783,8 @@ public final class CompareRequest
     }
     else
     {
-      if (allowRetry)
-      {
-        final CompareResult retryResult = reconnectAndRetry(connection, depth,
-             result.getResultCode());
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
       return result;
     }
-  }
-
-
-
-  /**
-   * Attempts to re-establish the connection and retry processing this request
-   * on it.
-   *
-   * @param  connection  The connection to be re-established.
-   * @param  depth       The current referral depth for this request.  It should
-   *                     always be one for the initial request, and should only
-   *                     be incremented when following referrals.
-   * @param  resultCode  The result code for the previous operation attempt.
-   *
-   * @return  The result from re-trying the compare, or {@code null} if it could
-   *          not be re-tried.
-   */
-  private CompareResult reconnectAndRetry(final LDAPConnection connection,
-                                          final int depth,
-                                          final ResultCode resultCode)
-  {
-    try
-    {
-      // We will only want to retry for certain result codes that indicate a
-      // connection problem.
-      switch (resultCode.intValue())
-      {
-        case ResultCode.SERVER_DOWN_INT_VALUE:
-        case ResultCode.DECODING_ERROR_INT_VALUE:
-        case ResultCode.CONNECT_ERROR_INT_VALUE:
-          connection.reconnect();
-          return processSync(connection, depth, false);
-      }
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-    return null;
   }
 
 
@@ -1002,8 +836,8 @@ public final class CompareRequest
           compareRequest = this;
         }
 
-        final LDAPConnection referralConn = connection.getReferralConnector().
-             getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn =
+             connection.getReferralConnection(referralURL, connection);
         try
         {
           return compareRequest.process(referralConn, depth+1);
@@ -1055,17 +889,6 @@ public final class CompareRequest
   public int getLastMessageID()
   {
     return messageID;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public OperationType getOperationType()
-  {
-    return OperationType.COMPARE;
   }
 
 

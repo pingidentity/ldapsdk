@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -34,8 +34,6 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SearchResultEntry;
-import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
@@ -245,80 +243,6 @@ public final class ContentSyncStateControl
 
 
   /**
-   * Extracts a content sync state control from the provided search result
-   * entry.
-   *
-   * @param  entry  The search result entry from which to retrieve the content
-   *                sync state control.
-   *
-   * @return  The content sync state control contained in the provided search
-   *          result entry, or {@code null} if the entry did not contain a
-   *          content sync state control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the content sync state control contained in
-   *                         the provided search result entry.
-   */
-  public static ContentSyncStateControl get(final SearchResultEntry entry)
-         throws LDAPException
-  {
-    final Control c = entry.getControl(SYNC_STATE_OID);
-    if (c == null)
-    {
-      return null;
-    }
-
-    if (c instanceof ContentSyncStateControl)
-    {
-      return (ContentSyncStateControl) c;
-    }
-    else
-    {
-      return new ContentSyncStateControl(c.getOID(), c.isCritical(),
-           c.getValue());
-    }
-  }
-
-
-
-  /**
-   * Extracts a content sync state control from the provided search result
-   * reference.
-   *
-   * @param  ref  The search result reference from which to retrieve the content
-   *              sync state control.
-   *
-   * @return  The content sync state control contained in the provided search
-   *          result reference, or {@code null} if the reference did not contain
-   *          a content sync state control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the content sync state control contained in
-   *                         the provided search result reference.
-   */
-  public static ContentSyncStateControl get(final SearchResultReference ref)
-         throws LDAPException
-  {
-    final Control c = ref.getControl(SYNC_STATE_OID);
-    if (c == null)
-    {
-      return null;
-    }
-
-    if (c instanceof ContentSyncStateControl)
-    {
-      return (ContentSyncStateControl) c;
-    }
-    else
-    {
-      return new ContentSyncStateControl(c.getOID(), c.isCritical(),
-           c.getValue());
-    }
-  }
-
-
-
-  /**
    * Retrieves the synchronization state for this control, which provides
    * information about the state of the associated search result entry or
    * reference.
@@ -378,9 +302,9 @@ public final class ContentSyncStateControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("ContentSyncStateControl(state='");
+    buffer.append("ContentSyncStateControl(state=");
     buffer.append(state.name());
-    buffer.append("', entryUUID='");
+    buffer.append(", entryUUID='");
     buffer.append(entryUUID);
     buffer.append('\'');
 

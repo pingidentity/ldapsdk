@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -80,7 +80,7 @@ public final class SearchResultEntry
   public SearchResultEntry(final String dn, final Attribute[] attributes,
                            final Control... controls)
   {
-    this(-1, dn, null, attributes, controls);
+    this(-1, dn, attributes, controls);
   }
 
 
@@ -101,30 +101,7 @@ public final class SearchResultEntry
                            final Attribute[] attributes,
                            final Control... controls)
   {
-    this(messageID, dn, null, attributes, controls);
-  }
-
-
-
-  /**
-   * Creates a new search result entry with the provided information.
-   *
-   * @param  messageID   The message ID for the LDAP message containing this
-   *                     response.
-   * @param  dn          The DN for this search result entry.  It must not be
-   *                     {@code null}.
-   * @param  schema      The schema to use for operations involving this entry.
-   *                     It may be {@code null} if no schema is available.
-   * @param  attributes  The set of attributes to include in this search result
-   *                     entry.  It must not be {@code null}.
-   * @param  controls    The set of controls for this search result entry.  It
-   *                     must not be {@code null}.
-   */
-  public SearchResultEntry(final int messageID, final String dn,
-                           final Schema schema, final Attribute[] attributes,
-                           final Control... controls)
-  {
-    super(dn, schema, attributes);
+    super(dn, attributes);
 
     ensureNotNull(controls);
 
@@ -148,7 +125,7 @@ public final class SearchResultEntry
                            final Collection<Attribute> attributes,
                            final Control... controls)
   {
-    this(-1, dn, null, attributes, controls);
+    this(-1, dn, attributes, controls);
   }
 
 
@@ -169,31 +146,7 @@ public final class SearchResultEntry
                            final Collection<Attribute> attributes,
                            final Control... controls)
   {
-    this(messageID, dn, null, attributes, controls);
-  }
-
-
-
-  /**
-   * Creates a new search result entry with the provided information.
-   *
-   * @param  messageID   The message ID for the LDAP message containing this
-   *                     response.
-   * @param  dn          The DN for this search result entry.  It must not be
-   *                     {@code null}.
-   * @param  schema      The schema to use for operations involving this entry.
-   *                     It may be {@code null} if no schema is available.
-   * @param  attributes  The set of attributes to include in this search result
-   *                     entry.  It must not be {@code null}.
-   * @param  controls    The set of controls for this search result entry.  It
-   *                     must not be {@code null}.
-   */
-  public SearchResultEntry(final int messageID, final String dn,
-                           final Schema schema,
-                           final Collection<Attribute> attributes,
-                           final Control... controls)
-  {
-    super(dn, schema, attributes);
+    super(dn, attributes);
 
     ensureNotNull(controls);
 
@@ -292,7 +245,7 @@ public final class SearchResultEntry
         controlList.toArray(controls);
       }
 
-      return new SearchResultEntry(messageID, dn, schema, attrList, controls);
+      return new SearchResultEntry(messageID, dn, attrList, controls);
     }
     catch (LDAPException le)
     {
@@ -321,8 +274,6 @@ public final class SearchResultEntry
 
   /**
    * Retrieves the set of controls returned with this search result entry.
-   * Individual response controls of a specific type may be retrieved and
-   * decoded using the {@code get} method in the response control class.
    *
    * @return  The set of controls returned with this search result entry.
    */
