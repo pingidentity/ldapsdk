@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -101,7 +101,7 @@ import static com.unboundid.util.Debug.*;
  *   String errorMessageFromServer = le.getDiagnosticMessage();
  *
  *   PasswordExpiredControl expiredControl =
- *        PasswordExpiredControl.get(le);
+ *        PasswordExpiredControl.get(bindResult);
  *   if (expiredControl != null)
  *   {
  *     passwordExpired = true;
@@ -227,28 +227,6 @@ public final class PasswordExpiredControl
       return new PasswordExpiredControl(c.getOID(), c.isCritical(),
            c.getValue());
     }
-  }
-
-
-
-  /**
-   * Extracts a password expired control from the provided exception.
-   *
-   * @param  exception  The exception from which to retrieve the password
-   *                    expired control.
-   *
-   * @return  The password expired control contained in the provided exception,
-   *          or {@code null} if the exception did not contain a password
-   *          expired control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the password expired control contained in
-   *                         the provided exception.
-   */
-  public static PasswordExpiredControl get(final LDAPException exception)
-         throws LDAPException
-  {
-    return get(exception.toLDAPResult());
   }
 
 

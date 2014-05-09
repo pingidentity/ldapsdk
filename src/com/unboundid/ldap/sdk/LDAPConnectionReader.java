@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -35,11 +35,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1StreamReader;
-import com.unboundid.asn1.InternalASN1Helper;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
@@ -986,20 +984,6 @@ final class LDAPConnectionReader
         startTLSSleeper.sleep(10);
       }
     }
-  }
-
-
-
-  /**
-   * Updates this connection reader to ensure that any subsequent data read
-   * over this connection will be decoded using the provided SASL client.
-   *
-   * @param  saslClient  The SASL client to use to decode data read over this
-   *                     connection.
-   */
-  void applySASLQoP(final SaslClient saslClient)
-  {
-    InternalASN1Helper.setSASLClient(asn1StreamReader, saslClient);
   }
 
 

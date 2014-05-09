@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -80,7 +80,7 @@ import static com.unboundid.util.Debug.*;
  * {
  *   // For an extended operation, this generally means that a problem was
  *   // encountered while trying to send the request or read the result.
- *   startTLSResult = new ExtendedResult(le);
+ *   startTLSResult = new ExtendedResult(le.toLDAPResult());
  * }
  *
  * // Make sure that we can use the connection to interact with the server.

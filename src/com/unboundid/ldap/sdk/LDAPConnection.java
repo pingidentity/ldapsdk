@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,14 +33,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
-import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.protocol.AbandonRequestProtocolOp;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.UnbindRequestProtocolOp;
-import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.DebugType;
@@ -226,11 +224,8 @@ public final class LDAPConnection
   // Indicates whether to perform a reconnect before the next write.
   private final AtomicBoolean needsReconnect;
 
-  // The disconnect information for this connection.
-  private final AtomicReference<DisconnectInfo> disconnectInfo;
-
   // The last successful bind request processed on this connection.
-  private volatile BindRequest lastBindRequest;
+  private BindRequest lastBindRequest;
 
   // Indicates whether a request has been made to close this connection.
   private volatile boolean closeRequested;
@@ -238,8 +233,8 @@ public final class LDAPConnection
   // Indicates whether an unbind request has been sent over this connection.
   private volatile boolean unbindRequestSent;
 
-  // The extended request used to initiate StartTLS on this connection.
-  private volatile ExtendedRequest startTLSRequest;
+  // The disconnect information for this connection.
+  private final AtomicReference<DisconnectInfo> disconnectInfo;
 
   // The port of the server to which a connection should be re-established.
   private int reconnectPort = -1;
@@ -728,7 +723,6 @@ public final class LDAPConnection
     needsReconnect.set(false);
     hostPort = host + ':' + port;
     lastCommunicationTime = -1L;
-    startTLSRequest = null;
 
     if (isConnected())
     {
@@ -807,8 +801,6 @@ public final class LDAPConnection
       }
     }
 
-    final ExtendedRequest startTLSExtendedRequest = startTLSRequest;
-
     setDisconnectInfo(DisconnectType.RECONNECT, null, null);
     terminate(null);
 
@@ -819,34 +811,13 @@ public final class LDAPConnection
 
     connect(reconnectAddress, reconnectPort);
 
-    if (startTLSExtendedRequest != null)
-    {
-      try
-      {
-        final ExtendedResult startTLSResult =
-             processExtendedOperation(startTLSExtendedRequest);
-        if (startTLSResult.getResultCode() != ResultCode.SUCCESS)
-        {
-          throw new LDAPException(startTLSResult);
-        }
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-        setDisconnectInfo(DisconnectType.SECURITY_PROBLEM, null, le);
-        terminate(null);
-
-        throw le;
-      }
-    }
-
     if (bindRequest != null)
     {
       try
       {
         bind(bindRequest);
       }
-      catch (final LDAPException le)
+      catch (LDAPException le)
       {
         debugException(le);
         setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
@@ -925,34 +896,6 @@ public final class LDAPConnection
       internals.convertToTLS(sslSocketFactory);
     }
   }
-
-
-
-  /**
-   * Converts this clear-text connection to one that uses SASL integrity and/or
-   * confidentiality.
-   *
-   * @param  saslClient  The SASL client that will be used to secure the
-   *                     communication.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to convert the
-   *                         connection to use SASL QoP.
-   */
-  void applySASLQoP(final SaslClient saslClient)
-       throws LDAPException
-  {
-    final LDAPConnectionInternals internals = connectionInternals;
-    if (internals == null)
-    {
-      throw new LDAPException(ResultCode.SERVER_DOWN,
-           ERR_CONN_NOT_ESTABLISHED.get());
-    }
-    else
-    {
-      internals.applySASLQoP(saslClient);
-    }
-  }
-
 
 
   /**
@@ -1127,7 +1070,7 @@ public final class LDAPConnection
    * @return  The connection pool with which this connection is associated, or
    *          {@code null} if it is not associated with any connection pool.
    */
-  public AbstractConnectionPool getConnectionPool()
+  AbstractConnectionPool getConnectionPool()
   {
     return connectionPool;
   }
@@ -1601,20 +1544,9 @@ public final class LDAPConnection
            ERR_ABANDON_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final int messageID = requestID.getMessageID();
-    try
-    {
-      connectionInternals.getConnectionReader().deregisterResponseAcceptor(
-           messageID);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
     connectionStatistics.incrementNumAbandonRequests();
     sendMessage(new LDAPMessage(nextMessageID(),
-         new AbandonRequestProtocolOp(messageID), controls));
+         new AbandonRequestProtocolOp(requestID.getMessageID()), controls));
   }
 
 
@@ -1637,16 +1569,6 @@ public final class LDAPConnection
     {
       debug(Level.INFO, DebugType.LDAP,
             "Sending LDAP abandon request for message ID " + messageID);
-    }
-
-    try
-    {
-      connectionInternals.getConnectionReader().deregisterResponseAcceptor(
-           messageID);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
     }
 
     connectionStatistics.incrementNumAbandonRequests();
@@ -1806,10 +1728,8 @@ public final class LDAPConnection
    * @param  addRequest      The add request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the add operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the add operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -1819,7 +1739,7 @@ public final class LDAPConnection
                                  final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(addRequest);
+    ensureNotNull(addRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -1827,17 +1747,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return addRequest.processAsync(this, listener);
+    return addRequest.processAsync(this, resultListener);
   }
 
 
@@ -1848,10 +1758,8 @@ public final class LDAPConnection
    * @param  addRequest      The add request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the add operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the add operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2073,10 +1981,8 @@ public final class LDAPConnection
    * @param  compareRequest  The compare request to be processed.  It must not
    *                         be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the compare operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the compare operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2086,7 +1992,7 @@ public final class LDAPConnection
                              final AsyncCompareResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(compareRequest);
+    ensureNotNull(compareRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -2094,17 +2000,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncCompareResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return compareRequest.processAsync(this, listener);
+    return compareRequest.processAsync(this, resultListener);
   }
 
 
@@ -2115,10 +2011,8 @@ public final class LDAPConnection
    * @param  compareRequest  The compare request to be processed.  It must not
    *                         be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the compare operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the compare operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2217,10 +2111,8 @@ public final class LDAPConnection
    * @param  deleteRequest   The delete request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the delete operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the delete operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2230,7 +2122,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(deleteRequest);
+    ensureNotNull(deleteRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -2238,17 +2130,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return deleteRequest.processAsync(this, listener);
+    return deleteRequest.processAsync(this, resultListener);
   }
 
 
@@ -2259,10 +2141,8 @@ public final class LDAPConnection
    * @param  deleteRequest   The delete request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the delete operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the delete operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2432,13 +2312,6 @@ public final class LDAPConnection
       }
     }
 
-    if ((extendedResult.getResultCode() == ResultCode.SUCCESS) &&
-         extendedRequest.getOID().equals(
-              StartTLSExtendedRequest.STARTTLS_REQUEST_OID))
-    {
-      startTLSRequest = extendedRequest.duplicate();
-    }
-
     return extendedResult;
   }
 
@@ -2598,10 +2471,8 @@ public final class LDAPConnection
    * @param  modifyRequest   The modify request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the modify operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2611,7 +2482,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(modifyRequest);
+    ensureNotNull(modifyRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -2619,17 +2490,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return modifyRequest.processAsync(this, listener);
+    return modifyRequest.processAsync(this, resultListener);
   }
 
 
@@ -2640,10 +2501,8 @@ public final class LDAPConnection
    * @param  modifyRequest   The modify request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the modify operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2781,10 +2640,8 @@ public final class LDAPConnection
    * @param  modifyDNRequest  The modify DN request to be processed.  It must
    *                          not be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify DN operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the modify DN operation.  It must not
+   *                         be {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2794,7 +2651,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(modifyDNRequest);
+    ensureNotNull(modifyDNRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -2802,17 +2659,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return modifyDNRequest.processAsync(this, listener);
+    return modifyDNRequest.processAsync(this, resultListener);
   }
 
 
@@ -2823,10 +2670,8 @@ public final class LDAPConnection
    * @param  modifyDNRequest  The modify DN request to be processed.  It must
    *                          not be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify DN operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the modify DN operation.  It must not
+   *                         be {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -3898,7 +3743,7 @@ public final class LDAPConnection
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}, and it must be configured with a
-   *                        search result listener that is also an
+   *                        search result listener that is an
    *                        {@code AsyncSearchResultListener}.
    *
    * @return  An async request ID that may be used to reference the operation.
@@ -3947,7 +3792,7 @@ public final class LDAPConnection
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}, and it must be configured with a
-   *                        search result listener that is also an
+   *                        search result listener that is an
    *                        {@code AsyncSearchResultListener}.
    *
    * @return  An async request ID that may be used to reference the operation.
@@ -4348,31 +4193,8 @@ public final class LDAPConnection
       }
     }
 
-    final ExtendedRequest connStartTLSRequest = connection.startTLSRequest;
-
     final LDAPConnection conn = new LDAPConnection(connection.socketFactory,
          connection.connectionOptions, host, port);
-
-    if (connStartTLSRequest != null)
-    {
-      try
-      {
-        final ExtendedResult startTLSResult =
-             conn.processExtendedOperation(connStartTLSRequest);
-        if (startTLSResult.getResultCode() != ResultCode.SUCCESS)
-        {
-          throw new LDAPException(startTLSResult);
-        }
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-        conn.setDisconnectInfo(DisconnectType.SECURITY_PROBLEM, null, le);
-        conn.close();
-
-        throw le;
-      }
-    }
 
     if (bindRequest != null)
     {
@@ -4380,7 +4202,7 @@ public final class LDAPConnection
       {
         conn.bind(bindRequest);
       }
-      catch (final LDAPException le)
+      catch (LDAPException le)
       {
         debugException(le);
         conn.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
@@ -4402,23 +4224,9 @@ public final class LDAPConnection
    *          may be {@code null} if no bind has been performed, or if the last
    *          bind attempt was not successful.
    */
-  public BindRequest getLastBindRequest()
+  BindRequest getLastBindRequest()
   {
     return lastBindRequest;
-  }
-
-
-
-  /**
-   * Retrieves the StartTLS request used to secure this connection.
-   *
-   * @return  The StartTLS request used to secure this connection, or
-   *          {@code null} if StartTLS has not been used to secure this
-   *          connection.
-   */
-  ExtendedRequest getStartTLSRequest()
-  {
-    return startTLSRequest;
   }
 
 

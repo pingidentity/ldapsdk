@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -58,19 +58,6 @@ public final class CompareResult
   public CompareResult(final LDAPResult ldapResult)
   {
     super(ldapResult);
-  }
-
-
-
-  /**
-   * Creates a new compare result from the provided {@code LDAPException}.
-   *
-   * @param  exception  The {@code LDAPException} to use to create this compare
-   *                    result.
-   */
-  public CompareResult(final LDAPException exception)
-  {
-    super(exception.toLDAPResult());
   }
 
 

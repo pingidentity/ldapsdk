@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,14 +23,9 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Mutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -50,7 +45,7 @@ public final class GSSAPIBindRequestProperties
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 6872295509330315713L;
+  private static final long serialVersionUID = -8177334654843710502L;
 
 
 
@@ -71,10 +66,6 @@ public final class GSSAPIBindRequestProperties
 
   // Indicates whether to enable the use of a ticket cache.
   private boolean useTicketCache;
-
-  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
-  // request.
-  private List<SASLQualityOfProtection> allowedQoP;
 
   // The authentication ID string for the GSSAPI bind request.
   private String authenticationID;
@@ -190,8 +181,6 @@ public final class GSSAPIBindRequestProperties
     requireCachedCredentials = false;
     saslClientServerName     = null;
     ticketCachePath          = null;
-    allowedQoP               = Collections.unmodifiableList(Arrays.asList(
-         SASLQualityOfProtection.AUTH));
   }
 
 
@@ -345,72 +334,6 @@ public final class GSSAPIBindRequestProperties
   public void setRealm(final String realm)
   {
     this.realm = realm;
-  }
-
-
-
-  /**
-   * Retrieves the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @return  The list of allowed qualities of protection that may be used for
-   *          communication that occurs on the connection after the
-   *          authentication has completed, in order from most preferred to
-   *          least preferred.
-   */
-  public List<SASLQualityOfProtection> getAllowedQoP()
-  {
-    return allowedQoP;
-  }
-
-
-
-  /**
-   * Specifies the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @param  allowedQoP  The list of allowed qualities of protection that may be
-   *                     used for communication that occurs on the connection
-   *                     after the authentication has completed, in order from
-   *                     most preferred to least preferred.  If this is
-   *                     {@code null} or empty, then a list containing only the
-   *                     {@link SASLQualityOfProtection#AUTH} quality of
-   *                     protection value will be used.
-   */
-  public void setAllowedQoP(final List<SASLQualityOfProtection> allowedQoP)
-  {
-    if ((allowedQoP == null) || allowedQoP.isEmpty())
-    {
-      this.allowedQoP = Collections.unmodifiableList(Arrays.asList(
-           SASLQualityOfProtection.AUTH));
-    }
-    else
-    {
-      this.allowedQoP = Collections.unmodifiableList(
-           new ArrayList<SASLQualityOfProtection>(allowedQoP));
-    }
-  }
-
-
-
-  /**
-   * Specifies the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @param  allowedQoP  The list of allowed qualities of protection that may be
-   *                     used for communication that occurs on the connection
-   *                     after the authentication has completed, in order from
-   *                     most preferred to least preferred.  If this is
-   *                     {@code null} or empty, then a list containing only the
-   *                     {@link SASLQualityOfProtection#AUTH} quality of
-   *                     protection value will be used.
-   */
-  public void setAllowedQoP(final SASLQualityOfProtection... allowedQoP)
-  {
-    setAllowedQoP(StaticUtils.toList(allowedQoP));
   }
 
 
@@ -754,10 +677,6 @@ public final class GSSAPIBindRequestProperties
       buffer.append(realm);
       buffer.append("', ");
     }
-
-    buffer.append("qop='");
-    buffer.append(SASLQualityOfProtection.toString(allowedQoP));
-    buffer.append("', ");
 
     if (kdcAddress != null)
     {

@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -92,7 +92,7 @@ import static com.unboundid.util.Validator.*;
  * }
  * catch (LDAPException le)
  * {
- *   startTLSResult = new ExtendedResult(le);
+ *   startTLSResult = new ExtendedResult(le.toLDAPResult());
  * }
  * LDAPTestUtils.assertResultCodeEquals(startTLSResult, ResultCode.SUCCESS);
  *

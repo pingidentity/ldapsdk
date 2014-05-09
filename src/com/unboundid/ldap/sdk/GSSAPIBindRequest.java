@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -61,7 +61,9 @@ import static com.unboundid.util.Validator.*;
  * <A HREF="http://www.ietf.org/rfc/rfc4752.txt">RFC 4752</A>.  It provides the
  * ability to authenticate to a directory server using Kerberos V, which can
  * serve as a kind of single sign-on mechanism that may be shared across
- * client applications that support Kerberos.
+ * client applications that support Kerberos.  At present, this implementation
+ * may only be used for authentication, as it does not yet offer support for
+ * integrity or confidentiality.
  * <BR><BR>
  * This class uses the Java Authentication and Authorization Service (JAAS)
  * behind the scenes to perform all Kerberos processing.  This framework
@@ -229,10 +231,6 @@ public final class GSSAPIBindRequest
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID;
-
-  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
-  // request.
-  private final List<SASLQualityOfProtection> allowedQoP;
 
   // A list that will be updated with messages about any unhandled callbacks
   // encountered during processing.
@@ -531,7 +529,6 @@ public final class GSSAPIBindRequest
     authenticationID         = gssapiProperties.getAuthenticationID();
     password                 = gssapiProperties.getPassword();
     realm                    = gssapiProperties.getRealm();
-    allowedQoP               = gssapiProperties.getAllowedQoP();
     kdcAddress               = gssapiProperties.getKDCAddress();
     saslClientServerName     = gssapiProperties.getSASLClientServerName();
     servicePrincipalProtocol = gssapiProperties.getServicePrincipalProtocol();
@@ -665,23 +662,6 @@ public final class GSSAPIBindRequest
   public String getRealm()
   {
     return realm;
-  }
-
-
-
-  /**
-   * Retrieves the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @return  The list of allowed qualities of protection that may be used for
-   *          communication that occurs on the connection after the
-   *          authentication has completed, in order from most preferred to
-   *          least preferred.
-   */
-  public List<SASLQualityOfProtection> getAllowedQoP()
-  {
-    return allowedQoP;
   }
 
 
@@ -1150,7 +1130,7 @@ public final class GSSAPIBindRequest
     final String[] mechanisms = { GSSAPI_MECHANISM_NAME };
 
     final HashMap<String,Object> saslProperties = new HashMap<String,Object>(2);
-    saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
+    saslProperties.put(Sasl.QOP, "auth");
     saslProperties.put(Sasl.SERVER_AUTH, "true");
 
     final SaslClient saslClient;
@@ -1199,7 +1179,6 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequestProperties gssapiProperties =
            new GSSAPIBindRequestProperties(authenticationID, authorizationID,
                 password, realm, kdcAddress, configFilePath);
-      gssapiProperties.setAllowedQoP(allowedQoP);
       gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
@@ -1315,7 +1294,6 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequestProperties gssapiProperties =
            new GSSAPIBindRequestProperties(authenticationID, authorizationID,
                 password, realm, kdcAddress, configFilePath);
-      gssapiProperties.setAllowedQoP(allowedQoP);
       gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
@@ -1362,10 +1340,6 @@ public final class GSSAPIBindRequest
       buffer.append(realm);
       buffer.append('\'');
     }
-
-    buffer.append(", qop='");
-    buffer.append(SASLQualityOfProtection.toString(allowedQoP));
-    buffer.append('\'');
 
     if (kdcAddress != null)
     {

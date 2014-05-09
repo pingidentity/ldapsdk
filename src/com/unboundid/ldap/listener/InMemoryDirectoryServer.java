@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,8 +33,6 @@ import java.util.Map;
 import javax.net.SocketFactory;
 
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.listener.interceptor.
-            InMemoryOperationInterceptorRequestHandler;
 import com.unboundid.ldap.protocol.AddRequestProtocolOp;
 import com.unboundid.ldap.protocol.AddResponseProtocolOp;
 import com.unboundid.ldap.protocol.BindRequestProtocolOp;
@@ -302,12 +300,6 @@ public final class InMemoryDirectoryServer
     {
       requestHandler = new LDAPDebuggerRequestHandler(
            config.getLDAPDebugLogHandler(), requestHandler);
-    }
-
-    if (! config.getOperationInterceptors().isEmpty())
-    {
-      requestHandler = new InMemoryOperationInterceptorRequestHandler(
-           config.getOperationInterceptors(), requestHandler);
     }
 
 

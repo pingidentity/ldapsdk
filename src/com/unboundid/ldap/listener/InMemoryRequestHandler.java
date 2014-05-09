@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -1130,25 +1130,6 @@ public final class InMemoryRequestHandler
 
     authenticatedDN = DN.NULL_DN;
 
-
-    // If this operation type requires authentication and it is a simple bind
-    // request , then ensure that the request includes credentials.
-    if ((authenticatedDN.isNullDN() &&
-        config.getAuthenticationRequiredOperationTypes().contains(
-             OperationType.BIND)))
-    {
-      if ((request.getCredentialsType() ==
-           BindRequestProtocolOp.CRED_TYPE_SIMPLE) &&
-           ((request.getSimplePassword() == null) ||
-                request.getSimplePassword().getValueLength() == 0))
-      {
-        return new LDAPMessage(messageID, new BindResponseProtocolOp(
-             ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
-             ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
-      }
-    }
-
-
     // Get the parsed bind DN.
     final DN bindDN;
     try
@@ -1183,19 +1164,6 @@ public final class InMemoryRequestHandler
       {
         final BindResult bindResult = handler.processSASLBind(this, messageID,
              bindDN, request.getSASLCredentials(), controls);
-
-        // If the SASL bind was successful but the connection is
-        // unauthenticated, then see if we allow that.
-        if ((bindResult.getResultCode() == ResultCode.SUCCESS) &&
-            (authenticatedDN == DN.NULL_DN) &&
-            config.getAuthenticationRequiredOperationTypes().contains(
-                 OperationType.BIND))
-        {
-          return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
-               ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
-        }
-
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
              bindResult.getResultCode().intValue(),
              bindResult.getMatchedDN(), bindResult.getDiagnosticMessage(),
@@ -2092,14 +2060,26 @@ public final class InMemoryRequestHandler
     }
 
 
-    // Perform the appropriate processing for the assertion and proxied
-    // authorization controls.
     // Perform the appropriate processing for the assertion, pre-read,
     // post-read, and proxied authorization controls.
     final DN authzDN;
     try
     {
       handleAssertionRequestControl(controlMap, entry);
+
+      final PreReadResponseControl preReadResponse =
+           handlePreReadControl(controlMap, entry);
+      if (preReadResponse != null)
+      {
+        responseControls.add(preReadResponse);
+      }
+
+      final PostReadResponseControl postReadResponse =
+           handlePostReadControl(controlMap, modifiedEntry);
+      if (postReadResponse != null)
+      {
+        responseControls.add(postReadResponse);
+      }
 
       authzDN = handleProxiedAuthControl(controlMap);
     }
@@ -2119,22 +2099,6 @@ public final class InMemoryRequestHandler
       modifiedEntry.setAttribute(new Attribute("modifyTimestamp",
            GeneralizedTimeMatchingRule.getInstance(),
            StaticUtils.encodeGeneralizedTime(new Date())));
-    }
-
-    // Perform the appropriate processing for the pre-read and post-read
-    // controls.
-    final PreReadResponseControl preReadResponse =
-         handlePreReadControl(controlMap, entry);
-    if (preReadResponse != null)
-    {
-      responseControls.add(preReadResponse);
-    }
-
-    final PostReadResponseControl postReadResponse =
-         handlePostReadControl(controlMap, modifiedEntry);
-    if (postReadResponse != null)
-    {
-      responseControls.add(postReadResponse);
     }
 
 
@@ -2668,12 +2632,28 @@ public final class InMemoryRequestHandler
       }
     }
 
-    // Perform the appropriate processing for the assertion and proxied
-    // authorization controls
+    // Perform the appropriate processing for the assertion, pre-read,
+    // post-read, and proxied authorization controls
+    // Perform the appropriate processing for the assertion, pre-read,
+    // post-read, and proxied authorization controls.
     final DN authzDN;
     try
     {
       handleAssertionRequestControl(controlMap, originalEntry);
+
+      final PreReadResponseControl preReadResponse =
+           handlePreReadControl(controlMap, originalEntry);
+      if (preReadResponse != null)
+      {
+        responseControls.add(preReadResponse);
+      }
+
+      final PostReadResponseControl postReadResponse =
+           handlePostReadControl(controlMap, updatedEntry);
+      if (postReadResponse != null)
+      {
+        responseControls.add(postReadResponse);
+      }
 
       authzDN = handleProxiedAuthControl(controlMap);
     }
@@ -2697,22 +2677,6 @@ public final class InMemoryRequestHandler
       updatedEntry.setAttribute(new Attribute("entryDN",
            DistinguishedNameMatchingRule.getInstance(),
            newDN.toNormalizedString()));
-    }
-
-    // Perform the appropriate processing for the pre-read and post-read
-    // controls.
-    final PreReadResponseControl preReadResponse =
-         handlePreReadControl(controlMap, originalEntry);
-    if (preReadResponse != null)
-    {
-      responseControls.add(preReadResponse);
-    }
-
-    final PostReadResponseControl postReadResponse =
-         handlePostReadControl(controlMap, updatedEntry);
-    if (postReadResponse != null)
-    {
-      responseControls.add(postReadResponse);
     }
 
     // Remove the old entry and add the new one.

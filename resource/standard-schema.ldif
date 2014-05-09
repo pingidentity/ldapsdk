@@ -1063,8 +1063,7 @@ objectClasses: ( 2.5.20.1
         objectClasses $
         attributeTypes $
         matchingRules $
-        matchingRuleUse )
-  X-ORIGIN 'RFC 4512' )
+        matchingRuleUse ) )
 objectClasses: ( 2.5.6.11
   NAME 'applicationProcess'
   SUP top

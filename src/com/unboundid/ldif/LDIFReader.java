@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -46,7 +46,6 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
 import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
@@ -1930,22 +1929,14 @@ public final class LDIFReader
     }
 
     final LDIFRecord r;
-    if (lineList.size() == 1)
+    if ((lineList.size() > 1) &&
+        toLowerCase(lineList.get(1).toString()).startsWith("changetype:"))
     {
-      r = decodeEntry(unparsedRecord, relativeBasePath);
+      r = decodeChangeRecord(unparsedRecord, relativeBasePath, false);
     }
     else
     {
-      final String lowerSecondLine = toLowerCase(lineList.get(1).toString());
-      if (lowerSecondLine.startsWith("control:") ||
-          lowerSecondLine.startsWith("changetype:"))
-      {
-        r = decodeChangeRecord(unparsedRecord, relativeBasePath, true);
-      }
-      else
-      {
-        r = decodeEntry(unparsedRecord, relativeBasePath);
-      }
+      r = decodeEntry(unparsedRecord, relativeBasePath);
     }
 
     debugLDIFRead(r);
@@ -2105,7 +2096,7 @@ public final class LDIFReader
     final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
     final long firstLineNumber = unparsedRecord.getFirstLineNumber();
 
-    Iterator<StringBuilder> iterator = ldifLines.iterator();
+    final Iterator<StringBuilder> iterator = ldifLines.iterator();
 
     // The first line must start with either "version:" or "dn:".  If the first
     // line starts with "version:" then the second must start with "dn:".
@@ -2113,7 +2104,6 @@ public final class LDIFReader
     handleTrailingSpaces(line, null, firstLineNumber,
          unparsedRecord.getTrailingSpaceBehavior());
     int colonPos = line.indexOf(":");
-    int linesRead = 1;
     if ((colonPos > 0) &&
         line.substring(0, colonPos).equalsIgnoreCase("version"))
     {
@@ -2122,7 +2112,6 @@ public final class LDIFReader
       // decodeEntry with a set of data that includes a version.  At any rate,
       // read the next line, which must specify the DN.
       line = iterator.next();
-      linesRead++;
       handleTrailingSpaces(line, null, firstLineNumber,
            unparsedRecord.getTrailingSpaceBehavior());
     }
@@ -2190,72 +2179,90 @@ public final class LDIFReader
     }
 
 
-    // An LDIF change record may contain zero or more controls, with the end of
-    // the controls signified by the changetype.  The changetype element must be
-    // present, unless defaultAdd is true in which case the first thing that is
-    // neither control or changetype will trigger the start of add attribute
-    // parsing.
+    // The second line must be the change type, and it must start with
+    // "changetype:".
     if (! iterator.hasNext())
     {
       throw new LDIFException(ERR_READ_CR_TOO_SHORT.get(firstLineNumber),
                               firstLineNumber, true, ldifLines, null);
     }
 
-    String changeType = null;
-    ArrayList<Control> controls = null;
-    while (true)
+
+    // If defaultAdd is true, then the change record may or may not have a
+    // changetype.  If it is false, then the record must have a changetype.
+    final String changeType;
+    if (defaultAdd &&
+        (! toLowerCase(ldifLines.get(1).toString()).startsWith("changetype:")))
+    {
+      changeType = "add";
+    }
+    else
     {
       line = iterator.next();
       handleTrailingSpaces(line, dn, firstLineNumber,
            unparsedRecord.getTrailingSpaceBehavior());
       colonPos = line.indexOf(":");
-      if (colonPos < 0)
+      if ((colonPos < 0) ||
+          (! line.substring(0, colonPos).equalsIgnoreCase("changetype")))
       {
         throw new LDIFException(
-             ERR_READ_CR_SECOND_LINE_MISSING_COLON.get(firstLineNumber),
+             ERR_READ_CR_CT_LINE_DOESNT_START_WITH_CT.get(firstLineNumber),
              firstLineNumber, true, ldifLines, null);
       }
 
-      final String token = toLowerCase(line.substring(0, colonPos));
-      if (token.equals("control"))
+      length = line.length();
+      if (length == (colonPos+1))
       {
-        if (controls == null)
+        // The colon was the last character on the line.  This is not
+        // acceptable.
+        throw new LDIFException(
+             ERR_READ_CT_LINE_NO_CT_VALUE.get(firstLineNumber), firstLineNumber,
+             true, ldifLines, null);
+      }
+      else if (line.charAt(colonPos+1) == ':')
+      {
+        // Skip over any spaces leading up to the value, and then the rest of
+        // the string is the base64-encoded changetype.  This is unusual and
+        // unnecessary, but is nevertheless acceptable.
+        int pos = colonPos+2;
+        while ((pos < length) && (line.charAt(pos) == ' '))
         {
-          controls = new ArrayList<Control>(5);
+          pos++;
         }
 
-        controls.add(decodeControl(line, colonPos, firstLineNumber, ldifLines,
-             relativeBasePath));
-      }
-      else if (token.equals("changetype"))
-      {
-        changeType =
-             decodeChangeType(line, colonPos, firstLineNumber, ldifLines);
-        break;
-      }
-      else if (defaultAdd)
-      {
-        // The line we read wasn't a control or changetype declaration, so we'll
-        // assume it's an attribute in an add record.  However, we're not ready
-        // for that yet, and since we can't rewind an iterator we'll create a
-        // new one that hasn't yet gotten to this line.
-        changeType = "add";
-        iterator = ldifLines.iterator();
-        for (int i=0; i < linesRead; i++)
+        try
         {
-          iterator.next();
+          final byte[] changeTypeBytes = Base64.decode(line.substring(pos));
+          changeType = new String(changeTypeBytes, "UTF-8");
         }
-        break;
+        catch (final ParseException pe)
+        {
+          debugException(pe);
+          throw new LDIFException(
+                         ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber,
+                                                              pe.getMessage()),
+                         firstLineNumber, true, ldifLines, pe);
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+          throw new LDIFException(
+               ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber, e),
+               firstLineNumber, true, ldifLines, e);
+        }
       }
       else
       {
-        throw new LDIFException(
-             ERR_READ_CR_CT_LINE_DOESNT_START_WITH_CONTROL_OR_CT.get(
-                  firstLineNumber),
-             firstLineNumber, true, ldifLines, null);
-      }
+        // Skip over any spaces leading up to the value, and then the rest of
+        // the string is the changetype.
+        int pos = colonPos+1;
+        while ((pos < length) && (line.charAt(pos) == ' '))
+        {
+          pos++;
+        }
 
-      linesRead++;
+        changeType = line.substring(pos);
+      }
     }
 
 
@@ -2280,7 +2287,7 @@ public final class LDIFReader
           attributes[i] = attrIterator.next();
         }
 
-        return new LDIFAddChangeRecord(dn, attributes, controls);
+        return new LDIFAddChangeRecord(dn, attributes);
       }
       else
       {
@@ -2301,7 +2308,7 @@ public final class LDIFReader
       }
       else
       {
-        return new LDIFDeleteChangeRecord(dn, controls);
+        return new LDIFDeleteChangeRecord(dn);
       }
     }
     else if (lowerChangeType.equals("modify"))
@@ -2313,7 +2320,7 @@ public final class LDIFReader
         final Modification[] mods = parseModifications(dn,
              unparsedRecord.getTrailingSpaceBehavior(), ldifLines, iterator,
              firstLineNumber);
-        return new LDIFModifyChangeRecord(dn, mods, controls);
+        return new LDIFModifyChangeRecord(dn, mods);
       }
       else
       {
@@ -2328,7 +2335,7 @@ public final class LDIFReader
       // Otherwise, parse the rest of the data as a set of modifications.
       if (iterator.hasNext())
       {
-        return parseModifyDNChangeRecord(ldifLines, iterator, dn, controls,
+        return parseModifyDNChangeRecord(ldifLines, iterator, dn,
              unparsedRecord.getTrailingSpaceBehavior(), firstLineNumber);
       }
       else
@@ -2342,353 +2349,6 @@ public final class LDIFReader
       throw new LDIFException(ERR_READ_CR_INVALID_CT.get(changeType,
                                                          firstLineNumber),
                               firstLineNumber, true, ldifLines, null);
-    }
-  }
-
-
-
-  /**
-   * Decodes information about a control from the provided line.
-   *
-   * @param  line              The line to process.
-   * @param  colonPos          The position of the colon that separates the
-   *                           control token string from tbe encoded control.
-   * @param  firstLineNumber   The line number for the start of the record.
-   * @param  ldifLines         The lines that comprise the LDIF representation
-   *                           of the full record being parsed.
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
-   *
-   * @return  The decoded control.
-   *
-   * @throws  LDIFException  If a problem is encountered while trying to decode
-   *                         the changetype.
-   */
-  private static Control decodeControl(final StringBuilder line,
-                                       final int colonPos,
-                                       final long firstLineNumber,
-                                       final ArrayList<StringBuilder> ldifLines,
-                                       final String relativeBasePath)
-          throws LDIFException
-  {
-    final String controlString;
-    int length = line.length();
-    if (length == (colonPos+1))
-    {
-      // The colon was the last character on the line.  This is not
-      // acceptable.
-      throw new LDIFException(
-           ERR_READ_CONTROL_LINE_NO_CONTROL_VALUE.get(firstLineNumber),
-           firstLineNumber, true, ldifLines, null);
-    }
-    else if (line.charAt(colonPos+1) == ':')
-    {
-      // Skip over any spaces leading up to the value, and then the rest of
-      // the string is the base64-encoded control representation.  This is
-      // unusual and unnecessary, but is nevertheless acceptable.
-      int pos = colonPos+2;
-      while ((pos < length) && (line.charAt(pos) == ' '))
-      {
-        pos++;
-      }
-
-      try
-      {
-        final byte[] controlBytes = Base64.decode(line.substring(pos));
-        controlString =  new String(controlBytes, "UTF-8");
-      }
-      catch (final ParseException pe)
-      {
-        debugException(pe);
-        throw new LDIFException(
-                       ERR_READ_CANNOT_BASE64_DECODE_CONTROL.get(
-                            firstLineNumber, pe.getMessage()),
-                       firstLineNumber, true, ldifLines, pe);
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-        throw new LDIFException(
-             ERR_READ_CANNOT_BASE64_DECODE_CONTROL.get(firstLineNumber, e),
-             firstLineNumber, true, ldifLines, e);
-      }
-    }
-    else
-    {
-      // Skip over any spaces leading up to the value, and then the rest of
-      // the string is the encoded control.
-      int pos = colonPos+1;
-      while ((pos < length) && (line.charAt(pos) == ' '))
-      {
-        pos++;
-      }
-
-      controlString = line.substring(pos);
-    }
-
-    // If the resulting control definition is empty, then that's invalid.
-    if (controlString.length() == 0)
-    {
-      throw new LDIFException(
-           ERR_READ_CONTROL_LINE_NO_CONTROL_VALUE.get(firstLineNumber),
-           firstLineNumber, true, ldifLines, null);
-    }
-
-
-    // The first element of the control must be the OID, and it must be followed
-    // by a space (to separate it from the criticality), a colon (to separate it
-    // from the value and indicate a default criticality of false), or the end
-    // of the line (to indicate a default criticality of false and no value).
-    String oid = null;
-    boolean hasCriticality = false;
-    boolean hasValue = false;
-    int pos = 0;
-    length = controlString.length();
-    while (pos < length)
-    {
-      final char c = controlString.charAt(pos);
-      if (c == ':')
-      {
-        // This indicates that there is no criticality and that the value
-        // immediately follows the OID.
-        oid = controlString.substring(0, pos++);
-        hasValue = true;
-        break;
-      }
-      else if (c == ' ')
-      {
-        // This indicates that there is a criticality.  We don't know anything
-        // about the presence of a value yet.
-        oid = controlString.substring(0, pos++);
-        hasCriticality = true;
-        break;
-      }
-      else
-      {
-        pos++;
-      }
-    }
-
-    if (oid == null)
-    {
-      // This indicates that the string representation of the control is only
-      // the OID.
-      return new Control(controlString, false);
-    }
-
-
-    // See if we need to read the criticality.  If so, then do so now.
-    // Otherwise, assume a default criticality of false.
-    final boolean isCritical;
-    if (hasCriticality)
-    {
-      // Skip over any spaces before the criticality.
-      while (controlString.charAt(pos) == ' ')
-      {
-        pos++;
-      }
-
-      // Read until we find a colon or the end of the string.
-      final int criticalityStartPos = pos;
-      while (pos < length)
-      {
-        final char c = controlString.charAt(pos);
-        if (c == ':')
-        {
-          hasValue = true;
-          break;
-        }
-        else
-        {
-          pos++;
-        }
-      }
-
-      final String criticalityString =
-           toLowerCase(controlString.substring(criticalityStartPos, pos));
-      if (criticalityString.equals("true"))
-      {
-        isCritical = true;
-      }
-      else if (criticalityString.equals("false"))
-      {
-        isCritical = false;
-      }
-      else
-      {
-        throw new LDIFException(
-             ERR_READ_CONTROL_LINE_INVALID_CRITICALITY.get(criticalityString,
-                  firstLineNumber),
-             firstLineNumber, true, ldifLines, null);
-      }
-
-      if (hasValue)
-      {
-        pos++;
-      }
-    }
-    else
-    {
-      isCritical = false;
-    }
-
-    // See if we need to read the value.  If so, then do so now.  It may be
-    // a string, or it may be base64-encoded.  It could conceivably even be read
-    // from a URL.
-    final ASN1OctetString value;
-    if (hasValue)
-    {
-      // The character immediately after the colon that precedes the value may
-      // be one of the following:
-      // - A second colon (optionally followed by a single space) to indicate
-      //   that the value is base64-encoded.
-      // - A less-than symbol to indicate that the value should be read from a
-      //   location specified by a URL.
-      // - A single space that precedes the non-base64-encoded value.
-      // - The first character of the non-base64-encoded value.
-      switch (controlString.charAt(pos))
-      {
-        case ':':
-          try
-          {
-            if (controlString.length() == (pos+1))
-            {
-              value = new ASN1OctetString();
-            }
-            else if (controlString.charAt(pos+1) == ' ')
-            {
-              value = new ASN1OctetString(
-                   Base64.decode(controlString.substring(pos+2)));
-            }
-            else
-            {
-              value = new ASN1OctetString(
-                   Base64.decode(controlString.substring(pos+1)));
-            }
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            throw new LDIFException(
-                 ERR_READ_CONTROL_LINE_CANNOT_BASE64_DECODE_VALUE.get(
-                      firstLineNumber, getExceptionMessage(e)),
-                 firstLineNumber, true, ldifLines, e);
-          }
-          break;
-        case '<':
-          try
-          {
-            final String urlString;
-            if (controlString.charAt(pos+1) == ' ')
-            {
-              urlString = controlString.substring(pos+2);
-            }
-            else
-            {
-              urlString = controlString.substring(pos+1);
-            }
-            value = new ASN1OctetString(retrieveURLBytes(urlString,
-                 relativeBasePath, firstLineNumber));
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            throw new LDIFException(
-                 ERR_READ_CONTROL_LINE_CANNOT_RETRIEVE_VALUE_FROM_URL.get(
-                      firstLineNumber, getExceptionMessage(e)),
-                 firstLineNumber, true, ldifLines, e);
-          }
-          break;
-        case ' ':
-          value = new ASN1OctetString(controlString.substring(pos+1));
-          break;
-        default:
-          value = new ASN1OctetString(controlString.substring(pos));
-          break;
-      }
-    }
-    else
-    {
-      value = null;
-    }
-
-    return new Control(oid, isCritical, value);
-  }
-
-
-
-  /**
-   * Decodes the changetype element from the provided line.
-   *
-   * @param  line             The line to process.
-   * @param  colonPos         The position of the colon that separates the
-   *                          changetype string from its value.
-   * @param  firstLineNumber  The line number for the start of the record.
-   * @param  ldifLines        The lines that comprise the LDIF representation of
-   *                          the full record being parsed.
-   *
-   * @return  The decoded changetype string.
-   *
-   * @throws  LDIFException  If a problem is encountered while trying to decode
-   *                         the changetype.
-   */
-  private static String decodeChangeType(final StringBuilder line,
-                             final int colonPos, final long firstLineNumber,
-                             final ArrayList<StringBuilder> ldifLines)
-          throws LDIFException
-  {
-    final int length = line.length();
-    if (length == (colonPos+1))
-    {
-      // The colon was the last character on the line.  This is not
-      // acceptable.
-      throw new LDIFException(
-           ERR_READ_CT_LINE_NO_CT_VALUE.get(firstLineNumber), firstLineNumber,
-           true, ldifLines, null);
-    }
-    else if (line.charAt(colonPos+1) == ':')
-    {
-      // Skip over any spaces leading up to the value, and then the rest of
-      // the string is the base64-encoded changetype.  This is unusual and
-      // unnecessary, but is nevertheless acceptable.
-      int pos = colonPos+2;
-      while ((pos < length) && (line.charAt(pos) == ' '))
-      {
-        pos++;
-      }
-
-      try
-      {
-        final byte[] changeTypeBytes = Base64.decode(line.substring(pos));
-        return new String(changeTypeBytes, "UTF-8");
-      }
-      catch (final ParseException pe)
-      {
-        debugException(pe);
-        throw new LDIFException(
-                       ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber,
-                                                            pe.getMessage()),
-                       firstLineNumber, true, ldifLines, pe);
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-        throw new LDIFException(
-             ERR_READ_CANNOT_BASE64_DECODE_CT.get(firstLineNumber, e),
-             firstLineNumber, true, ldifLines, e);
-      }
-    }
-    else
-    {
-      // Skip over any spaces leading up to the value, and then the rest of
-      // the string is the changetype.
-      int pos = colonPos+1;
-      while ((pos < length) && (line.charAt(pos) == ' '))
-      {
-        pos++;
-      }
-
-      return line.substring(pos);
     }
   }
 
@@ -2877,33 +2537,107 @@ public final class LDIFReader
           pos++;
         }
 
-        final byte[] urlBytes;
+        final String path;
         final String urlString = line.substring(pos);
-        try
+        final String lowerURLString = toLowerCase(urlString);
+        if (lowerURLString.startsWith("file:/"))
         {
-          urlBytes =
-               retrieveURLBytes(urlString, relativeBasePath, firstLineNumber);
-        }
-        catch (final Exception e)
-        {
-          debugException(e);
-          throw new LDIFException(
-               ERR_READ_URL_EXCEPTION.get(attributeName, urlString,
-                    firstLineNumber, e),
-               firstLineNumber, true, ldifLines, e);
-        }
+          pos = 6;
+          while ((pos < urlString.length()) && (urlString.charAt(pos) == '/'))
+          {
+            pos++;
+          }
 
-        if (attrObject == null)
+          path = urlString.substring(pos-1);
+        }
+        else if (lowerURLString.startsWith("file:"))
         {
-          attr = new Attribute(attributeName, urlBytes);
-          attributes.put(lowerName, attr);
+          // A file: URL that doesn't include a slash will be interpreted as a
+          // relative path.
+          path = relativeBasePath + urlString.substring(5);
         }
         else
         {
+          throw new LDIFException(ERR_READ_URL_INVALID_SCHEME.get(attributeName,
+                                       urlString, firstLineNumber),
+                                  firstLineNumber, true, ldifLines, null);
+        }
+
+        try
+        {
+          final File f = new File(path);
+          if (! f.exists())
+          {
+            throw new LDIFException(ERR_READ_URL_NO_SUCH_FILE.get(attributeName,
+                                         urlString, firstLineNumber,
+                                         f.getAbsolutePath()),
+                                    firstLineNumber, true, ldifLines, null);
+          }
+
+          // In order to conserve memory, we'll only allow values to be read
+          // from files no larger than 10 megabytes.
+          final long fileSize = f.length();
+          if (fileSize > (10 * 1024 * 1024))
+          {
+            throw new LDIFException(ERR_READ_URL_FILE_TOO_LARGE.get(
+                                         attributeName, urlString,
+                                         firstLineNumber, f.getAbsolutePath(),
+                                         (10*1024*1024)),
+                                    firstLineNumber, true, ldifLines, null);
+          }
+
+          int fileBytesRead              = 0;
+          int fileBytesRemaining         = (int) fileSize;
+          final byte[]          fileData = new byte[(int) fileSize];
+          final FileInputStream fis      = new FileInputStream(f);
           try
           {
-            if (! ldifAttr.addValue(new ASN1OctetString(urlBytes),
-                 duplicateValueBehavior))
+            while (fileBytesRead < fileSize)
+            {
+              final int bytesRead =
+                   fis.read(fileData, fileBytesRead, fileBytesRemaining);
+              if (bytesRead < 0)
+              {
+                // We hit the end of the file before we expected to.  This
+                // shouldn't happen unless the file size changed since we first
+                // looked at it, which we won't allow.
+                throw new LDIFException(ERR_READ_URL_FILE_SIZE_CHANGED.get(
+                                             attributeName, urlString,
+                                             firstLineNumber,
+                                             f.getAbsolutePath()),
+                                        firstLineNumber, true, ldifLines, null);
+              }
+
+              fileBytesRead      += bytesRead;
+              fileBytesRemaining -= bytesRead;
+            }
+
+            if (fis.read() != -1)
+            {
+              // There is still more data to read.  This shouldn't happen unless
+              // the file size changed since we first looked at it, which we
+              // won't allow.
+              throw new LDIFException(ERR_READ_URL_FILE_SIZE_CHANGED.get(
+                                           attributeName, urlString,
+                                           firstLineNumber,
+                                           f.getAbsolutePath()),
+                                      firstLineNumber, true, ldifLines, null);
+            }
+          }
+          finally
+          {
+            fis.close();
+          }
+
+          if (attrObject == null)
+          {
+            attr = new Attribute(attributeName, fileData);
+            attributes.put(lowerName, attr);
+          }
+          else
+          {
+            if (! ldifAttr.addValue(new ASN1OctetString(fileData),
+                       duplicateValueBehavior))
             {
               if (duplicateValueBehavior != DuplicateValueBehavior.STRIP)
               {
@@ -2913,19 +2647,18 @@ public final class LDIFReader
               }
             }
           }
-          catch (final LDIFException le)
-          {
-            debugException(le);
-            throw le;
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            throw new LDIFException(
-                 ERR_READ_URL_EXCEPTION.get(attributeName, urlString,
-                      firstLineNumber, e),
-                 firstLineNumber, true, ldifLines, e);
-          }
+        }
+        catch (LDIFException le)
+        {
+          debugException(le);
+          throw le;
+        }
+        catch (Exception e)
+        {
+          debugException(e);
+          throw new LDIFException(ERR_READ_URL_EXCEPTION.get(attributeName,
+                                       urlString, firstLineNumber, e),
+                                  firstLineNumber, true, ldifLines, e);
         }
       }
       else
@@ -2984,116 +2717,6 @@ public final class LDIFReader
     }
 
     return attrList;
-  }
-
-
-
-  /**
-   * Retrieves the bytes that make up the file referenced by the given URL.
-   *
-   * @param  urlString         The string representation of the URL to retrieve.
-   * @param  relativeBasePath  The base path that will be prepended to relative
-   *                           paths in order to obtain an absolute path.
-   * @param  firstLineNumber   The line number for the start of the record.
-   *
-   * @return  The bytes contained in the specified file, or an empty array if
-   *          the specified file is empty.
-   *
-   * @throws  LDIFException  If the provided URL is malformed or references a
-   *                         nonexistent file.
-   *
-   * @throws  IOException  If a problem is encountered while attempting to read
-   *                       from the target file.
-   */
-  private static byte[] retrieveURLBytes(final String urlString,
-                                         final String relativeBasePath,
-                                         final long firstLineNumber)
-          throws LDIFException, IOException
-  {
-    int pos;
-    String path;
-    final String lowerURLString = toLowerCase(urlString);
-    if (lowerURLString.startsWith("file:/"))
-    {
-      pos = 6;
-      while ((pos < urlString.length()) && (urlString.charAt(pos) == '/'))
-      {
-        pos++;
-      }
-
-      path = urlString.substring(pos-1);
-    }
-    else if (lowerURLString.startsWith("file:"))
-    {
-      // A file: URL that doesn't include a slash will be interpreted as a
-      // relative path.
-      path = relativeBasePath + urlString.substring(5);
-    }
-    else
-    {
-      throw new LDIFException(ERR_READ_URL_INVALID_SCHEME.get(urlString),
-           firstLineNumber, true);
-    }
-
-    final File f = new File(path);
-    if (! f.exists())
-    {
-      throw new LDIFException(
-           ERR_READ_URL_NO_SUCH_FILE.get(urlString, f.getAbsolutePath()),
-           firstLineNumber, true);
-    }
-
-    // In order to conserve memory, we'll only allow values to be read from
-    // files no larger than 10 megabytes.
-    final long fileSize = f.length();
-    if (fileSize > (10 * 1024 * 1024))
-    {
-      throw new LDIFException(
-           ERR_READ_URL_FILE_TOO_LARGE.get(urlString, f.getAbsolutePath(),
-                (10*1024*1024)),
-           firstLineNumber, true);
-    }
-
-    int fileBytesRemaining = (int) fileSize;
-    final byte[] fileData = new byte[(int) fileSize];
-    final FileInputStream fis = new FileInputStream(f);
-    try
-    {
-      int fileBytesRead = 0;
-      while (fileBytesRead < fileSize)
-      {
-        final int bytesRead =
-             fis.read(fileData, fileBytesRead, fileBytesRemaining);
-        if (bytesRead < 0)
-        {
-          // We hit the end of the file before we expected to.  This shouldn't
-          // happen unless the file size changed since we first looked at it,
-          // which we won't allow.
-          throw new LDIFException(
-               ERR_READ_URL_FILE_SIZE_CHANGED.get(urlString,
-                    f.getAbsolutePath()),
-               firstLineNumber, true);
-        }
-
-        fileBytesRead      += bytesRead;
-        fileBytesRemaining -= bytesRead;
-      }
-
-      if (fis.read() != -1)
-      {
-        // There is still more data to read.  This shouldn't happen unless the
-        // file size changed since we first looked at it, which we won't allow.
-        throw new LDIFException(
-             ERR_READ_URL_FILE_SIZE_CHANGED.get(urlString, f.getAbsolutePath()),
-             firstLineNumber, true);
-      }
-    }
-    finally
-    {
-      fis.close();
-    }
-
-    return fileData;
   }
 
 
@@ -3354,8 +2977,6 @@ public final class LDIFReader
    * @param  iterator               The iterator to use to access the modify DN
    *                                data.
    * @param  dn                     The current DN of the entry.
-   * @param  controls               The set of controls to include in the change
-   *                                record.
    * @param  trailingSpaceBehavior  The behavior that should be exhibited when
    *                                encountering attribute values which are not
    *                                base64-encoded but contain trailing spaces.
@@ -3369,7 +2990,6 @@ public final class LDIFReader
   private static LDIFModifyDNChangeRecord parseModifyDNChangeRecord(
        final ArrayList<StringBuilder> ldifLines,
        final Iterator<StringBuilder> iterator, final String dn,
-       final List<Control> controls,
        final TrailingSpaceBehavior trailingSpaceBehavior,
        final long firstLineNumber)
        throws LDIFException
@@ -3633,7 +3253,7 @@ public final class LDIFReader
     }
 
     return new LDIFModifyDNChangeRecord(dn, newRDN, deleteOldRDN,
-         newSuperiorDN, controls);
+                                        newSuperiorDN);
   }
 
 
@@ -3962,25 +3582,25 @@ public final class LDIFReader
   private final class RecordParser implements Processor<UnparsedLDIFRecord,
                                                         LDIFRecord>
   {
-    /**
-     * {@inheritDoc}
-     */
-    public LDIFRecord process(final UnparsedLDIFRecord input)
+      /**
+       * {@inheritDoc}
+       */
+      public LDIFRecord process(final UnparsedLDIFRecord input)
            throws LDIFException
-    {
-      LDIFRecord record = decodeRecord(input, relativeBasePath);
-
-      if ((record instanceof Entry) && (entryTranslator != null))
       {
-        record = entryTranslator.translate((Entry) record,
-             input.getFirstLineNumber());
+        LDIFRecord record = decodeRecord(input, relativeBasePath);
 
-        if (record == null)
+        if ((record instanceof Entry) && (entryTranslator != null))
         {
-          record = SKIP_ENTRY;
+          record = entryTranslator.translate((Entry) record,
+                                   input.getFirstLineNumber());
+
+          if (record == null)
+          {
+            record = SKIP_ENTRY;
+          }
         }
+        return record;
       }
-      return record;
-    }
   }
 }
