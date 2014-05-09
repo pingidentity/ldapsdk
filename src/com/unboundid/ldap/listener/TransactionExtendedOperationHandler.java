@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -148,7 +148,7 @@ public final class TransactionExtendedOperationHandler
           catch (final LDAPException le)
           {
             Debug.debugException(le);
-            return new ExtendedResult(le);
+            return new ExtendedResult(le.toLDAPResult());
           }
         }
 
@@ -213,7 +213,7 @@ public final class TransactionExtendedOperationHandler
       {
         Debug.debugException(le);
         return new StartTransactionExtendedResult(
-             new ExtendedResult(le));
+             new ExtendedResult(le.toLDAPResult()));
       }
     }
 

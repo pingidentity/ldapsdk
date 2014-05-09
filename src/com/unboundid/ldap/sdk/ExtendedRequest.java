@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -267,7 +267,7 @@ public class ExtendedRequest
    *
    * @return  The ASN.1 element with the encoded extended request protocol op.
    */
-  public ASN1Element encodeProtocolOp()
+  ASN1Element encodeProtocolOp()
   {
     // Create the extended request protocol op.
     final ASN1Element[] protocolOpElements;
@@ -393,7 +393,7 @@ public class ExtendedRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      connection.getConnectionInternals().getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
     catch (Exception e)
@@ -472,8 +472,7 @@ public class ExtendedRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_EXTENDED_CLIENT_TIMEOUT.get(waitTime, messageID, oid,
-                connection.getHostPort()));
+           ERR_EXTENDED_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     if (response instanceof ConnectionClosedResponse)

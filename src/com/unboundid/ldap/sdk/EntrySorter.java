@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -71,13 +71,10 @@ import static com.unboundid.util.StaticUtils.*;
  * entries, ordered first by sn and then by givenName, without consideration for
  * hierarchy:
  * <PRE>
- * SearchResult searchResult = connection.search("dc=example,dc=com",
- *      SearchScope.SUB, Filter.createEqualityFilter("sn", "Smith"));
- *
- * EntrySorter entrySorter = new EntrySorter(false,
- *      new SortKey("sn"), new SortKey("givenName"));
- * SortedSet&lt;Entry&gt; sortedEntries =
- *     entrySorter.sort(searchResult.getSearchEntries());
+ *   EntrySorter entrySorter = new EntrySorter(false,
+ *        new SortKey("sn"), new SortKey("givenName"));
+ *   SortedSet&lt;Entry&gt; sortedEntries =
+ *        entrySorter.sort(searchResult.getSearchEntries())
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

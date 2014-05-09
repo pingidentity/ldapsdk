@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -101,7 +101,7 @@ public final class LDAPListenerConfig
   public LDAPListenerConfig(final int listenPort,
                             final LDAPListenerRequestHandler requestHandler)
   {
-    Validator.ensureTrue((listenPort >= 0) && (listenPort <= 65535));
+    Validator.ensureTrue((listenPort >=0) && (listenPort <= 65535));
     Validator.ensureNotNull(requestHandler);
 
     this.listenPort     = listenPort;

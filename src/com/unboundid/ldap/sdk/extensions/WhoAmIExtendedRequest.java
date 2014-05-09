@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -56,43 +56,34 @@ import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
  * The following example demonstrates the use of the "Who Am I?" extended
  * operation.
  * <PRE>
- * // Use the "Who Am I?" extended request to determine the identity of the
- * // currently-authenticated user.
- * WhoAmIExtendedResult whoAmIResult;
- * try
- * {
- *   whoAmIResult = (WhoAmIExtendedResult)
+ *   WhoAmIExtendedResult whoAmIResult =
+ *        (WhoAmIExtendedResult)
  *        connection.processExtendedOperation(new WhoAmIExtendedRequest());
- *   // This doesn't necessarily mean that the operation was successful, since
- *   // some kinds of extended operations return non-success results under
- *   // normal conditions.
- * }
- * catch (LDAPException le)
- * {
- *   // For an extended operation, this generally means that a problem was
- *   // encountered while trying to send the request or read the result.
- *   whoAmIResult = new WhoAmIExtendedResult(new ExtendedResult(le));
- * }
  *
- * LDAPTestUtils.assertResultCodeEquals(whoAmIResult, ResultCode.SUCCESS);
- * String authzID = whoAmIResult.getAuthorizationID();
- * if (authzID.equals("") || authzID.equals("dn:"))
- * {
- *   // The user is authenticated anonymously.
- * }
- * else if (authzID.startsWith("dn:"))
- * {
- *   // The DN of the authenticated user should be authzID.substring(3)
- * }
- * else if (authzID.startsWith("u:"))
- * {
- *   // The username of the authenticated user should be authzID.substring(2)
- * }
- * else
- * {
- *   // The authorization ID isn't in any recognizable format.  Perhaps it's
- *   // a raw DN or a username?
- * }
+ *   // NOTE:  The processExtendedOperation method will only throw an exception
+ *   // if a problem occurs while trying to send the request or read the
+ *   // response.  It will not throw an exception because of a non-success
+ *   // response.
+ *
+ *   if (whoAmIResult.getResultCode() == ResultCode.SUCCESS)
+ *   {
+ *     String authzID = whoAmIResult.getAuthorizationID();
+ *     if (authzID.length() == 0)
+ *     {
+ *       System.out.println("Your current authorization ID is that of the " +
+ *                          "anonymous user.");
+ *     }
+ *     else
+ *     {
+ *       System.out.println("Your current authorization ID is " +
+ *                          whoAmIResult.getAuthorizationID());
+ *     }
+ *   }
+ *   else
+ *   {
+ *     System.err.println("An error occurred while processing the " +
+ *                        "Who Am I? extended operation.");
+ *   }
  * </PRE>
  */
 @NotMutable()

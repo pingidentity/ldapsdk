@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,15 +29,10 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
@@ -81,20 +76,6 @@ public final class SearchResultReferenceProtocolOp
   public SearchResultReferenceProtocolOp(final List<String> referralURLs)
   {
     this.referralURLs = Collections.unmodifiableList(referralURLs);
-  }
-
-
-
-  /**
-   * Creates a new search result reference protocol op from the provided search
-   * result reference.
-   *
-   * @param  reference  The search result reference to use to create this
-   *                    protocol op.
-   */
-  public SearchResultReferenceProtocolOp(final SearchResultReference reference)
-  {
-    referralURLs = toList(reference.getReferralURLs());
   }
 
 
@@ -159,64 +140,6 @@ public final class SearchResultReferenceProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    final ArrayList<ASN1Element> urlElements =
-         new ArrayList<ASN1Element>(referralURLs.size());
-    for (final String url : referralURLs)
-    {
-      urlElements.add(new ASN1OctetString(url));
-    }
-
-    return new ASN1Sequence(
-         LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_REFERENCE,
-         urlElements);
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a search result reference protocol
-   * op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded search result reference protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a search result reference protocol op.
-   */
-  public static SearchResultReferenceProtocolOp decodeProtocolOp(
-                                                     final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] urlElements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final ArrayList<String> referralURLs =
-           new ArrayList<String>(urlElements.length);
-      for (final ASN1Element e : urlElements)
-      {
-        referralURLs.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
-      }
-
-      return new SearchResultReferenceProtocolOp(referralURLs);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_REFERENCE_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence = buffer.beginSequence(
@@ -226,26 +149,6 @@ public final class SearchResultReferenceProtocolOp
       buffer.addOctetString(s);
     }
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates a search result reference from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the search result
-   *                   reference.  It may be empty or {@code null} if no
-   *                   controls should be included.
-   *
-   * @return  The search result reference that was created.
-   */
-  public SearchResultReference toSearchResultReference(
-                                    final Control... controls)
-  {
-    final String[] referralArray = new String[referralURLs.size()];
-    referralURLs.toArray(referralArray);
-
-    return new SearchResultReference(referralArray, controls);
   }
 
 

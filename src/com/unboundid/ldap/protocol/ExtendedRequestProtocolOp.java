@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,13 +24,9 @@ package com.unboundid.ldap.protocol;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -104,21 +100,6 @@ public final class ExtendedRequestProtocolOp
     {
       this.value = new ASN1OctetString(TYPE_VALUE, value.getValue());
     }
-  }
-
-
-
-  /**
-   * Creates a new extended request protocol op from the provided extended
-   * request object.
-   *
-   * @param  request  The extended request object to use to create this protocol
-   *                  op.
-   */
-  public ExtendedRequestProtocolOp(final ExtendedRequest request)
-  {
-    oid   = request.getOID();
-    value = request.getValue();
   }
 
 
@@ -200,70 +181,6 @@ public final class ExtendedRequestProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    if (value ==  null)
-    {
-      return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST,
-           new ASN1OctetString(TYPE_OID, oid));
-    }
-    else
-    {
-      return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST,
-           new ASN1OctetString(TYPE_OID, oid),
-           value);
-    }
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as an extended request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded extended request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         an extended request protocol op.
-   */
-  public static ExtendedRequestProtocolOp decodeProtocolOp(
-                                               final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final String oid =
-           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
-
-      final ASN1OctetString value;
-      if (elements.length == 1)
-      {
-        value = null;
-      }
-      else
-      {
-        value = ASN1OctetString.decodeAsOctetString(elements[1]);
-      }
-
-      return new ExtendedRequestProtocolOp(oid, value);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_EXTENDED_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -275,22 +192,6 @@ public final class ExtendedRequestProtocolOp
       buffer.addOctetString(TYPE_VALUE, value.getValue());
     }
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates an extended request from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the extended request.
-   *                   It may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The extended request that was created.
-   */
-  public ExtendedRequest toExtendedRequest(final Control... controls)
-  {
-    return new ExtendedRequest(oid, value, controls);
   }
 
 

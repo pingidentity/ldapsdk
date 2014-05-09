@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -28,7 +28,6 @@ import java.util.logging.Level;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
-import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -187,33 +186,19 @@ final class AsyncSearchHelper
 
     if (response instanceof ConnectionClosedResponse)
     {
-      if (! responseReturned.compareAndSet(false, true))
-      {
-        return;
-      }
-
-      final String message;
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
-      final String ccrMessage = ccr.getMessage();
-      if (ccrMessage == null)
+      final String message = ccr.getMessage();
+      if (message == null)
       {
-        message = ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get();
+        throw new LDAPException(ccr.getResultCode(),
+             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get());
       }
       else
       {
-        message = ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(
-             ccrMessage);
+        throw new LDAPException(ccr.getResultCode(),
+             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(
+                  message));
       }
-
-      connection.getConnectionStatistics().incrementNumSearchResponses(
-           numEntries, numReferences, System.nanoTime() - createTime);
-
-      final SearchResult searchResult = new SearchResult(
-           asyncRequestID.getMessageID(), ccr.getResultCode(), message, null,
-           StaticUtils.NO_STRINGS, numEntries, numReferences,
-           StaticUtils.NO_CONTROLS);
-      resultListener.searchResultReceived(asyncRequestID, searchResult);
-      asyncRequestID.setResult(searchResult);
     }
     else if (response instanceof SearchResultEntry)
     {

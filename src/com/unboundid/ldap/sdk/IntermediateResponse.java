@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -249,8 +249,6 @@ public class IntermediateResponse
             value = new ASN1OctetString(type, reader.readBytes());
             break;
           default:
-            throw new LDAPException(ResultCode.DECODING_ERROR,
-                 ERR_INTERMEDIATE_RESPONSE_INVALID_ELEMENT.get(toHex(type)));
         }
       }
 

@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -1238,22 +1238,21 @@ public final class LDAPTestUtils
       return;
     }
 
-    // Get the entry and see if the attribute exists in it at all.
-    final Entry entry = conn.getEntry(dn, attributeName);
-    if ((entry != null) && entry.hasAttribute(attributeName))
-    {
-      final Attribute a = entry.getAttribute(attributeName);
-      throw new AssertionError(ERR_TEST_ATTR_MISSING_VALUE.get(dn,
-           attributeName,
-           StaticUtils.concatenateStrings("{", " '", ",", "'", " }",
-                a.getValues()),
-           StaticUtils.concatenateStrings("{", " '", ",", "'", " }",
-                missingValues)));
-    }
-    else
+    // See if the target attribute exists in the entry at all.
+    final SearchResult searchResult = conn.search(dn, SearchScope.BASE,
+         Filter.createPresenceFilter(attributeName), "1.1");
+    if (searchResult.getEntryCount() == 0)
     {
       throw new AssertionError(ERR_TEST_ATTR_MISSING.get(dn, attributeName));
     }
+
+    final List<String> messages = new ArrayList<String>(missingValues.size());
+    for (final String value : missingValues)
+    {
+      messages.add(ERR_TEST_VALUE_MISSING.get(dn, attributeName, value));
+    }
+
+    throw new AssertionError(StaticUtils.concatenateStrings(messages));
   }
 
 
@@ -1335,21 +1334,10 @@ public final class LDAPTestUtils
       try
       {
         final SearchResult searchResult = conn.search(dn, SearchScope.BASE,
-             Filter.createPresenceFilter(attrName), attrName);
+             Filter.createPresenceFilter(attrName), "1.1");
         if (searchResult.getEntryCount() == 1)
         {
-          final Attribute a =
-               searchResult.getSearchEntries().get(0).getAttribute(attrName);
-          if (a == null)
-          {
-            messages.add(ERR_TEST_ATTR_EXISTS.get(dn, attrName));
-          }
-          else
-          {
-            messages.add(ERR_TEST_ATTR_EXISTS_WITH_VALUES.get(dn, attrName,
-                 StaticUtils.concatenateStrings("{", " '", ",", "'", " }",
-                                 a.getValues())));
-          }
+          messages.add(ERR_TEST_ATTR_EXISTS.get(dn, attrName));
         }
       }
       catch (final LDAPException le)
@@ -2595,48 +2583,6 @@ public final class LDAPTestUtils
                   StaticUtils.getExceptionMessage(exception),
                   exception.getReferenceCount()));
       }
-    }
-  }
-
-
-
-  /**
-   * Ensures that the two provided strings represent the same DN.
-   *
-   * @param  s1  The first string to compare.
-   * @param  s2  The second string to compare.
-   *
-   * @throws  AssertionError  If either string doesn't represent a valid DN, or
-   *                          if they do not represent the same DN.
-   */
-  public static void assertDNsEqual(final String s1, final String s2)
-         throws AssertionError
-  {
-    final DN dn1;
-    try
-    {
-      dn1 = new DN(s1);
-    }
-    catch (final Exception e)
-    {
-      throw new AssertionError(ERR_TEST_VALUE_NOT_VALID_DN.get(s1,
-           StaticUtils.getExceptionMessage(e)));
-    }
-
-    final DN dn2;
-    try
-    {
-      dn2 = new DN(s2);
-    }
-    catch (final Exception e)
-    {
-      throw new AssertionError(ERR_TEST_VALUE_NOT_VALID_DN.get(s2,
-           StaticUtils.getExceptionMessage(e)));
-    }
-
-    if (! dn1.equals(dn2))
-    {
-      throw new AssertionError(ERR_TEST_DNS_NOT_EQUAL.get(s1, s2));
     }
   }
 }

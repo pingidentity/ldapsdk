@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -68,8 +68,8 @@ public final class SASLOption
    * @param  isMultiValued  Indicates whether this option is allowed to be
    *                        specified multiple times for a single bind request.
    */
-  public SASLOption(final String name, final String description,
-                    final boolean isRequired, final boolean isMultiValued)
+  SASLOption(final String name, final String description,
+             final boolean isRequired, final boolean isMultiValued)
   {
     this.name          = name;
     this.description   = description;

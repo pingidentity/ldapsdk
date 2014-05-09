@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -105,47 +105,39 @@ import static com.unboundid.util.Validator.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the virtual list view request
- * control to iterate through all users, retrieving up to 10 entries at a time:
+ * control to iterate through all users in the "Sales" department, retrieving
+ * up to 10 entries at a time:
  * <PRE>
- * // Perform a search to retrieve all users in the server, but only retrieving
- * // ten at a time.  Ensure that the users are sorted in ascending order by
- * // last name, then first name.
- * int numSearches = 0;
- * int totalEntriesReturned = 0;
- * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
- *      SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
- * int vlvOffset = 1;
- * int vlvContentCount = 0;
- * ASN1OctetString vlvContextID = null;
- * while (true)
- * {
- *   // Note that the VLV control always requires the server-side sort
- *   // control.
- *   searchRequest.setControls(
+ *   ServerSideSortRequestControl sortRequest =
  *        new ServerSideSortRequestControl(new SortKey("sn"),
- *             new SortKey("givenName")),
- *        new VirtualListViewRequestControl(vlvOffset, 0, 9, vlvContentCount,
- *             vlvContextID));
- *   SearchResult searchResult = connection.search(searchRequest);
- *   numSearches++;
- *   totalEntriesReturned += searchResult.getEntryCount();
- *   for (SearchResultEntry e : searchResult.getSearchEntries())
- *   {
- *     // Do something with each entry...
- *   }
+ *                                         new SortKey("givenName"));
+ *   SearchRequest searchRequest =
+ *        new SearchRequest("dc=example,dc=com", SearchScope.SUB, "(ou=Sales)");
  *
- *   LDAPTestUtils.assertHasControl(searchResult,
- *        VirtualListViewResponseControl.VIRTUAL_LIST_VIEW_RESPONSE_OID);
- *   VirtualListViewResponseControl vlvResponseControl =
- *        VirtualListViewResponseControl.get(searchResult);
- *   vlvContentCount = vlvResponseControl.getContentCount();
- *   vlvOffset += 10;
- *   vlvContextID = vlvResponseControl.getContextID();
- *   if (vlvOffset &gt; vlvContentCount)
+ *   int offset = 1;
+ *   int contentCount = 0;
+ *   ASN1OctetString contextID = null;
+ *   do
  *   {
- *     break;
- *   }
- * }
+ *     VirtualListViewRequestControl vlvRequest =
+ *          new VirtualListViewRequestControl(offset, 0, 9, contentCount,
+ *                                            contextID);
+ *     searchRequest.setControls(new Control[] { sortRequest, vlvRequest });
+ *     SearchResult searchResult = connection.search();
+ *
+ *     // Do something with the entries that are returned.
+ *
+ *     contentCount = -1;
+ *     VirtualListViewResponseControl c =
+ *          VirtualListViewResponseControl.get(searchResult);
+ *     if (c != null)
+ *     {
+ *       contentCount = c.getContentCount();
+ *       contextID = c.getContextID();
+ *     }
+ *
+ *     offset += 10;
+ *   } while (offset &lt;= contentCount);
  * </PRE>
  */
 @NotMutable()

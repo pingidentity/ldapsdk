@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,14 +29,9 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -85,19 +80,6 @@ public final class AddRequestProtocolOp
   {
     this.dn         = dn;
     this.attributes = Collections.unmodifiableList(attributes);
-  }
-
-
-
-  /**
-   * Creates a new add request protocol op from the provided add request object.
-   *
-   * @param  request  The add request object to use to create this protocol op.
-   */
-  public AddRequestProtocolOp(final AddRequest request)
-  {
-    dn          = request.getDN();
-    attributes = request.getAttributes();
   }
 
 
@@ -183,67 +165,6 @@ public final class AddRequestProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    final ArrayList<ASN1Element> attrElements =
-         new ArrayList<ASN1Element>(attributes.size());
-    for (final Attribute a : attributes)
-    {
-      attrElements.add(a.encode());
-    }
-
-    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST,
-         new ASN1OctetString(dn),
-         new ASN1Sequence(attrElements));
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as an add request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded add request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         an add request protocol op.
-   */
-  public static AddRequestProtocolOp decodeProtocolOp(final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final String dn =
-           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
-
-      final ASN1Element[] attrElements =
-           ASN1Sequence.decodeAsSequence(elements[1]).elements();
-      final ArrayList<Attribute> attributes =
-           new ArrayList<Attribute>(attrElements.length);
-      for (final ASN1Element ae : attrElements)
-      {
-        attributes.add(Attribute.decode(ASN1Sequence.decodeAsSequence(ae)));
-      }
-
-      return new AddRequestProtocolOp(dn, attributes);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_ADD_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -257,22 +178,6 @@ public final class AddRequestProtocolOp
     }
     attrSequence.end();
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates an add request from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the add request.  It
-   *                   may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The add request that was created.
-   */
-  public AddRequest toAddRequest(final Control... controls)
-  {
-    return new AddRequest(dn, attributes, controls);
   }
 
 

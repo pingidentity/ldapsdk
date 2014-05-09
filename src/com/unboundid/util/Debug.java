@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -64,14 +64,14 @@ import static com.unboundid.util.StaticUtils.*;
  * <H2>Example</H2>
  * The following example demonstrates the process that may be used to enable
  * debugging within the LDAP SDK and write information about all messages with
- * a {@code WARNING} level or higher to a specified file:
+ * a {@code WARNING} level or higher to a file named "/tmp/test.log":
  * <PRE>
- * Debug.setEnabled(true);
- * Logger logger = Debug.getLogger();
+ *   Debug.setEnabled(true);
+ *   Logger logger = Debug.getLogger();
  *
- * FileHandler fileHandler = new FileHandler(logFilePath);
- * fileHandler.setLevel(Level.WARNING);
- * logger.addHandler(fileHandler);
+ *   FileHandler fileHandler = new FileHandler("/tmp/test.log");
+ *   fileHandler.setLevel(Level.WARNING);
+ *   logger.addHandler(fileHandler);
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

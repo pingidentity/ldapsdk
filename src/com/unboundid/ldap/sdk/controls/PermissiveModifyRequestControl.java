@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -46,56 +46,15 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the permissive modify request
- * control to process a modification that attempts to add an attribute value
- * to an entry that already contains that value.
+ * control to remove a value of "test" from the description attribute, or to do
+ * nothing if that value is not contained in the entry.
  * <PRE>
- * // Ensure that we start with a known description value in the test entry
- * // by using a replace to overwrite any existing value(s).
- * ModifyRequest replaceRequest = new ModifyRequest(
- *      "uid=test.user,ou=People,dc=example,dc=com",
- *      new Modification(ModificationType.REPLACE, "description", "value"));
- * LDAPResult replaceResult = connection.modify(replaceRequest);
- *
- * // Create a modify request that will attempt to add the value that already
- * // exists.  If we attempt to do this without the permissive modify control,
- * // the attempt should fail.
- * ModifyRequest addExistingValueRequest = new ModifyRequest(
- *      "uid=test.user,ou=People,dc=example,dc=com",
- *      new Modification(ModificationType.ADD, "description", "value"));
- * LDAPResult addExistingValueResultWithoutControl;
- * try
- * {
- *   addExistingValueResultWithoutControl =
- *        connection.modify(addExistingValueRequest);
- *   // We shouldn't get here because the attempt to add the existing value
- *   // should fail.
- * }
- * catch (LDAPException le)
- * {
- *   // We expected this failure because the value we're trying to add already
- *   // exists in the entry.
- *   addExistingValueResultWithoutControl = le.toLDAPResult();
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
- *
- * // Update the modify request to include the permissive modify request
- * // control, and re-send the request.  The operation should now succeed.
- * addExistingValueRequest.addControl(new PermissiveModifyRequestControl());
- * LDAPResult addExistingValueResultWithControl;
- * try
- * {
- *   addExistingValueResultWithControl =
- *        connection.modify(addExistingValueRequest);
- *   // If we've gotten here, then the modification was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // If we've gotten here, then the modification failed for some reason.
- *   addExistingValueResultWithControl = le.toLDAPResult();
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   Modification mod = new Modification(ModificationType.DELETE,
+ *        "description", "test");
+ *   ModifyRequest modifyRequest = new ModifyRequest(
+ *        "uid=john.doe,ou=People,dc=example,dc=com", mod);
+ *   modifyRequest.addControl(new PermissiveModifyRequestControl());
+ *   LDAPResult modifyResult = connection.modify(modifyRequest);
  * </PRE>
  */
 @NotMutable()

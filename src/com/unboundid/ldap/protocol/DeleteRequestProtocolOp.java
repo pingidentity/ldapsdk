@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,11 +23,7 @@ package com.unboundid.ldap.protocol;
 
 
 import com.unboundid.asn1.ASN1Buffer;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1StreamReader;
-import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -71,20 +67,6 @@ public final class DeleteRequestProtocolOp
   public DeleteRequestProtocolOp(final String dn)
   {
     this.dn = dn;
-  }
-
-
-
-  /**
-   * Creates a new delete request protocol op from the provided delete request
-   * object.
-   *
-   * @param  request  The delete request object to use to create this protocol
-   *                  op.
-   */
-  public DeleteRequestProtocolOp(final DeleteRequest request)
-  {
-    dn = request.getDN();
   }
 
 
@@ -143,65 +125,9 @@ public final class DeleteRequestProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    return new ASN1OctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a delete request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded delete request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a delete request protocol op.
-   */
-  public static DeleteRequestProtocolOp decodeProtocolOp(
-                                             final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      return new DeleteRequestProtocolOp(
-           ASN1OctetString.decodeAsOctetString(element).stringValue());
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_DELETE_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     buffer.addOctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
-  }
-
-
-
-  /**
-   * Creates a delete request from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the delete request.
-   *                   It may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The delete request that was created.
-   */
-  public DeleteRequest toDeleteRequest(final Control... controls)
-  {
-    return new DeleteRequest(dn, controls);
   }
 
 

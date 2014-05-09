@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -90,43 +90,27 @@ import static com.unboundid.util.Debug.*;
  * </UL>
  * <H2>Example</H2>
  * The following example demonstrates the use of the simple paged results
- * control.  It will iterate through all users, retrieving up to 10 entries at a
- * time:
+ * control.  It will iterate through all users in the "Sales" department,
+ * retrieving up to 10 entries at a time:
  * <PRE>
- * // Perform a search to retrieve all users in the server, but only retrieving
- * // ten at a time.
- * int numSearches = 0;
- * int totalEntriesReturned = 0;
- * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
- *      SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
- * ASN1OctetString resumeCookie = null;
- * while (true)
- * {
- *   searchRequest.setControls(
- *        new SimplePagedResultsControl(10, resumeCookie));
- *   SearchResult searchResult = connection.search(searchRequest);
- *   numSearches++;
- *   totalEntriesReturned += searchResult.getEntryCount();
- *   for (SearchResultEntry e : searchResult.getSearchEntries())
+ *   SearchRequest searchRequest =
+ *        new SearchRequest("dc=example,dc=com", SearchScope.SUB,"(ou=Sales)");
+ *   ASN1OctetString cookie = null;
+ *   do
  *   {
- *     // Do something with each entry...
- *   }
+ *     searchRequest.setControls(
+ *          new Control[] { new SimplePagedResultsControl(10, cookie) });
+ *     SearchResult searchResult = connection.search(searchRequest);
  *
- *   LDAPTestUtils.assertHasControl(searchResult,
- *        SimplePagedResultsControl.PAGED_RESULTS_OID);
- *   SimplePagedResultsControl responseControl =
- *        SimplePagedResultsControl.get(searchResult);
- *   if (responseControl.moreResultsToReturn())
- *   {
- *     // The resume cookie can be included in the simple paged results
- *     // control included in the next search to get the next page of results.
- *     resumeCookie = responseControl.getCookie();
- *   }
- *   else
- *   {
- *     break;
- *   }
- * }
+ *     // Do something with the entries that are returned.
+ *
+ *     cookie = null;
+ *     SimplePagedResultControl c = SimplePagedResultControl.get(searchResult);
+ *     if (c != null)
+ *     {
+ *       cookie = c.getCookie();
+ *     }
+ *   } while ((cookie != null) && (cookie.getValueLength() > 0));
  * </PRE>
  */
 @NotMutable()

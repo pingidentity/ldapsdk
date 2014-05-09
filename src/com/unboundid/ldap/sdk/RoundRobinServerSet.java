@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -49,35 +49,18 @@ import static com.unboundid.util.Validator.*;
  * will first try one of the servers, but will fail over to the other if the
  * first one attempted is not available:
  * <PRE>
- * // Create arrays with the addresses and ports of the directory server
- * // instances.
- * String[] addresses =
- * {
- *   server1Address,
- *   server2Address
- * };
- * int[] ports =
- * {
- *   server1Port,
- *   server2Port
- * };
- *
- * // Create the server set using the address and port arrays.
- * RoundRobinServerSet roundRobinSet =
- *      new RoundRobinServerSet(addresses, ports);
- *
- * // Verify that we can establish a single connection using the server set.
- * LDAPConnection connection = roundRobinSet.getConnection();
- * RootDSE rootDSEFromConnection = connection.getRootDSE();
- * connection.close();
- *
- * // Verify that we can establish a connection pool using the server set.
- * SimpleBindRequest bindRequest =
- *      new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
- * LDAPConnectionPool pool =
- *      new LDAPConnectionPool(roundRobinSet, bindRequest, 10);
- * RootDSE rootDSEFromPool = pool.getRootDSE();
- * pool.close();
+ *   String[] addresses =
+ *   {
+ *     "ds1.example.com",
+ *     "ds2.example.com",
+ *   };
+ *   int[] ports =
+ *   {
+ *     389,
+ *     389
+ *   }
+ *   RoundRobinServerSet roundRobinSet =
+ *        new RoundRobinServerSet(addresses, ports);
  * </PRE>
  */
 @NotMutable()
@@ -292,7 +275,7 @@ public final class RoundRobinServerSet
    * {@inheritDoc}
    */
   @Override()
-  public LDAPConnection getConnection()
+  public synchronized LDAPConnection getConnection()
          throws LDAPException
   {
     return getConnection(null);
@@ -304,8 +287,8 @@ public final class RoundRobinServerSet
    * {@inheritDoc}
    */
   @Override()
-  public synchronized LDAPConnection getConnection(
-                           final LDAPConnectionPoolHealthCheck healthCheck)
+  public LDAPConnection getConnection(
+                             final LDAPConnectionPoolHealthCheck healthCheck)
          throws LDAPException
   {
     final int initialSlotNumber = nextSlot++;

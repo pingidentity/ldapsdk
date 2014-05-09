@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,25 +22,14 @@ package com.unboundid.ldap.protocol;
 
 
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1Enumerated;
-import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPResult;
-import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-
-import static com.unboundid.ldap.protocol.ProtocolMessages.*;
 
 
 
@@ -82,22 +71,6 @@ public final class CompareResponseProtocolOp
 
 
   /**
-   * Creates a new compare response protocol op from the provided LDAP result
-   * object.
-   *
-   * @param  result  The LDAP result object to use to create this protocol op.
-   */
-  public CompareResponseProtocolOp(final LDAPResult result)
-  {
-    super(LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_RESPONSE,
-         result.getResultCode().intValue(), result.getMatchedDN(),
-         result.getDiagnosticMessage(),
-         StaticUtils.toList(result.getReferralURLs()));
-  }
-
-
-
-  /**
    * Creates a new compare response protocol op read from the provided ASN.1
    * stream reader.
    *
@@ -111,128 +84,5 @@ public final class CompareResponseProtocolOp
        throws LDAPException
   {
     super(reader);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  public ASN1Element encodeProtocolOp()
-  {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
-    elements.add(new ASN1Enumerated(getResultCode()));
-
-    final String matchedDN = getMatchedDN();
-    if (matchedDN == null)
-    {
-      elements.add(new ASN1OctetString());
-    }
-    else
-    {
-      elements.add(new ASN1OctetString(matchedDN));
-    }
-
-    final String diagnosticMessage = getDiagnosticMessage();
-    if (diagnosticMessage == null)
-    {
-      elements.add(new ASN1OctetString());
-    }
-    else
-    {
-      elements.add(new ASN1OctetString(diagnosticMessage));
-    }
-
-    final List<String> referralURLs = getReferralURLs();
-    if (! referralURLs.isEmpty())
-    {
-      final ArrayList<ASN1Element> refElements =
-           new ArrayList<ASN1Element>(referralURLs.size());
-      for (final String r : referralURLs)
-      {
-        refElements.add(new ASN1OctetString(r));
-      }
-      elements.add(new ASN1Sequence(TYPE_REFERRALS, refElements));
-    }
-
-    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_RESPONSE,
-         elements);
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a compare response protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded compare response protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a compare response protocol op.
-   */
-  public static CompareResponseProtocolOp decodeProtocolOp(
-                                               final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final int resultCode =
-           ASN1Enumerated.decodeAsEnumerated(elements[0]).intValue();
-
-      final String matchedDN;
-      final String md =
-           ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
-      if (md.length() > 0)
-      {
-        matchedDN = md;
-      }
-      else
-      {
-        matchedDN = null;
-      }
-
-      final String diagnosticMessage;
-      final String dm =
-           ASN1OctetString.decodeAsOctetString(elements[2]).stringValue();
-      if (dm.length() > 0)
-      {
-        diagnosticMessage = dm;
-      }
-      else
-      {
-        diagnosticMessage = null;
-      }
-
-      final List<String> referralURLs;
-      if (elements.length == 4)
-      {
-        final ASN1Element[] refElements =
-             ASN1Sequence.decodeAsSequence(elements[3]).elements();
-        referralURLs = new ArrayList<String>(refElements.length);
-        for (final ASN1Element e : refElements)
-        {
-          referralURLs.add(
-               ASN1OctetString.decodeAsOctetString(e).stringValue());
-        }
-      }
-      else
-      {
-        referralURLs = null;
-      }
-
-      return new CompareResponseProtocolOp(resultCode, matchedDN,
-           diagnosticMessage, referralURLs);
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_COMPARE_RESPONSE_CANNOT_DECODE.get(
-                StaticUtils.getExceptionMessage(e)),
-           e);
-    }
   }
 }

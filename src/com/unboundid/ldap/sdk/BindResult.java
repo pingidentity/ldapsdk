@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2012 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2012 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -133,21 +133,6 @@ public class BindResult
   public BindResult(final LDAPResult ldapResult)
   {
     super(ldapResult);
-
-    serverSASLCredentials = null;
-  }
-
-
-
-  /**
-   * Creates a new bind result from the provided {@code LDAPException}.
-   *
-   * @param  exception  The {@code LDAPException} to use to create this bind
-   *                    result.
-   */
-  public BindResult(final LDAPException exception)
-  {
-    super(exception.toLDAPResult());
 
     serverSASLCredentials = null;
   }
