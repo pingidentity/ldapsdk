@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -49,15 +49,4 @@ abstract class ValuePatternComponent
    * @param  buffer  The buffer to which the value should be appended.
    */
   abstract void append(final StringBuilder buffer);
-
-
-
-  /**
-   * Indicates whether this value pattern component may be targeted by a back
-   * reference.
-   *
-   * @return  {@code true} if this value pattern component may be targeted by a
-   *          back reference, or {@code false} if not.
-   */
-  abstract boolean supportsBackReference();
 }

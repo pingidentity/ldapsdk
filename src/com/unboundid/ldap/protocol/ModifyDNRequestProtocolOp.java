@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,17 +22,11 @@ package com.unboundid.ldap.protocol;
 
 
 
-import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.ModifyDNRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -105,23 +99,6 @@ public final class ModifyDNRequestProtocolOp
 
 
   /**
-   * Creates a new modify DN request protocol op from the provided modify DN
-   * request object.
-   *
-   * @param  request  The modify DN request object to use to create this
-   *                  protocol op.
-   */
-  public ModifyDNRequestProtocolOp(final ModifyDNRequest request)
-  {
-    dn            = request.getDN();
-    newRDN        = request.getNewRDN();
-    deleteOldRDN  = request.deleteOldRDN();
-    newSuperiorDN = request.getNewSuperiorDN();
-  }
-
-
-
-  /**
    * Creates a new modify DN request protocol op read from the provided ASN.1
    * stream reader.
    *
@@ -156,7 +133,7 @@ public final class ModifyDNRequestProtocolOp
       debugException(e);
 
       throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MODIFY_DN_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)), e);
+           ERR_DELETE_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)), e);
     }
   }
 
@@ -225,80 +202,6 @@ public final class ModifyDNRequestProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    if (newSuperiorDN == null)
-    {
-      return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST,
-           new ASN1OctetString(dn),
-           new ASN1OctetString(newRDN),
-           new ASN1Boolean(deleteOldRDN));
-    }
-    else
-    {
-      return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST,
-           new ASN1OctetString(dn),
-           new ASN1OctetString(newRDN),
-           new ASN1Boolean(deleteOldRDN),
-           new ASN1OctetString(TYPE_NEW_SUPERIOR, newSuperiorDN));
-    }
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a modify DN request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded modify DN request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a modify DN request protocol op.
-   */
-  public static ModifyDNRequestProtocolOp decodeProtocolOp(
-                                               final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final String dn =
-           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
-      final String newRDN =
-           ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
-      final boolean deleteOldRDN =
-           ASN1Boolean.decodeAsBoolean(elements[2]).booleanValue();
-
-      final String newSuperiorDN;
-      if (elements.length > 3)
-      {
-        newSuperiorDN =
-             ASN1OctetString.decodeAsOctetString(elements[3]).stringValue();
-      }
-      else
-      {
-        newSuperiorDN = null;
-      }
-
-      return new ModifyDNRequestProtocolOp(dn, newRDN, deleteOldRDN,
-           newSuperiorDN);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MODIFY_DN_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -312,23 +215,6 @@ public final class ModifyDNRequestProtocolOp
       buffer.addOctetString(TYPE_NEW_SUPERIOR, newSuperiorDN);
     }
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates a modify DN request from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the modify DN request.
-   *                   It may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The modify DN request that was created.
-   */
-  public ModifyDNRequest toModifyDNRequest(final Control... controls)
-  {
-    return new ModifyDNRequest(dn, newRDN, deleteOldRDN, newSuperiorDN,
-         controls);
   }
 
 

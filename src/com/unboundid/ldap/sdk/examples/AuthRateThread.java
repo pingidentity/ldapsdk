@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -39,7 +39,6 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
-import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ValuePattern;
@@ -103,9 +102,6 @@ final class AuthRateThread
   // The thread that is actually performing the searches.
   private final AtomicReference<Thread> authThread;
 
-  // A reference to the associated authrate tool.
-  private final AuthRate authRate;
-
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
 
@@ -113,10 +109,10 @@ final class AuthRateThread
   private final int authType;
 
   // The connection to use for the binds.
-  private LDAPConnection bindConnection;
+  private final LDAPConnection bindConnection;
 
   // The connection to use for the searches.
-  private LDAPConnection searchConnection;
+  private final LDAPConnection searchConnection;
 
   // The result code counter to use for failed operations.
   private final ResultCodeCounter rcCounter;
@@ -142,7 +138,6 @@ final class AuthRateThread
   /**
    * Creates a new auth rate thread with the provided information.
    *
-   * @param  authRate          A reference to the associated authrate tool.
    * @param  threadNumber      The thread number for this thread.
    * @param  searchConnection  The connection to use for the searches.
    * @param  bindConnection    The connection to use for the  binds.
@@ -166,8 +161,7 @@ final class AuthRateThread
    *                           authorizations.  {@code null} if no rate-limiting
    *                           should be used.
    */
-  AuthRateThread(final AuthRate authRate, final int threadNumber,
-                 final LDAPConnection searchConnection,
+  AuthRateThread(final int threadNumber, final LDAPConnection searchConnection,
                  final LDAPConnection bindConnection, final ValuePattern baseDN,
                  final SearchScope scope, final ValuePattern filter,
                  final String[] attributes, final String userPassword,
@@ -180,7 +174,6 @@ final class AuthRateThread
     setName("AuthRate Thread " + threadNumber);
     setDaemon(true);
 
-    this.authRate         = authRate;
     this.searchConnection = searchConnection;
     this.bindConnection   = bindConnection;
     this.baseDN           = baseDN;
@@ -233,64 +226,10 @@ final class AuthRateThread
     try
     {
       startBarrier.await();
-    }
-    catch (Exception e)
-    {
-      Debug.debugException(e);
-    }
+    } catch (Exception e) {}
 
     while (! stopRequested.get())
     {
-      if (searchConnection == null)
-      {
-        try
-        {
-          searchConnection = authRate.getConnection();
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
-          if (fixedRateBarrier != null)
-          {
-            fixedRateBarrier.await();
-          }
-
-          continue;
-        }
-      }
-
-      if (bindConnection == null)
-      {
-        try
-        {
-          bindConnection = authRate.getConnection();
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
-          if (fixedRateBarrier != null)
-          {
-            fixedRateBarrier.await();
-          }
-
-          continue;
-        }
-      }
-
       try
       {
         searchRequest.setBaseDN(baseDN.nextValue());
@@ -298,7 +237,6 @@ final class AuthRateThread
       }
       catch (LDAPException le)
       {
-        Debug.debugException(le);
         errorCounter.incrementAndGet();
 
         final ResultCode rc = le.getResultCode();
@@ -363,7 +301,6 @@ final class AuthRateThread
       }
       catch (LDAPException le)
       {
-        Debug.debugException(le);
         errorCounter.incrementAndGet();
 
         final ResultCode rc = le.getResultCode();
@@ -372,11 +309,11 @@ final class AuthRateThread
 
         if (! le.getResultCode().isConnectionUsable())
         {
-          searchConnection.close();
-          searchConnection = null;
-
-          bindConnection.close();
-          bindConnection = null;
+          try
+          {
+            searchConnection.reconnect();
+            bindConnection.reconnect();
+          } catch (final LDAPException le2) {}
         }
       }
       finally
@@ -386,16 +323,8 @@ final class AuthRateThread
       }
     }
 
-    if (searchConnection != null)
-    {
-      searchConnection.close();
-    }
-
-    if (bindConnection != null)
-    {
-      bindConnection.close();
-    }
-
+    searchConnection.close();
+    bindConnection.close();
     authThread.set(null);
   }
 

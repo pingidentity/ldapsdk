@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -88,123 +88,5 @@ public final class ObjectPair<F,S>
   public S getSecond()
   {
     return second;
-  }
-
-
-
-  /**
-   * Retrieves a hash code for this object pair.
-   *
-   * @return  A hash code for this object pair.
-   */
-  @Override()
-  public int hashCode()
-  {
-    int h = 0;
-
-    if (first != null)
-    {
-      h += first.hashCode();
-    }
-
-    if (second != null)
-    {
-      h += second.hashCode();
-    }
-
-    return h;
-  }
-
-
-
-  /**
-   * Indicates whether the provided object is equal to this object pair.
-   *
-   * @param  o  The object for which to make the determination.
-   *
-   * @return  {@code true} if the provided object is equal to this object pair,
-   *          or {@code false} if not.
-   */
-  @Override()
-  public boolean equals(final Object o)
-  {
-    if (o == null)
-    {
-      return false;
-    }
-
-    if (o == this)
-    {
-      return true;
-    }
-
-    if (o instanceof ObjectPair)
-    {
-      final ObjectPair<?,?> p = (ObjectPair<?,?>) o;
-      if (first == null)
-      {
-        if (p.first != null)
-        {
-          return false;
-        }
-      }
-      else
-      {
-        if (! first.equals(p.first))
-        {
-          return false;
-        }
-      }
-
-      if (second == null)
-      {
-        if (p.second != null)
-        {
-          return false;
-        }
-      }
-      else
-      {
-        if (! second.equals(p.second))
-        {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    return false;
-  }
-
-
-
-  /**
-   * Retrieves a string representation of this object pair.
-   *
-   * @return  A string representation of this object pair.
-   */
-  @Override()
-  public String toString()
-  {
-    final StringBuilder buffer = new StringBuilder();
-    toString(buffer);
-    return buffer.toString();
-  }
-
-
-
-  /**
-   * Appends a string representation of this object pair to the provided buffer.
-   *
-   * @param  buffer  The buffer to which the information should be appended.
-   */
-  public void toString(final StringBuilder buffer)
-  {
-    buffer.append("ObjectPair(first=");
-    buffer.append(String.valueOf(first));
-    buffer.append(", second=");
-    buffer.append(String.valueOf(second));
-    buffer.append(')');
   }
 }

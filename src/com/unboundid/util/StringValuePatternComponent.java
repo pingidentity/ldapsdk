@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -60,16 +60,5 @@ final class StringValuePatternComponent
   void append(final StringBuilder buffer)
   {
     buffer.append(valueString);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  boolean supportsBackReference()
-  {
-    return false;
   }
 }

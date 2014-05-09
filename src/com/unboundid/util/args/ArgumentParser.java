@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,13 +29,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import com.unboundid.util.Debug;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -199,106 +197,6 @@ public final class ArgumentParser
     dependentArgumentSets = new ArrayList<ObjectPair<Argument,Set<Argument>>>();
     exclusiveArgumentSets = new ArrayList<Set<Argument>>();
     requiredArgumentSets  = new ArrayList<Set<Argument>>();
-  }
-
-
-
-  /**
-   * Creates a new argument parser that is a "clean" copy of the provided source
-   * argument parser.
-   *
-   * @param  source  The source argument parser to use for this argument parser.
-   */
-  private ArgumentParser(final ArgumentParser source)
-  {
-    commandName             = source.commandName;
-    commandDescription      = source.commandDescription;
-    maxTrailingArgs         = source.maxTrailingArgs;
-    trailingArgsPlaceholder = source.trailingArgsPlaceholder;
-
-    trailingArgs = new ArrayList<String>();
-
-    namedArgs = new ArrayList<Argument>(source.namedArgs.size());
-    namedArgsByLongID =
-         new LinkedHashMap<String,Argument>(source.namedArgsByLongID.size());
-    namedArgsByShortID = new LinkedHashMap<Character,Argument>(
-         source.namedArgsByShortID.size());
-
-    final LinkedHashMap<String,Argument> argsByID =
-         new LinkedHashMap<String,Argument>(source.namedArgs.size());
-    for (final Argument sourceArg : source.namedArgs)
-    {
-      final Argument a = sourceArg.getCleanCopy();
-
-      try
-      {
-        a.setRegistered();
-      }
-      catch (final ArgumentException ae)
-      {
-        // This should never happen.
-        Debug.debugException(ae);
-      }
-
-      namedArgs.add(a);
-      argsByID.put(a.getIdentifierString(), a);
-
-      for (final Character c : a.getShortIdentifiers())
-      {
-        namedArgsByShortID.put(c, a);
-      }
-
-      for (final String s : a.getLongIdentifiers())
-      {
-        namedArgsByLongID.put(toLowerCase(s), a);
-      }
-    }
-
-    dependentArgumentSets = new ArrayList<ObjectPair<Argument,Set<Argument>>>(
-         source.dependentArgumentSets.size());
-    for (final ObjectPair<Argument,Set<Argument>> p :
-         source.dependentArgumentSets)
-    {
-      final Set<Argument> sourceSet = p.getSecond();
-      final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<Argument>(sourceSet.size());
-      for (final Argument a : sourceSet)
-      {
-        newSet.add(argsByID.get(a.getIdentifierString()));
-      }
-
-      final Argument sourceFirst = p.getFirst();
-      final Argument newFirst = argsByID.get(sourceFirst.getIdentifierString());
-      dependentArgumentSets.add(
-           new ObjectPair<Argument, Set<Argument>>(newFirst, newSet));
-    }
-
-    exclusiveArgumentSets =
-         new ArrayList<Set<Argument>>(source.exclusiveArgumentSets.size());
-    for (final Set<Argument> sourceSet : source.exclusiveArgumentSets)
-    {
-      final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<Argument>(sourceSet.size());
-      for (final Argument a : sourceSet)
-      {
-        newSet.add(argsByID.get(a.getIdentifierString()));
-      }
-
-      exclusiveArgumentSets.add(newSet);
-    }
-
-    requiredArgumentSets =
-         new ArrayList<Set<Argument>>(source.requiredArgumentSets.size());
-    for (final Set<Argument> sourceSet : source.requiredArgumentSets)
-    {
-      final LinkedHashSet<Argument> newSet =
-           new LinkedHashSet<Argument>(sourceSet.size());
-      for (final Argument a : sourceSet)
-      {
-        newSet.add(argsByID.get(a.getIdentifierString()));
-      }
-      requiredArgumentSets.add(newSet);
-    }
   }
 
 
@@ -666,20 +564,6 @@ public final class ArgumentParser
   public List<String> getTrailingArguments()
   {
     return Collections.unmodifiableList(trailingArgs);
-  }
-
-
-
-  /**
-   * Creates a copy of this argument parser that is "clean" and appears as if it
-   * has not been used to parse an argument set.  The new parser will have all
-   * of the same arguments and constraints as this parser.
-   *
-   * @return  The "clean" copy of this argument parser.
-   */
-  public ArgumentParser getCleanCopy()
-  {
-    return new ArgumentParser(this);
   }
 
 
@@ -1192,59 +1076,5 @@ public final class ArgumentParser
       buffer.append(line);
       buffer.append(EOL);
     }
-  }
-
-
-
-  /**
-   * Retrieves a string representation of this argument parser.
-   *
-   * @return  A string representation of this argument parser.
-   */
-  @Override()
-  public String toString()
-  {
-    final StringBuilder buffer = new StringBuilder();
-    toString(buffer);
-    return buffer.toString();
-  }
-
-
-
-  /**
-   * Appends a string representation of this argument parser to the provided
-   * buffer.
-   *
-   * @param  buffer  The buffer to which the information should be appended.
-   */
-  public void toString(final StringBuilder buffer)
-  {
-    buffer.append("ArgumentParser(commandName='");
-    buffer.append(commandName);
-    buffer.append("', commandDescription='");
-    buffer.append(commandDescription);
-    buffer.append("', maxTrailingArgs=");
-    buffer.append(maxTrailingArgs);
-
-    if (trailingArgsPlaceholder != null)
-    {
-      buffer.append(", trailingArgsPlaceholder='");
-      buffer.append(trailingArgsPlaceholder);
-      buffer.append('\'');
-    }
-
-    buffer.append("namedArgs={");
-
-    final Iterator<Argument> iterator = namedArgs.iterator();
-    while (iterator.hasNext())
-    {
-      iterator.next().toString(buffer);
-      if (iterator.hasNext())
-      {
-        buffer.append(", ");
-      }
-    }
-
-    buffer.append("})");
   }
 }

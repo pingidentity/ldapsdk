@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -35,7 +35,6 @@ import com.unboundid.asn1.ASN1Element;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.DisconnectType;
 import com.unboundid.ldap.sdk.Entry;
-import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPRequest;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldif.LDIFRecord;
@@ -64,14 +63,14 @@ import static com.unboundid.util.StaticUtils.*;
  * <H2>Example</H2>
  * The following example demonstrates the process that may be used to enable
  * debugging within the LDAP SDK and write information about all messages with
- * a {@code WARNING} level or higher to a specified file:
+ * a {@code WARNING} level or higher to a file named "/tmp/test.log":
  * <PRE>
- * Debug.setEnabled(true);
- * Logger logger = Debug.getLogger();
+ *   Debug.setEnabled(true);
+ *   Logger logger = Debug.getLogger();
  *
- * FileHandler fileHandler = new FileHandler(logFilePath);
- * fileHandler.setLevel(Level.WARNING);
- * logger.addHandler(fileHandler);
+ *   FileHandler fileHandler = new FileHandler("/tmp/test.log");
+ *   fileHandler.setLevel(Level.WARNING);
+ *   logger.addHandler(fileHandler);
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -462,7 +461,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      debugConnect(Level.INFO, h, p, null);
+      debugConnect(Level.INFO, h, p);
     }
   }
 
@@ -481,52 +480,6 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      debugConnect(l, h, p, null);
-    }
-  }
-
-
-
-  /**
-   * Writes debug information to indicate that a connection has been
-   * established, if appropriate.  If it is to be logged, then it will be sent
-   * to the underlying logger using the {@code INFO} level.
-   *
-   * @param  h  The address of the server to which the connection was
-   *            established.
-   * @param  p  The port of the server to which the connection was established.
-   * @param  c  The connection object for the connection that has been
-   *            established.  It may be {@code null} for historic reasons, but
-   *            should be non-{@code null} in new uses.
-   */
-  public static void debugConnect(final String h, final int p,
-                                  final LDAPConnection c)
-  {
-    if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
-    {
-      debugConnect(Level.INFO, h, p, c);
-    }
-  }
-
-
-
-  /**
-   * Writes debug information to indicate that a connection has been
-   * established, if appropriate.
-   *
-   * @param  l  The log level that should be used for the debug information.
-   * @param  h  The address of the server to which the connection was
-   *            established.
-   * @param  p  The port of the server to which the connection was established.
-   * @param  c  The connection object for the connection that has been
-   *            established.  It may be {@code null} for historic reasons, but
-   *            should be non-{@code null} in new uses.
-   */
-  public static void debugConnect(final Level l, final String h, final int p,
-                                  final LDAPConnection c)
-  {
-    if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
-    {
       final StringBuilder buffer = new StringBuilder();
       addCommonHeader(buffer, l);
       buffer.append("connectedTo=\"");
@@ -534,28 +487,6 @@ public final class Debug
       buffer.append(':');
       buffer.append(p);
       buffer.append('"');
-
-      if (c != null)
-      {
-        buffer.append(" connectionID=");
-        buffer.append(c.getConnectionID());
-
-        final String connectionName = c.getConnectionName();
-        if (connectionName != null)
-        {
-          buffer.append(" connectionName=\"");
-          buffer.append(connectionName);
-          buffer.append('"');
-        }
-
-        final String connectionPoolName = c.getConnectionPoolName();
-        if (connectionPoolName != null)
-        {
-          buffer.append(" connectionPoolName=\"");
-          buffer.append(connectionPoolName);
-          buffer.append('"');
-        }
-      }
 
       logger.log(l, buffer.toString());
     }
@@ -573,15 +504,15 @@ public final class Debug
    * @param  p  The port of the server to which the connection was established.
    * @param  t  The disconnect type.
    * @param  m  The disconnect message, if available.
-   * @param  e  The disconnect cause, if available.
+   * @param  c  The disconnect cause, if available.
    */
   public static void debugDisconnect(final String h, final int p,
                                      final DisconnectType t, final String m,
-                                     final Throwable e)
+                                     final Throwable c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
-      debugDisconnect(Level.INFO, h, p, null, t, m, e);
+      debugDisconnect(Level.INFO, h, p, t, m, c);
     }
   }
 
@@ -597,97 +528,16 @@ public final class Debug
    * @param  p  The port of the server to which the connection was established.
    * @param  t  The disconnect type.
    * @param  m  The disconnect message, if available.
-   * @param  e  The disconnect cause, if available.
+   * @param  c  The disconnect cause, if available.
    */
   public static void debugDisconnect(final Level l, final String h, final int p,
                                      final DisconnectType t, final String m,
-                                     final Throwable e)
-  {
-    if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
-    {
-      debugDisconnect(l, h, p, null, t, m, e);
-    }
-  }
-
-
-
-  /**
-   * Writes debug information to indicate that a connection has been
-   * terminated, if appropriate.  If it is to be logged, then it will be sent
-   * to the underlying logger using the {@code INFO} level.
-   *
-   * @param  h  The address of the server to which the connection was
-   *            established.
-   * @param  p  The port of the server to which the connection was established.
-   * @param  c  The connection object for the connection that has been closed.
-   *            It may be {@code null} for historic reasons, but should be
-   *            non-{@code null} in new uses.
-   * @param  t  The disconnect type.
-   * @param  m  The disconnect message, if available.
-   * @param  e  The disconnect cause, if available.
-   */
-  public static void debugDisconnect(final String h, final int p,
-                                     final LDAPConnection c,
-                                     final DisconnectType t, final String m,
-                                     final Throwable e)
-  {
-    if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
-    {
-      debugDisconnect(Level.INFO, h, p, c, t, m, e);
-    }
-  }
-
-
-
-  /**
-   * Writes debug information to indicate that a connection has been
-   * terminated, if appropriate.
-   *
-   * @param  l  The log level that should be used for the debug information.
-   * @param  h  The address of the server to which the connection was
-   *            established.
-   * @param  p  The port of the server to which the connection was established.
-   * @param  c  The connection object for the connection that has been closed.
-   *            It may be {@code null} for historic reasons, but should be
-   *            non-{@code null} in new uses.
-   * @param  t  The disconnect type.
-   * @param  m  The disconnect message, if available.
-   * @param  e  The disconnect cause, if available.
-   */
-  public static void debugDisconnect(final Level l, final String h, final int p,
-                                     final LDAPConnection c,
-                                     final DisconnectType t, final String m,
-                                     final Throwable e)
+                                     final Throwable c)
   {
     if (debugEnabled && debugTypes.contains(DebugType.CONNECT))
     {
       final StringBuilder buffer = new StringBuilder();
       addCommonHeader(buffer, l);
-
-      if (c != null)
-      {
-        buffer.append("connectionID=");
-        buffer.append(c.getConnectionID());
-
-        final String connectionName = c.getConnectionName();
-        if (connectionName != null)
-        {
-          buffer.append(" connectionName=\"");
-          buffer.append(connectionName);
-          buffer.append('"');
-        }
-
-        final String connectionPoolName = c.getConnectionPoolName();
-        if (connectionPoolName != null)
-        {
-          buffer.append(" connectionPoolName=\"");
-          buffer.append(connectionPoolName);
-          buffer.append('"');
-        }
-
-        buffer.append(' ');
-      }
-
       buffer.append("disconnectedFrom=\"");
       buffer.append(h);
       buffer.append(':');
@@ -703,10 +553,10 @@ public final class Debug
         buffer.append('"');
       }
 
-      if (e != null)
+      if (c != null)
       {
         buffer.append("\" disconnectCause=\"");
-        getStackTrace(e, buffer);
+        getStackTrace(c, buffer);
         buffer.append('"');
       }
 
@@ -727,7 +577,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      debugLDAPRequest(Level.INFO, r, -1, null);
+      debugLDAPRequest(Level.INFO, r);
     }
   }
 
@@ -743,89 +593,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      debugLDAPRequest(l, r, -1, null);
-    }
-  }
-
-
-
-  /**
-   * Writes debug information about the provided request, if appropriate.  If
-   * it is to be logged, then it will be sent to the underlying logger using the
-   * {@code INFO} level.
-   *
-   * @param  r  The LDAP request for which debug information should be written.
-   * @param  i  The message ID for the request that will be sent.  It may be
-   *            negative if no message ID is available.
-   * @param  c  The connection on which the request will be sent.  It may be
-   *            {@code null} for historic reasons, but should be
-   *            non-{@code null} in new uses.
-   */
-  public static void debugLDAPRequest(final LDAPRequest r, final int i,
-                                      final LDAPConnection c)
-  {
-    if (debugEnabled && debugTypes.contains(DebugType.LDAP))
-    {
-      debugLDAPRequest(Level.INFO, r, i, c);
-    }
-  }
-
-
-
-  /**
-   * Writes debug information about the provided request, if appropriate.
-   *
-   * @param  l  The log level that should be used for the debug information.
-   * @param  r  The LDAP request for which debug information should be written.
-   * @param  i  The message ID for the request that will be sent.  It may be
-   *            negative if no message ID is available.
-   * @param  c  The connection on which the request will be sent.  It may be
-   *            {@code null} for historic reasons, but should be
-   *            non-{@code null} in new uses.
-   */
-  public static void debugLDAPRequest(final Level l, final LDAPRequest r,
-                                      final int i, final LDAPConnection c)
-  {
-    if (debugEnabled && debugTypes.contains(DebugType.LDAP))
-    {
       final StringBuilder buffer = new StringBuilder();
       addCommonHeader(buffer, l);
-
-      if (c != null)
-      {
-        buffer.append("connectionID=");
-        buffer.append(c.getConnectionID());
-
-        final String connectionName = c.getConnectionName();
-        if (connectionName != null)
-        {
-          buffer.append(" connectionName=\"");
-          buffer.append(connectionName);
-          buffer.append('"');
-        }
-
-        final String connectionPoolName = c.getConnectionPoolName();
-        if (connectionPoolName != null)
-        {
-          buffer.append(" connectionPoolName=\"");
-          buffer.append(connectionPoolName);
-          buffer.append('"');
-        }
-
-        buffer.append(" connectedTo=\"");
-        buffer.append(c.getConnectedAddress());
-        buffer.append(':');
-        buffer.append(c.getConnectedPort());
-        buffer.append("\" ");
-      }
-
-      if (i >= 0)
-      {
-        buffer.append(" messageID=");
-        buffer.append(i);
-        buffer.append(' ');
-      }
-
       buffer.append("sendingLDAPRequest=\"");
       r.toString(buffer);
       buffer.append('"');
@@ -847,7 +616,7 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      debugLDAPResult(Level.INFO, r, null);
+      debugLDAPResult(Level.INFO, r);
     }
   }
 
@@ -863,78 +632,8 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
-      debugLDAPResult(l, r, null);
-    }
-  }
-
-
-
-  /**
-   * Writes debug information about the provided result, if appropriate.  If
-   * it is to be logged, then it will be sent to the underlying logger using the
-   * {@code INFO} level.
-   *
-   * @param  r  The result for which debug information should be written.
-   * @param  c  The connection on which the response was received.  It may be
-   *            {@code null} for historic reasons, but should be
-   *            non-{@code null} in new uses.
-   */
-  public static void debugLDAPResult(final LDAPResponse r,
-                                     final LDAPConnection c)
-  {
-    if (debugEnabled && debugTypes.contains(DebugType.LDAP))
-    {
-      debugLDAPResult(Level.INFO, r, c);
-    }
-  }
-
-
-
-  /**
-   * Writes debug information about the provided result, if appropriate.
-   *
-   * @param  l  The log level that should be used for the debug information.
-   * @param  r  The result for which debug information should be written.
-   * @param  c  The connection on which the response was received.  It may be
-   *            {@code null} for historic reasons, but should be
-   *            non-{@code null} in new uses.
-   */
-  public static void debugLDAPResult(final Level l, final LDAPResponse r,
-                                     final LDAPConnection c)
-  {
-    if (debugEnabled && debugTypes.contains(DebugType.LDAP))
-    {
       final StringBuilder buffer = new StringBuilder();
       addCommonHeader(buffer, l);
-
-      if (c != null)
-      {
-        buffer.append("connectionID=");
-        buffer.append(c.getConnectionID());
-
-        final String connectionName = c.getConnectionName();
-        if (connectionName != null)
-        {
-          buffer.append(" connectionName=\"");
-          buffer.append(connectionName);
-          buffer.append('"');
-        }
-
-        final String connectionPoolName = c.getConnectionPoolName();
-        if (connectionPoolName != null)
-        {
-          buffer.append(" connectionPoolName=\"");
-          buffer.append(connectionPoolName);
-          buffer.append('"');
-        }
-
-        buffer.append(" connectedTo=\"");
-        buffer.append(c.getConnectedAddress());
-        buffer.append(':');
-        buffer.append(c.getConnectedPort());
-        buffer.append("\" ");
-      }
-
       buffer.append("readLDAPResult=\"");
       r.toString(buffer);
       buffer.append('"');

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,7 +33,6 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -202,42 +201,6 @@ public final class PreReadResponseControl
          throws LDAPException
   {
     return new PreReadResponseControl(oid, isCritical, value);
-  }
-
-
-
-  /**
-   * Extracts a pre-read response control from the provided result.
-   *
-   * @param  result  The result from which to retrieve the pre-read response
-   *                 control.
-   *
-   * @return  The pre-read response control contained in the provided result, or
-   *          {@code null} if the result did not contain a pre-read response
-   *          control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the pre-read response control contained in
-   *                         the provided result.
-   */
-  public static PreReadResponseControl get(final LDAPResult result)
-         throws LDAPException
-  {
-    final Control c = result.getResponseControl(PRE_READ_RESPONSE_OID);
-    if (c == null)
-    {
-      return null;
-    }
-
-    if (c instanceof PreReadResponseControl)
-    {
-      return (PreReadResponseControl) c;
-    }
-    else
-    {
-      return new PreReadResponseControl(c.getOID(), c.isCritical(),
-           c.getValue());
-    }
   }
 
 

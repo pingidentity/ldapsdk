@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -31,7 +31,6 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -212,42 +211,6 @@ public final class ServerSideSortResponseControl
 
 
   /**
-   * Extracts a server-side sort response control from the provided result.
-   *
-   * @param  result  The result from which to retrieve the server-side sort
-   *                 response control.
-   *
-   * @return  The server-side sort response control contained in the provided
-   *          result, or {@code null} if the result did not contain a
-   *          server-side sort response control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the server-side sort response control
-   *                         contained in the provided result.
-   */
-  public static ServerSideSortResponseControl get(final SearchResult result)
-         throws LDAPException
-  {
-    final Control c = result.getResponseControl(SERVER_SIDE_SORT_RESPONSE_OID);
-    if (c == null)
-    {
-      return null;
-    }
-
-    if (c instanceof ServerSideSortResponseControl)
-    {
-      return (ServerSideSortResponseControl) c;
-    }
-    else
-    {
-      return new ServerSideSortResponseControl(c.getOID(), c.isCritical(),
-           c.getValue());
-    }
-  }
-
-
-
-  /**
    * Encodes the provided information into an octet string that can be used as
    * the value for this control.
    *
@@ -332,9 +295,8 @@ public final class ServerSideSortResponseControl
 
     if (attributeName != null)
     {
-      buffer.append(", attributeName='");
+      buffer.append(", attributeName=");
       buffer.append(attributeName);
-      buffer.append('\'');
     }
 
     buffer.append(')');

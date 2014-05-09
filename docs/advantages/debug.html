@@ -130,19 +130,5 @@ ${TARGET="offline"}                    <br>
               <p>
                 Each of these types of debugging can be enabled or disabled individually, and
                 debugging can be configured either programmatically or using system properties.
-                Debug messages are handled using the Java logging framework.  See the class
-                documentation for the <tt>com.unboundid.util.Debug</tt> class for more
-                information.
-              </p>
-
-              <p>
-                In addition to the code-based debugging, the LDAP SDK comes with the
-                <tt>ldap-debugger</tt> example tool that can be used to help better understand
-                what directory-enabled applications are actually doing when they communicate with
-                an LDAP directory server.  This tool may be used to create a simple LDAP proxy
-                server that can sit between the client and the target directory server, and it
-                will intercept and decode any communication passing between it.  This tool can
-                be used for any LDAP communication in which the client can be configured to use
-                an alternate address and/or port for the directory server, regardless of the type
-                of server or the API used to create the client application.
+                Debug messages are handled using the Java logging framework.
               </p>

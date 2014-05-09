@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,7 +22,6 @@ package com.unboundid.ldap.sdk;
 
 
 
-import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -75,22 +74,19 @@ import static com.unboundid.util.Validator.*;
  * operation.  In this case, it will rename "ou=People,dc=example,dc=com" to
  * "ou=Users,dc=example,dc=com".  It will not move the entry below a new parent.
  * <PRE>
- * ModifyDNRequest modifyDNRequest =
- *      new ModifyDNRequest("ou=People,dc=example,dc=com", "ou=Users", true);
- * LDAPResult modifyDNResult;
+ *   ModifyDNRequest modifyDNRequest =
+ *        new ModifyDNRequest("ou=People,dc=example,dc=com", "ou=Users", true);
  *
- * try
- * {
- *   modifyDNResult = connection.modifyDN(modifyDNRequest);
- *   // If we get here, the delete was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // The modify DN operation failed.
- *   modifyDNResult = le.toLDAPResult();
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   try
+ *   {
+ *     LDAPResult modifyDNResult = connection.modifyDN(modifyDNRequest);
+ *
+ *     System.out.println("The entry was renamed successfully.");
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     System.err.println("The modify DN operation failed.");
+ *   }
  * </PRE>
  */
 @Mutable()
@@ -561,7 +557,7 @@ public final class ModifyDNRequest
    *
    * @return  The ASN.1 element with the encoded modify DN request protocol op.
    */
-  public ASN1Element encodeProtocolOp()
+  ASN1Element encodeProtocolOp()
   {
     final ASN1Element[] protocolOpElements;
     if (newSuperiorDN == null)
@@ -612,8 +608,7 @@ public final class ModifyDNRequest
   {
     if (connection.synchronousMode())
     {
-      return processSync(connection, depth,
-           connection.getConnectionOptions().autoReconnect());
+      return processSync(connection, depth);
     }
 
     final long requestTime = System.nanoTime();
@@ -642,7 +637,7 @@ public final class ModifyDNRequest
              ERR_MODDN_INTERRUPTED.get(connection.getHostPort()), ie);
       }
 
-      return handleResponse(connection, response, requestTime, depth, false);
+      return handleResponse(connection, response, requestTime, depth);
     }
     finally
     {
@@ -663,15 +658,14 @@ public final class ModifyDNRequest
    *                         {@code null} only if the result is to be processed
    *                         by this class.
    *
-   * @return  The async request ID created for the operation, or {@code null} if
-   *          the provided {@code resultListener} is {@code null} and the
-   *          operation will not actually be processed asynchronously.
+   * @return  The LDAP message ID for the modify DN request that was sent to the
+   *          server.
    *
    * @throws  LDAPException  If a problem occurs while sending the request.
    */
-  AsyncRequestID processAsync(final LDAPConnection connection,
-                              final AsyncResultListener resultListener)
-                 throws LDAPException
+  int processAsync(final LDAPConnection connection,
+                   final AsyncResultListener resultListener)
+      throws LDAPException
   {
     // Create the LDAP message.
     messageID = connection.nextMessageID();
@@ -681,29 +675,16 @@ public final class ModifyDNRequest
     // If the provided async result listener is {@code null}, then we'll use
     // this class as the message acceptor.  Otherwise, create an async helper
     // and use it as the message acceptor.
-    final AsyncRequestID asyncRequestID;
     if (resultListener == null)
     {
-      asyncRequestID = null;
       connection.registerResponseAcceptor(messageID, this);
     }
     else
     {
       final AsyncHelper helper = new AsyncHelper(connection,
-           OperationType.MODIFY_DN, messageID, resultListener,
+           LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_RESPONSE, resultListener,
            getIntermediateResponseListener());
       connection.registerResponseAcceptor(messageID, helper);
-      asyncRequestID = helper.getAsyncRequestID();
-
-      final long timeout = getResponseTimeoutMillis(connection);
-      if (timeout > 0L)
-      {
-        final Timer timer = connection.getTimer();
-        final AsyncTimeoutTimerTask timerTask =
-             new AsyncTimeoutTimerTask(helper);
-        timer.schedule(timerTask, timeout);
-        asyncRequestID.setTimerTask(timerTask);
-      }
     }
 
 
@@ -713,7 +694,7 @@ public final class ModifyDNRequest
       debugLDAPRequest(this);
       connection.getConnectionStatistics().incrementNumModifyDNRequests();
       connection.sendMessage(message);
-      return asyncRequestID;
+      return messageID;
     }
     catch (LDAPException le)
     {
@@ -735,10 +716,6 @@ public final class ModifyDNRequest
    * @param  depth       The current referral depth for this request.  It should
    *                     always be one for the initial request, and should only
    *                     be incremented when following referrals.
-   * @param  allowRetry  Indicates whether the request may be re-tried on a
-   *                     re-established connection if the initial attempt fails
-   *                     in a way that indicates the connection is no longer
-   *                     valid and autoReconnect is true.
    *
    * @return  An LDAP result object that provides information about the result
    *          of the modify DN processing.
@@ -747,8 +724,7 @@ public final class ModifyDNRequest
    *                         reading the response.
    */
   private LDAPResult processSync(final LDAPConnection connection,
-                                 final int depth,
-                                 final boolean allowRetry)
+                                 final int depth)
           throws LDAPException
   {
     // Create the LDAP message.
@@ -760,7 +736,7 @@ public final class ModifyDNRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      connection.getConnectionInternals().getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
     catch (Exception e)
@@ -773,73 +749,10 @@ public final class ModifyDNRequest
     final long requestTime = System.nanoTime();
     debugLDAPRequest(this);
     connection.getConnectionStatistics().incrementNumModifyDNRequests();
-    try
-    {
-      connection.sendMessage(message);
-    }
-    catch (final LDAPException le)
-    {
-      debugException(le);
+    connection.sendMessage(message);
 
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             le.getResultCode());
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
-      throw le;
-    }
-
-    while (true)
-    {
-      final LDAPResponse response;
-      try
-      {
-        response = connection.readResponse(messageID);
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-
-        if ((le.getResultCode() == ResultCode.TIMEOUT) &&
-            connection.getConnectionOptions().abandonOnTimeout())
-        {
-          connection.abandon(messageID);
-        }
-
-        if (allowRetry)
-        {
-          final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-               le.getResultCode());
-          if (retryResult != null)
-          {
-            return retryResult;
-          }
-        }
-
-        throw le;
-      }
-
-      if (response instanceof IntermediateResponse)
-      {
-        final IntermediateResponseListener listener =
-             getIntermediateResponseListener();
-        if (listener != null)
-        {
-          listener.intermediateResponseReturned(
-               (IntermediateResponse) response);
-        }
-      }
-      else
-      {
-        return handleResponse(connection, response, requestTime, depth,
-             allowRetry);
-      }
-    }
+    final LDAPResponse response = connection.readResponse(messageID);
+    return handleResponse(connection, response, requestTime, depth);
   }
 
 
@@ -853,10 +766,6 @@ public final class ModifyDNRequest
    * @param  depth        The current referral depth for this request.  It
    *                      should always be one for the initial request, and
    *                      should only be incremented when following referrals.
-   * @param  allowRetry   Indicates whether the request may be re-tried on a
-   *                      re-established connection if the initial attempt fails
-   *                      in a way that indicates the connection is no longer
-   *                      valid and autoReconnect is true.
    *
    * @return  The modify DN result.
    *
@@ -864,20 +773,14 @@ public final class ModifyDNRequest
    */
   private LDAPResult handleResponse(final LDAPConnection connection,
                                     final LDAPResponse response,
-                                    final long requestTime, final int depth,
-                                    final boolean allowRetry)
+                                    final long requestTime, final int depth)
           throws LDAPException
   {
     if (response == null)
     {
       final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
-      if (connection.getConnectionOptions().abandonOnTimeout())
-      {
-        connection.abandon(messageID);
-      }
-
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_MODIFY_DN_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
+           ERR_MODIFY_DN_CLIENT_TIMEOUT.get(waitTime,
                 connection.getHostPort()));
     }
 
@@ -886,16 +789,6 @@ public final class ModifyDNRequest
     if (response instanceof ConnectionClosedResponse)
     {
       // The connection was closed while waiting for the response.
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             ResultCode.SERVER_DOWN);
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
       final String message = ccr.getMessage();
       if (message == null)
@@ -928,58 +821,8 @@ public final class ModifyDNRequest
     }
     else
     {
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             result.getResultCode());
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
       return result;
     }
-  }
-
-
-
-  /**
-   * Attempts to re-establish the connection and retry processing this request
-   * on it.
-   *
-   * @param  connection  The connection to be re-established.
-   * @param  depth       The current referral depth for this request.  It should
-   *                     always be one for the initial request, and should only
-   *                     be incremented when following referrals.
-   * @param  resultCode  The result code for the previous operation attempt.
-   *
-   * @return  The result from re-trying the add, or {@code null} if it could not
-   *          be re-tried.
-   */
-  private LDAPResult reconnectAndRetry(final LDAPConnection connection,
-                                       final int depth,
-                                       final ResultCode resultCode)
-  {
-    try
-    {
-      // We will only want to retry for certain result codes that indicate a
-      // connection problem.
-      switch (resultCode.intValue())
-      {
-        case ResultCode.SERVER_DOWN_INT_VALUE:
-        case ResultCode.DECODING_ERROR_INT_VALUE:
-        case ResultCode.CONNECT_ERROR_INT_VALUE:
-          connection.reconnect();
-          return processSync(connection, depth, false);
-      }
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-    return null;
   }
 
 
@@ -1032,8 +875,8 @@ public final class ModifyDNRequest
           modifyDNRequest = this;
         }
 
-        final LDAPConnection referralConn = connection.getReferralConnector().
-             getReferralConnection(referralURL, connection);
+        final LDAPConnection referralConn =
+             connection.getReferralConnection(referralURL, connection);
         try
         {
           return modifyDNRequest.process(referralConn, depth+1);
@@ -1085,17 +928,6 @@ public final class ModifyDNRequest
   public int getLastMessageID()
   {
     return messageID;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public OperationType getOperationType()
-  {
-    return OperationType.MODIFY_DN;
   }
 
 

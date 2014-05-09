@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -37,13 +37,11 @@ import java.util.TreeSet;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
-import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassType;
@@ -205,19 +203,6 @@ public final class GenerateSourceFromSchema
   public String getToolDescription()
   {
     return INFO_GEN_SOURCE_TOOL_DESCRIPTION.get();
-  }
-
-
-
-  /**
-   * Retrieves the version string for this tool.
-   *
-   * @return  The version string for this tool.
-   */
-  @Override()
-  public String getToolVersion()
-  {
-    return Version.NUMERIC_VERSION_STRING;
   }
 
 
@@ -401,30 +386,6 @@ public final class GenerateSourceFromSchema
     }
 
 
-    // Determine the appropriate set of superior object classes.
-    final TreeMap<String,ObjectClassDefinition> superiorOCs =
-         new TreeMap<String,ObjectClassDefinition>();
-    for (final ObjectClassDefinition s :
-         structuralOC.getSuperiorClasses(schema, true))
-    {
-      superiorOCs.put(toLowerCase(s.getNameOrOID()), s);
-    }
-
-    for (final ObjectClassDefinition d : auxiliaryOCs.values())
-    {
-      for (final ObjectClassDefinition s : d.getSuperiorClasses(schema, true))
-      {
-        superiorOCs.put(toLowerCase(s.getNameOrOID()), s);
-      }
-    }
-
-    superiorOCs.remove(toLowerCase(structuralClassName));
-    for (final String s : auxiliaryOCs.keySet())
-    {
-      superiorOCs.remove(s);
-    }
-
-
     // Retrieve and process the operational attributes.
     final TreeMap<String,AttributeTypeDefinition> operationalAttrs =
          new TreeMap<String,AttributeTypeDefinition>();
@@ -585,7 +546,6 @@ public final class GenerateSourceFromSchema
     }
 
     writer.println("import " + Entry.class.getName() + ';');
-    writer.println("import " + Filter.class.getName() + ';');
 
     if (needDN)
     {
@@ -594,13 +554,10 @@ public final class GenerateSourceFromSchema
     }
 
     writer.println("import " + ReadOnlyEntry.class.getName() + ';');
-    writer.println("import " + DefaultObjectEncoder.class.getName() + ';');
-    writer.println("import " + FieldInfo.class.getName() + ';');
     writer.println("import " + FilterUsage.class.getName() + ';');
     writer.println("import " + LDAPEntryField.class.getName() + ';');
     writer.println("import " + LDAPField.class.getName() + ';');
     writer.println("import " + LDAPObject.class.getName() + ';');
-    writer.println("import " + LDAPObjectHandler.class.getName() + ';');
     writer.println("import " + LDAPPersister.class.getName() + ';');
     writer.println("import " + LDAPPersistException.class.getName() + ';');
 
@@ -608,8 +565,6 @@ public final class GenerateSourceFromSchema
     {
       writer.println("import " + PersistedObjects.class.getName() + ';');
     }
-
-    writer.println("import " + PersistFilterType.class.getName() + ';');
 
     if (needDN)
     {
@@ -648,39 +603,6 @@ public final class GenerateSourceFromSchema
         final Iterator<ObjectClassDefinition> iterator =
              auxiliaryOCs.values().iterator();
         writer.println("            auxiliaryClass={ \"" +
-             iterator.next().getNameOrOID() + "\",");
-        while (iterator.hasNext())
-        {
-          final String ocName = iterator.next().getNameOrOID();
-          if (iterator.hasNext())
-          {
-            writer.println("                             \"" + ocName +
-                 "\",");
-          }
-          else
-          {
-            writer.println("                             \"" + ocName +
-                 "\" },");
-          }
-        }
-        break;
-    }
-
-    switch (superiorOCs.size())
-    {
-      case 0:
-        // No action required.
-        break;
-
-      case 1:
-        writer.println("            superiorClass=\"" +
-             superiorOCs.values().iterator().next().getNameOrOID() + "\",");
-        break;
-
-      default:
-        final Iterator<ObjectClassDefinition> iterator =
-             superiorOCs.values().iterator();
-        writer.println("            superiorClass={ \"" +
              iterator.next().getNameOrOID() + "\",");
         while (iterator.hasNext())
         {
@@ -858,10 +780,8 @@ public final class GenerateSourceFromSchema
          "initializing this");
     writer.println("   * object from an LDAP entry.");
     writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If there is a " +
-         "problem with the object after");
-    writer.println("   *                                it has been decoded " +
-         "from an LDAP entry.");
+    writer.println("   * @throws  LDAPPersistException  If the generated " +
+         "entry should not be used.");
     writer.println("   */");
     writer.println("  private void doPostDecode()");
     writer.println("          throws LDAPPersistException");
@@ -883,8 +803,10 @@ public final class GenerateSourceFromSchema
          "It may be altered if");
     writer.println("   *                desired.");
     writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If the generated " +
-         "entry should not be used.");
+    writer.println("   * @throws  LDAPPersistException  If there is a " +
+         "problem with the object after");
+    writer.println("   *                                it has been decoded " +
+         "from an LDAP entry.");
     writer.println("   */");
     writer.println("  private void doPostEncode(final Entry entry)");
     writer.println("          throws LDAPPersistException");
@@ -946,14 +868,13 @@ public final class GenerateSourceFromSchema
     writer.println("  }");
 
 
-    // Add getter, setter, and filter generation methods for all of the fields
-    // associated with LDAP attributes.  First the fields for the RDN
-    // attributes, then for the rest of the required attributes, and then for
-    // the optional attributes.
+    // Add getter and setter methods for all of the fields associated with LDAP
+    // attributes.  First the fields for the RDN attributes, then for the rest
+    // of the required attributes, and then for the optional attributes.
     for (final String lowerName : rdnAttrs)
     {
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
-      writeFieldMethods(writer, d, types.get(lowerName), true);
+      writeGetterAndSetter(writer, d, types.get(lowerName), true);
     }
 
     for (final String lowerName : requiredAttrs.keySet())
@@ -964,19 +885,19 @@ public final class GenerateSourceFromSchema
       }
 
       final AttributeTypeDefinition d = requiredAttrs.get(lowerName);
-      writeFieldMethods(writer, d, types.get(lowerName), true);
+      writeGetterAndSetter(writer, d, types.get(lowerName), true);
     }
 
     for (final String lowerName : optionalAttrs.keySet())
     {
       final AttributeTypeDefinition d = optionalAttrs.get(lowerName);
-      writeFieldMethods(writer, d, types.get(lowerName), true);
+      writeGetterAndSetter(writer, d, types.get(lowerName), true);
     }
 
     for (final String lowerName : operationalAttrs.keySet())
     {
       final AttributeTypeDefinition d = operationalAttrs.get(lowerName);
-      writeFieldMethods(writer, d, types.get(lowerName), false);
+      writeGetterAndSetter(writer, d, types.get(lowerName), false);
     }
 
     writeToString(writer, className, requiredAttrs.values(),
@@ -1276,17 +1197,16 @@ public final class GenerateSourceFromSchema
 
 
   /**
-   * Writes getter, setter, and filter creation methods for the specified
-   * attribute.
+   * Writes getter and setter methods for the provided attribute.
    *
    * @param  writer     The writer to use to write the methods.
    * @param  d          The attribute type definition to be written.
    * @param  type       The name of the Java type to use for the attribute.
    * @param  addSetter  Indicates whether to write a setter method.
    */
-  static void writeFieldMethods(final PrintWriter writer,
-                                final AttributeTypeDefinition d,
-                                final String type, final boolean addSetter)
+  static void writeGetterAndSetter(final PrintWriter writer,
+                                   final AttributeTypeDefinition d,
+                                   final String type, final boolean addSetter)
   {
     writer.println();
     writer.println();
@@ -1675,120 +1595,6 @@ public final class GenerateSourceFromSchema
         }
       }
     }
-
-
-    writer.println();
-    writer.println();
-    writer.println();
-
-    writer.println("  /**");
-    writer.println("   * Generates a filter that may be used to search for " +
-         "objects of this type");
-    writer.println("   * using the " + attrName + " attribute.");
-    writer.println("   * The resulting filter may be combined with other " +
-         "filter elements to create a");
-    writer.println("   * more complex filter.");
-    writer.println("   *");
-    writer.println("   * @param  filterType  The type of filter to generate.");
-    writer.println("   * @param  value       The value to use to use for the " +
-         "filter.  It may be");
-    writer.println("   *                     {@code null} only for a filter " +
-         "type of");
-    writer.println("   *                     {@code PRESENCE}.");
-    writer.println("   *");
-    writer.println("   * @return  The generated search filter.");
-    writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If a problem is " +
-         "encountered while attempting");
-    writer.println("   *                                to generate the " +
-         "filter.");
-    writer.println("   */");
-    writer.println("  public static Filter generate" + capFieldName +
-         "Filter(");
-    writer.println("                            final PersistFilterType " +
-         "filterType,");
-    writer.println("                            final " + type + " value)");
-    writer.println("         throws LDAPPersistException");
-    writer.println("  {");
-    writer.println("    final byte[] valueBytes;");
-    writer.println("    if (filterType == PersistFilterType.PRESENCE)");
-    writer.println("    {");
-    writer.println("      valueBytes = null;");
-    writer.println("    }");
-    writer.println("    else");
-    writer.println("    {");
-    writer.println("      if (value == null)");
-    writer.println("      {");
-    writer.println("        throw new LDAPPersistException(\"Unable to " +
-         "generate a filter of type \" +");
-    writer.println("             filterType.name() + \" with a null value " +
-         "for attribute \" +");
-    writer.println("             \"" + attrName + "\");");
-    writer.println("      }");
-    writer.println();
-    writer.println("      final LDAPObjectHandler<?> objectHandler =");
-    writer.println("           getPersister().getObjectHandler();");
-    writer.println("      final FieldInfo fieldInfo = " +
-         "objectHandler.getFields().get(");
-    writer.println("           \"" + toLowerCase(attrName) + "\");");
-    writer.println();
-    writer.println("      final DefaultObjectEncoder objectEncoder = new " +
-         "DefaultObjectEncoder();");
-    writer.println("      valueBytes = " +
-         "objectEncoder.encodeFieldValue(fieldInfo.getField(),");
-
-    if (d.isSingleValued())
-    {
-      writer.println("           value,");
-    }
-    else
-    {
-      writer.println("           new " + type + "[] { value },");
-    }
-
-    writer.println("           \"" + attrName + "\").getValueByteArray();");
-    writer.println("    }");
-    writer.println();
-    writer.println("    switch (filterType)");
-    writer.println("    {");
-    writer.println("      case PRESENCE:");
-    writer.println("        return Filter.createPresenceFilter(");
-    writer.println("             \"" + attrName + "\");");
-    writer.println("      case EQUALITY:");
-    writer.println("        return Filter.createEqualityFilter(");
-    writer.println("             \"" + attrName + "\",");
-    writer.println("             valueBytes);");
-    writer.println("      case STARTS_WITH:");
-    writer.println("        return Filter.createSubstringFilter(");
-    writer.println("             \"" + attrName + "\",");
-    writer.println("             valueBytes, null, null);");
-    writer.println("      case ENDS_WITH:");
-    writer.println("        return Filter.createSubstringFilter(");
-    writer.println("             \"" + attrName + "\",");
-    writer.println("             null, null, valueBytes);");
-    writer.println("      case CONTAINS:");
-    writer.println("        return Filter.createSubstringFilter(");
-    writer.println("             \"" + attrName + "\",");
-    writer.println("             null, new byte[][] { valueBytes }, null);");
-    writer.println("      case GREATER_OR_EQUAL:");
-    writer.println("        return Filter.createGreaterOrEqualFilter(");
-    writer.println("             \"" + attrName + "\",");
-    writer.println("             valueBytes);");
-    writer.println("      case LESS_OR_EQUAL:");
-    writer.println("        return Filter.createLessOrEqualFilter(");
-    writer.println("             \"" + attrName + "\",");
-    writer.println("             valueBytes);");
-    writer.println("      case APPROXIMATELY_EQUAL_TO:");
-    writer.println("        return Filter.createApproximateMatchFilter(");
-    writer.println("             \"" + attrName + "\",");
-    writer.println("             valueBytes);");
-    writer.println("      default:");
-    writer.println("        // This should never happen.");
-    writer.println("        throw new LDAPPersistException(\"Unrecognized " +
-         "filter type \" +");
-    writer.println("             filterType.name());");
-    writer.println("    }");
-    writer.println("  }");
   }
 
 
@@ -1835,7 +1641,7 @@ public final class GenerateSourceFromSchema
     writer.println("  /**");
     writer.println("   * Appends a string representation of this");
     writer.println("   * {@code " + className + "} object");
-    writer.println("   * to the provided buffer.");
+    writer.println("     to the provided buffer.");
     writer.println("   *");
     writer.println("   * @param  buffer  The buffer to which the string " +
          "representation should be");

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -252,7 +252,7 @@ public abstract class SASLBindRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      connection.getConnectionInternals().getSocket().setSoTimeout(
            (int) timeoutMillis);
     }
     catch (Exception e)
@@ -266,24 +266,8 @@ public abstract class SASLBindRequest
     connection.getConnectionStatistics().incrementNumBindRequests();
     connection.sendMessage(requestMessage);
 
-    while (true)
-    {
-      final LDAPResponse response = connection.readResponse(messageID);
-      if (response instanceof IntermediateResponse)
-      {
-        final IntermediateResponseListener listener =
-             getIntermediateResponseListener();
-        if (listener != null)
-        {
-          listener.intermediateResponseReturned(
-               (IntermediateResponse) response);
-        }
-      }
-      else
-      {
-        return handleResponse(connection, response, requestTime);
-      }
-    }
+    final LDAPResponse response = connection.readResponse(msgID);
+    return handleResponse(connection, response, requestTime);
   }
 
 
@@ -308,8 +292,7 @@ public abstract class SASLBindRequest
     {
       final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_SASL_BIND_CLIENT_TIMEOUT.get(waitTime, getSASLMechanismName(),
-                messageID, connection.getHostPort()));
+           ERR_BIND_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     if (response instanceof ConnectionClosedResponse)

@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,8 +23,6 @@ package com.unboundid.ldap.protocol;
 
 
 import com.unboundid.asn1.ASN1Buffer;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1Null;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -109,46 +107,6 @@ public final class UnbindRequestProtocolOp
   public void writeTo(final ASN1Buffer buffer)
   {
     buffer.addNull(LDAPMessage.PROTOCOL_OP_TYPE_UNBIND_REQUEST);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  public ASN1Element encodeProtocolOp()
-  {
-    return new ASN1Null(LDAPMessage.PROTOCOL_OP_TYPE_UNBIND_REQUEST);
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as an unbind request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded unbind request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         an unbind request protocol op.
-   */
-  public static UnbindRequestProtocolOp decodeProtocolOp(
-                                             final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      ASN1Null.decodeAsNull(element);
-      return new UnbindRequestProtocolOp();
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_UNBIND_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
   }
 
 

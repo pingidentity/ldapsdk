@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -112,19 +112,6 @@ public final class BooleanArgument
 
 
   /**
-   * Creates a new Boolean argument that is a "clean" copy of the provided
-   * source argument.
-   *
-   * @param  source  The source argument to use for this argument.
-   */
-  private BooleanArgument(final BooleanArgument source)
-  {
-    super(source);
-  }
-
-
-
-  /**
    * {@inheritDoc}
    */
   @Override()
@@ -166,17 +153,6 @@ public final class BooleanArgument
   public String getValueConstraints()
   {
     return INFO_BOOLEAN_CONSTRAINTS.get();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public BooleanArgument getCleanCopy()
-  {
-    return new BooleanArgument(this);
   }
 
 

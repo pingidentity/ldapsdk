@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -135,10 +134,6 @@ public final class DN
   // The set of RDN components that make up this DN.
   private final RDN[] rdns;
 
-  // The schema to use to generate the normalized string representation of this
-  // DN, if any.
-  private final Schema schema;
-
   // The string representation of this DN.
   private final String dnString;
 
@@ -161,11 +156,9 @@ public final class DN
     {
       dnString         = "";
       normalizedString = "";
-      schema           = null;
     }
     else
     {
-      Schema s = null;
       final StringBuilder buffer = new StringBuilder();
       for (final RDN rdn : rdns)
       {
@@ -174,15 +167,9 @@ public final class DN
           buffer.append(',');
         }
         rdn.toString(buffer, false);
-
-        if (s == null)
-        {
-          s = rdn.getSchema();
-        }
       }
 
       dnString = buffer.toString();
-      schema   = s;
     }
   }
 
@@ -202,13 +189,11 @@ public final class DN
       this.rdns        = NO_RDNS;
       dnString         = "";
       normalizedString = "";
-      schema           = null;
     }
     else
     {
       this.rdns = rdns.toArray(new RDN[rdns.size()]);
 
-      Schema s = null;
       final StringBuilder buffer = new StringBuilder();
       for (final RDN rdn : this.rdns)
       {
@@ -217,15 +202,9 @@ public final class DN
           buffer.append(',');
         }
         rdn.toString(buffer, false);
-
-        if (s == null)
-        {
-          s = rdn.getSchema();
-        }
       }
 
       dnString = buffer.toString();
-      schema   = s;
     }
   }
 
@@ -246,7 +225,6 @@ public final class DN
     rdns[0] = rdn;
     System.arraycopy(parentDN.rdns, 0, rdns, 1, parentDN.rdns.length);
 
-    Schema s = null;
     final StringBuilder buffer = new StringBuilder();
     for (final RDN r : rdns)
     {
@@ -255,15 +233,9 @@ public final class DN
         buffer.append(',');
       }
       r.toString(buffer, false);
-
-      if (s == null)
-      {
-        s = r.getSchema();
-      }
     }
 
     dnString = buffer.toString();
-    schema   = s;
   }
 
 
@@ -280,30 +252,9 @@ public final class DN
   public DN(final String dnString)
          throws LDAPException
   {
-    this(dnString, null);
-  }
-
-
-
-  /**
-   * Creates a new DN from the provided string representation.
-   *
-   * @param  dnString  The string representation to use to create this DN.  It
-   *                   must not be {@code null}.
-   * @param  schema    The schema to use to generate the normalized string
-   *                   representation of this DN.  It may be {@code null} if no
-   *                   schema is available.
-   *
-   * @throws  LDAPException  If the provided string cannot be parsed as a valid
-   *                         DN.
-   */
-  public DN(final String dnString, final Schema schema)
-         throws LDAPException
-  {
     ensureNotNull(dnString);
 
     this.dnString = dnString;
-    this.schema   = schema;
 
     final ArrayList<RDN> rdnList = new ArrayList<RDN>(5);
 
@@ -430,7 +381,7 @@ rdnLoop:
       if (pos >= length)
       {
         // It's a single-valued RDN, and we're at the end of the DN.
-        rdnList.add(new RDN(attrName, value, schema,
+        rdnList.add(new RDN(attrName, value,
              getTrimmedRDN(dnString, rdnStartPos,rdnEndPos)));
         expectMore = false;
         break;
@@ -448,7 +399,7 @@ rdnLoop:
         case ';':
           // We hit the end of the single-valued RDN, but there's still more of
           // the DN to be read.
-          rdnList.add(new RDN(attrName, value, schema,
+          rdnList.add(new RDN(attrName, value,
                getTrimmedRDN(dnString, rdnStartPos,rdnEndPos)));
           pos++;
           expectMore = true;
@@ -585,7 +536,7 @@ rdnLoop:
           final String[] names = nameList.toArray(new String[nameList.size()]);
           final ASN1OctetString[] values =
                valueList.toArray(new ASN1OctetString[valueList.size()]);
-          rdnList.add(new RDN(names, values, schema,
+          rdnList.add(new RDN(names, values,
                getTrimmedRDN(dnString, rdnStartPos,rdnEndPos)));
           expectMore = false;
           break rdnLoop;
@@ -613,7 +564,7 @@ rdnLoop:
                  nameList.toArray(new String[nameList.size()]);
             final ASN1OctetString[] values =
                  valueList.toArray(new ASN1OctetString[valueList.size()]);
-            rdnList.add(new RDN(names, values, schema,
+            rdnList.add(new RDN(names, values,
                  getTrimmedRDN(dnString, rdnStartPos,rdnEndPos)));
             pos++;
             expectMore = true;
@@ -1463,30 +1414,7 @@ rdnLoop:
   public static String normalize(final String s)
          throws LDAPException
   {
-    return normalize(s, null);
-  }
-
-
-
-  /**
-   * Retrieves a normalized representation of the DN with the provided string
-   * representation.
-   *
-   * @param  s       The string representation of the DN to normalize.  It must
-   *                 not be {@code null}.
-   * @param  schema  The schema to use to generate the normalized string
-   *                 representation of the DN.  It may be {@code null} if no
-   *                 schema is available.
-   *
-   * @return  The normalized representation of the DN with the provided string
-   *          representation.
-   *
-   * @throws  LDAPException  If the provided string cannot be parsed as a DN.
-   */
-  public static String normalize(final String s, final Schema schema)
-         throws LDAPException
-  {
-    return new DN(s, schema).toNormalizedString();
+    return new DN(s).toNormalizedString();
   }
 
 
@@ -1608,35 +1536,6 @@ rdnLoop:
   public static int compare(final String s1, final String s2)
          throws LDAPException
   {
-    return compare(s1, s2, null);
-  }
-
-
-
-  /**
-   * Compares the DNs with the provided string representations to determine
-   * their relative order in a sorted list.
-   *
-   * @param  s1      The string representation for the first DN to be compared.
-   *                 It must not be {@code null}.
-   * @param  s2      The string representation for the second DN to be compared.
-   *                 It must not be {@code null}.
-   * @param  schema  The schema to use to generate the normalized string
-   *                 representations of the DNs.  It may be {@code null} if no
-   *                 schema is available.
-   *
-   * @return  A negative integer if the first DN should come before the second
-   *          DN in a sorted list, a positive integer if the first DN should
-   *          come after the second DN in a sorted list, or zero if the two DN
-   *          values can be considered equal.
-   *
-   * @throws  LDAPException  If either of the provided strings cannot be parsed
-   *                         as a DN.
-   */
-  public static int compare(final String s1, final String s2,
-                            final Schema schema)
-         throws LDAPException
-  {
-    return new DN(s1, schema).compareTo(new DN(s2, schema));
+    return new DN(s1).compareTo(new DN(s2));
   }
 }

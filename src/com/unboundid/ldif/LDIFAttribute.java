@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -91,10 +91,7 @@ class LDIFAttribute
   /**
    * Adds the provided value to this attribute, if it does not already exist.
    *
-   * @param  value                   The value to be added.
-   * @param  duplicateValueBehavior  The behavior that should be exhibited if
-   *                                 the LDIF reader encounters an entry with
-   *                                 duplicate values.
+   * @param  value  The value to be added.
    *
    * @return  {@code true} if the value was added to this attribute, or
    *          {@code false} if the value was already present.
@@ -102,8 +99,7 @@ class LDIFAttribute
    * @throws  LDAPException  If the provided value is invalid according to the
    *                         associated syntax.
    */
-  boolean addValue(final ASN1OctetString value,
-                   final DuplicateValueBehavior duplicateValueBehavior)
+  boolean addValue(final ASN1OctetString value)
           throws LDAPException
   {
     if (normalizedValues == null)
@@ -122,17 +118,7 @@ class LDIFAttribute
     }
     else
     {
-      // This means the attribute already had the value.  Even though this is
-      // illegal, we may allow it based on the configuration.
-      if (duplicateValueBehavior == DuplicateValueBehavior.RETAIN)
-      {
-        values.add(value);
-        return true;
-      }
-      else
-      {
-        return false;
-      }
+      return false;
     }
   }
 

@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -68,68 +68,21 @@ public final class PersistUtils
    */
   public static boolean isValidLDAPName(final String s, final StringBuilder r)
   {
-    return isValidLDAPName(s, false, r);
-  }
-
-
-
-  /**
-   * Indicates whether the provided string could be used as a valid attribute or
-   * object class name.  Numeric OIDs will also be considered acceptable.
-   *
-   * @param  s  The string for which to make the determination.
-   * @param  o  Indicates whether the name should be allowed to contain
-   *            attribute options (e.g., a semicolon with one or more valid
-   *            characters after it).
-   * @param  r  A buffer to which the unacceptable reason may be appended.  It
-   *            must not be {@code null}.
-   *
-   * @return  {@code true} if the provided string is acceptable for use as an
-   *          LDAP attribute or object class name, or {@code false} if not.
-   */
-  public static boolean isValidLDAPName(final String s, final boolean o,
-                                        final StringBuilder r)
-  {
-    int length;
+    final int length;
     if ((s == null) || ((length = s.length()) == 0))
     {
       r.append(ERR_LDAP_NAME_VALIDATOR_EMPTY.get());
       return false;
     }
 
-    final String baseName;
-    final int semicolonPos = s.indexOf(';');
-    if (semicolonPos > 0)
-    {
-      if (! o)
-      {
-        r.append(ERR_LDAP_NAME_VALIDATOR_INVALID_CHAR.get(s, ';',
-             semicolonPos));
-        return false;
-      }
-
-      baseName = s.substring(0, semicolonPos);
-      length = baseName.length();
-
-      final String optionsStr = s.substring(semicolonPos+1);
-      if (! isValidOptionSet(baseName, optionsStr, r))
-      {
-        return false;
-      }
-    }
-    else
-    {
-      baseName = s;
-    }
-
-    if (isNumericOID(baseName))
+    if (isNumericOID(s))
     {
       return true;
     }
 
     for (int i=0; i < length; i++)
     {
-      final char c = baseName.charAt(i);
+      final char c = s.charAt(i);
       if (((c >= 'a') && (c <= 'z')) ||
           ((c >= 'A') && (c <= 'Z')))
       {
@@ -149,73 +102,6 @@ public final class PersistUtils
         r.append(ERR_LDAP_NAME_VALIDATOR_INVALID_CHAR.get(s, c, i));
         return false;
       }
-    }
-
-    return true;
-  }
-
-
-
-  /**
-   * Indicates whether the provided string represents a valid set of attribute
-   * options.  It should not contain the initial semicolon.
-   *
-   * @param  b  The base name for the attribute, without the option string or
-   *            the semicolon used to delimit the option string from the base
-   *            name.
-   * @param  o  The option string to examine.  It must not be {@code null}, and
-   *            must not contain the initial semicolon.
-   * @param  r  A buffer to which the unacceptable reason may be appended.  It
-   *            must not be {@code null}.
-   *
-   * @return  {@code true} if the provided string represents a valid set of
-   *          options, or {@code false} if not.
-   */
-  private static boolean isValidOptionSet(final String b, final String o,
-                                          final StringBuilder r)
-  {
-    boolean lastWasSemicolon = true;
-
-    for (int i=0; i < o.length(); i++)
-    {
-      final char c = o.charAt(i);
-      if (c == ';')
-      {
-        if (lastWasSemicolon)
-        {
-          r.append(
-               ERR_LDAP_NAME_VALIDATOR_OPTION_WITH_CONSECUTIVE_SEMICOLONS.get(
-                    b + ';' + o));
-          return false;
-        }
-        else
-        {
-          lastWasSemicolon = true;
-        }
-      }
-      else
-      {
-        lastWasSemicolon = false;
-        if (((c >= 'a') && (c <= 'z')) ||
-            ((c >= 'A') && (c <= 'Z')) ||
-            ((c >= '0') && (c <= '9')) ||
-            (c == '-'))
-        {
-          // This will always be acceptable.
-        }
-        else
-        {
-          r.append(ERR_LDAP_NAME_VALIDATOR_INVALID_OPTION_CHAR.get(
-               (b + ';' + o), c, (b.length() + 1 + i)));
-          return false;
-        }
-      }
-    }
-
-    if (lastWasSemicolon)
-    {
-      r.append(ERR_LDAP_NAME_VALIDATOR_ENDS_WITH_SEMICOLON.get(b + ';' + o));
-      return false;
     }
 
     return true;

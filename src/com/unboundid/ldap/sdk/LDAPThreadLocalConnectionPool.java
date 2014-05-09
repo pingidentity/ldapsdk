@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,17 +22,10 @@ package com.unboundid.ldap.sdk;
 
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
-import com.unboundid.ldap.sdk.schema.Schema;
-import com.unboundid.util.ObjectPair;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -86,10 +79,6 @@ public final class LDAPThreadLocalConnectionPool
 
 
 
-  // The types of operations that should be retried if they fail in a manner
-  // that may be the result of a connection that is no longer valid.
-  private final AtomicReference<Set<OperationType>> retryOperationTypes;
-
   // Indicates whether this connection pool has been closed.
   private volatile boolean closed;
 
@@ -126,10 +115,6 @@ public final class LDAPThreadLocalConnectionPool
   // The minimum length of time in milliseconds that must pass between
   // disconnects of connections that have exceeded the maximum connection age.
   private volatile long minDisconnectInterval;
-
-  // The schema that should be shared for connections in this pool, along with
-  // its expiration time.
-  private volatile ObjectPair<Long,Schema> pooledSchema;
 
   // The post-connect processor for this connection pool, if any.
   private final PostConnectProcessor postConnectProcessor;
@@ -199,12 +184,10 @@ public final class LDAPThreadLocalConnectionPool
 
     this.postConnectProcessor = postConnectProcessor;
 
-    healthCheck               = new LDAPConnectionPoolHealthCheck();
-    healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
-    poolStatistics            = new LDAPConnectionPoolStatistics(this);
-    connectionPoolName        = null;
-    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
-         Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
+    healthCheck         = new LDAPConnectionPoolHealthCheck();
+    healthCheckInterval = DEFAULT_HEALTH_CHECK_INTERVAL;
+    poolStatistics      = new LDAPConnectionPoolStatistics(this);
+    connectionPoolName  = null;
 
     if (! connection.isConnected())
     {
@@ -229,35 +212,6 @@ public final class LDAPThreadLocalConnectionPool
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
-
-    final LDAPConnectionOptions opts = connection.getConnectionOptions();
-    if (opts.usePooledSchema())
-    {
-      try
-      {
-        final Schema schema = connection.getSchema();
-        if (schema != null)
-        {
-          connection.setCachedSchema(schema);
-
-          final long currentTime = System.currentTimeMillis();
-          final long timeout = opts.getPooledSchemaTimeoutMillis();
-          if ((timeout <= 0L) || (timeout+currentTime <= 0L))
-          {
-            pooledSchema = new ObjectPair<Long,Schema>(Long.MAX_VALUE, schema);
-          }
-          else
-          {
-            pooledSchema =
-                 new ObjectPair<Long,Schema>(timeout+currentTime, schema);
-          }
-        }
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-      }
-    }
   }
 
 
@@ -309,12 +263,10 @@ public final class LDAPThreadLocalConnectionPool
     this.bindRequest          = bindRequest;
     this.postConnectProcessor = postConnectProcessor;
 
-    healthCheck               = new LDAPConnectionPoolHealthCheck();
-    healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
-    poolStatistics            = new LDAPConnectionPoolStatistics(this);
-    connectionPoolName        = null;
-    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
-         Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
+    healthCheck         = new LDAPConnectionPoolHealthCheck();
+    healthCheckInterval = DEFAULT_HEALTH_CHECK_INTERVAL;
+    poolStatistics      = new LDAPConnectionPoolStatistics(this);
+    connectionPoolName  = null;
 
     connections = new ConcurrentHashMap<Thread,LDAPConnection>();
 
@@ -451,49 +403,6 @@ public final class LDAPThreadLocalConnectionPool
       }
     }
 
-    if (opts.usePooledSchema())
-    {
-      final long currentTime = System.currentTimeMillis();
-      if ((pooledSchema == null) || (currentTime > pooledSchema.getFirst()))
-      {
-        try
-        {
-          final Schema schema = c.getSchema();
-          if (schema != null)
-          {
-            c.setCachedSchema(schema);
-
-            final long timeout = opts.getPooledSchemaTimeoutMillis();
-            if ((timeout <= 0L) || (currentTime + timeout <= 0L))
-            {
-              pooledSchema =
-                   new ObjectPair<Long,Schema>(Long.MAX_VALUE, schema);
-            }
-            else
-            {
-              pooledSchema =
-                   new ObjectPair<Long,Schema>((currentTime+timeout), schema);
-            }
-          }
-        }
-        catch (final Exception e)
-        {
-          debugException(e);
-
-          // There was a problem retrieving the schema from the server, but if
-          // we have an earlier copy then we can assume it's still valid.
-          if (pooledSchema != null)
-          {
-            c.setCachedSchema(pooledSchema.getSecond());
-          }
-        }
-      }
-      else
-      {
-        c.setCachedSchema(pooledSchema.getSecond());
-      }
-    }
-
     c.setConnectionPoolName(connectionPoolName);
     poolStatistics.incrementNumSuccessfulConnectionAttempts();
     return c;
@@ -507,55 +416,18 @@ public final class LDAPThreadLocalConnectionPool
   @Override()
   public void close()
   {
-    close(true, 1);
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void close(final boolean unbind, final int numThreads)
-  {
     closed = true;
     healthCheckThread.stopRunning();
 
-    if (numThreads > 1)
+    final Iterator<Map.Entry<Thread,LDAPConnection>> iterator =
+         connections.entrySet().iterator();
+    while (iterator.hasNext())
     {
-      final ArrayList<LDAPConnection> connList =
-           new ArrayList<LDAPConnection>(connections.size());
-      final Iterator<LDAPConnection> iterator = connections.values().iterator();
-      while (iterator.hasNext())
-      {
-        connList.add(iterator.next());
-        iterator.remove();
-      }
+      final LDAPConnection conn = iterator.next().getValue();
+      iterator.remove();
 
-      final ParallelPoolCloser closer =
-           new ParallelPoolCloser(connList, unbind, numThreads);
-      closer.closeConnections();
-    }
-    else
-    {
-      final Iterator<Map.Entry<Thread,LDAPConnection>> iterator =
-           connections.entrySet().iterator();
-      while (iterator.hasNext())
-      {
-        final LDAPConnection conn = iterator.next().getValue();
-        iterator.remove();
-
-        poolStatistics.incrementNumConnectionsClosedUnneeded();
-        conn.setDisconnectInfo(DisconnectType.POOL_CLOSED, null, null);
-        if (unbind)
-        {
-          conn.terminate(null);
-        }
-        else
-        {
-          conn.setClosed();
-        }
-      }
+      conn.setDisconnectInfo(DisconnectType.POOL_CLOSED, null, null);
+      conn.terminate(null);
     }
   }
 
@@ -568,170 +440,6 @@ public final class LDAPThreadLocalConnectionPool
   public boolean isClosed()
   {
     return closed;
-  }
-
-
-
-  /**
-   * Processes a simple bind using a connection from this connection pool, and
-   * then reverts that authentication by re-binding as the same user used to
-   * authenticate new connections.  If new connections are unauthenticated, then
-   * the subsequent bind will be an anonymous simple bind.  This method attempts
-   * to ensure that processing the provided bind operation does not have a
-   * lasting impact the authentication state of the connection used to process
-   * it.
-   * <BR><BR>
-   * If the second bind attempt (the one used to restore the authentication
-   * identity) fails, the connection will be closed as defunct so that a new
-   * connection will be created to take its place.
-   *
-   * @param  bindDN    The bind DN for the simple bind request.
-   * @param  password  The password for the simple bind request.
-   * @param  controls  The optional set of controls for the simple bind request.
-   *
-   * @return  The result of processing the provided bind operation.
-   *
-   * @throws  LDAPException  If the server rejects the bind request, or if a
-   *                         problem occurs while sending the request or reading
-   *                         the response.
-   */
-  public BindResult bindAndRevertAuthentication(final String bindDN,
-                                                final String password,
-                                                final Control... controls)
-         throws LDAPException
-  {
-    return bindAndRevertAuthentication(
-         new SimpleBindRequest(bindDN, password, controls));
-  }
-
-
-
-  /**
-   * Processes the provided bind request using a connection from this connection
-   * pool, and then reverts that authentication by re-binding as the same user
-   * used to authenticate new connections.  If new connections are
-   * unauthenticated, then the subsequent bind will be an anonymous simple bind.
-   * This method attempts to ensure that processing the provided bind operation
-   * does not have a lasting impact the authentication state of the connection
-   * used to process it.
-   * <BR><BR>
-   * If the second bind attempt (the one used to restore the authentication
-   * identity) fails, the connection will be closed as defunct so that a new
-   * connection will be created to take its place.
-   *
-   * @param  bindRequest  The bind request to be processed.  It must not be
-   *                      {@code null}.
-   *
-   * @return  The result of processing the provided bind operation.
-   *
-   * @throws  LDAPException  If the server rejects the bind request, or if a
-   *                         problem occurs while sending the request or reading
-   *                         the response.
-   */
-  public BindResult bindAndRevertAuthentication(final BindRequest bindRequest)
-         throws LDAPException
-  {
-    LDAPConnection conn = getConnection();
-
-    try
-    {
-      final BindResult result = conn.bind(bindRequest);
-      releaseAndReAuthenticateConnection(conn);
-      return result;
-    }
-    catch (final Throwable t)
-    {
-      debugException(t);
-
-      if (t instanceof LDAPException)
-      {
-        final LDAPException le = (LDAPException) t;
-
-        boolean shouldThrow;
-        try
-        {
-          healthCheck.ensureConnectionValidAfterException(conn, le);
-
-          // The above call will throw an exception if the connection doesn't
-          // seem to be valid, so if we've gotten here then we should assume
-          // that it is valid and we will pass the exception onto the client
-          // without retrying the operation.
-          releaseAndReAuthenticateConnection(conn);
-          shouldThrow = true;
-        }
-        catch (final Exception e)
-        {
-          debugException(e);
-
-          // This implies that the connection is not valid.  If the pool is
-          // configured to re-try bind operations on a newly-established
-          // connection, then that will be done later in this method.
-          // Otherwise, release the connection as defunct and pass the bind
-          // exception onto the client.
-          if (! getOperationTypesToRetryDueToInvalidConnections().contains(
-                     OperationType.BIND))
-          {
-            releaseDefunctConnection(conn);
-            shouldThrow = true;
-          }
-          else
-          {
-            shouldThrow = false;
-          }
-        }
-
-        if (shouldThrow)
-        {
-          throw le;
-        }
-      }
-      else
-      {
-        releaseDefunctConnection(conn);
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
-      }
-    }
-
-
-    // If we've gotten here, then the bind operation should be re-tried on a
-    // newly-established connection.
-    conn = replaceDefunctConnection(conn);
-
-    try
-    {
-      final BindResult result = conn.bind(bindRequest);
-      releaseAndReAuthenticateConnection(conn);
-      return result;
-    }
-    catch (final Throwable t)
-    {
-      debugException(t);
-
-      if (t instanceof LDAPException)
-      {
-        final LDAPException le = (LDAPException) t;
-
-        try
-        {
-          healthCheck.ensureConnectionValidAfterException(conn, le);
-          releaseAndReAuthenticateConnection(conn);
-        }
-        catch (final Exception e)
-        {
-          debugException(e);
-          releaseDefunctConnection(conn);
-        }
-
-        throw le;
-      }
-      else
-      {
-        releaseDefunctConnection(conn);
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_POOL_OP_EXCEPTION.get(getExceptionMessage(t)), t);
-      }
-    }
   }
 
 
@@ -760,7 +468,7 @@ public final class LDAPThreadLocalConnectionPool
     }
 
     boolean created = false;
-    if ((conn == null) || (! conn.isConnected()))
+    if (conn == null)
     {
       conn = createConnection();
       connections.put(t, conn);
@@ -784,7 +492,7 @@ public final class LDAPThreadLocalConnectionPool
     {
       debugException(le);
 
-      conn.terminate(null);
+      conn.close(null);
       connections.remove(t);
 
       if (created)
@@ -871,48 +579,6 @@ public final class LDAPThreadLocalConnectionPool
 
 
   /**
-   * Performs a bind on the provided connection before releasing it back to the
-   * pool, so that it will be authenticated as the same user as
-   * newly-established connections.  If newly-established connections are
-   * unauthenticated, then this method will perform an anonymous simple bind to
-   * ensure that the resulting connection is unauthenticated.
-   *
-   * Releases the provided connection back to this pool.
-   *
-   * @param  connection  The connection to be released back to the pool after
-   *                     being re-authenticated.
-   */
-  public void releaseAndReAuthenticateConnection(
-       final LDAPConnection connection)
-  {
-    if (connection == null)
-    {
-      return;
-    }
-
-    try
-    {
-      if (bindRequest == null)
-      {
-        connection.bind("", "");
-      }
-      else
-      {
-        connection.bind(bindRequest);
-      }
-
-      releaseConnection(connection);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      releaseDefunctConnection(connection);
-    }
-  }
-
-
-
-  /**
    * {@inheritDoc}
    */
   @Override()
@@ -958,64 +624,6 @@ public final class LDAPThreadLocalConnectionPool
     catch (LDAPException le)
     {
       debugException(le);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public LDAPConnection replaceDefunctConnection(
-                             final LDAPConnection connection)
-         throws LDAPException
-  {
-    connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, null,
-                                 null);
-    connection.terminate(null);
-    connections.remove(Thread.currentThread(), connection);
-
-    if (closed)
-    {
-      throw new LDAPException(ResultCode.CONNECT_ERROR, ERR_POOL_CLOSED.get());
-    }
-
-    final LDAPConnection newConnection = createConnection();
-    connections.put(Thread.currentThread(), newConnection);
-    return newConnection;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public Set<OperationType> getOperationTypesToRetryDueToInvalidConnections()
-  {
-    return retryOperationTypes.get();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public void setRetryFailedOperationsDueToInvalidConnections(
-                   final Set<OperationType> operationTypes)
-  {
-    if ((operationTypes == null) || operationTypes.isEmpty())
-    {
-      retryOperationTypes.set(
-           Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
-    }
-    else
-    {
-      final EnumSet<OperationType> s = EnumSet.noneOf(OperationType.class);
-      s.addAll(operationTypes);
-      retryOperationTypes.set(Collections.unmodifiableSet(s));
     }
   }
 

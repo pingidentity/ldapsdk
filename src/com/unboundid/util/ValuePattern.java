@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -27,7 +27,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
@@ -71,12 +70,6 @@ import static com.unboundid.util.UtilityMessages.*;
  *       and its contents will be read into memory and values from the file will
  *       be selected in a random order and used in place of the bracketed
  *       URL.</LI>
- *   <LI>Back-references that will be replaced with the same value as the
- *       bracketed token in the specified position in the string.  For example,
- *       a component of "[ref:1]" will be replaced with the same value as used
- *       in the first bracketed component of the value pattern.  Back-references
- *       must only reference components that have been previously defined in the
- *       value pattern, and not those which appear after the reference.</LI>
  * </UL>
  * <BR>
  * It must be possible to represent all of the numeric values used in sequential
@@ -133,9 +126,6 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI><CODE>uid=user.[1-1000000],ou=org[1-10],dc=example,dc=com</CODE> -- A
  *       value pattern containing two numeric components interspersed between
  *       three static text components.</LI>
- *   <LI><CODE>uid=user.[1-1000000],ou=org[ref:1],dc=example,dc=com</CODE> -- A
- *       value pattern in which the organization number will be the same as the
- *       randomly-selected user number.</LI>
  * </UL>
  */
 @NotMutable()
@@ -150,18 +140,10 @@ public final class ValuePattern
 
 
 
-  // Indicates whether the provided value pattern includes one or more
-  // back-references.
-  private final boolean hasBackReference;
-
   // The string that was originally used to create this value pattern.
   private final String pattern;
 
-  // The thread-local array list that will be used to hold values for
-  // back-references.
-  private final ThreadLocal<ArrayList<String>> refLists;
-
-  // The thread-local string builder that will be used to build values.
+  // The string builder that will be used to build values.
   private final ThreadLocal<StringBuilder> buffers;
 
   // The value pattern components that will be used to generate values.
@@ -181,70 +163,15 @@ public final class ValuePattern
   public ValuePattern(final String s)
          throws ParseException
   {
-    this(s, null);
-  }
-
-
-
-  /**
-   * Creates a new value pattern from the provided string.
-   *
-   * @param  s  The string representation of the value pattern to create.  It
-   *            must not be {@code null}.
-   * @param  r  The seed to use for the random number generator.  It may be
-   *            {@code null} if no seed is required.
-   *
-   * @throws  ParseException  If the provided string cannot be parsed as a valid
-   *                          value pattern string.
-   */
-  public ValuePattern(final String s, final Long r)
-         throws ParseException
-  {
     Validator.ensureNotNull(s);
 
-    pattern  = s;
-    refLists = new ThreadLocal<ArrayList<String>>();
-    buffers  = new ThreadLocal<StringBuilder>();
+    pattern    = s;
+    buffers    = new ThreadLocal<StringBuilder>();
 
-    final AtomicBoolean hasRef = new AtomicBoolean(false);
-
-    final Random random;
-    if (r == null)
-    {
-      random = new Random();
-    }
-    else
-    {
-      random = new Random(r);
-    }
-
+    final Random r = new Random();
     final ArrayList<ValuePatternComponent> l =
          new ArrayList<ValuePatternComponent>(3);
-    parse(s, 0, l, random, hasRef);
-
-    hasBackReference = hasRef.get();
-    if (hasBackReference)
-    {
-      int availableReferences = 0;
-      for (final ValuePatternComponent c : l)
-      {
-        if (c instanceof BackReferenceValuePatternComponent)
-        {
-          final BackReferenceValuePatternComponent brvpc =
-               (BackReferenceValuePatternComponent) c;
-          if (brvpc.getIndex() > availableReferences)
-          {
-            throw new ParseException(
-                 ERR_REF_VALUE_PATTERN_INVALID_INDEX.get(brvpc.getIndex()), 0);
-          }
-        }
-
-        if (c.supportsBackReference())
-        {
-          availableReferences++;
-        }
-      }
-    }
+    parse(s, 0, l, r);
 
     components = new ValuePatternComponent[l.size()];
     l.toArray(components);
@@ -256,22 +183,20 @@ public final class ValuePattern
    * Recursively parses the provided string into a list of value pattern
    * components.
    *
-   * @param  s    The string representation of the value pattern to create.  It
-   *              may be a portion of the entire value pattern string.
-   * @param  o    The offset of the first character of the provided string in
-   *              the full value pattern string.
-   * @param  l    The list into which the parsed components should be added.
-   * @param  r    The random number generator to use to seed random number
-   *              generators used by components.
-   * @param  ref  A value that may be updated if the pattern contains any
-   *              back-references.
+   * @param  s  The string representation of the value pattern to create.  It
+   *            may be a portion of the entire value pattern string.
+   * @param  o  The offset of the first character of the provided string in the
+   *            full value pattern string.
+   * @param  l  The list into which the parsed components should be added.
+   * @param  r  The random number generator to use to seed random number
+   *            generators used by components.
    *
    * @throws  ParseException  If the provided string cannot be parsed as a valid
    *                          value pattern string.
    */
   private static void parse(final String s, final int o,
                             final ArrayList<ValuePatternComponent> l,
-                            final Random r, final AtomicBoolean ref)
+                            final Random r)
           throws ParseException
   {
     // Find the first occurrence of "[[".  Parse the portion of the string
@@ -284,14 +209,14 @@ public final class ValuePattern
     {
       if (pos > 0)
       {
-        parse(s.substring(0, pos), o, l, r, ref);
+        parse(s.substring(0, pos), o, l, r);
       }
 
       l.add(new StringValuePatternComponent("["));
 
       if (pos < (s.length() - 2))
       {
-        parse(s.substring(pos+2), (o+pos+2), l, r, ref);
+        parse(s.substring(pos+2), (o+pos+2), l, r);
       }
       return;
     }
@@ -304,14 +229,14 @@ public final class ValuePattern
     {
       if (pos > 0)
       {
-        parse(s.substring(0, pos), o, l, r, ref);
+        parse(s.substring(0, pos), o, l, r);
       }
 
       l.add(new StringValuePatternComponent("]"));
 
       if (pos < (s.length() - 2))
       {
-        parse(s.substring(pos+2), (o+pos+2), l, r, ref);
+        parse(s.substring(pos+2), (o+pos+2), l, r);
       }
       return;
     }
@@ -340,7 +265,7 @@ public final class ValuePattern
       }
 
       final String bracketedToken = s.substring(pos+1, closePos);
-      if (bracketedToken.startsWith("file:"))
+      if (bracketedToken.startsWith("file:/"))
       {
         final String path = bracketedToken.substring(5);
         try
@@ -367,36 +292,6 @@ public final class ValuePattern
                bracketedToken, getExceptionMessage(ioe)), o+pos);
         }
       }
-      else if (bracketedToken.startsWith("ref:"))
-      {
-        ref.set(true);
-
-        final String valueStr = bracketedToken.substring(4);
-        try
-        {
-          final int index = Integer.parseInt(valueStr);
-          if (index == 0)
-          {
-            throw new ParseException(ERR_REF_VALUE_PATTERN_ZERO_INDEX.get(),
-                 (o+pos+4));
-          }
-          else if (index < 0)
-          {
-            throw new ParseException(
-                 ERR_REF_VALUE_PATTERN_NOT_VALID.get(valueStr), (o+pos+4));
-          }
-          else
-          {
-            l.add(new BackReferenceValuePatternComponent(index));
-          }
-        }
-        catch (final NumberFormatException nfe)
-        {
-          debugException(nfe);
-          throw new ParseException(
-               ERR_REF_VALUE_PATTERN_NOT_VALID.get(valueStr),  (o+pos+4));
-        }
-      }
       else
       {
         l.add(parseNumericComponent(s.substring(pos+1, closePos), (o+pos+1),
@@ -405,7 +300,7 @@ public final class ValuePattern
 
       if (closePos < (s.length() - 1))
       {
-        parse(s.substring(closePos+1), (o+closePos+1), l, r, ref);
+        parse(s.substring(closePos+1), (o+closePos+1), l, r);
       }
 
       return;
@@ -809,47 +704,9 @@ incrementLoop:
       buffer.setLength(0);
     }
 
-    ArrayList<String> refList = refLists.get();
-    if (hasBackReference)
-    {
-      if (refList == null)
-      {
-        refList = new ArrayList<String>(10);
-        refLists.set(refList);
-      }
-      else
-      {
-        refList.clear();
-      }
-    }
-
     for (final ValuePatternComponent c : components)
     {
-      if (hasBackReference)
-      {
-        if (c instanceof BackReferenceValuePatternComponent)
-        {
-          final BackReferenceValuePatternComponent brvpc =
-               (BackReferenceValuePatternComponent) c;
-          final String value = refList.get(brvpc.getIndex() - 1);
-          buffer.append(value);
-          refList.add(value);
-        }
-        else if (c.supportsBackReference())
-        {
-          final int startPos = buffer.length();
-          c.append(buffer);
-          refList.add(buffer.substring(startPos));
-        }
-        else
-        {
-          c.append(buffer);
-        }
-      }
-      else
-      {
-        c.append(buffer);
-      }
+      c.append(buffer);
     }
 
     return buffer.toString();

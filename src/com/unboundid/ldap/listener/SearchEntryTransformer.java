@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -34,9 +34,7 @@ import com.unboundid.util.ObjectPair;
 /**
  * This interface may be implemented by a class which wishes to intercept and
  * alter search result entries in some way before they are returned to the
- * client, and/or to prevent them from being returned altogether.  Search entry
- * transformers may be enabled or disabled by adding them to or removing them
- * from an {@link LDAPListenerClientConnection}.
+ * client, and/or to prevent them from being returned altogether.
  */
 @Extensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)

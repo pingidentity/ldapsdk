@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,8 +24,6 @@ package com.unboundid.util.args;
 
 import java.util.concurrent.TimeUnit;
 
-import com.unboundid.util.Debug;
-import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -213,39 +211,30 @@ public final class DurationArgument
       }
 
       minValueNanos = lowerBoundUnit.toNanos(lowerBound);
-      final String lowerBoundUnitName = lowerBoundUnit.name();
-      if (lowerBoundUnitName.equals("NANOSECONDS"))
+      switch (lowerBoundUnit)
       {
-        lowerBoundStr = minValueNanos + "ns";
-      }
-      else if (lowerBoundUnitName.equals("MICROSECONDS"))
-      {
-        lowerBoundStr = lowerBound + "us";
-      }
-      else if (lowerBoundUnitName.equals("MILLISECONDS"))
-      {
-        lowerBoundStr = lowerBound + "ms";
-      }
-      else if (lowerBoundUnitName.equals("SECONDS"))
-      {
-        lowerBoundStr = lowerBound + "s";
-      }
-      else if (lowerBoundUnitName.equals("MINUTES"))
-      {
-        lowerBoundStr = lowerBound + "m";
-      }
-      else if (lowerBoundUnitName.equals("HOURS"))
-      {
-        lowerBoundStr = lowerBound + "h";
-      }
-      else if (lowerBoundUnitName.equals("DAYS"))
-      {
-        lowerBoundStr = lowerBound + "d";
-      }
-      else
-      {
-        throw new LDAPSDKUsageException(
-             ERR_DURATION_UNSUPPORTED_LOWER_BOUND_UNIT.get(lowerBoundUnitName));
+        case MICROSECONDS:
+          lowerBoundStr = lowerBound + "us";
+          break;
+        case MILLISECONDS:
+          lowerBoundStr = lowerBound + "ms";
+          break;
+        case SECONDS:
+          lowerBoundStr = lowerBound + "s";
+          break;
+        case MINUTES:
+          lowerBoundStr = lowerBound + "m";
+          break;
+        case HOURS:
+          lowerBoundStr = lowerBound + "h";
+          break;
+        case DAYS:
+          lowerBoundStr = lowerBound + "d";
+          break;
+        case NANOSECONDS:
+        default:
+          lowerBoundStr = minValueNanos + "ns";
+          break;
       }
     }
 
@@ -263,39 +252,30 @@ public final class DurationArgument
       }
 
       maxValueNanos = upperBoundUnit.toNanos(upperBound);
-      final String upperBoundUnitName = upperBoundUnit.name();
-      if (upperBoundUnitName.equals("NANOSECONDS"))
+      switch (upperBoundUnit)
       {
-        upperBoundStr = minValueNanos + "ns";
-      }
-      else if (upperBoundUnitName.equals("MICROSECONDS"))
-      {
-        upperBoundStr = upperBound + "us";
-      }
-      else if (upperBoundUnitName.equals("MILLISECONDS"))
-      {
-        upperBoundStr = upperBound + "ms";
-      }
-      else if (upperBoundUnitName.equals("SECONDS"))
-      {
-        upperBoundStr = upperBound + "s";
-      }
-      else if (upperBoundUnitName.equals("MINUTES"))
-      {
-        upperBoundStr = upperBound + "m";
-      }
-      else if (upperBoundUnitName.equals("HOURS"))
-      {
-        upperBoundStr = upperBound + "h";
-      }
-      else if (upperBoundUnitName.equals("DAYS"))
-      {
-        upperBoundStr = upperBound + "d";
-      }
-      else
-      {
-        throw new LDAPSDKUsageException(
-             ERR_DURATION_UNSUPPORTED_UPPER_BOUND_UNIT.get(upperBoundUnitName));
+        case MICROSECONDS:
+          upperBoundStr = upperBound + "us";
+          break;
+        case MILLISECONDS:
+          upperBoundStr = upperBound + "ms";
+          break;
+        case SECONDS:
+          upperBoundStr = upperBound + "s";
+          break;
+        case MINUTES:
+          upperBoundStr = upperBound + "m";
+          break;
+        case HOURS:
+          upperBoundStr = upperBound + "h";
+          break;
+        case DAYS:
+          upperBoundStr = upperBound + "d";
+          break;
+        case NANOSECONDS:
+        default:
+          upperBoundStr = maxValueNanos + "ns";
+          break;
       }
     }
 
@@ -306,26 +286,6 @@ public final class DurationArgument
     }
 
     valueNanos = null;
-  }
-
-
-
-  /**
-   * Creates a new duration argument that is a "clean" copy of the provided
-   * source argument.
-   *
-   * @param  source  The source argument to use for this argument.
-   */
-  private DurationArgument(final DurationArgument source)
-  {
-    super(source);
-
-    defaultValueNanos = source.defaultValueNanos;
-    maxValueNanos     = source.maxValueNanos;
-    minValueNanos     = source.minValueNanos;
-    lowerBoundStr     = source.lowerBoundStr;
-    upperBoundStr     = source.upperBoundStr;
-    valueNanos        = null;
   }
 
 
@@ -436,61 +396,15 @@ public final class DurationArgument
            ERR_ARG_MAX_OCCURRENCES_EXCEEDED.get(getIdentifierString()));
     }
 
-    final long proposedValueNanos;
-    try
-    {
-      proposedValueNanos = parseDuration(valueString, TimeUnit.NANOSECONDS);
-    }
-    catch (final ArgumentException ae)
-    {
-      Debug.debugException(ae);
-      throw new ArgumentException(
-           ERR_DURATION_MALFORMED_VALUE.get(valueString, getIdentifierString(),
-                ae.getMessage()),
-           ae);
-    }
 
-    if (proposedValueNanos < minValueNanos)
-    {
-      throw new ArgumentException(ERR_DURATION_BELOW_LOWER_BOUND.get(
-           getIdentifierString(), lowerBoundStr));
-    }
-    else if (proposedValueNanos > maxValueNanos)
-    {
-      throw new ArgumentException(ERR_DURATION_ABOVE_UPPER_BOUND.get(
-           getIdentifierString(), upperBoundStr));
-    }
-    else
-    {
-      valueNanos = proposedValueNanos;
-    }
-  }
-
-
-
-  /**
-   * Parses the provided string representation of a duration to a corresponding
-   * numeric representation.
-   *
-   * @param  durationString  The string representation of the duration to be
-   *                         parsed.
-   * @param  timeUnit        The time unit to use for the return value.
-   *
-   * @return  The parsed duration as a count in the specified time unit.
-   *
-   * @throws  ArgumentException  If the provided string cannot be parsed as a
-   *                             valid duration.
-   */
-  public static long parseDuration(final String durationString,
-                                   final TimeUnit timeUnit)
-         throws ArgumentException
-  {
     // The string must not be empty.
-    final String lowerStr = StaticUtils.toLowerCase(durationString);
+    final String lowerStr = StaticUtils.toLowerCase(valueString);
     if (lowerStr.length() == 0)
     {
-      throw new ArgumentException(ERR_DURATION_EMPTY_VALUE.get());
+      throw new ArgumentException(ERR_DURATION_MALFORMED_VALUE.get(
+           valueString, getIdentifierString()));
     }
+
 
     // Find the position of the first non-digit character.
     boolean digitFound    = false;
@@ -509,7 +423,8 @@ public final class DurationArgument
         nonDigitPos   = i;
         if (! digitFound)
         {
-          throw new ArgumentException(ERR_DURATION_NO_DIGIT.get());
+          throw new ArgumentException(ERR_DURATION_MALFORMED_VALUE.get(
+               valueString, getIdentifierString()));
         }
         break;
       }
@@ -517,22 +432,26 @@ public final class DurationArgument
 
     if (! nonDigitFound)
     {
-      throw new ArgumentException(ERR_DURATION_NO_UNIT.get());
+      throw new ArgumentException(ERR_DURATION_MALFORMED_VALUE.get(
+           valueString, getIdentifierString()));
     }
 
+
     // Separate the integer portion from the unit.
-    long integerPortion = Long.parseLong(lowerStr.substring(0, nonDigitPos));
+    final long integerPortion =
+         Long.parseLong(lowerStr.substring(0, nonDigitPos));
     final String unitStr = lowerStr.substring(nonDigitPos).trim();
 
+
     // Parse the time unit.
-    final TimeUnit unitFromString;
+    final TimeUnit unit;
     if (unitStr.equals("ns") ||
         unitStr.equals("nano") ||
         unitStr.equals("nanos") ||
         unitStr.equals("nanosecond") ||
         unitStr.equals("nanoseconds"))
     {
-      unitFromString = TimeUnit.NANOSECONDS;
+      unit = TimeUnit.NANOSECONDS;
     }
     else if (unitStr.equals("us") ||
              unitStr.equals("micro") ||
@@ -540,7 +459,7 @@ public final class DurationArgument
              unitStr.equals("microsecond") ||
              unitStr.equals("microseconds"))
     {
-      unitFromString = TimeUnit.MICROSECONDS;
+      unit = TimeUnit.MICROSECONDS;
     }
     else if (unitStr.equals("ms") ||
              unitStr.equals("milli") ||
@@ -548,7 +467,7 @@ public final class DurationArgument
              unitStr.equals("millisecond") ||
              unitStr.equals("milliseconds"))
     {
-      unitFromString = TimeUnit.MILLISECONDS;
+      unit = TimeUnit.MILLISECONDS;
     }
     else if (unitStr.equals("s") ||
              unitStr.equals("sec") ||
@@ -556,7 +475,7 @@ public final class DurationArgument
              unitStr.equals("second") ||
              unitStr.equals("seconds"))
     {
-      unitFromString = TimeUnit.SECONDS;
+      unit = TimeUnit.SECONDS;
     }
     else if (unitStr.equals("m") ||
              unitStr.equals("min") ||
@@ -564,8 +483,7 @@ public final class DurationArgument
              unitStr.equals("minute") ||
              unitStr.equals("minutes"))
     {
-      integerPortion *= 60L;
-      unitFromString = TimeUnit.SECONDS;
+      unit = TimeUnit.MINUTES;
     }
     else if (unitStr.equals("h") ||
              unitStr.equals("hr") ||
@@ -573,22 +491,37 @@ public final class DurationArgument
              unitStr.equals("hour") ||
              unitStr.equals("hours"))
     {
-      integerPortion *= 3600L;
-      unitFromString = TimeUnit.SECONDS;
+      unit = TimeUnit.HOURS;
     }
     else if (unitStr.equals("d") ||
              unitStr.equals("day") ||
              unitStr.equals("days"))
     {
-      integerPortion *= 86400L;
-      unitFromString = TimeUnit.SECONDS;
+      unit = TimeUnit.DAYS;
     }
     else
     {
-      throw new ArgumentException(ERR_DURATION_UNRECOGNIZED_UNIT.get(unitStr));
+      throw new ArgumentException(ERR_DURATION_UNRECOGNIZED_UNIT.get(
+           valueString, getIdentifierString(), unitStr));
     }
 
-    return timeUnit.convert(integerPortion, unitFromString);
+
+    final long proposedValueNanos =
+         TimeUnit.NANOSECONDS.convert(integerPortion, unit);
+    if (proposedValueNanos < minValueNanos)
+    {
+      throw new ArgumentException(ERR_DURATION_BELOW_LOWER_BOUND.get(
+           getIdentifierString(), lowerBoundStr));
+    }
+    else if (proposedValueNanos > maxValueNanos)
+    {
+      throw new ArgumentException(ERR_DURATION_ABOVE_UPPER_BOUND.get(
+           getIdentifierString(), upperBoundStr));
+    }
+    else
+    {
+      valueNanos = proposedValueNanos;
+    }
   }
 
 
@@ -637,17 +570,6 @@ public final class DurationArgument
     }
 
     return buffer.toString();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public DurationArgument getCleanCopy()
-  {
-    return new DurationArgument(this);
   }
 
 

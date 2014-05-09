@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,8 +29,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Collections;
@@ -39,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Attribute;
@@ -103,9 +100,6 @@ public final class LDAPObjectHandler<T>
   // The LDAPObject annotation for the associated object.
   private final LDAPObject ldapObject;
 
-  // The LDAP object handler for the superclass, if applicable.
-  private final LDAPObjectHandler<? super T> superclassHandler;
-
   // The list of fields for with a filter usage of ALWAYS_ALLOWED.
   private final List<FieldInfo> alwaysAllowedFilterFields;
 
@@ -164,10 +158,6 @@ public final class LDAPObjectHandler<T>
   // The set of attributes that should be lazily loaded.
   private final String[] lazilyLoadedAttributes;
 
-  // The superior object classes that should should used for entries created
-  // from objects of the associated type.
-  private final String[] superiorClasses;
-
 
 
   /**
@@ -180,30 +170,10 @@ public final class LDAPObjectHandler<T>
    *                                class that makes it unsuitable for use with
    *                                the persistence framework.
    */
-  @SuppressWarnings("unchecked")
   LDAPObjectHandler(final Class<T> type)
        throws LDAPPersistException
   {
     this.type = type;
-
-    final Class<? super T> superclassType = type.getSuperclass();
-    if (superclassType == null)
-    {
-      superclassHandler = null;
-    }
-    else
-    {
-      final LDAPObject superclassAnnotation =
-           superclassType.getAnnotation(LDAPObject.class);
-      if (superclassAnnotation == null)
-      {
-        superclassHandler = null;
-      }
-      else
-      {
-        superclassHandler = new LDAPObjectHandler(superclassType);
-      }
-    }
 
     final TreeMap<String,FieldInfo>  fields  = new TreeMap<String,FieldInfo>();
     final TreeMap<String,GetterInfo> getters = new TreeMap<String,GetterInfo>();
@@ -216,8 +186,7 @@ public final class LDAPObjectHandler<T>
            ERR_OBJECT_HANDLER_OBJECT_NOT_ANNOTATED.get(type.getName()));
     }
 
-    final LinkedHashMap<String,String> objectClasses =
-         new LinkedHashMap<String,String>(10);
+    final ArrayList<String> objectClasses = new ArrayList<String>(10);
 
     final String oc = ldapObject.structuralClass();
     if (oc.length() == 0)
@@ -232,7 +201,7 @@ public final class LDAPObjectHandler<T>
     final StringBuilder invalidReason = new StringBuilder();
     if (PersistUtils.isValidLDAPName(structuralClass, invalidReason))
     {
-      objectClasses.put(toLowerCase(structuralClass), structuralClass);
+      objectClasses.add(structuralClass);
     }
     else
     {
@@ -246,7 +215,7 @@ public final class LDAPObjectHandler<T>
     {
       if (PersistUtils.isValidLDAPName(auxiliaryClass, invalidReason))
       {
-        objectClasses.put(toLowerCase(auxiliaryClass), auxiliaryClass);
+        objectClasses.add(auxiliaryClass);
       }
       else
       {
@@ -256,30 +225,7 @@ public final class LDAPObjectHandler<T>
       }
     }
 
-    superiorClasses = ldapObject.superiorClass();
-    for (final String superiorClass : superiorClasses)
-    {
-      if (PersistUtils.isValidLDAPName(superiorClass, invalidReason))
-      {
-        objectClasses.put(toLowerCase(superiorClass), superiorClass);
-      }
-      else
-      {
-        throw new LDAPPersistException(
-             ERR_OBJECT_HANDLER_INVALID_SUPERIOR_CLASS.get(type.getName(),
-                  superiorClass, invalidReason.toString()));
-      }
-    }
-
-    if (superclassHandler != null)
-    {
-      for (final String s : superclassHandler.objectClassAttribute.getValues())
-      {
-        objectClasses.put(toLowerCase(s), s);
-      }
-    }
-
-    objectClassAttribute = new Attribute("objectClass", objectClasses.values());
+    objectClassAttribute = new Attribute("objectClass", objectClasses);
 
 
     final String parentDNStr = ldapObject.defaultParentDN();
@@ -631,26 +577,6 @@ public final class LDAPObjectHandler<T>
 
 
   /**
-   * Retrieves an {@code LDAPObjectHandler} instance of the specified type.
-   *
-   * @param  <T>  The type of object handler to create.
-   *
-   * @param  type  The class for the type of object handler to create.
-   *
-   * @return  The created {@code LDAPObjectHandler} instance.
-   *
-   * @throws  LDAPPersistException  If a problem occurs while creating the
-   *                                instance.
-   */
-  private static <T> LDAPObjectHandler<T> getHandler(final Class<T> type)
-          throws LDAPPersistException
-  {
-    return new LDAPObjectHandler<T>(type);
-  }
-
-
-
-  /**
    * Retrieves the type of object handled by this class.
    *
    * @return  The type of object handled by this class.
@@ -658,21 +584,6 @@ public final class LDAPObjectHandler<T>
   public Class<T> getType()
   {
     return type;
-  }
-
-
-
-  /**
-   * Retrieves the {@code LDAPObjectHandler} object for the superclass of the
-   * associated type, if it is marked with the {@code LDAPObject annotation}.
-   *
-   * @return  The {@code LDAPObjectHandler} object for the superclass of the
-   *          associated type, or {@code null} if the superclass is not marked
-   *          with the {@code LDAPObject} annotation.
-   */
-  public LDAPObjectHandler<?> getSuperclassHandler()
-  {
-    return superclassHandler;
   }
 
 
@@ -770,21 +681,6 @@ public final class LDAPObjectHandler<T>
   public String[] getAuxiliaryClasses()
   {
     return auxiliaryClasses;
-  }
-
-
-
-  /**
-   * Retrieves the names of the superior object classes for objects of the
-   * associated type.
-   *
-   * @return  The names of the superior object classes for objects of the
-   *          associated type.  It may be empty if no superior classes are
-   *          defined.
-   */
-  public String[] getSuperiorClasses()
-  {
-    return superiorClasses;
   }
 
 
@@ -978,47 +874,18 @@ public final class LDAPObjectHandler<T>
   List<ObjectClassDefinition> constructObjectClasses(final OIDAllocator a)
          throws LDAPPersistException
   {
-    final LinkedHashMap<String,ObjectClassDefinition> ocMap =
-         new LinkedHashMap<String,ObjectClassDefinition>(
-              1 + auxiliaryClasses.length);
+    final ArrayList<ObjectClassDefinition> ocList =
+         new ArrayList<ObjectClassDefinition>(1 + auxiliaryClasses.length);
 
-    if (superclassHandler != null)
-    {
-      for (final ObjectClassDefinition d :
-           superclassHandler.constructObjectClasses(a))
-      {
-        ocMap.put(toLowerCase(d.getNameOrOID()), d);
-      }
-    }
-
-    final String lowerStructuralClass = toLowerCase(structuralClass);
-    if (! ocMap.containsKey(lowerStructuralClass))
-    {
-      if (superclassHandler == null)
-      {
-        ocMap.put(lowerStructuralClass, constructObjectClass(structuralClass,
-             "top", ObjectClassType.STRUCTURAL, a));
-      }
-      else
-      {
-        ocMap.put(lowerStructuralClass, constructObjectClass(structuralClass,
-             superclassHandler.getStructuralClass(), ObjectClassType.STRUCTURAL,
-             a));
-      }
-    }
+    ocList.add(constructObjectClass(structuralClass, ObjectClassType.STRUCTURAL,
+         a));
 
     for (final String s : auxiliaryClasses)
     {
-      final String lowerName = toLowerCase(s);
-      if (! ocMap.containsKey(lowerName))
-      {
-        ocMap.put(lowerName,
-             constructObjectClass(s, "top", ObjectClassType.AUXILIARY, a));
-      }
+      ocList.add(constructObjectClass(s,ObjectClassType.AUXILIARY, a));
     }
 
-    return Collections.unmodifiableList(new ArrayList<ObjectClassDefinition>(
-         ocMap.values()));
+    return Collections.unmodifiableList(ocList);
   }
 
 
@@ -1029,8 +896,6 @@ public final class LDAPObjectHandler<T>
    *
    * @param  name  The name of the object class to create.  It must not be
    *               {@code null}.
-   * @param  sup   The name of the superior object class.  It must not be
-   *               {@code null}.
    * @param  type  The type of object class to create.  It must not be
    *               {@code null}.
    * @param  a     The OID allocator to use to generate the object identifiers
@@ -1040,7 +905,6 @@ public final class LDAPObjectHandler<T>
    * @return  The constructed object class definition.
    */
   ObjectClassDefinition constructObjectClass(final String name,
-                                             final String sup,
                                              final ObjectClassType type,
                                              final OIDAllocator a)
   {
@@ -1136,7 +1000,7 @@ public final class LDAPObjectHandler<T>
     optionalAttrs.values().toArray(optArray);
 
     return new ObjectClassDefinition(a.allocateObjectClassOID(name),
-         new String[] { name }, null, false, new String[] { sup }, type,
+         new String[] { name }, null, false, new String[] { "top" }, type,
          reqArray, optArray, null);
   }
 
@@ -1195,11 +1059,6 @@ public final class LDAPObjectHandler<T>
   void decode(final T o, final Entry e)
        throws LDAPPersistException
   {
-    if (superclassHandler != null)
-    {
-      superclassHandler.decode(o, e);
-    }
-
     setDNAndEntryFields(o, e);
 
     final ArrayList<String> failureReasons = new ArrayList<String>(5);
@@ -1340,15 +1199,6 @@ public final class LDAPObjectHandler<T>
 
     setDNAndEntryFields(o, entry);
 
-    if (superclassHandler != null)
-    {
-      final Entry e = superclassHandler.encode(o, parentDN);
-      for (final Attribute a : e.getAttributes())
-      {
-        entry.addAttribute(a);
-      }
-    }
-
     return entry;
   }
 
@@ -1363,7 +1213,7 @@ public final class LDAPObjectHandler<T>
    * @throws  LDAPPersistException  If a problem occurs while setting the value
    *                                of the DN or entry field.
    */
-  private void setDNAndEntryFields(final T o, final Entry e)
+  private void setDNAndEntryFields(final Object o, final Entry e)
           throws LDAPPersistException
   {
     if (dnField != null)
@@ -1608,84 +1458,6 @@ public final class LDAPObjectHandler<T>
       originalEntry = null;
     }
 
-    // If we have an original copy of the entry, then we can try encoding the
-    // updated object to a new entry and diff the two entries.
-    if (originalEntry != null)
-    {
-      try
-      {
-        final T decodedOrig = decode(originalEntry);
-        final Entry reEncodedOriginal =
-             encode(decodedOrig, originalEntry.getParentDNString());
-
-        final Entry newEntry = encode(o, originalEntry.getParentDNString());
-        final List<Modification> mods = Entry.diff(reEncodedOriginal, newEntry,
-             true, false, attributes);
-        if (! deleteNullValues)
-        {
-          final Iterator<Modification> iterator = mods.iterator();
-          while (iterator.hasNext())
-          {
-            final Modification m = iterator.next();
-            if (m.getRawValues().length == 0)
-            {
-              iterator.remove();
-            }
-          }
-        }
-
-        // If there are any attributes that should be excluded from
-        // modifications, then strip them out.
-        HashSet<String> stripAttrs = null;
-        for (final FieldInfo i : fieldMap.values())
-        {
-          if (! i.includeInModify())
-          {
-            if (stripAttrs == null)
-            {
-              stripAttrs = new HashSet<String>(10);
-            }
-            stripAttrs.add(toLowerCase(i.getAttributeName()));
-          }
-        }
-
-        for (final GetterInfo i : getterMap.values())
-        {
-          if (! i.includeInModify())
-          {
-            if (stripAttrs == null)
-            {
-              stripAttrs = new HashSet<String>(10);
-            }
-            stripAttrs.add(toLowerCase(i.getAttributeName()));
-          }
-        }
-
-        if (stripAttrs != null)
-        {
-          final Iterator<Modification> iterator = mods.iterator();
-          while (iterator.hasNext())
-          {
-            final Modification m = iterator.next();
-            if (stripAttrs.contains(toLowerCase(m.getAttributeName())))
-            {
-              iterator.remove();
-            }
-          }
-        }
-
-        return mods;
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-      }
-      finally
-      {
-        setDNAndEntryFields(o, originalEntry);
-      }
-    }
-
     final HashSet<String> attrSet;
     if ((attributes == null) || (attributes.length == 0))
     {
@@ -1792,60 +1564,7 @@ public final class LDAPObjectHandler<T>
            a.getRawValues()));
     }
 
-    if (superclassHandler != null)
-    {
-      final List<Modification> superMods =
-           superclassHandler.getModifications(o, deleteNullValues, attributes);
-      final ArrayList<Modification> modsToAdd =
-           new ArrayList<Modification>(superMods.size());
-      for (final Modification sm : superMods)
-      {
-        boolean add = true;
-        for (final Modification m : mods)
-        {
-          if (m.getAttributeName().equalsIgnoreCase(sm.getAttributeName()))
-          {
-            add = false;
-            break;
-          }
-        }
-        if (add)
-        {
-          modsToAdd.add(sm);
-        }
-      }
-      mods.addAll(modsToAdd);
-    }
-
     return Collections.unmodifiableList(mods);
-  }
-
-
-
-  /**
-   * Retrieves a filter that will match any entry containing the structural and
-   * auxiliary classes for this object type.
-   *
-   * @return  A filter that will match any entry containing the structural and
-   *          auxiliary classes for this object type.
-   */
-  public Filter createBaseFilter()
-  {
-    if (auxiliaryClasses.length == 0)
-    {
-      return Filter.createEqualityFilter("objectClass", structuralClass);
-    }
-    else
-    {
-      final ArrayList<Filter> comps =
-           new ArrayList<Filter>(1+auxiliaryClasses.length);
-      comps.add(Filter.createEqualityFilter("objectClass", structuralClass));
-      for (final String s : auxiliaryClasses)
-      {
-        comps.add(Filter.createEqualityFilter("objectClass", s));
-      }
-      return Filter.createANDFilter(comps);
-    }
   }
 
 
@@ -1873,51 +1592,10 @@ public final class LDAPObjectHandler<T>
   public Filter createFilter(final T o)
          throws LDAPPersistException
   {
-    final AtomicBoolean addedRequiredOrAllowed = new AtomicBoolean(false);
-
-    final Filter f = createFilter(o, addedRequiredOrAllowed);
-    if (! addedRequiredOrAllowed.get())
-    {
-      throw new LDAPPersistException(
-           ERR_OBJECT_HANDLER_FILTER_MISSING_REQUIRED_OR_ALLOWED.get());
-    }
-
-    return f;
-  }
-
-
-
-  /**
-   * Retrieves a filter that can be used to search for entries matching the
-   * provided object.  It will be constructed as an AND search using all fields
-   * with a non-{@code null} value and that have a {@link LDAPField} annotation
-   * with the {@code inFilter} element set to {@code true}, and all  getter
-   * methods that return a non-{@code null} value and have a
-   * {@link LDAPGetter} annotation with the {@code inFilter} element set to
-   * {@code true}.
-   *
-   * @param  o                       The object for which to create the search
-   *                                 filter.
-   * @param  addedRequiredOrAllowed  Indicates whether any filter elements from
-   *                                 required or allowed fields or getters have
-   *                                 been added to the filter yet.
-   *
-   * @return  A filter that can be used to search for entries matching the
-   *          provided object.
-   *
-   * @throws  LDAPPersistException  If it is not possible to construct a search
-   *                                filter for some reason (e.g., because the
-   *                                provided object does not have any
-   *                                non-{@code null} fields or getters that are
-   *                                marked for inclusion in filters).
-   */
-  private Filter createFilter(final T o,
-                              final AtomicBoolean addedRequiredOrAllowed)
-          throws LDAPPersistException
-  {
     final ArrayList<Attribute> attrs = new ArrayList<Attribute>(5);
     attrs.add(objectClassAttribute);
 
+    boolean added = false;
     for (final FieldInfo i : requiredFilterFields)
     {
       final Attribute a = i.encode(o, true);
@@ -1930,7 +1608,7 @@ public final class LDAPObjectHandler<T>
       else
       {
         attrs.add(a);
-        addedRequiredOrAllowed.set(true);
+        added = true;
       }
     }
 
@@ -1946,7 +1624,7 @@ public final class LDAPObjectHandler<T>
       else
       {
         attrs.add(a);
-        addedRequiredOrAllowed.set(true);
+        added = true;
       }
     }
 
@@ -1956,7 +1634,7 @@ public final class LDAPObjectHandler<T>
       if (a != null)
       {
         attrs.add(a);
-        addedRequiredOrAllowed.set(true);
+        added = true;
       }
     }
 
@@ -1966,8 +1644,14 @@ public final class LDAPObjectHandler<T>
       if (a != null)
       {
         attrs.add(a);
-        addedRequiredOrAllowed.set(true);
+        added = true;
       }
+    }
+
+    if (! added)
+    {
+      throw new LDAPPersistException(
+           ERR_OBJECT_HANDLER_FILTER_MISSING_REQUIRED_OR_ALLOWED.get());
     }
 
     for (final FieldInfo i : conditionallyAllowedFilterFields)
@@ -1994,20 +1678,6 @@ public final class LDAPObjectHandler<T>
       for (final ASN1OctetString v : a.getRawValues())
       {
         comps.add(Filter.createEqualityFilter(a.getName(), v.getValue()));
-      }
-    }
-
-    if (superclassHandler != null)
-    {
-      final Filter f =
-           superclassHandler.createFilter(o, addedRequiredOrAllowed);
-      if (f.getFilterType() == Filter.FILTER_TYPE_AND)
-      {
-        comps.addAll(Arrays.asList(f.getComponents()));
-      }
-      else
-      {
-        comps.add(f);
       }
     }
 

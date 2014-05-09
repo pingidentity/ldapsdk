@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -27,22 +27,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1Enumerated;
-import com.unboundid.asn1.ASN1Integer;
-import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -159,27 +151,6 @@ public final class SearchRequestProtocolOp
     {
       this.attributes = Collections.unmodifiableList(attributes);
     }
-  }
-
-
-
-  /**
-   * Creates a new search request protocol op from the provided search request
-   * object.
-   *
-   * @param  request  The search request object to use to create this protocol
-   *                  op.
-   */
-  public SearchRequestProtocolOp(final SearchRequest request)
-  {
-    baseDN      = request.getBaseDN();
-    scope       = request.getScope();
-    derefPolicy = request.getDereferencePolicy();
-    sizeLimit   = request.getSizeLimit();
-    timeLimit   = request.getTimeLimitSeconds();
-    typesOnly   = request.typesOnly();
-    filter      = request.getFilter();
-    attributes  = request.getAttributeList();
   }
 
 
@@ -348,84 +319,6 @@ public final class SearchRequestProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    final ArrayList<ASN1Element> attrElements =
-         new ArrayList<ASN1Element>(attributes.size());
-    for (final String attribute : attributes)
-    {
-      attrElements.add(new ASN1OctetString(attribute));
-    }
-
-    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST,
-         new ASN1OctetString(baseDN),
-         new ASN1Enumerated(scope.intValue()),
-         new ASN1Enumerated(derefPolicy.intValue()),
-         new ASN1Integer(sizeLimit),
-         new ASN1Integer(timeLimit),
-         new ASN1Boolean(typesOnly),
-         filter.encode(),
-         new ASN1Sequence(attrElements));
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a search request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded search request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a search request protocol op.
-   */
-  public static SearchRequestProtocolOp decodeProtocolOp(
-                                             final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final String baseDN =
-           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
-      final SearchScope scope = SearchScope.valueOf(
-           ASN1Enumerated.decodeAsEnumerated(elements[1]).intValue());
-      final DereferencePolicy derefPolicy = DereferencePolicy.valueOf(
-           ASN1Enumerated.decodeAsEnumerated(elements[2]).intValue());
-      final int sizeLimit = ASN1Integer.decodeAsInteger(elements[3]).intValue();
-      final int timeLimit = ASN1Integer.decodeAsInteger(elements[4]).intValue();
-      final boolean typesOnly =
-           ASN1Boolean.decodeAsBoolean(elements[5]).booleanValue();
-      final Filter filter = Filter.decode(elements[6]);
-
-      final ASN1Element[] attrElements =
-           ASN1Sequence.decodeAsSequence(elements[7]).elements();
-      final ArrayList<String> attributes =
-           new ArrayList<String>(attrElements.length);
-      for (final ASN1Element e : attrElements)
-      {
-        attributes.add(ASN1OctetString.decodeAsOctetString(e).stringValue());
-      }
-
-      return new SearchRequestProtocolOp(baseDN, scope, derefPolicy, sizeLimit,
-           timeLimit, typesOnly, filter, attributes);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -445,26 +338,6 @@ public final class SearchRequestProtocolOp
     }
     attrSequence.end();
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates a search request from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the search request.
-   *                   It may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The search request that was created.
-   */
-  public SearchRequest toSearchRequest(final Control... controls)
-  {
-    final String[] attrArray = new String[attributes.size()];
-    attributes.toArray(attrArray);
-
-    return new SearchRequest(null, controls, baseDN, scope, derefPolicy,
-         sizeLimit, timeLimit, typesOnly, filter, attrArray);
   }
 
 

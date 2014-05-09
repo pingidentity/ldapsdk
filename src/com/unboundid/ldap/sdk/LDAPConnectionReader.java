@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
@@ -33,13 +32,12 @@ import java.net.SocketTimeoutException;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.security.sasl.SaslClient;
 
 import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1StreamReader;
-import com.unboundid.asn1.InternalASN1Helper;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
@@ -94,12 +92,11 @@ final class LDAPConnectionReader
   private final LDAPConnection connection;
 
   // The socket with which this reader is associated.
-  private volatile Socket socket;
+  private Socket socket;
 
-  // The SSL socket factory to use to convert an insecure connection to a secure
-  // one when performing StartTLS processing.  It will be null unless there is
-  // an outstanding StartTLS request.
-  private volatile SSLSocketFactory sslSocketFactory;
+  // The SSL context to use to perform StartTLS negotiation.  It will be null
+  // unless there is an outstanding StartTLS request.
+  private volatile SSLContext sslContext;
 
   // The thread that is used to read data from the client.
   private volatile Thread thread;
@@ -138,44 +135,54 @@ final class LDAPConnectionReader
 
     acceptorMap          = new ConcurrentHashMap<Integer,ResponseAcceptor>();
     closeRequested       = false;
-    sslSocketFactory     = null;
+    sslContext           = null;
     startTLSException    = null;
     startTLSOutputStream = null;
     startTLSSleeper      = new WakeableSleeper();
 
     if (! connectionInternals.synchronousMode())
     {
-      // We don't want to set an SO_TIMEOUT that is too short, but we don't
-      // necessarily want to make it unlimited.  As a compromise, set it equal
-      // to the connect timeout for the connection (which might be unlimited,
-      // but that's up to the user to decide).
-      final LDAPConnectionOptions options = connection.getConnectionOptions();
-      final int connectTimeout = options.getConnectTimeoutMillis();
-      if (connectTimeout > 0)
+      if (socket instanceof SSLSocket)
       {
-        if (debugEnabled())
+        // We don't want to set an SO_TIMEOUT that is too short, but we don't
+        // necessarily want to make it unlimited.  As a compromise, set it equal
+        // to the connect timeout for the connection (which might be unlimited,
+        // but that's up to the user to decide).
+        final LDAPConnectionOptions options = connection.getConnectionOptions();
+        final int connectTimeout = options.getConnectTimeoutMillis();
+        if (connectTimeout > 0)
         {
-          debug(Level.INFO, DebugType.CONNECT,
-               "Setting SO_TIMEOUT to connect timeout of " + connectTimeout +
-                    "ms in LDAPConnectionReader constructor");
+          if (debugEnabled())
+          {
+            debug(Level.INFO, DebugType.CONNECT,
+                 "Setting SO_TIMEOUT to connect timeout of " + connectTimeout +
+                      "ms in LDAPConnectionReader constructor");
+          }
+          socket.setSoTimeout(connectTimeout);
         }
-        socket.setSoTimeout(connectTimeout);
+        else
+        {
+          if (debugEnabled())
+          {
+            debug(Level.INFO, DebugType.CONNECT,
+                 "Setting SO_TIMEOUT to 0ms in LDAPConnectionReader " +
+                      "constructor");
+          }
+          socket.setSoTimeout(0);
+        }
+
+        final SSLSocket sslSocket = (SSLSocket) socket;
+        sslSocket.startHandshake();
       }
       else
       {
         if (debugEnabled())
         {
           debug(Level.INFO, DebugType.CONNECT,
-               "Setting SO_TIMEOUT to 0ms in LDAPConnectionReader " +
+               "Setting SO_TIMEOUT to 50ms in LDAPConnectionReader " +
                     "constructor");
         }
-        socket.setSoTimeout(0);
-      }
-
-      if (socket instanceof SSLSocket)
-      {
-        final SSLSocket sslSocket = (SSLSocket) socket;
-        sslSocket.startHandshake();
+        socket.setSoTimeout(50);
       }
     }
   }
@@ -266,7 +273,7 @@ final class LDAPConnectionReader
             // this exception only visible at a verbose log level.
             final SocketTimeoutException ste = (SocketTimeoutException) t;
             debugException(Level.FINEST,  ste);
-            if (sslSocketFactory != null)
+            if (sslContext != null)
             {
               try
               {
@@ -296,14 +303,13 @@ final class LDAPConnectionReader
                   socket.setSoTimeout(0);
                 }
 
-                final SSLSocket sslSocket;
-                synchronized (sslSocketFactory)
-                {
-                  sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
-                       connection.getConnectedAddress(), socket.getPort(),
-                       true);
-                  sslSocket.startHandshake();
-                }
+                final SSLSocketFactory socketFactory =
+                     sslContext.getSocketFactory();
+                final SSLSocket sslSocket =
+                     (SSLSocket) socketFactory.createSocket(socket,
+                          connection.getConnectedAddress(), socket.getPort(),
+                          true);
+                sslSocket.startHandshake();
                 inputStream =
                      new BufferedInputStream(sslSocket.getInputStream(),
                                              DEFAULT_INPUT_BUFFER_SIZE);
@@ -330,25 +336,13 @@ final class LDAPConnectionReader
                 return;
               }
 
-              sslSocketFactory = null;
+              sslContext = null;
             }
 
             continue;
           }
 
-          if (closeRequested || connection.closeRequested() ||
-              (connection.getDisconnectType() != null))
-          {
-            // This exception resulted from the connection being closed in a way
-            // that we already knew about.  We don't want to debug it at the
-            // same level as a newly-detected invalidity.
-            closeRequested = true;
-            debugException(Level.FINEST, le);
-          }
-          else
-          {
-            debugException(le);
-          }
+          debugException(le);
 
           // We should terminate the connection regardless of the type of
           // exception, but might want to customize the debug message.
@@ -360,15 +354,6 @@ final class LDAPConnectionReader
             connection.setDisconnectInfo(DisconnectType.DECODE_ERROR,
                  le.getMessage(), t);
             message = le.getMessage();
-            debugLevel = Level.WARNING;
-          }
-          else if ((t instanceof InterruptedIOException) && socket.isClosed())
-          {
-            connection.setDisconnectInfo(
-                 DisconnectType.SERVER_CLOSED_WITHOUT_NOTICE, le.getMessage(),
-                 t);
-            message = ERR_READER_CLOSING_DUE_TO_INTERRUPTED_IO.get(
-                 connection.getHostPort());
             debugLevel = Level.WARNING;
           }
           else if (t instanceof IOException)
@@ -398,8 +383,7 @@ final class LDAPConnectionReader
 
           // If the connection is configured to try to auto-reconnect, then set
           // things up to do that.  Otherwise, terminate the connection.
-          if ((! closeRequested) &&
-              connection.getConnectionOptions().autoReconnect())
+          if (connection.getConnectionOptions().autoReconnect())
           {
             reconnect = true;
             break;
@@ -441,8 +425,7 @@ final class LDAPConnectionReader
           }
         }
 
-        debugLDAPResult(response, connection);
-        connection.setLastCommunicationTime();
+        debugLDAPResult(response);
 
         final ResponseAcceptor responseAcceptor;
         if ((response instanceof SearchResultEntry) ||
@@ -632,7 +615,7 @@ final class LDAPConnectionReader
     {
       try
       {
-        connection.setNeedsReconnect();
+        connection.reconnect();
       }
       catch (Exception e)
       {
@@ -677,7 +660,6 @@ final class LDAPConnectionReader
           return new ConnectionClosedResponse(ResultCode.SERVER_DOWN, null);
         }
 
-        connection.setLastCommunicationTime();
         if (response.getMessageID() == messageID)
         {
           return response;
@@ -799,11 +781,20 @@ final class LDAPConnectionReader
         }
 
         debug(debugLevel, DebugType.LDAP, message, t);
-        if (! connection.getConnectionOptions().autoReconnect())
+
+        // If the connection is configured to try to auto-reconnect, then set
+        // things up to do that.  Otherwise, terminate the connection.
+        if (connection.getConnectionOptions().autoReconnect() &&
+             (! closeRequested))
+        {
+          connection.reconnect();
+        }
+        else
         {
           closeRequested = true;
+          closeInternal(true, message);
         }
-        closeInternal(true, message);
+
         throw le;
       }
       catch (Exception e)
@@ -835,11 +826,20 @@ final class LDAPConnectionReader
         }
 
         debug(debugLevel, DebugType.LDAP, message, e);
-        if (! connection.getConnectionOptions().autoReconnect())
+
+        // If the connection is configured to try to auto-reconnect, then set
+        // things up to do that.  Otherwise, terminate the connection.
+        if (connection.getConnectionOptions().autoReconnect() &&
+             (! closeRequested))
+        {
+          connection.reconnect();
+        }
+        else
         {
           closeRequested = true;
+          closeInternal(true, message);
         }
-        closeInternal(true, message);
+
         throw new LDAPException(ResultCode.SERVER_DOWN,  message, e);
       }
     }
@@ -848,42 +848,9 @@ final class LDAPConnectionReader
 
 
   /**
-   * Attempts to set the SO_TIMEOUT value for the connection.  This will take
-   * effect for the next blocking operation that it starts.
-   *
-   * @param  soTimeout  The SO_TIMEOUT value that should be set for the
-   *                    connection.  It must be greater than or equal to zero,
-   *                    with a value of zero meaning an unlimited timeout.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         set the SO_TIMEOUT value.
-   */
-  void setSoTimeout(final int soTimeout)
-       throws LDAPException
-  {
-    try
-    {
-      socket.setSoTimeout(soTimeout);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-
-      throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_READER_CANNOT_SET_SO_TIMEOUT.get(soTimeout,
-                connection.toString(), getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
    * Converts this clear-text connection to one that uses TLS.
    *
-   * @param  sslSocketFactory  The SSL socket factory to use to convert an
-   *                           insecure connection into a secure connection.  It
-   *                           must not be {@code null}.
+   * @param  sslContext  The SSL context to use to perform the negotiation.
    *
    * @return  The TLS-enabled output stream that may be used to send encrypted
    *          requests to the server.
@@ -891,7 +858,7 @@ final class LDAPConnectionReader
    * @throws  LDAPException  If a problem occurs while attempting to convert the
    *                         connection to use TLS security.
    */
-  OutputStream doStartTLS(final SSLSocketFactory sslSocketFactory)
+  OutputStream doStartTLS(final SSLContext sslContext)
        throws LDAPException
   {
     if (connection.synchronousMode())
@@ -924,13 +891,12 @@ final class LDAPConnectionReader
           socket.setSoTimeout(0);
         }
 
-        final SSLSocket sslSocket;
-        synchronized (sslSocketFactory)
-        {
-          sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
-               connection.getConnectedAddress(), socket.getPort(), true);
-          sslSocket.startHandshake();
-        }
+        final SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+        final SSLSocket sslSocket =
+             (SSLSocket) socketFactory.createSocket(socket,
+                  connection.getConnectedAddress(), socket.getPort(),
+                  true);
+        sslSocket.startHandshake();
         inputStream =
              new BufferedInputStream(sslSocket.getInputStream(),
                                      DEFAULT_INPUT_BUFFER_SIZE);
@@ -956,7 +922,7 @@ final class LDAPConnectionReader
     }
     else
     {
-      this.sslSocketFactory = sslSocketFactory;
+      this.sslContext = sslContext;
 
       while (true)
       {
@@ -986,20 +952,6 @@ final class LDAPConnectionReader
         startTLSSleeper.sleep(10);
       }
     }
-  }
-
-
-
-  /**
-   * Updates this connection reader to ensure that any subsequent data read
-   * over this connection will be decoded using the provided SASL client.
-   *
-   * @param  saslClient  The SASL client to use to decode data read over this
-   *                     connection.
-   */
-  void applySASLQoP(final SaslClient saslClient)
-  {
-    InternalASN1Helper.setSASLClient(asn1StreamReader, saslClient);
   }
 
 
@@ -1134,14 +1086,7 @@ final class LDAPConnectionReader
     final Thread t = thread;
     if (t != null)
     {
-      try
-      {
-        t.setName(constructThreadName(connection.getConnectionInternals(true)));
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-      }
+      t.setName(constructThreadName(connection.getConnectionInternals()));
     }
   }
 
@@ -1164,8 +1109,6 @@ final class LDAPConnectionReader
   {
     final StringBuilder buffer = new StringBuilder();
     buffer.append("Connection reader for connection ");
-    buffer.append(connection.getConnectionID());
-    buffer.append(' ');
 
     String name = connection.getConnectionName();
     if (name != null)

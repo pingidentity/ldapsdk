@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,7 +33,6 @@ import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.Base64;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.StaticUtils;
@@ -164,19 +163,6 @@ public final class LDAPCompare
   public String getToolDescription()
   {
     return "Process compare operations in LDAP directory server.";
-  }
-
-
-
-  /**
-   * Retrieves the version string for this tool.
-   *
-   * @return  The version string for this tool.
-   */
-  @Override()
-  public String getToolVersion()
-  {
-    return Version.NUMERIC_VERSION_STRING;
   }
 
 

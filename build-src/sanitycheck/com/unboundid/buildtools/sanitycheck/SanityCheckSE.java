@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.sanitycheck;
@@ -72,13 +72,11 @@ public class SanityCheckSE
   {
     "com.unboundid.asn1",
     "com.unboundid.ldap.listener",
-    "com.unboundid.ldap.listener.interceptor",
     "com.unboundid.ldap.matchingrules",
     "com.unboundid.ldap.protocol",
     "com.unboundid.ldap.sdk",
     "com.unboundid.ldap.sdk.controls",
     "com.unboundid.ldap.sdk.examples",
-    "com.unboundid.ldap.sdk.experimental",
     "com.unboundid.ldap.sdk.extensions",
     "com.unboundid.ldap.sdk.migrate.jndi",
     "com.unboundid.ldap.sdk.migrate.ldapjdk",

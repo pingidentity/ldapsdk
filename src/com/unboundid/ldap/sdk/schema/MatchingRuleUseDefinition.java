@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -49,6 +49,13 @@ public final class MatchingRuleUseDefinition
        extends SchemaElement
 {
   /**
+   * A pre-allocated zero-element string array.
+   */
+  private static final String[] NO_STRINGS = new String[0];
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 2366143311976256897L;
@@ -67,7 +74,7 @@ public final class MatchingRuleUseDefinition
   // The string representation of this matching rule use.
   private final String matchingRuleUseString;
 
-  // The OID for this matching rule use.
+  // The OID for this matching rule use .
   private final String oid;
 
   // The set of attribute types to to which this matching rule use applies.
@@ -141,16 +148,7 @@ public final class MatchingRuleUseDefinition
         pos++;
       }
 
-      // It's possible that the token could be smashed right up against the
-      // closing parenthesis.  If that's the case, then extract just the token
-      // and handle the closing parenthesis the next time through.
-      String token = matchingRuleUseString.substring(tokenStartPos, pos);
-      if ((token.length() > 1) && (token.endsWith(")")))
-      {
-        token = token.substring(0, token.length() - 1);
-        pos--;
-      }
-
+      final String token = matchingRuleUseString.substring(tokenStartPos, pos);
       final String lowerToken = toLowerCase(token);
       if (lowerToken.equals(")"))
       {
@@ -546,50 +544,6 @@ public final class MatchingRuleUseDefinition
   public Map<String,String[]> getExtensions()
   {
     return extensions;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public int hashCode()
-  {
-    return oid.hashCode();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public boolean equals(final Object o)
-  {
-    if (o == null)
-    {
-      return false;
-    }
-
-    if (o == this)
-    {
-      return true;
-    }
-
-    if (! (o instanceof MatchingRuleUseDefinition))
-    {
-      return false;
-    }
-
-    final MatchingRuleUseDefinition d = (MatchingRuleUseDefinition) o;
-    return (oid.equals(d.oid) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         stringsEqualIgnoreCaseOrderIndependent(applicableTypes,
-              d.applicableTypes) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
-         (isObsolete == d.isObsolete) &&
-         extensionsEqual(extensions, d.extensions));
   }
 
 

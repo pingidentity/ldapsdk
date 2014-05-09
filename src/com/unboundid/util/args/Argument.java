@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -164,30 +164,6 @@ public abstract class Argument
     isHidden        = false;
     isRegistered    = false;
     isUsageArgument = false;
-  }
-
-
-
-  /**
-   * Creates a new argument with the same generic information as the provided
-   * argument.  It will not be registered with any argument parser.
-   *
-   * @param  source  The argument to use as the source for this argument.
-   */
-  protected Argument(final Argument source)
-  {
-    isHidden         = source.isHidden;
-    isRequired       = source.isRequired;
-    isUsageArgument  = source.isUsageArgument;
-    maxOccurrences   = source.maxOccurrences;
-    description      = source.description;
-    valuePlaceholder = source.valuePlaceholder;
-
-    isRegistered   = false;
-    numOccurrences = 0;
-
-    shortIdentifiers = new ArrayList<Character>(source.shortIdentifiers);
-    longIdentifiers  = new ArrayList<String>(source.longIdentifiers);
   }
 
 
@@ -637,20 +613,6 @@ public abstract class Argument
   {
     return null;
   }
-
-
-
-  /**
-   * Creates a copy of this argument that is "clean" and appears as if it has
-   * not been used in the course of parsing an argument set.  The new argument
-   * will have all of the same identifiers and
-   *
-   * The new parser will have all
-   * of the same arguments and constraints as this parser.
-   *
-   * @return  The "clean" copy of this argument.
-   */
-  public abstract Argument getCleanCopy();
 
 
 

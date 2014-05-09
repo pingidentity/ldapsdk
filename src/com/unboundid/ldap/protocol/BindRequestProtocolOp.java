@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,19 +24,11 @@ package com.unboundid.ldap.protocol;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.BindRequest;
-import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.GenericSASLBindRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SimpleBindRequest;
-import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
@@ -199,56 +191,6 @@ public final class BindRequestProtocolOp
 
 
   /**
-   * Creates a new bind request protocol op from the provided bind request
-   * object.
-   *
-   * @param  request  The simple bind request to use to create this protocol op.
-   *                  It must have been created with a static password rather
-   *                  than using a password provider.
-   *
-   * @throws  LDAPSDKUsageException  If the provided simple bind request is
-   *                                 configured to use a password provider
-   *                                 rather than a static password.
-   */
-  public BindRequestProtocolOp(final SimpleBindRequest request)
-         throws LDAPSDKUsageException
-  {
-    version         = 3;
-    credentialsType = CRED_TYPE_SIMPLE;
-    bindDN          = request.getBindDN();
-    simplePassword  = request.getPassword();
-    saslMechanism   = null;
-    saslCredentials = null;
-
-    if (simplePassword == null)
-    {
-      throw new LDAPSDKUsageException(
-           ERR_BIND_REQUEST_CANNOT_CREATE_WITH_PASSWORD_PROVIDER.get());
-    }
-  }
-
-
-
-  /**
-   * Creates a new bind request protocol op from the provided bind request
-   * object.
-   *
-   * @param  request  The generic SASL bind request to use to create this
-   *                  protocol op.
-   */
-  public BindRequestProtocolOp(final GenericSASLBindRequest request)
-  {
-    version         = 3;
-    credentialsType = CRED_TYPE_SASL;
-    bindDN          = request.getBindDN();
-    simplePassword  = null;
-    saslMechanism   = request.getSASLMechanismName();
-    saslCredentials = request.getCredentials();
-  }
-
-
-
-  /**
    * Creates a new bind request protocol op read from the provided ASN.1 stream
    * reader.
    *
@@ -312,34 +254,6 @@ public final class BindRequestProtocolOp
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_BIND_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)), e);
     }
-  }
-
-
-
-  /**
-   * Creates a new bind request protocol op with the provided information.
-   *
-   * @param  version          The protocol version.
-   * @param  bindDN           The bind DN.  It must not be {@code null} (but may
-   *                          be empty).
-   * @param  credentialsType  The type of credentials supplied.
-   * @param  simplePassword   The password for simple authentication, if
-   *                          appropriate.
-   * @param  saslMechanism    The name of the SASL mechanism, if appropriate.
-   * @param  saslCredentials  The SASL credentials, if appropriate.
-   */
-  private BindRequestProtocolOp(final int version, final String bindDN,
-                                final byte credentialsType,
-                                final ASN1OctetString simplePassword,
-                                final String saslMechanism,
-                                final ASN1OctetString saslCredentials)
-  {
-    this.version         = version;
-    this.bindDN          = bindDN;
-    this.credentialsType = credentialsType;
-    this.simplePassword  = simplePassword;
-    this.saslMechanism   = saslMechanism;
-    this.saslCredentials = saslCredentials;
   }
 
 
@@ -435,115 +349,6 @@ public final class BindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    final ASN1Element credentials;
-    if (credentialsType == CRED_TYPE_SIMPLE)
-    {
-      credentials = simplePassword;
-    }
-    else
-    {
-      if (saslCredentials == null)
-      {
-        credentials = new ASN1Sequence(CRED_TYPE_SASL,
-             new ASN1OctetString(saslMechanism));
-      }
-      else
-      {
-        credentials = new ASN1Sequence(CRED_TYPE_SASL,
-             new ASN1OctetString(saslMechanism),
-             saslCredentials);
-      }
-    }
-
-    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST,
-         new ASN1Integer(version),
-         new ASN1OctetString(bindDN),
-         credentials);
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a bind request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded bind request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a bind request protocol op.
-   */
-  public static BindRequestProtocolOp decodeProtocolOp(
-                                           final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final int version = ASN1Integer.decodeAsInteger(elements[0]).intValue();
-      final String bindDN =
-           ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
-
-      final ASN1OctetString saslCredentials;
-      final ASN1OctetString simplePassword;
-      final String saslMechanism;
-      switch (elements[2].getType())
-      {
-        case CRED_TYPE_SIMPLE:
-          simplePassword  = ASN1OctetString.decodeAsOctetString(elements[2]);
-          saslMechanism   = null;
-          saslCredentials = null;
-          break;
-
-        case CRED_TYPE_SASL:
-          final ASN1Element[] saslElements =
-               ASN1Sequence.decodeAsSequence(elements[2]).elements();
-          saslMechanism = ASN1OctetString.decodeAsOctetString(saslElements[0]).
-               stringValue();
-          if (saslElements.length == 1)
-          {
-            saslCredentials = null;
-          }
-          else
-          {
-            saslCredentials =
-                 ASN1OctetString.decodeAsOctetString(saslElements[1]);
-          }
-
-          simplePassword = null;
-          break;
-
-        default:
-          throw new LDAPException(ResultCode.DECODING_ERROR,
-               ERR_BIND_REQUEST_INVALID_CRED_TYPE.get(
-                    toHex(elements[2].getType())));
-      }
-
-      return new BindRequestProtocolOp(version, bindDN, elements[2].getType(),
-           simplePassword, saslMechanism, saslCredentials);
-    }
-    catch (final LDAPException le)
-    {
-      debugException(le);
-      throw le;
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_BIND_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -567,32 +372,6 @@ public final class BindRequestProtocolOp
       saslSequence.end();
     }
     opSequence.end();
-    buffer.setZeroBufferOnClear();
-  }
-
-
-
-  /**
-   * Creates a new bind request object from this bind request protocol op.
-   *
-   * @param  controls  The set of controls to include in the bind request.  It
-   *                   may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The bind request that was created.
-   */
-  public BindRequest toBindRequest(final Control... controls)
-  {
-    if (credentialsType == CRED_TYPE_SIMPLE)
-    {
-      return new SimpleBindRequest(bindDN, simplePassword.getValue(),
-           controls);
-    }
-    else
-    {
-      return new GenericSASLBindRequest(bindDN, saslMechanism,
-           saslCredentials, controls);
-    }
   }
 
 

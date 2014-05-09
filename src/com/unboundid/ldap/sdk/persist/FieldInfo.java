@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -252,7 +252,7 @@ public final class FieldInfo
     }
 
     final StringBuilder invalidReason = new StringBuilder();
-    if (! PersistUtils.isValidLDAPName(attributeName, true, invalidReason))
+    if (! PersistUtils.isValidLDAPName(attributeName, invalidReason))
     {
       throw new LDAPPersistException(ERR_FIELD_INFO_INVALID_ATTR_NAME.get(
            f.getName(), c.getName(), invalidReason.toString()));

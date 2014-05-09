@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -314,46 +314,6 @@ public final class AttributeSyntaxDefinition
   public Map<String,String[]> getExtensions()
   {
     return extensions;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public int hashCode()
-  {
-    return oid.hashCode();
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public boolean equals(final Object o)
-  {
-    if (o == null)
-    {
-      return false;
-    }
-
-    if (o == this)
-    {
-      return true;
-    }
-
-    if (! (o instanceof AttributeSyntaxDefinition))
-    {
-      return false;
-    }
-
-    final AttributeSyntaxDefinition d = (AttributeSyntaxDefinition) o;
-    return (oid.equals(d.oid) &&
-         bothNullOrEqualIgnoreCase(description, d.description) &&
-         extensionsEqual(extensions, d.extensions));
   }
 
 

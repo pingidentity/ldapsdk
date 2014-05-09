@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -115,9 +115,6 @@ public final class EntryValidator
   // A count of the number of entries with DNs that could not be parsed.
   private final AtomicLong malformedDNs;
 
-  // A count of the number of entries missing a superior object class.
-  private final AtomicLong missingSuperiorClasses;
-
   // A count of the number of entries containing multiple structural object
   // classes.
   private final AtomicLong multipleStructuralClasses;
@@ -143,10 +140,6 @@ public final class EntryValidator
   // Indicates whether an entry should be considered invalid if it is missing
   // attributes required by its object classes or DIT content rule.
   private boolean checkMissingAttributes;
-
-  // Indicates whether an entry should be considered invalid if it is missing
-  // one or more superior object classes.
-  private boolean checkMissingSuperiorObjectClasses;
 
   // Indicates whether an entry should be considered invalid if its RDN does not
   // conform to name form requirements.
@@ -220,22 +213,20 @@ public final class EntryValidator
   {
     this.schema = schema;
 
-    checkAttributeSyntax              = true;
-    checkMalformedDNs                 = true;
-    checkMissingAttributes            = true;
-    checkMissingSuperiorObjectClasses = true;
-    checkNameForms                    = true;
-    checkProhibitedAttributes         = true;
-    checkProhibitedObjectClasses      = true;
-    checkSingleValuedAttributes       = true;
-    checkStructuralObjectClasses      = true;
-    checkUndefinedAttributes          = true;
-    checkUndefinedObjectClasses       = true;
+    checkAttributeSyntax            = true;
+    checkMalformedDNs               = true;
+    checkMissingAttributes          = true;
+    checkNameForms                  = true;
+    checkProhibitedAttributes       = true;
+    checkProhibitedObjectClasses    = true;
+    checkSingleValuedAttributes     = true;
+    checkStructuralObjectClasses    = true;
+    checkUndefinedAttributes        = true;
+    checkUndefinedObjectClasses     = true;
 
     entriesExamined           = new AtomicLong(0L);
     invalidEntries            = new AtomicLong(0L);
     malformedDNs              = new AtomicLong(0L);
-    missingSuperiorClasses    = new AtomicLong(0L);
     multipleStructuralClasses = new AtomicLong(0L);
     nameFormViolations        = new AtomicLong(0L);
     noObjectClasses           = new AtomicLong(0L);
@@ -280,41 +271,6 @@ public final class EntryValidator
   public void setCheckMissingAttributes(final boolean checkMissingAttributes)
   {
     this.checkMissingAttributes = checkMissingAttributes;
-  }
-
-
-
-  /**
-   * Indicates whether the entry validator should consider entries invalid if
-   * they are missing any superior classes for the included set of object
-   * classes.
-   *
-   * @return  {@code true} if entries that are missing superior classes should
-   *          be considered invalid, or {@code false} if not.
-   */
-  public boolean checkMissingSuperiorObjectClasses()
-  {
-    return checkMissingSuperiorObjectClasses;
-  }
-
-
-
-  /**
-   * Specifies whether the entry validator should consider entries invalid if
-   * they are missing any superior classes for the included set of object
-   * classes.
-   *
-   * @param  checkMissingSuperiorObjectClasses  Indicates whether the entry
-   *                                            validator should consider
-   *                                            entries invalid if they are
-   *                                            missing any superior classes for
-   *                                            the included set of object
-   *                                            classes.
-   */
-  public void setCheckMissingSuperiorObjectClasses(
-                   final boolean checkMissingSuperiorObjectClasses)
-  {
-    this.checkMissingSuperiorObjectClasses = checkMissingSuperiorObjectClasses;
   }
 
 
@@ -790,8 +746,7 @@ public final class EntryValidator
       }
     }
 
-    for (final ObjectClassDefinition d :
-         new HashSet<ObjectClassDefinition>(ocSet))
+    for (final ObjectClassDefinition d : ocSet)
     {
       entryValid &= addSuperiorClasses(d, ocSet, missingOCs, invalidReasons);
     }
@@ -848,21 +803,7 @@ public final class EntryValidator
       }
       else
       {
-        if (! ocSet.contains(supOC))
-        {
-          ocSet.add(supOC);
-          if (checkMissingSuperiorObjectClasses)
-          {
-            entryValid = false;
-            missingSuperiorClasses.incrementAndGet();
-            if (invalidReasons != null)
-            {
-              invalidReasons.add(ERR_ENTRY_MISSING_SUP_OC.get(
-                   supOC.getNameOrOID(), d.getNameOrOID()));
-            }
-          }
-        }
-
+        ocSet.add(supOC);
         entryValid &=
              addSuperiorClasses(supOC, ocSet, missingOCNames, invalidReasons);
       }
@@ -1348,8 +1289,7 @@ public final class EntryValidator
       else
       {
         if (checkProhibitedAttributes &&
-            (! (requiredAttrs.contains(d) || optionalAttrs.contains(d) ||
-                d.isOperational())))
+            (! (requiredAttrs.contains(d) || optionalAttrs.contains(d))))
         {
           entryValid = false;
           updateCount(d.getNameOrOID(), prohibitedAttributes);
@@ -1437,7 +1377,6 @@ public final class EntryValidator
     entriesExamined.set(0L);
     invalidEntries.set(0L);
     malformedDNs.set(0L);
-    missingSuperiorClasses.set(0L);
     multipleStructuralClasses.set(0L);
     nameFormViolations.set(0L);
     noObjectClasses.set(0L);
@@ -1530,20 +1469,6 @@ public final class EntryValidator
   public long getEntriesWithMultipleStructuralObjectClasses()
   {
     return multipleStructuralClasses.get();
-  }
-
-
-
-  /**
-   * Retrieves the total number of entries examined which were missing one or
-   * more superior object classes.
-   *
-   * @return  The total number of entries examined which were missing one or
-   *          more superior object classes.
-   */
-  public long getEntriesWithMissingSuperiorObjectClasses()
-  {
-    return missingSuperiorClasses.get();
   }
 
 
@@ -1874,7 +1799,7 @@ public final class EntryValidator
     {
       pct = 100 * numMultipleStructural / numEntries;
       messages.add(INFO_ENTRY_MULTIPLE_STRUCTURAL_OCS_COUNT.get(
-           numMultipleStructural, numEntries, pct));
+           numMissingStructural, numEntries, pct));
     }
 
     final long numNFViolations = nameFormViolations.get();
@@ -1913,14 +1838,6 @@ public final class EntryValidator
                e.getKey(), e.getValue().longValue()));
         }
       }
-    }
-
-    final long numMissingSuperior =
-         getEntriesWithMissingSuperiorObjectClasses();
-    if (numMissingSuperior > 0)
-    {
-      messages.add(
-           INFO_ENTRY_MISSING_SUPERIOR_OC_COUNT.get(numMissingSuperior));
     }
 
     final long numUndefinedAttrs = getTotalUndefinedAttributes();

@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -38,10 +38,9 @@ import static com.unboundid.util.Validator.*;
 
 /**
  * This class provides an implementation of the aborted transaction extended
- * result as defined in
- * <A HREF="http://www.ietf.org/rfc/rfc5805.txt">RFC 5805</A>, which is used as
- * an unsolicited notification to indicate that the server has aborted an LDAP
- * transaction without the client's explicit request.
+ * result as defined in RFC 5805, which is used as an unsolicited notification
+ * to indicate that the server has aborted an LDAP transaction without the
+ * client's explicit request.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -49,7 +48,7 @@ public final class AbortedTransactionExtendedResult
        extends ExtendedResult
 {
   /**
-   * The OID (1.3.6.1.1.21.4) for the aborted transaction extended result.
+   * The OID for the aborted transaction extended result.
    */
   public static final String ABORTED_TRANSACTION_RESULT_OID = "1.3.6.1.1.21.4";
 
@@ -167,13 +166,6 @@ public final class AbortedTransactionExtendedResult
     buffer.append(transactionID.stringValue());
     buffer.append("', resultCode=");
     buffer.append(getResultCode());
-
-    final int messageID = getMessageID();
-    if (messageID >= 0)
-    {
-      buffer.append(", messageID=");
-      buffer.append(messageID);
-    }
 
     final String diagnosticMessage = getDiagnosticMessage();
     if (diagnosticMessage != null)

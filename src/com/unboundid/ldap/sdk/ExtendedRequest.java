@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -267,7 +267,7 @@ public class ExtendedRequest
    *
    * @return  The ASN.1 element with the encoded extended request protocol op.
    */
-  public ASN1Element encodeProtocolOp()
+  ASN1Element encodeProtocolOp()
   {
     // Create the extended request protocol op.
     final ASN1Element[] protocolOpElements;
@@ -393,7 +393,7 @@ public class ExtendedRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      connection.getConnectionInternals().getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
     catch (Exception e)
@@ -408,41 +408,8 @@ public class ExtendedRequest
     connection.getConnectionStatistics().incrementNumExtendedRequests();
     connection.sendMessage(message);
 
-    while (true)
-    {
-      final LDAPResponse response;
-      try
-      {
-        response = connection.readResponse(messageID);
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-
-        if ((le.getResultCode() == ResultCode.TIMEOUT) &&
-            connection.getConnectionOptions().abandonOnTimeout())
-        {
-          connection.abandon(messageID);
-        }
-
-        throw le;
-      }
-
-      if (response instanceof IntermediateResponse)
-      {
-        final IntermediateResponseListener listener =
-             getIntermediateResponseListener();
-        if (listener != null)
-        {
-          listener.intermediateResponseReturned(
-               (IntermediateResponse) response);
-        }
-      }
-      else
-      {
-        return handleResponse(connection, response, requestTime);
-      }
-    }
+    final LDAPResponse response = connection.readResponse(messageID);
+    return handleResponse(connection, response, requestTime);
   }
 
 
@@ -466,14 +433,8 @@ public class ExtendedRequest
     if (response == null)
     {
       final long waitTime = nanosToMillis(System.nanoTime() - requestTime);
-      if (connection.getConnectionOptions().abandonOnTimeout())
-      {
-        connection.abandon(messageID);
-      }
-
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_EXTENDED_CLIENT_TIMEOUT.get(waitTime, messageID, oid,
-                connection.getHostPort()));
+           ERR_EXTENDED_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     if (response instanceof ConnectionClosedResponse)
@@ -531,17 +492,6 @@ public class ExtendedRequest
   public final int getLastMessageID()
   {
     return messageID;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public final OperationType getOperationType()
-  {
-    return OperationType.EXTENDED;
   }
 
 

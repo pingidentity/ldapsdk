@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -25,7 +25,6 @@ package com.unboundid.ldap.sdk;
 import com.unboundid.util.LDAPSDKException;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -53,14 +52,14 @@ public class LDAPException
   /**
    * An empty array that will be used when no controls were provided.
    */
-  protected static final Control[] NO_CONTROLS = StaticUtils.NO_CONTROLS;
+  protected static final Control[] NO_CONTROLS = new Control[0];
 
 
 
   /**
    * An empty array that will be used when no referrals were provided.
    */
-  protected static final String[] NO_REFERRALS = StaticUtils.NO_STRINGS;
+  protected static final String[] NO_REFERRALS = new String[0];
 
 
 
@@ -421,7 +420,7 @@ public class LDAPException
    * Retrieves the set of referral URLs for this LDAP exception.
    *
    * @return  The set of referral URLs for this LDAP exception, or an empty
-   *          array if there are none.
+   *          list if there are none.
    */
   public final String[] getReferralURLs()
   {
@@ -470,13 +469,9 @@ public class LDAPException
 
   /**
    * Retrieves the set of response controls for this LDAP exception.
-   * Individual response controls of a specific type may be retrieved and
-   * decoded using the {@code get} method in the response control class, using
-   * the {@link #toLDAPResult()} method to convert this exception to an
-   * {@link LDAPResult}.
    *
    * @return  The set of response controls for this LDAP exception, or an empty
-   *          array if there are none.
+   *          list if there are none.
    */
   public final Control[] getResponseControls()
   {
@@ -513,18 +508,10 @@ public class LDAPException
    *
    * @return  The {@code LDAPResult} object created from this exception.
    */
-  public LDAPResult toLDAPResult()
+  public final LDAPResult toLDAPResult()
   {
-    if ((diagnosticMessage == null) && (getMessage() != null))
-    {
-      return new LDAPResult(-1, resultCode, getMessage(), matchedDN,
-           referralURLs, responseControls);
-    }
-    else
-    {
-      return new LDAPResult(-1, resultCode, diagnosticMessage, matchedDN,
-           referralURLs, responseControls);
-    }
+    return new LDAPResult(-1, resultCode, diagnosticMessage, matchedDN,
+         referralURLs, responseControls);
   }
 
 

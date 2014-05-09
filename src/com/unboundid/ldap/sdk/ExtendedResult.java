@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -116,37 +116,6 @@ public class ExtendedResult
 
     this.oid   = oid;
     this.value = value;
-  }
-
-
-
-  /**
-   * Creates a new extended result with the information contained in the
-   * provided LDAP result.  The extended result will not have an OID or value.
-   *
-   * @param  result  The LDAP result whose content should be used for this
-   *                 extended result.
-   */
-  public ExtendedResult(final LDAPResult result)
-  {
-    super(result);
-
-    oid   = null;
-    value = null;
-  }
-
-
-
-  /**
-   * Creates a new extended result from the provided {@code LDAPException}.
-   * The extended result will not have an OID or value.
-   *
-   * @param  exception  The {@code LDAPException} to use to create this extended
-   *                    result.
-   */
-  public ExtendedResult(final LDAPException exception)
-  {
-    this(exception.toLDAPResult());
   }
 
 
@@ -358,13 +327,6 @@ public class ExtendedResult
   {
     buffer.append("ExtendedResult(resultCode=");
     buffer.append(getResultCode());
-
-    final int messageID = getMessageID();
-    if (messageID >= 0)
-    {
-      buffer.append(", messageID=");
-      buffer.append(messageID);
-    }
 
     final String diagnosticMessage = getDiagnosticMessage();
     if (diagnosticMessage != null)

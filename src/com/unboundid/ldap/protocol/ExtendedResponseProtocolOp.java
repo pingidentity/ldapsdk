@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,16 +29,10 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1Enumerated;
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -144,35 +138,6 @@ public final class ExtendedResponseProtocolOp
     {
       this.responseValue =
            new ASN1OctetString(TYPE_RESPONSE_VALUE, responseValue.getValue());
-    }
-  }
-
-
-
-  /**
-   * Creates a new extended response protocol op from the provided extended
-   * result object.
-   *
-   * @param  result  The extended result object to use to create this protocol
-   *                 op.
-   */
-  public ExtendedResponseProtocolOp(final LDAPResult result)
-  {
-    resultCode        = result.getResultCode().intValue();
-    matchedDN         = result.getMatchedDN();
-    diagnosticMessage = result.getDiagnosticMessage();
-    referralURLs      = toList(result.getReferralURLs());
-
-    if (result instanceof ExtendedResult)
-    {
-      final ExtendedResult r = (ExtendedResult) result;
-      responseOID   = r.getOID();
-      responseValue = r.getValue();
-    }
-    else
-    {
-      responseOID   = null;
-      responseValue = null;
     }
   }
 
@@ -356,164 +321,6 @@ public final class ExtendedResponseProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(6);
-    elements.add(new ASN1Enumerated(getResultCode()));
-
-    final String mdn = getMatchedDN();
-    if (mdn == null)
-    {
-      elements.add(new ASN1OctetString());
-    }
-    else
-    {
-      elements.add(new ASN1OctetString(mdn));
-    }
-
-    final String dm = getDiagnosticMessage();
-    if (dm == null)
-    {
-      elements.add(new ASN1OctetString());
-    }
-    else
-    {
-      elements.add(new ASN1OctetString(dm));
-    }
-
-    final List<String> refs = getReferralURLs();
-    if (! refs.isEmpty())
-    {
-      final ArrayList<ASN1Element> refElements =
-           new ArrayList<ASN1Element>(refs.size());
-      for (final String r : refs)
-      {
-        refElements.add(new ASN1OctetString(r));
-      }
-      elements.add(new ASN1Sequence(GenericResponseProtocolOp.TYPE_REFERRALS,
-           refElements));
-    }
-
-    if (responseOID != null)
-    {
-      elements.add(new ASN1OctetString(TYPE_RESPONSE_OID, responseOID));
-    }
-
-    if (responseValue != null)
-    {
-      elements.add(responseValue);
-    }
-
-    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_RESPONSE,
-         elements);
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as an extended response protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded extended response protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         an extended response protocol op.
-   */
-  public static ExtendedResponseProtocolOp decodeProtocolOp(
-                                                final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final int resultCode =
-           ASN1Enumerated.decodeAsEnumerated(elements[0]).intValue();
-
-      final String matchedDN;
-      final String md =
-           ASN1OctetString.decodeAsOctetString(elements[1]).stringValue();
-      if (md.length() > 0)
-      {
-        matchedDN = md;
-      }
-      else
-      {
-        matchedDN = null;
-      }
-
-      final String diagnosticMessage;
-      final String dm =
-           ASN1OctetString.decodeAsOctetString(elements[2]).stringValue();
-      if (dm.length() > 0)
-      {
-        diagnosticMessage = dm;
-      }
-      else
-      {
-        diagnosticMessage = null;
-      }
-
-      ASN1OctetString responseValue = null;
-      List<String> referralURLs = null;
-      String responseOID = null;
-      if (elements.length > 3)
-      {
-        for (int i=3; i < elements.length; i++)
-        {
-          switch (elements[i].getType())
-          {
-            case GenericResponseProtocolOp.TYPE_REFERRALS:
-              final ASN1Element[] refElements =
-                   ASN1Sequence.decodeAsSequence(elements[3]).elements();
-              referralURLs = new ArrayList<String>(refElements.length);
-              for (final ASN1Element e : refElements)
-              {
-                referralURLs.add(
-                     ASN1OctetString.decodeAsOctetString(e).stringValue());
-              }
-              break;
-
-            case TYPE_RESPONSE_OID:
-              responseOID = ASN1OctetString.decodeAsOctetString(elements[i]).
-                   stringValue();
-              break;
-
-            case TYPE_RESPONSE_VALUE:
-              responseValue = ASN1OctetString.decodeAsOctetString(elements[i]);
-              break;
-
-            default:
-              throw new LDAPException(ResultCode.DECODING_ERROR,
-                   ERR_EXTENDED_RESPONSE_INVALID_ELEMENT.get(
-                        toHex(elements[i].getType())));
-          }
-        }
-      }
-
-      return new ExtendedResponseProtocolOp(resultCode, matchedDN,
-           diagnosticMessage, referralURLs, responseOID, responseValue);
-    }
-    catch (final LDAPException le)
-    {
-      debugException(le);
-      throw le;
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_EXTENDED_RESPONSE_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -540,31 +347,10 @@ public final class ExtendedResponseProtocolOp
 
     if (responseValue != null)
     {
-      buffer.addOctetString(TYPE_RESPONSE_VALUE, responseValue.getValue());
+      buffer.addElement(responseValue);
     }
 
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates a extended result from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the extended result.
-   *                   It may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The extended result that was created.
-   */
-  public ExtendedResult toExtendedResult(final Control... controls)
-  {
-    final String[] referralArray = new String[referralURLs.size()];
-    referralURLs.toArray(referralArray);
-
-    return new ExtendedResult(-1, ResultCode.valueOf(resultCode),
-         diagnosticMessage, matchedDN, referralArray, responseOID,
-         responseValue, controls);
   }
 
 

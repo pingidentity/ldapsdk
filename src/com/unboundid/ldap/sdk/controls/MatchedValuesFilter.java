@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -158,7 +158,7 @@ public final class MatchedValuesFilter
   /**
    * An empty array that will be used if there are no subAny elements.
    */
-  private static final String[] NO_SUB_ANY_STRINGS = NO_STRINGS;
+  private static final String[] NO_SUB_ANY_STRINGS = new String[0];
 
 
 

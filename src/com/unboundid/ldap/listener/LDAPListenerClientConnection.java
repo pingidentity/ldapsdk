@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -28,30 +28,17 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1StreamReader;
-import com.unboundid.ldap.protocol.AddResponseProtocolOp;
-import com.unboundid.ldap.protocol.BindResponseProtocolOp;
-import com.unboundid.ldap.protocol.CompareResponseProtocolOp;
-import com.unboundid.ldap.protocol.DeleteResponseProtocolOp;
-import com.unboundid.ldap.protocol.ExtendedResponseProtocolOp;
 import com.unboundid.ldap.protocol.IntermediateResponseProtocolOp;
 import com.unboundid.ldap.protocol.LDAPMessage;
-import com.unboundid.ldap.protocol.ModifyResponseProtocolOp;
-import com.unboundid.ldap.protocol.ModifyDNResponseProtocolOp;
-import com.unboundid.ldap.protocol.SearchResultDoneProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultEntryProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultReferenceProtocolOp;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Entry;
-import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
@@ -88,11 +75,7 @@ public final class LDAPListenerClientConnection
   private final ASN1Buffer asn1Buffer;
 
   // The ASN.1 stream reader used to read requests from the client.
-  private volatile ASN1StreamReader asn1Reader;
-
-  // Indicates whether to suppress the next call to sendMessage to send a
-  // response to the client.
-  private final AtomicBoolean suppressNextResponse;
+  private final ASN1StreamReader asn1Reader;
 
   // The set of intermediate response transformers for this connection.
   private final CopyOnWriteArrayList<IntermediateResponseTransformer>
@@ -119,10 +102,10 @@ public final class LDAPListenerClientConnection
   private final long connectionID;
 
   // The output stream used to write responses to the client.
-  private volatile OutputStream outputStream;
+  private final OutputStream outputStream;
 
   // The socket used to communicate with the client.
-  private volatile Socket socket;
+  private final Socket socket;
 
 
 
@@ -158,11 +141,6 @@ public final class LDAPListenerClientConnection
          throws LDAPException
   {
     Validator.ensureNotNull(socket, requestHandler);
-
-    setName("LDAPListener client connection reader for connection from " +
-         socket.getInetAddress().getHostAddress() + ':' +
-         socket.getPort() + " to " + socket.getLocalAddress().getHostAddress() +
-         ':' + socket.getLocalPort());
 
     this.listener         = listener;
     this.socket           = socket;
@@ -298,8 +276,7 @@ public final class LDAPListenerClientConnection
       throw le;
     }
 
-    asn1Buffer           = new ASN1Buffer();
-    suppressNextResponse = new AtomicBoolean(false);
+    asn1Buffer = new ASN1Buffer();
   }
 
 
@@ -309,7 +286,7 @@ public final class LDAPListenerClientConnection
    *
    * @throws  IOException  If a problem occurs while closing the socket.
    */
-  public synchronized void close()
+  public void close()
          throws IOException
   {
     try
@@ -428,7 +405,7 @@ public final class LDAPListenerClientConnection
           final int messageID = requestMessage.getMessageID();
           final List<Control> controls = requestMessage.getControls();
 
-          LDAPMessage responseMessage;
+          final LDAPMessage responseMessage;
           switch (requestMessage.getProtocolOpType())
           {
             case LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST:
@@ -438,150 +415,43 @@ public final class LDAPListenerClientConnection
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST:
-              try
-              {
-                responseMessage = requestHandler.processAddRequest(messageID,
-                     requestMessage.getAddRequestProtocolOp(), controls);
-              }
-              catch (final Exception e)
-              {
-                Debug.debugException(e);
-                responseMessage = new LDAPMessage(messageID,
-                     new AddResponseProtocolOp(
-                          ResultCode.OTHER_INT_VALUE, null,
-                          ERR_CONN_REQUEST_HANDLER_FAILURE.get(
-                               StaticUtils.getExceptionMessage(e)),
-                          null));
-              }
+              responseMessage = requestHandler.processAddRequest(messageID,
+                   requestMessage.getAddRequestProtocolOp(), controls);
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST:
-              try
-              {
-                responseMessage = requestHandler.processBindRequest(messageID,
-                     requestMessage.getBindRequestProtocolOp(), controls);
-              }
-              catch (final Exception e)
-              {
-                Debug.debugException(e);
-                responseMessage = new LDAPMessage(messageID,
-                     new BindResponseProtocolOp(
-                          ResultCode.OTHER_INT_VALUE, null,
-                          ERR_CONN_REQUEST_HANDLER_FAILURE.get(
-                               StaticUtils.getExceptionMessage(e)),
-                          null, null));
-              }
+              responseMessage = requestHandler.processBindRequest(messageID,
+                   requestMessage.getBindRequestProtocolOp(), controls);
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST:
-              try
-              {
-                responseMessage = requestHandler.processCompareRequest(
-                     messageID, requestMessage.getCompareRequestProtocolOp(),
-                     controls);
-              }
-              catch (final Exception e)
-              {
-                Debug.debugException(e);
-                responseMessage = new LDAPMessage(messageID,
-                     new CompareResponseProtocolOp(
-                          ResultCode.OTHER_INT_VALUE, null,
-                          ERR_CONN_REQUEST_HANDLER_FAILURE.get(
-                               StaticUtils.getExceptionMessage(e)),
-                          null));
-              }
+              responseMessage = requestHandler.processCompareRequest(messageID,
+                   requestMessage.getCompareRequestProtocolOp(), controls);
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST:
-              try
-              {
-                responseMessage = requestHandler.processDeleteRequest(messageID,
-                     requestMessage.getDeleteRequestProtocolOp(), controls);
-              }
-              catch (final Exception e)
-              {
-                Debug.debugException(e);
-                responseMessage = new LDAPMessage(messageID,
-                     new DeleteResponseProtocolOp(
-                          ResultCode.OTHER_INT_VALUE, null,
-                          ERR_CONN_REQUEST_HANDLER_FAILURE.get(
-                               StaticUtils.getExceptionMessage(e)),
-                          null));
-              }
+              responseMessage = requestHandler.processDeleteRequest(messageID,
+                   requestMessage.getDeleteRequestProtocolOp(), controls);
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST:
-              try
-              {
-                responseMessage = requestHandler.processExtendedRequest(
-                     messageID, requestMessage.getExtendedRequestProtocolOp(),
-                     controls);
-              }
-              catch (final Exception e)
-              {
-                Debug.debugException(e);
-                responseMessage = new LDAPMessage(messageID,
-                     new ExtendedResponseProtocolOp(
-                          ResultCode.OTHER_INT_VALUE, null,
-                          ERR_CONN_REQUEST_HANDLER_FAILURE.get(
-                               StaticUtils.getExceptionMessage(e)),
-                          null, null, null));
-              }
+              responseMessage = requestHandler.processExtendedRequest(messageID,
+                   requestMessage.getExtendedRequestProtocolOp(), controls);
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST:
-              try
-              {
-                responseMessage = requestHandler.processModifyRequest(messageID,
-                     requestMessage.getModifyRequestProtocolOp(), controls);
-              }
-              catch (final Exception e)
-              {
-                Debug.debugException(e);
-                responseMessage = new LDAPMessage(messageID,
-                     new ModifyResponseProtocolOp(
-                          ResultCode.OTHER_INT_VALUE, null,
-                          ERR_CONN_REQUEST_HANDLER_FAILURE.get(
-                               StaticUtils.getExceptionMessage(e)),
-                          null));
-              }
+              responseMessage = requestHandler.processModifyRequest(messageID,
+                   requestMessage.getModifyRequestProtocolOp(), controls);
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST:
-              try
-              {
-                responseMessage = requestHandler.processModifyDNRequest(
-                     messageID, requestMessage.getModifyDNRequestProtocolOp(),
-                     controls);
-              }
-              catch (final Exception e)
-              {
-                Debug.debugException(e);
-                responseMessage = new LDAPMessage(messageID,
-                     new ModifyDNResponseProtocolOp(
-                          ResultCode.OTHER_INT_VALUE, null,
-                          ERR_CONN_REQUEST_HANDLER_FAILURE.get(
-                               StaticUtils.getExceptionMessage(e)),
-                          null));
-              }
+              responseMessage = requestHandler.processModifyDNRequest(messageID,
+                   requestMessage.getModifyDNRequestProtocolOp(), controls);
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST:
-              try
-              {
-                responseMessage = requestHandler.processSearchRequest(messageID,
-                     requestMessage.getSearchRequestProtocolOp(), controls);
-              }
-              catch (final Exception e)
-              {
-                Debug.debugException(e);
-                responseMessage = new LDAPMessage(messageID,
-                     new SearchResultDoneProtocolOp(
-                          ResultCode.OTHER_INT_VALUE, null,
-                          ERR_CONN_REQUEST_HANDLER_FAILURE.get(
-                               StaticUtils.getExceptionMessage(e)),
-                          null));
-              }
+              responseMessage = requestHandler.processSearchRequest(messageID,
+                   requestMessage.getSearchRequestProtocolOp(), controls);
               break;
 
             case LDAPMessage.PROTOCOL_OP_TYPE_UNBIND_REQUEST:
@@ -643,25 +513,8 @@ public final class LDAPListenerClientConnection
   private synchronized void sendMessage(final LDAPMessage message)
           throws LDAPException
   {
-    // If we should suppress this response (which will only be because the
-    // response has already been sent through some other means, for example as
-    // part of StartTLS processing), then do so.
-    if (suppressNextResponse.compareAndSet(true, false))
-    {
-      return;
-    }
-
     asn1Buffer.clear();
-
-    try
-    {
-      message.writeTo(asn1Buffer);
-    }
-    catch (final LDAPRuntimeException lre)
-    {
-      Debug.debugException(lre);
-      lre.throwLDAPException();
-    }
+    message.writeTo(asn1Buffer);
 
     try
     {
@@ -675,13 +528,6 @@ public final class LDAPListenerClientConnection
            ERR_CONN_SEND_MESSAGE_EXCEPTION.get(
                 StaticUtils.getExceptionMessage(ioe)),
            ioe);
-    }
-    finally
-    {
-      if (asn1Buffer.zeroBufferOnClear())
-      {
-        asn1Buffer.clear();
-      }
     }
   }
 
@@ -730,28 +576,15 @@ public final class LDAPListenerClientConnection
 
       for (final SearchEntryTransformer t : searchEntryTransformers)
       {
-        try
+        final ObjectPair<SearchResultEntryProtocolOp,Control[]> p =
+             t.transformEntry(messageID, op, c);
+        if (p == null)
         {
-          final ObjectPair<SearchResultEntryProtocolOp,Control[]> p =
-               t.transformEntry(messageID, op, c);
-          if (p == null)
-          {
-            return;
-          }
+          return;
+        }
 
-          op = p.getFirst();
-          c  = p.getSecond();
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          sendMessage(new LDAPMessage(messageID, protocolOp, c));
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_CONN_SEARCH_ENTRY_TRANSFORMER_EXCEPTION.get(
-                    t.getClass().getName(), String.valueOf(op),
-                    StaticUtils.getExceptionMessage(e)),
-               e);
-        }
+        op = p.getFirst();
+        c  = p.getSecond();
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -832,28 +665,15 @@ public final class LDAPListenerClientConnection
 
       for (final SearchReferenceTransformer t : searchReferenceTransformers)
       {
-        try
+        final ObjectPair<SearchResultReferenceProtocolOp,Control[]> p =
+             t.transformReference(messageID, op, c);
+        if (p == null)
         {
-          final ObjectPair<SearchResultReferenceProtocolOp,Control[]> p =
-               t.transformReference(messageID, op, c);
-          if (p == null)
-          {
-            return;
-          }
+          return;
+        }
 
-          op = p.getFirst();
-          c  = p.getSecond();
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          sendMessage(new LDAPMessage(messageID, protocolOp, c));
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_CONN_SEARCH_REFERENCE_TRANSFORMER_EXCEPTION.get(
-                    t.getClass().getName(), String.valueOf(op),
-                    StaticUtils.getExceptionMessage(e)),
-               e);
-        }
+        op = p.getFirst();
+        c  = p.getSecond();
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -905,28 +725,15 @@ public final class LDAPListenerClientConnection
       for (final IntermediateResponseTransformer t :
            intermediateResponseTransformers)
       {
-        try
+        final ObjectPair<IntermediateResponseProtocolOp,Control[]> p =
+             t.transformIntermediateResponse(messageID, op, c);
+        if (p == null)
         {
-          final ObjectPair<IntermediateResponseProtocolOp,Control[]> p =
-               t.transformIntermediateResponse(messageID, op, c);
-          if (p == null)
-          {
-            return;
-          }
+          return;
+        }
 
-          op = p.getFirst();
-          c  = p.getSecond();
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          sendMessage(new LDAPMessage(messageID, protocolOp, c));
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_CONN_INTERMEDIATE_RESPONSE_TRANSFORMER_EXCEPTION.get(
-                    t.getClass().getName(), String.valueOf(op),
-                    StaticUtils.getExceptionMessage(e)),
-               e);
-        }
+        op = p.getFirst();
+        c  = p.getSecond();
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -936,120 +743,13 @@ public final class LDAPListenerClientConnection
 
 
   /**
-   * Sends an unsolicited notification message to the client with the provided
-   * extended result.
-   *
-   * @param  result  The extended result to use for the unsolicited
-   *                 notification.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to send the
-   *                         unsolicited notification.  If an exception is
-   *                         thrown, then the client connection will have been
-   *                         terminated.
-   */
-  public void sendUnsolicitedNotification(final ExtendedResult result)
-         throws LDAPException
-  {
-    sendUnsolicitedNotification(
-         new ExtendedResponseProtocolOp(result.getResultCode().intValue(),
-              result.getMatchedDN(), result.getDiagnosticMessage(),
-              StaticUtils.toList(result.getReferralURLs()), result.getOID(),
-              result.getValue()),
-         result.getResponseControls()
-    );
-  }
-
-
-
-  /**
-   * Sends an unsolicited notification message to the client with the provided
-   * information.
-   *
-   * @param  extendedResponse  The extended response to use for the unsolicited
-   *                           notification.
-   * @param  controls          The set of controls to include with the
-   *                           unsolicited notification.  It may be empty or
-   *                           {@code null} if no controls should be included.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to send the
-   *                         unsolicited notification.  If an exception is
-   *                         thrown, then the client connection will have been
-   *                         terminated.
-   */
-  public void sendUnsolicitedNotification(
-                   final ExtendedResponseProtocolOp extendedResponse,
-                   final Control... controls)
-         throws LDAPException
-  {
-    sendMessage(new LDAPMessage(0, extendedResponse, controls));
-  }
-
-
-
-  /**
    * Retrieves the socket used to communicate with the client.
    *
    * @return  The socket used to communicate with the client.
    */
-  public synchronized Socket getSocket()
+  public Socket getSocket()
   {
     return socket;
-  }
-
-
-
-  /**
-   * Attempts to convert this unencrypted connection to one that uses TLS
-   * encryption, as would be used during the course of invoking the StartTLS
-   * extended operation.  If this is called, then the response that would have
-   * been returned from the associated request will be suppressed, so the
-   * returned output stream must be used to send the appropriate response to
-   * the client.
-   *
-   * @param  f  The SSL socket factory that will be used to convert the existing
-   *            {@code Socket} to an {@code SSLSocket}.
-   *
-   * @return  An output stream that can be used to send a clear-text message to
-   *          the client (e.g., the StartTLS response message).
-   *
-   * @throws  LDAPException  If a problem is encountered while trying to convert
-   *                         the existing socket to an SSL socket.  If this is
-   *                         thrown, then the connection will have been closed.
-   */
-  public synchronized OutputStream convertToTLS(final SSLSocketFactory f)
-         throws LDAPException
-  {
-    final OutputStream clearOutputStream = outputStream;
-
-    final Socket origSocket = socket;
-    final String hostname   = origSocket.getInetAddress().getHostName();
-    final int port          = origSocket.getPort();
-
-    try
-    {
-      synchronized (f)
-      {
-        socket = f.createSocket(socket, hostname, port, true);
-      }
-      ((SSLSocket) socket).setUseClientMode(false);
-      outputStream = socket.getOutputStream();
-      asn1Reader = new ASN1StreamReader(socket.getInputStream());
-      suppressNextResponse.set(true);
-      return clearOutputStream;
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-
-      final LDAPException le = new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_CONN_CONVERT_TO_TLS_FAILURE.get(
-                StaticUtils.getExceptionMessage(e)),
-           e);
-
-      close(le);
-
-      throw le;
-    }
   }
 
 

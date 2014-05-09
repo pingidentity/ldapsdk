@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -25,7 +25,6 @@ package com.unboundid.ldap.sdk.schema;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Map;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -629,64 +628,6 @@ public abstract class SchemaElement
         buffer.append(c);
       }
     }
-  }
-
-
-
-  /**
-   * Retrieves a hash code for this schema element.
-   *
-   * @return  A hash code for this schema element.
-   */
-  public abstract int hashCode();
-
-
-
-  /**
-   * Indicates whether the provided object is equal to this schema element.
-   *
-   * @param  o  The object for which to make the determination.
-   *
-   * @return  {@code true} if the provided object may be considered equal to
-   *          this schema element, or {@code false} if not.
-   */
-  public abstract boolean equals(final Object o);
-
-
-
-  /**
-   * Indicates whether the two extension maps are equivalent.
-   *
-   * @param  m1  The first schema element to examine.
-   * @param  m2  The second schema element to examine.
-   *
-   * @return  {@code true} if the provided extension maps are equivalent, or
-   *          {@code false} if not.
-   */
-  protected static boolean extensionsEqual(final Map<String,String[]> m1,
-                                           final Map<String,String[]> m2)
-  {
-    if (m1.isEmpty())
-    {
-      return m2.isEmpty();
-    }
-
-    if (m1.size() != m2.size())
-    {
-      return false;
-    }
-
-    for (final Map.Entry<String,String[]> e : m1.entrySet())
-    {
-      final String[] v1 = e.getValue();
-      final String[] v2 = m2.get(e.getKey());
-      if (! arraysEqualOrderIndependent(v1, v2))
-      {
-        return false;
-      }
-    }
-
-    return true;
   }
 
 

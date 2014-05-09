@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -31,9 +31,7 @@ import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
@@ -268,34 +266,6 @@ public abstract class GenericResponseProtocolOp
       refSequence.end();
     }
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates a new LDAP result object from this response protocol op.
-   *
-   * @param  controls  The set of controls to include in the LDAP result.  It
-   *                   may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The LDAP result that was created.
-   */
-  public LDAPResult toLDAPResult(final Control... controls)
-  {
-    final String[] refs;
-    if (referralURLs.isEmpty())
-    {
-      refs = NO_STRINGS;
-    }
-    else
-    {
-      refs = new String[referralURLs.size()];
-      referralURLs.toArray(refs);
-    }
-
-    return new LDAPResult(-1, ResultCode.valueOf(resultCode), diagnosticMessage,
-         matchedDN, refs, controls);
   }
 
 

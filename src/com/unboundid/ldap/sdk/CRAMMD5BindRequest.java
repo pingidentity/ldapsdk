@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,8 +22,6 @@ package com.unboundid.ldap.sdk;
 
 
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -72,21 +70,17 @@ import static com.unboundid.util.Validator.*;
  * bind against a directory server with a username of "john.doe" and a password
  * of "password":
  * <PRE>
- * CRAMMD5BindRequest bindRequest =
- *      new CRAMMD5BindRequest("u:john.doe", "password");
- * BindResult bindResult;
- * try
- * {
- *   bindResult = connection.bind(bindRequest);
- *   // If we get here, then the bind was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // The bind failed for some reason.
- *   bindResult = new BindResult(le.toLDAPResult());
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   CRAMMD5BindRequest bindRequest =
+ *        new CRAMMD5BindRequest("u:john.doe", "password");
+ *   try
+ *   {
+ *     BindResult bindResult = connection.bind(bindRequest);
+ *     // If we get here, then the bind was successful.
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     // The bind failed for some reason.
+ *   }
  * </PRE>
  */
 @NotMutable()
@@ -114,10 +108,6 @@ public final class CRAMMD5BindRequest
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
-
-  // A list that will be updated with messages about any unhandled callbacks
-  // encountered during processing.
-  private final List<String> unhandledCallbackMessages;
 
   // The authentication ID string for this bind request.
   private final String authenticationID;
@@ -239,8 +229,6 @@ public final class CRAMMD5BindRequest
 
     this.authenticationID = authenticationID;
     this.password         = password;
-
-    unhandledCallbackMessages = new ArrayList<String>(5);
   }
 
 
@@ -311,8 +299,6 @@ public final class CRAMMD5BindRequest
   protected BindResult process(final LDAPConnection connection, final int depth)
             throws LDAPException
   {
-    unhandledCallbackMessages.clear();
-
     final SaslClient saslClient;
     final String[] mechanisms = { CRAMMD5_MECHANISM_NAME };
 
@@ -332,7 +318,7 @@ public final class CRAMMD5BindRequest
 
     final SASLHelper helper = new SASLHelper(this, connection,
          CRAMMD5_MECHANISM_NAME, saslClient, getControls(),
-         getResponseTimeoutMillis(connection), unhandledCallbackMessages);
+         getResponseTimeoutMillis(connection));
 
     try
     {
@@ -385,9 +371,6 @@ public final class CRAMMD5BindRequest
                 "Unexpected CRAM-MD5 SASL callback of type " +
                 callback.getClass().getName());
         }
-
-        unhandledCallbackMessages.add(ERR_CRAMMD5_UNEXPECTED_CALLBACK.get(
-             callback.getClass().getName()));
       }
     }
   }

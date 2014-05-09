@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.DebugType;
@@ -104,10 +103,6 @@ public final class ASN1Buffer
 
 
 
-  // Indicates whether to zero out the contents of the buffer the next time it
-  // is cleared in order to wipe out any sensitive data it may contain.
-  private final AtomicBoolean zeroBufferOnClear;
-
   // The buffer to which all data will be written.
   private final ByteStringBuffer buffer;
 
@@ -141,34 +136,7 @@ public final class ASN1Buffer
   {
     this.maxBufferSize = maxBufferSize;
 
-    buffer            = new ByteStringBuffer();
-    zeroBufferOnClear = new AtomicBoolean(false);
-  }
-
-
-
-  /**
-   * Indicates whether the content of the buffer should be zeroed out the next
-   * time it is cleared in order to wipe any sensitive information it may
-   * contain.
-   *
-   * @return  {@code true} if the content of the buffer should be zeroed out the
-   *          next time it is cleared, or {@code false} if not.
-   */
-  public boolean zeroBufferOnClear()
-  {
-    return zeroBufferOnClear.get();
-  }
-
-
-
-  /**
-   * Specifies that the content of the buffer should be zeroed out the next time
-   * it is cleared in order to wipe any sensitive information it may contain.
-   */
-  public void setZeroBufferOnClear()
-  {
-    zeroBufferOnClear.set(true);
+    buffer = new ByteStringBuffer();
   }
 
 
@@ -180,7 +148,7 @@ public final class ASN1Buffer
    */
   public void clear()
   {
-    buffer.clear(zeroBufferOnClear.getAndSet(false));
+    buffer.clear();
 
     if ((maxBufferSize > 0) && (buffer.capacity() > maxBufferSize))
     {

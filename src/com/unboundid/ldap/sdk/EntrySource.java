@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -54,46 +54,39 @@ import com.unboundid.util.ThreadSafetyLevel;
  * The following example demonstrates the process that may be used for iterating
  * across the entries provided by an entry source:
  * <PRE>
- * LDIFReader ldifReader = new LDIFReader(ldifFilePath);
- * EntrySource entrySource = new LDIFEntrySource(ldifReader);
- *
- * int entriesRead = 0;
- * int exceptionsCaught = 0;
- * try
- * {
- *   while (true)
+ *   try
  *   {
- *     try
+ *     while (true)
  *     {
- *       Entry entry = entrySource.nextEntry();
- *       if (entry == null)
+ *       try
  *       {
- *         // There are no more entries to be read.
- *         break;
+ *         Entry entry = entrySource.nextEntry();
+ *         if (entry == null)
+ *         {
+ *           // There are no more entries to be read.
+ *           break;
+ *         }
+ *         else
+ *         {
+ *           // Do something with the entry here.
+ *         }
  *       }
- *       else
+ *       catch (EntrySourceException e)
  *       {
- *         // Do something with the entry here.
- *         entriesRead++;
- *       }
- *     }
- *     catch (EntrySourceException e)
- *     {
- *       // Some kind of problem was encountered (e.g., a malformed entry
- *       // found in an LDIF file, or a referral returned from a directory).
- *       // See if we can continue reading entries.
- *       exceptionsCaught++;
- *       if (! e.mayContinueReading())
- *       {
- *         break;
+ *         // Some kind of problem was encountered (e.g., a malformed entry
+ *         // found in an LDIF file, or a referral returned from a directory).
+ *         // See if we can continue reading entries.
+ *         if (! e.mayContinueReading())
+ *         {
+ *           break;
+ *         }
  *       }
  *     }
  *   }
- * }
- * finally
- * {
- *   entrySource.close();
- * }
+ *   finally
+ *   {
+ *     entrySource.close();
+ *   }
  * </PRE>
  */
 @NotExtensible()

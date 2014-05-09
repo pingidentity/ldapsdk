@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,7 +22,6 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.ParseException;
@@ -31,7 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -39,7 +37,6 @@ import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
@@ -47,21 +44,17 @@ import com.unboundid.util.HorizontalAlignment;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.OutputFormat;
-import com.unboundid.util.RateAdjustor;
 import com.unboundid.util.ResultCodeCounter;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.ValuePattern;
-import com.unboundid.util.WakeableSleeper;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
-import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
 
 
@@ -131,10 +124,6 @@ import static com.unboundid.util.StaticUtils.*;
  *   <LI>"-I {num}" or "--numIntervals {num}" -- specifies the maximum number of
  *       intervals for which to run.  If this is not provided, then it will
  *       run forever.</LI>
- *   <LI>"--iterationsBeforeReconnect {num}" -- specifies the number of search
- *       iterations that should be performed on a connection before that
- *       connection is closed and replaced with a newly-established (and
- *       authenticated, if appropriate) connection.</LI>
  *   <LI>"-r {ops-per-second}" or "--ratePerSecond {ops-per-second}" --
  *       specifies the target number of operations to perform per second.  Each
  *       search and modify operation will be counted separately for this
@@ -144,15 +133,6 @@ import static com.unboundid.util.StaticUtils.*;
  *       to specify a sufficient number of threads for achieving this rate.  If
  *       this option is not provided, then the tool will run at the maximum rate
  *       for the specified number of threads.</LI>
- *   <LI>"--variableRateData {path}" -- specifies the path to a file containing
- *       information needed to allow the tool to vary the target rate over time.
- *       If this option is not provided, then the tool will either use a fixed
- *       target rate as specified by the "--ratePerSecond" argument, or it will
- *       run at the maximum rate.</LI>
- *   <LI>"--generateSampleRateFile {path}" -- specifies the path to a file to
- *       which sample data will be written illustrating and describing the
- *       format of the file expected to be used in conjunction with the
- *       "--variableRateData" argument.</LI>
  *   <LI>"--warmUpIntervals {num}" -- specifies the number of intervals to
  *       complete before beginning overall statistics collection.</LI>
  *   <LI>"--timestampFormat {format}" -- specifies the format to use for
@@ -182,9 +162,6 @@ public final class SearchAndModRate
 
 
 
-  // Indicates whether a request has been made to stop running.
-  private final AtomicBoolean stopRequested;
-
   // The argument used to indicate whether to generate output in CSV format.
   private BooleanArgument csvFormat;
 
@@ -195,28 +172,14 @@ public final class SearchAndModRate
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
 
-  // The argument used to specify the number of search and modify iterations on
-  // a connection before it is closed and re-established.
-  private IntegerArgument iterationsBeforeReconnect;
-
   // The argument used to specify the number of intervals.
   private IntegerArgument numIntervals;
 
   // The argument used to specify the number of threads.
   private IntegerArgument numThreads;
 
-  // The argument used to specify the seed to use for the random number
-  // generator.
-  private IntegerArgument randomSeed;
-
   // The target rate of operations per second.
   private IntegerArgument ratePerSecond;
-
-  // The argument used to specify a variable rate file.
-  private FileArgument sampleRateFile;
-
-  // The argument used to specify a variable rate file.
-  private FileArgument variableRateData;
 
   // The argument used to specify the length of the values to generate.
   private IntegerArgument valueLength;
@@ -248,12 +211,6 @@ public final class SearchAndModRate
 
   // The argument used to specify the timestamp format.
   private StringArgument timestampFormat;
-
-  // The thread currently being used to run the searchrate tool.
-  private volatile Thread runningThread;
-
-  // A wakeable sleeper that will be used to sleep between reporting intervals.
-  private final WakeableSleeper sleeper;
 
 
 
@@ -313,9 +270,6 @@ public final class SearchAndModRate
                           final OutputStream errStream)
   {
     super(outStream, errStream);
-
-    stopRequested = new AtomicBoolean(false);
-    sleeper = new WakeableSleeper();
   }
 
 
@@ -343,19 +297,6 @@ public final class SearchAndModRate
   {
     return "Perform repeated searches against an " +
            "LDAP directory server and modify each entry returned.";
-  }
-
-
-
-  /**
-   * Retrieves the version string for this tool.
-   *
-   * @return  The version string for this tool.
-   */
-  @Override()
-  public String getToolVersion()
-  {
-    return Version.NUMERIC_VERSION_STRING;
   }
 
 
@@ -457,44 +398,15 @@ public final class SearchAndModRate
                                        Integer.MAX_VALUE);
     parser.addArgument(numIntervals);
 
-    description = "The number of search and modify iterations that should be " +
-                  "processed on a connection before that connection is " +
-                  "closed and replaced with a newly-established (and " +
-                  "authenticated, if appropriate) connection.  If this is " +
-                  "not provided, then connections will not be periodically " +
-                  "closed and re-established.";
-    iterationsBeforeReconnect = new IntegerArgument(null,
-         "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
-    parser.addArgument(iterationsBeforeReconnect);
-
     description = "The target number of searches to perform per second.  It " +
                   "is still necessary to specify a sufficient number of " +
-                  "threads for achieving this rate.  If neither this option " +
-                  "nor --variableRateData is provided, then the tool will " +
-                  "run at the maximum rate for the specified number of " +
-                  "threads.";
+                  "threads for achieving this rate.  If this option is not " +
+                  "provided, then the tool will run at the maximum rate for " +
+                  "the specified number of threads.";
     ratePerSecond = new IntegerArgument('r', "ratePerSecond", false, 1,
                                         "{searches-per-second}", description,
                                         1, Integer.MAX_VALUE);
     parser.addArgument(ratePerSecond);
-
-    final String variableRateDataArgName = "variableRateData";
-    final String generateSampleRateFileArgName = "generateSampleRateFile";
-    description = RateAdjustor.getVariableRateDataArgumentDescription(
-         generateSampleRateFileArgName);
-    variableRateData = new FileArgument(null, variableRateDataArgName, false, 1,
-                                        "{path}", description, true, true, true,
-                                        false);
-    parser.addArgument(variableRateData);
-
-    description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
-         variableRateDataArgName);
-    sampleRateFile = new FileArgument(null, generateSampleRateFileArgName,
-                                      false, 1, "{path}", description, false,
-                                      true, true, false);
-    sampleRateFile.setUsageArgument(true);
-    parser.addArgument(sampleRateFile);
-    parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
 
     description = "The number of intervals to complete before beginning " +
                   "overall statistics collection.  Specifying a nonzero " +
@@ -536,11 +448,6 @@ public final class SearchAndModRate
                   "display-friendly format";
     csvFormat = new BooleanArgument('c', "csv", 1, description);
     parser.addArgument(csvFormat);
-
-    description = "Specifies the seed to use for the random number generator.";
-    randomSeed = new IntegerArgument('R', "randomSeed", false, 1, "{value}",
-         description);
-    parser.addArgument(randomSeed);
   }
 
 
@@ -591,70 +498,15 @@ public final class SearchAndModRate
   @Override()
   public ResultCode doToolProcessing()
   {
-    runningThread = Thread.currentThread();
-
-    try
-    {
-      return doToolProcessingInternal();
-    }
-    finally
-    {
-      runningThread = null;
-    }
-  }
-
-
-
-  /**
-   * Performs the actual processing for this tool.  In this case, it gets a
-   * connection to the directory server and uses it to perform the requested
-   * searches.
-   *
-   * @return  The result code for the processing that was performed.
-   */
-  private ResultCode doToolProcessingInternal()
-  {
-    // If the sample rate file argument was specified, then generate the sample
-    // variable rate data file and return.
-    if (sampleRateFile.isPresent())
-    {
-      try
-      {
-        RateAdjustor.writeSampleVariableRateFile(sampleRateFile.getValue());
-        return ResultCode.SUCCESS;
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-        err("An error occurred while trying to write sample variable data " +
-             "rate file '", sampleRateFile.getValue().getAbsolutePath(),
-             "':  ", getExceptionMessage(e));
-        return ResultCode.LOCAL_ERROR;
-      }
-    }
-
-
-    // Determine the random seed to use.
-    final Long seed;
-    if (randomSeed.isPresent())
-    {
-      seed = Long.valueOf(randomSeed.getValue());
-    }
-    else
-    {
-      seed = null;
-    }
-
     // Create value patterns for the base DN, filter, and proxied authorization
     // DN.
     final ValuePattern dnPattern;
     try
     {
-      dnPattern = new ValuePattern(baseDN.getValue(), seed);
+      dnPattern = new ValuePattern(baseDN.getValue());
     }
-    catch (final ParseException pe)
+    catch (ParseException pe)
     {
-      debugException(pe);
       err("Unable to parse the base DN value pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -662,11 +514,10 @@ public final class SearchAndModRate
     final ValuePattern filterPattern;
     try
     {
-      filterPattern = new ValuePattern(filter.getValue(), seed);
+      filterPattern = new ValuePattern(filter.getValue());
     }
-    catch (final ParseException pe)
+    catch (ParseException pe)
     {
-      debugException(pe);
       err("Unable to parse the filter pattern:  ", pe.getMessage());
       return ResultCode.PARAM_ERROR;
     }
@@ -676,11 +527,10 @@ public final class SearchAndModRate
     {
       try
       {
-        authzIDPattern = new ValuePattern(proxyAs.getValue(), seed);
+        authzIDPattern = new ValuePattern(proxyAs.getValue());
       }
-      catch (final ParseException pe)
+      catch (ParseException pe)
       {
-        debugException(pe);
         err("Unable to parse the proxied authorization pattern:  ",
             pe.getMessage());
         return ResultCode.PARAM_ERROR;
@@ -702,7 +552,7 @@ public final class SearchAndModRate
     }
     else
     {
-      returnAttrs = NO_STRINGS;
+      returnAttrs = new String[0];
     }
 
 
@@ -718,42 +568,13 @@ public final class SearchAndModRate
     // If the --ratePerSecond option was specified, then limit the rate
     // accordingly.
     FixedRateBarrier fixedRateBarrier = null;
-    if (ratePerSecond.isPresent() || variableRateData.isPresent())
+    if (ratePerSecond.isPresent())
     {
-      // We might not have a rate per second if --variableRateData is specified.
-      // The rate typically doesn't matter except when we have warm-up
-      // intervals.  In this case, we'll run at the max rate.
       final int intervalSeconds = collectionInterval.getValue();
-      final int ratePerInterval =
-           (ratePerSecond.getValue() == null)
-           ? Integer.MAX_VALUE
-           : ratePerSecond.getValue() * intervalSeconds;
+      final int ratePerInterval = ratePerSecond.getValue() * intervalSeconds;
+
       fixedRateBarrier =
            new FixedRateBarrier(1000L * intervalSeconds, ratePerInterval);
-    }
-
-
-    // If --variableRateData was specified, then initialize a RateAdjustor.
-    RateAdjustor rateAdjustor = null;
-    if (variableRateData.isPresent())
-    {
-      try
-      {
-        rateAdjustor = RateAdjustor.newInstance(fixedRateBarrier,
-             ratePerSecond.getValue(), variableRateData.getValue());
-      }
-      catch (final IOException e)
-      {
-        debugException(e);
-        err("Initializing the variable rates failed: " + e.getMessage());
-        return ResultCode.PARAM_ERROR;
-      }
-      catch (final IllegalArgumentException e)
-      {
-        debugException(e);
-        err("Initializing the variable rates failed: " + e.getMessage());
-        return ResultCode.PARAM_ERROR;
-      }
     }
 
 
@@ -852,19 +673,17 @@ public final class SearchAndModRate
       {
         connection = getConnection();
       }
-      catch (final LDAPException le)
+      catch (LDAPException le)
       {
-        debugException(le);
         err("Unable to connect to the directory server:  ",
             getExceptionMessage(le));
         return le.getResultCode();
       }
 
-      threads[i] = new SearchAndModRateThread(this, i, connection, dnPattern,
+      threads[i] = new SearchAndModRateThread(i, connection, dnPattern,
            scopeArg.getValue(), filterPattern, returnAttrs, modAttrs,
-           valueLength.getValue(), charSet, authzIDPattern,
-           iterationsBeforeReconnect.getValue(), random.nextLong(), barrier,
-           searchCounter, modCounter, searchDurations, modDurations,
+           valueLength.getValue(), charSet, authzIDPattern, random.nextLong(),
+           barrier, searchCounter, modCounter, searchDurations, modDurations,
            errorCounter, rcCounter, fixedRateBarrier);
       threads[i].start();
     }
@@ -877,25 +696,11 @@ public final class SearchAndModRate
     }
 
 
-    // Start the RateAdjustor before the threads so that the initial value is
-    // in place before any load is generated unless we're doing a warm-up in
-    // which case, we'll start it after the warm-up is complete.
-    if ((rateAdjustor != null) && (remainingWarmUpIntervals <= 0))
-    {
-      rateAdjustor.start();
-    }
-
-
     // Indicate that the threads can start running.
     try
     {
       barrier.await();
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
+    } catch (Exception e) {}
     long overallStartTime = System.nanoTime();
     long nextIntervalStartTime = System.currentTimeMillis() + intervalMillis;
 
@@ -909,28 +714,16 @@ public final class SearchAndModRate
     long    lastEndTime         = System.nanoTime();
     for (long i=0; i < totalIntervals; i++)
     {
-      if (rateAdjustor != null)
-      {
-        if (! rateAdjustor.isAlive())
-        {
-          out("All of the rates in " + variableRateData.getValue().getName() +
-              " have been completed.");
-          break;
-        }
-      }
-
       final long startTimeMillis = System.currentTimeMillis();
       final long sleepTimeMillis = nextIntervalStartTime - startTimeMillis;
       nextIntervalStartTime += intervalMillis;
-      if (sleepTimeMillis > 0)
+      try
       {
-        sleeper.sleep(sleepTimeMillis);
-      }
-
-      if (stopRequested.get())
-      {
-        break;
-      }
+        if (sleepTimeMillis > 0)
+        {
+          Thread.sleep(sleepTimeMillis);
+        }
+      } catch (Exception e) {}
 
       final long endTime          = System.nanoTime();
       final long intervalDuration = endTime - lastEndTime;
@@ -964,32 +757,14 @@ public final class SearchAndModRate
            totalSearchDuration - lastSearchDuration;
       final long recentModDuration = totalModDuration - lastModDuration;
 
-      final double numSeconds = intervalDuration / 1000000000.0d;
+      final double numSeconds = intervalDuration / 1000000000.0D;
       final double recentSearchRate = recentNumSearches / numSeconds;
       final double recentModRate = recentNumMods / numSeconds;
       final double recentErrorRate  = recentNumErrors / numSeconds;
-
-      final double recentAvgSearchDuration;
-      if (recentNumSearches > 0L)
-      {
-        recentAvgSearchDuration =
-             1.0d * recentSearchDuration / recentNumSearches / 1000000;
-      }
-      else
-      {
-        recentAvgSearchDuration = 0.0d;
-      }
-
-      final double recentAvgModDuration;
-      if (recentNumMods > 0L)
-      {
-        recentAvgModDuration =
-             1.0d * recentModDuration / recentNumMods / 1000000;
-      }
-      else
-      {
-        recentAvgModDuration = 0.0d;
-      }
+      final double recentAvgSearchDuration =
+                  1.0D * recentSearchDuration / recentNumSearches / 1000000;
+      final double recentAvgModDuration =
+                  1.0D * recentModDuration / recentNumMods / 1000000;
 
       if (warmUp && (remainingWarmUpIntervals > 0))
       {
@@ -1002,10 +777,6 @@ public final class SearchAndModRate
         {
           out("Warm-up completed.  Beginning overall statistics collection.");
           setOverallStartTime = true;
-          if (rateAdjustor != null)
-          {
-            rateAdjustor.start();
-          }
         }
       }
       else
@@ -1017,31 +788,13 @@ public final class SearchAndModRate
         }
 
         final double numOverallSeconds =
-             (endTime - overallStartTime) / 1000000000.0d;
+             (endTime - overallStartTime) / 1000000000.0D;
         final double overallSearchRate = numSearches / numOverallSeconds;
         final double overallModRate = numMods / numOverallSeconds;
-
-        final double overallAvgSearchDuration;
-        if (numSearches > 0L)
-        {
-          overallAvgSearchDuration =
-               1.0d * totalSearchDuration / numSearches / 1000000;
-        }
-        else
-        {
-          overallAvgSearchDuration = 0.0d;
-        }
-
-        final double overallAvgModDuration;
-        if (numMods > 0L)
-        {
-          overallAvgModDuration =
-               1.0d * totalModDuration / numMods / 1000000;
-        }
-        else
-        {
-          overallAvgModDuration = 0.0d;
-        }
+        final double overallAvgSearchDuration =
+             1.0D * totalSearchDuration / numSearches / 1000000;
+        final double overallAvgModDuration =
+             1.0D * totalModDuration / numMods / 1000000;
 
         out(formatter.formatRow(recentSearchRate, recentAvgSearchDuration,
              recentModRate, recentAvgModDuration, recentErrorRate,
@@ -1070,12 +823,6 @@ public final class SearchAndModRate
     }
 
 
-    // Shut down the RateAdjustor if we have one.
-    if (rateAdjustor != null)
-    {
-      rateAdjustor.shutDown();
-    }
-
     // Stop all of the threads.
     ResultCode resultCode = ResultCode.SUCCESS;
     for (final SearchAndModRateThread t : threads)
@@ -1093,40 +840,15 @@ public final class SearchAndModRate
 
 
   /**
-   * Requests that this tool stop running.  This method will attempt to wait
-   * for all threads to complete before returning control to the caller.
-   */
-  public void stopRunning()
-  {
-    stopRequested.set(true);
-    sleeper.wakeup();
-
-    final Thread t = runningThread;
-    if (t != null)
-    {
-      try
-      {
-        t.join();
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-      }
-    }
-  }
-
-
-
-  /**
    * {@inheritDoc}
    */
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
     final LinkedHashMap<String[],String> examples =
-         new LinkedHashMap<String[],String>(2);
+         new LinkedHashMap<String[],String>();
 
-    String[] args =
+    final String[] args =
     {
       "--hostname", "server.example.com",
       "--port", "389",
@@ -1143,24 +865,13 @@ public final class SearchAndModRate
       "--characterSet", "abcdefghijklmnopqrstuvwxyz0123456789",
       "--numThreads", "10"
     };
-    String description =
+    final String description =
          "Test search and modify performance by searching randomly across a " +
          "set of one million users located below 'dc=example,dc=com' with " +
          "ten concurrent threads.  The entries returned to the client will " +
          "include the givenName, sn, and mail attributes, and the " +
          "description attribute of each entry returned will be replaced " +
          "with a string of ten randomly-selected alphanumeric characters.";
-    examples.put(args, description);
-
-    args = new String[]
-    {
-      "--generateSampleRateFile", "variable-rate-data.txt"
-    };
-    description =
-         "Generate a sample variable rate definition file that may be used " +
-         "in conjunction with the --variableRateData argument.  The sample " +
-         "file will include comments that describe the format for data to be " +
-         "included in this file.";
     examples.put(args, description);
 
     return examples;

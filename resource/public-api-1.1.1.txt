@@ -860,7 +860,7 @@
 @NotExtensible class com.unboundid.ldap.sdk.unboundidds.tasks.Task method public static com.unboundid.ldap.sdk.unboundidds.tasks.Task decodeTask(com.unboundid.ldap.sdk.Entry) throws com.unboundid.ldap.sdk.unboundidds.tasks.TaskException
 @NotExtensible class com.unboundid.ldap.sdk.unboundidds.tasks.Task method public static java.util.List<com.unboundid.ldap.sdk.unboundidds.tasks.Task> getAvailableTaskTypes()
 @NotExtensible class com.unboundid.ldap.sdk.unboundidds.tasks.Task method public static java.util.List<com.unboundid.ldap.sdk.unboundidds.tasks.TaskProperty> getCommonTaskProperties()
-@NotExtensible class com.unboundid.ldif.LDIFChangeRecord constructor protected com.unboundid.ldif.LDIFChangeRecord(java.lang.String,java.util.List<com.unboundid.ldap.sdk.Control>)
+@NotExtensible class com.unboundid.ldif.LDIFChangeRecord constructor protected com.unboundid.ldif.LDIFChangeRecord(java.lang.String)
 @NotExtensible class com.unboundid.ldif.LDIFChangeRecord method public boolean equals(java.lang.Object)
 @NotExtensible class com.unboundid.ldif.LDIFChangeRecord method public com.unboundid.ldap.sdk.ChangeType getChangeType()
 @NotExtensible class com.unboundid.ldif.LDIFChangeRecord method public com.unboundid.ldap.sdk.DN getParsedDN() throws com.unboundid.ldap.sdk.LDAPException
@@ -1474,26 +1474,26 @@ class com.unboundid.ldap.sdk.CRAMMD5BindRequest method public java.lang.String g
 class com.unboundid.ldap.sdk.CRAMMD5BindRequest method public java.lang.String getPasswordString()
 class com.unboundid.ldap.sdk.CRAMMD5BindRequest method public java.lang.String getSASLMechanismName()
 class com.unboundid.ldap.sdk.CRAMMD5BindRequest method public void toString(java.lang.StringBuilder)
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry constructor public com.unboundid.ldap.sdk.ChangeLogEntry(com.unboundid.ldap.sdk.Entry) throws com.unboundid.ldap.sdk.LDAPException
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGES
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGE_NUMBER
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGE_TYPE
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_DELETED_ENTRY_ATTRS
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_DELETE_OLD_RDN
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_NEW_RDN
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_NEW_SUPERIOR
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_TARGET_DN
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public boolean deleteOldRDN()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldap.sdk.ChangeType getChangeType()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldap.sdk.LDAPResult processChange(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldif.LDIFChangeRecord toLDIFChangeRecord()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getNewRDN()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getNewSuperior()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getTargetDN()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Attribute> getAddAttributes()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Attribute> getDeletedEntryAttributes()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Modification> getModifications()
-@NotExtensible class com.unboundid.ldap.sdk.ChangeLogEntry method public long getChangeNumber()
+class com.unboundid.ldap.sdk.ChangeLogEntry constructor public com.unboundid.ldap.sdk.ChangeLogEntry(com.unboundid.ldap.sdk.Entry) throws com.unboundid.ldap.sdk.LDAPException
+class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGES
+class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGE_NUMBER
+class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_CHANGE_TYPE
+class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_DELETED_ENTRY_ATTRS
+class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_DELETE_OLD_RDN
+class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_NEW_RDN
+class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_NEW_SUPERIOR
+class com.unboundid.ldap.sdk.ChangeLogEntry field public static final java.lang.String ATTR_TARGET_DN
+class com.unboundid.ldap.sdk.ChangeLogEntry method public boolean deleteOldRDN()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldap.sdk.ChangeType getChangeType()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldap.sdk.LDAPResult processChange(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
+class com.unboundid.ldap.sdk.ChangeLogEntry method public com.unboundid.ldif.LDIFChangeRecord toLDIFChangeRecord()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getNewRDN()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getNewSuperior()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public java.lang.String getTargetDN()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Attribute> getAddAttributes()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Attribute> getDeletedEntryAttributes()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public java.util.List<com.unboundid.ldap.sdk.Modification> getModifications()
+class com.unboundid.ldap.sdk.ChangeLogEntry method public long getChangeNumber()
 class com.unboundid.ldap.sdk.CompactEntry constructor public com.unboundid.ldap.sdk.CompactEntry(com.unboundid.ldap.sdk.Entry)
 class com.unboundid.ldap.sdk.CompactEntry method public boolean equals(java.lang.Object)
 class com.unboundid.ldap.sdk.CompactEntry method public boolean hasAttribute(com.unboundid.ldap.sdk.Attribute)
@@ -4771,6 +4771,7 @@ class com.unboundid.ldif.LDIFAddChangeRecord method public boolean equals(java.l
 class com.unboundid.ldif.LDIFAddChangeRecord method public com.unboundid.ldap.sdk.AddRequest toAddRequest()
 class com.unboundid.ldif.LDIFAddChangeRecord method public com.unboundid.ldap.sdk.Attribute[] getAttributes()
 class com.unboundid.ldif.LDIFAddChangeRecord method public com.unboundid.ldap.sdk.ChangeType getChangeType()
+class com.unboundid.ldif.LDIFAddChangeRecord method public com.unboundid.ldap.sdk.LDAPResult processChange(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldif.LDIFAddChangeRecord method public int hashCode()
 class com.unboundid.ldif.LDIFAddChangeRecord method public java.lang.String[] toLDIF(int)
 class com.unboundid.ldif.LDIFAddChangeRecord method public void toLDIF(com.unboundid.util.ByteStringBuffer,int)
@@ -4781,6 +4782,7 @@ class com.unboundid.ldif.LDIFDeleteChangeRecord constructor public com.unboundid
 class com.unboundid.ldif.LDIFDeleteChangeRecord method public boolean equals(java.lang.Object)
 class com.unboundid.ldif.LDIFDeleteChangeRecord method public com.unboundid.ldap.sdk.ChangeType getChangeType()
 class com.unboundid.ldif.LDIFDeleteChangeRecord method public com.unboundid.ldap.sdk.DeleteRequest toDeleteRequest()
+class com.unboundid.ldif.LDIFDeleteChangeRecord method public com.unboundid.ldap.sdk.LDAPResult processChange(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldif.LDIFDeleteChangeRecord method public int hashCode()
 class com.unboundid.ldif.LDIFDeleteChangeRecord method public java.lang.String[] toLDIF(int)
 class com.unboundid.ldif.LDIFDeleteChangeRecord method public void toLDIF(com.unboundid.util.ByteStringBuffer,int)
@@ -4803,6 +4805,7 @@ class com.unboundid.ldif.LDIFModifyChangeRecord constructor public com.unboundid
 class com.unboundid.ldif.LDIFModifyChangeRecord constructor public com.unboundid.ldif.LDIFModifyChangeRecord(java.lang.String,java.util.List<com.unboundid.ldap.sdk.Modification>)
 class com.unboundid.ldif.LDIFModifyChangeRecord method public boolean equals(java.lang.Object)
 class com.unboundid.ldif.LDIFModifyChangeRecord method public com.unboundid.ldap.sdk.ChangeType getChangeType()
+class com.unboundid.ldif.LDIFModifyChangeRecord method public com.unboundid.ldap.sdk.LDAPResult processChange(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldif.LDIFModifyChangeRecord method public com.unboundid.ldap.sdk.Modification[] getModifications()
 class com.unboundid.ldif.LDIFModifyChangeRecord method public com.unboundid.ldap.sdk.ModifyRequest toModifyRequest()
 class com.unboundid.ldif.LDIFModifyChangeRecord method public int hashCode()
@@ -4817,6 +4820,7 @@ class com.unboundid.ldif.LDIFModifyDNChangeRecord method public boolean equals(j
 class com.unboundid.ldif.LDIFModifyDNChangeRecord method public com.unboundid.ldap.sdk.ChangeType getChangeType()
 class com.unboundid.ldif.LDIFModifyDNChangeRecord method public com.unboundid.ldap.sdk.DN getNewDN() throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldif.LDIFModifyDNChangeRecord method public com.unboundid.ldap.sdk.DN getParsedNewSuperiorDN() throws com.unboundid.ldap.sdk.LDAPException
+class com.unboundid.ldif.LDIFModifyDNChangeRecord method public com.unboundid.ldap.sdk.LDAPResult processChange(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldif.LDIFModifyDNChangeRecord method public com.unboundid.ldap.sdk.ModifyDNRequest toModifyDNRequest()
 class com.unboundid.ldif.LDIFModifyDNChangeRecord method public com.unboundid.ldap.sdk.RDN getParsedNewRDN() throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldif.LDIFModifyDNChangeRecord method public int hashCode()

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk.controls;
 
 
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DecodeableControl;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -163,45 +162,6 @@ public final class AuthorizationIdentityResponseControl
 
 
   /**
-   * Extracts an authorization identity response control from the provided
-   * result.
-   *
-   * @param  result  The result from which to retrieve the authorization
-   *                 identity response control.
-   *
-   * @return  The authorization identity response control contained in the
-   *          provided result, or {@code null} if the result did not contain an
-   *          authorization identity response control.
-   *
-   * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the authorization identity response control
-   *                         contained in the provided result.
-   */
-  public static AuthorizationIdentityResponseControl
-                     get(final BindResult result)
-         throws LDAPException
-  {
-    final Control c =
-         result.getResponseControl(AUTHORIZATION_IDENTITY_RESPONSE_OID);
-    if (c == null)
-    {
-      return null;
-    }
-
-    if (c instanceof AuthorizationIdentityResponseControl)
-    {
-      return (AuthorizationIdentityResponseControl) c;
-    }
-    else
-    {
-      return new AuthorizationIdentityResponseControl(c.getOID(),
-           c.isCritical(), c.getValue());
-    }
-  }
-
-
-
-  /**
    * Retrieves the authorization ID string for this authorization identity
    * response control.  It may be a zero-length string if the associated
    * authorization identity is that of the anonymous user.
@@ -233,9 +193,9 @@ public final class AuthorizationIdentityResponseControl
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("AuthorizationIdentityResponseControl(authorizationID='");
+    buffer.append("AuthorizationIdentityResponseControl(authorizationID=");
     buffer.append(authorizationID);
-    buffer.append("', isCritical=");
+    buffer.append(", isCritical=");
     buffer.append(isCritical());
     buffer.append(')');
   }

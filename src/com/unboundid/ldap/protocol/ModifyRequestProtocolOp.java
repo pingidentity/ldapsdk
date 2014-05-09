@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,15 +29,10 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
-import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
@@ -87,21 +82,6 @@ public final class ModifyRequestProtocolOp
   {
     this.dn            = dn;
     this.modifications = Collections.unmodifiableList(modifications);
-  }
-
-
-
-  /**
-   * Creates a new modify request protocol op from the provided modify request
-   * object.
-   *
-   * @param  request  The modify request object to use to create this protocol
-   *                  op.
-   */
-  public ModifyRequestProtocolOp(final ModifyRequest request)
-  {
-    dn            = request.getDN();
-    modifications = request.getModifications();
   }
 
 
@@ -187,68 +167,6 @@ public final class ModifyRequestProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    final ArrayList<ASN1Element> modElements =
-         new ArrayList<ASN1Element>(modifications.size());
-    for (final Modification m : modifications)
-    {
-      modElements.add(m.encode());
-    }
-
-    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST,
-         new ASN1OctetString(dn),
-         new ASN1Sequence(modElements));
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a modify request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded modify request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a modify request protocol op.
-   */
-  public static ModifyRequestProtocolOp decodeProtocolOp(
-                                             final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final String dn =
-           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
-
-      final ASN1Element[] modElements =
-           ASN1Sequence.decodeAsSequence(elements[1]).elements();
-      final ArrayList<Modification> mods =
-           new ArrayList<Modification>(modElements.length);
-      for (final ASN1Element e : modElements)
-      {
-        mods.add(Modification.decode(ASN1Sequence.decodeAsSequence(e)));
-      }
-
-      return new ModifyRequestProtocolOp(dn, mods);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_MODIFY_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer writer)
   {
     final ASN1BufferSequence opSequence =
@@ -262,22 +180,6 @@ public final class ModifyRequestProtocolOp
     }
     modSequence.end();
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates a modify request from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the modify request.
-   *                   It may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The modify request that was created.
-   */
-  public ModifyRequest toModifyRequest(final Control... controls)
-  {
-    return new ModifyRequest(dn, modifications, controls);
   }
 
 

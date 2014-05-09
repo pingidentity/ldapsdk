@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,17 +29,11 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
-import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.Control;
-import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
@@ -90,20 +84,6 @@ public final class SearchResultEntryProtocolOp
   {
     this.dn         = dn;
     this.attributes = Collections.unmodifiableList(attributes);
-  }
-
-
-
-  /**
-   * Creates a new search result entry protocol op from the provided entry.
-   *
-   * @param  entry  The entry to use to create this protocol op.
-   */
-  public SearchResultEntryProtocolOp(final Entry entry)
-  {
-    dn = entry.getDN();
-    attributes = Collections.unmodifiableList(new ArrayList<Attribute>(
-         entry.getAttributes()));
   }
 
 
@@ -189,68 +169,6 @@ public final class SearchResultEntryProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    final ArrayList<ASN1Element> attrElements =
-         new ArrayList<ASN1Element>(attributes.size());
-    for (final Attribute a : attributes)
-    {
-      attrElements.add(a.encode());
-    }
-
-    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_ENTRY,
-         new ASN1OctetString(dn),
-         new ASN1Sequence(attrElements));
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a search result entry protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded search result entry protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a search result entry protocol op.
-   */
-  public static SearchResultEntryProtocolOp decodeProtocolOp(
-                                                 final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final String dn =
-           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
-
-      final ASN1Element[] attrElements =
-           ASN1Sequence.decodeAsSequence(elements[1]).elements();
-      final ArrayList<Attribute> attributes =
-           new ArrayList<Attribute>(attrElements.length);
-      for (final ASN1Element e : attrElements)
-      {
-        attributes.add(Attribute.decode(ASN1Sequence.decodeAsSequence(e)));
-      }
-
-      return new SearchResultEntryProtocolOp(dn, attributes);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_SEARCH_ENTRY_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -264,22 +182,6 @@ public final class SearchResultEntryProtocolOp
     }
     attrSequence.end();
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates a search result entry from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the search result
-   *                   entry.  It may be empty or {@code null} if no controls
-   *                   should be included.
-   *
-   * @return  The search result entry that was created.
-   */
-  public SearchResultEntry toSearchResultEntry(final Control... controls)
-  {
-    return new SearchResultEntry(dn, attributes, controls);
   }
 
 

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -96,29 +96,12 @@ import static com.unboundid.util.Validator.*;
  * search that includes the persistent search control in order to notify the
  * client of all changes to entries within the "dc=example,dc=com" subtree.
  * <PRE>
- * SearchRequest persistentSearchRequest = new SearchRequest(
- *      asyncSearchListener, "dc=example,dc=com", SearchScope.SUB,
- *      Filter.createPresenceFilter("objectClass"));
- * persistentSearchRequest.addControl(new PersistentSearchRequestControl(
- *      PersistentSearchChangeType.allChangeTypes(), // Notify change types.
- *      true, // Only return new changes, don't match existing entries.
- *      true)); // Include change notification controls in search entries.
- *
- * // Launch the persistent search as an asynchronous operation.
- * AsyncRequestID persistentSearchRequestID =
- *      connection.asyncSearch(persistentSearchRequest);
- *
- * // Modify an entry that matches the persistent search criteria.  This
- * // should cause the persistent search listener to be notified.
- * LDAPResult modifyResult = connection.modify(
- *      "uid=test.user,ou=People,dc=example,dc=com",
- *      new Modification(ModificationType.REPLACE, "description", "test"));
- *
- * // Verify that the persistent search listener was notified....
- *
- * // Since persistent search operations don't end on their own, we need to
- * // abandon the search when we don't need it anymore.
- * connection.abandon(persistentSearchRequestID);
+ *   SearchRequest searchRequest =
+ *        new SearchRequest(myAsyncSearchListener, "dc=example,dc=com",
+ *                          SearchScope.SUB, "(objectClass=*)");
+ *   searchRequest.addControl(new PersistentSearchRequestControl(
+ *        PersistentSearchChangeType.allChangeTypes(), true, true));
+ *   AsyncRequestID asyncRequestID = connection.asyncSearch(searchRequest);
  * </PRE>
  */
 @NotMutable()

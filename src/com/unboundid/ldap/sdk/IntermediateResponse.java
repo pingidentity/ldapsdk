@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -249,8 +249,6 @@ public class IntermediateResponse
             value = new ASN1OctetString(type, reader.readBytes());
             break;
           default:
-            throw new LDAPException(ResultCode.DECODING_ERROR,
-                 ERR_INTERMEDIATE_RESPONSE_INVALID_ELEMENT.get(toHex(type)));
         }
       }
 
@@ -328,8 +326,6 @@ public class IntermediateResponse
 
   /**
    * Retrieves the set of controls returned with this intermediate response.
-   * Individual response controls of a specific type may be retrieved and
-   * decoded using the {@code get} method in the response control class.
    *
    * @return  The set of controls returned with this intermediate response.
    */
@@ -385,23 +381,6 @@ public class IntermediateResponse
 
 
   /**
-   * Retrieves a human-readable string representation for the contents of the
-   * value for this intermediate response, if appropriate.  If one is provided,
-   * then it should be a relatively compact single-line representation of the
-   * most important elements of the value.
-   *
-   * @return  A human-readable string representation for the contents of the
-   *          value for this intermediate response, or {@code null} if there is
-   *          no value or no string representation is available.
-   */
-  public String valueToString()
-  {
-    return null;
-  }
-
-
-
-  /**
    * Retrieves a string representation of this intermediate response.
    *
    * @return  A string representation of this intermediate response.
@@ -428,21 +407,8 @@ public class IntermediateResponse
     buffer.append("IntermediateResponse(");
 
     boolean added = false;
-
-    if (messageID >= 0)
-    {
-      buffer.append("messageID=");
-      buffer.append(messageID);
-      added = true;
-    }
-
     if (oid != null)
     {
-      if (added)
-      {
-        buffer.append(", ");
-      }
-
       buffer.append("oid='");
       buffer.append(oid);
       buffer.append('\'');

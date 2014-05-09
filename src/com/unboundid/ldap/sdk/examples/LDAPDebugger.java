@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -38,7 +38,6 @@ import com.unboundid.ldap.listener.LDAPListenerConfig;
 import com.unboundid.ldap.listener.ProxyRequestHandler;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.StaticUtils;
@@ -46,7 +45,6 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
-import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
@@ -77,9 +75,6 @@ import com.unboundid.util.args.StringArgument;
  *       on which to listen for requests from clients.</LI>
  *   <LI>"-L {port}" or "--listenPort {port}" -- Specifies the port on which to
  *       listen for requests from clients.</LI>
- *   <LI>"-S" or "--listenUsingSSL" -- Indicates that the listener should
- *       accept connections from SSL-based clients rather than those using
- *       unencrypted LDAP.</LI>
  *   <LI>"-f {path}" or "--outputFile {path}" -- Specifies the path to the
  *       output file to be written.  If this is not provided, then the output
  *       will be written to standard output.</LI>
@@ -96,9 +91,6 @@ public final class LDAPDebugger
   private static final long serialVersionUID = -8942937427428190983L;
 
 
-
-  // The argument used to specify the output file for the decoded content.
-  private BooleanArgument listenUsingSSL;
 
   // The argument used to specify the output file for the decoded content.
   private FileArgument outputFile;
@@ -206,19 +198,6 @@ public final class LDAPDebugger
 
 
   /**
-   * Retrieves the version string for this tool.
-   *
-   * @return  The version string for this tool.
-   */
-  @Override()
-  public String getToolVersion()
-  {
-    return Version.NUMERIC_VERSION_STRING;
-  }
-
-
-
-  /**
    * Adds the arguments used by this program that aren't already provided by the
    * generic {@code LDAPCommandLineTool} framework.
    *
@@ -244,14 +223,6 @@ public final class LDAPDebugger
     listenPort = new IntegerArgument('L', "listenPort", true, 1, "{port}",
          description, 0, 65535, 0);
     parser.addArgument(listenPort);
-
-
-    description = "Use SSL when accepting client connections.  This is " +
-         "independent of the '--useSSL' option, which applies only to " +
-         "communication between the LDAP debugger and the backend server.";
-    listenUsingSSL = new BooleanArgument('S', "listenUsingSSL", 1,
-         description);
-    parser.addArgument(listenUsingSSL);
 
 
     description = "The path to the output file to be written.  If no value " +
@@ -336,21 +307,6 @@ public final class LDAPDebugger
       }
     }
 
-    if (listenUsingSSL.isPresent())
-    {
-      try
-      {
-        config.setServerSocketFactory(
-             createSSLUtil(true).createSSLServerSocketFactory());
-      }
-      catch (final Exception e)
-      {
-        err("Unable to create a server socket factory to accept SSL-based " +
-             "client connections:  ", StaticUtils.getExceptionMessage(e));
-        return ResultCode.LOCAL_ERROR;
-      }
-    }
-
     listener = new LDAPListener(config);
 
     try
@@ -378,14 +334,7 @@ public final class LDAPDebugger
       port = listener.getListenPort();
     }
 
-    if (listenUsingSSL.isPresent())
-    {
-      out("Listening for SSL-based LDAP client connections on port ", port);
-    }
-    else
-    {
-      out("Listening for LDAP client connections on port ", port);
-    }
+    out("Listening for LDAP client connections on port ", port);
 
     // Note that at this point, the listener will continue running in a
     // separate thread, so we can return from this thread without exiting the
