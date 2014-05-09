@@ -82,10 +82,6 @@
   <property name="minsrc.classes.dir" location="${build.dir}/genminsrc" />
 
 
-  <!-- Define properties used for Ant tasks -->
-  <property name="ant.lib.dir" location="ext/ant/lib" />
-
-
   <!-- Define the amount of memory to use for forked VMs -->
   <property name="MEM" value="512M" />
 
@@ -112,13 +108,9 @@
     <javac srcdir="${messages.src.dir}" destdir="${messages.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars">
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="true">
       <compilerarg value="-Xlint:all" />
-      <classpath>
-        <fileset dir="${ant.lib.dir}">
-          <include name="*.jar" />
-        </fileset>
-      </classpath>
     </javac>
 
     <!-- Define and invoke the task. -->
@@ -185,14 +177,16 @@
     <javac srcdir="${messages.gensrc.dir}" destdir="${classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars">
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="false">
       <compilerarg value="-Xlint:all" />
     </javac>
 
     <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.5"
            target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars">
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="false">
       <compilerarg value="-Xlint:all" />
       <classpath>
         <pathelement location="${classes.dir}" />
@@ -262,13 +256,9 @@
     <javac srcdir="${copydocs.src.dir}" destdir="${copydocs.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars">
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="true">
       <compilerarg value="-Xlint:all" />
-      <classpath>
-        <fileset dir="${ant.lib.dir}">
-          <include name="*.jar" />
-        </fileset>
-      </classpath>
     </javac>
 
     <taskdef name="copydocs"
@@ -472,13 +462,11 @@
     <javac srcdir="${minsrc.src.dir}" destdir="${minsrc.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars">
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="true">
       <compilerarg value="-Xlint:all" />
       <classpath>
         <pathelement location="${classes.dir}" />
-        <fileset dir="${ant.lib.dir}">
-          <include name="*.jar" />
-        </fileset>
       </classpath>
     </javac>
 
@@ -510,14 +498,16 @@
     <javac srcdir="${messages.me.gensrc.dir}" destdir="${me.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source">
+           optimize="true" debug="on" debuglevel="lines,source"
+           includeAntRuntime="false">
       <compilerarg value="-Xlint:all" />
     </javac>
 
     <javac srcdir="${me.src.dir}" destdir="${me.classes.dir}" source="1.5"
            target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source">
+           optimize="true" debug="on" debuglevel="lines,source"
+           includeAntRuntime="false">
       <compilerarg value="-Xlint:all" />
       <classpath>
         <pathelement location="${me.classes.dir}" />
@@ -688,12 +678,10 @@
     <javac srcdir="${sc.src.dir}" destdir="${sc.classes.dir}" source="1.5"
            target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars">
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="true">
       <compilerarg value="-Xlint:all" />
       <classpath>
-        <fileset dir="${ant.lib.dir}">
-          <include name="*.jar" />
-        </fileset>
         <fileset dir="${se.package.dir}">
           <include name="*.jar" />
         </fileset>
