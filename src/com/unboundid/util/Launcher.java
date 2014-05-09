@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -29,8 +29,6 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServerTool;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.examples.AuthRate;
-import com.unboundid.ldap.sdk.examples.IdentifyReferencesToMissingEntries;
-import com.unboundid.ldap.sdk.examples.IdentifyUniqueAttributeConflicts;
 import com.unboundid.ldap.sdk.examples.LDAPCompare;
 import com.unboundid.ldap.sdk.examples.LDAPDebugger;
 import com.unboundid.ldap.sdk.examples.LDAPModify;
@@ -62,12 +60,6 @@ import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
  *       {@link GenerateSchemaFromSource} tool.</LI>
  *   <LI>generate-source-from-schema -- Launch the
  *       {@link GenerateSourceFromSchema} tool.</LI>
- *   <LI>identify-references-to-missing-entries -- Launch the
- *       {@link IdentifyReferencesToMissingEntries} tool.</LI>
- *   <LI>identify-unique-attribute-conflicts -- Launch the
- *       {@link IdentifyUniqueAttributeConflicts} tool.</LI>
- *   <LI>in-memory-directory-server -- Launch the
- *       {@link InMemoryDirectoryServerTool} tool.</LI>
  *   <LI>ldapcompare -- Launch the {@link LDAPCompare} tool.</LI>
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
@@ -146,16 +138,6 @@ public final class Launcher
     {
       return AuthRate.main(remainingArgs, outStream, errStream);
     }
-    else if (firstArg.equals("identify-references-to-missing-entries"))
-    {
-      return IdentifyReferencesToMissingEntries.main(remainingArgs, outStream,
-           errStream);
-    }
-    else if (firstArg.equals("identify-unique-attribute-conflicts"))
-    {
-      return IdentifyUniqueAttributeConflicts.main(remainingArgs, outStream,
-           errStream);
-    }
     else if (firstArg.equals("in-memory-directory-server"))
     {
       return InMemoryDirectoryServerTool.main(remainingArgs, outStream,
@@ -209,8 +191,6 @@ public final class Launcher
         err.println("Unrecognized tool name '" + args[0] + '\'');
         err.println("Supported tool names include:");
         err.println("     authrate");
-        err.println("     identify-references-to-missing-entries");
-        err.println("     identify-unique-attribute-conflicts");
         err.println("     in-memory-directory-server");
         err.println("     generate-schema-from-source");
         err.println("     generate-source-from-schema");

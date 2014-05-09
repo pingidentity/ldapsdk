@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -57,44 +57,21 @@ import static com.unboundid.util.Validator.*;
  * The following example performs a search to find all users in the "Sales"
  * department and then writes their entries to an LDIF file:
  * <PRE>
- * // Perform a search to find all users who are members of the sales
- * // department.
- * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
- *      SearchScope.SUB, Filter.createEqualityFilter("ou", "Sales"));
- * SearchResult searchResult;
- * try
- * {
- *   searchResult = connection.search(searchRequest);
- * }
- * catch (LDAPSearchException lse)
- * {
- *   searchResult = lse.getSearchResult();
- * }
- * LDAPTestUtils.assertResultCodeEquals(searchResult, ResultCode.SUCCESS);
+ *   SearchResult searchResult =
+ *        connection.search("dc=example,dc=com", SearchScope.SUB, "(ou=Sales)");
  *
- * // Write all of the matching entries to LDIF.
- * int entriesWritten = 0;
- * LDIFWriter ldifWriter = new LDIFWriter(pathToLDIF);
- * for (SearchResultEntry entry : searchResult.getSearchEntries())
- * {
- *   ldifWriter.writeEntry(entry);
- *   entriesWritten++;
- * }
+ *   LDIFWriter ldifWriter = new LDIFWriter(pathToLDIF);
+ *   for (SearchResultEntry entry : searchResult.getSearchEntries())
+ *   {
+ *     ldifWriter.writeEntry(entry);
+ *   }
  *
- * ldifWriter.close();
+ *   ldifWriter.close();
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDIFWriter
 {
-  /**
-   * The bytes that comprise the LDIF version header.
-   */
-  private static final byte[] VERSION_1_HEADER_BYTES =
-       getBytes("version: 1" + EOL);
-
-
-
   /**
    * The default buffer size (128KB) that will be used when writing LDIF data
    * to the appropriate destination.
@@ -360,21 +337,6 @@ public final class LDIFWriter
 
 
   /**
-   * Writes the LDIF version header (i.e.,"version: 1").  If a version header
-   * is to be added to the LDIF content, it should be done before any entries or
-   * change records have been written.
-   *
-   * @throws  IOException  If a problem occurs while writing the version header.
-   */
-  public void writeVersionHeader()
-         throws IOException
-  {
-    writer.write(VERSION_1_HEADER_BYTES);
-  }
-
-
-
-  /**
    * Writes the provided entry in LDIF form.
    *
    * @param  entry  The entry to be written.  It must not be {@code null}.
@@ -423,8 +385,8 @@ public final class LDIFWriter
       writeComment(comment, false, false);
     }
 
-    debugLDIFWrite(e);
-    writeLDIF(e);
+    debugLDIFWrite(entry);
+    writeLDIF(entry);
   }
 
 
@@ -1003,7 +965,65 @@ public final class LDIFWriter
     try
     {
       buffer.append(name);
-      encodeValue(value, buffer);
+      buffer.append(':');
+
+      final byte[] valueBytes = value.getValue();
+      final int length = valueBytes.length;
+      if (length == 0)
+      {
+        buffer.append(' ');
+        return;
+      }
+
+      // If the value starts with a space, colon, or less-than character, then
+      // it must be base64-encoded.
+      switch (valueBytes[0])
+      {
+        case ' ':
+        case ':':
+        case '<':
+          buffer.append(':');
+          buffer.append(' ');
+          Base64.encode(valueBytes, buffer);
+          return;
+      }
+
+      // If the value ends with a space, then it should be base64-encoded.
+      if (valueBytes[length-1] == ' ')
+      {
+        buffer.append(':');
+        buffer.append(' ');
+        Base64.encode(valueBytes, buffer);
+        return;
+      }
+
+      // If any character in the value is outside the ASCII range, or is the
+      // NUL, LF, or CR character, then the value should be base64-encoded.
+      for (int i=0; i < length; i++)
+      {
+        if ((valueBytes[i] & 0x7F) != (valueBytes[i] & 0xFF))
+        {
+          buffer.append(':');
+          buffer.append(' ');
+          Base64.encode(valueBytes, buffer);
+          return;
+        }
+
+        switch (valueBytes[i])
+        {
+          case 0x00:  // The NUL character
+          case 0x0A:  // The LF character
+          case 0x0D:  // The CR character
+            buffer.append(':');
+            buffer.append(' ');
+            Base64.encode(valueBytes, buffer);
+            return;
+        }
+      }
+
+      // If we've gotten here, then the string value is acceptable.
+      buffer.append(' ');
+      buffer.append(valueBytes);
     }
     finally
     {
@@ -1029,81 +1049,6 @@ public final class LDIFWriter
         }
       }
     }
-  }
-
-
-
-  /**
-   * Appends a string to the provided buffer consisting of the properly-encoded
-   * representation of the provided value, including the necessary colon(s) and
-   * space that precede it.  Depending on the content of the value, it will
-   * either be used as-is or base64-encoded.
-   *
-   * @param  value   The value for the attribute.
-   * @param  buffer  The buffer to which the value is to be written.
-   */
-  static void encodeValue(final ASN1OctetString value,
-                          final ByteStringBuffer buffer)
-  {
-    buffer.append(':');
-
-    final byte[] valueBytes = value.getValue();
-    final int length = valueBytes.length;
-    if (length == 0)
-    {
-      buffer.append(' ');
-      return;
-    }
-
-    // If the value starts with a space, colon, or less-than character, then
-    // it must be base64-encoded.
-    switch (valueBytes[0])
-    {
-      case ' ':
-      case ':':
-      case '<':
-        buffer.append(':');
-        buffer.append(' ');
-        Base64.encode(valueBytes, buffer);
-        return;
-    }
-
-    // If the value ends with a space, then it should be base64-encoded.
-    if (valueBytes[length-1] == ' ')
-    {
-      buffer.append(':');
-      buffer.append(' ');
-      Base64.encode(valueBytes, buffer);
-      return;
-    }
-
-    // If any character in the value is outside the ASCII range, or is the
-    // NUL, LF, or CR character, then the value should be base64-encoded.
-    for (int i=0; i < length; i++)
-    {
-      if ((valueBytes[i] & 0x7F) != (valueBytes[i] & 0xFF))
-      {
-        buffer.append(':');
-        buffer.append(' ');
-        Base64.encode(valueBytes, buffer);
-        return;
-      }
-
-      switch (valueBytes[i])
-      {
-        case 0x00:  // The NUL character
-        case 0x0A:  // The LF character
-        case 0x0D:  // The CR character
-          buffer.append(':');
-          buffer.append(' ');
-          Base64.encode(valueBytes, buffer);
-          return;
-      }
-    }
-
-    // If we've gotten here, then the string value is acceptable.
-    buffer.append(' ');
-    buffer.append(valueBytes);
   }
 
 

@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -26,9 +26,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.security.auth.Subject;
@@ -36,7 +34,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.Sasl;
@@ -61,7 +58,9 @@ import static com.unboundid.util.Validator.*;
  * <A HREF="http://www.ietf.org/rfc/rfc4752.txt">RFC 4752</A>.  It provides the
  * ability to authenticate to a directory server using Kerberos V, which can
  * serve as a kind of single sign-on mechanism that may be shared across
- * client applications that support Kerberos.
+ * client applications that support Kerberos.  At present, this implementation
+ * may only be used for authentication, as it does not yet offer support for
+ * integrity or confidentiality.
  * <BR><BR>
  * This class uses the Java Authentication and Authorization Service (JAAS)
  * behind the scenes to perform all Kerberos processing.  This framework
@@ -97,26 +96,17 @@ import static com.unboundid.util.Validator.*;
  * against a directory server with a username of "john.doe" and a password
  * of "password":
  * <PRE>
- * GSSAPIBindRequestProperties gssapiProperties =
- *      new GSSAPIBindRequestProperties("john.doe@EXAMPLE.COM", "password");
- * gssapiProperties.setKDCAddress("kdc.example.com");
- * gssapiProperties.setRealm("EXAMPLE.COM");
- *
- * GSSAPIBindRequest bindRequest =
- *      new GSSAPIBindRequest(gssapiProperties);
- * BindResult bindResult;
- * try
- * {
- *   bindResult = connection.bind(bindRequest);
- *   // If we get here, then the bind was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // The bind failed for some reason.
- *   bindResult = new BindResult(le.toLDAPResult());
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   GSSAPIBindRequest bindRequest =
+ *        new GSSAPIBindRequest("john.doe@EXAMPLE.COM", "password");
+ *   try
+ *   {
+ *     BindResult bindResult = connection.bind(bindRequest);
+ *     // If we get here, then the bind was successful.
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     // The bind failed for some reason.
+ *   }
  * </PRE>
  */
 @NotMutable()
@@ -230,14 +220,6 @@ public final class GSSAPIBindRequest
   // The message ID from the last LDAP message sent from this request.
   private int messageID;
 
-  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
-  // request.
-  private final List<SASLQualityOfProtection> allowedQoP;
-
-  // A list that will be updated with messages about any unhandled callbacks
-  // encountered during processing.
-  private final List<String> unhandledCallbackMessages;
-
   // The authentication ID string for the GSSAPI bind request.
   private final String authenticationID;
 
@@ -252,10 +234,6 @@ public final class GSSAPIBindRequest
 
   // The realm for the GSSAPI bind request, if available.
   private final String realm;
-
-  // The server name that should be used when creating the Java SaslClient, if
-  // defined.
-  private final String saslClientServerName;
 
   // The protocol that should be used in the Kerberos service principal for
   // the server system.
@@ -531,17 +509,13 @@ public final class GSSAPIBindRequest
     authenticationID         = gssapiProperties.getAuthenticationID();
     password                 = gssapiProperties.getPassword();
     realm                    = gssapiProperties.getRealm();
-    allowedQoP               = gssapiProperties.getAllowedQoP();
     kdcAddress               = gssapiProperties.getKDCAddress();
-    saslClientServerName     = gssapiProperties.getSASLClientServerName();
     servicePrincipalProtocol = gssapiProperties.getServicePrincipalProtocol();
     enableGSSAPIDebugging    = gssapiProperties.enableGSSAPIDebugging();
     useTicketCache           = gssapiProperties.useTicketCache();
     requireCachedCredentials = gssapiProperties.requireCachedCredentials();
     renewTGT                 = gssapiProperties.renewTGT();
     ticketCachePath          = gssapiProperties.getTicketCachePath();
-
-    unhandledCallbackMessages = new ArrayList<String>(5);
 
     conn      = new AtomicReference<LDAPConnection>();
     messageID = -1;
@@ -665,23 +639,6 @@ public final class GSSAPIBindRequest
   public String getRealm()
   {
     return realm;
-  }
-
-
-
-  /**
-   * Retrieves the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @return  The list of allowed qualities of protection that may be used for
-   *          communication that occurs on the connection after the
-   *          authentication has completed, in order from most preferred to
-   *          least preferred.
-   */
-  public List<SASLQualityOfProtection> getAllowedQoP()
-  {
-    return allowedQoP;
   }
 
 
@@ -1143,27 +1100,20 @@ public final class GSSAPIBindRequest
   public Object run()
          throws LDAPException
   {
-    unhandledCallbackMessages.clear();
-
     final LDAPConnection connection = conn.get();
 
     final String[] mechanisms = { GSSAPI_MECHANISM_NAME };
 
     final HashMap<String,Object> saslProperties = new HashMap<String,Object>(2);
-    saslProperties.put(Sasl.QOP, SASLQualityOfProtection.toString(allowedQoP));
+    saslProperties.put(Sasl.QOP, "auth");
     saslProperties.put(Sasl.SERVER_AUTH, "true");
 
     final SaslClient saslClient;
     try
     {
-      String serverName = saslClientServerName;
-      if (serverName == null)
-      {
-        serverName = connection.getConnectedAddress();
-      }
-
       saslClient = Sasl.createSaslClient(mechanisms, authorizationID,
-           servicePrincipalProtocol, serverName, saslProperties, this);
+           servicePrincipalProtocol, connection.getConnectedAddress(),
+           saslProperties, this);
     }
     catch (Exception e)
     {
@@ -1174,7 +1124,7 @@ public final class GSSAPIBindRequest
 
     final SASLHelper helper = new SASLHelper(this, connection,
          GSSAPI_MECHANISM_NAME, saslClient, getControls(),
-         getResponseTimeoutMillis(connection), unhandledCallbackMessages);
+         getResponseTimeoutMillis(connection));
 
     try
     {
@@ -1199,14 +1149,12 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequestProperties gssapiProperties =
            new GSSAPIBindRequestProperties(authenticationID, authorizationID,
                 password, realm, kdcAddress, configFilePath);
-      gssapiProperties.setAllowedQoP(allowedQoP);
       gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
       gssapiProperties.setRenewTGT(renewTGT);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
-      gssapiProperties.setSASLClientServerName(saslClientServerName);
 
       return new GSSAPIBindRequest(gssapiProperties, getControls());
     }
@@ -1224,13 +1172,9 @@ public final class GSSAPIBindRequest
    * Handles any necessary callbacks required for SASL authentication.
    *
    * @param  callbacks  The set of callbacks to be handled.
-   *
-   * @throws  UnsupportedCallbackException  If an unsupported type of callback
-   *                                        was received.
    */
   @InternalUseOnly()
   public void handle(final Callback[] callbacks)
-         throws UnsupportedCallbackException
   {
     for (final Callback callback : callbacks)
     {
@@ -1242,8 +1186,9 @@ public final class GSSAPIBindRequest
       {
         if (password == null)
         {
-          throw new UnsupportedCallbackException(callback,
-               ERR_GSSAPI_NO_PASSWORD_AVAILABLE.get());
+          throw new LDAPRuntimeException(new LDAPException(
+               ResultCode.PARAM_ERROR,
+               ERR_GSSAPI_NO_PASSWORD_AVAILABLE.get()));
         }
         else
         {
@@ -1253,15 +1198,9 @@ public final class GSSAPIBindRequest
       }
       else if (callback instanceof RealmCallback)
       {
-        final RealmCallback rc = (RealmCallback) callback;
-        if (realm == null)
+        if (realm != null)
         {
-          unhandledCallbackMessages.add(
-               ERR_GSSAPI_REALM_REQUIRED_BUT_NONE_PROVIDED.get(rc.getPrompt()));
-        }
-        else
-        {
-          rc.setText(realm);
+          ((RealmCallback) callback).setText(realm);
         }
       }
       else
@@ -1273,9 +1212,6 @@ public final class GSSAPIBindRequest
                 "Unexpected GSSAPI SASL callback of type " +
                 callback.getClass().getName());
         }
-
-        unhandledCallbackMessages.add(ERR_GSSAPI_UNEXPECTED_CALLBACK.get(
-             callback.getClass().getName()));
       }
     }
   }
@@ -1315,14 +1251,12 @@ public final class GSSAPIBindRequest
       final GSSAPIBindRequestProperties gssapiProperties =
            new GSSAPIBindRequestProperties(authenticationID, authorizationID,
                 password, realm, kdcAddress, configFilePath);
-      gssapiProperties.setAllowedQoP(allowedQoP);
       gssapiProperties.setServicePrincipalProtocol(servicePrincipalProtocol);
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
       gssapiProperties.setRenewTGT(renewTGT);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
-      gssapiProperties.setSASLClientServerName(saslClientServerName);
 
       final GSSAPIBindRequest bindRequest =
            new GSSAPIBindRequest(gssapiProperties, controls);
@@ -1362,10 +1296,6 @@ public final class GSSAPIBindRequest
       buffer.append(realm);
       buffer.append('\'');
     }
-
-    buffer.append(", qop='");
-    buffer.append(SASLQualityOfProtection.toString(allowedQoP));
-    buffer.append('\'');
 
     if (kdcAddress != null)
     {

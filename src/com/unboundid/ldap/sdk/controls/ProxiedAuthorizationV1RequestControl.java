@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -77,37 +77,24 @@ import static com.unboundid.util.Validator.*;
  * <H2>Example</H2>
  * The following example demonstrates the use of the proxied authorization V1
  * control to delete an entry under the authority of the user with DN
- * "uid=alternate.user,ou=People,dc=example,dc=com":
+ * "uid=john.doe,ou=People,dc=example,dc=com":
  * <PRE>
- * // Create a delete request to delete an entry.  Include the proxied
- * // authorization v1 request control in the delete request so that the
- * // delete will be processed as user
- * // "uid=alternate.user,ou=People,dc=example,dc=com" instead of the user
- * // that's actually authenticated on the connection.
- * DeleteRequest deleteRequest =
- *      new DeleteRequest("uid=test.user,ou=People,dc=example,dc=com");
- * deleteRequest.addControl(new ProxiedAuthorizationV1RequestControl(
- *      "uid=alternate.user,ou=People,dc=example,dc=com"));
+ *   DeleteRequest deleteRequest =
+ *        new DeleteRequest("cn=no longer needed,dc=example,dc=com");
+ *   deleteRequest.addControl(new ProxiedAuthorizationV1RequestControl(
+ *        "uid=john.doe,ou=People,dc=example,dc=com"));
  *
- * LDAPResult deleteResult;
- * try
- * {
- *   deleteResult = connection.delete(deleteRequest);
- *   // If we got here, then the delete was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // The delete failed for some reason.  In addition to all of the normal
- *   // reasons a delete could fail (e.g., the entry doesn't exist, or has one
- *   // or more subordinates), proxied-authorization specific failures may
- *   // include that the authenticated user doesn't have permission to use the
- *   // proxied authorization control to impersonate the alternate user, that
- *   // the alternate user doesn't exist, or that the alternate user doesn't
- *   // have permission to perform the requested operation.
- *   deleteResult = le.toLDAPResult();
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   try
+ *   {
+ *     LDAPResult deleteResult = connection.delete(deleteRequest);
+ *     // If we got here, then the delete was successful.
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     // The delete failed for some reason.  It may or may not have been
+ *     // because the authenticated user does not have permission to use the
+ *     // proxied authorization V1 control.
+ *   }
  * </PRE>
  */
 @NotMutable()

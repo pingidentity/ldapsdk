@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,8 +33,6 @@ import java.util.Map;
 import javax.net.SocketFactory;
 
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.listener.interceptor.
-            InMemoryOperationInterceptorRequestHandler;
 import com.unboundid.ldap.protocol.AddRequestProtocolOp;
 import com.unboundid.ldap.protocol.AddResponseProtocolOp;
 import com.unboundid.ldap.protocol.BindRequestProtocolOp;
@@ -173,8 +171,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process that can be used to create,
- * start, and use an in-memory directory server instance, including support for
- * secure communication using both SSL and StartTLS:
+ * start, and use an in-memory directory server instance:
  * <PRE>
  * // Create a base configuration for the server.
  * InMemoryDirectoryServerConfig config =
@@ -182,47 +179,21 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * config.addAdditionalBindCredentials("cn=Directory Manager",
  *      "password");
  *
- * // Update the configuration to support LDAP (with StartTLS) and LDAPS
- * // listeners.
- * final SSLUtil serverSSLUtil = new SSLUtil(
- *      new KeyStoreKeyManager(serverKeyStorePath, serverKeyStorePIN, "JKS",
- *           "server-cert"),
- *      new TrustStoreTrustManager(serverTrustStorePath));
- * final SSLUtil clientSSLUtil = new SSLUtil(
- *      new TrustStoreTrustManager(clientTrustStorePath));
- * config.setListenerConfigs(
- *      InMemoryListenerConfig.createLDAPConfig("LDAP", // Listener name
- *           null, // Listen address. (null = listen on all interfaces)
- *           0, // Listen port (0 = automatically choose an available port)
- *           serverSSLUtil.createSSLSocketFactory()), // StartTLS factory
- *      InMemoryListenerConfig.createLDAPSConfig("LDAPS", // Listener name
- *           null, // Listen address. (null = listen on all interfaces)
- *           0, // Listen port (0 = automatically choose an available port)
- *           serverSSLUtil.createSSLServerSocketFactory(), // Server factory
- *           clientSSLUtil.createSSLSocketFactory())); // Client factory
- *
- * // Create and start the server instance and populate it with an initial set
- * // of data from an LDIF file.
+ * // Create and start the server instance and populate it with an
+ * // initial set of data from the file "/tmp/test.ldif".
  * InMemoryDirectoryServer server = new InMemoryDirectoryServer(config);
- * server.importFromLDIF(true, ldifFilePath);
+ * server.importFromLDIF(true, "/tmp/test.ldif");
  *
  * // Start the server so it will accept client connections.
  * server.startListening();
  *
- * // Get an unencrypted connection to the server's LDAP listener, then use
- * // StartTLS to secure that connection.  Make sure the connection is usable
- * // by retrieving the server root DSE.
- * LDAPConnection connection = server.getConnection("LDAP");
- * connection.processExtendedOperation(new StartTLSExtendedRequest(
- *      clientSSLUtil.createSSLContext()));
- * LDAPTestUtils.assertEntryExists(connection, "");
- * connection.close();
+ * // Get a connection to the server.
+ * LDAPConnection conn = server.getConnection();
  *
- * // Establish an SSL-based connection to the LDAPS listener, and make sure
- * // that connection is also usable.
- * connection = server.getConnection("LDAPS");
- * LDAPTestUtils.assertEntryExists(connection, "");
- * connection.close();
+ * // Perform various operations in the server....
+ *
+ * // Close the connection.
+ * conn.close();
  *
  * // Shut down the server so that it will no longer accept client
  * // connections, and close all existing connections.
@@ -302,12 +273,6 @@ public final class InMemoryDirectoryServer
     {
       requestHandler = new LDAPDebuggerRequestHandler(
            config.getLDAPDebugLogHandler(), requestHandler);
-    }
-
-    if (! config.getOperationInterceptors().isEmpty())
-    {
-      requestHandler = new InMemoryOperationInterceptorRequestHandler(
-           config.getOperationInterceptors(), requestHandler);
     }
 
 

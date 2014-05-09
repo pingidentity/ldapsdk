@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -158,16 +158,6 @@ public final class LDAPConnectionPool
 
 
 
-  /**
-   * The name of the connection property that may be used to indicate that a
-   * particular connection should have a different maximum connection age than
-   * the default for this pool.
-   */
-  static final String ATTACHMENT_NAME_MAX_CONNECTION_AGE =
-       LDAPConnectionPool.class.getName() + ".maxConnectionAge";
-
-
-
   // A counter used to keep track of the number of times that the pool failed to
   // replace a defunct connection.  It may also be initialized to the difference
   // between the initial and maximum number of connections that should be
@@ -184,10 +174,6 @@ public final class LDAPConnectionPool
   // Indicates whether to create a new connection if necessary rather than
   // waiting for a connection to become available.
   private boolean createIfNecessary;
-
-  // Indicates whether to check the connection age when releasing a connection
-  // back to the pool.
-  private volatile boolean checkConnectionAgeOnRelease;
 
   // Indicates whether health check processing for connections in synchronous
   // mode should include attempting to read with a very short timeout to attempt
@@ -226,10 +212,6 @@ public final class LDAPConnectionPool
   // allowed to be established before terminating and re-establishing the
   // connection.
   private volatile long maxConnectionAge;
-
-  // The maximum connection age that should be used for connections created to
-  // replace connections that are released as defunct.
-  private volatile Long maxDefunctReplacementConnectionAge;
 
   // The maximum length of time in milliseconds to wait for a connection to be
   // available.
@@ -486,73 +468,6 @@ public final class LDAPConnectionPool
                             final boolean throwOnConnectFailure)
          throws LDAPException
   {
-    this(connection, initialConnections, maxConnections, initialConnectThreads,
-         postConnectProcessor, throwOnConnectFailure, null);
-  }
-
-
-
-  /**
-   * Creates a new LDAP connection pool with the specified number of
-   * connections, created as clones of the provided connection.
-   *
-   * @param  connection             The connection to use to provide the
-   *                                template for the other connections to be
-   *                                created.  This connection will be included
-   *                                in the pool.  It must not be {@code null},
-   *                                and it must be established to the target
-   *                                server.  It does not necessarily need to be
-   *                                authenticated if all connections in the pool
-   *                                are to be unauthenticated.
-   * @param  initialConnections     The number of connections to initially
-   *                                establish when the pool is created.  It must
-   *                                be greater than or equal to one.
-   * @param  maxConnections         The maximum number of connections that
-   *                                should be maintained in the pool.  It must
-   *                                be greater than or equal to the initial
-   *                                number of connections.
-   * @param  initialConnectThreads  The number of concurrent threads to use to
-   *                                establish the initial set of connections.
-   *                                A value greater than one indicates that the
-   *                                attempt to establish connections should be
-   *                                parallelized.
-   * @param  postConnectProcessor   A processor that should be used to perform
-   *                                any post-connect processing for connections
-   *                                in this pool.  It may be {@code null} if no
-   *                                special processing is needed.  Note that
-   *                                this processing will not be invoked on the
-   *                                provided connection that will be used as the
-   *                                first connection in the pool.
-   * @param  throwOnConnectFailure  If an exception should be thrown if a
-   *                                problem is encountered while attempting to
-   *                                create the specified initial number of
-   *                                connections.  If {@code true}, then the
-   *                                attempt to create the pool will fail.if any
-   *                                connection cannot be established.  If
-   *                                {@code false}, then the pool will be created
-   *                                but may have fewer than the initial number
-   *                                of connections (or possibly no connections).
-   * @param  healthCheck            The health check that should be used for
-   *                                connections in this pool.  It may be
-   *                                {@code null} if the default health check
-   *                                should be used.
-   *
-   * @throws  LDAPException  If the provided connection cannot be used to
-   *                         initialize the pool, or if a problem occurs while
-   *                         attempting to establish any of the connections.  If
-   *                         this is thrown, then all connections associated
-   *                         with the pool (including the one provided as an
-   *                         argument) will be closed.
-   */
-  public LDAPConnectionPool(final LDAPConnection connection,
-                            final int initialConnections,
-                            final int maxConnections,
-                            final int initialConnectThreads,
-                            final PostConnectProcessor postConnectProcessor,
-                            final boolean throwOnConnectFailure,
-                            final LDAPConnectionPoolHealthCheck healthCheck)
-         throws LDAPException
-  {
     ensureNotNull(connection);
     ensureTrue(initialConnections >= 1,
                "LDAPConnectionPool.initialConnections must be at least 1.");
@@ -563,11 +478,12 @@ public final class LDAPConnectionPool
     this.postConnectProcessor = postConnectProcessor;
 
     trySynchronousReadDuringHealthCheck = true;
-    healthCheckInterval = DEFAULT_HEALTH_CHECK_INTERVAL;
-    poolStatistics      = new LDAPConnectionPoolStatistics(this);
-    pooledSchema        = null;
-    connectionPoolName  = null;
-    retryOperationTypes = new AtomicReference<Set<OperationType>>(
+    healthCheck               = new LDAPConnectionPoolHealthCheck();
+    healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
+    poolStatistics            = new LDAPConnectionPoolStatistics(this);
+    pooledSchema              = null;
+    connectionPoolName        = null;
+    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
     numConnections            = maxConnections;
     availableConnections      =
@@ -577,15 +493,6 @@ public final class LDAPConnectionPool
     {
       throw new LDAPException(ResultCode.PARAM_ERROR,
                               ERR_POOL_CONN_NOT_ESTABLISHED.get());
-    }
-
-    if (healthCheck == null)
-    {
-      this.healthCheck = new LDAPConnectionPoolHealthCheck();
-    }
-    else
-    {
-      this.healthCheck = healthCheck;
     }
 
 
@@ -674,16 +581,14 @@ public final class LDAPConnectionPool
 
     availableConnections.addAll(connList);
 
-    failedReplaceCount                 =
+    failedReplaceCount        =
          new AtomicInteger(maxConnections - availableConnections.size());
-    createIfNecessary                  = true;
-    checkConnectionAgeOnRelease        = false;
-    maxConnectionAge                   = 0L;
-    maxDefunctReplacementConnectionAge = null;
-    minDisconnectInterval              = 0L;
-    lastExpiredDisconnectTime          = 0L;
-    maxWaitTime                        = 5000L;
-    closed                             = false;
+    createIfNecessary         = true;
+    maxConnectionAge          = 0L;
+    minDisconnectInterval     = 0L;
+    lastExpiredDisconnectTime = 0L;
+    maxWaitTime               = 5000L;
+    closed                    = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -910,71 +815,6 @@ public final class LDAPConnectionPool
                             final boolean throwOnConnectFailure)
          throws LDAPException
   {
-    this(serverSet, bindRequest, initialConnections, maxConnections,
-         initialConnectThreads, postConnectProcessor, throwOnConnectFailure,
-         null);
-  }
-
-
-
-  /**
-   * Creates a new LDAP connection pool with the specified number of
-   * connections, created using the provided server set.
-   *
-   * @param  serverSet              The server set to use to create the
-   *                                connections.  It is acceptable for the
-   *                                server set to create the connections across
-   *                                multiple servers.
-   * @param  bindRequest            The bind request to use to authenticate the
-   *                                connections that are established.  It may be
-   *                                {@code null} if no authentication should be
-   *                                performed on the connections.
-   * @param  initialConnections     The number of connections to initially
-   *                                establish when the pool is created.  It must
-   *                                be greater than or equal to zero.
-   * @param  maxConnections         The maximum number of connections that
-   *                                should be maintained in the pool.  It must
-   *                                be greater than or equal to the initial
-   *                                number of connections, and must not be zero.
-   * @param  initialConnectThreads  The number of concurrent threads to use to
-   *                                establish the initial set of connections.
-   *                                A value greater than one indicates that the
-   *                                attempt to establish connections should be
-   *                                parallelized.
-   * @param  postConnectProcessor   A processor that should be used to perform
-   *                                any post-connect processing for connections
-   *                                in this pool.  It may be {@code null} if no
-   *                                special processing is needed.
-   * @param  throwOnConnectFailure  If an exception should be thrown if a
-   *                                problem is encountered while attempting to
-   *                                create the specified initial number of
-   *                                connections.  If {@code true}, then the
-   *                                attempt to create the pool will fail.if any
-   *                                connection cannot be established.  If
-   *                                {@code false}, then the pool will be created
-   *                                but may have fewer than the initial number
-   *                                of connections (or possibly no connections).
-   * @param  healthCheck            The health check that should be used for
-   *                                connections in this pool.  It may be
-   *                                {@code null} if the default health check
-   *                                should be used.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to establish
-   *                         any of the connections and
-   *                         {@code throwOnConnectFailure} is true.  If this is
-   *                         thrown, then all connections associated with the
-   *                         pool will be closed.
-   */
-  public LDAPConnectionPool(final ServerSet serverSet,
-                            final BindRequest bindRequest,
-                            final int initialConnections,
-                            final int maxConnections,
-                            final int initialConnectThreads,
-                            final PostConnectProcessor postConnectProcessor,
-                            final boolean throwOnConnectFailure,
-                            final LDAPConnectionPoolHealthCheck healthCheck)
-         throws LDAPException
-  {
     ensureNotNull(serverSet);
     ensureTrue(initialConnections >= 0,
                "LDAPConnectionPool.initialConnections must be greater than " +
@@ -989,22 +829,12 @@ public final class LDAPConnectionPool
     this.bindRequest          = bindRequest;
     this.postConnectProcessor = postConnectProcessor;
 
-    trySynchronousReadDuringHealthCheck = false;
-    healthCheckInterval = DEFAULT_HEALTH_CHECK_INTERVAL;
-    poolStatistics      = new LDAPConnectionPoolStatistics(this);
-    pooledSchema        = null;
-    connectionPoolName  = null;
-    retryOperationTypes = new AtomicReference<Set<OperationType>>(
+    healthCheck               = new LDAPConnectionPoolHealthCheck();
+    healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
+    poolStatistics            = new LDAPConnectionPoolStatistics(this);
+    connectionPoolName        = null;
+    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
-
-    if (healthCheck == null)
-    {
-      this.healthCheck = new LDAPConnectionPoolHealthCheck();
-    }
-    else
-    {
-      this.healthCheck = healthCheck;
-    }
 
     final List<LDAPConnection> connList;
     if (initialConnectThreads > 1)
@@ -1056,16 +886,14 @@ public final class LDAPConnectionPool
          new LinkedBlockingQueue<LDAPConnection>(numConnections);
     availableConnections.addAll(connList);
 
-    failedReplaceCount                 =
+    failedReplaceCount        =
          new AtomicInteger(maxConnections - availableConnections.size());
-    createIfNecessary                  = true;
-    checkConnectionAgeOnRelease        = false;
-    maxConnectionAge                   = 0L;
-    maxDefunctReplacementConnectionAge = null;
-    minDisconnectInterval              = 0L;
-    lastExpiredDisconnectTime          = 0L;
-    maxWaitTime                        = 5000L;
-    closed                             = false;
+    createIfNecessary         = true;
+    maxConnectionAge          = 0L;
+    minDisconnectInterval     = 0L;
+    lastExpiredDisconnectTime = 0L;
+    maxWaitTime               = 5000L;
+    closed                    = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
     healthCheckThread.start();
@@ -1619,75 +1447,6 @@ public final class LDAPConnectionPool
 
 
   /**
-   * Attempts to retrieve a connection from the pool that is established to the
-   * specified server.  Note that this method will only attempt to return an
-   * existing connection that is currently available, and will not create a
-   * connection or wait for any checked-out connections to be returned.
-   *
-   * @param  host  The address of the server to which the desired connection
-   *               should be established.  This must not be {@code null}, and
-   *               this must exactly match the address provided for the initial
-   *               connection or the {@code ServerSet} used to create the pool.
-   * @param  port  The port of the server to which the desired connection should
-   *               be established.
-   *
-   * @return  A connection that is established to the specified server, or
-   *          {@code null} if there are no available connections established to
-   *          the specified server.
-   */
-  public LDAPConnection getConnection(final String host, final int port)
-  {
-    if (closed)
-    {
-      poolStatistics.incrementNumFailedCheckouts();
-      return null;
-    }
-
-    final HashSet<LDAPConnection> examinedConnections =
-         new HashSet<LDAPConnection>(numConnections);
-    while (true)
-    {
-      final LDAPConnection conn = availableConnections.poll();
-      if (conn == null)
-      {
-        poolStatistics.incrementNumFailedCheckouts();
-        return null;
-      }
-
-      if (examinedConnections.contains(conn))
-      {
-        availableConnections.offer(conn);
-        poolStatistics.incrementNumFailedCheckouts();
-        return null;
-      }
-
-      if (conn.getConnectedAddress().equals(host) &&
-          (port == conn.getConnectedPort()))
-      {
-        try
-        {
-          healthCheck.ensureConnectionValidForCheckout(conn);
-          poolStatistics.incrementNumSuccessfulCheckoutsWithoutWaiting();
-          return conn;
-        }
-        catch (final LDAPException le)
-        {
-          debugException(le);
-          handleDefunctConnection(conn);
-          continue;
-        }
-      }
-
-      if (availableConnections.offer(conn))
-      {
-        examinedConnections.add(conn);
-      }
-    }
-  }
-
-
-
-  /**
    * {@inheritDoc}
    */
   @Override()
@@ -1699,7 +1458,7 @@ public final class LDAPConnectionPool
     }
 
     connection.setConnectionPoolName(connectionPoolName);
-    if (checkConnectionAgeOnRelease && connectionIsExpired(connection))
+    if (connectionIsExpired(connection))
     {
       try
       {
@@ -1711,6 +1470,7 @@ public final class LDAPConnectionPool
           connection.terminate(null);
           poolStatistics.incrementNumConnectionsClosedExpired();
           lastExpiredDisconnectTime = System.currentTimeMillis();
+          return;
         }
         else
         {
@@ -1724,7 +1484,6 @@ public final class LDAPConnectionPool
       {
         debugException(le);
       }
-      return;
     }
 
     try
@@ -1757,37 +1516,6 @@ public final class LDAPConnectionPool
     if (closed)
     {
       close();
-    }
-  }
-
-
-
-  /**
-   * Indicates that the provided connection should be removed from the pool,
-   * and that no new connection should be created to take its place.  This may
-   * be used to shrink the pool if such functionality is desired.
-   *
-   * @param  connection  The connection to be discarded.
-   */
-  public void discardConnection(final LDAPConnection connection)
-  {
-    if (connection == null)
-    {
-      return;
-    }
-
-    connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_UNNEEDED,
-         null, null);
-    connection.terminate(null);
-    poolStatistics.incrementNumConnectionsClosedUnneeded();
-
-    if (availableConnections.remainingCapacity() > 0)
-    {
-      final int newReplaceCount = failedReplaceCount.incrementAndGet();
-      if (newReplaceCount > numConnections)
-      {
-        failedReplaceCount.set(numConnections);
-      }
     }
   }
 
@@ -1885,17 +1613,6 @@ public final class LDAPConnectionPool
     try
     {
       final LDAPConnection conn = createConnection();
-      if (maxDefunctReplacementConnectionAge != null)
-      {
-        // Only set the maximum age if there isn't one already set for the
-        // connection (i.e., because it was defined by the server set).
-        if (conn.getAttachment(ATTACHMENT_NAME_MAX_CONNECTION_AGE) == null)
-        {
-          conn.setAttachment(ATTACHMENT_NAME_MAX_CONNECTION_AGE,
-               maxDefunctReplacementConnectionAge);
-        }
-      }
-
       if (! availableConnections.offer(conn))
       {
         conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_UNNEEDED,
@@ -1909,11 +1626,7 @@ public final class LDAPConnectionPool
     catch (LDAPException le)
     {
       debugException(le);
-      final int newReplaceCount = failedReplaceCount.incrementAndGet();
-      if (newReplaceCount > numConnections)
-      {
-        failedReplaceCount.set(numConnections);
-      }
+      failedReplaceCount.incrementAndGet();
       return null;
     }
   }
@@ -1985,23 +1698,8 @@ public final class LDAPConnectionPool
    */
   private boolean connectionIsExpired(final LDAPConnection connection)
   {
-    // There may be a custom maximum connection age for the connection.  If that
-    // is the case, then use that custom max age rather than the pool-default
-    // max age.
-    final long maxAge;
-    final Object maxAgeObj =
-         connection.getAttachment(ATTACHMENT_NAME_MAX_CONNECTION_AGE);
-    if ((maxAgeObj != null) && (maxAgeObj instanceof Long))
-    {
-      maxAge = (Long) maxAgeObj;
-    }
-    else
-    {
-      maxAge = maxConnectionAge;
-    }
-
     // If connection expiration is not enabled, then there is nothing to do.
-    if (maxAge <= 0L)
+    if (maxConnectionAge <= 0L)
     {
       return false;
     }
@@ -2016,7 +1714,7 @@ public final class LDAPConnectionPool
 
     // Get the age of the connection and see if it is expired.
     final long connectionAge = currentTime - connection.getConnectTime();
-    return (connectionAge > maxAge);
+    return (connectionAge > maxConnectionAge);
   }
 
 
@@ -2160,142 +1858,6 @@ public final class LDAPConnectionPool
     {
       this.maxConnectionAge = 0L;
     }
-  }
-
-
-
-  /**
-   * Retrieves the maximum connection age that should be used for connections
-   * that were created in order to replace defunct connections.  It is possible
-   * to define a custom maximum connection age for these connections to allow
-   * them to be closed and re-established more quickly to allow for a
-   * potentially quicker fail-back to a normal state.  Note, that if this
-   * capability is to be used, then the maximum age for these connections should
-   * be long enough to allow the problematic server to become available again
-   * under normal circumstances (e.g., it should be long enough for at least a
-   * shutdown and restart of the server, plus some overhead for potentially
-   * performing routine maintenance while the server is offline, or a chance for
-   * an administrator to be made available that a server has gone down).
-   *
-   * @return  The maximum connection age that should be used for connections
-   *          that were created in order to replace defunct connections, a value
-   *          of zero to indicate that no maximum age should be enforced, or
-   *          {@code null} if the value returned by the
-   *          {@link #getMaxConnectionAgeMillis()} method should be used.
-   */
-  public Long getMaxDefunctReplacementConnectionAgeMillis()
-  {
-    return maxDefunctReplacementConnectionAge;
-  }
-
-
-
-  /**
-   * Specifies the maximum connection age that should be used for connections
-   * that were created in order to replace defunct connections.  It is possible
-   * to define a custom maximum connection age for these connections to allow
-   * them to be closed and re-established more quickly to allow for a
-   * potentially quicker fail-back to a normal state.  Note, that if this
-   * capability is to be used, then the maximum age for these connections should
-   * be long enough to allow the problematic server to become available again
-   * under normal circumstances (e.g., it should be long enough for at least a
-   * shutdown and restart of the server, plus some overhead for potentially
-   * performing routine maintenance while the server is offline, or a chance for
-   * an administrator to be made available that a server has gone down).
-   *
-   * @param  maxDefunctReplacementConnectionAge  The maximum connection age that
-   *              should be used for connections that were created in order to
-   *              replace defunct connections.  It may be zero if no maximum age
-   *              should be enforced for such connections, or it may be
-   *              {@code null} if the value returned by the
-   *              {@link #getMaxConnectionAgeMillis()} method should be used.
-   */
-  public void setMaxDefunctReplacementConnectionAgeMillis(
-                   final Long maxDefunctReplacementConnectionAge)
-  {
-    if (maxDefunctReplacementConnectionAge == null)
-    {
-      this.maxDefunctReplacementConnectionAge = null;
-    }
-    else if (maxDefunctReplacementConnectionAge > 0L)
-    {
-      this.maxDefunctReplacementConnectionAge =
-           maxDefunctReplacementConnectionAge;
-    }
-    else
-    {
-      this.maxDefunctReplacementConnectionAge = 0L;
-    }
-  }
-
-
-
-  /**
-   * Indicates whether to check the age of a connection against the configured
-   * maximum connection age whenever it is released to the pool.  By default,
-   * connection age is evaluated in the background using the health check
-   * thread, but it is also possible to configure the pool to additionally
-   * examine the age of a connection when it is returned to the pool.
-   * <BR><BR>
-   * Performing connection age evaluation only in the background will ensure
-   * that connections are only closed and re-established in a single-threaded
-   * manner, which helps minimize the load against the target server, but only
-   * checks connections that are not in use when the health check thread is
-   * active.  If the pool is configured to also evaluate the connection age when
-   * connections are returned to the pool, then it may help ensure that the
-   * maximum connection age is honored more strictly for all connections, but
-   * in busy applications may lead to cases in which multiple connections are
-   * closed and re-established simultaneously, which may increase load against
-   * the directory server.  The {@link #setMinDisconnectIntervalMillis(long)}
-   * method may be used to help mitigate the potential performance impact of
-   * closing and re-establishing multiple connections simultaneously.
-   *
-   * @return  {@code true} if the connection pool should check connection age in
-   *          both the background health check thread and when connections are
-   *          released to the pool, or {@code false} if the connection age
-   *          should only be checked by the background health check thread.
-   */
-  public boolean checkConnectionAgeOnRelease()
-  {
-    return checkConnectionAgeOnRelease;
-  }
-
-
-
-  /**
-   * Specifies whether to check the age of a connection against the configured
-   * maximum connection age whenever it is released to the pool.  By default,
-   * connection age is evaluated in the background using the health check
-   * thread, but it is also possible to configure the pool to additionally
-   * examine the age of a connection when it is returned to the pool.
-   * <BR><BR>
-   * Performing connection age evaluation only in the background will ensure
-   * that connections are only closed and re-established in a single-threaded
-   * manner, which helps minimize the load against the target server, but only
-   * checks connections that are not in use when the health check thread is
-   * active.  If the pool is configured to also evaluate the connection age when
-   * connections are returned to the pool, then it may help ensure that the
-   * maximum connection age is honored more strictly for all connections, but
-   * in busy applications may lead to cases in which multiple connections are
-   * closed and re-established simultaneously, which may increase load against
-   * the directory server.  The {@link #setMinDisconnectIntervalMillis(long)}
-   * method may be used to help mitigate the potential performance impact of
-   * closing and re-establishing multiple connections simultaneously.
-   *
-   * @param  checkConnectionAgeOnRelease  If {@code true}, this indicates that
-   *                                      the connection pool should check
-   *                                      connection age in both the background
-   *                                      health check thread and when
-   *                                      connections are released to the pool.
-   *                                      If {@code false}, this indicates that
-   *                                      the connection pool should check
-   *                                      connection age only in the background
-   *                                      health check thread.
-   */
-  public void setCheckConnectionAgeOnRelease(
-                   final boolean checkConnectionAgeOnRelease)
-  {
-    this.checkConnectionAgeOnRelease = checkConnectionAgeOnRelease;
   }
 
 
