@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -68,31 +68,29 @@ import static com.unboundid.util.Validator.*;
  * The following example demonstrates the process for performing a compare
  * operation:
  * <PRE>
- * CompareRequest compareRequest =
- *      new CompareRequest("dc=example,dc=com", "description", "test");
- * CompareResult compareResult;
- * try
- * {
- *   compareResult = connection.compare(compareRequest);
+ *   CompareRequest compareRequest =
+ *        new CompareRequest("dc=example,dc=com", "description", "test");
  *
- *   // The compare operation didn't throw an exception, so we can try to
- *   // determine whether the compare matched.
- *   if (compareResult.compareMatched())
+ *   try
  *   {
- *     // The entry does have a description value of test.
+ *     CompareResult compareResult = connection.compare(compareRequest);
+ *
+ *     // The compare operation didn't throw an exception, so we can try to
+ *     // determine whether the compare matched.
+ *     if (compareResult.compareMatched())
+ *     {
+ *       System.out.println("The entry does have a description value of test");
+ *     }
+ *     else
+ *     {
+ *       System.out.println("The entry does not have a description value of " +
+ *                          "test");
+ *     }
  *   }
- *   else
+ *   catch (LDAPException le)
  *   {
- *     // The entry does not have a description value of test.
+ *     System.err.println("The compare operation failed.");
  *   }
- * }
- * catch (LDAPException le)
- * {
- *   // The compare operation failed.
- *   compareResult = new CompareResult(le.toLDAPResult());
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
  * </PRE>
  */
 @Mutable()
@@ -837,8 +835,7 @@ public final class CompareRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_COMPARE_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
-                connection.getHostPort()));
+           ERR_COMPARE_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumCompareResponses(

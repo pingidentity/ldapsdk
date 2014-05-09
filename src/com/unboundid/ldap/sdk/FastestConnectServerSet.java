@@ -1,9 +1,9 @@
 /*
- * Copyright 2012-2014 UnboundID Corp.
+ * Copyright 2012-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2012-2014 UnboundID Corp.
+ * Copyright (C) 2012-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -57,35 +57,18 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * will try both in parallel and will return the first connection that it is
  * able to establish:
  * <PRE>
- * // Create arrays with the addresses and ports of the directory server
- * // instances.
- * String[] addresses =
- * {
- *   server1Address,
- *   server2Address
- * };
- * int[] ports =
- * {
- *   server1Port,
- *   server2Port
- * };
- *
- * // Create the server set using the address and port arrays.
- * FastestConnectServerSet fastestConnectSet =
- *      new FastestConnectServerSet(addresses, ports);
- *
- * // Verify that we can establish a single connection using the server set.
- * LDAPConnection connection = fastestConnectSet.getConnection();
- * RootDSE rootDSEFromConnection = connection.getRootDSE();
- * connection.close();
- *
- * // Verify that we can establish a connection pool using the server set.
- * SimpleBindRequest bindRequest =
- *      new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
- * LDAPConnectionPool pool =
- *      new LDAPConnectionPool(fastestConnectSet, bindRequest, 10);
- * RootDSE rootDSEFromPool = pool.getRootDSE();
- * pool.close();
+ *   String[] addresses =
+ *   {
+ *     "ds1.example.com",
+ *     "ds2.example.com",
+ *   };
+ *   int[] ports =
+ *   {
+ *     389,
+ *     389
+ *   }
+ *   FastestConnectServerSet fastestConnectSet =
+ *        new FastestConnectServerSet(addresses, ports);
  * </PRE>
  */
 @NotMutable()

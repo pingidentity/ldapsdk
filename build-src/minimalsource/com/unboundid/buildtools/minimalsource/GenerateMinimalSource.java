@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.minimalsource;
@@ -63,7 +63,6 @@ public final class GenerateMinimalSource
     "com.unboundid.asn1.ASN1StreamReaderSequence",
     "com.unboundid.asn1.ASN1StreamReaderSet",
     "com.unboundid.asn1.ASN1Writer",
-    "com.unboundid.asn1.InternalASN1Helper",
     "com.unboundid.asn1.package-info",
 
     "com.unboundid.ldap.matchingrules.AcceptAllSimpleMatchingRule",
@@ -132,9 +131,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.DecodeableControl",
     "com.unboundid.ldap.sdk.DeleteRequest",
     "com.unboundid.ldap.sdk.DereferencePolicy",
-    "com.unboundid.ldap.sdk.DiscardAsyncListener",
     "com.unboundid.ldap.sdk.DisconnectHandler",
-    "com.unboundid.ldap.sdk.DisconnectInfo",
     "com.unboundid.ldap.sdk.DisconnectType",
     "com.unboundid.ldap.sdk.DN",
     "com.unboundid.ldap.sdk.Entry",

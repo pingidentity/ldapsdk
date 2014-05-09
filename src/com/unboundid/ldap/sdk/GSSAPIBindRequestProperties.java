@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,14 +23,9 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Mutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -50,7 +45,7 @@ public final class GSSAPIBindRequestProperties
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 6872295509330315713L;
+  private static final long serialVersionUID = -8177334654843710502L;
 
 
 
@@ -72,10 +67,6 @@ public final class GSSAPIBindRequestProperties
   // Indicates whether to enable the use of a ticket cache.
   private boolean useTicketCache;
 
-  // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
-  // request.
-  private List<SASLQualityOfProtection> allowedQoP;
-
   // The authentication ID string for the GSSAPI bind request.
   private String authenticationID;
 
@@ -90,9 +81,6 @@ public final class GSSAPIBindRequestProperties
 
   // The realm for the GSSAPI bind request, if available.
   private String realm;
-
-  // The server name to use when creating the SASL client.
-  private String saslClientServerName;
 
   // The protocol that should be used in the Kerberos service principal for
   // the server system.
@@ -188,10 +176,7 @@ public final class GSSAPIBindRequestProperties
     renewTGT                 = false;
     useTicketCache           = true;
     requireCachedCredentials = false;
-    saslClientServerName     = null;
     ticketCachePath          = null;
-    allowedQoP               = Collections.unmodifiableList(Arrays.asList(
-         SASLQualityOfProtection.AUTH));
   }
 
 
@@ -350,72 +335,6 @@ public final class GSSAPIBindRequestProperties
 
 
   /**
-   * Retrieves the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @return  The list of allowed qualities of protection that may be used for
-   *          communication that occurs on the connection after the
-   *          authentication has completed, in order from most preferred to
-   *          least preferred.
-   */
-  public List<SASLQualityOfProtection> getAllowedQoP()
-  {
-    return allowedQoP;
-  }
-
-
-
-  /**
-   * Specifies the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @param  allowedQoP  The list of allowed qualities of protection that may be
-   *                     used for communication that occurs on the connection
-   *                     after the authentication has completed, in order from
-   *                     most preferred to least preferred.  If this is
-   *                     {@code null} or empty, then a list containing only the
-   *                     {@link SASLQualityOfProtection#AUTH} quality of
-   *                     protection value will be used.
-   */
-  public void setAllowedQoP(final List<SASLQualityOfProtection> allowedQoP)
-  {
-    if ((allowedQoP == null) || allowedQoP.isEmpty())
-    {
-      this.allowedQoP = Collections.unmodifiableList(Arrays.asList(
-           SASLQualityOfProtection.AUTH));
-    }
-    else
-    {
-      this.allowedQoP = Collections.unmodifiableList(
-           new ArrayList<SASLQualityOfProtection>(allowedQoP));
-    }
-  }
-
-
-
-  /**
-   * Specifies the list of allowed qualities of protection that may be used for
-   * communication that occurs on the connection after the authentication has
-   * completed, in order from most preferred to least preferred.
-   *
-   * @param  allowedQoP  The list of allowed qualities of protection that may be
-   *                     used for communication that occurs on the connection
-   *                     after the authentication has completed, in order from
-   *                     most preferred to least preferred.  If this is
-   *                     {@code null} or empty, then a list containing only the
-   *                     {@link SASLQualityOfProtection#AUTH} quality of
-   *                     protection value will be used.
-   */
-  public void setAllowedQoP(final SASLQualityOfProtection... allowedQoP)
-  {
-    setAllowedQoP(StaticUtils.toList(allowedQoP));
-  }
-
-
-
-  /**
    * Retrieves the address to use for the Kerberos key distribution center,
    * if defined.
    *
@@ -474,39 +393,6 @@ public final class GSSAPIBindRequestProperties
   public void setConfigFilePath(final String configFilePath)
   {
     this.configFilePath = configFilePath;
-  }
-
-
-
-  /**
-   * Retrieves the server name that should be used when creating the Java
-   * {@code SaslClient}, if one is defined.
-   *
-   * @return  The server name that should be used when creating the Java
-   *          {@code SaslClient}, or {@code null} if none is defined and the
-   *          {@code SaslClient} should use the address specified when
-   *          establishing the connection.
-   */
-  public String getSASLClientServerName()
-  {
-    return saslClientServerName;
-  }
-
-
-
-  /**
-   * Specifies the server name that should be used when creating the Java
-   * {@code SaslClient}.
-   *
-   * @param  saslClientServerName  The server name that should be used when
-   *                               creating the Java {@code SaslClient}.  It may
-   *                               be {@code null} to indicate that the
-   *                               {@code SaslClient} should be created with the
-   *
-   */
-  public void setSASLClientServerName(final String saslClientServerName)
-  {
-    this.saslClientServerName = saslClientServerName;
   }
 
 
@@ -755,10 +641,6 @@ public final class GSSAPIBindRequestProperties
       buffer.append("', ");
     }
 
-    buffer.append("qop='");
-    buffer.append(SASLQualityOfProtection.toString(allowedQoP));
-    buffer.append("', ");
-
     if (kdcAddress != null)
     {
       buffer.append("kdcAddress='");
@@ -790,13 +672,6 @@ public final class GSSAPIBindRequestProperties
     {
       buffer.append("configFilePath='");
       buffer.append(configFilePath);
-      buffer.append("', ");
-    }
-
-    if (saslClientServerName != null)
-    {
-      buffer.append("saslClientServerName='");
-      buffer.append(saslClientServerName);
       buffer.append("', ");
     }
 

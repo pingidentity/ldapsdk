@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -760,7 +760,7 @@ public final class LDAPThreadLocalConnectionPool
     }
 
     boolean created = false;
-    if ((conn == null) || (! conn.isConnected()))
+    if (conn == null)
     {
       conn = createConnection();
       connections.put(t, conn);

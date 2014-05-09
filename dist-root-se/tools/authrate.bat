@@ -1,11 +1,11 @@
 @echo off
 
-rem Copyright 2009-2014 UnboundID Corp.
+rem Copyright 2009-2013 UnboundID Corp.
 rem All Rights Reserved.
 rem
 rem -----
 rem
-rem Copyright (C) 2009-2014 UnboundID Corp.
+rem Copyright (C) 2009-2013 UnboundID Corp.
 rem This program is free software; you can redistribute it and/or modify
 rem it under the terms of the GNU General Public License (GPLv2 only)
 rem or the terms of the GNU Lesser General Public License (LGPLv2.1 only)

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -2147,41 +2147,5 @@ public final class StaticUtils
     final HashSet<T> s1 = new HashSet<T>(Arrays.asList(a1));
     final HashSet<T> s2 = new HashSet<T>(Arrays.asList(a2));
     return s1.equals(s2);
-  }
-
-
-
-  /**
-   * Determines the number of bytes in a UTF-8 character that starts with the
-   * given byte.
-   *
-   * @param  b  The byte for which to make the determination.
-   *
-   * @return  The number of bytes in a UTF-8 character that starts with the
-   *          given byte, or -1 if it does not appear to be a valid first byte
-   *          for a UTF-8 character.
-   */
-  public static int numBytesInUTF8CharacterWithFirstByte(final byte b)
-  {
-    if ((b & 0x7F) == b)
-    {
-      return 1;
-    }
-    else if ((b & 0xE0) == 0xC0)
-    {
-      return 2;
-    }
-    else if ((b & 0xF0) == 0xE0)
-    {
-      return 3;
-    }
-    else if ((b & 0xF8) == 0xF0)
-    {
-      return 4;
-    }
-    else
-    {
-      return -1;
-    }
   }
 }

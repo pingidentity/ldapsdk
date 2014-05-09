@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2007-2014 UnboundID Corp.
+ * Copyright (C) 2007-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -57,22 +57,6 @@ public final class ControlHelper
    */
   @InternalUseOnly()
   public static void registerDefaultResponseControls()
-  {
-    Control.registerDecodeableControl(
-         ActiveDirectoryDirSyncControl.DIRSYNC_OID,
-         new ActiveDirectoryDirSyncControl());
-  }
-
-
-
-  /**
-   * Registers all "out-of-the-box" response UnboundID-specific controls
-   * provided with this SDK so that they may be properly decoded if they are
-   * received in an LDAP response.  This method is intended only for internal
-   * use only and should not be called by external applications.
-   */
-  @InternalUseOnly()
-  public static void registerNonCommercialResponseControls()
   {
     Control.registerDecodeableControl(
          DraftBeheraLDAPPasswordPolicy10ResponseControl.

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -59,20 +59,21 @@ import static com.unboundid.util.Validator.*;
  * and for decoding a string containing base64-encoded data back to the raw
  * data used to create it:
  * <PRE>
- * // Base64-encode some raw data:
- * String base64String = Base64.encode(rawDataBytes);
+ *   // Base64-encode some raw data:
+ *   String base64String = Base64.encode(rawDataBytes);
+ *   System.out.println("Base64 encoded representation of the raw data is " +
+ *                      base64String);
  *
- * // Decode a base64 string back to raw data:
- * byte[] decodedRawDataBytes;
- * try
- * {
- *   decodedRawDataBytes = Base64.decode(base64String);
- * }
- * catch (ParseException pe)
- * {
- *   // The string did not represent a valid base64 encoding.
- *   decodedRawDataBytes = null;
- * }
+ *   // Decode a base64 string back to raw data:
+ *   try
+ *   {
+ *     byte[] decodedRawDataBytes = Base64.decode(base64String);
+ *   }
+ *   catch (ParseException pe)
+ *   {
+ *     System.err.println("The string did not contain valid base64-encoded " +
+ *                        "data:  " + pe.getMessage());
+ *   }
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

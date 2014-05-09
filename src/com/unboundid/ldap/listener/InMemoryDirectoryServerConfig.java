@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Handler;
 
-import com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
@@ -86,8 +85,6 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       logging.</LI>
  *   <LI>Listener Exception Handler:  The server will not use a listener
  *       exception handler.</LI>
- *   <LI>Maximum Size Limit:  The server will not enforce a maximum search size
- *       limit.</LI>
  * </UL>
  */
 @NotExtensible()
@@ -120,25 +117,17 @@ public class InMemoryDirectoryServerConfig
   // The maximum number of entries to retain in a generated changelog.
   private int maxChangeLogEntries;
 
-  // The maximum number of entries that may be returned in any single search
-  // operation.
-  private int maxSizeLimit;
-
   // The exception handler that should be used for the listener.
   private LDAPListenerExceptionHandler exceptionHandler;
-
-  // The extended operation handlers that may be used to process extended
-  // operations in the server.
-  private final List<InMemoryExtendedOperationHandler>
-       extendedOperationHandlers;
 
   // The listener configurations that should be used for accepting connections
   // to the server.
   private final List<InMemoryListenerConfig> listenerConfigs;
 
-  // The operation interceptors that should be used with the in-memory directory
-  // server.
-  private final List<InMemoryOperationInterceptor> operationInterceptors;
+  // The extended operation handlers that may be used to process extended
+  // operations in the server.
+  private final List<InMemoryExtendedOperationHandler>
+       extendedOperationHandlers;
 
   // The SASL bind handlers that may be used to process SASL bind requests in
   // the server.
@@ -220,7 +209,6 @@ public class InMemoryDirectoryServerConfig
     enforceSingleStructuralObjectClass   = true;
     generateOperationalAttributes        = true;
     maxChangeLogEntries                  = 0;
-    maxSizeLimit                         = 0;
     exceptionHandler                     = null;
     equalityIndexAttributes              = new ArrayList<String>(10);
     schema                               = Schema.getDefaultStandardSchema();
@@ -229,8 +217,6 @@ public class InMemoryDirectoryServerConfig
     referentialIntegrityAttributes       = new HashSet<String>(0);
     vendorName                           = "UnboundID Corp.";
     vendorVersion                        = Version.FULL_VERSION_STRING;
-
-    operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(5);
 
     extendedOperationHandlers =
          new ArrayList<InMemoryExtendedOperationHandler>(3);
@@ -260,9 +246,6 @@ public class InMemoryDirectoryServerConfig
     listenerConfigs = new ArrayList<InMemoryListenerConfig>(
          cfg.listenerConfigs);
 
-    operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(
-         cfg.operationInterceptors);
-
     extendedOperationHandlers = new ArrayList<InMemoryExtendedOperationHandler>(
          cfg.extendedOperationHandlers);
 
@@ -291,7 +274,6 @@ public class InMemoryDirectoryServerConfig
     accessLogHandler                   = cfg.accessLogHandler;
     ldapDebugLogHandler                = cfg.ldapDebugLogHandler;
     maxChangeLogEntries                = cfg.maxChangeLogEntries;
-    maxSizeLimit                       = cfg.maxSizeLimit;
     exceptionHandler                   = cfg.exceptionHandler;
     schema                             = cfg.schema;
     vendorName                         = cfg.vendorName;
@@ -833,40 +815,6 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
-   * Retrieves a list of the operation interceptors that may be used to
-   * intercept and transform requests before they are processed by the in-memory
-   * directory server, and/or to intercept and transform responses before they
-   * are returned to the client.  The contents of the list may be altered by the
-   * caller.
-   *
-   * @return  An updatable list of the operation interceptors that may be used
-   *          to intercept and transform requests and/or responses.
-   */
-  public List<InMemoryOperationInterceptor> getOperationInterceptors()
-  {
-    return operationInterceptors;
-  }
-
-
-
-  /**
-   * Adds the provided operation interceptor to the list of operation
-   * interceptors that may be used to transform requests before they are
-   * processed by the in-memory directory server, and/or to transform responses
-   * before they are returned to the client.
-   *
-   * @param  interceptor  The operation interceptor that should be invoked in
-   *                      the course of processing requests and responses.
-   */
-  public void addInMemoryOperationInterceptor(
-                   final InMemoryOperationInterceptor interceptor)
-  {
-    operationInterceptors.add(interceptor);
-  }
-
-
-
-  /**
    * Retrieves a list of the extended operation handlers that may be used to
    * process extended operations in the server.  The contents of the list may
    * be altered by the caller.
@@ -993,42 +941,6 @@ public class InMemoryDirectoryServerConfig
     else
     {
       this.maxChangeLogEntries = maxChangeLogEntries;
-    }
-  }
-
-
-
-  /**
-   * Retrieves the maximum number of entries that the server should return in
-   * any search operation.
-   *
-   * @return  The maximum number of entries that the server should return in any
-   *          search operation, or zero if no limit should be enforced.
-   */
-  public int getMaxSizeLimit()
-  {
-    return maxSizeLimit;
-  }
-
-
-
-  /**
-   * Specifies the maximum number of entries that the server should return in
-   * any search operation.  A value less than or equal to zero indicates that no
-   * maximum limit should be enforced.
-   *
-   * @param  maxSizeLimit  The maximum number of entries that the server should
-   *                       return in any search operation.
-   */
-  public void setMaxSizeLimit(final int maxSizeLimit)
-  {
-    if (maxSizeLimit > 0)
-    {
-      this.maxSizeLimit = maxSizeLimit;
-    }
-    else
-    {
-      this.maxSizeLimit = 0;
     }
   }
 
@@ -1378,9 +1290,6 @@ public class InMemoryDirectoryServerConfig
       buffer.append(", maxChangelogEntries=");
       buffer.append(maxChangeLogEntries);
     }
-
-    buffer.append(", maxSizeLimit=");
-    buffer.append(maxSizeLimit);
 
     if (! extendedOperationHandlers.isEmpty())
     {
