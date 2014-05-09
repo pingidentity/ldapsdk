@@ -75,8 +75,8 @@ ${TARGET="offline"}                    <br>
               </p>
 
               <pre>
-Modification mod = new Modification(ModificationType.REPLACE,
-     "description", "This is the new description.");
+Modification mod = new Modification(ModificationType.REPLACE, "description",
+     "This is the new description.");
 ModifyRequest modifyRequest =
      new ModifyRequest("dc=example,dc=com", mod);
 
@@ -86,42 +86,36 @@ AsyncRequestID asyncRequestID =
 // Assume that we've waited a reasonable amount of time but the modify
 // hasn't completed yet so we'll try to cancel it.
 
-ExtendedResult cancelResult;
-try
-{
-  cancelResult = connection.processExtendedOperation(
-       new CancelExtendedRequest(asyncRequestID));
-  // This doesn't necessarily mean that the operation was successful, since
-  // some kinds of extended operations (like cancel) return non-success
-  // results under normal conditions.
-}
-catch (LDAPException le)
-{
-  // For an extended operation, this generally means that a problem was
-  // encountered while trying to send the request or read the result.
-  cancelResult = new ExtendedResult(le.toLDAPResult());
-}
+CancelExtendedRequest cancelRequest =
+     new CancelExtendedRequest(asyncRequestID);
 
-switch (cancelResult.getResultCode().intValue())
+// NOTE:  The processExtendedOperation method will only throw an exception
+// if a problem occurs while trying to send the request or read the
+// response.  It will not throw an exception because of a non-success
+// response.  That's good for us in this case because the cancel result
+// should never be "SUCCESS".
+ExtendedResult cancelResult =
+     connection.processExtendedOperation(cancelRequest);
+switch (cancelResult.getResultCode())
 {
-  case ResultCode.CANCELED_INT_VALUE:
-    // The modify operation was successfully canceled.
+  case ResultCode.CANCELED:
+    System.out.println("The operation was successfully canceled.");
     break;
-  case ResultCode.CANNOT_CANCEL_INT_VALUE:
-    // This indicates that the server isn't capable of canceling that
-    // type of operation.  This probably won't happen for  this kind of
-    // modify operation, but it could happen for other kinds of operations.
+  case ResultCode.NO_SUCH_OPERATION:
+    System.out.println("The server didn't know anything about the " +
+                       "operation.  Maybe it's already completed.");
     break;
-  case ResultCode.TOO_LATE_INT_VALUE:
-    // This indicates that the cancel request was received too late and the
-    // server is intending to process the operation.
+  case ResultCode.TOO_LATE:
+    System.out.println("It was too late in the operation processing " +
+                       "to cancel the operation.");
     break;
-  case ResultCode.NO_SUCH_OPERATION_INT_VALUE:
-    // This indicates that the server doesn't know anything about the
-    // operation, most likely because it has already completed.
+  case ResultCode.CANNOT_CANCEL:
+    System.out.println("The target operation is not one that could be " +
+                       "canceled.");
     break;
   default:
-    // This suggests that the operation failed for some other reason.
+    System.err.println("An error occurred while processing the cancel " +
+                       "request.");
     break;
 }
 </pre>
@@ -153,38 +147,34 @@ switch (cancelResult.getResultCode().intValue())
               <p>
                 The following example demonstrates the use of the password modify extended
                 operation to change the password for user
-                "uid=test.user,ou=People,dc=example,dc=com" and have the server generate a new
+                "uid=john.doe,ou=People,dc=example,dc=com" and have the server generate a new
                 password for that user.
               </p>
 
               <pre>
 PasswordModifyExtendedRequest passwordModifyRequest =
      new PasswordModifyExtendedRequest(
-          "uid=test.user,ou=People,dc=example,dc=com", // The user to update
-          (String) null, // The current password for the user.
-          (String) null); // The new password.  null = server will generate
+              "uid=john.doe,ou=People,dc=example,dc=com", null, null);
+PasswordModifyExtendedResult passwordModifyResult =
+     (PasswordModifyExtendedResult)
+     connection.processExtendedOperation(passwordModifyRequest);
 
-PasswordModifyExtendedResult passwordModifyResult;
-try
-{
-  passwordModifyResult = (PasswordModifyExtendedResult)
-       connection.processExtendedOperation(passwordModifyRequest);
-  // This doesn't necessarily mean that the operation was successful, since
-  // some kinds of extended operations return non-success results under
-  // normal conditions.
-}
-catch (LDAPException le)
-{
-  // For an extended operation, this generally means that a problem was
-  // encountered while trying to send the request or read the result.
-  passwordModifyResult = new PasswordModifyExtendedResult(
-       new ExtendedResult(le.toLDAPResult()));
-}
+// NOTE:  The processExtendedOperation method will only throw an exception
+// if a problem occurs while trying to send the request or read the
+// response.  It will not throw an exception because of a non-success
+// response.
 
-LDAPTestUtils.assertResultCodeEquals(passwordModifyResult,
-     ResultCode.SUCCESS);
-String serverGeneratedNewPassword =
-     passwordModifyResult.getGeneratedPassword();
+if (passwordModifyResult.getResultCode() == ResultCode.SUCCESS)
+{
+  System.out.println("The password change was successful.");
+  System.out.println("The new password for the user is " +
+       passwordModifyResult.getGeneratedPassword());
+}
+else
+{
+  System.err.println("An error occurred while attempting to process " +
+                     "the password modify extended request.");
+}
 </pre>
 
               <p></p>
@@ -212,36 +202,29 @@ String serverGeneratedNewPassword =
 
               <p>
                 The following code demonstrates the process for using the StartTLS extended
-                operation, using a trust store file to determine whether to trust the certificate
-                presented by the server:
+                operation with an SSL context provided by the <tt>TrustAllSSLSocketFactory</tt>:
               </p>
 
               <pre>
-// Create an SSLContext that will be used to perform the cryptographic
-// processing.
-SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
-SSLContext sslContext = sslUtil.createSSLContext();
+SSLContext sslContext = new TrustAllSSLSocketFactory().getSSLContext();
+ExtendedResult extendedResult = connection.processExtendedOperation(
+     new StartTLSExtendedRequest(sslContext));
 
- // Create and process the extended request to secure a connection.
-StartTLSExtendedRequest startTLSRequest =
-     new StartTLSExtendedRequest(sslContext);
-ExtendedResult startTLSResult;
-try
-{
-  startTLSResult = connection.processExtendedOperation(startTLSRequest);
-  // This doesn't necessarily mean that the operation was successful, since
-  // some kinds of extended operations return non-success results under
-  // normal conditions.
-}
-catch (LDAPException le)
-{
-  // For an extended operation, this generally means that a problem was
-  // encountered while trying to send the request or read the result.
-  startTLSResult = new ExtendedResult(le.toLDAPResult());
-}
+// NOTE:  The processExtendedOperation method will only throw an exception
+// if a problem occurs while trying to send the request or read the
+// response.  It will not throw an exception because of a non-success
+// response.
 
-// Make sure that we can use the connection to interact with the server.
-RootDSE rootDSE = connection.getRootDSE();
+if (extendedResult.getResultCode() == ResultCode.SUCCESS)
+{
+  System.out.println("Communication with the server is now secure.");
+}
+else
+{
+  System.out.println("An error occurred while attempting to perform " +
+       "StartTLS negotiation.  The connection can no longer be used.");
+  connection.close();
+}
 </pre>
 
               <p></p>
@@ -260,42 +243,32 @@ RootDSE rootDSE = connection.getRootDSE();
               </p>
 
               <pre>
-// Use the "Who Am I?" extended request to determine the identity of the
-// currently-authenticated user.
-WhoAmIExtendedResult whoAmIResult;
-try
-{
-  whoAmIResult = (WhoAmIExtendedResult)
-       connection.processExtendedOperation(new WhoAmIExtendedRequest());
-  // This doesn't necessarily mean that the operation was successful, since
-  // some kinds of extended operations return non-success results under
-  // normal conditions.
-}
-catch (LDAPException le)
-{
-  // For an extended operation, this generally means that a problem was
-  // encountered while trying to send the request or read the result.
-  whoAmIResult =
-       new WhoAmIExtendedResult(new ExtendedResult(le.toLDAPResult()));
-}
+WhoAmIExtendedResult whoAmIResult =
+     (WhoAmIExtendedResult)
+     connection.processExtendedOperation(new WhoAmIExtendedRequest());
 
-LDAPTestUtils.assertResultCodeEquals(whoAmIResult, ResultCode.SUCCESS);
-String authzID = whoAmIResult.getAuthorizationID();
-if (authzID.equals("") || authzID.equals("dn:"))
+// NOTE:  The processExtendedOperation method will only throw an exception
+// if a problem occurs while trying to send the request or read the
+// response.  It will not throw an exception because of a non-success
+// response.
+
+if (whoAmIResult.getResultCode() == ResultCode.SUCCESS)
 {
-  // The user is authenticated anonymously.
-}
-else if (authzID.startsWith("dn:"))
-{
-  // The DN of the authenticated user should be authzID.substring(3)
-}
-else if (authzID.startsWith("u:"))
-{
-  // The username of the authenticated user should be authzID.substring(2)
+  String authzID = whoAmIResult.getAuthorizationID();
+  if (authzID.length() == 0)
+  {
+    System.out.println("Your current authorization ID is that of the " +
+                       "anonymous user.");
+  }
+  else
+  {
+    System.out.println("Your current authorization ID is " +
+                       whoAmIResult.getAuthorizationID());
+  }
 }
 else
 {
-  // The authorization ID isn't in any recognizable format.  Perhaps it's
-  // a raw DN or a username?
+  System.err.println("An error occurred while processing the " +
+                     "Who Am I? extended operation.");
 }
 </pre>

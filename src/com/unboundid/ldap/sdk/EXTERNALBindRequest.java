@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,9 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
-import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.NotMutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -41,20 +39,15 @@ import com.unboundid.util.ThreadSafetyLevel;
  * The following example demonstrates the process for performing an EXTERNAL
  * bind against a directory server:
  * <PRE>
- * EXTERNALBindRequest bindRequest = new EXTERNALBindRequest("");
- * BindResult bindResult;
- * try
- * {
- *   bindResult = connection.bind(bindRequest);
- *   // If we get here, then the bind was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // The bind failed for some reason.
- *   bindResult = new BindResult(le.toLDAPResult());
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   try
+ *   {
+ *     BindResult bindResult = connection.bind(new EXTERNALBindRequest());
+ *     // If we get here, then the bind was successful.
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     // The bind failed for some reason.
+ *   }
  * </PRE>
  */
 @NotMutable()
@@ -79,39 +72,14 @@ public final class EXTERNALBindRequest
   // The message ID from the last LDAP message sent from this request.
   private int messageID = -1;
 
-  // The authorization ID to send to the server in the bind request.  It may be
-  // null, empty, or non-empty.
-  private final String authzID;
-
 
 
   /**
-   * Creates a new SASL EXTERNAL bind request with no authorization ID and no
-   * controls.
+   * Creates a new SASL EXTERNAL bind request with no controls.
    */
   public EXTERNALBindRequest()
   {
-    this(null, StaticUtils.NO_CONTROLS);
-  }
-
-
-
-  /**
-   * Creates a new SASL EXTERNAL bind request with the specified authorization
-   * ID and no controls.
-   *
-   * @param  authzID  The authorization ID to use for the bind request.  It may
-   *                  be {@code null} if the client should not send any
-   *                  authorization ID at all (which may be required by some
-   *                  servers).  It may be an empty string if the server should
-   *                  determine the authorization identity from what it knows
-   *                  about the client (e.g., a client certificate).  It may be
-   *                  a non-empty string if the authorization identity should
-   *                  be different from the authentication identity.
-   */
-  public EXTERNALBindRequest(final String authzID)
-  {
-    this(authzID, StaticUtils.NO_CONTROLS);
+    super(null);
   }
 
 
@@ -125,50 +93,7 @@ public final class EXTERNALBindRequest
    */
   public EXTERNALBindRequest(final Control... controls)
   {
-    this(null, controls);
-  }
-
-
-
-
-  /**
-   * Creates a new SASL EXTERNAL bind request with the provided set of controls.
-   *
-   *
-   * @param  authzID   The authorization ID to use for the bind request.  It may
-   *                   be {@code null} if the client should not send any
-   *                   authorization ID at all (which may be required by some
-   *                   servers).  It may be an empty string if the server should
-   *                   determine the authorization identity from what it knows
-   *                   about the client (e.g., a client certificate).  It may be
-   *                   a non-empty string if the authorization identity should
-   *                   be different from the authentication identity.
-   * @param  controls  The set of controls to include in this SASL EXTERNAL
-   *                   bind request.
-   */
-  public EXTERNALBindRequest(final String authzID, final Control... controls)
-  {
     super(controls);
-
-    this.authzID = authzID;
-  }
-
-
-
-  /**
-   * Retrieves the authorization ID that should be included in the bind request,
-   * if any.
-   *
-   * @return  The authorization ID that should be included in the bind request,
-   *          or {@code null} if the bind request should be sent without an
-   *          authorization ID (which is a form that some servers require).  It
-   *          may be an empty string if the authorization identity should be the
-   *          same as the authentication identity and should be determined from
-   *          what the server already knows about the client.
-   */
-  public String getAuthorizationID()
-  {
-    return authzID;
   }
 
 
@@ -205,18 +130,7 @@ public final class EXTERNALBindRequest
   {
     // Create the LDAP message.
     messageID = connection.nextMessageID();
-
-    final ASN1OctetString creds;
-    if (authzID == null)
-    {
-      creds = null;
-    }
-    else
-    {
-      creds = new ASN1OctetString(authzID);
-    }
-
-    return sendBindRequest(connection, "", creds, getControls(),
+    return sendBindRequest(connection, "", null, getControls(),
                            getResponseTimeoutMillis(connection));
   }
 
@@ -228,7 +142,7 @@ public final class EXTERNALBindRequest
   @Override()
   public EXTERNALBindRequest getRebindRequest(final String host, final int port)
   {
-    return new EXTERNALBindRequest(authzID, getControls());
+    return new EXTERNALBindRequest(getControls());
   }
 
 
@@ -261,8 +175,7 @@ public final class EXTERNALBindRequest
   @Override()
   public EXTERNALBindRequest duplicate(final Control[] controls)
   {
-    final EXTERNALBindRequest bindRequest =
-         new EXTERNALBindRequest(authzID, controls);
+    final EXTERNALBindRequest bindRequest = new EXTERNALBindRequest(controls);
     bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
     return bindRequest;
   }
@@ -277,24 +190,10 @@ public final class EXTERNALBindRequest
   {
     buffer.append("EXTERNALBindRequest(");
 
-    boolean added = false;
-    if (authzID != null)
-    {
-      buffer.append("authzID='");
-      buffer.append(authzID);
-      buffer.append('\'');
-      added = true;
-    }
-
     final Control[] controls = getControls();
     if (controls.length > 0)
     {
-      if (added)
-      {
-        buffer.append(", ");
-      }
-
-      buffer.append("controls={");
+      buffer.append(", controls={");
       for (int i=0; i < controls.length; i++)
       {
         if (i > 0)

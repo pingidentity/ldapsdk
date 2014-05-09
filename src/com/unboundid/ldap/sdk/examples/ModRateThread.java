@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -63,10 +63,6 @@ final class ModRateThread
   // The value that will be updated with total duration of the modifications.
   private final AtomicLong modDurations;
 
-  // The counter used to track the number of iterations remaining on the
-  // current connection.
-  private final AtomicLong remainingIterationsBeforeReconnect;
-
   // The result code for this thread.
   private final AtomicReference<ResultCode> resultCode;
 
@@ -81,10 +77,6 @@ final class ModRateThread
 
   // The connection to use for the modifications.
   private LDAPConnection connection;
-
-  // The number of iterations to request on a connection before closing and
-  // re-establishing it.
-  private final long iterationsBeforeReconnect;
 
   // A reference to the associated modrate tool that can be used when attempting
   // to establish connections.
@@ -117,53 +109,38 @@ final class ModRateThread
   /**
    * Creates a new mod rate thread with the provided information.
    *
-   * @param  modRate                    A reference to the associated modrate
-   *                                    tool.
-   * @param  threadNumber               The thread number for this thread.
-   * @param  connection                 The connection to use for the
-   *                                    modifications.
-   * @param  entryDN                    The value pattern to use for the entry
-   *                                    DNs.
-   * @param  attributes                 The names of the attributes to modify.
-   * @param  charSet                    The set of characters to include in the
-   *                                    generated values.
-   * @param  valueLength                The length in bytes to use for the
-   *                                    generated values.
-   * @param  authzID                    The value pattern to use to generate
-   *                                    authorization identities for use with
-   *                                    the proxied authorization control.  It
-   *                                    may be {@code null} if proxied
-   *                                    authorization should not be used.
-   * @param  randomSeed                 The seed to use for the random number
-   *                                    generator.
-   * @param  iterationsBeforeReconnect  The number of iterations that should be
-   *                                    processed on a connection before it is
-   *                                    closed and replaced with a
-   *                                    newly-established connection.
-   * @param  startBarrier               A barrier used to coordinate starting
-   *                                    between all of the threads.
-   * @param  modCounter                 A value that will be used to keep track
-   *                                    of the total number of modifications
-   *                                    performed.
-   * @param  modDurations               A value that will be used to keep track
-   *                                    of the total duration for all
-   *                                    modifications.
-   * @param  errorCounter               A value that will be used to keep track
-   *                                    of the number of errors encountered
-   *                                    while processing.
-   * @param  rcCounter                  The result code counter to use for
-   *                                    keeping track of the result codes for
-   *                                    failed operations.
-   * @param  rateBarrier                The barrier to use for controlling the
-   *                                    rate of modifies.  {@code null} if no
-   *                                    rate-limiting should be used.
+   * @param  modRate       A reference to the associated modrate tool.
+   * @param  threadNumber  The thread number for this thread.
+   * @param  connection    The connection to use for the modifications.
+   * @param  entryDN       The value pattern to use for the entry DNs.
+   * @param  attributes    The names of the attributes to modify.
+   * @param  charSet       The set of characters to include in the generated
+   *                       values.
+   * @param  valueLength   The length in bytes to use for the generated values.
+   * @param  authzID       The value pattern to use to generate authorization
+   *                       identities for use with the proxied authorization
+   *                       control.  It may be {@code null} if proxied
+   *                       authorization should not be used.
+   * @param  randomSeed    The seed to use for the random number generator.
+   * @param  startBarrier  A barrier used to coordinate starting between all of
+   *                       the threads.
+   * @param  modCounter    A value that will be used to keep track of the total
+   *                       number of modifications performed.
+   * @param  modDurations  A value that will be used to keep track of the total
+   *                       duration for all modifications.
+   * @param  errorCounter  A value that will be used to keep track of the number
+   *                       of errors encountered while processing.
+   * @param  rcCounter     The result code counter to use for keeping track
+   *                       of the result codes for failed operations.
+   * @param  rateBarrier   The barrier to use for controlling the rate of
+   *                       modifies.  {@code null} if no rate-limiting
+   *                       should be used.
    */
   ModRateThread(final ModRate modRate, final int threadNumber,
                 final LDAPConnection connection, final ValuePattern entryDN,
                 final String[] attributes, final byte[] charSet,
                 final int valueLength, final ValuePattern authzID,
-                final long randomSeed,  final long iterationsBeforeReconnect,
-                final CyclicBarrier startBarrier,
+                final long randomSeed, final CyclicBarrier startBarrier,
                 final AtomicLong modCounter, final AtomicLong modDurations,
                 final AtomicLong errorCounter,
                 final ResultCodeCounter rcCounter,
@@ -172,30 +149,19 @@ final class ModRateThread
     setName("ModRate Thread " + threadNumber);
     setDaemon(true);
 
-    this.modRate                   = modRate;
-    this.connection                = connection;
-    this.entryDN                   = entryDN;
-    this.attributes                = attributes;
-    this.charSet                   = charSet;
-    this.valueLength               = valueLength;
-    this.authzID                   = authzID;
-    this.iterationsBeforeReconnect = iterationsBeforeReconnect;
-    this.modCounter                = modCounter;
-    this.modDurations              = modDurations;
-    this.errorCounter              = errorCounter;
-    this.rcCounter                 = rcCounter;
-    this.startBarrier              = startBarrier;
-    fixedRateBarrier               = rateBarrier;
-
-    if (iterationsBeforeReconnect > 0L)
-    {
-      remainingIterationsBeforeReconnect =
-           new AtomicLong(iterationsBeforeReconnect);
-    }
-    else
-    {
-      remainingIterationsBeforeReconnect = null;
-    }
+    this.modRate      = modRate;
+    this.connection   = connection;
+    this.entryDN      = entryDN;
+    this.attributes   = attributes;
+    this.charSet      = charSet;
+    this.valueLength  = valueLength;
+    this.authzID      = authzID;
+    this.modCounter   = modCounter;
+    this.modDurations = modDurations;
+    this.errorCounter = errorCounter;
+    this.rcCounter    = rcCounter;
+    this.startBarrier = startBarrier;
+    fixedRateBarrier  = rateBarrier;
 
     connection.setConnectionName("mod-" + threadNumber);
 
@@ -231,17 +197,6 @@ final class ModRateThread
 
     while (! stopRequested.get())
     {
-      if ((iterationsBeforeReconnect > 0L) &&
-          (remainingIterationsBeforeReconnect.decrementAndGet() <= 0))
-      {
-        remainingIterationsBeforeReconnect.set(iterationsBeforeReconnect);
-        if (connection != null)
-        {
-          connection.close();
-          connection = null;
-        }
-      }
-
       if (connection == null)
       {
         try

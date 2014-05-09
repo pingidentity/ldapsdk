@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2007-2014 UnboundID Corp.
+ * Copyright (C) 2007-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -51,49 +51,50 @@ import static com.unboundid.ldap.sdk.experimental.ExperimentalMessages.*;
  * The following example demonstrates the use of the password policy request
  * control in conjunction with a bind operation:
  * <PRE>
- * SimpleBindRequest bindRequest = new SimpleBindRequest(
- *      "uid=john.doe,ou=People,dc=example,dc=com", "password",
- *      new DraftBeheraLDAPPasswordPolicy10RequestControl());
+ *   SimpleBindRequest bindRequest = new SimpleBindRequest(
+ *        "uid=john.doe,ou=People,dc=example,dc=com", "password",
+ *        new DraftBeheraLDAPPasswordPolicy10RequestControl());
  *
- * BindResult bindResult;
- * try
- * {
- *   bindResult = connection.bind(bindRequest);
- * }
- * catch (LDAPException le)
- * {
- *   // The bind failed.  There may be a password policy response control to
- *   // help tell us why.
- *   bindResult = new BindResult(le.toLDAPResult());
- * }
- *
- * DraftBeheraLDAPPasswordPolicy10ResponseControl pwpResponse =
- *      DraftBeheraLDAPPasswordPolicy10ResponseControl.get(bindResult);
- * if (pwpResponse != null)
- * {
- *   DraftBeheraLDAPPasswordPolicy10ErrorType errorType =
- *        pwpResponse.getErrorType();
- *   if (errorType != null)
+ *   BindResult bindResult;
+ *   try
  *   {
- *     // There was a password policy error.
+ *     bindResult = connection.bind(bindRequest);
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     // The bind failed.  There may be a password policy response control to
+ *     // help tell us why.
+ *     bindResult = new BindResult(le.toLDAPResult());
  *   }
  *
- *   DraftBeheraLDAPPasswordPolicy10WarningType warningType =
- *        pwpResponse.getWarningType();
- *   if (warningType != null)
+ *   DraftBeheraLDAPPasswordPolicy10ResponseControl pwpResponse =
+ *        DraftBeheraLDAPPasswordPolicy10ResponseControl.get(bindResult);
+ *   if (pwpResponse != null)
  *   {
- *     // There was a password policy warning.
- *     int value = pwpResponse.getWarningValue();
- *     switch (warningType)
+ *     DraftBeheraLDAPPasswordPolicy10ErrorType errorType =
+ *          pwpResponse.getErrorType();
+ *     if (errorType != null)
  *     {
- *       case TIME_BEFORE_EXPIRATION:
- *         // The warning value is the number of seconds until expiration.
- *         break;
- *       case GRACE_LOGINS_REMAINING:
- *         // The warning value is the number of grace logins remaining.
+ *       System.err.println("Password policy error:  " + errorType.getName());
+ *     }
+ *
+ *     DraftBeheraLDAPPasswordPolicy10WarningType warningType =
+ *          pwpResponse.getWarningType();
+ *     if (warningType != null)
+ *     {
+ *       int value = pwpResponse.getWarningValue();
+ *       switch (warningType)
+ *       {
+ *         case TIME_BEFORE_EXPIRATION:
+ *           System.err.println("Your password will expire in " + value +
+ *                              " seconds.");
+ *           break;
+ *         case GRACE_LOGINS_REMAINING:
+ *           System.err.println("You have " + value +
+ *                              " grace logins remaining.");
+ *       }
  *     }
  *   }
- * }
  * </PRE>
  */
 @NotMutable()

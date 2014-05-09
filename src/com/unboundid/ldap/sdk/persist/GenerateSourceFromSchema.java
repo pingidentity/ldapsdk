@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -858,10 +858,8 @@ public final class GenerateSourceFromSchema
          "initializing this");
     writer.println("   * object from an LDAP entry.");
     writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If there is a " +
-         "problem with the object after");
-    writer.println("   *                                it has been decoded " +
-         "from an LDAP entry.");
+    writer.println("   * @throws  LDAPPersistException  If the generated " +
+         "entry should not be used.");
     writer.println("   */");
     writer.println("  private void doPostDecode()");
     writer.println("          throws LDAPPersistException");
@@ -883,8 +881,10 @@ public final class GenerateSourceFromSchema
          "It may be altered if");
     writer.println("   *                desired.");
     writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If the generated " +
-         "entry should not be used.");
+    writer.println("   * @throws  LDAPPersistException  If there is a " +
+         "problem with the object after");
+    writer.println("   *                                it has been decoded " +
+         "from an LDAP entry.");
     writer.println("   */");
     writer.println("  private void doPostEncode(final Entry entry)");
     writer.println("          throws LDAPPersistException");
@@ -1835,7 +1835,7 @@ public final class GenerateSourceFromSchema
     writer.println("  /**");
     writer.println("   * Appends a string representation of this");
     writer.println("   * {@code " + className + "} object");
-    writer.println("   * to the provided buffer.");
+    writer.println("     to the provided buffer.");
     writer.println("   *");
     writer.println("   * @param  buffer  The buffer to which the string " +
          "representation should be");

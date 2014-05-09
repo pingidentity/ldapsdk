@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -62,54 +62,48 @@ import static com.unboundid.util.Validator.*;
  * across all entries containing the {@code person} object class using the LDAP
  * entry source API:
  * <PRE>
- * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
- *      SearchScope.SUB, Filter.createEqualityFilter("objectClass", "person"));
- * LDAPEntrySource entrySource = new LDAPEntrySource(connection,
- *      searchRequest, false);
+ *   SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
+ *        SearchScope.SUB, "(objectClass=person)");
+ *   LDAPEntrySource entrySource = new LDAPEntrySource(connection,
+ *        searchRequest, false);
  *
- * int entriesRead = 0;
- * int referencesRead = 0;
- * int exceptionsCaught = 0;
- * try
- * {
- *   while (true)
+ *   try
  *   {
- *     try
+ *     while (true)
  *     {
- *       Entry entry = entrySource.nextEntry();
- *       if (entry == null)
+ *       try
  *       {
- *         // There are no more entries to be read.
- *         break;
+ *         Entry entry = entrySource.nextEntry();
+ *         if (entry == null)
+ *         {
+ *           // There are no more entries to be read.
+ *           break;
+ *         }
+ *         else
+ *         {
+ *           // Do something with the entry here.
+ *         }
  *       }
- *       else
+ *       catch (SearchResultReferenceEntrySourceException e)
  *       {
- *         // Do something with the entry here.
- *         entriesRead++;
+ *         // The directory server returned a search result reference.
+ *         SearchResultReference searchReference = e.getSearchReference();
  *       }
- *     }
- *     catch (SearchResultReferenceEntrySourceException e)
- *     {
- *       // The directory server returned a search result reference.
- *       SearchResultReference searchReference = e.getSearchReference();
- *       referencesRead++;
- *     }
- *     catch (EntrySourceException e)
- *     {
- *       // Some kind of problem was encountered (e.g., the connection is no
- *       // longer valid).  See if we can continue reading entries.
- *       exceptionsCaught++;
- *       if (! e.mayContinueReading())
+ *       catch (EntrySourceException e)
  *       {
- *         break;
+ *         // Some kind of problem was encountered (e.g., the connection is no
+ *         // longer valid).  See if we can continue reading entries.
+ *         if (! e.mayContinueReading())
+ *         {
+ *           break;
+ *         }
  *       }
  *     }
  *   }
- * }
- * finally
- * {
- *   entrySource.close();
- * }
+ *   finally
+ *   {
+ *     entrySource.close();
+ *   }
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

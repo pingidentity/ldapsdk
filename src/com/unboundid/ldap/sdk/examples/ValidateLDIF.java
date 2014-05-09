@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -42,7 +42,6 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
-import com.unboundid.ldif.DuplicateValueBehavior;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFReaderEntryTranslator;
@@ -499,14 +498,7 @@ public final class ValidateLDIF
     }
 
     ldifReader.setSchema(schema);
-    if (ignoreDuplicateValues.isPresent())
-    {
-      ldifReader.setDuplicateValueBehavior(DuplicateValueBehavior.STRIP);
-    }
-    else
-    {
-      ldifReader.setDuplicateValueBehavior(DuplicateValueBehavior.REJECT);
-    }
+    ldifReader.setIgnoreDuplicateValues(ignoreDuplicateValues.isPresent());
 
     try
     {
@@ -771,17 +763,5 @@ public final class ValidateLDIF
     examples.put(args, description);
 
     return examples;
-  }
-
-
-
-  /**
-   * @return EntryValidator
-   *
-   * Returns the EntryValidator
-   */
-  public EntryValidator getEntryValidator()
-  {
-    return entryValidator;
   }
 }

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -143,97 +143,6 @@ public final class StaticUtils
     }
 
     return b;
-  }
-
-
-
-  /**
-   * Indicates whether the contents of the provided byte array represent an
-   * ASCII string, which is also known in LDAP terminology as an IA5 string.
-   * An ASCII string is one that contains only bytes in which the most
-   * significant bit is zero.
-   *
-   * @param  b  The byte array for which to make the determination.  It must
-   *            not be {@code null}.
-   *
-   * @return  {@code true} if the contents of the provided array represent an
-   *          ASCII string, or {@code false} if not.
-   */
-  public static boolean isASCIIString(final byte[] b)
-  {
-    for (final byte by : b)
-    {
-      if ((by & 0x80) == 0x80)
-      {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-
-
-  /**
-   * Indicates whether the contents of the provided byte array represent a
-   * printable LDAP string, as per RFC 4517 section 3.2.  The only characters
-   * allowed in a printable string are:
-   * <UL>
-   *   <LI>All uppercase and lowercase ASCII alphabetic letters</LI>
-   *   <LI>All ASCII numeric digits</LI>
-   *   <LI>The following additional ASCII characters:  single quote, left
-   *       parenthesis, right parenthesis, plus, comma, hyphen, period, equals,
-   *       forward slash, colon, question mark, space.</LI>
-   * </UL>
-   * If the provided array contains anything other than the above characters
-   * (i.e., if the byte array contains any non-ASCII characters, or any ASCII
-   * control characters, or if it contains excluded ASCII characters like
-   * the exclamation point, double quote, octothorpe, dollar sign, etc.), then
-   * it will not be considered printable.
-   *
-   * @param  b  The byte array for which to make the determination.  It must
-   *            not be {@code null}.
-   *
-   * @return  {@code true} if the contents of the provided byte array represent
-   *          a printable LDAP string, or {@code false} if not.
-   */
-  public static boolean isPrintableString(final byte[] b)
-  {
-    for (final byte by : b)
-    {
-      if ((by & 0x80) == 0x80)
-      {
-        return false;
-      }
-
-      if (((by >= 'a') && (by <= 'z')) ||
-          ((by >= 'A') && (by <= 'Z')) ||
-          ((by >= '0') && (by <= '9')))
-      {
-        continue;
-      }
-
-      switch (by)
-      {
-        case '\'':
-        case '(':
-        case ')':
-        case '+':
-        case ',':
-        case '-':
-        case '.':
-        case '=':
-        case '/':
-        case ':':
-        case '?':
-        case ' ':
-          continue;
-        default:
-          return false;
-      }
-    }
-
-    return true;
   }
 
 
@@ -653,38 +562,8 @@ public final class StaticUtils
    */
   public static void toHex(final byte[] b, final StringBuilder buffer)
   {
-    toHex(b, null, buffer);
-  }
-
-
-
-  /**
-   * Retrieves a hexadecimal representation of the contents of the provided byte
-   * array.  No delimiter character will be inserted between the hexadecimal
-   * digits for each byte.
-   *
-   * @param  b          The byte array to be represented as a hexadecimal
-   *                    string.  It must not be {@code null}.
-   * @param  delimiter  A delimiter to be inserted between bytes.  It may be
-   *                    {@code null} if no delimiter should be used.
-   * @param  buffer     A buffer to which the hexadecimal representation of the
-   *                    contents of the provided byte array should be appended.
-   */
-  public static void toHex(final byte[] b, final String delimiter,
-                           final StringBuilder buffer)
-  {
-    boolean first = true;
     for (final byte bt : b)
     {
-      if (first)
-      {
-        first = false;
-      }
-      else if (delimiter != null)
-      {
-        buffer.append(delimiter);
-      }
-
       toHex(bt, buffer);
     }
   }
@@ -1383,23 +1262,6 @@ public final class StaticUtils
    * Retrieves a single string which is a concatenation of all of the provided
    * strings.
    *
-   * @param  a  The array of strings to concatenate.  It must not be
-   *            {@code null}.
-   *
-   * @return  A string containing a concatenation of all of the strings in the
-   *          provided array.
-   */
-  public static String concatenateStrings(final String... a)
-  {
-    return concatenateStrings(null, null, "  ", null, null, a);
-  }
-
-
-
-  /**
-   * Retrieves a single string which is a concatenation of all of the provided
-   * strings.
-   *
    * @param  l  The list of strings to concatenate.  It must not be
    *            {@code null}.
    *
@@ -1408,118 +1270,18 @@ public final class StaticUtils
    */
   public static String concatenateStrings(final List<String> l)
   {
-    return concatenateStrings(null, null, "  ", null, null, l);
-  }
-
-
-
-  /**
-   * Retrieves a single string which is a concatenation of all of the provided
-   * strings.
-   *
-   * @param  beforeList       A string that should be placed at the beginning of
-   *                          the list.  It may be {@code null} or empty if
-   *                          nothing should be placed at the beginning of the
-   *                          list.
-   * @param  beforeElement    A string that should be placed before each element
-   *                          in the list.  It may be {@code null} or empty if
-   *                          nothing should be placed before each element.
-   * @param  betweenElements  The separator that should be placed between
-   *                          elements in the list.  It may be {@code null} or
-   *                          empty if no separator should be placed between
-   *                          elements.
-   * @param  afterElement     A string that should be placed after each element
-   *                          in the list.  It may be {@code null} or empty if
-   *                          nothing should be placed after each element.
-   * @param  afterList        A string that should be placed at the end of the
-   *                          list.  It may be {@code null} or empty if nothing
-   *                          should be placed at the end of the list.
-   * @param  a                The array of strings to concatenate.  It must not
-   *                          be {@code null}.
-   *
-   * @return  A string containing a concatenation of all of the strings in the
-   *          provided list.
-   */
-  public static String concatenateStrings(final String beforeList,
-                                          final String beforeElement,
-                                          final String betweenElements,
-                                          final String afterElement,
-                                          final String afterList,
-                                          final String... a)
-  {
-    return concatenateStrings(beforeList, beforeElement, betweenElements,
-         afterElement, afterList, Arrays.asList(a));
-  }
-
-
-
-  /**
-   * Retrieves a single string which is a concatenation of all of the provided
-   * strings.
-   *
-   * @param  beforeList       A string that should be placed at the beginning of
-   *                          the list.  It may be {@code null} or empty if
-   *                          nothing should be placed at the beginning of the
-   *                          list.
-   * @param  beforeElement    A string that should be placed before each element
-   *                          in the list.  It may be {@code null} or empty if
-   *                          nothing should be placed before each element.
-   * @param  betweenElements  The separator that should be placed between
-   *                          elements in the list.  It may be {@code null} or
-   *                          empty if no separator should be placed between
-   *                          elements.
-   * @param  afterElement     A string that should be placed after each element
-   *                          in the list.  It may be {@code null} or empty if
-   *                          nothing should be placed after each element.
-   * @param  afterList        A string that should be placed at the end of the
-   *                          list.  It may be {@code null} or empty if nothing
-   *                          should be placed at the end of the list.
-   * @param  l                The list of strings to concatenate.  It must not
-   *                          be {@code null}.
-   *
-   * @return  A string containing a concatenation of all of the strings in the
-   *          provided list.
-   */
-  public static String concatenateStrings(final String beforeList,
-                                          final String beforeElement,
-                                          final String betweenElements,
-                                          final String afterElement,
-                                          final String afterList,
-                                          final List<String> l)
-  {
     ensureNotNull(l);
 
     final StringBuilder buffer = new StringBuilder();
 
-    if (beforeList != null)
-    {
-      buffer.append(beforeList);
-    }
-
     final Iterator<String> iterator = l.iterator();
     while (iterator.hasNext())
     {
-      if (beforeElement != null)
-      {
-        buffer.append(beforeElement);
-      }
-
       buffer.append(iterator.next());
-
-      if (afterElement != null)
+      if (iterator.hasNext())
       {
-        buffer.append(afterElement);
+        buffer.append("  ");
       }
-
-      if ((betweenElements != null) && iterator.hasNext())
-      {
-        buffer.append(betweenElements);
-      }
-    }
-
-    if (afterList != null)
-    {
-      buffer.append(afterList);
     }
 
     return buffer.toString();
@@ -2147,41 +1909,5 @@ public final class StaticUtils
     final HashSet<T> s1 = new HashSet<T>(Arrays.asList(a1));
     final HashSet<T> s2 = new HashSet<T>(Arrays.asList(a2));
     return s1.equals(s2);
-  }
-
-
-
-  /**
-   * Determines the number of bytes in a UTF-8 character that starts with the
-   * given byte.
-   *
-   * @param  b  The byte for which to make the determination.
-   *
-   * @return  The number of bytes in a UTF-8 character that starts with the
-   *          given byte, or -1 if it does not appear to be a valid first byte
-   *          for a UTF-8 character.
-   */
-  public static int numBytesInUTF8CharacterWithFirstByte(final byte b)
-  {
-    if ((b & 0x7F) == b)
-    {
-      return 1;
-    }
-    else if ((b & 0xE0) == 0xC0)
-    {
-      return 2;
-    }
-    else if ((b & 0xF0) == 0xE0)
-    {
-      return 3;
-    }
-    else if ((b & 0xF8) == 0xF0)
-    {
-      return 4;
-    }
-    else
-    {
-      return -1;
-    }
   }
 }

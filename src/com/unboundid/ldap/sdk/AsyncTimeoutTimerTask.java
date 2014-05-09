@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -81,25 +81,27 @@ final class AsyncTimeoutTimerTask
     }
 
     final LDAPResponse response;
-    final int messageID = helper.getAsyncRequestID().getMessageID();
     switch (helper.getOperationType())
     {
       case ADD:
       case DELETE:
       case MODIFY:
       case MODIFY_DN:
-        response = new LDAPResult(messageID, ResultCode.TIMEOUT, message, null,
-             StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+        response = new LDAPResult(helper.getAsyncRequestID().getMessageID(),
+             ResultCode.TIMEOUT, message, null, StaticUtils.NO_STRINGS,
+             StaticUtils.NO_CONTROLS);
         break;
       case COMPARE:
-        response = new CompareResult(messageID, ResultCode.TIMEOUT, message,
-             null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+        response = new CompareResult(helper.getAsyncRequestID().getMessageID(),
+             ResultCode.TIMEOUT, message, null, StaticUtils.NO_STRINGS,
+             StaticUtils.NO_CONTROLS);
         break;
       case SEARCH:
         final AsyncSearchHelper searchHelper = (AsyncSearchHelper) helper;
-        response = new SearchResult(messageID, ResultCode.TIMEOUT, message,
-             null, StaticUtils.NO_STRINGS, searchHelper.getNumEntries(),
-             searchHelper.getNumReferences(), StaticUtils.NO_CONTROLS);
+        response = new SearchResult(helper.getAsyncRequestID().getMessageID(),
+             ResultCode.TIMEOUT, message, null, StaticUtils.NO_STRINGS,
+             searchHelper.getNumEntries(), searchHelper.getNumReferences(),
+             StaticUtils.NO_CONTROLS);
         break;
       default:
         // This should never happen.
@@ -108,17 +110,6 @@ final class AsyncTimeoutTimerTask
 
     try
     {
-      try
-      {
-        final LDAPConnectionReader connectionReader =
-             conn.getConnectionInternals(true).getConnectionReader();
-        connectionReader.deregisterResponseAcceptor(messageID);
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
-
       helper.responseReceived(response);
       if (abandon)
       {

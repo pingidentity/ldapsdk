@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -140,20 +140,6 @@ public class Control
     try
     {
       final Class<?> unboundIDControlHelperClass = Class.forName(
-           "com.unboundid.ldap.sdk.experimental.ControlHelper");
-      final Method method = unboundIDControlHelperClass.getMethod(
-           "registerDefaultResponseControls");
-      method.invoke(null);
-    }
-    catch (Exception e)
-    {
-      // This is expected in the minimal release, since it doesn't include any
-      // controls.
-    }
-
-    try
-    {
-      final Class<?> unboundIDControlHelperClass = Class.forName(
            "com.unboundid.ldap.sdk.unboundidds.controls.ControlHelper");
       final Method method = unboundIDControlHelperClass.getMethod(
            "registerDefaultResponseControls");
@@ -162,14 +148,14 @@ public class Control
     catch (Exception e)
     {
       // This is expected in the open source release, since it doesn't contain
-      // the UnboundID-specific controls.  In that case, we'll try enable some
-      // additional experimental controls instead.
+      // the UnboundID-specific controls.  In that case, we'll try the
+      // experimental controls instead.
       try
       {
         final Class<?> experimentalControlHelperClass = Class.forName(
              "com.unboundid.ldap.sdk.experimental.ControlHelper");
         final Method method = experimentalControlHelperClass.getMethod(
-             "registerNonCommercialResponseControls");
+             "registerDefaultResponseControls");
         method.invoke(null);
       }
       catch (Exception e2)

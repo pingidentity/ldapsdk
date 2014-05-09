@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -27,7 +27,6 @@ import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.args.ArgumentException;
@@ -183,28 +182,16 @@ public abstract class CommandLineTool
       return ResultCode.PARAM_ERROR;
     }
 
-
-    final AtomicReference<ResultCode> exitCode =
-         new AtomicReference<ResultCode>();
-    if (registerShutdownHook())
-    {
-      final CommandLineToolShutdownHook shutdownHook =
-           new CommandLineToolShutdownHook(this, exitCode);
-      Runtime.getRuntime().addShutdownHook(shutdownHook);
-    }
-
     try
     {
-      exitCode.set(doToolProcessing());
+      return doToolProcessing();
     }
     catch (Exception e)
     {
       debugException(e);
       err(getExceptionMessage(e));
-      exitCode.set(ResultCode.LOCAL_ERROR);
+      return ResultCode.LOCAL_ERROR;
     }
-
-    return exitCode.get();
   }
 
 
@@ -437,61 +424,6 @@ public abstract class CommandLineTool
    *          successfully.
    */
   public abstract ResultCode doToolProcessing();
-
-
-
-  /**
-   * Indicates whether this tool should register a shutdown hook with the JVM.
-   * Shutdown hooks allow for a best-effort attempt to perform a specified set
-   * of processing when the JVM is shutting down under various conditions,
-   * including:
-   * <UL>
-   *   <LI>When all non-daemon threads have stopped running (i.e., the tool has
-   *       completed processing).</LI>
-   *   <LI>When {@code System.exit()} or {@code Runtime.exit()} is called.</LI>
-   *   <LI>When the JVM receives an external kill signal (e.g., via the use of
-   *       the kill tool or interrupting the JVM with Ctrl+C).</LI>
-   * </UL>
-   * Shutdown hooks may not be invoked if the process is forcefully killed
-   * (e.g., using "kill -9", or the {@code System.halt()} or
-   * {@code Runtime.halt()} methods).
-   * <BR><BR>
-   * If this method is overridden to return {@code true}, then the
-   * {@link #doShutdownHookProcessing(ResultCode)} method should also be
-   * overridden to contain the logic that will be invoked when the JVM is
-   * shutting down in a manner that calls shutdown hooks.
-   *
-   * @return  {@code true} if this tool should register a shutdown hook, or
-   *          {@code false} if not.
-   */
-  protected boolean registerShutdownHook()
-  {
-    return false;
-  }
-
-
-
-  /**
-   * Performs any processing that may be needed when the JVM is shutting down,
-   * whether because tool processing has completed or because it has been
-   * interrupted (e.g., by a kill or break signal).
-   * <BR><BR>
-   * Note that because shutdown hooks run at a delicate time in the life of the
-   * JVM, they should complete quickly and minimize access to external
-   * resources.  See the documentation for the
-   * {@code java.lang.Runtime.addShutdownHook} method for recommendations and
-   * restrictions about writing shutdown hooks.
-   *
-   * @param  resultCode  The result code returned by the tool.  It may be
-   *                     {@code null} if the tool was interrupted before it
-   *                     completed processing.
-   */
-  protected void doShutdownHookProcessing(final ResultCode resultCode)
-  {
-    throw new LDAPSDKUsageException(
-         ERR_COMMAND_LINE_TOOL_SHUTDOWN_HOOK_NOT_IMPLEMENTED.get(
-              getToolName()));
-  }
 
 
 

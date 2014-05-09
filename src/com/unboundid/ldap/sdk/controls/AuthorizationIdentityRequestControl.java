@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -55,18 +55,19 @@ import static com.unboundid.ldap.sdk.controls.ControlMessages.*;
  * request and response controls.  It authenticates to the directory server and
  * attempts to retrieve the authorization identity from the response:
  * <PRE>
- * String authzID = null;
- * BindRequest bindRequest =
- *      new SimpleBindRequest("uid=test.user,ou=People,dc=example,dc=com",
- *           "password", new AuthorizationIdentityRequestControl());
+ *   String authzID = null;
+ *   BindRequest bindRequest =
+ *        new SimpleBindRequest("uid=john.doe,ou=People,dc=example,dc=com",
+ *                              "password",
+ *                              new AuthorizationIdentityRequestControl());
  *
- * BindResult bindResult = connection.bind(bindRequest);
- * AuthorizationIdentityResponseControl authzIdentityResponse =
- *      AuthorizationIdentityResponseControl.get(bindResult);
- * if (authzIdentityResponse != null)
- * {
- *   authzID = authzIdentityResponse.getAuthorizationID();
- * }
+ *   BindResult bindResult = connection.bind(bindRequest);
+ *   AuthorizationIdentityResponseControl c =
+ *        AuthorizationIdentityResponseControl.get(bindResult);
+ *   if (c != null)
+ *   {
+ *     authzID = c.getAuthorizationID();
+ *   }
  * </PRE>
  */
 @NotMutable()

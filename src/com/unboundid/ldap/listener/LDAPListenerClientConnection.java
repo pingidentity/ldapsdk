@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2014 UnboundID Corp.
+ * Copyright 2010-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2014 UnboundID Corp.
+ * Copyright (C) 2010-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -158,11 +158,6 @@ public final class LDAPListenerClientConnection
          throws LDAPException
   {
     Validator.ensureNotNull(socket, requestHandler);
-
-    setName("LDAPListener client connection reader for connection from " +
-         socket.getInetAddress().getHostAddress() + ':' +
-         socket.getPort() + " to " + socket.getLocalAddress().getHostAddress() +
-         ':' + socket.getLocalPort());
 
     this.listener         = listener;
     this.socket           = socket;
@@ -730,28 +725,15 @@ public final class LDAPListenerClientConnection
 
       for (final SearchEntryTransformer t : searchEntryTransformers)
       {
-        try
+        final ObjectPair<SearchResultEntryProtocolOp,Control[]> p =
+             t.transformEntry(messageID, op, c);
+        if (p == null)
         {
-          final ObjectPair<SearchResultEntryProtocolOp,Control[]> p =
-               t.transformEntry(messageID, op, c);
-          if (p == null)
-          {
-            return;
-          }
+          return;
+        }
 
-          op = p.getFirst();
-          c  = p.getSecond();
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          sendMessage(new LDAPMessage(messageID, protocolOp, c));
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_CONN_SEARCH_ENTRY_TRANSFORMER_EXCEPTION.get(
-                    t.getClass().getName(), String.valueOf(op),
-                    StaticUtils.getExceptionMessage(e)),
-               e);
-        }
+        op = p.getFirst();
+        c  = p.getSecond();
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -832,28 +814,15 @@ public final class LDAPListenerClientConnection
 
       for (final SearchReferenceTransformer t : searchReferenceTransformers)
       {
-        try
+        final ObjectPair<SearchResultReferenceProtocolOp,Control[]> p =
+             t.transformReference(messageID, op, c);
+        if (p == null)
         {
-          final ObjectPair<SearchResultReferenceProtocolOp,Control[]> p =
-               t.transformReference(messageID, op, c);
-          if (p == null)
-          {
-            return;
-          }
+          return;
+        }
 
-          op = p.getFirst();
-          c  = p.getSecond();
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          sendMessage(new LDAPMessage(messageID, protocolOp, c));
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_CONN_SEARCH_REFERENCE_TRANSFORMER_EXCEPTION.get(
-                    t.getClass().getName(), String.valueOf(op),
-                    StaticUtils.getExceptionMessage(e)),
-               e);
-        }
+        op = p.getFirst();
+        c  = p.getSecond();
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -905,28 +874,15 @@ public final class LDAPListenerClientConnection
       for (final IntermediateResponseTransformer t :
            intermediateResponseTransformers)
       {
-        try
+        final ObjectPair<IntermediateResponseProtocolOp,Control[]> p =
+             t.transformIntermediateResponse(messageID, op, c);
+        if (p == null)
         {
-          final ObjectPair<IntermediateResponseProtocolOp,Control[]> p =
-               t.transformIntermediateResponse(messageID, op, c);
-          if (p == null)
-          {
-            return;
-          }
+          return;
+        }
 
-          op = p.getFirst();
-          c  = p.getSecond();
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          sendMessage(new LDAPMessage(messageID, protocolOp, c));
-          throw new LDAPException(ResultCode.LOCAL_ERROR,
-               ERR_CONN_INTERMEDIATE_RESPONSE_TRANSFORMER_EXCEPTION.get(
-                    t.getClass().getName(), String.valueOf(op),
-                    StaticUtils.getExceptionMessage(e)),
-               e);
-        }
+        op = p.getFirst();
+        c  = p.getSecond();
       }
 
       sendMessage(new LDAPMessage(messageID, op, c));
@@ -955,8 +911,7 @@ public final class LDAPListenerClientConnection
               result.getMatchedDN(), result.getDiagnosticMessage(),
               StaticUtils.toList(result.getReferralURLs()), result.getOID(),
               result.getValue()),
-         result.getResponseControls()
-    );
+         result.getResponseControls());
   }
 
 

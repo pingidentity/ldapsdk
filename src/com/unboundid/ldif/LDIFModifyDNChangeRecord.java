@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,14 +22,11 @@ package com.unboundid.ldif;
 
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ChangeType;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
@@ -61,7 +58,7 @@ public final class LDIFModifyDNChangeRecord
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 5804442145450388071L;
+  private static final long serialVersionUID = -2356367870035948998L;
 
 
 
@@ -99,42 +96,13 @@ public final class LDIFModifyDNChangeRecord
                                   final boolean deleteOldRDN,
                                   final String newSuperiorDN)
   {
-    this(dn, newRDN, deleteOldRDN, newSuperiorDN, null);
-  }
-
-
-
-  /**
-   * Creates a new LDIF modify DN change record with the provided information.
-   *
-   * @param  dn             The current DN for the entry.  It must not be
-   *                        {@code null}.
-   * @param  newRDN         The new RDN value for the entry.  It must not be
-   *                        {@code null}.
-   * @param  deleteOldRDN   Indicates whether to delete the currentRDN value
-   *                        from the entry.
-   * @param  newSuperiorDN  The new superior DN for this LDIF modify DN change
-   *                        record.  It may be {@code null} if the entry is not
-   *                        to be moved below a new parent.
-   * @param  controls       The set of controls for this LDIF modify DN change
-   *                        record.  It may be {@code null} or empty if there
-   *                        are no controls.
-   */
-  public LDIFModifyDNChangeRecord(final String dn, final String newRDN,
-                                  final boolean deleteOldRDN,
-                                  final String newSuperiorDN,
-                                  final List<Control> controls)
-  {
-    super(dn, controls);
+    super(dn);
 
     ensureNotNull(newRDN);
 
     this.newRDN        = newRDN;
     this.deleteOldRDN  = deleteOldRDN;
     this.newSuperiorDN = newSuperiorDN;
-
-    parsedNewRDN        = null;
-    parsedNewSuperiorDN = null;
   }
 
 
@@ -149,14 +117,11 @@ public final class LDIFModifyDNChangeRecord
    */
   public LDIFModifyDNChangeRecord(final ModifyDNRequest modifyDNRequest)
   {
-    super(modifyDNRequest.getDN(), modifyDNRequest.getControlList());
+    super(modifyDNRequest.getDN());
 
     newRDN        = modifyDNRequest.getNewRDN();
     deleteOldRDN  = modifyDNRequest.deleteOldRDN();
     newSuperiorDN = modifyDNRequest.getNewSuperiorDN();
-
-    parsedNewRDN        = null;
-    parsedNewSuperiorDN = null;
   }
 
 
@@ -276,39 +241,14 @@ public final class LDIFModifyDNChangeRecord
 
 
   /**
-   * Creates a modify DN request from this LDIF modify DN change record.  Any
-   * change record controls will be included in the request
+   * Creates a modify DN request from this LDIF modify DN change record.
    *
    * @return  The modify DN request created from this LDIF modify DN change
    *          record.
    */
   public ModifyDNRequest toModifyDNRequest()
   {
-    return toModifyDNRequest(true);
-  }
-
-
-
-  /**
-   * Creates a modify DN request from this LDIF modify DN change record,
-   * optionally including any change record controls in the request.
-   *
-   * @param  includeControls  Indicates whether to include any controls in the
-   *                          request.
-   *
-   * @return  The modify DN request created from this LDIF modify DN change
-   *          record.
-   */
-  public ModifyDNRequest toModifyDNRequest(final boolean includeControls)
-  {
-    final ModifyDNRequest modifyDNRequest =
-         new ModifyDNRequest(getDN(), newRDN, deleteOldRDN, newSuperiorDN);
-    if (includeControls)
-    {
-      modifyDNRequest.setControls(getControls());
-    }
-
-    return modifyDNRequest;
+    return new ModifyDNRequest(getDN(), newRDN, deleteOldRDN, newSuperiorDN);
   }
 
 
@@ -328,11 +268,10 @@ public final class LDIFModifyDNChangeRecord
    * {@inheritDoc}
    */
   @Override()
-  public LDAPResult processChange(final LDAPInterface connection,
-                                  final boolean includeControls)
+  public LDAPResult processChange(final LDAPInterface connection)
          throws LDAPException
   {
-    return connection.modifyDN(toModifyDNRequest(includeControls));
+    return connection.modifyDN(toModifyDNRequest());
   }
 
 
@@ -343,25 +282,25 @@ public final class LDIFModifyDNChangeRecord
   @Override()
   public String[] toLDIF(final int wrapColumn)
   {
-    List<String> ldifLines = new ArrayList<String>(10);
-    ldifLines.add(LDIFWriter.encodeNameAndValue("dn",
-         new ASN1OctetString(getDN())));
+    List<String> ldifLines;
 
-    for (final Control c : getControls())
+    if (newSuperiorDN == null)
     {
-      ldifLines.add(LDIFWriter.encodeNameAndValue("control",
-           encodeControlString(c)));
+      ldifLines = Arrays.asList(
+           LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN())),
+           "changetype: moddn",
+           LDIFWriter.encodeNameAndValue("newrdn", new ASN1OctetString(newRDN)),
+           "deleteoldrdn: " + (deleteOldRDN ? "1" : "0"));
     }
-
-    ldifLines.add("changetype: moddn");
-    ldifLines.add(LDIFWriter.encodeNameAndValue("newrdn",
-         new ASN1OctetString(newRDN)));
-    ldifLines.add("deleteoldrdn: " + (deleteOldRDN ? "1" : "0"));
-
-    if (newSuperiorDN != null)
+    else
     {
-      ldifLines.add(LDIFWriter.encodeNameAndValue("newsuperior",
-           new ASN1OctetString(newSuperiorDN)));
+      ldifLines = Arrays.asList(
+           LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN())),
+           "changetype: moddn",
+           LDIFWriter.encodeNameAndValue("newrdn", new ASN1OctetString(newRDN)),
+           "deleteoldrdn: " + (deleteOldRDN ? "1" : "0"),
+           LDIFWriter.encodeNameAndValue("newsuperior",
+                                         new ASN1OctetString(newSuperiorDN)));
     }
 
     if (wrapColumn > 2)
@@ -369,9 +308,8 @@ public final class LDIFModifyDNChangeRecord
       ldifLines = LDIFWriter.wrapLines(wrapColumn, ldifLines);
     }
 
-    final String[] ldifArray = new String[ldifLines.size()];
-    ldifLines.toArray(ldifArray);
-    return ldifArray;
+    final String[] lineArray = new String[ldifLines.size()];
+    return ldifLines.toArray(lineArray);
   }
 
 
@@ -383,15 +321,8 @@ public final class LDIFModifyDNChangeRecord
   public void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
-         wrapColumn);
+                                  wrapColumn);
     buffer.append(EOL_BYTES);
-
-    for (final Control c : getControls())
-    {
-      LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
-           wrapColumn);
-      buffer.append(EOL_BYTES);
-    }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("moddn"),
                                   buffer, wrapColumn);
@@ -433,13 +364,6 @@ public final class LDIFModifyDNChangeRecord
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(getDN()), buffer,
                                   wrapColumn);
     buffer.append(EOL);
-
-    for (final Control c : getControls())
-    {
-      LDIFWriter.encodeNameAndValue("control", encodeControlString(c), buffer,
-           wrapColumn);
-      buffer.append(EOL);
-    }
 
     LDIFWriter.encodeNameAndValue("changetype", new ASN1OctetString("moddn"),
                                   buffer, wrapColumn);
@@ -487,7 +411,7 @@ public final class LDIFModifyDNChangeRecord
         hashCode += getParsedNewSuperiorDN().hashCode();
       }
     }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
       hashCode = toLowerCase(getDN()).hashCode() +
@@ -531,13 +455,6 @@ public final class LDIFModifyDNChangeRecord
 
     final LDIFModifyDNChangeRecord r = (LDIFModifyDNChangeRecord) o;
 
-    final HashSet<Control> c1 = new HashSet<Control>(getControls());
-    final HashSet<Control> c2 = new HashSet<Control>(r.getControls());
-    if (! c1.equals(c2))
-    {
-      return false;
-    }
-
     try
     {
       if (! getParsedDN().equals(r.getParsedDN()))
@@ -545,7 +462,7 @@ public final class LDIFModifyDNChangeRecord
         return false;
       }
     }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
       if (! toLowerCase(getDN()).equals(toLowerCase(r.getDN())))
@@ -561,7 +478,7 @@ public final class LDIFModifyDNChangeRecord
         return false;
       }
     }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
       if (! toLowerCase(newRDN).equals(toLowerCase(r.newRDN)))
@@ -591,7 +508,7 @@ public final class LDIFModifyDNChangeRecord
           return false;
         }
       }
-      catch (final Exception e)
+      catch (Exception e)
       {
         debugException(e);
         if (! toLowerCase(newSuperiorDN).equals(toLowerCase(r.newSuperiorDN)))
@@ -624,24 +541,6 @@ public final class LDIFModifyDNChangeRecord
       buffer.append(", newSuperiorDN='");
       buffer.append(newSuperiorDN);
       buffer.append('\'');
-    }
-
-    final List<Control> controls = getControls();
-    if (! controls.isEmpty())
-    {
-      buffer.append(", controls={");
-
-      final Iterator<Control> iterator = controls.iterator();
-      while (iterator.hasNext())
-      {
-        iterator.next().toString(buffer);
-        if (iterator.hasNext())
-        {
-          buffer.append(',');
-        }
-      }
-
-      buffer.append('}');
     }
 
     buffer.append(')');

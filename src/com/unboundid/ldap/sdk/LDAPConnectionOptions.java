@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.util.Mutable;
-import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -119,17 +118,6 @@ import static com.unboundid.util.Validator.*;
  *       be transmitted over the network.  By default, the send buffer size will
  *       be automatically determined by the JVM based on the underlying system
  *       settings.</LI>
- *  <LI>A flag which indicates whether to allow a single socket factory instance
- *      (which may be shared across multiple connections) to be used to create
- *      multiple concurrent connections.  This offers better and more
- *      predictable performance on some JVM implementations (especially when
- *      connection attempts fail as a result of a connection timeout), but some
- *      JVMs are known to use non-threadsafe socket factory implementations and
- *      may fail from concurrent use (for example, at least some IBM JVMs
- *      exhibit this behavior).  By default, Sun/Oracle JVMs will allow
- *      concurrent socket factory use, but JVMs from other vendors will use
- *      synchronization to ensure that a socket factory will only be allowed to
- *      create one connection at a time.</LI>
  * </UL>
  */
 @Mutable()
@@ -175,14 +163,6 @@ public final class LDAPConnectionOptions
    * attempt to automatically follow referrals.
    */
   static final boolean DEFAULT_FOLLOW_REFERRALS = false;
-
-
-
-  /**
-   * The default value ({@code false}) for the setting that controls whether all
-   * connections in a connection pool should use the same cached schema object.
-   */
-  static final boolean DEFAULT_USE_POOLED_SCHEMA = false;
 
 
 
@@ -282,14 +262,6 @@ public final class LDAPConnectionOptions
 
 
   /**
-   * The default value (3600000 milliseconds, or one hour) for the setting that
-   * controls the default pooled schema timeout.
-   */
-  static final long DEFAULT_POOLED_SCHEMA_TIMEOUT_MILLIS = 3600000L;
-
-
-
-  /**
    * The default value (300000) for the setting that controls the default
    * response timeout in milliseconds.
    */
@@ -297,31 +269,9 @@ public final class LDAPConnectionOptions
 
 
 
-  /**
-   * The default value for the setting that controls the default behavior with
-   * regard to whether to allow concurrent use of a socket factory to create
-   * client connections.
-   */
-  static final boolean DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE;
-  static
-  {
-    final String vmVendor =
-         StaticUtils.toLowerCase(System.getProperty("java.vm.vendor"));
-    DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE = ((vmVendor != null) &&
-         (vmVendor.contains("sun microsystems") ||
-          vmVendor.contains("oracle") ||
-          vmVendor.contains("apple")));
-  }
-
-
-
   // Indicates whether to send an abandon request for any operation for which no
   // response is received in the maximum response timeout.
   private boolean abandonOnTimeout;
-
-  // Indicates whether to use synchronization prevent concurrent use of the
-  // socket factory instance associated with a connection or set of connections.
-  private boolean allowConcurrentSocketFactoryUse;
 
   // Indicates whether the connection should attempt to automatically reconnect
   // if the connection to the server is lost.
@@ -345,10 +295,6 @@ public final class LDAPConnectionOptions
 
   // Indicates whether to use SO_REUSEADDR for the underlying sockets.
   private boolean useReuseAddress;
-
-  // Indicates whether all connections in a connection pool should reference
-  // the same schema.
-  private boolean usePooledSchema;
 
   // Indicates whether to try to use schema information when reading data from
   // the server.
@@ -383,9 +329,6 @@ public final class LDAPConnectionOptions
   // The socket send buffer size to request.
   private int sendBufferSize;
 
-  // The pooled schema timeout, in milliseconds.
-  private long pooledSchemaTimeout;
-
   // The response timeout, in milliseconds.
   private long responseTimeout;
 
@@ -411,7 +354,6 @@ public final class LDAPConnectionOptions
     useKeepAlive                   = DEFAULT_USE_KEEPALIVE;
     useLinger                      = DEFAULT_USE_LINGER;
     useReuseAddress                = DEFAULT_USE_REUSE_ADDRESS;
-    usePooledSchema                = DEFAULT_USE_POOLED_SCHEMA;
     useSchema                      = DEFAULT_USE_SCHEMA;
     useSynchronousMode             = DEFAULT_USE_SYNCHRONOUS_MODE;
     useTCPNoDelay                  = DEFAULT_USE_TCP_NODELAY;
@@ -419,16 +361,12 @@ public final class LDAPConnectionOptions
     lingerTimeout                  = DEFAULT_LINGER_TIMEOUT_SECONDS;
     maxMessageSize                 = DEFAULT_MAX_MESSAGE_SIZE;
     referralHopLimit               = DEFAULT_REFERRAL_HOP_LIMIT;
-    pooledSchemaTimeout            = DEFAULT_POOLED_SCHEMA_TIMEOUT_MILLIS;
     responseTimeout                = DEFAULT_RESPONSE_TIMEOUT_MILLIS;
     receiveBufferSize              = DEFAULT_RECEIVE_BUFFER_SIZE;
     sendBufferSize                 = DEFAULT_SEND_BUFFER_SIZE;
     disconnectHandler              = null;
     referralConnector              = null;
     unsolicitedNotificationHandler = null;
-
-    allowConcurrentSocketFactoryUse =
-         DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE;
   }
 
 
@@ -444,30 +382,27 @@ public final class LDAPConnectionOptions
   {
     final LDAPConnectionOptions o = new LDAPConnectionOptions();
 
-    o.abandonOnTimeout                = abandonOnTimeout;
-    o.allowConcurrentSocketFactoryUse = allowConcurrentSocketFactoryUse;
-    o.autoReconnect                   = autoReconnect;
-    o.bindWithDNRequiresPassword      = bindWithDNRequiresPassword;
-    o.captureConnectStackTrace        = captureConnectStackTrace;
-    o.followReferrals                 = followReferrals;
-    o.useKeepAlive                    = useKeepAlive;
-    o.useLinger                       = useLinger;
-    o.useReuseAddress                 = useReuseAddress;
-    o.usePooledSchema                 = usePooledSchema;
-    o.useSchema                       = useSchema;
-    o.useSynchronousMode              = useSynchronousMode;
-    o.useTCPNoDelay                   = useTCPNoDelay;
-    o.connectTimeout                  = connectTimeout;
-    o.lingerTimeout                   = lingerTimeout;
-    o.maxMessageSize                  = maxMessageSize;
-    o.pooledSchemaTimeout             = pooledSchemaTimeout;
-    o.responseTimeout                 = responseTimeout;
-    o.referralConnector               = referralConnector;
-    o.referralHopLimit                = referralHopLimit;
-    o.disconnectHandler               = disconnectHandler;
-    o.unsolicitedNotificationHandler  = unsolicitedNotificationHandler;
-    o.receiveBufferSize               = receiveBufferSize;
-    o.sendBufferSize                  = sendBufferSize;
+    o.abandonOnTimeout               = abandonOnTimeout;
+    o.autoReconnect                  = autoReconnect;
+    o.bindWithDNRequiresPassword     = bindWithDNRequiresPassword;
+    o.captureConnectStackTrace       = captureConnectStackTrace;
+    o.followReferrals                = followReferrals;
+    o.useKeepAlive                   = useKeepAlive;
+    o.useLinger                      = useLinger;
+    o.useReuseAddress                = useReuseAddress;
+    o.useSchema                      = useSchema;
+    o.useSynchronousMode             = useSynchronousMode;
+    o.useTCPNoDelay                  = useTCPNoDelay;
+    o.connectTimeout                 = connectTimeout;
+    o.lingerTimeout                  = lingerTimeout;
+    o.maxMessageSize                 = maxMessageSize;
+    o.responseTimeout                = responseTimeout;
+    o.referralConnector              = referralConnector;
+    o.referralHopLimit               = referralHopLimit;
+    o.disconnectHandler              = disconnectHandler;
+    o.unsolicitedNotificationHandler = unsolicitedNotificationHandler;
+    o.receiveBufferSize              = receiveBufferSize;
+    o.sendBufferSize                 = sendBufferSize;
 
     return o;
   }
@@ -500,9 +435,7 @@ public final class LDAPConnectionOptions
    * connection.  Also note that this option will not have any effect on pooled
    * connections because defunct pooled connections will be replaced by
    * newly-created connections rather than attempting to re-establish the
-   * existing connection.  Further, auto-reconnect should not be used with
-   * connections that use StartTLS or some other mechanism to alter the state
-   * of the connection beyond authentication.
+   * existing connection.
    *
    * @param  autoReconnect  Specifies whether associated connections should
    *                        attempt to automatically reconnect to the target
@@ -774,7 +707,7 @@ public final class LDAPConnectionOptions
 
 
   /**
-   * Specifies whether to use the SO_REUSEADDR option for the underlying sockets
+   * Specifies whether to use the SO_KEEPALIVE option for the underlying sockets
    * used by associated connections.  Changes to this setting will take effect
    * only for new sockets, and not for existing sockets.
    *
@@ -806,12 +739,8 @@ public final class LDAPConnectionOptions
 
   /**
    * Specifies whether to try to use schema information when reading data from
-   * the server (e.g., to select the appropriate matching rules for the
+   * the server  (e.g., to select the appropriate matching rules for the
    * attributes included in a search result entry).
-   * <BR><BR>
-   * Note that calling this method with a value of {@code true} will also cause
-   * the {@code usePooledSchema} setting to be given a value of false, since
-   * the two values should not both be {@code true} at the same time.
    *
    * @param  useSchema  Indicates whether to try to use schema information when
    *                    reading data from the server.
@@ -819,107 +748,6 @@ public final class LDAPConnectionOptions
   public void setUseSchema(final boolean useSchema)
   {
     this.useSchema = useSchema;
-    if (useSchema)
-    {
-      usePooledSchema = false;
-    }
-  }
-
-
-
-  /**
-   * Indicates whether to have connections that are part of a pool try to use
-   * shared schema information when reading data from the server (e.g., to
-   * select the appropriate matching rules for the attributes included in a
-   * search result entry).  If this is {@code true}, then connections in a
-   * connection pool will share the same cached schema information in a way that
-   * attempts to reduce network bandwidth and connection establishment time (by
-   * avoiding the need for each connection to retrieve its own copy of the
-   * schema).
-   * <BR><BR>
-   * If pooled schema is to be used, then it may be configured to expire so that
-   * the schema may be periodically re-retrieved for new connections to allow
-   * schema updates to be incorporated.  This behavior is controlled by the
-   * value returned by the {@link #getPooledSchemaTimeoutMillis} method.
-   *
-   * @return  {@code true} if all connections in a connection pool should
-   *          reference the same schema object, or {@code false} if each
-   *          connection should retrieve its own copy of the schema.
-   */
-  public boolean usePooledSchema()
-  {
-    return usePooledSchema;
-  }
-
-
-
-  /**
-   * Indicates whether to have connections that are part of a pool try to use
-   * shared schema information when reading data from the server (e.g., to
-   * select the appropriate matching rules for the attributes included in a
-   * search result entry).
-   * <BR><BR>
-   * Note that calling this method with a value of {@code true} will also cause
-   * the {@code useSchema} setting to be given a value of false, since the two
-   * values should not both be {@code true} at the same time.
-   *
-   * @param  usePooledSchema  Indicates whether all connections in a connection
-   *                          pool should reference the same schema object
-   *                          rather than attempting to retrieve their own copy
-   *                          of the schema.
-   */
-  public void setUsePooledSchema(final boolean usePooledSchema)
-  {
-    this.usePooledSchema = usePooledSchema;
-    if (usePooledSchema)
-    {
-      useSchema = false;
-    }
-  }
-
-
-
-  /**
-   * Retrieves the maximum length of time in milliseconds that a pooled schema
-   * object should be considered fresh.  If the schema referenced by a
-   * connection pool is at least this old, then the next connection attempt may
-   * cause a new version of the schema to be retrieved.
-   * <BR><BR>
-   * This will only be used if the {@link #usePooledSchema} method returns
-   * {@code true}.  A value of zero indicates that the pooled schema will never
-   * expire.
-   *
-   * @return  The maximum length of time, in milliseconds, that a pooled schema
-   *          object should be considered fresh, or zero if pooled schema
-   *          objects should never expire.
-   */
-  public long getPooledSchemaTimeoutMillis()
-  {
-    return pooledSchemaTimeout;
-  }
-
-
-
-  /**
-   * Specifies the maximum length of time in milliseconds that a pooled schema
-   * object should be considered fresh.
-   *
-   * @param  pooledSchemaTimeout  The maximum length of time in milliseconds
-   *                              that a pooled schema object should be
-   *                              considered fresh.  A value less than or equal
-   *                              to zero will indicate that pooled schema
-   *                              should never expire.
-   */
-  public void setPooledSchemaTimeoutMillis(final long pooledSchemaTimeout)
-  {
-    if (pooledSchemaTimeout < 0)
-    {
-      this.pooledSchemaTimeout = 0L;
-    }
-    else
-    {
-      this.pooledSchemaTimeout = pooledSchemaTimeout;
-    }
   }
 
 
@@ -1273,55 +1101,6 @@ public final class LDAPConnectionOptions
 
 
   /**
-   * Indicates whether to allow a socket factory instance (which may be shared
-   * across multiple connections) to be used create multiple sockets
-   * concurrently.  In general, socket factory implementations are threadsafe
-   * and can be to create multiple connections simultaneously across separate
-   * threads, but this is known to not be the case in some VM implementations
-   * (e.g., SSL socket factories in IBM JVMs).  This setting may be used to
-   * indicate whether concurrent socket creation attempts should be allowed
-   * (which may allow for better and more consistent performance, especially in
-   * cases where a connection attempt fails due to a timeout) or prevented
-   * (which may be necessary for non-threadsafe socket factory implementations).
-   *
-   * @return  {@code true} if multiple threads should be able to concurrently
-   *          use the same socket factory instance, or {@code false} if Java
-   *          synchronization should be used to ensure that no more than one
-   *          thread is allowed to use a socket factory at any given time.
-   */
-  public boolean allowConcurrentSocketFactoryUse()
-  {
-    return allowConcurrentSocketFactoryUse;
-  }
-
-
-
-  /**
-   * Specifies whether to allow a socket factory instance (which may be shared
-   * across multiple connections) to be used create multiple sockets
-   * concurrently.  In general, socket factory implementations are threadsafe
-   * and can be to create multiple connections simultaneously across separate
-   * threads, but this is known to not be the case in some VM implementations
-   * (e.g., SSL socket factories in IBM JVMs).  This setting may be used to
-   * indicate whether concurrent socket creation attempts should be allowed
-   * (which may allow for better and more consistent performance, especially in
-   * cases where a connection attempt fails due to a timeout) or prevented
-   * (which may be necessary for non-threadsafe socket factory implementations).
-   *
-   * @param  allowConcurrentSocketFactoryUse  Indicates whether to allow a
-   *                                          socket factory instance to be used
-   *                                          to create multiple sockets
-   *                                          concurrently.
-   */
-  public void setAllowConcurrentSocketFactoryUse(
-                   final boolean allowConcurrentSocketFactoryUse)
-  {
-    this.allowConcurrentSocketFactoryUse = allowConcurrentSocketFactoryUse;
-  }
-
-
-
-  /**
    * Retrieves a string representation of this LDAP connection.
    *
    * @return  A string representation of this LDAP connection.
@@ -1377,10 +1156,6 @@ public final class LDAPConnectionOptions
     buffer.append(useReuseAddress);
     buffer.append(", useSchema=");
     buffer.append(useSchema);
-    buffer.append(", usePooledSchema=");
-    buffer.append(usePooledSchema);
-    buffer.append(", pooledSchemaTimeoutMillis=");
-    buffer.append(pooledSchemaTimeout);
     buffer.append(", useSynchronousMode=");
     buffer.append(useSynchronousMode);
     buffer.append(", useTCPNoDelay=");
@@ -1399,8 +1174,6 @@ public final class LDAPConnectionOptions
     buffer.append(receiveBufferSize);
     buffer.append(", sendBufferSize=");
     buffer.append(sendBufferSize);
-    buffer.append(", allowConcurrentSocketFactoryUse=");
-    buffer.append(allowConcurrentSocketFactoryUse);
     if (disconnectHandler != null)
     {
       buffer.append(", disconnectHandlerClass=");

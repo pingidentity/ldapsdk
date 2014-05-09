@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,7 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
 
 import com.unboundid.asn1.ASN1StreamReader;
 import com.unboundid.asn1.ASN1StreamReaderSequence;
@@ -77,7 +77,7 @@ public final class InternalSDKHelper
          throws LDAPException
   {
     final LDAPConnectionReader connectionReader =
-         connection.getConnectionInternals(true).getConnectionReader();
+         connection.getConnectionInternals().getConnectionReader();
     if (connectionReader != null)
     {
       connectionReader.setSoTimeout(soTimeout);
@@ -92,20 +92,19 @@ public final class InternalSDKHelper
    * use as a helper for processing in the course of the StartTLS extended
    * operation and should not be used for other purposes.
    *
-   * @param  connection        The LDAP connection to be converted to use TLS.
-   * @param  sslSocketFactory  The SSL socket factory to use to convert an
-   *                           insecure connection into a secure connection.  It
-   *                           must not be {@code null}.
+   * @param  connection  The LDAP connection to be converted to use TLS.
+   * @param  sslContext  The SSL context to use when performing the negotiation.
+   *                     It must not be {@code null}.
    *
    * @throws  LDAPException  If a problem occurs while converting the provided
    *                         connection to use TLS.
    */
   @InternalUseOnly()
   public static void convertToTLS(final LDAPConnection connection,
-                                  final SSLSocketFactory sslSocketFactory)
+                                  final SSLContext sslContext)
          throws LDAPException
   {
-    connection.convertToTLS(sslSocketFactory);
+    connection.convertToTLS(sslContext);
   }
 
 
@@ -400,24 +399,5 @@ public final class InternalSDKHelper
   public static Boolean followReferralsInternal(final LDAPRequest request)
   {
     return request.followReferralsInternal();
-  }
-
-
-
-  /**
-   * Retrieves the message ID that should be used for the next request sent
-   * over the provided connection.
-   *
-   * @param  connection  The LDAP connection for which to obtain the next
-   *                     request message ID.
-   *
-   * @return  The message ID that should be used for the next request sent over
-   *          the provided connection, or -1 if the connection is not
-   *          established.
-   */
-  @InternalUseOnly()
-  public static int nextMessageID(final LDAPConnection connection)
-  {
-    return connection.nextMessageID();
   }
 }

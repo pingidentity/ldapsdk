@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -936,7 +936,7 @@ public final class AddRequest
    *
    * @return  The ASN.1 element with the encoded add request protocol op.
    */
-  public ASN1Element encodeProtocolOp()
+  ASN1Element encodeProtocolOp()
   {
     // Create the add request protocol op.
     final ASN1Element[] attrElements = new ASN1Element[attributes.size()];
@@ -979,8 +979,7 @@ public final class AddRequest
   {
     if (connection.synchronousMode())
     {
-      return processSync(connection, depth,
-           connection.getConnectionOptions().autoReconnect());
+      return processSync(connection, depth);
     }
 
     final long requestTime = System.nanoTime();
@@ -1009,7 +1008,7 @@ public final class AddRequest
              ERR_ADD_INTERRUPTED.get(connection.getHostPort()), ie);
       }
 
-      return handleResponse(connection, response, requestTime, depth, false);
+      return handleResponse(connection, response, requestTime, depth);
     }
     finally
     {
@@ -1066,10 +1065,7 @@ public final class AddRequest
       if (timeout > 0L)
       {
         final Timer timer = connection.getTimer();
-        final AsyncTimeoutTimerTask timerTask =
-             new AsyncTimeoutTimerTask(helper);
-        timer.schedule(timerTask, timeout);
-        asyncRequestID.setTimerTask(timerTask);
+        timer.schedule(new AsyncTimeoutTimerTask(helper), timeout);
       }
     }
 
@@ -1102,10 +1098,6 @@ public final class AddRequest
    * @param  depth       The current referral depth for this request.  It should
    *                     always be one for the initial request, and should only
    *                     be incremented when following referrals.
-   * @param  allowRetry  Indicates whether the request may be re-tried on a
-   *                     re-established connection if the initial attempt fails
-   *                     in a way that indicates the connection is no longer
-   *                     valid and autoReconnect is true.
    *
    * @return  An LDAP result object that provides information about the result
    *          of the add processing.
@@ -1114,7 +1106,7 @@ public final class AddRequest
    *                         reading the response.
    */
   private LDAPResult processSync(final LDAPConnection connection,
-                                 final int depth, final boolean allowRetry)
+                                 final int depth)
           throws LDAPException
   {
     // Create the LDAP message.
@@ -1126,7 +1118,7 @@ public final class AddRequest
     // Set the appropriate timeout on the socket.
     try
     {
-      connection.getConnectionInternals(true).getSocket().setSoTimeout(
+      connection.getConnectionInternals().getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
     catch (Exception e)
@@ -1139,26 +1131,7 @@ public final class AddRequest
     final long requestTime = System.nanoTime();
     debugLDAPRequest(this);
     connection.getConnectionStatistics().incrementNumAddRequests();
-    try
-    {
-      connection.sendMessage(message);
-    }
-    catch (final LDAPException le)
-    {
-      debugException(le);
-
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             le.getResultCode());
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
-      throw le;
-    }
+    connection.sendMessage(message);
 
     while (true)
     {
@@ -1177,16 +1150,6 @@ public final class AddRequest
           connection.abandon(messageID);
         }
 
-        if (allowRetry)
-        {
-          final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-               le.getResultCode());
-          if (retryResult != null)
-          {
-            return retryResult;
-          }
-        }
-
         throw le;
       }
 
@@ -1202,8 +1165,7 @@ public final class AddRequest
       }
       else
       {
-        return handleResponse(connection, response, requestTime, depth,
-             allowRetry);
+        return handleResponse(connection, response, requestTime, depth);
       }
     }
   }
@@ -1219,10 +1181,6 @@ public final class AddRequest
    * @param  depth        The current referral depth for this request.  It
    *                      should always be one for the initial request, and
    *                      should only be incremented when following referrals.
-   * @param  allowRetry   Indicates whether the request may be re-tried on a
-   *                      re-established connection if the initial attempt fails
-   *                      in a way that indicates the connection is no longer
-   *                      valid and autoReconnect is true.
    *
    * @return  The add result.
    *
@@ -1230,8 +1188,7 @@ public final class AddRequest
    */
   private LDAPResult handleResponse(final LDAPConnection connection,
                                     final LDAPResponse response,
-                                    final long requestTime, final int depth,
-                                    final boolean allowRetry)
+                                    final long requestTime, final int depth)
           throws LDAPException
   {
     if (response == null)
@@ -1243,8 +1200,7 @@ public final class AddRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_ADD_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
-                connection.getHostPort()));
+           ERR_ADD_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumAddResponses(
@@ -1253,16 +1209,6 @@ public final class AddRequest
     if (response instanceof ConnectionClosedResponse)
     {
       // The connection was closed while waiting for the response.
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             ResultCode.SERVER_DOWN);
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
       final String message = ccr.getMessage();
       if (message == null)
@@ -1296,58 +1242,8 @@ public final class AddRequest
     }
     else
     {
-      if (allowRetry)
-      {
-        final LDAPResult retryResult = reconnectAndRetry(connection, depth,
-             result.getResultCode());
-        if (retryResult != null)
-        {
-          return retryResult;
-        }
-      }
-
       return result;
     }
-  }
-
-
-
-  /**
-   * Attempts to re-establish the connection and retry processing this request
-   * on it.
-   *
-   * @param  connection  The connection to be re-established.
-   * @param  depth       The current referral depth for this request.  It should
-   *                     always be one for the initial request, and should only
-   *                     be incremented when following referrals.
-   * @param  resultCode  The result code for the previous operation attempt.
-   *
-   * @return  The result from re-trying the add, or {@code null} if it could not
-   *          be re-tried.
-   */
-  private LDAPResult reconnectAndRetry(final LDAPConnection connection,
-                                       final int depth,
-                                       final ResultCode resultCode)
-  {
-    try
-    {
-      // We will only want to retry for certain result codes that indicate a
-      // connection problem.
-      switch (resultCode.intValue())
-      {
-        case ResultCode.SERVER_DOWN_INT_VALUE:
-        case ResultCode.DECODING_ERROR_INT_VALUE:
-        case ResultCode.CONNECT_ERROR_INT_VALUE:
-          connection.reconnect();
-          return processSync(connection, depth, false);
-      }
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-    return null;
   }
 
 

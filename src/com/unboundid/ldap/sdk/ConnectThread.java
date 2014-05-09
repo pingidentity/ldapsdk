@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -88,7 +88,6 @@ final class ConnectThread
                 final int port)
   {
     super("Background connect thread for " + address + ':' + port);
-    setDaemon(true);
 
     this.socketFactory = socketFactory;
     this.address       = address;
@@ -114,7 +113,10 @@ final class ConnectThread
 
     try
     {
-      socket.set(socketFactory.createSocket(address, port));
+      synchronized (socketFactory)
+      {
+        socket.set(socketFactory.createSocket(address, port));
+      }
       connected.set(true);
     }
     catch (final Throwable t)
@@ -172,25 +174,13 @@ final class ConnectThread
 
     try
     {
-      if (t != null)
-      {
-        t.interrupt();
-      }
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
-    try
-    {
       final Socket s = socket.get();
       if (s != null)
       {
         s.close();
       }
     }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
     }

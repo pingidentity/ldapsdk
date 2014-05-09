@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,8 +22,6 @@ package com.unboundid.util;
 
 
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,7 +33,6 @@ import com.unboundid.ldap.sdk.ANONYMOUSBindRequest;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.CRAMMD5BindRequest;
 import com.unboundid.ldap.sdk.DIGESTMD5BindRequest;
-import com.unboundid.ldap.sdk.DIGESTMD5BindRequestProperties;
 import com.unboundid.ldap.sdk.EXTERNALBindRequest;
 import com.unboundid.ldap.sdk.GSSAPIBindRequest;
 import com.unboundid.ldap.sdk.GSSAPIBindRequestProperties;
@@ -43,7 +40,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.PLAINBindRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLBindRequest;
-import com.unboundid.ldap.sdk.SASLQualityOfProtection;
 
 import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
@@ -112,15 +108,6 @@ public final class SASLUtils
    * protocol.  It may be used in conjunction with the GSSAPI mechanism.
    */
   public static final String SASL_OPTION_PROTOCOL = "protocol";
-
-
-
-  /**
-   * The name of the SASL option that specifies the quality of protection that
-   * should be used for communication that occurs after the authentication has
-   * completed.
-   */
-  public static final String SASL_OPTION_QOP = "qop";
 
 
 
@@ -208,9 +195,7 @@ public final class SASLUtils
               new SASLOption(SASL_OPTION_AUTHZ_ID,
                    INFO_SASL_DIGEST_MD5_OPTION_AUTHZ_ID.get(), false, false),
               new SASLOption(SASL_OPTION_REALM,
-                   INFO_SASL_DIGEST_MD5_OPTION_REALM.get(), false, false),
-              new SASLOption(SASL_OPTION_QOP,
-                   INFO_SASL_DIGEST_MD5_OPTION_QOP.get(), false, false)));
+                   INFO_SASL_DIGEST_MD5_OPTION_REALM.get(), false, false)));
 
     m.put(toLowerCase(EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME),
          new SASLMechanismInfo(EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME,
@@ -233,8 +218,6 @@ public final class SASLUtils
                    INFO_SASL_GSSAPI_OPTION_PROTOCOL.get(), false, false),
               new SASLOption(SASL_OPTION_REALM,
                    INFO_SASL_GSSAPI_OPTION_REALM.get(), false, false),
-              new SASLOption(SASL_OPTION_QOP,
-                   INFO_SASL_GSSAPI_OPTION_QOP.get(), false, false),
               new SASLOption(SASL_OPTION_RENEW_TGT,
                    INFO_SASL_GSSAPI_OPTION_RENEW_TGT.get(), false, false),
               new SASLOption(SASL_OPTION_REQUIRE_CACHE,
@@ -253,24 +236,6 @@ public final class SASLUtils
                    INFO_SASL_PLAIN_OPTION_AUTH_ID.get(), true, false),
               new SASLOption(SASL_OPTION_AUTHZ_ID,
                    INFO_SASL_PLAIN_OPTION_AUTHZ_ID.get(), false, false)));
-
-
-    // If Commercial Edition classes are available, then register support for
-    // any additional SASL mechanisms that it provides.
-    try
-    {
-      final Class<?> c =
-           Class.forName("com.unboundid.ldap.sdk.unboundidds.SASLHelper");
-      final Method addCESASLInfoMethod =
-           c.getMethod("addCESASLInfo", Map.class);
-      addCESASLInfoMethod.invoke(null, m);
-    }
-    catch (final Exception e)
-    {
-        // This is fine.  It simply means that the Commercial Edition classes
-        // are not available.
-      Debug.debugException(e);
-    }
 
     SASL_MECHANISMS = Collections.unmodifiableMap(m);
   }
@@ -528,40 +493,6 @@ public final class SASLUtils
     }
     else
     {
-      // If Commercial Edition classes are available, then see if the
-      // authentication attempt is for one of the Commercial Edition mechanisms.
-      try
-      {
-        final Class<?> c =
-             Class.forName("com.unboundid.ldap.sdk.unboundidds.SASLHelper");
-        final Method createBindRequestMethod = c.getMethod("createBindRequest",
-             String.class, StaticUtils.NO_BYTES.getClass(), String.class,
-             Map.class, StaticUtils.NO_CONTROLS.getClass());
-        final Object bindRequestObject = createBindRequestMethod.invoke(null,
-             bindDN, password, mech, optionsMap, controls);
-        if (bindRequestObject != null)
-        {
-          return (SASLBindRequest) bindRequestObject;
-        }
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-
-        // This may mean that there was a problem with the provided arguments.
-        // If it's an InvocationTargetException that wraps an LDAPException,
-        // then throw that LDAPException.
-        if (e instanceof InvocationTargetException)
-        {
-          final InvocationTargetException ite = (InvocationTargetException) e;
-          final Throwable t = ite.getTargetException();
-          if (t instanceof LDAPException)
-          {
-            throw (LDAPException) t;
-          }
-        }
-      }
-
       throw new LDAPException(ResultCode.PARAM_ERROR,
            ERR_SASL_OPTION_UNSUPPORTED_MECH.get(mech));
     }
@@ -688,30 +619,17 @@ public final class SASLUtils
                 CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
     }
 
-    final DIGESTMD5BindRequestProperties properties =
-         new DIGESTMD5BindRequestProperties(authID, password);
-
     // The authzID option is optional.
-    properties.setAuthorizationID(
-         options.remove(toLowerCase(SASL_OPTION_AUTHZ_ID)));
+    final String authzID = options.remove(toLowerCase(SASL_OPTION_AUTHZ_ID));
 
     // The realm option is optional.
-    properties.setRealm(options.remove(toLowerCase(SASL_OPTION_REALM)));
-
-    // The QoP option is optional, and may contain multiple values that need to
-    // be parsed.
-    final String qopString = options.remove(toLowerCase(SASL_OPTION_QOP));
-    if (qopString != null)
-    {
-      properties.setAllowedQoP(
-           SASLQualityOfProtection.decodeQoPList(qopString));
-    }
+    final String realm = options.remove(toLowerCase(SASL_OPTION_REALM));
 
     // Ensure no unsupported options were provided.
     ensureNoUnsupportedOptions(options,
          DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME);
 
-    return new DIGESTMD5BindRequest(properties, controls);
+    return new DIGESTMD5BindRequest(authID, authzID, password, realm, controls);
   }
 
 
@@ -805,15 +723,6 @@ public final class SASLUtils
 
     // The realm option is optional.
     gssapiProperties.setRealm(options.remove(toLowerCase(SASL_OPTION_REALM)));
-
-    // The QoP option is optional, and may contain multiple values that need to
-    // be parsed.
-    final String qopString = options.remove(toLowerCase(SASL_OPTION_QOP));
-    if (qopString != null)
-    {
-      gssapiProperties.setAllowedQoP(
-           SASLQualityOfProtection.decodeQoPList(qopString));
-    }
 
     // The renewTGT option is optional.
     gssapiProperties.setRenewTGT(getBooleanValue(options, SASL_OPTION_RENEW_TGT,
@@ -948,17 +857,16 @@ public final class SASLUtils
 
   /**
    * Ensures that the provided map is empty, and will throw an exception if it
-   * isn't.  This method is intended for internal use only.
+   * isn't.
    *
    * @param  options    The map of options to ensure is empty.
    * @param  mechanism  The associated SASL mechanism.
    *
    * @throws  LDAPException  If the map of SASL options is not empty.
    */
-  @InternalUseOnly()
-  public static void ensureNoUnsupportedOptions(
-                          final Map<String,String> options,
-                          final String mechanism)
+  private static void ensureNoUnsupportedOptions(
+                           final Map<String,String> options,
+                           final String mechanism)
           throws LDAPException
   {
     if (! options.isEmpty())

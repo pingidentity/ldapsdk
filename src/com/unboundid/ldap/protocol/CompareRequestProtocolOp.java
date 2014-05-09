@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,12 +24,8 @@ package com.unboundid.ldap.protocol;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
-import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.asn1.ASN1StreamReader;
-import com.unboundid.ldap.sdk.CompareRequest;
-import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
@@ -84,22 +80,6 @@ public final class CompareRequestProtocolOp
     this.dn             = dn;
     this.attributeName  = attributeName;
     this.assertionValue = assertionValue;
-  }
-
-
-
-  /**
-   * Creates a new compare request protocol op from the provided compare request
-   * object.
-   *
-   * @param  request  The compare request object to use to create this protocol
-   *                  op.
-   */
-  public CompareRequestProtocolOp(final CompareRequest request)
-  {
-    dn             = request.getDN();
-    attributeName  = request.getAttributeName();
-    assertionValue = request.getRawAssertionValue();
   }
 
 
@@ -187,61 +167,6 @@ public final class CompareRequestProtocolOp
   /**
    * {@inheritDoc}
    */
-  public ASN1Element encodeProtocolOp()
-  {
-    return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST,
-         new ASN1OctetString(dn),
-         new ASN1Sequence(
-              new ASN1OctetString(attributeName),
-              assertionValue));
-  }
-
-
-
-  /**
-   * Decodes the provided ASN.1 element as a compare request protocol op.
-   *
-   * @param  element  The ASN.1 element to be decoded.
-   *
-   * @return  The decoded compare request protocol op.
-   *
-   * @throws  LDAPException  If the provided ASN.1 element cannot be decoded as
-   *                         a compare request protocol op.
-   */
-  public static CompareRequestProtocolOp decodeProtocolOp(
-                                              final ASN1Element element)
-         throws LDAPException
-  {
-    try
-    {
-      final ASN1Element[] elements =
-           ASN1Sequence.decodeAsSequence(element).elements();
-      final String dn =
-           ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
-
-      final ASN1Element[] avaElements =
-           ASN1Sequence.decodeAsSequence(elements[1]).elements();
-      final String attributeName =
-           ASN1OctetString.decodeAsOctetString(avaElements[0]).stringValue();
-      final ASN1OctetString assertionValue =
-           ASN1OctetString.decodeAsOctetString(avaElements[1]);
-
-      return new CompareRequestProtocolOp(dn, attributeName, assertionValue);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      throw new LDAPException(ResultCode.DECODING_ERROR,
-           ERR_COMPARE_REQUEST_CANNOT_DECODE.get(getExceptionMessage(e)),
-           e);
-    }
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -253,23 +178,6 @@ public final class CompareRequestProtocolOp
     buffer.addElement(assertionValue);
     avaSequence.end();
     opSequence.end();
-  }
-
-
-
-  /**
-   * Creates a compare request from this protocol op.
-   *
-   * @param  controls  The set of controls to include in the compare request.
-   *                   It may be empty or {@code null} if no controls should be
-   *                   included.
-   *
-   * @return  The compare request that was created.
-   */
-  public CompareRequest toCompareRequest(final Control... controls)
-  {
-    return new CompareRequest(dn, attributeName, assertionValue.getValue(),
-         controls);
   }
 
 

@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -414,17 +414,10 @@ public final class SearchResult
       buffer.append('}');
     }
 
-    if (numEntries >= 0)
-    {
-      buffer.append(", entriesReturned=");
-      buffer.append(numEntries);
-    }
-
-    if (numReferences >= 0)
-    {
-      buffer.append(", referencesReturned=");
-      buffer.append(numReferences);
-    }
+    buffer.append(", entriesReturned=");
+    buffer.append(numEntries);
+    buffer.append(", referencesReturned=");
+    buffer.append(numReferences);
 
     final Control[] responseControls = getResponseControls();
     if (responseControls.length > 0)
