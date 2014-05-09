@@ -82,6 +82,10 @@
   <property name="minsrc.classes.dir" location="${build.dir}/genminsrc" />
 
 
+  <!-- Define properties used for Ant tasks -->
+  <property name="ant.lib.dir" location="ext/ant/lib" />
+
+
   <!-- Define the amount of memory to use for forked VMs -->
   <property name="MEM" value="512M" />
 
@@ -108,9 +112,13 @@
     <javac srcdir="${messages.src.dir}" destdir="${messages.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars"
-           includeAntRuntime="true">
+           optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
+      <classpath>
+        <fileset dir="${ant.lib.dir}">
+          <include name="*.jar" />
+        </fileset>
+      </classpath>
     </javac>
 
     <!-- Define and invoke the task. -->
@@ -177,16 +185,14 @@
     <javac srcdir="${messages.gensrc.dir}" destdir="${classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars"
-           includeAntRuntime="false">
+           optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
     </javac>
 
     <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.5"
            target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars"
-           includeAntRuntime="false">
+           optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
       <classpath>
         <pathelement location="${classes.dir}" />
@@ -256,9 +262,13 @@
     <javac srcdir="${copydocs.src.dir}" destdir="${copydocs.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars"
-           includeAntRuntime="true">
+           optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
+      <classpath>
+        <fileset dir="${ant.lib.dir}">
+          <include name="*.jar" />
+        </fileset>
+      </classpath>
     </javac>
 
     <taskdef name="copydocs"
@@ -354,7 +364,7 @@
         <attribute name="Bundle-DocURL"
                    value="http://www.unboundid.com/products/ldapsdk/" />
         <attribute name="Export-Package"
-                   value="com.unboundid.asn1${VER},com.unboundid.ldap.listener${VER},com.unboundid.ldap.listener.interceptor${VER},com.unboundid.ldap.matchingrules${VER},com.unboundid.ldap.sdk${VER},com.unboundid.ldap.sdk.controls${VER},com.unboundid.ldap.sdk.experimental${VER},com.unboundid.ldap.sdk.extensions${VER},com.unboundid.ldap.sdk.migrate.jndi${VER},com.unboundid.ldap.sdk.migrate.ldapjdk${VER},com.unboundid.ldap.sdk.persist${VER},com.unboundid.ldap.sdk.schema${VER},com.unboundid.ldif${VER},com.unboundid.util${VER},com.unboundid.util.args${VER},com.unboundid.util.ssl${VER}" />
+                   value="com.unboundid.asn1${VER},com.unboundid.ldap.listener${VER},com.unboundid.ldap.matchingrules${VER},com.unboundid.ldap.sdk${VER},com.unboundid.ldap.sdk.controls${VER},com.unboundid.ldap.sdk.experimental${VER},com.unboundid.ldap.sdk.extensions${VER},com.unboundid.ldap.sdk.migrate.jndi${VER},com.unboundid.ldap.sdk.migrate.ldapjdk${VER},com.unboundid.ldap.sdk.persist${VER},com.unboundid.ldap.sdk.schema${VER},com.unboundid.ldif${VER},com.unboundid.util${VER},com.unboundid.util.args${VER},com.unboundid.util.ssl${VER}" />
         <attribute name="Import-Package"
                    value="javax.naming,javax.naming.directory,javax.naming.ldap,javax.net,javax.net.ssl,javax.security.auth,javax.security.auth.callback,javax.security.auth.login,javax.security.auth.x500,javax.security.sasl" />
         <attribute name="Sealed" value="true" />
@@ -462,11 +472,13 @@
     <javac srcdir="${minsrc.src.dir}" destdir="${minsrc.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars"
-           includeAntRuntime="true">
+           optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
       <classpath>
         <pathelement location="${classes.dir}" />
+        <fileset dir="${ant.lib.dir}">
+          <include name="*.jar" />
+        </fileset>
       </classpath>
     </javac>
 
@@ -498,16 +510,14 @@
     <javac srcdir="${messages.me.gensrc.dir}" destdir="${me.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source"
-           includeAntRuntime="false">
+           optimize="true" debug="on" debuglevel="lines,source">
       <compilerarg value="-Xlint:all" />
     </javac>
 
     <javac srcdir="${me.src.dir}" destdir="${me.classes.dir}" source="1.5"
            target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source"
-           includeAntRuntime="false">
+           optimize="true" debug="on" debuglevel="lines,source">
       <compilerarg value="-Xlint:all" />
       <classpath>
         <pathelement location="${me.classes.dir}" />
@@ -678,10 +688,12 @@
     <javac srcdir="${sc.src.dir}" destdir="${sc.classes.dir}" source="1.5"
            target="1.5" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars"
-           includeAntRuntime="true">
+           optimize="true" debug="on" debuglevel="lines,source,vars">
       <compilerarg value="-Xlint:all" />
       <classpath>
+        <fileset dir="${ant.lib.dir}">
+          <include name="*.jar" />
+        </fileset>
         <fileset dir="${se.package.dir}">
           <include name="*.jar" />
         </fileset>

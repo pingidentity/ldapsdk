@@ -60,7 +60,9 @@ import static com.unboundid.util.Validator.*;
  * better security by combining random data from both the client and the server,
  * and allows for greater security and functionality, including the ability to
  * specify an alternate authorization identity and the ability to use data
- * integrity or confidentiality protection.
+ * integrity or confidentiality protection.  At present, however, this
+ * implementation may only be used for authentication, as it does not yet
+ * support integrity or confidentiality.
  * <BR><BR>
  * Elements included in a DIGEST-MD5 bind request include:
  * <UL>

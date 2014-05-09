@@ -33,8 +33,6 @@ import java.util.Map;
 import javax.net.SocketFactory;
 
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.listener.interceptor.
-            InMemoryOperationInterceptorRequestHandler;
 import com.unboundid.ldap.protocol.AddRequestProtocolOp;
 import com.unboundid.ldap.protocol.AddResponseProtocolOp;
 import com.unboundid.ldap.protocol.BindRequestProtocolOp;
@@ -302,12 +300,6 @@ public final class InMemoryDirectoryServer
     {
       requestHandler = new LDAPDebuggerRequestHandler(
            config.getLDAPDebugLogHandler(), requestHandler);
-    }
-
-    if (! config.getOperationInterceptors().isEmpty())
-    {
-      requestHandler = new InMemoryOperationInterceptorRequestHandler(
-           config.getOperationInterceptors(), requestHandler);
     }
 
 

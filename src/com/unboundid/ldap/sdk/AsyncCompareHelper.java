@@ -28,7 +28,6 @@ import java.util.logging.Level;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
-import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -153,35 +152,27 @@ final class AsyncCompareHelper
       return;
     }
 
-    final long responseTime = System.nanoTime() - createTime;
-
-    final CompareResult result;
     if (response instanceof ConnectionClosedResponse)
     {
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
-      final String msg = ccr.getMessage();
-      if (msg == null)
+      final String message = ccr.getMessage();
+      if (message == null)
       {
-        result = new CompareResult(asyncRequestID.getMessageID(),
-             ccr.getResultCode(),
-             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get(), null,
-             StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+        throw new LDAPException(ccr.getResultCode(),
+             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get());
       }
       else
       {
-        result = new CompareResult(asyncRequestID.getMessageID(),
-             ccr.getResultCode(),
-             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(msg),
-             null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+        throw new LDAPException(ccr.getResultCode(),
+             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(
+                  message));
       }
-    }
-    else
-    {
-      result = (CompareResult) response;
     }
 
     connection.getConnectionStatistics().incrementNumCompareResponses(
-         responseTime);
+         System.nanoTime() - createTime);
+
+    final CompareResult result = (CompareResult) response;
     resultListener.compareResultReceived(asyncRequestID, result);
     asyncRequestID.setResult(result);
   }

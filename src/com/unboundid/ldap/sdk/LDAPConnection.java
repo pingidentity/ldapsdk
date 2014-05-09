@@ -40,7 +40,6 @@ import com.unboundid.ldap.protocol.AbandonRequestProtocolOp;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.UnbindRequestProtocolOp;
-import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.DebugType;
@@ -226,11 +225,8 @@ public final class LDAPConnection
   // Indicates whether to perform a reconnect before the next write.
   private final AtomicBoolean needsReconnect;
 
-  // The disconnect information for this connection.
-  private final AtomicReference<DisconnectInfo> disconnectInfo;
-
   // The last successful bind request processed on this connection.
-  private volatile BindRequest lastBindRequest;
+  private BindRequest lastBindRequest;
 
   // Indicates whether a request has been made to close this connection.
   private volatile boolean closeRequested;
@@ -238,8 +234,8 @@ public final class LDAPConnection
   // Indicates whether an unbind request has been sent over this connection.
   private volatile boolean unbindRequestSent;
 
-  // The extended request used to initiate StartTLS on this connection.
-  private volatile ExtendedRequest startTLSRequest;
+  // The disconnect information for this connection.
+  private final AtomicReference<DisconnectInfo> disconnectInfo;
 
   // The port of the server to which a connection should be re-established.
   private int reconnectPort = -1;
@@ -728,7 +724,6 @@ public final class LDAPConnection
     needsReconnect.set(false);
     hostPort = host + ':' + port;
     lastCommunicationTime = -1L;
-    startTLSRequest = null;
 
     if (isConnected())
     {
@@ -807,8 +802,6 @@ public final class LDAPConnection
       }
     }
 
-    final ExtendedRequest startTLSExtendedRequest = startTLSRequest;
-
     setDisconnectInfo(DisconnectType.RECONNECT, null, null);
     terminate(null);
 
@@ -819,34 +812,13 @@ public final class LDAPConnection
 
     connect(reconnectAddress, reconnectPort);
 
-    if (startTLSExtendedRequest != null)
-    {
-      try
-      {
-        final ExtendedResult startTLSResult =
-             processExtendedOperation(startTLSExtendedRequest);
-        if (startTLSResult.getResultCode() != ResultCode.SUCCESS)
-        {
-          throw new LDAPException(startTLSResult);
-        }
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-        setDisconnectInfo(DisconnectType.SECURITY_PROBLEM, null, le);
-        terminate(null);
-
-        throw le;
-      }
-    }
-
     if (bindRequest != null)
     {
       try
       {
         bind(bindRequest);
       }
-      catch (final LDAPException le)
+      catch (LDAPException le)
       {
         debugException(le);
         setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
@@ -1601,20 +1573,9 @@ public final class LDAPConnection
            ERR_ABANDON_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final int messageID = requestID.getMessageID();
-    try
-    {
-      connectionInternals.getConnectionReader().deregisterResponseAcceptor(
-           messageID);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
     connectionStatistics.incrementNumAbandonRequests();
     sendMessage(new LDAPMessage(nextMessageID(),
-         new AbandonRequestProtocolOp(messageID), controls));
+         new AbandonRequestProtocolOp(requestID.getMessageID()), controls));
   }
 
 
@@ -1637,16 +1598,6 @@ public final class LDAPConnection
     {
       debug(Level.INFO, DebugType.LDAP,
             "Sending LDAP abandon request for message ID " + messageID);
-    }
-
-    try
-    {
-      connectionInternals.getConnectionReader().deregisterResponseAcceptor(
-           messageID);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
     }
 
     connectionStatistics.incrementNumAbandonRequests();
@@ -2430,13 +2381,6 @@ public final class LDAPConnection
         case ResultCode.CONNECT_ERROR_INT_VALUE:
           throw new LDAPException(extendedResult);
       }
-    }
-
-    if ((extendedResult.getResultCode() == ResultCode.SUCCESS) &&
-         extendedRequest.getOID().equals(
-              StartTLSExtendedRequest.STARTTLS_REQUEST_OID))
-    {
-      startTLSRequest = extendedRequest.duplicate();
     }
 
     return extendedResult;
@@ -4348,31 +4292,8 @@ public final class LDAPConnection
       }
     }
 
-    final ExtendedRequest connStartTLSRequest = connection.startTLSRequest;
-
     final LDAPConnection conn = new LDAPConnection(connection.socketFactory,
          connection.connectionOptions, host, port);
-
-    if (connStartTLSRequest != null)
-    {
-      try
-      {
-        final ExtendedResult startTLSResult =
-             conn.processExtendedOperation(connStartTLSRequest);
-        if (startTLSResult.getResultCode() != ResultCode.SUCCESS)
-        {
-          throw new LDAPException(startTLSResult);
-        }
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-        conn.setDisconnectInfo(DisconnectType.SECURITY_PROBLEM, null, le);
-        conn.close();
-
-        throw le;
-      }
-    }
 
     if (bindRequest != null)
     {
@@ -4380,7 +4301,7 @@ public final class LDAPConnection
       {
         conn.bind(bindRequest);
       }
-      catch (final LDAPException le)
+      catch (LDAPException le)
       {
         debugException(le);
         conn.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
@@ -4402,23 +4323,9 @@ public final class LDAPConnection
    *          may be {@code null} if no bind has been performed, or if the last
    *          bind attempt was not successful.
    */
-  public BindRequest getLastBindRequest()
+  BindRequest getLastBindRequest()
   {
     return lastBindRequest;
-  }
-
-
-
-  /**
-   * Retrieves the StartTLS request used to secure this connection.
-   *
-   * @return  The StartTLS request used to secure this connection, or
-   *          {@code null} if StartTLS has not been used to secure this
-   *          connection.
-   */
-  ExtendedRequest getStartTLSRequest()
-  {
-    return startTLSRequest;
   }
 
 
