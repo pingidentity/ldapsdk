@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -472,8 +472,7 @@ public class ExtendedRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_EXTENDED_CLIENT_TIMEOUT.get(waitTime, messageID, oid,
-                connection.getHostPort()));
+           ERR_EXTENDED_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     if (response instanceof ConnectionClosedResponse)

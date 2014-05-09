@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -60,21 +60,19 @@ import static com.unboundid.util.Validator.*;
  * The following example demonstrates the process for performing a delete
  * operation:
  * <PRE>
- * DeleteRequest deleteRequest =
- *      new DeleteRequest("cn=entry to delete,dc=example,dc=com");
- * LDAPResult deleteResult;
- * try
- * {
- *   deleteResult = connection.delete(deleteRequest);
- *   // If we get here, the delete was successful.
- * }
- * catch (LDAPException le)
- * {
- *   // The delete operation failed.
- *   deleteResult = le.toLDAPResult();
- *   ResultCode resultCode = le.getResultCode();
- *   String errorMessageFromServer = le.getDiagnosticMessage();
- * }
+ *   DeleteRequest deleteRequest =
+ *        new DeleteRequest("cn=entry to delete,dc=example,dc=com");
+ *
+ *   try
+ *   {
+ *     LDAPResult deleteResult = connection.delete(deleteRequest);
+ *
+ *     System.out.println("The entry was successfully deleted.");
+ *   }
+ *   catch (LDAPException le)
+ *   {
+ *     System.err.println("The delete operation failed.");
+ *   }
  * </PRE>
  */
 @Mutable()
@@ -526,8 +524,7 @@ public final class DeleteRequest
       }
 
       throw new LDAPException(ResultCode.TIMEOUT,
-           ERR_DELETE_CLIENT_TIMEOUT.get(waitTime, messageID, dn,
-                connection.getHostPort()));
+           ERR_DELETE_CLIENT_TIMEOUT.get(waitTime, connection.getHostPort()));
     }
 
     connection.getConnectionStatistics().incrementNumDeleteResponses(

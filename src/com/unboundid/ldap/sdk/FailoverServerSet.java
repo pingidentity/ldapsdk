@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -54,34 +54,17 @@ import static com.unboundid.util.Validator.*;
  * to ds1.example.com:389, but if that fails then it will try connecting to
  * ds2.example.com:389:
  * <PRE>
- * // Create arrays with the addresses and ports of the directory server
- * // instances.
- * String[] addresses =
- * {
- *   server1Address,
- *   server2Address
- * };
- * int[] ports =
- * {
- *   server1Port,
- *   server2Port
- * };
- *
- * // Create the server set using the address and port arrays.
- * FailoverServerSet failoverSet = new FailoverServerSet(addresses, ports);
- *
- * // Verify that we can establish a single connection using the server set.
- * LDAPConnection connection = failoverSet.getConnection();
- * RootDSE rootDSEFromConnection = connection.getRootDSE();
- * connection.close();
- *
- * // Verify that we can establish a connection pool using the server set.
- * SimpleBindRequest bindRequest =
- *      new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
- * LDAPConnectionPool pool =
- *      new LDAPConnectionPool(failoverSet, bindRequest, 10);
- * RootDSE rootDSEFromPool = pool.getRootDSE();
- * pool.close();
+ *   String[] addresses =
+ *   {
+ *     "ds1.example.com",
+ *     "ds2.example.com"
+ *   };
+ *   int[] ports =
+ *   {
+ *     389,
+ *     389
+ *   };
+ *   FailoverServerSet failoverSet = new FailoverServerSet(addresses, ports);
  * </PRE>
  * This second example demonstrates the process for creating a failover server
  * set which actually fails over between two different data centers (east and
@@ -92,51 +75,33 @@ import static com.unboundid.util.Validator.*;
  * will try to connect to one of the servers in the west data center, and
  * finally as a last resort the other server in the west data center:
  * <PRE>
- * // Create a round-robin server set for the servers in the "east" data
- * // center.
- * String[] eastAddresses =
- * {
- *   eastServer1Address,
- *   eastServer2Address
- * };
- * int[] eastPorts =
- * {
- *   eastServer1Port,
- *   eastServer2Port
- * };
- * RoundRobinServerSet eastSet =
- *      new RoundRobinServerSet(eastAddresses, eastPorts);
+ *   String[] eastAddresses =
+ *   {
+ *     "ds-east-1.example.com",
+ *     "ds-east-2.example.com",
+ *   };
+ *   int[] eastPorts =
+ *   {
+ *     389,
+ *     389
+ *   }
+ *   RoundRobinServerSet eastSet =
+ *        new RoundRobinServerSet(eastAddresses, eastPorts);
  *
- * // Create a round-robin server set for the servers in the "west" data
- * // center.
- * String[] westAddresses =
- * {
- *   westServer1Address,
- *   westServer2Address
- * };
- * int[] westPorts =
- * {
- *   westServer1Port,
- *   westServer2Port
- * };
- * RoundRobinServerSet westSet =
- *      new RoundRobinServerSet(westAddresses, westPorts);
+ *   String[] westAddresses =
+ *   {
+ *     "ds-west-1.example.com",
+ *     "ds-west-2.example.com",
+ *   };
+ *   int[] westPorts =
+ *   {
+ *     389,
+ *     389
+ *   }
+ *   RoundRobinServerSet westSet =
+ *        new RoundRobinServerSet(westAddresses, westPorts);
  *
- * // Create the failover server set across the east and west round-robin sets.
- * FailoverServerSet failoverSet = new FailoverServerSet(eastSet, westSet);
- *
- * // Verify that we can establish a single connection using the server set.
- * LDAPConnection connection = failoverSet.getConnection();
- * RootDSE rootDSEFromConnection = connection.getRootDSE();
- * connection.close();
- *
- * // Verify that we can establish a connection pool using the server set.
- * SimpleBindRequest bindRequest =
- *      new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
- * LDAPConnectionPool pool =
- *      new LDAPConnectionPool(failoverSet, bindRequest, 10);
- * RootDSE rootDSEFromPool = pool.getRootDSE();
- * pool.close();
+ *   FailoverServerSet failoverSet = new FailoverServerSet(eastSet, westSet);
  * </PRE>
  */
 @NotMutable()
@@ -146,10 +111,6 @@ public final class FailoverServerSet
 {
   // Indicates whether to re-order the server set list if failover occurs.
   private final AtomicBoolean reOrderOnFailover;
-
-  // The maximum connection age that should be set for connections established
-  // using anything but the first server set.
-  private volatile Long maxFailoverConnectionAge;
 
   // The server sets for which we will allow failover.
   private final ServerSet[] serverSets;
@@ -261,7 +222,6 @@ public final class FailoverServerSet
          "FailoverServerSet addresses and ports arrays must be the same size.");
 
     reOrderOnFailover = new AtomicBoolean(false);
-    maxFailoverConnectionAge = null;
 
     final SocketFactory sf;
     if (socketFactory == null)
@@ -283,6 +243,7 @@ public final class FailoverServerSet
       co = connectionOptions;
     }
 
+
     serverSets = new ServerSet[addresses.length];
     for (int i=0; i < serverSets.length; i++)
     {
@@ -303,12 +264,11 @@ public final class FailoverServerSet
   {
     ensureNotNull(serverSets);
     ensureFalse(serverSets.length == 0,
-         "FailoverServerSet.serverSets must not be empty.");
+                "FailoverServerSet.serverSets must not be empty.");
 
     this.serverSets = serverSets;
 
     reOrderOnFailover = new AtomicBoolean(false);
-    maxFailoverConnectionAge = null;
   }
 
 
@@ -330,7 +290,6 @@ public final class FailoverServerSet
     serverSets.toArray(this.serverSets);
 
     reOrderOnFailover = new AtomicBoolean(false);
-    maxFailoverConnectionAge = null;
   }
 
 
@@ -388,63 +347,6 @@ public final class FailoverServerSet
   public void setReOrderOnFailover(final boolean reOrderOnFailover)
   {
     this.reOrderOnFailover.set(reOrderOnFailover);
-  }
-
-
-
-  /**
-   * Retrieves the maximum connection age that should be used for "failover"
-   * connections (i.e., connections that are established to any server other
-   * than the most-preferred server, or established using any server set other
-   * than the most-preferred set).  This will only be used if this failover
-   * server set is used to create an {@link LDAPConnectionPool}, for connections
-   * within that pool.
-   *
-   * @return  The maximum connection age that should be used for failover
-   *          connections, a value of zero to indicate that no maximum age
-   *          should apply to those connections, or {@code null} if the maximum
-   *          connection age should be determined by the associated connection
-   *          pool.
-   */
-  public Long getMaxFailoverConnectionAgeMillis()
-  {
-    return maxFailoverConnectionAge;
-  }
-
-
-
-  /**
-   * Specifies the maximum connection age that should be used for "failover"
-   * connections (i.e., connections that are established to any server other
-   * than the most-preferred server, or established using any server set other
-   * than the most-preferred set).  This will only be used if this failover
-   * server set is used to create an {@link LDAPConnectionPool}, for connections
-   * within that pool.
-   *
-   * @param  maxFailoverConnectionAge  The maximum connection age that should be
-   *                                   used for failover connections.  It may be
-   *                                   less than or equal to zero to indicate
-   *                                   that no maximum age should apply to such
-   *                                   connections, or {@code null} to indicate
-   *                                   that the maximum connection age should be
-   *                                   determined by the associated connection
-   *                                   pool.
-   */
-  public void setMaxFailoverConnectionAgeMillis(
-                   final Long maxFailoverConnectionAge)
-  {
-    if (maxFailoverConnectionAge == null)
-    {
-      this.maxFailoverConnectionAge = null;
-    }
-    else if (maxFailoverConnectionAge > 0L)
-    {
-      this.maxFailoverConnectionAge = maxFailoverConnectionAge;
-    }
-    else
-    {
-      this.maxFailoverConnectionAge = 0L;
-    }
   }
 
 
@@ -519,12 +421,6 @@ public final class FailoverServerSet
           }
 
           System.arraycopy(setCopy, 0, serverSets, 0, setCopy.length);
-          if (maxFailoverConnectionAge != null)
-          {
-            conn.setAttachment(
-                 LDAPConnectionPool.ATTACHMENT_NAME_MAX_CONNECTION_AGE,
-                 maxFailoverConnectionAge);
-          }
           return conn;
         }
         else
@@ -537,23 +433,14 @@ public final class FailoverServerSet
     {
       LDAPException lastException = null;
 
-      boolean first = true;
       for (final ServerSet s : serverSets)
       {
         try
         {
-          final LDAPConnection conn = s.getConnection(healthCheck);
-          if ((! first) && (maxFailoverConnectionAge != null))
-          {
-            conn.setAttachment(
-                 LDAPConnectionPool.ATTACHMENT_NAME_MAX_CONNECTION_AGE,
-                 maxFailoverConnectionAge);
-          }
-          return conn;
+          return s.getConnection(healthCheck);
         }
         catch (LDAPException le)
         {
-          first = false;
           debugException(le);
           lastException = le;
         }

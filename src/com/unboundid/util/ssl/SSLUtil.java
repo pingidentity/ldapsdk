@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -49,22 +49,13 @@ import static com.unboundid.util.Validator.*;
  * <H2>Example 1</H2>
  * The following example demonstrates the use of the SSL helper to create an
  * SSL-based LDAP connection that will blindly trust any certificate that the
- * server presents.  Using the {@code TrustAllTrustManager} is only recommended
- * for testing purposes, since blindly trusting any certificate is not secure.
+ * server presents:
  * <PRE>
- * // Create an SSLUtil instance that is configured to trust any certificate,
- * // and use it to create a socket factory.
- * SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
- * SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
+ *   SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
  *
- * // Establish a secure connection using the socket factory.
- * LDAPConnection connection = new LDAPConnection(sslSocketFactory);
- * connection.connect(serverAddress, serverSSLPort);
- *
- * // Process operations using the connection....
- * RootDSE rootDSE = connection.getRootDSE();
- *
- * connection.close();
+ *   LDAPConnection connection =
+ *        new LDAPConnection(sslUtil.createSSLSocketFactory());
+ *   connection.connect("server.example.com", 636);
  * </PRE>
  * <BR>
  * <H2>Example 2</H2>
@@ -73,49 +64,19 @@ import static com.unboundid.util.Validator.*;
  * secure it.  It will use a trust store to determine whether to trust the
  * server certificate.
  * <PRE>
- * // Establish a non-secure connection to the server.
- * LDAPConnection connection = new LDAPConnection(serverAddress, serverPort);
+ *   LDAPConnection connection = new LDAPConnection();
+ *   connection.connect("server.example.com", 389);
  *
- * // Create an SSLUtil instance that is configured to trust certificates in
- * // a specified trust store file, and use it to create an SSLContext that
- * // will be used for StartTLS processing.
- * SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
- * SSLContext sslContext = sslUtil.createSSLContext();
+ *   String trustStoreFile  = "/path/to/trust/store/file";
+ *   SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStoreFile));
  *
- * // Use the StartTLS extended operation to secure the connection.
- * StartTLSExtendedRequest startTLSRequest =
- *      new StartTLSExtendedRequest(sslContext);
- * ExtendedResult startTLSResult;
- * try
- * {
- *   startTLSResult = connection.processExtendedOperation(startTLSRequest);
- * }
- * catch (LDAPException le)
- * {
- *   startTLSResult = new ExtendedResult(le);
- * }
- * LDAPTestUtils.assertResultCodeEquals(startTLSResult, ResultCode.SUCCESS);
- *
- * // Process operations using the connection....
- * RootDSE rootDSE = connection.getRootDSE();
- *
- * connection.close();
+ *   ExtendedResult extendedResult = connection.processExtendedOperation(
+ *        new StartTLSExtendedRequest(sslUtil.createSSLContext()));
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class SSLUtil
 {
-  /**
-   * The name of the system property that can be used to specify the initial
-   * value for the default SSL protocol that should be used.  If this is not
-   * set, then the default SSL protocol will be dynamically determined.  This
-   * can be overridden via the {@link #setDefaultSSLProtocol(String)} method.
-   */
-  public static final String PROPERTY_DEFAULT_SSL_PROTOCOL =
-       "com.unboundid.util.SSLUtil.defaultSSLProtocol";
-
-
-
   /**
    * The default protocol string that will be used to create SSL contexts when
    * no explicit protocol is specified.
@@ -125,59 +86,48 @@ public final class SSLUtil
 
   static
   {
-    // See if there is a system property that specifies what the default SSL
-    // protocol should be.  If not, then try to dynamically determine it.
-    final String propValue = System.getProperty(PROPERTY_DEFAULT_SSL_PROTOCOL);
-    if ((propValue != null) && (propValue.length() > 0))
+    // Ideally, we should be able to discover the SSL protocol that offers the
+    // best mix of security and compatibility.  Unfortunately, Java SE 5 doesn't
+    // expose the methods necessary to allow us to do that, but if the running
+    // JVM is Java SE 6 or later, then we can use reflection to invoke those
+    // methods and make the appropriate determination.
+
+    try
     {
-      DEFAULT_SSL_PROTOCOL.set(propValue);
+      final Method getDefaultMethod =
+           SSLContext.class.getMethod("getDefault");
+      final SSLContext defaultContext =
+           (SSLContext) getDefaultMethod.invoke(null);
+
+      final Method getSupportedParamsMethod =
+           SSLContext.class.getMethod("getSupportedSSLParameters");
+      final Object paramsObj = getSupportedParamsMethod.invoke(defaultContext);
+
+      final Class<?> sslParamsClass =
+           Class.forName("javax.net.ssl.SSLParameters");
+      final Method getProtocolsMethod =
+           sslParamsClass.getMethod("getProtocols");
+      final String[] supportedProtocols =
+           (String[]) getProtocolsMethod.invoke(paramsObj);
+
+      final HashSet<String> protocolMap =
+           new HashSet<String>(Arrays.asList(supportedProtocols));
+      if (protocolMap.contains("TLSv1.2"))
+      {
+        DEFAULT_SSL_PROTOCOL.set("TLSv1.2");
+      }
+      else if (protocolMap.contains("TLSv1.1"))
+      {
+        DEFAULT_SSL_PROTOCOL.set("TLSv1.1");
+      }
+      else if (protocolMap.contains("TLSv1"))
+      {
+        DEFAULT_SSL_PROTOCOL.set("TLSv1");
+      }
     }
-    else
+    catch (final Exception e)
     {
-      // Ideally, we should be able to discover the SSL protocol that offers the
-      // best mix of security and compatibility.  Unfortunately, Java SE 5
-      // doesn't expose the methods necessary to allow us to do that, but if the
-      // running JVM is Java SE 6 or later, then we can use reflection to invoke
-      // those methods and make the appropriate determination.
-
-      try
-      {
-        final Method getDefaultMethod =
-             SSLContext.class.getMethod("getDefault");
-        final SSLContext defaultContext =
-             (SSLContext) getDefaultMethod.invoke(null);
-
-        final Method getSupportedParamsMethod =
-             SSLContext.class.getMethod("getSupportedSSLParameters");
-        final Object paramsObj =
-             getSupportedParamsMethod.invoke(defaultContext);
-
-        final Class<?> sslParamsClass =
-             Class.forName("javax.net.ssl.SSLParameters");
-        final Method getProtocolsMethod =
-             sslParamsClass.getMethod("getProtocols");
-        final String[] supportedProtocols =
-             (String[]) getProtocolsMethod.invoke(paramsObj);
-
-        final HashSet<String> protocolMap =
-             new HashSet<String>(Arrays.asList(supportedProtocols));
-        if (protocolMap.contains("TLSv1.2"))
-        {
-          DEFAULT_SSL_PROTOCOL.set("TLSv1.2");
-        }
-        else if (protocolMap.contains("TLSv1.1"))
-        {
-          DEFAULT_SSL_PROTOCOL.set("TLSv1.1");
-        }
-        else if (protocolMap.contains("TLSv1"))
-        {
-          DEFAULT_SSL_PROTOCOL.set("TLSv1");
-        }
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
+      Debug.debugException(e);
     }
   }
 

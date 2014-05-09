@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2013 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2013 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -159,34 +159,29 @@ import static com.unboundid.util.Validator.*;
  * <H2>Example</H2>
  * The following example demonstrates a simple search operation in which the
  * client performs a search to find all users in the "Sales" department and then
- * retrieves the name and e-mail address for each matching user:
+ * prints out the name and e-mail address for each matching user:
  * <PRE>
- * // Construct a filter that can be used to find everyone in the Sales
- * // department, and then create a search request to find all such users
- * // in the directory.
- * Filter filter = Filter.createEqualityFilter("ou", "Sales");
- * SearchRequest searchRequest =
- *      new SearchRequest("dc=example,dc=com", SearchScope.SUB, filter,
- *           "cn", "mail");
- * SearchResult searchResult;
+ *   Filter filter = Filter.createEqualityFilter("ou", "Sales");
  *
- * try
- * {
- *   searchResult = connection.search(searchRequest);
+ *   SearchRequest searchRequest =
+ *        new SearchRequest("dc=example,dc=com", SearchScope.SUB, filter,
+ *                          "cn", "mail");
  *
- *   for (SearchResultEntry entry : searchResult.getSearchEntries())
+ *   try
  *   {
- *     String name = entry.getAttributeValue("cn");
- *     String mail = entry.getAttributeValue("mail");
+ *     SearchResult searchResult = connection.search(searchRequest);
+ *
+ *     for (SearchResultEntry entry : searchResult.getSearchEntries())
+ *     {
+ *       String name = entry.getAttributeValue("cn");
+ *       String mail = entry.getAttributeValue("mail");
+ *       System.out.println(name + "\t" + mail);
+ *     }
  *   }
- * }
- * catch (LDAPSearchException lse)
- * {
- *   // The search failed for some reason.
- *   searchResult = lse.getSearchResult();
- *   ResultCode resultCode = lse.getResultCode();
- *   String errorMessageFromServer = lse.getDiagnosticMessage();
- * }
+ *   catch (LDAPSearchException lse)
+ *   {
+ *     System.err.println("The search failed.");
+ *   }
  * </PRE>
  */
 @Mutable()
@@ -1183,8 +1178,7 @@ public final class SearchRequest
 
           final SearchResult searchResult =
                new SearchResult(messageID, ResultCode.TIMEOUT,
-                    ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout, messageID,
-                         baseDN, scope.getName(), filter.toString(),
+                    ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
                          connection.getHostPort()),
                     null, null, entryList, referenceList, numEntries,
                     numReferences, null);
@@ -1530,8 +1524,7 @@ public final class SearchRequest
         }
 
         throw new LDAPException(ResultCode.TIMEOUT,
-             ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout, messageID, baseDN,
-                  scope.getName(), filter.toString(),
+             ERR_SEARCH_CLIENT_TIMEOUT.get(responseTimeout,
                   connection.getHostPort()));
       }
       else if (response instanceof ConnectionClosedResponse)
