@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -43,7 +43,7 @@ import static com.unboundid.util.UtilityMessages.*;
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class ByteStringBuffer
-       implements Serializable, Appendable
+       implements Serializable
 {
   /**
    * The default initial capacity for this buffer.
@@ -432,33 +432,6 @@ public final class ByteStringBuffer
   public ByteStringBuffer append(final CharSequence s)
          throws NullPointerException
   {
-    return append(s, 0, s.length());
-  }
-
-
-
-  /**
-   * Appends the provided character sequence to this buffer.
-   *
-   * @param  s      The character sequence to append to this buffer.
-   * @param  start  The position in the sequence of the first character in the
-   *                sequence to be appended to this buffer.
-   * @param  end    The position in the sequence immediately after the position
-   *                of the last character to be appended.
-   *
-   * @return  A reference to this buffer.
-   *
-   * @throws  NullPointerException  If the provided character sequence is
-   *                                {@code null}.
-   *
-   * @throws  IndexOutOfBoundsException  If the provided start or end positions
-   *                                     are outside the bounds of the given
-   *                                     character sequence.
-   */
-  public ByteStringBuffer append(final CharSequence s, final int start,
-                                 final int end)
-         throws NullPointerException, IndexOutOfBoundsException
-  {
     if (s == null)
     {
       final NullPointerException e =
@@ -467,9 +440,9 @@ public final class ByteStringBuffer
       throw e;
     }
 
-    final int length = end - start;
+    final int length = s.length();
     ensureCapacity(endPos + length);
-    for (int i=start; i < end; i++)
+    for (int i=0; i < length; i++)
     {
       final char c = s.charAt(i);
       final byte b = (byte) (c & 0x7F);
@@ -1630,7 +1603,7 @@ public final class ByteStringBuffer
    */
   public ByteString toByteString()
   {
-    return new ASN1OctetString(toByteArray());
+    return new ASN1OctetString(array, 0, endPos);
   }
 
 

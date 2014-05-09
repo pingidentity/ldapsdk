@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -111,29 +111,6 @@ public abstract class MatchingRule
 
 
   /**
-   * Retrieves the name for this matching rule when used to perform equality
-   * matching if defined, or the OID if no name is available.
-   *
-   * @return  The name or OID for this matching rule when used to perform
-   *          equality matching, or {@code null} if this matching rule cannot
-   *          be used to perform equality matching.
-   */
-  public String getEqualityMatchingRuleNameOrOID()
-  {
-    final String name = getEqualityMatchingRuleName();
-    if (name == null)
-    {
-      return getEqualityMatchingRuleOID();
-    }
-    else
-    {
-      return name;
-    }
-  }
-
-
-
-  /**
    * Retrieves the name for this matching rule when used to perform ordering
    * matching, if appropriate.
    *
@@ -158,29 +135,6 @@ public abstract class MatchingRule
 
 
   /**
-   * Retrieves the name for this matching rule when used to perform ordering
-   * matching if defined, or the OID if no name is available.
-   *
-   * @return  The name or OID for this matching rule when used to perform
-   *          ordering matching, or {@code null} if this matching rule cannot
-   *          be used to perform equality matching.
-   */
-  public String getOrderingMatchingRuleNameOrOID()
-  {
-    final String name = getOrderingMatchingRuleName();
-    if (name == null)
-    {
-      return getOrderingMatchingRuleOID();
-    }
-    else
-    {
-      return name;
-    }
-  }
-
-
-
-  /**
    * Retrieves the name for this matching rule when used to perform substring
    * matching, if appropriate.
    *
@@ -201,29 +155,6 @@ public abstract class MatchingRule
    *          to be used for substring matching.
    */
   public abstract String getSubstringMatchingRuleOID();
-
-
-
-  /**
-   * Retrieves the name for this matching rule when used to perform substring
-   * matching if defined, or the OID if no name is available.
-   *
-   * @return  The name or OID for this matching rule when used to perform
-   *          substring matching, or {@code null} if this matching rule cannot
-   *          be used to perform equality matching.
-   */
-  public String getSubstringMatchingRuleNameOrOID()
-  {
-    final String name = getSubstringMatchingRuleName();
-    if (name == null)
-    {
-      return getSubstringMatchingRuleOID();
-    }
-    else
-    {
-      return name;
-    }
-  }
 
 
 
@@ -851,7 +782,7 @@ public abstract class MatchingRule
    *
    * @return  The selected matching rule.
    */
-  public static MatchingRule selectMatchingRuleForSyntax(final String syntaxOID)
+  static MatchingRule selectMatchingRuleForSyntax(final String syntaxOID)
   {
     if (syntaxOID.equals("1.3.6.1.4.1.1466.115.121.1.7"))
     {

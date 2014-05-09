@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -30,7 +30,6 @@ import java.util.LinkedHashMap;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
@@ -180,19 +179,6 @@ public final class LDAPModify
   {
     return "Perform add, delete, modify, and modify " +
            "DN operations in an LDAP directory server.";
-  }
-
-
-
-  /**
-   * Retrieves the version string for this tool.
-   *
-   * @return  The version string for this tool.
-   */
-  @Override()
-  public String getToolVersion()
-  {
-    return Version.NUMERIC_VERSION_STRING;
   }
 
 

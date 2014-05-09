@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -1310,27 +1310,6 @@ public class Entry
 
 
   /**
-   * Adds the provided attribute to this entry.  If this entry already contains
-   * an attribute with the same name, then their values will be merged.
-   *
-   * @param  attributeName    The name for the attribute to be added.  It must
-   *                          not be {@code null}.
-   * @param  attributeValues  The value for the attribute to be added.  It must
-   *                          not be {@code null}.
-   *
-   * @return  {@code true} if the entry was updated, or {@code false} because
-   *          the specified attribute already existed with all provided values.
-   */
-  public boolean addAttribute(final String attributeName,
-                              final Collection<String> attributeValues)
-  {
-    ensureNotNull(attributeName, attributeValues);
-    return addAttribute(new Attribute(attributeName, schema, attributeValues));
-  }
-
-
-
-  /**
    * Removes the specified attribute from this entry.
    *
    * @param  attributeName  The name of the attribute to remove.  It must not be
@@ -1692,24 +1671,6 @@ public class Entry
 
 
   /**
-   * Adds the provided attribute to this entry, replacing any existing set of
-   * values for the associated attribute.
-   *
-   * @param  attributeName    The name to use for the attribute.  It must not be
-   *                          {@code null}.
-   * @param  attributeValues  The set of values to use for the attribute.  It
-   *                          must not be {@code null}.
-   */
-  public void setAttribute(final String attributeName,
-                           final Collection<String> attributeValues)
-  {
-    ensureNotNull(attributeName, attributeValues);
-    setAttribute(new Attribute(attributeName, schema, attributeValues));
-  }
-
-
-
-  /**
    * Indicates whether this entry falls within the range of the provided search
    * base DN and scope.
    *
@@ -1988,76 +1949,35 @@ public class Entry
       if (reversible ||
           ((targetRDN != null) && targetRDN.hasAttribute(targetAttr.getName())))
       {
-        final ASN1OctetString[] sourceValueArray = sourceAttr.getRawValues();
-        final LinkedHashMap<ASN1OctetString,ASN1OctetString> sourceValues =
-             new LinkedHashMap<ASN1OctetString,ASN1OctetString>(
-                  sourceValueArray.length);
-        for (final ASN1OctetString s : sourceValueArray)
-        {
-          try
-          {
-            sourceValues.put(sourceAttr.getMatchingRule().normalize(s), s);
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            sourceValues.put(s, s);
-          }
-        }
-
-        final ASN1OctetString[] targetValueArray = targetAttr.getRawValues();
-        final LinkedHashMap<ASN1OctetString,ASN1OctetString> targetValues =
-             new LinkedHashMap<ASN1OctetString,ASN1OctetString>(
-                  targetValueArray.length);
-        for (final ASN1OctetString s : targetValueArray)
-        {
-          try
-          {
-            targetValues.put(sourceAttr.getMatchingRule().normalize(s), s);
-          }
-          catch (final Exception e)
-          {
-            debugException(e);
-            targetValues.put(s, s);
-          }
-        }
-
-        final Iterator<Map.Entry<ASN1OctetString,ASN1OctetString>>
-             sourceIterator = sourceValues.entrySet().iterator();
-        while (sourceIterator.hasNext())
-        {
-          final Map.Entry<ASN1OctetString,ASN1OctetString> e =
-               sourceIterator.next();
-          if (targetValues.remove(e.getKey()) != null)
-          {
-            sourceIterator.remove();
-          }
-          else if ((sourceRDN != null) &&
-                   sourceRDN.hasAttributeValue(sourceAttr.getName(),
-                        e.getValue().getValue()))
-          {
-            sourceIterator.remove();
-          }
-        }
-
-        final Iterator<Map.Entry<ASN1OctetString,ASN1OctetString>>
-             targetIterator = targetValues.entrySet().iterator();
-        while (targetIterator.hasNext())
-        {
-          final Map.Entry<ASN1OctetString,ASN1OctetString> e =
-               targetIterator.next();
-          if ((targetRDN != null) &&
-              targetRDN.hasAttributeValue(targetAttr.getName(),
-                   e.getValue().getValue()))
-          {
-            targetIterator.remove();
-          }
-        }
-
         final ArrayList<ASN1OctetString> addValues =
-             new ArrayList<ASN1OctetString>(targetValues.values());
+             new ArrayList<ASN1OctetString>();
         final ArrayList<ASN1OctetString> delValues =
-             new ArrayList<ASN1OctetString>(sourceValues.values());
+             new ArrayList<ASN1OctetString>();
+        for (final ASN1OctetString value : sourceAttr.getRawValues())
+        {
+          if (! targetAttr.hasValue(value))
+          {
+            if ((sourceRDN == null) ||
+                (! sourceRDN.hasAttributeValue(sourceAttr.getName(),
+                                               value.getValue())))
+            {
+              delValues.add(value);
+            }
+          }
+        }
+
+        for (final ASN1OctetString value : targetAttr.getRawValues())
+        {
+          if (! sourceAttr.hasValue(value))
+          {
+            if ((targetRDN == null) ||
+                (! targetRDN.hasAttributeValue(targetAttr.getName(),
+                                               value.getValue())))
+            {
+              addValues.add(value);
+            }
+          }
+        }
 
         if (! addValues.isEmpty())
         {

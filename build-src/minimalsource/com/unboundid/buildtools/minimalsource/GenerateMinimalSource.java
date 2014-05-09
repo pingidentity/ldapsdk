@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.minimalsource;
@@ -8,13 +8,10 @@ package com.unboundid.buildtools.minimalsource;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,7 +60,6 @@ public final class GenerateMinimalSource
     "com.unboundid.asn1.ASN1StreamReaderSequence",
     "com.unboundid.asn1.ASN1StreamReaderSet",
     "com.unboundid.asn1.ASN1Writer",
-    "com.unboundid.asn1.InternalASN1Helper",
     "com.unboundid.asn1.package-info",
 
     "com.unboundid.ldap.matchingrules.AcceptAllSimpleMatchingRule",
@@ -116,12 +112,10 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.AsyncResultListener",
     "com.unboundid.ldap.sdk.AsyncSearchHelper",
     "com.unboundid.ldap.sdk.AsyncSearchResultListener",
-    "com.unboundid.ldap.sdk.AsyncTimeoutTimerTask",
     "com.unboundid.ldap.sdk.Attribute",
     "com.unboundid.ldap.sdk.BindRequest",
     "com.unboundid.ldap.sdk.BindResult",
     "com.unboundid.ldap.sdk.ChangeType",
-    "com.unboundid.ldap.sdk.CommonAsyncHelper",
     "com.unboundid.ldap.sdk.CompactAttribute",
     "com.unboundid.ldap.sdk.CompactEntry",
     "com.unboundid.ldap.sdk.CompareRequest",
@@ -132,9 +126,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.DecodeableControl",
     "com.unboundid.ldap.sdk.DeleteRequest",
     "com.unboundid.ldap.sdk.DereferencePolicy",
-    "com.unboundid.ldap.sdk.DiscardAsyncListener",
     "com.unboundid.ldap.sdk.DisconnectHandler",
-    "com.unboundid.ldap.sdk.DisconnectInfo",
     "com.unboundid.ldap.sdk.DisconnectType",
     "com.unboundid.ldap.sdk.DN",
     "com.unboundid.ldap.sdk.Entry",
@@ -142,7 +134,6 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.ExtendedResult",
     "com.unboundid.ldap.sdk.FailoverServerSet",
     "com.unboundid.ldap.sdk.Filter",
-    "com.unboundid.ldap.sdk.GenericSASLBindRequest",
     "com.unboundid.ldap.sdk.IntermediateResponse",
     "com.unboundid.ldap.sdk.IntermediateResponseListener",
     "com.unboundid.ldap.sdk.InternalSDKHelper",
@@ -167,10 +158,6 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.ModifyRequest",
     "com.unboundid.ldap.sdk.ModifyDNRequest",
     "com.unboundid.ldap.sdk.OperationType",
-    "com.unboundid.ldap.sdk.ParallelPoolCloser",
-    "com.unboundid.ldap.sdk.ParallelPoolCloserTask",
-    "com.unboundid.ldap.sdk.ParallelPoolConnector",
-    "com.unboundid.ldap.sdk.ParallelPoolConnectorTask",
     "com.unboundid.ldap.sdk.PasswordProvider",
     "com.unboundid.ldap.sdk.PostConnectProcessor",
     "com.unboundid.ldap.sdk.RDN",
@@ -187,8 +174,6 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.ResultCode",
     "com.unboundid.ldap.sdk.RootDSE",
     "com.unboundid.ldap.sdk.RoundRobinServerSet",
-    "com.unboundid.ldap.sdk.SASLBindInProgressException",
-    "com.unboundid.ldap.sdk.SASLBindRequest",
     "com.unboundid.ldap.sdk.SearchRequest",
     "com.unboundid.ldap.sdk.SearchResult",
     "com.unboundid.ldap.sdk.SearchResultEntry",
@@ -223,7 +208,6 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.schema.Schema",
     "com.unboundid.ldap.sdk.schema.package-info",
 
-    "com.unboundid.ldif.DuplicateValueBehavior",
     "com.unboundid.ldif.LDIFAddChangeRecord",
     "com.unboundid.ldif.LDIFAttribute",
     "com.unboundid.ldif.LDIFChangeRecord",
@@ -235,9 +219,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldif.LDIFReaderEntryTranslator",
     "com.unboundid.ldif.LDIFRecord",
     "com.unboundid.ldif.LDIFWriter",
-    "com.unboundid.ldif.LDIFWriterEntryTranslator",
     "com.unboundid.ldif.package-info",
-    "com.unboundid.ldif.TrailingSpaceBehavior",
 
     "com.unboundid.util.AggregateInputStream",
     "com.unboundid.util.Base64",
@@ -252,12 +234,9 @@ public final class GenerateMinimalSource
     "com.unboundid.util.LDAPSDKThreadFactory",
     "com.unboundid.util.LDAPSDKUsageException",
     "com.unboundid.util.ObjectPair",
-    "com.unboundid.util.SynchronizedSocketFactory",
-    "com.unboundid.util.SynchronizedSSLSocketFactory",
     "com.unboundid.util.StaticUtils",
     "com.unboundid.util.Validator",
     "com.unboundid.util.WakeableSleeper",
-    "com.unboundid.util.WeakHashSet",
     "com.unboundid.util.package-info",
 
     "com.unboundid.util.parallel.AsynchronousParallelProcessor",
@@ -284,15 +263,15 @@ public final class GenerateMinimalSource
    */
   private static final String[] MESSAGE_FILES_TO_RETAIN =
   {
-    "unboundid-ldapsdk-asn1.properties",
-    "unboundid-ldapsdk-extop.properties",
-    "unboundid-ldapsdk-ldap.properties",
-    "unboundid-ldapsdk-ldif.properties",
-    "unboundid-ldapsdk-matchingrules.properties",
-    "unboundid-ldapsdk-protocol.properties",
-    "unboundid-ldapsdk-schema.properties",
-    "unboundid-ldapsdk-ssl.properties",
-    "unboundid-ldapsdk-util.properties"
+    "asn1.properties",
+    "extop.properties",
+    "ldap.properties",
+    "ldif.properties",
+    "matchingrules.properties",
+    "protocol.properties",
+    "schema.properties",
+    "ssl.properties",
+    "util.properties"
   };
 
 
@@ -725,15 +704,13 @@ lineLoop:
     final File       sf = new File(messagesSourceDirectory, messageFile);
     final Properties sp = new Properties();
 
-    final FileInputStream is = new FileInputStream(sf);
-    sp.load(is);
-    is.close();
+    final FileReader r = new FileReader(sf);
+    sp.load(r);
+    r.close();
 
     final Properties tp = new Properties();
-    final Enumeration<?> nameEnum = sp.propertyNames();
-    while (nameEnum.hasMoreElements())
+    for (final String propertyName : sp.stringPropertyNames())
     {
-      final String propertyName = String.valueOf(nameEnum.nextElement());
       if (messageIDs.contains(propertyName))
       {
         tp.setProperty(propertyName, sp.getProperty(propertyName));
@@ -741,8 +718,7 @@ lineLoop:
     }
 
     final File tf = new File(messagesTargetDirectory, messageFile);
-    final FileOutputStream os = new FileOutputStream(tf);
-    tp.store(os, null);
-    os.close();
+    final PrintWriter w = new PrintWriter(tf);
+    tp.store(w, null);
   }
 }

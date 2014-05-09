@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -181,25 +181,6 @@ public final class ValuePattern
   public ValuePattern(final String s)
          throws ParseException
   {
-    this(s, null);
-  }
-
-
-
-  /**
-   * Creates a new value pattern from the provided string.
-   *
-   * @param  s  The string representation of the value pattern to create.  It
-   *            must not be {@code null}.
-   * @param  r  The seed to use for the random number generator.  It may be
-   *            {@code null} if no seed is required.
-   *
-   * @throws  ParseException  If the provided string cannot be parsed as a valid
-   *                          value pattern string.
-   */
-  public ValuePattern(final String s, final Long r)
-         throws ParseException
-  {
     Validator.ensureNotNull(s);
 
     pattern  = s;
@@ -207,20 +188,10 @@ public final class ValuePattern
     buffers  = new ThreadLocal<StringBuilder>();
 
     final AtomicBoolean hasRef = new AtomicBoolean(false);
-
-    final Random random;
-    if (r == null)
-    {
-      random = new Random();
-    }
-    else
-    {
-      random = new Random(r);
-    }
-
+    final Random r = new Random();
     final ArrayList<ValuePatternComponent> l =
          new ArrayList<ValuePatternComponent>(3);
-    parse(s, 0, l, random, hasRef);
+    parse(s, 0, l, r, hasRef);
 
     hasBackReference = hasRef.get();
     if (hasBackReference)

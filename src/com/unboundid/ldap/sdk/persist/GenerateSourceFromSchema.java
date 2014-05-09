@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -43,7 +43,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPInterface;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
 import com.unboundid.ldap.sdk.schema.ObjectClassType;
@@ -205,19 +204,6 @@ public final class GenerateSourceFromSchema
   public String getToolDescription()
   {
     return INFO_GEN_SOURCE_TOOL_DESCRIPTION.get();
-  }
-
-
-
-  /**
-   * Retrieves the version string for this tool.
-   *
-   * @return  The version string for this tool.
-   */
-  @Override()
-  public String getToolVersion()
-  {
-    return Version.NUMERIC_VERSION_STRING;
   }
 
 
@@ -398,30 +384,6 @@ public final class GenerateSourceFromSchema
         processObjectClass(oc, schema, requiredAttrs, requiredAttrOCs,
              optionalAttrs, optionalAttrOCs, types);
       }
-    }
-
-
-    // Determine the appropriate set of superior object classes.
-    final TreeMap<String,ObjectClassDefinition> superiorOCs =
-         new TreeMap<String,ObjectClassDefinition>();
-    for (final ObjectClassDefinition s :
-         structuralOC.getSuperiorClasses(schema, true))
-    {
-      superiorOCs.put(toLowerCase(s.getNameOrOID()), s);
-    }
-
-    for (final ObjectClassDefinition d : auxiliaryOCs.values())
-    {
-      for (final ObjectClassDefinition s : d.getSuperiorClasses(schema, true))
-      {
-        superiorOCs.put(toLowerCase(s.getNameOrOID()), s);
-      }
-    }
-
-    superiorOCs.remove(toLowerCase(structuralClassName));
-    for (final String s : auxiliaryOCs.keySet())
-    {
-      superiorOCs.remove(s);
     }
 
 
@@ -666,39 +628,6 @@ public final class GenerateSourceFromSchema
         break;
     }
 
-    switch (superiorOCs.size())
-    {
-      case 0:
-        // No action required.
-        break;
-
-      case 1:
-        writer.println("            superiorClass=\"" +
-             superiorOCs.values().iterator().next().getNameOrOID() + "\",");
-        break;
-
-      default:
-        final Iterator<ObjectClassDefinition> iterator =
-             superiorOCs.values().iterator();
-        writer.println("            superiorClass={ \"" +
-             iterator.next().getNameOrOID() + "\",");
-        while (iterator.hasNext())
-        {
-          final String ocName = iterator.next().getNameOrOID();
-          if (iterator.hasNext())
-          {
-            writer.println("                             \"" + ocName +
-                 "\",");
-          }
-          else
-          {
-            writer.println("                             \"" + ocName +
-                 "\" },");
-          }
-        }
-        break;
-    }
-
     if (defaultParentDNArg.isPresent())
     {
       writer.println("            defaultParentDN=\"" +
@@ -858,10 +787,8 @@ public final class GenerateSourceFromSchema
          "initializing this");
     writer.println("   * object from an LDAP entry.");
     writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If there is a " +
-         "problem with the object after");
-    writer.println("   *                                it has been decoded " +
-         "from an LDAP entry.");
+    writer.println("   * @throws  LDAPPersistException  If the generated " +
+         "entry should not be used.");
     writer.println("   */");
     writer.println("  private void doPostDecode()");
     writer.println("          throws LDAPPersistException");
@@ -883,8 +810,10 @@ public final class GenerateSourceFromSchema
          "It may be altered if");
     writer.println("   *                desired.");
     writer.println("   *");
-    writer.println("   * @throws  LDAPPersistException  If the generated " +
-         "entry should not be used.");
+    writer.println("   * @throws  LDAPPersistException  If there is a " +
+         "problem with the object after");
+    writer.println("   *                                it has been decoded " +
+         "from an LDAP entry.");
     writer.println("   */");
     writer.println("  private void doPostEncode(final Entry entry)");
     writer.println("          throws LDAPPersistException");
@@ -1835,7 +1764,7 @@ public final class GenerateSourceFromSchema
     writer.println("  /**");
     writer.println("   * Appends a string representation of this");
     writer.println("   * {@code " + className + "} object");
-    writer.println("   * to the provided buffer.");
+    writer.println("     to the provided buffer.");
     writer.println("   *");
     writer.println("   * @param  buffer  The buffer to which the string " +
          "representation should be");

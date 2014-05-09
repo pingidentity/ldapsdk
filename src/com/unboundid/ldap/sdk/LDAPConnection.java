@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,32 +23,22 @@ package com.unboundid.ldap.sdk;
 
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
-import javax.security.sasl.SaslClient;
+import javax.net.ssl.SSLContext;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.protocol.AbandonRequestProtocolOp;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.UnbindRequestProtocolOp;
-import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.DebugType;
-import com.unboundid.util.SynchronizedSocketFactory;
-import com.unboundid.util.SynchronizedSSLSocketFactory;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.WeakHashSet;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -210,27 +200,12 @@ public final class LDAPConnection
 
 
 
-  /**
-   * A set of weak references to schema objects that can be shared across
-   * connections if they are identical.
-   */
-  private static final WeakHashSet<Schema> SCHEMA_SET =
-       new WeakHashSet<Schema>();
-
-
-
   // The connection pool with which this connection is associated, if
   // applicable.
   private AbstractConnectionPool connectionPool;
 
-  // Indicates whether to perform a reconnect before the next write.
-  private final AtomicBoolean needsReconnect;
-
-  // The disconnect information for this connection.
-  private final AtomicReference<DisconnectInfo> disconnectInfo;
-
   // The last successful bind request processed on this connection.
-  private volatile BindRequest lastBindRequest;
+  private BindRequest lastBindRequest;
 
   // Indicates whether a request has been made to close this connection.
   private volatile boolean closeRequested;
@@ -238,8 +213,9 @@ public final class LDAPConnection
   // Indicates whether an unbind request has been sent over this connection.
   private volatile boolean unbindRequestSent;
 
-  // The extended request used to initiate StartTLS on this connection.
-  private volatile ExtendedRequest startTLSRequest;
+  // The disconnect type that explains the reason that this connection was
+  // disconnected, if applicable.
+  private volatile DisconnectType disconnectType;
 
   // The port of the server to which a connection should be re-established.
   private int reconnectPort = -1;
@@ -262,26 +238,19 @@ public final class LDAPConnection
   // The time of the last rebind attempt.
   private long lastReconnectTime;
 
-  // The most recent time that an LDAP message was sent or received on this
-  // connection.
-  private volatile long lastCommunicationTime;
-
-  // A map in which arbitrary attachments may be stored or managed.
-  private Map<String,Object> attachments;
-
   // The referral connector that will be used to establish connections to remote
   // servers when following a referral.
-  private volatile ReferralConnector referralConnector;
+  private ReferralConnector referralConnector;
 
   // The cached schema read from the server.
-  private volatile Schema cachedSchema;
+  private Schema cachedSchema;
 
   // The socket factory used for the last connection attempt.
   private SocketFactory lastUsedSocketFactory;
 
   // The socket factory used to create sockets for subsequent connection
   // attempts.
-  private volatile SocketFactory socketFactory;
+  private SocketFactory socketFactory;
 
   // A stack trace of the thread that last established this connection.
   private StackTraceElement[] connectStackTrace;
@@ -301,8 +270,11 @@ public final class LDAPConnection
   // The address of the server to which a connection should be re-established.
   private String reconnectAddress;
 
-  // A timer that may be used to enforce timeouts for asynchronous operations.
-  private Timer timer;
+  // The disconnect message for this client connection, if available.
+  private volatile String disconnectMessage;
+
+  // The disconnect cause for this client connection, if available.
+  private volatile Throwable disconnectCause;
 
 
 
@@ -363,11 +335,16 @@ public final class LDAPConnection
   public LDAPConnection(final SocketFactory socketFactory,
                         final LDAPConnectionOptions connectionOptions)
   {
-    needsReconnect = new AtomicBoolean(false);
-    disconnectInfo = new AtomicReference<DisconnectInfo>();
-    lastCommunicationTime = -1L;
-
     connectionID = NEXT_CONNECTION_ID.getAndIncrement();
+
+    if (socketFactory == null)
+    {
+      this.socketFactory = DEFAULT_SOCKET_FACTORY;
+    }
+    else
+    {
+      this.socketFactory = socketFactory;
+    }
 
     if (connectionOptions == null)
     {
@@ -378,39 +355,10 @@ public final class LDAPConnection
       this.connectionOptions = connectionOptions.duplicate();
     }
 
-    final SocketFactory f;
-    if (socketFactory == null)
-    {
-      f = DEFAULT_SOCKET_FACTORY;
-    }
-    else
-    {
-      f = socketFactory;
-    }
-
-    if (this.connectionOptions.allowConcurrentSocketFactoryUse())
-    {
-      this.socketFactory = f;
-    }
-    else
-    {
-      if (f instanceof SSLSocketFactory)
-      {
-        this.socketFactory =
-             new SynchronizedSSLSocketFactory((SSLSocketFactory) f);
-      }
-      else
-      {
-        this.socketFactory = new SynchronizedSocketFactory(f);
-      }
-    }
-
-    attachments          = null;
     connectionStatistics = new LDAPConnectionStatistics();
     connectionName       = null;
     connectionPoolName   = null;
     cachedSchema         = null;
-    timer                = null;
 
     referralConnector = this.connectionOptions.getReferralConnector();
     if (referralConnector == null)
@@ -725,10 +673,7 @@ public final class LDAPConnection
   {
     ensureNotNull(host, port);
 
-    needsReconnect.set(false);
     hostPort = host + ':' + port;
-    lastCommunicationTime = -1L;
-    startTLSRequest = null;
 
     if (isConnected())
     {
@@ -737,12 +682,13 @@ public final class LDAPConnection
     }
 
     lastUsedSocketFactory = socketFactory;
+    disconnectType        = null;
+    disconnectMessage     = null;
+    disconnectCause       = null;
     reconnectAddress      = host;
     reconnectPort         = port;
     cachedSchema          = null;
     unbindRequestSent     = false;
-
-    disconnectInfo.set(null);
 
     try
     {
@@ -750,7 +696,6 @@ public final class LDAPConnection
       connectionInternals = new LDAPConnectionInternals(this, connectionOptions,
            lastUsedSocketFactory, host, port, timeout);
       connectionInternals.startConnectionReader();
-      lastCommunicationTime = System.currentTimeMillis();
     }
     catch (Exception e)
     {
@@ -766,7 +711,7 @@ public final class LDAPConnection
     {
       try
       {
-        cachedSchema = getCachedSchema(this);
+        cachedSchema = getSchema();
       }
       catch (Exception e)
       {
@@ -787,7 +732,6 @@ public final class LDAPConnection
   public void reconnect()
          throws LDAPException
   {
-    needsReconnect.set(false);
     if ((System.currentTimeMillis() - lastReconnectTime) < 1000L)
     {
       // If the last reconnect attempt was less than 1 second ago, then abort.
@@ -807,8 +751,6 @@ public final class LDAPConnection
       }
     }
 
-    final ExtendedRequest startTLSExtendedRequest = startTLSRequest;
-
     setDisconnectInfo(DisconnectType.RECONNECT, null, null);
     terminate(null);
 
@@ -819,34 +761,13 @@ public final class LDAPConnection
 
     connect(reconnectAddress, reconnectPort);
 
-    if (startTLSExtendedRequest != null)
-    {
-      try
-      {
-        final ExtendedResult startTLSResult =
-             processExtendedOperation(startTLSExtendedRequest);
-        if (startTLSResult.getResultCode() != ResultCode.SUCCESS)
-        {
-          throw new LDAPException(startTLSResult);
-        }
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-        setDisconnectInfo(DisconnectType.SECURITY_PROBLEM, null, le);
-        terminate(null);
-
-        throw le;
-      }
-    }
-
     if (bindRequest != null)
     {
       try
       {
         bind(bindRequest);
       }
-      catch (final LDAPException le)
+      catch (LDAPException le)
       {
         debugException(le);
         setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
@@ -857,17 +778,6 @@ public final class LDAPConnection
     }
 
     lastReconnectTime = System.currentTimeMillis();
-  }
-
-
-
-  /**
-   * Sets a flag indicating that the connection should be re-established before
-   * sending the next request.
-   */
-  void setNeedsReconnect()
-  {
-    needsReconnect.set(true);
   }
 
 
@@ -893,7 +803,7 @@ public final class LDAPConnection
       return false;
     }
 
-    return (! needsReconnect.get());
+    return true;
   }
 
 
@@ -904,14 +814,13 @@ public final class LDAPConnection
    * helper for processing in the course of the StartTLS extended operation and
    * should not be used for other purposes.
    *
-   * @param  sslSocketFactory  The SSL socket factory to use to convert an
-   *                           insecure connection into a secure connection.  It
-   *                           must not be {@code null}.
+   * @param  sslContext  The SSL context to use when performing the negotiation.
+   *                     It must not be {@code null}.
    *
    * @throws  LDAPException  If a problem occurs while converting this
    *                         connection to use TLS.
    */
-  void convertToTLS(final SSLSocketFactory sslSocketFactory)
+  void convertToTLS(final SSLContext sslContext)
        throws LDAPException
   {
     final LDAPConnectionInternals internals = connectionInternals;
@@ -922,37 +831,9 @@ public final class LDAPConnection
     }
     else
     {
-      internals.convertToTLS(sslSocketFactory);
+      internals.convertToTLS(sslContext);
     }
   }
-
-
-
-  /**
-   * Converts this clear-text connection to one that uses SASL integrity and/or
-   * confidentiality.
-   *
-   * @param  saslClient  The SASL client that will be used to secure the
-   *                     communication.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to convert the
-   *                         connection to use SASL QoP.
-   */
-  void applySASLQoP(final SaslClient saslClient)
-       throws LDAPException
-  {
-    final LDAPConnectionInternals internals = connectionInternals;
-    if (internals == null)
-    {
-      throw new LDAPException(ResultCode.SERVER_DOWN,
-           ERR_CONN_NOT_ESTABLISHED.get());
-    }
-    else
-    {
-      internals.applySASLQoP(saslClient);
-    }
-  }
-
 
 
   /**
@@ -999,16 +880,6 @@ public final class LDAPConnection
       }
 
       this.connectionOptions = newOptions;
-    }
-
-    final ReferralConnector rc = this.connectionOptions.getReferralConnector();
-    if (rc == null)
-    {
-      referralConnector = this;
-    }
-    else
-    {
-      referralConnector = rc;
     }
   }
 
@@ -1116,20 +987,6 @@ public final class LDAPConnection
         reader.updateThreadName();
       }
     }
-  }
-
-
-
-  /**
-   * Retrieves the connection pool with which this connection is associated, if
-   * any.
-   *
-   * @return  The connection pool with which this connection is associated, or
-   *          {@code null} if it is not associated with any connection pool.
-   */
-  public AbstractConnectionPool getConnectionPool()
-  {
-    return connectionPool;
   }
 
 
@@ -1350,7 +1207,6 @@ public final class LDAPConnection
       try
       {
         unbindRequestSent = true;
-        setDisconnectInfo(DisconnectType.UNBIND, null, null);
         if (debugEnabled(DebugType.LDAP))
         {
           debug(Level.INFO, DebugType.LDAP, "Sending LDAP unbind request.");
@@ -1601,20 +1457,9 @@ public final class LDAPConnection
            ERR_ABANDON_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final int messageID = requestID.getMessageID();
-    try
-    {
-      connectionInternals.getConnectionReader().deregisterResponseAcceptor(
-           messageID);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-    }
-
     connectionStatistics.incrementNumAbandonRequests();
     sendMessage(new LDAPMessage(nextMessageID(),
-         new AbandonRequestProtocolOp(messageID), controls));
+         new AbandonRequestProtocolOp(requestID.getMessageID()), controls));
   }
 
 
@@ -1637,16 +1482,6 @@ public final class LDAPConnection
     {
       debug(Level.INFO, DebugType.LDAP,
             "Sending LDAP abandon request for message ID " + messageID);
-    }
-
-    try
-    {
-      connectionInternals.getConnectionReader().deregisterResponseAcceptor(
-           messageID);
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
     }
 
     connectionStatistics.incrementNumAbandonRequests();
@@ -1806,10 +1641,8 @@ public final class LDAPConnection
    * @param  addRequest      The add request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the add operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the add operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -1819,7 +1652,7 @@ public final class LDAPConnection
                                  final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(addRequest);
+    ensureNotNull(addRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -1827,17 +1660,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return addRequest.processAsync(this, listener);
+    return addRequest.processAsync(this, resultListener);
   }
 
 
@@ -1848,10 +1671,8 @@ public final class LDAPConnection
    * @param  addRequest      The add request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the add operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the add operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -1943,48 +1764,24 @@ public final class LDAPConnection
 
     if (bindResult.getResultCode().equals(ResultCode.SUCCESS))
     {
-      // We don't want to update the last bind request or update the cached
-      // schema for this connection if it included the retain identity control.
-      // However, that's only available in the Commercial Edition, so just
-      // reference it by OID here.
-      boolean hasRetainIdentityControl = false;
-      for (final Control c : bindRequest.getControls())
+      lastBindRequest = bindRequest;
+
+      if (connectionOptions.useSchema())
       {
-        if (c.getOID().equals("1.3.6.1.4.1.30221.2.5.3"))
+        try
         {
-          hasRetainIdentityControl = true;
-          break;
+          cachedSchema = getSchema();
         }
-      }
-
-      if (! hasRetainIdentityControl)
-      {
-        lastBindRequest = bindRequest;
-
-        if (connectionOptions.useSchema())
+        catch (Exception e)
         {
-          try
-          {
-            cachedSchema = getCachedSchema(this);
-          }
-          catch (Exception e)
-          {
-            debugException(e);
-          }
+          debugException(e);
         }
       }
 
       return bindResult;
     }
 
-    if (bindResult.getResultCode().equals(ResultCode.SASL_BIND_IN_PROGRESS))
-    {
-      throw new SASLBindInProgressException(bindResult);
-    }
-    else
-    {
-      throw new LDAPException(bindResult);
-    }
+    throw new LDAPException(bindResult);
   }
 
 
@@ -2073,10 +1870,8 @@ public final class LDAPConnection
    * @param  compareRequest  The compare request to be processed.  It must not
    *                         be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the compare operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the compare operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2086,7 +1881,7 @@ public final class LDAPConnection
                              final AsyncCompareResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(compareRequest);
+    ensureNotNull(compareRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -2094,17 +1889,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncCompareResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return compareRequest.processAsync(this, listener);
+    return compareRequest.processAsync(this, resultListener);
   }
 
 
@@ -2115,10 +1900,8 @@ public final class LDAPConnection
    * @param  compareRequest  The compare request to be processed.  It must not
    *                         be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the compare operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the compare operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2217,10 +2000,8 @@ public final class LDAPConnection
    * @param  deleteRequest   The delete request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the delete operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the delete operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2230,7 +2011,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(deleteRequest);
+    ensureNotNull(deleteRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -2238,17 +2019,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return deleteRequest.processAsync(this, listener);
+    return deleteRequest.processAsync(this, resultListener);
   }
 
 
@@ -2259,10 +2030,8 @@ public final class LDAPConnection
    * @param  deleteRequest   The delete request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the delete operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the delete operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2432,13 +2201,6 @@ public final class LDAPConnection
       }
     }
 
-    if ((extendedResult.getResultCode() == ResultCode.SUCCESS) &&
-         extendedRequest.getOID().equals(
-              StartTLSExtendedRequest.STARTTLS_REQUEST_OID))
-    {
-      startTLSRequest = extendedRequest.duplicate();
-    }
-
     return extendedResult;
   }
 
@@ -2598,10 +2360,8 @@ public final class LDAPConnection
    * @param  modifyRequest   The modify request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the modify operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2611,7 +2371,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(modifyRequest);
+    ensureNotNull(modifyRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -2619,17 +2379,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return modifyRequest.processAsync(this, listener);
+    return modifyRequest.processAsync(this, resultListener);
   }
 
 
@@ -2640,10 +2390,8 @@ public final class LDAPConnection
    * @param  modifyRequest   The modify request to be processed.  It must not be
    *                         {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the modify operation.  It must not be
+   *                         {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2781,10 +2529,8 @@ public final class LDAPConnection
    * @param  modifyDNRequest  The modify DN request to be processed.  It must
    *                          not be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify DN operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the modify DN operation.  It must not
+   *                         be {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2794,7 +2540,7 @@ public final class LDAPConnection
                              final AsyncResultListener resultListener)
          throws LDAPException
   {
-    ensureNotNull(modifyDNRequest);
+    ensureNotNull(modifyDNRequest, resultListener);
 
     if (synchronousMode())
     {
@@ -2802,17 +2548,7 @@ public final class LDAPConnection
            ERR_ASYNC_NOT_SUPPORTED_IN_SYNCHRONOUS_MODE.get());
     }
 
-    final AsyncResultListener listener;
-    if (resultListener == null)
-    {
-      listener = DiscardAsyncListener.getInstance();
-    }
-    else
-    {
-      listener = resultListener;
-    }
-
-    return modifyDNRequest.processAsync(this, listener);
+    return modifyDNRequest.processAsync(this, resultListener);
   }
 
 
@@ -2823,10 +2559,8 @@ public final class LDAPConnection
    * @param  modifyDNRequest  The modify DN request to be processed.  It must
    *                          not be {@code null}.
    * @param  resultListener  The async result listener to use to handle the
-   *                         response for the modify DN operation.  It may be
-   *                         {@code null} if the result is going to be obtained
-   *                         from the returned {@code AsyncRequestID} object via
-   *                         the {@code Future} API.
+   *                         response for the modify DN operation.  It must not
+   *                         be {@code null}.
    *
    * @return  An async request ID that may be used to reference the operation.
    *
@@ -2852,15 +2586,6 @@ public final class LDAPConnection
    * Processes a search operation with the provided information.  The search
    * result entries and references will be collected internally and included in
    * the {@code SearchResult} object that is returned.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  baseDN      The base DN for the search request.  It must not be
    *                     {@code null}.
@@ -2881,12 +2606,7 @@ public final class LDAPConnection
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while parsing
    *                               the provided filter string, sending the
-   *                               request, or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               request, or reading the response.
    */
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final String filter, final String... attributes)
@@ -2916,15 +2636,6 @@ public final class LDAPConnection
    * Processes a search operation with the provided information.  The search
    * result entries and references will be collected internally and included in
    * the {@code SearchResult} object that is returned.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  baseDN      The base DN for the search request.  It must not be
    *                     {@code null}.
@@ -2943,12 +2654,7 @@ public final class LDAPConnection
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               the request or reading the response.
    */
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final Filter filter, final String... attributes)
@@ -2963,18 +2669,6 @@ public final class LDAPConnection
 
   /**
    * Processes a search operation with the provided information.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references (although if a search result listener was provided,
-   * then it will have been used to make any entries and references available,
-   * and they will not be available through the {@code getSearchEntries} and
-   * {@code getSearchReferences} methods).
    *
    * @param  searchResultListener  The search result listener that should be
    *                               used to return results to the client.  It may
@@ -3000,12 +2694,7 @@ public final class LDAPConnection
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while parsing
    *                               the provided filter string, sending the
-   *                               request, or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               request, or reading the response.
    */
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
@@ -3035,18 +2724,6 @@ public final class LDAPConnection
 
   /**
    * Processes a search operation with the provided information.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references (although if a search result listener was provided,
-   * then it will have been used to make any entries and references available,
-   * and they will not be available through the {@code getSearchEntries} and
-   * {@code getSearchReferences} methods).
    *
    * @param  searchResultListener  The search result listener that should be
    *                               used to return results to the client.  It may
@@ -3070,12 +2747,7 @@ public final class LDAPConnection
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               the request or reading the response.
    */
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
@@ -3107,15 +2779,6 @@ public final class LDAPConnection
    * Processes a search operation with the provided information.  The search
    * result entries and references will be collected internally and included in
    * the {@code SearchResult} object that is returned.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  baseDN       The base DN for the search request.  It must not be
    *                      {@code null}.
@@ -3146,12 +2809,7 @@ public final class LDAPConnection
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while parsing
    *                               the provided filter string, sending the
-   *                               request, or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               request, or reading the response.
    */
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
@@ -3186,15 +2844,6 @@ public final class LDAPConnection
    * Processes a search operation with the provided information.  The search
    * result entries and references will be collected internally and included in
    * the {@code SearchResult} object that is returned.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  baseDN       The base DN for the search request.  It must not be
    *                      {@code null}.
@@ -3223,12 +2872,7 @@ public final class LDAPConnection
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               the request or reading the response.
    */
   public SearchResult search(final String baseDN, final SearchScope scope,
                              final DereferencePolicy derefPolicy,
@@ -3247,18 +2891,6 @@ public final class LDAPConnection
 
   /**
    * Processes a search operation with the provided information.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references (although if a search result listener was provided,
-   * then it will have been used to make any entries and references available,
-   * and they will not be available through the {@code getSearchEntries} and
-   * {@code getSearchReferences} methods).
    *
    * @param  searchResultListener  The search result listener that should be
    *                               used to return results to the client.  It may
@@ -3297,12 +2929,7 @@ public final class LDAPConnection
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while parsing
    *                               the provided filter string, sending the
-   *                               request, or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               request, or reading the response.
    */
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
@@ -3336,18 +2963,7 @@ public final class LDAPConnection
 
   /**
    * Processes a search operation with the provided information.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references (although if a search result listener was provided,
-   * then it will have been used to make any entries and references available,
-   * and they will not be available through the {@code getSearchEntries} and
-   * {@code getSearchReferences} methods).
+   *
    *
    * @param  searchResultListener  The search result listener that should be
    *                               used to return results to the client.  It may
@@ -3384,12 +3000,7 @@ public final class LDAPConnection
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               the request or reading the response.
    */
   public SearchResult search(final SearchResultListener searchResultListener,
                              final String baseDN, final SearchScope scope,
@@ -3410,18 +3021,6 @@ public final class LDAPConnection
 
   /**
    * Processes the provided search request.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references (although if a search result listener was provided,
-   * then it will have been used to make any entries and references available,
-   * and they will not be available through the {@code getSearchEntries} and
-   * {@code getSearchReferences} methods).
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}.
@@ -3432,12 +3031,7 @@ public final class LDAPConnection
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               the request or reading the response.
    */
   public SearchResult search(final SearchRequest searchRequest)
          throws LDAPSearchException
@@ -3472,18 +3066,6 @@ public final class LDAPConnection
 
   /**
    * Processes the provided search request.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references (although if a search result listener was provided,
-   * then it will have been used to make any entries and references available,
-   * and they will not be available through the {@code getSearchEntries} and
-   * {@code getSearchReferences} methods).
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}.
@@ -3494,12 +3076,7 @@ public final class LDAPConnection
    *
    * @throws  LDAPSearchException  If the search does not complete successfully,
    *                               or if a problem is encountered while sending
-   *                               the request or reading the response.  If one
-   *                               or more entries or references were returned
-   *                               before the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               the request or reading the response.
    */
   public SearchResult search(final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
@@ -3514,15 +3091,6 @@ public final class LDAPConnection
    * that at most one entry will be returned from the search, and that no
    * additional content from the successful search result (e.g., diagnostic
    * message or response controls) are needed.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  baseDN      The base DN for the search request.  It must not be
    *                     {@code null}.
@@ -3543,12 +3111,7 @@ public final class LDAPConnection
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.  If one or more
-   *                               entries or references were returned before
-   *                               the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               or reading the response.
    */
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
@@ -3578,15 +3141,6 @@ public final class LDAPConnection
    * that at most one entry will be returned from the search, and that no
    * additional content from the successful search result (e.g., diagnostic
    * message or response controls) are needed.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  baseDN      The base DN for the search request.  It must not be
    *                     {@code null}.
@@ -3607,12 +3161,7 @@ public final class LDAPConnection
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.  If one or more
-   *                               entries or references were returned before
-   *                               the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               or reading the response.
    */
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
@@ -3631,15 +3180,6 @@ public final class LDAPConnection
    * that at most one entry will be returned from the search, and that no
    * additional content from the successful search result (e.g., diagnostic
    * message or response controls) are needed.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  baseDN       The base DN for the search request.  It must not be
    *                      {@code null}.
@@ -3667,12 +3207,7 @@ public final class LDAPConnection
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.  If one or more
-   *                               entries or references were returned before
-   *                               the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               or reading the response.
    */
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
@@ -3705,15 +3240,6 @@ public final class LDAPConnection
    * that at most one entry will be returned from the search, and that no
    * additional content from the successful search result (e.g., diagnostic
    * message or response controls) are needed.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  baseDN       The base DN for the search request.  It must not be
    *                      {@code null}.
@@ -3740,12 +3266,7 @@ public final class LDAPConnection
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.  If one or more
-   *                               entries or references were returned before
-   *                               the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               or reading the response.
    */
   public SearchResultEntry searchForEntry(final String baseDN,
                                           final SearchScope scope,
@@ -3767,20 +3288,16 @@ public final class LDAPConnection
    * entry will be returned from the search, and that no additional content from
    * the successful search result (e.g., diagnostic message or response
    * controls) are needed.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  searchRequest  The search request to be processed.  If it is
    *                        configured with a search result listener or a size
    *                        limit other than one, then the provided request will
    *                        be duplicated with the appropriate settings.
+   *
+   * It must not be
+   *                        {@code null}, it must not be configured with a
+   *                        search result listener, and it should be configured
+   *                        with a size limit of one.
    *
    * @return  The entry that was returned from the search, or {@code null} if no
    *          entry was returned or the base entry does not exist.
@@ -3789,12 +3306,7 @@ public final class LDAPConnection
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.  If one or more
-   *                               entries or references were returned before
-   *                               the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               or reading the response.
    */
   public SearchResultEntry searchForEntry(final SearchRequest searchRequest)
          throws LDAPSearchException
@@ -3855,15 +3367,6 @@ public final class LDAPConnection
    * entry will be returned from the search, and that no additional content from
    * the successful search result (e.g., diagnostic message or response
    * controls) are needed.
-   * <BR><BR>
-   * Note that if the search does not complete successfully, an
-   * {@code LDAPSearchException} will be thrown  In some cases, one or more
-   * search result entries or references may have been returned before the
-   * failure response is received.  In this case, the
-   * {@code LDAPSearchException} methods like {@code getEntryCount},
-   * {@code getSearchEntries}, {@code getReferenceCount}, and
-   * {@code getSearchReferences} may be used to obtain information about those
-   * entries and references.
    *
    * @param  searchRequest  The search request to be processed.  If it is
    *                        configured with a search result listener or a size
@@ -3877,12 +3380,7 @@ public final class LDAPConnection
    *                               if more than a single entry is returned, or
    *                               if a problem is encountered while parsing the
    *                               provided filter string, sending the request,
-   *                               or reading the response.  If one or more
-   *                               entries or references were returned before
-   *                               the failure was encountered, then the
-   *                               {@code LDAPSearchException} object may be
-   *                               examined to obtain information about those
-   *                               entries and/or references.
+   *                               or reading the response.
    */
   public SearchResultEntry searchForEntry(
                                 final ReadOnlySearchRequest searchRequest)
@@ -3898,7 +3396,7 @@ public final class LDAPConnection
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}, and it must be configured with a
-   *                        search result listener that is also an
+   *                        search result listener that is an
    *                        {@code AsyncSearchResultListener}.
    *
    * @return  An async request ID that may be used to reference the operation.
@@ -3947,7 +3445,7 @@ public final class LDAPConnection
    *
    * @param  searchRequest  The search request to be processed.  It must not be
    *                        {@code null}, and it must be configured with a
-   *                        search result listener that is also an
+   *                        search result listener that is an
    *                        {@code AsyncSearchResultListener}.
    *
    * @return  An async request ID that may be used to reference the operation.
@@ -4046,11 +3544,6 @@ public final class LDAPConnection
   void sendMessage(final LDAPMessage message)
          throws LDAPException
   {
-    if (needsReconnect.compareAndSet(true, false))
-    {
-      reconnect();
-    }
-
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals == null)
     {
@@ -4059,8 +3552,7 @@ public final class LDAPConnection
     }
     else
     {
-      internals.sendMessage(message, connectionOptions.autoReconnect());
-      lastCommunicationTime = System.currentTimeMillis();
+      internals.sendMessage(message);
     }
   }
 
@@ -4089,19 +3581,6 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the disconnect info object for this connection, if available.
-   *
-   * @return  The disconnect info for this connection, or {@code null} if none
-   *          is set.
-   */
-  DisconnectInfo getDisconnectInfo()
-  {
-    return disconnectInfo.get();
-  }
-
-
-
-  /**
    * Sets the disconnect type, message, and cause for this connection, if those
    * values have not been previously set.  It will not overwrite any values that
    * had been previously set.
@@ -4119,27 +3598,21 @@ public final class LDAPConnection
    *                  It may be {@code null} if the disconnect was not triggered
    *                  by an exception.
    */
-  public void setDisconnectInfo(final DisconnectType type, final String message,
-                                final Throwable cause)
+  public synchronized void setDisconnectInfo(final DisconnectType type,
+                                             final String message,
+                                             final Throwable cause)
   {
-    disconnectInfo.compareAndSet(null,
-         new DisconnectInfo(this, type, message, cause));
-  }
+    ensureNotNull(type);
 
+    // Don't overwrite any previous disconnect information.
+    if (disconnectType != null)
+    {
+      return;
+    }
 
-
-  /**
-   * Sets the disconnect info for this connection, if it is not already set.
-   *
-   * @param  info  The disconnect info to be set, if it is not already set.
-   *
-   * @return  The disconnect info set for the connection, whether it was
-   *          previously or newly set.
-   */
-  DisconnectInfo setDisconnectInfo(final DisconnectInfo info)
-  {
-    disconnectInfo.compareAndSet(null, info);
-    return disconnectInfo.get();
+    disconnectType    = type;
+    disconnectMessage = message;
+    disconnectCause   = cause;
   }
 
 
@@ -4152,15 +3625,7 @@ public final class LDAPConnection
    */
   public DisconnectType getDisconnectType()
   {
-    final DisconnectInfo di = disconnectInfo.get();
-    if (di == null)
-    {
-      return null;
-    }
-    else
-    {
-      return di.getType();
-    }
+    return disconnectType;
   }
 
 
@@ -4174,15 +3639,7 @@ public final class LDAPConnection
    */
   public String getDisconnectMessage()
   {
-    final DisconnectInfo di = disconnectInfo.get();
-    if (di == null)
-    {
-      return null;
-    }
-    else
-    {
-      return di.getMessage();
-    }
+    return disconnectMessage;
   }
 
 
@@ -4196,15 +3653,7 @@ public final class LDAPConnection
    */
   public Throwable getDisconnectCause()
   {
-    final DisconnectInfo di = disconnectInfo.get();
-    if (di == null)
-    {
-      return null;
-    }
-    else
-    {
-      return di.getCause();
-    }
+    return disconnectCause;
   }
 
 
@@ -4215,30 +3664,6 @@ public final class LDAPConnection
    */
   void setClosed()
   {
-    needsReconnect.set(false);
-
-    if (disconnectInfo.get() == null)
-    {
-      try
-      {
-        final StackTraceElement[] stackElements =
-             Thread.currentThread().getStackTrace();
-        final StackTraceElement[] parentStackElements =
-             new StackTraceElement[stackElements.length - 1];
-        System.arraycopy(stackElements, 1, parentStackElements, 0,
-             parentStackElements.length);
-
-        setDisconnectInfo(DisconnectType.OTHER,
-             ERR_CONN_CLOSED_BY_UNEXPECTED_CALL_PATH.get(
-                  getStackTrace(parentStackElements)),
-             null);
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-      }
-    }
-
     connectionStatistics.incrementNumDisconnects();
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals != null)
@@ -4248,13 +3673,6 @@ public final class LDAPConnection
     }
 
     cachedSchema = null;
-    lastCommunicationTime = -1L;
-
-    if (timer != null)
-    {
-      timer.cancel();
-      timer = null;
-    }
   }
 
 
@@ -4273,11 +3691,6 @@ public final class LDAPConnection
                                 final ResponseAcceptor responseAcceptor)
        throws LDAPException
   {
-    if (needsReconnect.compareAndSet(true, false))
-    {
-      reconnect();
-    }
-
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals == null)
     {
@@ -4310,23 +3723,6 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves a timer for use with this connection, creating one if necessary.
-   *
-   * @return  A timer for use with this connection.
-   */
-  synchronized Timer getTimer()
-  {
-    if (timer == null)
-    {
-      timer = new Timer("Timer thread for " + toString(), true);
-    }
-
-    return timer;
-  }
-
-
-
-  /**
    * {@inheritDoc}
    */
   public LDAPConnection getReferralConnection(final LDAPURL referralURL,
@@ -4337,9 +3733,9 @@ public final class LDAPConnection
     final int    port = referralURL.getPort();
 
     BindRequest bindRequest = null;
-    if (connection.lastBindRequest != null)
+    if (lastBindRequest != null)
     {
-      bindRequest = connection.lastBindRequest.getRebindRequest(host, port);
+      bindRequest = lastBindRequest.getRebindRequest(host, port);
       if (bindRequest == null)
       {
         throw new LDAPException(ResultCode.REFERRAL,
@@ -4348,31 +3744,8 @@ public final class LDAPConnection
       }
     }
 
-    final ExtendedRequest connStartTLSRequest = connection.startTLSRequest;
-
-    final LDAPConnection conn = new LDAPConnection(connection.socketFactory,
-         connection.connectionOptions, host, port);
-
-    if (connStartTLSRequest != null)
-    {
-      try
-      {
-        final ExtendedResult startTLSResult =
-             conn.processExtendedOperation(connStartTLSRequest);
-        if (startTLSResult.getResultCode() != ResultCode.SUCCESS)
-        {
-          throw new LDAPException(startTLSResult);
-        }
-      }
-      catch (final LDAPException le)
-      {
-        debugException(le);
-        conn.setDisconnectInfo(DisconnectType.SECURITY_PROBLEM, null, le);
-        conn.close();
-
-        throw le;
-      }
-    }
+    final LDAPConnection conn =
+         new LDAPConnection(socketFactory, connectionOptions, host, port);
 
     if (bindRequest != null)
     {
@@ -4380,10 +3753,10 @@ public final class LDAPConnection
       {
         conn.bind(bindRequest);
       }
-      catch (final LDAPException le)
+      catch (LDAPException le)
       {
         debugException(le);
-        conn.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
+        setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
         conn.close();
 
         throw le;
@@ -4402,23 +3775,9 @@ public final class LDAPConnection
    *          may be {@code null} if no bind has been performed, or if the last
    *          bind attempt was not successful.
    */
-  public BindRequest getLastBindRequest()
+  BindRequest getLastBindRequest()
   {
     return lastBindRequest;
-  }
-
-
-
-  /**
-   * Retrieves the StartTLS request used to secure this connection.
-   *
-   * @return  The StartTLS request used to secure this connection, or
-   *          {@code null} if StartTLS has not been used to secure this
-   *          connection.
-   */
-  ExtendedRequest getStartTLSRequest()
-  {
-    return startTLSRequest;
   }
 
 
@@ -4427,31 +3786,12 @@ public final class LDAPConnection
    * Retrieves an instance of the {@code LDAPConnectionInternals} object for
    * this connection.
    *
-   * @param  throwIfDisconnected  Indicates whether to throw an
-   *                              {@code LDAPException} if the connection is not
-   *                              established.
-   *
    * @return  The {@code LDAPConnectionInternals} object for this connection, or
-   *          {@code null} if the connection is not established and no exception
-   *          should be thrown.
-   *
-   * @throws  LDAPException  If the connection is not established and
-   *                         {@code throwIfDisconnected} is {@code true}.
+   *          {@code null} if the connection is not established.
    */
-  LDAPConnectionInternals getConnectionInternals(
-                               final boolean throwIfDisconnected)
-       throws LDAPException
+  LDAPConnectionInternals getConnectionInternals()
   {
-    final LDAPConnectionInternals internals = connectionInternals;
-    if ((internals == null) && throwIfDisconnected)
-    {
-      throw new LDAPException(ResultCode.SERVER_DOWN,
-           ERR_CONN_NOT_ESTABLISHED.get());
-    }
-    else
-    {
-      return internals;
-    }
+    return connectionInternals;
   }
 
 
@@ -4467,19 +3807,6 @@ public final class LDAPConnection
   Schema getCachedSchema()
   {
     return cachedSchema;
-  }
-
-
-
-  /**
-   * Sets the cached schema for this connection.
-   *
-   * @param  cachedSchema  The cached schema for this connection.  It may be
-   *                       {@code null} if no cached schema is available.
-   */
-  void setCachedSchema(final Schema cachedSchema)
-  {
-    this.cachedSchema = cachedSchema;
   }
 
 
@@ -4526,23 +3853,19 @@ public final class LDAPConnection
     final LDAPConnectionInternals internals = connectionInternals;
     if (internals != null)
     {
-      final LDAPResponse response =
-           internals.getConnectionReader().readResponse(messageID);
-      debugLDAPResult(response, this);
-      return response;
+      return internals.getConnectionReader().readResponse(messageID);
     }
     else
     {
-      final DisconnectInfo di = disconnectInfo.get();
-      if (di == null)
+      if (disconnectType == null)
       {
         return new ConnectionClosedResponse(ResultCode.CONNECT_ERROR,
              ERR_CONN_READ_RESPONSE_NOT_ESTABLISHED.get());
       }
       else
       {
-        return new ConnectionClosedResponse(di.getType().getResultCode(),
-             di.getMessage());
+        return new ConnectionClosedResponse(disconnectType.getResultCode(),
+             disconnectMessage);
       }
     }
   }
@@ -4568,44 +3891,6 @@ public final class LDAPConnection
     {
       return -1L;
     }
-  }
-
-
-
-  /**
-   * Retrieves the time that this connection was last used to send or receive an
-   * LDAP message.  The value will represent the number of milliseconds since
-   * January 1, 1970 UTC (the same format used by
-   * {@code System.currentTimeMillis}.
-   *
-   * @return  The time that this connection was last used to send or receive an
-   *          LDAP message.  If the connection is not established, then -1 will
-   *          be returned.  If the connection is established but no
-   *          communication has been performed over the connection since it was
-   *          established, then the value of {@link #getConnectTime()} will be
-   *          returned.
-   */
-  public long getLastCommunicationTime()
-  {
-    if (lastCommunicationTime > 0L)
-    {
-      return lastCommunicationTime;
-    }
-    else
-    {
-      return getConnectTime();
-    }
-  }
-
-
-
-  /**
-   * Updates the last communication time for this connection to be the current
-   * time.
-   */
-  void setLastCommunicationTime()
-  {
-    lastCommunicationTime = System.currentTimeMillis();
   }
 
 
@@ -4655,83 +3940,6 @@ public final class LDAPConnection
 
 
   /**
-   * Retrieves the schema from the provided connection.  If the retrieved schema
-   * matches schema that's already in use by other connections, the common
-   * schema will be used instead of the newly-retrieved version.
-   *
-   * @param  c  The connection for which to retrieve the schema.
-   *
-   * @return  The schema retrieved from the given connection, or a cached
-   *          schema if it matched a schema that was already in use.
-   *
-   * @throws  LDAPException  If a problem is encountered while retrieving or
-   *                         parsing the schema.
-   */
-  private static Schema getCachedSchema(final LDAPConnection c)
-         throws LDAPException
-  {
-    final Schema s = c.getSchema();
-
-    synchronized (SCHEMA_SET)
-    {
-      return SCHEMA_SET.addAndGet(s);
-    }
-  }
-
-
-
-  /**
-   * Retrieves the connection attachment with the specified name.
-   *
-   * @param  name  The name of the attachment to retrieve.  It must not be
-   *               {@code null}.
-   *
-   * @return  The connection attachment with the specified name, or {@code null}
-   *          if there is no such attachment.
-   */
-  synchronized Object getAttachment(final String name)
-  {
-    if (attachments == null)
-    {
-      return null;
-    }
-    else
-    {
-      return attachments.get(name);
-    }
-  }
-
-
-
-  /**
-   * Sets a connection attachment with the specified name and value.
-   *
-   * @param  name   The name of the attachment to set.  It must not be
-   *                {@code null}.
-   * @param  value  The value to use for the attachment.  It may be {@code null}
-   *                if an attachment with the specified name should be cleared
-   *                rather than overwritten.
-   */
-  synchronized void setAttachment(final String name, final Object value)
-  {
-    if (attachments == null)
-    {
-      attachments = new HashMap<String,Object>(10);
-    }
-
-    if (value == null)
-    {
-      attachments.remove(name);
-    }
-    else
-    {
-      attachments.put(name, value);
-    }
-  }
-
-
-
-  /**
    * Performs any necessary cleanup to ensure that this connection is properly
    * closed before it is garbage collected.
    *
@@ -4744,7 +3952,7 @@ public final class LDAPConnection
     super.finalize();
 
     setDisconnectInfo(DisconnectType.CLOSED_BY_FINALIZER, null, null);
-    setClosed();
+    terminate(null);
   }
 
 

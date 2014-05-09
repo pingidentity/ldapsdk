@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -57,44 +57,21 @@ import static com.unboundid.util.Validator.*;
  * The following example performs a search to find all users in the "Sales"
  * department and then writes their entries to an LDIF file:
  * <PRE>
- * // Perform a search to find all users who are members of the sales
- * // department.
- * SearchRequest searchRequest = new SearchRequest("dc=example,dc=com",
- *      SearchScope.SUB, Filter.createEqualityFilter("ou", "Sales"));
- * SearchResult searchResult;
- * try
- * {
- *   searchResult = connection.search(searchRequest);
- * }
- * catch (LDAPSearchException lse)
- * {
- *   searchResult = lse.getSearchResult();
- * }
- * LDAPTestUtils.assertResultCodeEquals(searchResult, ResultCode.SUCCESS);
+ *   SearchResult searchResult =
+ *        connection.search("dc=example,dc=com", SearchScope.SUB, "(ou=Sales)");
  *
- * // Write all of the matching entries to LDIF.
- * int entriesWritten = 0;
- * LDIFWriter ldifWriter = new LDIFWriter(pathToLDIF);
- * for (SearchResultEntry entry : searchResult.getSearchEntries())
- * {
- *   ldifWriter.writeEntry(entry);
- *   entriesWritten++;
- * }
+ *   LDIFWriter ldifWriter = new LDIFWriter(pathToLDIF);
+ *   for (SearchResultEntry entry : searchResult.getSearchEntries())
+ *   {
+ *     ldifWriter.writeEntry(entry);
+ *   }
  *
- * ldifWriter.close();
+ *   ldifWriter.close();
  * </PRE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDIFWriter
 {
-  /**
-   * The bytes that comprise the LDIF version header.
-   */
-  private static final byte[] VERSION_1_HEADER_BYTES =
-       getBytes("version: 1" + EOL);
-
-
-
   /**
    * The default buffer size (128KB) that will be used when writing LDIF data
    * to the appropriate destination.
@@ -108,9 +85,6 @@ public final class LDIFWriter
   // The byte string buffer that will be used to convert LDIF records to LDIF.
   // It will only be used when operating synchronously.
   private final ByteStringBuffer buffer;
-
-  // The translator to use for entries to be written, if any.
-  private final LDIFWriterEntryTranslator entryTranslator;
 
   // The column at which to wrap long lines.
   private int wrapColumn = 0;
@@ -176,8 +150,8 @@ public final class LDIFWriter
    * stream optionally using parallelThreads when writing batches of LDIF
    * records.
    *
-   * @param  outputStream     The output stream to which the data is to be
-   *                          written.  It must not be {@code null}.
+   * @param  outputStream  The output stream to which the data is to be written.
+   *                       It must not be {@code null}.
    * @param  parallelThreads  If this value is greater than zero, then the
    *                          specified number of threads will be used to
    *                          encode entries before writing them to the output
@@ -197,46 +171,10 @@ public final class LDIFWriter
    */
   public LDIFWriter(final OutputStream outputStream, final int parallelThreads)
   {
-    this(outputStream, parallelThreads, null);
-  }
-
-
-
-  /**
-   * Creates a new LDIF writer that will write entries to the provided output
-   * stream optionally using parallelThreads when writing batches of LDIF
-   * records.
-   *
-   * @param  outputStream     The output stream to which the data is to be
-   *                          written.  It must not be {@code null}.
-   * @param  parallelThreads  If this value is greater than zero, then the
-   *                          specified number of threads will be used to
-   *                          encode entries before writing them to the output
-   *                          for the {@code writeLDIFRecords(List)} method.
-   *                          Note this is the only output method that will
-   *                          use multiple threads.
-   *                          This should only be set to greater than zero when
-   *                          performance analysis has demonstrated that writing
-   *                          the LDIF is a bottleneck.  The default
-   *                          synchronous processing is normally fast enough.
-   *                          There is no benefit in passing in a value
-   *                          greater than the number of processors in the
-   *                          system.  A value of zero implies the
-   *                          default behavior of reading and parsing LDIF
-   *                          records synchronously when one of the read
-   *                          methods is called.
-   * @param  entryTranslator  An optional translator that will be used to alter
-   *                          entries before they are actually written.  This
-   *                          may be {@code null} if no translator is needed.
-   */
-  public LDIFWriter(final OutputStream outputStream, final int parallelThreads,
-                    final LDIFWriterEntryTranslator entryTranslator)
-  {
     ensureNotNull(outputStream);
     ensureTrue(parallelThreads >= 0,
                "LDIFWriter.parallelThreads must not be negative.");
 
-    this.entryTranslator = entryTranslator;
     buffer = new ByteStringBuffer();
 
     if (outputStream instanceof BufferedOutputStream)
@@ -261,23 +199,7 @@ public final class LDIFWriter
              public ByteStringBuffer process(final LDIFRecord input)
                     throws IOException
              {
-               final LDIFRecord r;
-               if ((entryTranslator != null) && (input instanceof Entry))
-               {
-                 r = entryTranslator.translateEntryToWrite((Entry) input);
-                 if (r == null)
-                 {
-                   return null;
-                 }
-               }
-               else
-               {
-                 r = input;
-               }
-
-               final ByteStringBuffer b = new ByteStringBuffer(200);
-               r.toLDIF(b, wrapColumn);
-               return b;
+               return toLDIFBytes(input);
              }
            }, threadFactory, parallelThreads, 5);
     }
@@ -360,21 +282,6 @@ public final class LDIFWriter
 
 
   /**
-   * Writes the LDIF version header (i.e.,"version: 1").  If a version header
-   * is to be added to the LDIF content, it should be done before any entries or
-   * change records have been written.
-   *
-   * @throws  IOException  If a problem occurs while writing the version header.
-   */
-  public void writeVersionHeader()
-         throws IOException
-  {
-    writer.write(VERSION_1_HEADER_BYTES);
-  }
-
-
-
-  /**
    * Writes the provided entry in LDIF form.
    *
    * @param  entry  The entry to be written.  It must not be {@code null}.
@@ -384,7 +291,10 @@ public final class LDIFWriter
   public void writeEntry(final Entry entry)
          throws IOException
   {
-    writeEntry(entry, null);
+    ensureNotNull(entry);
+
+    debugLDIFWrite(entry);
+    writeLDIF(entry);
   }
 
 
@@ -404,27 +314,12 @@ public final class LDIFWriter
   {
     ensureNotNull(entry);
 
-    final Entry e;
-    if (entryTranslator == null)
-    {
-      e = entry;
-    }
-    else
-    {
-      e = entryTranslator.translateEntryToWrite(entry);
-      if (e == null)
-      {
-        return;
-      }
-    }
-
     if (comment != null)
     {
       writeComment(comment, false, false);
     }
 
-    debugLDIFWrite(e);
-    writeLDIF(e);
+    writeEntry(entry);
   }
 
 
@@ -487,7 +382,10 @@ public final class LDIFWriter
   public void writeLDIFRecord(final LDIFRecord record)
          throws IOException
   {
-    writeLDIFRecord(record, null);
+    ensureNotNull(record);
+
+    debugLDIFWrite(record);
+    writeLDIF(record);
   }
 
 
@@ -507,27 +405,13 @@ public final class LDIFWriter
   {
     ensureNotNull(record);
 
-    final LDIFRecord r;
-    if ((entryTranslator != null) && (record instanceof Entry))
-    {
-      r = entryTranslator.translateEntryToWrite((Entry) record);
-      if (r == null)
-      {
-        return;
-      }
-    }
-    else
-    {
-      r = record;
-    }
-
-    debugLDIFWrite(r);
+    debugLDIFWrite(record);
     if (comment != null)
     {
       writeComment(comment, false, false);
     }
 
-    writeLDIF(r);
+    writeLDIF(record);
   }
 
 
@@ -568,13 +452,8 @@ public final class LDIFWriter
       for (final Result<LDIFRecord,ByteStringBuffer> result: results)
       {
         rethrow(result.getFailureCause());
-
-        final ByteStringBuffer encodedBytes = result.getOutput();
-        if (encodedBytes != null)
-        {
-          encodedBytes.write(writer);
-          writer.write(EOL_BYTES);
-        }
+        result.getOutput().write(writer);
+        writer.write(EOL_BYTES);
       }
     }
   }
@@ -738,6 +617,25 @@ public final class LDIFWriter
     }
 
     buffer.write(writer);
+  }
+
+
+
+  /**
+   * Returns the provided LDIFRecord encoded in ASCII LDIF bytes.
+   *
+   * @param  record  The set of lines to be written to the LDIF target.
+   *
+   * @return  A ByteStringBuffer containing the ASCII encoded bytes of LDIF.
+   *
+   * @throws  IOException  If a problem occurs while writing the LDIF data.
+   */
+  private ByteStringBuffer toLDIFBytes(final LDIFRecord record)
+          throws IOException
+  {
+    final ByteStringBuffer b = new ByteStringBuffer(200);
+    record.toLDIF(b, wrapColumn);
+    return b;
   }
 
 
@@ -1003,7 +901,65 @@ public final class LDIFWriter
     try
     {
       buffer.append(name);
-      encodeValue(value, buffer);
+      buffer.append(':');
+
+      final byte[] valueBytes = value.getValue();
+      final int length = valueBytes.length;
+      if (length == 0)
+      {
+        buffer.append(' ');
+        return;
+      }
+
+      // If the value starts with a space, colon, or less-than character, then
+      // it must be base64-encoded.
+      switch (valueBytes[0])
+      {
+        case ' ':
+        case ':':
+        case '<':
+          buffer.append(':');
+          buffer.append(' ');
+          Base64.encode(valueBytes, buffer);
+          return;
+      }
+
+      // If the value ends with a space, then it should be base64-encoded.
+      if (valueBytes[length-1] == ' ')
+      {
+        buffer.append(':');
+        buffer.append(' ');
+        Base64.encode(valueBytes, buffer);
+        return;
+      }
+
+      // If any character in the value is outside the ASCII range, or is the
+      // NUL, LF, or CR character, then the value should be base64-encoded.
+      for (int i=0; i < length; i++)
+      {
+        if ((valueBytes[i] & 0x7F) != (valueBytes[i] & 0xFF))
+        {
+          buffer.append(':');
+          buffer.append(' ');
+          Base64.encode(valueBytes, buffer);
+          return;
+        }
+
+        switch (valueBytes[i])
+        {
+          case 0x00:  // The NUL character
+          case 0x0A:  // The LF character
+          case 0x0D:  // The CR character
+            buffer.append(':');
+            buffer.append(' ');
+            Base64.encode(valueBytes, buffer);
+            return;
+        }
+      }
+
+      // If we've gotten here, then the string value is acceptable.
+      buffer.append(' ');
+      buffer.append(valueBytes);
     }
     finally
     {
@@ -1029,81 +985,6 @@ public final class LDIFWriter
         }
       }
     }
-  }
-
-
-
-  /**
-   * Appends a string to the provided buffer consisting of the properly-encoded
-   * representation of the provided value, including the necessary colon(s) and
-   * space that precede it.  Depending on the content of the value, it will
-   * either be used as-is or base64-encoded.
-   *
-   * @param  value   The value for the attribute.
-   * @param  buffer  The buffer to which the value is to be written.
-   */
-  static void encodeValue(final ASN1OctetString value,
-                          final ByteStringBuffer buffer)
-  {
-    buffer.append(':');
-
-    final byte[] valueBytes = value.getValue();
-    final int length = valueBytes.length;
-    if (length == 0)
-    {
-      buffer.append(' ');
-      return;
-    }
-
-    // If the value starts with a space, colon, or less-than character, then
-    // it must be base64-encoded.
-    switch (valueBytes[0])
-    {
-      case ' ':
-      case ':':
-      case '<':
-        buffer.append(':');
-        buffer.append(' ');
-        Base64.encode(valueBytes, buffer);
-        return;
-    }
-
-    // If the value ends with a space, then it should be base64-encoded.
-    if (valueBytes[length-1] == ' ')
-    {
-      buffer.append(':');
-      buffer.append(' ');
-      Base64.encode(valueBytes, buffer);
-      return;
-    }
-
-    // If any character in the value is outside the ASCII range, or is the
-    // NUL, LF, or CR character, then the value should be base64-encoded.
-    for (int i=0; i < length; i++)
-    {
-      if ((valueBytes[i] & 0x7F) != (valueBytes[i] & 0xFF))
-      {
-        buffer.append(':');
-        buffer.append(' ');
-        Base64.encode(valueBytes, buffer);
-        return;
-      }
-
-      switch (valueBytes[i])
-      {
-        case 0x00:  // The NUL character
-        case 0x0A:  // The LF character
-        case 0x0D:  // The CR character
-          buffer.append(':');
-          buffer.append(' ');
-          Base64.encode(valueBytes, buffer);
-          return;
-      }
-    }
-
-    // If we've gotten here, then the string value is acceptable.
-    buffer.append(' ');
-    buffer.append(valueBytes);
   }
 
 

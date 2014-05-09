@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,7 +23,6 @@ package com.unboundid.ldap.sdk.extensions;
 
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedRequest;
@@ -35,7 +34,6 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
-import com.unboundid.util.ssl.SSLUtil;
 
 import static com.unboundid.ldap.sdk.extensions.ExtOpMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -57,34 +55,33 @@ import static com.unboundid.util.Debug.*;
  * The following example attempts to use the StartTLS extended request in order
  * to secure communication on a previously insecure connection.  In this case,
  * it will use the {@link com.unboundid.util.ssl.SSLUtil} class in conjunction
- * with the {@link com.unboundid.util.ssl.TrustStoreTrustManager} class to
- * ensure that only certificates from trusted authorities will be accepted.
+ * with the {@link com.unboundid.util.ssl.TrustAllTrustManager} class to
+ * simplify the process of performing the SSL negotiation by blindly trusting
+ * whatever certificate the server might happen to present.  In real-world
+ * applications, if stronger verification is required then it is recommended
+ * that you use an {@link SSLContext} that is configured to perform an
+ * appropriate level of validation.
  * <PRE>
- * // Create an SSLContext that will be used to perform the cryptographic
- * // processing.
- * SSLUtil sslUtil = new SSLUtil(new TrustStoreTrustManager(trustStorePath));
- * SSLContext sslContext = sslUtil.createSSLContext();
+ *   SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+ *   SSLContext sslContext = sslUtil.createSSLContext();
+ *   ExtendedResult extendedResult = connection.processExtendedOperation(
+ *        new StartTLSExtendedRequest(sslContext));
  *
- *  // Create and process the extended request to secure a connection.
- * StartTLSExtendedRequest startTLSRequest =
- *      new StartTLSExtendedRequest(sslContext);
- * ExtendedResult startTLSResult;
- * try
- * {
- *   startTLSResult = connection.processExtendedOperation(startTLSRequest);
- *   // This doesn't necessarily mean that the operation was successful, since
- *   // some kinds of extended operations return non-success results under
- *   // normal conditions.
- * }
- * catch (LDAPException le)
- * {
- *   // For an extended operation, this generally means that a problem was
- *   // encountered while trying to send the request or read the result.
- *   startTLSResult = new ExtendedResult(le);
- * }
+ *   // NOTE:  The processExtendedOperation method will only throw an exception
+ *   // if a problem occurs while trying to send the request or read the
+ *   // response.  It will not throw an exception because of a non-success
+ *   // response.
  *
- * // Make sure that we can use the connection to interact with the server.
- * RootDSE rootDSE = connection.getRootDSE();
+ *   if (extendedResult.getResultCode() == ResultCode.SUCCESS)
+ *   {
+ *     System.out.println("Communication with the server is now secure.");
+ *   }
+ *   else
+ *   {
+ *     System.err.println("An error occurred while attempting to perform " +
+ *          "StartTLS negotiation.  The connection can no longer be used.");
+ *     connection.close();
+ *   }
  * </PRE>
  */
 @NotMutable()
@@ -106,8 +103,8 @@ public final class StartTLSExtendedRequest
 
 
 
-  // The SSL socket factory used to perform the negotiation.
-  private final SSLSocketFactory sslSocketFactory;
+  // The SSL context to use to perform the negotiation.
+  private final SSLContext sslContext;
 
 
 
@@ -120,7 +117,7 @@ public final class StartTLSExtendedRequest
   public StartTLSExtendedRequest()
          throws LDAPException
   {
-    this((SSLSocketFactory) null, null);
+    this(null, null);
   }
 
 
@@ -136,7 +133,7 @@ public final class StartTLSExtendedRequest
   public StartTLSExtendedRequest(final Control[] controls)
          throws LDAPException
   {
-    this((SSLSocketFactory) null, controls);
+    this(null, controls);
   }
 
 
@@ -156,26 +153,6 @@ public final class StartTLSExtendedRequest
          throws LDAPException
   {
     this(sslContext, null);
-  }
-
-
-
-  /**
-   * Creates a new StartTLS extended request using the provided SSL socket
-   * factory.
-   *
-   * @param  sslSocketFactory  The SSL socket factory to use to convert an
-   *                           insecure connection into a secure connection.  It
-   *                           may be {@code null} to indicate that a default
-   *                           SSL socket factory should be used.
-   *
-   * @throws  LDAPException  If a problem occurs while trying to initialize a
-   *                         default SSL socket factory.
-   */
-  public StartTLSExtendedRequest(final SSLSocketFactory sslSocketFactory)
-         throws LDAPException
-  {
-    this(sslSocketFactory, null);
   }
 
 
@@ -202,10 +179,8 @@ public final class StartTLSExtendedRequest
     {
       try
       {
-        final SSLContext ctx =
-             SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
-        ctx.init(null, null, null);
-        sslSocketFactory = ctx.getSocketFactory();
+        this.sslContext = SSLContext.getInstance("SSL");
+        this.sslContext.init(null, null, null);
       }
       catch (Exception e)
       {
@@ -216,49 +191,7 @@ public final class StartTLSExtendedRequest
     }
     else
     {
-      sslSocketFactory = sslContext.getSocketFactory();
-    }
-  }
-
-
-
-  /**
-   * Creates a new StartTLS extended request.
-   *
-   * @param  sslSocketFactory  The SSL socket factory to use to convert an
-   *                           insecure connection into a secure connection.  It
-   *                           may be {@code null} to indicate that a default
-   *                           SSL socket factory should be used.
-   * @param  controls          The set of controls to include in the request.
-   *
-   * @throws  LDAPException  If a problem occurs while trying to initialize a
-   *                         default SSL context.
-   */
-  public StartTLSExtendedRequest(final SSLSocketFactory sslSocketFactory,
-                                 final Control[] controls)
-         throws LDAPException
-  {
-    super(STARTTLS_REQUEST_OID, controls);
-
-    if (sslSocketFactory == null)
-    {
-      try
-      {
-        final SSLContext ctx =
-             SSLContext.getInstance(SSLUtil.getDefaultSSLProtocol());
-        ctx.init(null, null, null);
-        this.sslSocketFactory = ctx.getSocketFactory();
-      }
-      catch (Exception e)
-      {
-        debugException(e);
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_STARTTLS_REQUEST_CANNOT_CREATE_DEFAULT_CONTEXT.get(e), e);
-      }
-    }
-    else
-    {
-      this.sslSocketFactory = sslSocketFactory;
+      this.sslContext = sslContext;
     }
   }
 
@@ -302,7 +235,7 @@ public final class StartTLSExtendedRequest
     final ExtendedResult result = super.process(connection, depth);
     if (result.getResultCode() == ResultCode.SUCCESS)
     {
-      InternalSDKHelper.convertToTLS(connection, sslSocketFactory);
+      InternalSDKHelper.convertToTLS(connection, sslContext);
     }
 
     return result;
@@ -330,7 +263,7 @@ public final class StartTLSExtendedRequest
     try
     {
       final StartTLSExtendedRequest r =
-           new StartTLSExtendedRequest(sslSocketFactory, controls);
+           new StartTLSExtendedRequest(sslContext, controls);
       r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
       return r;
     }

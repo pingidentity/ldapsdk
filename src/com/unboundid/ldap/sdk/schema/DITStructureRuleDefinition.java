@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk.schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
@@ -167,16 +166,7 @@ public final class DITStructureRuleDefinition
         pos++;
       }
 
-      // It's possible that the token could be smashed right up against the
-      // closing parenthesis.  If that's the case, then extract just the token
-      // and handle the closing parenthesis the next time through.
-      String token = ditStructureRuleString.substring(tokenStartPos, pos);
-      if ((token.length() > 1) && (token.endsWith(")")))
-      {
-        token = token.substring(0, token.length() - 1);
-        pos--;
-      }
-
+      final String token = ditStructureRuleString.substring(tokenStartPos, pos);
       final String lowerToken = toLowerCase(token);
       if (lowerToken.equals(")"))
       {
@@ -634,72 +624,6 @@ public final class DITStructureRuleDefinition
   public Map<String,String[]> getExtensions()
   {
     return extensions;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public int hashCode()
-  {
-    return ruleID;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override()
-  public boolean equals(final Object o)
-  {
-    if (o == null)
-    {
-      return false;
-    }
-
-    if (o == this)
-    {
-      return true;
-    }
-
-    if (! (o instanceof DITStructureRuleDefinition))
-    {
-      return false;
-    }
-
-    final DITStructureRuleDefinition d = (DITStructureRuleDefinition) o;
-    if ((ruleID == d.ruleID) &&
-         nameFormID.equalsIgnoreCase(d.nameFormID) &&
-         stringsEqualIgnoreCaseOrderIndependent(names, d.names) &&
-         (isObsolete == d.isObsolete) &&
-         extensionsEqual(extensions, d.extensions))
-    {
-      if (superiorRuleIDs.length != d.superiorRuleIDs.length)
-      {
-        return false;
-      }
-
-      final HashSet<Integer> s1 = new HashSet<Integer>(superiorRuleIDs.length);
-      final HashSet<Integer> s2 = new HashSet<Integer>(superiorRuleIDs.length);
-      for (final int i : superiorRuleIDs)
-      {
-        s1.add(i);
-      }
-
-      for (final int i : d.superiorRuleIDs)
-      {
-        s2.add(i);
-      }
-
-      return s1.equals(s2);
-    }
-    else
-    {
-      return false;
-    }
   }
 
 

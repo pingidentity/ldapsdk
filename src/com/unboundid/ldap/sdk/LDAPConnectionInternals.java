@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,15 +22,13 @@ package com.unboundid.ldap.sdk;
 
 
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
-import javax.security.sasl.SaslClient;
+import javax.net.ssl.SSLContext;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.ldap.protocol.LDAPMessage;
@@ -54,6 +52,10 @@ final class LDAPConnectionInternals
   // sending requests to the server.
   private final AtomicInteger nextMessageID;
 
+  // Indicates whether the disconnect handler has been notified of the
+  // disconnect.
+  private volatile boolean disconnectHandlerNotified;
+
   // Indicates whether to operate in synchronous mode.
   private final boolean synchronousMode;
 
@@ -72,9 +74,6 @@ final class LDAPConnectionInternals
 
   // The output stream used to send requests to the server.
   private volatile OutputStream outputStream;
-
-  // The SASL client used to provide communication security via QoP.
-  private volatile SaslClient saslClient;
 
   // The socket used to communicate with the directory server.
   private final Socket socket;
@@ -125,10 +124,10 @@ final class LDAPConnectionInternals
       connection.setConnectStackTrace(Thread.currentThread().getStackTrace());
     }
 
-    connectTime     = System.currentTimeMillis();
-    nextMessageID   = new AtomicInteger(0);
-    synchronousMode = options.useSynchronousMode();
-    saslClient      = null;
+    connectTime               = System.currentTimeMillis();
+    nextMessageID             = new AtomicInteger(0);
+    disconnectHandlerNotified = false;
+    synchronousMode           = options.useSynchronousMode();
 
     try
     {
@@ -137,7 +136,7 @@ final class LDAPConnectionInternals
       connectThread.start();
       socket = connectThread.getConnectedSocket(timeout);
     }
-    catch (final LDAPException le)
+    catch (LDAPException le)
     {
       debugException(le);
       throw new IOException(le.getMessage());
@@ -162,17 +161,17 @@ final class LDAPConnectionInternals
                          options.getLingerTimeoutSeconds());
       socket.setTcpNoDelay(options.useTCPNoDelay());
 
-      outputStream     = new BufferedOutputStream(socket.getOutputStream());
+      outputStream     = socket.getOutputStream();
       connectionReader = new LDAPConnectionReader(connection, this);
     }
-    catch (final IOException ioe)
+    catch (IOException ioe)
     {
       debugException(ioe);
       try
       {
         socket.close();
       }
-      catch (final Exception e)
+      catch (Exception e)
       {
         debugException(e);
       }
@@ -307,38 +306,17 @@ final class LDAPConnectionInternals
    * helper for processing in the course of the StartTLS extended operation and
    * should not be used for other purposes.
    *
-   * @param  sslSocketFactory  The SSL socket factory to use to convert an
-   *                           insecure connection into a secure connection.  It
-   *                           must not be {@code null}.
+   * @param  sslContext  The SSL context to use when performing the negotiation.
+   *                     It must not be {@code null}.
    *
    * @throws  LDAPException  If a problem occurs while converting this
    *                         connection to use TLS.
    */
-  void convertToTLS(final SSLSocketFactory sslSocketFactory)
+  void convertToTLS(final SSLContext sslContext)
        throws LDAPException
   {
-    outputStream = connectionReader.doStartTLS(sslSocketFactory);
+    outputStream = connectionReader.doStartTLS(sslContext);
   }
-
-
-
-  /**
-   * Converts this clear-text connection to one that uses SASL integrity and/or
-   * confidentiality.
-   *
-   * @param  saslClient  The SASL client that will be used to secure the
-   *                     communication.
-   *
-   * @throws  LDAPException  If a problem occurs while attempting to convert the
-   *                         connection to use SASL QoP.
-   */
-  void applySASLQoP(final SaslClient saslClient)
-       throws LDAPException
-  {
-    this.saslClient = saslClient;
-    connectionReader.applySASLQoP(saslClient);
-  }
-
 
 
   /**
@@ -425,13 +403,11 @@ final class LDAPConnectionInternals
   /**
    * Sends the provided LDAP message to the directory server.
    *
-   * @param  message     The LDAP message to be sent.
-   * @param  allowRetry  Indicates whether to allow retrying the send after a
-   *                     reconnect.
+   * @param  message  The LDAP message to be sent.
    *
    * @throws  LDAPException  If a problem occurs while sending the message.
    */
-  void sendMessage(final LDAPMessage message, final boolean allowRetry)
+  void sendMessage(final LDAPMessage message)
        throws LDAPException
   {
     if (! isConnected())
@@ -461,29 +437,10 @@ final class LDAPConnectionInternals
     try
     {
       final OutputStream os = outputStream;
-      if (saslClient == null)
-      {
-        buffer.writeTo(os);
-      }
-      else
-      {
-        // We need to wrap the data that was read using the SASL client, but we
-        // also need to precede that wrapped data with four bytes that specify
-        // the number of bytes of wrapped data.
-        final byte[] clearBytes = buffer.toByteArray();
-        final byte[] saslBytes =
-             saslClient.wrap(clearBytes, 0, clearBytes.length);
-        final byte[] lengthBytes = new byte[4];
-        lengthBytes[0] = (byte) ((saslBytes.length >> 24) & 0xFF);
-        lengthBytes[1] = (byte) ((saslBytes.length >> 16) & 0xFF);
-        lengthBytes[2] = (byte) ((saslBytes.length >> 8) & 0xFF);
-        lengthBytes[3] = (byte) (saslBytes.length & 0xFF);
-        os.write(lengthBytes);
-        os.write(saslBytes);
-      }
+      buffer.writeTo(os);
       os.flush();
     }
-    catch (final IOException ioe)
+    catch (IOException ioe)
     {
       debugException(ioe);
 
@@ -496,27 +453,19 @@ final class LDAPConnectionInternals
         return;
       }
 
+      final LDAPConnectionOptions connectionOptions =
+           connection.getConnectionOptions();
       final boolean closeRequested = connection.closeRequested();
-      if (allowRetry && (! closeRequested) && (! connection.synchronousMode()))
+      if (connectionOptions.autoReconnect() && (! closeRequested))
       {
         connection.reconnect();
-
-        try
-        {
-          sendMessage(message, false);
-          return;
-        }
-        catch (final Exception e)
-        {
-          debugException(e);
-        }
       }
 
       throw new LDAPException(ResultCode.SERVER_DOWN,
            ERR_CONN_SEND_ERROR.get(host + ':' + port, getExceptionMessage(ioe)),
            ioe);
     }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -539,16 +488,13 @@ final class LDAPConnectionInternals
    */
   void close()
   {
-    DisconnectInfo disconnectInfo = connection.getDisconnectInfo();
-    if (disconnectInfo == null)
-    {
-      disconnectInfo = connection.setDisconnectInfo(
-           new DisconnectInfo(connection, DisconnectType.UNKNOWN, null, null));
-    }
+    DisconnectType       disconnectType    = connection.getDisconnectType();
+    final String         disconnectMessage = connection.getDisconnectMessage();
+    final Throwable      disconnectCause   = connection.getDisconnectCause();
 
     // Determine if this connection was closed by a finalizer.
     final boolean closedByFinalizer =
-         ((disconnectInfo.getType() == DisconnectType.CLOSED_BY_FINALIZER) &&
+         ((disconnectType == DisconnectType.CLOSED_BY_FINALIZER) &&
           socket.isConnected());
 
 
@@ -557,7 +503,7 @@ final class LDAPConnectionInternals
     {
       connectionReader.close(false);
     }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
     }
@@ -566,7 +512,7 @@ final class LDAPConnectionInternals
     {
       outputStream.close();
     }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
     }
@@ -575,35 +521,63 @@ final class LDAPConnectionInternals
     {
       socket.close();
     }
-    catch (final Exception e)
+    catch (Exception e)
     {
       debugException(e);
     }
 
-    if (saslClient != null)
+    if (disconnectType == null)
     {
-      try
+      if (debugEnabled(DebugType.LDAP))
       {
-        saslClient.dispose();
+        debug(Level.WARNING, DebugType.LDAP,
+              "No disconnect type set for connection closed with stack " +
+              "trace " + getStackTrace(Thread.currentThread().getStackTrace()));
       }
-      catch (final Exception e)
-      {
-        debugException(e);
-      }
-      finally
-      {
-        saslClient = null;
-      }
-    }
 
-    debugDisconnect(host, port, connection, disconnectInfo.getType(),
-         disconnectInfo.getMessage(), disconnectInfo.getCause());
+      disconnectType = DisconnectType.UNKNOWN;
+    }
+    debugDisconnect(host, port, connection, disconnectType, disconnectMessage,
+                    disconnectCause);
     if (closedByFinalizer && debugEnabled(DebugType.LDAP))
     {
       debug(Level.WARNING, DebugType.LDAP,
             "Connection closed by LDAP SDK finalizer:  " + toString());
     }
-    disconnectInfo.notifyDisconnectHandler();
+
+    final LDAPConnectionOptions connectionOptions =
+         connection.getConnectionOptions();
+    final DisconnectHandler disconnectHandler =
+         connectionOptions.getDisconnectHandler();
+    if ((disconnectHandler != null) && (! disconnectHandlerNotified))
+    {
+      // Temporarily unset the disconnect handler for this connection so that
+      // any attempt to close the connection in the course of invoking the
+      // disconnect handler won't cause it to be recursively re-invoked.  Make
+      // sure to re-register the disconnect handler after it has been invoked.
+      connectionOptions.setDisconnectHandler(null);
+
+      try
+      {
+        disconnectHandlerNotified = true;
+        disconnectHandler.handleDisconnect(connection, host, port,
+             disconnectType, disconnectMessage, disconnectCause);
+      }
+      catch (Exception e)
+      {
+        debugException(e);
+      }
+      finally
+      {
+        if (connectionOptions.getDisconnectHandler() == null)
+        {
+          connectionOptions.setDisconnectHandler(disconnectHandler);
+        }
+      }
+
+      connection.setDisconnectInfo(disconnectType, disconnectMessage,
+                                   disconnectCause);
+    }
   }
 
 

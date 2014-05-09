@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2014 UnboundID Corp.
+ * Copyright 2007-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -1591,146 +1591,5 @@ public final class Schema
     ensureNotNull(name);
 
     return ocMap.get(toLowerCase(name));
-  }
-
-
-
-  /**
-   * Retrieves a hash code for this schema object.
-   *
-   * @return  A hash code for this schema object.
-   */
-  @Override()
-  public int hashCode()
-  {
-    int hc;
-    try
-    {
-      hc = schemaEntry.getParsedDN().hashCode();
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      hc = toLowerCase(schemaEntry.getDN()).hashCode();
-    }
-
-    Attribute a = schemaEntry.getAttribute(ATTR_ATTRIBUTE_SYNTAX);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_MATCHING_RULE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_ATTRIBUTE_TYPE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_OBJECT_CLASS);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_NAME_FORM);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_DIT_CONTENT_RULE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_DIT_STRUCTURE_RULE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    a = schemaEntry.getAttribute(ATTR_MATCHING_RULE_USE);
-    if (a != null)
-    {
-      hc += a.hashCode();
-    }
-
-    return hc;
-  }
-
-
-
-  /**
-   * Indicates whether the provided object is equal to this schema object.
-   *
-   * @param  o  The object for which to make the determination.
-   *
-   * @return  {@code true} if the provided object is equal to this schema
-   *          object, or {@code false} if not.
-   */
-  @Override()
-  public boolean equals(final Object o)
-  {
-    if (o == null)
-    {
-      return false;
-    }
-
-    if (o == this)
-    {
-      return true;
-    }
-
-    if (! (o instanceof Schema))
-    {
-      return false;
-    }
-
-    final Schema s = (Schema) o;
-
-    try
-    {
-      if (! schemaEntry.getParsedDN().equals(s.schemaEntry.getParsedDN()))
-      {
-        return false;
-      }
-    }
-    catch (final Exception e)
-    {
-      debugException(e);
-      if (! schemaEntry.getDN().equalsIgnoreCase(s.schemaEntry.getDN()))
-      {
-        return false;
-      }
-    }
-
-    return (asSet.equals(s.asSet) &&
-         mrSet.equals(s.mrSet) &&
-         atSet.equals(s.atSet) &&
-         ocSet.equals(s.ocSet) &&
-         nfSet.equals(s.nfSet) &&
-         dcrSet.equals(s.dcrSet) &&
-         dsrSet.equals(s.dsrSet) &&
-         mruSet.equals(s.mruSet));
-  }
-
-
-
-  /**
-   * Retrieves a string representation of the associated schema entry.
-   *
-   * @return  A string representation of the associated schema entry.
-   */
-  @Override()
-  public String toString()
-  {
-    return schemaEntry.toString();
   }
 }

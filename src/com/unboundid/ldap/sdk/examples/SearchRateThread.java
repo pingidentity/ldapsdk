@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -70,10 +70,6 @@ final class SearchRateThread
   // The counter used to track the number of errors encountered while searching.
   private final AtomicLong errorCounter;
 
-  // The counter used to track the number of iterations remaining on the
-  // current connection.
-  private final AtomicLong remainingIterationsBeforeReconnect;
-
   // The counter used to track the number of searches performed.
   private final AtomicLong searchCounter;
 
@@ -94,10 +90,6 @@ final class SearchRateThread
 
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
-
-  // The number of iterations to request on a connection before closing and
-  // re-establishing it.
-  private final long iterationsBeforeReconnect;
 
   // The result code counter to use for failed operations.
   private final ResultCodeCounter rcCounter;
@@ -136,55 +128,41 @@ final class SearchRateThread
   /**
    * Creates a new search rate thread with the provided information.
    *
-   * @param  searchRate                 A reference to the associated searchrate
-   *                                    tool.
-   * @param  threadNumber               The thread number for this thread.
-   * @param  connection                 The connection to use for the searches.
-   * @param  async                      Indicates whether to operate in
-   *                                    asynchronous mode.
-   * @param  baseDN                     The value pattern to use for the base
-   *                                    DNs.
-   * @param  scope                      The scope to use for the searches.
-   * @param  filter                     The value pattern for the filters.
-   * @param  attributes                 The set of attributes to return.
-   * @param  authzID                    The value pattern to use to generate
-   *                                    authorization identities for use with
-   *                                    the proxied authorization control.  It
-   *                                    may be {@code null} if proxied
-   *                                    authorization should not be used.
-   * @param  iterationsBeforeReconnect  The number of iterations that should be
-   *                                    processed on a connection before it is
-   *                                    closed and replaced with a
-   *                                    newly-established connection.
-   * @param  startBarrier               A barrier used to coordinate starting
-   *                                    between all of the threads.
-   * @param  searchCounter              A value that will be used to keep track
-   *                                    of the total number of searches
-   *                                    performed.
-   * @param  entryCounter               A value that will be used to keep track
-   *                                    of the total number of entries returned.
-   * @param  searchDurations            A value that will be used to keep track
-   *                                    of the total duration for all searches.
-   * @param  errorCounter               A value that will be used to keep track
-   *                                    of the number of errors encountered
-   *                                    while searching.
-   * @param  rcCounter                  The result code counter to use for
-   *                                    keeping track of the result codes for
-   *                                    failed operations.
-   * @param  rateBarrier                The barrier to use for controlling the
-   *                                    rate of searches.  {@code null} if no
-   *                                    rate-limiting should be used.
-   * @param  asyncSemaphore             The semaphore used ot limit the total
-   *                                    number of outstanding asynchronous
-   *                                    requests.
+   * @param  searchRate       A reference to the associated searchrate tool.
+   * @param  threadNumber     The thread number for this thread.
+   * @param  connection       The connection to use for the searches.
+   * @param  async            Indicates whether to operate in asynchronous mode.
+   * @param  baseDN           The value pattern to use for the base DNs.
+   * @param  scope            The scope to use for the searches.
+   * @param  filter           The value pattern for the filters.
+   * @param  attributes       The set of attributes to return.
+   * @param  authzID          The value pattern to use to generate authorization
+   *                          identities for use with the proxied authorization
+   *                          control.  It may be {@code null} if proxied
+   *                          authorization should not be used.
+   * @param  startBarrier     A barrier used to coordinate starting between all
+   *                          of the threads.
+   * @param  searchCounter    A value that will be used to keep track of the
+   *                          total number of searches performed.
+   * @param  entryCounter     A value that will be used to keep track of the
+   *                          total number of entries returned.
+   * @param  searchDurations  A value that will be used to keep track of the
+   *                          total duration for all searches.
+   * @param  errorCounter     A value that will be used to keep track of the
+   *                          number of errors encountered while searching.
+   * @param  rcCounter        The result code counter to use for keeping track
+   *                          of the result codes for failed operations.
+   * @param  rateBarrier      The barrier to use for controlling the rate of
+   *                          searches.  {@code null} if no rate-limiting
+   *                          should be used.
+   * @param  asyncSemaphore   The semaphore used ot limit the total number of
+   *                          outstanding asynchronous requests.
    */
   SearchRateThread(final SearchRate searchRate, final int threadNumber,
                    final LDAPConnection connection, final boolean async,
                    final ValuePattern baseDN, final SearchScope scope,
                    final ValuePattern filter, final String[] attributes,
-                   final ValuePattern authzID,
-                   final long iterationsBeforeReconnect,
-                   final CyclicBarrier startBarrier,
+                   final ValuePattern authzID, final CyclicBarrier startBarrier,
                    final AtomicLong searchCounter,
                    final AtomicLong entryCounter,
                    final AtomicLong searchDurations,
@@ -196,33 +174,22 @@ final class SearchRateThread
     setName("SearchRate Thread " + threadNumber);
     setDaemon(true);
 
-    this.searchRate                = searchRate;
-    this.connection                = connection;
-    this.async                     = async;
-    this.baseDN                    = baseDN;
-    this.scope                     = scope;
-    this.filter                    = filter;
-    this.attributes                = attributes;
-    this.authzID                   = authzID;
-    this.iterationsBeforeReconnect = iterationsBeforeReconnect;
-    this.searchCounter             = searchCounter;
-    this.entryCounter              = entryCounter;
-    this.searchDurations           = searchDurations;
-    this.errorCounter              = errorCounter;
-    this.rcCounter                 = rcCounter;
-    this.startBarrier              = startBarrier;
-    this.asyncSemaphore            = asyncSemaphore;
-    fixedRateBarrier               = rateBarrier;
-
-    if (iterationsBeforeReconnect > 0L)
-    {
-      remainingIterationsBeforeReconnect =
-           new AtomicLong(iterationsBeforeReconnect);
-    }
-    else
-    {
-      remainingIterationsBeforeReconnect = null;
-    }
+    this.searchRate      = searchRate;
+    this.connection      = connection;
+    this.async           = async;
+    this.baseDN          = baseDN;
+    this.scope           = scope;
+    this.filter          = filter;
+    this.attributes      = attributes;
+    this.authzID         = authzID;
+    this.searchCounter   = searchCounter;
+    this.entryCounter    = entryCounter;
+    this.searchDurations = searchDurations;
+    this.errorCounter    = errorCounter;
+    this.rcCounter       = rcCounter;
+    this.startBarrier    = startBarrier;
+    this.asyncSemaphore  = asyncSemaphore;
+    fixedRateBarrier     = rateBarrier;
 
     connection.setConnectionName("search-" + threadNumber);
 
@@ -254,17 +221,6 @@ final class SearchRateThread
 
     while (! stopRequested.get())
     {
-      if ((iterationsBeforeReconnect > 0L) &&
-          (remainingIterationsBeforeReconnect.decrementAndGet() <= 0))
-      {
-        remainingIterationsBeforeReconnect.set(iterationsBeforeReconnect);
-        if (connection != null)
-        {
-          connection.close();
-          connection = null;
-        }
-      }
-
       if (connection == null)
       {
         try

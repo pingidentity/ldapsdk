@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -24,7 +24,6 @@ package com.unboundid.ldap.sdk.examples;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -33,16 +32,13 @@ import java.util.TreeMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.zip.GZIPInputStream;
 
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.schema.EntryValidator;
-import com.unboundid.ldif.DuplicateValueBehavior;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.ldif.LDIFReaderEntryTranslator;
@@ -90,8 +86,6 @@ import static com.unboundid.util.StaticUtils.*;
  *       server.</LI>
  *   <LI>"-f {path}" or "--ldifFile {path}" -- specifies the path to the LDIF
  *       file to be validated.</LI>
- *   <LI>"-c" or "--isCompressed" -- indicates that the LDIF file is
- *       compressed.</LI>
  *   <LI>"-R {path}" or "--rejectFile {path}" -- specifies the path to the file
  *       to be written with information about all entries that failed
  *       validation.</LI>
@@ -158,7 +152,6 @@ public final class ValidateLDIF
   private BooleanArgument ignoreSingleValuedAttributes;
   private BooleanArgument ignoreAttributeSyntax;
   private BooleanArgument ignoreNameForms;
-  private BooleanArgument isCompressed;
   private FileArgument    schemaDirectory;
   private FileArgument    ldifFile;
   private FileArgument    rejectFile;
@@ -266,19 +259,6 @@ public final class ValidateLDIF
 
 
   /**
-   * Retrieves the version string for this tool.
-   *
-   * @return  The version string for this tool.
-   */
-  @Override()
-  public String getToolVersion()
-  {
-    return Version.NUMERIC_VERSION_STRING;
-  }
-
-
-
-  /**
    * Adds the arguments used by this program that aren't already provided by the
    * generic {@code LDAPCommandLineTool} framework.
    *
@@ -294,11 +274,6 @@ public final class ValidateLDIF
     ldifFile = new FileArgument('f', "ldifFile", true, 1, "{path}", description,
                                 true, true, true, false);
     parser.addArgument(ldifFile);
-
-    description = "Indicates that the specified LDIF file is compressed " +
-                  "using gzip compression.";
-    isCompressed = new BooleanArgument('c', "isCompressed", description);
-    parser.addArgument(isCompressed);
 
     description = "The path to the file to which rejected entries should be " +
                   "written.";
@@ -485,12 +460,8 @@ public final class ValidateLDIF
     rejectWriter = null;
     try
     {
-      InputStream inputStream = new FileInputStream(ldifFile.getValue());
-      if (isCompressed.isPresent())
-      {
-        inputStream = new GZIPInputStream(inputStream);
-      }
-      ldifReader = new LDIFReader(inputStream, numThreads.getValue(), this);
+      ldifReader = new LDIFReader(new FileInputStream(ldifFile.getValue()),
+                                  numThreads.getValue(), this);
     }
     catch (Exception e)
     {
@@ -499,14 +470,7 @@ public final class ValidateLDIF
     }
 
     ldifReader.setSchema(schema);
-    if (ignoreDuplicateValues.isPresent())
-    {
-      ldifReader.setDuplicateValueBehavior(DuplicateValueBehavior.STRIP);
-    }
-    else
-    {
-      ldifReader.setDuplicateValueBehavior(DuplicateValueBehavior.REJECT);
-    }
+    ldifReader.setIgnoreDuplicateValues(ignoreDuplicateValues.isPresent());
 
     try
     {
@@ -771,17 +735,5 @@ public final class ValidateLDIF
     examples.put(args, description);
 
     return examples;
-  }
-
-
-
-  /**
-   * @return EntryValidator
-   *
-   * Returns the EntryValidator
-   */
-  public EntryValidator getEntryValidator()
-  {
-    return entryValidator;
   }
 }

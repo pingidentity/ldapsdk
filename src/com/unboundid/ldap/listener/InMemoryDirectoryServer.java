@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -33,12 +33,8 @@ import java.util.Map;
 import javax.net.SocketFactory;
 
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.listener.interceptor.
-            InMemoryOperationInterceptorRequestHandler;
 import com.unboundid.ldap.protocol.AddRequestProtocolOp;
 import com.unboundid.ldap.protocol.AddResponseProtocolOp;
-import com.unboundid.ldap.protocol.BindRequestProtocolOp;
-import com.unboundid.ldap.protocol.BindResponseProtocolOp;
 import com.unboundid.ldap.protocol.CompareRequestProtocolOp;
 import com.unboundid.ldap.protocol.CompareResponseProtocolOp;
 import com.unboundid.ldap.protocol.DeleteRequestProtocolOp;
@@ -54,8 +50,6 @@ import com.unboundid.ldap.protocol.SearchRequestProtocolOp;
 import com.unboundid.ldap.protocol.SearchResultDoneProtocolOp;
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.BindRequest;
-import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.Control;
@@ -77,7 +71,6 @@ import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ModifyDNRequest;
-import com.unboundid.ldap.sdk.PLAINBindRequest;
 import com.unboundid.ldap.sdk.ReadOnlyAddRequest;
 import com.unboundid.ldap.sdk.ReadOnlyCompareRequest;
 import com.unboundid.ldap.sdk.ReadOnlyDeleteRequest;
@@ -92,7 +85,6 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
@@ -173,8 +165,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process that can be used to create,
- * start, and use an in-memory directory server instance, including support for
- * secure communication using both SSL and StartTLS:
+ * start, and use an in-memory directory server instance:
  * <PRE>
  * // Create a base configuration for the server.
  * InMemoryDirectoryServerConfig config =
@@ -182,47 +173,21 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  * config.addAdditionalBindCredentials("cn=Directory Manager",
  *      "password");
  *
- * // Update the configuration to support LDAP (with StartTLS) and LDAPS
- * // listeners.
- * final SSLUtil serverSSLUtil = new SSLUtil(
- *      new KeyStoreKeyManager(serverKeyStorePath, serverKeyStorePIN, "JKS",
- *           "server-cert"),
- *      new TrustStoreTrustManager(serverTrustStorePath));
- * final SSLUtil clientSSLUtil = new SSLUtil(
- *      new TrustStoreTrustManager(clientTrustStorePath));
- * config.setListenerConfigs(
- *      InMemoryListenerConfig.createLDAPConfig("LDAP", // Listener name
- *           null, // Listen address. (null = listen on all interfaces)
- *           0, // Listen port (0 = automatically choose an available port)
- *           serverSSLUtil.createSSLSocketFactory()), // StartTLS factory
- *      InMemoryListenerConfig.createLDAPSConfig("LDAPS", // Listener name
- *           null, // Listen address. (null = listen on all interfaces)
- *           0, // Listen port (0 = automatically choose an available port)
- *           serverSSLUtil.createSSLServerSocketFactory(), // Server factory
- *           clientSSLUtil.createSSLSocketFactory())); // Client factory
- *
- * // Create and start the server instance and populate it with an initial set
- * // of data from an LDIF file.
+ * // Create and start the server instance and populate it with an
+ * // initial set of data from the file "/tmp/test.ldif".
  * InMemoryDirectoryServer server = new InMemoryDirectoryServer(config);
- * server.importFromLDIF(true, ldifFilePath);
+ * server.initializeFromLDIF(true, "/tmp/test.ldif");
  *
  * // Start the server so it will accept client connections.
  * server.startListening();
  *
- * // Get an unencrypted connection to the server's LDAP listener, then use
- * // StartTLS to secure that connection.  Make sure the connection is usable
- * // by retrieving the server root DSE.
- * LDAPConnection connection = server.getConnection("LDAP");
- * connection.processExtendedOperation(new StartTLSExtendedRequest(
- *      clientSSLUtil.createSSLContext()));
- * LDAPTestUtils.assertEntryExists(connection, "");
- * connection.close();
+ * // Get a connection to the server.
+ * LDAPConnection conn = server.getConnection();
  *
- * // Establish an SSL-based connection to the LDAPS listener, and make sure
- * // that connection is also usable.
- * connection = server.getConnection("LDAPS");
- * LDAPTestUtils.assertEntryExists(connection, "");
- * connection.close();
+ * // Perform various operations in the server....
+ *
+ * // Close the connection.
+ * conn.close();
  *
  * // Shut down the server so that it will no longer accept client
  * // connections, and close all existing connections.
@@ -302,12 +267,6 @@ public final class InMemoryDirectoryServer
     {
       requestHandler = new LDAPDebuggerRequestHandler(
            config.getLDAPDebugLogHandler(), requestHandler);
-    }
-
-    if (! config.getOperationInterceptors().isEmpty())
-    {
-      requestHandler = new InMemoryOperationInterceptorRequestHandler(
-           config.getOperationInterceptors(), requestHandler);
     }
 
 
@@ -1536,108 +1495,6 @@ public final class InMemoryDirectoryServer
     }
 
     addEntries(entryList);
-  }
-
-
-
-  /**
-   * Processes a simple bind request with the provided DN and password.  Note
-   * that the bind processing will verify that the provided credentials are
-   * valid, but it will not alter the server in any way.
-   *
-   * @param  bindDN    The bind DN for the bind operation.
-   * @param  password  The password for the simple bind operation.
-   *
-   * @return  The result of processing the bind operation.
-   *
-   * @throws  LDAPException  If the server rejects the bind request, or if a
-   *                         problem occurs while sending the request or reading
-   *                         the response.
-   */
-  public BindResult bind(final String bindDN, final String password)
-         throws LDAPException
-  {
-    return bind(new SimpleBindRequest(bindDN, password));
-  }
-
-
-
-  /**
-   * Processes the provided bind request.  Only simple and SASL PLAIN bind
-   * requests are supported.  Note that the bind processing will verify that the
-   * provided credentials are valid, but it will not alter the server in any
-   * way.
-   *
-   * @param  bindRequest  The bind request to be processed.  It must not be
-   *                      {@code null}.
-   *
-   * @return  The result of processing the bind operation.
-   *
-   * @throws  LDAPException  If the server rejects the bind request, or if a
-   *                         problem occurs while sending the request or reading
-   *                         the response.
-   */
-  public BindResult bind(final BindRequest bindRequest)
-         throws LDAPException
-  {
-    final ArrayList<Control> requestControlList =
-         new ArrayList<Control>(bindRequest.getControlList());
-    requestControlList.add(new Control(
-         InMemoryRequestHandler.OID_INTERNAL_OPERATION_REQUEST_CONTROL, false));
-
-    final BindRequestProtocolOp bindOp;
-    if (bindRequest instanceof SimpleBindRequest)
-    {
-      final SimpleBindRequest r = (SimpleBindRequest) bindRequest;
-      bindOp = new BindRequestProtocolOp(r.getBindDN(),
-           r.getPassword().getValue());
-    }
-    else if (bindRequest instanceof PLAINBindRequest)
-    {
-      final PLAINBindRequest r = (PLAINBindRequest) bindRequest;
-
-      // Create the byte array that should comprise the credentials.
-      final byte[] authZIDBytes = StaticUtils.getBytes(r.getAuthorizationID());
-      final byte[] authNIDBytes = StaticUtils.getBytes(r.getAuthenticationID());
-      final byte[] passwordBytes = r.getPasswordBytes();
-
-      final byte[] credBytes = new byte[2 + authZIDBytes.length +
-           authNIDBytes.length + passwordBytes.length];
-      System.arraycopy(authZIDBytes, 0, credBytes, 0, authZIDBytes.length);
-
-      int pos = authZIDBytes.length + 1;
-      System.arraycopy(authNIDBytes, 0, credBytes, pos, authNIDBytes.length);
-
-      pos += authNIDBytes.length + 1;
-      System.arraycopy(passwordBytes, 0, credBytes, pos, passwordBytes.length);
-
-      bindOp = new BindRequestProtocolOp(null, "PLAIN",
-           new ASN1OctetString(credBytes));
-    }
-    else
-    {
-      throw new LDAPException(ResultCode.AUTH_METHOD_NOT_SUPPORTED,
-           ERR_MEM_DS_UNSUPPORTED_BIND_TYPE.get());
-    }
-
-    final LDAPMessage responseMessage = inMemoryHandler.processBindRequest(1,
-         bindOp, requestControlList);
-    final BindResponseProtocolOp bindResponse =
-         responseMessage.getBindResponseProtocolOp();
-
-    final BindResult bindResult = new BindResult(new LDAPResult(
-         responseMessage.getMessageID(),
-         ResultCode.valueOf(bindResponse.getResultCode()),
-         bindResponse.getDiagnosticMessage(), bindResponse.getMatchedDN(),
-         bindResponse.getReferralURLs(), responseMessage.getControls()));
-
-    switch (bindResponse.getResultCode())
-    {
-      case ResultCode.SUCCESS_INT_VALUE:
-        return bindResult;
-      default:
-        throw new LDAPException(bindResult);
-    }
   }
 
 

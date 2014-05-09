@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2014 UnboundID Corp.
+ * Copyright 2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2014 UnboundID Corp.
+ * Copyright (C) 2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -27,19 +27,16 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
-import java.util.logging.StreamHandler;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
-import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.Debug;
@@ -96,26 +93,12 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       should be maintained.  If this argument is not provided, or if it is
  *       provided with a value of zero, then no changelog will be
  *       maintained.</LI>
- *   <LI>"-A" or "--accessLogToStandardOut" -- indicates that access log
- *       information should be written to standard output.  This cannot be
- *       provided in conjunction with the "--accessLogFile" argument.  If
- *       that should be used as a server access log.  This cannot be provided in
- *       neither argument is provided, then no access logging will be
- *       performed</LI>
  *   <LI>"-a {path}" or "--accessLogFile {path}" -- specifies the path to a file
- *       that should be used as a server access log.  This cannot be provided in
- *       conjunction with the "--accessLogToStandardOut" argument.  If neither
- *       argument is provided, then no access logging will be performed</LI>
- *   <LI>"--ldapDebugLogToStandardOut" -- Indicates that LDAP debug log
- *       information should be written to standard output.  This cannot be
- *       provided in conjunction with the "--ldapDebugLogFile" argument.  If
- *       neither argument is provided, then no debug logging will be
- *       performed.</LI>
+ *       that should be used as a server access log.  If this is not provided,
+ *       then no access logging will be performed.</LI>
  *   <LI>"-d {path}" or "--ldapDebugLogFile {path}" -- specifies the path to a
- *       file that should be used as a server LDAP debug log.  This cannot be
- *       provided in conjunction with the "--ldapDebugLogToStandardOut"
- *       argument.  If neither argument is provided, then no debug logging will
- *       be performed.</LI>
+ *       file that should be used as a server LDAP debug log.  If this is not
+ *       provided, then no LDAP debug logging will be performed.</LI>
  *   <LI>"-s" or "--useDefaultSchema" -- Indicates that the server should use
  *       the default standard schema provided as part of the LDAP SDK.  If
  *       neither this argument nor the "--useSchemaFile" argument is provided,
@@ -128,10 +111,6 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       containing a valid LDAP subschema subentry.  If the path is a
  *       directory, then its files will be processed in lexicographic order by
  *       name.</LI>
- *   <LI>"-I {attr}" or "--equalityIndex {attr}" -- specifies that an equality
- *       index should be maintained for the specified attribute.  The equality
- *       index may be used to speed up certain kinds of searches, although it
- *       will cause the server to consume more memory.</LI>
  *   <LI>"-Z" or "--useSSL" -- indicates that the server should encrypt all
  *       communication using SSL.  If this is provided, then the
  *       "--keyStorePath" and "--keyStorePassword" arguments must also be
@@ -164,10 +143,6 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       "--useSSL" or "--useStartTLS" arguments.  If an SSL trust store path
  *       was provided without a trust store password, then the server will
  *       attempt to use the trust store without a password.</LI>
- *   <LI>"--vendorName {name}" -- specifies the vendor name value to appear in
- *       the server root DSE.</LI>
- *   <LI>"--vendorVersion {version}" -- specifies the vendor version value to
- *       appear in the server root DSE.</LI>
  * </UL>
  */
 @NotMutable()
@@ -183,17 +158,9 @@ public final class InMemoryDirectoryServerTool
 
 
 
-  // The argument used to indicate that access log information should be written
-  // to standard output.
-  private BooleanArgument accessLogToStandardOutArgument;
-
   // The argument used to prevent the in-memory server from starting.  This is
   // only intended to be used for internal testing purposes.
   private BooleanArgument dontStartArgument;
-
-  // The argument used to indicate that LDAP debug log information should be
-  // written to standard output.
-  private BooleanArgument ldapDebugLogToStandardOutArgument;
 
   // The argument used to indicate that the default standard schema should be
   // used.
@@ -248,10 +215,6 @@ public final class InMemoryDirectoryServerTool
   // The argument used to specify the password for the additional bind DN.
   private StringArgument additionalBindPasswordArgument;
 
-  // The argument used to specify the attributes for which to maintain equality
-  // indexes.
-  private StringArgument equalityIndexArgument;
-
   // The argument used to specify the password to use to access the contents of
   // the SSL key store
   private StringArgument keyStorePasswordArgument;
@@ -259,12 +222,6 @@ public final class InMemoryDirectoryServerTool
   // The argument used to specify the password to use to access the contents of
   // the SSL trust store
   private StringArgument trustStorePasswordArgument;
-
-  // The argument used to specify the server vendor name.
-  private StringArgument vendorNameArgument;
-
-  // The argument used to specify the server vendor veresion.
-  private StringArgument vendorVersionArgument;
 
 
 
@@ -330,29 +287,24 @@ public final class InMemoryDirectoryServerTool
   {
     super(outStream, errStream);
 
-    directoryServer                   = null;
-    dontStartArgument                 = null;
-    useDefaultSchemaArgument          = null;
-    useSSLArgument                    = null;
-    useStartTLSArgument               = null;
-    additionalBindDNArgument          = null;
-    baseDNArgument                    = null;
-    accessLogToStandardOutArgument    = null;
-    accessLogFileArgument             = null;
-    keyStorePathArgument              = null;
-    ldapDebugLogToStandardOutArgument = null;
-    ldapDebugLogFileArgument          = null;
-    ldifFileArgument                  = null;
-    trustStorePathArgument            = null;
-    useSchemaFileArgument             = null;
-    maxChangeLogEntriesArgument       = null;
-    portArgument                      = null;
-    additionalBindPasswordArgument    = null;
-    equalityIndexArgument             = null;
-    keyStorePasswordArgument          = null;
-    trustStorePasswordArgument        = null;
-    vendorNameArgument                = null;
-    vendorVersionArgument             = null;
+    directoryServer                = null;
+    dontStartArgument              = null;
+    useDefaultSchemaArgument       = null;
+    useSSLArgument                 = null;
+    useStartTLSArgument            = null;
+    additionalBindDNArgument       = null;
+    baseDNArgument                 = null;
+    accessLogFileArgument          = null;
+    keyStorePathArgument           = null;
+    ldapDebugLogFileArgument       = null;
+    ldifFileArgument               = null;
+    trustStorePathArgument         = null;
+    useSchemaFileArgument          = null;
+    maxChangeLogEntriesArgument    = null;
+    portArgument                   = null;
+    additionalBindPasswordArgument = null;
+    keyStorePasswordArgument       = null;
+    trustStorePasswordArgument     = null;
   }
 
 
@@ -375,19 +327,6 @@ public final class InMemoryDirectoryServerTool
   public String getToolDescription()
   {
     return INFO_MEM_DS_TOOL_DESC.get(InMemoryDirectoryServer.class.getName());
-  }
-
-
-
-  /**
-   * Retrieves the version string for this tool.
-   *
-   * @return  The version string for this tool.
-   */
-  @Override()
-  public String getToolVersion()
-  {
-    return Version.NUMERIC_VERSION_STRING;
   }
 
 
@@ -432,21 +371,11 @@ public final class InMemoryDirectoryServerTool
          Integer.MAX_VALUE, 0);
     parser.addArgument(maxChangeLogEntriesArgument);
 
-    accessLogToStandardOutArgument = new BooleanArgument('A',
-         "accessLogToStandardOut",
-         INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_TO_STDOUT.get());
-    parser.addArgument(accessLogToStandardOutArgument);
-
     accessLogFileArgument = new FileArgument('a', "accessLogFile", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_FILE.get(), false, true, true,
          false);
     parser.addArgument(accessLogFileArgument);
-
-    ldapDebugLogToStandardOutArgument = new BooleanArgument(null,
-         "ldapDebugLogToStandardOut",
-         INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_TO_STDOUT.get());
-    parser.addArgument(ldapDebugLogToStandardOutArgument);
 
     ldapDebugLogFileArgument = new FileArgument('d', "ldapDebugLogFile", false,
          1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
@@ -458,16 +387,11 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_USE_DEFAULT_SCHEMA.get());
     parser.addArgument(useDefaultSchemaArgument);
 
-    useSchemaFileArgument = new FileArgument('S', "useSchemaFile", false, 0,
+    useSchemaFileArgument = new FileArgument('S', "useSchemaFile", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_USE_SCHEMA_FILE.get(), true, true, false,
          false);
     parser.addArgument(useSchemaFileArgument);
-
-    equalityIndexArgument = new StringArgument('I', "equalityIndex", false, 0,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_ATTR.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_EQ_INDEX.get());
-    parser.addArgument(equalityIndexArgument);
 
     useSSLArgument = new BooleanArgument('Z', "useSSL",
          INFO_MEM_DS_TOOL_ARG_DESC_USE_SSL.get());
@@ -499,16 +423,6 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PW.get());
     parser.addArgument(trustStorePasswordArgument);
 
-    vendorNameArgument = new StringArgument(null, "vendorName", false, 1,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_NAME.get());
-    parser.addArgument(vendorNameArgument);
-
-    vendorVersionArgument = new StringArgument(null, "vendorVersion", false, 1,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_VERSION.get());
-    parser.addArgument(vendorVersionArgument);
-
     dontStartArgument = new BooleanArgument(null, "dontStart",
          INFO_MEM_DS_TOOL_ARG_DESC_DONT_START.get());
     dontStartArgument.setHidden(true);
@@ -517,11 +431,6 @@ public final class InMemoryDirectoryServerTool
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,
          useSchemaFileArgument);
     parser.addExclusiveArgumentSet(useSSLArgument, useStartTLSArgument);
-
-    parser.addExclusiveArgumentSet(accessLogToStandardOutArgument,
-         accessLogFileArgument);
-    parser.addExclusiveArgumentSet(ldapDebugLogToStandardOutArgument,
-         ldapDebugLogFileArgument);
 
     parser.addDependentArgumentSet(additionalBindDNArgument,
          additionalBindPasswordArgument);
@@ -657,56 +566,40 @@ public final class InMemoryDirectoryServerTool
     }
     else if (useSchemaFileArgument.isPresent())
     {
-      final ArrayList<File> schemaFiles = new ArrayList<File>(10);
-      for (final File f : useSchemaFileArgument.getValues())
+      final File f = useSchemaFileArgument.getValue();
+      if (f.exists())
       {
-        if (f.exists())
+        final ArrayList<File> schemaFiles = new ArrayList<File>(1);
+        if (f.isFile())
         {
-          if (f.isFile())
-          {
-            schemaFiles.add(f);
-          }
-          else
-          {
-            for (final File subFile : f.listFiles())
-            {
-              if (subFile.isFile())
-              {
-                schemaFiles.add(subFile);
-              }
-            }
-          }
+          schemaFiles.add(f);
         }
         else
         {
-          throw new LDAPException(ResultCode.PARAM_ERROR,
-               ERR_MEM_DS_TOOL_NO_SUCH_SCHEMA_FILE.get(f.getAbsolutePath()));
-        }
-      }
-
-      try
-      {
-        serverConfig.setSchema(Schema.getSchema(schemaFiles));
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-
-        final StringBuilder fileList = new StringBuilder();
-        final Iterator<File> fileIterator = schemaFiles.iterator();
-        while (fileIterator.hasNext())
-        {
-          fileList.append(fileIterator.next().getAbsolutePath());
-          if (fileIterator.hasNext())
+          for (final File subFile : f.listFiles())
           {
-            fileList.append(", ");
+            if (subFile.isFile())
+            {
+              schemaFiles.add(subFile);
+            }
           }
         }
 
-        throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_MEM_DS_TOOL_ERROR_READING_SCHEMA.get(
-                  fileList, StaticUtils.getExceptionMessage(e)),
-             e);
+        if (! schemaFiles.isEmpty())
+        {
+          try
+          {
+            serverConfig.setSchema(Schema.getSchema(schemaFiles));
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            throw new LDAPException(ResultCode.LOCAL_ERROR,
+                 ERR_MEM_DS_TOOL_ERROR_READING_SCHEMA.get(
+                      f.getAbsolutePath(), StaticUtils.getExceptionMessage(e)),
+                 e);
+          }
+        }
       }
     }
     else
@@ -736,14 +629,7 @@ public final class InMemoryDirectoryServerTool
 
     // If an access log file was specified, then create the appropriate log
     // handler.
-    if (accessLogToStandardOutArgument.isPresent())
-    {
-      final StreamHandler handler = new StreamHandler(System.out,
-           new MinimalLogFormatter(null, false, false, true));
-      handler.setLevel(Level.INFO);
-      serverConfig.setAccessLogHandler(handler);
-    }
-    else if (accessLogFileArgument.isPresent())
+    if (accessLogFileArgument.isPresent())
     {
       final File logFile = accessLogFileArgument.getValue();
       try
@@ -769,14 +655,7 @@ public final class InMemoryDirectoryServerTool
 
     // If an LDAP debug log file was specified, then create the appropriate log
     // handler.
-    if (ldapDebugLogToStandardOutArgument.isPresent())
-    {
-      final StreamHandler handler = new StreamHandler(System.out,
-           new MinimalLogFormatter(null, false, false, true));
-      handler.setLevel(Level.INFO);
-      serverConfig.setLDAPDebugLogHandler(handler);
-    }
-    else if (ldapDebugLogFileArgument.isPresent())
+    if (ldapDebugLogFileArgument.isPresent())
     {
       final File logFile = ldapDebugLogFileArgument.getValue();
       try
@@ -860,27 +739,6 @@ public final class InMemoryDirectoryServerTool
     {
       serverConfig.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig(
            "LDAP", listenPort));
-    }
-
-
-    // If vendor name and/or vendor version values were provided, then configure
-    // them for use.
-    if (vendorNameArgument.isPresent())
-    {
-      serverConfig.setVendorName(vendorNameArgument.getValue());
-    }
-
-    if (vendorVersionArgument.isPresent())
-    {
-      serverConfig.setVendorVersion(vendorVersionArgument.getValue());
-    }
-
-
-    // If equality indexing is to be performed, then configure it.
-    if (equalityIndexArgument.isPresent())
-    {
-      serverConfig.setEqualityIndexAttributes(
-           equalityIndexArgument.getValues());
     }
 
     return serverConfig;

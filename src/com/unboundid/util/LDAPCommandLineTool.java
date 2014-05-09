@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,19 +23,29 @@ package com.unboundid.util;
 
 
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import com.unboundid.ldap.sdk.ANONYMOUSBindRequest;
 import com.unboundid.ldap.sdk.BindRequest;
+import com.unboundid.ldap.sdk.CRAMMD5BindRequest;
+import com.unboundid.ldap.sdk.DIGESTMD5BindRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.EXTERNALBindRequest;
+import com.unboundid.ldap.sdk.GSSAPIBindRequest;
+import com.unboundid.ldap.sdk.GSSAPIBindRequestProperties;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.PLAINBindRequest;
 import com.unboundid.ldap.sdk.PostConnectProcessor;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.RoundRobinServerSet;
@@ -87,8 +97,6 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI>"-j {path}" or "--bindPasswordFile {path}" -- Specifies the path to the
  *       file containing the password to use when binding with simple
  *       authentication or a password-based SASL mechanism.</LI>
- *   <LI>"--promptForBindPassword" -- Indicates that the tool should
- *       interactively prompt the user for the bind password.</LI>
  *   <LI>"-Z" or "--useSSL" -- Indicates that the communication with the server
  *       should be secured using SSL.</LI>
  *   <LI>"-q" or "--useStartTLS" -- Indicates that the communication with the
@@ -102,8 +110,6 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI>"-u {path}" or "--keyStorePasswordFile {path}" -- Specifies the path to
  *       the file containing the password to use to access the contents of the
  *       key store.</LI>
- *   <LI>"--promptForKeyStorePassword" -- Indicates that the tool should
- *       interactively prompt the user for the key store password.</LI>
  *   <LI>"--keyStoreFormat {format}" -- Specifies the format to use for the key
  *       store file.</LI>
  *   <LI>"-P {path}" or "--trustStorePath {path}" -- Specifies the path to the
@@ -114,8 +120,6 @@ import static com.unboundid.util.UtilityMessages.*;
  *   <LI>"-U {path}" or "--trustStorePasswordFile {path}" -- Specifies the path
  *       to the file containing the password to use to access the contents of
  *       the trust store.</LI>
- *   <LI>"--promptForTrustStorePassword" -- Indicates that the tool should
- *       interactively prompt the user for the trust store password.</LI>
  *   <LI>"--trustStoreFormat {format}" -- Specifies the format to use for the
  *       trust store file.</LI>
  *   <LI>"-N {nickname}" or "--certNickname {nickname}" -- Specifies the
@@ -187,41 +191,229 @@ import static com.unboundid.util.UtilityMessages.*;
 public abstract class LDAPCommandLineTool
        extends CommandLineTool
 {
+  /**
+   * The set of required options for each SASL mechanism.
+   */
+  private static final Map<String,List<String>> REQUIRED_SASL_OPTIONS;
+
+
+
+  /**
+   * The set of optional options for each SASL mechanism.
+   */
+  private static final Map<String,List<String>> OPTIONAL_SASL_OPTIONS;
+
+
+
+  /**
+   * The name for the ANONYMOUS mechanism.
+   */
+  private static final String SASL_MECH_ANONYMOUS = "anonymous";
+
+
+
+  /**
+   * The name for the CRAM-MD5 mechanism.
+   */
+  private static final String SASL_MECH_CRAM_MD5 = "cram-md5";
+
+
+
+  /**
+   * The name for the DIGEST-MD5 mechanism.
+   */
+  private static final String SASL_MECH_DIGEST_MD5 = "digest-md5";
+
+
+
+  /**
+   * The name for the EXTERNAL mechanism.
+   */
+  private static final String SASL_MECH_EXTERNAL = "external";
+
+
+
+  /**
+   * The name for the GSSAPI mechanism.
+   */
+  private static final String SASL_MECH_GSSAPI = "gssapi";
+
+
+
+  /**
+   * The name for the PLAIN mechanism.
+   */
+  private static final String SASL_MECH_PLAIN = "plain";
+
+
+
+  /**
+   * The name of the SASL option that specifies the authentication ID.
+   */
+  private static final String SASL_OPTION_AUTH_ID = "authid";
+
+
+
+  /**
+   * The name of the SASL option that specifies the authorization ID.
+   */
+  private static final String SASL_OPTION_AUTHZ_ID = "authzid";
+
+
+
+  /**
+   * The name of the SASL option that specifies the path to the JAAS config
+   * file.
+   */
+  private static final String SASL_OPTION_CONFIG_FILE = "configfile";
+
+
+
+  /**
+   * The name of the SASL option that indicates whether debugging should be
+   * enabled.
+   */
+  private static final String SASL_OPTION_DEBUG = "debug";
+
+
+
+  /**
+   * The name of the SASL option that specifies the KDC address.
+   */
+  private static final String SASL_OPTION_KDC_ADDRESS = "kdcaddress";
+
+
+
+  /**
+   * The name of the SASL option that specifies the GSSAPI service principal
+   * protocol.
+   */
+  private static final String SASL_OPTION_PROTOCOL = "protocol";
+
+
+
+  /**
+   * The name of the SASL option that specifies the realm name.
+   */
+  private static final String SASL_OPTION_REALM = "realm";
+
+
+
+  /**
+   * The name of the SASL option that indicates whether to require an existing
+   * Kerberos session from the ticket cache.
+   */
+  private static final String SASL_OPTION_REQUIRE_CACHE = "requirecache";
+
+
+
+  /**
+   * The name of the SASL option that indicates whether to attempt to renew the
+   * Kerberos TGT for an existing session.
+   */
+  private static final String SASL_OPTION_RENEW_TGT = "renewtgt";
+
+
+
+  /**
+   * The name of the SASL option that specifies the path to the Kerberos ticket
+   * cache to use.
+   */
+  private static final String SASL_OPTION_TICKET_CACHE_PATH = "ticketcache";
+
+
+
+  /**
+   * The name of the SASL option that specifies the trace string.
+   */
+  private static final String SASL_OPTION_TRACE = "trace";
+
+
+
+  /**
+   * The name of the SASL option that specifies whether to use a Kerberos ticket
+   * cache.
+   */
+  private static final String SASL_OPTION_USE_TICKET_CACHE = "useticketcache";
 
 
 
   // Arguments used to communicate with an LDAP directory server.
-  private BooleanArgument promptForBindPassword       = null;
-  private BooleanArgument promptForKeyStorePassword   = null;
-  private BooleanArgument promptForTrustStorePassword = null;
-  private BooleanArgument trustAll                    = null;
-  private BooleanArgument useSSL                      = null;
-  private BooleanArgument useStartTLS                 = null;
-  private DNArgument      bindDN                      = null;
-  private FileArgument    bindPasswordFile            = null;
-  private FileArgument    keyStorePasswordFile        = null;
-  private FileArgument    trustStorePasswordFile      = null;
-  private IntegerArgument port                        = null;
-  private StringArgument  bindPassword                = null;
-  private StringArgument  certificateNickname         = null;
-  private StringArgument  host                        = null;
-  private StringArgument  keyStoreFormat              = null;
-  private StringArgument  keyStorePath                = null;
-  private StringArgument  keyStorePassword            = null;
-  private StringArgument  saslOption                  = null;
-  private StringArgument  trustStoreFormat            = null;
-  private StringArgument  trustStorePath              = null;
-  private StringArgument  trustStorePassword          = null;
+  private BooleanArgument trustAll;
+  private BooleanArgument useSSL;
+  private BooleanArgument useStartTLS;
+  private DNArgument      bindDN;
+  private FileArgument    bindPasswordFile;
+  private FileArgument    keyStorePasswordFile;
+  private FileArgument    trustStorePasswordFile;
+  private IntegerArgument port;
+  private StringArgument  bindPassword;
+  private StringArgument  certificateNickname;
+  private StringArgument  host;
+  private StringArgument  keyStoreFormat;
+  private StringArgument  keyStorePath;
+  private StringArgument  keyStorePassword;
+  private StringArgument  saslOption;
+  private StringArgument  trustStoreFormat;
+  private StringArgument  trustStorePath;
+  private StringArgument  trustStorePassword;
+
+  // The set of SASL options provided, if any.
+  private Map<String,String> saslOptions;
+  private String             saslMechanism;
 
   // Variables used when creating and authenticating connections.
-  private BindRequest bindRequest     = null;
-  private ServerSet   serverSet       = null;
-  private SSLContext  startTLSContext = null;
+  private BindRequest bindRequest;
+  private ServerSet   serverSet;
+  private SSLContext  startTLSContext;
 
   // The prompt trust manager that will be shared by all connections created
   // for which it is appropriate.  This will allow them to benefit from the
   // common cache.
   private final AtomicReference<PromptTrustManager> promptTrustManager;
+
+
+
+  static
+  {
+    REQUIRED_SASL_OPTIONS = new LinkedHashMap<String,List<String>>(6);
+    OPTIONAL_SASL_OPTIONS = new LinkedHashMap<String,List<String>>(6);
+
+    REQUIRED_SASL_OPTIONS.put(SASL_MECH_ANONYMOUS, Arrays.<String>asList());
+    OPTIONAL_SASL_OPTIONS.put(SASL_MECH_ANONYMOUS,
+         Arrays.asList(SASL_OPTION_TRACE));
+
+    REQUIRED_SASL_OPTIONS.put(SASL_MECH_CRAM_MD5,
+         Arrays.asList(SASL_OPTION_AUTH_ID));
+    OPTIONAL_SASL_OPTIONS.put(SASL_MECH_CRAM_MD5, Arrays.<String>asList());
+
+    REQUIRED_SASL_OPTIONS.put(SASL_MECH_DIGEST_MD5,
+         Arrays.asList(SASL_OPTION_AUTH_ID));
+    OPTIONAL_SASL_OPTIONS.put(SASL_MECH_DIGEST_MD5,
+         Arrays.asList(SASL_OPTION_AUTHZ_ID, SASL_OPTION_REALM));
+
+    REQUIRED_SASL_OPTIONS.put(SASL_MECH_EXTERNAL, Arrays.<String>asList());
+    OPTIONAL_SASL_OPTIONS.put(SASL_MECH_EXTERNAL, Arrays.<String>asList());
+
+    REQUIRED_SASL_OPTIONS.put(SASL_MECH_GSSAPI,
+         Arrays.asList(SASL_OPTION_AUTH_ID));
+    OPTIONAL_SASL_OPTIONS.put(SASL_MECH_GSSAPI,
+         Arrays.asList(SASL_OPTION_AUTHZ_ID,
+              SASL_OPTION_CONFIG_FILE,
+              SASL_OPTION_DEBUG,
+              SASL_OPTION_PROTOCOL,
+              SASL_OPTION_REALM,
+              SASL_OPTION_KDC_ADDRESS,
+              SASL_OPTION_RENEW_TGT,
+              SASL_OPTION_REQUIRE_CACHE,
+              SASL_OPTION_TICKET_CACHE_PATH,
+              SASL_OPTION_USE_TICKET_CACHE));
+
+    REQUIRED_SASL_OPTIONS.put(SASL_MECH_PLAIN,
+         Arrays.asList(SASL_OPTION_AUTH_ID));
+    OPTIONAL_SASL_OPTIONS.put(SASL_MECH_PLAIN,
+         Arrays.asList(SASL_OPTION_AUTHZ_ID));
+  }
 
 
 
@@ -269,29 +461,21 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65535, 389);
     parser.addArgument(port);
 
-    final boolean supportsAuthentication = supportsAuthentication();
-    if (supportsAuthentication)
-    {
-      bindDN = new DNArgument('D', "bindDN", false, 1,
-           INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
-           INFO_LDAP_TOOL_DESCRIPTION_BIND_DN.get());
-      parser.addArgument(bindDN);
+    bindDN = new DNArgument('D', "bindDN", false, 1,
+         INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
+         INFO_LDAP_TOOL_DESCRIPTION_BIND_DN.get());
+    parser.addArgument(bindDN);
 
-      bindPassword = new StringArgument('w', "bindPassword", false, 1,
-           INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
-           INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
-      parser.addArgument(bindPassword);
+    bindPassword = new StringArgument('w', "bindPassword", false, 1,
+         INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
+         INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
+    parser.addArgument(bindPassword);
 
-      bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
-           INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
-           INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
-           false);
-      parser.addArgument(bindPasswordFile);
-
-      promptForBindPassword = new BooleanArgument(null, "promptForBindPassword",
-           1, INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_PROMPT.get());
-      parser.addArgument(promptForBindPassword);
-    }
+    bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
+         INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
+         INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
+         false);
+    parser.addArgument(bindPasswordFile);
 
     useSSL = new BooleanArgument('Z', "useSSL", 1,
          INFO_LDAP_TOOL_DESCRIPTION_USE_SSL.get());
@@ -320,11 +504,6 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_FILE.get());
     parser.addArgument(keyStorePasswordFile);
 
-    promptForKeyStorePassword = new BooleanArgument(null,
-         "promptForKeyStorePassword", 1,
-         INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_PROMPT.get());
-    parser.addArgument(promptForKeyStorePassword);
-
     keyStoreFormat = new StringArgument(null, "keyStoreFormat", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_FORMAT.get());
@@ -345,11 +524,6 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_FILE.get());
     parser.addArgument(trustStorePasswordFile);
 
-    promptForTrustStorePassword = new BooleanArgument(null,
-         "promptForTrustStorePassword", 1,
-         INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_PROMPT.get());
-    parser.addArgument(promptForTrustStorePassword);
-
     trustStoreFormat = new StringArgument(null, "trustStoreFormat", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_FORMAT.get());
@@ -360,68 +534,19 @@ public abstract class LDAPCommandLineTool
          INFO_LDAP_TOOL_DESCRIPTION_CERT_NICKNAME.get());
     parser.addArgument(certificateNickname);
 
-    if (supportsAuthentication)
-    {
-      saslOption = new StringArgument('o', "saslOption", false, 0,
-           INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
-           INFO_LDAP_TOOL_DESCRIPTION_SASL_OPTION.get());
-      parser.addArgument(saslOption);
-    }
+    saslOption = new StringArgument('o', "saslOption", false, 0,
+         INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
+         INFO_LDAP_TOOL_DESCRIPTION_SASL_OPTION.get());
+    parser.addArgument(saslOption);
 
 
-    // Both useSSL and useStartTLS cannot be used together.
+    parser.addDependentArgumentSet(bindDN, bindPassword, bindPasswordFile);
+
     parser.addExclusiveArgumentSet(useSSL, useStartTLS);
-
-    // Only one option may be used for specifying the key store password.
-    parser.addExclusiveArgumentSet(keyStorePassword, keyStorePasswordFile,
-         promptForKeyStorePassword);
-
-    // Only one option may be used for specifying the trust store password.
-    parser.addExclusiveArgumentSet(trustStorePassword, trustStorePasswordFile,
-         promptForTrustStorePassword);
-
-    // It doesn't make sense to provide a trust store path if any server
-    // certificate should be trusted.
+    parser.addExclusiveArgumentSet(bindPassword, bindPasswordFile);
+    parser.addExclusiveArgumentSet(keyStorePassword, keyStorePasswordFile);
+    parser.addExclusiveArgumentSet(trustStorePassword, trustStorePasswordFile);
     parser.addExclusiveArgumentSet(trustAll, trustStorePath);
-
-    // If a key store password is provided, then a key store path must have also
-    // been provided.
-    parser.addDependentArgumentSet(keyStorePassword, keyStorePath);
-    parser.addDependentArgumentSet(keyStorePasswordFile, keyStorePath);
-    parser.addDependentArgumentSet(promptForKeyStorePassword, keyStorePath);
-
-    // If a trust store password is provided, then a trust store path must have
-    // also been provided.
-    parser.addDependentArgumentSet(trustStorePassword, trustStorePath);
-    parser.addDependentArgumentSet(trustStorePasswordFile, trustStorePath);
-    parser.addDependentArgumentSet(promptForTrustStorePassword, trustStorePath);
-
-    // If a key or trust store path is provided, then the tool must either use
-    // SSL or StartTLS.
-    parser.addDependentArgumentSet(keyStorePath, useSSL, useStartTLS);
-    parser.addDependentArgumentSet(trustStorePath, useSSL, useStartTLS);
-
-    // If the tool should trust all server certificates, then the tool must
-    // either use SSL or StartTLS.
-    parser.addDependentArgumentSet(trustAll, useSSL, useStartTLS);
-
-    if (supportsAuthentication)
-    {
-      // If a bind DN was provided, then a bind password must have also been
-      // provided.
-      parser.addDependentArgumentSet(bindDN, bindPassword, bindPasswordFile,
-           promptForBindPassword);
-
-      // Only one option may be used for specifying the bind password.
-      parser.addExclusiveArgumentSet(bindPassword, bindPasswordFile,
-           promptForBindPassword);
-
-      // If a bind password was provided, then the a bind DN or SASL option
-      // must have also been provided.
-      parser.addDependentArgumentSet(bindPassword, bindDN, saslOption);
-      parser.addDependentArgumentSet(bindPasswordFile, bindDN, saslOption);
-      parser.addDependentArgumentSet(promptForBindPassword, bindDN, saslOption);
-    }
 
     addNonLDAPArguments(parser);
   }
@@ -462,22 +587,68 @@ public abstract class LDAPCommandLineTool
     }
 
 
+    // If any SASL options were provided, then make sure they are valid.
+    saslMechanism = null;
+    saslOptions = new LinkedHashMap<String,String>(10);
+    if (saslOption.isPresent())
+    {
+      for (final String s : saslOption.getValues())
+      {
+        final int equalPos = s.indexOf('=');
+        if (equalPos < 0)
+        {
+          throw new ArgumentException(
+               ERR_LDAP_TOOL_MALFORMED_SASL_OPTION.get(s));
+        }
+
+        final String optionName  = toLowerCase(s.substring(0, equalPos));
+        final String optionValue = s.substring(equalPos+1);
+        saslOptions.put(optionName, optionValue);
+      }
+
+      final LinkedHashMap<String,String> optionsCopy =
+           new LinkedHashMap<String,String>(saslOptions);
+      final String mech = optionsCopy.remove("mech");
+      if (mech == null)
+      {
+        throw new ArgumentException(ERR_LDAP_TOOL_NO_SASL_MECH.get());
+      }
+
+      saslMechanism = toLowerCase(mech);
+      final List<String> requiredOptions =
+           REQUIRED_SASL_OPTIONS.get(saslMechanism);
+      final List<String> optionalOptions =
+           OPTIONAL_SASL_OPTIONS.get(saslMechanism);
+      if (requiredOptions == null)
+      {
+        throw new ArgumentException(
+             ERR_LDAP_TOOL_UNSUPPORTED_SASL_MECH.get(mech));
+      }
+
+      for (final String s : requiredOptions)
+      {
+        if (optionsCopy.remove(s) == null)
+        {
+          throw new ArgumentException(
+               ERR_LDAP_TOOL_MISSING_REQUIRED_SASL_OPTION.get(s, mech));
+        }
+      }
+
+      for (final String s : optionalOptions)
+      {
+        optionsCopy.remove(s);
+      }
+
+      if (! optionsCopy.isEmpty())
+      {
+        final String option = optionsCopy.keySet().iterator().next();
+        throw new ArgumentException(
+             ERR_LDAP_TOOL_INVALID_SASL_OPTION.get(option, mech));
+      }
+    }
+
+
     doExtendedNonLDAPArgumentValidation();
-  }
-
-
-
-  /**
-   * Indicates whether this tool should provide the arguments that allow it to
-   * bind via simple or SASL authentication.
-   *
-   * @return  {@code true} if this tool should provide the arguments that allow
-   *          it to bind via simple or SASL authentication, or {@code false} if
-   *          not.
-   */
-  protected boolean supportsAuthentication()
-  {
-    return true;
   }
 
 
@@ -549,44 +720,6 @@ public abstract class LDAPCommandLineTool
   public final LDAPConnection getConnection()
          throws LDAPException
   {
-    final LDAPConnection connection = getUnauthenticatedConnection();
-
-    try
-    {
-      if (bindRequest != null)
-      {
-        connection.bind(bindRequest);
-      }
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      connection.close();
-      throw le;
-    }
-
-    return connection;
-  }
-
-
-
-  /**
-   * Retrieves an unauthenticated connection that may be used to communicate
-   * with the target directory server.
-   * <BR><BR>
-   * Note that this method is threadsafe and may be invoked by multiple threads
-   * accessing the same instance only while that instance is in the process of
-   * invoking the {@link #doToolProcessing} method.
-   *
-   * @return  An unauthenticated connection that may be used to communicate with
-   *          the target directory server.
-   *
-   * @throws  LDAPException  If a problem occurs while creating the connection.
-   */
-  @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
-  public final LDAPConnection getUnauthenticatedConnection()
-         throws LDAPException
-  {
     if (serverSet == null)
     {
       serverSet   = createServerSet();
@@ -615,6 +748,20 @@ public abstract class LDAPCommandLineTool
         connection.close();
         throw le;
       }
+    }
+
+    try
+    {
+      if (bindRequest != null)
+      {
+        connection.bind(bindRequest);
+      }
+    }
+    catch (LDAPException le)
+    {
+      debugException(le);
+      connection.close();
+      throw le;
     }
 
     return connection;
@@ -744,34 +891,10 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the SSLUtil
    *                         instance.
    */
-  public SSLUtil createSSLUtil()
-         throws LDAPException
+  private SSLUtil createSSLUtil()
+          throws LDAPException
   {
-    return createSSLUtil(false);
-  }
-
-
-
-  /**
-   * Creates the SSLUtil instance to use for secure communication.
-   *
-   * @param  force  Indicates whether to create the SSLUtil object even if
-   *                neither the "--useSSL" nor the "--useStartTLS" argument was
-   *                provided.  The key store and/or trust store paths must still
-   *                have been provided.  This may be useful for tools that
-   *                accept SSL-based communication but do not themselves intend
-   *                to perform SSL-based communication as an LDAP client.
-   *
-   * @return  The SSLUtil instance to use for secure communication, or
-   *          {@code null} if secure communication is not needed.
-   *
-   * @throws  LDAPException  If a problem occurs while creating the SSLUtil
-   *                         instance.
-   */
-  public SSLUtil createSSLUtil(final boolean force)
-         throws LDAPException
-  {
-    if (force || useSSL.isPresent() || useStartTLS.isPresent())
+    if (useSSL.isPresent() || useStartTLS.isPresent())
     {
       KeyManager keyManager = null;
       if (keyStorePath.isPresent())
@@ -795,13 +918,6 @@ public abstract class LDAPCommandLineTool
                  ERR_LDAP_TOOL_CANNOT_READ_KEY_STORE_PASSWORD.get(
                       getExceptionMessage(e)), e);
           }
-        }
-        else if (promptForKeyStorePassword.isPresent())
-        {
-          getOut().print(INFO_LDAP_TOOL_ENTER_KEY_STORE_PASSWORD.get());
-          pw = StaticUtils.toUTF8String(
-               PasswordReader.readPassword()).toCharArray();
-          getOut().println();
         }
 
         try
@@ -845,13 +961,6 @@ public abstract class LDAPCommandLineTool
                       getExceptionMessage(e)), e);
           }
         }
-        else if (promptForTrustStorePassword.isPresent())
-        {
-          getOut().print(INFO_LDAP_TOOL_ENTER_TRUST_STORE_PASSWORD.get());
-          pw = StaticUtils.toUTF8String(
-               PasswordReader.readPassword()).toCharArray();
-          getOut().println();
-        }
 
         trustManager = new TrustStoreTrustManager(trustStorePath.getValue(), pw,
              trustStoreFormat.getValue(), true);
@@ -886,14 +995,9 @@ public abstract class LDAPCommandLineTool
    * @throws  LDAPException  If a problem occurs while creating the bind
    *                         request.
    */
-  public BindRequest createBindRequest()
-         throws LDAPException
+  private BindRequest createBindRequest()
+          throws LDAPException
   {
-    if (! supportsAuthentication())
-    {
-      return null;
-    }
-
     final String pw;
     if (bindPassword.isPresent())
     {
@@ -913,35 +1017,98 @@ public abstract class LDAPCommandLineTool
                   getExceptionMessage(e)), e);
       }
     }
-    else if (promptForBindPassword.isPresent())
-    {
-      getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
-      pw = StaticUtils.toUTF8String(PasswordReader.readPassword());
-      getOut().println();
-    }
     else
     {
       pw = null;
     }
 
-    if (saslOption.isPresent())
+    if (bindDN.isPresent())
     {
-      final String dnStr;
-      if (bindDN.isPresent())
+      return new SimpleBindRequest(bindDN.getValue(), pw);
+    }
+    else if (saslMechanism != null)
+    {
+      if (saslMechanism.equals(SASL_MECH_ANONYMOUS))
       {
-        dnStr = bindDN.getValue().toString();
+        return new ANONYMOUSBindRequest(saslOptions.get(SASL_OPTION_TRACE));
+      }
+      else if (saslMechanism.equals(SASL_MECH_CRAM_MD5))
+      {
+        return new CRAMMD5BindRequest(saslOptions.get(SASL_OPTION_AUTH_ID), pw);
+      }
+      else if (saslMechanism.equals(SASL_MECH_DIGEST_MD5))
+      {
+        return new DIGESTMD5BindRequest(saslOptions.get(SASL_OPTION_AUTH_ID),
+             saslOptions.get(SASL_OPTION_AUTHZ_ID), pw,
+             saslOptions.get(SASL_OPTION_REALM));
+      }
+      else if (saslMechanism.equals(SASL_MECH_EXTERNAL))
+      {
+        return new EXTERNALBindRequest();
+      }
+      else if (saslMechanism.equals(SASL_MECH_GSSAPI))
+      {
+        final GSSAPIBindRequestProperties gssapiProperties =
+             new GSSAPIBindRequestProperties(
+                  saslOptions.get(SASL_OPTION_AUTH_ID), pw);
+        gssapiProperties.setAuthorizationID(
+             saslOptions.get(SASL_OPTION_AUTHZ_ID));
+        gssapiProperties.setRealm(saslOptions.get(SASL_OPTION_REALM));
+        gssapiProperties.setKDCAddress(
+             saslOptions.get(SASL_OPTION_KDC_ADDRESS));
+        gssapiProperties.setConfigFilePath(
+             saslOptions.get(SASL_OPTION_CONFIG_FILE));
+        gssapiProperties.setTicketCachePath(
+             saslOptions.get(SASL_OPTION_TICKET_CACHE_PATH));
+
+        final String protocol = saslOptions.get(SASL_OPTION_PROTOCOL);
+        if (protocol != null)
+        {
+          gssapiProperties.setServicePrincipalProtocol(protocol);
+        }
+
+        final String useTicketCacheStr =
+             saslOptions.get(SASL_OPTION_USE_TICKET_CACHE);
+        if (useTicketCacheStr != null)
+        {
+          gssapiProperties.setUseTicketCache(
+               useTicketCacheStr.equalsIgnoreCase("true"));
+        }
+
+        final String requireCacheStr =
+             saslOptions.get(SASL_OPTION_REQUIRE_CACHE);
+        if (requireCacheStr != null)
+        {
+          gssapiProperties.setRequireCachedCredentials(
+               requireCacheStr.equalsIgnoreCase("true"));
+        }
+
+        final String renewTGTStr =
+             saslOptions.get(SASL_OPTION_RENEW_TGT);
+        if (renewTGTStr != null)
+        {
+          gssapiProperties.setRenewTGT(
+               renewTGTStr.equalsIgnoreCase("true"));
+        }
+
+        final String debugStr = saslOptions.get(SASL_OPTION_DEBUG);
+        if ((debugStr != null) && debugStr.equalsIgnoreCase("true"))
+        {
+          gssapiProperties.setEnableGSSAPIDebugging(true);
+        }
+
+        return new GSSAPIBindRequest(gssapiProperties);
+      }
+      else if (saslMechanism.equals(SASL_MECH_PLAIN))
+      {
+        return new PLAINBindRequest(saslOptions.get(SASL_OPTION_AUTH_ID),
+             saslOptions.get(SASL_OPTION_AUTHZ_ID), pw);
       }
       else
       {
-        dnStr = null;
+        throw new LDAPException(ResultCode.NOT_SUPPORTED,
+             ERR_LDAP_TOOL_UNSUPPORTED_SASL_MECH.get(saslMechanism));
       }
-
-      return SASLUtils.createBindRequest(dnStr, pw, null,
-           saslOption.getValues());
-    }
-    else if (bindDN.isPresent())
-    {
-      return new SimpleBindRequest(bindDN.getValue(), pw);
     }
     else
     {

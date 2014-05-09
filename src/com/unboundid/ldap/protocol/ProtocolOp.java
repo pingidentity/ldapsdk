@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -25,7 +25,6 @@ package com.unboundid.ldap.protocol;
 import java.io.Serializable;
 
 import com.unboundid.asn1.ASN1Buffer;
-import com.unboundid.asn1.ASN1Element;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.ThreadSafety;
@@ -49,16 +48,6 @@ public interface ProtocolOp
    * @return  The BER type for this protocol op.
    */
   byte getProtocolOpType();
-
-
-
-  /**
-   * Encodes this protocol op to an ASN.1 element suitable for inclusion in an
-   * encoded LDAP message.
-   *
-   * @return  The ASN.1 element containing the encoded protocol op.
-   */
-  ASN1Element encodeProtocolOp();
 
 
 

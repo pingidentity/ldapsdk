@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2014 UnboundID Corp.
+ * Copyright 2009-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2014 UnboundID Corp.
+ * Copyright (C) 2009-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -30,7 +30,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Collections;
@@ -39,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Attribute;
@@ -164,10 +162,6 @@ public final class LDAPObjectHandler<T>
   // The set of attributes that should be lazily loaded.
   private final String[] lazilyLoadedAttributes;
 
-  // The superior object classes that should should used for entries created
-  // from objects of the associated type.
-  private final String[] superiorClasses;
-
 
 
   /**
@@ -253,21 +247,6 @@ public final class LDAPObjectHandler<T>
         throw new LDAPPersistException(
              ERR_OBJECT_HANDLER_INVALID_AUXILIARY_CLASS.get(type.getName(),
                   auxiliaryClass, invalidReason.toString()));
-      }
-    }
-
-    superiorClasses = ldapObject.superiorClass();
-    for (final String superiorClass : superiorClasses)
-    {
-      if (PersistUtils.isValidLDAPName(superiorClass, invalidReason))
-      {
-        objectClasses.put(toLowerCase(superiorClass), superiorClass);
-      }
-      else
-      {
-        throw new LDAPPersistException(
-             ERR_OBJECT_HANDLER_INVALID_SUPERIOR_CLASS.get(type.getName(),
-                  superiorClass, invalidReason.toString()));
       }
     }
 
@@ -770,21 +749,6 @@ public final class LDAPObjectHandler<T>
   public String[] getAuxiliaryClasses()
   {
     return auxiliaryClasses;
-  }
-
-
-
-  /**
-   * Retrieves the names of the superior object classes for objects of the
-   * associated type.
-   *
-   * @return  The names of the superior object classes for objects of the
-   *          associated type.  It may be empty if no superior classes are
-   *          defined.
-   */
-  public String[] getSuperiorClasses()
-  {
-    return superiorClasses;
   }
 
 
@@ -1608,84 +1572,6 @@ public final class LDAPObjectHandler<T>
       originalEntry = null;
     }
 
-    // If we have an original copy of the entry, then we can try encoding the
-    // updated object to a new entry and diff the two entries.
-    if (originalEntry != null)
-    {
-      try
-      {
-        final T decodedOrig = decode(originalEntry);
-        final Entry reEncodedOriginal =
-             encode(decodedOrig, originalEntry.getParentDNString());
-
-        final Entry newEntry = encode(o, originalEntry.getParentDNString());
-        final List<Modification> mods = Entry.diff(reEncodedOriginal, newEntry,
-             true, false, attributes);
-        if (! deleteNullValues)
-        {
-          final Iterator<Modification> iterator = mods.iterator();
-          while (iterator.hasNext())
-          {
-            final Modification m = iterator.next();
-            if (m.getRawValues().length == 0)
-            {
-              iterator.remove();
-            }
-          }
-        }
-
-        // If there are any attributes that should be excluded from
-        // modifications, then strip them out.
-        HashSet<String> stripAttrs = null;
-        for (final FieldInfo i : fieldMap.values())
-        {
-          if (! i.includeInModify())
-          {
-            if (stripAttrs == null)
-            {
-              stripAttrs = new HashSet<String>(10);
-            }
-            stripAttrs.add(toLowerCase(i.getAttributeName()));
-          }
-        }
-
-        for (final GetterInfo i : getterMap.values())
-        {
-          if (! i.includeInModify())
-          {
-            if (stripAttrs == null)
-            {
-              stripAttrs = new HashSet<String>(10);
-            }
-            stripAttrs.add(toLowerCase(i.getAttributeName()));
-          }
-        }
-
-        if (stripAttrs != null)
-        {
-          final Iterator<Modification> iterator = mods.iterator();
-          while (iterator.hasNext())
-          {
-            final Modification m = iterator.next();
-            if (stripAttrs.contains(toLowerCase(m.getAttributeName())))
-            {
-              iterator.remove();
-            }
-          }
-        }
-
-        return mods;
-      }
-      catch (final Exception e)
-      {
-        debugException(e);
-      }
-      finally
-      {
-        setDNAndEntryFields(o, originalEntry);
-      }
-    }
-
     final HashSet<String> attrSet;
     if ((attributes == null) || (attributes.length == 0))
     {
@@ -1873,51 +1759,10 @@ public final class LDAPObjectHandler<T>
   public Filter createFilter(final T o)
          throws LDAPPersistException
   {
-    final AtomicBoolean addedRequiredOrAllowed = new AtomicBoolean(false);
-
-    final Filter f = createFilter(o, addedRequiredOrAllowed);
-    if (! addedRequiredOrAllowed.get())
-    {
-      throw new LDAPPersistException(
-           ERR_OBJECT_HANDLER_FILTER_MISSING_REQUIRED_OR_ALLOWED.get());
-    }
-
-    return f;
-  }
-
-
-
-  /**
-   * Retrieves a filter that can be used to search for entries matching the
-   * provided object.  It will be constructed as an AND search using all fields
-   * with a non-{@code null} value and that have a {@link LDAPField} annotation
-   * with the {@code inFilter} element set to {@code true}, and all  getter
-   * methods that return a non-{@code null} value and have a
-   * {@link LDAPGetter} annotation with the {@code inFilter} element set to
-   * {@code true}.
-   *
-   * @param  o                       The object for which to create the search
-   *                                 filter.
-   * @param  addedRequiredOrAllowed  Indicates whether any filter elements from
-   *                                 required or allowed fields or getters have
-   *                                 been added to the filter yet.
-   *
-   * @return  A filter that can be used to search for entries matching the
-   *          provided object.
-   *
-   * @throws  LDAPPersistException  If it is not possible to construct a search
-   *                                filter for some reason (e.g., because the
-   *                                provided object does not have any
-   *                                non-{@code null} fields or getters that are
-   *                                marked for inclusion in filters).
-   */
-  private Filter createFilter(final T o,
-                              final AtomicBoolean addedRequiredOrAllowed)
-          throws LDAPPersistException
-  {
     final ArrayList<Attribute> attrs = new ArrayList<Attribute>(5);
     attrs.add(objectClassAttribute);
 
+    boolean added = false;
     for (final FieldInfo i : requiredFilterFields)
     {
       final Attribute a = i.encode(o, true);
@@ -1930,7 +1775,7 @@ public final class LDAPObjectHandler<T>
       else
       {
         attrs.add(a);
-        addedRequiredOrAllowed.set(true);
+        added = true;
       }
     }
 
@@ -1946,7 +1791,7 @@ public final class LDAPObjectHandler<T>
       else
       {
         attrs.add(a);
-        addedRequiredOrAllowed.set(true);
+        added = true;
       }
     }
 
@@ -1956,7 +1801,7 @@ public final class LDAPObjectHandler<T>
       if (a != null)
       {
         attrs.add(a);
-        addedRequiredOrAllowed.set(true);
+        added = true;
       }
     }
 
@@ -1966,8 +1811,14 @@ public final class LDAPObjectHandler<T>
       if (a != null)
       {
         attrs.add(a);
-        addedRequiredOrAllowed.set(true);
+        added = true;
       }
+    }
+
+    if (! added)
+    {
+      throw new LDAPPersistException(
+           ERR_OBJECT_HANDLER_FILTER_MISSING_REQUIRED_OR_ALLOWED.get());
     }
 
     for (final FieldInfo i : conditionallyAllowedFilterFields)
@@ -1999,8 +1850,7 @@ public final class LDAPObjectHandler<T>
 
     if (superclassHandler != null)
     {
-      final Filter f =
-           superclassHandler.createFilter(o, addedRequiredOrAllowed);
+      final Filter f = superclassHandler.createFilter(o);
       if (f.getFilterType() == Filter.FILTER_TYPE_AND)
       {
         comps.addAll(Arrays.asList(f.getComponents()));

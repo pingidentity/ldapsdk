@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2014 UnboundID Corp.
+ * Copyright 2008-2011 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2014 UnboundID Corp.
+ * Copyright (C) 2008-2011 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -22,13 +22,11 @@ package com.unboundid.ldap.sdk;
 
 
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
-import com.unboundid.util.StaticUtils;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -41,7 +39,7 @@ import static com.unboundid.util.Debug.*;
  */
 @InternalUseOnly()
 final class AsyncCompareHelper
-      implements CommonAsyncHelper, IntermediateResponseListener
+      implements ResponseAcceptor, IntermediateResponseListener
 {
   /**
    * The serial version UID for this serializable class.
@@ -55,9 +53,6 @@ final class AsyncCompareHelper
 
   // The async request ID created for the associated operation.
   private final AsyncRequestID asyncRequestID;
-
-  // Indicates whether the final response has been returned.
-  private final AtomicBoolean responseReturned;
 
   // The intermediate response listener to be notified of any intermediate
   // response messages received.
@@ -94,49 +89,20 @@ final class AsyncCompareHelper
     this.resultListener               = resultListener;
     this.intermediateResponseListener = intermediateResponseListener;
 
-    asyncRequestID   = new AsyncRequestID(messageID, connection);
-    responseReturned = new AtomicBoolean(false);
-    createTime       = System.nanoTime();
+    asyncRequestID = new AsyncRequestID(messageID, connection);
+    createTime     = System.nanoTime();
   }
 
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves the async request ID created for the associated operation.
+   *
+   * @return  The async request ID created for the associated operation.
    */
-  public AsyncRequestID getAsyncRequestID()
+  AsyncRequestID getAsyncRequestID()
   {
     return asyncRequestID;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  public LDAPConnection getConnection()
-  {
-    return connection;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  public long getCreateTimeNanos()
-  {
-    return createTime;
-  }
-
-
-
-  /**
-   * {@inheritDoc}
-   */
-  public OperationType getOperationType()
-  {
-    return OperationType.COMPARE;
   }
 
 
@@ -148,40 +114,27 @@ final class AsyncCompareHelper
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
-    if (! responseReturned.compareAndSet(false, true))
-    {
-      return;
-    }
-
-    final long responseTime = System.nanoTime() - createTime;
-
-    final CompareResult result;
     if (response instanceof ConnectionClosedResponse)
     {
       final ConnectionClosedResponse ccr = (ConnectionClosedResponse) response;
-      final String msg = ccr.getMessage();
-      if (msg == null)
+      final String message = ccr.getMessage();
+      if (message == null)
       {
-        result = new CompareResult(asyncRequestID.getMessageID(),
-             ccr.getResultCode(),
-             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get(), null,
-             StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+        throw new LDAPException(ccr.getResultCode(),
+             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE.get());
       }
       else
       {
-        result = new CompareResult(asyncRequestID.getMessageID(),
-             ccr.getResultCode(),
-             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(msg),
-             null, StaticUtils.NO_STRINGS, StaticUtils.NO_CONTROLS);
+        throw new LDAPException(ccr.getResultCode(),
+             ERR_CONN_CLOSED_WAITING_FOR_ASYNC_RESPONSE_WITH_MESSAGE.get(
+                  message));
       }
-    }
-    else
-    {
-      result = (CompareResult) response;
     }
 
     connection.getConnectionStatistics().incrementNumCompareResponses(
-         responseTime);
+         System.nanoTime() - createTime);
+
+    final CompareResult result = (CompareResult) response;
     resultListener.compareResultReceived(asyncRequestID, result);
     asyncRequestID.setResult(result);
   }
