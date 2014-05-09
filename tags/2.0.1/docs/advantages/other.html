@@ -1,0 +1,283 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Other Advantages of the UnboundID LDAP SDK for Java</h2>
+
+              This page describes some of the additional advantages that the UnboundID LDAP SDK
+              offers over other Java-based LDAP APIs.
+
+              <p></p>
+              <h3>Default Protocol Version</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java uses LDAPv3 as the default protocol version, and
+                it does not provide support for LDAPv2.  LDAPv2 is a deprecated version of the
+                protocol (as per <a href="http://www.ietf.org/rfc/rfc3494.txt">RFC 3494</a>) and
+                should not be used for new development.  It does not support features like
+                controls, extended operations, and referrals, and has frequently caused problems
+                for LDAP clients trying to use these features when they were unknowingly using
+                LDAPv2 instead of LDAPv3.  This is a particularly common problem with clients
+                developed using the Netscape Directory SDK for Java, since it uses LDAPv2 by
+                default and it is necessary to override that each time you perform a bind.  JNDI
+                offers support for both LDAPv2 and LDAPv3, but appears to use LDAPv3 by default.
+              </p>
+
+              <p></p>
+              <h3>Improved Disconnect Handling</h3>
+
+              <p>
+                Well-designed LDAP clients generally maintain connections that are established for
+                long periods of time that are reused for many requests rather than establishing
+                separate connections for each operation.  This is much more efficient and
+                dramatically reduces the load on both the client and the server.  However, this
+                can cause problems if a connection becomes invalid for some reason (e.g., if the
+                directory server is restarted, terminates the client connection, or becomes
+                unavailable as a result of a network problem).  The client needs to be able to
+                detect and handle this kind of problem, and failure to do so properly has been
+                responsible for many problems with directory-enabled applications.  The UnboundID
+                LDAP SDK for Java offers a number of features that can help make this easier:
+              </p>
+
+              <ul>
+                <li>
+                  The LDAP SDK provides a <tt>DisconnectHandler</tt> API that can be used to
+                  notify the client whenever it detects that a connection is no longer available.
+                  This disconnect notification may also include additional information about the
+                  reason for the disconnect.
+                  <br><br>
+                </li>
+
+                <li>
+                  It is possible to configure LDAP connections so that they automatically attempt
+                  to re-establish themselves in the event of an unexpected disconnect.
+                  <br><br>
+                </li>
+
+                <li>
+                  The <tt>ResultCode</tt> class provides a method for determining whether an
+                  error result may indicate that the connection should be terminated and
+                  re-established or if it may safely continue to be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  When using a connection pool, the pool itself will take care of detecting
+                  invalid connections and automatically re-establishing them.
+                  <br><br>
+                </li>
+
+                <li>
+                  When using server sets and connection pools together, the LDAP SDK provides the
+                  ability to automatically fail over to another server if one server becomes
+                  unavailable.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Client-Side Entry Sorting</h3>
+
+              <p>
+                Many directory servers support the use of the server-side sort control as
+                described in <a href="http://www.ietf.org/rfc/rfc2891.txt">RFC 2891</a>, and the
+                UnboundID LDAP SDK provides support for using this control.  However, some
+                directory servers do not support this control, and of those that do it may be an
+                expensive operation to perform the operation on the server side and/or may require
+                special configuration to allow it.
+              </p>
+
+              <p>
+                A good alternative to server-side sorting is to perform the work on the client,
+                particularly for small result sets.  JNDI does not provide any support for this
+                capability.  The Netscape Directory SDK for Java provides some level of support
+                for client-side sorting, but it is limited to simple lexicographic ordering.  The
+                UnboundID LDAP SDK for Java provides a much more full-featured
+                <tt>EntrySorter</tt> class which includes the ability to perform syntax-based
+                sorting using information read from the server schema, as well as including
+                information about the location of the entry in the DIT.  This class implements
+                the <tt>Comparator</tt> interface, so it can also be used in conjunction with any
+                type of collection that uses that interface for sorting.
+              </p>
+
+              <p></p>
+              <h3>Client-Side Schema Validation</h3>
+
+              <p>
+                The LDAP specifications provide the ability for servers to define very rich schema
+                support that can be used to define constraints for the contents of entries.  When
+                adding a new entry or altering an existing entry, it could be helpful to know
+                whether that change complies with the server schema so that the client can avoid
+                sending a request to the server that it knows will be rejected.
+              </p>
+
+              <p>
+                JNDI does not provide any ability for parsing schema elements.  The Netscape
+                Directory SDK for Java offers the ability to read and parse schema elements, but
+                it does not include any facility for helping to determine whether an entry may be
+                valid.  The UnboundID LDAP SDK for Java, however, provides very rich support for
+                this in the form of the <tt>EntryValidator</tt> class.  This class provides
+                support for the following types of validation:
+              </p>
+
+              <ul>
+                <li>
+                  Ensure that the entry has a valid, well-formed DN.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that the entry has exactly one structural object class.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that all object classes contained in an entry are defined in the server
+                  schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that all auxiliary object classes for the entry are allowed by any DIT
+                  content rule associated with the entry's structural object class.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that all attributes included in the entry are defined in the server
+                  schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that all attributes required by the entry's object classes and DIT
+                  content rule are present in the entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that all user attributes contained in the entry are allowed by the
+                  entry's object classes and DIT content rule.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that all attribute values conform to the requirements of the associated
+                  attribute syntax.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that all attributes with multiple values are defined as multi-valued in
+                  the server schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that the entry DN conforms to the requirements of any name form
+                  associated with the entry's structural object class.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                The <tt>EntryValidator</tt> class is configurable, and each of these checks can be
+                enabled or disabled individually.  If any problems are detected while parsing an
+                entry, then human-readable explanations of those problems will be made available.
+                The <tt>validate-ldif</tt> tool provided as an example tool with the LDAP SDK
+                takes advantage of this class and can be used to ensure that an LDIF file is clean
+                before attempting to import it.
+              </p>
+
+              <p></p>
+              <h3>Entry Comparison</h3>
+
+              <p>
+                There are a number of cases in which it is useful to be able to compare two
+                entries and identify any differences between them.  For example, if an application
+                provides the ability to alter the contents of an entry, then it will be
+                necessary for that application to determine what changes were made in order to
+                send the appropriate modify request to the server.  Alternately, it may be useful
+                to compare entries on different servers to determine whether they are in sync.
+              </p>
+
+              <p>
+                Neither JNDI nor the Netscape Directory SDK for Java provide any direct support
+                for this, so any applications which wish to compare entries must implement the
+                logic for themselves.  This can be tricky, and there are a number of things to
+                consider.  To help with such cases, the UnboundID LDAP SDK for Java provides a
+                simple <tt>Entry.diff</tt> method which may be used to compare entries and
+                identify any differences between them.  The differences will be returned as a set
+                of modifications that can be applied to the source entry in order to make it look
+                like the target entry.  It provides the ability to restrict the comparison to a
+                specified set of attributes, and also to optionally ignore differences in RDN
+                attribute values.
+              </p>
+
+              <p></p>
+              <h3>Provided Example Tools</h3>
+
+              <p>
+                While having documentation available is important, one of the best ways to learn
+                how to use an API is to see examples using that API.  The Netscape Directory SDK
+                for Java provides <tt>LDAPSearch</tt>, <tt>LDAPModify</tt>, and
+                <tt>LDAPDelete</tt> tools that can be used to demonstrate the ability to perform
+                various types of LDAP operations.  JNDI does not provide any.  The set of example
+                tools provided with the UnboundID LDAP SDK for Java include:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>LDAPCompare</tt> -- Provides a tool that demonstrates the process for
+                  performing LDAP compare operations.  It also demonstrates the command-line
+                  argument parsing and LDAP command-line tool APIs.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>LDAPModify</tt> -- Provides a tool that demonstrates the process for reading
+                  changes from LDIF and processing them as add, delete, modify, or modify DN
+                  operations.  It also demonstrates the command-line argument parsing and LDAP
+                  command-line tool APIs.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>LDAPSearch</tt> -- Provides a tool that demonstrates the process for
+                  performing LDAP search operations.  It also demonstrates the command-line
+                  argument parsing and LDAP command-line tool APIs.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>ModRate</tt> -- Provides a tool that may be used to perform repeated
+                  modifications against a directory server to measure modify performance.  It
+                  demonstrates the command-line argument parsing, LDAP command-line tool, and
+                  value pattern APIs.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>SearchRate</tt> -- Provides a tool that may be used to perform repeated
+                  searches against a directory server to measure search performance.  It
+                  demonstrates the command-line argument parsing, LDAP command-line tool, and
+                  value pattern APIs.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>ValidateLDIF</tt> -- Provides a tool that may be used to validate that the
+                  contents of an LDIF file are valid in accordance with a server schema.  It
+                  demonstrates the LDIF reading and writing, command-line argument parsing, LDAP
+                  command-line tool, and schema processing APIs.
+                  <br><br>
+                </li>
+              </ul>

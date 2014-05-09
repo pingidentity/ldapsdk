@@ -1,0 +1,682 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ! Copyright 2009-2013 UnboundID Corp.
+ ! All Rights Reserved.
+ -->
+<!--
+ ! Copyright (C) 2009-2013 UnboundID Corp.
+ !
+ ! This program is free software; you can redistribute it and/or modify
+ ! it under the terms of the GNU General Public License (GPLv2 only)
+ ! or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ ! as published by the Free Software Foundation.
+ !
+ ! This program is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ! GNU General Public License for more details.
+ !
+ ! You should have received a copy of the GNU General Public License
+ ! along with this program; if not, see <http://www.gnu.org/licenses>.
+ -->
+
+<resources>
+
+  <!--
+   ! Strings used in the manifest.
+   -->
+  <string name="app_name">
+    LDAP Client
+  </string>
+
+  <string name="activity_label">
+    UnboundID LDAP Client
+  </string>
+
+  <string name="empty_string" />
+
+
+
+  <!--
+   ! Strings used by the layout_define_server layout.
+   -->
+  <string name="layout_define_server_label_id">
+    Server ID (Uniquely identifies this server)
+  </string>
+
+  <string name="layout_define_server_label_host">
+    Directory Server Address (IP address or hostname)
+  </string>
+
+  <string name="layout_define_server_label_port">
+    Directory Server Port (1 - 65535)
+  </string>
+
+  <string name="layout_define_server_label_security_type">
+    Communication Security Type
+  </string>
+
+  <string name="layout_define_server_label_bind_dn">
+    Bind DN (leave empty for anonymous)
+  </string>
+
+  <string name="layout_define_server_label_bind_pw">
+    Bind Password (leave empty for anonymous)
+  </string>
+
+  <string name="layout_define_server_label_base_dn">
+    Base DN (leave empty for entire server)
+  </string>
+
+  <string name="layout_define_server_button_label_test">
+    Test Settings
+  </string>
+
+  <string name="layout_define_server_button_label_save">
+    Save Settings
+  </string>
+
+
+
+  <!--
+   ! Strings used by the layout_list_servers layout.
+   -->
+  <string name="layout_list_servers_button_label_new_server">
+    New Server
+  </string>
+
+
+
+  <!--
+   ! Strings used by the layout_popup layout.
+   -->
+  <string name="layout_popup_button_label_ok">
+    OK
+  </string>
+
+
+
+  <!--
+   ! Strings used by the layout_search_server layout.
+   -->
+  <string name="layout_search_server_label_search_type">
+    Search Type
+  </string>
+
+  <string name="layout_search_server_label_search_text">
+    Search Text
+  </string>
+
+  <string name="layout_search_server_button_label_search">
+    Search
+  </string>
+
+
+
+  <!--
+   ! Strings used by the AddServer activity.
+   -->
+  <string name="add_server_security_type_none">
+    None
+  </string>
+
+  <string name="add_server_security_type_ssl">
+    SSL
+  </string>
+
+  <string name="add_server_security_type_start_tls">
+    StartTLS
+  </string>
+
+  <array name="add_server_security_type_list">
+    <item>@string/add_server_security_type_none</item>
+    <item>@string/add_server_security_type_ssl</item>
+    <item>@string/add_server_security_type_start_tls</item>
+  </array>
+
+  <string name="add_server_err_port_not_int">
+    The port number must be an integer.
+  </string>
+
+  <string name="add_server_popup_title_failed">
+    Test Failed
+  </string>
+
+  <string name="add_server_popup_text_failed">
+    The provided server settings are not acceptable or the target server is
+    unavailable.  The failure reasons are:  %s
+  </string>
+
+  <string name="add_server_progress_text">
+    Testing server settings...
+  </string>
+
+  <string name="add_server_popup_title_success">
+    Test Succeeded
+  </string>
+
+  <string name="add_server_popup_text_success">
+    The provided server settings appear to be valid.
+  </string>
+
+  <string name="add_server_err_server_id_already_in_use">
+    Another server has already been defined with server ID \"%s\".
+  </string>
+
+
+
+  <!--
+   ! Strings used by the AddToContactsOnClickListener class.
+   -->
+  <string name="add_to_contacts_popup_title_error">
+    ERROR
+  </string>
+
+  <string name="add_to_contacts_popup_text_error">
+    Unable to add user \"%s\" to the contacts.
+  </string>
+
+
+
+  <!--
+   ! Strings used by the AttributeMapper class.
+   -->
+  <string name="attribute_mapper_name_cn">
+    Full Name
+  </string>
+
+  <string name="attribute_mapper_name_departmentNumber">
+    Department Number
+  </string>
+
+  <string name="attribute_mapper_name_description">
+    Description
+  </string>
+
+  <string name="attribute_mapper_name_displayName">
+    Display Name
+  </string>
+
+  <string name="attribute_mapper_name_employeeNumber">
+    Employee Number
+  </string>
+
+  <string name="attribute_mapper_name_facsimileTelephoneNumber">
+    Fax Number
+  </string>
+
+  <string name="attribute_mapper_name_givenName">
+    First Name
+  </string>
+
+  <string name="attribute_mapper_name_homePhone">
+    Home Phone Number
+  </string>
+
+  <string name="attribute_mapper_name_homePostalAddress">
+    Home Address
+  </string>
+
+  <string name="attribute_mapper_name_initials">
+    Initials
+  </string>
+
+  <string name="attribute_mapper_name_jpegPhoto">
+    JPEG Photo
+  </string>
+
+  <string name="attribute_mapper_name_l">
+    City
+  </string>
+
+  <string name="attribute_mapper_name_labeledURI">
+    Website
+  </string>
+
+  <string name="attribute_mapper_name_mail">
+    E-Mail Address
+  </string>
+
+  <string name="attribute_mapper_name_mailAlternateAddress">
+    Alternate E-Mail Address
+  </string>
+
+  <string name="attribute_mapper_name_mobile">
+    Mobile Phone Number
+  </string>
+
+  <string name="attribute_mapper_name_o">
+    Organization
+  </string>
+
+  <string name="attribute_mapper_name_pager">
+    Pager Number
+  </string>
+
+  <string name="attribute_mapper_name_photo">
+    Photo
+  </string>
+
+  <string name="attribute_mapper_name_postalAddress">
+    Postal Address
+  </string>
+
+  <string name="attribute_mapper_name_postalCode">
+    Postal Code
+  </string>
+
+  <string name="attribute_mapper_name_postOfficeBox">
+    P.O. Box
+  </string>
+
+  <string name="attribute_mapper_name_preferredLanguage">
+    Preferred Language
+  </string>
+
+  <string name="attribute_mapper_name_roomNumber">
+    Room Number
+  </string>
+
+  <string name="attribute_mapper_name_sn">
+    Last Name
+  </string>
+
+  <string name="attribute_mapper_name_st">
+    State
+  </string>
+
+  <string name="attribute_mapper_name_street">
+    Street Address
+  </string>
+
+  <string name="attribute_mapper_name_telephoneNumber">
+    Telephone Number
+  </string>
+
+  <string name="attribute_mapper_name_title">
+    Title
+  </string>
+
+  <string name="attribute_mapper_name_uid">
+    User ID
+  </string>
+
+
+
+  <!--
+   ! Strings used by the EditServer activity.
+   -->
+  <string name="edit_server_security_type_none">
+    None
+  </string>
+
+  <string name="edit_server_security_type_ssl">
+    SSL
+  </string>
+
+  <string name="edit_server_security_type_start_tls">
+    StartTLS
+  </string>
+
+  <array name="edit_server_security_type_list">
+    <item>@string/edit_server_security_type_none</item>
+    <item>@string/edit_server_security_type_ssl</item>
+    <item>@string/edit_server_security_type_start_tls</item>
+  </array>
+
+  <string name="edit_server_progress_text">
+    Testing server settings...
+  </string>
+
+  <string name="edit_server_err_port_not_int">
+    The port number must be an integer.
+  </string>
+
+  <string name="edit_server_popup_title_failed">
+    Test Failed
+  </string>
+
+  <string name="edit_server_popup_text_failed">
+    The provided server settings are not acceptable or the target server is
+    unavailable.  The failure reasons are:  %s
+  </string>
+
+  <string name="edit_server_popup_title_success">
+    Test Succeeded
+  </string>
+
+  <string name="edit_server_popup_text_success">
+    The provided server settings appear to be valid.
+  </string>
+
+
+
+  <!--
+   ! Strings used by the EMailAddressOptions activity.
+   -->
+  <string name="email_address_options_title">
+    E-Mail Address \"%s\"
+  </string>
+
+  <string name="email_address_options_option_mail">
+    Send an e-mail message
+  </string>
+
+  <string name="email_address_options_option_copy">
+    Copy address to clipboard
+  </string>
+
+
+
+  <!--
+   ! Strings used by the GenericAttributeOptions activity.
+   -->
+  <string name="generic_attr_options_title">
+    Attribute Value \"%s\"
+  </string>
+
+  <string name="generic_attr_options_option_copy">
+    Copy value to clipboard
+  </string>
+
+
+
+  <!--
+   ! Strings used by the HeaderOptions activity.
+   -->
+  <string name="header_options_title">
+    Entry \"%s\"
+  </string>
+
+  <string name="header_options_option_view_ldif">
+    View entry as LDIF
+  </string>
+
+  <string name="header_options_option_copy_dn">
+    Copy DN to clipboard
+  </string>
+
+  <string name="header_options_option_copy_ldif">
+    Copy entry LDIF to clipboard
+  </string>
+
+
+
+  <!--
+   ! Strings used by the LDAPClient activity.
+   -->
+  <string name="ldap_client_popup_title_error">
+    ERROR
+  </string>
+
+  <string name="ldap_client_popup_text_error">
+    An error occurred while trying to obtain the list of defined servers:  %s
+  </string>
+
+  <string name="ldap_client_parenthetical_using_ssl">
+    (using SSL)
+  </string>
+
+  <string name="ldap_client_parenthetical_using_start_tls">
+    (using StartTLS)
+  </string>
+
+
+
+  <!--
+   ! Strings used by the ListSearchResults activity.
+   -->
+  <string name="list_search_results_activity_title">
+    Search Result Entries Returned:  %d
+  </string>
+
+
+
+  <!--
+   ! Strings used by the ListSearchResultsOptions activity.
+   -->
+  <string name="list_search_results_options_title">
+    Entry \"%s\"
+  </string>
+
+  <string name="list_search_results_options_option_view_formatted">
+    View formatted entry
+  </string>
+
+  <string name="list_search_results_options_option_view_ldif">
+    View LDIF entry
+  </string>
+
+  <string name="list_search_results_options_option_copy_dn">
+    View DN to clipboard
+  </string>
+
+  <string name="list_search_results_options_option_copy_ldif">
+    View LDIF to clipboard
+  </string>
+
+
+
+  <!--
+   ! Strings used by the ListServerOptions activity.
+   -->
+  <string name="list_server_options_title">
+    LDAP server \"%s\"
+  </string>
+
+  <string name="list_server_options_option_search">
+    Search this server
+  </string>
+
+  <string name="list_server_options_option_edit">
+    Edit settings for this server
+  </string>
+
+  <string name="list_server_options_option_remove">
+    Remove this server
+  </string>
+
+  <string name="list_server_options_popup_title_removed">
+    Server Removed
+  </string>
+
+  <string name="list_server_options_popup_text_removed">
+    Successfully removed server instance \"%s\".
+  </string>
+
+  <string name="list_server_options_popup_title_error">
+    ERROR
+  </string>
+
+  <string name="list_server_options_popup_text_error">
+    Unable to remove server instance \"%1$s\":  %2$s
+  </string>
+
+
+
+  <!--
+   ! Strings used by the PhoneNumberOptions activity.
+   -->
+  <string name="phone_number_options_title">
+    Phone Number \"%s\"
+  </string>
+
+  <string name="phone_number_options_option_dial">
+    Dial this number
+  </string>
+
+  <string name="phone_number_options_option_sms">
+    Send a text message
+  </string>
+
+  <string name="phone_number_options_option_copy">
+    Copy number to clipboard
+  </string>
+
+
+
+  <!--
+   ! Strings used by the PostalAddressOptions activity.
+   -->
+  <string name="postal_address_options_title">
+    Postal Address \"%s\"
+  </string>
+
+  <string name="postal_address_options_option_map">
+    Show a map of this address
+  </string>
+
+  <string name="postal_address_options_option_navigate">
+    Navigate to this address
+  </string>
+
+  <string name="postal_address_options_option_copy">
+    Copy address to clipboard
+  </string>
+
+
+
+  <!--
+   ! Strings used by the SearchServer activity.
+   -->
+  <string name="search_server_search_type_sn">
+    Last Name
+  </string>
+
+  <string name="search_server_search_type_givenName">
+    First Name
+  </string>
+
+  <string name="search_server_search_type_cn">
+    Full Name
+  </string>
+
+  <string name="search_server_search_type_mail">
+    E-Mail Address
+  </string>
+
+  <string name="search_server_search_type_uid">
+    User ID
+  </string>
+
+  <string name="search_server_search_type_custom">
+    Custom Search Filter
+  </string>
+
+  <array name="search_server_search_type_list">
+    <item>@string/search_server_search_type_sn</item>
+    <item>@string/search_server_search_type_givenName</item>
+    <item>@string/search_server_search_type_cn</item>
+    <item>@string/search_server_search_type_mail</item>
+    <item>@string/search_server_search_type_uid</item>
+    <item>@string/search_server_search_type_custom</item>
+  </array>
+
+  <string name="search_server_popup_title_no_search_text">
+    No Search Text
+  </string>
+
+  <string name="search_server_popup_text_no_search_text">
+    You must provide a value for the search text field.
+  </string>
+
+  <string name="search_server_popup_title_invalid_filter">
+    Invalid Filter
+  </string>
+
+  <string name="search_server_popup_text_invalid_filter">
+    The generated search filter \"%1$s\" is invalid:  %2$s
+  </string>
+
+  <string name="search_server_progress_searching">
+    Searching...
+  </string>
+
+  <string name="search_server_popup_title_size_limit_exceeded">
+    Size Limit Exceeded
+  </string>
+
+  <string name="search_server_popup_text_size_limit_exceeded">
+    The provided search criteria matched more than %d entries.  Please use more
+    specific search criteria.
+  </string>
+
+  <string name="search_server_popup_title_time_limit_exceeded">
+    Time Limit Exceeded
+  </string>
+
+  <string name="search_server_popup_text_time_limit_exceeded">
+    The server could not process the search within the time limit of %d
+    seconds.  Please use more specific search criteria.
+  </string>
+
+  <string name="search_server_popup_title_search_error">
+    Search Error
+  </string>
+
+  <string name="search_server_popup_text_search_error">
+    An unexpected error was encountered while processing the search:  %1$s
+    (Result code %2$s).
+  </string>
+
+  <string name="search_server_popup_title_no_entries_returned">
+    No Entries Returned
+  </string>
+
+  <string name="search_server_popup_text_no_entries_returned">
+    The server did not return any entries matching the provided search criteria.
+  </string>
+
+
+
+  <!--
+   ! Strings used by the ServerInstance class.
+   -->
+  <string name="server_instance_err_empty_id">
+    The server ID must be a non-empty string.
+  </string>
+
+  <string name="server_instance_err_empty_address">
+    The server address must be a non-empty string.
+  </string>
+
+  <string name="server_instance_err_invalid_port">
+    The server port must be an integer between 1 and 65535.
+  </string>
+
+  <string name="server_instance_err_cannot_combine_ssl_and_start_tls">
+    SSL and StartTLS cannot be used together.
+  </string>
+
+  <string name="server_instance_err_mismatched_bind_dn_and_pw">
+    The bind DN and bind password must be either both null or both non-null.
+  </string>
+
+  <string name="server_instance_err_invalid_bind_dn">
+    The bind DN appears to be invalid:  %s
+  </string>
+
+  <string name="server_instance_err_invalid_base_dn">
+    The base DN appears to be invalid:  %s
+  </string>
+
+  <string name="server_instance_err_cannot_initialize_ssl">
+    An error occurred while attempting to initialize the SSL socket factory:
+    %s
+  </string>
+
+  <string name="server_instance_err_start_tls_failed">
+    An error occurred while attempting to perform StartTLS negotiation:  %s
+  </string>
+
+
+
+  <!--
+   ! Strings used by the TestServerThread class.
+   -->
+  <string name="test_server_thread_cannot_get_base">
+    Base entry \"%s\" does not exist or could not be retrieved.
+  </string>
+
+</resources>

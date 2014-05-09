@@ -1,0 +1,145 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Getting Started with the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Processing Asynchronous Operations</h2>
+
+              <p>
+                Most LDAP clients use a synchronous model for processing requests.  In this case,
+                the client will send a request and then wait until it receives the response from
+                the server before continuing.  However, the LDAP protocol allows for asynchronous
+                operations, in which there may be multiple concurrent requests in progress for the
+                same connection.
+              </p>
+
+              <p>
+                There are two primary ways that the UnboundID LDAP SDK for Java can be used to
+                process multiple operations on the same connection at the same time:
+              </p>
+
+              <ul>
+                <li>
+                  Multiple client threads can use the same <tt>LDAPConnection</tt> object at the
+                  same time.  <tt>LDAPConnection</tt> objects are threadsafe (although individual
+                  request objects are not, so the same request object should not be shared by
+                  multiple threads at the same time), so they can be used by multiple concurrent
+                  client threads as long as they conform to the requirements outlined below.
+                  <br><br>
+                </li>
+
+                <li>
+                  Clients can use the asynchronous operation API provided by the UnboundID LDAP SDK
+                  for Java.  In this case, the SDK will send the request to the server, but will
+                  not wait for the response to arrive before returning.  The client can continue
+                  with other processing and then will be notified when the response arrives.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                Note, however, that LDAP does place restrictions on asynchronous operation
+                processing.  In particular, bind operations and StartTLS operations must always be
+                processed in a synchronous manner.  If a client is going to process asynchronous
+                operations, then it must take care to ensure that it does not attempt to process
+                bind or StartTLS operations while other operations may be in progress.
+              </p>
+
+              <p>
+                Also note that some directory servers may enforce restrictions on the number of
+                concurrent operations that may be in progress on a single connection at any given
+                time, and even in cases where that is not performed it is likely the case that
+                there may be more contention when processing concurrent operations on a single
+                connection than if they were processed over separate connections.  Therefore, it
+                should be noted that attempting to process too many concurrent operations over a
+                connection may have a performance impact.
+              </p>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides the following methods for processing
+                asynchronous write operations:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>public AsyncRequestID asyncAdd(AddRequest addRequest, AsyncResultListener
+                  resultListener)</tt>
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public AsyncRequestID asyncDelete(DeleteRequest deleteRequest,
+                  AsyncResultListener resultListener)</tt>
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public AsyncRequestID asyncModify(ModifyRequest modifyRequest,
+                  AsyncResultListener resultListener)</tt>
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public AsyncRequestID asyncModifyDN(ModifyDNRequest modifyDNRequest,
+                  AsyncResultListener resultListener)</tt>
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                Each of these methods returns an AsyncRequestID value, which is a handle that may
+                be used to cancel or abandon the operation if desirable (see the
+                <A HREF="extended-operations.${EXTENSION}">Using Standard Extended Operations</A> document
+                for information about the cancel extended operation).  The
+                <tt>AsyncResultListener.ldapResultReceived</tt> method will be called whenever the
+                SDK receives the response for the operation.
+              </p>
+
+              <p>
+                The API for processing compare operations is virtually identical to that for write
+                operations, with the exception that the
+                <tt>AsyncCompareResultListener.compareResultReceived</tt> method is used to provide
+                access to the <tt>CompareResult</tt> object.  The method for processing an
+                asynchronous compare operation is:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>public AsyncRequestID asyncCompare(CompareRequest compareRequest,
+                   AsyncCompareResultListener resultListener)</tt>
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                There is a greater difference in the API for performing asynchronous search
+                operations.  Rather than providing a result listener as a separate argument, the
+                given search request object must be configured with an
+                <tt>AsyncSearchResultListener</tt> object as its <tt>SearchResultListener</tt>.
+                The method to use to process an asynchronous search operation is:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>public AsyncRequestID asyncSearch(SearchRequest searchRequest)</tt>
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                The UnboundID LDAP SDK for Java does not provide support for processing bind or
+                extended operations in an asynchronous manner.  Further, it should be noted that a
+                connection obtained from a connection pool should not be used to process
+                asynchronous operations unless that connection is explicitly checked out of the
+                pool and the caller is sure to wait for the response to arrive before returning the
+                connection with the <tt>releaseConnection</tt> method, or if the response did not
+                arrive in a timely manner then the <tt>releaseDefunctConnection</tt> method should
+                be used to destroy the connection.
+              </p>

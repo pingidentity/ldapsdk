@@ -1,0 +1,64 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Support for Failover and Load Balancing</h2>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides a mechanism that can be used to manage
+                 connections across multiple servers.  This can be used to provide basic support
+                 for failover and load balancing, and it can be used for single connections as well
+                 as connection pools (so a single connection pool may contain connections to
+                 multiple servers, effectively balancing the load across those servers).
+              </p>
+
+              <p>
+                The abstract <tt>ServerSet</tt> class defines the basic API used to provide this
+                functionality.  At present, the following implementations are available:
+              </p>
+
+              <ul>
+                <li>
+                  A single server set, which contains a reference to a single server.  It is
+                  primarily used for cases in which a server set may be needed, but only a single
+                  server is to be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  A round robin server set, in which each subsequent connection will be established
+                  to the next server in the specified list.  If a given server isn't available,
+                  then it will be skipped and the server set will move to the next server in the
+                  list.
+                  <br><br>
+                </li>
+
+                <li>
+                  A failover server set, in which all attempts to create a connection will be tried
+                  against the first server in the list, and will only try the second if the first
+                  is unavailable, and only try the third if both the first and second are
+                  unavailable, etc.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                Additional implementations are planned for the future, and developers can create
+                their own custom implementations as well.
+              </p>
+
+              <p>
+                Note that the failover server set can also provide failover across server sets, so
+                it is possible to define more complex configurations (e.g., if possible, use
+                round-robin load balancing across servers in the local data center, but if none of
+                them are available then fail over to a round-robin set of servers in a remote data
+                center).
+              </p>

@@ -1,0 +1,32 @@
+BODY  { color: #2D4B66;
+        background-color: #FFFFFF;
+        font-family: sans-serif }
+
+A:link  { color: #647a92;
+          text-decoration: underline }
+
+A:visited  { color: #647a92;
+             text-decoration: underline }
+
+A:hover { color: #1d3147;
+          text-decoration: underline }
+
+PRE  { background-color: #C9D1D8;
+       margin: 15px 30px;
+       padding: 10px 10px;
+       border: 1px solid #2D4B66 }
+
+LI  { margin: 10px 0px }
+
+TH  { background-color: #C9D1D8;
+      font-size: 125%;
+      font-weight: bold }
+
+
+# Classes defined specifically for Javadoc
+.TableHeadingColor  { background-color: #C9D1D8 }
+
+.NavBarCell1  { background-color: #C9D1D8 }
+
+.FrameItemFont  { font-size: 90% }
+

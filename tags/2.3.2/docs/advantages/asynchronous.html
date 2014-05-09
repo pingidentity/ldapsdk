@@ -1,0 +1,49 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Support for Asynchronous Operations</h2>
+
+              <p>
+                LDAP allows clients to process multiple concurrent operations over a single
+                connection.  This can be useful for clients who wish to share a connection across
+                multiple threads, or who wish to provide support for operations like abandon or the
+                cancel extended operation to interrupt processing of another operation already in
+                progress.
+              </p>
+
+              <p>
+                JNDI does not provide any direct support for processing asynchronous operations.
+                It is possible to share a single JNDI context between threads, but it does not
+                expose any API that would allow clients to have more control over asynchronous
+                operation processing.  In addition, JNDI does not expose support for either the
+                abandon operation or the cancel extended operation.
+              </p>
+
+              <p>
+                The Netscape Directory SDK for Java allows a single connection to be shared across
+                multiple client threads, but it also provides an explicit API for processing
+                asynchronous operations.  In this case, the operation must be invoked using a
+                response listener, and that response listener will provide a queue that the client
+                can then poll to determine whether the response has arrived.  However, a poll-based
+                mechanism is not always desirable, and it appears to have some shortcomings if the
+                same listener is used to handle responses for multiple asynchronous operations.
+              </p>
+
+              <p>
+                Like JNDI and the Netscape SDK, the UnboundID LDAP SDK for Java allows a single
+                connection to be shared across multiple client threads.  It also provides
+                additional support for asynchronous operations.  However, unlike the Netscape
+                Directory SDK for Java, it accomplishes this using a notification mechanism rather
+                than requiring the client to periodically check to see if the response has been
+                received (however, it is simple for clients to place the results in something like
+                a <tt>LinkedBlockingQueue</tt> if they would prefer a poll-based approach).
+              </p>

@@ -1,0 +1,80 @@
+<!--
+ ! Copyright 2007-2013 UnboundID Corp.
+ ! All Rights Reserved.
+ -->
+<!--
+ ! Copyright (C) 2008-2013 UnboundID Corp.
+ !
+ ! This program is free software; you can redistribute it and/or modify
+ ! it under the terms of the GNU General Public License (GPLv2 only)
+ ! or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ ! as published by the Free Software Foundation.
+ !
+ ! This program is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ! GNU General Public License for more details.
+ !
+ ! You should have received a copy of the GNU General Public License
+ ! along with this program; if not, see <http://www.gnu.org/licenses>.
+ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+ 
+    <groupId>com.unboundid</groupId>
+    <artifactId>unboundid-ldapsdk</artifactId>
+    <version>${MMP}</version>
+    <packaging>jar</packaging>
+ 
+    <name>UnboundID LDAP SDK for Java</name>
+ 
+    <description>
+      The UnboundID LDAP SDK for Java is a fast, comprehensive, and easy-to-use
+      Java API for communicating with LDAP directory servers and performing
+      related tasks like reading and writing LDIF, encoding and decoding data
+      using base64 and ASN.1 BER, and performing secure communication.
+    </description>
+ 
+    <url>http://www.unboundid.com/products/ldap-sdk/</url>
+ 
+    <inceptionYear>2009</inceptionYear>
+ 
+    <organization>
+      <name>UnboundID Corp.</name>
+      <url>http://www.unboundid.com</url>
+    </organization>
+ 
+    <developers>
+      <developer>
+        <id>dirmgr</id>
+        <name>Neil Wilson</name>
+        <email>neil.wilson@unboundid.com</email>
+      </developer>
+    </developers>
+ 
+    <licenses>
+      <license>
+        <name>GNU General Public License version 2 (GPLv2)</name>
+        <url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+      </license>
+      <license>
+        <name>GNU Lesser General Public License version 2.1 (LGPLv2.1)</name>
+        <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
+      </license>
+      <license>
+        <name>UnboundID LDAP SDK Free Use License</name>
+        <url>http://www.unboundid.com/products/ldapsdk/docs/LICENSE-UnboundID-LDAPSDK.txt</url>
+        <comments>This license is available from the UnboundID website.</comments>
+      </license>
+    </licenses>
+ 
+    <scm>
+      <url>http://ldap-sdk.svn.sourceforge.net/viewvc/ldap-sdk/trunk/</url>
+      <connection>scm:svn:https://ldap-sdk.svn.sourceforge.net/svnroot/ldap-sdk/trunk</connection>
+    </scm>
+
+</project>
+

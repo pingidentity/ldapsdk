@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ! Copyright 2009-2010 UnboundID Corp.
+ ! All Rights Reserved.
+ -->
+<!--
+ ! Copyright (C) 2009-2010 UnboundID Corp.
+ !
+ ! This program is free software; you can redistribute it and/or modify
+ ! it under the terms of the GNU General Public License (GPLv2 only)
+ ! or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ ! as published by the Free Software Foundation.
+ !
+ ! This program is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ! GNU General Public License for more details.
+ !
+ ! You should have received a copy of the GNU General Public License
+ ! along with this program; if not, see <http://www.gnu.org/licenses>.
+ -->
+
+
+
+<!--
+ ! This layout may be used to display the set of directory servers that
+ ! have been defined for use.
+ -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+  <!-- The bottom panel containing the "New Server" button. -->
+  <LinearLayout android:id="@+id/layout_list_servers_panel_new_server"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:padding="5dp">
+    <Button android:id="@+id/layout_list_servers_button_new_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/layout_list_servers_button_label_new_server" />
+  </LinearLayout>
+
+
+  <!-- The list of defined servers, which takes up the rest of the display
+       area. -->
+  <ListView android:id="@+id/layout_list_servers_panel_list_servers"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@id/layout_list_servers_panel_new_server"
+            android:scrollbars="vertical" />
+
+</RelativeLayout>

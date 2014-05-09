@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html4/loose.dtd">
+
+
+<html>
+  <head>
+    <title>UnboundID LDAP SDK for Java</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="${BASE}unboundid.css" type="text/css">
+    <link rel="shortcut icon" href="${BASE}images/favicon.ico">
+  </head>
+
+  <body>
+    <div id="wrapper">
+      <div id="headercontainer">
+        <a href="http://www.unboundid.com/" title="UnboundID LDAP SDK for Java" id="logo">
+          <img src="${BASE}images/+___.gif" width="274" height="99" alt="UnboundID" style="float: left;">
+        </a>
+        <div id="headertitle">
+          <br>
+          <h1>UnboundID LDAP SDK for Java</h1>
+        </div>
+      </div>
+
+      <div id="content">
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr valign="top">
+            <td style="padding: 10px 30px 20px 40px;">

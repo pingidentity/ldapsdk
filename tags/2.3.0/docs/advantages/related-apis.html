@@ -1,0 +1,159 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Inclusion of Related APIs</h2>
+
+              <p>
+                Developers who create directory-enabled applications, or administrators who create
+                applications to help manage the directory, frequently need to go beyond what is
+                possible using LDAP communication.  Further, even when the desired tasks are
+                accessible over LDAP, it may be necessary to prepare the data in some way, or to
+                extend the capabilities of the SDK by adding support for things like custom
+                controls, extended operations, or SASL mechanisms.  It may also be helpful to
+                provide mechanisms for interpreting special kinds of data returned by the server.
+              </p>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides the following components for helping to
+                accomplish these tasks:
+              </p>
+
+              <ul>
+                <li>
+                  <b>LDIF processing.</b>  LDIF is the standard way to represent LDAP entries and
+                  change records in text form, and the UnboundID LDAP SDK for Java provides rich
+                  support for reading and writing LDIF content, as well as using LDIF content as a
+                  way to directly process operations.  The Netscape Directory SDK for Java
+                  provides support for reading and writing LDIF content, but its support is
+                  relatively compartmentalized so that it is separate from other parts of the SDK
+                  and it is necessary to perform translations in order to convert a change record
+                  to an operation, or to represent an entry as LDIF.  JNDI does not provide any
+                  level of support for LDIF interaction.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Base64 processing.</b>  Base64 is a mechanism for representing raw data in a
+                  form that can be safely displayed using only printable characters.  It is used in
+                  LDIF processing for encoding entry DNs and attribute values that may have special
+                  characters, and it is commonly used in other areas where binary data may need to
+                  be represented in a human-readable form (e.g., hashed or encrypted passwords,
+                  certificates, etc.).  The UnboundID LDAP SDK for Java provides a simple and
+                  convenient class for performing base64 encoding and decoding.  The Netscape
+                  Directory SDK for Java provides a mechanism for performing base64 encoding and
+                  decoding, but it is much less convenient to use.  JNDI does not provide a
+                  supported mechanism for performing base64 encoding or decoding.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>ASN.1 BER processing.</b>  LDAP communication uses a binary protocol encoded
+                  using the ASN.1 basic encoding rules (BER).  The core protocol uses it, as well
+                  as extensions like controls, extended operations, and SASL mechanisms.  If you
+                  wish to extend the LDAP SDK to support new types of these elements, then it is
+                  likely that it will be necessary to perform ASN.1 encoding and decoding.  The
+                  UnboundID LDAP SDK for Java has a relatively simple mechanism for accomplishing
+                  this task.  The Netscape Directory SDK for Java also provides support for ASN.1
+                  encoding and decoding, but it is only intended for interacting with input and
+                  output streams which makes it very poorly-suited for use in encoding and decoding
+                  custom extensions.  JNDI does not provide any facility for performing ASN.1
+                  encoding or decoding.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Root DSE parsing.</b>  The root DSE is a special type of entry in the
+                  directory server that provides information about the capabilities that it
+                  provides (e.g., what kinds of controls, extended operations, features, and SASL
+                  mechanisms it might support, information about the data hierarchy, and vendor
+                  name and version information).  This information is accessible over LDAP by
+                  retrieving the  entry with a zero-length DN.  Since it is a regular LDAP entry,
+                  both JNDI and the Netscape Directory SDK for Java allow clients to retrieve that
+                  entry and access the information that it contains, but they do not provide any
+                  facility that might help the developer interpret the information it contains.
+                  The UnboundID LDAP SDK for Java provides enhanced support for accessing the
+                  information contained in the server root DSE so that it can be used in meaningful
+                  ways by client applications.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Schema parsing.</b>  Like the root DSE, directory servers publish information
+                  about the schema elements that they support, and it is very useful for clients to
+                  be able to access and utilize this information.  For example, an application
+                  intended to allow clients to search, browse, and/or alter the contents of the
+                  directory need to be able to access the server schema so that they know what
+                  types of entries can be created, and which attributes are required and optional
+                  for each type of entry.  JNDI provides limited support for parsing schema
+                  elements, although it is a rather inconvenient API and does not expose all types
+                  of schema elements, nor does it expose all information about the schema elements
+                  that it does support.  The Netscape Directory SDK for Java provides a better
+                  interface for accessing the server schema than JNDI, and does appear to support
+                  all types of schema elements and exposes all available fields.  The UnboundID
+                  LDAP SDK for Java provides full support for parsing all types of schema elements
+                  and provides access to all components of those schema elements, and it also
+                  provides support for a number of schema-aware operations like client-side
+                  matching, sorting, and filter evaluation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Changelog entry parsing.</b>  The UnboundID LDAP SDK for Java provides the
+                  ability to parse changelog entries which are used by directory servers to publish
+                  information about changes processed in the server, in the format described in
+                  <TT>draft-good-ldap-changelog</TT>.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>SSL/TLS communication helper classes.</b>  The UnboundID LDAP SDK for Java
+                  provides utility classes that help make it easier to perform secure communication
+                  using SSL/TLS.  Simplified interfaces are provided for automatically trusting any
+                  certificate, interactively prompting users about whether a certificate should be
+                  trusted, or using a key store to determine whether a server certificate should be
+                  trusted.  It also simplifies the process of obtaining client certificates from a
+                  key store file or a PKCS#11 token.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Command line argument parsing.</b>  Many administrative utilities for
+                  interacting with directory servers are written as command line applications, and
+                  are configured using arguments.  To facilitate the development of such
+                  applications, the UnboundID LDAP SDK for Java provides a very powerful and
+                  flexible argument parser which can make it easy for applications to validate and
+                  extract the arguments provided in useful ways.  It also provides the ability to
+                  generate program usage information from the defined arguments.  The Netscape
+                  Directory SDK for Java has a very primitive mechanism for parsing command line
+                  arguments, but it does not have any support for generating usage information and
+                  leaves a lot of the work to the application developer.  JNDI does not provide
+                  any capability for argument parsing.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Simple LDAP-enabled tool creation.</b>  It is relatively simple to create
+                  command line tools that communicate with an LDAP directory server.  It provides
+                  all of the logic for parsing arguments needed for connecting and authenticating
+                  to the directory server and provides the ability to create connections and
+                  connection pools using those arguments.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Entry source API.</b>  This is an API that provides simple access to a stream
+                  of entries independent of the source for those entries.  Using the entry source
+                  API, it is simple to write code that can work identically when processing entries
+                  in an LDIF file or returned by a directory server as part of a search operation.
+                  <br><br>
+                </li>
+              </ul>

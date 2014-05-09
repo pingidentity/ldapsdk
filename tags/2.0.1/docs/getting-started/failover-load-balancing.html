@@ -1,0 +1,128 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Getting Started with the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Client-Side Failover and Load Balancing</h2>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides basic support for client-side failover and
+                load balancing through the <tt>ServerSet</tt> class.  Whenever it attempts to
+                create a connection to a directory server, the LDAP SDK can use a
+                <tt>ServerSet</tt> instance to establish that connection.  If the server set is
+                configured with information about multiple directory servers, then it will be
+                responsible for selecting which server to use and establishing the connection.  If
+                the initially-selected server is not available, then it may attempt to connect to
+                one or more of the other defined servers before giving up and throwing an
+                exception.
+              </p>
+
+              <p>
+                It is also possible to create an <tt>LDAPConnectionPool</tt> instance using a
+                server set, and in that case that server set will be used to create each connection
+                that is part of the pool.  This may allow a pool to be created with connections to
+                multiple servers, which can provide a basic form of client-side load balancing.
+              </p>
+
+              <p>
+                The LDAP SDK is currently provided with the following server set implementations:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>SingleServerSet</tt> -- This is a simple server set implementation that can
+                  be used to hold information about a single server.  It can be used for cases in
+                  which a server set is required, but only a single server is to be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>RoundRobinServerSet</tt> -- This server set implementation can hold
+                  information about multiple servers and each subsequent call to the
+                  <tt>getConnection</tt> method will attempt to retrieve a connection to the next
+                  server in the list (if any of the servers is unavailable, then it will be
+                  skipped).  This can be used to try to evenly spread load across a group of
+                  servers.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>FailoverServerSet</tt> -- This server set implementation can hold information
+                  about multiple servers or server sets, and will always attempt to obtain a
+                  connection from a server or server set in the order they were provided (i.e.,
+                  always try to get a connection to server A first, but if it is unavailable then
+                  try server "B", then server "C", etc.).  The ability to fail over across server
+                  sets also provides a powerful capability because it enables more complex
+                  policies, like always using round-robin to balance requests across servers in the
+                  local data center, but if none of them are available then it can attempt to use a
+                  round-robin set containing servers in a remote data center.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Using Server Sets to Establish Single Connections</h3>
+
+              <p>
+                If you wish to create individual connections using a server set, then it is only
+                necessary to call the <tt>getConnection()</tt> method for that server set.  For
+                example:
+              </p>
+
+              <pre>
+String[] addresses = { "server1.example.com", "server2.example.com" };
+int[]    ports     = { 389, 389 };
+
+FailoverServerSet failoverSet = new FailoverServerSet(addresses, ports);
+LDAPConnection connection = failoverSet.getConnection();
+</pre>
+
+              <p>
+                Note that in most cases, it is desirable to create a server set ahead of time and
+                keep a reference to it to be used whenever a new connection is to be created.  In
+                fact, this is necessary if you want to be able to fully utilize the capabilities of
+                some server sets.  For example, the round robin server set always loops through the
+                servers in the order they were provided, so if you create an instance of the round
+                robin server set and then immediately use it to obtain a connection, then that
+                connection will always be established to the first server (unless it happens to be
+                unavailable, in which case it will try other servers in the list in the provided
+                order).  All of the server set implementations provided as part of the UnboundID
+                LDAP SDK for Java are threadsafe, so the <tt>getConnection</tt> method may be
+                called concurrently by separate threads.
+              </p>
+
+              <p></p>
+              <h3>Using Server Sets to Create Connection Pools</h3>
+
+              <p>
+                It is also possible to use a server set when creating a connection pool.  In that
+                case, all of the connections in that pool will be created by the server set, and
+                therefore the pool may contain connections to multiple different servers.  For
+                example:
+              </p>
+
+              <pre>
+String[] addresses = { "server1.example.com", "server2.example.com" };
+int[]    ports     = { 389, 389 };
+
+RoundRobinServerSet roundRobinSet = new RoundRobinServerSet(addresses, ports);
+BindRequest bindRequest =
+     new SimpleBindRequest("uid=pool.user,dc=example,dc=com", "password");
+LDAPConnectionPool pool =
+     new LDAPConnectionPool(roundRobinSet, bindRequest, 10);
+</pre>
+
+              <p>
+                The above example will create a connection pool with ten connections that are
+                authenticated as the "uid=pool.user,dc=example,dc=com" user.  If both servers are
+                available, then the pool will have five connections each to server1.example.com:389
+                and server2.example.com:389, and operations processed in the pool should be roughly
+                evenly balanced between the two servers.
+              </p>

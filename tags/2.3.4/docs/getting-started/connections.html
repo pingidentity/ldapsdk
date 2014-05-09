@@ -1,0 +1,189 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Getting Started with the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Creating and Using LDAP Connections</h2>
+
+              <p>
+                The fundamental mechanism for interacting with LDAP directory servers is the
+                <tt>com.unboundid.ldap.sdk.LDAPConnection</tt> object.  It maintains a socket for
+                communicating with the server, maintains basic session state information, and
+                provides methods for performing LDAP operations.
+              </p>
+
+              <p></p>
+              <h3>Creating LDAP Connections</h3>
+
+              <p>
+                The <tt>LDAPConnection</tt> class has a number of constructors.  Some of them may
+                be used to create a new connection that isn't actually connected to any server.
+                Others may be used to establish an unauthenticated connection, and still others may
+                be used to establish connections and perform simple authentication.
+              </p>
+
+              <p>
+                Constructors which do not establish any connection:
+              </p>
+
+              <ul>
+                <li><tt>LDAPConnection()</tt></li>
+                <li><tt>LDAPConnection(LDAPConnectionOperations connectionOptions)</tt></li>
+                <li><tt>LDAPConnection(SocketFactory socketFactory)</tt></li>
+                <li><tt>LDAPConnection(SocketFactory socketFactory, LDAPConnectionOptions connectionOptions)</tt></li>
+              </ul>
+
+              <p>
+                Constructors which establish an unauthenticated connection:
+              </p>
+
+              <ul>
+                <li><tt>LDAPConnection(String host, int port)</tt></li>
+                <li><tt>LDAPConnection(LDAPConnectionOperations connectionOptions, String host, int port)</tt></li>
+                <li><tt>LDAPConnection(SocketFactory socketFactory, String host, int port)</tt></li>
+                <li><tt>LDAPConnection(SocketFactory socketFactory, LDAPConnectionOptions connectionOptions, String host, int port)</tt></li>
+              </ul>
+
+              <p>
+                Constructors which can establish an authenticated connection:
+              </p>
+
+              <ul>
+                <li><tt>LDAPConnection(String host, int port, String bindDN, String password)</tt></li>
+                <li><tt>LDAPConnection(LDAPConnectionOptions connectionOptions, String host, int port, String bindDN, String password)</tt></li>
+                <li><tt>LDAPConnection(SocketFactory socketFactory, String host, int port, String bindDN, String password)</tt></li>
+                <li><tt>LDAPConnection(SocketFactory socketFactory, LDAPConnectionOptions connectionOptions, String host, int port, String bindDN, String password)</tt></li>
+              </ul>
+
+              <p></p>
+              <h3>LDAP Connection Options</h3>
+
+              <p>
+                The <tt>com.unboundid.ldap.sdk.LDAPConnectionOptions</tt> object provides an object
+                which can be used to control a number of low-level behaviors for the SDK.
+                Properties that can be configured using <tt>LDAPConnectionOptions</tt> options
+                include:
+              </p>
+
+              <ul>
+                <li>
+                  Whether a connection should attempt to automatically reconnect if the connection
+                  is unexpectedly lost.
+                  <br><br>
+                </li>
+
+                <li>
+                  Whether a connection should attempt to automatically follow referrals returned
+                  from the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  A maximum timeout for attempting to establish a connection.
+                  <br><br>
+                </li>
+
+                <li>
+                  A maximum timeout for waiting for operation responses.
+                  <br><br>
+                </li>
+
+                <li>
+                  Socket options, like SO_KEEPALIVE, SO_LINGER, SO_REUSEADDR, and TCP_NODELAY.
+                  <br><br>
+                </li>
+
+                <li>
+                  A mechanism for handling unsolicited notifications from the directory server.
+                  <br><br>
+                </li>
+
+                <li>
+                  A mechanism for being notified when a connection is closed.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Creating SSL-Based Connections</h3>
+
+              <p>
+                The <tt>LDAPConnection</tt> constructors which take a
+                <tt>javax.net.SocketFactory</tt> argument allow the connection to use special types
+                of sockets for the underlying communication.  By default, connections will use a
+                socket factory which creates standard, clear-text connections.  However, it is
+                possible to use alternate forms of communication by specifying an alternate socket
+                factory.  If you provide a socket factory capable of creating SSL-based sockets,
+                then the communication with the server will be secured.
+              </p>
+
+              <p>
+                The standard way to obtain SSL-based connections is to use an instance of the
+                <tt>javax.net.ssl.SSLSocketFactory</tt> class, perhaps one created by the
+                <tt>getSocketFactory()</tt> method of a <tt>javax.net.ssl.SSLContext</tt> instance.
+                This provides a great deal of flexibility and security, although it may require
+                additional configuration to be able to trust the server certificate, or potentially
+                to present a client certificate to the server for use in SASL EXTERNAL
+                authentication.  See the Java security documentation for information on creating
+                <tt>SSLContext</tt> and <tt>SSLSocketFactory</tt> objects.
+              </p>
+
+              <p>
+                The UnboundID LDAP SDK for Java includes a set of classes that help make it easier
+                to obtain socket factories for performing SSL-based communication.  The
+                <TT>com.unboundid.util.ssl.SSLUtil</TT> class provides an interface that may be
+                used to easily create SSL socket factories (or SSL contexts for use with the
+                StartTLS extended operation).  It can be easily configured to automatically trust
+                any certificate, obtain trust information from a key store file, or interactively
+                prompt the user about whether to trust a given certificate.  It also simplifies the
+                process for accessing client certificates in key store files or PKCS#11 tokens.
+              </p>
+
+              <p></p>
+              <h3>Connecting Unestablished Connections</h3>
+
+              <p>
+                If a connection is created with a constructor that does not actually establish a
+                session with a target server, then one of the <tt>connect</tt> methods may be used
+                to establish a connection to a directory server.  There are two variants of this
+                method:
+              </p>
+
+              <ul>
+                <li><tt>connect(String host, int port)</tt></li>
+                <li><tt>connect(String host, int port, int timeout)</tt></li>
+              </ul>
+
+              <p>
+                If a timeout is specified, the value should be in milliseconds.  If no timeout is
+                specified, then the default connection timeout from the associated
+                <tt>LDAPConnectionOptions</tt> object will be used.
+              </p>
+
+              <p></p>
+              <h3>Closing Connections</h3>
+
+              <p>
+                An established connection may be closed using one of the <tt>close()</tt> methods.
+                If the connection is not established, then no action will be taken.  Otherwise, an
+                unbind request will be sent to the server and the connection will be terminated.
+                The connection may then be discarded, or it may be re-used by calling one of the
+                <tt>connect</tt> methods to establish a new connection to the same or a different
+                server.
+              </p>
+
+              <p>
+                Note that <tt>LDAPConnection</tt> objects do provide a <tt>finalize()</tt> method
+                so that the connection will automatically be terminated if it is still established
+                at the time that the garbage collector determines that there are no more references
+                to it.  However, it is strongly recommended that connections be explicitly closed
+                when they are no longer needed in order to avoid the possibility of running out of
+                available connections on the server or file descriptors on the client.
+              </p>

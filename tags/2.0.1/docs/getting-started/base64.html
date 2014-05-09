@@ -1,0 +1,32 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Getting Started with the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Base64 Processing</h2>
+
+              <p>
+                Base64 is a mechanism of encoding data in a form that can always be represented as
+                plain text.  It does this by converting three 8-bit values into four 6-bit values
+                and representing that 6-bit data using a set of 64 characters (uppercase letters,
+                lowercase letters, numeric digits, the plus sign and the forward slash).  It is a
+                safe and relatively compact way to represent binary data in a text form.  It is
+                used in LDIF processing if the data contains special characters that may not
+                otherwise be safe to represent in LDIF form.
+              </p>
+
+              <p>
+                The <tt>com.unboundid.util.Base64</tt> class provides a mechanism that can be used
+                to encode data to and from base64.  The <tt>decode(String data)</tt> method can be
+                used to decode a string containing base64-encoded data to a byte array.  The
+                <tt>encode(byte[] data)</tt> and <tt>encode(byte[] data, StringBuilder buffer)</tt>
+                methods can be used to base64-encode data from a byte array to a string
+                representation.
+              </p>

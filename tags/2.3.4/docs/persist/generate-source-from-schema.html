@@ -1,0 +1,133 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Using the UnboundID LDAP SDK Persistence Framework</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>The <tt>generate-source-from-schema</tt> Tool</h2>
+
+              <p>
+                The <tt>generate-source-from-schema</tt> tool may be used to automatically generate
+                properly-annotated Java source code for a class that may be used with the LDAP SDK
+                persistence framework using schema information read from an LDAP directory server.
+                It can dramatically simplify the process of creating an LDAP-enabled application
+                which can be used to interact with existing data.
+              </p>
+
+              <p>
+                It is a command-line tool that may be invoked using the corresponding shell script
+                or batch file located in the <tt>tools</tt> directory of the UnboundID LDAP SDK for
+                Java distribution.  Alternately, it may be run programmatically by invoking the
+                <tt>main</tt> method of class
+                <tt>com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema</tt>.  In either case,
+                some of the arguments which may be used with this tool are provided below.  Use the
+                <tt>--help</tt> argument for a complete listing of all supported options.
+              </p>
+
+              <ul>
+                <li>
+                  <tt>--hostname </tt><i>{host}</i> -- This specifies the address of the directory
+                  server containing the schema definitions to be read.  If this is not provided,
+                  then a default of "localhost" will be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--port </tt><i>{port}</i> -- This specifies the port number of the directory
+                  server containing the schema definitions to be read.  If this is not provided,
+                  then a default of "389" will be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--bindDN </tt><i>{dn}</i> -- This specifies the DN for the user as whom to
+                  bind when reading the schema definitions.  If this is not provided, then no
+                  authentication will be performed.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--bindPassword </tt><i>{password}</i> -- This specifies the password for the
+                  user as whom to bind when reading the schema definitions.  If this is not
+                  provided, then no authentication will be performed.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--useSSL</tt> -- This indicates that the tool should communicate securely
+                  with the directory server using SSL.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--useStartTLS</tt> -- This indicates that the tool should communicate
+                  securely with the directory server using the StartTLS extended operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--outputDirectory </tt><i>{path}</i> -- This specifies the path to the
+                  directory in which to write the Java source file.  If a value is given, then that
+                  path must exist, and it must be a directory.  If no value is provided, then the
+                  current working directory will be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--structuralClass </tt><i>{name}</i> -- This specifies the name of the
+                  structural object class that should be used for the object to create.  This
+                  argument must be provided, and it must be the name of a structural object class
+                  defined in the directory server schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--auxiliaryClass </tt><i>{name}</i> -- This specifies the name of an
+                  auxiliary object class that should be used in conjunction with the structural
+                  object class.  This argument may be provided multiple times with different
+                  auxiliary object class names if multiple auxiliary classes should be used.  If
+                  this is not provided, then no auxiliary object classes will be used.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--rdnAttribute </tt><i>{name}</i> -- This specifies the name of an attribute
+                  which should be used to construct the RDN of entries generated from objects of
+                  the associated type.  The specified attribute name must be defined in the
+                  directory server schema, and it must be allowed by at least one of the structural
+                  or auxiliary object classes.  This argument may be provided multiple times with
+                  different attribute names if generated entries should have multivalued RDNs.  At
+                  least one RDN attribute must be specified.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--defaultParentDN </tt><i>{dn}</i> -- This specifies the default parent DN
+                  that will be used for objects of the associated type.  It may be used when adding
+                  entries created from Java objects, or as the base DN when searching for objects.
+                  If no default parent DN is specified, then it is assumed that an explicit parent
+                  DN will be given for every search or add operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--packageName </tt><i>{name}</i> -- This specifies the fully-qualified name
+                  of the Java package to use for the generated class.  If this is not provided,
+                  then the generated class will be placed in the default (i.e., top-level) package.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>--className </tt><i>{name}</i> -- This specifies the name to use for the
+                  generated Java class.  If a value is given, it must be unqualified (i.e., it
+                  should not include any package information).  If this is not provided, then the
+                  class name will be generated from the name of the structural object class.
+                  <br><br>
+                </li>
+              </ul>

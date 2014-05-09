@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ! Copyright 2009-2010 UnboundID Corp.
+ ! All Rights Reserved.
+ -->
+<!--
+ ! Copyright (C) 2009-2010 UnboundID Corp.
+ !
+ ! This program is free software; you can redistribute it and/or modify
+ ! it under the terms of the GNU General Public License (GPLv2 only)
+ ! or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ ! as published by the Free Software Foundation.
+ !
+ ! This program is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ! GNU General Public License for more details.
+ !
+ ! You should have received a copy of the GNU General Public License
+ ! along with this program; if not, see <http://www.gnu.org/licenses>.
+ -->
+
+
+
+<!--
+ ! This layout defines the form used to provide the information needed to
+ ! connect to a single directory server instance.
+ -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+  <LinearLayout android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:padding="5dp">
+
+    <!-- The Server Identifier -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_define_server_label_id" />
+      <EditText   android:id="@+id/layout_define_server_field_id"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:singleLine="true" />
+    </LinearLayout>
+
+    <!-- The Directory Server Address -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_define_server_label_host" />
+      <EditText   android:id="@+id/layout_define_server_field_host"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:singleLine="true" />
+    </LinearLayout>
+
+    <!-- The Directory Server Port -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_define_server_label_port" />
+      <EditText   android:id="@+id/layout_define_server_field_port"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:singleLine="true"
+                  android:numeric="integer" />
+    </LinearLayout>
+
+    <!-- The Communication Security Mechanism -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_define_server_label_security_type" />
+      <Spinner    android:id="@+id/layout_define_server_spinner_security"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent" />
+    </LinearLayout>
+
+    <!-- The Bind DN -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_define_server_label_bind_dn" />
+      <EditText   android:id="@+id/layout_define_server_field_bind_dn"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:singleLine="true" />
+    </LinearLayout>
+
+    <!-- The Bind Password -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_define_server_label_bind_pw" />
+      <EditText   android:id="@+id/layout_define_server_field_bind_pw"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:singleLine="true"
+                  android:password="true" />
+    </LinearLayout>
+
+    <!-- The Base DN -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_define_server_label_base_dn" />
+      <EditText   android:id="@+id/layout_define_server_field_base"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:singleLine="true" />
+    </LinearLayout>
+
+    <!-- The Test and Save Buttons -->
+    <LinearLayout android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp"
+                  android:gravity="center">
+      <Button     android:id="@+id/layout_define_server_button_server_test"
+                  android:layout_width="wrap_content"
+                  android:layout_height="fill_parent"
+                  android:paddingLeft="10dp"
+                  android:paddingRight="10dp"
+                  android:text="@string/layout_define_server_button_label_test" />
+      <Button     android:id="@+id/layout_define_server_button_server_save"
+                  android:layout_width="wrap_content"
+                  android:layout_height="fill_parent"
+                  android:paddingLeft="10dp"
+                  android:paddingRight="10dp"
+                  android:text="@string/layout_define_server_button_label_save" />
+    </LinearLayout>
+
+  </LinearLayout>
+
+</ScrollView>

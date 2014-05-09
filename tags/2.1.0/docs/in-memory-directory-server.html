@@ -1,0 +1,388 @@
+<table border="0" width="100%">
+  <tr>
+    <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+      <a href="index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+    </td>
+  </tr>
+</table>
+
+<h2>Using the In-Memory Directory Server</h2>
+
+<p></p>
+
+<p>
+  When developing directory-enabled applications, it is important to be able to easily test that
+  application to ensure that it behaves correctly.  If you're developing the application for use
+  in an environment in which you know specifically what directory server will be used, then it is
+  of course desirable to test with that server on occasion to ensure that your application works
+  properly with it.  However, it can often be inconvenient to do this for all of your testing
+  because many directory servers aren't easy to set up and manage in an automated fashion, and
+  even if they can, then it can be a heavyweight process that can add significantly to the time
+  required to run those tests.  It is also a good idea to occasionally test with different types
+  of servers in order to avoid unintentionally relying on implementation-dependent or
+  vendor-specific functionality.  When developing applications designed to work with any kind
+  of server, then it's useful to test with a server that is as simple and as efficient as
+  possible.
+</p>
+
+<p>
+  In order to make testing directory-enabled applications as simple as possible, the UnboundID
+  LDAP SDK for Java includes a simple yet fairly standards-compliant LDAP directory server can be
+  easily configured and used for testing, as a simple server for demonstration purposes, or even
+  for simple LDAP data processing tasks (e.g., load an LDIF and perform a set of queries or
+  transformations against the data, and write it back out).  This server stores all of its
+  information in memory, and can be easily used easily from the command line or through Java code.
+  Although it has a very small footprint and is very easy to use, it supports a wide range of
+  features, including:
+</p>
+
+<ul>
+  <li>
+    It provides full support for LDAP add, compare, delete, modify, modify DN, search, and unbind
+    operations.  It supports simple and SASL PLAIN bind operations, and provides an API that can
+    be used to add support for other SASL mechanisms.  It supports the password modify, StartTLS,
+    and "Who Am I?" extended operations, and provides an API for adding support for other types of
+    extended operations.  It will accept abandon requests, but will not do any processing for
+    them.
+    <br><br>
+  </li>
+
+  <li>
+    It supports the LDAP assertions, authorization identity, don't use copy, ManageDsaIT,
+    permissive modify, pre-read, post-read, proxied authorization (v1 and v2), server-side sort,
+    simple paged results, subentries, subtree delete, and virtual list view request controls.
+    <br><br>
+  </li>
+
+  <li>
+    It provides the option to use a schema for data validation and to perform the most accurate
+    matching.  By default, it will use a default schema populated with a number of of standard
+    attribute types and object classes from various RFCs and IETF drafts, but you can configure it
+    to use a custom schema, or you can disable schema validation altogether.
+    <br><br>
+  </li>
+
+  <li>
+    It provides the ability to define an additional set of bind DNs and passwords that can be
+    used to authenticate to the server even if the corresponding entries do not exist.  This
+    can be used, for example, to simulate the root accounts (e.g., "cn=Directory Manager") which
+    either don't have entries or have entries that exist outside the data set being tested.
+    <br><br>
+  </li>
+
+  <li>
+    It provides an option to maintain a simple access log of operations processed, as well as a
+    more comprehensive LDAP debug log that provides detailed information about the LDAP operations
+    processed.  This can be very useful for making sure that you know exactly the kinds of
+    requests that your application is sending, and for troubleshooting cases in which it receives
+    an unexpected response.
+    <br><br>
+  </li>
+
+  <li>
+    It provides an option to maintain an LDAP-accessible changelog, with entries maintained in the
+    format specified in the draft-good-ldap-changelog Internet Draft.  If a changelog is enabled,
+    then it may perform trimming based on a configurable maximum number of entries to ensure that
+    the changelog does not consume too much memory.
+    <br><br>
+  </li>
+
+  <li>
+    It provide support for LDAP referrals and search result references, so that clients can be
+    instructed to look elsewhere for certain content.  The ManageDsaIT control can be used to
+    treat referral entries as regular entries if desired.
+    <br><br>
+  </li>
+
+  <li>
+    It provides an option to automatically generate a number of operational attributes for entries
+    as they are added to the server, including entryDN, entryUUID, creatorsName, createTimestamp,
+    modifiersName, modifyTimestamp, and subschemaSubentry.  The modifiersName and modifyTimestamp
+    attributes will be automatically updated whenever a modify or modify DN operation is
+    processed, and entryDN will also be updated for modify DN operations.
+    <br><br>
+  </li>
+
+  <li>
+    It provides the ability to obtain an atomic point-in-time snapshot of the server content,
+    including all user data and changelog contents.  Once a snapshot has been taken, the server
+    can be easily rolled back to that state in order to undo any changes that had been made since
+    that snapshot was taken.  This can be useful for resetting the server to a known state after
+    running a set of tests which may alter the server content.
+    <br><br>
+  </li>
+
+  <li>
+    It provides the ability to easily populate the server with data read from an LDIF file
+    (optionally clearing any existing data before loading in the new data), and to export the
+    contents of the server to an LDIF file.  When exporting, you can optionally include or
+    exclude changelog contents, and you can optionally include or exclude generated operational
+    attributes.
+    <br><br>
+  </li>
+
+  <li>
+    It is possible to configure the server to listen for secure connections from SSL-based clients
+    rather than using unencrypted communication.  Alternately, it is possible to use the StartTLS
+    extended operation to add SSL encryption to an existing plaintext connection.  It is also
+    possible to have any number of listeners configured in the server at any given time, and you
+    can have a combination of listeners which do and do not support SSL, and those that do and
+    do not support StartTLS.
+    <br><br>
+  </li>
+
+  <li>
+    It provides the ability to automatically select a free port on the system on which to listen
+    for client connections, rather than requiring one to be explicitly configured (although it is
+    possible to use a specific port if desired).  This can be very helpful for environments in
+    which it is not possible to know ahead of time what other processes might be listening for
+    network connections, or when running multiple instances on the same system.  It is also
+    possible to explicitly configure the specific address on which it will listen for client
+    connections, or it can listen on all addresses on all interfaces.
+    <br><br>
+  </li>
+
+  <li>
+    It implements the <tt>LDAPInterface</tt> interface, which is the same interface that is
+    implemented by the <tt>LDAPConnection</tt> and <tt>LDAPConnectionPool</tt> classes and defines
+    a number of methods for performing all kinds of LDAP operations.  In many cases, it is
+    possible to use an in-memory directory server instance as if it were an LDAP connection.
+    <br><br>
+  </li>
+
+  <li>
+    It provides convenience methods for easily establishing a connection to the server, as well as
+    for establishing a set of connections in a connection pool.
+    <br><br>
+  </li>
+
+  <li>
+    It provides many of the same methods as the <tt>LDAPTestUtils</tt> class that can be used to
+    make determinations and assertions about the content of the server.  It also provides methods
+    for easily clearing the server or removing a particular subtree, and for counting the number
+    of entries in the server or a particular subtree.
+    <br><br>
+  </li>
+</ul>
+
+<p>
+  This fairly broad set of features means that the in-memory directory server may be suitable for
+  use in conjunction with many kinds of directory-enabled applications.  However, there are a few
+  notable features that it does not provide, including;
+</p>
+
+<ul>
+  <li>
+    It does not use persistent storage but holds all of its information in memory, which can
+    limit the overall scalability that it can achieve.  Further, because it does not provide the
+    ability to maintain attribute indexes, as the amount of data increases search operations with
+    a non-base scope may become increasingly expensive.  As such, the in-memory directory server
+    is not optimally designed to handle data sets with millions of entries or more.  However, as
+    long as the JVM is configured with a large enough heap, there is no inherent maximum number of
+    entries that it can support.
+    <br><br>
+  </li>
+
+  <li>
+    It does not currently provide optimal support for asynchronous operations.  If a client sends
+    a request on a connection that is already actively being used to process an operation, then
+    no processing will begin for that new request until the active operation on that connection
+    has completed.  It is, however, possible to process concurrent operations on different
+    connections.
+    <br><br>
+  </li>
+
+  <li>
+    It does not provide support for fine-grained access control.  It is possible to disable
+    support for certain operations altogether (e.g., you can create a server instance that only
+    supports bind, search, and compare operations and will reject all other types of operations),
+    and you can also configure the server to require authentication for certain types of
+    operations (e.g., a client can be required to bind before they will be allowed to make any
+    updates to server content).  However, it is not possible to differentiate between the
+    rights granted to individual users.
+    <br><br>
+  </li>
+
+  <li>
+    It does not provide support for replication.  Although you can have any number of instances
+    running concurrently in the same JVM, there is no way to automatically synchronize the data
+    between those instances.  However, because you can create directory server instances with
+    multiple listeners that are all backed by the same data, you can use that to simulate
+    multiple replicated instances in a manner that may be sufficient for many use cases.  Also,
+    because you can start and stop individual listeners without impacting other listeners in
+    the same instance, you can use that capability to test failover and simulate replica
+    unavailability.
+    <br><br>
+  </li>
+
+  <li>
+    It does not provide support for any features related to password policy (e.g., password
+    expiration, account lockout, rejecting weak passwords, etc.).  Further, it does not obscure
+    passwords stored in any way, nor does it support the use of passwords that have already been
+    encoded in some form.
+    <br><br>
+  </li>
+
+  <li>
+    It does not provide the ability to make changes to the configuration or schema while the
+    server is running.  The configuration and schema (if a schema is to be used) must be defined
+    before the server is started.
+    <br><br>
+  </li>
+</ul>
+
+<br><br>
+
+<h3>Using the In-Memory Directory Server from Java Code</h3>
+
+<p>
+  In order to obtain the greatest degree of flexibility with the in-memory directory server, you
+  can create, start, and stop instances from within Java code, as well as interacting with the
+  data contained in those instances.  This is very useful for testing purposes because it is easy
+  and lightweight to create and populate one or more instances within a test case, and then shut
+  it down at the end of that test case.  Alternately, you could create one or more instances that
+  are shared across many test cases, and you can easily clear the server or reset it to some other
+  predefined state between individual test cases.
+</p>
+
+<p>
+  Most of the classes that you will need when using an in-memory directory server instance reside
+  in the <tt>com.unboundid.ldap.listener</tt> package, and include:
+</p>
+
+<ul>
+  <li>
+    <tt>InMemoryDirectoryServer</tt> -- This is the primary class that is used to start, stop, and
+    otherwise manipulate directory server instances.
+    <br><br>
+  </li>
+
+  <li>
+    <tt>InMemoryDirectoryRequestHandler</tt> -- This class provides the real logic for handling
+    LDAP client requests.  Most developers will not need to directly use with this class as the
+    <tt>InMemoryDirectoryServer</tt> class can be used to encapsulate all interaction with it.
+    However, it may be useful for some advanced use cases in which you want to create more complex
+    <tt>LDAPListener</tt> configurations.
+    <br><br>
+  </li>
+
+  <li>
+    <tt>InMemoryDirectoryServerConfig</tt> -- This is used to define the configuration that the
+    server will use.
+    <br><br>
+  </li>
+
+  <li>
+    <tt>InMemoryListenerConfig</tt> -- This is used to define the configuration for listeners that
+    the server will use for communicating with clients.  In the simplest case of a single listener
+    on an automatically-selected port, you do not need to explicitly provide a listener
+    configuration.  However, you will need to manipulate the listener configuration if you want to
+    support multiple listeners, or if you want to use SSL or StartTLS.
+    <br><br>
+  </li>
+
+  <li>
+    <tt>InMemoryDirectoryServerSnapshot</tt> -- This provides a data structure for holding a
+    point-in-time snapshot of the data contained in a server.  You can take any number of
+    snapshots and easily revert the content of a server to match its state at the time the
+    snapshot was taken.
+    <br><br>
+  </li>
+
+  <li>
+    <tt>InMemoryExtendedOperationHandler</tt> -- This provides an API that can be used to update
+    the server to add support for custom extended operations.  Most developers will not need to
+    use this API.
+    <br><br>
+  </li>
+
+  <li>
+    <tt>InMemorySASLBindHandler</tt> -- This provides an API that can be used to update the server
+    to add support for custom SASL mechanisms.  Most developers will not need to use this API.
+    <br><br>
+  </li>
+</ul>
+
+<p>
+  In the most common use cases, you will simply create an instance of the
+  <tt>InMemoryDirectoryServerConfig</tt> class and use it to define the desired settings for the
+  server, and then use that configuration to create an <tt>InMemoryDirectoryServer</tt> instance
+  that you can use to control the server itself.  For example, the provided code can be used to
+  create a simple directory server instance that listen on an automatically-selected port and
+  will allow entries below "dc=example,dc=com":
+</p>
+
+<pre>
+// Create the configuration to use for the server.
+InMemoryDirectoryServerConfig config =
+     new InMemoryDirectoryServerConfig("dc=example,dc=com");
+config.addAdditionalBindCredentials("cn=Directory Manager", "password");
+
+// Create the directory server instance, populate it with data from the
+// "test-data.ldif" file, and start listening for client connections.
+InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
+ds.importFromLDIF(true, "test-data.ldif");
+ds.startListening();
+
+// Get a client connection to the server and use it to perform various
+// operations.
+LDAPConnection conn = ds.getConnection();
+SearchResultEntry entry = conn.getEntry("dc=example,dc=com");
+
+// Do more stuff here....
+
+// Disconnect from the server and cause the server to shut down.
+conn.close();
+ds.shutDown(true);
+</pre>
+
+<br><br>
+
+<h3>Using the In-Memory Directory Server from the Command Line</h3>
+
+<p>
+  Although the in-memory directory server is primarily meant to be configured and started by Java
+  code, it can also run from the command line.  The <tt>tools/in-memory-directory-server</tt>
+  shell script (or <tt>tools\in-memory-directory-server.bat batch file on Windows)</tt> can be
+  used to start an instance with a number of settings defined through command-line arguments.  You
+  can run it with "<tt>--help</tt>" to see a list of all arguments that it supports, but some of
+  them include:
+</p>
+
+<ul>
+  <li>
+    <tt>--baseDN </tt><i>{baseDN}</i> -- Specifies the base DN to use for data in the server.
+    This argument must be provided at least once, but may be provided multiple times if more than
+    one base DN should be used.
+    <br><br>
+  </li>
+
+  <li>
+    <tt>--port </tt><i>{port}</i> -- Specifies the port on which the server should listen for
+    client connections.  If this is not provided, then the server will automatically select a free
+    port to use.  When the server starts, it will print a message indicating the port on which it
+    is listening.
+    <br><br>
+  </li>
+
+  <li>
+    <tt>--ldifFile </tt><i>{path}</i> -- Specifies the path to an LDIF file that contains data to
+    be loaded into the server.  If this is not provided, then the server will start without any
+    data.
+    <br><br>
+  </li>
+</ul>
+
+<p>
+  For example, the provided command can be used to start a server listening on port 1234 with a
+  base DN of "dc=example,dc=com" and initially populated with data read from the "example.ldif"
+  file:
+</p>
+
+<pre>
+tools/in-memory-directory-server --baseDN "dc=example,dc=com" \
+     --port 1234 \
+     --ldifFile example.ldif
+</pre>

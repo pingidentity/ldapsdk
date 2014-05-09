@@ -1,0 +1,7 @@
+</div>
+
+<?php include('${BASE}../../../inc/rtcol_start.php') ?>
+<?php include('${BASE}../../../inc/rtcol_next-steps.php') ?>
+<?php include('${BASE}../../../inc/rtcol_feat-download-ldap-sdk.php') ?>
+<?php include('${BASE}../../../inc/rtcol_end.php') ?>
+<?php include('${BASE}../../../inc/footer.php') ?>

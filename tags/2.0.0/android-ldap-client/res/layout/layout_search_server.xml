@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ! Copyright 2009-2010 UnboundID Corp.
+ ! All Rights Reserved.
+ -->
+<!--
+ ! Copyright (C) 2009-2010 UnboundID Corp.
+ !
+ ! This program is free software; you can redistribute it and/or modify
+ ! it under the terms of the GNU General Public License (GPLv2 only)
+ ! or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ ! as published by the Free Software Foundation.
+ !
+ ! This program is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ! GNU General Public License for more details.
+ !
+ ! You should have received a copy of the GNU General Public License
+ ! along with this program; if not, see <http://www.gnu.org/licenses>.
+ -->
+
+
+
+<!--
+ ! This layout defines the form used to provide the information needed to
+ ! perform a search in a specified directory instance.
+ -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+  <LinearLayout android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:padding="5dp">
+
+    <!-- The Search Type -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_search_server_label_search_type" />
+      <Spinner    android:id="@+id/layout_search_server_spinner_search_type"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent" />
+    </LinearLayout>
+
+    <!-- The Search Text -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp">
+      <TextView   android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:textSize="10sp"
+                  android:text="@string/layout_search_server_label_search_text" />
+      <EditText   android:id="@+id/layout_search_server_field_search_text"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:singleLine="true" />
+    </LinearLayout>
+
+    <!-- The Search Button -->
+    <LinearLayout android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="7dp"
+                  android:paddingBottom="7dp"
+                  android:gravity="center">
+      <Button     android:id="@+id/layout_search_server_button_search"
+                  android:layout_width="wrap_content"
+                  android:layout_height="fill_parent"
+                  android:paddingLeft="10dp"
+                  android:paddingRight="10dp"
+                  android:text="@string/layout_search_server_button_label_search" />
+    </LinearLayout>
+
+  </LinearLayout>
+
+</ScrollView>
+
