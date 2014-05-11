@@ -984,7 +984,7 @@ public final class LDAPConnectionOptions
 
 
   /**
-   * Specifies whether to use the SO_KEEPALIVE option for the underlying sockets
+   * Specifies whether to use the TCP_NODELAY option for the underlying sockets
    * used by associated connections.  Changes to this setting will take effect
    * only for new sockets, and not for existing sockets.
    *
