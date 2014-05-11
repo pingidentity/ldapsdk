@@ -311,6 +311,7 @@ final class LDAPConnectionReader
                      connection.getConnectionOptions().getMaxMessageSize());
                 startTLSOutputStream = sslSocket.getOutputStream();
                 socket = sslSocket;
+                connection.getConnectionInternals(true).setSocket(sslSocket);
                 startTLSSleeper.wakeup();
               }
               catch (Exception e)
@@ -938,6 +939,7 @@ final class LDAPConnectionReader
              connection.getConnectionOptions().getMaxMessageSize());
         startTLSOutputStream = sslSocket.getOutputStream();
         socket = sslSocket;
+        connection.getConnectionInternals(true).setSocket(sslSocket);
         final OutputStream outputStream = startTLSOutputStream;
         startTLSOutputStream = null;
         return outputStream;
