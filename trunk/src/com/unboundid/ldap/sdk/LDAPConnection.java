@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.net.Socket;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.security.sasl.SaslClient;
 
@@ -1061,6 +1064,42 @@ public final class LDAPConnection
     else
     {
       this.socketFactory = socketFactory;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the {@code SSLSession} currently being used to secure
+   * communication on this connection.  This may be available for connections
+   * that were secured at the time they were created (via an
+   * {@code SSLSocketFactory}), or for connections secured after their creation
+   * (via the StartTLS extended operation).  This will not be available for
+   * unencrypted connections, or connections secured in other ways (e.g., via
+   * SASL QoP).
+   *
+   * @return  The {@code SSLSession} currently being used to secure
+   *          communication on this connection, or {@code null} if no
+   *          {@code SSLSession} is available.
+   */
+  public SSLSession getSSLSession()
+  {
+    final LDAPConnectionInternals internals = connectionInternals;
+
+    if (internals == null)
+    {
+      return null;
+    }
+
+    final Socket socket = internals.getSocket();
+    if ((socket != null) && (socket instanceof SSLSocket))
+    {
+      final SSLSocket sslSocket = (SSLSocket) socket;
+      return sslSocket.getSession();
+    }
+    else
+    {
+      return null;
     }
   }
 

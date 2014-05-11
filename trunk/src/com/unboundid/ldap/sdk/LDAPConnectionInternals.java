@@ -77,7 +77,7 @@ final class LDAPConnectionInternals
   private volatile SaslClient saslClient;
 
   // The socket used to communicate with the directory server.
-  private final Socket socket;
+  private volatile Socket socket;
 
   // The address of the server to which the connection is established.
   private final String host;
@@ -259,6 +259,20 @@ final class LDAPConnectionInternals
   Socket getSocket()
   {
     return socket;
+  }
+
+
+
+  /**
+   * Replaces the socket used to communicate with the directory server.  This
+   * should only be called by the {@code LDAPConnectionReader} class when
+   * replacing the socket for StartTLS processing.
+   *
+   * @param  socket  The socket used to communicate with the directory server.
+   */
+  void setSocket(final Socket socket)
+  {
+    this.socket = socket;
   }
 
 
