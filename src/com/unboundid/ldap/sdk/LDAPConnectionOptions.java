@@ -26,6 +26,8 @@ import com.unboundid.util.Mutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.ssl.SSLSocketVerifier;
+import com.unboundid.util.ssl.TrustAllSSLSocketVerifier;
 
 import static com.unboundid.util.Validator.*;
 
@@ -130,6 +132,9 @@ import static com.unboundid.util.Validator.*;
  *      concurrent socket factory use, but JVMs from other vendors will use
  *      synchronization to ensure that a socket factory will only be allowed to
  *      create one connection at a time.</LI>
+ *  <LI>A class that may be used to perform additional verification (e.g.,
+ *      hostname validation) for any {@code SSLSocket} instances created.  By
+ *      default, no special verification will be performed.</LI>
  * </UL>
  */
 @Mutable()
@@ -315,6 +320,15 @@ public final class LDAPConnectionOptions
 
 
 
+  /**
+   * The default {@code SSLSocketVerifier} instance that will be used for
+   * performing extra validation for {@code SSLSocket} instances.
+   */
+  static final SSLSocketVerifier DEFAULT_SSL_SOCKET_VERIFIER =
+       TrustAllSSLSocketVerifier.getInstance();
+
+
+
   // Indicates whether to send an abandon request for any operation for which no
   // response is received in the maximum response timeout.
   private boolean abandonOnTimeout;
@@ -393,6 +407,10 @@ public final class LDAPConnectionOptions
   // connections.
   private ReferralConnector referralConnector;
 
+  // The SSLSocketVerifier instance to use to perform extra validation on
+  // newly-established SSLSocket instances.
+  private SSLSocketVerifier sslSocketVerifier;
+
   // The unsolicited notification handler for associated connections.
   private UnsolicitedNotificationHandler unsolicitedNotificationHandler;
 
@@ -425,6 +443,7 @@ public final class LDAPConnectionOptions
     sendBufferSize                 = DEFAULT_SEND_BUFFER_SIZE;
     disconnectHandler              = null;
     referralConnector              = null;
+    sslSocketVerifier              = DEFAULT_SSL_SOCKET_VERIFIER;
     unsolicitedNotificationHandler = null;
 
     allowConcurrentSocketFactoryUse =
@@ -468,6 +487,7 @@ public final class LDAPConnectionOptions
     o.unsolicitedNotificationHandler  = unsolicitedNotificationHandler;
     o.receiveBufferSize               = receiveBufferSize;
     o.sendBufferSize                  = sendBufferSize;
+    o.sslSocketVerifier               = sslSocketVerifier;
 
     return o;
   }
@@ -1322,6 +1342,43 @@ public final class LDAPConnectionOptions
 
 
   /**
+   * Retrieves the {@link SSLSocketVerifier} that will be used to perform
+   * additional validation for any newly-created {@code SSLSocket} instances.
+   *
+   * @return  The {@code SSLSocketVerifier} that will be used to perform
+   *          additional validation for any newly-created {@code SSLSocket}
+   *          instances.
+   */
+  public SSLSocketVerifier getSSLSocketVerifier()
+  {
+    return sslSocketVerifier;
+  }
+
+
+
+  /**
+   * Specifies the {@link SSLSocketVerifier} that will be used to perform
+   * additional validation for any newly-created {@code SSLSocket} instances.
+   *
+   * @param  sslSocketVerifier  The {@code SSLSocketVerifier} that will be used
+   *                            to perform additional validation for any
+   *                            newly-created {@code SSLSocket} instances.
+   */
+  public void setSSLSocketVerifier(final SSLSocketVerifier sslSocketVerifier)
+  {
+    if (sslSocketVerifier == null)
+    {
+      this.sslSocketVerifier = DEFAULT_SSL_SOCKET_VERIFIER;
+    }
+    else
+    {
+      this.sslSocketVerifier = sslSocketVerifier;
+    }
+  }
+
+
+
+  /**
    * Retrieves a string representation of this LDAP connection.
    *
    * @return  A string representation of this LDAP connection.
@@ -1411,6 +1468,11 @@ public final class LDAPConnectionOptions
       buffer.append(", unsolicitedNotificationHandlerClass=");
       buffer.append(unsolicitedNotificationHandler.getClass().getName());
     }
+
+    buffer.append(", sslSocketVerifierClass='");
+    buffer.append(sslSocketVerifier.getClass().getName());
+    buffer.append('\'');
+
     buffer.append(')');
   }
 }
