@@ -171,12 +171,6 @@ final class LDAPConnectionReader
         }
         socket.setSoTimeout(0);
       }
-
-      if (socket instanceof SSLSocket)
-      {
-        final SSLSocket sslSocket = (SSLSocket) socket;
-        sslSocket.startHandshake();
-      }
     }
   }
 
@@ -268,9 +262,11 @@ final class LDAPConnectionReader
             debugException(Level.FINEST,  ste);
             if (sslSocketFactory != null)
             {
+              final LDAPConnectionOptions connectionOptions =
+                   connection.getConnectionOptions();
               try
               {
-                final int connectTimeout = connection.getConnectionOptions().
+                final int connectTimeout = connectionOptions.
                      getConnectTimeoutMillis();
                 if (connectTimeout > 0)
                 {
@@ -304,11 +300,14 @@ final class LDAPConnectionReader
                        true);
                   sslSocket.startHandshake();
                 }
+                connectionOptions.getSSLSocketVerifier().verifySSLSocket(
+                     connection.getConnectedAddress(), socket.getPort(),
+                     sslSocket);
                 inputStream =
                      new BufferedInputStream(sslSocket.getInputStream(),
                                              DEFAULT_INPUT_BUFFER_SIZE);
                 asn1StreamReader = new ASN1StreamReader(inputStream,
-                     connection.getConnectionOptions().getMaxMessageSize());
+                     connectionOptions.getMaxMessageSize());
                 startTLSOutputStream = sslSocket.getOutputStream();
                 socket = sslSocket;
                 connection.getConnectionInternals(true).setSocket(sslSocket);
@@ -895,12 +894,13 @@ final class LDAPConnectionReader
   OutputStream doStartTLS(final SSLSocketFactory sslSocketFactory)
        throws LDAPException
   {
+    final LDAPConnectionOptions connectionOptions =
+         connection.getConnectionOptions();
     if (connection.synchronousMode())
     {
       try
       {
-        final int connectTimeout = connection.getConnectionOptions().
-             getConnectTimeoutMillis();
+        final int connectTimeout = connectionOptions.getConnectTimeoutMillis();
         if (connectTimeout > 0)
         {
           if (debugEnabled())
@@ -932,11 +932,13 @@ final class LDAPConnectionReader
                connection.getConnectedAddress(), socket.getPort(), true);
           sslSocket.startHandshake();
         }
+        connectionOptions.getSSLSocketVerifier().verifySSLSocket(
+             connection.getConnectedAddress(), socket.getPort(), sslSocket);
         inputStream =
              new BufferedInputStream(sslSocket.getInputStream(),
                                      DEFAULT_INPUT_BUFFER_SIZE);
         asn1StreamReader = new ASN1StreamReader(inputStream,
-             connection.getConnectionOptions().getMaxMessageSize());
+             connectionOptions.getMaxMessageSize());
         startTLSOutputStream = sslSocket.getOutputStream();
         socket = sslSocket;
         connection.getConnectionInternals(true).setSocket(sslSocket);

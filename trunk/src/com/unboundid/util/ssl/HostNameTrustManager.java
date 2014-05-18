@@ -22,27 +22,20 @@ package com.unboundid.util.ssl;
 
 
 
-import java.net.InetAddress;
-import java.net.URI;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import javax.net.ssl.X509TrustManager;
-import javax.security.auth.x500.X500Principal;
 
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.ssl.SSLMessages.*;
 
 
@@ -187,7 +180,19 @@ public final class HostNameTrustManager
                                  final String authType)
          throws CertificateException
   {
-    checkCertificate(chain[0]);
+    final StringBuilder buffer = new StringBuilder();
+    for (final String s : acceptableHostNames)
+    {
+      buffer.setLength(0);
+      if (HostNameSSLSocketVerifier.certificateIncludesHostname(s, chain[0],
+           allowWildcards, buffer))
+      {
+        return;
+      }
+    }
+
+    throw new CertificateException(
+         ERR_HOSTNAME_NOT_FOUND.get(buffer.toString()));
   }
 
 
@@ -207,150 +212,19 @@ public final class HostNameTrustManager
                                  final String authType)
          throws CertificateException
   {
-    checkCertificate(chain[0]);
-  }
-
-
-
-  /**
-   * Performs the appropriate validation for the given certificate.
-   *
-   * @param  c  The certificate to be validated.
-   *
-   * @throws  CertificateException  If the provided certificate does not have a
-   *                                CN or subjectAltName value that matches one
-   *                                of the acceptable hostnames.
-   */
-  private void checkCertificate(final X509Certificate c)
-          throws CertificateException
-  {
-    // First, check the CN from the certificate subject.
-    final String subjectDN =
-         c.getSubjectX500Principal().getName(X500Principal.RFC2253);
-    try
+    final StringBuilder buffer = new StringBuilder();
+    for (final String s : acceptableHostNames)
     {
-      final DN dn = new DN(subjectDN);
-      for (final RDN rdn : dn.getRDNs())
+      buffer.setLength(0);
+      if (HostNameSSLSocketVerifier.certificateIncludesHostname(s, chain[0],
+           allowWildcards, buffer))
       {
-        final String[] names  = rdn.getAttributeNames();
-        final String[] values = rdn.getAttributeValues();
-        for (int i=0; i < names.length; i++)
-        {
-          final String lowerName = StaticUtils.toLowerCase(names[i]);
-          if (lowerName.equals("cn") || lowerName.equals("commonname") ||
-              lowerName.equals("2.5.4.3"))
-          {
-            final String lowerValue = StaticUtils.toLowerCase(values[i]);
-            if (acceptableHostNames.contains(lowerValue))
-            {
-              return;
-            }
-
-            if (allowWildcards && lowerValue.startsWith("*."))
-            {
-              final String withoutWildcard = lowerValue.substring(1);
-              for (final String s : acceptableHostNames)
-              {
-                if (s.endsWith(withoutWildcard))
-                {
-                  return;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    catch (final Exception e)
-    {
-      // This shouldn't happen for a well-formed certificate subject, but we
-      // have to handle it anyway.
-      debugException(e);
-    }
-
-
-    // Next, check any subjectAltName extension values.
-    final Collection<List<?>> subjectAltNames = c.getSubjectAlternativeNames();
-    if (subjectAltNames != null)
-    {
-      for (final List<?> l : subjectAltNames)
-      {
-        try
-        {
-          final Integer type = (Integer) l.get(0);
-          switch (type)
-          {
-            case 2: // dNSName
-              final String dnsName = StaticUtils.toLowerCase((String) l.get(1));
-              if (acceptableHostNames.contains(dnsName))
-              {
-                // We found a matching DNS host name.
-                return;
-              }
-
-              // If the given DNS name starts with a "*.", then it's a wildcard
-              // certificate.  See if that's allowed, and if so whether it
-              // matches any acceptable name.
-              if (allowWildcards && dnsName.startsWith("*."))
-              {
-                final String withoutWildcard = dnsName.substring(1);
-                for (final String s : acceptableHostNames)
-                {
-                  if (s.endsWith(withoutWildcard))
-                  {
-                    return;
-                  }
-                }
-              }
-              break;
-
-            case 6: // uniformResourceIdentifier
-              final URI uri = new URI((String) l.get(1));
-              if (acceptableHostNames.contains(
-                   StaticUtils.toLowerCase(uri.getHost())))
-              {
-                // The URI had a matching address.
-                return;
-              }
-              break;
-
-            case 7: // iPAddress
-              final InetAddress inetAddress =
-                   InetAddress.getByName((String) l.get(1));
-              for (final String s : acceptableHostNames)
-              {
-                if (Character.isDigit(s.charAt(0)) || (s.indexOf(':') >= 0))
-                {
-                  final InetAddress a = InetAddress.getByName(s);
-                  if (inetAddress.equals(a))
-                  {
-                    return;
-                  }
-                }
-              }
-              break;
-
-            case 0: // otherName
-            case 1: // rfc822Name
-            case 3: // x400Address
-            case 4: // directoryName
-            case 5: // ediPartyName
-            case 8: // registeredID
-            default:
-              // We won't do any checking for any of these formats.
-              break;
-          }
-        }
-        catch (final Exception e)
-        {
-          debugException(e);
-        }
+        return;
       }
     }
 
-
-    // If we've gotten here, then we didn't find a match.
-    throw new CertificateException(ERR_HOSTNAME_NOT_FOUND.get(subjectDN));
+    throw new CertificateException(
+         ERR_HOSTNAME_NOT_FOUND.get(buffer.toString()));
   }
 
 

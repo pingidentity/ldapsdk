@@ -29,6 +29,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.security.sasl.SaslClient;
 
@@ -136,6 +137,12 @@ final class LDAPConnectionInternals
            new ConnectThread(socketFactory, host, port);
       connectThread.start();
       socket = connectThread.getConnectedSocket(timeout);
+
+      if (socket instanceof SSLSocket)
+      {
+        final SSLSocket sslSocket = (SSLSocket) socket;
+        options.getSSLSocketVerifier().verifySSLSocket(host, port, sslSocket);
+      }
     }
     catch (final LDAPException le)
     {
