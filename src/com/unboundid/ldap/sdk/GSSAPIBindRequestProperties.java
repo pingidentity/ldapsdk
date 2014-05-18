@@ -85,6 +85,9 @@ public final class GSSAPIBindRequestProperties
   // The path to the JAAS configuration file to use for bind processing.
   private String configFilePath;
 
+  // The name that will be used to identify this client in the JAAS framework.
+  private String jaasClientName;
+
   // The KDC address for the GSSAPI bind request, if available.
   private String kdcAddress;
 
@@ -185,6 +188,7 @@ public final class GSSAPIBindRequestProperties
 
     servicePrincipalProtocol = "ldap";
     enableGSSAPIDebugging    = false;
+    jaasClientName           = "GSSAPIBindRequest";
     renewTGT                 = false;
     useTicketCache           = true;
     requireCachedCredentials = false;
@@ -441,6 +445,37 @@ public final class GSSAPIBindRequestProperties
   public void setKDCAddress(final String kdcAddress)
   {
     this.kdcAddress = kdcAddress;
+  }
+
+
+
+  /**
+   * Retrieves the name that will be used to identify this client in the JAAS
+   * framework.
+   *
+   * @return  The name that will be used to identify this client in the JAAS
+   *          framework.
+   */
+  public String getJAASClientName()
+  {
+    return jaasClientName;
+  }
+
+
+
+  /**
+   * Specifies the name that will be used to identify this client in the JAAS
+   * framework.
+   *
+   * @param  jaasClientName  The name that will be used to identify this client
+   *                         in the JAAS framework.  It must not be
+   *                         {@code null} or empty.
+   */
+  public void setJAASClientName(final String jaasClientName)
+  {
+    Validator.ensureNotNull(jaasClientName);
+
+    this.jaasClientName = jaasClientName;
   }
 
 
@@ -785,6 +820,10 @@ public final class GSSAPIBindRequestProperties
     {
       buffer.append("useTicketCache=false, ");
     }
+
+    buffer.append("jaasClientName='");
+    buffer.append(jaasClientName);
+    buffer.append("', ");
 
     if (configFilePath != null)
     {

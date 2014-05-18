@@ -193,13 +193,6 @@ public final class GSSAPIBindRequest
 
 
   /**
-   * The name that will identify this client to the JAAS framework.
-   */
-  private static final String JAAS_CLIENT_NAME = "GSSAPIBindRequest";
-
-
-
-  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 2511890818146955112L;
@@ -246,6 +239,9 @@ public final class GSSAPIBindRequest
 
   // The path to the JAAS configuration file to use for bind processing.
   private final String configFilePath;
+
+  // The name that will be used to identify this client in the JAAS framework.
+  private final String jaasClientName;
 
   // The KDC address for the GSSAPI bind request, if available.
   private final String kdcAddress;
@@ -533,6 +529,7 @@ public final class GSSAPIBindRequest
     realm                    = gssapiProperties.getRealm();
     allowedQoP               = gssapiProperties.getAllowedQoP();
     kdcAddress               = gssapiProperties.getKDCAddress();
+    jaasClientName           = gssapiProperties.getJAASClientName();
     saslClientServerName     = gssapiProperties.getSASLClientServerName();
     servicePrincipalProtocol = gssapiProperties.getServicePrincipalProtocol();
     enableGSSAPIDebugging    = gssapiProperties.enableGSSAPIDebugging();
@@ -906,7 +903,7 @@ public final class GSSAPIBindRequest
   private static void writeSunJAASConfig(final PrintWriter w,
                                          final GSSAPIBindRequestProperties p)
   {
-    w.println(JAAS_CLIENT_NAME + " {");
+    w.println(p.getJAASClientName() + " {");
     w.println("  com.sun.security.auth.module.Krb5LoginModule required");
     w.println("  client=true");
 
@@ -949,7 +946,7 @@ public final class GSSAPIBindRequest
   {
     // NOTE:  It does not appear that the IBM GSSAPI implementation has any
     // analog for the renewTGT property, so it will be ignored.
-    w.println(JAAS_CLIENT_NAME + " {");
+    w.println(p.getJAASClientName() + " {");
     w.println("  com.ibm.security.auth.module.Krb5LoginModule required");
     w.println("  credsType=initiator");
 
@@ -1093,7 +1090,7 @@ public final class GSSAPIBindRequest
       final LoginContext context;
       try
       {
-        context = new LoginContext(JAAS_CLIENT_NAME, this);
+        context = new LoginContext(jaasClientName, this);
         context.login();
       }
       catch (Exception e)
@@ -1206,6 +1203,7 @@ public final class GSSAPIBindRequest
       gssapiProperties.setRenewTGT(renewTGT);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
+      gssapiProperties.setJAASClientName(jaasClientName);
       gssapiProperties.setSASLClientServerName(saslClientServerName);
 
       return new GSSAPIBindRequest(gssapiProperties, getControls());
@@ -1322,6 +1320,7 @@ public final class GSSAPIBindRequest
       gssapiProperties.setRenewTGT(renewTGT);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
+      gssapiProperties.setJAASClientName(jaasClientName);
       gssapiProperties.setSASLClientServerName(saslClientServerName);
 
       final GSSAPIBindRequest bindRequest =
@@ -1374,7 +1373,9 @@ public final class GSSAPIBindRequest
       buffer.append('\'');
     }
 
-    buffer.append(", configFilePath='");
+    buffer.append(", jaasClientName='");
+    buffer.append(jaasClientName);
+    buffer.append("', configFilePath='");
     buffer.append(configFilePath);
     buffer.append("', servicePrincipalProtocol='");
     buffer.append(servicePrincipalProtocol);
