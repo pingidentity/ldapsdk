@@ -210,15 +210,19 @@ public final class GSSAPIBindRequest
 
   // Indicates whether to attempt to renew the client's existing ticket-granting
   // ticket if authentication uses an existing Kerberos session.
-  private boolean renewTGT;
+  private final boolean renewTGT;
 
   // Indicates whether to require that the credentials be obtained from the
   // ticket cache such that authentication will fail if the client does not have
   // an existing Kerberos session.
-  private boolean requireCachedCredentials;
+  private final boolean requireCachedCredentials;
+
+  // Indicates whether to allow the client to use credentials that are outside
+  // of the current subject.
+  private final boolean useSubjectCredentialsOnly;
 
   // Indicates whether to enable the use pf a ticket cache.
-  private boolean useTicketCache;
+  private final boolean useTicketCache;
 
   // The message ID from the last LDAP message sent from this request.
   private int messageID;
@@ -258,7 +262,7 @@ public final class GSSAPIBindRequest
   private final String servicePrincipalProtocol;
 
   // The path to the Kerberos ticket cache to use.
-  private String ticketCachePath;
+  private final String ticketCachePath;
 
 
 
@@ -524,19 +528,20 @@ public final class GSSAPIBindRequest
 
     ensureNotNull(gssapiProperties);
 
-    authenticationID         = gssapiProperties.getAuthenticationID();
-    password                 = gssapiProperties.getPassword();
-    realm                    = gssapiProperties.getRealm();
-    allowedQoP               = gssapiProperties.getAllowedQoP();
-    kdcAddress               = gssapiProperties.getKDCAddress();
-    jaasClientName           = gssapiProperties.getJAASClientName();
-    saslClientServerName     = gssapiProperties.getSASLClientServerName();
-    servicePrincipalProtocol = gssapiProperties.getServicePrincipalProtocol();
-    enableGSSAPIDebugging    = gssapiProperties.enableGSSAPIDebugging();
-    useTicketCache           = gssapiProperties.useTicketCache();
-    requireCachedCredentials = gssapiProperties.requireCachedCredentials();
-    renewTGT                 = gssapiProperties.renewTGT();
-    ticketCachePath          = gssapiProperties.getTicketCachePath();
+    authenticationID          = gssapiProperties.getAuthenticationID();
+    password                  = gssapiProperties.getPassword();
+    realm                     = gssapiProperties.getRealm();
+    allowedQoP                = gssapiProperties.getAllowedQoP();
+    kdcAddress                = gssapiProperties.getKDCAddress();
+    jaasClientName            = gssapiProperties.getJAASClientName();
+    saslClientServerName      = gssapiProperties.getSASLClientServerName();
+    servicePrincipalProtocol  = gssapiProperties.getServicePrincipalProtocol();
+    enableGSSAPIDebugging     = gssapiProperties.enableGSSAPIDebugging();
+    useSubjectCredentialsOnly = gssapiProperties.useSubjectCredentialsOnly();
+    useTicketCache            = gssapiProperties.useTicketCache();
+    requireCachedCredentials  = gssapiProperties.requireCachedCredentials();
+    renewTGT                  = gssapiProperties.renewTGT();
+    ticketCachePath           = gssapiProperties.getTicketCachePath();
 
     unhandledCallbackMessages = new ArrayList<String>(5);
 
@@ -1009,7 +1014,8 @@ public final class GSSAPIBindRequest
     }
 
     System.setProperty(PROPERTY_CONFIG_FILE, configFilePath);
-    System.setProperty(PROPERTY_SUBJECT_CREDS_ONLY, "true");
+    System.setProperty(PROPERTY_SUBJECT_CREDS_ONLY,
+         String.valueOf(useSubjectCredentialsOnly));
     if (debugEnabled(DebugType.LDAP))
     {
       debug(Level.CONFIG, DebugType.LDAP,
@@ -1017,7 +1023,7 @@ public final class GSSAPIBindRequest
                 configFilePath + "'.");
       debug(Level.CONFIG, DebugType.LDAP,
            "Using subject creds only property " + PROPERTY_SUBJECT_CREDS_ONLY +
-                " = 'true'.");
+                " = '" + useSubjectCredentialsOnly + "'.");
     }
 
     if (kdcAddress == null)
@@ -1201,6 +1207,7 @@ public final class GSSAPIBindRequest
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
       gssapiProperties.setRenewTGT(renewTGT);
+      gssapiProperties.setUseSubjectCredentialsOnly(useSubjectCredentialsOnly);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
       gssapiProperties.setJAASClientName(jaasClientName);
@@ -1318,6 +1325,7 @@ public final class GSSAPIBindRequest
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
       gssapiProperties.setRenewTGT(renewTGT);
+      gssapiProperties.setUseSubjectCredentialsOnly(useSubjectCredentialsOnly);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
       gssapiProperties.setJAASClientName(jaasClientName);
