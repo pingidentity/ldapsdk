@@ -2687,6 +2687,44 @@ public final class LDAPConnectionPool
 
 
   /**
+   * Attempts to reduce the number of connections available for use in the pool.
+   * Note that this will be a best-effort attempt to reach the desired number
+   * of connections, as other threads interacting with the connection pool may
+   * check out and/or release connections that cause the number of available
+   * connections to fluctuate.
+   *
+   * @param  connectionsToRetain  The number of connections that should be
+   *                              retained for use in the connection pool.
+   */
+  public void shrinkPool(final int connectionsToRetain)
+  {
+    while (availableConnections.size() > connectionsToRetain)
+    {
+      final LDAPConnection conn;
+      try
+      {
+        conn = getConnection();
+      }
+      catch (final LDAPException le)
+      {
+        return;
+      }
+
+      if (availableConnections.size() >= connectionsToRetain)
+      {
+        discardConnection(conn);
+      }
+      else
+      {
+        releaseConnection(conn);
+        return;
+      }
+    }
+  }
+
+
+
+  /**
    * Closes this connection pool in the event that it becomes unreferenced.
    *
    * @throws  Throwable  If an unexpected problem occurs.
