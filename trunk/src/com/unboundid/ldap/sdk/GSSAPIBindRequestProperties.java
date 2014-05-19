@@ -69,6 +69,10 @@ public final class GSSAPIBindRequestProperties
   // an existing Kerberos session.
   private boolean requireCachedCredentials;
 
+  // Indicates whether to allow the client to use credentials that are outside
+  // of the current subject.
+  private boolean useSubjectCredentialsOnly;
+
   // Indicates whether to enable the use of a ticket cache.
   private boolean useTicketCache;
 
@@ -186,15 +190,16 @@ public final class GSSAPIBindRequestProperties
     this.kdcAddress       = kdcAddress;
     this.configFilePath   = configFilePath;
 
-    servicePrincipalProtocol = "ldap";
-    enableGSSAPIDebugging    = false;
-    jaasClientName           = "GSSAPIBindRequest";
-    renewTGT                 = false;
-    useTicketCache           = true;
-    requireCachedCredentials = false;
-    saslClientServerName     = null;
-    ticketCachePath          = null;
-    allowedQoP               = Collections.unmodifiableList(Arrays.asList(
+    servicePrincipalProtocol  = "ldap";
+    enableGSSAPIDebugging     = false;
+    jaasClientName            = "GSSAPIBindRequest";
+    renewTGT                  = false;
+    useSubjectCredentialsOnly = true;
+    useTicketCache            = true;
+    requireCachedCredentials  = false;
+    saslClientServerName      = null;
+    ticketCachePath           = null;
+    allowedQoP                = Collections.unmodifiableList(Arrays.asList(
          SASLQualityOfProtection.AUTH));
   }
 
@@ -584,6 +589,40 @@ public final class GSSAPIBindRequestProperties
 
 
   /**
+   * Indicates whether to allow the client to use credentials that are outside
+   * of the current subject, obtained via some system-specific mechanism.
+   *
+   * @return  {@code true} if the client will only be allowed to use credentials
+   *          that are within the current subject, or {@code false} if the
+   *          client will be allowed to use credentials outside the current
+   *          subject.
+   */
+  public boolean useSubjectCredentialsOnly()
+  {
+    return useSubjectCredentialsOnly;
+  }
+
+
+
+  /**
+   * Specifies whether to allow the client to use credentials that are outside
+   * the current subject.  If this is {@code false}, then a system-specific
+   * mechanism may be used in an attempt to obtain credentials from an
+   * existing session.
+   *
+   * @param  useSubjectCredentialsOnly  Indicates whether to allow the client to
+   *                                    use credentials that are outside of the
+   *                                    current subject.
+   */
+  public void setUseSubjectCredentialsOnly(
+                   final boolean useSubjectCredentialsOnly)
+  {
+    this.useSubjectCredentialsOnly = useSubjectCredentialsOnly;
+  }
+
+
+
+  /**
    * Indicates whether to enable the use of a ticket cache to to avoid the need
    * to supply credentials if the client already has an existing Kerberos
    * session.
@@ -800,6 +839,10 @@ public final class GSSAPIBindRequestProperties
       buffer.append(kdcAddress);
       buffer.append("', ");
     }
+
+    buffer.append("useSubjectCredentialsOnly=");
+    buffer.append(useSubjectCredentialsOnly);
+    buffer.append(", ");
 
     if (useTicketCache)
     {
