@@ -225,15 +225,15 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  *       <TD ALIGN="RIGHT">81</TD>
  *     </TR>
  *     <TR>
- *       <TD ALIGN="LEFT">LOCAL_ERR0R</TD>
+ *       <TD ALIGN="LEFT">LOCAL_ERROR</TD>
  *       <TD ALIGN="RIGHT">82</TD>
  *     </TR>
  *     <TR>
- *       <TD ALIGN="LEFT">ENCODING_ERR0R</TD>
+ *       <TD ALIGN="LEFT">ENCODING_ERROR</TD>
  *       <TD ALIGN="RIGHT">83</TD>
  *     </TR>
  *     <TR>
- *       <TD ALIGN="LEFT">DECODING_ERR0R</TD>
+ *       <TD ALIGN="LEFT">DECODING_ERROR</TD>
  *       <TD ALIGN="RIGHT">84</TD>
  *     </TR>
  *     <TR>
@@ -1021,7 +1021,7 @@ public final class ResultCode
    * performing processing associated with the virtual list view control.
    */
   public static final ResultCode VIRTUAL_LIST_VIEW_ERROR =
-       new ResultCode(INFO_RC_VIRTUAL_LIST_VIEW_ERR0R.get(),
+       new ResultCode(INFO_RC_VIRTUAL_LIST_VIEW_ERROR.get(),
                       VIRTUAL_LIST_VIEW_ERROR_INT_VALUE);
 
 
