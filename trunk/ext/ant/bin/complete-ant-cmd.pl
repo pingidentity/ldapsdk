@@ -19,7 +19,7 @@
 #
 # To install for Bash 2.0 or better, add the following to ~/.bashrc:
 # 
-#     $ complete -C complete-ant-cmd ant build.sh
+#     complete -C complete-ant-cmd.pl ant build.sh
 #
 # To install for Z-Shell 2.5 or better, add the following to ~/.zshrc:
 #
@@ -27,7 +27,7 @@
 #         local args_line args
 #         read -l args_line
 #         set -A args $args_line
-#         set -A reply $(COMP_LINE=$args_line complete-ant-cmd ${args[1]} $1)
+#         set -A reply $(COMP_LINE=$args_line complete-ant-cmd.pl ${args[1]} $1)
 #     }
 #     compctl -K ant_complete ant build.sh
 #     
@@ -83,7 +83,7 @@ sub getTargets {
     # cache-file.
     my $cacheFile = $buildFile;
     $cacheFile =~ s|(.*/)?(.*)|${1}.ant-targets-${2}|;
-    if ((!-e $cacheFile) || (-M $buildFile) < (-M $cacheFile)) {
+    if ((!-e $cacheFile) || (-z $cacheFile) || (-M $buildFile) < (-M $cacheFile)) {
         open( CACHE, '>'.$cacheFile ) || die "can\'t write $cacheFile: $!\n";
         open( HELP, "$antCmd -projecthelp -f '$buildFile'|" ) || return(); 
         my %targets;
