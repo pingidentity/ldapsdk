@@ -1,9 +1,10 @@
+<?xml version="1.0"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
     xmlns:lxslt="http://xml.apache.org/xslt"
     xmlns:redirect="org.apache.xalan.lib.Redirect"
-    xmlns:stringutils="xalan://org.apache.tools.ant.util.StringUtils"
+    xmlns:string="xalan://java.lang.String"
     extension-element-prefixes="redirect">
-<xsl:output method="html" indent="yes" encoding="US-ASCII"/>
+<xsl:output method="html" indent="yes" encoding="UTF-8"/>
 <xsl:decimal-format decimal-separator="." grouping-separator=","/>
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
@@ -96,14 +97,28 @@
             <xsl:apply-templates select="." mode="class.details"/>
         </redirect:write>
         <xsl:if test="string-length(./system-out)!=0">
-            <redirect:write file="{$output.dir}/{$package.dir}/{@name}-out.txt">
-                <xsl:value-of select="./system-out" />
-            </redirect:write>
+          <redirect:write file="{$output.dir}/{$package.dir}/{@name}-out.html">
+            <html>
+              <head>
+                <title>Standard Output from <xsl:value-of select="@name"/></title>
+              </head>
+              <body>
+                <pre><xsl:value-of select="./system-out"/></pre>
+              </body>
+            </html>
+          </redirect:write>
         </xsl:if>
         <xsl:if test="string-length(./system-err)!=0">
-            <redirect:write file="{$output.dir}/{$package.dir}/{@name}-err.txt">
-                <xsl:value-of select="./system-err" />
-            </redirect:write>
+          <redirect:write file="{$output.dir}/{$package.dir}/{@name}-err.html">
+            <html>
+              <head>
+                <title>Standard Error from <xsl:value-of select="@name"/></title>
+              </head>
+              <body>
+                <pre><xsl:value-of select="./system-err"/></pre>
+              </body>
+            </html>
+          </redirect:write>
         </xsl:if>
     </xsl:for-each>
 </xsl:template>
@@ -263,7 +278,7 @@ h6 {
             <xsl:if test="string-length(./system-out)!=0">
                 <div class="Properties">
                     <a>
-                        <xsl:attribute name="href">./<xsl:value-of select="@name"/>-out.txt</xsl:attribute>
+                        <xsl:attribute name="href">./<xsl:value-of select="@name"/>-out.html</xsl:attribute>
                         System.out &#187;
                     </a>
                 </div>
@@ -271,7 +286,7 @@ h6 {
             <xsl:if test="string-length(./system-err)!=0">
                 <div class="Properties">
                     <a>
-                        <xsl:attribute name="href">./<xsl:value-of select="@name"/>-err.txt</xsl:attribute>
+                        <xsl:attribute name="href">./<xsl:value-of select="@name"/>-err.html</xsl:attribute>
                         System.err &#187;
                     </a>
                 </div>
@@ -428,6 +443,7 @@ h6 {
         <xsl:variable name="testCount" select="sum(testsuite/@tests)"/>
         <xsl:variable name="errorCount" select="sum(testsuite/@errors)"/>
         <xsl:variable name="failureCount" select="sum(testsuite/@failures)"/>
+        <xsl:variable name="skippedCount" select="sum(testsuite/@skipped)"/>
         <xsl:variable name="timeCount" select="sum(testsuite/@time)"/>
         <xsl:variable name="successRate" select="($testCount - $failureCount - $errorCount) div $testCount"/>
         <table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
@@ -435,6 +451,7 @@ h6 {
             <th>Tests</th>
             <th>Failures</th>
             <th>Errors</th>
+            <th>Skipped</th>
             <th>Success rate</th>
             <th>Time</th>
         </tr>
@@ -449,6 +466,7 @@ h6 {
             <td><xsl:value-of select="$testCount"/></td>
             <td><xsl:value-of select="$failureCount"/></td>
             <td><xsl:value-of select="$errorCount"/></td>
+            <td><xsl:value-of select="$skipCount" /></td>
             <td>
                 <xsl:call-template name="display-percent">
                     <xsl:with-param name="value" select="$successRate"/>
@@ -492,6 +510,7 @@ h6 {
                     <td><xsl:value-of select="sum($insamepackage/@tests)"/></td>
                     <td><xsl:value-of select="sum($insamepackage/@errors)"/></td>
                     <td><xsl:value-of select="sum($insamepackage/@failures)"/></td>
+                    <td><xsl:value-of select="sum($insamepackage/@skipped)" /></td>
                     <td>
                     <xsl:call-template name="display-time">
                         <xsl:with-param name="value" select="sum($insamepackage/@time)"/>
@@ -586,6 +605,7 @@ h6 {
         <th>Tests</th>
         <th>Errors</th>
         <th>Failures</th>
+        <th>Skipped</th>
         <th nowrap="nowrap">Time(s)</th>
         <th nowrap="nowrap">Time Stamp</th>
         <th>Host</th>
@@ -617,6 +637,7 @@ h6 {
         <td><xsl:apply-templates select="@tests"/></td>
         <td><xsl:apply-templates select="@errors"/></td>
         <td><xsl:apply-templates select="@failures"/></td>
+        <td><xsl:apply-templates select="@skipped" /></td>
         <td><xsl:call-template name="display-time">
                 <xsl:with-param name="value" select="@time"/>
             </xsl:call-template>
@@ -644,6 +665,10 @@ h6 {
             <xsl:when test="error">
                 <td>Error</td>
                 <td><xsl:apply-templates select="error"/></td>
+            </xsl:when>
+            <xsl:when test="skipped">
+            	<td>Skipped</td>
+            	<td><xsl:apply-templates select="skipped"/></td>
             </xsl:when>
             <xsl:otherwise>
                 <td>Success</td>
@@ -690,9 +715,11 @@ h6 {
 
 <xsl:template name="JS-escape">
     <xsl:param name="string"/>
-    <xsl:param name="tmp1" select="stringutils:replace(string($string),'\','\\')"/>
-    <xsl:param name="tmp2" select="stringutils:replace(string($tmp1),&quot;'&quot;,&quot;\&apos;&quot;)"/>
-    <xsl:value-of select="$tmp2"/>
+    <xsl:param name="tmp1" select="string:replaceAll(string:new(string($string)),'\\','\\\\')"/>
+    <xsl:param name="tmp2" select="string:replaceAll(string:new(string($tmp1)),&quot;'&quot;,&quot;\\&apos;&quot;)"/>
+    <xsl:param name="tmp3" select="string:replaceAll(string:new(string($tmp2)),&quot;&#10;&quot;,'\\n')"/>
+    <xsl:param name="tmp4" select="string:replaceAll(string:new(string($tmp3)),&quot;&#13;&quot;,'\\r')"/>
+    <xsl:value-of select="$tmp4"/>
 </xsl:template>
 
 
