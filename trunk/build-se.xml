@@ -210,10 +210,29 @@
   <!-- Perform checkstyle analysis on the code. -->
   <target name="checkstyle" description="Validate source code style"
           depends="compile">
+    <condition property="checkstyle-target" value="no-op">
+      <and>
+        <isset property="checkstyle.enabled" />
+        <equals arg1="${checkstyle.enabled}" arg2="false"
+                caseSensitive="false" />
+      </and>
+    </condition>
+    <condition property="checkstyle-target" value="do-checkstyle">
+      <not>
+        <isset property="checkstyle-target" />
+      </not>
+    </condition>
+    <antcall target="${checkstyle-target}" />
+  </target>
+
+  <target name="checkstyle-setup">
     <mkdir dir="${checkstyle.cache.dir}" />
 
     <taskdef resource="checkstyletask.properties"
              classpath="${checkstyle.dir}/checkstyle-all-4.4.jar" />
+  </target>
+
+  <target name="do-checkstyle" depends="checkstyle-setup">
 
     <checkstyle config="${checkstyle.dir}/ldapsdk-checkstyle.xml"
                 classpath="${classes.dir}" failOnViolation="true">
@@ -712,6 +731,11 @@
 
     <scme baseDir="${me.package.dir}" dsHost="${ds.host}" dsPort="${ds.port}" />
   </target>
+
+
+
+  <!-- A dummy target that doesn't do anything. -->
+  <target name="no-op" />
 
 </project>
 
