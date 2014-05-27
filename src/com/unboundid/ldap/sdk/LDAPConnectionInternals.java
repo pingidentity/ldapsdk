@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,6 +58,9 @@ final class LDAPConnectionInternals
 
   // Indicates whether to operate in synchronous mode.
   private final boolean synchronousMode;
+
+  // The inet address to which the connection is established.
+  private final InetAddress inetAddress;
 
   // The port of the server to which the connection is established.
   private final int port;
@@ -98,6 +102,8 @@ final class LDAPConnectionInternals
    * @param  socketFactory  The socket factory to use to create the socket.
    * @param  host           The address of the server to which the connection
    *                        should be established.
+   * @param  inetAddress    The inet address to which the connection is
+   *                        established.
    * @param  port           The port of the server to which the connection
    *                        should be established.
    * @param  timeout        The maximum length of time in milliseconds to wait
@@ -113,13 +119,15 @@ final class LDAPConnectionInternals
   LDAPConnectionInternals(final LDAPConnection connection,
                           final LDAPConnectionOptions options,
                           final SocketFactory socketFactory, final String host,
-                          final int port, final int timeout)
+                          final InetAddress inetAddress, final int port,
+                          final int timeout)
        throws IOException
 
   {
-    this.connection = connection;
-    this.host       = host;
-    this.port       = port;
+    this.connection  = connection;
+    this.host        = host;
+    this.inetAddress = inetAddress;
+    this.port        = port;
 
     if (options.captureConnectStackTrace())
     {
@@ -134,7 +142,7 @@ final class LDAPConnectionInternals
     try
     {
       final ConnectThread connectThread =
-           new ConnectThread(socketFactory, host, port);
+           new ConnectThread(socketFactory, inetAddress, port);
       connectThread.start();
       socket = connectThread.getConnectedSocket(timeout);
 
@@ -229,6 +237,18 @@ final class LDAPConnectionInternals
   LDAPConnectionReader getConnectionReader()
   {
     return connectionReader;
+  }
+
+
+
+  /**
+   * Retrieves the inet address to which this connection is established.
+   *
+   * @return  The inet address to which this connection is established.
+   */
+  InetAddress getInetAddress()
+  {
+    return inetAddress;
   }
 
 

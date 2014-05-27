@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.unboundid.util.NotMutable;
+import com.unboundid.util.ThreadLocalRandom;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -45,22 +46,6 @@ import com.unboundid.util.ThreadSafetyLevel;
 final class SRVRecordPrioritySet
       implements Serializable
 {
-  /**
-   * The random number generator that will be used to seed the thread-local
-   * random number generators.
-   */
-  private static final Random SEED_RANDOM = new Random();
-
-
-
-  /**
-   * A set of thread-local random number generators that will be used to order
-   * servers based on their weights.
-   */
-  private static final ThreadLocal<Random> RANDOMS = new ThreadLocal<Random>();
-
-
-
   /**
    * The serial version UID for this serializable class.
    */
@@ -155,17 +140,7 @@ final class SRVRecordPrioritySet
       }
       else
       {
-        Random r = RANDOMS.get();
-        if (r == null)
-        {
-          synchronized (SEED_RANDOM)
-          {
-            r = new Random(SEED_RANDOM.nextLong());
-          }
-
-          RANDOMS.set(r);
-        }
-
+        final Random r = ThreadLocalRandom.get();
         long tw = totalWeight;
         final ArrayList<SRVRecord> rl =
              new ArrayList<SRVRecord>(nonzeroWeightRecords);
