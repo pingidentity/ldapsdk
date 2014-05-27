@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -70,7 +71,7 @@ final class ConnectThread
   private final SocketFactory socketFactory;
 
   // The address to which the connection should be established.
-  private final String address;
+  private final InetAddress address;
 
 
 
@@ -84,7 +85,7 @@ final class ConnectThread
    * @param  port           The port to which the connection should be
    *                        established.
    */
-  ConnectThread(final SocketFactory socketFactory, final String address,
+  ConnectThread(final SocketFactory socketFactory, final InetAddress address,
                 final int port)
   {
     super("Background connect thread for " + address + ':' + port);

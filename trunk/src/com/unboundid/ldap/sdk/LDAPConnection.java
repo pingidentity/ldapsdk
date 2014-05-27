@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.HashMap;
@@ -428,8 +429,10 @@ public final class LDAPConnection
    * Creates a new, unauthenticated LDAP connection that is established to the
    * specified server.
    *
-   * @param  host  The address of the server to which the connection should be
-   *               established.  It must not be {@code null}.
+   * @param  host  The string representation of the address of the server to
+   *               which the connection should be established.  It may be a
+   *               resolvable name or an IP address.  It must not be
+   *               {@code null}.
    * @param  port  The port number of the server to which the connection should
    *               be established.  It should be a value between 1 and 65535,
    *               inclusive.
@@ -452,9 +455,10 @@ public final class LDAPConnection
    * @param  connectionOptions  The set of connection options to use for this
    *                            connection.  If it is {@code null}, then a
    *                            default set of options will be used.
-   * @param  host               The address of the server to which the
-   *                            connection should be established.  It must not
-   *                            be {@code null}.
+   * @param  host               The string representation of the address of the
+   *                            server to which the connection should be
+   *                            established.  It may be a resolvable name or an
+   *                            IP address.  It must not be {@code null}.
    * @param  port               The port number of the server to which the
    *                            connection should be established.  It should be
    *                            a value between 1 and 65535, inclusive.
@@ -478,8 +482,10 @@ public final class LDAPConnection
    * @param  socketFactory  The socket factory to use when establishing
    *                        connections.  If it is {@code null}, then a default
    *                        socket factory will be used.
-   * @param  host           The address of the server to which the connection
-   *                        should be established.  It must not be {@code null}.
+   * @param  host           The string representation of the address of the
+   *                        server to which the connection should be
+   *                        established.  It may be a resolvable name or an IP
+   *                        address.  It must not be {@code null}.
    * @param  port           The port number of the server to which the
    *                        connection should be established.  It should be a
    *                        value between 1 and 65535, inclusive.
@@ -506,9 +512,10 @@ public final class LDAPConnection
    * @param  connectionOptions  The set of connection options to use for this
    *                            connection.  If it is {@code null}, then a
    *                            default set of options will be used.
-   * @param  host               The address of the server to which the
-   *                            connection should be established.  It must not
-   *                            be {@code null}.
+   * @param  host               The string representation of the address of the
+   *                            server to which the connection should be
+   *                            established.  It may be a resolvable name or an
+   *                            IP address.  It must not be {@code null}.
    * @param  port               The port number of the server to which the
    *                            connection should be established.  It should be
    *                            a value between 1 and 65535, inclusive.
@@ -533,8 +540,10 @@ public final class LDAPConnection
    * and is authenticated as the specified user (via LDAP simple
    * authentication).
    *
-   * @param  host          The address of the server to which the connection
-   *                       should be established.  It must not be {@code null}.
+   * @param  host          The string representation of the address of the
+   *                       server to which the connection should be established.
+   *                       It may be a resolvable name or an IP address.  It
+   *                       must not be {@code null}.
    * @param  port          The port number of the server to which the
    *                       connection should be established.  It should be a
    *                       value between 1 and 65535, inclusive.
@@ -563,9 +572,10 @@ public final class LDAPConnection
    * @param  connectionOptions  The set of connection options to use for this
    *                            connection.  If it is {@code null}, then a
    *                            default set of options will be used.
-   * @param  host               The address of the server to which the
-   *                            connection should be established.  It must not
-   *                            be {@code null}.
+   * @param  host               The string representation of the address of the
+   *                            server to which the connection should be
+   *                            established.  It may be a resolvable name or an
+   *                            IP address.  It must not be {@code null}.
    * @param  port               The port number of the server to which the
    *                            connection should be established.  It should be
    *                            a value between 1 and 65535, inclusive.
@@ -595,8 +605,10 @@ public final class LDAPConnection
    * @param  socketFactory  The socket factory to use when establishing
    *                        connections.  If it is {@code null}, then a default
    *                        socket factory will be used.
-   * @param  host           The address of the server to which the connection
-   *                        should be established.  It must not be {@code null}.
+   * @param  host           The string representation of the address of the
+   *                        server to which the connection should be
+   *                        established.  It may be a resolvable name or an IP
+   *                        address.  It must not be {@code null}.
    * @param  port           The port number of the server to which the
    *                        connection should be established.  It should be a
    *                        value between 1 and 65535, inclusive.
@@ -629,9 +641,10 @@ public final class LDAPConnection
    * @param  connectionOptions  The set of connection options to use for this
    *                            connection.  If it is {@code null}, then a
    *                            default set of options will be used.
-   * @param  host               The address of the server to which the
-   *                            connection should be established.  It must not
-   *                            be {@code null}.
+   * @param  host               The string representation of the address of the
+   *                            server to which the connection should be
+   *                            established.  It may be a resolvable name or an
+   *                            IP address.  It must not be {@code null}.
    * @param  port               The port number of the server to which the
    *                            connection should be established.  It should be
    *                            a value between 1 and 65535, inclusive.
@@ -678,8 +691,10 @@ public final class LDAPConnection
    * recommended that all active operations be abandoned, canceled, or allowed
    * to complete before attempting to re-establish an active connection.
    *
-   * @param  host  The address of the server to which the connection should be
-   *               established.  It must not be {@code null}.
+   * @param  host  The string representation of the address of the server to
+   *               which the connection should be established.  It may be a
+   *               resolvable name or an IP address.  It must not be
+   *               {@code null}.
    * @param  port  The port number of the server to which the connection should
    *               be established.  It should be a value between 1 and 65535,
    *               inclusive.
@@ -708,8 +723,10 @@ public final class LDAPConnection
    * recommended that all active operations be abandoned, canceled, or allowed
    * to complete before attempting to re-establish an active connection.
    *
-   * @param  host     The address of the server to which the connection should
-   *                  be established.  It must not be {@code null}.
+   * @param  host     The string representation of the address of the server to
+   *                  which the connection should be established.  It may be a
+   *                  resolvable name or an IP address.  It must not be
+   *                  {@code null}.
    * @param  port     The port number of the server to which the connection
    *                  should be established.  It should be a value between 1 and
    *                  65535, inclusive.
@@ -726,7 +743,96 @@ public final class LDAPConnection
   public void connect(final String host, final int port, final int timeout)
          throws LDAPException
   {
-    ensureNotNull(host, port);
+    final InetAddress inetAddress;
+    try
+    {
+      inetAddress = InetAddress.getByName(host);
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new LDAPException(ResultCode.CONNECT_ERROR,
+           ERR_CONN_RESOLVE_ERROR.get(host, getExceptionMessage(e)),
+           e);
+    }
+
+    connect(host, inetAddress, port, timeout);
+  }
+
+
+
+  /**
+   * Establishes an unauthenticated connection to the directory server using the
+   * provided information.  If the connection is already established, then it
+   * will be closed and re-established.
+   * <BR><BR>
+   * If this method is invoked while any operations are in progress on this
+   * connection, then the directory server may or may not abort processing for
+   * those operations, depending on the type of operation and how far along the
+   * server has already gotten while processing that operation.  It is
+   * recommended that all active operations be abandoned, canceled, or allowed
+   * to complete before attempting to re-establish an active connection.
+   *
+   * @param  inetAddress  The inet address of the server to which the connection
+   *                      should be established.  It must not be {@code null}.
+   * @param  port         The port number of the server to which the connection
+   *                      should be established.  It should be a value between 1
+   *                      and 65535, inclusive.
+   * @param  timeout      The maximum length of time in milliseconds to wait for
+   *                      the connection to be established before failing, or
+   *                      zero to indicate that no timeout should be enforced
+   *                      (although if the attempt stalls long enough, then the
+   *                      underlying operating system may cause it to timeout).
+   *
+   * @throws  LDAPException  If an error occurs while attempting to establish
+   *                         the connection.
+   */
+  @ThreadSafety(level=ThreadSafetyLevel.METHOD_NOT_THREADSAFE)
+  public void connect(final InetAddress inetAddress, final int port,
+                      final int timeout)
+         throws LDAPException
+  {
+    connect(inetAddress.getHostName(), inetAddress, port, timeout);
+  }
+
+
+
+  /**
+   * Establishes an unauthenticated connection to the directory server using the
+   * provided information.  If the connection is already established, then it
+   * will be closed and re-established.
+   * <BR><BR>
+   * If this method is invoked while any operations are in progress on this
+   * connection, then the directory server may or may not abort processing for
+   * those operations, depending on the type of operation and how far along the
+   * server has already gotten while processing that operation.  It is
+   * recommended that all active operations be abandoned, canceled, or allowed
+   * to complete before attempting to re-establish an active connection.
+   *
+   * @param  host         The string representation of the address of the server
+   *                      to which the connection should be established.  It may
+   *                      be a resolvable name or an IP address.  It must not be
+   *                      {@code null}.
+   * @param  inetAddress  The inet address of the server to which the connection
+   *                      should be established.  It must not be {@code null}.
+   * @param  port         The port number of the server to which the connection
+   *                      should be established.  It should be a value between 1
+   *                      and 65535, inclusive.
+   * @param  timeout      The maximum length of time in milliseconds to wait for
+   *                      the connection to be established before failing, or
+   *                      zero to indicate that no timeout should be enforced
+   *                      (although if the attempt stalls long enough, then the
+   *                      underlying operating system may cause it to timeout).
+   *
+   * @throws  LDAPException  If an error occurs while attempting to establish
+   *                         the connection.
+   */
+  @ThreadSafety(level=ThreadSafetyLevel.METHOD_NOT_THREADSAFE)
+  public void connect(final String host, final InetAddress inetAddress,
+                      final int port, final int timeout)
+         throws LDAPException
+  {
+    ensureNotNull(host, inetAddress, port);
 
     needsReconnect.set(false);
     hostPort = host + ':' + port;
@@ -751,7 +857,7 @@ public final class LDAPConnection
     {
       connectionStatistics.incrementNumConnects();
       connectionInternals = new LDAPConnectionInternals(this, connectionOptions,
-           lastUsedSocketFactory, host, port, timeout);
+           lastUsedSocketFactory, host, inetAddress, port, timeout);
       connectionInternals.startConnectionReader();
       lastCommunicationTime = System.currentTimeMillis();
     }
@@ -1252,6 +1358,29 @@ public final class LDAPConnection
     else
     {
       return internals.getHost();
+    }
+  }
+
+
+
+  /**
+   * Retrieves the string representation of the IP address to which this
+   * connection is currently established.
+   *
+   * @return  The string representation of the IP address to which this
+   *          connection is currently established, or {@code null} if the
+   *          connection is not established.
+   */
+  public String getConnectedIPAddress()
+  {
+    final LDAPConnectionInternals internals = connectionInternals;
+    if (internals == null)
+    {
+      return null;
+    }
+    else
+    {
+      return internals.getInetAddress().getHostAddress();
     }
   }
 
