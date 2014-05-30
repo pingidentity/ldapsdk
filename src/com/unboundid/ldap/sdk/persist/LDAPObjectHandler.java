@@ -285,7 +285,14 @@ public final class LDAPObjectHandler<T>
     final String parentDNStr = ldapObject.defaultParentDN();
     try
     {
-      defaultParentDN = new DN(parentDNStr);
+      if ((parentDNStr.length() == 0) && (superclassHandler != null))
+      {
+        defaultParentDN = superclassHandler.getDefaultParentDN();
+      }
+      else
+      {
+        defaultParentDN = new DN(parentDNStr);
+      }
     }
     catch (LDAPException le)
     {
@@ -584,7 +591,8 @@ public final class LDAPObjectHandler<T>
          Collections.unmodifiableList(tmpCAFilterGetters);
 
     rdnGetters = Collections.unmodifiableList(tmpRDNGetters);
-    if (rdnFields.isEmpty() && rdnGetters.isEmpty())
+    if (rdnFields.isEmpty() && rdnGetters.isEmpty() &&
+        (superclassHandler == null))
     {
       throw new LDAPPersistException(ERR_OBJECT_HANDLER_NO_RDN_DEFINED.get(
            type.getName()));
@@ -1434,8 +1442,14 @@ public final class LDAPObjectHandler<T>
       return existingDN;
     }
 
+    final int numRDNs = rdnFields.size() + rdnGetters.size();
+    if (numRDNs == 0)
+    {
+      return superclassHandler.constructDN(o, parentDN);
+    }
+
     final LinkedHashMap<String,Attribute> attrMap =
-         new LinkedHashMap<String,Attribute>(1);
+         new LinkedHashMap<String,Attribute>(numRDNs);
 
     for (final FieldInfo i : rdnFields)
     {
@@ -1506,8 +1520,14 @@ public final class LDAPObjectHandler<T>
       return existingDN;
     }
 
-    final ArrayList<String> rdnNameList  = new ArrayList<String>(1);
-    final ArrayList<byte[]> rdnValueList = new ArrayList<byte[]>(1);
+    final int numRDNs = rdnFields.size() + rdnGetters.size();
+    if (numRDNs == 0)
+    {
+      return superclassHandler.constructDN(o, parentDN);
+    }
+
+    final ArrayList<String> rdnNameList  = new ArrayList<String>(numRDNs);
+    final ArrayList<byte[]> rdnValueList = new ArrayList<byte[]>(numRDNs);
     for (final FieldInfo i : rdnFields)
     {
       final Attribute a = attrMap.get(toLowerCase(i.getAttributeName()));
