@@ -390,17 +390,14 @@ rdnLoop:
       }
 
 
-      // If we're at the end of the string, then it's not a valid DN.
-      if (pos >= length)
-      {
-        throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_DN_NO_VALUE_FOR_ATTR.get(attrName));
-      }
-
-
       // Read the value for this RDN component.
       ASN1OctetString value;
-      if (dnString.charAt(pos) == '#')
+      if (pos >= length)
+      {
+        value = new ASN1OctetString();
+        rdnEndPos = pos;
+      }
+      else if (dnString.charAt(pos) == '#')
       {
         // It is a hex-encoded value, so we'll read until we find the end of the
         // string or the first non-hex character, which must be a space, a
@@ -539,16 +536,13 @@ rdnLoop:
         }
 
 
-        // If we're at the end of the string, then it's not a valid DN.
+        // Read the value for this RDN component.
         if (pos >= length)
         {
-          throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_DN_NO_VALUE_FOR_ATTR.get(attrName));
+          value = new ASN1OctetString();
+          rdnEndPos = pos;
         }
-
-
-        // Read the value for this RDN component.
-        if (dnString.charAt(pos) == '#')
+        else if (dnString.charAt(pos) == '#')
         {
           // It is a hex-encoded value, so we'll read until we find the end of
           // the string or the first non-hex character, which must be a space, a

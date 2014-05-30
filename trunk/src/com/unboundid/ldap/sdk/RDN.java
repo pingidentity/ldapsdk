@@ -403,19 +403,15 @@ public final class RDN
     }
 
 
-    // If we're at the end of the string, then it's not a valid RDN.
-    if (pos >= length)
-    {
-      throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                              ERR_RDN_NO_ATTR_VALUE.get(attrName));
-    }
-
-
     // Look at the next character.  If it is an octothorpe (#), then the value
     // must be hex-encoded.  Otherwise, it's a regular string (although possibly
     // containing escaped or quoted characters).
     ASN1OctetString value;
-    if (rdnString.charAt(pos) == '#')
+    if (pos >= length)
+    {
+      value = new ASN1OctetString();
+    }
+    else if (rdnString.charAt(pos) == '#')
     {
       // It is a hex-encoded value, so we'll read until we find the end of the
       // string or the first non-hex character, which must be either a space or
@@ -520,18 +516,14 @@ public final class RDN
         pos++;
       }
 
-      // If we're at the end of the string, then it's not a valid RDN.
-      if (pos >= length)
-      {
-        throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_RDN_NO_ATTR_VALUE.get(attrName));
-      }
-
-
       // Look at the next character.  If it is an octothorpe (#), then the value
       // must be hex-encoded.  Otherwise, it's a regular string (although
       // possibly containing escaped or quoted characters).
-      if (rdnString.charAt(pos) == '#')
+      if (pos >= length)
+      {
+        value = new ASN1OctetString();
+      }
+      else if (rdnString.charAt(pos) == '#')
       {
         // It is a hex-encoded value, so we'll read until we find the end of the
         // string or the first non-hex character, which must be either a space
@@ -927,13 +919,6 @@ valueLoop:
         buffer.deleteCharAt(bufferPos--);
         rdnStrPos--;
       }
-    }
-
-    // If nothing was added to the buffer, then that's an error.
-    if (buffer.length() == bufferLength)
-    {
-      throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                              ERR_RDN_EMPTY_VALUE.get());
     }
 
     return pos;
