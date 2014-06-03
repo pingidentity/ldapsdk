@@ -22,6 +22,11 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Properties;
+import javax.naming.Context;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
@@ -125,6 +130,9 @@ public final class DNSSRVRecordServerSet
 
 
 
+  // The properties that will be used to initialize the JNDI context.
+  private final Hashtable<String,String> jndiProperties;
+
   // The connection options to use for newly-created connections.
   private final LDAPConnectionOptions connectionOptions;
 
@@ -195,6 +203,50 @@ public final class DNSSRVRecordServerSet
                                final SocketFactory socketFactory,
                                final LDAPConnectionOptions connectionOptions)
   {
+    this(recordName, providerURL, null, ttlMillis, socketFactory,
+         connectionOptions);
+  }
+
+
+
+  /**
+   * Creates a new instance of this server set that will use the provided
+   * settings.
+   *
+   * @param  recordName         The name of the DNS SRV record to retrieve.  If
+   *                            this is {@code null}, then a default record name
+   *                            of "_ldap._tcp" will be used.
+   * @param  providerURL        The JNDI provider URL that may be used to
+   *                            specify the DNS server(s) to use.  If this is
+   *                            not specified, then a default URL of "dns:" will
+   *                            be used, which will attempt to determine the
+   *                            appropriate servers from the underlying system
+   *                            configuration.
+   * @param  jndiProperties     A set of JNDI-related properties that should be
+   *                            be used when initializing the context for
+   *                            interacting with the DNS server via JNDI.  If
+   *                            this is {@code null}, then a default set of
+   *                            properties will be used.
+   * @param  ttlMillis          Specifies the maximum length of time in
+   *                            milliseconds that DNS information should be
+   *                            cached before it needs to be retrieved again.  A
+   *                            value less than or equal to zero will use the
+   *                            default TTL of one hour.
+   * @param  socketFactory      The socket factory that will be used when
+   *                            creating connections.  It may be {@code null} if
+   *                            the JVM-default socket factory should be used.
+   * @param  connectionOptions  The set of connection options that should be
+   *                            used for the connections that are created.  It
+   *                            may be {@code null} if the default connection
+   *                            options should be used.
+   */
+  public DNSSRVRecordServerSet(final String recordName,
+                               final String providerURL,
+                               final Properties jndiProperties,
+                               final long ttlMillis,
+                               final SocketFactory socketFactory,
+                               final LDAPConnectionOptions connectionOptions)
+  {
     this.socketFactory     = socketFactory;
     this.connectionOptions = connectionOptions;
 
@@ -216,6 +268,27 @@ public final class DNSSRVRecordServerSet
     else
     {
       this.providerURL = providerURL;
+    }
+
+    this.jndiProperties = new Hashtable<String,String>(10);
+    if (jndiProperties != null)
+    {
+      for (final Map.Entry<Object,Object> e : jndiProperties.entrySet())
+      {
+        this.jndiProperties.put(String.valueOf(e.getKey()),
+             String.valueOf(e.getValue()));
+      }
+    }
+
+    if (! this.jndiProperties.containsKey(Context.INITIAL_CONTEXT_FACTORY))
+    {
+      this.jndiProperties.put(Context.INITIAL_CONTEXT_FACTORY,
+           "com.sun.jndi.dns.DnsContextFactory");
+    }
+
+    if (! this.jndiProperties.containsKey(Context.PROVIDER_URL))
+    {
+      this.jndiProperties.put(Context.PROVIDER_URL, this.providerURL);
     }
 
     if (ttlMillis <= 0L)
@@ -250,6 +323,22 @@ public final class DNSSRVRecordServerSet
   public String getProviderURL()
   {
     return providerURL;
+  }
+
+
+
+  /**
+   * Retrieves an unmodifiable map of properties that will be used to initialize
+   * the JNDI context used to interact with DNS.  Note that the map returned
+   * will reflect the actual properties that will be used, and may not exactly
+   * match the properties provided when creating this server set.
+   *
+   * @return  An unmodifiable map of properties that will be used to initialize
+   *          the JNDI context used to interact with DNS.
+   */
+  public Map<String,String> getJNDIProperties()
+  {
+    return Collections.unmodifiableMap(jndiProperties);
   }
 
 
@@ -325,7 +414,7 @@ public final class DNSSRVRecordServerSet
     {
       try
       {
-        recordSet = SRVRecordSet.getRecordSet(recordName, providerURL,
+        recordSet = SRVRecordSet.getRecordSet(recordName, jndiProperties,
              ttlMillis);
       }
       catch (final LDAPException le)

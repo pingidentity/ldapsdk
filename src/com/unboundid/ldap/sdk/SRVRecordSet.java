@@ -25,13 +25,12 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Level;
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -192,20 +191,21 @@ final class SRVRecordSet
   /**
    * Attempts to communicate with DNS in order to retrieve a record set.
    *
-   * @param  name         The name of the SRV record to retrieve.
-   * @param  providerURL  The JNDI provider URL that may be used to specify the
-   *                      DNS server(s) to use.
-   * @param  ttlMillis    Specifies the maximum length of time in milliseconds
-   *                      that DNS information should be cached before it needs
-   *                      to be retrieved again.
+   * @param  name            The name of the SRV record to retrieve.
+   * @param  jndiProperties  The properties to use to initialize the JNDI
+   *                         context.
+   * @param  ttlMillis       Specifies the maximum length of time in
+   *                         milliseconds that DNS information should be cached
+   *                         before it needs to be retrieved again.
    *
    * @return  The record set retrieved from DNS.
    *
    * @throws  LDAPException  If an error occurs while querying DNS or while
    *                         parsing the results.
    */
-  static SRVRecordSet getRecordSet(final String name, final String providerURL,
-                                   final long ttlMillis)
+  static SRVRecordSet getRecordSet(final String name,
+                           final Hashtable<String,String> jndiProperties,
+                           final long ttlMillis)
          throws LDAPException
   {
     final ArrayList<String> recordStrings = new ArrayList<String>(10);
@@ -213,19 +213,14 @@ final class SRVRecordSet
 
     try
     {
-      final Properties properties = new Properties();
-      properties.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-           JNDI_DNS_CONTEXT_FACTORY);
-      properties.setProperty(Context.PROVIDER_URL, providerURL);
-
       if (Debug.debugEnabled(DebugType.CONNECT))
       {
         Debug.debug(Level.INFO, DebugType.CONNECT,
              "Issuing JNDI query to retrieve DNS SRV record '" + name +
-                  "' using provider URL '" + providerURL + "'.");
+                  "' using properties '" + jndiProperties + "'.");
       }
 
-      context = new InitialDirContext(properties);
+      context = new InitialDirContext(jndiProperties);
       final Attributes recordAttributes =
            context.getAttributes(name, ATTRIBUTE_IDS);
       context.close();

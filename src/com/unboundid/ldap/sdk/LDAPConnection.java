@@ -1387,6 +1387,29 @@ public final class LDAPConnection
 
 
   /**
+   * Retrieves an {@code InetAddress} object that represents the address of the
+   * server to which this  connection is currently established.
+   *
+   * @return  An {@code InetAddress} that represents the address of the server
+   *          to which this connection is currently established, or {@code null}
+   *          if the connection is not established.
+   */
+  public InetAddress getConnectedInetAddress()
+  {
+    final LDAPConnectionInternals internals = connectionInternals;
+    if (internals == null)
+    {
+      return null;
+    }
+    else
+    {
+      return internals.getInetAddress();
+    }
+  }
+
+
+
+  /**
    * Retrieves the port of the directory server to which this connection is
    * currently established.
    *
