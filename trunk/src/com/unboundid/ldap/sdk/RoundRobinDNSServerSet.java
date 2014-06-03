@@ -27,7 +27,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
@@ -153,6 +155,9 @@ public final class RoundRobinDNSServerSet
   private final AtomicReference<ObjectPair<InetAddress[],Long>>
        resolvedAddressesWithTimeout;
 
+  // The properties that will be used to initialize the JNDI context, if any.
+  private final Hashtable<String,String> jndiProperties;
+
   // The port number for the target server.
   private final int port;
 
@@ -170,6 +175,10 @@ public final class RoundRobinDNSServerSet
 
   // The provider URL to use to resolve names, if any.
   private final String providerURL;
+
+  // The DNS record types that will be used to obtain the IP addresses for the
+  // specified hostname.
+  private final String[] dnsRecordTypes;
 
 
 
@@ -217,14 +226,137 @@ public final class RoundRobinDNSServerSet
                                 final SocketFactory socketFactory,
                                 final LDAPConnectionOptions connectionOptions)
   {
+    this(hostname, port, selectionMode, cacheTimeoutMillis, providerURL,
+         null, null, socketFactory, connectionOptions);
+  }
+
+
+
+  /**
+   * Creates a new round-robin DNS server set with the provided information.
+   *
+   * @param  hostname            The hostname to be resolved to one or more
+   *                             addresses.  It must not be {@code null}.
+   * @param  port                The port to use to connect to the server.  Note
+   *                             that even if the provided hostname resolves to
+   *                             multiple addresses, the same port must be used
+   *                             for all addresses.
+   * @param  selectionMode       The selection mode that should be used if the
+   *                             hostname resolves to multiple addresses.  It
+   *                             must not be {@code null}.
+   * @param  cacheTimeoutMillis  The maximum length of time in milliseconds to
+   *                             cache addresses resolved from the provided
+   *                             hostname.  Caching resolved addresses can
+   *                             result in better performance and can reduce the
+   *                             number of requests to the name service.  A
+   *                             that is less than or equal to zero indicates
+   *                             that no caching should be used.
+   * @param  providerURL         The JNDI provider URL that should be used when
+   *                             communicating with the DNS server.If both
+   *                             {@code providerURL} and {@code jndiProperties}
+   *                             are {@code null}, then then JNDI will not be
+   *                             used to interact with DNS and the hostname
+   *                             resolution will be performed via the underlying
+   *                             system's name service mechanism (which may make
+   *                             use of other services instead of or in addition
+   *                             to DNS)..  If this is non-{@code null}, then
+   *                             only DNS will be used to perform the name
+   *                             resolution.  A value of "dns:" indicates that
+   *                             the underlying system's DNS configuration
+   *                             should be used.
+   * @param  jndiProperties      A set of JNDI-related properties that should be
+   *                             be used when initializing the context for
+   *                             interacting with the DNS server via JNDI.  If
+   *                             both {@code providerURL} and
+   *                             {@code jndiProperties} are {@code null}, then
+   *                             then JNDI will not be used to interact with
+   *                             DNS and the hostname resolution will be
+   *                             performed via the underlying system's name
+   *                             service mechanism (which may make use of other
+   *                             services instead of or in addition to DNS).  If
+   *                             {@code providerURL} is {@code null} and
+   *                             {@code jndiProperties} is non-{@code null},
+   *                             then the provided properties must specify the
+   *                             URL.
+   * @param  dnsRecordTypes      Specifies the types of DNS records that will be
+   *                             used to obtain the addresses for the specified
+   *                             hostname.  This will only be used if at least
+   *                             one of {@code providerURL} and
+   *                             {@code jndiProperties} is non-{@code null}.  If
+   *                             this is {@code null} or empty, then a default
+   *                             record type of "A" (indicating IPv4 addresses)
+   *                             will be used.
+   * @param  socketFactory       The socket factory to use to establish the
+   *                             connections.  It may be {@code null} if the
+   *                             JVM-default socket factory should be used.
+   * @param  connectionOptions   The set of connection options that should be
+   *                             used for the connections.  It may be
+   *                             {@code null} if a default set of connection
+   *                             options should be used.
+   */
+  public RoundRobinDNSServerSet(final String hostname, final int port,
+                                final AddressSelectionMode selectionMode,
+                                final long cacheTimeoutMillis,
+                                final String providerURL,
+                                final Properties jndiProperties,
+                                final String[] dnsRecordTypes,
+                                final SocketFactory socketFactory,
+                                final LDAPConnectionOptions connectionOptions)
+  {
     Validator.ensureNotNull(hostname);
     Validator.ensureTrue((port >= 1) && (port <= 65535));
     Validator.ensureNotNull(selectionMode);
 
-    this.hostname           = hostname;
-    this.port               = port;
-    this.selectionMode      = selectionMode;
-    this.providerURL        = providerURL;
+    this.hostname      = hostname;
+    this.port          = port;
+    this.selectionMode = selectionMode;
+    this.providerURL   = providerURL;
+
+    if (jndiProperties == null)
+    {
+      if (providerURL == null)
+      {
+        this.jndiProperties = null;
+      }
+      else
+      {
+        this.jndiProperties = new Hashtable<String,String>(2);
+        this.jndiProperties.put(Context.INITIAL_CONTEXT_FACTORY,
+             "com.sun.jndi.dns.DnsContextFactory");
+        this.jndiProperties.put(Context.PROVIDER_URL, providerURL);
+      }
+    }
+    else
+    {
+      this.jndiProperties =
+           new Hashtable<String,String>(jndiProperties.size()+2);
+      for (final Map.Entry<Object,Object> e : jndiProperties.entrySet())
+      {
+        this.jndiProperties.put(String.valueOf(e.getKey()),
+             String.valueOf(e.getValue()));
+      }
+
+      if (! this.jndiProperties.containsKey(Context.INITIAL_CONTEXT_FACTORY))
+      {
+        this.jndiProperties.put(Context.INITIAL_CONTEXT_FACTORY,
+             "com.sun.jndi.dns.DnsContextFactory");
+      }
+
+      if ((! this.jndiProperties.containsKey(Context.PROVIDER_URL)) &&
+         (providerURL != null))
+      {
+        this.jndiProperties.put(Context.PROVIDER_URL, providerURL);
+      }
+    }
+
+    if (dnsRecordTypes == null)
+    {
+      this.dnsRecordTypes = new String[] { "A" };
+    }
+    else
+    {
+      this.dnsRecordTypes = dnsRecordTypes;
+    }
 
     if (cacheTimeoutMillis > 0L)
     {
@@ -323,6 +455,44 @@ public final class RoundRobinDNSServerSet
   public String getProviderURL()
   {
     return providerURL;
+  }
+
+
+
+  /**
+   * Retrieves an unmodifiable map of properties that will be used to initialize
+   * the JNDI context used to interact with DNS.  Note that the map returned
+   * will reflect the actual properties that will be used, and may not exactly
+   * match the properties provided when creating this server set.
+   *
+   * @return  An unmodifiable map of properties that will be used to initialize
+   *          the JNDI context used to interact with DNS, or {@code null} if
+   *          JNDI will nto be used to interact with DNS.
+   */
+  public Map<String,String> getJNDIProperties()
+  {
+    if (jndiProperties == null)
+    {
+      return null;
+    }
+    else
+    {
+      return Collections.unmodifiableMap(jndiProperties);
+    }
+  }
+
+
+
+  /**
+   * Retrieves an array of record types that will be requested if JNDI will be
+   * used to interact with DNS.
+   *
+   * @return  An array of record types that will be requested if JNDI will be
+   *          used to interact with DNS.
+   */
+  public String[] getDNSRecordTypes()
+  {
+    return dnsRecordTypes;
   }
 
 
@@ -442,22 +612,17 @@ public final class RoundRobinDNSServerSet
     InetAddress[] addresses = null;
     try
     {
-      if (providerURL == null)
+      if (jndiProperties == null)
       {
         addresses = InetAddress.getAllByName(hostname);
       }
       else
       {
-        final Properties properties = new Properties();
-        properties.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-             "com.sun.jndi.dns.DnsContextFactory");
-        properties.setProperty(Context.PROVIDER_URL, providerURL);
-
         Attributes attributes = null;
-        final InitialDirContext context = new InitialDirContext(properties);
+        final InitialDirContext context = new InitialDirContext(jndiProperties);
         try
         {
-          attributes = context.getAttributes(hostname, new String[] { "A" });
+          attributes = context.getAttributes(hostname, dnsRecordTypes);
         }
         finally
         {
@@ -466,18 +631,24 @@ public final class RoundRobinDNSServerSet
 
         if (attributes != null)
         {
-          final Attribute a = attributes.get("A");
-          if (a != null)
+          final ArrayList<InetAddress> addressList =
+               new ArrayList<InetAddress>(10);
+          for (final String recordType : dnsRecordTypes)
           {
-            final ArrayList<InetAddress> addressList =
-                 new ArrayList<InetAddress>(10);
-            final NamingEnumeration<?> values = a.getAll();
-            while (values.hasMore())
+            final Attribute a = attributes.get(recordType);
+            if (a != null)
             {
-              final Object value = values.next();
-              addressList.add(getInetAddressForIP(String.valueOf(value)));
+              final NamingEnumeration<?> values = a.getAll();
+              while (values.hasMore())
+              {
+                final Object value = values.next();
+                addressList.add(getInetAddressForIP(String.valueOf(value)));
+              }
             }
+          }
 
+          if (! addressList.isEmpty())
+          {
             addresses = new InetAddress[addressList.size()];
             addressList.toArray(addresses);
           }
