@@ -339,7 +339,7 @@ public final class ExampleCommandLineArgument implements Serializable
         inSingleQuote = true;
         inArg = true;
       }
-      else if (c == ' ')
+      else if ((c == ' ') || (c == '\t'))
       {
         if (inArg)
         {
