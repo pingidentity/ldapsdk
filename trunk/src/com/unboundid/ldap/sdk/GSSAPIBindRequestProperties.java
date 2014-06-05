@@ -25,8 +25,12 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.util.Mutable;
@@ -79,6 +83,10 @@ public final class GSSAPIBindRequestProperties
   // The SASL quality of protection value(s) allowed for the DIGEST-MD5 bind
   // request.
   private List<SASLQualityOfProtection> allowedQoP;
+
+  // The names of any system properties that should not be altered by GSSAPI
+  // processing.
+  private Set<String> suppressedSystemProperties;
 
   // The authentication ID string for the GSSAPI bind request.
   private String authenticationID;
@@ -190,16 +198,17 @@ public final class GSSAPIBindRequestProperties
     this.kdcAddress       = kdcAddress;
     this.configFilePath   = configFilePath;
 
-    servicePrincipalProtocol  = "ldap";
-    enableGSSAPIDebugging     = false;
-    jaasClientName            = "GSSAPIBindRequest";
-    renewTGT                  = false;
-    useSubjectCredentialsOnly = true;
-    useTicketCache            = true;
-    requireCachedCredentials  = false;
-    saslClientServerName      = null;
-    ticketCachePath           = null;
-    allowedQoP                = Collections.unmodifiableList(Arrays.asList(
+    servicePrincipalProtocol   = "ldap";
+    enableGSSAPIDebugging      = false;
+    jaasClientName             = "GSSAPIBindRequest";
+    renewTGT                   = false;
+    useSubjectCredentialsOnly  = true;
+    useTicketCache             = true;
+    requireCachedCredentials   = false;
+    saslClientServerName       = null;
+    ticketCachePath            = null;
+    suppressedSystemProperties = Collections.emptySet();
+    allowedQoP                 = Collections.unmodifiableList(Arrays.asList(
          SASLQualityOfProtection.AUTH));
   }
 
@@ -753,6 +762,48 @@ public final class GSSAPIBindRequestProperties
 
 
   /**
+   * Retrieves a set of system properties that will not be altered by GSSAPI
+   * processing.
+   *
+   * @return  A set of system properties that will not be altered by GSSAPI
+   *          processing.
+   */
+  public Set<String> getSuppressedSystemProperties()
+  {
+    return suppressedSystemProperties;
+  }
+
+
+
+  /**
+   * Specifies a set of system properties that will not be altered by GSSAPI
+   * processing.  This should generally only be used in cases in which the
+   * specified system properties are known to already be set correctly for the
+   * desired authentication processing.
+   *
+   * @param  suppressedSystemProperties  A set of system properties that will
+   *                                     not be altered by GSSAPI processing.
+   *                                     It may be {@code null} or empty to
+   *                                     indicate that no properties should be
+   *                                     suppressed.
+   */
+  public void setSuppressedSystemProperties(
+                   final Collection<String> suppressedSystemProperties)
+  {
+    if (suppressedSystemProperties == null)
+    {
+      this.suppressedSystemProperties = Collections.emptySet();
+    }
+    else
+    {
+      this.suppressedSystemProperties = Collections.unmodifiableSet(
+           new LinkedHashSet<String>(suppressedSystemProperties));
+    }
+  }
+
+
+
+  /**
    * Indicates whether JVM-level debugging should be enabled for GSSAPI bind
    * processing.  If this is enabled, then debug information may be written to
    * standard error when performing GSSAPI processing that could be useful for
@@ -884,7 +935,22 @@ public final class GSSAPIBindRequestProperties
 
     buffer.append("servicePrincipalProtocol='");
     buffer.append(servicePrincipalProtocol);
-    buffer.append("', enableGSSAPIDebugging=");
+    buffer.append("', suppressedSystemProperties={");
+
+    final Iterator<String> propIterator = suppressedSystemProperties.iterator();
+    while (propIterator.hasNext())
+    {
+      buffer.append('\'');
+      buffer.append(propIterator.next());
+      buffer.append('\'');
+
+      if (propIterator.hasNext())
+      {
+        buffer.append(", ");
+      }
+    }
+
+    buffer.append("}, enableGSSAPIDebugging=");
     buffer.append(enableGSSAPIDebugging);
     buffer.append(')');
   }

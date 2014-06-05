@@ -29,6 +29,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import javax.security.auth.Subject;
@@ -234,6 +235,10 @@ public final class GSSAPIBindRequest
   // A list that will be updated with messages about any unhandled callbacks
   // encountered during processing.
   private final List<String> unhandledCallbackMessages;
+
+  // The names of any system properties that should not be altered by GSSAPI
+  // processing.
+  private Set<String> suppressedSystemProperties;
 
   // The authentication ID string for the GSSAPI bind request.
   private final String authenticationID;
@@ -528,20 +533,22 @@ public final class GSSAPIBindRequest
 
     ensureNotNull(gssapiProperties);
 
-    authenticationID          = gssapiProperties.getAuthenticationID();
-    password                  = gssapiProperties.getPassword();
-    realm                     = gssapiProperties.getRealm();
-    allowedQoP                = gssapiProperties.getAllowedQoP();
-    kdcAddress                = gssapiProperties.getKDCAddress();
-    jaasClientName            = gssapiProperties.getJAASClientName();
-    saslClientServerName      = gssapiProperties.getSASLClientServerName();
-    servicePrincipalProtocol  = gssapiProperties.getServicePrincipalProtocol();
-    enableGSSAPIDebugging     = gssapiProperties.enableGSSAPIDebugging();
-    useSubjectCredentialsOnly = gssapiProperties.useSubjectCredentialsOnly();
-    useTicketCache            = gssapiProperties.useTicketCache();
-    requireCachedCredentials  = gssapiProperties.requireCachedCredentials();
-    renewTGT                  = gssapiProperties.renewTGT();
-    ticketCachePath           = gssapiProperties.getTicketCachePath();
+    authenticationID           = gssapiProperties.getAuthenticationID();
+    password                   = gssapiProperties.getPassword();
+    realm                      = gssapiProperties.getRealm();
+    allowedQoP                 = gssapiProperties.getAllowedQoP();
+    kdcAddress                 = gssapiProperties.getKDCAddress();
+    jaasClientName             = gssapiProperties.getJAASClientName();
+    saslClientServerName       = gssapiProperties.getSASLClientServerName();
+    servicePrincipalProtocol   = gssapiProperties.getServicePrincipalProtocol();
+    enableGSSAPIDebugging      = gssapiProperties.enableGSSAPIDebugging();
+    useSubjectCredentialsOnly  = gssapiProperties.useSubjectCredentialsOnly();
+    useTicketCache             = gssapiProperties.useTicketCache();
+    requireCachedCredentials   = gssapiProperties.requireCachedCredentials();
+    renewTGT                   = gssapiProperties.renewTGT();
+    ticketCachePath            = gssapiProperties.getTicketCachePath();
+    suppressedSystemProperties =
+         gssapiProperties.getSuppressedSystemProperties();
 
     unhandledCallbackMessages = new ArrayList<String>(5);
 
@@ -793,6 +800,20 @@ public final class GSSAPIBindRequest
 
 
   /**
+   * Retrieves a set of system properties that will not be altered by GSSAPI
+   * processing.
+   *
+   * @return  A set of system properties that will not be altered by GSSAPI
+   *          processing.
+   */
+  public Set<String> getSuppressedSystemProperties()
+  {
+    return suppressedSystemProperties;
+  }
+
+
+
+  /**
    * Indicates whether JVM-level debugging should be enabled for GSSAPI bind
    * processing.
    *
@@ -1013,8 +1034,8 @@ public final class GSSAPIBindRequest
                      ERR_GSSAPI_MULTIPLE_CONCURRENT_REQUESTS.get());
     }
 
-    System.setProperty(PROPERTY_CONFIG_FILE, configFilePath);
-    System.setProperty(PROPERTY_SUBJECT_CREDS_ONLY,
+    setProperty(PROPERTY_CONFIG_FILE, configFilePath);
+    setProperty(PROPERTY_SUBJECT_CREDS_ONLY,
          String.valueOf(useSubjectCredentialsOnly));
     if (debugEnabled(DebugType.LDAP))
     {
@@ -1039,7 +1060,7 @@ public final class GSSAPIBindRequest
       }
       else
       {
-        System.setProperty(PROPERTY_KDC_ADDRESS, DEFAULT_KDC_ADDRESS);
+        setProperty(PROPERTY_KDC_ADDRESS, DEFAULT_KDC_ADDRESS);
         if (debugEnabled(DebugType.LDAP))
         {
           debug(Level.CONFIG, DebugType.LDAP,
@@ -1050,7 +1071,7 @@ public final class GSSAPIBindRequest
     }
     else
     {
-      System.setProperty(PROPERTY_KDC_ADDRESS, kdcAddress);
+      setProperty(PROPERTY_KDC_ADDRESS, kdcAddress);
       if (debugEnabled(DebugType.LDAP))
       {
         debug(Level.CONFIG, DebugType.LDAP,
@@ -1072,7 +1093,7 @@ public final class GSSAPIBindRequest
       }
       else
       {
-        System.setProperty(PROPERTY_REALM, DEFAULT_REALM);
+        setProperty(PROPERTY_REALM, DEFAULT_REALM);
         if (debugEnabled(DebugType.LDAP))
         {
           debug(Level.CONFIG, DebugType.LDAP,
@@ -1083,7 +1104,7 @@ public final class GSSAPIBindRequest
     }
     else
     {
-      System.setProperty(PROPERTY_REALM, realm);
+      setProperty(PROPERTY_REALM, realm);
       if (debugEnabled(DebugType.LDAP))
       {
         debug(Level.CONFIG, DebugType.LDAP,
@@ -1212,6 +1233,8 @@ public final class GSSAPIBindRequest
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
       gssapiProperties.setJAASClientName(jaasClientName);
       gssapiProperties.setSASLClientServerName(saslClientServerName);
+      gssapiProperties.setSuppressedSystemProperties(
+           suppressedSystemProperties);
 
       return new GSSAPIBindRequest(gssapiProperties, getControls());
     }
@@ -1330,6 +1353,8 @@ public final class GSSAPIBindRequest
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
       gssapiProperties.setJAASClientName(jaasClientName);
       gssapiProperties.setSASLClientServerName(saslClientServerName);
+      gssapiProperties.setSuppressedSystemProperties(
+           suppressedSystemProperties);
 
       final GSSAPIBindRequest bindRequest =
            new GSSAPIBindRequest(gssapiProperties, controls);
@@ -1341,6 +1366,23 @@ public final class GSSAPIBindRequest
       // This should never happen.
       debugException(e);
       return null;
+    }
+  }
+
+
+
+  /**
+   * Sets the specified system property, unless it is one that is configured to
+   * be suppressed.
+   *
+   * @param  name   The name of the property to be suppressed.
+   * @param  value  The value of the property to be suppressed.
+   */
+  private void setProperty(final String name, final String value)
+  {
+    if (! suppressedSystemProperties.contains(name))
+    {
+      System.setProperty(name, value);
     }
   }
 
