@@ -161,6 +161,11 @@ public final class LDAPObjectHandler<T>
   // from objects of the associated type.
   private final String[] auxiliaryClasses;
 
+  // The set of attributes that will be requested if @LDAPObject has
+  // requestAllAttributes is false.  Even if requestAllAttributes is true, this
+  // may be used if a subclass has requestAllAttributes set to false.
+  private final String[] explicitAttributesToRequest;
+
   // The set of attributes that should be lazily loaded.
   private final String[] lazilyLoadedAttributes;
 
@@ -605,55 +610,44 @@ public final class LDAPObjectHandler<T>
 
     final TreeSet<String> attrSet = new TreeSet<String>();
     final TreeSet<String> lazySet = new TreeSet<String>();
-    if (ldapObject.requestAllAttributes())
+    for (final FieldInfo i : fields.values())
     {
-      attrSet.add("*");
-      attrSet.add("+");
-    }
-    else
-    {
-      for (final FieldInfo i : fields.values())
+      if (i.lazilyLoad())
       {
-        if (i.lazilyLoad())
-        {
-          lazySet.add(i.getAttributeName());
-        }
-        else
-        {
-          attrSet.add(i.getAttributeName());
-        }
+        lazySet.add(i.getAttributeName());
       }
-
-      for (final SetterInfo i : setters.values())
+      else
       {
         attrSet.add(i.getAttributeName());
       }
     }
-    attributesToRequest = new String[attrSet.size()];
-    attrSet.toArray(attributesToRequest);
+
+    for (final SetterInfo i : setters.values())
+    {
+      attrSet.add(i.getAttributeName());
+    }
+
+    if (superclassHandler != null)
+    {
+      attrSet.addAll(Arrays.asList(
+           superclassHandler.explicitAttributesToRequest));
+      lazySet.addAll(Arrays.asList(superclassHandler.lazilyLoadedAttributes));
+    }
+
+    explicitAttributesToRequest = new String[attrSet.size()];
+    attrSet.toArray(explicitAttributesToRequest);
+
+    if (requestAllAttributes())
+    {
+      attributesToRequest = new String[] { "*", "+" };
+    }
+    else
+    {
+      attributesToRequest = explicitAttributesToRequest;
+    }
 
     lazilyLoadedAttributes = new String[lazySet.size()];
     lazySet.toArray(lazilyLoadedAttributes);
-  }
-
-
-
-  /**
-   * Retrieves an {@code LDAPObjectHandler} instance of the specified type.
-   *
-   * @param  <T>  The type of object handler to create.
-   *
-   * @param  type  The class for the type of object handler to create.
-   *
-   * @return  The created {@code LDAPObjectHandler} instance.
-   *
-   * @throws  LDAPPersistException  If a problem occurs while creating the
-   *                                instance.
-   */
-  private static <T> LDAPObjectHandler<T> getHandler(final Class<T> type)
-          throws LDAPPersistException
-  {
-    return new LDAPObjectHandler<T>(type);
   }
 
 
@@ -798,6 +792,24 @@ public final class LDAPObjectHandler<T>
 
 
   /**
+   * Indicates whether to request all attributes.  This will return {@code true}
+   * if the associated {@code LDAPObject}, or any {@code LDAPObject} for any
+   * superclass, has {@code requestAllAttributes} set to {@code true}.
+   *
+   * @return  {@code true} if {@code LDAPObject} has
+   *          {@code requestAllAttributes} set to {@code true} for any class in
+   *          the hierarchy, or {@code false} if not.
+   */
+  public boolean requestAllAttributes()
+  {
+    return (ldapObject.requestAllAttributes() ||
+            ((superclassHandler != null) &&
+             superclassHandler.requestAllAttributes()));
+  }
+
+
+
+  /**
    * Retrieves the names of the attributes that should be requested when
    * performing a search.  It will not include lazily-loaded attributes.
    *
@@ -830,8 +842,8 @@ public final class LDAPObjectHandler<T>
    * Retrieves the DN of the entry in which the provided object is stored, if
    * available.  The entry DN will not be available if the provided object was
    * not retrieved using the persistence framework, or if the associated class
-   * does not have a field marked with either the {@link LDAPDNField} or
-   * {@link LDAPEntryField} annotation.
+   * (or one of its superclasses) does not have a field marked with either the
+   * {@link LDAPDNField} or {@link LDAPEntryField} annotation.
    *
    * @param  o  The object for which to retrieve the associated entry DN.
    *
@@ -844,23 +856,10 @@ public final class LDAPObjectHandler<T>
   public String getEntryDN(final T o)
          throws LDAPPersistException
   {
-    if (dnField != null)
+    final String dnFieldValue = getDNFieldValue(o);
+    if (dnFieldValue != null)
     {
-      try
-      {
-        final Object dnObject = dnField.get(o);
-        if (dnObject != null)
-        {
-          return String.valueOf(dnObject);
-        }
-      }
-      catch (Exception e)
-      {
-        debugException(e);
-        throw new LDAPPersistException(
-             ERR_OBJECT_HANDLER_ERROR_ACCESSING_DN_FIELD.get(dnField.getName(),
-                  type.getName(), getExceptionMessage(e)), e);
-      }
+      return dnFieldValue;
     }
 
     final ReadOnlyEntry entry = getEntry(o);
@@ -875,11 +874,59 @@ public final class LDAPObjectHandler<T>
 
 
   /**
+   * Retrieves the value of the DN field for the provided object.  If there is
+   * no DN field in this object handler but there is one defined for a handler
+   * for one of its superclasses, then it will be obtained recursively.
+   *
+   * @param  o  The object for which to retrieve the associated entry DN.
+   *
+   * @return  The value of the DN field for the provided object.
+   *
+   * @throws  LDAPPersistException  If a problem is encountered while attempting
+   *                                to access the value of the DN field.
+   */
+  private String getDNFieldValue(final T o)
+          throws LDAPPersistException
+  {
+    if (dnField != null)
+    {
+      try
+      {
+        final Object dnObject = dnField.get(o);
+        if (dnObject == null)
+        {
+          return null;
+        }
+        else
+        {
+          return String.valueOf(dnObject);
+        }
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_ERROR_ACCESSING_DN_FIELD.get(dnField.getName(),
+                  type.getName(), getExceptionMessage(e)), e);
+      }
+    }
+
+    if (superclassHandler != null)
+    {
+      return superclassHandler.getDNFieldValue(o);
+    }
+
+    return null;
+  }
+
+
+
+  /**
    * Retrieves a read-only copy of the entry that was used to initialize the
    * provided object, if available.  The entry will only be available if the
    * object was retrieved from the directory using the persistence framework and
-   * the associated class has a field marked with the {@link LDAPEntryField}
-   * annotation.
+   * the associated class (or one of its superclasses) has a field marked with
+   * the {@link LDAPEntryField} annotation.
    *
    * @param  o  The object for which to retrieve the read-only entry.
    *
@@ -897,7 +944,11 @@ public final class LDAPObjectHandler<T>
       try
       {
         final Object entryObject = entryField.get(o);
-        if (entryObject != null)
+        if (entryObject == null)
+        {
+          return null;
+        }
+        else
         {
           return (ReadOnlyEntry) entryObject;
         }
@@ -910,6 +961,11 @@ public final class LDAPObjectHandler<T>
                   entryField.getName(), type.getName(), getExceptionMessage(e)),
              e);
       }
+    }
+
+    if (superclassHandler != null)
+    {
+      return superclassHandler.getEntry(o);
     }
 
     return null;
@@ -1378,7 +1434,10 @@ public final class LDAPObjectHandler<T>
     {
       try
       {
-        dnField.set(o, e.getDN());
+        if (dnField.get(o) == null)
+        {
+          dnField.set(o, e.getDN());
+        }
       }
       catch (Exception ex)
       {
@@ -1393,7 +1452,10 @@ public final class LDAPObjectHandler<T>
     {
       try
       {
-        entryField.set(o, new ReadOnlyEntry(e));
+        if (entryField.get(o) == null)
+        {
+          entryField.set(o, new ReadOnlyEntry(e));
+        }
       }
       catch (Exception ex)
       {
@@ -1402,6 +1464,11 @@ public final class LDAPObjectHandler<T>
              ERR_OBJECT_HANDLER_ERROR_SETTING_ENTRY.get(type.getName(),
                   entryField.getName(), getExceptionMessage(ex)), ex);
       }
+    }
+
+    if (superclassHandler != null)
+    {
+      superclassHandler.setDNAndEntryFields(o, e);
     }
   }
 
