@@ -10,6 +10,141 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.3.7</h3>
+
+              <p>
+                The following changes were made between the 2.3.6 and 2.3.7 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add the ability to perform validation on an <tt>SSLSocket</tt> immediately
+                  after its establishment (regardless of whether the connection was initially
+                  secured via SSL/TLS or secured after the fact with the StartTLS extended
+                  operation).  This can be used to better perform hostname validation in a
+                  more secure manner than was otherwise available through the trust manager
+                  framework.  Also, add the ability to get access to the <tt>SSLSession</tt>
+                  associated with a connection that has been secured via SSL/TLS or StartTLS.
+                  <br><br>
+                </li>
+
+                <li>
+                  Make a number of updates to GSSAPI support, including the ability to specify the
+                  JAAS client name (which allows the use of a single JAAS configuration file with
+                  a number of different configurations), the ability to customize the use of a
+                  property indicating whether to allow credentials from outside the current
+                  subject, and to suppress the alteration of a specified set of system properties
+                  in the event that they had already been set by some other mechanism.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new server set that can use round-robin DNS configurations to support
+                  hostnames that resolve to multiple IP addresses.  The selection of which IP
+                  address to use for a given connection may be made at random, in round-robin
+                  order, or based on the order in which the addresses were returned from the name
+                  service.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the connection pool to add a method that can be used to shrink the
+                  current size of the pool to a specified number of connections.  This will have
+                  no effect on the maximum size of the pool, but can reduce the number of
+                  established connections if an earlier spike in utilization resulted in the
+                  creation of a number of extra connections that are no longer needed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the persistence framework to improve support for classes marked with
+                  <tt>@LDAPObject</tt> that are subclasses of other classes marked with
+                  <tt>@LDAPObject</tt>.  If a subclass does not define any RDN fields or getters,
+                  they will now be inherited from a superclass.  If a subclass does not define any
+                  default parent DN, then it will be inherited from a superclass.  DN fields and
+                  entry fields defined in superclasses will now be properly handled.  The set of
+                  attributes to request for inclusion in search result entries will also be
+                  properly aggregated from all superclasses.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server to make it possible to reject anonymous
+                  binds, whether via simple or SASL authentication.  Note, however, that the
+                  effect net effect on the authenticated state of the connection will be the same
+                  as if it were successful, since a failed bind always results in an
+                  unauthenticated connection.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the in-memory directory server to add a new interceptor API.  This API
+                  can be used to alter client requests before they are processed by the server,
+                  and to alter responses before they are returned to the client.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the DNS SRV record server set to make it possible to customize the set of
+                  properties used to initialize the JNDI context to use when interacting with the
+                  DNS server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new rate adjustor utility class that can be used in conjunction with the
+                  fixed-rate barrier to adjust the rate over time based on a specified definition.
+                  The searchrate, modrate, authrate, and search-and-mod-rate tools have been
+                  updated to provide a new "<tt>--variableRateData</tt>" argument that makes it
+                  possible to use this feature in conjunction with those tools.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add the ability to programmatically interrupt the searchrate, modrate, authrate,
+                  and search-and-mod-rate tools.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the logic used for automatic referral following so that if a referral is
+                  received over a connection secured via StartTLS, then the connection established
+                  to follow that referral will also be secured via StartTLS.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the code responsible for automatically re-establishing a connection
+                  if it becomes disconnected (which is only attempted if auto-reconnect is enabled
+                  in the connection options).  If the connection had been secured with StartTLS,
+                  the re-established connection was previously not secured in the same way.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug that could prevent active asynchronous operations from being notified
+                  if the connection becomes disconnected.  Also, fix a bug that could prevent the
+                  connection reader thread from waiting on a response to an asynchronous operation
+                  that has timed out or been abandoned.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug that could prevent parsing a DN or RDN that contains a zero-length
+                  attribute value.
+                  <br><br>
+                </li>
+
+                <li>
+                  Make it easier to build the LDAP SDK with an external version of Apache ant
+                  rather than the one included in the repository.  Also, make it possible to
+                  build without invoking the checkstyle tool.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 2.3.6</h3>
 
               <p>
