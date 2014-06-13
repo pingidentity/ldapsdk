@@ -2128,30 +2128,31 @@ public final class LDAPConnection
   {
     ensureNotNull(bindRequest);
 
-    lastBindRequest = null;
+    // We don't want to update the last bind request or update the cached
+    // schema for this connection if it included the retain identity control.
+    // However, that's only available in the Commercial Edition, so just
+    // reference it by OID here.
+    boolean hasRetainIdentityControl = false;
+    for (final Control c : bindRequest.getControls())
+    {
+      if (c.getOID().equals("1.3.6.1.4.1.30221.2.5.3"))
+      {
+        hasRetainIdentityControl = true;
+        break;
+      }
+    }
+
+    if (! hasRetainIdentityControl)
+    {
+      lastBindRequest = null;
+    }
 
     final BindResult bindResult = bindRequest.process(this, 1);
-
     if (bindResult.getResultCode().equals(ResultCode.SUCCESS))
     {
-      // We don't want to update the last bind request or update the cached
-      // schema for this connection if it included the retain identity control.
-      // However, that's only available in the Commercial Edition, so just
-      // reference it by OID here.
-      boolean hasRetainIdentityControl = false;
-      for (final Control c : bindRequest.getControls())
-      {
-        if (c.getOID().equals("1.3.6.1.4.1.30221.2.5.3"))
-        {
-          hasRetainIdentityControl = true;
-          break;
-        }
-      }
-
       if (! hasRetainIdentityControl)
       {
         lastBindRequest = bindRequest;
-
         if (connectionOptions.useSchema())
         {
           try
