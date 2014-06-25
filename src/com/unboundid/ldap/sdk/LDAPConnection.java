@@ -4608,7 +4608,7 @@ public final class LDAPConnection
    *          {@code null} if StartTLS has not been used to secure this
    *          connection.
    */
-  ExtendedRequest getStartTLSRequest()
+  public ExtendedRequest getStartTLSRequest()
   {
     return startTLSRequest;
   }
