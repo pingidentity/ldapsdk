@@ -1051,7 +1051,7 @@ public final class GSSAPIBindRequest
     {
       if (DEFAULT_KDC_ADDRESS == null)
       {
-        System.clearProperty(PROPERTY_KDC_ADDRESS);
+        clearProperty(PROPERTY_KDC_ADDRESS);
         if (debugEnabled(DebugType.LDAP))
         {
           debug(Level.CONFIG, DebugType.LDAP,
@@ -1084,7 +1084,7 @@ public final class GSSAPIBindRequest
     {
       if (DEFAULT_REALM == null)
       {
-        System.clearProperty(PROPERTY_REALM);
+        clearProperty(PROPERTY_REALM);
         if (debugEnabled(DebugType.LDAP))
         {
           debug(Level.CONFIG, DebugType.LDAP,
@@ -1366,6 +1366,22 @@ public final class GSSAPIBindRequest
       // This should never happen.
       debugException(e);
       return null;
+    }
+  }
+
+
+
+  /**
+   * Clears the specified system property, unless it is one that is configured
+   * to be suppressed.
+   *
+   * @param  name  The name of the property to be suppressed.
+   */
+  private void clearProperty(final String name)
+  {
+    if (! suppressedSystemProperties.contains(name))
+    {
+      System.clearProperty(name);
     }
   }
 
