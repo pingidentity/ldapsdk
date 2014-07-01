@@ -2268,22 +2268,6 @@ public class Entry
         case ModificationType.DELETE_INT_VALUE:
           if (values.length == 0)
           {
-            if ((rdn != null) && rdn.hasAttribute(name))
-            {
-              final String msg =
-                   ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN());
-              if (! errors.contains(msg))
-              {
-                errors.add(msg);
-              }
-
-              if (resultCode == null)
-              {
-                resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
-              }
-              break;
-            }
-
             final boolean removed = e.removeAttribute(name);
             if (! (lenient || removed))
             {
@@ -2297,25 +2281,8 @@ public class Entry
           }
           else
           {
-deleteValueLoop:
             for (int i=0; i < values.length; i++)
             {
-              if ((rdn != null) && rdn.hasAttributeValue(name, values[i]))
-              {
-                final String msg =
-                     ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN());
-                if (! errors.contains(msg))
-                {
-                  errors.add(msg);
-                }
-
-                if (resultCode == null)
-                {
-                  resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
-                }
-                break deleteValueLoop;
-              }
-
               final boolean removed = e.removeAttributeValue(name, values[i]);
               if (! (lenient || removed))
               {
@@ -2331,22 +2298,6 @@ deleteValueLoop:
           break;
 
         case ModificationType.REPLACE_INT_VALUE:
-          if ((rdn != null) && rdn.hasAttribute(name))
-          {
-            final String msg =
-                 ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN());
-            if (! errors.contains(msg))
-            {
-              errors.add(msg);
-            }
-
-            if (resultCode == null)
-            {
-              resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
-            }
-            continue;
-          }
-
           if (values.length == 0)
           {
             e.removeAttribute(name);
@@ -2438,6 +2389,27 @@ deleteValueLoop:
           break;
       }
     }
+
+
+    // Make sure that the entry still has all of the RDN attribute values.
+    if (rdn != null)
+    {
+      final String[] rdnAttrs  = rdn.getAttributeNames();
+      final byte[][] rdnValues = rdn.getByteArrayAttributeValues();
+      for (int i=0; i < rdnAttrs.length; i++)
+      {
+        if (! e.hasAttributeValue(rdnAttrs[i], rdnValues[i]))
+        {
+          errors.add(ERR_ENTRY_APPLY_MODS_TARGETS_RDN.get(entry.getDN()));
+          if (resultCode == null)
+          {
+            resultCode = ResultCode.NOT_ALLOWED_ON_RDN;
+          }
+          break;
+        }
+      }
+    }
+
 
     if (errors.isEmpty())
     {
