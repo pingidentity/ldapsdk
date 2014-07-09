@@ -1772,7 +1772,10 @@ public class Entry
    *                      then differences in the entry DNs will be ignored.
    * @param  attributes   The set of attributes to be compared.  If this is
    *                      {@code null} or empty, then all attributes will be
-   *                      compared.
+   *                      compared.  Note that if a list of attributes is
+   *                      specified, then matching will be performed only
+   *                      against the attribute base name and any differences in
+   *                      attribute options will be ignored.
    *
    * @return  A set of modifications that can be applied to the source entry in
    *          order to make it match the target entry.
@@ -1813,7 +1816,10 @@ public class Entry
    *                      were obtained.
    * @param  attributes   The set of attributes to be compared.  If this is
    *                      {@code null} or empty, then all attributes will be
-   *                      compared.
+   *                      compared.  Note that if a list of attributes is
+   *                      specified, then matching will be performed only
+   *                      against the attribute base name and any differences in
+   *                      attribute options will be ignored.
    *
    * @return  A set of modifications that can be applied to the source entry in
    *          order to make it match the target entry.
@@ -1830,7 +1836,7 @@ public class Entry
       compareAttrs = new HashSet<String>(attributes.length);
       for (final String s : attributes)
       {
-        compareAttrs.add(toLowerCase(s));
+        compareAttrs.add(toLowerCase(Attribute.getBaseName(s)));
       }
     }
 
@@ -1845,7 +1851,8 @@ public class Entry
          sourceEntry.attributes.entrySet())
     {
       final String lowerName = toLowerCase(e.getKey());
-      if ((compareAttrs != null) && (! compareAttrs.contains(lowerName)))
+      if ((compareAttrs != null) &&
+          (! compareAttrs.contains(Attribute.getBaseName(lowerName))))
       {
         continue;
       }
@@ -1858,7 +1865,8 @@ public class Entry
          targetEntry.attributes.entrySet())
     {
       final String lowerName = toLowerCase(e.getKey());
-      if ((compareAttrs != null) && (! compareAttrs.contains(lowerName)))
+      if ((compareAttrs != null) &&
+          (! compareAttrs.contains(Attribute.getBaseName(lowerName))))
       {
         continue;
       }
