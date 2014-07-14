@@ -324,6 +324,10 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  *       <TD ALIGN="LEFT">INTERACTIVE_TRANSACTION_ABORTED</TD>
  *       <TD ALIGN="RIGHT">30221001</TD>
  *     </TR>
+ *     <TR>
+ *       <TD ALIGN="LEFT">DATABASE_LOCK_CONFLICT</TD>
+ *       <TD ALIGN="RIGHT">30221002</TD>
+ *     </TR>
  *   </TABLE>
  * </CENTER>
  */
@@ -1473,6 +1477,23 @@ public final class ResultCode
 
 
   /**
+   * The integer value (30221002) for the "DATABASE_LOCK_CONFLICT" result code.
+   */
+  public static final int DATABASE_LOCK_CONFLICT_INT_VALUE = 30221002;
+
+
+
+  /**
+   * The result code (30221002) for use if an operation fails because of a
+   * database lock conflict (e.g., a deadlock or lock timeout).
+   */
+  public static final ResultCode DATABASE_LOCK_CONFLICT =
+       new ResultCode(INFO_RC_DATABASE_LOCK_CONFLICT.get(),
+                      DATABASE_LOCK_CONFLICT_INT_VALUE);
+
+
+
+  /**
    * The set of result code objects created with undefined int result code
    * values.
    */
@@ -1734,6 +1755,8 @@ public final class ResultCode
         return NO_OPERATION;
       case INTERACTIVE_TRANSACTION_ABORTED_INT_VALUE:
         return INTERACTIVE_TRANSACTION_ABORTED;
+      case DATABASE_LOCK_CONFLICT_INT_VALUE:
+        return DATABASE_LOCK_CONFLICT;
     }
 
     synchronized (UNDEFINED_RESULT_CODES)
@@ -1836,7 +1859,8 @@ public final class ResultCode
       AUTHORIZATION_DENIED,
       E_SYNC_REFRESH_REQUIRED,
       NO_OPERATION,
-      INTERACTIVE_TRANSACTION_ABORTED
+      INTERACTIVE_TRANSACTION_ABORTED,
+      DATABASE_LOCK_CONFLICT
     };
   }
 
