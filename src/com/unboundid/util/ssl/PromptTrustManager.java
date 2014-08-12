@@ -437,7 +437,14 @@ public final class PromptTrustManager
         out.print(INFO_PROMPT_MESSAGE.get());
         out.flush();
         final String line = reader.readLine();
-        if (line.equalsIgnoreCase("y") || line.equalsIgnoreCase("yes"))
+        if (line == null)
+        {
+          // The input stream has been closed, so we can't prompt for trust,
+          // and should assume it is not trusted.
+          throw new CertificateException(
+               ERR_CERTIFICATE_REJECTED_BY_END_OF_STREAM.get());
+        }
+        else if (line.equalsIgnoreCase("y") || line.equalsIgnoreCase("yes"))
         {
           // The certificate should be considered trusted.
           break;
