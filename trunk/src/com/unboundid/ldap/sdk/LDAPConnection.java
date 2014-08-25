@@ -4442,10 +4442,15 @@ public final class LDAPConnection
     cachedSchema = null;
     lastCommunicationTime = -1L;
 
-    if (timer != null)
+    synchronized (this)
     {
-      timer.cancel();
+      final Timer t = timer;
       timer = null;
+
+      if (t != null)
+      {
+        t.cancel();
+      }
     }
   }
 
