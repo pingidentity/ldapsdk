@@ -60,6 +60,7 @@ import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
+import com.unboundid.util.ssl.SSLUtil;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
 
@@ -1030,6 +1031,7 @@ public final class LDAPListenerClientConnection
       synchronized (f)
       {
         socket = f.createSocket(socket, hostname, port, true);
+        SSLUtil.applyEnabledSSLProtocols(socket);
       }
       ((SSLSocket) socket).setUseClientMode(false);
       outputStream = socket.getOutputStream();
