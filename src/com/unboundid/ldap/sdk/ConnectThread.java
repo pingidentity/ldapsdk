@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 
+import com.unboundid.util.ssl.SSLUtil;
+
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
@@ -115,7 +117,9 @@ final class ConnectThread
 
     try
     {
-      socket.set(socketFactory.createSocket(address, port));
+      final Socket s = socketFactory.createSocket(address, port);
+      SSLUtil.applyEnabledSSLProtocols(s);
+      socket.set(s);
       connected.set(true);
     }
     catch (final Throwable t)

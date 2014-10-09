@@ -46,6 +46,7 @@ import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.WakeableSleeper;
+import com.unboundid.util.ssl.SSLUtil;
 
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
@@ -298,6 +299,7 @@ final class LDAPConnectionReader
                   sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
                        connection.getConnectedAddress(), socket.getPort(),
                        true);
+                  SSLUtil.applyEnabledSSLProtocols(sslSocket);
                   sslSocket.startHandshake();
                 }
                 connectionOptions.getSSLSocketVerifier().verifySSLSocket(
@@ -930,6 +932,7 @@ final class LDAPConnectionReader
         {
           sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket,
                connection.getConnectedAddress(), socket.getPort(), true);
+          SSLUtil.applyEnabledSSLProtocols(sslSocket);
           sslSocket.startHandshake();
         }
         connectionOptions.getSSLSocketVerifier().verifySSLSocket(
