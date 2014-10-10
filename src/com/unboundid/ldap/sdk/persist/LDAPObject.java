@@ -59,7 +59,12 @@ public @interface LDAPObject
   /**
    * The DN of the entry below which objects of this type will be created if no
    * alternate parent DN is specified.  A value equal to the empty string
-   * indicates that there should be no default parent.
+   * indicates that there should be no default parent DN.
+   * <BR><BR>
+   * If a class marked with the {@code LDAPObject} annotation type does not
+   * specify a default parent DN but is a direct subclass of another class
+   * marked with {@code LDAPObject}, then the subclass will inherit the default
+   * parent DN from the superclass.
    */
   String defaultParentDN() default "";
 
