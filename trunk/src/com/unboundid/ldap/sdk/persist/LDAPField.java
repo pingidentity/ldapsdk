@@ -98,6 +98,17 @@ public @interface LDAPField
    * regardless of the value of the {@link #requiredForEncode} element of this
    * annotation type, and will be included in add operations regardless of the
    * value of the {@link #inAdd} element.
+   * <BR><BR>
+   * When generating an entry DN, the persistence framework will construct an
+   * RDN using all fields marked with {@code LDAPField} that have
+   * {@code inRDN=true} and all getter methods marked with {@code LDAPGetter}
+   * that have {@code inRDN=true}.  A class marked with {@code LDAPObject} must
+   * either have at least one {@code LDAPField} or {@code LDAPGetter} with
+   * {@code inRDN=true}, or it must be a direct subclass of another class marked
+   * with {@code LDAPObject}.  If a class has one or more fields and/or getters
+   * with {@code inRDN=true}, then only those fields/getters will be used to
+   * construct the RDN, even if that class is a direct subclass of another class
+   * marked with {@code LDAPObject}.
    */
   boolean inRDN() default false;
 
