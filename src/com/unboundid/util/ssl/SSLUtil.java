@@ -800,10 +800,12 @@ public final class SSLUtil
     }
 
     // A set to use for the default set of enabled protocols.  Unless otherwise
-    // specified via system property, we'll always enable SSLv3 and TLSv1.
-    // We may enable other protocols based on the default protocol.
+    // specified via system property, we'll always enable TLSv1.  We may enable
+    // other protocols based on the default protocol.  The default set of
+    // enabled protocols will not include SSLv3 even if the JVM might otherwise
+    // include it as a default enabled protocol because of known security
+    // problems with SSLv3.
     final HashSet<String> enabledProtocols = new HashSet<String>(10);
-    enabledProtocols.add("SSLv3");
     enabledProtocols.add("TLSv1");
     if (DEFAULT_SSL_PROTOCOL.get().equals("TLSv1.2"))
     {
