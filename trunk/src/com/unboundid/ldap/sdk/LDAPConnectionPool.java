@@ -1272,9 +1272,12 @@ public final class LDAPConnectionPool
            new ArrayList<LDAPConnection>(availableConnections.size());
       availableConnections.drainTo(connList);
 
-      final ParallelPoolCloser closer =
-           new ParallelPoolCloser(connList, unbind, numThreads);
-      closer.closeConnections();
+      if (! connList.isEmpty())
+      {
+        final ParallelPoolCloser closer =
+             new ParallelPoolCloser(connList, unbind, numThreads);
+        closer.closeConnections();
+      }
     }
     else
     {

@@ -532,9 +532,12 @@ public final class LDAPThreadLocalConnectionPool
         iterator.remove();
       }
 
-      final ParallelPoolCloser closer =
-           new ParallelPoolCloser(connList, unbind, numThreads);
-      closer.closeConnections();
+      if (! connList.isEmpty())
+      {
+        final ParallelPoolCloser closer =
+             new ParallelPoolCloser(connList, unbind, numThreads);
+        closer.closeConnections();
+      }
     }
     else
     {
