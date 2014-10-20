@@ -18,6 +18,15 @@ ${TARGET="offline"}                    <br>
 
               <ul>
                 <li>
+                  Update the logic used to control the default set of enabled SSL protocols.
+                  SSLv3 is now disabled by default (in response to the recent POODLE bug that
+                  could cause SSLv3 connections to be decrypted by a network observer), and the
+                  set of enabled protocols is more broadly compatible than was previously the
+                  case when running on IBM VMs.
+                  <br><br>
+                </li>
+
+                <li>
                   Add the ability to perform validation on an <tt>SSLSocket</tt> immediately
                   after its establishment (regardless of whether the connection was initially
                   secured via SSL/TLS or secured after the fact with the StartTLS extended
@@ -107,6 +116,19 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Add a new "database lock conflict" result code that may be returned by the
+                  UnboundID Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Expose the <tt>LDAPConnection.getStartTLSRequest</tt> method so that it can be
+                  used by third-party code that might want to be able to process StartTLS
+                  operations in the same way as had been performed for the associated connection.
+                  <br><br>
+                </li>
+
+                <li>
                   Update the logic used for automatic referral following so that if a referral is
                   received over a connection secured via StartTLS, then the connection established
                   to follow that referral will also be secured via StartTLS.
@@ -122,6 +144,20 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Fix a bug in the <tt>Entry.applyModifications</tt> method that could cause it to
+                  reject a valid modifications that targets an attribute used in the entry's RDN
+                  even if the modification would not alter the entry RDN.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the <tt>Entry.diff</tt> method when given a specific set of
+                  attributes to process.  Attributes with options would be incorrectly excluded
+                  from the attributes that were processed.
+                  <br><br>
+                </li>
+
+                <li>
                   Fix a bug that could prevent active asynchronous operations from being notified
                   if the connection becomes disconnected.  Also, fix a bug that could prevent the
                   connection reader thread from waiting on a response to an asynchronous operation
@@ -132,6 +168,27 @@ ${TARGET="offline"}                    <br>
                 <li>
                   Fix a bug that could prevent parsing a DN or RDN that contains a zero-length
                   attribute value.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the way that a connection retained a handle to the last bind
+                  request processed on that connection.  This could be incorrect in some cases if
+                  the bind was processed using the UnboundID-proprietary retain identity request
+                  control.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the prompt trust manager that could cause it to enter an infinite
+                  loop if the end of the input stream was reached while waiting for confirmation
+                  about whether to trust the certificate.
+                  <br><br>
+                </li>
+
+                <li>
+                  Eliminate a potential null pointer exception that could arise from a race
+                  condition in the course of closing a connection.
                   <br><br>
                 </li>
 
