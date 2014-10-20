@@ -418,7 +418,7 @@ public final class RateAdjustor extends Thread
       w.println("6000, 1 minute");
       w.println("7000, 1 minute");
       w.println("8000, 1 minute");
-      w.println("9000, 1 minute,");
+      w.println("9000, 1 minute");
       w.println("10000, 1 minute");
       w.println();
     }
