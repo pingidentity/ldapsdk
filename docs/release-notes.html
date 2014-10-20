@@ -193,6 +193,13 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Eliminate a potential illegal argument exception that could be thrown if an
+                  attempt is made to close the pool using multiple threads if there are currently
+                  no connections in the pool.
+                  <br><br>
+                </li>
+
+                <li>
                   Make it easier to build the LDAP SDK with an external version of Apache ant
                   rather than the one included in the repository.  Also, make it possible to
                   build without invoking the checkstyle tool.
