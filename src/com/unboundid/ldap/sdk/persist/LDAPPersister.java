@@ -1414,7 +1414,8 @@ public final class LDAPPersister<T>
     }
     else
     {
-      filter = Filter.createANDFilter(handler.createFilter(o), extraFilter);
+      filter = Filter.simplifyFilter(
+           Filter.createANDFilter(handler.createFilter(o), extraFilter), true);
     }
 
     final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
@@ -1578,7 +1579,8 @@ public final class LDAPPersister<T>
       base = baseDN;
     }
 
-    final Filter f = Filter.createANDFilter(filter, handler.createBaseFilter());
+    final Filter f = Filter.simplifyFilter(
+         Filter.createANDFilter(filter, handler.createBaseFilter()), true);
     final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
 
     final SearchRequest searchRequest = new SearchRequest(bridge, base, scope,
@@ -1753,7 +1755,8 @@ public final class LDAPPersister<T>
     }
     else
     {
-      filter = Filter.createANDFilter(handler.createFilter(o), extraFilter);
+      filter = Filter.simplifyFilter(
+           Filter.createANDFilter(handler.createFilter(o), extraFilter), true);
     }
 
     final SearchRequest searchRequest = new SearchRequest(base, scope,
