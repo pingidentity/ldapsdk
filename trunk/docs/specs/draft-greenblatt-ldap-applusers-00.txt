@@ -1,0 +1,120 @@
+
+
+
+
+
+
+Application Working Group				Bruce Greenblatt
+Internet Draft
+<draft-greenblatt-ldap-applusers-00>
+Expires	in six months
+
+
+		LDAP Object Class for Application Users
+
+
+Status of this Memo
+
+
+	This document is an Internet-Draft. Internet-Drafts are	working
+   documents of	the Internet Engineering Task Force (IETF), its	areas,
+   andits working groups. Note that other groups may also distribute
+   working documents as	Internet-Drafts.
+
+	Internet-Drafts	are draft documents valid for a	maximum	of six
+   months.  Internet-Drafts may	be updated, replaced, or made obsolete
+   by other documents at any time. It is not appropriate to use
+   Internet-Drafts as reference	material or to cite them other than as a
+   "working draft" or "work in progress".
+
+	To learn the current status of any Internet-Draft, please check
+   the 1id-abstracts.txt listing contained in the Internet-Drafts Shadow
+   Directories on ds.internic.net (US East Coast), nic.nordu.net
+   (Europe), ftp.isi.edu (US West Coast), or munnari.oz.au (Pacific
+   Rim).
+
+	Distribution of	this document is unlimited.
+
+	Abstract
+
+	This draft describes a means for an Application	Server to indi-
+   cate	in a directory entry that the directory	object specified is a
+   user	of that	application server.
+
+   1.  Mechanism
+
+	In working with	various	directory enabled applications and ser-
+   vices, it has been noticed that several of them presume the existence
+   of an auxiliary object class	with no	attributes that	is used	to
+   detect "their" users.  For example, the foo application service will
+   use the fooUser object class, and attach this object	class to all of
+   its user objects in the directory in	order that it may later	on
+   easily detect "its" users, by virtue	of the fact that those users are
+   members of the fooUser object class.	This fooUser object class is a
+   subclass of top with	no additional attributes.  This	specification
+
+
+
+Greenblatt						FORMFEED[Page 1]
+
+
+
+
+
+Internet Draft						       July 1997
+
+
+   intends to head off the day when a user would get one of these appli-
+   cationUser object class things attached to its directory object for
+   each	application that it uses.  This	would mean that	that object's
+   object class	attribute would	eventually have	dozens of values, which
+   would in turn lessen	the value of this attribute.
+
+	If numerous application	services are going to want to do this
+   type	of thing (which	is perfectly valid), a general solution	in the
+   schema should be provided.  The following solution is given:
+
+	Use this auxiliary class to indicate that an object in the
+   directory is	a user of your application that	is identified by the
+   applicatioOID attribute.
+
+   ( 1.3.6.1.4.1.250.3.16 NAME 'applicationUserObject' SUP top AUXILIARY
+   MUST	applicationOID )
+
+
+   This	multi-valued attribute holds the list of applications of which
+   the directory object	is a user.
+
+   (  1.3.6.1.4.1.250.3.17 NAME	'applcationOID'	EQUALITY objectIdentifi-
+   erMatch SYNTAX 'OID'	)
+
+   Applications	that wish to indicate that a directory object is a user
+   of their application	should use the applicationUserObject and not
+   create a new	auxiliary object class with no attributes for this indi-
+   cation.  The	use of auxiliary object	classes	without	attributes is
+   deprecated.
+
+	Author's Address
+
+	   Bruce Greenblatt
+	   Novell
+	   2180	Fortune	Drive
+	   San Jose, CA	95131
+	   USA
+	   Phone: +1-408-577-7688
+	   Fax:	+1-408-577-7605
+	   Email: bgg@novell.com
+
+
+
+
+
+
+
+
+
+
+
+Greenblatt						FORMFEED[Page 2]
+
+

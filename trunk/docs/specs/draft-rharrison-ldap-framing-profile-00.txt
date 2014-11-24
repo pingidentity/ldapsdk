@@ -1,0 +1,295 @@
+
+
+Individual Submission                                       R. Harrison
+Internet Draft                                             Novell, Inc.
+Document: draft-rharrison-ldap-framing-profile-00.txt    March 21, 2001
+Intended Category: Informational
+
+
+                 Profile for Framing LDAPv3 Operations
+
+
+Status of this Memo
+
+   This document is an Internet-Draft and is in full conformance with
+   all provisions of Section 10 of RFC2026 [1].
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups. Note that
+   other groups may also distribute working documents as Internet-
+   Drafts. Internet-Drafts are draft documents valid for a maximum of
+   six months and may be updated, replaced, or obsoleted by other
+   documents at any time. It is inappropriate to use Internet- Drafts
+   as reference material or to cite them other than as "work in
+   progress."
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+
+1. Abstract
+
+   The document "LDAPv3: Grouping of Related Operations" [GROUPING]
+   specifies a set of LDAPv3 operations and an LDAPv3 control that can
+   be used to identify and manage sets of LDAP operations that are
+   members of related groups. Collectively, these "grouping" constructs
+   provide a general framework for defining specific LDAPv3 grouping
+   types with their associated processing semantics.
+
+   There are times when an LDAP application wants to specify a set of
+   related operations that are framed within a begin-end pair. This
+   document describes a general method that protocol designers can use
+   to provide framing semantics using LDAPv3 grouping [GROUPING]
+   constructs. It also outlines the elements that must be defined by
+   protocol designers using the grouping framework to define new
+   grouping types with special emphasis on issues surrounding the
+   definition of framing semantics within the grouping framework.
+
+2. Conventions used in this document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in
+   this document are to be interpreted as described in [RFC2119].
+
+2.1. Definitions
+
+
+Harrison  Individual Submission - Expires September 21, 2001  [Page 1]
+
+                        LDAPv3 Framing Profile          March 21, 2001
+
+   The term "grouping framework" refers to the grouping protocol
+   operations, controls, and their associated semantics as defined in
+   [GROUPING].
+
+   The term "grouping type" is used to describe a unique set of
+   semantics that associate a group LDAP operations using the grouping
+   framework.
+
+   Each of the protocol elements defined by the grouping framework
+   contain an optional type-specific payload value referred to as
+   "createGroupValue", "endGroupValue" or simply "groupValue" depending
+   on the specific protocol element in which it is included. In this
+   document, the term "payload values" refers to any or all of these
+   type-specific payload values.
+
+3. Applicability Statement
+
+   This document is provided to assist protocol designers using the
+   grouping framework to design new grouping types that use framing
+   semantics. The contents of this document are informational in nature
+   and SHALL NOT supersede the details of the grouping framework
+   defined in [GROUPING].
+
+
+4. Framing Operations Using Grouping Constructs
+
+   Each grouping type must define and document the following items:
+
+     - The OID of the grouping type
+
+     - Certain details of the protocol operations used by the grouping
+       type (more will be said on this later)
+
+     - The semantics of the grouping type
+
+   Assuming that a grouping type with the desired framing semantics has
+   been defined, a set of operations can be framed using the protocol
+   elements defined in [GROUPING] in the following manner:
+
+     - To begin the frame, a client sends a createGroupingRequest
+       operation with the OID identifying the grouping type with the
+       desired framing semantics.
+
+     - The server sends a createGroupingResponse to the client. The
+       response contains a cookie identifying this instance of the
+       requested grouping type. This cookie is hereafter referred to as
+       the "group's cookie."
+
+     - The client sends the set of operations in the frame to the
+       server. Each operation includes a groupingControl containing the
+       group's cookie.
+
+     - To end the frame, the client sends an endGroupingRequest to the
+       server with the group's cookie.
+
+Harrison  Individual Submission - Expires September 21, 2001  [Page 2]
+
+                        LDAPv3 Framing Profile          March 21, 2001
+
+
+     - The server responds with an endGroupingResponse.
+
+   The following sections enumerate all of the items that must be
+   defined and documented to fully specify a grouping type with framing
+   semantics. Other items MAY need to be defined and documented to
+   produce a complete specification.
+
+5. Defining Grouping Type Protocol Elements
+
+   The grouping framework specifies the following elements of protocol:
+
+     - createGroupingRequest
+     - createGroupingResponse
+     - groupingControl
+     - endGroupingRequest
+     - endGroupingResponse
+     - endGroupingNotice
+
+   The protocol information sent in these protocol elements is defined
+   by the framework itself with two exceptions: the grouping type OID,
+   and type-specific payload values.
+
+5.1. Grouping Type OID
+
+   Each grouping type must be uniquely identified by an OID, and
+   clients requesting the server to create a grouping must specify the
+   appropriate OID for the grouping type they want the server to
+   create. Protocol designers using the grouping framework to design a
+   new grouping type MUST therefore define an OID to represent that
+   grouping type.
+
+5.2. Type-specific Payload Values
+
+   Protocol designers using the grouping framework to define a new
+   grouping type MUST describe the payload values used by the grouping
+   type. The structure and data contained in all payload values that
+   are not opaque to the client MUST be fully defined. Payload values
+   that are non-present MUST be documented as such. Also, the semantics
+   associated with payload values (or lack thereof) MUST be defined(see
+   Section 5.1. Defining Payload Value Semantics).
+
+6. Defining Grouping Type Semantics
+
+   Protocol designers using the grouping framework to design a new
+   grouping type SHOULD consider defining semantics in the following
+   areas:
+
+   - Grouping framework semantics
+   - Payload value semantics
+   - Nested grouping and interleaved operation semantics
+
+   The definition of other semantics MAY be necessary to fully specify
+   a grouping type.
+
+Harrison  Individual Submission - Expires September 21, 2001  [Page 3]
+
+                        LDAPv3 Framing Profile          March 21, 2001
+
+
+6.1. Grouping Framework Semantics
+
+   The grouping framework defines a number of semantics that all
+   grouping types must follow. Refer to [GROUPING] Section 5.
+   "Operational Semantics".
+
+6.2. Payload Value Semantics
+
+   Because payload values are specific to each grouping type, the
+   semantics associated with payload values MUST be fully specified.
+   When a grouping type does not use one or more payload values the
+   semantics associated with non-present payload values MUST be
+   specified.
+
+6.3. Nested Grouping and Interleaved Group and Operation Semantics
+
+   The semantics of the grouping framework are general enough to allow
+   nested groups, interleaved groups, and non-grouped operations
+   interleaved within a set of grouped operations.  Based on the
+   requirements of a specific grouping type--especially one that
+   provides framing semantics--designers may want or need to
+   specifically restrict the usage of one or more of these facilities.
+   These restrictions, if any, MUST be specified. The semantics of
+   nested groups SHOULD be specified.
+
+6. Security Considerations
+
+   This document describes the process of defining grouping mechanisms
+   that provide framing semantics, so all of the security
+   considerations listed in [GROUPING] apply to this document.
+
+7. References
+
+   [GROUPING]
+        K. Zeilenga, "LDAPv3: Grouping of Related Operations",
+        draft-zeilenga-ldap-grouping-xx.txt, a work in progress.
+
+    [LDAPv3]
+        Wahl, M., Howes, T., and S. Kille, "Lightweight Directory
+        Access Protocol (v3)", RFC 2251, December 1997.
+
+8. Acknowledgments
+
+   The author would like to acknowledge Kurt Zeilenga for his work in
+   defining the grouping framework and for providing suggestions on how
+   this topic might be approached.
+
+9. Author's Address
+
+   Roger Harrison
+   Novell, Inc.
+   1800 S. Novell Place
+   Provo, UT 84606
+
+Harrison  Individual Submission - Expires September 21, 2001  [Page 4]
+
+                        LDAPv3 Framing Profile          March 21, 2001
+
+   +1 801 861 2642
+   roger_harrison@novell.com
+
+
+Appendix A - Document Revision History
+
+A.1 draft-rharrison-ldap-framingProfile-00.txt
+
+   Initial revision of draft.
+
+Full Copyright Statement
+
+   "Copyright (C) The Internet Society 2001. All Rights Reserved. This
+   document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implmentation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph
+   are included on all such copies and derivative works. However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Harrison  Individual Submission - Expires September 21, 2001  [Page 5]
+

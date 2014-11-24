@@ -1,0 +1,827 @@
+
+
+
+     INTERNET-DRAFT                                           Ludovic Poitou
+     draft-poitou-ldap-schema-update-02.txt                 Sun Microsystems
+     Intended Category: Standard Track                          Timothy Hahn
+     Expires: May 2002                                                   IBM
+                                                            20 November 2001
+
+
+
+
+                          LDAP Schema Update Procedures.
+
+
+
+     Status of this Memo
+
+        This document is an Internet-Draft and is in full conformance with
+        all provisions of Section 10 of RFC 2026. Internet-Drafts are
+        working documents of the Internet Engineering Task Force (IETF), its
+        areas, and its working groups.  Note that other groups may also
+        distribute working documents as Internet-Drafts.
+
+        Internet-Drafts are draft documents valid for a maximum of six
+        months and may be updated, replaced, or obsoleted by other documents
+        at any time.  It is inappropriate to use Internet-Drafts as
+        reference material or to cite them other than as ''work in
+        progress.''
+
+        The list of current Internet-Drafts can be accessed at
+        http://www.ietf.org/ietf/1id-abstracts.txt
+        The list of Internet-Draft Shadow Directories can be accessed at
+        http://www.ietf.org/shadow.html.
+
+        Discussion of this document should take place on the Evolving LDAP
+        Schema Extension mailing list <ietf-else@openldap.org>. After
+        appropriate review and discussion, this document will be submitted
+        on the Standard Track.
+
+        Copyright 2001, The Internet Society.  All Rights Reserved.
+
+        Please see the Copyright section near the end of this document for
+        more information.
+
+     Abstract
+
+        LDAPv3 defines how the schema is published in servers.
+        This document defines procedures for merging, updating and removing
+        lightweight directory access protocol (LDAP) schemas.
+
+        The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", and "MAY" in this document
+        are to be interpreted as described in RFC 2119 [2].
+
+
+
+
+     Hahn & Poitou            Expires 20 May 2002                  [Page1]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+     1.  Overview
+
+        LDAPv3 [1] defines how the directory schema is published in servers,
+        and how clients can retrieve attributes from a subschema entry. But
+        nothing is specified on how to update the schema, add new attributes
+        or object classes definitions. As a result of the lack of
+        specification, servers' vendors have implemented their own ways of
+        updating the schema, creating some interoperability problems for
+        LDAP enabled applications.
+
+        This document defines procedures for merging, updating and removing
+        schemas.
+
+        This document doesn't intend to define the implication of updating
+        the schema for the existing directory data. This should be covered
+        in a separate document.
+
+
+     2.  Representation of the schema
+
+        Please refer to section 3.2.2 of RFC 2251 [1] for the schema entry
+        definition and to RFC 2252 [3] for the general requirements, the
+        object class definition of the subschema and the notations of the
+        schema elements.
+
+
+     3.  Locating the schema
+
+        How clients find the schema on the server is described in RFC 2251
+        [1] section 3.2.2 and section 6.2, and repeated here for
+        convenience.
+
+        The schema of a particular entry of the DIT can be located by
+        reading the subschemasubentry attribute.
+        The subschemasubentry attribute contains the distinguished name of
+        the entry containing the schema.
+        The client MUST perform a base search of this entry, with a search
+        filter "(objectclass=subschema)" and specifying the attributes he is
+        interested in.
+
+
+     4. Adding to the directory schema
+
+        To add a schema element to a subschema entry, a client MUST send a
+        Modify request with the entry name being the DN of the subschema
+        entry to modify. The operation MUST be add (0). The schema element
+        is represented as a value of the corresponding attribute of the
+        subschema entry.
+
+        Multiple attribute types, object classes, syntaxes and matching
+        rules can be added in a single LDAP modify operation. In this way,
+        whole sets of schema elements can be added to the subschema entry.
+
+
+
+     Hahn & Poitou             Expires 20 May 2002                 [Page 2]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        If multiples changes are done in the same LDAP modify operation,
+        servers SHOULD support checking the dependencies between the schema
+        elements regardless of their order in the sequence of modifications.
+
+        While adding object classes and attribute types allows entries to be
+        created using the new schema, some servers may require modification
+        to support new syntaxes or matching rules. Such modification is
+        outside the scope of this document.
+
+
+     4.1. Adding an Attribute Type.
+
+        To add a new attribute type to the schema, the modification type
+        MUST be attributeTypes and the modification value MUST follow the
+        attributeTypeDescription syntax as defined in RFC 2252 [3].
+
+        In addition, the attribute type description MUST have a 'SYNTAX'
+        value, and the server MUST know this syntax. Otherwise the server
+        will return an invalidAttributeSyntax error code (21).
+
+        If the numericoid specified in the attributeTypes value already
+        exists in the subschema entry, the server MUST abort the
+        modification and return an attributeOrValueExists error code (20).
+
+        If the attribute type description contains a name, the server MUST
+        refuse the modification if the name is already defined as a name for
+        another attribute in the subschema entry. If the server returns an
+        error, the error code MUST be attributeOrValueExists (20).
+
+        If the attribute type description contains a superior, the server
+        MUST return an invalidAttributeSyntax error code (21) if the
+        superior attribute type is not already present in the subschema
+        entry. It is possible to add both the superior and derived attribute
+        types in the same operation.
+
+        If the attribute type contains a matching rule (for equality,
+        ordering or substring), the server MUST refuse the modification if
+        the server doesn't know the matching rule or doesn't know how to
+        process it, returning an invalidAttributeSyntax error code (21).
+
+        Note: The error code returned (invalidAttributeSyntax) has been
+        preferred over some more specific error code (like noSuchAttribute
+        or undefinedAttributeType) to avoid the confusion between the
+        attribute being updated (attributeTypes) and the schema elements
+        referenced in the value (superior or matching rule).
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        add: attributetypes
+        attributetypes: ( 1.1.2.1 NAME 'myExampleAttr' DESC 'An example of
+          attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+     Hahn & Poitou             Expires 20 May 2002                 [Page 3]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        -
+
+        Example:
+
+        Version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        add: attributetypes
+        attributetypes: ( 1.1.2.2 NAME 'myExampleAttr2'
+          DESC 'Another example of attribute'
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+        attributetypes: ( 1.1.2.3 NAME 'myExampleAttr3'
+          DESC 'Another example of attribute'
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+          SINGLE-VALUE )
+        -
+
+        The examples above add new attribute definitions to the subschema
+        entry. All the examples throughout this document use the LDIF format
+        from RFC 2849 [4] to represent modify operations.
+
+
+     4.2. Adding an Object Class
+
+        To add a new object class to the schema, the modification type MUST
+        be objectClasses and the modification value MUST follow the
+        ObjectClassDescription syntax as defined in RFC 2252 [3].
+
+        The server MUST refuse the modification if the numeric OID is
+        already defined in the subschema entry, returning a
+        attributeOrValueExists error code (20).
+
+        If the object class description contains a name, the server MUST
+        refuse the modification if the name is already in use for another
+        object class in the subschema entry. If the server returns an error,
+        the error code MUST be attributeOrValueExists (20).
+
+        If the object class description contains a superior, the server MUST
+        refuse the modification if the superior is not already defined in
+        the subschema entry, and return an invalidAttributeSyntax error code
+        (21). It is possible to add both the superior and derived object
+        classes in the same modify operation.
+
+        If the object class contains mandatory or optional attributes, the
+        server MUST refuse the modification if the attributes are not
+        already defined in the subschema entry and return an
+        invalidAttributeSyntax error code (21). It is possible to add both
+        attribute types and object classes in the same modify operation.
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+
+     Hahn & Poitou             Expires 20 May 2002                 [Page 4]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        add: objectclasses
+        objectclasses: ( 1.1.1.1 NAME 'myExampleObject' DESC 'An example of
+          adding an object class' SUP top MUST cn MAY (description $
+          seeAlso ) )
+        -
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        add: objectclasses
+        objectclasses: ( 1.1.1.2 NAME 'MyExampleObject2'
+          DESC 'Another example object class'
+          SUP top
+          ABSTRACT
+          MAY cn )
+        objectclasses: ( 1.1.1.3 NAME 'MyExampleObject3'
+          DESC 'Another example object class'
+          SUP MyExampleObject2
+          STRUCTURAL
+          MUST cn
+          MAY ( description $ seeAlso ) )
+        -
+
+        The examples above add new object classes to the subschema entry.
+        The following example adds a new attribute type and a new object
+        class to the subschema entry in a single operation.
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        add: attributetypes
+        attributetypes: ( 1.1.2.4 NAME 'MyExampleAttr4'
+          DESC 'Another example attribute'
+          SYNTAX 1.3.6.4.1.1466.115.121.1.15
+          SINGLE-VALUE )
+        -
+        add: objectclasses
+        objectclasses: ( 1.1.1.4 NAME 'MyExampleObject4'
+          DESC 'Another example object class'
+          SUP top
+          STRUCTURAL
+          MUST cn
+          MAY ( description $ MyExampleAttr4 ) )
+        -
+
+
+     4.3 Adding a Syntax
+
+
+
+
+     Hahn & Poitou             Expires 20 May 2002                 [Page 5]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        Adding a new syntax to a schema may involve other modifications to
+        the server configuration. If a syntax can be added using the LDAP
+        protocol, the modification MUST be as follows.
+
+        To add a new syntax to the schema, the modification type MUST be
+        ldapSyntaxes, the modification value MUST follow the Syntax
+        Description ABNF as defined in section 4 of RFC 2252 [3].
+
+        If the OID is already in use in the current subschema entry, the
+        server MUST refuse the modification with the error code
+        attributeOrValueExists (20).
+
+        If ldapSyntaxes is not dynamically updateable, the server MUST
+        return an error with the error code unWillingToPerform (53).
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        add: ldapSyntaxes
+        ldapSyntaxes: ( 1.1.3.1 DESC 'An example syntax' )
+        -
+
+
+     4.4 Adding a Matching Rule
+
+        Adding a new matching rule to a schema may involve other
+        modifications to the server configuration. If a matching rule can be
+        added using the LDAP protocol, the modification MUST be as follows.
+
+        Note that adding a matching rule is useless if you don't also
+        publish the relationship between the matching rules and attributes,
+        by adding a Matching Rule Use as described in the next section
+        (4.5).
+
+        To add a new matching rules definition to the schema, the
+        modification type MUST be matchingRules and the modification value
+        MUST follow the matching rules description as defined in RFC 2252
+        [3].
+
+        The server MUST refuse the modification if the OID is already in use
+        in the subschema entry, returning the error code
+        attributeOrValueExists (20).
+
+        The server MUST refuse the modification and return the error code
+        invalidAttributeSyntax (21) if the OID of the syntax is not defined
+        for the subschema entry.
+
+        If the matching rule description contains a name, the server MUST
+        refuse the modification if the name is already defined for a
+        matching rule in the subschema entry. The error code then MUST be
+        attributeOrValueExists (20).
+
+
+     Hahn & Poitou             Expires 20 May 2002                 [Page 6]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        If matchingRules is not dynamically updateable, the server MUST
+        return an error with the error code unWillingToPerform (53).
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        add: matchingRules
+        matchingRules: ( 1.1.4.1 NAME 'ExampleMatch' DESC 'An example of
+          Matching Rule' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+        -
+
+
+     4.5 Adding a Matching Rule Use
+
+        To add a new matching rule use definition to the schema, the
+        modification type MUST be matchingRuleUse and the modification value
+        MUST follow the matching rule use description as defined in section
+        4.5 of RFC 2252 [3].
+
+        The server MUST check the OID corresponding to the matching rule
+        identifier. If the server finds in the subschema entry a matching
+        rule use definition using the same OID, the server MUST return an
+        error with the error code attributeOrValueExists (20).
+        If the server cannot find a matching rule with this OID in the
+        subschema entry, the server MUST return an error with the error code
+        invalidAttributeSyntax (21).
+
+        The server MUST check all the OIDs corresponding to attributes type.
+        If an OID is not the OID of an attribute type defined in the schema,
+        the server MUST return an error with the error code
+        invalidAttributeSyntax (21).
+
+        If matchingRuleUse is not dynamically updateable, the server MUST
+        return an error with the error code unWillingToPerform (53).
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        add: matchingRuleUse
+        matchingRuleUse: ( 1.1.4.1 APPLIES (1.1.2.1 $ 1.1.2.4 ) )
+        -
+
+        The above example adds a matching rule use for the ExampleMatch
+        matching rule. The matching rule applies to some of the attributes
+        types defined in the sections 4.1 and 4.2.
+
+
+     5. Removing schema elements
+
+     5.1 Implications of removing schema elements
+
+     Hahn & Poitou             Expires 20 May 2002                 [Page 7]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+
+        Describing all possible implications of removing schema elements is
+        beyond the scope of this document. Removal (or even obsolescence) of
+        schema elements could cause existing applications to stop working
+        with the directory. Errors that could be encountered include
+        inability to add, modify, or remove entries that are of the form
+        defined by the removed or obsolete schema elements.
+
+        The sub-sections that follow describe the procedures for removing
+        schema elements using the LDAP protocol.
+
+
+     5.2 Removal Procedures
+
+        To remove a schema element from a subschema entry, a client MUST
+        send a Modify request with the object being the DN of the subschema
+        entry to update. The operation must be delete (1). The schema
+        element is represented as a value of the corresponding attribute of
+        the subschema entry.
+
+        The server MUST refuse the operation if there are no values in the
+        modification, returning the error code unWillingToPerform (53).
+
+
+     5.2.1 "Safe" Removal procedure
+
+        Before actually removing the schema element from a subschema entry,
+        the server SHOULD ensure that no data in the tree governed by this
+        schema relies on the element. If there is data, the server SHOULD
+        return an error with the error code unwillingToPerform (53).
+
+        For example, if before removing an object class, the server SHOULD
+        check that in the directory tree, there is no entry containing this
+        object class.
+
+        The server MUST ensure that there are no schema elements depending
+        on the schema element to be removed. For example, before removing an
+        attribute type, the server MUST check that no object class currently
+        defined in the schema actually uses the attribute type.
+        Dependencies between all the various schema elements are described
+        in each individual section below.
+
+        Note: It MUST be possible to delete multiple co-dependent schema
+        elements in a single operation regardless of their order in the
+        sequence of modifications.
+
+
+     5.2.2 Removing an attribute type
+
+        To remove an attribute from a schema, the modification type MUST be
+        attributeTypes and the value MUST be a valid attributeType
+        description.
+        The attribute type description MAY contain only an OID.
+
+
+     Hahn & Poitou             Expires 20 May 2002                 [Page 8]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        The server MUST match the attribute type by its OID. If the server
+        cannot find an attribute with the OID, it MUST return an error with
+        the error code noSuchAttribute (16).
+
+        If attribute description of the modification also contains name
+        value(s), the server SHOULD verify that all specified names match
+        the one(s) located by the OID in the subschema entry element. Other
+        fields that are specified SHOULD be ignored during the removal.
+
+        Before removing an attributeType, the server MUST check that the
+        attribute is not used in any object class of the subschema entry,
+        and is not the parent type of any other attribute. If it is used in
+        this way, the server MUST return an error with the error code
+        constraintViolation (19).
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        delete: attributetypes
+        attributetypes: ( 1.1.2.1 NAME 'myExampleAttr' )
+        -
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        delete: attributetypes
+        attributetypes: ( 1.1.2.1 )
+
+        The examples above present 2 ways to suppress the same attribute
+        from the subschema entry.
+
+
+     5.2.3 Removing an object class
+
+        To remove an object class from a subschema entry, the modification
+        type MUST be objectclasses and the value MUST be a valid objectClass
+        description. The object class description may just contain the OID.
+
+        The server MUST match the object class by its OID. If the server
+        cannot find an object class with this OID, it MUST return an error
+        with the error code noSuchAttribute (16).
+
+        If the object class description of the modification also contains
+        name value(s), the server SHOULD verify that all specified names
+        match the values of the objectClasses attribute value that was
+        located by the OID. Other fields that are specified SHOULD be
+        ignored during the removal.
+
+
+
+
+     Hahn & Poitou             Expires 20 May 2002                 [Page 9]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        Before removing an object class, the server MUST check that no other
+        object class is derived from it. If it has sub classes, the server
+        MUST return an error with the error code constraintViolation (19).
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        delete: objectclasses
+        objectclasses: ( 1.1.1.1 )
+        -
+
+
+     5.2.4 Removing a syntax
+
+        To remove a syntax from a sub schema entry, the modification type
+        MUST be ldapSyntaxes and the value MUST be a valid syntax
+        description. The syntax description may just contain the OID.
+
+        The server MUST match the syntax by its OID. If no syntax matches,
+        the server MUST return an error with the error code noSuchAttribute
+        (16).
+
+        Before removing the syntax, the server MUST check that no attribute
+        or matching rule uses the syntax. If it is referenced, the server
+        MUST return an error with the error code constraintViolation (19).
+        Other fields that are specified SHOULD be ignored during the
+        removal.
+
+        If ldapSyntaxes is not dynamically updateable, the server MUST
+        return an error with the error code unWillingToPerform (53).
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        delete: ldapSyntaxes
+        ldapSyntaxes: ( 1.1.3.1 )
+        -
+
+
+     5.2.5 Removing a matching rule
+
+        To remove a matching rule from a subschema entry, the modification
+        type MUST be MatchingRules and the value MUST be a valid matching
+        rule description. The matching rule description may just contain the
+        OID and the syntax.
+
+        The server MUST match the matching rule by the OID. If the server
+        finds the matching rule, it SHOULD verify that the syntax matches as
+        well. If the syntax doesn't match, the server SHOULD return an error
+        with the error code noSuchAttribute (16).
+
+     Hahn & Poitou             Expires 20 May 2002                [Page 10]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        If the server cannot find the matching rule, the server MUST return
+        an error with the error code noSuchAttribute (16).
+
+        Before removing the matching rule, the server MUST check the
+        attribute types of the subschema entry. If an attribute type
+        description references the matching rule, by its OID or its name,
+        the server MUST return an error with the error code
+        constraintViolation (19). The server MUST also check if any
+        matchingRuleUse applies to the matching rule. If the matching rule
+        is referenced in a matchingRuleUse the server MUST return an error
+        with the error code constraintViolation (19). Other fields that are
+        specified SHOULD be ignored during the removal.
+
+        If matchingRules is not dynamically updateable, the server MUST the
+        whole schema
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        delete: matchingRules
+        matchingRules: ( 1.1.4.1 SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+        -
+
+
+     5.2.6 Removing a matching rule use
+
+        To remove a matching rule use from a subschema entry, the
+        modification type MUST be matchingRuleUse and the value MUST be a
+        valid matching rule use description.
+
+        The server MUST match the matching rule use by the OID corresponding
+        to the matching rule. If a matching rule use is not found, the
+        server MUST return an error with the error code noSuchAttribute
+        (16).
+
+        If a matching rule use is found, the server SHOULD ignore the other
+        fields of the matching rule use description and proceed with the
+        removal.
+
+        If matchingRuleUse is not dynamically updateable, the server MUST
+        return an error with the error code unWillingToPerform (53).
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        delete: matchingRuleUse
+        matchingRuleUse: ( 1.1.4.1 APPLIES (1.1.2.1 $ 1.1.2.4 ) )
+        -
+
+
+
+     Hahn & Poitou             Expires 20 May 2002                [Page 11]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        The above example removes the matching rule use from the subschema
+        entry.
+
+     5.3 Alternative to removing schema elements.
+
+        Removing schema element definitions from the subschema entry is
+        "definitive" and may prevent legacy applications from working
+        correctly with the new schema.
+
+        Instead, it is recommended that the administrator of the directory
+        mark the schema elements as obsolete, by adding the OBSOLETE keyword
+        in the definition. In this way, an application can still discover
+        the content of an entry, but may understand that new entries cannot
+        use these elements.
+        The procedure to mark a schema element as obsolete is covered in
+        Section 6, "Modifying a schema element".
+
+
+     6. Modifying a schema element.
+
+        In order to modify a single schema element of a subschema entry, a
+        client MUST send a Modify Request with at least two modifications: a
+        Delete (1) operation and a Add operation (0). The OID of the element
+        to modify MUST be the same in both modification values.
+
+        In this case, the server MUST not check if the schema element is
+        referenced by directory data or by other schema elements.
+        Instead, the server MUST check that the new data respect the
+        criteria for the Add operations as described in section 4, evaluate
+        if the changes are harmless and replace the schema element.
+
+        Determining if a change is harmless or harmful is beyond the scope
+        of this document. However, modifying the DESC field, adding the
+        OBSOLETE keyword or modifying the list of X- fields are considered
+        to have no impact on the server behavior with regards to the
+        entries. Servers SHOULD limit the changes that can be made to these
+        three cases.
+
+        Servers SHOULD support modifying several schema elements in the same
+        LDAP operation. The order of the changes in the sequence of
+        modifications SHOULD have no impact on the operation itself.
+
+        Example:
+
+        version: 1
+        dn: cn=schema, dc=example, dc=com
+        changetype: modify
+        delete: attributeTypes
+        attributetypes: ( 1.1.2.4 NAME 'MyExampleAttr4' )
+        -
+        add: attributetypes
+        attributetypes: ( 1.1.2.4 NAME 'MyExampleAttr4'
+          DESC 'New description for MyExampleAttr4'
+          SYNTAX 1.3.6.4.1.1466.115.121.1.15
+
+     Hahn & Poitou             Expires 20 May 2002                [Page 12]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+          SINGLE-VALUE )
+        -
+
+        The example above replaces the previous definition of the attribute
+        myExampleAttr4 by a new definition. The only change (from example on
+        section 4.2) is the DESC field.
+
+
+
+     7.  Security Considerations
+
+        This document describes procedures for updating schema entries using
+        LDAP. The subschema entries are administrative entries and should be
+        subject to strict access control policy. These procedures assume
+        that the user has the right to perform the modifications.
+
+
+     8.  Acknowledgements
+
+        The authors would like to thank Mark Wahl for his valuable comments.
+
+
+     9.  Bibliography
+
+        [1] Wahl, M., Howes, T., and S. Kille, "Lightweight Directory Access
+        Protocol (v3)", RFC 2251, December 1997.
+
+        [2] Bradner, S., "Key words for use in RFCs to indicate Requirement
+        levels", RFC 2119, March 1997.
+
+        [3] Wahl, M., Coulbeck, A., Howes, T. and S. Kille, "Lightweight
+        Directory Access Protocol (v3): Attribute Syntax Definitions", RFC
+        2252, December 1997.
+
+        [4] Good, G., "The LDAP Data Interchange Format (LDIF) - Technical
+        Specification", RFC 2849, June 2000.
+
+
+     10.  Authors' Addresses
+
+        Ludovic Poitou
+        Sun Microsystems Inc.
+        ludovic.poitou@sun.com
+
+        Timothy Hahn
+        IBM
+        hahnt@us.ibm.com
+
+
+     11.  Full Copyright Statement
+
+        Copyright 2001, The Internet Society.  All Rights Reserved.
+
+
+
+     Hahn & Poitou             Expires 20 May 2002                [Page 13]
+
+     INTERNET-DRAFT      LDAP Schema Update Procedures    20 November 2001
+
+        This document and translations of it may be copied and furnished to
+        others, and derivative works that comment on or otherwise explain it
+        or assist in its implementation may be prepared, copied, published
+        and distributed, in whole or in part, without restriction of any
+        kind, provided that the above copyright notice and this paragraph
+        are included on all such copies and derivative works.  However, this
+        document itself may not be modified in any way, such as by removing
+        the copyright notice or references to the Internet Society or other
+        Internet organizations, except as needed for the  purpose of
+        developing Internet standards in which case the procedures for
+        copyrights defined in the Internet Standards process must be
+        followed, or as required to translate it into languages other than
+        English.
+
+        The limited permissions granted above are perpetual and will not be
+        revoked by the Internet Society or its successors or assigns.
+
+        This document and the information contained herein is provided on an
+        "AS IS" basis and THE AUTHORS, THE INTERNET SOCIETY, AND THE
+        INTERNET ENGINEERING TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+        THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+        WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     Hahn & Poitou             Expires 20 May 2002                [Page 14]
+

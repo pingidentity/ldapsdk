@@ -1,0 +1,311 @@
+
+   INTERNET-DRAFT                                            Asaf Kashi 
+   Category: Standards Track                            Richard Randall 
+   <draft-kashi-incremental-00.txt>               Microsoft Corporation 
+   Expires: May 2002 
+    
+    
+             Incremental Retrieval of Multi-valued Properties 
+    
+    
+1. Status of this Memo 
+ 
+   This document is an Internet-Draft and is in full conformance with 
+   all provisions of Section 10 of RFC2026. 
+    
+   Internet-Drafts are working documents of the Internet Engineering 
+   Task Force (IETF), its areas, and its working groups.  Note that 
+   other groups may also distribute working documents as Internet-
+   Drafts. 
+    
+   Internet-Drafts are draft documents valid for a maximum of six 
+   months and may be updated, replaced, or obsoleted by other documents 
+   at any time.  It is inappropriate to use Internet-Drafts as 
+   reference material or to cite them other than as "work in progress." 
+    
+   The list of current Internet-Drafts can be accessed at 
+   http://www.ietf.org/ietf/1id-abstracts.txt 
+    
+   The list of Internet-Draft Shadow Directories can be accessed at 
+   http://www.ietf.org/shadow.html. 
+    
+   This document is intended to be submitted, after review and 
+   revision, as a Standards Track document.  Distribution of this memo 
+   is unlimited.  It is filed as <draft-kashi-incremental-00.txt>, and 
+   expires May, 2002. 
+    
+   Please send comments to the authors. 
+    
+    
+2. Abstract 
+    
+   The Lightweight Directory Access protocol [1] provides a means for 
+   clients to read and write information stored in a distributed 
+   directory system.  This information is stored as attributes of 
+   entries.  The attributes may be multi-valued.  The LDAP protocol 
+   reads a multi-valued attribute as a single entity.  This can be 
+   inconvenient or even impossible when the number of values in a 
+   multi-valued attribute becomes large.   
+   This document defines an option ("Range") that can be specified as 
+   part of an attribute description to retrieve the values of a multi-
+   valued attribute incrementally.  Servers MAY honor the range option. 
+    
+    
+     
+   Kashi and Randall       Standards Track                          1 
+                       Incremental Retrieval of          November 2001 
+                       Multi-valued Properties 
+    
+3. Conventions used in this document 
+   The key words ``MUST'', ``MUST NOT'', ``REQUIRED'', ``SHALL'', 
+   ``SHALL NOT'', ``SHOULD'', ``SHOULD NOT'', ``RECOMMENDED'', and 
+   ``MAY'' in this document are to be interpreted as described in RFC 
+   2119 [2]. 
+    
+    
+4. The Range Option 
+    
+   Servers that support the range option MUST include the OID 
+   1.2.840.113556.1.4.802 in the "supportedControls" operational 
+   property on the Root DSE.  Clients SHOULD NOT use the Range option 
+   unless this OID is present.  The Range option is a constant, case-
+   insensitive string value, "Range=", followed by a range-specifier as 
+   defined below in 5.1. 
+    
+    
+5. Use of the Range Option in LDAP 
+    
+   This section defines how LDAP implementations MUST interpret Range 
+   specifiers in performing operations. 
+    
+   An attribute with the Range option is considered to be a subtype of 
+   the attribute without the Range option.  If a server does not 
+   support incremental retrieval of multi-valued attributes, then it 
+   MUST always treat an attribute with a Range option as an 
+   unrecognized attribute. 
+    
+   AttributeDescriptions containing the Range option are valid only 
+   when presented by the client in the "attributes" field of a 
+   SearchRequest or returned by the server in the "attributes" field of 
+   a SearchResultEntry.  If a client presents an AttributeDescription 
+   containing the Range option in any other context the server SHOULD   
+   treat it as an unrecognized attribute. 
+    
+    
+5.1 Attribute Description 
+    
+   An attribute consists of a type, a list of options for that type, 
+   and a set of one or more values.  In LDAP, the type and the options 
+   are combined into the AttributeDescription, defined in section 4.1.5 
+   of [1]. This is represented as an attribute type name and a 
+   possibly-empty list of options.  One of these options specifies the 
+   zero-relative range of elements to be retrieved when presented in a  
+   SearchRequest message. 
+    
+           range-option ::= "Range=" <range-specifier> 
+           range-specifier ::= <range-initial> ["-" <range-terminal>] 
+           range-initial ::= *(0-9) 
+           range-terminal::= (*(0-9))| <end-of-range> 
+           end-of-range ::= "*" 
+    
+    
+   Kashi and Randall       Standards Track                          2 
+                       Incremental Retrieval of          November 2001 
+                       Multi-valued Properties 
+    
+   There can be at most one Range option an AttributeDescription. 
+   Examples of valid AttributeDescription: 
+    
+           member;Range=0-500 
+           otherTelephoneNumber;Range=0-* 
+           userCertificate;Range=21-305 
+    
+    
+5.2 Server Behavior 
+    
+   This section describes the behavior that all servers supporting 
+   incremental retrieval of multi-valued properties via the Range 
+   option MUST implement.  A client MAY request all or any contiguous 
+   subset of the elements of a multi-valued attribute using the range 
+   specifier.  The special character "*" indicates the end of the range 
+   when used as the terminal value in a range specifier.  The server 
+   MUST return a Range option in the SearchResultEntry for all 
+   attributes in the SearchRequest that contained a valid Range option.  
+   A given Range option is treated as valid by the server if: 
+    
+        it is well-formed according to 5.1 
+        range-initial is less than or equal to range-terminal 
+        range-initial is less than or equal to the actual count of 
+   values stored in the multi-valued attribute 
+    
+   The server MUST treat any AttributeDescription containing a valid 
+   attribute type with an invalid Range option as an error and return 
+   an empty set of values for the attribute in the SearchResultEntry 
+   message. 
+    
+   The Range option returned by the server in any given 
+   AttributeDescription indicates the actual range returned.  The 
+   server MUST return the "*" character as the terminal value for a 
+   range when the last element in the multi-valued property is returned 
+   in the SearchResultEntry message.  The server MAY omit the Range 
+   option if the complete set of values for the attribute is returned.  
+   If the server omits the Range option in a returned 
+   AttributeDescription the client SHOULD assume the complete set of 
+   values has been returned. Examples of valid AttributeDescriptions 
+   returned by the server: 
+    
+           member;Range=0-384 
+           otherTelephoneNumber;Range=0-2 
+           userCertificate;Range=21 
+           userCertificate;Range=11-* 
+    
+   The server MAY return fewer elements than requested by the client.  
+   The client SHOULD make additional requests to obtain the remainder. 
+    
+   Example of a server returning fewer elements than requested: 
+    
+           Client Request          Server Response 
+           member;Range=0-5000     member;Range=0-500 
+    
+   Kashi and Randall       Standards Track                          3 
+                       Incremental Retrieval of          November 2001 
+                       Multi-valued Properties 
+    
+           member;Range=501-5000   member;Range=501-* 
+    
+   A server that supports the Range option MAY limit the maximum number 
+   of elements for a given multi-valued attribute that can be returned 
+   in a single request.  This allows the server to control the amount 
+   of resources required to service the retrieval of multi-valued 
+   properties.   
+    
+   Example of a client server exchange with a server that limits 
+   retrievals to 500 items: 
+    
+           Client Request        Server Response 
+           member;Range=0-*      member;Range=0-500 
+           member;Range=501-*    member;Range=501-1000 
+           member;Range=1001-*   member;Range=1000-1307 
+    
+   The server MUST NOT return an AttributeDescription with a Range 
+   option specified for any attribute unless the client specified a 
+   Range option for that AttributeDescription in the SearchRequest.  
+    
+   If the client does not provide the Range option for a given 
+   property, and the server cannot return all elements of that property 
+   because doing so would exceed the administrative limit, then the 
+   server MUST return: 
+    
+        an empty result for the requested attribute 
+        an additional AttributeDescription with a Range option for the 
+   requested Attribute populated with values per the range specifier. 
+    
+   This allows a server to limit the number of elements returned for a 
+   multi-valued property for which no Range option was specified and 
+   report the number of elements returned. 
+    
+   Example of a client server exchange between a client specifying no 
+   explicit range and a server that limits retrievals to 500 items and 
+   where the number of elements in the multi-valued property exceeds 
+   the administrative limit: 
+    
+           Client Request        Server Response 
+           member                member=,member;Range= 
+                                 0-499="member1;member2,à,member500" 
+    
+    
+5.3 Element Ordering 
+    
+   For a client to specify a range of elements in a multi-valued 
+   Attribute, there must be some concept of order.  There is no implied 
+   ordering in the values of a multi-valued property (see [1], 4.1.8). 
+   The order of elements returned by the Range option is arbitrary 
+   (e.g. unsorted) but constant for the duration of a given LDAP 
+   connection if and only if the Attribute is not modified by another 
+   client between successive range requests.  Modification of a multi-
+   valued property while it is being fetched by successive range 
+    
+   Kashi and Randall       Standards Track                          4 
+                       Incremental Retrieval of          November 2001 
+                       Multi-valued Properties 
+    
+   requests may result in overlapping, duplicated, or skipped elements 
+   in the SearchResultEntry messages sent in response to the range 
+   requests.  Logically adjacent range requests issued on different 
+   LDAP Sessions are not guaranteed to return contiguous result sets 
+   and clients SHOULD NOT issue requests in this manner. 
+    
+    
+6. Security Considerations 
+    
+   There are no known security considerations for this document.  See 
+   the security considerations sections of [1] for security 
+   considerations of LDAP in general. 
+    
+    
+7. Acknowledgements 
+    
+   This document is based upon work done by S. Judd, A. Herron, and T. 
+   Williams. 
+    
+    
+8. References 
+    
+   [1] Wahl, M., Kille, S. and Howes, T., "Lightweight Directory Access 
+       Protocol (v3)", Internet Standard, RFC 2251, December, 1997. 
+    
+   [2] Bradner, S., "Key words for use in RFCs to Indicate Requirement 
+       Levels", BCP 14, RFC 2119, March 1997. 
+    
+    
+9. Author's Addresses 
+    
+   Asaf Kashi 
+   Microsoft Corp. 
+   1 Microsoft Way 
+   Redmond, WA 98052 
+   USA 
+   asafk@microsoft.com 
+   +1 425 882-8080 
+    
+   Richard Randall 
+   Microsoft Corp. 
+   1 Microsoft Way 
+   Redmond, WA 98052 
+   USA 
+   rrandall@microsoft.com 
+   +1 425 882-8080 
+    
+    
+10. Full Copyright Statement 
+    
+   Copyright (C) The Internet Society (2001).  All Rights Reserved. 
+   This document and translations of it may be copied and furnished to 
+    
+   Kashi and Randall       Standards Track                          5 
+                       Incremental Retrieval of          November 2001 
+                       Multi-valued Properties 
+    
+   others, and derivative works that comment on or otherwise explain it 
+   or assist in its implementation may be prepared, copied, published 
+   and distributed, in whole or in part, without restriction of any 
+   kind, provided that the above copyright notice and this paragraph 
+   are included on all such copies and derivative works.  However, this 
+   document itself may not be modified in any way, such as by removing 
+   the copyright notice or references to the Internet Society or other 
+   Internet organizations, except as needed for the purpose of 
+   developing Internet standards in which case the procedures for 
+   copyrights defined in the Internet Standards process must be 
+   followed, or as required to translate it into languages other than 
+   English.  The limited permissions granted above are perpetual and 
+   will not be revoked by the Internet Society or its successors or 
+   assigns.  This document and the information contained herein is 
+   provided on an "AS IS" basis and THE INTERNET SOCIETY AND THE 
+   INTERNET ENGINEERING TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR 
+   IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF 
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED 
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE." 
+    
+    
+    
+   Kashi and Randall       Standards Track                          6 

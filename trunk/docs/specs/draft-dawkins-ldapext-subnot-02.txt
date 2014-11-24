@@ -1,0 +1,673 @@
+
+
+
+Network Working Group                                             P. Xun
+Internet-Draft                                                    Huawei
+Intended status: Standards Track                         S. Dawkins, Ed.
+Expires: June 2, 2010                                       Huawei (USA)
+                                                       November 29, 2009
+
+
+  Subscription/Notification for Lightweight Directory Access Protocol
+                                 (LDAP)
+                    draft-dawkins-ldapext-subnot-02
+
+Abstract
+
+   This document extends Lightweight Directory Access Protocol (LDAP) to
+   support subscription and notification mechanism.  An LDAP client can
+   subscribe to data of interest available from an LDAP server and
+   receive notifications from the LDAP server when this data is updated.
+   By this means, an LDAP client can become aware of changes to data of
+   interest in a timely manner.
+
+Status of this Memo
+
+   This Internet-Draft is submitted to IETF in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on June 2, 2010.
+
+Copyright Notice
+
+   Copyright (c) 2009 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 1]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the BSD License.
+
+
+Table of Contents
+
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
+   2.  Background of this Specification . . . . . . . . . . . . . . .  3
+   3.  Terminology in this Specification  . . . . . . . . . . . . . .  3
+   4.  The Subscribe Operation  . . . . . . . . . . . . . . . . . . .  3
+     4.1.  The Subscribe Request  . . . . . . . . . . . . . . . . . .  4
+       4.1.1.  SubscribeReq.requestValue.subscribeRequestType . . . .  5
+       4.1.2.  SubscribeReq.requestValue.notificationRefData  . . . .  5
+       4.1.3.  SubscribeReq.requestValue.sendDataIndication . . . . .  5
+       4.1.4.  SubscribeReq.requestValue.expiryTime . . . . . . . . .  5
+       4.1.5.  SubscribeReq.subscribeContent  . . . . . . . . . . . .  5
+       4.1.6.  SubscribeReq.requestValue.notifyRestriction  . . . . .  6
+     4.2.  Subscribe Result . . . . . . . . . . . . . . . . . . . . .  6
+     4.3.  Subscription Lifetimes . . . . . . . . . . . . . . . . . .  7
+   5.  The Notification Operation . . . . . . . . . . . . . . . . . .  7
+   6.  The notification Acknowledge Operation . . . . . . . . . . . .  8
+   7.  Differences From Existing LDAP Synchronization Extensions  . .  9
+   8.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
+   9.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 10
+   10. Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 11
+   11. References . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+     11.1. Normative References . . . . . . . . . . . . . . . . . . . 11
+     11.2. Informative References . . . . . . . . . . . . . . . . . . 12
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 12
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 2]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+1.  Introduction
+
+   This document extends the Lightweight Directory Access Protocol
+   (LDAP) ([RFC4510], [RFC4511], [RFC4512]) to allow LDAP clients to
+   subscribe to data of interest available from LDAP servers and be
+   notified of changes to subscribed data.
+
+   This extension consists of one extended operation and one unsolicited
+   notification message.  The Subscribe operation is used by the LDAP
+   client to subscribe for interested data in LDAP server.  When the
+   subscribed data are updated, the LDAP server sends the notification
+   message to the related LDAP client with required data.
+
+
+2.  Background of this Specification
+
+   3GPP is developing specifications for "User Data Convergence", or
+   UDC.  (The current service description for UDC is available at
+   http://www.3gpp.org/ftp/Specs/archive/22_series/22.101/22101-a00.zip)
+
+   The 3GPPP CT4 technical specification group is considering LDAP as a
+   building block for this service, but LDAP lacks a way to meet one key
+   requirement (from the 22.101 specification, in section 4.11.1):
+
+      "Applications can subscribe to specific events which will likely
+      occur on specific user data, and those should be notified when
+      those events do appear.  The events can be changes on existing
+      user data, addition of user data, and so on."
+
+   This extension is intended to meet this specific requirement,
+   allowing LDAP to be selected as the building block protocol for UDC.
+
+
+3.  Terminology in this Specification
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119.  [RFC2119]
+
+   Augmented BNF ([RFC5234]) is used in this specification.
+
+
+4.  The Subscribe Operation
+
+   The Subscribe operation allows an LDAP client to create a
+   subscription to specific data in an LDAP server.
+
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 3]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+4.1.  The Subscribe Request
+
+   NOTE TO RFC EDITOR: Please replace all instances of "IANA-ASSIGNED-
+   OID" with the actual value assigned by IANA, when this value is
+   available.
+
+   The Subscribe Request is an LDAPMessage of CHOICE extendedReq where
+   the requestName is IANA-ASSIGNED-OID.1.  The message is defined as
+   follows:
+
+
+   SubscribeReq ::= [APPLICATION 23] SEQUENCE {
+           requestName             LDAPOID,
+           requestValue            SubscribeRequestValue }
+
+   SubscribeRequestValue ::= SEQUENCE {
+           subscribeRequestType    ENUMERATED {
+                   subscribe       (0),
+                   unsubscribe     (1) }
+           subscribeContent        SubscribeContent,
+           notifyRestriction       NotifyRestriction OPTIONAL,
+           notificationRefData     LDAPString OPTIONAL,
+           sendDataIndication      BOOLEAN,
+           expiryTime              GeneralizedTime OPTIONAL }
+
+   SubscribeContent ::= SEQUENCE {
+           baseObject              LDAPDN,
+           subscribeAttributeList  SEQUENCE OF SubscribeAttributes }
+
+   SubscribeAttributes ::= SEQUENCE {
+           attributes              AttributeSelection,
+           operation               SET SIZE(1..3) OF ENUMERATED {
+                           add     (0),
+                           modify  (1),
+                           delete  (2) } }
+
+   NotifyRestriction ::= SEQUENCE {
+           notifyTo                NotifyReceiver OPTIONAL,
+           notifyStart             GeneralizedTime OPTIONAL }
+
+   NotifyReceiver ::= SEQUENCE {
+           entryDN         LDAPDN,
+           attributeName   AttributeDescription }
+
+
+
+
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 4]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+4.1.1.  SubscribeReq.requestValue.subscribeRequestType
+
+   This field indicates this request is a request to subscribe or
+   unsubscribe.  The values of this field are:
+   o  subscribe: indicates this request is to subscribe to specific data
+      in LDAP server
+   o  unsubscribe: indicates this request is to cancel the associated
+      subscription
+
+4.1.2.  SubscribeReq.requestValue.notificationRefData
+
+   If present, this is an opague block of data that a client sends to
+   the server in the Subscribe request and gets back unmodified in the
+   Notification response when the notification is triggered.
+
+4.1.3.  SubscribeReq.requestValue.sendDataIndication
+
+   This indication tells the server whether to return the current values
+   of the subscribed attributes listed in subscribeContent in the
+   Subscribe response.
+
+4.1.4.  SubscribeReq.requestValue.expiryTime
+
+   If present, this is the designated time at which the subscription
+   expires, specified as GeneralizedTime.  If this field is absent, the
+   Subscribe request is always valid until the LDAP server receives a
+   Subscribe request with the subscribeRequestType set to unsubscribe.
+
+4.1.5.  SubscribeReq.subscribeContent
+
+   The subscriberContent defines the content of a subscription request.
+
+4.1.5.1.  baseObject
+
+   This field specifies the name of object entry that LDAP clients wish
+   to receive notifications for, when the object entry attributes
+   change.
+
+4.1.5.2.  SubscribeReq.subscribeContent.subscribeAttributeList
+
+   A subscribeAttributeList lists the selected attributes that the LDAP
+   client is interested in.
+
+   o  attributes: In this field, the selected attributes in the entry
+      are listed.  If the value of any attribute listed in this field is
+      updated, a Notification response is sent to the client.
+
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 5]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+   o  operation: The value of this field denotes that the client is
+      interested in the specific cause that results in the change of
+      attribute.  In this field, one or more (of the following three)
+      operations MUST be listed.
+      *  add: if the attribute is added, the server sends the
+         notification response.
+      *  modify: if the attribute is modified, the server sends the
+         notification response.
+      *  delete: if the attribute is deleted, the server sends the
+         notification response.
+
+4.1.6.  SubscribeReq.requestValue.notifyRestriction
+
+   The notifyRestriction describes how the Notice of Data Changed
+   Notification is sent.
+
+4.1.6.1.  SubscribeReq.requestValue.notifyRestriction.notifyTo
+
+   This denotes the receiver of a Notice of Data Changed Notification of
+   a related Subscribe request.  In the Subscribe request, an attribute
+   name MAY be designated and the value(s) of this attribute contains
+   the specific client(s) name(s) which will receive the related
+   Notification.  If this field is absent, the receiver is the client
+   which issues this Subscribe request.
+
+4.1.6.1.1.  SubscribeReq.requestValue.notifyRestriction.notifyTo.entryDN
+
+   This field describes the entry in which the designated attribute
+   locates.
+
+4.1.6.1.2.  SubscribeReq.requestValue.notifyRestriction.notifyTo.attribu
+            teName
+
+   This field denotes the attribute name which contains the specific
+   client(s) name(s).
+
+4.1.6.2.  SubscribeReq.requestValue.notifyRestriction.notifyStart
+
+   The designated time that the Subscribe request comes into effect,
+   specified as GeneralizedTime.  If this field is absent, the Subscribe
+   request is valid when the server receives it.
+
+4.2.  Subscribe Result
+
+   The results of the Subscribe Request consist of zero or more
+   SubscribeResultEntry messages followed by a single
+   SubscribeResultDone message.
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 6]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+   The SubscribeResultEntry is present if the sendDataIndication is set
+   to TRUE in the Subscribe Request.  Every SubscribeResultEntry
+   represents an entry listed in subscribeContent of the Subscribe
+   Request.  The SubscribeResultEntry is an IntermediateResponse message
+   where the requestName is IANA-ASSIGNED-OID.2 and the requestValue is
+   present and contains a SubscribeResultData type defined as follows:
+
+   SubscribeResultData ::= SEQUENCE {
+           objectName              LDAPDN,
+           attributes              PartialAttributeList}
+
+   PartialAttributeList ::= SEQUENCE OF
+           partialAttribute PartialAttribute
+
+   The SubscribeResultDone is an LDAPMessage of CHOICE extendedResp
+   where the requestName is IANA-ASSIGNED-OID.3.  The message is defined
+   as follows:
+
+   SubscribeResultDone ::= [APPLICATION 24] SEQUENCE {
+           COMPONENTS OF LDAPResult,
+           responseName    LDAPOID }
+
+4.3.  Subscription Lifetimes
+
+   When a client has successfully subscribed for notifications, the
+   subscription remains active until either
+   o  The subscription expires, at the time specified in expiryTime, or
+   o  The client explicitly "unsubscribes".
+
+
+5.  The Notification Operation
+
+   When a client successfully subscribes for notifications, when the
+   subscribed data is updated (i.e. added, deleted, modified), the
+   server SHALL send the Notification of Data Change message to the
+   required client(s) with the data before and after the changes.
+
+   To perform this operation, first, the server SHALL check if the
+   actual notification receiver - which is designated in the value of
+   parameter SubscribeReq.requestValue.notifyRestriction.notifyTo - is
+   valid.
+
+   Second, the server SHALL check if the notification receiver is
+   permitted to receive the data according to the access control
+   mechanism of LDAP.  Then the server SHALL send the notification
+   message after all the checks are done.
+
+   The Notice of Data Change is an Unsolicited Notification as defined
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 7]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+   in [RFC4511].  The responseName field of the Notice of Data Changed
+   message is IANA-ASSIGNED-OID.4 and the responseValue is present and
+   contains a BER-encoded NotifyResponseValue.
+
+
+   NotifyResponseValue ::= SEQUENCE {
+           notificationID          INTEGER (0 ..  maxInt),
+           notificationRefData     LDAPString OPTIONAL,
+           notifyContent           SEQUENCE OF NotifyEntry }
+
+   NotifyEntry ::= SEQUENCE {
+           baseObject              LDAPDN,
+           notifyAttributeList     SEQUENCE OF NotifyAttribute }
+
+   NotifyAttribute ::= SEQUENCE {
+           state                   ENUMERATED {
+                           add     (0),
+                           modify  (1),
+                           delete  (2) }
+           attributeType           AttributeDesciption,
+           newValue [0] SET OF value AttributeValue OPTIONAL,
+           oldValue [1] SET OF value AttributeValue OPTIONAL
+   }
+
+   Fields of the Notice of Data Changed message are:
+   1.  notificationID: notification identifier which is the unique
+       identifier of the notification operation.
+   2.  notificationRefData: server returns the same notificationRefData
+       as received in the related Subscribe Request to the Notification
+       of Data Change message.
+   3.  notificationContent: the detailed data which has been updated.
+   4.  state: denotes the operation that changed the attribute, i.e. the
+       attribute has been added, deleted, or modified.
+   5.  attributeType: denotes which attribute is changed.
+   6.  newValue: the new value of the attribute after change.
+   7.  oldValue: the original value of the attribute before change.
+
+   The server sends the Notification of Data Change message and waits
+   for the acknowledge from the clients.
+
+
+6.  The notification Acknowledge Operation
+
+   The Notification Acknowledge Operation is intended to response the
+   notification sent by LDAP server.  The Notification Acknowledge is an
+   LDAPMessage of CHOICE extendedReq where the requestName is IANA-
+   ASSIGNED-OID.5 The requestValue is information in the form of
+   NotificatinAckValue, encapsulated inside an OCTET STRING.
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 8]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+   NotificationAckValue ::= SEQUENCE {
+           notificationID  INTEGER (0 ..  maxInt),
+           resultCode              ENUMERATED      {
+                           success (0),
+                           failure (1),
+   }
+
+   Fields of the Notification Acknowledge message are:
+   1.  notificationID: notification identifier which is same as the
+       value of notificationID denoted in the Notification Operation.
+   2.  resultCode: the result of Notification Operation.
+
+   There is no response defined in the notification acknowledge
+   operation.  Upon receipt of an notification acknowledge, if failure
+   is indicated and any other client is available, the server selects
+   another available client and sends the notification to the selected
+   client.  Otherwise, the server terminites the process of
+   notification.
+
+
+7.  Differences From Existing LDAP Synchronization Extensions
+
+   LDAP already provides extension (LDAP Content Sync [RFC4533], LCUP in
+   RFC 3928 [RFC3928], and Persistent Search in the now-expired
+   draft-smith-psearch-ldap-01) that might be used to to notify an LDAP
+   client of changes to data of interest stored on an LDAP server.  We
+   proposed a new SUBSCRIBE/NOTIFY extension to satisfiy the following
+   requirements.
+
+   1.  This mechanism does not require a persistent LDAP session in
+       order to notify the LDAP client of changes to data of interest in
+       a timely manner.  We believe this is a useful advantage when
+       large numbers of LDAP clients wish to subscribe for
+       notifications.
+   2.  In current LDAP mechanisms, the server will notify the client of
+       all changes but the client may require notifications only for
+       changes which meet some condition, such as addition, modification
+       or deletion.
+   3.  Current LDAP mechanisms are used to synchronize the data copy in
+       the LDAP client to the server, so in the first phase the server
+       will return all of the data by default.  But in some case the
+       client only needs to discover what has changed, and doesn't need
+       to receive all of the data.
+
+   The Subscribe/Notify mechanism allows the LDAP Server to notify
+   Clients of changes in real-time, and LDAP Server doesn't need to
+   maintain many simultaneous LDAP sessions.
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                  [Page 9]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+8.  Security Considerations
+
+   SUBSCRIBE/NOTIFY has enough in common with [RFC4533] and [RFC3928] to
+   share many of the same security considerations - we have reused text
+   from both [RFC4533] and [RFC3928] in this specification.
+
+   General security considerations in [RFC4510], especially those
+   associated with update operations in [RFC4511], apply to this
+   extension.
+
+   General security considerations in [RFC4513] also apply to this
+   extension.
+
+   In some situations, it may be important to prevent general exposure
+   of information about changes that occur in an LDAP server.
+   Therefore, servers that implement the mechanism described in this
+   document SHOULD provide a means to enforce access control on the
+   entries returned and MAY also provide specific access control
+   mechanisms to control the use of the controls and extended operations
+   defined in this document.
+
+   The operation may be the target of direct denial-of-service attacks.
+   Implementors should provide safeguards to ensure the operation is not
+   abused.  Servers may place access control or other restrictions upon
+   the use of this operation.
+
+   Note that even small updates to the directory may cause a significant
+   amount of traffic to be generated to clients using this operation.  A
+   user could abuse its update privileges to mount an indirect denial of
+   service to these clients, other clients, and/or portions of the
+   network.  Servers should provide safeguards to ensure that update
+   operations are not abused.
+
+
+9.  IANA Considerations
+
+   It is requested that Internet Assigned Numbers Authority (IANA) make
+   the following assignment:
+
+
+
+
+
+
+
+
+
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                 [Page 10]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+   Subject: Request for LDAP Protocol Mechanism Registration
+   Object Identifier: see table
+   Description: see table
+   Person and email address to contact for further information:
+           Peng Xun xunpeng@huawei.com
+
+   NOTE TO RFC EDITOR: Please replace all instances of
+                           XXXX with the RFC number
+                           for this specification when it is
+                           assigned.
+   Specification: RFC XXXX
+
+   Author/Change Controller: IESG
+
+   Comments:
+
+   Object Identifier   Type Description
+   ------------------- ---- -------------------------
+   IANA-ASSIGNED-OID.1  E  Subscribe Extended Request
+   IANA-ASSIGNED-OID.2  E  SubscribeResultEntry Extended
+                                    IntermediateResponse
+   IANA-ASSIGNED-OID.3  E  SubscribeResultDone Extended
+                                    Response
+   IANA-ASSIGNED-OID.4  N  Notice of Data Changed
+   IANA-ASSIGNED-OID.5  E  Notification Acknowledge Extended Request
+
+   Legend
+   ---------------------------------------------------
+   E => supportedExtension
+   N => Unsolicited Notice
+
+
+10.  Acknowledgements
+
+   The authors would like to thank Ludovic Poitou, Steven Legg, Alexey
+   Melnikov, and Kurt Zeilenga, who provided feedback on the previous
+   version of this draft.
+
+
+11.  References
+
+11.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC4510]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510,
+
+
+
+Xun & Dawkins             Expires June 2, 2010                 [Page 11]
+
+Internet-Draft            LDAP Subscribe/Notify            November 2009
+
+
+              June 2006.
+
+   [RFC4511]  Sermersheim, J., "Lightweight Directory Access Protocol
+              (LDAP): The Protocol", RFC 4511, June 2006.
+
+   [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512,
+              June 2006.
+
+   [RFC4513]  Harrison, R., "Lightweight Directory Access Protocol
+              (LDAP): Authentication Methods and Security Mechanisms",
+              RFC 4513, June 2006.
+
+   [RFC5234]  Crocker, D. and P. Overell, "Augmented BNF for Syntax
+              Specifications: ABNF", STD 68, RFC 5234, January 2008.
+
+11.2.  Informative References
+
+   [RFC3928]  Megginson, R., Smith, M., Natkovich, O., and J. Parham,
+              "Lightweight Directory Access Protocol (LDAP) Client
+              Update Protocol (LCUP)", RFC 3928, October 2004.
+
+   [RFC4533]  Zeilenga, K. and J. Choi, "The Lightweight Directory
+              Access Protocol (LDAP) Content Synchronization Operation",
+              RFC 4533, June 2006.
+
+
+Authors' Addresses
+
+   Peng Xun
+   Huawei Technologies Co., Ltd.
+
+   Email: xunpeng@huawei.com
+
+
+   Spencer Dawkins (editor)
+   Huawei Technologies (USA)
+
+   Phone: +1 214 755 3870
+   Email: spencer@wonderhamster.org
+
+
+
+
+
+
+
+
+
+
+
+Xun & Dawkins             Expires June 2, 2010                 [Page 12]
+
+

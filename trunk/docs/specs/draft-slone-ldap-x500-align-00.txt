@@ -1,0 +1,355 @@
+
+
+                                                                        
+   Internet Draft                                              S. Slone 
+   Document: draft-slone-ldap-x500-align-00.txt         Lockheed Martin 
+   Expires: August 23, 2003                           February 24, 2003 
+ 
+ 
+                Maximizing Alignment Between LDAP and X.500 
+ 
+ 
+Status of this Memo 
+ 
+   This document is an Internet-Draft and is NOT offered in accordance 
+   with Section 10 of RFC 2026, and the author does not provide the 
+   IETF with any rights other than to publish as an Internet-Draft. 
+    
+    
+   Internet-Drafts are working documents of the Internet Engineering 
+   Task Force (IETF), its areas, and its working groups.  Note that      
+   other groups may also distribute working documents as Internet-
+   Drafts. 
+    
+   Internet-Drafts are draft documents valid for a maximum of six 
+   months and may be updated, replaced, or obsoleted by other documents 
+   at any time.  It is inappropriate to use Internet-Drafts as 
+   reference material or to cite them other than as "work in progress." 
+    
+   The list of current Internet-Drafts can be accessed at 
+        http://www.ietf.org/1id-abstracts.html 
+    
+   The list of Internet-Draft Shadow Directories can be accessed at 
+        http://www.ietf.org/shadow.html. 
+    
+    
+Abstract 
+    
+   This document is intended to provide information of interest to 
+   developers of Lightweight Directory Access Protocol (LDAP) 
+   specifications and products.  It is intended to provide background 
+   information and to facilitate discussion within IETF Working Groups, 
+   most notably LDAPbis.  This Internet-Draft highlights decisions made 
+   by group attending the ITU-T and ISO/IEC JTC1 Collaborative Meeting 
+   on the Directory in London in February 2003 for inclusion in an 
+   upcoming Proposed Draft Amendment (PDAM) to the ITU-T X.500 / IS 
+   9594 Specification. It also identifies issues that the X.500 group 
+   would like to bring to the attention of the LDAPbis Working Group at 
+   the upcoming IETF meeting in March. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+     
+   Slone                                                             1 
+             Maximizing Alignment Between LDAP and X.500 February 2003 
+                                    
+    
+Table of Contents 
+    
+   Status of this Memo................................................1 
+   Abstract...........................................................1 
+   1. Introduction....................................................3 
+   2. Background......................................................3 
+   3. Alignment Changes for X.500.....................................3 
+   3.1 InvokeID and messageID.........................................3 
+   3.2 DAP modify semantics...........................................3 
+   3.3 LDAP Controls and DAP Criticality Identifiers..................3 
+   3.4 Preservation of values stored in the directory.................3 
+   3.5 Interoperability in the presence of ;binary....................3 
+   3.6 Operational models in the presence of X.500 and LDAP...........4 
+   3.7 Chained LDAP...................................................4 
+   3.8 Streamed Responses.............................................4 
+   3.9 Removal of remaining dependency on OSI.........................4 
+   3.10 SASL authentication...........................................4 
+   3.11 Multi-master replication......................................4 
+   3.12 Knowledge pointers for LDAP...................................4 
+   3.13 Implicit knowledge and the use of SRV records.................5 
+   3.14 The myth of "X.500-style names"...............................5 
+   3.15 X.500 Contexts and LDAP options...............................5 
+   3.16 String matching...............................................5 
+   3.17 New knowledge type............................................5 
+   3.18 Persistent identifier attribute (UUID)........................5 
+   3.19 Enhanced matching.............................................5 
+   4. Recommended Changes for LDAP....................................5 
+   5. Next Steps......................................................6 
+   6. Security Considerations.........................................6 
+   7. Author's Address................................................7 
+   8. References......................................................7 
+   8.1 Normative References...........................................7 
+   8.2 Informative References.........................................7 
+     
+   Slone       Informational - Expires August 23, 2003              2 
+             Maximizing Alignment Between LDAP and X.500 February 2003 
+                                    
+    
+1. Introduction 
+    
+   In 2000, the ITU-T and ISO/IEC Collaborative Committee on the 
+   Directory began work on maximizing alignment between LDAP and X.500. 
+   The topic has been discussed at each meeting since then.  This 
+   document summarizes the status of these discussions as of the 
+   conclusion of the latest X.500 meeting held in London, England, in 
+   February 2003. 
+    
+2. Background 
+    
+   The most recent X.500 specification is the fourth edition, published 
+   in 2001.  The alignment project is intended to produce a set of 
+   amendments to the fourth edition that will result in the publication 
+   of a fifth edition, probably around 2004 or 2005.  Thus far, the 
+   work has been captured in a series of Working Documents.  As of the 
+   London meeting, it will determined that the document would be 
+   published as a Proposed Draft Amendment (PDAM), which will be 
+   balloted under ISO/IEC rules.  The next meeting is scheduled for 
+   September 2003 in Geneva, Switzerland. 
+    
+3. Alignment Changes for X.500 
+    
+   This section briefly highlights the alignment items that are to be 
+   included in the PDAM as changes to X.500.   
+    
+3.1 InvokeID and messageID 
+    
+   The PDAM will explicitly declare that X.500's invokeID and LDAP's 
+   messageID are equivalent. 
+    
+3.2 DAP modify semantics. 
+    
+   The PDAM will update the semantics of X.500's modify operation to 
+   align with LDAP's semantics as follows: 
+        - Remove restrictions on "addValue" and "removeValue" options, 
+        - Add "replace" option with same semantics as LDAP. 
+    
+3.3 LDAP Controls and DAP Criticality Identifiers 
+    
+   The PDAM will provide a mapping between DAP criticality identifiers 
+   (integers) and LDAP Control OIDs. 
+    
+3.4 Preservation of values stored in the directory 
+    
+   The PDAM will require the preservation of client-supplied values in 
+   stored data.  (Note: this deficiency will also be a corrected 
+   retroactively in the 3rd and 4th editions via the defect report 
+   process. However, the 2nd edition (1993) will not be corrected since 
+   it is no longer under maintenance.) 
+    
+3.5 Interoperability in the presence of ;binary 
+    
+     
+   Slone       Informational - Expires August 23, 2003              3 
+             Maximizing Alignment Between LDAP and X.500 February 2003 
+                                    
+    
+   The PDAM will declare the explicit intent to ensure interoperability 
+   with respect to the ;binary issue, pending the final resolution of 
+   this issue within the LDAP community. 
+    
+3.6 Operational models in the presence of X.500 and LDAP 
+    
+   The PDAM will update the models sections as appropriate to depict 
+   various interoperation scenarios among a combination of X.500 DSAs 
+   and LDAP servers and with a mixture of X.500 DUAs and LDAP clients.  
+   These scenarios will include a combination of client/server 
+   operation, referrals, and chaining. 
+    
+3.7 Chained LDAP 
+    
+   The PDAM will modify DSP (Directory Server Protocol) to explicitly 
+   permit the encapsulation of LDAP operations for chaining. (Note: the 
+   mechanism will be defined in a way that will also be suitable for 
+   other directory protocols such as DSML should the need arise.) 
+    
+3.8 Streamed Responses 
+    
+   The PDAM will enhance DSP to permit the chaining of streamed 
+   responses. This enhancement will include a negotiation mechanism to 
+   ensure backward compatibility with older DSAs that do not understand 
+   streamed responses. 
+    
+3.9 Removal of remaining dependency on OSI 
+    
+   The PDAM will remove remaining dependencies on legacy OSI protocols 
+   (most notably ROSE), facilitating implementation of X.500 protocols 
+   directly over TCP.  (Note: A direct mapping of X.500 protocols onto 
+   TCP/IP was first specified in the 3rd (1997) edition.  This update 
+   will remove some residual dependencies on ROSE.)  
+    
+3.10 SASL authentication 
+    
+   Although left for further study, the PDAM will call for comments on 
+   the topic of whether X.500 protocols should be extended to include 
+   SASL. 
+    
+3.11 Multi-master replication 
+    
+   The PDAM will also call for comments exploring whether the existing 
+   information model (X.501) requires modification in the presence of 
+   multi-master replication (it appears that it does not require 
+   modification) and whether the "otherStrategy" mechanism of the 
+   existing replication protocol (DISP) is sufficient to signal the use 
+   of external replication mechanisms such as LDAP changelog, LDIF, 
+   DSMLv2, or proprietary mechanisms. 
+    
+3.12 Knowledge pointers for LDAP 
+    
+     
+   Slone       Informational - Expires August 23, 2003              4 
+             Maximizing Alignment Between LDAP and X.500 February 2003 
+                                    
+    
+   The PDAM will expand the specification of AccessPoint to include a 
+   labeledURI type, permitting LDAP URLs to be used as knowledge 
+   pointers in X.500. 
+    
+3.13 Implicit knowledge and the use of SRV records 
+    
+   The PDAM will include a new informative annex for X.501 that 
+   discusses naming issues in general, and that formalizes the use of 
+   implicit knowledge (such as that contained within domainComponent 
+   RDNs) and how that implicit knowledge can be used to locate 
+   directory servers (e.g., by using DNS SRV records). 
+    
+3.14 The myth of "X.500-style names" 
+    
+   The PDAM will enhance Annex B of X.521 (the informative annex that 
+   is commonly misquoted as "requiring" the use of country- and 
+   organization-based names) to illustrate that dc-based names and 
+   "traditional X.500" names are both valid options. 
+    
+3.15 X.500 Contexts and LDAP options 
+    
+   The PDAM will include a new context type definition called 
+   "LDAPAttributeOptionsContext" to provide an alignment mechanism 
+   between LDAP options and X.500 contexts. 
+    
+3.16 String matching 
+    
+   The PDAM will incorporate the recommendations from draft-zeilenga-
+   ldapbis-strmatch-01.txt [STRMATCH] into X.520. 
+    
+3.17 New knowledge type 
+    
+   The PDAM will create a new knowledge reference type called "disjoint 
+   knowledge" to provide the explicit ability to reference disconnected 
+   and/or overlapping naming contexts for use in chaining or referrals. 
+    
+3.18 Persistent identifier attribute (UUID) 
+    
+   The PDAM will propose adding the Universal Unique Identifier (UUID) 
+   as a generally useful attribute type for use as a persistent 
+   identifier. 
+    
+3.19 Enhanced matching 
+    
+   The PDAM will specify a new service control to enable the client to 
+   signal its need for the server to require that all assertions in a 
+   filter match on any one value of the relevant attribute.  This is to 
+   avoid the "false positive" matches that can sometimes occur with 
+   multi-valued attributes when different assertions in a compound 
+   filter match on different values. 
+    
+4. Recommended Changes for LDAP 
+    
+     
+   Slone       Informational - Expires August 23, 2003              5 
+             Maximizing Alignment Between LDAP and X.500 February 2003 
+                                    
+    
+   On behalf of the X.500 group, this author wishes to express 
+   appreciation for the spirit of cooperation that has been shown by 
+   members of various LDAP working groups since this project began.  
+   Most of the LDAP-specific changes resulting from this alignment 
+   activity are being absorbed into the normal flow of LDAP development 
+   activities.   
+    
+   At the time of this writing, the only additional alignment change 
+   that the X.500 group recommends is the specification of an LDAP 
+   Control to permit the capabilities described above in 3.19.   
+    
+5. Next Steps 
+    
+   The PDAM is expected to be completed and registered for ballot by 
+   early April 2003. Once that is completed, this I-D will be updated 
+   to provide further details and to provide a reference to an on-line 
+   version of the PDAM.  Interest parties may contact the author of 
+   this I-D for further information. 
+    
+6. Security Considerations 
+    
+   Security implications of this I-D are related primarily to a 
+   difference in the approaches to security between X.500 and LDAP. 
+   This difference results from some fundamental differences in design 
+   and operational assumptions.  That is, LDAP is designed essentially 
+   as a point-to-point system, whereas X.500 was designed to operate in 
+   a widely distributed fashion.  
+    
+   To the extent directory operations occur in a point-to-point 
+   fashion, it is believed that current mechanisms (such as TLS) for 
+   securing the communication channels are appropriate and sufficient.  
+   However, to the extent alignment between X.500 and LDAP results in 
+   an increase in distributed directory operations, mechanisms such as 
+   TLS may be insufficient since directory clients and servers will 
+   each find themselves interoperating with communications partners 
+   with which they have not established a direct connection.  
+    
+   The security implications of distributed directory operations 
+   environments are documented extensively throughout the X.500 
+   specifications.  However, the X.500 group notes some basic 
+   differences that could be of concern.  Specifically, X.500 protocols 
+   protect arguments, results, and errors (not complete PDUs), whereas 
+   LDAP operations are not protected. It may be appropriate to consider 
+   the development of a mechanism for protecting (i.e., signing and/or 
+   encrypting) LDAP operations for use in a distributed environment. 
+   Specific mechanisms are left for further study. 
+    
+    
+    
+    
+    
+    
+     
+   Slone       Informational - Expires August 23, 2003              6 
+             Maximizing Alignment Between LDAP and X.500 February 2003 
+                                    
+    
+7. Author's Address 
+    
+   Skip Slone                           Phone:  +1 407-306-7102 
+   Lockheed Martin                      Email: skip.slone@lmco.com 
+   12506 Lake Underhill Rd. 
+   MP 166                                
+   Orlando, FL 32825 USA 
+    
+8. References 
+    
+8.1 Normative References 
+    
+   None 
+    
+8.2 Informative References 
+    
+   [STRMATCH] Zeilenga, K., "Internationalized String Matching Rules 
+   for X.500", draft-zeilenga-ldapbis-strmatch-xx.txt (a work-in-
+   progress). 
+      
+   [X.500]    International Telephone Union, "The Directory: Overview 
+                of Concepts, Models and Service", X.500, 2001. 
+    
+    
+     
+   Slone       Informational - Expires August 23, 2003              7 

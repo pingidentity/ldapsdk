@@ -1,0 +1,339 @@
+
+
+
+
+
+
+INTERNET-DRAFT                                      Kurt D. Zeilenga
+Intended Category: Experimental                     OpenLDAP Foundation
+Expires: 26 December 2001                           26 December 2001
+
+
+
+           Location of LDAP services using Geo-Political Naming
+                 <draft-zeilenga-ldap-x500-locate-01.txt>
+
+
+
+Status of this Memo
+
+  This document is an Internet-Draft and is in full conformance with all
+  provisions of Section 10 of RFC2026.
+
+  This document is intended to be, after appropriate review and
+  revision, submitted to the RFC Editor as an Experimental document.
+  Distribution of this memo is unlimited.  Technical discussion of this
+  document will take place on the IETF LDAP Extensions Working Group
+  mailing list <ietf-ldapext@netscape.com>.  Please send editorial
+  comments directly to the author <Kurt@OpenLDAP.org>.
+
+  Internet-Drafts are working documents of the Internet Engineering Task
+  Force (IETF), its areas, and its working groups.  Note that other
+  groups may also distribute working documents as Internet-Drafts.
+  Internet-Drafts are draft documents valid for a maximum of six months
+  and may be updated, replaced, or obsoleted by other documents at any
+  time.  It is inappropriate to use Internet-Drafts as reference
+  material or to cite them other than as ``work in progress.''
+
+  The list of current Internet-Drafts can be accessed at
+  <http://www.ietf.org/ietf/1id-abstracts.txt>. The list of
+  Internet-Draft Shadow Directories can be accessed at
+  <http://www.ietf.org/shadow.html>.
+
+  Copyright 2001, The Internet Society.  All Rights Reserved.
+
+  Please see the Copyright section near the end of this document for
+  more information.
+
+
+Abstract
+
+  This document describes an experimental mechanism for locating LDAP
+  services which use traditional geo-political naming.  The mechanism
+  uses DNS SRV records which supports the established ITU managed name
+  registration model.
+
+
+
+Zeilenga                Location of LDAP Services               [Page 1]
+
+INTERNET-DRAFT     draft-zeilenga-ldap-x500-locate-01       26 June 2001
+
+
+1. Overview
+
+  [LOCATE] provides a means for locating LDAP services using domain
+  component naming [RFC2247].  However, this mechanism does not support
+  locating of services using geo-political naming.  The suggested
+  mechanism likely requires significant refinement before it can be
+  implemented.
+
+
+2. Locating Services
+
+  This mechanism requires three steps:
+
+      1) DN is mapped to a canonical string representation
+      2) Mapping of this string to an domain name
+      3) Locating services using this domain name
+
+  This document provides a brief description of these steps.
+
+
+2.1 DN to canonical string representation
+
+  The DN is mapped to a canonical string representation using an
+  algorithm based upon [RFC2253bis, Section 2] with additional
+  restrictions.
+
+    1) Multiple valued RDN are not handled (yet)
+
+    2) Attribute types are restricted to directoryString syntax with
+         caseIgnoreMatch equality matching.
+
+    3) Values must be transliterated to UTF-8 (that is, TelexString
+         (T.61) CHOICE is not supported).
+
+  Before converting to a string, values are normalized by removing
+  leading and trailing white space characters, replacing consecutive
+  white spaces characters with a single space character (U+0020), and
+  folding each character to uppercase.
+
+  In converting the value to a string, if the attribute type is listed
+  in the [RFC2253,Section 2.3] table (e.g., is one of CN, L, ST, O, OU,
+  C, STREET, DC, UID), then the BER form SHALL NOT be used.  If the
+  attribute is not listed, the BER form SHALL be used.  No optional
+  escaping SHALL be done.
+
+  The resulting string is folded to uppercase to produce the canonical
+  string representation.
+
+
+
+
+Zeilenga                Location of LDAP Services               [Page 2]
+
+INTERNET-DRAFT     draft-zeilenga-ldap-x500-locate-01       26 June 2001
+
+
+  Examples from [RFC2253bis]:
+
+  The DN represented by:
+      CN=Steve Kille,O=Isode Limited,C=GB
+
+  would have the canonical string representation:
+      CN=STEVE KILLE,O=ISODE LIMITED,C=GB
+
+  The DN represented by:
+      CN=L. Eagle,O=Sue\, Grabbit and Runn,C=GB
+
+  would have the canonical string representation:
+      CN=L. EAGLE,O=SUE\, GRABBIT AND RUNN,C=GB
+
+  The DN represented by:
+      CN=Before\0DAfter,O=Test,C=GB
+
+  would have the canonical string representation:
+      CN=BEFORE\0DAFTER,O=TEST,C=GB
+
+  The DN represented by:
+      1.3.6.1.4.1.1466.0=#04024869,O=Test,C=GB
+
+  does not have a canonical string representation as 1.3.6.1.4.1.1466.0
+  is not of Directory String syntax.
+
+  The RDN represented by:
+     SN=Lu\C4\8Di\C4\87
+
+  would have the canonical form consisting of the octets 53 (S) 43 (N)
+  3D (=) 4C (L) 55 (U) C4 8C (LATIN LARGE LETTER C WITH CARON) 49 (I) C4
+  86 (LATIN LARGE LETTER C WITH ACUTE).
+
+2.2. Canonical DN string to domain name
+
+  Each RDN component string of the Canonical DN string is converted to a
+  domain component of the domain name by applying a ASCII Compatible
+  Encoding (ACE) supporting arbitrary UTF-8 characters suitable for this
+  use.  [See IDN WG for current work in this area]
+
+  The empty DN (root) maps to the empty domain name (root).
+
+  This domain name is then suffixed with ".x500.in-addr.arpa." (or other
+  string if using a non-ITU managed DN name space).
+
+
+2.3. Locating services for the domain name
+
+
+
+
+Zeilenga                Location of LDAP Services               [Page 3]
+
+INTERNET-DRAFT     draft-zeilenga-ldap-x500-locate-01       26 June 2001
+
+
+  To locate LDAP services for a properly registered X.500 distinguished
+  name which maps to the domain name "X.Y.Z.x500.in-addr.arpa."  (using
+  the above algorithm), the application issues a DNS SRV RR lookup for
+  "_ldap._tcp.X.Y.Z.x500.in-addr.arpa.".
+
+  This will return either DNS SRV RR such as:
+     _ldap._tcp.X.Y.Z.x500.in-addr.arpa. IN SRV  0 0 389
+  ldap.example.net.
+
+  or NXDOMAIN or other error.  If NXDOMAIN is returned, the right most
+  domain component (X) of the domain should be trimmed to produce
+  "Y.Z.x500.in-addr.arpa." and the above steps repeated until either DNS
+  SRV records are returned or domain name was trimmed to
+  "x500.in-addr.arpa.".  In the latter case, the no LDAP services for
+  the DN could be located.
+
+
+3. Management of the locate information.
+
+  This service places location information for the root DN under a
+  domain managed by the ITU as the ITU manages the X.500 DN name space.
+  For each top-level X.500 DN, the ITU should delegate the associated
+  domain under "x500.in-addr.arpa." to same authority the ITU delegates
+  the top-level X.500 DN to.  These authorities should do likewise for
+  second-level X.500 DNs.  And so on, and so on.
+
+  This allows management of location information within the DNS to be
+  delegated to the same authorities responsible for managing the DN name
+  space.
+
+
+4. Security Considerations
+
+  See [LOCATE].
+
+5. Conclusions
+
+  This location mechanism can support any DN within the ITU managed DN
+  name space.  It places control over location information within the
+  DNS with the same parties responsible for managing location
+  information held in X.500/LDAP services.  It requires no extensions to
+  DNS nor requires placement of information within the DNS root or TLD
+  domains.  It also can be adapted to support name spaces managed by
+  other parties.
+
+
+6. Acknowledgment
+
+
+
+
+Zeilenga                Location of LDAP Services               [Page 4]
+
+INTERNET-DRAFT     draft-zeilenga-ldap-x500-locate-01       26 June 2001
+
+
+  This document borrows heavily from RFC 2247 and a number of other IETF
+  documents.
+
+
+7.  Author's Address
+
+  Kurt D. Zeilenga
+  OpenLDAP Foundation
+  <Kurt@OpenLDAP.org>
+
+
+References
+
+  [RFC2219] S. Bradner, "Key words for use in RFCs to Indicate
+            Requirement Levels", RFC 2119, March 1997.
+
+  [RFC2247] S. Kille, M. Wahl, A. Grimstad, R. Huber, S. Sataluri,
+            "Using Domains in LDAP/X.500 Distinguished Names", RFC 2247,
+            January 1998.
+
+  [RFC2251] M. Wahl, T. Howes, S. Kille, "Lightweight Directory Access
+            Protocol (v3)", RFC 2251, December 1997.
+
+  [RFC2253bis] K. Zeilenga (Ed.), Lightweight Directory Access Protocol
+            (v3):  UTF-8 String Representation of Distinguished Names
+            <draft-ietf-ldapbis-dn-xx.txt> (a work in progress).
+
+  [LOCATE]  IETF LDAPext WG, "Discovering LDAP Services with DNS",
+            draft-ietf-ldapext-locate-xx.txt (work in progress).
+
+
+Full Copyright
+
+  Copyright 2001, The Internet Society.  All Rights Reserved.
+
+  This document and translations of it may be copied and furnished to
+  others, and derivative works that comment on or otherwise explain it
+  or assist in its implementation may be prepared, copied, published and
+  distributed, in whole or in part, without restriction of any kind,
+  provided that the above copyright notice and this paragraph are
+  included on all such copies and derivative works.  However, this
+  document itself may not be modified in any way, such as by removing
+  the copyright notice or references to the Internet Society or other
+  Internet organizations, except as needed for the  purpose of
+  developing Internet standards in which case the procedures for
+  copyrights defined in the Internet Standards process must be followed,
+  or as required to translate it into languages other than English.
+
+
+
+
+Zeilenga                Location of LDAP Services               [Page 5]
+
+INTERNET-DRAFT     draft-zeilenga-ldap-x500-locate-01       26 June 2001
+
+
+  The limited permissions granted above are perpetual and will not be
+  revoked by the Internet Society or its successors or assigns.
+
+  This document and the information contained herein is provided on an
+  "AS IS" basis and THE AUTHORS, THE INTERNET SOCIETY, AND THE INTERNET
+  ENGINEERING TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED,
+  INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+  INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+  WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Zeilenga                Location of LDAP Services               [Page 6]
+

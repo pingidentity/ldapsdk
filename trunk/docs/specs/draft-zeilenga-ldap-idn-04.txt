@@ -1,0 +1,395 @@
+
+
+
+
+
+
+INTERNET-DRAFT                                      Kurt D. Zeilenga
+Intended Category: Experimental                     OpenLDAP Foundation
+Expires: 20 May 2002                                20 November 2001
+
+                   International Domain Names and LDAP
+                     <draft-zeilenga-ldap-idn-04.txt>
+
+
+Status of this Memo
+
+  This document is an Internet-Draft and is in full conformance with all
+  provisions of Section 10 of RFC2026.
+
+  This document is intended to be, after appropriate review and
+  revision, submitted to the RFC Editor as an Experimental document.
+  Distribution of this memo is unlimited.  Technical discussion of this
+  document will take place on the IETF LDAP Extensions Working Group
+  mailing list <ietf-ldapext@netscape.com>.  Please send editorial
+  comments directly to the author <Kurt@OpenLDAP.org>.
+
+  Internet-Drafts are working documents of the Internet Engineering Task
+  Force (IETF), its areas, and its working groups.  Note that other
+  groups may also distribute working documents as Internet-Drafts.
+  Internet-Drafts are draft documents valid for a maximum of six months
+  and may be updated, replaced, or obsoleted by other documents at any
+  time.  It is inappropriate to use Internet-Drafts as reference
+  material or to cite them other than as ``work in progress.''
+
+  The list of current Internet-Drafts can be accessed at
+  <http://www.ietf.org/ietf/1id-abstracts.txt>. The list of
+  Internet-Draft Shadow Directories can be accessed at
+  <http://www.ietf.org/shadow.html>.
+
+  Copyright 2001, The Internet Society.  All Rights Reserved.
+
+  Please see the Copyright section near the end of this document for
+  more information.
+
+
+Abstract
+
+  This document explores how the Lightweight Directory Access Protocol
+  (LDAP) can be extended to support International Domain Names.
+
+
+Conventions
+
+  Schema definitions are provided using LDAPv3 description formats
+
+
+
+Zeilenga                        LDAP IDN                        [Page 1]
+
+INTERNET-DRAFT         draft-zeilenga-ldap-idn-04       20 November 2001
+
+
+  [RFC2252].  Definitions provided here are formatted (line wrapped) for
+  readability.
+
+  The key words "SHALL", "SHALL NOT", "MUST", "MUST NOT", "SHOULD",
+  "SHOULD NOT", "MAY" and "MAY NOT" used in this document are to be
+  interpreted as described in BCP 14 [RFC2119].
+
+
+1. Background and Intended Use
+
+  Experimental internationalized domain name systems exist.  The IETF is
+  actively engineering standards in this area [IDN].  Though this work
+  is in progress, enough is known [IDNA] to experiment with
+  international domain names in applications and application level
+  protocols such as LDAP [RFC2251].
+
+  This document describes schema and mechanisms extending LDAP to
+  support [IDN] based upon guidelines for the internationalizing host
+  names in applications [IDNA].
+
+  This document does not consider domain names which are embedded in
+  authentication and security layers (e.g. SASL [RFC2222] and TLS
+  [RFC2246]) used by LDAP.  The document also does not consider the
+  potential use of Internationalized Resource Identifiers [IRI] in LDAP.
+
+
+2. Domain use in LDAP
+
+  Excepting user application data transferred by the protocol (see
+  section 3), domain names only appear within URLs [RFC2396] returned as
+  part of Referral or Search Continuation.  As the protocol provides no
+  means for the server to determine if the client is able to recognize
+  and utilize internationalized domain names, an ASCII Compatible
+  Encoding (ACE) of the domain name SHALL be used for within hostpart of
+  these URLs.
+
+  Internationalized clients which display these URLs to users, such as
+  to obtain permission to chase the referral, SHOULD convert the ACE
+  domain name to an international domain name by applying the ToUnicode
+  operation [IDNA] to each domain component.
+
+
+2.1 Managing Referral Information
+
+  Referral knowledge information can be stored in the directory and is
+  managed by directory users using general purpose or specialized
+  clients.  When [NAMEREF] is used, the referral knowledge is in the
+  form of URIs which are used by the server in generating referrals and
+
+
+
+Zeilenga                        LDAP IDN                        [Page 2]
+
+INTERNET-DRAFT         draft-zeilenga-ldap-idn-04       20 November 2001
+
+
+  search continuations.  To avoid unnecessary (and possibly unsupported)
+  conversion of the domain name within the hostpart of the URL by the
+  server, the client SHALL provide an ACE domain name.
+
+  Internationalized clients which display these URLs to users SHOULD
+  convert the ACE domain name to an international domain name by
+  applying the ToUnicode operation [IDNA] to each component of the name.
+  Internationalized clients SHALL convert International domain names
+  provided by users to ACE domain name by applying the ToASCII operation
+  [IDNA] to each domain component.
+
+
+3. Domains in User Application Data
+
+  In general, user application data defined (previous to the the
+  publication of this document) such that domain names in values are
+  restricted to IA5 (ASCII).   This includes attributes such as
+  domainComponent (DC), associatedDomain, rfc822mailbox (mail) and
+  labeledURI.  LDAP applications expect values to be valid according to
+  the syntax defined for the attribute.  Where the defined syntax
+  requires the domain to be restricted to IA5 (ASCII), ACE domain names
+  MUST be used.
+
+  Internationalized clients which display these domain names to users
+  SHOULD convert the ACE domain name to an international domain name by
+  applying the ToUnicode operation [IDNA] to each component of the name.
+  Internationalized clients SHALL convert International domain names
+  provided by users to ACE domain name by applying the ToASCII operation
+  [IDNA] to each domain component before transferring the value in the
+  protocol.
+
+
+4. International Domain Schema
+
+  The schema described in this section is intended to be used similar to
+  the schema described in [RFC2247] excepting that it is used
+  conjunction with a Internationalized Domain Names.  Hence domain
+  components are restricted to UTF-8 not IA5.  Section 4 discusses
+  locating directory services using the International Domain Name
+  System.
+
+  This section defined internationalized versions of the domain related
+  schema elements introduced in [RFC1274] and subsequently adapted for
+  use with LDAP [RFC2247].
+
+  Editor's Note: object identifiers (OIDs) will be assigned before this
+                 document is published as an RFC.
+
+
+
+
+Zeilenga                        LDAP IDN                        [Page 3]
+
+INTERNET-DRAFT         draft-zeilenga-ldap-idn-04       20 November 2001
+
+
+4.1. International Domain Component
+
+  The IDC (short for International Domain Component) attribute type is
+  defined as follows:
+
+      ( OID.TBD NAME 'IDC'
+          EQUALITY caseIgnoreMatch
+          ORDERING caseIgnoreOrderingMatch
+          SUBSTR caseIgnoreSubstringsMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+          SINGLE-VALUE )
+
+  The value of this attribute is a DirectoryString holding one component
+  of an international domain name.  The encoding of DirectoryString for
+  use in LDAP is normally simply the characters, represented in UTF-8,
+  of the string itself.
+
+  The matchings rule are case insensitive, as is today's IDN.
+
+  Values of this attribute can be accessed and maintained using general
+  purpose LDAP clients as such clients are capable of handling any
+  attribute of DirectoryString syntax.
+
+
+4.2. International Domain Component Object
+
+  The idcObject object class permits the IDC attribute to be present in
+  an entry.  This object class is defined as auxiliary, as it would
+  typically be used in conjunction with an existing structural object
+  class, such as organization, organizationalUnit or locality.
+
+  The following object class, along with the IDC attribute, can be added
+  to any entry.
+
+     ( OID.TBD NAME 'idcObject'
+          AUXILIARY MUST IDC )
+
+  An example entry would be:
+
+      dn: IDC=example,IDC=com
+      objectClass: top
+      objectClass: organization
+      objectClass: idcObject
+      IDC: example
+      o: Example Organization
+
+
+5. Locating LDAP services using IDNA
+
+
+
+Zeilenga                        LDAP IDN                        [Page 4]
+
+INTERNET-DRAFT         draft-zeilenga-ldap-idn-04       20 November 2001
+
+
+  To locate services associated with a DN using IDC based naming (as
+  described above), the application converts the DN to a domain name as
+  described in Section 2 of [LOCATE] treating IDC found in the DN the
+  same as DCs.  The application then converts the resulting
+  internationalized domain name to the appropriate ACE domain name
+  applying the ToASCII operation [IDNA] to each component.  The
+  application then proceeds with the location process described in
+  Section 3 of [LOCATE].
+
+
+6. Security Considerations
+
+  This document describes how attributes of objects may be discovered
+  and retrieved.  Servers should ensure that an appropriate security
+  policy is maintained.
+
+  An enterprise is not restricted in the information which it may store
+  in DNS or LDAP servers.  A client which contacts an untrusted server
+  may have incorrect or misleading information returned (e.g.  an
+  organization's server may claim to hold naming contexts representing
+  domain names which have not been delegated to that organization).
+
+
+7. Acknowledgment
+
+  The author would like thank the thoughtful comments of members of the
+  IETF IDN, LDAPbis, and LDAPext working groups.
+
+  This document borrows heavily from a number of IETF documents.
+
+
+8.  Author's Address
+
+  Kurt D. Zeilenga
+  OpenLDAP Foundation
+  <Kurt@OpenLDAP.org>
+
+
+9. Normative References
+
+  [RFC1274]  P. Barker, S. Kille, "The COSINE and Internet X.500
+             Schema", November 1991.
+
+  [RFC2119]  S. Bradner, "Key words for use in RFCs to Indicate
+             Requirement Levels", RFC 2119, March 1997.
+
+  [RFC2247]  S. Kille, M. Wahl, A. Grimstad, R. Huber, S. Sataluri,
+             "Using Domains in LDAP/X.500 Distinguished Names", RFC
+
+
+
+Zeilenga                        LDAP IDN                        [Page 5]
+
+INTERNET-DRAFT         draft-zeilenga-ldap-idn-04       20 November 2001
+
+
+             2247, January 1998.
+
+  [RFC2251]  M. Wahl, T. Howes, S. Kille, "Lightweight Directory Access
+             Protocol (v3)", RFC 2251, December 1997.
+
+  [RFC2252]  M. Wahl, A. Coulbeck, T. Howes, S. Kille, "Lightweight
+             Directory Access Protocol (v3):  Attribute Syntax
+             Definitions", RFC 2252, December 1997.
+
+  [RFC2396]  T. Berners-Lee, R. Fielding, L. Masinter, "Uniform Resource
+             Identifiers (URI): Generic Syntax", RFC 2396, August 1998.
+
+  [IDNA]     P. Faltstrom, P. Hoffman, A. Costello "Internationalizing
+             Host Names In Applications," draft-ietf-idn-idna-xx.txt (a
+             work in progress).
+
+  [LOCATE]   IETF LDAPext WG, "Discovering LDAP Services with DNS",
+             draft-ietf-ldapext-locate-xx.txt (work in progress).
+
+
+10. Informative References
+
+  [RFC2222] J. Myers, "Simple Authentication and Security Layer (SASL)",
+  RFC 2222, October 1997.
+
+  [RFC2246] T. Dierks, C. Allen, "The TLS Protocol Version 1.0", RFC
+  2246, January 1999.
+
+  [IDN]     IETF International Domain Name (IDN) Working Group,
+  http://www.ietf.org/html.charters/idn-charter.html.
+
+  [IRI]     L. Masinter, M. Duerst, "Internationalized Resource
+  Identifiers (IRI)", draft-masinter-url-i18n-xx.txt (a work in
+  progress).
+
+
+Copyright 2001, The Internet Society.  All Rights Reserved.
+
+  This document and translations of it may be copied and furnished to
+  others, and derivative works that comment on or otherwise explain it
+  or assist in its implementation may be prepared, copied, published and
+  distributed, in whole or in part, without restriction of any kind,
+  provided that the above copyright notice and this paragraph are
+  included on all such copies and derivative works.  However, this
+  document itself may not be modified in any way, such as by removing
+  the copyright notice or references to the Internet Society or other
+  Internet organizations, except as needed for the  purpose of
+  developing Internet standards in which case the procedures for
+
+
+
+Zeilenga                        LDAP IDN                        [Page 6]
+
+INTERNET-DRAFT         draft-zeilenga-ldap-idn-04       20 November 2001
+
+
+  copyrights defined in the Internet Standards process must be followed,
+  or as required to translate it into languages other than English.
+
+  The limited permissions granted above are perpetual and will not be
+  revoked by the Internet Society or its successors or assigns.
+
+  This document and the information contained herein is provided on an
+  "AS IS" basis and THE AUTHORS, THE INTERNET SOCIETY, AND THE INTERNET
+  ENGINEERING TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED,
+  INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+  INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+  WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Zeilenga                        LDAP IDN                        [Page 7]
+

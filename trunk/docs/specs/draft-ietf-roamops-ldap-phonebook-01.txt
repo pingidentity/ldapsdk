@@ -1,0 +1,1559 @@
+
+
+
+
+
+Network Working Group                                            G. Zorn
+Internet-Draft                                     Microsoft Corporation
+Category: Standards Track                                     March 1998
+<draft-ietf-roamops-ldap-phonebook-01.txt>
+
+                     An LDAP Schema for Phone Books
+
+1.  Status of this Memo
+
+This  document  is an Internet-Draft.  Internet-Drafts are working docu-
+ments of the Internet Engineering Task Force (IETF), its areas, and  its
+working groups.  Note that other groups may also distribute working doc-
+uments as Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum  of  six  months
+and  may  be  updated,  replaced, or obsoleted by other documents at any
+time.  It is inappropriate to use Internet-Drafts as reference  material
+or to cite them other than as work in progress.''
+
+To  learn  the  current  status  of any Internet-Draft, please check the
+``1id-abstracts.txt'' listing contained in  the  Internet-Drafts  Shadow
+Directories  on ds.internic.net (US East Coast), nic.nordu.net (Europe),
+ftp.isi.edu (US West Coast), or munnari.oz.au (Pacific Rim).
+
+The distribution of this memo is unlimited.  It is filed as <draft-ietf-
+roamops-ldap-phonebook-01.txt>,  and expires September 15, 1998.  Please
+send comments to the  Roaming  Operations  Working  Group  mailing  list
+(roamops@tdmx.rutgers.edu) or to the author (glennz@microsoft.com).
+
+
+2.  Abstract
+
+This document describes an LDAP schema for the attributes to be included
+in the standard phone book.  Goals of this document include:
+
+   - Creating a flexible, extensible and robust framework
+     upon which to build a standard phone book
+   - Promoting a standard phone book format, to enhance
+     interoperability between ISPs and roaming consortia
+
+Non-goals of this document include:
+
+   - Attempting to create a ''Swiss army knife'', with phone
+     book attributes to please everyone on Earth
+   - Definition of either server-server or client-server
+     phone book update or transfer protocols
+
+
+
+
+
+Zorn                                                    FORMFEED[Page 1]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+3.  Rationale for LDAP Usage
+
+The attributes are defined in terms that  are  directly  usable  by  the
+Lightweight Directory Access Protocol (LDAP) for several reasons:
+
+   - Extensibility
+   - Flexibility
+   - Integration with LDAP-based Directory
+
+Extensibility  is important because phone books are living documents; as
+such, it is unlikely that all the  semantic  requirements  of  arbitrary
+Internet  service  providers  (ISPs)  would be met by a fixed scheme, no
+matter how well thought out.  Phone book designers must be free to  cre-
+ate  new attributes in an well-understood fashion to meet changing busi-
+ness needs.
+
+Flexibility is required of the attribute definition syntax for  many  of
+the  same reasons that semantic extensibility is necessary. If we assume
+that phone book designers may need to  define  attributes  of  arbitrary
+type, the syntax chosen must be able to represent these objects cleanly.
+The meta-language used  to  describe  LDAP  attributes  fits  this  bill
+nicely,  since  it  can  be used to unambiguously describe virtually any
+data type.
+
+Integration with LDAP-based directories: although it  is  unlikely  that
+phone books will be stored in the directory due to performance consider-
+ations, the creation of an LDAP schema describing phone book  attributes
+leaves  that  option  open,  with  relatively  little incremental effort
+required to implement it.
+
+
+4.  Specification of Requirements
+
+In this document, the key words "MAY", "MUST,  "MUST  NOT",  "optional",
+"recommended",  "SHOULD",  and  "SHOULD  NOT",  are to be interpreted as
+described in [1].
+
+
+5.  Object definitions
+
+This document includes definitions of the following objects:
+
+   - Phone Book class
+   - Provider class
+   - POP class
+   - Support class
+   - Setup class
+
+
+
+
+Zorn                                                    FORMFEED[Page 2]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+5.1.  Phone Book Class
+
+5.1.1.  Description
+   The Phone Book class is the basic container for phone  book  entries.
+   It always contains a phone book version number (applying to the phone
+   book as a whole), a phone book name and one or more pointers (in  the
+   form of Distinguished Names) to POP objects.  A Phone Book object may
+   also  contain  multiple  pointers  to  Provider  and  Setup   objects
+   (described  below).   These  pointers  also  take the form of Distin-
+   guished Names.
+
+5.1.2.  Syntax
+   ( phoneBookClass 1
+         NAME 'phoneBookClass'
+         SUP top
+         STRUCTURAL
+         MUST (
+              phoneBookVersion $ phoneBookName $ popPointer
+         )
+         MAY (
+              setupPointer $ providerPointer $ supportPointer
+         )
+   )
+
+5.2.  Provider Class
+
+5.2.1.  Description
+   The Provider class contains  attributes  pertaining  to  the  general
+   business  operations  of  a  given  network  service  provider.   The
+   attributes include such things as telephone number, mailing  address,
+   etc.,  as  well  as  URLs  for  e-mail  and a World Wide Web site.  A
+   Provider object may also contain a pointer (in the form of a  Distin-
+   guished Name) to support information.
+
+5.2.2.  Syntax
+   ( providerClass 1
+        NAME 'providerClass'
+        SUP top
+        STRUCTURAL
+        MAY (
+             providerName $ providerIcon $ wwwURL
+             $ generalMailtoURL $ billingMailtoURL
+             $ businessCategory $ x121Address $ registeredAddress
+             $ destinationIndicator $ preferredDeliveryMethod
+             $ telexNumber $ teletexTerminalIdentifier
+             $ telephoneNumber $ internationalISDNNumber
+             $ facsimileTelephoneNumber $ street $ postOfficeBox
+             $ postalCode $ postalAddress $ physicalDeliveryOfficeName
+
+
+
+Zorn                                                    FORMFEED[Page 3]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+             $ description $ supportPointer
+        )
+   )
+
+5.3.  POP Class
+
+5.3.1.  Description
+   The  POP  class  contains  attributes  relevant to individual network
+   points of presence (POPs).  The required attributes  are  addrFamily,
+   address,  media and entryVersion.  The media attribute represents the
+   media types supported by the POP, while the entryVersion attribute is
+   a  monotonically-increasing integer which should be incremented when-
+   ever the object is modified.
+
+5.3.2.  Syntax
+   ( popClass 1
+        NAME 'popClass'
+        SUP top
+        PARENT (
+             country $ organization $ organizationalunit
+             $ locality $ container
+        )
+        STRUCTURAL
+        MUST (
+             addrFamily $ address $ media $ entryVersion
+        )
+        MAY (
+             encodingType $ modemProtocols
+             $ isdnProtocols $ city $ region $ country
+             $countryCode $ minBitsPerSecond
+             $ maxBitsPerSecond $ areaCode
+             $ unicastRoutingProtocols
+             $ multicastRoutingProtocols $ dialScriptType
+             $ dialScript $ pricing $ vpnProtocols $ popProperties
+             $ popSetupPointer $ popSupportPointer $ popProviderPointer
+        )
+   )
+
+5.4.  Support Class
+
+5.4.1.  Description
+   The Support class includes those attributes that are pertinent to the
+   provision of customer support for a POP or provider.
+
+5.4.2.  Syntax
+   ( supportClass 1
+        NAME 'supportClass'
+        SUP top
+
+
+
+Zorn                                                    FORMFEED[Page 4]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+        PARENT (
+             country $ organization $ organizationalunit
+             $ locality $ container
+        )
+        STRUCTURAL
+        MAY (
+             supportTelephoneNumber $ supportLanguages
+             $ supportMailtoURL
+        )
+   )
+
+5.5.  Setup Class
+
+5.5.1.  Description
+   The Setup class includes attributes which describe services which may
+   change from provider to provider or even from POP to  POP.   Many  of
+   the  values  contained  in these attributes may be available by other
+   means (e.g., DHCP), but others may not.
+
+5.5.2.  Syntax
+   ( setupClass 1
+        NAME 'setupClass'
+        SUP top
+        PARENT (
+             country $ organization $ organizationalunit
+             $ locality $ container
+        )
+        STRUCTURAL
+        MAY (
+             dnsServerAddress $ nntpServerName $ smtpServerName
+             $ popServerName $ imapServerName $ wwwProxyServerName
+             $ ftpProxyServerName $ winsockProxyServerName
+             $ defaultGatewayAddress $ userNamePrefix $ userNameSuffix
+        )
+   )
+
+6.  Attribute Definitions
+
+6.1.  New attributes defined for the Phone Book Class
+
+6.1.1.  Phone Book Version
+
+6.1.1.1.  Description
+   The phoneBookVersion attribute is an integer representing the version
+   of  the  phone  book;  it is a monotonically increasing counter which
+   should be incremented each time the phone  book  is  modified.   This
+   attribute  can  be  used  by  a  server  to help decide what (if any)
+   actions are required to bring a client's phone book up to date.   For
+
+
+
+Zorn                                                    FORMFEED[Page 5]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+   example,  the  client can, at connect time, send an update request to
+   the server including in the request the version number of its current
+   phone  book.   If  the client's phone book version is not the same as
+   the server's current phone book version, the server can  easily  take
+   appropriate  action,  e.g.,  reply with a URL pointing to a file con-
+   taining the differences between the client and server phone books.
+
+6.1.1.2.  Syntax
+   ( phoneBook phoneBookClass 1
+         NAME 'phoneBookVersion'
+         DESC 'Version number of the phone book'
+         EQUALITY IntegerMatch
+         SYNTAX 'INTEGER'
+         SINGLE-VALUE
+   )
+
+6.1.2.  Phone Book Name
+
+6.1.2.1.  Description
+   The phoneBookName attribute is an arbitrary  string  assigned  as  an
+   identifier for a phone book.
+
+6.1.2.2.  Syntax
+   ( phoneBook phoneBookClass 2
+         NAME 'phoneBookName'
+         DESC 'The name of the phone book'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX PrintableString
+         SINGLE-VALUE
+   )
+
+6.1.3.  POP Pointer
+
+6.1.3.1.  Description
+   The  popPointer  attribute  is a Distinguished Name which points to a
+   POP object for this phone book.
+
+6.1.3.2.  Syntax
+   ( phoneBook phoneBookClass 3
+         NAME 'popPointer'
+         DESC 'A pointer to one or more POP objects'
+         EQUALITY distinguishedNameMatch
+         SYNTAX 'DN'
+   )
+
+
+
+
+
+
+
+Zorn                                                    FORMFEED[Page 6]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.1.4.  Setup Pointer
+
+6.1.4.1.  Description
+   The setupPointer attribute is a Distinguished Name which points to  a
+   Setup object for this phone book.
+
+6.1.4.2.  Syntax
+   ( phoneBook phoneBookClass 4
+         NAME 'setupPointer'
+         DESC 'A pointer to a Setup object for this phone book'
+         EQUALITY distinguishedNameMatch
+         SYNTAX 'DN'
+         SINGLE-VALUE
+   )
+
+6.1.5.  Provider Pointer
+
+6.1.5.1.  Description
+   The providerPointer attribute is a Distinguished Name which points to
+   a Provider object for this phone book.
+
+6.1.5.2.  Syntax
+   ( phoneBook phoneBookClass 5
+         NAME 'providerPointer'
+         DESC 'A pointer to a Provider object for this phonebook'
+         EQUALITY distinguishedNameMatch
+         SYNTAX 'DN'
+         SINGLE-VALUE
+   )
+
+6.1.6.  Support Pointer
+
+6.1.6.1.  Description
+   The supportPointer attribute is a Distinguished Name which points  to
+   a Support object for this phone book.
+
+6.1.6.2.  Syntax
+   ( phoneBook phoneBookClass 6
+         NAME 'supportPointer'
+         DESC 'A pointer to a Support object for this phone book'
+         EQUALITY distinguishedNameMatch
+         SYNTAX 'DN'
+         SINGLE-VALUE
+   )
+
+
+
+
+
+
+
+Zorn                                                    FORMFEED[Page 7]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.2.  New attributes defined for the Provider Class [3]
+
+6.2.1.  Provider Name
+
+6.2.1.1.  Description
+   The  providerName  attribute  is  a string containing the name of the
+   provider (e.g., "BIGNET Corporation").
+
+6.2.1.2.  Syntax
+   ( phoneBook providerClass 1
+         NAME 'providerName'
+         DESC 'The name of the provider'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX 'PrintableString'
+         SINGLE-VALUE
+   )
+
+6.2.2.  Provider Icon
+
+6.2.2.1.  Description
+   The providerIcon attribute contains a JPEG graphic which may be  used
+   for 'branding' phone book entries or displayed when dialing.
+
+6.2.2.2.  Syntax
+   ( phoneBook providerClass 2
+         NAME 'providerIcon'
+         DESC 'An icon in JPEG format'
+         EQUALITY octetStringMatch
+         SYNTAX 'JPEG'
+         SINGLE-VALUE
+   )
+
+6.2.3.  Provider's World Wide Web URL
+
+6.2.3.1.  Description
+   The  wwwURL  attribute  contains a Uniform Resource Locator (URL) for
+   the provider's Web site, for example, http://www.uu.net.
+
+6.2.3.2.  Syntax
+   ( phoneBook providerClass 3
+         NAME 'wwwURL'
+         DESC 'A Uniform Resource Locator for the provider's home page'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+
+
+
+
+Zorn                                                    FORMFEED[Page 8]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.2.4.  Provider's Main Email Address
+
+6.2.4.1.  Description
+   The generalMailtoURL attribute contains a URL for the provider's main
+   email  address, for example, mailto://contact@uu.net.  This URL could
+   be used for general correspondence, complaints, etc.
+
+6.2.4.2.  Syntax
+   ( phoneBook providerClass 4
+         NAME 'generalMailtoURL'
+         DESC 'A Uniform Resource Locator for the provider's
+               email address'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.2.5.  Billing Inquiry Email Address
+
+6.2.5.1.  Description
+   The billingMailtoURL attribute contains  a  URL  for  the  provider's
+   billing  support email address, for example, mailto://billing@uu.net.
+   This URL could be used to for correspondence  regarding  billing  and
+   payment issues.
+
+6.2.5.2.  Syntax
+   ( phoneBook providerClass 6
+         NAME 'billingMailtoURL'
+         DESC 'A Uniform Resource Locator for the email
+               address to be used for billing inquiries'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.3.  New attributes defined for the POP Class
+
+6.3.1.  Address Family
+
+6.3.1.1.  Description
+   The  addrFamily  attribute is an integer which represents the address
+   family to which the value in the address attribute  (below)  belongs.
+   For  POPs  offering  dial-up network access, the addrFamily attribute
+   will generally contain a value for a telephone network based  address
+   family.   The current list of IANA-assigned address family numbers is
+   reproduced below for convenience; for an up-to-date list, see [2].
+
+      Number  Description
+
+
+
+Zorn                                                    FORMFEED[Page 9]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+      ------  --------------------------------------
+      0       Reserved
+      1       IP (IP version 4)
+      2       IP6 (IP version 6)
+      3       NSAP
+      4       HDLC (8-bit multidrop)
+      5       BBN 1822
+      6       802 (includes all 802 media
+                   plus Ethernet "canonical format")
+      7       E.163
+      8       E.164 (SMDS, Frame Relay, ATM)
+      9       F.69 (Telex)
+      10      X.121 (X.25, Frame Relay)
+      11      IPX
+      12      Appletalk
+      13      Decnet IV
+      14      Banyan Vines
+      65535   Reserved
+
+6.3.1.2.  Syntax
+   ( phoneBook popClass 1
+         NAME 'addrFamily'
+         SUP top
+         DESC 'The address family to which the address attribute
+              below belongs'
+         EQUALITY integerMatch
+         SYNTAX INTEGER
+         SINGLE-VALUE
+   )
+
+6.3.2.  Address
+
+6.3.2.1.  Description
+   The address attribute in a binary quantity representing  the  address
+   of  the  POP.   For POPs offering dial-up network access, the address
+   attribute will generally contain an IA5 string representing  a  tele-
+   phone  number,  formatted  in  standard  fashion  [4]  (e.g. "+ 1 234
+   5678").
+
+6.3.2.2.  Syntax
+   ( phoneBook popClass 2
+         NAME 'address'
+         SUP top
+         DESC 'A network address for this POP'
+         EQUALITY bitStringMatch
+         SYNTAX 'BitString'
+         SINGLE-VALUE
+   )
+
+
+
+Zorn                                                   FORMFEED[Page 10]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.3.3.  Media
+
+6.3.3.1.  Description
+   The media attribute describes the types of media  supported  by  this
+   POP.  The following values are defined:
+
+      Type            Value
+      -----------     -----
+      Modem           1
+      ISDN            2
+      ATM             3
+      Frame Relay     4
+      X.25            5
+      SMDS            6
+
+6.3.3.2.  Syntax
+   ( phoneBook popClass 3
+         NAME 'media'
+         SUP top
+         DESC 'The types of media supported by this POP'
+         EQUALITY integerMatch
+         SYNTAX INTEGER
+   )
+
+6.3.4.  Entry Version
+
+6.3.4.1.  Description
+   The  entryVersion attribute is an integer representing the version of
+   the POP object; it is a monotonically increasing counter which should
+   be  incremented each time the object is modified.  This attribute may
+   be useful in merging and updating phone books.
+
+6.3.4.2.  Syntax
+   ( phoneBook popClass 4
+         NAME 'entryVersion'
+         DESC 'version number of POP object'
+         EQUALITY IntegerMatch
+         SYNTAX 'INTEGER'
+         SINGLE-VALUE
+   )
+
+6.3.5.  Encoding Type
+
+6.3.5.1.  Description
+   The encodingType attribute is an integer  representing  the  type  of
+   encoding  used  within  a  specific  address  family The value '0' is
+   reserved and represents the native encoding.
+
+
+
+
+Zorn                                                   FORMFEED[Page 11]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.3.5.2.  Syntax
+   ( phoneBook popClass 5
+         NAME 'entryVersion'
+         DESC 'the type of encoding used within this address family'
+         EQUALITY IntegerMatch
+         SYNTAX 'INTEGER'
+         SINGLE-VALUE
+   )
+
+6.3.6.  Modem Protocols
+
+6.3.6.1.  Description
+   The modemProtocols attribute is a bit string representing  the  modem
+   protocols  supported  by  the  access  devices that can be reached at
+   address.  The initially defined modem protocol flags  are  listed  in
+   the  table  below.   All  'Position'  values  are in hexadecimal, all
+   'Speed' values are in bits per second.  If the bit in  'Position'  is
+   1,  'Protocol'  is  supported;  otherwise, 'Protocol' is unsupported.
+   For example, the string 00110001 (0x31) means that V.21, V.32bis  and
+   V.34 are supported while V.22, V.29 and V.32 are not.
+
+      Name Position   Duplex   Speed   Protocol
+      ---- --------   ------   -----   -------------
+      V21  0x0001      Full    300     ITU-T V.21
+      V22  0x0002      Full    1200    ITU-T V.22
+      V29  0x0004      Half    9600    ITU-T V.29
+      V32  0x0008      Full    9600    ITU-T V.32
+      V32b 0x0010      Full    14.4k   ITU-T V.32bis
+      V34  0x0020      Full    28.8k   ITU-T V.34
+      VF   0x0040      Full            V.FAST
+
+   Question: Are these flags useful?  If so, are there more that need to
+   be added?
+
+6.3.6.2.  Syntax
+   ( phoneBook popClass 6
+         NAME 'modemProtocols'
+         DESC 'A bit string representing the modem
+              protocols supported by the access devices at
+              this POP'
+         EQUALITY bitStringMatch
+         SYNTAX 'BitString'
+         SINGLE-VALUE
+   )
+
+
+
+
+
+
+
+Zorn                                                   FORMFEED[Page 12]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.3.7.  ISDN Protocols
+
+6.3.7.1.  Description
+   The isdnProtocols attribute is a bit  string  representing  the  ISDN
+   protocols  supported  by  the  access  devices that can be reached at
+   address.  The initially defined ISDN  protocols  are  listed  in  the
+   table below.  All 'Value. values are in hexadecimal, all 'Speed' val-
+   ues are in bits per second.  If the bit in 'Position' is  1,  'Proto-
+   col'  is  supported; otherwise, 'Protocol' is unsupported.  For exam-
+   ple, the string 00001101 (0x0d) means that V.120 is supported at both
+   56K and 64K bps while V.110 is supported only at 19.2K bps.
+
+      Name   Value    Speed    Meaning
+      -----  ------   -----    -----------
+      V110L  0x0001   19.2k    ITU-T V.110
+      V110H  0x0002   38.4k    ITU-T V.110
+      V120L  0x0004   56k      ITU-T V.120
+      V120H  0x0008   64k      ITU-T V.120
+
+      Question: Are the ISDN flags useful?  If so, should there be more?
+
+6.3.7.2.  Syntax
+   ( phoneBook popClass 7
+         NAME 'isdnProtocols'
+         DESC 'A bit string representing the ISDN flavors
+               supported by the access devices at this POP'
+         EQUALITY bitStringMatch
+         SYNTAX 'BitString'
+         SINGLE-VALUE
+   )
+
+6.3.8.  City
+
+6.3.8.1.  Description
+   The city attribute contains the name of the city in which the POP  is
+   located  (not  the  city(s)  from  which  it is accessible by a local
+   call).
+
+6.3.8.2.  Syntax
+   ( phoneBook popClass 8
+         NAME 'city'
+         DESC 'The name of the city in which this POP is located'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String {64}'
+         SINGLE-VALUE
+   )
+
+
+
+
+
+Zorn                                                   FORMFEED[Page 13]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.3.9.  Region
+
+6.3.9.1.  Description
+   The region attribute contains the name of the region in which the POP
+   is  located.  In the United States, this would be the name of a state
+   or (for Washington, D.C.)  administrative district.  In  other  coun-
+   tries, it might be the name of a province, parish or county.
+
+6.3.9.2.  Syntax
+   ( phoneBook popClass 9
+         NAME 'region'
+         DESC 'The name of the region in which this POP is located'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String {64}'
+         SINGLE-VALUE
+   )
+
+6.3.10.  Country
+
+6.3.10.1.  Description
+   The  country  attribute contains the name of the country in which the
+   POP is located.  The country name may be abbreviated (e.g., "USA" for
+   the  United  States of America or "UK" for the United Kingdom) but if
+   abbreviations are used the usage must be consistent  within  a  given
+   phone book.
+
+6.3.10.2.  Syntax
+   ( phoneBook popClass 10
+         NAME 'country'
+         DESC 'The name of the country in which this POP is located'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String {64}'
+         SINGLE-VALUE
+   )
+
+6.3.11.  Country Code
+
+6.3.11.1.  Description
+   The  countryCode attribute indicates the international dialing prefix
+   for the country in which the POP is located.
+
+6.3.11.2.  Syntax
+   ( phoneBook popClass 11
+         NAME 'countryCode'
+         DESC 'ITU dialing code for the country in which
+              this POP is located'
+         EQUALITY integerMatch
+         SYNTAX 'INTEGER'
+
+
+
+Zorn                                                   FORMFEED[Page 14]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+         SINGLE-VALUE
+   )
+
+6.3.12.  Minimum Data Rate
+
+6.3.12.1.  Description
+   The minBitsPerSecond attribute indicates the minimum  data  rate  (in
+   bits/second) supported by the access devices at the POP.
+
+6.3.12.2.  Syntax
+   ( phoneBook popClass 12
+         NAME 'minBitsPerSecond'
+         DESC 'Minimum data rate supported by this POP'
+               in bits/second'
+         EQUALITY integerMatch
+         SYNTAX 'INTEGER'
+         SINGLE-VALUE
+   )
+
+6.3.13.  Maximum Data Rate
+
+6.3.13.1.  Description
+   The  maxBitsPerSecond  attribute  indicates the maximum data rate (in
+   bits/second) supported by the access devices at the POP.
+
+6.3.13.2.  Syntax
+   ( phoneBook popClass 13
+         NAME 'maxBitsPerSecond'
+         DESC 'Maximum data rate supported by this POP,
+               in bits/second'
+         EQUALITY integerMatch
+         SYNTAX 'INTEGER'
+         SINGLE-VALUE
+   )
+
+6.3.14.  Area Code
+
+6.3.14.1.  Description
+   The areaCode attribute contains the area or city  code  component  of
+   the  telephone  number in the 'address' attribute (if any) associated
+   with this POP.
+
+6.3.14.2.  Syntax
+   ( phoneBook popClass 14
+         NAME 'areaCode'
+         DESC 'Area or city code component of the telephone
+               number in the accessTelephoneNumber attribute
+               associated with this POP'
+
+
+
+Zorn                                                   FORMFEED[Page 15]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+         EQUALITY integerMatch
+         SYNTAX INTEGER
+         SINGLE-VALUE
+   )
+
+6.3.15.  Unicast Routing Protocols
+
+6.3.15.1.  Description
+   The unicastRoutingProtocols attribute is a bitstring representing the
+   unicast  routing  protocols  supported  by  this  POP.  The initially
+   defined values are listed in the table below.  If the bit  in  'Posi-
+   tion'  is 1, 'Protocol' is supported; otherwise, 'Protocol' is unsup-
+   ported.
+
+      Position  Protocol
+      --------  --------
+      0x0001    Static
+      0x0002    RIP v1
+      0x0004    RIP v2
+      0x0008    OSPF
+      0x0010    IS-IS
+      0x0020    IGRP
+      0x0040    EIGRP
+      0x0080    BGP
+
+6.3.15.2.  Syntax
+   ( phoneBook popClass 15
+         NAME 'unicastRoutingProtocols'
+         DESC 'A bit string representing the unicast routing
+               protocols supported by the access devices at this POP'
+         EQUALITY bitStringMatch
+         SYNTAX 'BitString'
+         SINGLE-VALUE
+   )
+
+6.3.16.  Multicast Routing Protocols
+
+6.3.16.1.  Description
+   The multicastRoutingProtocols attribute is a  bitstring  representing
+   the multicast routing protocols supported by this POP.  The initially
+   defined values are listed in the table below.  If the bit  in  'Posi-
+   tion'  is 1, 'Protocol' is supported; otherwise, 'Protocol' is unsup-
+   ported.
+
+   Position  Protocol
+   --------  ----------
+   0x0001    Static
+   0x0002    DVMRP
+
+
+
+Zorn                                                   FORMFEED[Page 16]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+   0x0004    SM-PIM
+   0x0008    DM-PIM
+   0x0010    CBT v1
+   0x0020    CBT v2
+   0x0040    BGMP
+   0x0080    Proxy IGMP
+
+6.3.16.2.  Syntax
+   ( phoneBook popClass 15
+         NAME 'multicastRoutingProtocols'
+         DESC 'A bit string representing the multicast routing
+               protocols supported by the access devices at this POP'
+         EQUALITY bitStringMatch
+         SYNTAX 'BitString'
+         SINGLE-VALUE
+   )
+
+6.3.17.  Dial Script Type
+
+6.3.17.1.  Description
+   The dialScript attribute indicates the type of  dialing  script  that
+   should be used when connecting to this POP.
+
+   Question: What kinds of scripts are there?
+
+6.3.17.2.  Syntax
+   ( phoneBook popClass 16
+         NAME 'dialScriptType'
+         DESC 'Type of the dial script to be used'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String {64}'
+         SINGLE-VALUE
+   )
+
+6.3.18.  Dialing Script
+
+6.3.18.1.  Description
+   The  dialScript attribute contains the dialing script to be used when
+   connecting to this POP.
+
+6.3.18.2.  Syntax
+   ( phoneBook popClass 17
+         NAME 'dialScript'
+         DESC 'The dial script to be used'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+
+
+Zorn                                                   FORMFEED[Page 17]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.3.19.  Pricing Information
+
+6.3.19.1.  Description
+   The pricing attribute is  a  free-form  string  representing  pricing
+   information  for  this  POP.  It may be anything from a simple string
+   indicating relative expense (e.g., "$$$$" for a very  expensive  POP)
+   to  a paragraph describing time-of-day and other differential pricing
+   variables.
+
+6.3.19.2.  Syntax
+   ( phoneBook popClass 18
+         NAME 'pricing'
+         DESC 'Pricing information for this POP'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX 'IA5String'
+   )
+
+6.3.20.  Tunneling Protocols
+
+6.3.20.1.  Description
+   The tunnelingProtocols attribute is a bitstring representing the tun-
+   neling protocols supported by this POP.  The initially defined values
+   are listed in the table below.  If the bit in 'Position' is 1,  'Pro-
+   tocol' is supported; otherwise, 'Protocol' is unsupported.
+
+      Position    Protocol
+      --------    ------------------
+      0x0001      PPTP
+      0x0002      L2F
+      0x0004      L2TP
+      0x0008      ATMP
+      0x0010      VTP
+      0x0020      IP AH Tunnel Mode
+      0x0040      IP-IP
+      0x0080      Minimal IP-IP
+      0x0100      IP ESP Tunnel Mode
+      0x0200      GRE
+      0x0400      Bay DVS
+
+6.3.20.2.  Syntax
+   ( phoneBook popClass 21
+         NAME 'tunnelingProtocols'
+         DESC 'A bit string representing the tunneling protocols
+               supported by the access devices at this POP'
+         EQUALITY bitStringMatch
+         SYNTAX 'BitString'
+         SINGLE-VALUE
+   )
+
+
+
+Zorn                                                   FORMFEED[Page 18]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.3.21.  POP Properties
+
+6.3.21.1.  Description
+   The  popProperties attribute is a bitstring representing a variety of
+   Boolean properties characterizing this POP.   The  initially  defined
+   properties  are  listed in the table below.  If the bit in 'Position'
+   is 1, 'Property' is supported; otherwise, 'Property' is  unsupported.
+
+      Position     Property
+      --------     ----------------------
+      0x0001       Multilink
+      0x0002       Mobile IP
+      0x0004       Multicast Reception
+      0x0008       Multicast Transmission
+
+6.3.21.2.  Syntax
+   ( phoneBook popClass 22
+         NAME 'popProperties'
+         DESC 'A bit string representing a variety of Boolean
+               properties characterizing this POP'
+         EQUALITY bitStringMatch
+         SYNTAX 'BitString'
+         SINGLE-VALUE
+   )
+
+6.3.22.  POP Setup Pointer
+
+6.3.22.1.  Description
+   The popSetupPointer attribute is a Distinguished Name which points to
+   a Setup object for this POP.
+
+6.3.22.2.  Syntax
+   ( phoneBook popClass 23
+         NAME 'popSetupPointer'
+         DESC 'A pointer to a Setup object for this POP'
+         EQUALITY distinguishedNameMatch
+         SYNTAX 'DN'
+         SINGLE-VALUE
+   )
+
+6.3.23.  POP Support Pointer
+
+6.3.23.1.  Description
+   The popSupportPointer attribute is a Distinguished Name which  points
+   to a Support object for this POP.
+
+
+
+
+
+
+Zorn                                                   FORMFEED[Page 19]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.3.23.2.  Syntax
+   ( phoneBook popClass 25
+         NAME 'popSupportPointer'
+         DESC 'A pointer to a Support object for this POP'
+         EQUALITY distinguishedNameMatch
+         SYNTAX 'DN'
+         SINGLE-VALUE
+   )
+
+6.3.24.  POP Provider Pointer
+
+6.3.24.1.  Description
+   The popProviderPointer attribute is a Distinguished Name which points
+   to a Provider object for this POP.
+
+6.3.24.2.  Syntax
+   ( phoneBook popClass 24
+         NAME 'popProviderPointer'
+         DESC 'A pointer to a Provider object for this POP'
+         EQUALITY distinguishedNameMatch
+         SYNTAX 'DN'
+         SINGLE-VALUE
+   )
+
+6.4.  New attributes defined for the Support Class
+
+6.4.1.  Support Telephone Number
+
+6.4.1.1.  Description
+   The supportTelephoneNumber attribute contains a number  that  may  be
+   called  to reach the support center for a particular provider or POP.
+   This attribute is basically a string and should  contain  the  entire
+   telephone number in international form, e.g., "+1 425 838 8080".
+
+6.4.1.2.  Syntax
+   ( phoneBook supportClass 1
+         NAME 'supportTelephoneNumber'
+         SUP TelephoneNumber
+         DESC 'The number to be dialed to contact customer
+               support for this POP or provider'
+         SINGLE-VALUE
+   )
+
+6.4.2.  Support Languages
+
+
+
+
+
+
+
+Zorn                                                   FORMFEED[Page 20]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.4.2.1.  Description
+   The  supportLanguages  attribute  contains  a comma-separated list of
+   languages spoken by the staff at the support center  at  supportTele-
+   phoneNumber.
+
+   Question:  Is there a standard way to represent languages (like coun-
+   try codes for phone numbers)?
+
+6.4.2.2.  Syntax
+   ( phoneBook supportClass 2
+         NAME 'supportLanguages'
+         DESC 'A comma-separated list of languages spoken by
+               support personnel for this POP or provider'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String'
+   )
+
+6.4.3.  Support Email Address
+
+6.4.3.1.  Description
+   The supportMailtoURL attribute contains a URL for the provider's cus-
+   tomer  support  email  address, for example, mailto://support@uu.net.
+   This URL could be used to contact customer support personnel  regard-
+   ing non-urgent issues.
+
+6.4.3.2.  Syntax
+   ( phoneBook supportClass 3
+         NAME 'supportMailtoURL'
+         DESC 'A Uniform Resource Locator for the
+               provider's customer support email address'
+         EQUALITY caseExactIA5Match
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.5.  New attributes defined for the Setup class
+
+6.5.1.  DNS Server Address
+
+6.5.1.1.  Description
+   The  dnsServerAddress  attribute  represents  the  IP  address of the
+   Domain Name Service (DNS) server which should be used when  connected
+   to  this  POP.  The address is represented in the form of a string in
+   dotted-decimal notation (e.g., 192.168.101.1).
+
+
+
+
+
+
+
+Zorn                                                   FORMFEED[Page 21]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.5.1.2.  Syntax
+   ( phoneBook setupClass 1
+         NAME 'dnsServerAddress'
+         DESC 'Domain Name Server IP address (in dotted decimal
+               notation)'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX 'IA5String {128}'
+         SINGLE-VALUE
+   )
+
+6.5.2.  NNTP Server Name
+
+6.5.2.1.  Description
+   The nntpServerName attribute contains the fully qualified domain name
+   (FQDN)  of  the  Network  News  Transfer Protocol (NNTP) server which
+   should be used when connected to this POP.
+
+6.5.2.2.  Syntax
+   ( phoneBook setupClass 2
+         NAME 'nntpServerName'
+         DESC 'Name of an NNTP server'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTRINGS caseIgnoreIA5SubstringsMatch
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.5.3.  SMTP Server Name
+
+6.5.3.1.  Description
+   The smtpServerName attribute contains the FQDN  of  the  Simple  Mail
+   Transfer  Protocol  (SMTP) server which should be used when connected
+   to this POP.
+
+6.5.3.2.  Syntax
+   ( phoneBook setupClass 3
+         NAME 'smtpServerName'
+         DESC 'Name of an SMTP mail server'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTRINGS caseIgnoreIA5SubstringsMatch
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.5.4.  POP3 Server Name
+
+
+
+
+
+
+Zorn                                                   FORMFEED[Page 22]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.5.4.1.  Description
+   The popServerName attribute contains the FQDN of the Post Office Pro-
+   tocol (POP) server which should be used when connected to this POP.
+
+6.5.4.2.  Syntax
+   ( phoneBook setupClass 4
+         NAME 'popServerName'
+         DESC 'Name of an POP3 mail server'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTRINGS caseIgnoreIA5SubstringsMatch
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.5.5.  IMAP Server Name
+
+6.5.5.1.  Description
+   The  imapServerName  attribute contains the FQDN of the Internet Mail
+   Access Protocol (IMAP) server which should be used when connected  to
+   this POP.
+
+6.5.5.2.  Syntax
+   ( phoneBook setupClass 5
+         NAME 'imapServerName'
+         DESC 'Name of an IMAP4 server'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTRINGS caseIgnoreIA5SubstringsMatch
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.5.6.  WWW Proxy
+
+6.5.6.1.  Description
+   The  wwwProxyServerName attribute contains the FQDN of the World Wide
+   Web (WWW) proxy server which should be used when  connected  to  this
+   POP.
+
+6.5.6.2.  Syntax
+   ( phoneBook setupClass 6
+         NAME 'wwwProxyServerName'
+         DESC 'Name of an WWW Proxy'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTRINGS caseIgnoreIA5SubstringsMatch
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+
+
+
+Zorn                                                   FORMFEED[Page 23]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+6.5.7.  FTP Proxy
+
+6.5.7.1.  Description
+   The ftpProxyServerName attribute contains the FQDN of the File Trans-
+   fer Protocol (FTP) proxy server which should be used  when  connected
+   to this POP.
+
+6.5.7.2.  Syntax
+   ( phoneBook setupClass 7
+         NAME 'ftpProxyServerName'
+         DESC 'Name of an FTP Proxy'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTRINGS caseIgnoreIA5SubstringsMatch
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.5.8.  Winsock Proxy
+
+6.5.8.1.  Description
+   ThewinsockProxyServerName  attribute contains the FQDN of the Windows
+   Socket (Winsock) proxy server which should be used when connected  to
+   this POP.
+
+6.5.8.2.  Syntax
+   ( phoneBook setupClass 8
+         NAME 'winsockProxyServerName'
+         DESC 'Name of an Winsock Proxy'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTRINGS caseIgnoreIA5SubstringsMatch
+         SYNTAX 'IA5String'
+         SINGLE-VALUE
+   )
+
+6.5.9.  Default Gateway Address
+
+6.5.9.1.  Description
+   The  defaulttGatewayAddress  attribute  represents the address of the
+   default gateway which should be used when connected to this POP.  The
+   address  is  represented  in  the  form of a string in dotted-decimal
+   notation (e.g., 192.168.101.1).
+
+6.5.9.2.  Syntax
+   ( phoneBook setupClass 8
+         NAME 'defaultGatewayAddress'
+         DESC 'Default Gateway IP address (in dotted decimal notation)'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX 'IA5String {128}'
+
+
+
+Zorn                                                   FORMFEED[Page 24]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+         SINGLE-VALUE
+   )
+
+6.5.10.  User Name Suffix
+
+6.5.10.1.  Description
+   The userNameSuffix attribute represents a string which should be con-
+   catenated to the base username.  For example, if the base username is
+   "userA" and the value of this attribute is "@bigco.com", the  result-
+   ing  augmented  username  would be "userA@bigco.com".  An intelligent
+   dialer may concatenate the string automatically.  Note that both  the
+   userNameSuffix  and  the userNamePrefix (below) may be applied to the
+   same base username.
+
+6.5.10.2.  Syntax
+   ( phoneBook setupClass 9
+         NAME 'userNameSuffix'
+         DESC 'User Name suffix'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX 'IA5String {128}'
+         SINGLE-VALUE
+   )
+
+6.5.11.  User Name Prefix
+
+6.5.11.1.  Description
+   The userNamePrefix attribute represents a string to  which  the  base
+   username  should  be concatenated.  For example, if the base username
+   is "userB" and the value of this attribute is "BIGCO/" the  resulting
+   augmented username would be "BIGCO/userB".  An intelligent dialer may
+   perform the concatenation automatically.  Note that  both  the  user-
+   NameSuffix  (above) and the userNamePrefix may be applied to the same
+   base username.
+
+6.5.11.2.  Syntax
+   ( phoneBook setupClass 10
+         NAME 'userNamePrefix'
+         DESC 'User Name prefix'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX 'IA5String {128}'
+         SINGLE-VALUE
+   )
+
+
+7.  Security Considerations
+
+None (submissions welcome).
+
+
+
+
+Zorn                                                   FORMFEED[Page 25]
+
+
+
+
+
+Internet-Draft           LDAP Phone Book Schema            November 1997
+
+
+8.  References
+
+[1]  Bradner, S., "Key words for use in  RFCs  to  Indicate  Requirement
+     Levels", BCP 14, RFC 2119, March 1997
+
+[2]  Reynolds,  J.  and Postel, J., "ASSIGNED NUMBERS", STD 2, RFC 1700,
+     October 1994
+
+[3]  The rest of the attributes in this class are described in RFC 1274
+
+[4]  ITU Rec. E.123, "Notation for national and international  telephone
+     numbers", 1988
+
+
+9.  Acknowledgements
+
+Thanks    to    Bernard    Aboba   (aboba@internaut.com),   Jay   Farhat
+(jfarhat@ipass.com),  Butch  Anton  (butch@ipass.com),  Quentin   Miller
+(quentinm@microsoft.com),  and  Ken Crocker (kcrocker@microsoft.com) for
+salient input and review.
+
+
+10.  Author's Address
+
+Questions about this memo can be directed to:
+
+   Glen Zorn
+   Microsoft Corporation
+   One Microsoft Way
+   Redmond, Washington 98052
+
+   Phone:  +1 425 703 1559
+   E-Mail: glennz@microsoft.com
+
+
+11.  Expiration Date
+
+This  memo  is  filed  as  draft-ietf-roamops-ldap-phonebook-01.txt  and
+expires on September 15, 1998.
+
+
+
+
+
+
+
+
+
+
+
+
+Zorn                                                   FORMFEED[Page 26]
+
+

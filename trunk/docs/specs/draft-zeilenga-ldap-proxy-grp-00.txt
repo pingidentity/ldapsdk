@@ -1,0 +1,283 @@
+
+
+
+
+
+
+INTERNET-DRAFT                                      Kurt D. Zeilenga
+Intended Category: Experimental                     OpenLDAP Foundation
+Expires: 13 May 2002                                13 November 2001
+
+
+                            LDAPv3 Proxy Group
+                  <draft-zeilenga-ldap-proxy-grp-00.txt>
+
+
+Status of Memo
+
+  This document is an Internet-Draft and is in full conformance with all
+  provisions of Section 10 of RFC2026.
+
+  This document is intended to be, after appropriate review and
+  revision, submitted to the RFC Editor as an Experimental document.
+  Distribution of this memo is unlimited.  Technical discussion of this
+  document will take place on the IETF LDAP Extension Working Group
+  mailing list <ietf-ldapext@netscape.com>.  Please send editorial
+  comments directly to the author <Kurt@OpenLDAP.org>.
+
+  Internet-Drafts are working documents of the Internet Engineering Task
+  Force (IETF), its areas, and its working groups.  Note that other
+  groups may also distribute working documents as Internet-Drafts.
+  Internet-Drafts are draft documents valid for a maximum of six months
+  and may be updated, replaced, or obsoleted by other documents at any
+  time.  It is inappropriate to use Internet-Drafts as reference
+  material or to cite them other than as ``work in progress.''
+
+  The list of current Internet-Drafts can be accessed at
+  <http://www.ietf.org/ietf/1id-abstracts.txt>. The list of
+  Internet-Draft Shadow Directories can be accessed at
+  <http://www.ietf.org/shadow.html>.
+
+  Copyright 2001, The Internet Society.  All Rights Reserved.
+
+  Please see the Copyright section near the end of this document for
+  more information.
+
+
+Abstract
+
+  This document details a proxy authorization mechanism for LDAPv3
+  [RFC2251] which allows an authenticated client to concurrently issue
+  operations on behalf of multiple entities.  The mechanism utilizes the
+  LDAPv3 Grouping of Related Operations [GROUPING] framework.
+
+
+
+
+
+Zeilenga                    LDAP Proxy Group                    [Page 1]
+
+INTERNET-DRAFT      draft-zeilenga-ldap-proxy-grp-00    13 November 2001
+
+
+1. Background and Intended Use
+
+  LDAP supports a means for a client to request authorization as an
+  identity different from that of authenticated user as part of a SASL
+  [RFC2222] Bind operation [RFC2829].  This authorization, if accepted
+  by the server, applies to all operations which are issued by the
+  client until another Bind request is issued.  However, it is often
+  desirable for a client to concurrently issue operations on behalf of
+  multiple entities.
+
+  This document provides a mechanism to allow clients to group
+  [GROUPING] related operations by the authorization identity which the
+  client wishes them to be processed under.  The createGrouping
+  operation is used to assert an authorization identity.  The resulting
+  group cookie is then used to identify operations which are to be
+  processed under this authorization.  The endGrouping operation is used
+  to inform the server that group is no longer needed.
+
+  This document is a ''work in progress.''  This specification will
+  likely be significantly enhanced before it progressed.
+
+  The key words "SHALL", "SHALL NOT", "MUST", "MUST NOT", "SHOULD",
+  "SHOULD NOT", "MAY" and "MAY NOT" used in this document are to be
+  interpreted as described in BCP 14 [RFC2119].
+
+
+2. Specification of a Proxy Group
+
+  Servers implementing this specification SHOULD publish the
+  proxyGroupingType as a value of the supportedGroupingTypes attribute
+  contained within the Root DSE.
+
+      proxyGroupingType ::= 1.1.1 ;; fictious
+
+  A client wishing to preform operations as authorized by an identity
+  other than their authentication identity issue a createGroupingRequest
+  with a createGroupType of proxyGroupingType and createGroupValue
+  containing the authzId [RFC2829] representing the identy they would
+  like to assume.  A server which is willing and able to allow the
+  client to assume this identity SHALL return a createGroupingResponse
+  with a success result code, createGroupCookie, and no
+  createGroupValue.  Otherwise the server SHALL return a non-success
+  result code, no createGroupCookie, and no createGroupValue.
+
+  The client MAY then attach a GroupingControl to subsequent operations
+  to indicate that they are to be processed under the assumed
+  authorization identity.  The server then performs the operation under
+  the assumed identity.
+
+
+
+Zeilenga                    LDAP Proxy Group                    [Page 2]
+
+INTERNET-DRAFT      draft-zeilenga-ldap-proxy-grp-00    13 November 2001
+
+
+  If the server becomes unwilling or unable to allow the client to
+  continue issuing operations under the assumed authorization identity,
+  the server SHOULD issue a endGroupNotice.  Any future use of cookie by
+  the client SHALL result in a response containing a non-success result
+  code.
+
+  Upon receipt of a endGroupingNotice, the client SHOULD discontinue all
+  use of the grouping cookie.  The client SHOULD NOT issue an
+  endGroupingRequest for the grouping cookie as the grouping is null and
+  void.
+
+  If the client no longer wishes to issue operations under the assumed
+  operation, it SHOULD issue an endGroupingRequest where the groupCookie
+  is the group cookie associated with the assumed authorization identity
+  and no endGroupValue is provided.  Upon receipt of this request, the
+  server SHALL dissaociate the group cookie from the authorization
+  identity and return an appropriate result code.  Regardless of the
+  result code, the client SHALL refrain from further use of the
+  groupCookie.
+
+
+4. Security Considerations
+
+  Proxies often have have access to a great deal of information, they
+  are frequent targets of attack.  The client SHALL establish adequate
+  protections.  The server SHALL disallow creation of a proxy grouping
+  when inadequate protections are in place.
+
+
+4.1. Permission to assume an identity
+
+  It is the sole responsibility of the LDAP server to determine whether
+  or not it will allow an authenticated client to assume the identity of
+  another entity.  In general, server implementations use have one proxy
+  authorization policy which applies to this mechanism, SASL proxy
+  authorization [RFC2222][RFC2829], and proxy authorization mechcanims.
+
+  Servers SHALL NOT allow an anonymously bound client to assume the
+  identity of any user.
+
+
+4.2. Confidential of Identity Information
+
+  This mechanism allows for additional identity information to be
+  transferred.  This information may contain sensitive information and
+  SHOULD be protected using data confidentiality services
+  [RFC2829][RFC2830].
+
+
+
+
+Zeilenga                    LDAP Proxy Group                    [Page 3]
+
+INTERNET-DRAFT      draft-zeilenga-ldap-proxy-grp-00    13 November 2001
+
+
+4.2. Data Confidential
+
+  If the client's authentication identity or any authorization identity
+  it may assume has access to sensitive information, the client SHOULD
+  be protected using data confidential services [RFC2829][RFC2830].
+
+
+4.4. Hijack the Proxying Session
+
+  To protect against man-in-the-middle and hijacking attacks, these
+  mechanisms SHALL only be used when integrity protections are in place.
+
+
+5. Acknowledgments
+
+  This document borrows from prior work in this area including the "LDAP
+  Proxied Authorization Control" [PROXYCTL] by Rob Weltman.
+
+
+6. Additional Information
+
+  The author may be contacted as follows:
+      Kurt D. Zeilenga
+      OpenLDAP Foundation
+      <Kurt@OpenLDAP.org>
+
+
+References
+
+  [RFC2119]  S. Bradner, "Key Words for use in RFCs to Indicate
+             Requirement Levels", Harvard University, BCP 14 (also RFC 2119),
+             March 1997.
+
+  [RFC2222]  J. Myers, "Simple Authentication and Security Layer
+             (SASL)", RFC 2222, October 1997.
+
+  [RFC2251]  M. Wahl, S. Kille, T. Howes, "Lightweight Directory
+             Access Protocol (v3)", RFC 2251, December 1997.
+
+  [RFC2829]  M. Wahl, H. Alvestrand, J. Hodges, RL "Bob" Morgan,
+             "Authentication Methods for LDAP", RFC 2829, June 2000.
+
+  [RFC2830]  J. Hodges, R. Morgan, and M. Wahl, "Lightweight Directory
+             Access Protocol (v3): Extension for Transport Layer Security", RFC
+             2830, May 2000.
+
+  [GROUPING] K. Zeilenga, "LDAPv3: Grouping of Related Operations",
+             draft-zeilenga-ldap-grouping-xx.txt, a work in progress.
+
+
+
+Zeilenga                    LDAP Proxy Group                    [Page 4]
+
+INTERNET-DRAFT      draft-zeilenga-ldap-proxy-grp-00    13 November 2001
+
+
+  [AUTHZID]  K. Zeilenga, "LDAP AuthzId Operation",
+             draft-zeilenga-ldap-authzid-xx.txt, a work in progress.
+
+  [PROXYCTL] R. Weltman, "LDAP Proxied Authorization Control",
+             draft-weltman-ldapv3-proxy-xx.txt, a work in progress.
+
+
+Copyright 2001, The Internet Society.  All Rights Reserved.
+
+  This document and translations of it may be copied and furnished
+  to others, and derivative works that comment on or otherwise explain
+  it or assist in its implementation may be prepared, copied, published
+  and distributed, in whole or in part, without restriction of any
+  kind, provided that the above copyright notice and this paragraph
+  are included on all such copies and derivative works.  However,
+  this document itself may not be modified in any way, such as by
+  removing the copyright notice or references to the Internet Society
+  or other Internet organizations, except as needed for the  purpose
+  of developing Internet standards in which case the procedures for
+  copyrights defined in the Internet Standards process must be
+  followed, or as required to translate it into languages other than
+  English.
+
+  The limited permissions granted above are perpetual and will not
+  be revoked by the Internet Society or its successors or assigns.
+
+  This document and the information contained herein is provided on
+  an "AS IS" basis and THE AUTHORS, THE INTERNET SOCIETY, AND THE
+  INTERNET ENGINEERING TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS
+  OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE
+  OF THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY
+  IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR
+  PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Zeilenga                    LDAP Proxy Group                    [Page 5]
+

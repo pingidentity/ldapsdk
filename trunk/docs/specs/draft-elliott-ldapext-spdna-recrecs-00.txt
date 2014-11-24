@@ -1,0 +1,570 @@
+
+LDAPEXT                                                      D. Elliott
+Internet Draft                                            Aventail Corp
+Document: <draft-elliott-ldapext-spdna-recrecs-00.txt>        N. Greene
+Category: Informational                                 Nortel Networks
+                                                              S. Miklos
+                                                        Dept of Defense
+                                                          November 2000
+
+          Recommendations for Recording Directory Access Data
+
+Status of this Memo
+
+   This document is an Internet-Draft and is in full conformance with
+      all provisions of Section 10 of RFC2026 [1].
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups. Note that
+   other groups may also distribute working documents as Internet-
+   Drafts. Internet-Drafts are draft documents valid for a maximum of
+   six months and may be updated, replaced, or obsoleted by other
+   documents at any time. It is inappropriate to use Internet- Drafts
+   as reference material or to cite them other than as "work in
+   progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+Abstract
+
+   The Service Provider Directory-enabled Network Applications WG in
+   the Directory Interoperability Forum of the Open Group (see
+   http://www.sp-dna.org) is looking at the use of LDAP-accessible
+   directories for Service Provider applications. In the course of this
+   work, we have found a few areas where existing LDAP standards do not
+   meet all the needs for a directory. This document addresses one such
+   area - logging and auditing.
+
+   SP-DNA directory systems are required to record and log all access
+   to directory data. This is necessary for three main reasons: to
+   check that access control on the directory is functioning properly,
+   to detect and respond to access control policy violation, and to
+   facilitate recovery and repair of directory data in the event of
+   data loss.
+
+   Our applications are not unique in these areas: we feel that many
+   other directory applications will run into the same issues. For
+   example, any mission-critical application that uses a directory will
+   probably have similar needs for logging and audit. This document
+   lists some of the requirements we would like to see addressed to
+   make LDAP better suited to our applications, and to many others with
+   similar characteristics.
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+
+   Table of Contents
+
+   1. Introduction
+   2. Conventions used in this document
+   3. Why record directory access events?
+   3.1 Checking access control
+   3.2 Detection and response to potential policy violation
+   3.3 Directory recovery/repair
+   4. Requirements
+   4.1 Access to recorded data
+   4.2 LDAP trackingId
+   4.3 Configuration of the recording function
+   4.3.1 General
+   4.3.2 Kinds of events to record
+   4.4 What to record
+   4.5 Storage of recorded information
+   4.5.1 Local storage
+   4.5.2 Central storage
+   4.5.3 Audit data in transit
+   4.6 Review of recorded info: reports, alarms, automated responses
+   5. Security considerations
+   6. References
+   7. Acknowledgements
+   8. Authors' Addresses
+
+
+1. Introduction
+
+   The Service Provider Directory-enabled Network Applications WG in
+   the Directory Interoperability Forum of the Open Group (see
+   http://www.sp-dna.org) is looking at the use of LDAP-accessible
+   directories for Service Provider applications. In the course of this
+   work, we have found a few areas where existing LDAP standards do not
+   meet all the needs for a directory. This document addresses one such
+   area - logging and auditing.
+
+   Our SP-DNA applications are not unique in these areas: we feel that
+   many other directory applications will run into the same issues. For
+   example, any mission-critical application that uses a directory will
+   probably have similar needs for logging and audit. This document
+   lists some of the requirements we would like to see addressed to
+   make LDAP better suited to our applications, and to many others with
+   similar characteristics.
+
+
+2. Conventions used in this document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in
+   this document are to be interpreted as described in RFC-2119 [2].
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+   Some terminology used in examples (e.g., user, subscriber) is
+   specific to SP-DNA. These terms are defined in [3]. Other documents
+   referenced in general are noted in [4], [5], and [6].
+
+
+3. Why record directory access events?
+
+3.1 Checking access control
+
+   The first goal, and most common use of logged directory access
+   information, is to document the proper functioning of access
+   controls. Note that this type of reporting only provides a record of
+   the proper functioning of controls/access decisions. It does not
+   document access that successfully circumvents controls.
+
+
+3.2 Detection and response to potential policy violation
+
+   Another goal of logged directory access information is to detect
+   policy violation by analyzing activities related to the directory,
+   identifying attack profiles, and responding to access policy
+   violations
+
+
+3.3 Directory recovery/repair
+
+   A third goal of logged directory access information is to record
+   information that will facilitate the recovery and repair of data.
+
+
+4. Requirements
+
+4.1 Access to recorded data
+
+   The level of security provided for recorded directory access
+   information must be the same as that provided for the directory data
+   being recorded.
+
+   For example, in an SP-DNA environment, only certain administrative
+   roles have control of and access to recorded data. Having a set of
+   standard administrative roles allows applications using the
+   directory to use roles other than "directory root" for
+   administration, which increases overall security.
+
+   a) It must be possible to assign one designated Administrator (e.g.,
+   in SP-DNA, the "Directory Administrator"),  to have the ability to
+   configure and control the recording of security-related events to a
+   log, be able to access the recorded data, and take action based upon
+   it.
+
+   b) It must be possible to assign one Administrator (e.g., in SP-DNA,
+   the "Service Provider Administrator") to be able to view, but not
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+   change, recorded directory access data, and take action based upon
+   it.
+
+   c) It should be possible to allow selective viewing of the data. For
+   example, one kind of administrator may only be allowed to view data
+   pertaining to its own users, and not data pertaining to any other
+   users or subscribers in the directory (e.g., in SP-DNA, the
+   "Subscriber Administrator"). This would require that the audit logs
+   be filtered so that only data the administrator is allowed to see
+   can be viewed.
+
+   d) It must not be possible for any user, other than the designated
+   administrator, to view recorded directory access data or configure
+   the recorded directory access function.
+
+   e) It must not be possible for anyone, including all Administrator
+   roles, to modify the recorded directory data without detection.
+
+
+4.2 LDAP trackingId
+
+   A long term requirement is to include a trackingId on LDAP commands
+   to help in following recorded directory access threads across
+   distributed systems. For example, it may be necessary to synchronize
+   the logs from the application server, web server and directory
+   server that were involved in processing one particular LDAP user
+   request. 
+
+
+4.3 Configuration of recording function
+
+4.3.1 General
+
+   a) The system must allow a designated Administrator to configure
+   which events generate log records (e.g. add/remove/modify), and the
+   level of detail for each record.
+
+   b) Any changes to the configuration of directory logging must
+   themselves be auditable events.
+
+   c) The designated Administrator must be able to enable/disable the
+   directory logging function
+
+   d) The act of enabling/disabling directory logging function must
+   itself be an auditable event that cannot be disabled.
+
+   e) It must be possible to configure how data logs are handled, and
+   to configure log file location on local and remote host(s).
+
+   f) The system must allow the configuration of data log archiving: by
+   period (hours/days/weeks), by date/time, and/or by maximum size.
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+   g) It should be possible to define the total number/size of log
+   files to be maintained, and what to do in the event these parameters
+   are reached.
+
+   h) It should be possible to perform manual log file rotation.
+
+
+4.3.2 Kinds of events to record
+
+   Some of these events would occur outside the directory. If this is
+   the case, a logging function would still need a way to record them,
+   but it cannot be specified as part of the directory system (and thus
+   how those particular events are recorded is outside the scope of
+   LDAPext).
+
+   These events all occur in relation to the directory, and thus are
+   within the scope of the LDAPext WG work:
+
+   - Startup and shutdown of the recording function;
+   - Both successful and unsuccessful privileged user logins;
+   - Audit log failure due to storage exhaustion or network failure;
+   - Directory service shutdowns and restarts;
+   - All unsuccessful attempts to access resources;
+   - Changes to security function that affects what is being recorded;
+   - Changes to security mechanisms;
+   - All requests to perform an operation on an object covered by the
+   Security Policy;
+   - Access to specified user and operational objects/attributes (e.g.
+   read, add, delete, modify and related operations)
+   - It must be possible to configure events to be recorded from the
+   perspective of both subject and object/attribute;
+   - All auditable events for a specified data recording level
+   (minimum, basic, detailed....);
+   - Both successful and unsuccessful authentication requests;
+   - Modifications to the group of users that are part of a role;
+   - All potential policy violations identified by analysis tools (e.g.
+   detected replay attacks, denial of service attacks, etc.);
+   - All actions taken by automated response tools.
+
+   The following events need to be recorded, but since the recorded
+   data will not likely be stored as part of the directory, how they
+   are triggered is outside the scope of and LDAPext WG work:
+
+   - Both successful and unsuccessful reading of information from the
+   audit records;
+   - Administrative commands, including log control commands (e.g.,
+   setting disk threshold, manual log file rotation, etc.);
+   - Changes to the system time.
+
+   During normal directory operation the following events should always
+   be logged:
+
+   - Both successful and unsuccessful privileged user logins;
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+   - Audit log failure due to storage exhaustion or network failure
+   - Directory service shutdowns and restarts;
+   - Administrative commands, including log control commands (e.g.,
+   setting disk threshold, manual log file rotation, etc.);
+   - All unsuccessful attempts to access resources.
+
+   If the SP-DNA Directory Administrator does disable logging of any of
+   the above events, that event itself must be logged.
+
+
+4.4 What to record
+
+   Each audit record saved must contain:
+
+   a) event date and time - the event record time stamp should be
+   consistent and reliable (i.e. use NTP) for all event records within
+   the management domain and across all audit logs  (this is
+   particularly applicable if/when multiple audit logs are used to
+   differentiate between management and user operations);
+
+   b) event type and specific information relevant to this particular
+   event type;
+
+   c)user identity association _ each auditable event must be
+   associated with the user or application entity that initiated the
+   event, including the authentication mechanism used;
+
+   d) outcome (success/failure), and if failure, the cause and severity
+   of the failure;
+
+   e) Audit record sequence number - must allow at least 64K different
+   sequence numbers to avoid frequent roll-over (useful in case date
+   and time are unavailable or unreliable) (Note: this is different
+   from a trackingId);
+
+   f) source and destination addresses;
+
+   g) names of resource(s) accessed.
+
+
+4.5 Storage of recorded information
+
+   As stated in an earlier section, the level of security provided for
+   data collected through directory recording must be the same as that
+   provided for the actual directory data being recorded.
+
+   The following sections state the storage requirements for the log
+   data, whether it is stored locally, or stored on a central log
+   server, and requirements for the transfer of this data.
+
+
+4.5.1 Local storage
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+   If a node stores directory data log information locally (i.e. on the
+   same machine as the directory is stored), then these are the
+   requirements:
+
+   a) Availability of log files: In order to ensure availability of the
+   log information in the event of failure of the directory or data
+   store, recorded data should reside outside of the directory service.
+
+   b) Integrity: The logs must be protected against unauthorized
+   deletion and/or modification.
+
+   c) Integrity: The system should be able to detect modified or
+   corrupted data. For example, a simple hash may provide assurance
+   that the files have not been corrupted accidentally, a signed hash
+   may provide assurance that the files have not been intentionally
+   modified (there are obvious issues with processing overhead).
+
+   d) Confidentiality: Only authorized persons must have access to the
+   log data.
+
+   e) The system should provide a threshold parameter controlling the
+   issuance of warning alarms for impending log storage exhaustion.
+
+   f) The system should provide a configurable action parameter in the
+   event of impending log storage exhaustion (i.e. halt or wraparound).
+
+   g) Logs must be maintained upon storage exhaustion or when archiving
+   does not work.
+
+
+   h) The system should avoid repeating the same message many times
+   (e.g., "previous message repeated 257 times").
+
+
+4.5.2 Central storage
+
+   While a central log server would be outside the scope of a directory
+   system, requirements for this server to store directory access log
+   information are stated here for completeness.
+
+   a) The log server must store log files in non-volatile storage
+
+   b) It must store date and time of any failure of the logging
+      function in non-volatile storage.
+
+   c) It should be possible to configure the log collection system to
+   prepend log file header information when it creates a new file.
+
+   d) Integrity: The logs must be protected against unauthorized
+   deletion and/or modification.
+
+
+4.5.3 Audit data in transit
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+
+   a) The directory system must record occurrence of any failure of the
+   logging function and resume logging when the cause of failure is
+   corrected.
+
+   b) The directory system should send log file header information
+   after system restart or when a connection is opened to the log
+   collection system (if the system is not co-located with the
+   directory system).
+
+   c) Availability: the directory system should use a reliable
+   transport protocol (e.g. TCP).
+
+   d) Integrity: the directory system should be able to detect any
+   modification or corruption of log file data.
+
+   e) Non-repudiation: Upon connection set-up with a log collection
+   system, the directory system should be able to verify the sender of
+   the log file data.
+
+   f) Confidentiality: the data must be kept confidential. For example,
+   the data must be encrypted when in transit across an environment
+   that is not physically secure.
+
+
+4.6 Review of recorded info: reports, alarms, automated responses
+
+   This section contains recommendations for methods of reviewing and
+   using logged information.
+
+   a) The Directory audit function should present the audit records in
+   a manner suitable for the administrator to interpret the
+   information. To this end, post-processing tools should be provided
+   to facilitate the review of log file data and generation of audit
+   reports.
+
+   b) The system should provide automated means to analyze system
+   activity in order to identify real/potential security violations,
+   and to define alarms and automated responses based on the detection
+   of real/potential security policy violations. This could involve
+   virus detection, intrusion detection, examining various aspects of
+   the material being transmitted for unauthorized content, analyzing
+   characteristics of user profiles, analyzing audit records, and
+   alerting operational personnel when misuse is detected or suspected.
+   Threat actions could include actions or events that would deny
+   services to authorized users, loss of secure state, and protocol
+   failures.
+
+   The following are examples of tools that can be used to analyze
+   event data through the use of rules and known attack profiles,
+   subsequently generating alarms and/or automated responses:
+
+   Potential violation analysis
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+
+   The audit log function should support threshold detection based on
+   defined rule sets. These rule sets would be composed of identified
+   accumulations/combinations of events known to indicate potential
+   violations (e.g., repeated failed actions, requests for privileged
+   information, multiple access requests used to aggregate data,
+   attempted access of system files, unauthenticated responses known to
+   indicate a potential security violation).
+
+   Profile-based detection
+
+   The audit log function may support the maintenance of historical
+   usage profiles for a given user/group, and be able to determine
+   variance from this profile in real-time or post-collection.  If
+   monitoring profile variance in real-time, it should be possible to
+   identify imminent security policy violation(s) and provide an
+   automated response (e.g. disabling a user account).
+
+   Simple and complex heuristics
+
+   The audit log function may support the storage of system activity
+   signatures, and be able to compare these signatures to current
+   system activity.  Signatures may encompass both single and multi-
+   step system activities, and be initiated by one or more
+   authenticated entities.  Known activity signatures may be identified
+   in real-time or post-collection, and be used to initiate an
+   automated response.
+
+
+5. Security Considerations
+
+   This document provides requirements for tracking access to a
+   directory system. Having a directory access recording function for
+   directory systems that satisfies these requirements will increase
+   the level of security of these systems in a measurable way, and
+   provide information to assist in the recovery of corrupted or lost
+   data.
+
+
+6. References
+
+   1  Bradner, S., "The Internet Standards Process -- Revision 3", BCP
+      9, RFC 2026, October 1996.
+
+   2  Bradner, S., "Key words for use in RFCs to Indicate Requirement
+      Levels", BCP 14, RFC 2119, March 1997.
+
+   3 "SP-DNA Terminology", Directory Interoperability Forum (DIF)
+      Service Provider Directory-enabled Network Applications (SP-DNA)
+      WG, May 2000, <ftp://standards.nortelnetworks.com/dif-sp-
+      dna/docs/latest/SP-DNATerminologyv3.doc>
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+
+   4 CCITT Recommendation X.740, "Systems Management: Security Audit
+      Trail Function", 1992-3.
+
+   5 Common Criteria Implementation Board, "Common Criteria for
+      Information Technology Security Evaluations v2.1", CCIMB-99-031,
+      August 1999 - September 2000.
+
+   6 Gallagher, Patrick R., Jr., "A Guide to Understanding Audit in
+      Trusted Systems", National Computer Security Center, NCSC-TG-001,
+      1987.
+
+
+7.   Acknowledgments
+
+   The requirements in this document were discussed within the SP-DNA
+   WG. In particular, the authors would like to thank Rick Huber and
+   Mark Wahl for their input.
+
+
+8. Author's Addresses
+
+   Dave Elliott
+   Aventail Corp
+   808 Howell St.
+   Seattle, Washington 98101
+   (206)215-0062
+   Email: <delliott@aventail.com>
+
+   Nancy Greene
+   Nortel Networks
+   Ottawa, Canada
+   Email: <ngreene@nortelnetworks.com>
+
+   Sue (Sandi) A. Miklos
+   Department of Defense, V51
+   9800 Savage Rd.
+   Fort Meade, MD 270550-6730, USA
+   Email: samiklo@missi.ncsc.mil
+
+
+
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2000).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph
+   are included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+                 <draft-spdna-ldapext-recrecs-00.txt>         Nov 2000
+
+
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+

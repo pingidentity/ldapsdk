@@ -1,0 +1,669 @@
+
+INTERNET-DRAFT                                                  C. Apple
+<draft-ietf-lsd-ldapv3-wp-00.txt>                              AT&T Labs
+Expires: July 28, 1998                                          T. Howes
+                                           Netscape Communications Corp.
+                                                               C. Weider
+                                                         Microsoft Corp.
+                                                                 M. Wahl
+                                                     Critical-Angle Inc.
+                                                         28 January 1998
+
+
+
+
+                  A Minimum LDAPv3 White Pages Schema
+                   <draft-ietf-lsd-ldapv3-wp-00.txt>
+
+Status of this Memo
+
+   This document is an Internet-Draft.  Internet-Drafts are working
+   docu- ments of the Internet Engineering Task Force (IETF), its areas,
+   and its working groups.  Note that other groups may also distribute
+   working documents as Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet- Drafts as reference
+   material or to cite them other than as ``work in progress.''
+
+   To learn the current status of any Internet-Draft, please check the
+   ``1id-abstracts.txt'' listing contained in the Internet- Drafts
+   Shadow Directories on ftp.is.co.za (Africa), nic.nordu.net (Europe),
+   munnari.oz.au (Pacific Rim), ds.internic.net (US East Coast), or
+   ftp.isi.edu (US West Coast).
+
+Abstract
+
+   Many different white pages schema proposals have been published for
+   use in LDAPv3 as well as other directory service protocols.  While
+   these proposals define schema elements that are indeed useful in the
+   deployment of LDAPv3-based directory services, there are a few
+   problems common to the set of such proposals currently available to
+   implementors: inconsistent semantic and syntactic definitions of
+   similar attributes across schema, little or no semantic extensibility
+   of attribute definitions without changing source code for deployed
+   implementations, lack of standard object class definitions for
+   containing white pages meta schema elements, and lack of an attribute
+   grouping method. This document defines an object class for holding
+   IWPS attributes as mapped into existing and relatively few newly
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 1]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+   defined extensible attribute types.
+
+1.0 Introduction
+
+   The X.500 standards [X500] define many basic object classes,
+   attribute types, syntaxes, and matching rules that are useful in the
+   context of white pages directory services and applications.  More
+   recently, there have been a number of efforts ([LIPS], [RFC2218],
+   [RFC2256], and [RFC2252]) to define object classes, attribute types,
+   syntaxes, matching rules, and meta schema for use in building white
+   pages applications. While this plethora of schema served as catalyst
+   to early growth in a market acceptance of LDAP as a white pages
+   technology of choice, it has become a barrier to true LDAP
+   interoperability from the perspective of Intranet and Internet white
+   pages directory service implementors and users.
+
+   This document makes use of existing white pages schema and meta
+   schema elements and minimizes the creation of new elements to specify
+   the minimum white pages schema for LDAPv3 interoperation.
+
+2.0  Background and Intended Usage
+
+   The wpPerson object class is a general purpose object class that
+   holds attributes about people. The attributes it holds were chosen to
+   accommodate information requirements found in Internet and Intranet
+   directory service deployments. The wpPerson object class is designed
+   to be used within directory services based on the LDAP [RFC2251] and
+   the X.500 family of protocols, and it may be useful in other contexts
+   as well. Other attributes and auxiliary object classes defined in
+   other documents MAY be included in white pages entries
+
+   The attribute type and object class definitions are written using the
+   BNF form of AttributeTypeDescription and ObjectClassDescription given
+   in [RFC2252].  Lines have been folded for readability.
+
+   Attributes that are referenced but not defined in this document are
+   included in the standard and pilot attribute definitions [RFC2256],
+   in the labeledURI object class [RFC2079], or in the inetOrgPerson
+   object class [IOPERSON].
+
+   BNF productions that are used, but not defined in this document are
+   equivalent to those with the same name defined in [RFC822].
+
+3.0  New Attribute Types Used in the wpPerson Object Class
+
+3.1 objectGuid Attribute
+
+   ( 1.2.840.113556.1.4.2 NAME 'objectGuid'
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 2]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+     EQUALITY octetStringMatch
+     SYNTAX 1.3.6.1.4.1.1466.115.121.1.40
+     SINGLE-VALUE USAGE directoryOperation )
+
+3.2 mimeContent
+
+   The mimeContent attribute contains one or more values whose encodings
+   are MIME contents [MIME].  Examples of MIME contents include images
+   and sounds.
+
+   ( OID-TBD NAME 'mimeContent' EQUALITY octetStringMatch
+       SYNTAX OID-TBD )
+
+   Labels for the mimeContent attribute can be provided using the
+   Content Transfer Disposition mechanism defined in [MIME].
+
+4.0 New Syntactic Grammars
+
+   The following paragraphs define extensible syntactic grammars for
+   specific attributes used in implementing white pages directory
+   services. The mechanism used to enable extensibility is referred to
+   as labelling. Contextual semantic labels, which may be used alone or
+   in combination, are defined for each such attribute. Other such
+   attribute labels MAY be defined in other documents.
+
+4.1 telephoneNumber Attribute
+
+   labeled-number = telephonenumber [ "(" parameters ")" ]
+
+   telephonenumber = printablestring ; SHOULD be based on E.163
+
+   parameters = ( whsp parm whsp ) / ( parm "$" parameters )
+
+   parm = numericoid / telephone-label
+
+   telephone-label = "home"    ; a residential telephone number
+                    / "work"    ; a business telephone number
+                    / "fax"     ; a facsimile telephone number
+                    / "modem"   ; a telephone number answered by a MODEM
+                    / "voice"   ; a voice telephone number
+                    / "msg"     ; a telephone number with voice mail
+                    / "pref"    ; a preferred telephone number
+                    / "pager"   ; a pager telephone number
+                    / "cell"    ; an analog cellular telephone number
+                    / "car"     ; a car cellular telephone number
+                    / "isdn"    ; an international ISDN telephone number
+                    / "pcs"     ; a digital PCS telephone number
+                    / "temp"    ; a temporary telephone number
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 3]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+4.2 mail Attribute
+
+   labeled-mail = mail [ "(" parameters ")" ]
+
+   mail = <any CHAR except specials, CTL, CRLF, wspc>
+
+   parameters = ( whsp parm whsp ) / ( parm "$" parameters )
+
+   parm = vendor-specific / mail-label
+
+   vendor-specific = numericoid
+
+   mail-label = "personal"    ; a personal email address
+               / "work"        ; a business email address
+               / "pref"        ; a preferred email address
+               / "temp"        ; a temporary email address
+               / "vpim"        ; an RFC822 address for a [VPIM] mailbox
+               / "internet"    ; a general purpose RFC822 address
+
+4.3 postalAddress Attribute
+
+   labeled-postal = postalAddress [ "$" "(" parameters ")" ]
+
+   postalAddress = <a postalAddress value as defined in [RFC2256]>
+
+   parameters = ( whsp parm whsp ) / ( parm "$" parameters )
+
+   parm = numericoid / postal-label
+
+   postal-label = "home"      ; a residential postal address
+                 / "work"      ; a business postal address
+                 / "pref"      ; a preferred postal address
+                 / "temp"      ; a temporary postal address
+
+4.4 organization Attribute
+
+   labeled-organization = organization [ "$" "(" parameters ")" ]
+
+   organization = <an organization attribute value of syntax defined
+                    in [RFC2256]>
+
+   parameters = ( whsp parm whsp ) / ( parm "$" parameters )
+
+   parm = numericoid / org-label
+
+   org-label = "home"  ; a personal organization name
+              / "work"  ; a business or professional organization name
+              / "temp"  ; a temporary organization name
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 4]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+4.5 locality Attribute
+
+   labeled-locality = locality [ "$" "(" parameters ")" ]
+
+   locality = <a locality attribute value of syntax defined in
+   [RFC2256]>
+
+   parameters = ( whsp parm whsp ) / ( parm "$" parameters )
+
+   parm = numericoid / locality-label
+
+   locality-label = "home"  ; a locality associated with a person's
+   residence
+                   / "work"  ; a locality associatd with a business
+                   location
+                   / "temp"  ; a locality associated with a temporary
+                   location
+
+4.6 title Attribute
+
+   labeled-title = title [ CRLF "(" parameters ")" ]
+
+   title = <a title attribute value of syntax defined in [RFC2256]>
+
+   parameters = ( whsp parm whsp ) / ( parm "$" parameters )
+
+   parm = numericoid / title-label
+
+   title-label = "personal" ; a personal title
+                / "work"     ; a business title
+                / "pref"     ; a preferred title
+
+4.7 description Attribute
+
+   labeled-descr = description [ CRLF "(" parameters ")" ]
+
+   description = <a description attribute value of syntax defined
+                   in [RFC2256]>
+
+   parameters = ( whsp parm whsp ) / ( parm "$" parameters )
+
+   parm = numericoid / descr-label
+
+   descr-label = "home" ; a personal description
+                / "work" ; a business description
+                / "pref" ; a preferred description
+
+4.8 MIME Content Syntax
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 5]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+   (This is a new syntax)
+
+   The MIME Content syntax has the following definition:
+
+        ( TBD NAME 'MIME Content' )
+
+   The contents of a value of an attribute with this syntax is a MIME
+   content encoded according to [MIME].  Content Transfer Encodings may
+   be used, however transfer of LDAP values can be assumed to be 8 bit
+   clean.
+
+   An example value in this syntax is provided below.  Lines are wrapped
+   for readability.  "\r\n" is used to indicate a CRLF pair.
+
+    Content-Type: text/plain\r\nContent-Transfer-Encoding: 8bit\r\n\r\n
+    Hello world\r\n
+
+5.0 Language Tags
+
+   Language tags as specified in [LANGTAGS] MAY be used for the
+   following wpPerson attributes: title, description, and postalAddress.
+   Language tags MAY also be used with other attributes.
+
+6.0 Operational Attributes
+
+   The LDAPv3 operational attributes createTimestamp, creatorsName,
+   modifyTimestamp, and modifiersName SHOULD be used. These attributes
+   corresponding to the ancillary attributes defined in [RFC2218].
+
+7.0 Naming Attributes
+
+   Naming of wpPerson entries is a subject for other documents.
+
+8.0  Definition of the wpPerson Object Class
+
+   The wpPerson object class represents people who are associated with
+   an organization, ISP, or on-line service connected to the Internet.
+   It is a structural class and is derived from the Person object class.
+
+   This object class definition includes the LDAP attribute types
+   required to form attributes defined in [RFC2218] and [LIPS] when used
+   in combination with the attribute labelling techniques defined above.
+   Specific attribute types that express in the attribute type name the
+   same information as that expressible using the attribute labels
+   defined above are not included in this objectclass definition; all
+   attributes fitting this description are included as allowable
+   attribute types in an auxiliary compatibility object class defined in
+   section 9.0.
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 6]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+   See paragraph 8.1 for the mapping of IWPS attributes to wpPerson
+   LDAPv3 attribute types.
+
+   ( OID-TBP
+        NAME 'wpPerson'
+        SUP person
+        STRUCTURAL
+        MUST (
+            objectGuid
+        )
+        MAY (
+            #
+            # the attribute values of the following types
+            # SHOULD be labelled using the conventions
+            # defined in section 4.0
+            #
+            mail $
+            telephoneNumber $
+            postalAddress $
+            o $
+            l $
+            c $
+            title $
+            description $
+            #
+            # the attribute values of the following types
+            # MUST NOT be labelled using the conventions
+            # in section 4.0
+            #
+            secretary $
+            manager $
+            ou $
+            userCertificate $
+            givenName $
+            generationQualifier $
+            initials $
+            middleName $
+            preferredLanguage $
+            mimeContent $
+            #
+            # the following attribute should be labelled
+            # according to the convention specified in [RFC2079]
+            #
+            labeledURI
+        )
+   )
+
+
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 7]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+8.1 IWPS to LDAPv3 wpPerson Object Class Mapping
+
+   IWPS Field Name         wpPerson Attribute      label(s)
+
+   Email                   mail                    see 4.1
+   Cert                    userCertificate         N/A
+   Home Page               labeledURI              home AND/OR work
+   Common Name             cn                      N/A
+   Given Name              givenName               N/A
+   Surname                 sn                      N/A
+   Organization            o                       home OR work
+   Locality                l                       home AND/OR work
+   Country                 c                       N/A
+   Language Spoken         preferredLanguage       N/A
+   Personal Phone          telephoneNumber         home AND voice
+   Personal Fax            telephoneNumber         home AND fax
+   Personal Mobile Phone   telephoneNumber         home AND mobile
+   Personal Pager Number   telephoneNumber         home AND pager
+   Personal Postal Address postalAddress           home
+   Description             description             home OR work
+   Title                   title                   home OR work
+   Office Phone            telephoneNumber         work AND voice
+   Office Fax              telephoneNumber         work AND fax
+   Office Mobile Phone     telephoneNumber         work AND mobile
+   Office Pager            telephoneNumber         work AND pager
+   Office Postal Address   postalAddress           work
+   Creation Date           createTimestamp         N/A
+   Creator Name            creatorsName            N/A
+   Modified Date           modifyTimestamp         N/A
+   Modifier Name           modifiersName           N/A
+
+8.2 LIPS to LDAPv3 wpPerson Object Class
+
+   TBP.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 8]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+9.0 wpCompatible Object Class
+
+   The wpCompatible object class has beed defined to provide backward
+   compatibility with deployed LDAPv3 implementations that support
+   either [LIPS] or [RFC2218].
+
+   ( OID-TBP
+        NAME 'wpCompatible'
+        AUXILIARY
+        MAY (
+            personalTitle $
+            homePhone $
+            homeFax $
+            homePostalAddress $
+            facsimileTelephoneNumber $
+            mobile $
+            pager $
+            MHSORAddress $
+            roomNumber $
+            telexNumber $
+            thumbnailPhoto $
+            thumbnailLogo $
+            uid
+        )
+   )
+
+10.0  Example of a wpPerson Entry
+
+   The following example is expressed using the LDIF notation defined in
+   [LDIF].
+
+   dn: cn=Barbara Jensen, ou=Product Development, o=Ace Industry, c=US
+   objectClass: top
+   objectClass: person
+   objectClass: wpPerson
+   cn: Barbara Jensen
+   cn: Babs Jensen
+   sn: Jensen
+   givenName: Barbara
+   title;lang-en: manager, product development
+   mail: bjensen@aceindustry.com (work $ pref)
+   mail: bjensen@bjj.isp.net (home)
+   telephoneNumber: +1 408 555 1862 (voice $ msg $ work $ pref)
+   telephoneNumber: +1 408 555 1992 (fax $ work)
+   telephoneNumber: +1 408 555 1941 (mobile)
+   preferredLanguage: fr
+   preferredLanguage: en-gb
+   preferredLanguage: en
+
+
+
+Apple, Howes, Wahl, Weider                                      [Page 9]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+   labeledURI: http://www.aceindustry.com/users/bjensen work
+
+11.0  Security Considerations
+
+   Attributes of directory entries are used to provide descriptive
+   informa- tion about the real-world objects they represent, which can
+   be people, organizations or devices.  Most countries have privacy
+   laws regarding the publication of information about people.
+
+   Transfer of cleartext passwords (e.g., a clear-text userPassword
+   value) are strongly discouraged where the underlying transport
+   service cannot guarantee confidentiality and may result in disclosure
+   of the password to unauthorized parties.
+
+12.0  Acknowledgments
+
+   The engineering team for the schema specified in this document:
+
+      Chris Apple - AT&T Labs
+      Tim Howes - Netscape Communications Corp.
+      Mark Wahl - Critical Angle Inc.
+      Chris Weider - Microsoft Corp.
+
+13.0  References
+
+   [IOPERSON] M. Smith, "Definition of the inetOrgPerson Object Class",
+   INTERNET-DRAFT <draft-ietf-asid-inetorgperson-01.txt>, July 1997.
+
+   [LANGTAGS] M. Wahl, T. Howes, "Use of Language Codes in LDAP",
+   INTERNET-DRAFT <draft-ietf-ldapext-lang-00.txt>, January 1998.
+
+   [LDIF] G. Good, "The LDAP Data Interchange Format (LDIF) - Technical
+   Specification" "The LDAP Data Interchange Format (LDIF)", INTERNET-
+   DRAFT <draft-ietf-asid-ldif-02.txt>, 30 July 1997.
+
+   [LIPS] Network Applications Consortium, "The Lightweight Internet
+   Person Schema", <http://www.netapps.org>, May 1997.
+
+   [MIME] [RFC2045] [RFC2046] [RFC2047].
+
+   [RFC822] D. Crocker, "Standard for the format of ARPA Interent text
+   messages", RFC 822, STD 10, August 1982.
+
+   [RFC2045] N. Freed, N. Borenstein, "Multipurpose Internet Mail
+   Extensions (MIME) Part One: Format of Internet Message Bodies", RFC
+   2045, November 1996.
+
+   [RFC2046] N. Freed & N. Borenstein, "Multipurpose Internet Mail
+
+
+
+Apple, Howes, Wahl, Weider                                     [Page 10]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+   Extensions (MIME) Part Two: Media Types", RFC 2046, November 1996.
+
+   [RFC2047] K. Moore, "MIME (Multipurpose Internet Mail Extensions)
+   Part Three: Message Header Extensions for Non-ASCII Text", RFC 2047,
+   November 1996.
+
+   [RFC2079] M. Smith, "Definition of an X.500 Attribute Type and an
+   Object Class to Hold Uniform Resource Identifiers (URIs)", RFC 2079,
+   January 1997.
+
+   [RFC2218] T. Genovese, B. Jennings, "A Common Schema for the Internet
+   White Pages Service", RFC 2218, October 1997.
+
+   [RFC2251] M. Wahl, T. Howes, S. Kille, "Lightweight Directory Access
+   Protocol (v3)", RFC 2251, December 1997.
+
+   [RFC2252] M. Wahl, A. Coulbeck, T. Howes, S. Kille, "Lightweight
+   Directory Access Protocol (v3) Attribute Syntax Definitions", RFC
+   2252, December 1997.
+
+   [RFC2256] M. Wahl, "A Summary of the X.500(96) User Schema for use
+   with LDAPv3", RFC 2256, December 1997.
+
+   [VPIM] A. Brown, "VPIM Directory Schema Definition & Profile",
+   INTERNET-DRAFT <draft-ema-vpimdir-schema-00.txt>, November 1997.
+
+   [X500] ITU-T Rec. X.500, "The Directory: Overview of Concepts, Models
+   and Service",  1993.
+
+14.0  Authors' Address
+
+   Chris Apple
+   AT&T Labs
+   600 Mountain Ave.
+   Murray Hill, NJ 07974-0636
+   USA
+
+   Voice: +1 908 582 2409
+   Email: capple@att.com
+
+   Tim Howes
+   Netscape Communications Corp.
+   501 East Middlefield Road
+   Mountain View, CA 94043
+   USA
+
+   Voice: +1 415 937 2600
+   Email: howes@netscape.com
+
+
+
+Apple, Howes, Wahl, Weider                                     [Page 11]
+
+INTERNET-DRAFT     Minimum LDAPv3 White Pages Schema     28 January 1998
+
+
+   Mark Wahl
+   Critical Angle Inc.
+   4815 W. Braker Lane #502-385
+   Austin, TX 79759
+   USA
+
+   Voice: +1 512 372 3160
+   Email: M.Wahl@critical-angle.com
+
+   Chris Weider
+   Microsoft Corp.
+   1 Microsoft Way
+   Redmond, WA 98052
+   USA
+
+   Voice: +1 425 703 2947
+   Email: cweider@microsoft.com
+
+15.0  Appendix A - Open Issues
+
+15.1 jpegPhoto, photo, and audio syntaxes are too limiting
+
+   We have defined a new attribute type named mimeContent that supports
+   extensible syntaxes based on MIME content-types.
+
+   We need to add examples to this document demonstrating how this
+   syntax can be used to construct attributes that would normally have
+   as a value image or audio data encoded according to a non-extensible
+   image or audio syntax.
+
+15.2 Specifiy Meta Syntax for Labelled Attributes?
+
+15.3 New Matching Rules for Labelled Attributes?
+
+15.4 Use of Surname Attribute
+
+   The Person object class defined by X.520 requires that the surname
+   attributes be present in all entries from the person object class.
+   In some cultures, there may not be a clear distinction between name
+   components. Future versions of this document may define how to
+   represent names which do not have a surname.
+
+
+               This Internet-Draft expires on July 28, 1998.
+
+
+
+
+
+
+
+Apple, Howes, Wahl, Weider                                     [Page 12]

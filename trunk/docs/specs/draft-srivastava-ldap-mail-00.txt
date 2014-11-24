@@ -1,0 +1,1850 @@
+
+
+
+
+
+
+Network Working Group                                    Anil Srivastava
+INTERNET-DRAFT                                              Robert Allen
+Intended Category: Informational                              Daryl Huff
+Expires: May 1999                                           Ellen Siegel
+Filename: draft-srivastava-ldap-mail-00.txt        Sun Microsystems Inc.
+                                                           November 1998
+
+
+                     LDAP Schema for Internet Mail
+
+Status of this Memo
+
+
+   This memo provides information for the Internet community.  This memo
+   does not specify an Internet standard of any kind.  Distribution of
+   this memo is unlimited.
+
+   This document is an Internet-Draft.  Internet-Drafts are working
+   documents of the Internet Engineering Task Force (IETF), its areas,
+   and its working groups.  Note that other groups may also distribute
+   working documents as Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as ``work in progress.''
+
+   To learn the current status of any Internet-Draft, please check the
+   ``1id-abstracts.txt'' listing contained in the Internet-Drafts Shadow
+   Directories on ftp.is.co.za (Africa), ftp.nordu.net (Europe),
+   munnari.oz.au (Pacific Rim), ftp.ietf.org (US East Coast), or
+   ftp.isi.edu (US West Coast).
+
+Copyright Notice
+
+
+   Copyright (C) The Internet Society (1998).  All Rights Reserved.
+
+Abstract
+
+
+
+   The use of directory services based on the Lightweight Directory
+   Access Protocol (LDAP) [LDAP] is becoming increasingly popular for
+   distributed and web-based services. Since most LDAP-based
+   applications have developed their schemas independently, new
+   application designers find themselves faced with the dilemma of how
+   to interoperate with an already conflicting set of existing LDAP
+
+
+
+Srivastava                   Informational                      [Page 1]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   specifications. Today's Web-aware customers expect interoperability,
+   so it is crucial to converge existing schema in a way that supports
+   interoperability across arbitrary applications and vendors. In this
+   spirit, we describe an LDAP schema for internet mail routing and
+   delivery that is designed to be modular and to support a common core
+   for sharing user state across an arbitrary set of applications.
+
+Table of Contents
+
+   1. Background and Motivation ......................................    2
+   2. Producers and Consumers of the Mail Schema .....................    3
+   3. Internet Mail Routing ..........................................    4
+   3.1. inetMailRouting objectClass definition .......................    5
+   4. Internet Mail Distribution Lists ...............................    6
+   4.1. URL type for attributes containing addresses .................    7
+   4.2. Inherited Attributes .........................................    7
+   4.3. inetMailGroup objectClass definition .........................    7
+   4.4. Mail processing attributes ...................................    8
+   4.5. Mail list administration attributes ..........................   12
+   4.6. Mail restriction attributes ..................................   13
+   4.7. Membership attributes ........................................   17
+   5. Internet Mail Users ............................................   18
+   5.1. Inherited Object Classes and Attributes ......................   18
+   5.2. inetSubscriber objectClass definition ........................   19
+   5.3. inetMailUser objectClass definition ..........................   22
+   6. Examples .......................................................   30
+   6.1. Internet Mail User Examples ..................................   30
+   6.2. Internet Mail Distribution List Examples .....................   31
+   7. References .....................................................   32
+   8. Security Considerations ........................................   32
+   9. Authors' Addresses .............................................   33
+
+
+1.  Background and Motivation
+
+   The schema proposed in this document was developed as a cooperative
+   effort between two separate projects within Sun Microsystems, an
+   LDAP-aware internet mail server and a platform for Internet Service
+   Providers (ISPs). These projects had developed their respective LDAP
+   schemas independently, so when it became desirable to share common
+   state they discovered that their schemas, although similar, were
+   incompatible in various ways.
+
+   The fact that two fairly similar projects had these incompatibilities
+   suggested that LDAP schema interoperability was at serious risk. In
+   converging the schema for these two projects, the attempt was
+   therefore made to consider what structure would be required for more
+   universal convergence in the user schema space. In addition, the
+
+
+
+Srivastava                   Informational                      [Page 2]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   requirement that any LDAP entry contain exactly one structural object
+   class means that any application-specific extensions should be added
+   almost exclusively as auxiliary classes in order to enable
+   interoperability.
+
+   An additional issue is the limited scope of most existing LDAP-based
+   access control schemes. The wide variety of security policies and the
+   need for their coexistence requires a flexible administrative
+   capability. Although most of the access control information is beyond
+   the scope of the user schema presented in this document, there are a
+   few attributes included to support powerful access control
+   mechanisms.
+
+   The body of this document describes a schema for internet mail
+   routing and delivery, but the core of this schema also serves as the
+   core for other internet services as well. The schema presented here
+   is only one particular slice through the converged schema described
+   above: The examples provided throughout the document show how the
+   schema is suited for internet mail, but also illustrate the
+   modularity that provides support for service- and vendor-independent
+   interoperability.
+
+
+2.  Producers and Consumers of the Mail Schema
+
+   In the context of this Internet-Draft, a producer is defined to be
+   any software component which may create, or subsequently modify a
+   value for an attribute in an object class.  A consumer is defined to
+   be any software component that retrieves and uses attributes in the
+   process of accomplishing some task.  One of the goals of this
+   Internet-Draft is to specify the mail schema for Sun's internet email
+   product to start the process of converging on common semantics for
+   mail object classes and their attributes.
+
+   The following sections defining the LDAP mail schema specify the
+   producer(s) and consumer(s) of each of the attributes.  For the
+   purposes of this Internet-Draft, an Internet mail system is broken
+   into the following components:
+
+      mta - The Message Transfer Agent.  This is the component that
+      communicates via Simple Mail Transfer Protocol [SMTP] and is
+      responsible for either routing mail to another MTA or delivering
+      the message into a mailbox.
+
+      msma - The Message Store / Message Access agent. This component is
+      responsible for supporting access by E-mail client software to a
+      user's mail folders. This component may be a traditional Message
+      Store Agent, with local storage of user's mail folders; it may be
+
+
+
+Srivastava                   Informational                      [Page 3]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+      a proxy server between the E-mail client and another MSMA agent;
+      it may be a referral agent that returns the name of another MSMA
+      agent to the E-mail client; or it may be a combination of all
+      three.  In proxy mode, the agent can be implemented as a protocol
+      router for POP [POP] and/or IMAP [IMAP] requests. When functioning
+      as an end-point for mail access requests, the MSMA agent will
+      retrieve and delete messages, and otherwise manipulate the folders
+      belonging to the user in the message store.
+
+      client - Any software agent producing and/or consuming mail
+      directory entries, and interpreting the semantics of object class
+      attributes as specified here.  These are usually user agents
+      acting on behalf of a non-privileged end-user, and can range from
+      stand-alone e-mail clients to cgi-bin scripts or Java servlets
+      invoked by a web server in response to HTTP commands from a user's
+      web browser.
+
+      admin - software agents that provision the directory (creation,
+      update of entries).  This class of producer/consumer is usually
+      acting on behalf of a privileged user (e.g. a site administrator).
+      Such agents can range from GUI stand-alone or web-based
+      administration consoles, to character-based scripts invoking low-
+      level LDAP commands.
+
+   The heading for each of the attribute sections lists the following:
+
+      (<matching rule>, <multi-valued>, {<producer/consumer>})
+
+   Where:
+
+      <matching rule> - Matching rule for this attribute.  e.g. cis,
+      ces, ...
+
+      <multi-valued> - Number of attributes allowed per entry.  e.g. 1,
+      0-1, 0-many, ...
+
+      <producer/consumer> - A comma separated list of the producers
+      and/or consumers of this attribute from the list of Internet mail
+      system components above.
+
+
+3.  Internet Mail Routing
+
+   In order to avoid duplication of information, we define the
+   inetMailRouting object class to contain the required routing
+   information common to all internet email recipients. This class is
+   required for entries describing either email users (inetMailUser) or
+   email groups (inetMailGroup).
+
+
+
+Srivastava                   Informational                      [Page 4]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   Note that we make a distinction between a relay Message Transfer
+   Agent (MTA) that relays a message and a destination MTA responsible
+   for the final delivery of a message.  A relaying MTA only needs to
+   examine the 'mailHost' attribute to determine the destination MTA.  A
+   destination MTA examines the 'mail' and 'rfc822MailAlias' attributes
+   to determine the Inbox to which the message should be delivered.
+
+3.1.  inetMailRouting objectClass definition
+
+   The object class is defined as follows:
+
+   ( 1.3.6.1.4.1.42.2.27.2.2.1
+      NAME 'inetMailRouting'
+      SUP top
+      AUXILIARY
+      MUST (
+         mail $ mailHost
+      )
+      MAY (
+         rfc822MailAlias
+      )
+   )
+
+3.1.1.  mail attribute (cis, 1, {mta, client, admin})
+
+   ( 0.9.2342.192000.100.1.3
+      NAME 'mail'
+      DESC 'RFC822 email address for this user or group'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX IA5String{256}
+      SINGLE-VALUE
+   )
+
+   The user or group's advertised e-mail address in form specified by
+   RFC-822's "addr-spec" syntax [RFC822].  The user or group may have
+   additional mail aliases listed in the rfc822MailAlias attribute.  The
+   value in this attribute must be unique for all 'mail' and
+   'rfc822MailAlias' attributes in a domain.
+
+3.1.2.  mailHost attribute (cis, 0-1, {mta, msma, client, admin})
+
+   ( 2.16.840.1.113730.3.1.18
+      NAME 'mailHost'
+      DESC 'the fully qualified mail server host name for this user'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX IA5String{256}
+      SINGLE-VALUE
+   )
+
+
+
+Srivastava                   Informational                      [Page 5]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   Hostname of the user's mail server.  This is the fully qualified
+   official hostname of the mail server where a user's official Inbox is
+   located.
+
+   In the case of a distribution list, this is the fully qualified
+   hostname of the MTA where the distribution list is expanded.
+
+3.1.3.  rfc822MailAlias attribute (cis, 0-many, {mta, msma, client,
+admin)
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.1
+      NAME 'rfc822MailAlias'
+      DESC 'alternate RFC822 email address for a user or distribution list'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX IA5String{256}
+   )
+
+   Stores alternate e-mail aliases (RFC-822 format), if any, defined for
+   the user or distribution list.  Mail to any of the listed
+   rfc822MailAlias attributes of an LDAP entry will be delivered to the
+   user or group associated with that entry.  The value in this
+   attribute must be unique for all 'mail' and 'rfc822MailAlias'
+   attributes in a domain.
+
+4.  Internet Mail Distribution Lists
+
+   Distribution lists are defined by overlaying object class
+   inetMailGroup (AUXILIARY) and object class inetMailRouting
+   (AUXILIARY) on an LDAP entry defined by object class
+   groupOfUniqueNames (STRUCTURAL).
+
+   The groupOfUniqueNames objectClass contains attributes useful for
+   describing a collection of user objects. This object class inherits
+   from 'top' and is a structural object class.
+
+   The groupOfUniqueNames object class is defined in RFC 2256 [RFC2256].
+   The inetMailRouting and inetMailGroup object classes are defined by
+   Sun Microsystems, Inc.
+
+   The inetMailGroup object class contains attributes useful for
+   describing an e-mail distribution list. All distribution lists are
+   provisioned using this auxiliary object class, the inetMailRouting
+   auxiliary object class and the structural object class
+   groupOfUniqueNames.  inetMailGroup is required for defining a
+   distribution list.
+
+   The following attributes are used in this specification but are
+   defined in other specifications: uniqueMember and owner.
+
+
+
+Srivastava                   Informational                      [Page 6]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   As defined in RFC 2256 the uniqueMember (cis, 0-many, {client, mta,
+   admin}) attribute is the list of members of the distribution list.
+   All the member DNs must be valid DNs on the directory where the
+   distribution list is defined.
+
+   As defined in RFC 2256 the owner (cis, 0-many, {client, admin})
+   attribute is the list of owners of the distribution list.  All owner
+   DNs must be valid DNs on the directory where the distribution list is
+   defined.
+
+4.1.  URL type for attributes containing addresses
+
+   There are several inetMailGroup attributes that contain RFC-822 style
+   mail addresses OR distinguished names (DNs) of LDAP entries.  This is
+   permitted since inetMailGroup is both an LDAP and email entity and it
+   is appropriate to allow both types of addresses.  These attributes -
+   errorsTo, moderator, authorizedSubmitter, unauthorizedSubmitter - use
+   URL's [URL] to allow this dual use.  When preceded by "ldap://" the
+   entry is taken as an LDAP entry with the remaining value treated as
+   the distinguished name of the entry.  When preceded by "mailto:" the
+   entry is interpreted as an RFC-822 address.
+
+   A missing prefix of "ldap://" or "mailto:" for the entry is assumed
+   to be an RFC-822 address.
+
+4.2.  Inherited Attributes
+
+   As defined in RFC 2256 the userPassword (ces, 1, {client, admin})
+   attribute is the password used by the distribution list to
+   authenticate to a server for access to the LDAP entry of the
+   distribution list.  The DN of the distribution list is used in the
+   authentication.
+
+4.3.  inetMailGroup objectClass definition
+
+
+   The inetMailGroup object class is defined as follows:
+
+   ( 1.3.6.1.4.1.42.2.27.2.2.2
+      NAME 'inetMailGroup'
+      SUP top
+      AUXILIARY
+      MUST (
+         inetMailGroupVersion
+      )
+      MAY (
+         errorsTo $ joinable $  moderator $
+         multiLineDescription $ requestsTo $
+
+
+
+Srivastava                   Informational                      [Page 7]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+         seeAlso $ suppressEmailError $ userPassword $
+         authorizedDomain $ authorizedSubmitter $
+         dataSource $ expandable $ mailDeliveryFile $
+         mailDeliveryOption $ mailProgramDeliveryInfo $
+         rfc822Mailmember $
+         unauthorizedDomain $ unauthorizedSubmitter $
+         membershipFilter
+      )
+   )
+
+4.4.  Mail processing attributes
+
+   There are several inetMailGroup attributes that are key to
+   determining how the mail is processed by the MTAs. Additionally,
+   inetMailRouting object class determines how messages are routed
+   through the mail system.  There is one attribute to indicate the
+   version of the object class itself.
+
+4.4.1.  inetMailGroupVersion attribute (ces, 0-1, {admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.2
+      NAME 'inetMailGroupVersion'
+      DESC 'version string for the inetMailGroup objectClass'
+      EQUALITY caseExactIA5Match
+      SYNTAX IA5String
+      SINGLE-VALUE
+   )
+
+   Version tag of this object class.  This attribute must be set when an
+   entry is created using this object class.  The starting (current)
+   value of version tag is 1.0.
+
+4.4.2.  errorsTo attribute (ces, 0-1, {admin, MTA})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.3
+      NAME 'errorsTo'
+      DESC 'user or group to receive error messages for this group'
+      EQUALITY caseExactIA5Match
+      SYNTAX IA5String
+      SINGLE-VALUE
+   )
+
+   Specified using the notation developed in section 4.1.
+
+   This attribute indicates the address to which list errors are sent.
+   When a list is expanded, the original return address in the envelope
+   is replaced by this address. The intent is for lists errors to be
+   sent to the owner of the list, rather than the message originator,
+
+
+
+Srivastava                   Informational                      [Page 8]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   who generally has no control over the contents of the list and will
+   typically find the error messages annoying.
+
+   The Requirements for Internet Hosts [RFC1123] specify that all MTAs
+   SHOULD support a mechanism where a list is expanded, but with the
+   original return address preserved. This is referred to by the RFC as
+   "aliasing." This can be achieved by omitting the errorsTo attribute.
+   This is different from the rfc822MailAlias attribute, which is an
+   alternative name for a single user or list, and does not cause any
+   kind of address list expansion.
+
+4.4.3.  requestsTo attribute (ces, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.6
+      NAME 'requestsTo'
+      DESC 'address to forward all subscription requests for the distribution list'
+      EQUALITY caseExactIA5Match
+      SYNTAX IA5String
+   )
+
+   Specified using the notation developed in section 4.1.
+
+   Distribution list addresses are specified using the 'mail' and
+   'rfc822MailAlias' attributes of the inetMailRouting object class.
+   Addresses of this form may be represented as
+   <addr_local_part>@<domain_part>.
+
+   Messages sent to an address constructed by adding "-request" to the
+   <addr_local_part> of the distribution list address will be delivered
+   (forwarded) to the address(es) specified in the 'requestsTo'
+   attribute.
+
+   For example, a distribution list with the following addresses:
+
+      mail: football@sun.com
+      rfc822MailAlias: football-fans@sun.com
+      requestsTo: mailto:john.doe@isp.net
+
+
+   would forward messages addressed to football-request@sun.com and
+   football-fans-request@sun.com to john.doe@isp.net.
+
+4.4.4.  suppressEmailError attribute (cis, 0-1, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.7
+      NAME 'suppressEmailError'
+      DESC 'suppress error messages from being sent back to message originator'
+      EQUALITY caseIgnoreIA5Match
+
+
+
+Srivastava                   Informational                      [Page 9]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+      SYNTAX IA5String
+   )
+
+   Suppress delivery of error messages to senders.  If missing or FALSE,
+   errors are sent back to the sender.  If TRUE then errors are not sent
+   back to the sender or to the address specified in 'errorsTo' in
+   section 4.4.2.
+
+4.4.5.  mailDeliveryFile attribute (ces, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.12
+      NAME 'mailDeliveryFile'
+      DESC '<path>/<filename> for archiving messages sent to the distribution lists'
+      EQUALITY caseExactIA5Match
+      SYNTAX IA5String
+   )
+
+   Fully qualified path of a file name to which ALL messages submitted
+   to this distribution list  are appended. This path is on the local
+   filesystem of the 'mailHost' of this distribution list.
+
+4.4.6.  mailDeliveryOption attribute (cis, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.13
+      NAME 'mailDeliveryOption'
+      DESC 'message handling option for messages sent to a designated recipient'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX 'IA5String'
+   )
+
+   mailDeliveryOption specifies one or more delivery options for inbound
+   email to a designated recipient.  While inbound messages can be
+   delivered into multiple message stores, message access servers can
+   read messages from only one of them (the mail store from which
+   messages are read is specified using the mailFolderMap attribute).
+
+   The Message Transfer Agent uses this attribute to determine the
+   targets of message delivery for all messages submitted to this
+   distribution list.  The attribute is also used by the inetMailUser
+   object class (see 5.4.9). The value of this attribute can take one of
+   a specified set of options; the subset valid for distribution lists
+   are described as follows:
+
+      mailbox - This option applies only to the inetMailUser object
+      class.
+
+      shared - Deliver mail to a shared mailbox in the Sun Message
+      Store. This is used for setting up a shared mailbox for a
+
+
+
+Srivastava                   Informational                     [Page 10]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+      distribution list.  Access to the shared mailbox is enabled for
+      those distribution list members whose 'mailhost' attribute is the
+      same as the 'mailhost' attribute of the list.  All other members
+      of the list receive a copy of the submitted messages in their
+      incoming mailbox.
+
+      native - This option applies only to the inetMailUser object
+      class.
+
+      autoreply - This option applies only to the inetMailUser object
+      class.
+
+      program - Deliver mail to a program.  For security reasons, the
+      value of this attribute is restricted to authorized programs. The
+      list of such authorized programs may only be modified by the email
+      system administrator; values are specified via the
+      'mailDeliveryProgramInfo' attribute. The 'program' option is also
+      valid for the inetMailUser object class.
+
+      forward - This option applies only to the inetMailUser object
+      class.
+
+      file - Append incoming mail to a file.  For this option to have
+      any effect, mailDeliveryFile MUST point to a valid file,
+      accessible from the local machine, for which the message transfer
+      agent has write privileges.  The 'file' option is also valid for
+      the inetMailUser object class.
+
+   MTAs must be able to parse options other than those above, although a
+   particular MTA may not be able to support such options.  This is so
+   that vendors may use attribute values other than those specified
+   above. In such cases, it is recommended that the name be prefixed
+   with a vendor-specific name, such as a stock symbol.
+
+4.4.7.  mailProgramDeliveryInfo attribute (ces, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.14
+      NAME 'mailProgramDeliveryInfo'
+      DESC 'named programs for message post-processing'
+      EQUALITY caseExactIA5Match
+      SYNTAX IA5String
+   )
+
+   Specifies one or more programs to which inbound messages will be
+   delivered if the 'mailDeliveryOption' specified in section 4.4.6
+   contains a value of "program".  If the 'mailDeliveryOption' does not
+   contain a value of "program" this attribute is ignored.  Valid
+   program names are defined as part of MTA configuration and the
+
+
+
+Srivastava                   Informational                     [Page 11]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   programs are installed on the server by the system administrator(s).
+
+4.5.  Mail list administration attributes
+
+   We define those distribution lists attributes in this section that
+   are used by administration programs.  These include password, whether
+   the list is open or closed, etc.
+
+4.5.1.  joinable attribute (cis, 0-1, {admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.4
+      NAME 'joinable'
+      DESC 'indicate if users can subscribe to the list'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX IA5String
+      SINGLE-VALUE
+   )
+
+   Used by administrative applications to permit members to add
+   themselves as a member of the distribution list.  Accepted values are
+   'TRUE' and 'FALSE'.  Missing attribute/value pair is functionally
+   equal to 'joinable=FALSE'.
+
+4.5.2.  multiLineDescription attribute (cis, 0-many, {admin, client})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.19
+      NAME 'multiLineDescription'
+      DESC 'multi-line description of this list'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX IA5String
+   )
+
+   Multi-line description of the distribution list.
+
+4.5.3.  seeAlso attribute (dn, 0-many, {admin, client})
+
+   ( 2.5.4.34
+      NAME 'seeAlso'
+      DESC 'directory entry that holds more information about this list'
+      EQUALITY 'caseExactIA5Match'
+      SYNTAX 'IA5String'
+   )
+
+   Distinguished name of an entry to consult for further information.
+
+4.5.4.  expandable attribute (cis, 0-1, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.10
+
+
+
+Srivastava                   Informational                     [Page 12]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+      NAME 'expandable'
+      DESC 'privacy option for membership list'
+      EQUALITY 'caseIgnoreIA5Match'
+      SYNTAX 'IA5String'
+      SINGLE-VALUE
+   )
+
+   Determines if the distribution list is expandable or not, i.e. if
+   somebody can list the addresses of the members of the distribution
+   list.  Takes value of TRUE/FALSE.  If set to TRUE, the SMTP command
+   "expn <dl_name>" returns the RFC-822 address of the members of this
+   distribution list.  When expandable=TRUE, the list MUST be expanded
+   on the MTA only on the mail server specified in the mailHost
+   attribute.
+
+4.5.5.  datasource attribute (cis, 0-1, {admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.11
+      NAME 'datasource'
+      DESC 'free form text to indicate source of data'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX IA5String
+      SINGLE-VALUE
+   )
+
+   Free form text that describes the original source or identifier of
+   the provisioning tool.
+
+4.6.  Mail restriction attributes
+
+   There are several inetMailGroup attributes that are key to
+   determining who can submit messages to the distribution list.  This
+   proposal allows restrictions based on domains and addresses. One may
+   call out the list of authorized domains/submitters or unauthorized
+   domains/submitters.
+
+   Attributes that restrict who can submit messages to the list fall in
+   two broad categories:
+
+      authorized - users/domains who are explicitly allowed
+      to submit messages to the distribution list.
+
+      unauthorized - users/domains who are explicitly disallowed to
+      submit messages to the distribution list.
+
+   Additionally, by specifying a moderator, the MTA can be directed to
+   deliver submitted messages only to the moderators, unless the message
+   is submitted by one of the moderators, in which case it is delivered
+
+
+
+Srivastava                   Informational                     [Page 13]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   to all distribution list members.
+
+   A distribution list that does not have authorizedDomain,
+   unauthorizedDomain, authorizedSubmitter and unauthorizedSubmitter
+   attributes in the LDAP entry for the distribution list is treated as
+   an unrestricted list and anybody can submit messages to this list.
+
+   If any of the authorizedDomain, unauthorizedDomain,
+   authorizedSubmitter and unauthorizedSubmitter attributes appear in
+   the distribution list LDAP entry, the list is considered a restricted
+   distribution list.
+
+   The following precedence rules are followed by the MTA when deciding
+   whether it should accept the message for further processing or not
+   ("From:" address is used in all the rules when looking for match):
+
+      if unauthorizedDomain exists in the LDAP entry, then sender's
+      domain must not match the domain(s) listed in the
+      unauthorizedDomain attribute.
+
+      if authorizedDomain attribute exists in the LDAP entry, then
+      sender's domain must match the domain(s) listed in the
+      authorizedDomain attribute.
+
+      if unauthorizedSubmitter attribute exists in the LDAP entry, the
+      sender's address must not match either the "mail" attribute or
+      "rfc822MailAlias" attribute of any DN listed in the form of a
+      "ldap://<DN>" address and must not match the RFC-822 address
+      listed in the form of a "mailto:<RFC-822>" address.
+
+      if authorizedSubmitter attribute exists in the LDAP entry, the the
+      sender's address must match either the "mail" attribute or
+      "rfc822MailAlias" attribute of any DN listed in the form of a
+      "ldap://<DN>" address and must not match the RFC-822 address
+      listed in the form of a "mailto:<RFC-822>" address.
+
+4.6.1.  moderator attribute (ces, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.5
+      NAME 'moderator'
+      DESC 'designated moderator(s) of the distribution list'
+      EQUALITY caseExactIA5Match
+      SYNTAX IA5String
+   )
+
+   Specified using the notation developed in section 4.1.
+
+   Address of the moderator(s) of this distribution list. All messages
+
+
+
+Srivastava                   Informational                     [Page 14]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   submitted to this distribution list are delivered to the moderator(s)
+   listed in directory entry.  The moderator(s) then resubmits messages
+   to the list for them to be delivered to the list members.  The
+   'From:' header of the resubmitted message MUST contain one of the
+   addresses listed in the moderator(s) list. If the listed moderator is
+   a distinguished name then the 'From:' address MUST match the value of
+   'mail' or 'rfc822MailAlias' attribute of the LDAP entry specified by
+   the DN.
+
+4.6.2.  authorizedDomain attribute (cis, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.8
+      NAME 'authorizedDomain'
+      DESC 'Domains authorized to submit messages to the distribution list'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX 'IA5String'
+   )
+
+   Domain name from which users are authorized to post to the
+   distribution list.  The wildcard character is "*". The value of this
+   attribute SHOULD conform to RFC-822 specification. Using the wildcard
+   character one may optionally replace a sub-domain to authorize the
+   entire DNS hierarchy below a given top or sub-domain.
+
+   A distribution list entry with an empty authorizedDomain allows
+   senders from all domains to post messages to the list, except if they
+   are called out in the following attributes: unauthorizedDomain,
+   authorizedSubmitter or unauthorizedSubmitter.
+
+4.6.3.  authorizedSubmitter attribute (ces, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.9
+      NAME 'authorizedSubmitter'
+      DESC 'addresses authorized to submit messages to the distribution list'
+      EQUALITY caseExactIA5Match
+      SYNTAX 'IA5String'
+   )
+
+   Specified using the notation developed in section 4.1.
+
+   List of all addresses authorized to submit messages to this
+   distribution list.  An 'open' list does not restrict submissions to
+   the list and does NOT contain a list of authorized/unauthorized
+   submitters or a list of authorized/unauthorized domains.  This
+   attribute specifies the list of addresses permitted to submit
+   messages to the distribution list.  The address in 'From:' header
+   MUST match one of the addresses listed here before the MTA will
+   deliver the message to a list of members.
+
+
+
+Srivastava                   Informational                     [Page 15]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+4.6.4.  unauthorizedDomain attribute (cis, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.17
+      NAME 'unauthorizedDomain'
+      DESC 'Domains not authorized to submit messages to the distribution list'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX IA5String
+   )
+
+   This attribute MAY be used in conjunction with
+   'unauthorizedSubmitter' to specify sender restrictions.  The domain
+   of the sender's address is compared against those in this attribute.
+   If there are no entries in this attribute then all domains are
+   allowed.  However, if 'authorizedDomain' has a list of domains then
+   messages from all domains other than those in the 'authorizedDomain'
+   list are rejected.
+
+   See section 4.5 for precedence rules for the 'authorizedDomain' and
+   'unauthorizedDomain' attributes.
+
+   The value should conform to RFC-822 specification.  The wildcard
+   character for any field in the address is "*".
+
+4.6.5.  unauthorizedSubmitter attribute (ces, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.18
+      NAME 'unauthorizedSubmitter'
+      DESC 'mailto: or ldap: URL of allowed sender of mail to the list'
+      EQUALITY caseExactIA5Match
+      SYNTAX 'IA5String'
+   )
+
+   Specified using the notation developed in section 4.1.
+
+   Addresses of users not permitted to post messages to the list. This
+   attribute MAY be used in conjunction with 'authorizedSubmitter' to
+   specify sender restrictions.  The sender's address is compared
+   against those in this attribute.  If there is a match then the
+   message is rejected.  If there are no entries in this attribute then
+   all senders are allowed.  However, if 'authorizedSubmitter' has a
+   list of addresses, then messages from those senders are accepted.
+
+   See section 4.5 for precedence rules for the 'authorizedSubmitter'
+   and 'unauthorizedSubmitter' attributes.
+
+4.7.  Membership attributes
+
+   There are several inetMailGroup attributes that are key to
+
+
+
+Srivastava                   Informational                     [Page 16]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   determining who can submit messages to the distribution list.  This
+   proposal allows restrictions based on domains and addresses. One may
+   call out the list of authorized domains/submitters or unauthorized
+   domains/submitters.  Additionally, the distribution list may be
+   marked as moderated by specifying a moderator for the distribution
+   list.
+
+   The members of an alias or distribution list are made up of the union
+   of the users specified in the 'uniqueMember' attribute of the
+
+4.7.1.  rfc822MailMember attribute (cis, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.15
+      NAME 'rfc822MailMember'
+      DESC 'rfc822 mail address of group member(s)'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX IA5String
+   )
+
+   Membership of distribution list MAY be specified using the
+   'uniqueMember' attribute of the object class 'groupOfUniqueNames'.
+   However, since the syntax of the 'uniqueMember' attribute is
+   Distinguished Name, only users who are defined in the directory would
+   be supported.  The 'rfc822MailMember' attribute is used to define
+   members of a distribution list that do not have LDAP entries in the
+   directory.
+
+4.7.2.  membershipFilter attribute (ces, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.20
+      NAME 'membershipFilter'
+      DESC 'LDAP search URL to describe distribution list membership'
+      EQUALITY 'caseExactIA5Match'
+      SYNTAX 'IA5String'
+   )
+
+   This attribute allows us to specify membership in the group using an
+   LDAP search URL.  This allows the creation of a group based on search
+   of the directory for entries that match the given filter, rather than
+   explicitly calling out each member individually.
+
+   The URL has the form:
+   ldap://[<server>[:<port>]]/<baseDN>?[<attrs>]?<scope>?<filter>.  The
+   'attrs' portion of the URL is not applicable for this use and is
+   ignored.  Default value for 'server:port' is the LDAP server being
+   used by the MTA.  The 'baseDN' specifies the base for the search; if
+   not present, the default is the baseDN being used by the MTA.  The
+   scope defines levels of the directory tree to be searched relative to
+
+
+
+Srivastava                   Informational                     [Page 17]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   the specified search base; its default value is 'base'.  Finally, the
+   default for filter is "(mail=*)" since we only want to include those
+   entities in the distribution list that can accept mail.
+
+
+5.  Internet Mail Users
+
+   Within the context of this Internet-Draft, an LDAP record for an
+   internet services user consists of the following object classes and
+   their attributes: inetSubscriber (section 5.2), inetMailUser (5.3),
+   inetOrgPerson [INETORGPERSON].
+
+   The inetSubscriber object class is an auxiliary class shared by
+   several Sun products. It requires an inetOrgPerson structural object
+   class since a number of auxiliary object classes depend on attributes
+   (specified below) from inetOrgPerson.
+
+   The inetSubscriber object class is intended to provide information
+   needed to manage a subscriber of one or more internet services (for
+   example, sending of email, retrieving received email, calendar
+   access, etc.). This results in a single shared object that can be
+   checked to determine which of those services a specific user is
+   authorized to use. Note that although it is beyond the scope of this
+   draft, the inetSubscriber object class is being used to support
+   access to internet services beyond the email domain (e.g. http, news,
+   etc.).
+
+   The inetMailUser object class, in conjunction with the auxiliary
+   object classes inetSubscriber, inetMailRouting and the structural
+   object class inetOrgPerson, will be present in the LDAP directory
+   entries for all users who will receive, send, or read internet email.
+   Internet email clients and servers should use this object class to
+   store and retrieve information related to storage of incoming email
+   and sending of outbound email.  All email users must have this object
+   class.
+
+5.1.  Inherited Object Classes and Attributes
+
+   The following attributes are used in this specification but are
+   defined in other specifications: uid, userPassword, givenName,
+   commonName, and surname.
+
+   As defined in RFC 1274 [COSINE] the uid (cis, 1, {client, msma,
+   admin}) attribute is the name, unique within a domain, which is used
+   by a subscriber to log in to a computer system. The uid attribute
+   must be used to authenticate to the email message access service
+   before the user may read messages in their mailbox(es).
+
+
+
+
+Srivastava                   Informational                     [Page 18]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   As defined in RFC 2256 the userPassword (cis, 1, {client, msma,
+   admin}) attribute is the password used by the subscriber to
+   authenticate to a server for access to a particular service.
+
+   As defined in RFC 2256 the givenName (ces, 0-many, {admin}) attribute
+   is used to hold the part of a person's name which is not their
+   surname or middle name.
+
+   As defined in RFC 2256 the surname (ces, 0-1, {admin}) attribute is
+   used to hold a person's last, or family, name.
+
+   As defined in RFC 2256 the commonName (ces, 0-many, {admin})
+   attribute is used to hold the concatenation of a person's first and
+   last (or family) name.  In the directory the commonName of a person
+   is a naming attribute. Because names are not always unique,
+   provisioning software may optionally transform a non-unique
+   'commonName' into a name that is unique within a domain; it may do
+   this by further concatenating the value of the 'uid' attribute to the
+   default commonName value, and then using that now-unique value as the
+   naming attribute. This is acceptable behavior because the commonName
+   attribute is defined to be multi-valued.
+
+5.2.  inetSubscriber objectClass definition
+
+   The inetSubscriber object class is defined as follows:
+
+   ( 1.3.6.1.4.1.42.2.27.3.2.1
+      NAME 'inetSubscriber'
+      SUP top
+      AUXILIARY
+      MUST (
+         uid
+      )
+      MAY (
+         inetAuthorizedServices $ inetSubscriberHttpURL $
+         inetSubscriberStatus
+      )
+   )
+
+5.2.1.  inetAuthorizedServices Attribute (cis, 0-many, {client, mta,
+msma, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.3.1.1
+      NAME 'inetAuthorizedServices'
+      DESC 'list of internet services authorized for use by this user'
+      EQUALITY distinguishedNameMatch
+      SYNTAX distinguishedNameSyntax
+   )
+
+
+
+Srivastava                   Informational                     [Page 19]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   inetAuthorizedServices is a list of tokens representing services
+   which this user is authorized to access.  If this attribute is
+   missing from a user entry, then the user has permission to use all
+   supported internet services.  If more granular authorization is
+   desired, provisioning tools should add the tokens representing
+   services available to the user.  It is recommended that a directory
+   access control rule be added to the system to restrict the user's
+   ability to modify this attribute.
+
+   The tokens defined by this document are:
+
+      imap - IMAP based message access
+
+      imaps - secure IMAP based message access
+
+      pop3 - POP based message access
+
+      pop3s - secure POP based message access
+
+      pop3r - restricted POP access. All messages, once retrieved (RETR
+      <mesg_id>) are marked for deletion by the server
+
+      smtp - access to SMTP server for message submission.  SMTP server
+      may be configured to deny anonymous submissions and if so
+      configured a submitter may be  required to authenticate with SMTP
+      server prior to message submission.  If the server requires
+      authentication and a user is not authorized for this service, SMTP
+      server will reject messages submitted by that user.  This policy
+      is a configuration option for the SMTP server.
+
+      smtps - access to secure SMTP server for message submission
+
+   It is recommended that additional tokens be defined as part of the
+   standards process, however in cases where that is not possible
+   additional tokens may be defined by vendors.  These additional tokens
+   must begin with a unique suffix to avoid name clashes among vendors.
+   Where possible it is recommended that the vendor's stock symbol be
+   used to create this unique token suffix.
+
+5.2.2.  inetSubscriberHttpURL attribute (ces, 0-many, {})
+
+   ( 1.3.6.1.4.1.42.2.27.3.1.2
+      NAME 'inetSubscriberHttpURL'
+      DESC 'web page(s) of the subscriber'
+      EQUALITY caseExactStringMatch
+      SYNTAX caseExactStringSyntax
+   )
+
+
+
+
+Srivastava                   Informational                     [Page 20]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   inetSubscriberHttpURL contains HTTP-based URL's for the subscribers
+   web page(s).
+
+5.2.3.  inetSubscriberStatus Attribute (cis, 0-1, {client, mta, msma,
+admin})
+
+   ( 1.3.6.1.4.1.42.2.27.3.1.3
+      NAME 'inetSubscriberStatus'
+      DESC 'status of the subscribers account'
+      EQUALITY caseExactStringMatch
+      SYNTAX caseExactStringSyntax
+      SINGLE
+   )
+
+   inetSubscriberStatus specifies the status of a subscribers account
+   with regard to global access. The intent of this attribute is to
+   allow the Internet Service Provider to temporarily suspend and re-
+   enable access, or to permanently remove access, by the subscriber to
+   the account.
+
+   This attribute takes one of three values. If this attribute is
+   missing from a user entry, the semantics are the same as if the value
+   is 'active'.
+
+   Supported values are:
+
+      active - The subscriber account is active.  The subscriber may use
+      all accesses granted by inetAuthorizedServices.
+
+      inactive - The subscriber account is inactive.  The subscriber may
+      not use any services granted by inetAuthorizedServices.  Service
+      requests for a user marked as inactive must return transient
+      failures.
+
+      deleted - The subscriber account is marked as deleted.  The
+      account may remain in this state within the directory for some
+      time (pending purging of deleted users). Service requests for a
+      user marked as deleted must return permanent failures.
+
+   It is intended that users marked as "inactive" can be made "active"
+   again, i.e. their service may be restored, simply by changing the
+   value of this attribute back to "active". Users marked as "deleted",
+   however, may require further actions outside the context of the
+   Directory in order to re-instate their services. For example, if
+   their mailboxes have been archived to tape, or even removed, they may
+   not be available immediately (if at all) to the user should the
+   account be made "active" again.
+
+
+
+
+Srivastava                   Informational                     [Page 21]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+
+5.3.  inetMailUser objectClass definition
+
+   The inetMailUser object class is defined as follows:
+
+   ( 1.3.6.1.4.1.42.2.27.2.2.3
+      NAME 'inetMailUser'
+      SUP top
+      AUXILIARY
+      MUST (
+         inetMailUserVersion
+      )
+      MAY (
+         datasource $ mailAutoReplyStartDate $
+         mailAutoReplyExpirationDate $ mailAutoReplyTimeout $
+         mailAutoReplySubject $ mailAutoReplyText $
+         mailAutoReplyTextInternal $ mailDeliveryFile $
+         mailDeliveryOption $ mailFolderMap $
+         mailForwardingAddress $ mailHost $
+         mailMessageStore $ mailProgramDeliveryInfo $
+         mailQuota $
+         userDefinedAttribute1 $ userDefinedAttribute2 $
+         userDefinedAttribute3 $ userDefinedAttribute4
+      )
+   )
+
+5.3.1.  datasource attribute (cis, 0-1, {admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.11
+      NAME 'datasource'
+      DESC 'free form text to indicate source of data'
+      EQUALITY 'caseIgnoreIA5Match'
+      SYNTAX 'IA5String'
+      SINGLE-VALUE
+   )
+
+   Free form text that describes the source or identifier of the
+   provisioning tool.
+
+5.3.2.  inetMailUserVersion attribute (ces, 1, {admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.21
+      NAME 'inetMailUserVersion'
+      DESC 'Version of this instance of the inetMailUser object class'
+      EQUALITY caseExactStringMatch
+      SYNTAX caseExactStringSyntax
+      SINGLE-VALUE
+   )
+
+
+
+Srivastava                   Informational                     [Page 22]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   The version tag of this object class. This attribute exists so that
+   LDAP clients supporting internet email services may retrieve LDAP
+   objects which support a particular revision of schema which they wish
+   to support.  The starting value of version tags is "1.0", and any
+   change to this object class in the future must increment the
+   inetMailUserVersion attribute value.
+
+5.3.3.  mailAutoReplyStartDate attribute (generalizedTime, 0-1, {client,
+mta})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.22
+      NAME 'mailAutoReplyStartDate'
+      DESC 'Date on which to enable email Auto-Reply'
+      SYNTAX generalizedTime
+      SINGLE-VALUE
+   )
+
+   mailAutoReplyStartDate specifies when an MTA should enable automatic
+   replies to incoming email for a user with this attribute set.
+
+5.3.4.  mailAutoReplyExpirationDate attribute (generalizedTime, 0-1,
+{client, mta})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.23
+      NAME 'mailAutoReplyExpirationDate' (generalizedTime, 0-1, {client, mta})
+      DESC 'Date on which to disable email Auto-Reply'
+      SYNTAX generalizedTime
+      SINGLE-VALUE
+   )
+
+   mailAutoReplyExpirationDate specifies the date on which to disable
+   automatic replies to incoming email for a user with this attribute
+   set.
+
+5.3.5.  mailAutoReplyTimeout attribute (cis, 0-1, {client, mta})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.24
+      NAME 'mailAutoReplyTimeout'
+      DESC 'Duration between auto-replies'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+      SINGLE-VALUE
+   )
+
+   For a user with mailDeliveryOption set to 'autoreply', the
+   mailAutoReplyTimeout attribute contains the duration, in hours,
+   between successive auto-replies to incoming email from a specific
+   sender. An implementation may choose to treat aliases for the same
+
+
+
+Srivastava                   Informational                     [Page 23]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   recipient as distinct (separate) senders.
+
+   The MTA must not send auto-replies to distribution lists.
+
+5.3.6.  mailAutoReplySubject attribute (cis, 0-1, {client, mta})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.25
+      NAME 'mailAutoReplySubject'
+      DESC 'The Subject line of an auto-reply message'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+      SINGLE-VALUE
+   )
+
+   mailAutoReplySubject is the subject line of an auto-reply message.
+   If it contains $SUBJECT then the token is replaced by the subject
+   line of the incoming message.
+
+5.3.7.  mailAutoReplyText attribute (cis, 0-1, {client, mta})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.26
+      NAME 'mailAutoReplyText'
+      DESC 'The body of an auto-reply message'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+      SINGLE-VALUE
+   )
+
+   mailAutoReplyText is the body of the auto-reply message.  If it
+   contains the tokens $SUBJECT or $BODY then these are replaced by the
+   subject or the body of the inbound message.  Use '$' as a line
+   separator.
+
+5.3.8.  mailAutoReplyTextInternal attribute (cis, 0-1, {client, mta})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.27
+      NAME 'mailAutoReplyTextInternal'
+      DESC 'The body of an internal auto-reply message'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+      SINGLE-VALUE
+   )
+
+   The body of the auto-reply message for internal auto-replies.  Only
+   those senders within the same domain receive the
+   'mailAutoReplyTextInternal' If this attribute contains the tokens
+   $SUBJECT or $BODY then these are replaced by the subject or the body
+   of the inbound message.  Use '$' as a line separator.
+
+
+
+Srivastava                   Informational                     [Page 24]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+5.3.9.  mailDeliveryFile attribute (ces, 1-many, {mta})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.28
+      NAME 'mailDeliveryFile'
+      DESC 'Pathname of mailbox for incoming mail'
+      SYNTAX caseExactString
+   )
+
+   mailDeliveryFile is the fully qualified pathname of a file to which
+   incoming messages are appended. This file must be accessible for
+   writing from the filesystem on the user's mail host.
+
+5.3.10.  mailDeliveryOption attribute (cis, 1-many, {mta})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.29
+      NAME 'mailDeliveryOption'
+      DESC 'message handling option for messages sent to a designated recipient'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+   )
+
+   mailDeliveryOption specifies one or more delivery options for inbound
+   email to a designated recipient.  While inbound messages can be
+   delivered into multiple message stores, message access servers can
+   read messages from only one of them (the mail store from which
+   messages are read is specified using the mailFolderMap attribute).
+
+   The Message Transfer Agent uses this attribute to determine the
+   targets of message delivery for all messages submitted to this
+   individual recipient.  The attribute is also used by the
+   inetMailGroup object class.
+
+   The value of this attribute can take one of a specified set of
+   options; the subset valid for individual recipients are described as
+   follows:
+
+      mailbox - Deliver mail to a vendor specific/high performance
+      Message Store mailbox. The 'mailFolderMap' attribute specifies the
+      mail store from which a Message Access agent would expect to
+      retrieve delivered mail.  For example, in the unbundled Sun
+      internet email product, provisioning a user to read messages from
+      the Sun Message Store would require setting the mailDeliveryOption
+      to 'mailbox', and the associated 'mailFolderMap' attribute to
+      'Sun-MS'.  (Please refer to the description of the mailFolderMap
+      attribute below.)
+
+      shared - This option applies only to the inetMailGroup object
+      class.
+
+
+
+Srivastava                   Informational                     [Page 25]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+      native - Deliver mail to a local sendmail-style file system
+      mailbox (also known as the "/var/mail box").  If
+      'mailDeliveryOption' is set to 'native', then the 'mailFolderMap'
+      attribute must be set to 'UNIX V7' in order for the user to read
+      messages from the native message store using the Sun internet
+      email product's message access services. Please refer to the
+      'mailFolderMap' and 'mailMessageStore' attribute definitions
+      below.
+
+      autoreply - Deliver mail to an auto-reply facility. When this
+      value is set the behavior of the autoreply feature of the MTA will
+      be controlled by the following inetMailUser attributes:
+      mailAutoReplyStartDate, mailAutoReplyExpirationDate,
+      mailAutoReplyTimeout, mailAutoReplySubject, mailAutoReplyText, and
+      mailAutoReplyTextInternal.
+
+      program - Deliver mail to another program. A more detailed
+      description of the 'program' option may be found in 4.2.11.
+
+      forward - Forward incoming mail to another RFC-822 compliant
+      address.  Refer to the attribute 'mailForwardingAddress' for
+      related information.
+
+      file - Append incoming mail to a file. A more detailed description
+      of the 'file' option may be found in 4.2.11.  Please also refer to
+      the 'mailDeliveryFile' attribute in this section.
+
+   MTAs must be able to parse options other than those above, although a
+   particular MTA may not be able to support such options.  This is so
+   that vendors may use attribute values other than those specified
+   above. In such cases, it is recommended that the name be prefixed
+   with a vendor-specific name, such as a stock symbol.
+
+5.3.11.  mailFolderMap attribute (cis, 0-1, {msma, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.30
+      NAME 'mailFolderMap'
+      DESC 'Location of the message store for user folders'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+      SINGLE-VALUE
+   )
+
+   mailFolderMap is the message store for a user's mail folders.
+   Message access servers (imap server, pop server, etc) use this
+   attribute to determine a user's primary mailbox.  An MTA may deliver
+   a message into multiple locations and message access servers have to
+   be told the default mailbox of the user.  Supported values in the
+
+
+
+Srivastava                   Informational                     [Page 26]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   unbundled Sun internet email product are:
+
+      UNIX V7 - sendmail-style mail store.  Also known as the Berkeley
+      style /var/mail message store.
+
+      Sun-MS - Sun Message Store.  A high performance message store
+      accessed via POP or IMAP protocols.
+
+5.3.12.  mailForwardingAddress attribute  (cis, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.31
+      NAME 'mailForwardingAddress'
+      DESC 'RFC822 address to forward email to'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+   )
+
+   mailForwardingAddress specifies that the MTA should forward email to
+   the specified internet e-mail address (RFC822 format).  For the MTA
+   to forward the e-mail to these addresses, the mailDeliveryOption
+   attribute should include the value "forward" in addition to any other
+   delivery options.
+
+   For example, if a user wants to forward mail to another address, then
+   the directory entry for the user has the first block of  values for
+   mailForwardingAddress and mailDeliveryOption.  However if the user
+   wishes to continue receiving mail on their default server and forward
+   a copy of every message to another address then the directory entry
+   would have the second block of values. Example:
+
+      mailDeliveryOption: forward
+      mailFolderMap: Sun-MS
+      mailForwardingAddress: <RFC-822 address>
+
+      mailDeliveryOption: forward
+      mailDeliveryOption: mailbox
+      mailFolderMap: Sun-MS
+      mailForwardingAddress: <RFC-822 address>
+
+5.3.13.  mailMessageStore attribute (ces, 0-1, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.32
+      NAME 'mailMessageStore'
+      DESC 'File system location of the Inbox for a user'
+      SYNTAX caseExactString
+      SINGLE-VALUE
+   )
+
+
+
+
+Srivastava                   Informational                     [Page 27]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   mailMessageStore is the file system location for a user's INBOX.
+   This applies only when a mailDeliveryOption is set to native.   The
+   MTA will deliver incoming messages to this file.  The filesystem
+   location is in the context of the mail host. If this value is missing
+   and the user's mailDeliveryOption is set to native, then a default of
+   /var/mail is used by the server.  This attribute specifies only the
+   name of the directory; to derive the full name of the INBOX, the
+   value of the 'uid' attribute is implicitly appended to the directory
+   name.
+
+5.3.14.  mailProgramDeliveryInfo attribute (ces, 0-many, {mta, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.33
+      NAME 'mailProgramDeliveryInfo'
+      DESC 'Names of email pre-delivery processing programs'
+      EQUALITY caseExactIA5Match
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+   )
+
+   mailProgramDeliveryInfo specifies one or more named commands to use
+   in email delivery.  The valid named commands must be defined by the
+   MTA for secure operation.  These named commands are defined by system
+   administrators of the mail server and are mapped to an executable
+   (with zero or more options) which processes the messages addressed to
+   the user.  These programs are installed on the mail server and the
+   MTA must check that the program listed in the user's entry is on the
+   approved list before it starts the program.
+
+5.3.15.  mailQuota attribute (cis, 0-1, {mta, msma, admin})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.34
+      NAME 'mailQuota'
+      DESC 'Maximum size of a message store for a user'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+      SINGLE-VALUE
+   )
+
+   mailQuota specifies the maximum size (in bytes) of a user's message
+   store.  Note that this includes the Inbox and all other mailboxes or
+   folders which the user may have in the message store.  A value of
+   minus one ( -1 ) or a missing value denotes no limit on the
+   cumulative size of messages in a user's INBOX and/or folder
+   collection.  A value of minus two (-2) implies that the system or
+   domain default is used.  The default unit of bytes may be overridden
+   by using one of the tags listed below prefixed by the size:
+
+      <size>K - size is specified in kilo bytes
+
+
+
+Srivastava                   Informational                     [Page 28]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+      <size>M - size is specified in mega bytes
+      <size>G - size is specified in giga bytes
+      <size>T - size is specified in tera bytes
+
+5.3.16.  userDefinedAttribute1 attribute (cis, 0-many, {})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.35
+      NAME 'userDefinedAttribute1'
+      DESC 'First attribute for use by the user'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+   )
+
+   userDefinedAttribute1 may be used by the user.
+
+5.3.17.  userDefinedAttribute2 attribute (cis, 0-many, {})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.36
+      NAME 'userDefinedAttribute2'
+      DESC 'Second attribute for use by the user'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+   )
+
+   userDefinedAttribute2 may be used by the user.
+
+5.3.18.  userDefinedAttribute3 attribute (cis, 0-many, {})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.37
+      NAME 'userDefinedAttribute3'
+      DESC 'Third attribute for use by the user'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+   )
+
+   userDefinedAttribute3 may be used by the user.
+
+5.3.19.  userDefinedAttribute4 attribute (cis, 0-many, {})
+
+   ( 1.3.6.1.4.1.42.2.27.2.1.38
+      NAME 'userDefinedAttribute4'
+      DESC 'Fourth attribute for use by the user'
+      EQUALITY caseIgnoreMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+   )
+
+   userDefinedAttribute4 may be used by the user.
+
+
+
+
+Srivastava                   Informational                     [Page 29]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+6.  Examples
+
+   Some examples of inetMailUser, inetMailGroup and inetMailRouting and
+   their operation may be useful in developing an understanding of the
+   ideas behind this proposal.
+
+6.1.  Internet Mail User Examples
+
+   Below is an example LDAP record of a user provisioned for the
+   following services: SMTP (mail delivery), and  IMAP and POP (mail
+   access).  They are provisioned to have their incoming internet email
+   delivered to the Sun message store, no mailquota is set for them, and
+   they have several user aliases (rfc822mailbox) which the MTA will
+   recognize as valid addresses for incoming mail to them. Although
+   there are two attributes set for an auto-reply email program to
+   respond with, since the attribute "mailDeliveryOption" is not set to
+   the additional value of "autoreply" these values do not affect the
+   behavior of the MTA
+
+      dn: cn=Jill Smith (js),ou=People,dc=sun,dc=com,o=internet
+      cn: Jill Smith (js)
+      cn: Jill Smith
+      sn: Smith
+      initials: JS
+      givenname: Jill
+      mail: jill.smith@sun.com
+      inetAuthorizedServices: pop3
+      inetAuthorizedServices: imap
+      inetAuthorizedServices: smtp
+      mailquota: -1
+      mailfoldermap: SUN-MS
+      maildeliveryoption: mailbox
+      mailautoreplytext: Out of the office
+      mailautoreplytextinternal: I'm on vacation $ Jill Smith
+      mailhost: hostname.sun.com
+      rfc822mailbox: jill.smith@hostname.sun.com
+      rfc822mailbox: js@sun.com
+      rfc822mailbox: jill.smith@sun.com
+      uid: js
+      userpassword: {crypt}yh38nwNwU8N2
+      objectclass: top
+      objectclass: inetSubscriber
+      objectclass: inetOrgPerson
+      objectclass: inetMailUser
+
+6.2.  Internet Mail Distribution List Examples
+
+   The following LDIF describes a distribution list.  Mail to this list
+
+
+
+Srivastava                   Informational                     [Page 30]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+   can be sent to either football@sun.com, football-fanatics@sun.com or
+   football-fans@sun.com.  In addition to sending the messages to all
+   the members listed in uniqueMember and rfc822MailAlias attributes, it
+   will also append all messages to the file /dist-list/football-
+   mail.log on the mail host mail.sun.com.  However this list is
+   moderated (moderator= mailto: anil.srivastava@sun.com), messages will
+   be forwarded to the moderator and when the moderator re-submits the
+   message it is delivered to all the members.  This list is also a
+   'mailing list' and not an 'alias' (errorsTo is set), and any errors
+   generated as a result of message submissions are sent to the address
+   listed in errorsTo attribute.
+
+   There also a restriction on who can submit messages to this list.
+   All messages originating from the domains 'isp.net' and 'sun.com' are
+   accepted by the MTA, and in this case, forwarded to the list
+   moderator for further action.  Messages submitted from any other
+   domain are rejected.
+
+      dn: cn=Football,ou=Groups,dc=sun,dc=com,o=internet
+      commonName: Football
+      objectClass: top
+      objectClass: groupOfUniqueNames
+      objectClass: inetMailRouting
+      objectClass: inetMailGroup
+      owner: cn=Fred Random (fr),ou=People,dc=sun,dc=com,o=internet
+      moderator: ldap://cn=Jill Smith (js),ou=People,dc=sun,dc=com,o=internet
+      moderator: mailto: fred.random@sun.com
+      requestsTo: mailto:john.doe@isp.net
+      errorsTo: ldap://cn=Jill Smith (js),ou=People,dc=sun,dc=com,o=internet
+      mailHost: mail.sun.com
+      expandable: TRUE
+      joinable: FALSE
+      mail: football@sun.com
+      rfc822MailAlias: football-fanatics@sun.com
+      rfc822MailAlias: football-fans@sun.com
+      rfc822mailmember:john.doe@isp.net
+      rfc822mailmember:jane.doe@isp.net
+      uniqueMember: cn=Fred Random (fr),ou=People,dc=sun,dc=com,o=internet
+      uniqueMember: cn=Jill Smith (js),ou=People,dc=sun,dc=com,o=internet
+      maildeliveryoption: file
+      maildeliveryfile: /dist-list/football-mail.log
+      authorizeddomain: isp.net
+      authorizeddomain: sun.com
+
+7.  References
+
+[COSINE] P. Barker, S. Kille, "The COSINE and Internet X.500 Schema",
+RFC 1274, November 1991.
+
+
+
+Srivastava                   Informational                     [Page 31]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+[IMAP]  M. Crispin, "INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1",
+RFC 2060, December 1996.
+
+[INETORGPERSON] Mark Smith, "Definition of the inetOrgPerson Object
+Class", INTERNET-DRAFT, Work In Progress.
+
+[LDAP]  W. Yeong, T. Howes, S. Kille, "Lightweight Directory Access
+Protocol (v3)",  RFC 2251, December 1997
+
+[POP]  J. Myers, M. Rose, "Post Office Protocol - Version 3", RFC 1939,
+May 1996
+
+[RFC822]  David H. Crocker, "STANDARD FOR THE FORMAT OF ARPA INTERNET
+TEXT MESSAGES", RFC 822, August 1982.
+
+[RFC1123] R. Braden, "Requirements for Internet Hosts -- Application and
+Support", October 1989
+
+[RFC2256] M. Wahl, "A Summary of the X.500(96) User Schema for use with
+LDAPv3", RFC 2256, December 1997.
+
+[SMTP]  J. Postel, "Simple Mail Transfer Protocol", STD 10, RFC 821,
+August 1982.
+
+[URL] T. Berners-Lee, "Uniform Resource Locators (URL)", Standards
+Track, December 1994
+
+
+8.  Security Considerations
+
+   As with any LDAP schema, it is important to protect specific entries
+   and attributes with the appropriate access control.  Additionally,
+   the design and adoption of an adequately powerful access control
+   mechanism for LDAP is crucial if we are to support the rapidly
+   increasing deployment of LDAP-based applications. The schema
+   described in this document was designed to support this, but since
+   most of the related discussion  is beyond the immediate scope of
+   internet mail it has been reserved for future documents.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Srivastava                   Informational                     [Page 32]
+
+INTERNET-DRAFT       LDAP Schema for Internet Mail         November 1998
+
+
+
+9.  Authors' Addresses
+
+   Anil Srivastava
+   Sun Microsystems Inc.
+   901 San Antonio Rd., MS MPK17-204
+   Palo Alto, CA 94303-4900
+
+   Phone: (650) 960-1300
+   EMail: mail-schema@eng.sun.com
+
+   Robert Allen
+   Sun Microsystems Inc.
+   901 San Antonio Rd., MS MPK17-109
+   Palo Alto, CA 94303-4900
+
+   Phone: (650) 960-1300
+   EMail: mail-schema@eng.sun.com
+
+   Daryl Huff
+   Sun Microsystems Inc.
+   901 San Antonio Rd., MS MPK17-207
+   Palo Alto, CA 94303-4900
+
+   Phone: (650) 960-1300
+   EMail: mail-schema@eng.sun.com
+
+   Ellen Siegel
+   Sun Microsystems Inc.
+   901 San Antonio Rd., MS MPK18-209
+   Palo Alto, CA 94303-4900
+
+   Phone: (650) 960-1300
+   EMail: mail-schema@eng.sun.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Srivastava                   Informational                     [Page 33]

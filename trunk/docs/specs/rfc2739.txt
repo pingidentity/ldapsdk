@@ -1,0 +1,899 @@
+
+
+
+
+
+
+Network Working Group                                            T. Small
+Request for Comments: 2739                                  XpertSite.Com
+Category: Standards Track                                     D. Hennessy
+                                                                   ISOCOR
+                                                                F. Dawson
+                                                                    Lotus
+                                                             January 2000
+
+
+                 Calendar Attributes for vCard and LDAP
+
+
+Status of this Memo
+
+   This document specifies an Internet standards track protocol for the
+   Internet community, and requests discussion and suggestions for
+   improvements.  Please refer to the current edition of the "Internet
+   Official Protocol Standards" (STD 1) for the standardization state
+   and status of this protocol.  Distribution of this memo is unlimited.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2000).  All Rights Reserved.
+
+Abstract
+
+   When scheduling a calendar entity, such as an event, it is a
+   prerequisite that an organizer has the calendar address of each
+   attendee that will be invited to the event. Additionally, access to
+   an attendee's current "busy time" provides an a priori indication of
+   whether the attendee will be free to participate in the event.
+
+   In order to meet these challenges, a calendar user agent (CUA) needs
+   a mechanism to locate (URI) individual user's calendar and free/busy
+   time.
+
+   This memo defines three mechanisms for obtaining a URI to a user's
+   calendar and free/busy time. These include:
+
+   - Manual transfer of the information;
+
+   - Personal data exchange using the vCard format; and
+
+   - Directory lookup using the LDAP protocol.
+
+
+
+
+
+
+
+Small, et al.               Standards Track                     [Page 1]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+Table of Contents
+
+   1 CALENDARING AND SCHEDULING URIS...................................3
+    1.1 FREE/BUSY URI (FBURL) .........................................3
+    1.2 CALENDAR ACCESS URI (CAPURI) ..................................4
+    1.3 CALENDAR URI (CALURI) .........................................4
+    1.4 DEFAULT URIS ..................................................4
+   2 DISTRIBUTION......................................................4
+    2.1 MANUAL TRANSFER ...............................................5
+    2.2 PERSONAL DATA EXCHANGE USING A VCARD ..........................5
+    2.3 VCARD SCHEMA EXTENSIONS .......................................5
+     2.3.1 FBURL Property IANA Registration ...........................6
+     2.3.2 CALADRURI Property IANA Registration .......................7
+     2.3.3 CAPURI Property IANA Registration ......................... 8
+     2.3.4 CALURI Property IANA Registration ......................... 8
+    2.4 DIRECTORY LOOKUP USING THE LDAP V3 PROTOCOL .................. 9
+     2.4.1 LDAP Schema Extensions .................................... 9
+     2.4.2 Notation ..................................................10
+     2.4.3 Object Definitions ........................................10
+       2.4.3.1 calEntry ..............................................10
+     2.4.4 Attribute Definitions .....................................10
+       2.4.4.1 calCalURI .............................................10
+       2.4.4.2 calFBURL ..............................................10
+       2.4.4.3 calCAPURI .............................................11
+       2.4.4.4 calCalAdrURI ..........................................11
+       2.4.4.5 calOtherCalURIs .......................................11
+       2.4.4.6 calOtherFBURLs ........................................11
+       2.4.4.7 calOtherCAPURIs .......................................12
+       2.4.4.8 calOtherCalAdrURIs ....................................12
+   3 IANA Considerations..............................................12
+   4 Security Considerations..........................................12
+   5 Acknowledgments..................................................13
+   6 Authors' Addresses...............................................13
+   7 Bibliography.....................................................15
+   8 Full Copyright Statement.........................................16
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Small, et al.               Standards Track                     [Page 2]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+1  Calendaring and Scheduling URIs
+
+   This memo defines four classes of URIs. URIs are more useful if it is
+   understood what the URIs point to. Here is a brief description:
+
+1.1 Free/Busy URI (FBURL)
+
+   The free/busy URI is defined to be a transport independent location
+   where a client can obtain information about when a user is busy. At
+   the present time, this URI only points to busy time data. Future
+   revisions of this specification may provide for the extended
+   capability of publishing free time data.
+
+   If a calendaring and scheduling client (i.e., CUA) were to retrieve
+   data from this location using FTP or HTTP, it would get back an
+   iCalendar object [4] containing one or more "VFREEBUSY" calendar
+   components. If a MIME transport is being used, the response will be
+   contained within a "text/calendar" MIME body part as specified in the
+   iCalendar specification [4]. For example:
+
+      BEGIN:VCALENDAR
+      VERSION:2.0
+      PRODID:-//hacksw/handcal//NONSGML v1.0//EN
+      METHOD:PUBLISH
+      BEGIN:VFREEBUSY
+      ATTENDEE:MAILTO:jane_doe@host1.com
+      DTSTART:19971013T050000Z
+      DTEND:19971124T050000Z
+      DTSTAMP:19970901T083000Z
+      FREEBUSY:19971015T133000Z/19971015T180000Z
+      FREEBUSY:19971015T190000Z/19971015T220000Z
+      FBURL:http://www.host.com/calendar/busy/jdoe.ifb
+      END:VFREEBUSY
+      END:VCALENDAR
+
+   The amount of busy time data pointed to by the FBURL will generally
+   be pre-determined; for example one month of busy time data. As a
+   guideline, it is recommended that the previous six weeks of busy time
+   data be published at the location associated with the FBURL. If this
+   URI points to a file resource, it is recommended that the file
+   extension be "ifb" to distinguish it from an arbitrary iCalendar
+   object (e.g., with the "ics" file extension).
+
+
+
+
+
+
+
+
+
+Small, et al.               Standards Track                     [Page 3]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+1.2 Calendar Access URI (CAPURI)
+
+   The Calendar Access URI is defined to be a protocol independent
+   location from which a calendaring and scheduling client (i.e., CUA)
+   can communicate with a user's entire calendar.
+
+   The semantics for using this URI as an access protocol locator are
+   yet to be defined by the IETF CALSCH Working Group. This will be
+   addressed in the "Calendar Access Protocol" specification.
+
+1.3 Calendar URI (CALURI)
+
+   The Calendar URI is defined to be a protocol independent location
+   from which a calendaring and scheduling client (i.e. CUA) can
+   retrieve an entire copy of a user's calendar. Retrieving data from
+   this URI obtains a published "snapshot" of the user's calendar.
+
+   HTTP URI -- If the URI is an HTTP URI, then the content returned with
+   a GET should be a "text/calendar" MIME body part containing one or
+   more iCalendar object.
+
+   FTP URI -- If the URI is an FTP URI, then the resource pointed to
+   should be a file with an "ics" file extension containing one or more
+   iCalendar objects.
+
+1.4 Default URIs
+
+   There are many cases where a user may have more than one calendar. In
+   these cases, a user may have multiple URIs, each URI pointing to a
+   calendar or free/busy data.
+
+   To make the case of multiple calendars simpler for clients, the
+   concept of the "default" calendar is introduced. A "default" calendar
+   is one that the user has designated as the calendar that other users
+   should look at when accessing the user's calendar, or retrieving the
+   user's free/busy time.
+
+   The default calendar may, in fact, include rolled-up information from
+   all the user's other calendars. The other calendars may only exist
+   for organizational purposes.
+
+2  Distribution
+
+   These four URIs provide valuable pointers to calendaring and
+   scheduling data that other users need in order to know when to
+   schedule meetings, etc. There are several possibilities on how users
+   can communicate these URIs to other users. The following section
+   outlines how these URIs can be distributed to other users.
+
+
+
+Small, et al.               Standards Track                     [Page 4]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+2.1 Manual Transfer
+
+   The simplest way to obtain these URIs is for a user to communicate
+   the URIs using some out-of-band mechanism such as verbally, or in an
+   e-mail message, or by printing these URIs on a paper business card.
+
+   When using this mechanism, the user obtains these URIs using an out-
+   of-band mechanism and then enters these URIs into their calendaring
+   software manually.
+
+2.2 Personal Data Exchange Using A vCard
+
+   A more sophisticated way to obtain these URIs is for users to publish
+   vCards containing these URIs. The vCard object can be transferred
+   between one another. Since many e-mail clients allow a user to
+   automatically include a vCard with every message that the user sends,
+   this provides a simple, transparent way for a user to distribute
+   their calendaring and scheduling URIs.
+
+   On the receiving end, an e-mail client that provides an integrated
+   vCard database can provide a way to lookup calendaring URIs for users
+   whose vCards are stored locally.
+
+2.3 vCard Schema Extensions
+
+   Since the vCard [3] specification doesn't specify how to encode
+   calendaring URIs in a vCard, this section is provided as an extension
+   to vCard which specifies how to encode calendaring URIs within a
+   vCard.
+
+   Inside a vCard object, four new properties are defined: "CALURI",
+   "CAPURI", "CALADRURI", and "FBURL", as defined above.
+
+   Any vCard can have one or more of these properties, each representing
+   a calendar or free/busy time that is associated with the user.
+
+   One of these properties can be designated as the "default" by adding
+   the "PREF" parameter.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Small, et al.               Standards Track                     [Page 5]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+   Here is a simple example of a vCard containing a "FBURL" and a
+   "CALURI".
+
+      BEGIN:VCARD
+      VERSION:3.0
+      N:Dun;Alec
+      FN:Alec Dun
+      ORG:Microsoft Corporation
+      ADR;WORK;POSTAL;PARCEL:;;One Microsoft Way;
+       Redmond;WA;98052-6399;USA
+      TEL;WORK;MSG:+1-206-936-4544
+      TEL;WORK;FAX:+1-206-936-7329
+      EMAIL;INTERNET:user@host1.com
+      CALADRURI;PREF:mailto:user@host1.com
+      CALURI;PREF:http://cal.host1.com/user/cal.ics
+      FBURL;PREF:http://cal.host1.com/user/fb.ifb
+      CALURI:http://cal.company.com/projectA/pjtA.ics
+      FBURL:http://cal.company.com/projectA/pjtAfb.ifb
+      END:VCARD
+
+2.3.1 FBURL Property IANA Registration
+
+   To: ietf-mime-directory@imc.org
+
+   Subject: Registration of FBURL type for text/directory MIME type
+   vCard profile.
+
+   Type name: FBURL
+
+   Type purpose: To specify the URI for a user's busy time in a vCard
+   object.
+
+   Type encoding: 8bit
+
+   Type value: A single URI value.
+
+   Type special notes: Where multiple FBURL properties are specified,
+   the default FBURL property is indicated with the PREF parameter. The
+   FTP or HTTP type of URI points to an iCalendar object associated with
+   a snapshot of the last six weeks of the user's busy time data. If the
+   iCalendar object is represented as a file or document, it's file type
+   should be "ifb".
+
+   Intended usage: Refer to section 1.1.
+
+
+
+
+
+
+
+Small, et al.               Standards Track                     [Page 6]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+   Type examples:
+
+      FBURL;PREF:http://www.host1.com/busy/janedoe
+      FBURL:FTP://ftp.host.com/busy/project-a.ifb
+
+2.3.2  CALADRURI Property IANA Registration
+
+   To: ietf-mime-directory@imc.org
+
+   Subject: Registration of CALADRURI type for application/directory
+   MIME type vCard profile.
+
+   Type name: CALADRURI
+
+   Type purpose: To specify the location to which an event request
+   should be sent for the user.
+
+   Type encoding: 8bit
+
+   Type value: A single URI value.
+
+   Type special notes: Where multiple CALADRURI properties are
+   specified, the default CALADRURI property is indicated with the PREF
+   parameter.
+
+   Intended usage: Refer to section 1.2.
+
+   Type examples:
+
+      CALADRURI;PREF:mailto:janedoe@host.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Small, et al.               Standards Track                     [Page 7]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+2.3.3  CAPURI Property IANA Registration
+
+   To: ietf-mime-directory@imc.org
+
+   Subject: Registration of CAPURI type for application/directory MIME
+   type vCard profile.
+
+   Type name: CAPURI
+
+   Type purpose: To specify a protocol independent location from which a
+   calendaring and scheduling client (i.e., CUA) can communicate with a
+   user's entire calendar.
+
+   Type encoding: 8bit
+
+   Type value: A single URI value.
+
+   Type special notes: Where multiple CAPURI properties are specified,
+   the default CAPURI property is indicated with the PREF parameter.
+
+   Intended usage: Refer to section 1.3.
+
+2.3.4 CALURI Property IANA Registration
+
+   To: ietf-mime-directory@imc.org
+
+   Subject: Registration of CALURI type for text/directory MIME type
+   vCard profile.
+
+   Type name: CALURI
+
+   Type purpose: To specify the URI for a user's calendar in a vCard
+   object.
+
+   Type encoding: 8bit
+
+   Type value type: A single URI value.
+
+   Type special notes: Where multiple CALURI properties are specified,
+   the default CALURI property is indicated with the PREF parameter. The
+   property should contain a URI pointing to an iCalendar object
+   associated with a snapshot of the user's calendar store. If the
+   iCalendar object is represented as a file or document, it's file type
+   should be "ics".
+
+   Intended usage: Refer to section 1.4.
+
+
+
+
+
+Small, et al.               Standards Track                     [Page 8]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+   Type examples:
+
+      CALURI;PREF:http://cal.host1.com/calA
+      CALURI:ftp://ftp.host1.com/calA.ics
+
+2.4 Directory Lookup Using The LDAP v3 Protocol
+
+   Another way to obtain these URIs is to look them up in a directory
+   using the LDAP protocol [1].
+
+   If a user's URIs can be found using directory lookup (i.e., searching
+   for one of the LDAP schema extensions defined below), they should, in
+   general, be considered "more up-to-date" than URIs in any vCards that
+   are stored locally.
+
+2.4.1 LDAP Schema Extensions
+
+   In order to encode the calendaring URIs in the directory, the
+   following are defined:
+
+   - One object class:
+
+      - calEntry
+
+   - Eight attributes:
+
+      - calCalURI
+
+      - calFBURL
+
+      - calCAPURI
+
+      - calCalAdrURI
+
+      - calOtherCalURIs
+
+      - calOtherFBURLs
+
+      - calOtherCAPURIs
+
+      - calOtherCalAdrURIs
+
+   The calCalURI contains the URI to a snapshot of the user's entire
+   default calendar. The calFBURL contains the URI to the user's default
+   busy time data. The calCAPURI represents contains a URI that can be
+   used to communicate with the user's calendar. The calCalAdrURI
+   contains a URI that points to the location to which event requests
+   should be sent for that user.
+
+
+
+Small, et al.               Standards Track                     [Page 9]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+   The calOtherCalURIs is a multi-valued property containing URIs to
+   snapshots of other calendars that the user may have. The
+   calOtherFBURLs is a multi-valued property containing URIs to other
+   free/busy data that the user may have. The calOtherCAPURIs attribute
+   is a multi-valued property containing URIs to other calendars that
+   the user may have. The calOtherCalAdrURIs attribute is a multi-valued
+   property containing URIs to other locations that a user may want
+   event requests sent to.
+
+   There is no predetermined order to the values in either multi-valued
+   property.
+
+2.4.2  Notation
+
+   The notation used in this memo is the same as that used in [2].
+
+2.4.3  Object Definitions
+
+2.4.3.1  calEntry
+
+   The Calendar Entry is a class derived from "TOP" [2], which contains
+   the four calendaring attributes.
+
+      (1.2.840.113556.1.5.87
+        NAME 'calEntry'
+        TOP
+        AUXILIARY
+        MAY (calCalURI calFBURL calOtherCalURIs calOtherFBURLs calCAPURI
+        calOtherCAPURLs)
+      )
+
+2.4.4  Attribute Definitions
+
+2.4.4.1 calCalURI
+
+      (1.2.840.113556.1.4.478
+        NAME 'calCalURI'
+        EQUALITY caseIgnoreMatch
+        SUBSTRING caseIgnoreMatch
+        SYNTAX 'IA5String'
+        USAGE userApplications
+      )
+
+2.4.4.2  calFBURL
+
+      (1.2.840.113556.1.4.479
+        NAME 'calFBURL'
+        EQUALITY caseIgnoreMatch
+
+
+
+Small, et al.               Standards Track                    [Page 10]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+        SUBSTRING caseIgnoreMatch
+        SYNTAX 'IA5String'
+        USAGE userApplications
+      )
+
+2.4.4.3  calCAPURI
+
+      (1.2.840.113556.1.4.480
+        NAME 'calCAPURI'
+        EQUALITY caseIgnoreMatch
+        SUBSTRING caseIgnoreMatch
+        SYNTAX 'IA5String'
+        USAGE userApplications
+      )
+
+2.4.4.4  calCalAdrURI
+
+      (1.2.840.113556.1.4.481
+        NAME 'calCalAdrURI'
+        EQUALITY caseIgnoreMatch
+        SUBSTRING caseIgnoreMatch
+        SYNTAX 'IA5String'
+        USAGE userApplications
+      )
+
+2.4.4.5  calOtherCalURIs
+
+        (1.2.840.113556.1.4.482
+        NAME 'calOtherCalURIs'
+        EQUALITY caseIgnoreMatch
+        SUBSTRING caseIgnoreMatch
+        SYNTAX 'IA5String'
+        MULTI-VALUE
+        USAGE userApplications
+      )
+
+2.4.4.6  calOtherFBURLs
+
+      (1.2.840.113556.1.4.483
+        NAME 'calOtherFBURLs'
+        EQUALITY caseIgnoreMatch
+        SUBSTRING caseIgnoreMatch
+        SYNTAX 'IA5String'
+        MULTI-VALUE
+        USAGE userApplications
+      )
+
+
+
+
+
+Small, et al.               Standards Track                    [Page 11]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+2.4.4.7  calOtherCAPURIs
+
+      (1.2.840.113556.1.4.484
+        NAME 'calOtherCAPURIs'
+        EQUALITY caseIgnoreMatch
+        SUBSTRING caseIgnoreMatch
+        SYNTAX 'IA5String'
+        MULTI-VALUE
+        USAGE userApplications
+      )
+
+2.4.4.8  calOtherCalAdrURIs
+
+      (1.2.840.113556.1.4.485
+        NAME 'calOtherCalAdrURIs'
+        EQUALITY caseIgnoreMatch
+        SUBSTRING caseIgnoreMatch
+        SYNTAX 'IA5String'
+        MULTI-VALUE
+        USAGE userApplications
+      )
+
+3  IANA Considerations
+
+   This memo defines IANA registered extensions to the attributes
+   defined by LDAP [1] and vCard [3].
+
+   IANA registration proposals for vCard are to be emailed to the
+   registration agent for the "text/directory" MIME content-type,
+   <MAILTO:  ietf-mime-directory@imc.org> using the format defined in
+   [3].
+
+4  Security Considerations
+
+   Standard vCard and LDAP security rules and support apply for the
+   extensions described in this document, and there are no special
+   security issues for these extensions.
+
+   Please note, though, that LDAP servers may permit anonymous clients
+   to refresh entries which they did not create. Servers are also
+   permitted to control a refresh access to an entry by requiring
+   clients to bind before issuing a RefreshRequest. This will have
+   implications on the server performance and scalability.
+
+   Please also note, though, that vCard objects may have been created by
+   an entity other than that represented by the vCard. Recipients should
+   be certain of the source that generated the vCard.
+
+
+
+
+Small, et al.               Standards Track                    [Page 12]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+   Also, care should be taken in making use of information obtained from
+   directory servers that has been supplied by client, as it may now be
+   out of date. In many networks, for example, IP addresses are
+   automatically assigned when a host connects to the network, and may
+   be reassigned if that host later disconnects. An IP address obtained
+   from the directory may no longer be assigned to the host that placed
+   the address in the directory. This issue is not specific to LDAP or
+   dynamic directories.
+
+5  Acknowledgments
+
+   The authors wish to acknowledge the work of Alec Dun, who acted as an
+   author for the early drafts of this memo. In addition, this document
+   received input from the various participants in the IETF CALSCH
+   Working Group discussions.
+
+6  Authors' Addresses
+
+   The following address information is provided in a vCard v3.0 [3],
+   Electronic Business Card, format.
+
+   BEGIN:VCARD
+   VERSION:3.0
+   N:Small;Tony
+   FN:Tony Small
+   ORG:XpertSite.Com
+   ADR;TYPE=WORK,POSTAL,PARCEL:;;4700 42nd Ave. SW, Suite 440;
+    Seattle;WA;98116;USA
+   TEL;TYPE=WORK,MSG:+1-206-937-9972
+   TEL;TYPE=WORK,FAX:+1-206-936-7329
+   EMAIL;TYPE=INTERNET:tony@xpertsite.com
+   CALADRURI:MAILTO:tony@xpertsite.com
+   END:VCARD
+
+   BEGIN:VCARD
+   VERSION:3.0
+   N:Hennessy;Denis
+   FN:Denis Hennessy
+   ORG:ISOCOR
+   ADR;TYPE=WORK,POSTAL,PARCEL:;;42-47 Lower Mount St;
+    Dublin 2;Ireland
+   TEL;TYPE=WORK,MSG:+353-1-676-0366
+   TEL;TYPE=WORK,FAX:+353-1-676-0856
+   EMAIL;TYPE=INTERNET:denis.hennessy@isocor.com
+   CALADRURI:MAILTO:denis.hennessy@isocor.com
+   END:VCARD
+
+
+
+
+
+Small, et al.               Standards Track                    [Page 13]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+   BEGIN:VCARD
+   VERSION:3.0
+   N:Dawson;Frank
+   FN:Frank Dawson
+   ORG:Lotus Development Corporation
+   ADR;TYPE=WORK,POSTAL,PARCEL:;;6544 Battleford Drive;
+    Raleigh;NC;27613-3502;USA
+   TEL;TYPE=WORK,PREF:+1-617-693-8728
+   TEL;TYPE=WORK,MSG:+1-919-676-9515
+   TEL;TYPE=FAX:+1-617-693-8728
+   EMAIL;TYPE=INTERNET,PREF:Frank_Dawson@Lotus.com
+   EMAIL;TYPE=INTERNET:fdawson@earthlink.net
+   CALADRURI;TYPE=PREF:MAILTO:Frank_Dawson@Lotus.com
+   CALADRURI:MAILTO:fdawson@earthlink.net
+   URL:http://home.earthlink.net/~fdawson
+   END:VCARD
+
+   This memo is a result of the work of the Internet Engineering Task
+   Force Calendaring and scheduling Working Group. The chairman of that
+   working group is:
+
+   BEGIN:VCARD
+   VERSION:3.0
+   N:Egen;Pat
+   FN:Pat Egen
+   ORG:Engan Consulting
+   ADR;TYPE=WORK:;;803 Creek Overlook;Chattanooga;TN;37415;USA
+   TEL;TYPE=WORK,VOICE:423.875.2652
+   TEL;TYPE=WORK,FAX:423.875.2017
+   EMAIL:pregen@egenconsulting.com
+   URL:http://www.egenconsulting.com
+   CALADRURI:MAILTO:pregen@egenconsulting.com
+   END:VCARD
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Small, et al.               Standards Track                    [Page 14]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+7  Bibliography
+
+   [1] Wahl, M., Howes, T. and S. Kille, "Lightweight Directory Access
+       Protocol (v3)", RFC 2251, December 1997.
+
+   [2] Wahl, M., Coulbeck, A., Howes, T. and  S. Kille, "Lightweight
+       Directory Access Protocol (v3): Attribute Syntax Definitions",
+       RFC 2252, December 1997.
+
+   [3] Dawson, F. and  T. Howes, "vCard MIME Directory Profile", RFC
+       2426, September 1998.
+
+   [4] Dawson, F. and D. Stenerson, "Internet Calendaring and Scheduling
+       Core Object Specification (iCalendar)", RFC 2445, November 1997.
+
+   [5] Dawson, F. and S. Mansour, "iCalendar Message-Based
+       Interopability Protocal (iMIP)", RFC 2447, November 1997.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Small, et al.               Standards Track                    [Page 15]
+
+RFC 2739                Locating a Calendar User            January 2000
+
+
+8  Full Copyright Statement
+
+   Copyright (C) The Internet Society (2000).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Acknowledgement
+
+   Funding for the RFC Editor function is currently provided by the
+   Internet Society.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Small, et al.               Standards Track                    [Page 16]
+

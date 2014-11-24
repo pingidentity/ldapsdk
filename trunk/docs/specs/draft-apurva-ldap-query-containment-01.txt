@@ -1,0 +1,1334 @@
+
+
+INTERNET-DRAFT                                    	Apurva Kumar 
+Intended Category: Standard Track             IBM India Research Lab
+Expires November 6, 2003                                 May 6, 2003  
+
+
+	Schema to Support Query Containment in LDAP Directories 
+	      <draft-apurva-ldap-query-containment-01.txt>
+
+
+  Status of this Memo
+
+  This document is an Internet-Draft and is in full conformance with all
+  provisions of Section 10 of RFC2026.
+
+  Internet-Drafts are working documents of the Internet Engineering Task
+  Force (IETF), its areas, and its working groups.  Note that other
+  groups may also distribute working documents as Internet-Drafts.
+  Internet-Drafts are draft documents valid for a maximum of six months
+  and may be updated, replaced, or obsoleted by other documents at any
+  time.  It is inappropriate to use Internet-Drafts as reference
+  material or to cite them other than as ``work in progress.''
+
+  The list of current Internet-Drafts can be accessed at
+  <http://www.ietf.org/ietf/1id-abstracts.txt>. 
+  
+  The list of Internet-Draft Shadow Directories can be accessed at
+  <http://www.ietf.org/shadow.html>.
+
+  Copyright 2003, The Internet Society.  All Rights Reserved.
+
+  Please see the Copyright section near the end of this document for
+  more information.
+  
+Abstract
+
+  Lightweight Directory Access Protocol (LDAP) directories are being
+  used at the backend of many internet and intranet applications. LDAP
+  servers that cache entries which are returned as search results
+  (queries) for recently evaluated search requests, can use the semantic
+  information associated with these requests, to answer subsequent
+  search requests which are contained in them. This document describes
+  LDAP schema for representing the semantic information and for
+  supporting query containment of LDAP queries.  
+
+Conventions
+
+  Schema definitions are provided using LDAPv3 description formats
+  [RFC2252]. Definitions provided here are formatted (line wrapped) for
+  readability. 
+
+  The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+  "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+  document are to be interpreted as described in BCP 14 [RFC2119]. 
+
+
+Apurva                  Expires November 6 2003			[Page 1]
+
+	      Schema to support query containment in LDAP
+
+
+1. Table of Contents
+
+  1. Table of contents ..............................................  2
+  2. Background and Motivation ......................................  3
+  3. Applicability ..................................................  3
+  4. Notations ......................................................  3
+  5. Definitions ....................................................  3
+  6. String representation of prototype filters .....................  6
+  7. Query Containment Problem ......................................  6
+  8. LDAP schema for representing queries and templates .............  7
+     8.1 Syntaxes ...................................................  7 
+     8.2 Attribute Types ............................................  7 
+     8.3 Object Classes .............................................  8
+  9. Support for component based query containment ..................  9
+     9.1 Comparing components representing assertion values .........  9
+         9.1.1 AVCAssertion syntax ..................................  9
+         9.1.2 assertionValueMatch matching rule .................... 11
+     9.2 queryMatch: Equality match for queries ..................... 11
+     9.3 templateMatch: Equality match for templates ................ 12
+     9.4 queryTemplateMatch: Matching a query with a template ....... 13
+     9.5 queryContainmentMatch: Simple query containment ............ 13
+     9.6 Mechanisms to support general query containment ............ 15
+         9.6.1 AVCFilter syntax ..................................... 15
+         9.6.2 assertionValuesFilterMatch matching rule ............. 15
+     9.7 Example: Template based query containment .................. 15
+   10. Query containment based on attributes comparison ............. 18
+      10.1 Storing metadata ......................................... 18
+      10.2 Specifying conditions for containment .................... 19
+      10.3 Generating search filter for query containment ........... 19
+      10.4 Limitations .............................................. 19
+   11. Security Considerations ...................................... 19
+   12. IANA Considerations .......................................... 20
+   13. Acknowledgments .............................................. 20
+   14. Author's address ............................................. 21
+   15. Normative References ......................................... 21
+   16. Informative References ....................................... 22
+   17. Copyright Notice ............................................. 22
+   Appendix A: Conditions for Filter Containment .................... 23
+
+
+2. Background and Motivation
+  
+  A single Lightweight Directory Access Protocol (LDAP) [RFC3377]
+  directory instance is typically used at the backend by several
+  enterprise applications. Applications convert user requests into LDAP
+  search requests and send them to a backend LDAP server for evaluation.
+  The LDAP server evaluates the search request by performing database
+  queries corresponding to the request. The semantic information in an
+  LDAP search request is described by the LDAP filter, scope and base of
+  the search and a set of attributes requested from matching entries
+  [RFC2251]. 
+
+
+Apurva                  Expires November 6 2003			[Page 2]
+
+	      Schema to support query containment in LDAP
+
+  The backend server or an intermediate (proxy) server can provide means
+  to cache directory entries to improve performance, scalability and
+  availability of LDAP based services. However, caching simply the data
+  (entries) does not allow answering of subsequent semantically related
+  queries from the cache. Thus there is a need at LDAP proxy servers
+  and/or backend server to store semantic information corresponding to
+  cached entries and compare it with the semantics of an incoming query
+  to determine if the request can be answered from the cache. In this
+  document, schema for supporting query caching and its usage by a
+  directory server to determine whether an incoming query is contained
+  in any of the cached queries is described. 
+
+3. Applicability 
+
+  While the extensions described in this document are equally applicable
+  to query caching at the backend or replica directory server, it is
+  expected to be more useful in a proxy cache scenario. 
+
+  A proxy cache acts as a proxy to the backend directory by answering
+  queries locally or by fetching the results from the backend server.
+  The proxy cache could itself be a directory instance which stores the
+  data and metadata corresponding to LDAP queries and uses them to
+  answer incoming queries.  
+ 
+  This document covers the query containment aspect of an LDAP proxy
+  cache framework. Other aspects like cache replacement, prefetching,
+  consistency etc. are not discussed. 
+
+4. Notations
+  
+  Syntaxes are defined using Abstract Syntax Notation 1 (ASN.1). String
+  representation of LDAP filters [RFC2254] and the LDAP Data Interchange
+  Format (LDIF) [RFC2849] have been used in the examples in this
+  document. Generic string encoding rules [GSER] have been used for
+  human readable representations of ASN.1 types in examples. 
+
+5. Definitions
+
+  An LDAP search request [RFC2251] is also referred to as an LDAP query
+  or simply query. The semantic information associated with a query is
+  referred as metadata. The metadata is defined by the following: 
+
+  - baseObject: distinguished name (DN) of the base object of the
+    search.
+  - scope: specifies which objects below baseObject are to be searched. 
+         - base: only the base object.  
+	 - singleLevel: direct descendants of base object. 
+	 - wholeSubtree: base object and the entire subtree below it.  
+
+
+
+
+
+
+Apurva                  Expires November 6 2003			[Page 3]
+
+	      Schema to support query containment in LDAP
+
+
+  - filter: search criteria consisting of a boolean combination of
+    simple filters using standard boolean operators AND, OR, NOT.  
+  - attributes: set of attributes requested from entries matching the
+    search criteria. 
+  
+  A query can be represented using the following ASN.1 type: 
+
+  LDAPQuery ::= SEQUENCE {
+      -- baseObject and scope are either both present or both absent
+      baseObject 	LDAPDN OPTIONAL, 
+      scope		ENUMERATED {
+               baseObject     		(0), 
+	       singleLevel 		(1), 
+	       wholeSubtree		(2) } OPTIONAL, 
+      attributes        AttributeDescriptionSet OPTIONAL,
+      filter            Filter }
+
+  AttributeDescriptionSet ::= SET OF
+      AttributeDescription
+ 
+  LDAPDN is the string representation of distinguished name (DN) as
+  described by the <distinguishedName> rule in [RFC2253].
+  AttributeDescription and Filter are defined in [RFC2251].
+  'baseObject', 'scope', 'attributes' and 'filter' have the same
+  semantics as components with the same names in the 'SearchRequest'
+  data type of [RFC2251] except that attributes is a set rather than a
+  list. The 'baseObject', 'scope' and 'attributes' components can be
+  absent from a query specification only when the values of these
+  components are known from the context. 
+  
+  An LDAP template, or simply template is used to generate queries based
+  on given inputs. The template consists of a prototype filter which is
+  used to generate actual query filters. The prototype filter is similar
+  to a filter except that one or more assertion values are not
+  specified. Different filters can be generated from the prototype by
+  supplying different assertion values.  
+  
+  The ASN.1 type representing a template is as below: 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Apurva                  Expires November 6 2003			[Page 4]
+
+	      Schema to support query containment in LDAP
+
+
+  LDAPTemplate 	::=    SEQUENCE {
+      --baseObject and scope are either both present or both absent
+      baseObject 	LDAPDN OPTIONAL, 
+      scope		ENUMERATED {
+               baseObject     		(0), 
+	       singleLevel 		(1), 
+	       wholeSubtree		(2) } OPTIONAL, 
+      attributes        AttributeDescriptionSet OPTIONAL, 
+      prototype         PrototypeFilter }
+  
+  PrototypeFilter ::= CHOICE {
+                and             [0] SET OF PrototypeFilter,
+                or              [1] SET OF PrototypeFilter,
+                not             [2] PrototypeFilter,
+                equalityMatch   [3] AssertionTemplate,
+                substrings      [4] SubstringTemplate,
+                greaterOrEqual  [5] AssertionTemplate,
+                lessOrEqual     [6] AssertionTemplate,
+                present         [7] AttributeDescription,
+                approxMatch     [8] AssertionTemplate,
+                extensibleMatch [9] MRATemplate } 
+
+  AssertionTemplate ::= SEQUENCE {
+  		attributeDesc 		AttributeDescription, 
+		assertionValue		AssertionValue OPTIONAL }  
+
+  SubstringTemplate ::= SEQUENCE {
+                type            AttributeDescription,
+		-- at least one must be present 
+                format  SEQUENCE OF ENUMERATED {
+                        initial 	   (0), 
+                        any     	   (1), 
+			final              (2) } }
+
+  MRATemplate ::= SEQUENCE {
+       		-- either matchingRule or type should be present
+                matchingRule    MatchingRuleId OPTIONAL,
+                type            AttributeDescription OPTIONAL,
+                matchValue      AssertionValue OPTIONAL,
+                dnAttributes    BOOLEAN DEFAULT FALSE }
+
+  where AssertionValue, MatchingRuleId are defined in [RFC2251].
+  
+  In AssertionTemplate, 'assertionValue' component is optional. The
+  SubstringTemplate is similar to the SubstringFilter in [RFC2251]
+  except that the sequence of substring assertion values is replaced by
+  a sequence of enumeration identifiers describing the format of the
+  substring filters which can be generated from it. The MRATemplate is
+  similar to the MatchigRuleAssertion of [RFC2251] except that the
+  'matchValue' component is optional. 
+
+
+
+Apurva                  Expires November 6 2003			[Page 5]
+
+	      Schema to support query containment in LDAP
+
+
+  A query 'belongs' to a template, or is 'derived' from a template, if
+  the template (as specified by the LDAPTemplate type) could have been
+  used to generate the LDAPQuery specification of the query. This means
+  that the filter of the query can be generated by supplying missing
+  assertion values in the prototype filter of the template, and the
+  baseObject, scope and attributes components if specified in the
+  template should have the same values in the query.  
+
+6. String representation of prototype filters
+
+  Human readable representation for prototype filters is described
+  below. The representation is merely to aid discussion of examples and
+  does not correspond to an encoding rule used for transferring values
+  of the syntaxes defined in Section 5. Generic String Encoding Rules
+  [GSER] can be used to obtain a human readable transfer syntax. 
+
+  The string representation of a value of the PrototypeFilter type is
+  obtained by representing all missing assertions with an "_" (U+005F)
+  character and encoding the value according to the <filter> rule of
+  [RFC2254]. To escape from this semantics any occurrence of "_"
+  (U+005F) character in an assertion value must be encoded as "\5F"
+  (U+005C + U+0035 + U+0046) or "\5f" (U+005C + U+0035 + U+0066).  
+
+7. Query Containment Problem 
+
+  The following definition of 'query containment' is used in this
+  document:  
+
+  A query Q, is said to be 'contained' in another query Q', if (i)-(iv)
+  below are true: 
+  (i)  The baseObject of Q should be the same or a descendant of the
+    baseObject of Q'. 
+  (ii) The scope of Q' is wholeSubtree
+    OR
+    The scope of Q' is same as the scope of Q AND Q and Q' have the same
+    baseObject. 
+    OR 
+    The scope of Q' is singleLevel AND the scope of Q is base AND the
+    baseObject of Q is a direct descendant of the baseObject of Q'. 
+  (iii) The set of attributes in Q is a subset of attributes in Q'. 
+  (iv)  The filter of Q is more restrictive than (or contained in) the
+    filter of Q', i.e. any entry satisfying the condition specified by
+    the filter of Q also satisfies the condition specified by Q'.
+
+  A contained query is 'answerable' (from the cache) if 'attributes' in
+  the conditions above is interpreted as the union of required
+  attributes and the attributes appearing in the search filter of the
+  query. 
+ 
+  A query containment algorithm can be used to determine whether an
+  incoming query can be answered by the set of queries stored in the
+
+
+Apurva                  Expires November 6 2003			[Page 6]
+
+	      Schema to support query containment in LDAP
+
+  cache. 'Completeness' refers to the property of a query containment
+  algorithm to answer a query if it can be answered using any other
+  algorithm. Using the schema in the following sections the metadata is
+  represented without any loss of information and can be used to
+  implement various query containment algorithms. 
+  
+  Two approaches are considered for storing metadata information in the
+  directory. In both the approaches entries are used to represent
+  queries and templates. In the components based approach, a single
+  attribute is used to represent the complete metadata corresponding to
+  a query using the LDAPQuery data type. In the attribute based approach
+  a set of related attributes in an entry are used to represent the
+  metadata. 
+
+  Though any query containment algorithm can be implemented using the
+  metadata information, servers MUST ensure that the query containment
+  algorithm implementation is correct even if it is not 'complete'.
+  Apart from requiring the correctness of the algorithm, this requires
+  using the correct syntaxes and matching rules while comparing values.
+  Section 9 describes mechanisms to support query containment which
+  ensure that the correct syntaxes and matching rules are applied.  
+  
+8. LDAP schema for representing queries and templates
+
+  The schema defined in this section for representing queries and
+  templates can be used by query containment algorithms as described in
+  Sections 9 and 10. 
+
+8.1 Syntaxes
+
+8.1.1 LDAPQuery 
+
+  ( <IANA-ASSIGNED-OID.1> DESC 'LDAPQuery' ) 
+  
+  The syntax is described by the ASN.1 definition of the type LDAPQuery
+  in Section 5. 
+  
+8.1.2 LDAPTemplate 
+
+  ( <IANA-ASSIGNED-OID.2> DESC 'LDAPTemplate' ) 
+
+  The syntax is described by the ASN.1 definition of the type
+  LDAPTemplate in Section 5. 
+  
+8.2. Attribute Types 
+  
+8.2.1 templateInfo
+  
+  The attribute is used to store information corresponding to an LDAP
+  template. 
+
+
+
+
+Apurva                  Expires November 6 2003			[Page 7]
+
+	      Schema to support query containment in LDAP
+
+
+  ( <IANA-ASSIGNED-OID.3>
+    NAME 'templateInfo' 
+    EQUALITY templateMatch 
+    SYNTAX <IANA-ASSIGNED-OID.2>
+    SINGLE-VALUE USAGE dSAOperation ) 
+
+  The matching rule templateMatch is defined in Section 9.3 
+
+8.2.2 queryInfo
+
+  The attribute is used to store the meta data corresponding to an LDAP
+  query. 
+
+  ( <IANA-ASSIGNED-OID.4> 
+    NAME 'queryInfo' 
+    EQUALITY queryMatch 
+    SYNTAX <IANA-ASSIGNED-OID.1> 
+    SINGLE-VALUE USAGE dSAOperation ) 
+
+  The matching rule queryMatch is defined in Section 9.2. 
+ 
+8.2.3 searchTemplate 
+
+  This attribute type can be used as a template to generate LDAP
+  queries. It has a role similar to enhancedSearchGuide described in
+  [RFC2256] but also allows specification of one or more assertion
+  values. The attribute type has LDAPTemplate syntax. 
+
+  ( <IANA-ASSIGNED-OID.5>
+    NAME 'searchTemplate' 
+    SYNTAX <IANA-ASSIGNED-OID.2> ) 
+  
+8.3. Object Classes
+
+8.3.1 cachedTemplate
+
+  The following object class is used in entries representing LDAP
+  templates in the directory. 
+
+  ( <IANA-ASSIGNED-OID.6> NAME 'cachedTemplate' SUP top STRUCTURAL 
+  MUST cn MAY ( templateInfo $ searchTemplate ) ) 
+
+8.3.2 cachedQuery 
+
+  The following object class is used in entries representing queries
+  in the directory. 
+
+  ( <IANA-ASSIGNED-OID.7> NAME 'cachedQuery' SUP top STRUCTURAL MUST 
+  cn MAY ( queryInfo $ owner ) ) 
+
+
+
+
+Apurva                  Expires November 6 2003			[Page 8]
+
+	      Schema to support query containment in LDAP
+
+
+  The 'owner' attribute type is obtained by subtyping from
+  'distinguishedName' attribute type. Both attribute types are defined
+  in [RFC2256]. 
+
+9. Support for component based query containment
+
+  The component based matching rules and syntaxes described in this
+  section are used to compare queries and templates represented using
+  the complex ASN.1 types LDAPQuery and LDAPTemplate. 
+
+  The following mechanisms are defined for facilitating component based
+  query containment: 
+  1) Equality matching of two queries. 
+  2) Equality matching of two templates. 
+  3) Matching of a query with a template. 
+  4) To determine if each simple filter in a query is more restrictive
+     than each simple filter in another query.  
+  5) Comparison of specified components of a query with specified
+     components of another query.  
+
+  These mechanisms have been provided as matching rules. The matching
+  rules and supporting syntaxes are described in Sections 9.1-9.6. An
+  example of a template based query containment algorithm using the
+  mechanisms is described in Section 9.7.  
+   
+9.1 Comparing components representing assertion values 
+
+  The LDAPQuery syntax represents metadata corresponding to a query as
+  described in Section 5. Query containment algorithms typically require
+  comparing assertion values in a stored query with assertion values in
+  another query. A component in a complex ASN.1 type which represents an
+  assertion value is termed as assertion value component (AVC). Examples
+  of such components appearing in complex ASN.1 type LDAPQuery are the
+  'assertionValue' component in AttributeValueAssertion and the 
+  'initial', 'final' and 'any' components in SubstringFilter. Such
+  component values have a syntax (typically the same as the
+  corresponding attribute type syntax) and should be compared using the
+  matching rules defined for the syntax. For example the query filters
+  (telephoneNumber=11-2618-7589) and (telephoneNumber=1126187589) have
+  assertion values which are same according to the telephoneNumberMatch
+  matching rule [RFC2252].  
+
+9.1.1 AVCAssertion syntax
+  
+  The type AVCAssertion is used to represent an equality, ordering or
+  substring assertion about a component value which represents an AVC of
+  a given attribute type. The assertion ensures that the comparison uses
+  the correct syntax and matching rules based on the attribute type to
+  which the AVC corresponds. The attribute type should be such that its
+  syntax is same as its equality matching rule syntax. 
+
+
+
+Apurva                  Expires November 6 2003			[Page 9]
+
+	      Schema to support query containment in LDAP
+
+
+  AVCAssertion ::= SEQUENCE {
+          attributeRef   [0] ComponentReference (SIZE(1..MAX)) OPTIONAL,
+          assertionRef   [1] ComponentReference (SIZE(1..MAX)) OPTIONAL,
+	  ruleAssertion        CHOICE { 
+	       equality       [1]  EqualityRuleAssertion,
+	       lessOrEqual    [2]  OrderingRuleAssertion,
+	       greaterOrEqual [3]  OrderingRuleAssertion,
+	       substring      [4]  SubstringRuleAssertion,
+	       superstring    [5]  SubstringRuleAssertion } } 
+	  
+  EqualityRuleAssertion ::= SEQUENCE {
+         type     ATTRIBUTE.&oid,
+         rule     ATTRIBUTE.&equality-match{@type}, 
+	 value    ATTRIBUTE.&Type{@type} OPTIONAL } 
+  
+  OrderingRuleAssertion ::= SEQUENCE {
+         type     ATTRIBUTE.&oid,
+         rule     ATTRIBUTE.&ordering-match{@type}, 
+	 value    ATTRIBUTE.&Type{@type} OPTIONAL }
+
+  SubstringRuleAssertion ::= SEQUENCE { 
+         type     ATTRIBUTE.&oid,
+         rule 	  ATTRIBUTE.&substrings-match{@type}, 
+	 value    ATTRIBUTE.&Type{@type} OPTIONAL }
+
+  where the values of information object class ATTRIBUTE of [X.501] are
+  used to define LDAP attribute types. 
+  
+  A value of type AVCAssertion is either applied to an AVC directly or
+  an AVC component in a complex ASN.1 type (e.g. LDAPQuery) referred to
+  by attributeRef, using component references as described in
+  [COMPONENTS]. assertionRef is used to reference a value to compare the
+  component value with. This component is optional and is used only if
+  the 'value' component is absent in the selected alternative of
+  'ruleAssertion'.   
+  
+  The required type of match (equality, less than, greater than,
+  substring or superstring) is indicated by the chosen alternative in
+  the 'ruleAssertion' component. The chosen component specifies the OID
+  of the LDAP attribute type, matching rule to be used and the value
+  which the AVC has to be compared with. The assertion evaluates to
+  'TRUE' if the AVC satisfies the required type of match with the value
+  according to the specified matching rule. 
+
+  The LDAP syntax corresponding to the ASN.1 type is defined as: 
+  
+  ( <IANA-ASSIGNED-OID.8> DESC 'AVCAssertion' )
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 10]
+
+	      Schema to support query containment in LDAP
+
+
+9.1.2 assertionValueMatch matching rule
+  
+  The assertion represented by a value of AVCAssertion type is applied
+  to a component or attribute value using the assertionValueMatch
+  matching rule. The result of the matching rule is the result of
+  applying the AVCAssertion to the component or attribute value. The
+  rule is defined as:  
+  
+ 
+  ( <IANA-ASSIGNED-OID.9>  NAME 'assertionValueMatch' 
+    SYNTAX IANA-ASSIGNED-OID.8 )
+
+  The rule has a syntax of AVCAssertion. The 'value' component is
+  required to be present in the alternative chosen in 'ruleAssertion'.
+  
+9.2 queryMatch: Equality match for queries
+
+  Used to find whether an asserted value representing an LDAP query
+  matches an attribute value representing another query. 
+ 
+  The queryMatch matching rule is derived from the allComponentsMatch
+  matching rule of [COMPONENTS]. The matching rule is defined as:  
+
+  ( <IANA-ASSIGNED-OID.10>  NAME 'queryMatch' 
+    SYNTAX <IANA-ASSIGNED-OID.1> )
+ 
+  The matching rule is a "component equality matching rule" with the
+  base rule as the allComponentsMatch matching rule [COMPONENTS]. The
+  matching semantics is described by the following table using the
+  convention described in Section 7.3 of [COMPONENTS]. 
+
+  ASN.1 type 				        | Matching Rule
+  ==============================================+================
+  LDAPDN					| distinguishedNameMatch 
+  Filter.AttributeValueAssertion.assertionValue | assertionValueMatch
+  Filter.SubstringsAssertion.substrings.*       | assertionValueMatch
+   
+  The assertionValueMatch matching rule compares an AVC in the attribute
+  value (say C), with a component in the assertion value (say C') by
+  constructing a value of AVCAssertion as following: 
+  
+  (a) Component ruleAssertion: 
+
+  (i) The identifier equalityMatch is chosen for all cases, i.e. 
+
+  Filter.equalityMatch.assertionValue: equalityMatch
+  Filter.lessOrEqual.assertionValue: equalityMatch
+  Filter.greaterOrEqual.assertionValue: equalityMatch 
+  Filter.substrings.substrings.*: equalityMatch 
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 11]
+
+	      Schema to support query containment in LDAP
+
+
+  (ii) type: The 'type' component in the chosen alternative above is
+  obtained in the following manner: 
+
+  Filter.AttributeValueAssertion.assertionValue: 
+      The type is the OID of the corresponding
+      Filter.AttributeValueAssertion.attributeDesc. 
+
+  Filter.SubstringsAssertion.substrings.*: 
+      The type is the OID of the corresponding
+      Filter.SubstringsAssertion.type. 
+
+  (iii) value: C' is taken as the 'value' component.  
+
+  (b) Component attributeRef: Not present. 
+  (c) Component assertionRef: Not present. 
+
+9.3  templateMatch: Equality match for templates 
+
+  Used to find whether an asserted value representing an LDAP template 
+  matches an attribute value representing another template. The matching
+  rule is defined as: 
+
+  ( <IANA-ASSIGNED-OID.11>  NAME 'templateMatch' 
+    SYNTAX <IANA-ASSIGNED-OID.2> )
+    
+  The matching rule is a "component equality matching rule" with the
+  base rule as the allComponentsMatch matching rule [COMPONENTS]. The
+  matching semantics is described by the following table using the
+  convention described in Section 7.3 of [COMPONENTS]. 
+
+    ASN.1 type 				        | Matching Rule
+  ==============================================+================
+  LDAPDN					| distinguishedNameMatch 
+  Filter.AssertionTemplate.assertionValue       | assertionValueMatch
+
+  The assertionValueMatch matching rule compares an AVC in the attribute
+  value (say C), with a component in the assertion value (say C') by
+  constructing a value of AVCAssertion as following:
+
+  (a) ruleAssertion component: 
+    (i) The identifier equalityMatch is selected. 
+    (ii) type: The OID of the attribute type in the corresponding
+       Filter.AssertionTemplate.attributeDesc. 
+    (iii) value: C' is taken as the 'value' component. 
+  (b) Component attributeRef: Not present. 
+  (c) Component assertionRef: Not present. 
+
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 12]
+
+	      Schema to support query containment in LDAP
+
+
+9.4 queryTemplateMatch: Matching a query with a template 
+
+  The matching rule is used to find whether an asserted value of
+  LDAPQuery syntax matches an attribute value of LDAPTemplate syntax and
+  is defined as: 
+
+  ( <IANA-ASSIGNED-OID.12>  NAME 'queryTemplateMatch' 
+    SYNTAX <IANA-ASSIGNED-OID.1> )
+  
+  To compare the two values, the assertion value is first mapped to the
+  LDAPTemplate syntax by removing AVCs in the filter component when the
+  corresponding component is not present in the attribute value. This
+  requires converting all SubstringFilter components into corresponding
+  SubstringTemplate components and AttributeValueAssertion components
+  into AssertionTemplate components.
+
+  Once the assertion value has been mapped into LDAPTemplate syntax it
+  is compared to the attribute value using the templateMatch matching
+  rule. 
+
+9.5 queryContainmentMatch: Simple query containment 
+  
+  The rule can be used for determining whether a query is contained in
+  another query belonging to the same template. It returns TRUE if
+  each simple filters in the attribute value is less restrictive than
+  the corresponding simple filter in the assertion value. The matching
+  rule definition is as below:  
+
+  ( <IANA-ASSIGNED-OID.13>  NAME 'queryContainmentMatch'
+    SYNTAX <IANA-ASSIGNED-OID.1> )
+
+  A 'FALSE' value is returned if either the query in the assertion is
+  not contained in the cached query or it is not possible to
+  conclusively determine semantic containment using the matching rule.
+  The filter components of the queries should be identical except for
+  the assertion values, otherwise FALSE is returned. This means that the
+  matching rule can only be used for finding query containment of two
+  queries generated using the same prototype filter. Moreover, it
+  returns 'FALSE' if any 'not' component is encountered during
+  comparison.   
+
+  The matching rule is a "component equality matching rule" with the
+  base rule as the allComponentsMatch matching rule [COMPONENTS]. The
+  matching semantics is described by the following table using the
+  convention described in Section 7.3 of [COMPONENTS].   
+
+
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 13]
+
+	      Schema to support query containment in LDAP
+
+
+    ASN.1 type 				          |Matching Rule
+  ================================================+=====================
+  baseObject			          	  | (see Rule 1)
+  scope					  	  | (see Rule 1) 
+  attributes				  	  | (see Rule 2) 
+  Filter.AttributeValueAssertion.assertionValue   | assertionValueMatch
+  Filter.SubstringsAssertion.substrings.any 	  | assertionValueMatch
+  Filter.MatchingRuleAssertion.matchValue 	  | assertionValueMatch
+  Filter.not				  	  | (see Rule 3) 
+ 
+  Rule: 
+  1) The rule evaluates to TRUE if the following two conditions are
+  satisfied: 
+     i) the number of name-components [RFC2253] (say m) in the assertion
+     values is greater than the number of name-components (say n) in the
+     attribute value and the last n name components of the assertion
+     value represent the attribute value. 
+     ii) the scope in the attribute value should be wholeSubtree except
+     that it can also be singleLevel if m=n+1 and the scope in the
+     assertion value is baseObject. 
+  2) The component represents a set. The rule returns TRUE if all the
+  distinct elements in the assertion value set are present at least once
+  in the attribute value set. 
+  3) The rule always returns FALSE.  
+
+  The assertionValueMatch matching rule compares an AVC in the attribute
+  value (say C), with a component in the assertion value (say C') by
+  constructing a value of AVCAssertion as following: 
+  
+  (a) Component 'ruleAssertion': 
+
+  (i) Identifier of chosen alternative: 
+
+  Filter.equalityMatch.assertionValue: equalityMatch
+  Filter.lessOrEqual.assertionValue: greaterOrEqual 
+  Filter.greaterOrEqual.assertionValue: lessOrEqual 
+  Filter.substrings.substrings.any: substring 
+  Filter.extensibleMatch.matchValue: equalityMatch 
+
+  (ii) type: The 'type' component in the chosen alternative above is
+  obtained in the following manner: 
+
+      Filter.AttributeValueAssertion.assertionValue: 
+        The type is the OID of the corresponding
+        Filter.AttributeValueAssertion.attributeDesc. 
+      Filter.SubstringsAssertion.substrings.any: 
+	The type is the OID of the corresponding
+	Filter.SubstringsAssertion.type. 
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 14]
+
+	      Schema to support query containment in LDAP
+
+
+  (iii) value: C' is taken as the 'value' component.  
+
+  (b) Component attributeRef: Not present. 
+  (c) Component assertionRef: Not present. 
+
+9.6 Mechanisms to support general query containment
+
+9.6.1 AVCFilter syntax
+ 
+  A value of the type AVCFilter described below represents an assertion
+  which is a boolean combination of assertions represented by
+  AVCAssertion using the boolean operators AND, OR and NOT. This allows
+  expressions involving multiple AVC comparisons in two values of the
+  same or different ASN.1 types. 
+
+  AVCFilter ::= SEQUENCE {
+    filter     CHOICE {
+		  item  [0] AVCAssertion,
+		  and   [1] SET OF AVCAssertion,
+		  or    [2] SET OF AVCAssertion,
+		  not   [3] AVCAssertion }, 
+    assertionValue      MATCHING-RULE.&AssertionType OPTIONAL }    
+
+  where the information object class MATCHING-RULE of [X.501] is used
+  to define LDAP matching rules. 
+ 
+  The AVCFilter applies to a value of a complex ASN.1 type. Each
+  AVCAssertion must have the attributeRef components which identifies an
+  AVC of the complex ASN.1 type value to which the AVCAssertion applies.
+  The assertionRef references a component in another complex ASN.1 type
+  value which the AVC is compared against. If assertionRef is not
+  present in an AVCAssertion, then the 'value' must be present in the
+  selected 'ruleAssertion' alternative.  
+
+  The reference in the assertionRef is taken with respect to the value
+  provided in the 'assertionValue' component of AVCFilter. 
+
+  The assertion evaluates to TRUE if the boolean expression represented
+  by the filter component evaluates to TRUE. 
+
+  The LDAP syntax corresponding to AVCFilter is defined as: 
+
+   ( <IANA-ASSIGNED-OID.14> DESC 'AVCFilter' )
+   
+  
+9.6.2 assertionValuesFilterMatch matching rule
+ 
+  The AVCFilter can be applied to an attribute value using the
+  assertionValuesFilterMatch matching rule. The result is the same as
+  applying the AVCFilter to the attribute value.   
+
+
+
+Apurva                  Expires November 6 2003		       [Page 15]
+
+	      Schema to support query containment in LDAP
+
+
+  The matching rule is defined as: 
+
+  ( <IANA-ASSIGNED-OID.15> NAME 'assertionValuesFilterMatch'
+          SYNTAX <IANA-ASSIGNED-OID.14> )
+
+9.7 Example: Template based query containment 
+ 
+  Consider the following two templates (using the representation
+  described in Section 6) for which queries are cached at the server
+  (the baseObject, scope and attributes components have some fixed
+  context specific values): 
+
+  T1: (&(age<=_)(salary>=_))
+  T2: (&(age<=_)(salary>=_)(salary<=_))
+
+  The query Q1: (&(age<=A)(salary>=B)) belonging to template T1 is
+  stored in the cache.  
+
+  It is to be determined whether an incoming query Q2:
+  (&(age<=C)(salary>=D)(salary<=E)) can be answered from the cache.  
+
+  Let entries E1 and E2 represent Q1 and T1 in the directory. The entry
+  E1 representing Q1 is as below: 
+
+  dn: <DN of E1> 
+  cn: query1
+  objectClass: cachedQuery
+  owner: <DN of E2> 
+  queryInfo: { filter { 
+	       and:{ 
+		  lessOrEqual:{
+		    attributeDesc "age", assertionValue <A> }, 
+		  greaterOrEqual:{ 
+		    attributeDesc "salary", assertionValue <B> } } }
+ 
+  queryInfo attribute contains the metadata corresponding to Q1. The
+  owner attribute points to the entry representing T1. 
+  
+  Let the entry E3 representing template 2 be as follows: 
+
+  dn: <DN of E3> 
+  cn: template2
+  objectClass: cachedTemplate
+  searchTemplate: { filter and: { 
+		  equalityMatch:{ 
+		   attributeDesc "owner", assertionValue <DN of E2> },
+		  extensibleMatch:{
+		   matchingRule <IANA-ASSIGNED-OID.15>, 
+		   type "queryInfo", 
+		   matchValue { <condition_value> } } } }
+ 
+
+
+Apurva                  Expires November 6 2003		       [Page 16]
+
+	      Schema to support query containment in LDAP
+
+
+  Here the searchTemplate attribute is used as a guide to form a filter
+  which can be used for query containment. The filter consists of
+  logical AND of (owner=<DN of E2>) and an extensible match for the
+  attribute queryInfo. The first filter restricts the search to only
+  entries belonging to template T1. The <condition_value> having the
+  syntax of AVCFilter represents the condition required for queries of
+  template T1 to answer queries of template T2. Similar conditions for
+  other templates can be expressed using multiple values for
+  searchTemplate. 
+ 
+  The conditions for the query Q1: (&(age<=A)(salary>=B)), belonging to
+  template T1 to contain the query Q2: (&(age<=C)(salary>=D)(salary<=E))
+  belonging to template T2 is easily seen to be (assuming E >= D):  
+  (i) A >= C
+  (ii) B <= D  
+
+  Appendix A describes a general method for obtaining such conditions. 
+
+  The <condition_value> having the syntax of AVCFilter represents the
+  condition required for queries of template T1 to answer queries of
+  template T2: 
+
+     { and:{ item:{
+	 attributeRef "filter.and.1.lessOrEqual.assertionValue", 
+	 assertionRef "filter.and.1.lessOrEqual.assertionValue", 
+	 ruleAssertion greaterOrEqual:{ 
+	     type <age-oid> 
+	     rule <oid-integer-ordering-match> } }, 
+	      item:{ 
+	 attributeRef "filter.and.2.greaterOrEqual.assertionValue", 
+	 assertionRef "filter.and.2.greaterOrEqual.assertionValue", 
+	 ruleAssertion lessOrEqual:{ 
+	     type <salary-oid> 
+	     rule <oid-integer-ordering-match> } } } }
+  
+  With the entries E1, E3 having attribute values as described above,
+  the server performs the following steps when the query Q2 arrives: 
+
+  1) Internal search with search filter to obtain the template entry: 
+  (&(objectClass=cachedTemplate)(templateInfo:queryTemplateMatch:=<Q2>)) 
+
+  where <Q2> is the representation of Q2 in LDAPQuery syntax. 
+
+  This will return entry E3 corresponding to template T2. 
+
+  2) Uses the searchTemplate attribute in E3 above, to generate a filter
+  to search all queries of template T1 which can answer the query: 
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 17]
+
+	      Schema to support query containment in LDAP
+
+
+	(&(owner=<DN of E2>)(objectClass=cachedQuery)
+	  (queryInfo:assertionValuesFilterMatch:=
+		  { <condition_value>,
+		    assertionValue <Q2> }))
+       
+  The first and second filters restrict the search to entries
+  representing queries which belong to template T1. The third filter is
+  an extensible match which compares the assertion value <Q2> with
+  attribute queryInfo according to <condition_value>. 
+
+  If any entry satisfies the search condition, the query Q2 is
+  answerable.  
+  
+10. Query containment based on attributes comparison 
+ 
+  Query containment based on component matching described in Section 9
+  requires complex syntaxes and component based matching rules to be
+  implemented by the server. Some directory server implementations might
+  not efficiently handle complex syntaxes and matching rules. In this
+  section, means are discussed to represent metadata information using a
+  set of related attributes of simpler syntaxes. 
+
+10.1 Storing metadata
+
+  An LDAP query filter consists of several attribute, assertion value
+  pairs. Entries in a directory represent a sets of attribute, value
+  pairs. If the assertion syntaxes used in the filter are same as the
+  corresponding attribute syntaxes, then an entry can be used to
+  represent part of the metadata corresponding to a query. 
+
+  For each template, an object class is defined which has all attributes
+  with unspecified assertion values in the prototype filter of the
+  template as mandatory attributes. Each entry of this object class can
+  then be used to store assertion values stored in a query belonging to
+  the template. 
+
+  For e.g., consider template T1 from the example in Section 9.7, which
+  has attributes age and salary in the prototype filter without
+  assertions. The object class, say OC1 corresponding to the template
+  will have age and salary as mandatory attributes. The entry E1
+  representing Q1 using this method will be as follows: 
+
+    dn: <DN of E1> 
+    objectClass: OC1
+    age: <A>
+    salary: <B>
+ 
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 18]
+
+	      Schema to support query containment in LDAP
+
+
+10.2 Specifying conditions for containment 
+ 
+  In component based query containment, searchTemplate attribute with
+  LDAPTemplate syntax has been used to specify conditions for queries of
+  a template to be contained in queries of the same or other templates.
+  For attribute based query containment, the searchTemplate attribute is
+  used for the same purpose, but the conditions are expressed in terms
+  of attributes and thus the extensible match with an
+  assertionValuesFilterMatch is not required. 
+  
+  Continuing with the example of Section 9.7, the searchTemplate
+  attribute in entry E3 (which represents template T2) is given by: 
+
+  searchTemplate: { filter and: { 
+                     equalityMatch:{ 
+		      attributeDesc "objectClass", assertionValue OC1 },
+		     greaterOrEqual:{
+		       attributeDesc "age" }, 
+		     lessOrEqual:{
+		       attributeDesc "salary" } } } 
+
+10.3 Generating search filter for query containment
+
+  The following search filter is used to determine whether the query Q2
+  is contained or not. 
+
+  (&(objectClass=OC1)(age>=<C>)(salary<=<D>))
+
+  If any entry is returned, the query Q2 is answerable. 
+
+10.4 Limitations
+
+  The attribute based containment approach has some limitations when
+  compared with the components based approach. Metadata for queries
+  having search filters with an attribute type appearing in more than
+  one attribute value assertions can not be represented easily and thus
+  can not be used to answer queries. Moreover the operations of mapping
+  an incoming query to a template, referencing the correct assertion
+  values while constructing searchTemplate are not defined in a matching
+  rule, hence the correct operation needs to be ensured by the server. 
+
+11. Security Considerations
+
+  An LDAP proxy server might have to perform authentication on behalf of
+  the client if it connects to the backend server using a single
+  authentication identity. In addition in such situations where client
+  identity is not known to the backend server or queries are answered
+  from the cache, the proxy should apply the required access control
+  rules. Also the proxy should either use a synchronization mechanism to
+  
+  
+
+
+Apurva                  Expires November 6 2003		       [Page 19]
+
+	      Schema to support query containment in LDAP
+
+
+  refresh the data corresponding to cached queries or an aging mechanism
+  to detect stale queries. It should also be possible to specify
+  templates which are critical in nature and are not to be cached. 
+  
+12. IANA Considerations
+
+  It is requested that IANA register the LDAP descriptors used in this
+  document per the following registration template: 
+
+  Subject: Request for the LDAP Descriptor Registration 
+  Descriptor (short name): see comments
+  Object Identifier: IANA-ASSIGNED-OID 
+  Person & email address to contact for further information: 
+  	Apurva Kumar (kapurva@in.ibm.com) 
+  Usage: see comments
+  Specification: (I-D)
+  Author/Change Controller: IESG
+  Comments: 
+
+    NAME			Type 	OID
+  LDAPQuery 			  S   IANA-ASSIGNED-OID.1       
+  LDAPTemplate 			  S   IANA-ASSIGNED-OID.2 
+  templateInfo			  A   IANA-ASSIGNED-OID.3 
+  queryInfo			  A   IANA-ASSIGNED-OID.4 
+  searchTemplate                  A   IANA-ASSIGNED-OID.5 
+  cachedQuery			  O   IANA-ASSIGNED-OID.6 
+  cachedTemplate		  O   IANA-ASSIGNED-OID.7  
+  AVCAssertion		  	  S   IANA-ASSIGNED-OID.8  
+  assertionValueMatch		  MR  IANA-ASSIGNED-OID.9  
+  queryMatch			  MR  IANA-ASSIGNED-OID.10 
+  templateMatch			  MR  IANA-ASSIGNED-OID.11 
+  queryTemplateMatch		  MR  IANA-ASSIGNED-OID.12  
+  queryContainmentMatch           MR  IANA-ASSIGNED-OID.13 
+  AVCFilter	  		  S   IANA-ASSIGNED-OID.14 
+  assertionValuesFilterMatch      MR  IANA-ASSIGNED-OID.15
+
+  where Type A is attribute, S is syntax, O is object class and MR is
+  matching rule. 
+
+13. Acknowledgments
+  
+  The author acknowledges Kurt D. Zeilenga for comments and Rajeev Gupta
+  for discussions during the preparation of the draft. 
+
+
+
+
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 20]
+
+	      Schema to support query containment in LDAP
+
+
+14. Author's address
+
+  Apurva Kumar 
+  IBM India Research Lab
+  Block I, Indian Institute of Technology, 
+  New Delhi, 110 016
+  India. 
+
+  phone - +91-11-26861100
+  email - kapurva@in.ibm.com
+  	
+15. Normative References
+
+  [RFC2119] Bradner, S., "Key words for use in RFCs to Indicate
+	     Requirement Levels", RFC 2119, March 1997. 
+
+  [RFC3377] Hodges, J., Morgan, R., "Lightweight Directory Access
+  	     Protocol (v3): Technical Specification", RFC 3377,
+	     September 2002. 
+  
+  [RFC2251] Wahl, M., Howes, T. and S. Kille, "Lightweight Directory
+             Access Protocol (v3)", RFC 2251, December 1997.
+
+  [RFC2252] Wahl, M., Coulbeck, A., Howes, T. and S. Kille,
+             "Lightweight Directory Access Protocol (v3): Attribute
+             Syntax Definitions", RFC 2252, December 1997.
+
+  [RFC2256] Wahl, M., "A Summary of the X.500(96) User Schema for use
+             with LDAPv3", RFC 2256, December 1997.
+
+  [X.501] The Directory: Models. ITU-T Recommendation X.501, 2001.
+	 
+  [ASN.1] ITU-T Rec. X.680, "Abstract Syntax Notation One (ASN.1) -
+             Specification of Basic Notation", 1994.
+
+  [COMPONENTS]  Legg, S., "LDAP & X.500 Component Matching Rules",
+             INTERNET DRAFT (work in progress)
+             <draft-legg-ldapext-component-matching-10.txt>, April 2003.
+
+  [RFC2253] Wahl, M., Kille S., Howes, T., "Lightweight Directory Access
+             Protocol (v3): UTF-8 String Representation of Distinguished
+	     Names", December 1997. 
+
+
+  
+
+
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 21]
+
+	      Schema to support query containment in LDAP
+
+16. Informative References 
+
+  [RFC2254] Howes, T., "The String Representation of LDAP Search
+             Filters", RFC 2254, December 1997. 
+
+  [RFC2849] Good, G., "The LDAP Data Interchange Format (LDIF) - 
+             Technical Specification", RFC 2849, June 2000. 
+   
+  [GSER] Legg, S., "Generic Encoding Rules for ASN.1 Types", INTERNET
+	     DRAFT (work in progress) <draft-legg-ldap-gser-02.txt>,
+	     October 2002.  
+
+
+
+17. Full Copyright
+
+  Copyright 2003, The Internet Society.  All Rights Reserved.
+
+  This document and translations of it may be copied and furnished to
+  others, and derivative works that comment on or otherwise explain it
+  or assist in its implementation may be prepared, copied, published and
+  distributed, in whole or in part, without restriction of any kind,
+  provided that the above copyright notice and this paragraph are
+  included on all such copies and derivative works.  However, this
+  document itself may not be modified in any way, such as by removing
+  the copyright notice or references to the Internet Society or other
+  Internet organizations, except as needed for the  purpose of
+  developing Internet standards in which case the procedures for
+  copyrights defined in the Internet Standards process must be followed,
+  or as required to translate it into languages other than English.
+
+  The limited permissions granted above are perpetual and will not be
+  revoked by the Internet Society or its successors or assigns.
+
+  This document and the information contained herein is provided on an
+  "AS IS" basis and THE AUTHORS, THE INTERNET SOCIETY, AND THE INTERNET
+  ENGINEERING TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED,
+  INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+  INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+  WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+ 
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 22]
+
+	      Schema to support query containment in LDAP
+
+Appendix A: Conditions for Filter Containment 
+
+  If LDAP query filters F1 and F2 consisting of a boolean combination
+  (AND, OR, NOT) of atomic filters of the form (x op val), where x is an
+  LDAP attribute type, op is an operator (=, >=, <=) and val is the
+  assertion value, are such that (&(F1)(!F2)) is trivially inconsistent,
+  then the filter F1 is semantically contained in filter F2. 
+ 
+  Let the attribute set {x1,x2..xn} be the union of attributes sets
+  appearing in the filters F1 and F2. To be trivially inconsistent there
+  should not exist any set of values {v1,v2,..vn} for attributes
+  {x1,x2..xn} in their valid ranges such that the condition specified by
+  (&(F1)(!F2)) is satisfied.  
+
+  If (&(F1)(!F2)) = B1 + B2 ..Bk where Bi is a conjunct of atomic
+  filters, then the condition can be written in terms of Bi as follows: 
+
+  The query F1 is contained in F2 if for all i=1..k, Bi is trivially
+  inconsistent. 
+  
+  Example: 
+  Query Q2 of the example in Section 9.7 is contained in query Q1
+   
+  if (&(age<=C)(salary>=D)(salary<=E))(!((age<=A)(salary>=B))) is
+  inconsistent  
+
+  => (&(age<=C)(salary>=D)(salary<=E))(|(age>A)(salary<B)) is
+  inconsistent 
+  
+  => (|(&(age<=C)(age>A)(salary>=D)(salary<=E))
+         (&(age<=C)(salary>=D)(salary<=E)(salary<B)))
+  is inconsistent 
+
+  Let the first conjunct be B1 and the second conjunct be B2. 
+  Assuming E >= D: 
+  For B1 to be trivially inconsistent A >= C
+  For B2 to be trivially inconsistent B <= D 
+
+  These are the conditions required for Q2 to be contained in Q1.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Apurva                  Expires November 6 2003		       [Page 23]

@@ -1,0 +1,240 @@
+
+
+
+
+
+
+INTERNET-DRAFT				David Boreham, Bozeman Pass Inc.
+						      Steve Kille, Isode
+Individual Submission					19 October, 2003
+
+
+	       numSubordinates LDAP Operational Attribute
+
+	       draft-ietf-boreham-numsubordinates-01.txt
+
+		 This document expires on 19 April 2004
+
+1.  Status of this Memo
+
+This  document	is an Internet-Draft and is in full conformance with all
+provisions of Section 10 of RFC2026.  Internet-Drafts are working  docu­
+ments  of the Internet Engineering Task Force (IETF), its areas, and its
+working groups.	 Note that other groups may also distribute working doc­
+uments as Internet-Drafts.
+
+Internet-Drafts	 are  draft  documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by  other  documents	 at  any
+time.  It is inappropriate to use Internet- Drafts as reference material
+or to cite them other than as "work in progress."
+
+The   list   of	  current   Internet-Drafts   can   be	  accessed    at
+http://www.ietf.org/ietf/1id-abstracts.txt
+
+The list  of  Internet-Draft  Shadow  Directories  can	be  accessed  at
+http://www.ietf.org/shadow.html.
+
+2.  Abstract
+
+This document decibes an LDAP operational attribute  named  "numSubordi­
+nates".	  The purpose of this attribute is to allow clients to determine
+efficiently the number of entries immediately below (in	 the  DIT),  any
+particular directory entry.
+
+3.  Background
+
+Experience  has	 shown	that where an LDAP client wishes to "browse" the
+Directory Information Tree (DIT), it is useful to be able  to  determine
+how  many entries exist which are immediate subordinates of a particular
+entry. Knowledge of this information allows the client to display UI  to
+the  effect  that  "there are too many entries in this container to dis­
+play".	Only by waiting for some timeout interval would it  be	possible
+to  come  to  this  conclusion	without knowing the subordinate count in
+advance. Such a timeout leads to poor user  experience.	  Similarly,  UI
+which displays the DIT complete with the content count of each container
+
+
+
+Boreham and Kille						[Page 1]
+
+
+
+
+
+RFC DRAFT						    October 2003
+
+
+entry becomes feasible.	 In addition, easy and efficient access to  sub­
+ordinate  count information permits client tools to analyse the DIT, for
+example to determine where special server indices or precomputed  search
+result sets should be maintained to give optimum performance.
+
+The  key  words "MUST", "SHOULD", and "MAY" used in this document are to
+be interpreted as described in [Bradner97].
+
+4.  Attribute Definition
+
+The numSubordinates attribute is defined  as  follows  in  RFC2252  then
+X.520 ASN.1 format:
+
+    ( 1.3.6.1.4.1.453.16.2.103 NAME 'numSubordinates'
+      DESC 'count of immediate subordinates'
+      EQUALITY integerMatch ORDERING integerOrderingMatch
+      SYNTAX 1.3.6.1.4.1.453.16.2.103
+      SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )
+
+    numSubordinates ATTRIBUTE ::= {
+	WITH SYNTAX		INTEGER
+	USAGE			directoryOperation
+	SINGLEVALUED		TRUE
+	NO USER MODIFICATION	TRUE
+	ID			{dod internet(1) private(4)
+				enterprises(1) isode-consortium(453)
+				ic-dsa(16) ic-dsa-at(2) 103}
+    }
+Every  entry in the DIT MAY have a numSubordinates operational attribute
+the contents of which indicate	how  many  immediate  subordinates  that
+entry has. For example, a leaf entry would have numSubordinates equal to
+"0". Entry "ou=People, o=ace industry, c=us" in a DIT where the contents
+of  that  container  comprises 1000 leaf entries, would have numSubordi­
+nates equal to "1000".
+
+Server support for the	numSubordinates	 attribute  is	on  a  per-entry
+basis.	 That is, the presence of the attribute indicates that its value
+is correct, while the absence of the attribute indicates  nothing  other
+than the lack of support for the attribute. Consequently, absence of the
+numSubordinates attribute does not imply that there are no subordinates.
+
+5.  Client-Server Interaction
+
+Clients	 may read the value of the numSubordinates attribute by perform­
+ing a regular LDAP search operation[LDAPv3], while specifying  numSubor­
+dinates	 as  one  of  the requested attributes. Note that an operational
+attribute such as numSubordinates will not be  returned	 to  the  client
+unless explicitly requested.
+
+
+
+Boreham and Kille						[Page 2]
+
+
+
+
+
+RFC DRAFT						    October 2003
+
+
+Clients	 can  not  modify the contents of the numSubordinates attribute.
+Servers MUST refuse to allow such modifications and  SHOULD  return  the
+unwilling to perform status code.
+
+Servers	 MUST  ensure  that  the  value	 returned in the numSubordinates
+attibute to clients is consistent with the view that client has of other
+server	contents.   For example, is it NOT permissible to delay updating
+the numSubordinates count for some container entry until some time after
+subordinates  have  been added or deleted. This would lead to the poten­
+tial for a client to see an inconsistency  between  the	 numSubordinates
+value  reported	 for an entry and the number of entries that same client
+had added as subordinates.
+
+6.  Relationship to hasSubordinates
+
+The  X.500  hasSubordinates  operational  attribute[ITU-X501]	can   be
+regarded  as indicating whether numSubordinates has a non-zero value for
+the same entry. This leads to the potential for optimization in a server
+implementation, in that it isn't necessary to store both values.
+
+7.  Security Considerations
+
+Any  client  which  is able to read the numSubordinates attribute may be
+able to discover more about the contents of the DIT than would be possi­
+ble  without  access to that attribute. Consequently server implementers
+are advised to provide an access control mechanism which can be used  to
+restrict  access  to numSubordinates.  For servers which already have an
+attribute-level access control facility, this might involve no more than
+ensuring that numSubordinates falls within that existing scheme.
+
+8.  References
+
+[ITU-X501]
+     The  Directory:  Models.  ITU-T Recommendation X.501, 1997, section
+     section 13.4.4.
+
+[LDAPv3]
+     Wahl, M, S. Kille and T. Howes, "Lightweight Directory Access  Pro­
+     tocol  (v3)",  Internet  Standard,	 December,  1997.  Available  as
+     RFC2251.
+
+[RFC2252]
+     Wahl et al, Lightweight Directory Access Protocol	(v3):  Attribute
+     Syntax Definitions. Available as RFC2252.
+
+[ITU-X520]
+     The  Directory:  Selected	Attribute  Types.  ITU-T  Recommendation
+     X.520, 1997.
+
+
+
+Boreham and Kille						[Page 3]
+
+
+
+
+
+RFC DRAFT						    October 2003
+
+
+[Bradner97]
+     Bradner, Scott, "Key Words for use in RFCs to Indicate  Requirement
+     Levels", Internet Draft, March, 1997. Available as RFC2119.
+
+9.  Authors' Addresses
+
+   David Boreham		 Steve Kille
+   Bozeman Pass, Inc.		 Isode
+   1106 W. Park St #200		 5 Castle Business Village
+   Livingston, MT 59047, USA	 36 Station Road
+   +1 406 222 7093		 Hampton
+   david@bozemanpass.com	 Middlesex, TW12 2BX, UK
+				 +44 (20) 8783 0203
+				 S.Kille@ISODE.COM
+
+
+   This document expires on 19 April 2004
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Boreham and Kille						[Page 4]
+
+
