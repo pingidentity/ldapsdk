@@ -1,0 +1,283 @@
+
+
+
+
+
+
+                                               Jeff Hodges, Oblix Inc.
+INTERNET-DRAFT                     RL "Bob" Morgan, Univ of Washington
+Intended Category:                                          June, 2000
+  Standards Track
+Updates: 2251, 2252, 2253, 2254,
+  2255, 2256, 2829, 2830
+
+
+              Lightweight Directory Access Protocol (v3):
+                        Applicability Statement
+                    <draft-hodges-ldapv3-as-00.txt>
+
+
+
+                        Status of this Document
+
+This document is an Internet-Draft and is in full conformance with all
+provisions of Section 10 of RFC2026.
+
+Internet-Drafts are working documents of the Internet Engineering Task
+Force (IETF), its areas, and its working groups.  Note that other groups
+may also distribute working documents as Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at any
+time.  It is inappropriate to use Internet- Drafts as reference material
+or to cite them other than as "work in progress."
+
+The list of current Internet-Drafts can be accessed at
+http://www.ietf.org/ietf/1id-abstracts.txt
+
+The list of Internet-Draft Shadow Directories can be accessed at
+http://www.ietf.org/shadow.html.
+
+Comments and suggestions on this document are encouraged.  Comments on
+this document should be sent to the LDAPEXT working group discussion
+list:
+                       ietf-ldapext@netscape.com
+
+This document expires in January 2001.
+
+Abstract
+
+The specification for the Lightweight Directory Access Protocol version
+3 (LDAPv3) nominally comprises eight separte RFCs which were issued in
+two distinct subsets at separate times (RFCs 2251..2256 first, then RFCs
+2229 and 2830 following later), but this has never been formally stated.
+Additionally, RFCs 2251..2256 each are embellished with an "IESG Note"
+
+
+
+Hodges, Morgan                                                  [Page 1]
+
+I-D     LDAPv3: Applicability Statement                        June 2000
+
+
+warning implementors and deployers of potential interoperability prob-
+lems due to the lack of a specification of mandatory-to-implement
+authentication mechanism(s). This document corrects both situations by
+explicitly specifying the set of RFCs comprising LDAPv3 and rescinding
+the "IESG Note" due to the specification of mandatory-to-implement
+authentication mechanisms in RFC 2829.
+
+1.  Conventions Used in this Document
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in [ReqsKeywords].
+
+2.  Specification of LDAPv3
+
+The Lightweight Directory Access Protocol version 3 (LDAPv3) is speci-
+fied by this set of RFCs: 2251, 2252, 2253, 2254, 2255, 2256, 2829, 2830
+[1..8]. The term "LDAPv3" MAY be used to informally refer to the proto-
+col specified by this set of RFCs.
+
+   [question: Should RFC 2849..
+
+    <URL:ftp://ftp.isi.edu/in-notes/authors/rfc2849.txt>
+
+    ..also be included in the "LDAPv3" definition?]
+
+Other RFCs (and perhaps Internet-Drafts) MAY specify extensions to
+LDAPv3.  Nomenclature denoting such combinations of LDAPv3-plus-
+extension(s) is not defined at this time.
+
+
+3.  Rescindment of the "IESG Note" from RFCs 2251..2256
+
+The IESG approved publishing RFCs 2251..2256 with an attendant "IESG
+Note" (Note).  The Note begins with..
+
+   This document describes a directory access protocol that provides
+   both read and update access.  Update access requires secure authenti-
+   cation, but this document does not mandate implementation of any
+   satisfactory authentication mechanisms.
+
+The Note ends with this statement..
+
+   Implementors are hereby discouraged from deploying LDAPv3 clients or
+   servers which implement the update functionality, until a Proposed
+   Standard for mandatory authentication in LDAPv3 has been approved and
+   published as an RFC.
+
+
+
+
+Hodges, Morgan                                                  [Page 2]
+
+I-D     LDAPv3: Applicability Statement                        June 2000
+
+
+RFC 2829 [7] is the "Proposed Standard for mandatory authentication in
+LDAPv3" being called for in the Note. Therefore, the IESG Note on RFCs
+2251, 2252, 2253, 2254, 2255, and 2256 is hereby rescinded.
+
+4.  Security Considerations
+
+This document does not directly discuss security, although the context
+of the aforementioned "IESG Note" is security-related, as is the res-
+cindment of the Note being recommended herein.
+
+Please refer to the referenced documents, especially [7], for further
+information concerning LDAPv3 security aspects.
+
+5.  Acknowledgements
+
+The authors thank ...  for their contributions to this document.
+
+6.  References
+
+[1]    M. Wahl, S. Kille and T. Howes, "Lightweight Directory Access
+       Protocol (v3)", RFC 2251, December 1997.
+
+[2]    M. Wahl, A. Coulbeck, T. Howes, and S. Kille, "Lightweight Direc-
+       tory Access Protocol (v3): Attribute Syntax Definitions", RFC
+       2252, December 1997.
+
+[3]    S. Kille, M. Wahl, and T. Howes, "Lightweight Directory Access
+       Protocol (v3): UTF-8 String Representation of Distinguished
+       Names", RFC 2253, December 1997.
+
+[4]    T. Howes, "The String Representation of LDAP Search Filters", RFC
+       2254, December 1997.
+
+[5]    T. Howes, M. Smith, "The LDAP URL Format", RFC 2255, December
+       1997.
+
+[6]    M. Wahl, "A Summary of the X.500(96) User Schema for use with
+       LDAPv3", RFC 2256, December 1997.
+
+[7]    M. Wahl, H. Alvestrand, J. Hodges, R. Morgan. "Authentication
+       Methods for LDAP", RFC 2829, May 2000.
+
+[8]    J. Hodges, R. Morgan, M. Wahl, "Lightweight Directory Access Pro-
+       tocol (v3): Extension for Transport Layer Security", RFC 2830,
+       May 2000.
+
+[ReqsKeywords] Scott Bradner. "Key Words for use in RFCs to Indicate
+               Requirement Levels". RFC 2119.
+
+
+
+Hodges, Morgan                                                  [Page 3]
+
+I-D     LDAPv3: Applicability Statement                        June 2000
+
+
+7.  Authors' Addresses
+
+   Jeff Hodges
+   Oblix, Inc.
+   18922 Forge Drive
+   Cupertino, CA 95014
+   USA
+
+   Phone: +1-408-861-6656
+   EMail: JHodges@oblix.com
+
+
+   RL "Bob" Morgan
+   Computing and Communications
+   University of Washington
+   Seattle, WA
+   USA
+
+   Phone: +1-206-221-3307
+   EMail: rlmorgan@washington.edu
+
+
+                  -----------------------------------
+
+8.  Intellectual Property Rights Notices
+
+The IETF takes no position regarding the validity or scope of any intel-
+lectual property or other rights that might be claimed to  pertain to
+the implementation or use of the technology described in this document
+or the extent to which any license under such rights might or might not
+be available; neither does it represent that it has made any effort to
+identify any such rights.  Information on the IETF's procedures with
+respect to rights in standards-track and standards-related documentation
+can be found in BCP-11.  Copies of claims of rights made available for
+publication and any assurances of licenses to be made available, or the
+result of an attempt made to obtain a general license or permission for
+the use of such proprietary rights by implementors or users of this
+specification can be obtained from the IETF Secretariat.
+
+The IETF invites any interested party to bring to its attention any
+copyrights, patents or patent applications, or other proprietary rights
+which may cover technology that may be required to practice this stan-
+dard.  Please address the information to the IETF Executive Director.
+
+9.  Copyright Notice and Disclaimer
+
+   Copyright (C) The Internet Society (1998).  All Rights Reserved.
+
+
+
+
+Hodges, Morgan                                                  [Page 4]
+
+I-D     LDAPv3: Applicability Statement                        June 2000
+
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of develop-
+   ing Internet standards in which case the procedures for copyrights
+   defined in the Internet Standards process must be followed, or as
+   required to translate it into languages other than English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MER-
+   CHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+                    -----------------------------------
+
+   This document expires in January 2001.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hodges, Morgan                                                  [Page 5]
+

@@ -1,0 +1,1124 @@
+Category: Experimental                                            V Modi
+Internet-Draft                                              Novell, Inc.
+Expires: April 4, 2000                                   October 5, 1999
+
+
+                   Compound Attribute Support in LDAP
+                draft-vmodi-ldapext-compound-attr-00.txt
+
+Status of this Memo
+
+   This document is an Internet-Draft and is in full conformance with
+   all provisions of Section 10 of RFC2026.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups. Note that
+   other groups may also distribute working documents as
+   Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six
+   months and may be updated, replaced, or obsoleted by other documents
+   at any time. It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+     The list of current Internet-Drafts can be accessed at
+     http://www.ietf.org/ietf/1id-abstracts.txt
+
+     The list of Internet-Draft Shadow Directories can be accessed at
+     http://www.ietf.org/shadow.html.
+
+
+   This Internet-Draft will expire on April 4, 2000.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (1999). All Rights Reserved.
+
+Abstract
+
+   This draft describes the method of providing Compound Attribute
+   Support in LDAP. The draft proposes a modification to
+   AttributeTypeDescription syntax in order to be able to describe any
+   Compound Attribute. The draft describes the syntax definition for
+   any Compound Attribute, and hence the method for encoding its
+   values. The usage of Compound Attribute in LDAP requests and
+   responses is also described. 
+
+Specification Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in
+   this document are to be interpreted as described in RFC 2119[6]. 
+
+
+
+
+
+Modi                     Expires April 4, 2000                  [Page 1]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+Table of Contents
+
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
+   2.  Problem Description  . . . . . . . . . . . . . . . . . . . . .  4
+   2.1 Inaccuracy of Syntax Definitions . . . . . . . . . . . . . . .  4
+   2.2 Reuse of existing AttributeTypes . . . . . . . . . . . . . . .  4
+   2.3 Efficient Retrieval of Information . . . . . . . . . . . . . .  5
+   3.  Compound Attribute Support in LDAPv3 . . . . . . . . . . . . .  6
+   3.1 Describing the Compound Attribute  . . . . . . . . . . . . . .  6
+   3.2 Syntax of a Compound Attribute . . . . . . . . . . . . . . . .  7
+   3.3 Example of a Compound Attribute Definition in LDAP . . . . . .  7
+   3.4 Encoding of values in X-Compound Attribute Value syntax  . . . 10
+   4.  Usage of Compound Attribute in LDAP Requests and Responses . . 14
+   4.1 Example of Search Request  . . . . . . . . . . . . . . . . . . 15
+   5.  Security Consideration . . . . . . . . . . . . . . . . . . . . 17
+   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 18
+       References . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+       Author's Address . . . . . . . . . . . . . . . . . . . . . . . 19
+       Full Copyright Statement . . . . . . . . . . . . . . . . . . . 20
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                  [Page 2]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+1. Introduction
+
+   Directory powers many distributed applications today and they would
+   assume even more significance in future. Directories are being used
+   and will be used to store entries having various kind of
+   information. As the volume and complexity of information associated
+   with the directory entries increase, there is a great need to
+   logically organize these information in hierarchical manner rather
+   than a flat structure within the directory entry. This allows better
+   management and efficient retrieval of information stored in the
+   directory. Smart and sophisticated directories will allow such a
+   hierarchical organization of information within the directory entry. 
+
+   Compound Attribute is the basic building block for such a
+   hierarchical organization. It is the attribute which can contain one
+   or more simple or compound attributes. However, LDAP which is widely
+   used protocol for accessing directory does not support the concept
+   of compound attribute. The protocol assumes that the directory
+   entries have only simple attributes. This document describes the
+   method of supporting compound attribute in LDAP. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                  [Page 3]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+2. Problem Description
+
+   This section describes some of the common problems of not having the
+   compound attribute support in LDAP. Hence it provides the motivation
+   of introducing compound attribute support in LDAP. 
+
+2.1 Inaccuracy of Syntax Definitions
+
+   The lack of ability to combine simple attributes and putting them in
+   to a compound attribute can result in inaccurate syntaxes. To
+   illustrate this point consider one of the Attribute Syntax defined
+   rfc2252, a Postal Address. The values in this syntax are encoded
+   according to the following BNF 
+
+         postal-address = dstring * ( $ dstring )
+
+   each dstring component of a postal address value is encoded as a
+   value of type Directory String syntax (which is UTF-8 form of ISO
+   10646 - a superset of Unicode). Example of one such value is shown
+   below 
+
+         Novell Inc,$2111 North First Street,$San Jose,$CA 95131$USA
+
+   Above syntax does not allow to specify certain constraints such as
+   .. 
+
+   o  There must be at-least Street, City, State, ZipCode and Country
+      in the address.
+
+   o  ZipCode must be a 5 digit code
+
+   o  State must be a two character code
+
+   The problem here is that many simple independent attributes are
+   combined together in one simple attribute. However with the Compound
+   Attribute support we can precisely specify the syntax of the
+   attribute.  For the illustration we can define an AttributeType
+   snail-mail, whose description says that it's syntax is 'X-Compound
+   Attribute Value' and it contains simple attributes like Street,
+   City, State, ZipCode, Country etc. The AttributeTypeDescription of
+   each one of them which will take care of imposing the proper syntax
+   for the value. Later in this document complete
+   AttributeTypeDescription of snail-mail AttributeType will be
+   presented. 
+
+2.2 Reuse of existing AttributeTypes
+
+   Linked with the above is the problem of extensibility and reuse.
+   With the help of compound attribute support, existing AttributeTypes
+
+
+Modi                     Expires April 4, 2000                  [Page 4]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+   can be easily grouped together to get a new AttributeType, which is
+   not possible otherwise. 
+
+2.3 Efficient Retrieval of Information
+
+   With the help of compound attribute support, required information
+   can be precisely specified. Consider the problem of retrieving the
+   phone number of all the people living in California, USA and whose
+   first name is John, from a directory. Assume that Person object in
+   the directory has simple attributes FirstName, PostalAddress and
+   Phone, having syntaxes as Directory String, Postal Address and Phone
+   Number respectively. 
+   We immediately encounter following two problems .. 
+
+   1.  The Postal Address syntax does not specify that it must have a
+       value for state and value for country.
+
+   2.  Even if the values of State and Country are present, it does not
+       specify which of its value is of State and which one is of
+       Country.
+
+   Because of above problems, filter in the search request can not have
+   AttributeValueAssertion for PostalAddress attribute. We can only
+   specify AttributeValueAssertion for FirstName attribute. This means
+   that we will end up retrieving all the Persons whose FirstName is
+   John. 
+
+   However the things are different when snail-mail attribute is
+   compound and its description specifies that it must contain State
+   and Country attribute. 
+   Now we can specify in the search request that "retrieve the values
+   of phone number attribute of the Persons whose first name is John
+   AND the value of State attribute in snail-mail attribute is CA AND
+   the value of Country attribute in snail-mail attribute is US". 
+   Thus with the support of compound attribute we can easily solve this
+   problem by specifying the AttributeValueAssertion for the compound
+   attribute 'snail-mail' in the search request. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                  [Page 5]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+3. Compound Attribute Support in LDAPv3
+
+   This section describes the method of providing compound attribute
+   support in LDAPv3. The method proposes additions to
+   AttributeTypeDescription syntax and introduces a new syntax which
+   specifies the value encoding for any compound attribute. 
+
+3.1 Describing the Compound Attribute
+
+   The attribute types supported by the directory are described by the
+   values for subschema "attributeTypes" attribute, which is written in
+   the AttributeTypeDescription syntax[4]. Compound Attributes
+   supported must also be described by the same. Following is the
+   modified BNF of the proposed AttributeTypeDescription, which allows
+   Compound Attribute to be described. 
+
+
+
+       AttributeTypeDescription = "(" whsp
+         numericoid whsp                ; AttributeType identifier
+         [ "NAME" qdescrs ]             ; name used in
+                                        ; AttributeType
+         [ "DESC" qdstring ]            ; description
+         [ "OBSOLETE" whsp ]
+         [ "SUP" woid ]                 ; derived from this other
+                                        ; AttributeType
+         [ "EQUALITY" woid              ; Matching Rule name
+         [ "ORDERING" woid              ; Matching Rule name
+         [ "SUBSTR" woid ]              ; Matching Rule name
+         [ "SYNTAX" whsp noidlen whsp ] ; syntax for the attribute
+                                        ; value
+         [ "SINGLE-VALUE" whsp ]        ; default multi-valued
+         [ "COLLECTIVE" whsp ]          ; default not collective
+         [ "NO-USER-MODIFICATION" whsp ]; default user modifiable
+         [ "USAGE" whsp AttributeUsage ]; default userApplications
+
+         [ "X-CONTAINS" qdstring       ]; qdstring representation
+                                        ; of <oids>
+                                        ; Attribute Types
+         whsp ")"
+
+
+       AttributeUsage =
+         "userApplications"     /
+         "directoryOperation"   /
+         "distributedOperation" / ; DSA-shared
+         "dsaOperation"           ; DSA-specific,
+                                  ; value depends on server
+
+
+
+Modi                     Expires April 4, 2000                  [Page 6]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+   The term X-CONTAINS is the qdstring representation of the list of
+   oids of the Attribute Types, contained in this compound attribute.
+   These oids must be distinct, this means that a compound attribute
+   should not contain two Attributes of the same type. Multiple
+   occurrences of the same oid should be ignored. As a compound
+   attribute is also one of the AttributeType, the list can contain the
+   oids of compound attributes as well. So a compound attribute can
+   contain both compound attribute and simple attribute. Example of a
+   compound attribute description using the modified
+   AttributeTypeDescription syntax is provided later in this draft. 
+
+3.2 Syntax of a Compound Attribute
+
+   AttributeTypeDescription for any compound attribute MUST have Syntax
+   Object Identifier of 'X-Compound Attribute Value' as the value of
+   term SYNTAX. It specifies the way in which values of any compound
+   attribute should be encoded. Following is the syntax for Compound
+   Attribute. 
+
+   Value being represented     Human Readable     ObjectIdentifier
+   ====================================================================
+    X-Compound Attribute Value       Y    1.3.6.1.4.1.1466.115.121.1.tbd
+
+    The Description of above syntax is, 
+
+   ( 1.3.6.1.4.1.1466.115.121.1.xxx DESC 'X-Compound Attribute Value' )
+
+    From above two subsection, 
+   "If an AttributeTypeDescription contains X-CONTAINS term then it
+   MUST be the description of a Compound Attribute and it MUST have
+   Syntax Object Identifier of 'X-Compound Attribute Value' syntax and
+   vice versa." 
+   This enforces that a Compound Attribute MUST contain at-least one
+   attribute(Simple or Compound). 
+
+3.3 Example of a Compound Attribute Definition in LDAP
+
+   Recall the problem of accurately defining postal-address described
+   in Section 2.1. Let's now define a Compound Attribute called
+   snail-mail which addresses those problems and which can be described
+   by the following BNF 
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                  [Page 7]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+     snail-mail
+     AttributeTypeDescription =
+     ( 2.5.18.x NAME 'snail-mail'
+       DESC 'A Snail Mail Address'
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.tbd
+       USAGE userApplications
+       X-CONTAINS '2.5.18.a$2.5.18.b$2.5.18.c$2.5.18.d$2.5.18.e$2.5.18.f'
+     )
+
+     where,
+       Name    = 2.5.18.a
+       Street  = 2.5.18.b
+       City    = 2.5.18.c
+       State   = 2.5.18.d
+       ZipCode = 2.5.18.e
+       Country = 2.5.18.f
+
+
+   Following are the AttributeTypeDescription of the attributes
+   contained in above Compound Attribute. 
+
+
+     Name
+     AttributeTypeDescription =
+     ( 2.5.18.a
+       NAME 'Name'
+       DESC 'Name of the person/company'
+       SYNTAX 1.2.6.4.1.1466.115.121.1.15
+       USAGE userApplications )
+
+     Street
+     AttributeTypeDescription =
+     ( 2.5.18.b
+       NAME 'Street'
+       DESC 'Street Address'
+       SYNTAX 1.2.6.4.1.1466.115.121.1.15
+       USAGE userApplications )
+
+     City
+     AttributeTypeDescription =
+     ( 2.5.18.c
+       NAME 'City'
+       DESC 'Name of the City'
+       SYNTAX 1.2.6.4.1.1466.115.121.1.15
+       SINGLE-VALUED
+       USAGE userApplications )
+
+     State
+     AttributeTypeDescription =
+
+
+Modi                     Expires April 4, 2000                  [Page 8]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+     ( 2.5.18.d
+       NAME 'State'
+       DESC '2 printable character state code'
+       SYNTAX 1.2.6.4.1.1466.115.121.1.11
+       SINGLE-VALUED
+       USAGE userApplications )
+
+     ZipCode
+     AttributeTypeDescription =
+     ( 2.5.18.d
+       NAME 'ZipCode'
+       DESC '5 digit numeric string'
+       SYNTAX 1.2.6.4.1.1466.115.121.1.36{5}
+       SINGLE-VALUED
+       USAGE userApplications )
+
+     Country
+     AttributeTypeDescription =
+     ( 2.5.18.f
+       NAME 'Country'
+       DESC 'Name of the country'
+       SYNTAX 1.2.6.4.1.1466.115.121.1.15
+       SINGLE-VALUED
+       USAGE userApplications )
+
+
+
+   Above attribute descriptions describes a multi valued compound
+   attribute snail-mail which contains six simple attributes Name,
+   Street, City, State, ZipCode and Country as shown in Figure 8. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                  [Page 9]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+                +-------------+
+                |  snail-mail |
+                +------|------+
+                       |
+                       |      +----------+
+                       +------|   Name   |
+                       |      +----------+
+                       |
+                       |      +----------+
+                       +------|  Street  |
+                       |      +----------+
+                       |
+                       |      +----------+
+                       +------|   City   |
+                       |      +----------+
+                       |
+                       |      +----------+
+                       +------|  State   |
+                       |      +----------+
+                       |
+                       |      +----------+
+                       +------| ZipCode  |
+                       |      +----------+
+                       |
+                       |      +----------+
+                       +------| Country  |
+                              +----------+
+
+
+   Figure 8 'snail-mail' Compound Attribute 
+
+3.4 Encoding of values in X-Compound Attribute Value syntax
+
+   A recursive definition of the value of a compound attribute can be
+   given as, "Value of the Compound Attribute is the values of the
+   attributes it contains". Thus the value of a compound attribute is
+   in the form of a tree, we call this tree as 'ValueTree'. For single
+   valued compound attribute there is only one ValueTree, whereas for
+   multi-valued compound attributes there are more than one ValueTree.
+   Thus we need to encode one or more ValueTrees. Following paragraph
+   describe one method of encoding a ValueTree of a compound attribute. 
+
+   Each ValueTree of a compound attribute is encoded as an Octet
+   String. The octet string is formed by doing the pre-order traversal
+   of the ValueTree and encoding the values for each node. The content
+   of the octet string is encoded according to the following ASN.1
+   definition 
+
+
+
+
+Modi                     Expires April 4, 2000                 [Page 10]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+      X-Compound Attribute Value :: = SET OF ValueTree
+
+      ValueTree :: = SEQUENCE OF SEQUENCE {
+         type AttributeDescription ,
+         vals SET OF AttributeValue }
+
+
+   Figure 9 Value encoding of a Compound Attribute 
+
+   where, AttributeValue of the corresponding Attribute will be encoded
+   according to its syntax. If it happens to be an 'X-Compound
+   Attribute Value' syntax it will be encoded again as above. (This
+   happens when a compound attribute contains another compound
+   attribute) 
+   Following are the examples of value encoding for 'X-Compound
+   Attribute Value' syntax. 
+
+   Example 1: Consider the compound attribute snail-mail defined in
+   Figure 8 which has two values('ValueTrees') as following 
+
+
+     +-------------+
+     |  snail-mail |                 Value 1            Value 2
+     +------|------+                    |                  |
+            |      +----------+         |                  |
+            +------|   Name   |     Novell Inc,        Novell Inc,
+            |      +----------+     Building C,        Building A,
+            |      +----------+         |                  |
+            +------|  Street  |     122 East,          2111 North
+            |      +----------+     1700 South,        First Street,
+            |      +----------+         |                  |
+            +------|   City   |       Provo             San Jose
+            |      +----------+         |                  |
+            |      +----------+         |                  |
+            +------|  State   |        UT                 CA
+            |      +----------+         |                  |
+            |      +----------+         |                  |
+            +------| ZipCode  |       84606              95131
+            |      +----------+
+            |      +----------+         |                  |
+            +------| Country  |        US                 US
+                   +----------+
+
+
+   The value of the compound attribute is a sequence of ValueTrees. The
+   first ValueTree of above compound attribute will be encoded as
+   following, according to the specification of Figure 9. The encoding
+   does not show the actual bytes which will be sent over the wire, it
+   is only for the purpose of explanation. 
+
+
+Modi                     Expires April 4, 2000                 [Page 11]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+     {
+       { Name, ( Novell Inc, Building C ) }
+       { Street, ( 122 East, 1700 South ) }
+       { City, ( Provo ) }
+       { State, ( UT ) }
+       { ZipCode, ( 84606 ) }
+       { Country, ( US ) }
+    }
+
+
+   Second ValueTree is also encoded similarly. The complete value of
+   the compound attribute is the sequence having first element as the
+   ValueTree 1 and second element as ValueTree 2. 
+
+   Example 2: Consider the following compound attribute CAttr1 shown in
+   Figure 12 which has two simple attributes and a compound attribute. 
+
+
+              +------------+
+              |   CAttr1   |
+              +------|-----+
+                     |
+                     |      +----------+
+                     +------|  SAttr1  |
+                     |      +----------+
+                     |
+                     |      +----------+
+                     +------|  CAttr2  |
+                     |      +----|-----+
+                     |           |
+                     |           |      +----------+
+                     |           +------|  SAttr1  |
+                     |           |      +----------+
+                     |           |
+                     |           |      +----------+
+                     |           +------|  SAttr2  |
+                     |                  +----------+
+                     |
+                     |      +----------+
+                     +------|  SAttr2  |
+                            +----------+
+
+
+   Figure 12 'CAttr1' Compound Attribute 
+
+   Consider compound attribute CAttr1 having one value and compound
+   attribute CAttr2 having two values. So CAttr1 has one ValueTree
+   whereas CAttr2 has two ValueTrees. The value of compound attribute
+   CAttr1 will be encoded as the sequence of its ValueTrees. The only
+
+
+Modi                     Expires April 4, 2000                 [Page 12]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+   ValueTree of compound attribute CAttr1 will be encoded as following. 
+
+
+     {
+       { SAttr1, ( valuesOfSAttr1 ) }
+       { CAttr2, ( valueTreesOfCAttr2 ) }
+       { Sattr2, ( valuesOfSAttr2 ) }
+     }
+
+     which is,
+
+     {
+       { SAttr1, ( valuesOfSAttr1 ) }
+       { CAttr2, ( {
+                     { Sattr1, ( valuesOfSAttr1 )} // VT1
+                     { Sattr2, ( valuesOfSAttr2 )} // VT1
+                   },
+                   {
+                     { Sattr1, ( valuesOfSAttr1 )} // VT2
+                     { Sattr2, ( valuesOfSAttr2 )} // VT2
+                   }
+   			     )
+       }
+       { Sattr2, ( valuesOfSAttr2 ) }
+     }
+
+   where VT1 is the first ValueTree of compound attribute CAttr2 and
+   Vt2 is its second ValueTree. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                 [Page 13]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+4. Usage of Compound Attribute in LDAP Requests and Responses
+
+   This section explains the usage of compound attribute in various
+   LDAP requests and responses. Following are the various definitions
+   in LDAPv3[2] specification which deals with Attributes and needs to
+   be changed or interpreted differently for compound attribute
+   support. 
+
+   - AttributeValue:  As per LDAPv3 specifications 
+      AttributeValue ::= OCTET STRING 
+      For compound attribute this OCTET STRING contains a SET of
+      ValueTree as described in Section 3.4. 
+
+   - AssertionValue:  AssertionValue for a compound attribute is the
+      AssertionValue for the attributes it contains and for which the
+      AssertionValue is specified. Similar to the value of a compound
+      attribute, AssertionValue for the compound attribute is also in
+      the form a tree, called as 'AssertionValueTree'. The
+      AssertionValueTree is formed by doing the pre-order traversal of
+      the compound attribute and including the AssertionValue for each
+      attribute if it is specified. Thus the AssertionValueTree
+      contains nodes only for those attributes whose AssertionValues
+      are specified. The modified definition of AssertionValue is given
+      below. 
+
+
+     AssertionValue ::= OCTET STRING for Simple Attribute and
+                        AssertionValueTree for compound attribute.
+
+     where,
+
+     AssertionValueTree ::= SEQUENCE {
+       attributeDesc   AttributeDescription,
+       assertionValue  AssertionValue }
+
+       where, AssertionValue is AssertionValueTree for a compound attribute.
+
+
+   - AttributeDescription:  In order to identify the compound attribute
+      and decode its value / assertion value correctly,
+      AttributeDescription for compound attribute should include
+      'x-compound' as option. This is not required for the clients
+      which do schema discovery initially and know that the particular
+      attribute is compound. 
+
+   - AttributeDescriptionList:  AttributeDescriptionList is used in
+      SearchRequest to specify the required attributes in the result.
+      There may be the situations in which there is a need to get the
+      values of certain attributes within a compound attribute. So we
+
+
+Modi                     Expires April 4, 2000                 [Page 14]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+      actually need to specify the required attribute tree. This can be
+      done by using two options namely, 'x-start' and 'x-end' with
+      compound attribute description. These options define the
+      boundaries of attribute tree formed by that compound attribute
+      and used to convert the attribute tree in list format. 
+
+      Another way of specifying the required attribute is to use dotted
+      notation. For example consider an object having compound
+      attribute CAttr1 defined in Figure 12. To specify that SAttr2 in
+      CAttr1 and SAttr1 in CAttr2 in CAttr1 are required, it is
+      required that the AttributeDescriptionList must contain
+      CAttr1.SAttr2 and CAttr1.CAttr2.SAttr1 as two elements of the
+      list. 
+
+      However the first method is more intuitive and inline with the
+      value encoding and AssertionValue specifications for the compound
+      attribute. Comments are specifically invited from the readers
+      about this. 
+
+4.1 Example of Search Request
+
+   Recall the problem of efficient retrieval of information described
+   in Section 2.3.  Consider the 'Person' object in the directory
+   having compound attribute 'snail-mail' as defined in Section 3.3,
+   simple attribute Phone and simple attribute FirstName. We need to
+   "retrieve the values of Phone attribute and City attribute of
+   compound attribute snail-mail of the Persons whose first name is
+   John AND the value of State attribute in snail-mail attribute is CA
+   AND the value of Country attribute in snail-mail attribute is US". 
+   To select Persons whose first name is John AND the value of State
+   attribute in snail-mail attribute is CA AND value of Country
+   attribute in snail-mail attribute is US, the filter parameter of the
+   search request must be an 'and' filter having three
+   AttributeValueAssertion filters for attributes 'FirstName',
+   'objectClass' and 'snail-mail' as shown below. (Only for
+   illustration, not in any specific notation) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                 [Page 15]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+     filter := and {
+                      AVA_name,
+                      AVA_objectClass,
+                      AVA_snail-mail
+                   }
+
+      where,
+        AVA_name := { FirstName, John }
+
+        AVA_objectClass := { objectClass, Person }
+
+        AVA_snail-mail := { snail-mail;x-compound, requiredValueTreeAssertion }
+
+        where,
+          requiredValueTreeAssertion := {
+             { State, ( CA ) }
+             { Country, ( US ) }
+          }
+
+
+    To retrieve the Phone attribute and City attribute of snail-mail
+   attributes parameter of the search request needs to be specified as
+   following. 
+
+
+     AttributeDescriptionList := {
+        Phone,
+        snail-mail;x-compound;x-start,
+        City,
+        snail-mail;x-compound;x-end
+        }
+
+        OR
+
+     AttributeDescriptionList := {
+       Phone,
+       snail-mail.City
+       }
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                 [Page 16]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+5. Security Consideration
+
+   Security issues are not applicable and so, are not discussed in this
+   draft. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                 [Page 17]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+6. Acknowledgements
+
+   I sincerely thank Alan Clark, Ed Reed, Jim Sermersheim and Richard
+   Weir for reviewing this proposal and providing valuable suggestions.
+   I also thank my team members Anasuya Devi, Ganesh S P, Deepa P and
+   Vijay K N, for reviewing the earlier versions of this document and
+   providing valuable comments. Special thanks to Deepa P for pointing
+   out grammatical and spelling errors. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                 [Page 18]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+References
+
+   [1]  ITU-T Rec. X.500, "The Directory: Overview of Concepts, Models
+        and Services", 1993.
+
+   [2]  Wahl, M., Howes, T. and S. Kille, "Lightweight Directory Access
+        Protocol (v3)", RFC 2251, December 1997.
+
+   [3]  ITU-T Recommendation, "The Directory: Selected Attribute
+        Types", 1993.
+
+   [4]  Wahl, M., Coulbeck, A., Howes, T. and S. Kille, "Lightweight
+        Directory Access Protocol (v3): Attribute Syntax Definitions",
+        RFC 2252, December 1997.
+
+   [5]  Wahl, M., "A Summary of the X.500(96) User Schema for use with
+        LDAPv3", RFC 2256, December 1997.
+
+   [6]  Brander, S., "RFC Key Words", RFC 2119, March 1997.
+
+Author's Address
+
+   Vipul Modi
+   Novell, Inc.
+   Novell Product Group Bangalore
+   49/1 & 49/3 G. B. Pallya
+   7th Mile, Hosur Road
+   Bangalore, Karnataka  560068
+   India
+
+   Phone: +91 80 572 1876/62/56 Ext:2015
+   Fax:   +91 80 572 180
+   EMail: mvipul@novell.com
+   URI:   http://www.novell.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                 [Page 19]
+
+Internet-Draft     Compound Attribute Support in LDAP       October 1999
+
+
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (1999). All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its impelmentation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph
+   are included on all such copies and derivative works. However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Acknowledgement
+
+   Funding for the RFC editor function is currently provided by the
+   Internet Society.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Modi                     Expires April 4, 2000                 [Page 20]
+

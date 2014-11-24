@@ -1,0 +1,392 @@
+
+
+
+Network Working Group                                        D. Cridland
+Internet-Draft                                             Isode Limited
+Intended status: Informational                          November 9, 2007
+Expires: May 12, 2008
+
+
+         On the use of TLS Session resumption and SASL EXTERNAL
+                  draft-cridland-sasl-tls-sessions-00
+
+Status of this Memo
+
+   By submitting this Internet-Draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on May 12, 2008.
+
+Copyright Notice
+
+   Copyright (C) The IETF Trust (2007).
+
+Abstract
+
+   Some SASL mechanisms provide a fast reauthentication option.  TLS
+   also provides this, and this memo outlines a proposal to use the TLS
+   session resumption as a method for mechanism-independent fast
+   reauthentication using SASL EXTERNAL.
+
+
+
+
+
+
+
+Cridland                  Expires May 12, 2008                  [Page 1]
+
+Internet-Draft              SASL TLS Sessions              November 2007
+
+
+Table of Contents
+
+   1.  Conventions used in this document . . . . . . . . . . . . . . . 3
+   2.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   3.  Implementation  . . . . . . . . . . . . . . . . . . . . . . . . 3
+     3.1.  Initial Authentication  . . . . . . . . . . . . . . . . . . 3
+     3.2.  Fast Reauthentication . . . . . . . . . . . . . . . . . . . 4
+   4.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 4
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . . . 5
+   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 5
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . . . 6
+     8.2.  Informative References  . . . . . . . . . . . . . . . . . . 6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 6
+   Intellectual Property and Copyright Statements  . . . . . . . . . . 7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cridland                  Expires May 12, 2008                  [Page 2]
+
+Internet-Draft              SASL TLS Sessions              November 2007
+
+
+1.  Conventions used in this document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [KEYWORDS].
+
+
+2.  Introduction
+
+   The [DIGEST-MD5] [SASL] mechanism provides a method of performing
+   subsequent authentications using many fewer round-trips, known as
+   "fast reauthentication".  Most SASL mechanisms do not, which can
+   cause a relatively high number of round-trips at application protocol
+   startup.
+
+   In addition, the cost of cryptographic computation in clients can be
+   quite high, leading to a slower application session setup.
+
+   This memo proposes a use of the EXTERNAL mechanism, defined in
+   [SASL], in conjunction with TLS session resumption as specified in
+   [TLS], which effectively provides fast reauthentication in a generic
+   manner for any SASL mechanism which supports channel binding.
+
+
+3.  Implementation
+
+3.1.  Initial Authentication
+
+   To use this method, the client first negotiates TLS as normal, then
+   uses any SASL mechanism which supports channel binding to
+   authenticate as normal whilst TLS is in effect.  On successful
+   authentication, the server then records the authorization identifier
+   used against the SessionID used in TLS.
+
+   If the mechanism used in this initial authentication does not
+   support, or use, channel binding, then the server MUST NOT record the
+   authorization identifier against the SessionID.
+
+   The client SHOULD NOT provide a certificate during this initial TLS
+   negotiation, as this would cause there to be multiple potential
+   identities.
+
+   The TLS session so created SHOULD NOT be resumed except to
+   reauthenticate to obtain the same authorization identifier.
+
+
+
+
+
+
+
+Cridland                  Expires May 12, 2008                  [Page 3]
+
+Internet-Draft              SASL TLS Sessions              November 2007
+
+
+3.2.  Fast Reauthentication
+
+   First, a client resumes a TLS session, using the SessionID previously
+   recorded as per Section 3.1.  The server, on resumption of the TLS
+   session, then determines whether any authorization identifiers have
+   been cached as per Section 3.1, and advertises EXTERNAL if so.  If
+   EXTERNAL is advertised, then the client then authenticates using the
+   EXTERNAL mechanism.
+
+   The server verifies this by checking that the authorization
+   identifier was previously used with the SessionID recorded as per
+   Section 3.1.
+
+   If this check fails, the application protocol will reject the
+   authentication.  Clients SHOULD retry using a traditional SASL
+   mechanism.
+
+
+4.  Open Issues
+
+   A significant problem with this method is that there is no
+   negotiation to indicate the source of an externally asserted
+   authorization identifier, in particular, there is no protocol by
+   which a client can determine whether using EXTERNAL without
+   specifying an authorization identifier will grant it the
+   authorization identifier it was expecting.  In particular, this
+   suggests that use of the mechanism with a TLS client certificate may
+   be particularly difficult.
+
+   Clients also cannot easily specify authorization identifiers to
+   resolve this - not only do explicitly specified authorization
+   identifiers tend to be treated as proxy-authentication requests, but
+   the client cannot formally know what authorization identifier it was
+   granted by default in the initial authentication.
+
+   This could be addressed by definition of a new SASL mechanism which
+   would explicitly use the authorization identifier previously
+   associated with the TLS session.
+
+   The problems outlined with EXTERNAL may be sufficient to consider
+   replacing EXTERNAL itself with a family of mechanisms whose name
+   indicates the source of the implicit authorization identifier.
+
+
+5.  IANA Considerations
+
+   This document has no actions for IANA.
+
+
+
+
+Cridland                  Expires May 12, 2008                  [Page 4]
+
+Internet-Draft              SASL TLS Sessions              November 2007
+
+
+6.  Security Considerations
+
+   This method is only suitable in the case where the SASL mechanism
+   used in initial authentication is actively using channel bindings,
+   and the SessionID is secure.
+
+   In the case where the SessionID, and related session information,
+   could be compromised on the wire, then the server cannot rely on this
+   to provide an authorization identifier.  This is the case where the
+   encryption algorithm used is NULL, for example.
+
+   In the case where channel binding was not used by the SASL mechanism,
+   then the server cannot know whether the client has been subjected to
+   an MITM.  The client can know by suitable verification of the server
+   certificate, if one is provided, however, the server cannot know if
+   this was carried out, and for anonymous cipher suites, there is no
+   certificate to verify.
+
+   If an MITM is in effect without channel binding, use of this
+   mechanism could otherwise allow the MITM to later reauthenticate.
+
+   Caching credentials sufficient to reauthenticate non-interactively,
+   whether using this method, that of [DIGEST-MD5], or merely storing
+   the plaintext password, may allow a third-party unauthorized program
+   to obtain the credentials and access the protected service.  Use of
+   this method entirely removes the ability to recover a password from
+   this cached data, however, since neither the password nor any data
+   derived from it is needed to reauthenticate.
+
+   Other security considerations applicable to this method are to be
+   found in both [SASL] and [TLS].
+
+   [The author notes that he is neither an expert on TLS nor on
+   cryptography in general, hence there is probably more to consider
+   than this.]
+
+
+7.  Acknowledgements
+
+   Comments were received on the idea, and/or this draft, from Sam
+   Hartman, Kurt Zeilenga, Tony Finch, Alexey Melnikov, and others.
+   Whether in agreement or dissent, the comments have refined and
+   otherwise influenced the document.
+
+
+8.  References
+
+
+
+
+
+Cridland                  Expires May 12, 2008                  [Page 5]
+
+Internet-Draft              SASL TLS Sessions              November 2007
+
+
+8.1.  Normative References
+
+   [KEYWORDS]
+              Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [SASL]     Melnikov, A. and K. Zeilenga, "Simple Authentication and
+              Security Layer (SASL)", RFC 4422, June 2006.
+
+   [TLS]      Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.1", RFC 4346, April 2006.
+
+8.2.  Informative References
+
+   [DIGEST-MD5]
+              Leach, P. and C. Newman, "Using Digest Authentication as a
+              SASL Mechanism", RFC 2831, May 2000.
+
+
+Author's Address
+
+   Dave Cridland
+   Isode Limited
+   5 Castle Business Village
+   36, Station Road
+   Hampton, Middlesex  TW12 2BX
+   GB
+
+   Email: dave.cridland@isode.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cridland                  Expires May 12, 2008                  [Page 6]
+
+Internet-Draft              SASL TLS Sessions              November 2007
+
+
+Full Copyright Statement
+
+   Copyright (C) The IETF Trust (2007).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+
+Acknowledgment
+
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
+
+
+
+
+
+Cridland                  Expires May 12, 2008                  [Page 7]
+

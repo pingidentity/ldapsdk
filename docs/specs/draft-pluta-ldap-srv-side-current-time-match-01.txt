@@ -1,0 +1,840 @@
+
+
+
+Network Working Group                                           D. Pluta
+Internet-Draft                          Technische Universitaet Muenchen
+Intended status: Standards Track                               W. Hommel
+Expires: December 25, 2010                 Leibniz Supercomputing Centre
+                                                           June 23, 2010
+
+
+             Lightweight Directory Access Protocol (LDAP):
+    Server Side Current Time Matching - Matching Rules and Syntaxes
+          draft-pluta-ldap-srv-side-current-time-match-01.txt
+
+Abstract
+
+   This document extends the Lightweight Directory Access Protocol
+   (LDAP) to support server side current time matching.
+
+   Matching of time-stamp attribute values against an LDAP server's
+   current time offers advantages for example in case third party
+   products' LDAP client configuration directives (e.g.  LDAP filter
+   statements) do not offer support to dynamically rewrite/replace a
+   filter's assertion value for each request.  Using the matching rules
+   defined in this document the client is able to provide a constant
+   matching rule assertion value to trigger the server side comparison
+   of the given/stored 'Generalized Time' syntax based attribute value
+   against the LDAP server's current time.
+
+   Therefore this document specifies four matching rules and two
+   dedicated assertion syntaxes to be used in conjuntion with the well
+   known 'Generalized Time' syntax based attribute values.
+
+Status of this Memo
+
+   This Internet-Draft is submitted to IETF in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 1]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on December 25, 2010.
+
+Copyright Notice
+
+   Copyright (c) 2010 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the BSD License.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 2]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+Table of Contents
+
+   1.  Background and Intended Use  . . . . . . . . . . . . . . . . .  3
+   2.  Syntaxes and Matching Rules Overview . . . . . . . . . . . . .  3
+   3.  Assertion Value Syntax Definitions . . . . . . . . . . . . . .  6
+     3.1.  now - LDAP Server's Current Time . . . . . . . . . . . . .  6
+     3.2.  nowOffset - Chronological Offset Relative to the
+           Server's Current Time  . . . . . . . . . . . . . . . . . .  7
+   4.  Matching Rule Definitions  . . . . . . . . . . . . . . . . . .  7
+     4.1.  nowOrEarlierOffsetMatch  . . . . . . . . . . . . . . . . .  8
+     4.2.  nowOrLaterOffsetMatch  . . . . . . . . . . . . . . . . . .  8
+     4.3.  nowOrEarlierMatch  . . . . . . . . . . . . . . . . . . . .  9
+     4.4.  nowOrLaterMatch  . . . . . . . . . . . . . . . . . . . . .  9
+   5.  Root DSE attributes  . . . . . . . . . . . . . . . . . . . . . 10
+     5.1.  supportedFeature . . . . . . . . . . . . . . . . . . . . . 10
+     5.2.  serverTime . . . . . . . . . . . . . . . . . . . . . . . . 10
+   6.  Discovering Server Side Current Time Matching Support  . . . . 10
+     6.1.  Querying the root DSE attribute 'supportedFeature' . . . . 10
+     6.2.  Querying the root DSE attribute 'servertime' . . . . . . . 10
+     6.3.  Querying the Schema  . . . . . . . . . . . . . . . . . . . 11
+     6.4.  Clients' usage of server side current time matching  . . . 11
+   7.  Security Considerations  . . . . . . . . . . . . . . . . . . . 11
+   8.  Acknowledgement  . . . . . . . . . . . . . . . . . . . . . . . 11
+   9.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 11
+     9.1.  Object Identifier Registration . . . . . . . . . . . . . . 11
+     9.2.  LDAP Descriptors . . . . . . . . . . . . . . . . . . . . . 12
+   10. Normative References . . . . . . . . . . . . . . . . . . . . . 13
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 14
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 3]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+1.  Background and Intended Use
+
+   The LDAP Protocol [RFC4510] is extensible.  Extensions include
+   Schema, Syntaxes, and Matching Rules as well as extensions related to
+   other aspects of the protocol.
+
+   LDAP search filter expressions are used to match (compare) stored
+   attribute values against search filter assertion values on the server
+   side.  The LDAP standard defines the 'Generalized Time' syntax and
+   its associated matching rules ('generalizedTimeMatch' and
+   'generalizedTimeOrderingMatch') within [RFC4517].  Attribute type
+   definitions using the 'Generalized Time' syntax do offer support for
+   storing time-stamp values in compliance to the syntax's definition.
+   During search operations the associated matching rules are used to
+   compare these attributes' values against a constant attribute
+   assertion value specified by the client.
+
+   This document introduces dynamic matching possibilities for time-
+   stamp attribute values.  Dynamic comparison of time-stamp attributes'
+   values against an LDAP server's current time offers enhanced features
+   for various LDAP based system management use cases (e.g.
+   authorization).  Furthermore this feature builds the basis with
+   regard to advanced LDAP server side data privacy requirements: in
+   combination with appropriate access control definitions LDAP servers
+   are enabled to temporarily mask distinct entries and inhibit their
+   extradition to an LDAP client.  These access control features are not
+   part of this specification.
+
+   As the LDAP server's current time (as used in this specification) the
+   server-sided time-stamp at the instant of the incoming LDAP client
+   requested operation MUST be taken.  That means this time-stamp value
+   has to be constant for the whole request's operation.  The time-stamp
+   value MUST NOT change during the operations of a request, i.e. all
+   entries contained in a request's result set are compared against a
+   per operation constant time-stamp value.
+
+   In this document, the key words "MUST", "MUST NOT", "REQUIRED",
+   "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+   and "OPTIONAL" are to be interpreted as described in BCP 14
+   [RFC2119].
+
+
+2.  Syntaxes and Matching Rules Overview
+
+   The matching rules associated with the 'Generalized Time' attribute
+   value syntax (as specified in [RFC4517]) offer the possibility to
+   match stored attribute time-stamp values against statically provided
+   LDAP search filter assertion values.
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 4]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+   This document introduces the following two assertion value syntaxes:
+
+      now (see Section 3.1)
+
+      nowOffset (see Section 3.2)
+
+   Additionally to the above listed assertion value syntaxes two pairs
+   of extensible matching rules are defined.  Both pairs are used to
+   LDAP server side match attribute values against an LDAP server's
+   current time:
+
+      nowOrEarlierOffsetMatch (see Section 4.1)
+
+      nowOrLaterOffsetMatch (see Section 4.2)
+
+      nowOrEarlierMatch (see Section 4.3)
+
+      nowOrLaterMatch (see Section 4.4)
+
+   The assertion value syntaxes listed here are specified in detail in
+   Section 3 whereas the matching rules are described in detail in
+   Section 4.
+
+   All the above mentioned syntaxes and matching rules, their
+   relationship, as well as their supported attribute assertion value
+   syntaxes are aggregated and illustrated in Figure 1.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 5]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+   +--------------------------------------++-----+-----+
+   | MR to AAS Association                || NOW | OFF |
+   +--------------------------------------++-----+-----+
+   |                                      ||     |     |
+   | Pair 1:                   MR-Type:   ||     |     |
+   | -------                   ---------- ||     |     |
+   | nowOrEarlierOffsetMatch   extensible ||  X  |  X  |
+   | nowOrLaterOffsetMatch     extensible ||  X  |  X  |
+   |                                      ||     |     |
+   | Pair 2:                   MR-Type:   ||     |     |
+   | -------                   ---------- ||     |     |
+   | nowOrEarlierMatch         extensible ||  X  |  -  |
+   | nowOrLaterMatch           extensible ||  X  |  -  |
+   |                                      ||     |     |
+   +--------------------------------------++-----+-----+
+
+   +---------------------------------------------------+
+   | Legend:                                           |
+   |                                                   |
+   | MR:    Matching Rule                              |
+   | AAS:   Attribute Assertion Value Syntax           |
+   |  NOW:  now Assertion Syntax (NullValue)           |
+   |  OFF:  nowOffset Assertion Syntax (DurationValue) |
+   |                                                   |
+   | X:     MR supports this AAS                       |
+   | -:     MR does not support this AAS               |
+   |                                                   |
+   +---------------------------------------------------+
+
+                                 Figure 1
+
+   The two slightly different and powerful pairs of matching rules
+   dedicated to LDAP server side current time matching are specified
+   here.
+
+   The first pair of matching rules (Pair 1) offers the highest
+   flexibility related to current time matching in common: Next to the
+   simple matching of an LDAP server's current time (using the now
+   assertion value syntax) these two matching rules are also able to
+   handle the comparison of a chronological offset relative to the
+   server's current time (using the nowOffset assertion value syntax).
+
+   On the other hand the second pair of matching rules (Pair 2) is
+   restricted to just support the matching of time-stamp attribute value
+   (based on 'Generalized Time' syntax) against an LDAP server's current
+   time (using the now assertion value syntax only).  In conjunction
+   with appropriate access control mechanisms that for example provide
+   support to limit the applicability of distinct matching rules to
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 6]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+   attributes, these matching rules COULD be used to fulfill enhanced
+   privacy requirements where LDAP clients, for example, are not allowed
+   to specify assertion values (other than the current time) to prohibit
+   binary searching possibilities regarding the actually stored
+   attribute value.
+
+   Independent of each pairing the matching rule names prefixed by
+   nowOrEarlier are dedicated to lower-than-or-equal comparison
+   operations.  The matching rule names prefixed by nowOrLater are
+   dedicated to greater-than-or-equal comparison operations.
+
+   All the above matching rules are extensible matching rules and are
+   therefore applicable to attributes of the 'Generalized Time'
+   attribute value syntax [RFC4517].  The assertion value syntaxes as
+   well as the extensible matching rules related to LDAP server side
+   current time matching are specified in the following sections.
+
+
+3.  Assertion Value Syntax Definitions
+
+   According to the illustration in Figure 1 two LDAP server side
+   current time matching related assertion value syntaxes called 'now'
+   (Section 3.1) and 'nowOffset' (Section 3.2) are specified in this
+   section.
+
+3.1.  now - LDAP Server's Current Time
+
+   A matching rule assertion value using the 'now' assertion value
+   syntax represents an LDAP server's current time.  For
+   interoperability with X.500 each new LDAP syntax needs to define its
+   corresponding ASN.1 type.  As there does not exist a syntax
+   definition for the abstract floating point in time commonly called
+   "now" and the matching rule actually does not carry an information
+   (because the current time of the server is taken) the ASN.1 NULL type
+   SHOULD be used to let a client trigger the server side evaluation and
+   comparison of the current time.  [RFC3687] defines an LDAP syntax for
+   the NULL type using 1.2.36.79672281.1.5.1 as its object identifier.
+   The LDAP-specific encoding for a value of the NULL syntax is given by
+   the <NullValue> rule [RFC3641].
+
+   A successfully validated 'now' assertion value will be dynamically
+   replaced on the server side (once for each LDAP request) using the
+   LDAP server's current time as defined above and represented in
+   'Generalized Time' syntax.
+
+
+
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 7]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+3.2.  nowOffset - Chronological Offset Relative to the Server's Current
+      Time
+
+   A matching rule assertion value using the 'nowOffset' assertion value
+   syntax represents an LDAP server's current time determined by a
+   chronological offset.  A value of the nowOffset syntax is a character
+   string representing the ASN.1 DURATION type with
+   1.3.6.1.4.1.7650.6.2.3.1.1 as its object identifier.  The LDAP-
+   specific encoding of a value of the nowOffset syntax is given by the
+   following ABNF [RFC4234]:
+
+      DurationValue  = DQUOTE designations DQUOTE
+      designations   =   P week-fraction
+                       / P year-fraction
+                       / P [ year ] month-fraction
+                       / P [ year ] [ month ] day-fraction
+                       / P [ year ] [ month ] [ day ] hours-mins-sec
+
+      P              = %x50 ; "P"
+
+      hours-mins-sec =   T hours-fraction
+                       / T [ hours ] mins-fraction
+                       / T [ hours ] [ mins ] sec-fraction
+
+      T              = %x54 ; "T"
+
+      week-fraction  = number [ fraction ] %x57 ; "W"
+      year-fraction  = number [ fraction ] %x59 ; "Y"
+      year           = number %x59 ; "Y"
+      month-fraction = number [ fraction ] %x4D ; "M"
+      month          = number %x4D ; "M"
+      day-fraction   = number [ fraction ] %x4D ; "D"
+      day            = number %x44 ; "D"
+      hours-fraction = number [ fraction ] %x48 ; "H"
+      hours          = number %x48 ; "H"
+      mins-fraction  = number [ fraction ] %x4D ; "M"
+      mins           = number %x4D ; "M"
+      sec-fraction   = number [ fraction ] %x53 ; "S"
+
+      number         = %x30 / ( %x31-39 *( %x30-39 ) )
+      fraction       = ( DOT / COMMA ) 1*( %x30-39 )
+
+
+4.  Matching Rule Definitions
+
+
+
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 8]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+4.1.  nowOrEarlierOffsetMatch
+
+   The nowOrEarlierOffsetMatch compares an assertion value of either the
+   'nowOffset' or the 'now' syntax (defined in Section 3.1 Section 3.2)
+   to an attribute value of a syntax (e.g., the 'Generalized Time'
+   syntax) whose corresponding ASN.1 type is GeneralizedTime.
+
+   The rule evaluates to TRUE if and only if the attribute's time-stamp
+   value is lower or equal (colloquial "earlier or just-in-time")
+   compared to the server's current time (precisely the point in time
+   the server received the client's request) including a given
+   chronological offset.
+
+   The LDAP definition for the nowOrEarlierOffsetMatch matching rule is:
+
+         ( 1.3.6.1.4.1.7650.6.2.3.3.1 NAME 'nowOrEarlierOffsetMatch'
+           SYNTAX 1.3.6.1.4.1.7650.6.2.3.1.1 )
+
+   The nowOffset (1.3.6.1.4.1.7650.6.2.3.1.1) syntax and its LDAP-
+   specific encoding are specified in Section 3.1.
+
+   The nowOrEarlierOffsetMatch also accepts assertion values of the
+   'now' assertion value syntax:
+
+         ( 1.3.6.1.4.1.7650.6.2.3.3.1 NAME 'nowOrEarlierOffsetMatch'
+           SYNTAX 1.2.36.79672281.1.5.1 )
+
+   The NullValue (1.2.36.79672281.1.5.1) syntax and its LDAP-specific
+   encoding are part of the specifications [RFC3687] and [RFC3641].
+
+   The nowOrEarlierOffsetMatch is an extensible matching rule.
+
+4.2.  nowOrLaterOffsetMatch
+
+   The nowOrLaterOffsetMatch compares an assertion value of either the
+   'nowOffset' or the 'now' syntax (defined in Section 3.1 Section 3.2)
+   to an attribute value of a syntax (e.g., the 'Generalized Time'
+   syntax) whose corresponding ASN.1 type is GeneralizedTime.
+
+   The rule evaluates to TRUE if and only if the attribute's time-stamp
+   value is greater or equal (colloquial just-in-time or later) compared
+   to the server's current time (precisely the point in time the server
+   received this client's request) including a given chronological
+   offset.
+
+   The LDAP definition for the nowOrLaterOffsetMatch matching rule is:
+
+         ( 1.3.6.1.4.1.7650.6.2.3.3.2 NAME 'nowOrLaterOffsetMatch'
+
+
+
+Pluta & Hommel          Expires December 25, 2010               [Page 9]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+           SYNTAX 1.3.6.1.4.1.7650.6.2.3.1.1 )
+
+   The nowOffset (1.3.6.1.4.1.7650.6.2.3.1.1) syntax and its LDAP-
+   specific encoding are specified in Section 3.2.
+
+   The nowOrLaterOffsetMatch also accepts assertion values of the 'now'
+   assertion value syntax:
+
+         ( 1.3.6.1.4.1.7650.6.2.3.3.2 NAME 'nowOrLaterOffsetMatch'
+           SYNTAX 1.2.36.79672281.1.5.1 )
+
+   The NullValue (1.2.36.79672281.1.5.1) syntax and its LDAP-specific
+   encoding are part of the specifications [RFC3687] and [RFC3641].
+
+   The nowOrLaterOffsetMatch is an extensible matching rule.
+
+4.3.  nowOrEarlierMatch
+
+   The nowOrEarlierMatch compares an assertion value of the 'now' syntax
+   (defined in Section 3.1) to an attribute value of a syntax (e.g., the
+   'Generalized Time' syntax) whose corresponding ASN.1 type is
+   GeneralizedTime.
+
+   The rule evaluates to TRUE if and only if the attribute's value is
+   lower or equal (colloquial "earlier or just-in-time") compared to the
+   server's current time (precisely the point in time the server
+   received this client's request).
+
+   The LDAP definition for the 'nowOrEarlierMatch' matching rule is:
+
+         ( 1.3.6.1.4.1.7650.6.2.3.3.3 NAME 'nowOrEarlierMatch'
+           SYNTAX 1.2.36.79672281.1.5.1 )
+
+   The nowOrEarlierMatch is an extensible matching rule.
+
+4.4.  nowOrLaterMatch
+
+   The nowOrLaterMatch compares an assertion value of the 'now' syntax
+   (defined in Section 3.1) to an attribute value of a syntax (e.g., the
+   'Generalized Time' syntax) whose corresponding ASN.1 type is
+   GeneralizedTime.
+
+   The rule evaluates to TRUE if and only if the attribute's value is
+   greater or equal (colloquial "earlier or just-in-time") compared to
+   the server's current time (precisely the point in time the server
+   received this client's request).
+
+   The LDAP definition for the 'nowOrLaterMatch' matching rule is:
+
+
+
+Pluta & Hommel          Expires December 25, 2010              [Page 10]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+         ( 1.3.6.1.4.1.7650.6.2.3.3.4 NAME 'nowOrLaterMatch'
+           SYNTAX 1.2.36.79672281.1.5.1 )
+
+   The NullValue (1.2.36.79672281.1.5.1) syntax and its LDAP-specific
+   encoding are part of the specifications [RFC3687] and [RFC3641].
+
+   The nowOrLaterMatch is an extensible matching rule.
+
+
+5.  Root DSE attributes
+
+5.1.  supportedFeature
+
+   LDAP servers supporting the server side current time match feature
+   SHOULD publish the Object Identifier 1.3.6.1.4.1.7650.6.2.3.0.1 as a
+   value of the 'supportedFeatures' [RFC4512] attribute in the root DSE.
+
+5.2.  serverTime
+
+   To provide debugging information in case of unexpected results this
+   specification introduces a single-valued operational Root-DSE
+   attribute, called 'serverTime' using 1.3.6.1.4.1.7650.6.2.3.4.1 as
+   its object identifier.  Servers supporting the server side current
+   time match feature SHOULD publish the server's current time in the
+   root DSE using the 'serverTime' attribute.
+
+   This root DSE attribute's syntax SHALL be of the 'Generalized Time'
+   syntax, containing the server's current time in UTC.  As specified in
+   [RFC4517] this attribute's value COULD also be of the format
+   '<g-differential>'.
+
+
+6.  Discovering Server Side Current Time Matching Support
+
+   As stated in [RFC4512] protocol extensions should provide adequate
+   discovery mechanisms.
+
+6.1.  Querying the root DSE attribute 'supportedFeature'
+
+   Clients SHOULD be able to query the root DSE attribute
+   'supportedFeature' for the Object Identifier
+   1.3.6.1.4.1.7650.6.2.3.0.1
+
+6.2.  Querying the root DSE attribute 'servertime'
+
+   To debug unexpected results LDAP clients SHOULD be able to query an
+   LDAP server's current time using LDAP itself.  LDAP servers which
+   support server side current time matching SHALL provide information
+
+
+
+Pluta & Hommel          Expires December 25, 2010              [Page 11]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+   about the current time via LDAP itself (as specified in Section 5.2).
+
+6.3.  Querying the Schema
+
+   Any LDAP server that supports server side current time matching
+   SHOULD implement all the syntaxes and matching rules specified in
+   this document.  LDAP server side current time matching support could
+   be discovered querying the schema for the concerned matching rules'
+   and syntaxes' OIDs, defined in this document.
+
+6.4.  Clients' usage of server side current time matching
+
+   Clients supporting this feature SHOULD NOT use the feature unless
+   they know that the server supports it.
+
+
+7.  Security Considerations
+
+   The introduction of server side current time matching is not believed
+   to raise any new security considerations.
+
+   General LDAP security considerations specified by [RFC4510] are
+   applicable to the use of this document's specifications.
+
+
+8.  Acknowledgement
+
+   TBD
+
+
+9.  IANA Considerations
+
+   In accordance with [RFC4520] the following registrations are
+   requested.
+
+9.1.  Object Identifier Registration
+
+   The OIDs used in this specification are derived from iso(1)
+   identified-organization(3) dod(6) internet(1) private(4)
+   enterprise(1) Leibniz Supercomputing Centre(7650) pub (6) LDAP(2)
+   server side current time match (3).  These OIDs have been in use
+   since at least March 2003.  All OIDs were assigned by the Leibniz
+   Supercomputing Centre, under its IANA-assigned private enterprise
+   allocation, for use in this specification.
+
+
+
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010              [Page 12]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+9.2.  LDAP Descriptors
+
+   Registration of the descriptors specified in this document is
+   requested.
+
+      Subject: Request for LDAP Protocol Mechanism Registration
+
+      Object Identifier: 1.3.6.1.4.1.7650.6.2.3.0.1
+
+      Description: LDAP server side current time matching
+
+      Person & email address to contact for further information:
+
+         Daniel Pluta <pluta@tum.de>
+
+      Usage: Feature Specification: (I-D)
+      draft-pluta-ldap-srv-side-current-time-match
+
+      Author/Change Controller: IESG
+
+      Comments: none
+
+      Subject: Request for LDAP Descriptor Registration
+
+      Descriptor (short name): see Figure 2
+
+      Object Identifier: see Figure 2
+
+      Description: see Figure 2
+
+      Person & email address to contact for further information:
+
+         Daniel Pluta <pluta@tum.de>
+
+      Specification: (I-D) draft-pluta-ldap-srv-side-current-time-match
+
+      Author/Change Controller: IESG
+
+      Comments:
+
+
+
+
+
+
+
+
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010              [Page 13]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+   Descriptor               Type  OID
+   ------------------------ ----  ------------------------------
+   nowOffset                AS    1.3.6.1.4.1.7650.6.2.3.1.1
+   nowOrEarlierOffsetMatch  MR    1.3.6.1.4.1.7650.6.2.3.3.1
+   nowOrLaterOffsetMatch    MR    1.3.6.1.4.1.7650.6.2.3.3.2
+   nowOrEarlierMatch        MR    1.3.6.1.4.1.7650.6.2.3.3.3
+   nowOrLaterMatch          MR    1.3.6.1.4.1.7650.6.2.3.3.4
+   serverTime               AT    1.3.6.1.4.1.7650.6.2.3.4.1
+
+   +---------------------------------------+
+   | Legend:                               |
+   |                                       |
+   | AS:  Attribute Assertion Value Syntax |
+   | MR:  Matching Rule                    |
+   | AT:  Attribute Type                   |
+   +---------------------------------------+
+
+                                   Figure 2
+
+
+10.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC3641]  Legg, S., "Generic String Encoding Rules (GSER) for ASN.1
+              Types", RFC 3641, October 2003.
+
+   [RFC3687]  Legg, S., "Lightweight Directory Access Protocol (LDAP)
+              and X.500 Component Matching Rules", RFC 3687,
+              February 2004.
+
+   [RFC4234]  Crocker, D., Ed. and P. Overell, "Augmented BNF for Syntax
+              Specifications: ABNF", RFC 4234, October 2005.
+
+   [RFC4510]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510,
+              June 2006.
+
+   [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512,
+              June 2006.
+
+   [RFC4517]  Legg, S., "Lightweight Directory Access Protocol (LDAP):
+              Syntaxes and Matching Rules", RFC 4517, June 2006.
+
+   [RFC4520]  Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
+              Considerations for the Lightweight Directory Access
+
+
+
+Pluta & Hommel          Expires December 25, 2010              [Page 14]
+
+Internet-Draft   LDAP Server Side Current Time Matching        June 2010
+
+
+              Protocol (LDAP)", BCP 64, RFC 4520, June 2006.
+
+
+Authors' Addresses
+
+   Daniel Pluta
+   Technische Universitaet Muenchen
+   Boltzmannstr. 3
+   Garching bei Muenchen  85748
+   Germany
+
+   Email: pluta@tum.de
+
+
+   Wolfgang Hommel
+   Leibniz Supercomputing Centre
+   Boltzmannstr. 1
+   Garching bei Muenchen  85748
+   Germany
+
+   Email: hommel@lrz.de
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pluta & Hommel          Expires December 25, 2010              [Page 15]
+

@@ -1,0 +1,507 @@
+
+
+
+
+
+
+INTERNET-DRAFT                                                   S. Legg
+draft-legg-ldap-acm-admin-04.txt                                 eB2Bcom
+Intended Category: Standards Track                     September 3, 2007
+
+
+             Lightweight Directory Access Protocol (LDAP):
+                     Access Control Administration
+
+                  Copyright (C) The IETF Trust (2007).
+
+   Status of This Memo
+
+   By submitting this Internet-draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as
+   Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress".
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/1id-abstracts.html
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html
+
+   Comments should be sent to the author.
+
+   This Internet-Draft expires on 3 March 2008.
+
+
+Abstract
+
+   This document adapts the X.500 directory administrative model, as it
+   pertains to access control administration, for use by the Lightweight
+   Directory Access Protocol (LDAP).  The administrative model
+   partitions the Directory Information Tree (DIT) for various aspects
+   of directory data administration, e.g., subschema, access control,
+   and collective attributes.  This document provides the particular
+   definitions that support access control administration, but does not
+   define a particular access control scheme.
+
+
+
+Legg                      Expires 3 March 2008                  [Page 1]
+
+INTERNET-DRAFT        Access Control Administration    September 3, 2007
+
+
+Table of Contents
+
+   1. Introduction ....................................................2
+   2. Conventions .....................................................2
+   3. Access Control Administrative Areas .............................3
+   4. Access Control Scheme Indication ................................3
+   5. Access Control Information ......................................4
+   6. Access Control Subentries .......................................4
+   7. Applicable Access Control Information ...........................5
+   8. Security Considerations .........................................5
+   9. Acknowledgements ................................................6
+   10. IANA Considerations ............................................6
+   11. References .....................................................6
+      11.1. Normative References ......................................6
+      11.2. Informative References ....................................7
+
+1.  Introduction
+
+   This document adapts the X.500 directory administrative model
+   [X.501], as it pertains to access control administration, for use by
+   the Lightweight Directory Access Protocol (LDAP) [LDAP].
+
+   The administrative model [ADMIN] partitions the Directory Information
+   Tree (DIT) for various aspects of directory data administration,
+   e.g., subschema, access control, and collective attributes.  The
+   parts of the administrative model that apply to every aspect of
+   directory data administration are described in another document
+   [ADMIN].  This document describes the administrative framework for
+   access control.
+
+   An access control scheme describes the means by which access to
+   directory information, and potentially to access rights themselves,
+   may be controlled.  This document describes the framework for
+   employing access control schemes but does not define a particular
+   access control scheme.  Two access control schemes known as Basic
+   Access Control and Simplified Access Control are defined by X.500 and
+   profiled for use in LDAP in a separate document [BAC].  Other access
+   control schemes may be defined by other documents.
+
+   This document is derived from, and duplicates substantial portions
+   of, Sections 4 and 8 of X.501 [X.501].
+
+2.  Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and  "OPTIONAL" in this
+   document are to be interpreted as described in BCP 14, RFC 2119
+   [BCP14].
+
+
+
+Legg                      Expires 3 March 2008                  [Page 2]
+
+INTERNET-DRAFT        Access Control Administration    September 3, 2007
+
+
+   Schema definitions are provided using LDAP description formats
+   [MODELS].  Note that the LDAP descriptions have been rendered with
+   additional white-space and line breaks for the sake of readability.
+
+3.  Access Control Administrative Areas
+
+   The specific administrative area [ADMIN] for access control is termed
+   an Access Control Specific Area (ACSA).  The root of the ACSA is
+   termed an Access Control Specific Point (ACSP) and is represented in
+   the DIT by an administrative entry [ADMIN] that includes
+   accessControlSpecificArea as a value of its administrativeRole
+   operational attribute [SUBENTRY].
+
+   An ACSA MAY be partitioned into subtrees termed inner administrative
+   areas [ADMIN].  Each such inner area is termed an Access Control
+   Inner Area (ACIA).  The root of the ACIA is termed an Access Control
+   Inner Point (ACIP) and is represented in the DIT by an administrative
+   entry that includes accessControlInnerArea as a value of its
+   administrativeRole operational attribute.
+
+   An administrative entry can never be both an ACSP and an ACIP.  The
+   corresponding values can therefore never be present simultaneously in
+   the administrativeRole attribute.
+
+   Each entry necessarily falls within one and only one ACSA.  Each such
+   entry may also fall within one or more ACIAs nested inside the ACSA
+   containing the entry.
+
+   An ACSP or ACIP has zero, one, or more subentries that contain Access
+   Control Information (ACI).
+
+4.  Access Control Scheme Indication
+
+   The access control scheme (e.g., Basic Access Control [BAC]) in force
+   in an ACSA is indicated by the accessControlScheme operational
+   attribute contained in the administrative entry for the relevant
+   ACSP.
+
+   The LDAP description [MODELS] for the accessControlScheme operational
+   attribute is:
+
+      ( 2.5.24.1 NAME 'accessControlScheme'
+          EQUALITY objectIdentifierMatch
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+          SINGLE-VALUE USAGE directoryOperation )
+
+   An access control scheme conforming to the access control framework
+   described in this document MUST define a distinct OBJECT IDENTIFIER
+
+
+
+Legg                      Expires 3 March 2008                  [Page 3]
+
+INTERNET-DRAFT        Access Control Administration    September 3, 2007
+
+
+   value to identify it through the accessControlScheme attribute.
+   Object Identifier Descriptors for access control scheme identifiers
+   may be registered with IANA [BCP64].
+
+   Only administrative entries for ACSPs are permitted to contain an
+   accessControlScheme attribute.  If the accessControlScheme attribute
+   is absent from a given ACSP, then the access control scheme in force
+   in the corresponding ACSA, and its effect on operations, results, and
+   errors, is implementation defined.
+
+   Any entry or subentry in an ACSA is permitted to contain ACI if and
+   only if such ACI is permitted by, and consistent with, the access
+   control scheme identified by the value of the accessControlScheme
+   attribute of the ACSP.
+
+5.  Access Control Information
+
+   There are three categories of Access Control Information (ACI):
+   entry, subentry and prescriptive.
+
+   Entry ACI applies to only the entry or subentry in which it appears,
+   and the contents thereof.  Subject to the access control scheme, any
+   entry or subentry MAY hold entry ACI.
+
+   Subentry ACI applies to only the subentries of the administrative
+   entry in which it appears.  Subject to the access control scheme, any
+   administrative entry, for any aspect of administration, MAY hold
+   subentry ACI.
+
+   Prescriptive ACI applies to all the entries within a subtree or
+   subtree refinement of an administrative area (either an ACSA or an
+   ACIA), as defined by the subtreeSpecification attribute of the
+   subentry in which it appears.  Prescriptive ACI is only permitted in
+   subentries of an ACSP or ACIP.  Prescriptive ACI in the subentries of
+   a particular administrative point never applies to the same or any
+   other subentry of that administrative point, but does apply to the
+   subentries of subordinate administrative points, where those
+   subentries are within the subtree or subtree refinement.
+
+6.  Access Control Subentries
+
+   Each subentry that contains prescriptive ACI MUST have
+   accessControlSubentry as a value of its objectClass attribute.  Such
+   a subentry is called an access control subentry.
+
+   The LDAP description [MODELS] for the accessControlSubentry auxiliary
+   object class is:
+
+
+
+
+Legg                      Expires 3 March 2008                  [Page 4]
+
+INTERNET-DRAFT        Access Control Administration    September 3, 2007
+
+
+      ( 2.5.17.1 NAME 'accessControlSubentry' AUXILIARY )
+
+   A subentry of this object class MUST contain at least one
+   prescriptive ACI attribute of a type consistent with the value of the
+   accessControlScheme attribute of the corresponding ACSP.
+
+   The subtree or subtree refinement for an access control subentry is
+   termed a Directory Access Control Domain (DACD).  A DACD can contain
+   zero entries, and can encompass entries that have not yet been added
+   to the DIT, but does not extend beyond the scope of the ACSA or ACIA
+   with which it is associated.
+
+   Since a subtreeSpecification may define a subtree refinement, DACDs
+   within a given ACSA may arbitrarily overlap.
+
+7.  Applicable Access Control Information
+
+   Although particular items of ACI may specify attributes or values as
+   the protected items, ACI is logically associated with entries.
+
+   The ACI that is considered in access control decisions regarding an
+   entry includes:
+
+   (1) Entry ACI from that particular entry.
+
+   (2) Prescriptive ACI from access control subentries whose DACDs
+       contain the entry.  Each of these access control subentries is
+       necessarily either a subordinate of the ACSP for the ACSA
+       containing the entry, or a subordinate of the ACIP for an ACIA
+       that contains the entry.
+
+   The ACI that is considered in access control decisions regarding a
+   subentry includes:
+
+   (1) Entry ACI from that particular subentry.
+
+   (2) Prescriptive ACI from access control subentries whose DACDs
+       contain the subentry, excluding those belonging to the same
+       administrative point as the subentry for which the decision is
+       being made.
+
+   (3) Subentry ACI from the administrative point associated with the
+       subentry.
+
+8.  Security Considerations
+
+   This document defines a framework for employing an access control
+   scheme, i.e., the means by which access to directory information and
+
+
+
+Legg                      Expires 3 March 2008                  [Page 5]
+
+INTERNET-DRAFT        Access Control Administration    September 3, 2007
+
+
+   potentially to access rights themselves may be controlled, but does
+   not itself define any particular access control scheme.  The degree
+   of protection provided, and any security risks, are determined by the
+   provisions of the access control schemes (defined elsewhere) making
+   use of this framework.
+
+   Security considerations that apply to directory administration in
+   general [ADMIN] also apply to access control administration.
+
+9.  Acknowledgements
+
+   This document is derived from, and duplicates substantial portions
+   of, Sections 4 and 8 of X.501 [X.501].
+
+10.  IANA Considerations
+
+   The Internet Assigned Numbers Authority (IANA) is requested to update
+   the LDAP descriptors registry [BCP64] as indicated by the following
+   templates:
+
+      Subject: Request for LDAP Descriptor Registration
+      Descriptor (short name): accessControlScheme
+      Object Identifier: 2.5.24.1
+      Person & email address to contact for further information:
+        Steven Legg <steven.legg@eb2bcom.com>
+      Usage: attribute type
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+
+      Subject: Request for LDAP Descriptor Registration
+      Descriptor (short name): accessControlSubentry
+      Object Identifier: 2.5.17.1
+      Person & email address to contact for further information:
+        Steven Legg <steven.legg@eb2bcom.com>
+      Usage: object class
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+
+11.  References
+
+11.1.  Normative References
+
+   [BCP14]    Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [SUBENTRY] Zeilenga, K. and S. Legg, "Subentries in the Lightweight
+              Directory Access Protocol (LDAP)", RFC 3672, December
+              2003.
+
+
+
+Legg                      Expires 3 March 2008                  [Page 6]
+
+INTERNET-DRAFT        Access Control Administration    September 3, 2007
+
+
+   [LDAP]     Zeilenga, K., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510, June
+              2006.
+
+   [MODELS]   Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512, June
+              2006.
+
+   [BCP64]    Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
+              Considerations for the Lightweight Directory Access
+              Protocol (LDAP)", BCP 64, RFC 4520, June 2006.
+
+   [ADMIN]    Legg, S., "Lightweight Directory Access Protocol (LDAP):
+              Directory Administrative Model",
+              draft-legg-ldap-admin-xx.txt, a work in progress,
+              September 2007.
+
+11.2.  Informative References
+
+   [COLLECT]  Zeilenga, K., "Collective Attributes in the Lightweight
+              Directory Access Protocol (LDAP)", RFC 3671, December
+              2003.
+
+   [BAC]      Legg, S., "Lightweight Directory Access Protocol (LDAP):
+              Basic and Simplified Access Control",
+              draft-legg-ldap-acm-bac-xx.txt, a work in progress,
+              September 2007.
+
+   [X.501]    ITU-T Recommendation X.501 (08/05) | ISO/IEC 9594-2:2005,
+              Information technology - Open Systems Interconnection -
+              The Directory: Models.
+
+Author's Address
+
+   Dr. Steven Legg
+   eB2Bcom
+   Suite 1, 85-87 Charles Street
+   Kew, Victoria 3101
+   AUSTRALIA
+
+   Phone: +61 3 9851 8630
+     Fax: +61 3 9851 8601
+   EMail: steven.legg@eb2bcom.com
+
+Full Copyright Statement
+
+   Copyright (C) The IETF Trust (2007).
+
+
+
+
+Legg                      Expires 3 March 2008                  [Page 7]
+
+INTERNET-DRAFT        Access Control Administration    September 3, 2007
+
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+Note to the RFC Editor: the remainder of this document is to be removed
+before final publication.
+
+Changes in Draft 01
+
+   Section 4 has been extracted to become a separate Internet draft,
+   draft-legg-ldap-admin-00.txt.  The subsections of Section 5 have
+   become the new Sections 3 to 7.  Editorial changes have been made to
+   accommodate this split.  No technical changes have been introduced.
+
+Changes in Draft 02
+
+
+
+
+Legg                      Expires 3 March 2008                  [Page 8]
+
+INTERNET-DRAFT        Access Control Administration    September 3, 2007
+
+
+   RFC 3377 replaces RFC 2251 as the reference for LDAP.
+
+   An IANA Considerations section has been added.
+
+Changes in Draft 03
+
+   The document has been reformatted in line with current practice.
+
+Changes in Draft 04
+
+   RFC 4510 replaces RFC 3377 as the reference for LDAP.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Legg                      Expires 3 March 2008                  [Page 9]
+

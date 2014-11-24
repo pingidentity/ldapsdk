@@ -1,0 +1,1080 @@
+
+
+
+
+
+
+Network Working Group                                  M. Meredith,
+Internet Draft                                         V. Nanjundaswamy,
+Document: <draft-ietf-dhc-ldap-schema-00.txt>          M. Hinckley
+Category: Proposed Standard                            Novell Inc.
+Expires: 15th December 2001                            16th June 2001
+
+
+                          LDAP Schema for DHCP
+
+Status of this Memo
+
+This document is an Internet-Draft and is in full conformance with all
+provisions of Section 10 of RFC2026 [ ].
+
+Internet-Drafts are working documents of the Internet Engineering Task
+Force (IETF), its areas, and its working groups.  Note that other groups
+may also distribute working documents as Internet-Drafts. Internet-
+Drafts are draft documents valid for a maximum of six months and may be
+updated, replaced, or obsolete by other documents at any time.  It is
+inappropriate to use Internet-Drafts as reference material or to cite
+them other than as "work in progress."  The list of current Internet-
+Drafts can be accessed at http://www.ietf.org/ietf/1id-abstracts.txt The
+list of Internet-Draft Shadow Directories can be accessed at
+http://www.ietf.org/shadow.html.
+
+1. Abstract
+
+This document defines a schema for representing DHCP configuration in an
+LDAP directory. It can be used to represent the DHCP Service
+configuration(s) for an entire enterprise network, a subset of the
+network, or even a single server. Representing DHCP configuration in an
+LDAP directory enables centralized management of DHCP services offered
+by one or more DHCP Servers within the enterprise.
+
+2. Conventions used in this document
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in RFC-2119 [ ].
+
+In places where different sets of terminology are commonly used to
+represent similar DHCP concepts, this schema uses the terminology of the
+Internet Software Consortium's DHCP server reference implementation.
+For more information see www.isc.org.
+
+3. Design Considerations
+
+The DHCP LDAP schema is designed to be a simple multi-server schema. The
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 1]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+intent of this schema is to provide a basic framework for representing
+the most common elements used in the configuration of DHCP Server.  This
+should allow other network services to obtain and use basic DHCP
+configuration information in a server-independent but knowledgeable way.
+
+It is expected that some implementations may need to extend the schema
+objects, in order to implement all of their features or needs. It is
+recommended that you use the schema defined in this draft to represent
+DHCP configuration information in an LDAP directory.  Conforming to a
+standard schema improves interoperability between DHCP implementations
+from different vendors.
+
+Some implementations may choose not to support all of the objects
+defined here.
+
+Two decisions are explicitly left up to each implementation:
+
+First, implementations may choose not to store the lease information in
+the directory, so those objects would not be used.
+
+Second, implementations may choose not to implement the auditing
+information.
+
+It is up to the implementation to determine if the data in the directory
+is considered "authoritative", or if it is simply a copy of data from an
+authoritative source. Validity of the information if used as a copy is
+to be ensured by the implementation.
+
+Primarily two types of applications will use the information in this
+schema: 1. DHCP servers (for loading their configuration) 2. Management
+Interfaces (for defining/editing configurations).
+
+The schema should be efficient for the needs of both types of
+applications.  The schema is designed to allow objects managed by DHCP
+(such as computers, subnets, etc) to be present anywhere in a directory
+hierarchy (to allow those objects to be placed in the directory for
+managing administrative control and access to the objects).
+
+The schema uses a few naming conventions - all object classes and
+attributes are prefixed with "dhcp" to decrease the chance that object
+classes and attributes will have the same name.  The schema also uses
+standard naming attributes ("cn", "ou", etc) for all objects.
+
+4. Common DHCP Configuration Attributes
+
+Although DHCP manages several different types of objects, the
+configuration of those objects is often similar.  Consequently, most of
+these objects have a common set of attributes, which are defined below.
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 2]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+4.1. Attributes Definitions
+
+The schema definitions listed below are for readability.  The LDIF
+layout for this schema will follow in section 8.
+
+Name: dhcpPrimaryDN Description: The Distinguished Name of the
+dhcpServer object, which is the primary server for the configuration.
+Syntax: DN Flags: SINGLE-VALUE
+
+Named: dhcpSecondaryDN Description: The Distinguished Name(s) of the
+dhcpServer object(s), which are secondary servers for the configuration.
+Syntax: DN
+
+Name: dhcpStatements Description: Flexible storage for representing any
+specific data depending on the object to which it is attached. Examples
+include conditional statements, Server parameters, etc.  This also
+serves as a 'catch-all' attribute that allows the standard to evolve
+without needing to update the schema.  Syntax: IA5String
+
+Name: dhcpRange Description: The starting and ending IP Addresses in the
+range (inclusive), separated by a hyphen; if the range only contains one
+address, then just the address can be specified with no hyphen.  Each
+range is defined as a separate value.  Syntax: IA5String
+
+Name: dhcpPermitList Description: This attribute contains the permit
+lists associated with a pool. Each permit list is defined as a separate
+value.  Syntax: IA5String
+
+Name: dhcpNetMask Description: The subnet mask length for the subnet.
+The mask can be easily computed from this length.  Syntax: Integer
+Flags: SINGLE-VALUE
+
+Name: dhcpOption Description: Encoded option values to be sent to
+clients.  Each value represents a single option and contains (OptionTag,
+Length, OptionData) encoded in the format used by DHCP.  For more
+information see [DHCPOPT].  Syntax: OctetString
+
+Name: dhcpClassData Description: Encoded text string or list of bytes
+expressed in hexadecimal, separated by colons. Clients match subclasses
+based on matching the class data with the results of a 'match' or 'spawn
+with' statement in the class name declarations.  Syntax: IA5String
+Flags: SINGLE-VALUE
+
+Name: dhcpSubclassesDN Description: List of subclasses, these are the
+actual DN of each subclass object.  Syntax: DN
+
+Name: dhcpClassesDN Description: List of classes, these are the actual
+DN of each class object.  Syntax: DN
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 3]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+Name: dhcpSubnetDN Description: List of subnets, these are the actual DN
+of each subnet object.  Syntax: DN
+
+Name: dhcpPoolDN Description: List of pools, these are the actual DN of
+each Pool object.  Syntax: DN
+
+Name: dhcpOptionsDN Description: List of options, these are the actual
+DN of each Options object.  Syntax: DN
+
+Name: dhcpHostDN Description: List of hosts, these are the actual DN of
+each host object.  Syntax: DN
+
+Name: dhcpSharedNetworkDN Description: List of shared networks, these
+are the actual DN of each shared network object.  Syntax: DN
+
+Name: dhcpGroupDN Description: List of groups, these are the actual DN
+of each Group object.  Syntax: DN
+
+Name: dhcpLeaseDN Description: Single Lease DN. A dhcpHost configuration
+uses this attribute to identify a static IP address assignment.  Syntax:
+DN Flags: SINGLE-VALUE
+
+Name: dhcpLeasesDN Description: List of leases, these are the actual DN
+of each lease object.  Syntax: DN
+
+Name: dhcpServiceDN Description: The DN of dhcpService object(s)which
+contain the configuration information. Each dhcpServer object has this
+attribute identifying the DHCP configuration(s) that the server is
+associated with.  Syntax: DN
+
+Name: dhcpHWAddress Description: The hardware address of the client
+associated with a lease Syntax: OctetString Flags: SINGLE-VALUE
+
+Name: dhcpVersion Description: This is the version identified for the
+object that this attribute is part of. In case of the dhcpServer object,
+this represents the DHCP software version.  Syntax: IA5String Flags:
+SINGLE-VALUE
+
+Name: dhcpImplementation Description: DHCP Server implementation
+description e.g. DHCP Vendor information.  Syntax: IA5String Flags:
+SINGLE-VALUE
+
+Name: dhcpHashBucketAssignment Description: HashBucketAssignment bit map
+for the DHCP Server, as defined in DHC Load Balancing Algorithm [RFC
+3074].  Syntax: Octet String Flags: SINGLE-VALUE
+
+Name: dhcpDelayedServiceParameter Description: Delay in seconds
+corresponding to Delayed Service Parameter configuration, as defined in
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 4]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+DHC Load Balancing Algorithm [RFC 3074].  Syntax: Integer Flags: SINGLE-
+VALUE
+
+Name: dhcpMaxClientLeadTime Description: Maximum Client Lead Time
+configuration in seconds, as defined in DHCP Failover Protocol [FAILOVR]
+Syntax: Integer Flags: SINGLE-VALUE
+
+Name: dhcpFailOverEndpointState Description: Server (Failover Endpoint)
+state, as defined in DHCP Failover Protocol [FAILOVR] Syntax: IA5String
+Flags: SINGLE-VALUE
+
+5. Configurations and Services
+
+The schema definitions below are for readability the LDIF layout for
+this schema will follow in section 8.
+
+The DHC working group is currently considering several proposals for
+fail-over and redundancy of DHCP servers.  These may require sharing of
+configuration information between servers.  This schema provides a
+generalized mechanism for supporting any of these proposals, by
+separating the definition of a server from the definition of
+configuration service provided by the server.
+
+Separating the DHCP Server (dhcpServer) and the DHCP Configuration
+(dhcpService) representations allows a configuration service to be
+provided by one or more servers. Similarly, a server may provide one or
+more configurations. The schema allows a server to be configured as
+either a primary or secondary provider of a DHCP configuration.
+
+Configurations are also defined so that one configuration can include
+some of the objects that are defined in another configuration.  This
+allows for sharing and/or a hierarchy of related configuration items.
+
+Name: dhcpService Description:  Service object that represents the
+actual DHCP Service configuration. This will be a container with the
+following attributes.  Must: cn, dhcpPrimaryDN May: dhcpSecondaryDN,
+dhcpSharedNetworkDN, dhcpSubnetDN, dhcpGroupDN, dhcpHostDN,
+dhcpClassesDN, dhcpOptionsDN, dhcpStatements
+
+The following objects could exist inside the dhcpService container:
+dhcpSharedNetwork, dhcpSubnet, dhcpGroup, dhcpHost, dhcpClass,
+dhcpServer, dhcpOptions, dhcpLog
+
+Name: dhcpServer Description:  Server object that the DHCP server will
+login as.  The configuration information is in the dhcpService container
+that the dhcpServiceDN points to.  Must: cn, dhcpServiceDN May:
+dhcpVersion, dhcpImplementation, dhcpHashBucketAssignment,
+dhcpDelayedServiceParameter, dhcpMaxClientLeadTime,
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 5]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+dhcpFailOverEndpointState
+
+5.1. DHCP Declaration related classes:
+
+Name: dhcpSharedNetwork Description: Shared Network class will list what
+pools and subnets are in this network.
+
+This will be a container with the following attributes.  Must: cn May:
+dhcpSubnetDN, dhcpPoolDN, dhcpOptionsDN, dhcpStatements
+
+The following objects can exist within a dhcpSharedNetwork container:
+dhcpSubnet, dhcpPool, dhcpOptions, dhcpLog
+
+Name: dhcpSubnet Description: Subnet object will include configuration
+information associated with a subnet, including a range and a net mask.
+
+This will be a container with the following attributes.  Must: cn
+(Subnet address), dhcpNetMask May: dhcpRange, dhcpPoolDN, dhcpGroupDN,
+dhcpHostDN, dhcpClassesDN, dhcpLeasesDN, dhcpOptionsDN, dhcpStatements
+
+The following objects can exist within a dhcpSubnet container: dhcpPool,
+dhcpGroup, dhcpHost, dhcpClass, dhcpOptions, dhcpLease, dhcpLog
+
+Name: dhcpGroup Description: Group object will have configuration
+information associated with a group.
+
+This will be a container with the following attributes.  Must: cn May:
+dhcpHostDN, dhcpOptionsDN, dhcpStatements
+
+The following objects can exist within a dhcpGroup container: dhcpHost,
+dhcpOptions
+
+Name: dhcpHost Description: The host object includes DHCP host
+declarations to assign a static IP address or declare the client as
+known or specify statements for a specific client.  Must: cn May:
+dhcpLeaseDN, dhcpHWAddress, dhcpOptionsDN, dhcpStatements
+
+Name: dhcpOptions Description: The options class is for option space
+declarations, it contains a list of options.  Must: cn May: dhcpOption
+
+Name: dhcpClass Description: This is a class to group clients together
+based on matching rules.
+
+This will be a container with the following attributes.  Must: cn May:
+dhcpSubClassesDN, dhcpOptionsDN, dhcpStatements
+
+The following object can exist within a dhcpClass container:
+dhcpSubclass, dhcpOptions
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 6]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+Name: dhcpSubClass Description: This includes configuration information
+for a subclass associated with a class. The dhcpSubClass object will
+always be contained within the corresponding class container object.
+Must: cn May:  dhcpClassData, dhcpOptionsDN, dhcpStatements
+
+Name: dhcpPool Description: This contains configuration for a pool that
+will have the range of addresses, permit lists and point to classes and
+leases that are members of this pool.
+
+This will be a container that could be contained by dhcpSubnet or a
+dhcpSharedNetwork.  Must: cn, dhcpRange May: dhcpClassesDN,
+dhcpPermitList, dhcpLeasesDN, dhcpOptionsDN, dhcpStatements
+
+The following objects can exist within a dhcpPool container: dhcpClass,
+dhcpOptions, dhcpLease, dhcpLog
+
+6. Tracking Address Assignments
+
+The behavior of a DHCP server is influenced by two factors - it's
+configuration and the current state of the addresses that have been
+assigned to clients. This schema defines a set of objects for
+representing the DHCP configuration associated with a server. The
+following object classes provide the ability to record how addresses are
+used including maintaining history (audit log) on individual leases.
+Recording lease information in a directory could result in a significant
+performance impact and is therefore optional. Implementations supporting
+logging of leases need to consider the performance impact.
+
+6.1. dhcpLeases Attribute Definitions
+
+The schema definitions below are for readability the LDIF layout for
+this schema will follow in section 8.
+
+Name: dhcpAddressState Description: This stores information about the
+current binding-status of an address.  For dynamic addresses managed by
+DHCP, the values should be restricted to the states defined in the DHCP
+Failover Protocol draft [FAILOVR]: 'FREE', 'ACTIVE', 'EXPIRED',
+'RELEASED', 'RESET', 'ABANDONED', 'BACKUP'.  For more information on
+these states see [FAILOVR].  For other addresses, it SHOULD be one of
+the following: 'UNKNOWN', 'RESERVED' (an address that is managed by DHCP
+that is reserved for a specific client), 'RESERVED-ACTIVE' (same as
+reserved, but address is currently in use),  'ASSIGNED' (assigned
+manually or by some other mechanism), 'UNASSIGNED', 'NOTASSIGNABLE'.
+Syntax: IA5String Flags: SINGLE-VALUE
+
+Name: dhcpExpirationTime Description: This is the time the current lease
+for an address expires.  Syntax: DateTime Flags: SINGLE-VALUE
+
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 7]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+Name: dhcpStartTimeOfState Description: This is the time of the last
+state change for a leased address.  Syntax: DateTime Flags: SINGLE-VALUE
+
+Name: dhcpLastTransactionTime Description: This is the last time a valid
+DHCP packet was received from the client.  Syntax: DateTime Flags:
+SINGLE-VALUE
+
+Name: dhcpBootpFlag Description: This indicates whether the address was
+assigned via BOOTP Syntax: Boolean Flags: SINGLE-VALUE
+
+Name: dhcpDomainName Description: This is the name of the domain sent to
+the client by the server.  It is essentially the same as the value for
+DHCP option 15 sent to the client, and represents only the domain - not
+the full FQDN.  To obtain the full FQDN assigned to the client you must
+prepend the "dhcpAssignedHostName" to this value with a ".".  Syntax:
+IA5String Flags: SINGLE-VALUE
+
+Name: dhcpDnsStatus Description: This indicates the status of updating
+DNS resource records on behalf of the client by the DHCP server for this
+address.  The value is a 16-bit bitmask that has the same values as
+specified by the Failover-DDNS option (see [FAILOVR]).  Syntax: Integer
+Flags: SINGLE-VALUE
+
+Name: dhcpRequestedHostName Description: This is the hostname that was
+requested by the client.  Syntax: IA5String Flags: SINGLE-VALUE
+
+Name: dhcpAssignedHostName Description: This is the actual hostname that
+was assigned to a client. It may not be the name that was requested by
+the client.  The fully qualified domain name can be determined by
+appending the value of "dhcpDomainName" (with a dot separator) to this
+name.  Syntax: IA5String Flags: SINGLE-VALUE
+
+Name: dhcpReservedForClient Description: This is the distinguished name
+of the "dhcpHost" that an address is reserved for.  This may not be the
+same as the "dhcpAssignedToClient" attribute if the address is being
+reassigned but the current lease has not yet expired.  Syntax: DN Flags:
+SINGLE-VALUE
+
+Name: dhcpAssignedToClient Description: This is the distinguished name
+of a "dhcpHost" that an address is currently assigned to.  This
+attribute is only present in the class when the address is leased.
+Syntax: DN Flags: SINGLE-VALUE
+
+Name: dhcpRelayAgentInfo Description: If the client request was received
+via a relay agent, this contains information about the relay agent that
+was available from the DHCP request.  This is a hex-encoded option
+value.  Syntax: OctetString Flags: SINGLE-VALUE
+
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 8]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+6.2.  dhcpLeases Object Class
+
+This class represents an IP address.  It may or may not be leaseable,
+and the object may exist even though a lease is not currently active for
+the associated IP address.
+
+It is recommended that all Lease objects for a single DHCP Service be
+centrally located within a single container. This ensures that the lease
+objects and the corresponding logs do not have to be relocated, when
+address ranges allocated to individual DHCP subnets and/or pools change.
+
+The schema definitions below are for readability the LDIF layout for
+this schema will follow in section 8.
+
+Name: dhcpLeases Description: This is the object that holds state
+information about an IP address. The cn (which is the IP address), and
+the current address-state are mandatory attributes. If the address is
+assigned then, some of the optional attributes will have valid data.
+Must: cn, dhcpAddressState May: dhcpExpirationTime,
+dhcpStartTimeOfState, dhcpLastTransactionTime, dhcpBootpFlag,
+dhcpDomainName, dhcpDnsStatus, dhcpRequestedHostName,
+dhcpAssignedHostName, dhcpReservedForClient, dhcpAssignedToClient,
+dhcpRelayAgentInfo, dhcpHWAddress
+
+6.3 Audit Log Information
+
+A dhcpLog object is created whenever a lease is assigned or released.
+This object is intended to be created under the corresponding dhcpLeases
+container, or dhcpPool, dhcpSubnet, dhcpSharedNetwork or dhcpService
+containers.
+
+The log information under the dhcpLeases container would be for
+addresses matching that lease information. The log information in the
+other containers could be used for errors, i.e. when a pool or subnet is
+out our addresses or if a server is not able to assign any more
+addresses for a particular dhcpService.
+
+Name: dhcpLog Description: This is the object that holds past
+information about an IP address. The cn is the time/date stamp when the
+address was assigned or released, the address state at the time, if the
+address was assigned or released.  Must: cn May: dhcpAddressState,
+dhcpExpirationTime, dhcpStartTimeOfState, dhcpLastTransactionTime,
+dhcpBootpFlag, dhcpDomainName, dhcpDnsStatus, dhcpRequestedHostName,
+dhcpAssignedHostName, dhcpReservedForClient, dhcpAssignedToClient,
+dhcpRelayAgentInfo, dhcpHWAddress
+
+
+
+
+
+
+M. Meredith et al.        Expires December 2001                 [Page 9]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+7. Determining settings
+
+The dhcpStatements attribute is the key to DHC enhancements that may
+come along, and the different key words that a particular server
+implementation may use. This attribute can be used to hold conditional
+DHCP Statements and DHCP server parameters. Having a generic settings
+attribute that is just a string, allows this schema to be extensible and
+easy to configure.
+
+All of the attributes that end with DN are references to the class that
+precedes the DN e.g. the dhcpPrimaryDN and dhcpSecondaryDN attributes
+hold the Distinguished Names of the dhcpServer objects that are
+associated with the dhcpService object.
+
+8. LDIF format for attributes and classes.
+
+# Attributes
+
+( 2.16.840.1.113719.1.203.4.1 NAME 'dhcpPrimaryDN' DESC
+'The DN of the dhcpServer which is the primary server for the
+configuration.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.2 NAME 'dhcpSecondaryDN' DESC 'The DN of
+dhcpServer(s) which provide backup service for the configuration.'
+SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.3 NAME 'dhcpStatements' DESC 'Flexible
+storage for specific data depending on what object this exists in. Like
+conditional statements, server parameters, etc. This allows the standard
+to evolve without needing to adjust the schema.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.26 )
+
+( 2.16.840.1.113719.1.203.4.4 NAME 'dhcpRange' DESC 'The starting &
+ending IP Addresses in the range (inclusive), separated by a hyphen; if
+the range only contains one address, then just the address can be
+specified with no hyphen.  Each range is defined as a separate value.'
+SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+( 2.16.840.1.113719.1.203.4.5 NAME 'dhcpPermitList' DESC 'This attribute
+contains the permit lists associated with a pool. Each permit list is
+defined as a separate value.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+( 2.16.840.1.113719.1.203.4.6 NAME 'dhcpNetMask' DESC 'The subnet mask
+length for the subnet.  The mask can be easily computed from this
+length.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.7 NAME 'dhcpOption' DESC 'Encoded option
+values to be sent to clients.  Each value represents a single option and
+contains (OptionTag, Length, OptionValue) encoded in the format used by
+DHCP.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+M. Meredith et al.        Expires December 2001                [Page 10]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+( 2.16.840.1.113719.1.203.4.8 NAME 'dhcpClassData' DESC 'Encoded text
+string or list of bytes expressed in hexadecimal, separated by colons.
+Clients match subclasses based on matching the class data with the
+results of match or spawn with statements in the class name
+declarations.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.9 NAME 'dhcpOptionsDN' DESC 'The
+distinguished name(s) of the dhcpOption objects containing the
+configuration options provided by the server.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.10 NAME 'dhcpHostDN' DESC 'the distinguished
+name(s) of the dhcpHost objects.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.11 NAME 'dhcpPoolDN' DESC 'The distinguished
+name(s) of pools.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.12 NAME 'dhcpGroupDN' DESC 'The
+distinguished name(s)   of the groups.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.13 NAME 'dhcpSubnetDN' DESC 'The
+distinguished name(s) of the subnets.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.14 NAME 'dhcpLeaseDN' DESC 'The
+distinguished name of a client address.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE)
+
+( 2.16.840.1.113719.1.203.4.15 NAME 'dhcpLeasesDN' DESC 'The
+distinguished name(s) client addresses.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.16 NAME 'dhcpClassesDN' DESC 'The
+distinguished name(s) of a class(es) in a subclass.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.17 NAME 'dhcpSubclassesDN' DESC 'The
+distinguished name(s) of subclass(es).' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.18 NAME 'dhcpSharedNetworkDN' DESC 'The
+distinguished name(s) of sharedNetworks.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.19 NAME 'dhcpServiceDN' DESC 'The DN of
+dhcpService object(s)which contain the configuration information. Each
+dhcpServer object has this attribute identifying the DHCP
+
+
+
+M. Meredith et al.        Expires December 2001                [Page 11]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+configuration(s) that the server is associated with.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.12 )
+
+( 2.16.840.1.113719.1.203.4.20 NAME 'dhcpVersion' DESC 'The version
+attribute of this object.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-
+VALUE )
+
+( 2.16.840.1.113719.1.203.4.21 NAME 'dhcpImplementation' DESC
+'Description of the DHCP Server implementation e.g. DHCP Server's
+vendor.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.22 NAME 'dhcpAddressState' DESC 'This stores
+information about the current binding-status of an address.  For dynamic
+addresses managed by DHCP, the values should be restricted to the
+following: "FREE", "ACTIVE", "EXPIRED", "RELEASED", "RESET",
+"ABANDONED", "BACKUP".  For other addresses, it SHOULD be one of the
+following: "UNKNOWN", "RESERVED" (an address that is managed by DHCP
+that is reserved for a specific client), "RESERVED-ACTIVE" (same as
+reserved, but address is currently in use), "ASSIGNED" (assigned
+manually or by some other mechanism), "UNASSIGNED", "NOTASSIGNABLE".'
+SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.23 NAME 'dhcpExpirationTime' DESC 'This is
+the time the current lease for an address expires.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.24 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.24 NAME 'dhcpStartTimeOfState' DESC 'This is
+the time of the last state change for a leased address.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.24 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.25 NAME 'dhcpLastTransactionTime' DESC 'This
+is the last time a valid DHCP packet was received from the client.'
+SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.26 NAME 'dhcpBootpFlag' DESC 'This indicates
+whether the address was assigned via BOOTP.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.27 NAME 'dhcpDomainName' DESC 'This is the
+name of the domain sent to the client by the server.  It is essentially
+the same as the value for DHCP option 15 sent to the client, and
+represents only the domain - not the full FQDN.  To obtain the full FQDN
+assigned to the client you must prepend the "dhcpAssignedHostName" to
+this value with a ".".' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-
+VALUE )
+
+( 2.16.840.1.113719.1.203.4.28 NAME 'dhcpDnsStatus' DESC 'This indicates
+the status of updating DNS resource records on behalf of the client by
+
+
+
+M. Meredith et al.        Expires December 2001                [Page 12]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+the DHCP server for this address.  The value is a 16-bit bitmask.'
+SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.29 NAME 'dhcpRequestedHostName' DESC 'This
+is the hostname that was requested by the client.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.30 NAME 'dhcpAssignedHostName' DESC 'This is
+the actual hostname that was assigned to a client. It may not be the
+name that was requested by the client.  The fully qualified domain name
+can be determined by appending the value of "dhcpDomainName" (with a dot
+separator) to this name.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-
+VALUE )
+
+( 2.16.840.1.113719.1.203.4.31 NAME 'dhcpReservedForClient' DESC 'The
+distinguished name of a "dhcpClient" that an address is reserved for.
+This may not be the same as the "dhcpAssignedToClient" attribute if the
+address is being reassigned but the current lease has not yet expired.'
+SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.32 NAME 'dhcpAssignedToClient' DESC 'This is
+the distinguished name of a "dhcpClient" that an address is currently
+assigned to.  This attribute is only present in the class when the
+address is leased.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.33 NAME 'dhcpRelayAgentInfo' DESC 'If the
+client request was received via a relay agent, this contains information
+about the relay agent that was available from the DHCP request.  This is
+a hex-encoded option value.' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40
+SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.34 NAME 'dhcpHWAddress' DESC 'The clients
+hardware address that requested this IP address.' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.40 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.35 NAME 'dhcpHashBucketAssignment' DESC
+'HashBucketAssignment bit map for the DHCP Server, as defined in DHC
+Load Balancing Algorithm [RFC 3074].' SYNTAX
+1.3.6.1.4.1.1466.115.121.1.40 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.36 NAME 'dhcpDelayedServiceParameter' DESC
+'Delay in seconds corresponding to Delayed Service Parameter
+configuration, as defined in  DHC Load Balancing Algorithm [RFC 3074]. '
+SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.37 NAME 'dhcpMaxClientLeadTime' DESC
+'Maximum Client Lead Time configuration in seconds, as defined in DHCP
+Failover Protocol [FAILOVR]' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+
+
+
+M. Meredith et al.        Expires December 2001                [Page 13]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+SINGLE-VALUE )
+
+( 2.16.840.1.113719.1.203.4.38 NAME 'dhcpFailOverEndpointState' DESC
+'Server (Failover Endpoint) state, as defined in DHCP Failover Protocol
+[FAILOVR]' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+#Classes
+
+( 2.16.840.1.113719.1.203.6.1 NAME 'dhcpService' DESC ' Service object
+that represents the actual DHCP Service configuration. This is a
+container object.' SUP top MUST (cn $ dhcpPrimaryDN) MAY
+(dhcpSecondaryDN $ dhcpSharedNetworkDN $ dhcpSubnetDN $ dhcpGroupDN $
+dhcpHostDN $  dhcpClassesDN $ dhcpOptionsDN $ dhcpStatements ) )
+
+( 2.16.840.1.113719.1.203.6.2 NAME 'dhcpSharedNetwork' DESC 'This stores
+configuration information for a shared network.' SUP top MUST  cn MAY
+(dhcpSubnetDN $ dhcpPoolDN $ dhcpOptionsDN $ dhcpStatements) X-
+NDS_CONTAINMENT ('dhcpService' ) )
+
+( 2.16.840.1.113719.1.203.6.3 NAME 'dhcpSubnet' DESC 'This class defines
+a subnet. This is a container object.' SUP top MUST ( cn $ dhcpNetMask )
+MAY (dhcpRange $ dhcpPoolDN $ dhcpGroupDN $ dhcpHostDN $ dhcpClassesDN $
+dhcpLeasesDN $ dhcpOptionsDN $ dhcpStatements) X-NDS_CONTAINMENT
+('dhcpService' ) )
+
+( 2.16.840.1.113719.1.203.6.4 NAME 'dhcpPool' DESC 'This stores
+configuration information about a pool.' SUP top MUST ( cn $ dhcpRange )
+MAY (dhcpClassesDN $ dhcpPermitList $ dhcpLeasesDN $ dhcpOptionsDN $
+dhcpStatements) X-NDS_CONTAINMENT ('dhcpSubnet' 'dhcpSharedNetwork') )
+
+( 2.16.840.1.113719.1.203.6.5 NAME 'dhcpGroup' DESC 'Group object that
+lists host DNs and parameters. This is a container object.' SUP top MUST
+cn MAY ( dhcpHostDN $ dhcpOptionsDN $ dhcpStatements ) X-NDS_CONTAINMENT
+('dhcpSubnet' 'dhcpService' ) )
+
+( 2.16.840.1.113719.1.203.6.6 NAME 'dhcpHost' DESC 'This represents
+information about a particular client' SUP top MUST cn MAY  (dhcpLeaseDN
+$ dhcpHWAddress $ dhcpOptionsDN $ dhcpStatements) X-NDS_CONTAINMENT
+('dhcpService' 'dhcpSubnet' 'dhcpGroup') )
+
+( 2.16.840.1.113719.1.203.6.7 NAME 'dhcpClass' DESC 'Represents
+information about a collection of related clients.' SUP top MUST cn MAY
+(dhcpSubClassesDN $ dhcpOptionsDN $ dhcpStatements) X-NDS_CONTAINMENT
+('dhcpService' 'dhcpSubnet' ) )
+
+( 2.16.840.1.113719.1.203.6.8 NAME 'dhcpSubClass' DESC 'Represents
+information about a collection of related classes.' SUP top MUST cn MAY
+(dhcpClassData $ dhcpOptionsDN $ dhcpStatements) X-NDS_CONTAINMENT
+
+
+
+M. Meredith et al.        Expires December 2001                [Page 14]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+'dhcpClass' )
+
+( 2.16.840.1.113719.1.203.6.9 NAME 'dhcpOptions' DESC 'Represents
+information about a collection of options defined.' SUP top MUST cn MAY
+( dhcpOption ) X-NDS_CONTAINMENT  ('dhcpService' 'dhcpSharedNetwork'
+'dhcpSubnet' 'dhcpPool' 'dhcpGroup' 'dhcpHost' 'dhcpClass' )
+
+( 2.16.840.1.113719.1.203.6.10 NAME 'dhcpLeases' DESC 'This class
+represents an IP Address, which may or may not have been leased.' SUP
+top MUST ( cn $ dhcpAddressState ) MAY ( dhcpExpirationTime $
+dhcpStartTimeOfState $ dhcpLastTransactionTime $ dhcpBootpFlag $
+dhcpDomainName $ dhcpDnsStatus $ dhcpRequestedHostName $
+dhcpAssignedHostName $ dhcpReservedForClient $ dhcpAssignedToClient $
+dhcpRelayAgentInfo $ dhcpHWAddress ) X-NDS_CONTAINMENT ( 'dhcpService'
+'dhcpSubnet' 'dhcpPool') )
+
+( 2.16.840.1.113719.1.203.6.11 NAME 'dhcpLog' DESC 'This is the object
+that holds past information about the IP address. The cn is the
+time/date stamp when the address was assigned or released, the address
+state at the time, if the address was assigned or released.' SUP top
+MUST ( cn ) MAY ( dhcpAddressState $ dhcpExpirationTime $
+dhcpStartTimeOfState $ dhcpLastTransactionTime $ dhcpBootpFlag $
+dhcpDomainName $ dhcpDnsStatus $ dhcpRequestedHostName $
+dhcpAssignedHostName $ dhcpReservedForClient $ dhcpAssignedToClient $
+dhcpRelayAgentInfo $ dhcpHWAddress ) X-NDS_CONTAINMENT ('dhcpLeases'
+'dhcpPool' 'dhcpSubnet' 'dhcpSharedNetwork' 'dhcpService' ) )
+
+( 2.16.840.1.113719.1.203.6.12 NAME 'dhcpServer' DESC 'DHCP Server
+Object' SUP top MUST (cn, dhcpServiceDN) MAY (dhcpVersion $
+dhcpImplementation $ dhcpHashBucketAssignment $
+dhcpDelayedServiceParameter $ dhcpMaxClientLeadTime $
+dhcpFailOverEndpointState) X-NDS_CONTAINMENT 'dhcpService' )
+
+9. Security Considerations
+
+Since the DHCP Configuration information is stored in a directory, the
+security of the information is limited to the security offered by the
+directory including the security of the objects within that directory.
+
+10.  Intellectual Property Rights Notices
+
+The IETF takes no position regarding the validity or scope of any
+intellectual property or other rights that might be claimed to pertain
+to the implementation or use of the technology described in this
+document or the extent to which any license under such rights might or
+might not be available; neither does it represent that it has made any
+effort to identify any such rights.  Information on the IETF's
+procedures with respect to rights in standards-track and standards-
+
+
+
+M. Meredith et al.        Expires December 2001                [Page 15]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+related documentation can be found in BCP-11.  Copies of claims of
+rights made available for publication and any assurances of licenses to
+be made available, or the result of an attempt made to obtain a general
+license or permission for the use of such proprietary rights by
+implementors or users of this specification can be obtained from the
+IETF Secretariat.
+
+The IETF invites any interested party to bring to its attention any
+copyrights, patents or patent applications, or other proprietary rights
+which may cover technology that may be required to practice this
+standard.  Please address the information to the IETF Executive
+Director.
+
+11.  Full Copyright Statement
+
+Copyright (C) The Internet Society (2001).  All Rights Reserved.
+
+This document and translations of it may be copied and furnished to
+others, and derivative works that comment on or otherwise explain it or
+assist in its implementation may be prepared, copied, published and
+distributed, in whole or in part, without restriction of any kind,
+provided that the above copyright notice and this paragraph are included
+on all such copies and derivative works.  However, this document itself
+may not be modified in any way, such as by removing the copyright notice
+or references to the Internet Society or other Internet organizations,
+except as needed for the purpose of developing Internet standards in
+which case the procedures for copyrights defined in the Internet
+Standards process must be followed, or as required to translate it into
+languages other than English.
+
+The limited permissions granted above are perpetual and will not be
+revoked by the Internet Society or its successors or assigns.
+
+This document and the information contained herein is provided on an "AS
+IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING TASK
+FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+FITNESS FOR A PARTICULAR PURPOSE.
+
+12. References
+
+[RFC2131] Droms, R., "Dynamic Host Configuration Protocol", RFC 2131,
+March 1997.
+
+[RFC2132] Alexander, S., Droms, R., "DHCP Options and BOOTP Vendor
+Extensions", RFC 2132, March 1997.
+
+
+
+
+M. Meredith et al.        Expires December 2001                [Page 16]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+[MSDHCP]  Gu, Y., Vyaghrapuri, R., "An LDAP Schema for Dynamic Host
+Configuration Protocol Service", Internet Draft <draft-gu-dhcp-ldap-
+schema-00.txt>, August 1998.
+
+[NOVDHCP] Miller, T., Patel, A., Rao, P., "Lightweight Directory Access
+Protocol (v3): Schema for Dynamic Host Configuration Protocol (DHCP)",
+Internet Draft <draft-miller-dhcp-ldap-schema-00.txt>, June 1998.
+
+[FAILOVR] Droms, R., Rabil, G., Dooley, M., Kapur, A., Gonczi, S., Volz,
+B., "DHCP Failover Protocol", Internet Draft <draft-ietf-dhc-
+failover-08.txt>, July 2000.
+
+[RFC 3074] Volz B., Gonczi S., Lemon T., Stevens R., "DHC Load Balancing
+Algorithm", February 2001
+
+[AGENT]   Patrick, M., "DHCP Relay Agent Information Option", Internet
+Draft <draft-ietf-dhc-agent-options-09.txt>, March 2000.
+
+[DHCPOPT] Carney, M., "New Option Review Guidelines and Additional
+Option Namespace", Internet Draft <draft-ietf-dhc-
+option_review_and_namespace-01.txt>, October 1999.
+
+[POLICY]  Strassner, J., Elleson, E., Moore, B., "Policy Framework LDAP
+Core Schema", Internet Draft <draft-ietf-policy-core-schema-06.txt>,
+November 1999.
+
+[RFC2251] Wahl, M., Howes, T., Kille, S., "Lightweight Directory Access
+Protocol (v3)", RFC 2251, December 1997.
+
+[RFC2252] Wahl, M., Coulbeck, A., Howes, T., Kille, S., "Lightweight
+Directory Access Protocol (v3) Attribute Syntax Definitions", RFC 2252,
+December 1997.
+
+[RFC2255] Howes, T., Smith, M., "The LDAP URL Format", RFC 2255,
+December 1997.
+
+[RFC951]  Croft, B., Gilmore, J., "Bootstrap Protocol (BOOTP)", RFC 951,
+September 1985.
+
+[RFC2119] Bradner, S. "Key words for use in RFCs to Indicate Requirement
+Levels", RFC 2119, March 1997.
+
+13. Acknowledgments
+
+This work is partially based on a previous draft draft-ietf-dhc-
+schema-02.doc.
+
+
+
+
+
+M. Meredith et al.        Expires December 2001                [Page 17]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for DHCP              16 June 2001
+
+
+14. Author's Addresses
+
+Comments regarding this draft may be sent to the authors at the
+following address:
+
+Mark Meredith
+Mark Hinckley
+Novell Inc.
+1800 S. Novell Place
+Provo, Utah 84606
+
+Vijay K. Nanjundaswamy
+Novell Software Development (I) Ltd
+49/1 & 49/3, Garvebhavi Palya,
+7th Mile, Hosur Road
+Bangalore 560068
+
+email: mark_meredith@novell.com
+email: knvijay@novell.com
+email: mhinckley@novell.com
+
+This Internet Draft expires December 16, 2001.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+M. Meredith et al.        Expires December 2001                [Page 18]
+
+

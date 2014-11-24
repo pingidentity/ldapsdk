@@ -1,0 +1,1459 @@
+
+
+   LDUP Replication Update Protocol                   John McMeeking 
+   Internet-Draft                                     IBM Corporation 
+   Intended Category: Experimental                     
+   Expires: June 2004                                 December 2003 
+    
+    
+                   The LDUP Replication Update Protocol 
+                     <draft-ietf-ldup-protocol-05.txt> 
+    
+1.  Status of this Memo 
+
+   This document is an Internet-Draft and is in full conformance with 
+   all provisions of Section 10 of RFC2026. 
+    
+   Internet-Drafts are working documents of the Internet Engineering 
+   Task Force (IETF), its areas, and its working groups. Note that 
+   other groups may also distribute working documents as Internet-
+   Drafts. 
+    
+   Internet-Drafts are draft documents valid for a maximum of six 
+   months and may be updated, replaced, or obsoleted by other documents 
+   at any time.  It is inappropriate to use Internet-Drafts as 
+   reference material or to cite them other than as "work in progress." 
+    
+   To view the list Internet-Draft Shadow Directories, see 
+   http://www.ietf.org/shadow.html. 
+ 
+2.  Abstract 
+
+   The protocol described in this document is designed to allow one 
+   LDAP server to replicate its directory content to another LDAP 
+   server. The protocol is designed to be used in a replication 
+   configuration where multiple updateable servers are present. 
+   Provisions are made in the protocol to carry information that allows 
+   the server receiving updates to apply a total ordering to all 
+   updates in the replicated system. This total ordering allows all 
+   replicas to correctly resolve conflicts that arise when LDAP clients 
+   submit changes to different servers that later replicate to one 
+   another. 
+    
+   All protocol elements described here are LDAPv3 extended operations 
+   and controls. LDAPv3 is described in RFC 2251 [LDAPv3]. Some LDAPv3 
+   extended operations and controls described here are LDAPv3 extended 
+   operations used to group related operations. The protocol elements 
+   used for grouping are described in LDAPv3: Grouping of Related 
+   Operations [GROUPING]. 
+    
+   Certain terms used in this document are defined in the document 
+   "LDAP Replication Architecture" [ARCHITECTURE]. 
+    
+
+
+ 
+McMeeking               Expires September 2003                [Page 1] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", 
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", and "MAY" in this document 
+   are to be interpreted as described in RFC 2119 [KEYWORDS]. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+McMeeking               Expires September 2003                [Page 2] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+3.  Table of Contents 
+
+1.  Status of this Memo..............................................1 
+2.  Abstract.........................................................1 
+3.  Table of Contents................................................3 
+4.  Overview of Protocol.............................................4 
+5.  High-level Description of Protocol Flow..........................4 
+5.1.     Supplier-initiated replication protocol.....................4 
+5.2.     Consumer-initiated replication protocol.....................6 
+6.  Replication protocol element definitions.........................6 
+6.1.     createGroupingRequest Extended Operation....................6 
+6.2.     createGroupingResponse Extended Response....................8 
+6.3.     ReplicationUpdate Extended Operation.......................10 
+6.3.1.     UniqueIdentifier.........................................10 
+6.3.2.     ReplicationPrimitive.....................................11 
+6.3.2.1.     AddEntryPrimitive.....................................11 
+6.3.2.2.     MoveEntryPrimitive....................................11 
+6.3.2.4.     RemoveEntryPrimitive..................................12 
+6.3.2.5.     AddAttributeValuePrimitive............................12 
+6.3.2.6.     RemoveAttributeValuePrimitive.........................13 
+6.3.2.7.     RemoveAttributePrimitive..............................13 
+6.4.     endGroupingRequest Extended Operation......................14 
+6.5.     endGroupingResponse Extended Response......................14 
+6.6.     ReplicationUpdateResponse Extended Response................15 
+6.7.     ReplicationUpdateNotice Extended Response..................15 
+7.  Semantics of Full and Incremental Update protocols..............16 
+8.  Semantics of the LDAP Replication Grouping Type.................17 
+9.  Summary of response codes.......................................17 
+10. Security Considerations.........................................18 
+11. IANA Considerations.............................................18 
+12. Acknowledgements................................................19 
+13. References......................................................19 
+14. Author's Addresses..............................................20 
+15. Appendix A - Complete ASN.1 Definition..........................20 
+16. Intellectual Property Notice....................................22 
+17. Copyright Information...........................................22 
+
+
+
+
+
+
+
+
+
+
+
+
+McMeeking               Expires September 2003                [Page 3] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+    
+4.  Overview of Protocol 
+
+   The LDAP Replication Architecture [ARCHITECTURE] describes the 
+   overall approach used in ensuring consistency of multiple updateable 
+   replicas of directory content. The protocol described in this 
+   document implements the approach described in that document. 
+    
+   LDAP Version 3 extended operations are used to carry replicated 
+   content from one server to another. The extended operations defined 
+   in this document are used to initiate and end a replication session, 
+   and to exchange updates. These updates carry with them information 
+   that allows the receiving server to apply a total ordering to all of 
+   the updates in a replicated system. All servers that receive 
+   replication updates apply a consistent set of update resolution 
+   policies, described in [URP]. You must understand URP to 
+   process/send and receive/process the updates correctly.  What you 
+   send may depend on whether your implementation is state-based or 
+   log-based; what you receive is independent of whether you are state-
+   based or log-based. Consistent application of the update resolution 
+   policies ensures that all replicas eventually converge and contain 
+   the same directory data.  The protocol depends upon elements of the 
+   information model set forth in [INFOMOD] and [ENTRYUUID].  In 
+   particular, the notion of a universally unique identifier (UUID) to 
+   identify a particular entry is used in elements of the protocol. The 
+   protocol also makes use LDAP Change Sequence Numbers, which provide 
+   an ordering of changes across multiple servers. LDAP Change Sequence 
+   Numbers are defined in [CSN]. 
+    
+   The protocol is intended to meet the requirements set forth in 
+   [REQ]. 
+    
+5.  High-level Description of Protocol Flow 
+
+   The following section provides a high-level overview of the 
+   replication protocol. Throughout this section, the supplier server 
+   is indicated by the letter "S" and the consumer server by the letter 
+   "C". The construct "S -> C" indicates that the supplier is sending 
+   an LDAPv3 operation to the consumer, and "C -> S" indicates that the 
+   consumer is sending an LDAPv3 operation to the supplier. 
+    
+5.1.   Supplier-initiated replication protocol 
+
+      S -> C: LDAP bind operation (identity and credentials used are 
+              implementation-defined) 
+    
+      C -> S: Bind response 
+    
+      S -> C: createGroupingRequest LDAPv3 extended operation. The 
+              parameters are: 
+    
+                1) The LDUP Replication grouping type OID. 
+McMeeking               Expires September 2003                [Page 4] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+                2) Area of replication subentry DN (unambiguously 
+                identifies the replicated area) 
+                3) Supplier's replicaID 
+                4) OID of replication protocol to be used (this 
+                document defines IETF-LDUP incremental and IETF-LDUP 
+                total update protocols) 
+                5) The protocol initiation type - Supplier-Initiated in 
+                this case. 
+                6) A table of UUID to replicaID mappings. 
+    
+      C -> S: createGroupingResponse LDAPv3 extended response. The 
+              parameters are: 
+    
+                1) A groupCookie that represents the LDUP Replication 
+                group just created 
+                2) A response code (see section 9) 
+                3) An optional update vector that is present if and 
+                only if the response code is REPL SUCCESS 
+    
+      S -> C: The supplier may send zero or more ReplicationUpdate 
+              LDAPv3 extended operations. The parameters are: 
+    
+                1) The UUID of the entry being updated 
+                2) One or more Replication Primitives (The supplier may 
+                send as many of these as required to bring the consumer 
+                up to date) 
+                3) A groupingControl containing the groupCookie for 
+                this LDUP Replication group 
+    
+      C -> S: At any time, the consumer may send an unsolicited 
+              ReplicationUpdateNotice LDAPv3 extended response. The 
+              parameters are: 
+    
+                1) An optional update vector.  If sent, this indicates 
+                that the consumer has committed all updates whose CSNs 
+                are covered by the transmitted update vector [see 
+                glossary for a definition of "covered by"]. 
+                2) An optional AbortUpdate Boolean flag.  If a supplier 
+                receives a ReplicationUpdateNotice from a consumer with 
+                the AbortUpdate flag set to true, the supplier server 
+                MUST immediately cease sending updates and terminate 
+                its connection to the consumer. 
+                3) A groupingControl containing the groupCookie for 
+                this LDUP Replication group. 
+    
+      S -> C: After all required updates have been sent to the 
+              consumer, the supplier sends an endGroupingRequest LDAPv3 
+              extended operation. The parameters are: 
+    
+                1) A groupCookie for this LDUP Replication group 
+    
+
+McMeeking               Expires September 2003                [Page 5] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+      C -> S: The consumer responds by sending an endGroupingResponse 
+              LDAPv3 extended response. 
+       
+      S -> C: The supplier then sends an unbind operation and both 
+              sides close the connection. 
+    
+5.2.   Consumer-initiated replication protocol 
+
+      C -> S: LDAP bind operation (identity and credentials used are 
+              implementation-defined) 
+    
+      S -> C: Bind response 
+    
+      C -> S: createGroupingRequest LDAPv3 extended operation. The 
+              parameters are: 
+    
+                1) The LDUP replication grouping type OID 
+                2) Area of replication subentry DN (unambiguously 
+                identifies the replicated area) 
+                3) Consumer's replicaID 
+                4) OID of replication protocol to be used (this 
+                document defines ietf-ldup-incremental-update and ietf-
+                ldup-full-update protocols) 
+                5) The protocol initiation type - Consumer-Initiated in 
+                this case 
+    
+      S -> C: createGroupingResponse LDAPv3 extended response. The 
+              parameters are: 
+    
+                1) A groupCookie that represents the LDUP replication 
+                group just created 
+                2) A LDUP response code (see section 9) 
+    
+      C -> S: The consumer then sends an unbind operation and both 
+              sides close the connection. 
+       
+   The supplier server then connects to the consumer, beginning a 
+   Supplier- Initiated protocol session (see section 5.1). 
+ 
+6.  Replication protocol element definitions 
+
+   The following sub-sections define the individual protocol elements 
+   that make up the update replication protocol.  Portions of the ASN.1 
+   use ASN.1 types defined in [LDAPv3]. 
+    
+6.1.   createGroupingRequest Extended Operation 
+
+   The creation of an LDAP Replication grouping type by a replication 
+   initiator indicates that a replication session should commence. An 
+   LDUP Replication grouping type is created by sending a 
+   createGroupingRequest extended operation with a createGroupType OID 
+   value specifying the LDAP Replication grouping type. For supplier-
+McMeeking               Expires September 2003                [Page 6] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+   initiated replication, the supplier sends this extended operation to 
+   the replication consumer to indicate that a replication session 
+   should commence. For consumer-initiated replication, the consumer 
+   sends this extended operation to the replication supplier to 
+   indicate that the supplier should initiate a replication session to 
+   the consumer as soon as possible. 
+    
+   The createGroupingRequest extended operation is defined in section 
+   2.2.1 of [GROUPING].  
+    
+   The createGroupType of the createGroupingRequestValue must be LDUP-
+   OID.3.1.1. This OID represents the LDAP Replication grouping type. 
+    
+   The createGroupValue of the createGroupingRequestValue must be set 
+   to the BER-encoding of the following: 
+    
+         createGroupValue ::= createReplGroupReqValue 
+       
+         createReplGroupReqValue ::= SEQUENCE { 
+             areaOfReplication      LDAPDN, 
+             replicaID              LDAPString, 
+             replicationProtocolOID LDAPOID, 
+             replicationInitiator   ENUMERATED 
+             { 
+                 supplier (0), 
+                 consumer (1) 
+             } 
+             replicaIDTable SEQUENCE OPTIONAL { 
+                 tableLength   INTEGER 
+                 table SEQUENCE OF SEQUENCE { 
+                     replicaID    LDAPString, 
+                     replicaUUID  LDAPString 
+                 } 
+             } 
+         } 
+    
+   The parameters in the createGroupValue of the 
+   createGroupingRequestValue are: 
+    
+      - areaOfReplication: the distinguished name of the 
+        areaOfReplicationSubentry object that uniquely identifies the 
+        unit of replication. 
+       
+      - replicaID: the replica identifier of the replication initiator. 
+        Each replica of a given replicated area is identified by a 
+        unique identifier, described in [ARCHITECTURE] and [ENTRYUUID].  
+        To be more efficient in data transfer of the replication update 
+        protocol, each referenced replica is assigned an id that is 
+
+McMeeking               Expires September 2003                [Page 7] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+        protocol session-specific.  The replicaIDTable is used to map 
+        between the replicaID (used here and in ChangeSequenceNumber 
+        values in the protocol) and the UUID corresponding to the 
+        replicaSubEntry representing the replica. 
+       
+      - replicationProtocolOID: OID of the replication protocol that 
+         should be used to transfer the updates.  This document 
+         describes two replication protocols: 
+          
+            ietf-ldup-full-update          LDUP-OID.3.2.1 
+            ietf-ldup-incremental-update   LDUP-OID.3.2.2 
+       
+        See section 7 for information on the semantic behavior of these 
+        update protocols.  Implementations MUST support the two update 
+        protocols defined in this document. 
+       
+      - replicationInitiator: used to differentiate between a supplier- 
+        initiated session and a consumer-initiated session.  If the 
+        replicationInitiator contains the enumerated value <supplier>, 
+        then the initiator is the supplier, and the receiver of this 
+        operation should prepare to receive a set of replication 
+        updates (or should reject the operation is replication updates 
+        are not permitted for some reason, perhaps due to access 
+        control restrictions).  If the replicationInitiator contains 
+        the enumerated value <consumer>, then the receiver should 
+        prepare to establish a supplier-initiated replication session 
+        with the consumer as soon as possible, updating the replicated 
+        area given by areaOfReplication and using the update protocol 
+        given by replicationProtocolOID. 
+       
+      - replicaIDTable: used to set up a mapping of shorter "ids" to 
+        UUIDs of the replicaSubEntry entries that correspond to the 
+        ids.  These ids are used in the change sequence numbers sent 
+        over the replication update protocol instead of the full change 
+        sequence number (including the UUID).  This greatly reduces the 
+        data transfer requirements of the update replication protocol. 
+    
+6.2.   createGroupingResponse Extended Response 
+
+   The createGroupingResponse extended response is sent in response to 
+   a createGroupingRequest extended operation. 
+    
+   For a supplier-initiated session, the createGroupingResponse 
+   extended response indicates that the consumer is or is not prepared 
+   to accept a set of updates. If the consumer is prepared to accept 
+   updates, it sends a createGroupingResponse extended response 
+   containing a success code and the consumer's replica update vector. 
+
+McMeeking               Expires September 2003                [Page 8] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+   If the consumer is unwilling or unable to accept updates, it sends a 
+   createGroupingResponse extended response containing an error code. 
+    
+   For a consumer-initiated session, the createGroupingResponse 
+   extended response indicates that the supplier is or is not prepared 
+   to send a set of updates to the consumer. If the supplier is 
+   prepared to send updates to the consumer, it sends a 
+   createGroupingResponse extended response with a success code. If the 
+   supplier is unwilling or unable to send updates to the consumer, it 
+   sends a createGroupingResponse extended response containing an error 
+   code. In both cases, the consumer unbinds and disconnects from the 
+   supplier. If the supplier sent a success code to the consumer, the 
+   supplier opens a connection to the consumer as soon as possible and 
+   initiates a supplier-initiated replication session. 
+    
+   An LDAPv3 extended response is defined in [LDAPv3] as follows: 
+    
+         ExtendedResponse ::= [APPLICATION 24] SEQUENCE { 
+            COMPONENTS of LDAPResult, 
+            responseName  [10] LDAPOID OPTIONAL, 
+            response      [11] OCTET STRING OPTIONAL 
+         } 
+    
+   The createGroupingResponse extended response is defined in section 
+   2.2.2 of [GROUPING]. 
+    
+   The createGroupCookie of the createGroupingResponseValue will 
+   contain a cookie uniquely identifying this instance of the LDAP 
+   Replication grouping type created as a result of the 
+   createGroupRequest corresponding to this response. This cookie will 
+   be used in subsequent operations in this replication session. 
+    
+   The createGroupValue of the createGroupingResponseValue is set to 
+   the BER-encoding of the following: 
+    
+         createGroupValue ::= createReplGroupRespValue 
+       
+         createReplGroupRespValue ::= SEQUENCE { 
+             replicaUpdateVector   Attribute OPTIONAL, 
+         } 
+    
+   The LDAP response codes applicable to this response are defined in 
+   section 9. 
+    
+   The replicaUpdateVector contains a replica update vector, as defined 
+   in [INFOMOD]. The update vector is encoded as a normal LDAP 
+   attribute, defined in [LDAPv3]. 
+    
+    
+
+
+McMeeking               Expires September 2003                [Page 9] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+6.3.   ReplicationUpdate Extended Operation 
+
+   The ReplicationUpdate extended operation carries a set of 
+   replication primitives that represent the changes necessary to bring 
+   a single entry to a desired final state. 
+     
+   The ReplicationUpdate extended operation is defined as follows: 
+    
+   An LDAPv3 Extended Request is defined in [LDAPv3] as follows: 
+    
+         ReplicationUpdate ::= [APPLICATION  23] SEQUENCE { 
+            requestName    [0] LDAPOID, 
+            requestValue   [1] OCTET STRING 
+         } 
+    
+   The requestName of the ReplicationUpdate is the OID LDUP-OID.3.3.1. 
+    
+   The requestValue of the ReplicationUpdate is set to the BER-encoding 
+   of the following: 
+    
+         requestValue ::= replicationUpdateRequestValue 
+       
+         replicationUpdateRequestValue ::= SEQUENCE { 
+            uniqueID  UniqueIdentifier, 
+            updates   SET OF ReplicationPrimitive 
+         } 
+    
+   Each ReplicationUpdate extended operation MUST be accompanied by a 
+   groupingControl control identifying the replication session to which 
+   the ReplicationUpdate operation belongs. The groupingControl control 
+   is defined in section 2.7 of [GROUPING]. The groupingCookie of the 
+   groupingControlValue contains the group cookie returned in the 
+   createGroupingResponse. The groupValue of the groupingControlValue 
+   is not present. 
+    
+6.3.1.   UniqueIdentifier 
+
+   The Distinguished Name of an entry may be changed (by renaming the 
+   entry), or the entry may not have a distinguished name (if it was 
+   deleted).  The Unique Identifier provides an immutable name, 
+   independent of the current name or deletion status, for an entry. 
+   All replicated operations address entries by their Unique 
+   Identifiers. 
+    
+         UniqueIdentifier ::= LDAPString 
+    
+   Unique identifiers are also known as UUIDs in this document.  Values 
+   for UUIDs are taken from an entry's 'entryUUID' operational 
+   attribute [ENTRYUUID]. 
+ 
+
+McMeeking               Expires September 2003               [Page 10] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+6.3.2.   ReplicationPrimitive 
+
+    
+   A ReplicationPrimitive carries a single assertion about changes 
+   necessary to bring about the final state of an entry, attribute, or 
+   attribute value. There are seven types of primitives. 
+    
+         ReplicationPrimitive ::= CHOICE { 
+             addEntryPrimitive              AddEntryPrimitive, 
+             moveEntryPrimitive             MoveEntryPrimitive, 
+             renameEntryPrimitive           RenameEntryPrimitive, 
+             removeEntryPrimitive           RemoveEntryPrimitive, 
+             addAttributeValuePrimitive     AddAttributeValuePrimitive, 
+             removeAttributeValuePrimitive 
+                                         RemoveAttributeValuePrimitive, 
+             removeAttributePrimitive       RemoveAttributePrimitive 
+         } 
+    
+   Each primitive applies to the entry referred to by the 
+   uniqueIdentifier in the enclosing ReplicationUpdate extended 
+   operation. 
+    
+   Each primitive carries a ChangeSequenceNumber that is used by the 
+   consumer server to correctly resolve update conflicts. [URP] 
+   describes the update reconciliation procedures. 
+    
+6.3.2.1.  AddEntryPrimitive 
+
+   The AddEntryPrimitive is used to add a new entry. 
+    
+         AddEntryPrimitive ::= [APPLICATION 0] SEQUENCE { 
+            csn         ChangeSequenceNumber, 
+            superior    UniqueIdentifier, 
+            rdn         RelativeLDAPDN 
+         } 
+    
+   Parameters of the AddEntryPrimitive are: 
+    
+      - csn: The change sequence number of the primitive. 
+       
+      - superior: The unique identifier of the superior (parent) entry. 
+       
+      - rdn: The relative distinguished name of the new entry. 
+       
+6.3.2.2.  MoveEntryPrimitive 
+
+   The MoveEntryPrimitive is used to move an entry to a new location in 
+   the DIT. 
+    
+
+McMeeking               Expires September 2003               [Page 11] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+         MoveEntryPrimitive ::= [APPLICATION 1] SEQUENCE { 
+            csn       ChangeSequenceNumber, 
+            superior  UniqueIdentifier 
+         } 
+    
+   Parameters of the MoveEntryPrimitive are: 
+    
+      - csn: The change sequence number of the primitive. 
+       
+      - superior: The unique identifier of the new superior (parent) 
+        entry. 
+    
+6.3.2.3.  RenameEntryPrimitive 
+    
+   The RenameEntryPrimitive is used to change the RDN of an entry. 
+    
+         RenameEntryPrimitive ::= [APPLICATION 2] SEQUENCE { 
+            csn   ChangeSequenceNumber, 
+            rdn   RelativeLDAPDN 
+         } 
+    
+   Parameters of the RenameEntryPrimitive are: 
+    
+      - csn: The change sequence number of the primitive. 
+       
+      - rdn: The new relative distinguished name of the entry. 
+    
+6.3.2.4.  RemoveEntryPrimitive 
+
+   The RemoveEntryPrimitive is used to delete an entry from the DIT. 
+    
+         RemoveEntryPrimitive ::= [APPLICATION 3] SEQUENCE { 
+            csn  ChangeSequenceNumber 
+         } 
+    
+   Parameters of the RemoveEntryPrimitive are: 
+    
+      - csn: The change sequence number of the primitive. 
+    
+6.3.2.5.  AddAttributeValuePrimitive 
+
+   The AddAttributeValuePrimitive is use to add a new attribute value 
+   to an entry. 
+    
+         AddAttributeValuePrimitive ::= [APPLICATION 4] SEQUENCE { 
+            csn     ChangeSequenceNumber, 
+            type    AttributeDescription, 
+            value   AttributeValue 
+         } 
+McMeeking               Expires September 2003               [Page 12] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+    
+   Parameters of the AddAttributeValuePrimitive are: 
+    
+      - csn: The change sequence number of the primitive. 
+       
+      - type: The type of the attribute being added. 
+       
+      - value: The value being added. Multiple values are not 
+        permitted. 
+    
+   Multiple added values are represented multiple primitives. 
+    
+6.3.2.6.  RemoveAttributeValuePrimitive 
+
+   The RemoveAttributeValuePrimitive is used to remove a particular 
+   attribute value from an entry. 
+    
+         RemoveAttributeValuePrimitive ::= [APPLICATION 5] SEQUENCE { 
+            csn      ChangeSequenceNumber, 
+            type     AttributeDescription, 
+            value    AttributeValue 
+         } 
+    
+   Parameters of the RemoveAttributeValuePrimitive are: 
+    
+      - csn: The change sequence number of the primitive. 
+       
+      - type: The type of the attribute being removed. 
+       
+      - value: The value being removed. Multiple values are not 
+        permitted. 
+    
+   Multiple removed values are represented using multiple primitives. 
+    
+6.3.2.7.  RemoveAttributePrimitive 
+
+   The RemoveAttributePrimitive is used to remove an attribute and all 
+   its values from an entry. 
+    
+         RemoveAttributePrimitive ::= [APPLICATION 6] SEQUENCE { 
+            csn    ChangeSequenceNumber, 
+            type   AttributeDescription 
+         } 
+    
+   Parameters of the RemoveAttributePrimitive are: 
+    
+      - csn: The change sequence number of the primitive. 
+       
+      - type: The type of the attribute being removed. 
+McMeeking               Expires September 2003               [Page 13] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+ 
+6.4.   endGroupingRequest Extended Operation 
+
+   The endGroupingRequest extended operation is sent from the 
+   replication supplier to the replication consumer to indicate the end 
+   of the sequence of replication updates. In the event that the 
+   supplier is sending a total update, the endGroupingRequest extended 
+   operation contains a replica update vector. The consumer server must 
+   replace its replica update vector, if present, with the one provided 
+   by the supplier. In the event that the supplier is sending an 
+   incremental update, the replica update vector is absent. 
+    
+   The endGroupingRequest extended operation is defined in section 
+   2.3.1 of [GROUPING]. 
+    
+   The endGroupCookie of the endGroupingRequestValue must be the cookie 
+   identifying this instance of the LDAP Replication grouping type. 
+    
+   The endGroupValue of the endGroupingRequestValue must be set to the 
+   BER-encoding of the following: 
+    
+         endGroupValue ::= endReplGroupReqValue 
+       
+         endReplGroupReqValue ::= SEQUENCE { 
+            returnConsumerUpdateVector BOOLEAN, 
+            replicaUpdateVector        Attribute OPTIONAL 
+         } 
+    
+   If returnConsumerUpdateVector is TRUE, the consumer server must 
+   return its current update vector to the supplier in the 
+   EndReplicationResponse extended operation. Typically, the supplier 
+   will request the consumer's update vector for read-only replicas, 
+   since the read-only replica will never initiate a replication 
+   session, and will therefore never have the opportunity to provide 
+   its update vector to other servers. 
+    
+6.5.   endGroupingResponse Extended Response 
+
+   The endGroupingResponse extended response is sent by a consumer to a 
+   supplier in response to an endGroupingRequest extended operation. 
+    
+   The endGroupingResponse extended response is defined in section 
+   2.3.2 of [GROUPING]. 
+    
+   The endGroupValue of the endGroupingResponseValue must be set to the 
+   BER-encoding of the following: 
+    
+         endGroupValue ::= endReplGroupRespValue 
+       
+         endReplGroupRespValue ::= SEQUENCE { 
+             replicaUpdateVector    Attribute OPTIONAL 
+McMeeking               Expires September 2003               [Page 14] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+         } 
+    
+   The replicaUpdateVector contains the consumer's current replica 
+   update vector, and is optional. The consumer server MUST send the 
+   replicaUpdateVector if requested by the supplier server in the 
+   EndReplicationRequest extended operation. 
+ 
+6.6.   ReplicationUpdateResponse Extended Response 
+
+   The ReplicationUpdateResponse extended response is sent in response 
+   to each ReplicationUpdate extended request. 
+    
+   The responseName of the ReplicationUpdateResponse is the 
+   ReplicationUpdate extended request OID. 
+    
+   The response field of the ReplicationUpdateResponse is not used. 
+    
+   LDAP response codes that apply to the ReplicationUpdateResponse are 
+   defined in section 9. 
+    
+6.7.   ReplicationUpdateNotice Extended Response 
+
+   The ReplicationUpdateNotice is an LDAP unsolicited notification sent 
+   by a consumer to a supplier when the consumer wishes to inform the 
+   supplier of committed results or tell the supplier to stop sending 
+   updates.  The notice is an extended response where: 
+    
+   The responseName of the ReplicationUpdateNotice is the OID LDUP-
+   OID.3.3.2. 
+    
+   The response field of the ReplicationUpdateNotice is set to the BER-
+   encoding of the following: 
+    
+         response ::= replicationUpdateNotice 
+       
+         replicationUpdateNotice ::= SEQUENCE { 
+            replicaUpdateVector  Attribute OPTIONAL 
+            abortUpdate          BOOLEAN OPTIONAL DEFAULT FALSE 
+         } 
+    
+   The parameters of the ReplicationUpdateNotice are: 
+    
+      - replicaUpdateVector: an optional update vector.  If sent, this 
+        indicates that the consumer has committed all updates whose 
+        CSNs are covered by the transmitted update vector [see glossary 
+        for a definition of "covered by"]. 
+      - abortUpdate: an optional Boolean flag.  If a supplier receives 
+        a ReplicationUpdateNotice from a consumer with the AbortUpdate 
+        flag set to true, the supplier server MUST immediately cease 
+        sending updates and terminate its connection to the consumer. 
+
+McMeeking               Expires September 2003               [Page 15] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+    
+   Each ReplicationUpdateNotice extended response MUST be accompanied 
+   by a groupingControl control identifying the replication session to 
+   which the ReplicationUpdateNotice applies. The groupingControl 
+   control is defined in section 2.7 of [GROUPING]. The groupingCookie 
+   of the groupingControlValue contains the group cookie returned in 
+   the createGroupingResponse. The groupValue of the 
+   groupingControlValue is not present. 
+    
+7.  Semantics of Full and Incremental Update protocols 
+
+   The full and incremental update protocols are very similar.  In the 
+   full update protocol, the replication session is initiated in the 
+   same manner as prescribed above for either supplier-initiated or 
+   consumer-initiated replication.  In the full update protocol, the 
+   consumer's update vector is assumed to be set to times "earlier 
+   than" the oldest times known to the supplier server.  The supplier 
+   server then begins by sending addEntryPrimitive protocol elements 
+   for each entry in the replication area, starting from the top of the 
+   tree and moving deeper into the tree.  If any entry's attributes 
+   have been modified since the add operation, 
+   addAttributeValuePrimitive and removeAttributeValuePrimitive 
+   operations are also sent to bring the consumer's view of an entry 
+   (including change sequence number information) up to date with the 
+   supplier's knowledge about each entry. 
+    
+   The order of entries sent SHOULD be: 
+    
+      - "highest" entries in the tree sent prior to "lower" entries 
+        (ancestors sent before parents). 
+      - replication topology "subentries" sent prior to any other 
+        entries in the DIT, sent in a "breadth-first" order 
+      - other entries in the DIT, sent in a "breadth-first" order 
+    
+   This order allows "ancestor" entries to be seen by the consumer 
+   before child entries, thus reducing the chances that the 
+   lostAndFound entry will need to be used during processing of a full 
+   update protocol. 
+    
+   A incremental update replication session SHOULD be requested by the 
+   consumer shortly after the completion of the full update replication 
+   session to ensure a timely update of entries in the replica for 
+   updates made while the full replication protocol was taking place. 
+    
+   In the incremental update protocol, note that it is desirable that 
+   within an entry, update replication primitives are sent in change 
+   sequence number order (per replica on which the change was made) to 
+   reduce the processing on the consumer side.  While this is not 
+   required, it is recommended. 
+ 
+
+
+McMeeking               Expires September 2003               [Page 16] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+8.  Semantics of the LDAP Replication Grouping Type 
+
+   In addition to the operational semantics in section 4 of [GROUPING] 
+   that are applicable to all grouping types, the following semantics 
+   apply to the LDAP Replication grouping type: 
+    
+      - The LDAP Replication grouping type MUST NOT be nested. 
+       
+      - Operations that do not belong to the current instance of the 
+        LDAP Replication grouping type SHALL NOT be sent between the 
+        createGroupingRequest and the receipt of the 
+        endGroupingResponse.  In effect, this means that a replication 
+        session (as framed by the createGroupingRequest and its 
+        corresponding endGroupingRequest) has exclusive use of the LDAP 
+        connection. 
+    
+9.  Summary of response codes 
+
+   The following list describes the response codes that may be included 
+   in the createGroupingResponse and ReplicationUpdateResponse extended 
+   responses. 
+    
+       resultCode  ENUMERATED { 
+           success                           (0), 
+           operationsError                   (1), 
+           protocolError                     (2), 
+           insufficientAccessRights         (50), 
+           busy                             (51), 
+           excessiveCSNSkew    ([IANA-assigned]), 
+           other                            (80) 
+       } 
+    
+   The meanings of the response codes are as follows: 
+    
+   success..................... As defined in [LDAPv3]. 
+   operationsError............. As defined in [LDAPv3]. 
+   protocolError............... As defined in [LDAPv3]. 
+   insufficientAccessRights.... Access denied. The identity that 
+                                the initiator provided in the bind 
+                                request does not have sufficient 
+                                privileges to perform the operation. 
+   busy........................ The replica is temporarily unable to 
+                                accept updates. 
+   excessiveCSNSkew............ The consumer server has detected that 
+                                the CSNs being generated by the  
+                                supplier are too small (perhaps 
+                                because the supplier's clock was set 
+                                back). Updates from the supplier 
+                                will not be applied. 
+   other....................... Some other error occurred. 
+ 
+McMeeking               Expires September 2003               [Page 17] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+10. Security Considerations 
+
+   Given the authority necessarily granted to perform replication and 
+   the sensitive nature of data that is replicated, replication SHOULD 
+   be done using an authentication method and security layer that 
+   protects the authentication credentials and ensures both the 
+   integrity and confidentiality of the replicated data [AUTHMETH]. 
+    
+   Error message returned is listed as 'permission denied' regardless 
+   of why request couldn't be performed, e.g. so that a client cannot 
+   discover what replicas exist or identity that cannot perform 
+   replication. 
+    
+11. IANA Considerations 
+
+   This document lists several values that are to be assigned by or 
+   registered with IANA. 
+    
+   The following LDAP result code is to be assigned by IANA as 
+   described in section 3.6 of [RFC3383]: 
+    
+      excessiveCSNSkew 
+    
+   The following Object Identifier [OID] is to be assigned by IANA as 
+   described in section 3.1 of [RFC3383]: 
+    
+      LDUP-OID 
+    
+   This OID is used by various LDUP documents to generate OID for 
+   object classes, attribute types, control and extended requests as 
+   follows: 
+    
+      - [INFOMOD] generates OIDs from the OID arc LDUP-OID.1. 
+       
+      - [MRM] generates OIDs from the OID arc LDUP-OID.2. 
+       
+      - This document generates OIDs from the OID arc LDUP-OID.3. 
+    
+   The following LDAP protocol elements are to be registered with IANA 
+   as described in section 3.2 of [RFC3383]. 
+    
+   Name                            Type  OID 
+   ------------------------------  ----  ------------- 
+   LDAP Replication Grouping Type  G     LDUP-OID.3.1.1 
+   ReplicationUpdate               E     LDUP-OID.3.3.1 
+    
+   Legend: 
+   ------- 
+   E => supportedExtension 
+   G => supportedGroupingType 
+    
+
+McMeeking               Expires September 2003               [Page 18] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+12. Acknowledgements 
+
+   The author would like to thank previous authors of this document, 
+   Gordon Good, America Online, Roger Harrison, Novell, Inc., Ellen 
+   Stokes and Timothy Hahn, IBM Corporation, and members of the LDUP 
+   working group for their significant contributions to this document. 
+    
+13. References 
+
+   [ARCHITECTURE] 
+     J. Merrells, E. Reed, U. Srinivasan, "LDAP Replication 
+     Architecture", Internet-Draft, draft-ietf-ldup-model-xx.txt, a 
+     work in progress. 
+    
+   [AUTHMETH] 
+     Wahl, M., Alvestrand, H., Hodges, J. and R. Morgan, 
+     "Authentication Methods for LDAP", RFC 2829, May 2000. 
+    
+   [CSN] 
+     J. Sermersheim, "The LDAP Change Sequence Number Syntax and 
+     Matching Rules", Internet-Draft, draft-sermersheim-ldap-csn- 
+     xx.txt, a work in progress. 
+    
+   [ENTRYUUID] 
+     K. Zeilenga, "The LDAP entryuuid operational attribute", Internet- 
+     Draft, draft-zeilenga-ldap-uuid-xx.txt, a work in progress. 
+      
+   [GROUPING] 
+     K. Zeilenga, "LDAPv3: Grouping of Related Operations", Internet-
+     Draft, draft-zeilenga-ldap-grouping-xx.txt, a work in progress. 
+    
+   [INFOMOD] 
+     R. Huber, J. McMeeking, R. Moats, "LDAP Replication Information 
+     Model", Internet-Draft, draft-ietf-ldup-infomod-xx.txt, a work in 
+     progress. 
+    
+   [KEYWORDS] 
+     S. Bradner, "Key Words for use in RFCs to Indicate Requirement 
+     Levels", Harvard University, RFC 2119, March 1997. 
+    
+   [LDAPv3] 
+     M. Wahl, S. Kille, T. Howes, "Lightweight Directory Access 
+     Protocol (v3)", RFC 2251, December 1997. 
+    
+   [MRM] 
+     R. Moats, R. Huber, J. McMeeking, "Mandatory LDAP Replica 
+     Management", Internet-Draft, draft-ietf-ldup-mrm-xx.txt, a work in 
+     progress. 
+    
+
+
+
+McMeeking               Expires September 2003               [Page 19] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+   [REQ] 
+     E. Stokes, R. Weiser, R. Moats, R. Huber, "Lightweight Directory 
+     Access Protocol (version 3) Replication Requirements", RFC 3384, 
+     October 2002. 
+    
+   [URP] 
+     S. Legg, A. Payne, "LDUP Update Reconciliation Procedures", 
+     Internet-Draft, draft-ietf-ldup-urp-xx.txt, a work in progress. 
+    
+14. Author's Addresses 
+
+   John McMeeking 
+   IBM Corporation 
+   Rochester, MN 
+   USA 
+   Email: jmcmeek@us.ibm.com 
+   phone: +1 507 253 4596 
+    
+15. Appendix A - Complete ASN.1 Definition 
+
+      createReplGroupReqValue ::= SEQUENCE { 
+          areaOfReplication      LDAPDN, 
+          replicaID              LDAPString, 
+          replicationProtocolOID LDAPOID, 
+          replicationInitiator   ENUMERATED 
+          { 
+              supplier (0), 
+              consumer (1) 
+          } 
+          replicaIDTable SEQUENCE OPTIONAL { 
+              tableLength   INTEGER 
+              table SEQUENCE OF SEQUENCE { 
+                  replicaID    LDAPString, 
+                  replicaUUID  LDAPString 
+              } 
+          } 
+      } 
+       
+      createReplGroupRespValue ::= SEQUENCE { 
+          replicaUpdateVector   Attribute OPTIONAL, 
+      } 
+       
+      replicationUpdateRequestValue ::= SEQUENCE { 
+          uniqueID  UniqueIdentifier, 
+          updates   SET OF ReplicationPrimitive 
+      } 
+       
+      UniqueIdentifier ::= LDAPString 
+
+McMeeking               Expires September 2003               [Page 20] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+       
+      ReplicationPrimitive ::= CHOICE { 
+          addEntryPrimitive              AddEntryPrimitive, 
+          moveEntryPrimitive             MoveEntryPrimitive, 
+          renameEntryPrimitive           RenameEntryPrimitive, 
+          removeEntryPrimitive           RemoveEntryPrimitive, 
+          addAttributeValuePrimitive     AddAttributeValuePrimitive, 
+          removeAttributeValuePrimitive 
+                                         RemoveAttributeValuePrimitive, 
+          removeAttributePrimitive       RemoveAttributePrimitive 
+      } 
+       
+      AddEntryPrimitive ::= [APPLICATION 0] SEQUENCE { 
+          csn         ChangeSequenceNumber, 
+          superior    UniqueIdentifier, 
+          rdn         RelativeLDAPDN 
+      } 
+       
+      MoveEntryPrimitive ::= [APPLICATION 1] SEQUENCE { 
+          csn       ChangeSequenceNumber, 
+          superior  UniqueIdentifier 
+      } 
+       
+      RenameEntryPrimitive ::= [APPLICATION 2] SEQUENCE { 
+          csn   ChangeSequenceNumber, 
+          rdn   RelativeLDAPDN 
+      } 
+       
+      RemoveEntryPrimitive ::= [APPLICATION 3] SEQUENCE { 
+          csn  ChangeSequenceNumber 
+      } 
+       
+      AddAttributeValuePrimitive ::= [APPLICATION 4] SEQUENCE { 
+          csn     ChangeSequenceNumber, 
+          type    AttributeDescription, 
+          value   AttributeValue 
+      } 
+       
+      RemoveAttributeValuePrimitive ::= [APPLICATION 5] SEQUENCE { 
+          csn      ChangeSequenceNumber, 
+          type     AttributeDescription, 
+          value    AttributeValue 
+      } 
+       
+      RemoveAttributePrimitive ::= [APPLICATION 6] SEQUENCE { 
+          csn    ChangeSequenceNumber, 
+McMeeking               Expires September 2003               [Page 21] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+          type   AttributeDescription 
+      } 
+       
+      endReplGroupReqValue ::= SEQUENCE { 
+          returnConsumerUpdateVector BOOLEAN, 
+          replicaUpdateVector        Attribute OPTIONAL 
+      } 
+       
+      endReplGroupRespValue ::= SEQUENCE { 
+          replicaUpdateVector    Attribute OPTIONAL 
+      } 
+       
+      replicationUpdateNotice ::= SEQUENCE { 
+          replicaUpdateVector    Attribute OPTIONAL 
+          abortUpdate            BOOLEAN OPTIONAL DEFAULT FALSE 
+      } 
+    
+16. Intellectual Property Notice 
+
+   The IETF invites any interested party to bring to its attention any 
+   copyrights, patents or patent applications, or other proprietary 
+   rights which may cover technology that may be required to practice 
+   this standard.  Please address the information to the IETF Executive 
+   Director. 
+    
+17. Copyright Information  
+
+   Full Copyright Statement 
+    
+   Copyright (C) The Internet Society (2003).  All Rights Reserved. 
+    
+   This document and translations of it may be copied and furnished to 
+   others, and derivative works that comment on or otherwise explain it 
+   or assist in its implementation may be prepared, copied, published 
+   and distributed, in whole or in part, without restriction of any 
+   kind, provided that the above copyright notice and this paragraph 
+   are included on all such copies and derivative works.  However, this 
+   document itself may not be modified in any way, such as by removing 
+   the copyright notice or references to the Internet Society or other 
+   Internet organizations, except as needed for the purpose of develop- 
+   ing Internet standards in which case the procedures for copyrights 
+   defined in the Internet Standards process must be followed, or as 
+   required to translate it into languages other than English. 
+    
+   The limited permissions granted above are perpetual and will not be 
+   revoked by the Internet Society or its successors or assigns. 
+    
+   This document and the information contained herein is provided on an 
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING 
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING 
+McMeeking               Expires September 2003               [Page 22] 
+ 
+
+
+
+
+
+
+
+
+Internet Draft             LDUP Replication                 March 2003 
+                            Update Protocol 
+ 
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION 
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF 
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+McMeeking               Expires September 2003               [Page 23] 
+ 
+
+
+
+
+
+
+

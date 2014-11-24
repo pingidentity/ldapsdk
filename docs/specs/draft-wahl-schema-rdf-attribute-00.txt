@@ -1,0 +1,728 @@
+
+
+
+Network Working Group                                            M. Wahl
+Internet-Draft                                     Informed Control Inc.
+Intended status: Standards Track                             May 8, 2007
+Expires: November 9, 2007
+
+
+                   Identity Associated RDF Attribute
+                   draft-wahl-schema-rdf-attribute-00
+
+Status of this Memo
+
+   By submitting this Internet-Draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on November 9, 2007.
+
+Copyright Notice
+
+   Copyright (C) The IETF Trust (2007).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 1]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+Abstract
+
+   This specification defines an attribute of a user identity which
+   contains a set of statements expressed in the Resource Description
+   Framework and encoded in XML.  An encoding of the attribute is
+   defined for transport in the Lightweight Directory Access Protocol
+   (LDAP), in the Security Assertion Markup Language (SAML) and the
+   OpenID Attribute Exchange Protocol.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 2]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+1.  Introduction
+
+   In an identity metasystem [14], when an end user requests access to a
+   service, the network interactions for authenticating and authorizing
+   that user can involve three parties: a relying party, an identity
+   provider, and the end user.  The relying party is the network entity
+   which requires the identity of a user in order to make an access
+   control decision.  The identity provider is the network entity which
+   establishes the identity of the end user.
+
+   The Resource Description Framework (RDF) [2] is a general-purpose
+   language for representing information in the Web. In particular, RDF
+   is used to describe the metadata of attribute types in the OpenID
+   Attribute Exchange protocol [9], to describe people and relationships
+   in FOAF [12], and in the Higgins Trust Framework Eclipse Project [13]
+   to unify identity data description formats across multiple protocols.
+
+   An example of the data which might be described in FOAF is:
+
+   <foaf:Person>
+   <foaf:name>Joe Bloggs</foaf:name>
+   <foaf:mbox_sha1sum>24...2e</foaf:mbox_sha1sum>
+   <foaf:homepage rdf:resource="http://example.org/people/jb/" />
+   <foaf:img rdf:resource="http://example.org/people/jb/me.jpg" />
+   </foaf:Person>
+
+   An example of the data which might be described in Higgins is:
+
+   <pwf:Person rdf:about="urn:mary">
+   <pwf:friend rdf:resource="urn:sr-to-bob"/>
+   </pwf:Person>
+
+   <higgins:SubjectRelationship rdf:about="urn:sr-to-bob">
+   <higgins:contextURI rdf:datatype=&xsd;anyURI">
+   http://example.com/robertjones/public-business-card
+   </higgins:contextURI>
+   <higgins:subjectCUID>bob</higgins:subjectCUID>
+   </higgins:SubjectRelationship>
+
+   It is desirable for this information to be expressed in the RDF
+   syntax without needing to be translated to the attribute syntax of an
+   underlying transfer protocol, as such a transfer might lose the
+   semantics associated with the RDF definitions.
+
+   This specification defines an attribute of a user identity that is
+   intended for use in an identity metasystem, for an identity provider
+   to specify RDF triples associated with a user.
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 3]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+   The words "MUST", "SHOULD" and "MAY" are used as defined in RFC 2119
+   [1].
+
+   Please send comments to the author at mark.wahl@informed-control.com.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 4]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+2.  Attribute definition
+
+   This specification defines an attribute of a user identity that is
+   generated by an identity provider to specify associated RDF data of
+   the identity.
+
+2.1.  General Syntax
+
+   Attributes of this type can contain one or more values, and each
+   value is a string encoded in UTF-8 containing an XML document.
+
+2.2.  Representation in LDAP
+
+   This attribute can be part of a user's entry held in a directory
+   server based on the LDAP [4] data model.  The schema definitions are
+   based on the LDAP directory information models [5].
+
+   The attribute type is defined as follows (with lines wrapped for
+   readability):
+
+   attributeTypes: ( 1.3.6.1.4.1.21008.97.74.3.1
+                     NAME 'associatedRdf'
+                     EQUALITY caseExactMatch
+                     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+   The caseExactMatch and Directory String syntax are defined in RFC
+   4517 [6].
+
+2.2.1.  Base URI
+
+   While each entry in an LDAP directory has a URI [3] (an LDAP URI),
+   this URI might not useful for the subject of triples describing the
+   identity.  An RDF/XML document, if intended to be a value of an
+   attribute stored in an LDAP directory, MAY include a xml:base XML
+   attribute, as defined in the XML Base [11] document, that specifies a
+   base namespace.
+
+2.2.2.  Object class definition
+
+   In order to allow this class to be present on objects of many
+   different structural classes, an auxiliary object class is defined.
+
+       objectClasses: ( 1.3.6.1.4.1.21008.97.74.3.2
+                       NAME 'associatedRdfClass'
+                       AUXILIARY
+                       MAY ( associatedRdf ) )
+
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 5]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+   This auxiliary class might most usefully be combined with the person
+   object class.
+
+   Clients MUST NOT assume the absence of this class in an entry's
+   objectClass implies that the associatedRdf attribute is not present
+   in the entry, as this attribute might be part of a privately-defined
+   schema object class, or be provided through collective attributes.
+
+2.3.  Representation as a SAML 1.1 attribute
+
+   This attribute can be expressed as a SAML 1.1 attribute.  The
+   attribute is represented as if it is translated from LDAP to SAML 1.1
+   using the method described in the MAC-Dir SAML Attribute Profile [7].
+
+   In this representation, the SAML attribute name is
+
+      urn:oid:1.3.6.1.4.1.21008.97.74.3.1
+
+   The AttributeNamespace is
+
+      urn:mace:shibboleth:1.0:attributeNamespace:uri
+
+2.4.  Representation as a SAML 2.0 attribute
+
+   This attribute can be expressed as a SAML 2.0 attribute.  The
+   attribute is represented as if it is translated from LDAP to SAML 2.0
+   using the method described in the SAML V2.0 X.500/LDAP Attribute
+   Profile [8].
+
+   In this representation, the SAML attribute name is
+
+      urn:oid:1.3.6.1.4.1.21008.97.74.3.1
+
+   The FriendlyName is "associatedRdf".
+
+   The attribute NameFormat is
+
+      urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+
+2.5.  Representation in OpenID Attribute Exchange
+
+   This attribute can be transferred using the OpenID Attribute Exchange
+   protocol [9].
+
+   The attribute type identifier URI is
+
+   http://www.ldap.com/1/schema/ardf/ardf.rdf#associatedRdf
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 6]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+   The data format URI is still to be determined (TBD).
+
+
+   The data type of a value is an XML document.
+
+
+2.6.  Representation as an Information Card claim
+
+   This attribute can be expressed as an Information Card claim [10].
+   This encoding is still under development (TBD).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 7]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+3.  Security Considerations
+
+   This section is still under development (TBD).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 8]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+4.  IANA Considerations
+
+   The LDAP attribute and object class defined in this specification
+   will be registered with IANA.
+
+      Subject: Request for LDAP Descriptor Registration
+      Descriptor (short name): associatedRdf
+      Object Identifier: 1.3.6.1.4.1.21008.97.74.3.1
+      Person & email address to contact for further information:
+      Mark Wahl <Mark.Wahl@informed-control.com>
+      Usage: attribute type
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+
+
+      Subject: Request for LDAP Descriptor Registration
+      Descriptor (short name): associatedRdfClass
+      Object Identifier: 1.3.6.1.4.1.21008.97.74.3.2
+      Person & email address to contact for further information:
+      Mark Wahl <Mark.Wahl@informed-control.com>
+      Usage: object class
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007                [Page 9]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+5.  References
+
+5.1.  Normative References
+
+   [1]   Bradner, S., "Key words for use in RFCs to Indicate Requirement
+         Levels", RFC 2119, BCP 14, March 1997.
+
+   [2]   Beckett, D., "RDF/XML Syntax Specification (Revised)",
+         February 2004.
+
+   [3]   Berners-Lee, T., "Uniform Resource Identifier (URI): Generic
+         Syntax", RFC 1738, STD 66, January 2005.
+
+   [4]   Zeilenga, K., "Lightweight Directory Access Protocol (LDAP):
+         Technical Specification Road Map", RFC 4510, June 2006.
+
+   [5]   Zeilenga, K., "Lightweight Directory Access Protocol (LDAP):
+         Directory Information Models", RFC 4512, June 2006.
+
+   [6]   Legg, S., "LDAP: Syntaxes and Matching Rules", RFC 4517,
+         June 2006.
+
+   [7]   Cantor, S. and K. Hazelton, "MACE-Dir SAML Attribute Profile",
+         April 2006.
+
+   [8]   Cantor, S., "SAML V2.0 X.500/LDAP Attribute Profile",
+         December 2006.
+
+   [9]   Hardt, D. and J. Bufu, "OpenID Attribute Exchange 1.0 - Draft
+         4", January 2007.
+
+   [10]  Nanda, A., "A Technical Reference for the Information Card
+         Profile V1.0", December 2006.
+
+   [11]  Marsh, J., "XML Base", June 2001.
+
+5.2.  Informative References
+
+   [12]  Brickley, D. and L. Miller, "FOAF Vocabulary Specification",
+         July 2005.
+
+   [13]  "Higgins Trust Framework Project Home".
+
+   [14]  Microsoft Corporation, "Microsoft's Vision for an Identity
+         Metasystem", May 2005.
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007               [Page 10]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+Appendix A.  Copyright
+
+   Copyright (C) The IETF Trust (2007).  This document is subject to the
+   rights, licenses and restrictions contained in BCP 78, and except as
+   set forth therein, the authors retain all their rights.  This
+   document and the information contained herein are provided on an "AS
+   IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS OR
+   IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007               [Page 11]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+Author's Address
+
+   Mark Wahl
+   Informed Control Inc.
+   PO Box 90626
+   Austin, TX  78709
+   US
+
+   Email: mark.wahl@informed-control.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                    Expires November 9, 2007               [Page 12]
+
+Internet-Draft      Identity Associated RDF Attribute           May 2007
+
+
+Full Copyright Statement
+
+   Copyright (C) The IETF Trust (2007).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+
+Acknowledgment
+
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
+
+
+
+
+
+Wahl                    Expires November 9, 2007               [Page 13]
+

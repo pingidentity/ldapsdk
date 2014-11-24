@@ -1,0 +1,560 @@
+
+
+
+Network Working Group                                            M. Wahl
+Internet-Draft                                     Informed Control Inc.
+Intended status: Standards Track                       December 12, 2006
+Expires: June 15, 2007
+
+
+                 LDAP Subtree Data Source URI Attribute
+                   draft-wahl-ldap-subtree-source-01
+
+Status of this Memo
+
+   By submitting this Internet-Draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on June 15, 2007.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2006).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 1]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+Abstract
+
+   This document defines an attribute that enables administrative
+   clients using the Lightweight Directory Access Protocol (LDAP) to
+   determine the source of directory entries.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 2]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+1.  Introduction
+
+   This document defines an optional attribute for use in LDAP [1] to
+   indicate the source of data in a directory server naming context.
+
+   In many organizations, the user data entries which can be obtained
+   via LDAP from a directory service are not mastered in that directory
+   service, but are made available by translation from another directory
+   service format or database format.  This translation function is
+   typically provided by virtual directory and meta directory
+   implementations.
+
+   Administrative clients which are managing a distributed directory
+   service deployment might need to determine whether the directory
+   server they are communicating with holds directory data which is
+   predominately mastered in an external service.  If that external
+   service were to become unavailable, the directory server might itself
+   become unavailable, or hold outdated information.
+
+   This document defines an attribute that SHOULD be used when a naming
+   context in a directory server's directory information tree is
+   constructed from information obtained from an external network
+   resource, such as another directory server using a different schema,
+   or a database.
+
+   This attribute SHOULD NOT be used to represent directory replication
+   topology, as other attributes are defined for this purpose.
+
+   This attribute SHOULD NOT be used to indicate another directory
+   server which provides substantially identical directory service as
+   this server, as the altServer root DSE attribute has already been
+   defined for that purpose [2].
+
+   This attribute SHOULD NOT be used in situations where only a few,
+   optional, attributes of each directory entry are obtained by the
+   directory server from an external data source (e.g. a status
+   attribute).  Determining the sources of these attributes is out of
+   scope for this specification.
+
+   The words "MUST", "SHOULD" and "MAY" are used as defined in RFC 2119
+   [3].
+
+   Please send comments to the author at mark.wahl@informed-control.com.
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 3]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+2.  Subtree data source attribute
+
+   The subtreeDataSourceURI attribute is defined to be placed at the
+   base of a naming context, or other subtree context, in which the
+   entries at or subordinate to the entry containing this attribute are
+   being generated based on one or more external data sources.
+
+   The attribute is defined as follows (with lines wrapped for
+   readability):
+
+     ( 1.3.6.1.4.1.21008.97.74.2.1 NAME 'subtreeDataSourceURI'
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+      EQUALITY caseExactMatch
+      USAGE directoryOperation )
+
+   This attribute can contain one or more values, and each value is a
+   URI [4].  Each URI is encoded using the Directory string syntax.  The
+   caseExactMatch and Directory String syntax are defined in RFC 4517
+   [5].
+
+   Unlike the labeledURI attribute [6], these values do not have a
+   label.
+
+   In many implementations, the URI might be of the LDAP or HTTP [7]
+   forms.
+
+   This document only specifies how a client can read this attribute.
+   Some servers MAY support updating this attribute over protocol,
+   subject to access control, however for many servers it is anticipated
+   that the values of this attribute would be configured through the
+   server's out-of-band management interface, such as in a configuration
+   file.  The semantics of comparison of values of this attribute for
+   equality is outside of the scope of this document.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 4]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+3.  Security Considerations
+
+   The subtreeDataSourceURI attribute SHOULD be protected by access
+   control, and SHOULD NOT be accessible to clients which are not
+   administrative tools authenticated to the directory service.
+
+   It is expected that the administrative tools accessing this directory
+   will need to obtain authentication credentials to access the external
+   data source through out of band means.  The URIs in values in the
+   subtreeDataSourceURI attribute SHOULD NOT contain authentication
+   credentials, such as passwords.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 5]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+4.  IANA Considerations
+
+   This attribute will be registered as follows:
+
+      Subject: Request for LDAP Descriptor Registration
+
+      Descriptor: subtreeDataSourceURI
+
+      Object Identifier: 1.3.6.1.4.1.21008.97.74.2.1
+
+      Person & email address to contact for further information:
+      Mark Wahl <Mark.Wahl@informed-control.com>
+
+      Usage: attribute type
+
+      Specification: (I-D) RFC XXXX
+
+      Author/Change Controller: Mark Wahl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 6]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+5.  References
+
+5.1.  Normative References
+
+   [1]  Zeilenga, K., "Lightweight Directory Access Protocol (LDAP):
+        Technical Specification Road Map", RFC 4510, June 2006.
+
+   [2]  Zeilenga, K., "Lightweight Directory Access Protocol (LDAP):
+        Directory Information Models", RFC 4512, June 2006.
+
+   [3]  Bradner, S., "Key words for use in RFCs to Indicate Requirement
+        Levels", RFC 2119, BCP 14, March 1997.
+
+   [4]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+        Resource Identifier (URI): Generic Syntax", RFC 3986,
+        January 2005.
+
+   [5]  Legg, S., "Lightweight Directory Access Protocol (LDAP):
+        Syntaxes and Matching Rules", RFC 4517, June 2006.
+
+5.2.  Informative References
+
+   [6]  Smith, M., "Definition of an X.500 Attribute Type and Object
+        Class to Hold Uniform Resource Identifiers (URIs)", RFC 2079.
+
+   [7]  "Hypertext Transfer Protocol -- HTTP/1.1", RFC 2616, June 1999.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 7]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+Appendix A.  Copyright
+
+   Copyright (C) The Internet Society 2006.  This document is subject to
+   the rights, licenses and restrictions contained in BCP 78, and except
+   as set forth therein, the authors retain all their rights.  This
+   document and the information contained herein are provided on an "AS
+   IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS OR
+   IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 8]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+Author's Address
+
+   Mark Wahl
+   Informed Control Inc.
+   PO Box 90626
+   Austin, TX  78709
+   US
+
+   Email: mark.wahl@informed-control.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 9]
+
+Internet-Draft   LDAP Subtree Data Source URI Attribute    December 2006
+
+
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2006).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+
+Acknowledgment
+
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
+
+
+
+
+
+Wahl                      Expires June 15, 2007                [Page 10]
+

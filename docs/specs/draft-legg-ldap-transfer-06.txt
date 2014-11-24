@@ -1,0 +1,675 @@
+
+
+
+
+
+
+INTERNET-DRAFT                                                   S. Legg
+draft-legg-ldap-transfer-06.txt                                  eB2Bcom
+Intended status: Experimental                          21 September 2007
+
+
+             Lightweight Directory Access Protocol (LDAP):
+                       Transfer Encoding Options
+
+Status of This Memo
+
+   By submitting this Internet-Draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as
+   Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress".
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/1id-abstracts.html
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html
+
+   Technical discussion of this document should take place on the LDAP
+   extensions mailing list <ldapext@ietf.org>.  Please send editorial
+   comments directly to the editor <steven.legg@eb2bcom.com>.
+
+   This Internet-Draft expires on 21 March 2008.
+
+Copyright Notice
+
+   Copyright (C) The IETF Trust (2007).
+
+Abstract
+
+   Each attribute stored in a Lightweight Directory Access Protocol
+   (LDAP) directory has a defined syntax (i.e., data type).  A syntax
+   definition specifies how attribute values conforming to the syntax
+   are normally represented when transferred in LDAP operations.  This
+   representation is referred to as the LDAP-specific encoding to
+
+
+
+Legg                      Expires 21 March 2008                 [Page 1]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+   distinguish it from other methods of encoding attribute values.  This
+   document introduces a new category of attribute options, called
+   transfer encoding options, that can be used to specify that the
+   associated attribute values are encoded according to one of these
+   other methods.
+
+Table of Contents
+
+   1. Introduction ....................................................2
+   2. Conventions .....................................................2
+   3. Transfer Encoding Options .......................................3
+   4. Defined Transfer Encoding Options ...............................4
+   5. Attributes Returned in a Search .................................5
+   6. Syntaxes Requiring Binary Transfer ..............................7
+   7. Security Considerations .........................................7
+   8. IANA Considerations .............................................7
+   9. References ......................................................9
+      9.1. Normative References .......................................9
+      9.2. Informative References ....................................10
+
+1.  Introduction
+
+   Each attribute stored in a Lightweight Directory Access Protocol
+   (LDAP) directory [LDAP] has a defined syntax (i.e., data type) that
+   constrains the structure and format of its values.
+
+   The description of each syntax [SYNTAX] specifies how attribute or
+   assertion values [MODELS] conforming to the syntax are normally
+   represented when transferred in LDAP operations [PROT].  This
+   representation is referred to as the LDAP-specific encoding to
+   distinguish it from other methods of encoding attribute values.
+
+   This document introduces a new category of attribute options
+   [MODELS], called transfer encoding options, that allow attribute and
+   assertion values to be transferred using an alternative method of
+   encoding.  This document defines several transfer encoding options
+   that can be used in an attribute description [MODELS] in an LDAP
+   operation to specify that the associated attribute values or
+   assertion value are, or are requested to be, encoded according to
+   specific Abstract Syntax Notation One (ASN.1) [X.680] encoding rules,
+   instead of the usual LDAP-specific encoding.  One option in
+   particular allows Extensible Markup Language (XML) [XML10] [XML11]
+   encodings.
+
+2.  Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and  "OPTIONAL" in this
+
+
+
+Legg                      Expires 21 March 2008                 [Page 2]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+   document are to be interpreted as described in BCP 14, RFC 2119
+   [BCP14].
+
+   This specification makes use of definitions from the XML Information
+   Set (Infoset) [INFOSET].  In particular, information item property
+   names follow the Infoset convention of being shown in square
+   brackets, e.g., [local name].
+
+3.  Transfer Encoding Options
+
+   Transfer encoding options enable attribute and assertion values to be
+   transferred using an alternative method of encoding to the default
+   LDAP-specific encoding.  In fact, some attribute and assertion
+   syntaxes do not have a defined LDAP-specific encoding, in which case
+   the only way values of those syntaxes can be transferred is by using
+   an alternative encoding.
+
+   The binary option [BINARY] is not formally regarded as a transfer
+   encoding option, though it has much in common with transfer encoding
+   options.  The requirements governing the use of transfer encoding
+   options do not apply to the binary option.  The requirements
+   governing the use of the binary option are described elsewhere
+   [BINARY].
+
+   In terms of the protocol [PROT], a transfer encoding option specifies
+   that the contents octets of an associated AttributeValue or
+   AssertionValue OCTET STRING are a complete encoding of the relevant
+   value according to the encoding method specified by the option.
+
+   Where a transfer encoding option is present in an attribute
+   description, the associated attribute values or assertion value MUST
+   be encoded according to the encoding method corresponding to the
+   option.  In the absence of a transfer encoding option, the usual
+   encoding for LDAP applies, i.e., the LDAP-specific encoding, or a
+   Basic Encoding Rules (BER) [X.690] encoding if the binary option is
+   present.  Note that it is possible for a syntax to be defined such
+   that its LDAP-specific encoding is exactly the same as its encoding
+   according to some transfer encoding option (e.g., the LDAP-specific
+   encoding might be defined to be the same as the Generic String
+   Encoding Rules (GSER) [GSER] encoding).
+
+   Transfer encoding options are mutually exclusive.  An attribute
+   description SHALL NOT contain more than one transfer encoding option,
+   and SHALL NOT contain both a transfer encoding option and the binary
+   option.
+
+   Transfer encoding options are not tagging options [MODELS], so the
+   presence of a transfer encoding option does not specify an attribute
+
+
+
+Legg                      Expires 21 March 2008                 [Page 3]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+   subtype.  An attribute description containing a transfer encoding
+   option references exactly the same attribute as the attribute
+   description with the transfer encoding option removed.  The
+   supertype/subtype relationships of attributes with tagging options
+   are not altered in any way by the presence or absence of transfer
+   encoding options.
+
+   An attribute description SHALL be treated as unrecognized if it
+   contains a transfer encoding option and the syntax of the attribute
+   does not have an associated ASN.1 type [SYNTAX], or if the nominated
+   encoding is not supported for that ASN.1 type.
+
+   The presence or absence of a transfer encoding option only affects
+   the transfer of attribute and assertion values in the protocol;
+   servers store any particular attribute value in a format of their
+   choosing.
+
+4.  Defined Transfer Encoding Options
+
+   The attribute option string "transfer-ber" specifies that the
+   associated attribute values or assertion value are, or are requested
+   to be, encoded according to BER [X.690].  This option is similar to
+   the binary option [BINARY], however servers are more restricted in
+   when they can use "transfer-ber", which leads to more predictability
+   in the results returned to clients that request "transfer-ber".
+
+   The attribute option string "transfer-der" specifies that the
+   associated attribute values or assertion value are, or are requested
+   to be, encoded according to the Distinguished Encoding Rules (DER)
+   [X.690].
+
+   The attribute option string "transfer-gser" specifies that the
+   associated attribute values or assertion value are, or are requested
+   to be, encoded according to GSER [GSER] [GSEREI].
+
+   The attribute option string "transfer-rxer" specifies that the
+   associated attribute values or assertion value are, or are requested
+   to be, encoded according to the Robust XML Encoding Rules (RXER)
+   [RXER] [RXEREI] as a Standalone RXER Encoding with the
+   DirectoryString ASN.1 type amended by the inclusion of an RXER UNION
+   encoding instruction as described in the specification for the XML-
+   Enabled Directory (XED) [XED] protocols [XLDAP].
+
+      Aside: The Standalone RXER Encoding of an attribute or assertion
+      value is an XML document [XML10] [XML11] where the root element
+      (i.e., the [document element] of the document information item)
+      has the [local name] "value", and no value for the
+      [namespace name] or [prefix].  The RXER encoding of the attribute
+
+
+
+Legg                      Expires 21 March 2008                 [Page 4]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+      or assertion value, an ASN.1 abstract value, is not the root
+      element as such, but rather the content of that root element.
+      When the abstract value appears in an XML Lightweight Directory
+      Access Protocol (XLDAP) [XLDAP] operation, the [local name] of the
+      encapsulating element is determined from the surrounding context.
+      A directory attribute value in an XLDAP operation is also
+      encapsulated in an element information item with the [local name]
+      "value"; however, this is coincidental.  An assertion value in an
+      AttributeValueAssertion is encapsulated in an element information
+      item with the [local name] "assertionValue".  An assertion value
+      in a SubstringFilter is encapsulated in an element information
+      item with the [local name] "initial", "any" or "final", as
+      appropriate.  An assertion value in a MatchingRuleAssertion is
+      encapsulated in an element information item with the [local name]
+      "matchValue".
+
+   The attribute option string "transfer-crxer" specifies that the
+   associated attribute values or assertion value are, or are requested
+   to be, encoded according to Canonical RXER (CRXER) [RXER] as a
+   Standalone CRXER Encoding with the DirectoryString ASN.1 type amended
+   as described in the specification for the XED protocols [XLDAP].
+
+   Note that, like all attribute options, the strings representing
+   transfer encoding options are case insensitive.
+
+   All future registrations of option strings for transfer encoding
+   options should use the "transfer-" prefix so that LDAP clients and
+   servers can recognize that an option is a transfer encoding option
+   even though the particular encoding rules may be unrecognized.
+
+5.  Attributes Returned in a Search
+
+   An LDAP search request [PROT] contains a list of the attributes (here
+   called the requested attributes list) to be returned from each entry
+   matching the search filter.  An attribute description in the
+   requested attributes list also implicitly requests all subtypes of
+   the attribute type in the attribute description, whether through
+   attribute subtyping or attribute tagging option subtyping [MODELS].
+
+   The requested attributes list MAY contain attribute descriptions with
+   a transfer encoding option, but MUST NOT contain two attribute
+   descriptions with the same attribute type and the same tagging
+   options (even if only one of them has a transfer encoding option).  A
+   transfer encoding option in an attribute description in the requested
+   attributes list implicitly applies to the subtypes of the attribute
+   type in the attribute description.
+
+   Note that if the list of attributes in a search request is empty, or
+
+
+
+Legg                      Expires 21 March 2008                 [Page 5]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+   contains the special attribute description string "*" [PROT], then
+   all user attributes are requested to be returned.
+
+   In general, it is possible for a particular attribute to be
+   explicitly requested by an attribute description and/or implicitly
+   requested by the attribute descriptions of one or more of its
+   supertypes and/or the special attribute description string "*".  In
+   such cases, the effective transfer encoding option for a particular
+   requested attribute is determined by the transfer encoding option (or
+   absence thereof) in the most specific attribute description (in the
+   requested attributes list) that applies to the attribute.  The most
+   specific attribute description is determined by the following cases:
+
+   (1) An applicable attribute description with an actual attribute type
+       is more specific than the special attribute description string
+       "*".
+
+   (2) If the attribute type of one applicable attribute description is
+       a direct or indirect subtype of the attribute type in another
+       applicable attribute description, then the former attribute
+       description is more specific than the latter attribute
+       description.
+
+   (3) If two applicable attribute descriptions have the same attribute
+       type, and the tagging options of one attribute description are a
+       superset of the tagging options of the other attribute
+       description, then the former attribute description is more
+       specific than the latter attribute description.
+
+   If an attribute is requested with a particular effective transfer
+   encoding option, then the attribute SHALL NOT be returned with a
+   different transfer encoding option, or with no transfer encoding
+   option, in its attribute description.  Recall from Section 3 that
+   when a transfer encoding option is present in an attribute
+   description, the associated attribute values must be encoded
+   according to the encoding method corresponding to the option.  If for
+   any reason an attribute value cannot be encoded according to the
+   requested transfer encoding, then the value MUST be omitted from the
+   result.
+
+   If an attribute is requested with no effective transfer encoding
+   option, then the attribute SHALL NOT be returned with a transfer
+   encoding option in its attribute description.  This does not preclude
+   the attribute being returned with the binary option in its attribute
+   description.
+
+   Regardless of the encoding chosen, a particular attribute value is
+   returned at most once.
+
+
+
+Legg                      Expires 21 March 2008                 [Page 6]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+6.  Syntaxes Requiring Binary Transfer
+
+   Certain syntaxes are defined without an LDAP-specific encoding, and
+   are required to be transferred in the BER encoded form.  These
+   syntaxes are said to have a binary transfer requirement.  The
+   certificate, certificate list, certificate pair, and supported
+   algorithm syntaxes [PKI] are examples of syntaxes with a binary
+   transfer requirement.  These syntaxes also have an additional
+   requirement that the exact BER encoding must be preserved.  Note that
+   this is a property of the syntaxes themselves, and not a property of
+   the binary option or any of the transfer encoding options.
+
+   Transfer encoding options SHALL take precedence over the requirement
+   for binary transfer.  For example, if the effective transfer encoding
+   option is "transfer-gser", then attribute values of a syntax with a
+   binary transfer requirement will be GSER encoded instead (if they
+   appear at all).  In the absence of a transfer encoding option, the
+   normal rules on binary transfer and the use of the binary option
+   SHALL apply.
+
+7.  Security Considerations
+
+   There is a requirement on some attribute syntaxes [PKI] that the
+   exact BER encoding of values of those syntaxes must be preserved.  In
+   general, a transformation from the BER encoding into some other
+   encoding (e.g., GSER) and back into the BER encoding will not
+   necessarily reproduce exactly the octets of the original BER
+   encoding.  Applications needing the original BER encoding, e.g., for
+   the verification of digital signatures, MUST NOT request attributes
+   of such syntaxes using an explicit or implicit transfer encoding
+   option.  Directory servers MUST NOT use a transfer encoding option
+   when exporting attributes of such syntaxes (e.g., into an LDIF file
+   [LDIF]) if those attributes might later be imported into the same or
+   another directory server.
+
+   When interpreting security-sensitive fields, and in particular fields
+   used to grant or deny access, implementations MUST ensure that any
+   matching rule comparisons are done on the underlying abstract value,
+   regardless of the particular encoding used.
+
+8.  IANA Considerations
+
+   The Internet Assigned Numbers Authority (IANA) is requested to update
+   the LDAP attribute description option registry [BCP64] as indicated
+   by the following templates:
+
+      Subject: Request for
+        LDAP Attribute Description Option Registration
+
+
+
+Legg                      Expires 21 March 2008                 [Page 7]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+      Option Name: transfer-ber
+      Family of Options: NO
+      Person & email address to contact for further information:
+        Steven Legg <steven.legg@eb2bcom.com>
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+      Subject: Request for
+        LDAP Attribute Description Option Registration
+      Option Name: transfer-der
+      Family of Options: NO
+      Person & email address to contact for further information:
+        Steven Legg <steven.legg@eb2bcom.com>
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+      Subject: Request for
+        LDAP Attribute Description Option Registration
+      Option Name: transfer-gser
+      Family of Options: NO
+      Person & email address to contact for further information:
+        Steven Legg <steven.legg@eb2bcom.com>
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+      Subject: Request for
+        LDAP Attribute Description Option Registration
+      Option Name: transfer-rxer
+      Family of Options: NO
+      Person & email address to contact for further information:
+        Steven Legg <steven.legg@eb2bcom.com>
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+      Subject: Request for
+        LDAP Attribute Description Option Registration
+      Option Name: transfer-crxer
+      Family of Options: NO
+      Person & email address to contact for further information:
+        Steven Legg <steven.legg@eb2bcom.com>
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+
+
+
+Legg                      Expires 21 March 2008                 [Page 8]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+9.  References
+
+9.1.  Normative References
+
+   [BCP14]    Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [GSER]     Legg, S., "Generic String Encoding Rules (GSER) for ASN.1
+              Types", RFC 3641, October 2003.
+
+   [LDAP]     Zeilenga, K., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510, June
+              2006.
+
+   [PROT]     Sermersheim, J., Ed., "Lightweight Directory Access
+              Protocol (LDAP): The Protocol", RFC 4511, June 2006.
+
+   [MODELS]   Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512, June
+              2006.
+
+   [SYNTAX]   Legg, S., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Syntaxes and Matching Rules", RFC 4517, June 2006.
+
+   [BCP64]    Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
+              Considerations for the Lightweight Directory Access
+              Protocol (LDAP)", BCP 64, RFC 4520, June 2006.
+
+   [BINARY]   Legg, S., "Lightweight Directory Access Protocol (LDAP):
+              The Binary Encoding Option", RFC 4522, June 2006.
+
+   [PKI]      Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP) Schema Definitions for X.509 Certificates", RFC
+              4523, June 2006.
+
+   [GSEREI]   Legg, S., "Encoding Instructions for the Generic String
+              Encoding Rules (GSER)", RFC 4792, January 2007.
+
+   [RXER]     Legg, S. and D. Prager, "Robust XML Encoding Rules (RXER)
+              for Abstract Syntax Notation One (ASN.1)", RFC 4910, July
+              2007.
+
+   [RXEREI]   Legg, S., "Encoding Instructions for the Robust XML
+              Encoding Rules (RXER)", RFC 4911, July 2007.
+
+   [XLDAP]    Legg, S. and D. Prager, "The XML-Enabled Directory:
+              Protocols", draft-legg-xed-protocols-05.txt, a work in
+              progress, August 2007.
+
+
+
+Legg                      Expires 21 March 2008                 [Page 9]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+   [X.680]    ITU-T Recommendation X.680 (07/02) | ISO/IEC 8824-1,
+              Information technology - Abstract Syntax Notation One
+              (ASN.1): Specification of basic notation.
+
+   [X.690]    ITU-T Recommendation X.690 (07/02) | ISO/IEC 8825-1,
+              Information technology - ASN.1 encoding rules:
+              Specification of Basic Encoding Rules (BER), Canonical
+              Encoding Rules (CER) and Distinguished Encoding Rules
+              (DER).
+
+   [XML10]    Bray, T., Paoli, J., Sperberg-McQueen, C., Maler, E. and
+              F. Yergeau, "Extensible Markup Language (XML) 1.0 (Fourth
+              Edition)", W3C Recommendation,
+              http://www.w3.org/TR/2006/REC-xml-20060816, August 2006.
+
+   [XML11]    Bray, T., Paoli, J., Sperberg-McQueen, C., Maler, E.,
+              Yergeau, F., and J. Cowan, "Extensible Markup Language
+              (XML) 1.1 (Second Edition)", W3C Recommendation,
+              http://www.w3.org/TR/2006/REC-xml11-20060816, August 2006.
+
+   [INFOSET]  Cowan, J. and R. Tobin, "XML Information Set (Second
+              Edition)", W3C Recommendation,
+              http://www.w3.org/TR/2004/REC-xml-infoset-20040204,
+              February 2004.
+
+9.2.  Informative References
+
+   [LDIF]     Good, G., "The LDAP Data Interchange Format (LDIF) -
+              Technical Specification", RFC 2849, June 2000.
+
+   [XED]      Legg, S. and D. Prager, "The XML-Enabled Directory",
+              draft-legg-xed-roadmap-06.txt, a work in progress, August
+              2007.
+
+Author's Address
+
+   Steven Legg
+   eB2Bcom
+   Suite 1, 85-87 Charles Street
+   Kew, Victoria 3101
+   AUSTRALIA
+
+   Phone: +61 3 9851 8630
+     Fax: +61 3 9851 8601
+   Email: steven.legg@eb2bcom.com
+
+Full Copyright Statement
+
+
+
+
+Legg                      Expires 21 March 2008                [Page 10]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+   Copyright (C) The IETF Trust (2007).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+Note to the RFC Editor: the remainder of this document is to be removed
+before final publication.
+
+Changes in Draft 01
+
+   A transfer encoding option for RXER has been added.
+
+Changes in Draft 02
+
+   The local name of the root element of the XML document representing
+
+
+
+Legg                      Expires 21 March 2008                [Page 11]
+
+INTERNET-DRAFT       LDAP: Transfer Encoding Options  September 21, 2007
+
+
+   an attribute value encoded according to the transfer-rxer encoding
+   option has been changed from "item" to "value" to align with
+   revisions to the LDAP protocol specification [PROT].
+
+   The Directory XML Encoding Rules (DXER) have been renamed to the
+   Robust XML Encoding Rules (RXER).
+
+Changes in Draft 03
+
+   The special attribute description strings that consist of the
+   asterisk character followed by a transfer encoding option, e.g.,
+   "*;transfer-ber", "*;transfer-gser", have been removed from this
+   specification.  An LDAP control will be defined in a separate
+   document to provide equivalent functionality.
+
+Changes in Draft 04
+
+   The [local name] of the root element for RXER encoded assertion
+   values has been changed to "value" in all cases, for the sake of
+   simplicity.
+
+   A transfer encoding option for Canonical RXER has been defined.
+
+Changes in Draft 05
+
+   The references have been updated to the new LDAPv3 technical
+   specification.
+
+Changes in Draft 06
+
+   This specification has been downgraded from an intended category of
+   Proposed Standard to Experimental because the RXER specification on
+   which it depends is in the Experimental category.
+
+   XED's application of the RXER UNION encoding instruction to the
+   DirectoryString ASN.1 type has been acknowledged.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Legg                      Expires 21 March 2008                [Page 12]
+

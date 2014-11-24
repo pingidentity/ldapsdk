@@ -1,0 +1,854 @@
+
+
+
+
+
+
+INTERNET-DRAFT                                          K. N. Vijay
+Intended Category: Informational                        Novell Inc.
+Expires: 17th July 2001                             17th January 2001
+
+                  The LDAP Client Caching Proxy Model
+           <draft-knvijay-ldapext-clientcachingproxy-01.txt>
+
+
+Status of this Memo
+
+This document is an Internet-Draft and is in full conformance with all
+provisions of Section 10 of RFC2026.
+
+Internet-Drafts are working documents of the Internet Engineering Task
+Force (IETF), its areas, and its working groups. Note that other groups
+may also distribute working documents as Internet-Drafts. Internet-
+Drafts are draft documents valid for a maximum of six months and may be
+updated, replaced, or obsoleted by other documents at any time. It is
+inappropriate to use Internet- Drafts as reference material or to cite
+them other than as "work in progress."
+
+The list of current Internet-Drafts can be accessed at
+http://www.ietf.org/ietf/1id-abstracts.txt
+
+The list of Internet-Draft Shadow Directories can be accessed at
+http://www.ietf.org/shadow.html.
+
+This Internet Draft expires July 17, 2001.
+
+   Abstract
+
+   This document describes an LDAP "caching proxy" model for use on
+   mobile clients. The caching proxy speeds up LDAP accesses by caching
+   objects and makes LDAP directory content available in offline mode,
+   enabling offline execution of directory-enabled applications. It
+   includes a description of the model and identifies LDAP control
+   extensions for proxy operation, cache-control & cache-management.
+
+   Conventions used in this document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC-2119.
+
+1. Introduction
+
+   LDAP clients have traditionally been able to access directory
+   information from LDAP servers in online, networked mode alone. With
+   increasing adoption of LDAP as the standard protocol for accessing
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 1]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   directory information, both within corporate networks and on the
+   Internet, there is a growing need for LDAP caching proxy solutions to
+   improve availability and speed-up access to directory content.
+
+   Simultaneously, the user community with mobile PC's has been growing
+   exponentially. With increasing number of mobile users, it is
+   essential to provide better LDAP support for mobile clients (such as
+   notebooks, laptops). This can be accomplished by enabling offline
+   access to LDAP content, through support for a light-weight LDAP
+   caching proxy on the mobile client.
+
+   A directory typically manages and publishes information which is
+   subject to frequent accesses and infrequent updates. A caching proxy
+   solution is ideally suited for such an environment. A client-based
+   caching proxy allows mobile users to access cached LDAP content on
+   the client and run LDAP applications, even in an offline mode. The
+   caching proxy speeds up LDAP accesses when used in connected or
+   online mode.
+
+   This document describes a model for an LDAP caching proxy on a mobile
+   client.  It discusses mechanisms that allow LDAP clients to operate
+   off a caching proxy and allow LDAP clients to control caching &
+   management of LDAP objects within the caching proxy. This draft
+   complements recent drafts like the LDAP Client Update Protocol [LCUP]
+   which discuss how a client can synchronize LDAP content cached on
+   mobile clients with remote LDAP Servers.
+
+2. The LDAP "Caching Proxy on the Client" Model:
+
+           Mobile client
+    +-------------------------+
+    |    .+---------------+   |
+    :   . | LDAP Client-n |   :
+    |  +---------------+  |   |
+    :  | LDAP          |--+   :
+    |  |      Client-1 | .    |
+    :  +---------------+.     :
+    |     ^   |   LDAP (with Proxy & Cache      +----------------------+
+    :     |...|         Control Extensions)   . | Origin LDAP Server-n |
+    |     v   v               |              .  +----------------------+
+    : +--------------------+  :             +----------------------+ .
+    | | LDAP     | LDAP    |  | LDAP,LCUP +-+--------------------+ |.
+    : | Server   | Client  |<------------>| Origin LDAP Server-1 |-+
+    | |[LDAP Caching Proxy]|  |           +----------------------+
+    : +--------------------+  :
+    +-------------------------+
+
+     Figure 1: LDAP Caching Proxy on the client: An LDAP Proxy component
+                    between LDAP Clients and remote LDAP Servers
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 2]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   The LDAP Caching Proxy is a component residing on the client that
+   operates as an intermediary between the LDAP client and the remote
+   LDAP Server(s), as shown in the figure above. LDAP accesses from LDAP
+   clients are directed to the LDAP caching proxy, which fetches LDAP
+   objects from remote LDAP Server(s), caches objects and serves them to
+   the LDAP clients.
+
+
+3. LDAPv3 Control Extensions for Proxy Operation:
+
+   This section identifies LDAPv3 Control extensions that allow LDAP
+   clients to specify proxy information.
+
+   3.1 proxyServerBind Controls:
+
+   The proxyServerBind control allows an LDAP client to specify the
+   remote LDAP server to be contacted. This control is included in the
+   Bind Request sent to the LDAP caching proxy.
+
+   3.1.1 proxyServerBindRequest Control
+
+   This control is included in the LDAP Bind Request message as part of
+   the controls field of LDAPMessage. The criticality SHOULD be set to
+   TRUE.  The controlValue is an OCTET STRING, whose value is the BER
+   encoding of the following type:
+
+        proxyServerBindRequest ::= SEQUENCE
+        {
+           serverName        LDAPSTRING
+           serverPort        INTEGER DEFAULT 389
+           disconnectedMode  BOOLEAN DEFAULT FALSE
+        }
+
+   serverName - the domain name or the IP address of the origin LDAP
+     server.
+
+   serverPort - the Port number to bind to on the origin LDAP server.
+     This field has a default value of 389.
+
+   disconnectedMode - if this field is set to TRUE, the LDAP caching
+     proxy SHOULD service requests from the local cache for this LDAP
+     session, without contacting the remote LDAP server. This feature
+     allows implementing a 'logical disconnected mode' operation. It is
+     useful when a mobile user is offline and wishes to operate entirely
+     off the local caching proxy on his client without attempting to
+     contact the remote LDAP server.
+
+   The LDAP client initiates a session with the caching proxy by
+   including this control in the Bind Request. The default value for
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 3]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   disconnectedMode field is FALSE (i.e. the client wishes to operate in
+   online mode).
+
+   When the disconnectedMode field is FALSE, the caching proxy SHALL
+   attempt to bind to the origin server. The caching proxy SHALL use the
+   same authentication method, identity and credentials (as provided by
+   the LDAP client in its Bind Request to the LDAP caching proxy), to
+   bind to the remote server.
+
+   Authentication methods identified in [authMethods] SHOULD be
+   supported by the LDAP Proxy cache. Anonymous authentication (section
+   5.1), anonymous authentication with TLS (section 5.2), Password-based
+   authentication methods including simple authentication, and Digest
+   authentication (section 6.1) and "simple" authentication under TLS
+   encryption (section 6.2) as defined in [authMethods] MUST be
+   supported by the LDAP caching proxy. In all these cases, the LDAP
+   caching proxy SHALL use the authentication method and credentials
+   provided by the LDAP client for authentication to the remote server.
+
+   If this is the first time the LDAP client is accessing the remote
+   server via the caching proxy, the caching proxy shall first attempt
+   to authenticate to the remote server. Once the caching proxy has
+   successfully authenticated to the remote server, it SHALL store the
+   authentication method, the identity and the authentication
+   information used by the LDAP client to bind to the caching proxy. The
+   authentication information stored will not contain the actual
+   authentication credentials but will enable the caching proxy to
+   verify them in offline mode. (This could be in the form of a message
+   digest or a crypto strength one-way hash of the password in case of
+   simple authentication). The LDAP client is expected to authenticate
+   to the caching proxy using the same mechanism and credentials for
+   subsequent sessions involving the remote LDAP server. If the caching
+   proxy has already cached objects from the specified remote LDAP
+   Server earlier using an authenticated session, it MAY authenticate
+   the LDAP client, without contacting the remote LDAP Server.
+
+   Certificate-based authentication with TLS (section 7.1 in
+   [authMethods]) MAY also be supported by the LDAP Caching Proxy. In
+   this case, the caching proxy SHOULD be able to perform a certificate-
+   based authentication using its own certificate and request the access
+   privileges of the identity specified by the LDAP client (in its
+   authentication request to the caching proxy), by setting the
+   authorization identity to the specified user identity as part of the
+   SASL negotiations, discussed in [SASL].
+
+   The caching proxy SHOULD retain the proxyServerBindRequest control
+   parameters and setup a session with the origin server (if one is not
+   already active), whenever there is a cache-miss and/or the caching
+   proxy must contact the remote server to service the LDAP Client
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 4]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   request. The caching proxy MAY attempt to bind to one of the Shadow
+   servers, when the origin LDAP server is not accessible.
+
+   When the disconnectedMode field is set to TRUE, the caching proxy
+   SHALL authenticate the LDAP client and serve all requests from the
+   local cache.  In this case, the caching proxy SHOULD not contact the
+   remote LDAP server for this LDAP Session. The LDAP caching proxy
+   SHALL return unavailable in its BindResponse to the LDAP client, if
+   there are no objects cached from the specified remote LDAP Server.
+
+   Note that when operating off the caching proxy, an LDAPv3 client MUST
+   do an explicit LDAP Bind including the proxyServerBindRequest
+   control, even if it wishes to bind anonymously. This is necessary
+   since the caching proxy derives the proxy specification information
+   from the proxyServerBindRequest control to determine the origin
+   server.
+
+   3.1.2 proxyServerBindResponse Control
+
+   This control is included by the LDAP caching proxy server in its LDAP
+   Bind Response message.  The criticality SHALL be set to FALSE. The
+   controlValue is an OCTET STRING, whose value is the BER encoding of
+   the following type:
+
+         proxyServerBindResponse :: = SEQUENCE {
+           proxyServerBindResult ENUMERATED {
+           success (0),
+           operationsError (1),
+           protocolError (2),
+           authMethodNotSupported (7),
+           strongAuthRequired(8),
+           confidentialityRequired (13),
+           inappropriateAuthentication  (48),
+           invalidCredentials (49),
+           busy (51),
+           unavailable (52),
+           unwillingToPerform (53),
+           loopDetect (54),
+           other (80) },
+         }
+
+   The caching proxy SHALL include this control in the Bind Response
+   only when the disconnectedMode field in the proxyServerBindRequest
+   control is set to FALSE and the caching proxy needed to bind to the
+   origin server.
+
+   In response to the proxyServerBindRequest Control, the caching proxy
+   MAY attempt to bind to the origin server. The proxyServerBindResponse
+   control allows the caching proxy to inform the LDAP client about the
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 5]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   status of this bind operation. The caching proxy returns the result
+   of the LDAP client Bind Request operation in its BindResponse. If it
+   attempted a bind operation to the origin server (e.g. if this is
+   first time, the caching proxy is contacting the origin server), it
+   SHALL return the result of that bind operation in the
+   proxyServerBindResponse control.
+
+   If the origin server is not accessible, the caching proxy SHOULD
+   return unavailable in the proxyServerBindResponse.
+
+   Once the caching proxy has cached objects from the origin server, it
+   may need to setup a session with the origin server only on need basis
+   e.g. on a cache-miss or when an update operation is attempted. In
+   such cases, the caching proxy MAY include the proxyServerBindResponse
+   control along with the LDAPResult message corresponding to the LDAP
+   request that caused the caching proxy to contact the origin server.
+
+4. LDAPv3 Control Extensions for Cache Control and Management:
+
+   This section first describes the logic used by the caching proxy to
+   cache and refresh LDAP objects from the remote LDAP server. It then
+   identifies LDAP controls that enable an LDAP client to modify the
+   default caching logic by providing additional directives to the LDAP
+   caching proxy to control caching and to manage cached objects within
+   the caching proxy.
+
+   4.1 Caching logic used by the LDAP caching proxy:
+
+   The LDAP caching proxy shall use a default caching logic as follows:
+
+   Subtree and one-level search operations from the LDAP client SHALL be
+   redirected to the origin LDAP server in online mode and the results
+   relayed to the LDAP client without caching.  Base search operations
+   SHALL be attempted to be served from the cache. On a cache-miss, the
+   caching proxy SHALL fetch the object from the origin LDAP server and
+   return it to the LDAP client, while simultaneously caching the
+   object.  All mandatory attributes of the object and optional
+   attributes requested by the LDAP client SHALL be fetched and cached.
+   Results returned to the client, however, will be based on the
+   attributes and typesOnly filter specified in the search request. When
+   the origin server is not available (as in offline mode), all search
+   operations (including subtree and one-level) SHALL be performed off
+   the local cache. Update operations SHALL not be permitted in offline
+   mode.
+
+   The caching proxy SHALL group all entries accessed from a specific
+   LDAP server under a domain (cache-root) container which shall be
+   named using the domain name and port number of the remote LDAP
+   server. (Shadow servers as defined in [LDAPv3] and listed in the
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 6]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   "AltServers" RootDSE attribute on LDAPv3 servers MAY be cached within
+   the cache-root container.  Also, the list of shadow servers MAY be
+   used to create alias containers pointing to this container object).
+
+   Under this cache-root container, entries will be cached along with
+   the hierarchy upto the root of the naming context on the LDAP Server
+   i.e.  container objects present in the Distinguished Name of the
+   object SHALL be cached before the leaf object itself is cached.
+
+   4.2 Cache Refresh logic used by the LDAP Caching Proxy:
+
+   A caching proxy configuration policy SHALL determine when the LDAP
+   caching proxy refreshes cached objects. The caching proxy SHALL use
+   LDAP Client Update Protocol (discussed in [LCUP]) as the default
+   mechanism to refresh cached objects. Since, the LCUP specification is
+   still evolving, the caching proxy SHALL use the following cache
+   refresh logic in the interim till LCUP becomes a standard and is
+   deployed on LDAP servers.
+
+   The caching proxy SHOULD schedule an unconditional refresh of all
+   cached objects periodically (based on the caching proxy configuration
+   policy) to ensure that cached objects are in sync with the origin
+   server.
+
+   4.3 The LDAP Caching Proxy logic for handling Update Operations:
+
+   Update operations on cached objects SHALL be performed by the caching
+   proxy first on the origin server and then the cached object is
+   refreshed.  Offline updates SHALL be permitted only when it is
+   possible to cache access control information from the origin server
+   as defined in section 5. The scope of this draft is restricted to
+   mechanisms to implement a caching proxy that permits updates only in
+   online mode.
+
+
+   The following sections identify LDAPv3 Control extensions that allow
+   LDAP clients to provide Cache control and Cache management directives
+   to the LDAP caching proxy.
+
+   4.4 The proxyServerSearch Control:
+
+   The proxyServerSearch control allows the LDAP client to force a
+   search operation to be performed on the origin server and optionally
+   cache all entries returned as search results.
+
+   This control provides a mechanism that allows an LDAP client to
+   request the caching proxy to cache multiple objects. It also provides
+   a cache-override mechanism for the LDAP client to access an object
+   directly from the origin server (and not from the cache).
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 7]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   4.4.1 proxyServerSearchRequest Control
+
+   This control is included in the searchRequest message as part of the
+   controls field of the LDAPMessage. The criticality MAY be set to TRUE
+   or FALSE, in the absence of which the criticality defaults to TRUE.
+   The controlValue is an OCTET STRING, whose value is the BER encoding
+   of the following type:
+
+        proxyServerSearchRequest ::= SEQUENCE
+        {
+           cacheResults    BOOLEAN DEFAULT FALSE
+        }
+
+   cacheResults - if set to TRUE, the LDAP caching proxy SHOULD cache
+     all entries returned by the remote LDAP Server in response to the
+     Search request. If set to FALSE, the caching proxy SHOULD submit
+     the search request to the origin server and return the response
+     to the LDAP client without caching the results.
+
+   When this control is present, the caching proxy server SHOULD submit
+   the search request to the origin server (after removing the control)
+   and return all entries that match the search criteria and are
+   returned by the origin server as search results to the LDAP client.
+   If the cacheResults parameter is TRUE, the caching proxy SHALL
+   attempt to cache all entries returned by the remote server. This
+   control SHALL be applied to the scope set by the ldap_search
+   operation, i.e.  base, one-level or subtree.
+
+   This feature is useful when an LDAP client needs to cache multiple
+   objects returned by a sub-tree or one-level search without doing a
+   base-search individually on each object.
+
+   When objects are already present in the cache, this control
+   effectively allows the cached objects (within the scope of the
+   search) to be refreshed from the origin server, thereby providing a
+   means to the LDAP client to trigger a sync to occur. The search scope
+   allows the sync to be done selectively on a single object or a set of
+   objects.
+
+   With the cacheResults field set to TRUE, the client can use the
+   attribute filter in the Search request to sync specific attributes of
+   an object.
+
+   This control when associated with a base search provides a cache-
+   override mechanism allowing the LDAP client to force a base search to
+   be performed directly on and get the results from the origin server.
+   By setting the cacheResults field to FALSE, the client can do a base
+   search on the remote LDAP server and ensure that the search results
+   returned are those obtained directly from the remote server (and not
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 8]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   from the cache).
+
+   4.4.2 proxyServerSearchResponse Control:
+
+   This control MAY be included by the LDAP caching proxy server in its
+   LDAP SearchResultDone message. The criticality SHALL be set to FALSE.
+   The controlValue is an OCTET STRING, whose value is the BER encoding
+   of the following type:
+
+        proxyServerSearchResponse :: = SEQUENCE {
+              proxyServerSearchResult ENUMERATED {
+                success (0),
+                operationsError (1),
+                protocolError (2),
+                timeLimitExceeded (3),
+                sizeLimitExceeded (4),
+                strongAuthRequired(8),
+                noSuchAttribute(16),
+                undefinedAttributeType(17),
+                inappropriateMatching(18),
+                constraintViolation(19),
+                invalidAttributeSyntax (21),
+                noSuchObject (32),
+                aliasProblem (33),
+                invalidDNSyntax(34),
+                insufficientAccessRights (50),
+                busy (51),
+                unavailable (52),
+                unwillingToPerform (53),
+                namingViolation (64),
+                other (80) },
+           }
+
+   The proxyServerSearchResponse control is used by the caching proxy to
+   inform the LDAP client about the status of the search request
+   submitted to the remote LDAP Server. If the LDAP caching proxy is not
+   able to perform the search successfully on the remote LDAP Server, it
+   returns an OperationsError in its SearchResultDone message. The
+   proxyServerSearchResponse control provides the specific error that
+   occurred when the caching proxy attempted a search on the remote LDAP
+   server.
+
+   4.5 proxyServerUpdate Control:
+
+   The proxyServerUpdate Control provides a mechanism for the LDAP
+   Client to manage the cache - specifically to cleanup/remove objects
+   from the cache - by forcing an update operation to be performed
+   locally on the caching proxy.
+
+
+
+
+K. N. Vijay                 Expires July 2001                   [Page 9]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   This control is included in the DelRequest message as part of the
+   controls field of the LDAPMessage. The criticality is TRUE. The
+   ControlValue is NULL.
+
+   The caching proxy SHALL process the DelRequest request associated
+   with the proxyServerUpdate control only if the LDAP client has
+   authenticated as the same identity that was used to cache the
+   objects. Else it SHOULD return the insufficientAccessRights error in
+   the DelResponse.
+
+   When this control is present, the caching proxy server SHOULD perform
+   the delete operation locally within the cache i.e. if the object
+   identified by the DN in the DelRequest operation is present in the
+   cache and is a leaf entry, the caching proxy SHOULD delete the object
+   from the cache. The caching proxy MUST not attempt a remote update
+   operation, when this control is present.
+
+   This feature is useful when an LDAP client needs to cleanup objects
+   within the cache. It provides an escape mechanism that allows the
+   LDAP client to perform an operation locally within the cache, without
+   attempting the operation on the remote LDAP Server. Future revisions
+   of this draft will explore the utility of associating this control
+   with other LDAP update operations for better cache
+   control/management.
+
+5. Authentication and Access control to objects cached in the caching
+   proxy:
+
+   The LDAP caching proxy SHOULD use the identity and credentials
+   provided by the user to access LDAP objects from the remote LDAP
+   Server. When the caching proxy has successfully authenticated to the
+   remote LDAP server on behalf of the user for the first time, it SHALL
+   cache the object that the user has authenticated as to the origin
+   server. As discussed in section 3.1.1, the caching proxy SHALL also
+   store the authentication method and authentication information used
+   by the LDAP client to bind to the caching proxy.
+
+   Access to cached objects in subsequent sessions SHALL be permitted
+   only after the user has successfully authenticated to the caching
+   proxy as the identity originally used to cache information. This
+   ensures that the caching proxy preserves the origin server access
+   controls to cached LDAP content by permitting access only to the user
+   identity used to access and cache LDAP information from the origin
+   server. This however puts a restriction of the caching proxy
+   supporting only one identity with respect to each remote LDAP Server.
+
+   Updates to cached information SHALL be permitted only in Online mode
+   when the remote LDAP server is accessible, except when accompanied
+   with the proxyServerUpdate Control, discussed in section 4.5. The
+
+
+
+K. N. Vijay                 Expires July 2001                  [Page 10]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   caching proxy SHALL submit Update requests to the remote LDAP Server
+   and refresh the cached object when this operation has been
+   successfully completed. In effect, the update operation is performed
+   on the remote server and then the cached object is synchronized with
+   that on the remote server. The caching proxy SHALL return
+   unwillingToPerform, if an LDAP client attempts an update operation
+   (without the proxyServerUpdate control) in offline mode.
+
+   LDAP servers today use custom access control methods to determine
+   access rights to different objects for a subject DN. Standardization
+   of Access Control Model for LDAP [ACL] is in progress. Once the
+   access control model is standardized and implemented on LDAP Servers,
+   it should be possible to permit offline updates by caching effective
+   rights that the 'cache user identity' (the identity used by the user
+   to cache objects from the remote LDAP Server) has to the cached
+   objects. Future revisions of this draft will explore the possibility
+   of supporting offline updates.
+
+6. Schema support in the caching proxy:
+
+   The LDAP caching proxy SHALL support the base LDAP Schema defined in
+   RFC2256.  Object classes and attributes not supported by the LDAP
+   caching proxy shall be returned to the LDAP client as is in online
+   mode, without caching. The caching proxy schema MAY be extended by
+   the LDAP client to support new application specific schema
+   extensions.
+
+   The caching proxy MAY support intelligent schema learning wherein it
+   learns new object class and attribute definitions online when
+   accessing objects from the remote LDAP Server. Schema learning can be
+   supported when caching object from LDAPv3 servers by first performing
+   a RootDSE search to locate the the subschema entry DN and then doing
+   a base search on the subschema entry to retrieve the schema supported
+   on the server.
+
+   The caching proxy SHALL return a new 'cachedNamingContexts' attribute
+   upon a RootDSE search. This attribute value SHALL include a list of
+   LDAP servers and associated naming contexts from which objects have
+   been cached. This allows LDAP clients to query the caching proxy and
+   discover the LDAP servers and corresponding naming contexts from
+   which objects have been cached. Also, the supportedSASL mechanisms
+   RootDSE attribute on the caching proxy SHALL list the authentication
+   methods supported by the caching proxy for proxy authentication.
+
+7. Security Considerations
+
+   Security considerations primarily relate to the authentication and
+   access control to the cached objects. The LDAP caching proxy SHOULD
+   preserve the access control restrictions of the origin server by
+
+
+
+K. N. Vijay                 Expires July 2001                  [Page 11]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   restricting access to cached content to the client whose request
+   caused the objects to be cached.  This is covered in section 5 above.
+
+8.  Intellectual Property Rights Notices
+
+   The IETF takes no position regarding the validity or scope of any
+   intellectual property or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; neither does it represent that it
+   has made any effort to identify any such rights.  Information on the
+   IETF's procedures with respect to rights in standards-track and
+   standards-related documentation can be found in BCP-11.  Copies of
+   claims of rights made available for publication and any assurances of
+   licenses to be made available, or the result of an attempt made to
+   obtain a general license or permission for the use of such
+   proprietary rights by implementors or users of this specification can
+   be obtained from the IETF Secretariat.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights which may cover technology that may be required to practice
+   this standard.  Please address the information to the IETF Executive
+   Director.
+
+9.  Full Copyright Statement
+
+   Copyright (C) The Internet Society (2000).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+
+
+
+K. N. Vijay                 Expires July 2001                  [Page 12]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+10.  Acknowledgements
+
+   The author thanks Dinkar S., Ganesan R., Sachidanand M., Savitha R.,
+   S.K. Natarajan, Subramaniam K. V., Tejas Iyer and Hilarie Orman for
+   reviewing the draft and providing valuable inputs.
+
+   The author also thanks LDAP-EXT Working Group members Brain Jarvis
+   and Tim Hahn for their valuable comments on the first version of the
+   draft.
+
+11. References
+
+      [LDAPv3]
+      Wahl, M, S. Kille and T. Howes, "Lightweight Directory Access
+           Protocol (v3)", RFC 2251, December, 1997.
+
+      [KEYWORDS]  S. Bradner, "Keywords for use in RFCs to Indicate
+                  Requirement Levels", RFC 2119, March 1997.
+
+      [LCUP]
+      O. Natkovich, M. Smith, "LDAP Client Update Protocol", Internet
+           draft, February 2000
+
+      [authMethods]
+      M. Wahl, H. Alvestrand, J. Hodges, R. Morgan, "Authentication
+          Methods for LDAP", May 2000
+
+      [authPassword]
+      Kurt Zeilenga, "LDAP Authentication Password Attribute",
+          Internet draft, July 2000
+
+      [SASL]
+      Myers, J., "Simple Authentication and Security Layer (SASL)",
+          RFC 2222, October 1997.
+
+      [ACL]
+      E. Stokes, D. Byrne, B. Blakley, "Access Control Model for
+          LDAP" July, 2000.
+
+12. Author's Addresses
+
+   Comments regarding this draft may be sent to the author at the
+   following address
+
+          K. N. Vijay
+
+
+
+K. N. Vijay                 Expires July 2001                  [Page 13]
+
+
+
+
+
+INTERNET-DRAFT     The LDAP Client Caching Proxy Model      January 2001
+
+
+          Novell, Inc.
+          7th Mile, Hosur Road,
+          Bangalore 560 068
+          India
+
+          Phone: +91-80-5731858 Ext: 2002
+          Fax:   +91-80-5731870
+          Email : knvijay@novell.com
+
+   This Internet Draft expires July 17, 2001.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+K. N. Vijay                 Expires July 2001                  [Page 14]
+
+

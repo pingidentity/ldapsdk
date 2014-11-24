@@ -1,0 +1,1848 @@
+
+
+
+Network Working Group                                          Nagarajan
+Internet-Draft                                              Novell, Inc.
+Expires: November 18, 2005                                  May 17, 2005
+
+
+             Kerberos version 5 schema for LDAP Directories
+                  draft-rajasekaran-kerberos-schema-00
+
+Status of this Memo
+
+   By submitting this Internet-Draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on November 18, 2005.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2005).
+
+Abstract
+
+   This document describes a schema for storing Kerberos version 5
+   information in LDAP directories.  The information includes the
+   attributes and object classes that define realm, KDC, administration
+   server, password server, principal and policy.
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 1]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+Table of Contents
+
+   1.   Requirements notation  . . . . . . . . . . . . . . . . . . .   4
+   2.   Introduction . . . . . . . . . . . . . . . . . . . . . . . .   5
+   3.   Attributes Type Definitions  . . . . . . . . . . . . . . . .   6
+     3.1  krbPrincipalName . . . . . . . . . . . . . . . . . . . . .   6
+     3.2  krbPrincipalType . . . . . . . . . . . . . . . . . . . . .   6
+     3.3  krbSecretKey . . . . . . . . . . . . . . . . . . . . . . .   7
+     3.4  krbUPEnabled . . . . . . . . . . . . . . . . . . . . . . .   8
+     3.5  krbPrincipalExpiration . . . . . . . . . . . . . . . . . .   9
+     3.6  krbPolicyReference . . . . . . . . . . . . . . . . . . . .   9
+     3.7  krbTicketFlags . . . . . . . . . . . . . . . . . . . . . .  10
+     3.8  krbMaxTicketLife . . . . . . . . . . . . . . . . . . . . .  10
+     3.9  krbMaxRenewableAge . . . . . . . . . . . . . . . . . . . .  11
+     3.10   krbServiceFlags  . . . . . . . . . . . . . . . . . . . .  12
+     3.11   krbRealmReferences . . . . . . . . . . . . . . . . . . .  13
+     3.12   krbLdapServers . . . . . . . . . . . . . . . . . . . . .  13
+     3.13   krbSubTree . . . . . . . . . . . . . . . . . . . . . . .  13
+     3.14   krbKdcServers  . . . . . . . . . . . . . . . . . . . . .  14
+     3.15   krbAdmServers  . . . . . . . . . . . . . . . . . . . . .  14
+     3.16   krbPwdServers  . . . . . . . . . . . . . . . . . . . . .  15
+     3.17   krbSupportedEncTypes . . . . . . . . . . . . . . . . . .  15
+     3.18   krbSupportedSaltTypes  . . . . . . . . . . . . . . . . .  16
+     3.19   krbDefaultEncType  . . . . . . . . . . . . . . . . . . .  17
+     3.20   krbDefaultSaltType . . . . . . . . . . . . . . . . . . .  17
+     3.21   krbHostServer  . . . . . . . . . . . . . . . . . . . . .  18
+     3.22   krbSearchScope . . . . . . . . . . . . . . . . . . . . .  18
+     3.23   krbPrincNamingAttr . . . . . . . . . . . . . . . . . . .  18
+     3.24   krbMaxPwdLife  . . . . . . . . . . . . . . . . . . . . .  19
+     3.25   krbMinPwdLife  . . . . . . . . . . . . . . . . . . . . .  19
+     3.26   krbPwdMinDiffChars . . . . . . . . . . . . . . . . . . .  20
+     3.27   krbPwdMinLength  . . . . . . . . . . . . . . . . . . . .  20
+     3.28   krbPwdHistoryLength  . . . . . . . . . . . . . . . . . .  21
+     3.29   krbPwdPolicyRefCount . . . . . . . . . . . . . . . . . .  21
+     3.30   krbPwdPolicyReference  . . . . . . . . . . . . . . . . .  22
+   4.   Object Class Definitions . . . . . . . . . . . . . . . . . .  23
+     4.1  krbContainer . . . . . . . . . . . . . . . . . . . . . . .  23
+     4.2  krbRealmContainer  . . . . . . . . . . . . . . . . . . . .  23
+     4.3  krbService . . . . . . . . . . . . . . . . . . . . . . . .  24
+     4.4  krbKdcService  . . . . . . . . . . . . . . . . . . . . . .  24
+     4.5  krbAdmService  . . . . . . . . . . . . . . . . . . . . . .  25
+     4.6  krbPwdService  . . . . . . . . . . . . . . . . . . . . . .  25
+     4.7  krbPolicyAux . . . . . . . . . . . . . . . . . . . . . . .  25
+     4.8  krbPolicy  . . . . . . . . . . . . . . . . . . . . . . . .  25
+     4.9  krbPrincipalAux  . . . . . . . . . . . . . . . . . . . . .  26
+     4.10   krbPrincipal . . . . . . . . . . . . . . . . . . . . . .  26
+     4.11   krbPwdPolicy . . . . . . . . . . . . . . . . . . . . . .  27
+     4.12   krbPwdPolicyRefAux . . . . . . . . . . . . . . . . . . .  27
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 2]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   5.   IANA Considerations  . . . . . . . . . . . . . . . . . . . .  28
+     5.1  Object Identifier Registration . . . . . . . . . . . . . .  28
+     5.2  Object Identifier Descriptors  . . . . . . . . . . . . . .  28
+   6.   Security Considerations  . . . . . . . . . . . . . . . . . .  31
+   7.   References . . . . . . . . . . . . . . . . . . . . . . . . .  31
+        Author's Address . . . . . . . . . . . . . . . . . . . . . .  32
+        Intellectual Property and Copyright Statements . . . . . . .  33
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 3]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+1.  Requirements notation
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [RFC2119].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 4]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+2.  Introduction
+
+   This document defines LDAP schema elements for storing Kerberos
+   version 5 (see [draft-ietf-krb-wg-kerberos-clarifications-07] and
+   [RFC1510]) information in LDAP v3 compliant directories.  This
+   includes the attribute definitions, object classes, naming attributes
+   and containment rules for the Kerberos entities, namely realm, KDC,
+   administration server, password server, principal and policy.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 5]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+3.  Attributes Type Definitions
+
+   As the OIDs for the attributes in this document have not been
+   assigned,  IANA-ASSIGNED-OID has been used as a placeholder until
+   real OIDs are assigned.
+
+3.1  krbPrincipalName
+
+   This is the principal name in the format as specified in RFC 1510.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.1
+      NAME 'krbPrincipalName'
+      EQUALITY caseExactIA5Match
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
+
+   Used In:
+      krbPrincipalAux
+      krbPrincipal
+
+   Usage:
+      This attribute holds the principal identifier for the principal as
+      per the [RFC1510] specification.  This attribute value has to be
+      unique in the tree.  Since a user can have more than one Kerberos
+      names, this attribute is multi valued.
+
+   Values:
+      The set of allowed values for this attribute is based on the
+      principal identifier format that is specified in the [RFC1510]
+      section 7.  A principal identifier consists of the principal name
+      followed by the "@" symbol and then the realm name.
+
+
+3.2  krbPrincipalType
+
+   Holds the type of the principal.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.2
+      NAME 'krbPrincipalType'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPrincipal
+
+
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 6]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Usage:
+      This attribute is used to store the type of the principal.  A
+      popular example would be a principal of type user and a principal
+      of type service.  The distinction for various services is needed
+      to arrive at the types of tickets that can be issued for these
+      principals.
+
+   Values:
+      The values that this attribute can hold is specified in the
+      [RFC1510] in the section 7.2 and is also listed below,
+
+         NT_UNKNOWN      0
+         NT_PRINCIPAL    1
+         NT_SRV_INST     2
+         NT_SRV_HST      3
+         NT_SRV_XHST     4
+         NT_UID          5
+         X500_PRINCIPAL  6
+
+
+3.3  krbSecretKey
+
+   This attribute stores the secret key of a Kerberos user or service
+   principal.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.3
+      NAME 'krbSecretKey'
+      EQUALITY octetStringMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.40)
+
+   Used In:
+      krbPrincipalAux
+
+   Usage:
+      This attribute stores the principal's key encrypted with the
+      master key for the realm.
+      As the user can have multiple versions of the keys, this attribute
+      is a multivalued attribute.  Moreover, for each version, there may
+      be multiple values corresponding to the key / salt type pair.
+      The choice of which key to use, when ticket requests are made, is
+      determined by the choice of the key type in the request and the
+      availability of that key type for the principal in its set of
+      multi valued attribute.
+
+      The byte encoding is in the big endian format.
+
+      The format of the value for this attribute is explained below,
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 7]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+      *  At the beginning of the value, an index will be maintained
+         which contains length of principal name, number of keys for
+         this principal, and each key's type and its length
+
+      *  Following this index, actual data will be placed.  Format of
+         this complete structure is shown below.
+
+      First 2 bytes     Length of principal name (princNameLength)
+      Next 2 bytes      Current version of the principal key
+      Next 2 bytes      Version of the master key used to encrypt this
+      principal key
+      Next 4 bytes      Time when password was last chaged
+      Next 2 bytes      Number of keys for the principal (noOfKeys)
+      Next 2 bytes      Key type of the first key
+      Next 2 bytes      Length of the first key (keyLength[1])
+      Next 2 bytes      Salt type of the first key
+      Next 2 bytes      Salt Length of the first key (saltLength[1])
+      ... ... (other principals...)
+      Next 2 bytes      Key type of the last key (There will be
+      "noOfKeys" keys)
+      Next 2 bytes      Length of the last key  (keyLength[noOfKeys])
+      Next 2 bytes      Salt type of the last key (There will be
+      "noOfKeys" keys)
+      Next 2 bytes      Salt Length of the last key
+      (saltLength[noOfKeys])
+      Principal name (of princNameLength)
+      Principal's first key (of keyLength[1])
+      Principal's first salt (of saltLength[1])
+      ... ... (other principals...)
+      Principal's last key (of keyLength[noOfKeys])
+      Principal's last salt (saltLength[noOfKeys])
+
+
+3.4  krbUPEnabled
+
+   This attribute specifies whether to use the user password as the
+   Kerberos password or not.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.4
+      NAME 'krbUPEnabled'
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+      SINGLE-VALUE)
+
+   Used In:
+      krbPrincipalAux
+      krbRealmContainer
+
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 8]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Usage:
+      This attribute is used to store whether the password of a user or
+      the users in a realm has to be used as the Kerberos password or
+      not.
+
+   Values:
+      True: if user password has to be used as Kerberos password.
+      False: if Kerberos password is different from the users'
+      passwords.
+
+
+3.5  krbPrincipalExpiration
+
+   This attribute holds the time at which the principal expires.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.5
+      NAME 'krbPrincipalExpiration'
+      EQUALITY generalizedTimeMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+      SINGLE-VALUE)
+
+   Used In:
+      krbPrincipal
+
+   Usage:
+      This attribute is used to store the time at which a principal
+      expires.
+
+
+3.6  krbPolicyReference
+
+   Holds a reference to a Kerberos ticket policy.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.6
+      NAME 'krbPolicyReference'
+      EQUALITY distinguishedNameMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+      SINGLE-VALUE)
+
+   Used In:
+      krbPrincipalAux
+      krbRealmContainer
+      krbContainer
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005               [Page 9]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Usage:
+      Reference to a Kerberos ticket policy object.
+
+   Values:
+      DN of a kerberos policy object.
+
+
+3.7  krbTicketFlags
+
+   Holds the ticket flags that are allowed for a user or service.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.7
+      NAME 'krbTicketFlags'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPolicyAux
+
+   Usage:
+      This attribute stores the allowed ticket flags that can be
+      requested by a principal.  The [RFC1510] specified flags could be
+      found on page 43 and Page 51 of the RFC.  The stored bit flags are
+      interpreted by the code and translated to the [RFC1510] specific
+      format.
+
+   Values:
+      The allowed values and their interpretations as per the code are,
+
+         DISALLOW_POSTDATED    0x00000001
+         DISALLOW_FORWARDABLE  0x00000002
+         DISALLOW_TGT_BASED    0x00000004
+         DISALLOW_RENEWABLE    0x00000008
+         DISALLOW_PROXIABLE    0x00000010
+         DISALLOW_DUP_SKEY     0x00000020
+         DISALLOW_ALL_TIX      0x00000040
+         REQUIRES_PRE_AUTH     0x00000080
+         REQUIRES_HW_AUTH      0x00000100
+         REQUIRES_PWCHANGE     0x00000200
+         DISALLOW_SVR          0x00001000
+         PWCHANGE_SERVICE      0x00002000
+
+
+3.8  krbMaxTicketLife
+
+   Holds the maximum ticket lifetime for a principal in seconds.
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 10]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.8
+      NAME 'krbMaxTicketLife'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPolicyAux
+
+   Usage:
+      The maximum ticket lifetime for a principal in seconds is
+      maintained in this attribute.  The maximum ticket lifetime is
+      programmatically calculated by choosing the minimum of requested
+      ticket lifetime, service ticket lifetime, and principal ticket
+      lifetime.
+
+   Values:
+      The value stored in this attribute should correctly reflect the
+      number of seconds till which the ticket is valid.  The value may
+      need to be generated from a combination of weeks/days/hours/
+      minutes/seconds and the conversion of these needs to be made to
+      seconds and stored in the attribute.
+
+
+3.9  krbMaxRenewableAge
+
+   Holds the maximum renewable lifetime of a principal's ticket in
+   seconds.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.9
+      NAME 'krbMaxRenewableAge'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPolicyAux
+
+   Usage:
+      The attribute denotes the maximum lifetime in seconds within which
+      a principal can renew its ticket.  The maximum renewable lifetime
+      is programmatically calculated by choosing the minimum of
+      requested lifetime, service ticket lifetime, and principal ticket
+      lifetime.
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 11]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Values:
+      The value stored in this attribute should correctly reflect the
+      number of seconds till which the ticket can be renewed.  The value
+      may need to be generated from a combination of weeks/days/hours/
+      minutes/seconds and the conversion of these needs to be made to
+      seconds and stored in the attribute.
+
+
+3.10  krbServiceFlags
+
+   Holds a set of flags that a Kerberos server requires to enable/
+   disable the support for certain features.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.10
+      NAME 'krbServiceFlags'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbService
+
+   Usage:
+      This attribute stores the bit wise or'ed data that represents the
+      set of options that a Kerberos service, servicing a realm would
+      need to support.
+
+   Values: The set of bit flags that can be set are,
+
+
+         AUTO_RESTART          (1 << 0)
+         CHECK_ADDRESSES       (1 << 1)
+         SUPPORT_V4            (1 << 2)
+         UNIXTIME_OLD_PATYPE   (1 << 6)
+
+      AUTO_RESTART: The auto restart flag if set will restart the
+      Kerberos service in case of critical failures.
+      CHECK_ADDRESSES: The check addresses flag enables the Kerberos to
+      check the address field in each ticket and perform validations on
+      these addresses.
+      SUPPORT_V4: To enable Kerberos v4 support this flag needs to be
+      set.
+      UNIXTIME_OLD_PATYPE: This enables the Kerberos authentication
+      server to accept Unix time as a pre authentication data type.
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 12]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+3.11  krbRealmReferences
+
+   Holds references to the Realm objects (DNs of the krbRealmContainer
+   object).
+
+   Definition
+      ( IANA-ASSIGNED-OID.4.11
+      NAME 'krbRealmReferences'
+      EQUALITY distinguishedNameMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.12)
+
+   Used In:
+      krbService
+
+   Usage:
+      This stores the DNs of the Kerberos realm (krbRealmContainer)
+      objects.  This is a multi valued attribute and the KDC,
+      Administration and Password Services will service all the
+      principals of the realms mentioned in this attribute.
+
+   Values:
+      DNs of valid Kerberos realm (krbRealmContainer) objects.
+
+
+3.12  krbLdapServers
+
+   Holds a list of LDAP servers that the Kerberos servers can contact.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.12
+      NAME 'krbLdapServers'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This attribute holds the list of the DNS names or the IP addresses
+      and the port of the LDAP servers that hosts a Kerberos data.  The
+      attribute holds data in the following format, HostName-or-
+      IPAddress#Port Where,"#" is a delimiter.  Examples: acme.com#636,
+      164.164.164.164#1636
+
+
+3.13  krbSubTree
+
+   Holds a reference (DN) to an entry that starts a sub tree where
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 13]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   principals and other Kerberos objects in a realm are placed.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.13
+      NAME 'krbSubTree'
+      EQUALITY distinguishedNameMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+      SINGLE-VALUE)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This attribute refers to an entry that starts a sub tree where
+      principals in a particular realm are configured.  This sub tree
+      container is searched for that realm's principals based on the
+      krbPrincipalName attribute.
+
+   Values:
+      DN of sub tree root container under which all the principals of
+      the realm will exist.
+
+
+3.14  krbKdcServers
+
+   Holds a set of references to the KDC Service objects (DNs of the
+   krbKdcService objects).
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.14
+      NAME 'krbKdcServers'
+      EQUALITY distinguishedNameMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.12)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This stores the DNs of the KDC service objects.
+
+   Values:
+      DNs of valid KDC Service objects.
+
+
+3.15  krbAdmServers
+
+   Holds a set of references to Administration Service objects (DNs of
+   the krbAdmService objects).
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 14]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.15
+      NAME 'krbAdmServers'
+      EQUALITY distinguishedNameMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.12)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This stores the DNs of administration service objects.
+
+   Values:
+      DN of valid administration service objects.
+
+
+3.16  krbPwdServers
+
+   Holds a set of references to Password Service objects (DNs of the
+   krbPwdService objects).
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.16
+      NAME 'krbPwdServers'
+      EQUALITY distinguishedNameMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.12)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This stores the DNs of the Password Service objects.  This is a
+      multi valued attribute.
+
+   Values:
+      DN of valid Password Service objects.
+
+
+3.17  krbSupportedEncTypes
+
+   Holds the list of encryption types supported by a realm.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.17
+      NAME 'krbSupportedEncTypes'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27)
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 15]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This contains the list of encryption types supported by a realm.
+
+   Values:
+      List of encryption types.
+      The encryption types that are supported as per [RFC3961],
+
+         DES_CBC_CRC			0x0001
+         DES_CBC_MD4			0x0002
+         DES_CBC_MD5			0x0003
+         DES_CBC_RAW			0x0004
+         DES3_CBC_SHA			0x0005
+         DES3_CBC_RAW			0x0006
+         DES_HMAC_SHA1			0x0008
+         DES3_CBC_SHA1			0x0010
+         AES128_CTS_HMAC_SHA1_96	0x0011
+         AES256_CTS_HMAC_SHA1_96	0x0012
+         ARCFOUR_HMAC			0x0017
+         ARCFOUR_HMAC_EXP		0x0018
+
+
+3.18  krbSupportedSaltTypes
+
+   Holds the list of salt types supported by a realm.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.18
+      NAME 'krbSupportedSaltTypes'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This contains the list of salt types supported by a realm.
+
+   Values:
+      List of salt types supported by the Realm.
+      The salt types that are supported are,
+
+         NORMAL       0
+         V4           1
+         NOREALM      2
+         ONLYREALM    3
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 16]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+         SPECIAL      4
+         AFS3         5
+
+
+3.19  krbDefaultEncType
+
+   Holds the default encryption type supported by the Realm.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.19
+      NAME 'krbDefaultEncType'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This contains the default encryption type supported by a realm.
+
+   Values:
+      An encryption type that is present in the values for
+      krbSupportedEncTypes.
+
+
+3.20  krbDefaultSaltType
+
+   Holds the default salt type supported by the Realm.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.20
+      NAME 'krbDefaultSaltType'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This contains the default salt type supported by a realm.
+
+   Values:
+      A salt type that is present in the values for
+      krbSupportedSaltTypes.
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 17]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+3.21  krbHostServer
+
+   This attribute holds the host name, transport protocol and port for a
+   Kerberos service.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.21
+      NAME 'krbHostServer'
+      EQUALITY caseExactIA5Match
+
+   Used In:
+      krbService
+
+   Usage:
+      This attribute holds the DNS name or the IP address of the server
+      that hosts a Kerberos service (KDC or Administration or Password
+      service) and port at which the service runs.  The attribute holds
+      data in the following format, HostName-or-IPAddress#Protocol#Port
+      Where,"#" is a delimiter and Protocol can be 0 or 1. 0 is for UDP.
+      1 is for TCP.  Examples: acme.com#0#88, 164.164.164.164#1#1088
+
+
+3.22  krbSearchScope
+
+   Scope for searching principals.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.22
+      NAME 'krbSearchScope'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This attribute specifies the LDAP search scope for searching the
+      principals under sub tree specified by the attribute "krbSubTree".
+
+   Values:
+      ONE (1) or SUBTREE (2).
+
+
+3.23  krbPrincNamingAttr
+
+   This attribute specifies which attribute of the user objects be used
+   as the principal name component for Kerberos.  This is an alternate
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 18]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   to "krbPrincipalName" attribute.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.23
+      NAME 'krbPrincNamingAttr'
+      EQUALITY caseIgnoreIA5Match
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+      SINGLE-VALUE)
+
+   Used In:
+      krbRealmContainer
+
+   Usage:
+      This attribute is used to specify an attribute of a user object
+      that must be used to as the principal name component for Kerberos.
+
+   Values:
+      The value for this attribute can be configured by the
+      administrators.  Examples: cn, sn, uid, givenname, fullname,
+      emailaddress.
+
+
+3.24  krbMaxPwdLife
+
+   This attribute specifies the maximum lifetime of a principal's
+   password.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.24
+      NAME 'krbMaxPwdLife'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPwdPolicy
+
+   Usage:
+      This attribute is used to specify the maximum lifetime of a
+      principal's password.
+
+   Values:
+      Maximum lifetime of a principal's password in seconds.
+
+
+3.25  krbMinPwdLife
+
+   This attribute specifies the minimum lifetime of a principal's
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 19]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   password.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.25
+      NAME 'krbMinPwdLife'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPwdPolicy
+
+   Usage:
+      This attribute is used to specify the minimum lifetime of a
+      principal's password.
+
+   Values:
+      Minimum lifetime of a principal's password in seconds.
+
+
+3.26  krbPwdMinDiffChars
+
+   This attribute specifies the minimum number of character clases
+   allowed in a password.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.26
+      NAME 'krbPwdMinDiffChars'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPwdPolicy
+
+   Usage:
+      This attribute is used to specify the minimum number of character
+      clases allowed in a password.
+
+   Values:
+      Minimum number of character clases allowed in a password.
+
+
+3.27  krbPwdMinLength
+
+   This attribute specifies the minimum length of the principal
+   password.
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 20]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.27
+      NAME 'krbPwdMinLength'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPwdPolicy
+
+   Usage:
+      This attribute is used to specify the minimum length of the
+      principal password.
+
+   Values:
+      Minimum length of the principal password.
+
+
+3.28  krbPwdHistoryLength
+
+   This attribute specifies the number of old passwords that are stored
+   for a principal.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.28
+      NAME 'krbPwdHistoryLength'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPwdPolicy
+
+   Usage:
+      This attribute is used to specify the number of old passwords that
+      are stored for a principal.
+
+   Values:
+      Number of old passwords that are stored for a principal.
+
+
+3.29  krbPwdPolicyRefCount
+
+   This attribute specifies the number of principals that refer to this
+   policy.
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 21]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.29
+      NAME 'krbPwdPolicyRefCount'
+      EQUALITY integerMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+      SINGLE-VALUE)
+
+   Used In:
+      krbPwdPolicy
+
+   Usage:
+      This attribute is used to specify the number of principals that
+      refer to this policy.
+
+   Values:
+      Number of principals that refer to this policy.
+
+
+3.30  krbPwdPolicyReference
+
+   This attribute stores the DN of a Kerberos password policy object.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.4.30
+      NAME 'krbPwdPolicyReference'
+      EQUALITY distinguishedNameMatch
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+      SINGLE-VALUE)
+
+   Used In:
+      krbPwdPolicyRefAux
+
+   Usage:
+      DN of a Kerberos password policy object.
+
+   Values:
+      DN of a valid Kerberos password policy object.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 22]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+4.  Object Class Definitions
+
+   As the OIDs for the object classes in this document have not been
+   assigned,  IANA-ASSIGNED-OID has been used as a placeholder until
+   real OIDs are assigned.
+
+4.1  krbContainer
+
+   The krbContainer class defines a container object.  This container
+   contains only the realm objects.  This is a container for all the
+   realm container objects in a tree so that locating a realm is easy.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.1
+      NAME 'krbContainer'
+      SUP top
+      MUST ( cn )
+      MAY ( krbPolicyReference))
+
+   Naming Attribute:
+      cn
+
+   Containment:
+      organization, organizationalunit, country, locality, domain
+
+
+4.2  krbRealmContainer
+
+   The krbRealmContainer object contains the realm name and related
+   realm information for Kerberos authentication and administration
+   servers to process requests.  For each realm there exists only one
+   realm container object.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.2
+      NAME 'krbRealmContainer'
+      SUP top
+      MUST ( cn )
+      MAY ( krbUPEnabled $ krbSubTree $ krbSearchScope $ krbLdapServers
+      $ krbSupportedEncTypes $ krbSupportedSaltTypes $ krbDefaultEncType
+      $ krbDefaultSaltType $ krbPolicyReference $ krbKdcServers $
+      krbPwdServers $ krbAdmServers $ krbPrincNamingAttr ))
+
+   Naming Attribute:
+      cn
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 23]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Containment:
+      krbRealmContainer
+
+
+4.3  krbService
+
+   krbService class is an abstract class and serves as a super class for
+   krbKdcService, krbAdmService and krbPwdService.
+
+   An instance of a class derived from krbService is created per
+   Kerberos authentication or administration server or password server
+   in a realm and holds the references to the realm objects.  These
+   references are used to further read realm specific data to service
+   AS/TGS requests.  Additionally this object contains some server
+   specific data like pathnames and ports that the server uses.  This is
+   the identity the Kerberos server logs in with. krbKdcService and
+   krbPwdService all derive from this class.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.3
+      NAME 'krbService'
+      ABSTRACT
+      SUP ( top $ Server $ ndsLoginProperties )
+      MUST ( cn )
+      MAY ( krbHostServer $ krbServiceFlags $ krbRealmReferences ))
+
+   Naming Attribute:
+      cn
+
+   Containment:
+      organization, organizationalunit, country, locality, domain,
+      krbRealmContainer
+
+
+4.4  krbKdcService
+
+   Object of this class serves as the representative object for the KDC
+   to log into an LDAP directory and have a connection Id to access
+   Kerberos data with the required access rights.
+   krbKdcService class is derived from krbService class.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.4
+      NAME 'krbKdcService'
+      SUP ( krbService ))
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 24]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+4.5  krbAdmService
+
+   Object of this class serves as the representative object for the
+   administration service to log into an LDAP directory and have a
+   connection Id to access Kerberos data with the required access
+   rights.
+   krbAdmService class is derived from krbService class.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.5
+      NAME 'krbAdmService'
+      SUP ( krbService ))
+
+
+4.6  krbPwdService
+
+   Object of this class serves as the representative object for the
+   Kerberos change password server to log into an LDAP directory and
+   have a connection Id to access Kerberos data with the required access
+   rights.
+   krbPwdService class is derived from krbService class.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.6
+      NAME 'krbPwdService'
+      SUP ( krbService ))
+
+
+4.7  krbPolicyAux
+
+   The krbPolicyAux class holds policy data that is relevant to a
+   principal.  This class is an auxiliary class as this can form a
+   policy object or be associated with a Principal or krbRealmContainer
+   or krbContainer.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.7
+      NAME 'krbPolicyAux'
+      AUXILIARY
+      MAY ( krbTicketFlags $ krbMaxTicketLife $ krbMaxRenewableAge ))
+
+
+4.8  krbPolicy
+
+   Policy objects represent the effective ticket policy for Kerberos
+   principals.
+   Policy objects can be associated with krbRealmContainer or
+   krbContainer or Principals. krbPolicy objects will always be created
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 25]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   with krbPolicyAux.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.8
+      NAME 'krbPolicy'
+      SUP top
+      MUST ( cn ))
+
+   Naming Attribute:
+      cn
+
+   Containment:
+      organization, organizationalunit, country, locality, domain
+
+
+4.9  krbPrincipalAux
+
+   The principal auxiliary class contains attributes that are used to
+   store principal related data.  This class is defined as an auxiliary
+   class so that other class of objects (User, krbPrincipal, etc) can
+   extend their class definitions to add principal data.
+
+   Typically user, person objects would be extended with the principal
+   class to store Kerberos related data.  If a user object belongs to
+   multiple realms then except the krbPrincipalName and krbSecretKey
+   attributes, other attribute values will be same for all realms.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.9
+      NAME 'krbPrincipalAux'
+      AUXILIARY
+      MAY ( krbPrincipalName $ krbUPEnabled $ krbSecretKey $
+      krbPolicyReference $ krbPrincipalExpiration))
+
+
+4.10  krbPrincipal
+
+   The krbPrincipal class is used to create Kerberos principals of the
+   type other than User. krbPrincipal objects will be created with
+   krbPrincipalAux and optionally with krbPolicyAux.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.10 NAME 'krbPrincipal'
+      SUP ( top )
+      MUST ( krbPrincipalName )
+      MAY ( krbPrincipalType ))
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 26]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Naming Attribute:
+      krbPrincipalName
+
+   Containment:
+      organization, organizationalunit, country, locality, domain,
+      krbRealmContainer
+
+
+4.11  krbPwdPolicy
+
+   The krbPwdPolicy object is a template password policy that can be
+   applied to principals when they are created.  These policy attributes
+   will be in effect, when the Kerberos passwords are different from
+   users' passwords (UP).
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.11 NAME 'krbPwdPolicy'
+      SUP ( top )
+      MUST ( cn )
+      MAY ( krbMaxPwdLife $ krbMinPwdLife $ krbPwdMinDiffChars $
+      krbPwdMinLength $ krbPwdHistoryLength $ krbPwdPolicyRefCount ))
+
+   Naming Attribute:
+      cn
+
+   Containment:
+      organization, organizationalunit, country, locality, domain
+
+
+4.12  krbPwdPolicyRefAux
+
+   This class contains attributes that are used to store data related to
+   principals in a realm that is served by a foreign KDC.  This class
+   can be attached to User objects.
+
+   Definition:
+      ( IANA-ASSIGNED-OID.6.12
+      NAME 'krbPwdPolicyRefAux'
+      AUXILIARY
+      MAY krbPwdPolicyReference ))
+
+
+
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 27]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+5.  IANA Considerations
+
+   Refer to RFC 3383, "Internet Assigned Numbers Authority (IANA)
+   Considerations for the Lightweight Directory Access Protocol (LDAP)"
+   [RFC3383].
+
+5.1  Object Identifier Registration
+
+   It is requested that the IANA register upon Informational Action an
+   LDAP Object Identifier for use in this technical specification
+   according to the following template:
+
+   Subject:
+      Request for LDAP OID Registration
+
+   Person & email address to contact for further information:
+      Rajasekaran Nagarajan (rnagarajan@novell.com)
+
+   Specification:
+      RFC XXXX
+
+   Author/Change Controller:
+      IESG
+
+   Comments:
+      The assigned OID will be used as a base for identifying a number
+      of Kerberos schema elements defined in this document.
+
+
+5.2  Object Identifier Descriptors
+
+   It is requested that the IANA register upon Informational Action the
+   LDAP Descriptors used in this technical specification as detailed in
+   the following template:
+
+   Subject:
+      Request for LDAP Descriptor Registration Update
+
+   Descriptor (short name):
+      see table
+
+   Object Identifier:
+      see table
+
+   Person & email address to contact for further information:
+      Rajasekaran Nagarajan (rnagarajan@novell.com)
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 28]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+   Usage:
+      see table
+
+   Specification:
+      RFC XXXX
+
+   Author/Change Controller:
+      IESG
+
+   Table:
+      The following descriptors have been added:
+
+      NAME                            	Type    OID
+      --------------                  	----    ------------
+      krbPrincipalName			A	IANA-ASSIGNED-OID.4.1
+      krbPrincipalType			A	IANA-ASSIGNED-OID.4.2
+      krbSecretKey			A	IANA-ASSIGNED-OID.4.3
+      krbUPEnabled			A	IANA-ASSIGNED-OID.4.4
+      krbPrincipalExpiration		A	IANA-ASSIGNED-OID.4.5
+      krbPolicyReference		A	IANA-ASSIGNED-OID.4.6
+      krbTicketFlags			A	IANA-ASSIGNED-OID.4.7
+      krbMaxTicketLife			A	IANA-ASSIGNED-OID.4.8
+      krbMaxRenewableAge		A	IANA-ASSIGNED-OID.4.9
+      krbServiceFlags			A	IANA-ASSIGNED-OID.4.10
+      krbRealmReferences		A	IANA-ASSIGNED-OID.4.11
+      krbLdapServers			A	IANA-ASSIGNED-OID.4.12
+      krbSubTree			A	IANA-ASSIGNED-OID.4.13
+      krbKdcServers			A	IANA-ASSIGNED-OID.4.14
+      krbAdmServers			A	IANA-ASSIGNED-OID.4.15
+      krbPwdServers			A	IANA-ASSIGNED-OID.4.16
+      krbSupportedEncTypes		A	IANA-ASSIGNED-OID.4.17
+      krbSupportedSaltTypes		A	IANA-ASSIGNED-OID.4.18
+      krbDefaultEncType			A	IANA-ASSIGNED-OID.4.19
+      krbDefaultSaltType		A	IANA-ASSIGNED-OID.4.20
+      krbHostServer			A	IANA-ASSIGNED-OID.4.21
+      krbSearchScope			A	IANA-ASSIGNED-OID.4.22
+      krbPrincNamingAttr		A	IANA-ASSIGNED-OID.4.23
+      krbMaxPwdLife			A	IANA-ASSIGNED-OID.4.24
+      krbMinPwdLife			A	IANA-ASSIGNED-OID.4.25
+      krbPwdMinDiffChars		A	IANA-ASSIGNED-OID.4.26
+      krbPwdMinLength			A	IANA-ASSIGNED-OID.4.27
+      krbPwdHistoryLength		A	IANA-ASSIGNED-OID.4.28
+      krbPwdPolicyRefCount		A	IANA-ASSIGNED-OID.4.29
+      krbPwdPolicyReference		A	IANA-ASSIGNED-OID.4.30
+      krbContainer			O	IANA-ASSIGNED-OID.6.1
+      krbRealmContainer			O	IANA-ASSIGNED-OID.6.2
+      krbService			O	IANA-ASSIGNED-OID.6.3
+      krbKdcService			O	IANA-ASSIGNED-OID.6.4
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 29]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+      krbAdmService			O	IANA-ASSIGNED-OID.6.5
+      krbPwdService			O	IANA-ASSIGNED-OID.6.6
+      krbPolicyAux			O	IANA-ASSIGNED-OID.6.7
+      krbPolicy				O	IANA-ASSIGNED-OID.6.8
+      krbPrincipalAux			O	IANA-ASSIGNED-OID.6.9
+      krbPrincipal			O	IANA-ASSIGNED-OID.6.10
+      krbPwdPolicy			O	IANA-ASSIGNED-OID.6.11
+      krbPwdPolicyRefAux		O	IANA-ASSIGNED-OID.6.12
+
+   where Type A is Attribute, Type O is ObjectClass
+
+   Upon Informational Action these assignments will be recorded in the
+   following registry:
+
+   http://www.iana.org/assignments/ldap-parameters
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 30]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+6.  Security Considerations
+
+   The storage of Kerbreos data in an LDAP directory enables the
+   examination of the data outside the environment in which it is
+   supposed to be created and used.  The Kerberos 5 protocol relies on
+   the security of the keys stored in the KDC database.  Hence the
+   Kerberos data in the directory must be protected both while the
+   storage and transmission.  This document assumes that the channel
+   over which the keys are accessed from the directory MUST be secured
+   and the updates to these keys are to be restricted with a well
+   defined administrative interfaces.  The data stored in the directory
+   MUST be protected with appropriate acecss rights using the access
+   control mechanisms of the directory.  Access control mechanisms are
+   beyond the scope of this document.  Moreover, if the data is
+   replicated over multiple directory instances, the replication channel
+   MUST also be secured.
+
+7.  References
+
+   [RFC1510]  John Kohl and Clifford Neuman, "The Kerberos Network
+              Authentication Service (V5)", RFC 1510, September 1993.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC3383]  Kurt D. Zeilenga, "Internet Assigned Numbers Authority
+              (IANA) Considerations for the Lightweight Directory Access
+              Protocol (LDAP)", RFC 3383, September 2002.
+
+   [RFC3961]  Kenneth Raeburn, "Encryption and Checksum Specifications
+              for Kerberos 5", RFC 3961, February 2005.
+
+   [draft-ietf-krb-wg-kerberos-clarifications-07]
+              Clifford Neuman, Tom Yu, Sam Hartman, and Kenneth Raeburn,
+              "The Kerberos Network Authentication Service (V5)",
+              ID draft-ietf-krb-wg-kerberos-clarifications-07,
+              September 1993.
+
+   [draft-johansson-kerberos-model-01]
+              Leif Johansson, "An information model for Kerberos version
+              5", ID draft-johansson-kerberos-model-01, July 2004.
+
+
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 31]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+Author's Address
+
+   Rajasekaran Nagarajan
+   Novell, Inc.
+   49/1 and 49/3 Garvebhavipalya
+   7th Mile, Hosur Road
+   Bangalore, Karnataka  560068
+   IN
+
+   Phone: +11 91 80 25731856
+   Email: rnagarajan@novell.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 32]
+
+Internet-Draft          Kerberos schema for LDAP                May 2005
+
+
+Intellectual Property Statement
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+
+Disclaimer of Validity
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Copyright Statement
+
+   Copyright (C) The Internet Society (2005).  This document is subject
+   to the rights, licenses and restrictions contained in BCP 78, and
+   except as set forth therein, the authors retain all their rights.
+
+
+Acknowledgment
+
+   Funding for the RFC Editor function is currently provided by the
+   Internet Society.
+
+
+
+
+Nagarajan               Expires November 18, 2005              [Page 33]
+

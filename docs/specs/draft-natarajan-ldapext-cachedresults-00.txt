@@ -1,0 +1,379 @@
+IETF LDAPEXT Working Group				S.K. Natarajan
+Internet Draft						Aztec Software
+Category: Informational					G. Vithalprasad
+Date: June 2000 				    	Novell Inc.
+Expires: December 2000
+							 T. Kannan
+							 Novell Inc.
+
+			The LDAP Caching model
+            draft-natarajan-ldapext-cachedresults-00.txt	
+
+    Status of this Memo
+
+    This document is an Internet-Draft and is in full conformance with all 
+    provisions of Section 10 of RFC2026 [ ]. 
+
+    Internet-Drafts are working documents of the Internet Engineering Task 
+    Force (IETF), its areas, and its working groups. Note that other groups 
+    may also distribute working documents as Internet-Drafts. Internet-
+    Drafts are draft documents valid for a maximum of six months and may be 
+    updated, replaced, or obsoleted by other documents at any time. It is
+    inappropriate to use Internet- Drafts as reference material or to 
+    cite them other than as "work in progress." 
+    The list of current Internet-Drafts can be accessed at 
+    http://www.ietf.org/ietf/1id-abstracts.txt 
+    The list of Internet-Draft Shadow Directories can be accessed at 
+    http://www.ietf.org/shadow.html.
+
+
+
+    1. Abstract
+
+    Seeking entries from a directory is a process involving network 
+    resources. It is assumed that a directory is accessed for reading and 
+    searching data more than for modification purposes. Under such 
+    assumptions, for performance reasons, a mechanism for caching as a 
+    proxy  which caches all entries is desirable. This document describes
+    a mechanism for caching directory entries. 
+    This document also defines one operational attribute and two controls
+    required to be implemented for the caching model.
+
+    2. Conventions used in this document
+
+
+    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", 
+    "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this 
+    document are to be interpreted as described in RFC-2119 [ ].
+
+
+    3. Introduction
+
+    LDAP performance would receive a boost if a caching mechanism were 
+    available to cache entries so the network resources used for 
+    retrieving entries wouldn't be used as much as they will otherwise. 
+    This goes well with the philosophy that LDAP directories are mostly 
+    read and searched than modified. Entries can be cached with the safe 
+    assumption that they will not be modified very often which would lead 
+    to better performance. This draft shall confine itself to a discussion 
+    on caching ldap search results alone.
+
+    4. Attribute definition
+    This draft defines a rootDSE operational attribute which identifies 
+    the DIT of which the server holds a replica. 
+
+    ditName : ( <OID_to_be decided> NAME 'ditName'
+      SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 USAGE dSAOperation )
+
+    5. Controls used for caching results
+    
+	
+    5.1 The originServerbind Control
+
+   The originServerbind control defines a control using which a client 
+   which is routing its requests through a proxy can mention what origin
+   server it needs to contact and the credentials to bind as. 
+
+    5.1.1 Request control
+
+    This control is included in the bindRequest message as part of the 
+    controls field of the LDAPMessage, as defined in Section 4.1.12 of  
+    Lightweight Directory Access Protocol[LDAPv3]. The controlType is set
+    to <OID to be assigned>. The criticality MAY be set to TRUE or FALSE 
+    in the absence of which  the criticality is defaulted to be FALSE. 
+    The ControlValue is an OCTET STRING whose value is the BER encoding 
+    of the following SEQUENCE.
+
+	OriginServerbindRequest ::= SEQUENCE {
+     serverName    LDAPString -- server name or IP addr.
+     serverPort    INTEGER -- the port number
+     bindRequest   BindRequest OPTIONAL
+	}
+    The serverName is the name or the IP address of the origin LDAP server.
+    If it is a name, it should include the domain name so that the server 
+    is uniquely identified by the serverName in the Internet space.
+    The serverPort represents the port on which the origin LDAP server 
+    is running.The bindRequest contains the userDN and credentials using
+    which bind can be performed on the origin server. It is as defined in
+    4.2 of Lightweight Directory Access Protocol [LDAPV3].
+
+    5.1.2 Response Control
+	   The controlType is set to < To be decided >. The criticality is 
+        FALSE (MAY be absent). The controlValue is an OCTET STRING, whose 
+        value is the BER encoding of a value of the following SEQUENCE:
+
+        originServerbindResponse :: = SEQUENCE {
+        originServerbindResult ENUMERATED{
+        success (0),
+        operatonsError (1),
+        strongAuthRequired(8), 
+        unwillingToPerform (53),
+        insufficientAccessRights (50),
+        busy (51),
+        inappropriateMatching (18),
+        timeLimitExceeded (3),
+        offsetRangeError (61),
+        other (80) },
+        contextID OCTET STRING OPTIONAL }
+
+    contextID is a server-defined octet string. If present, the contents 
+    of the contextID field  SHOULD be returned to the server by a client 
+    in a subsequent originServerbind control request. 
+
+
+    This control also determines the origin server to which the client 
+    wants to connect and the cache agent MUST make use of this 
+    information to connect to the origin server. In absence of the 
+    bindRequest entity, the information with which client sends across in 
+    its bind request to the caching agent SHOULD be used to connect to 
+    the origin server.
+
+    The result of the control shall determine whether the origin server 
+    can be contacted or not. If the origin server is not contactible, the 
+    proxy SHOULD  return operationsError. Based on that the client can 
+    make a decision as to whether the cached results be made use of or not.
+
+    5.2 Cached Search control
+
+     The document also defines the cachedResults control which specifies 
+    whether the searches can be retrieved from the cache or it must needs 
+    be retrieved directly from the target server. 
+
+    5.2.1 Request Control
+
+   This control is included in the searchRequest message as part of the  
+    controls field of the LDAPMessage, as defined in Section 4.1.12 of 
+    Lightweight Directory Access Protocol [LDAPv3]. The controlType is 
+    set to <OID to be assigned>. The criticality MAY be set to TRUE or 
+    FALSE in the absence of which the criticality is defaulted to be 
+    FALSE. The ControlValue is NULL. 
+   
+   5.2.2 Response Control :
+
+   The controlType is set to <To be decided>. The criticality is
+   FALSE (MAY be absent). The controlValue is an OCTET STRING, whose
+   value is the BER encoding of a value of the following SEQUENCE:
+
+   cacheResultResponse :: = SEQUENCE {
+   cacheResult ENUMERATED{
+   success (0),
+   operatonsError (1),
+   strongAuthRequired(8), 
+   unwillingToPerform (53),
+   insufficientAccessRights (50),
+   busy (51),
+   inappropriateMatching (18),
+   timeLimitExceeded (3),
+   offsetRangeError (61),
+   other (80) },
+   targetServerResponse ENUMERATED
+    {
+	originNotresponding  (0), --origin server closed connection
+	allFromCache	     (1), -- all info from cache
+	allFromorigin	     (2), -- all info from origin	
+	partial		     (3), -- partially from either	
+	}   
+
+        contextID OCTET STRING OPTIONAL }
+
+    contextID is a server-defined octet string. If present, the contents 
+    of the contextID field  SHOULD be returned to the server by a client 
+    in a subsequent cacheResult control. 
+
+    targetServerResponse is used to determine whether the response is 
+    fully from the caching agent, fully from the origin server or partly 
+    from the cache and partly from the origin server. The 
+    originNotresponding entity functions to see that the client is 
+    informed if midway through the operation, the origin server goes down 
+    or is inaccessible.
+
+      The caching agent will find whether the criticality of the control 
+    is TRUE or FALSE. If the criticality is FALSE, it will execute the 
+    operation as described above. If the criticality is TRUE, it will 
+    strip away the control and send across the request to the desired 
+    server.
+
+
+    6. The LDAP caching model
+
+    An LDAP search request consists primarily of sending a filter to a
+    particular server and getting all the entries which match that filter 
+    along with some or all of their attributes.  The query can be on 
+    multiple servers holding the same DIT or multiple servers holding 
+    multiple DITs. The model assumes an active proxy agent or caching 
+    agent which shall intercept the client request and the server 
+    response and shall, based on configuration options, decide whether to 
+    cache the entries or not. The rest of the draft assumes that 
+    configuration options are such that the requests from the client are 
+    deemed cacheable unless explicitly mentioned otherwise. Configuration  
+    options are discussed later in this draft.
+
+    The caching agent shall intercept the LDAP search request from the 
+    client and look up the server to which the request is being sent. It 
+    shall send the request to the server and simultaneously query the 
+    server for its ditName  operational attribute. The response from the 
+    server shall be accepted by the proxy agent and sent to the client. 
+    The agent shall group all the entries under a container which shall 
+    be identified by the ditName and shall conceptually represent that 
+    DIT. Under this DIT container the entry shall be created with all the 
+    hierarchy intact. Thus if a user entry which exists some levels down 
+    the DIT root is returned, the agent would create the entry after 
+    creating all the containers under which the entry exists in that order.
+    Along with this request, the agent shall query for the modifyTimestamp 
+    operational attribute of all the objects retrieved and store them for
+    caching reference. For the caching model to work, the modifyTimestamp 
+    attribute of the objects retrieved needs to be accessible to the 
+    caching agent. This can be provided either through binding as an 
+    entry which has access to the modifyTimestamp   attribute or by 
+    allowing anonymous access to the same.   The agent may make successive 
+    requests to the containers along with their which  contain the entry 
+    to get the data for the containers and store them for future reference. 
+    Subsequent searches shall involve a query of the modifyTimeStamp 
+    attribute of the objects returnable by the filter and the DNs returned 
+    shall be matched with the objects already available in the cache. 
+    There are three cases of what could happen and the corresponding 
+    actions to be taken.
+
+    i)	If the objects are all available in the cache and the 
+        modifyTimestamp of all the objects are the same as the 
+        modifyTimestamp of the objects in the cache, then the cached 
+        objects are returned.
+
+    ii)	If the objects are all available in the cache and the 
+        modifyTimestamp of some of the objects are greater then what 
+        exists in the cache, then a base search for those objects will be
+        performed along with the filter specified and those entries shall 
+        be returned. Simultaneously the cache shall also be updated to 
+        reflect these changes. The modifyTimestamp of these objects shall
+        also be modified in the cache accordingly. 
+
+
+    iii) If the objects are not all available in the cache, fresh            
+         base searches shall be made for the objects not available 
+         in the cache. These shall be cached along with their 
+         modifyTimestamp attributes.
+
+    If the number of changed or non-present objects are more than the 
+    number of unchanged objects, the cache agent  MAY choose to execute a 
+    fresh search of the DIT using the filter.
+
+
+    7. Access controls
+
+    Depending on the configuration of the proxy, it MAY cache Access 
+    Control Information for the bindDN on the list of objects returned 
+    using the ldapGetEffectiveRights extension as defined in [ACL]. 
+    Subsequent requests for the object data shall be returned depending on 
+    the access rights to the list of objects returned. If the ACL 
+    information for different subject DNs are not cached or access to 
+    the ACL information is denied, the agent MUST cache only anonymous 
+    bind results.
+	If the search is a non-anonymous one having a pertinent bind 
+    entity, the ACLs corresponding to that subject should be cached.  
+    Subsequent searches by the same entity in further sessions MUST be 
+    authenticated either to the origin server or the cache before results 
+    are returned from either the cache or the origin server. Subsequent 
+    drafts will define authentication mechanisms in a cache.
+
+    8. Configuration options
+
+    The configuration options can be:
+
+    i) All the entries need to be cached.
+
+   ii) None of the entries need to be cached.
+
+  iii) Entries under a particular DN need to be cached. In this case, if 
+       the search request does not pertain to entries under the DN or 
+       pertains partly to entries under the DN, the request will become a
+       regular search request.
+
+   Other complex configuration options can also be provided.
+
+    9. Diverse schema 
+
+    The basic LDAP Schema SHOULD be supported by the proxy server. 
+    Additional attributes and object classes may be supported. Schema 
+    changes to the parent directory may be "learnt" by the cache agent 
+    and implemented. If the request returns any entries the schema of 
+    which is not recognised by the cache, it may try to learn the schema 
+    using subschema search mechanisms. However if it does not learn the 
+    schema, the non-recognised entries MUST NOT be cached.
+ 
+
+    10. Operation in disconnected mode
+
+    The cached results can also help provide information when the origin 
+    server is not up. In this case, when the origin server is not running, 
+    i.e. when the caching agent cannot connect to the origin server, the 
+    client can use the cacheResult control to get the information from the
+    cache and make use of it. 
+
+    11. Security Considerations
+
+    Security would be a chief issue if Access Controls were retrieved and 
+    cached. The cache agent would have to adhere to access restrictions 
+    placed on the objects and their attributes. In particular, if a 
+    subject binds as an entity granted more privileges, then the ACLs of 
+    that entity need to be cached and based on that ACI, the search results 
+    need to be serviced. Further drafts may expound the principle of 
+    retrieving and caching ACI probably based on ldapGetEffectiveRights 
+    extension or using the getEffectiveRights control [ACLs]. 
+    However a restricted access i.e. don∆t-allow-access-unless-absolutely-
+    sure mechanism is to be followed if determinacy is not accurate as to 
+    whether a subject can be allowed or denied access to an entity.
+
+
+
+    12. References
+
+      [ACL]
+       E. Stokes, D. Byrne, B. Blakley, "Access Control Model for LDAP"
+     March, 2000. 
+
+      [LDAPv3]
+      Wahl, M, S. Kille and T. Howes, "Lightweight Directory Access 
+        Protocol (v3)", RFC 2251, December, 1997. 
+
+      [Bradner97]
+      Bradner, Scott, "Key Words for use in RFCs to Indicate Requirement
+      Levels", RFC 2119, March, 1997. 
+
+      [SyntaxDef]
+      Wahl, M, Coulbeck A, S. Kille and T. Howes, "Lightweight Directory 
+        Access Protocol (v3): Attribute Syntax Definitions", RFC 2252, 
+        December, 1997.
+ 
+
+
+
+
+    13. Author's Addresses
+
+    Natarajan SK
+    Aztec Software
+    23, 3rd A cross
+    18th main, 6th block
+    Koramangala
+    Bangalore-95
+    Phone:91-80-5537513
+    Email:sknatarajan@aztec.soft.net
+
+
+    Vithalprasad G.
+    Novell Software
+    7th mile, Hosur road
+    Bangalore-68
+    Phone:91-80-5537513
+    Email : gvithalprasad@novell.com
+
+    Kannan T
+    Novell Software
+    7th mile Hosur Road,
+    Bangalore-68
+    Email: tkannan@novell.com
+
+    Comments can be sent to  any of the authors at their e-mail ids or to 
+    the ldapext mailing group.
+
+    Expires:December 2000

@@ -1,0 +1,638 @@
+INTERNET-DRAFT                                    Haripriya S., Novell
+                                                          25 August 2000
+Expiry: February 25 2001                                
+
+
+		      EntrySelection control for
+	LDAP modify and delete operations on multiple entries
+	     <draft-haripriya-ldapext-entryselect-01.txt>
+
+1. Status of this Memo
+
+    This document is an Internet-Draft and is in full conformance with
+    all provisions of Section 10 of RFC2026.
+
+    Internet-Drafts are working documents of the Internet Engineering
+    Task Force (IETF), its areas, and its working groups. Note that
+    other groups may also distribute working documents as
+    Internet-Drafts.
+
+    Internet-Drafts are draft documents valid for a maximum of six
+    months and may be updated, replaced, or obsoleted by other
+    documents at any time.  It is inappropriate to use Internet-
+    Drafts as reference material or to cite them other than as "work
+    in progress."
+
+      The list of current Internet-Drafts can be accessed at
+      http://www.ietf.org/ietf/1id-abstracts.txt
+
+      The list of Internet-Draft Shadow Directories can be accessed at
+      http://www.ietf.org/shadow.html.
+
+    This Internet Draft expires February 25, 2001.
+
+2. Abstract
+    
+    This document defines an LDAPv3 control that can select multiple
+    entries in a subtree of a container entry for modification or
+    deletion.  This control extends the scope of the LDAPv3 modify and
+    delete operations as defined in [RFC 2251]. This control is useful
+    for modifying or deleting multiple entries on the basis of a
+    single selection criterion.  This may be useful for maintenance of
+    an LDAP directory having a large number of objects.
+    
+    Example of Usage - This control can be used by client applications
+    who have the need to modify or delete a large number of entries in
+    an LDAP directory based on a selection criterion. One example of
+    such a usage is when two departments in an organization merge. In
+    this case the "department" name or number given to a number of
+    employees need to change, and all the employees in a given
+    department are to be assigned the new "department". Here the
+    EntrySelection control can be used to select the entries to be
+    modified based on the "department" value, and the modify operation
+    can change the "department" value for all the selected entries to
+    the given value.
+    
+    The EntrySelection control is useful when a large number of
+
+Haripriya S. INTERNET-DRAFT                                          1
+
+		      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+    entries have to be modified or deleted, because what can be
+    achieved in 1 LDAP client operation with the EntrySelection
+    control will take a minimum of 1 + n LDAP operations (1 search, n
+    modifies) otherwise.  This will save a lot of time and bandwidth,
+    and hence very useful in situations where the clients are
+    connected over high latency links. Also low-end clients which
+    cannot handle a large number of objects, can use this feature.
+    This also prevents cache pollution or false caching, where a large
+    number of search results are returned only to be immediately
+    modified or deleted, thus invalidating cached information for
+    those results.
+    
+3. RFC Key Words
+    
+    The key words   "MUST",  "MUST NOT", "REQUIRED",  "SHALL",  "SHALL
+    NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
+    in this document are to be interpreted as described in RFC 2119.
+    
+4. EntrySelection request control
+    
+    A multi-entry modify or delete operation can be thought of as a
+    combination of a search operation followed by modify or delete
+    operation. The search operation in this case is used to select the
+    entries for modification or deletion.
+    
+    For the purpose of selecting entries, an entry selection control
+    is added. This control will be similar to a search request. The
+    ControlType is <To Be Done>, the Criticality field may be TRUE or
+    FALSE, and the controlValue is EntrySelection which is encoded as
+    per the following syntax:
+    
+    EntrySelection ::= SEQUENCE {
+        entryscope   [0] scope OPTIONAL, -- Scope for the operation
+        derefAliases [1] aliases OPTIONAL, -- aliases
+
+        timeLimit    [2] INTEGER  (0 .. maxInt) OPTIONAL, 
+                                                -- for the selection --
+        optimeLimit  [3] INTEGER (0 .. maxInt) OPTIONAL,
+                                                -- for the operation --
+        continueOnError [4] BOOLEAN OPTIONAL DEFAULT FALSE,
+                                                -- for the operation --
+        filter       [5] Filter OPTIONAL
+      }
+
+      scope :: = ENUMERATED {
+          baseObject  (0),
+          singleLevel  (1),
+          wholeSubtree  (2) 
+      }
+    
+      aliases ::= ENUMERATED {
+          neverDerefAliases  (0),
+          derefInSearching        (1),
+
+Haripriya S. INTERNET-DRAFT                                          2
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+          derefFindingBaseObj     (2),
+          derefAlways    (3) 
+      }
+
+      The following definitions are the same as the corresponding
+    definitions in [RFC 2251] 4.5.1.  They are just repeated here for
+    completeness.
+    
+      Filter ::= CHOICE {
+        and             [0] SET of Filter,
+        or              [1] SET of Filter,
+        not             [2] Filter,
+        equalityMatch   [3] AttributeValueAssertion,
+        subStrings      [4] SubstringFilter,
+        greaterOrEqual  [5] AttributeValueAssertion,
+        lessOrEqual     [6] AttributeValueAssertion,
+        present         [7] AttributeDescription,
+        approxMatch     [8] AttributeValueAssertion,
+        extensibleMatch [9] MatchingRuleAssertion 
+      }
+    
+      SubstringFilter ::= SEQUENCE {
+        type        AttributeDescription,
+        -- at least one must be present
+        substrings  SEQUENCE OF CHOICE {
+          initial  [0]  LDAPString,
+          any      [1]  LDAPString,
+          final    [2]  LDAPString  
+        }
+      }
+      
+      MatchingRuleAssertion  ::= SEQUENCE {
+        matchingRule  [1]  MatchingRuleOd OPTIONAL,
+        type          [2]  AttributeDescription OPTIONAL,
+        matchValue    [3]  AssertionValue,
+        dnAttributes  [4]  BOOLEAN DEFAULT FALSE 
+      }
+    
+    entryScope: This field specifies the scope of the operation. It
+    can be baseObject, oneLevel, or wholeSubTree. The field is
+    OPTIONAL, and if not sent, the default scope of the operation will
+    be baseObject, which is similar to the scope of a normal modify or
+    delete operation.
+
+    derefAliases: This field specified whether to dereference alias
+    while selecting. This is also an OPTIONAL field, and if absent,
+    the default is neverDerefAliases.
+
+    filter: This field is similar to a search filter. It is OPTIONAL,
+    and if absent, the control selects all entries, that are allowed
+    by the scope and the other fields in the control.
+
+    timeLimit: This OPTIONAL INTEGER field specifies the time limit
+
+Haripriya S. INTERNET-DRAFT                                          3
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+    in seconds, for the entry selection for the base operation. If the
+    field is absent or 0, then no limit is assumed.
+ 
+    optimeLimit: Similar to timeLimit but for the entire operation.
+    Again, if this field is absent or 0, then no limit is assumed.
+
+    continueOnError: This OPTIONAL BOOLEAN field is used by the client
+    to indicate to the server whether to continue or stop the whole
+    operation, if it encounters an error while performing the
+    operation on one of the entries selected. The default value is
+    FALSE and the corresponding behaviour is to stop the operation on
+    error.
+
+    The control is used to select the entries that are to be modified
+    or deleted as per the LDAP request message that this attaches
+    to. This control SHOULD only be used with an LDAP Modify or Delete
+    request message. The server SHOULD ignore the control if used with
+    any other message unless the criticality field is set to TRUE. If
+    the criticality field is set to TRUE, then the server SHOULD return
+    the resultCode unavailableCriticalExtension ( RFC 2251 Section
+    4.1.12 ). The server MUST list this control as recognized in the
+    supportedControl attribute in the root DSE.
+
+5. Response messages
+    
+    The server upon request of an LDAP modify or delete request with
+    an EntrySelection control in it can return the following
+    responses: EntrySelectionPartialResponse, any other LDAP extended
+    response (could be due to another control in the opertion
+    requiring an extended response), or an LDAPResponse
+    (ModifyResponse or DeleteResponse). For a non-abandoned operation,
+    the server MUST return zero or more EntrySelectionPartialResponse,
+    zero or more of any other extended response, and one
+    ModifyResponse or DeleteResponse message. The ModifyResponse or
+    DeleteResponse SHOULD be returned at the end after all other
+    extended responses have been returned for the operation.
+
+    The ModifyResponse or DeleteResponse will return the overall
+    result for the whole operation on multiple entries, which MAY
+    also contain some error codes for specifying the result of the
+    entry selection operation, in addition to the error codes usually
+    returned by a Modify or Delete operation. These error codes
+    include timeLimitExceeded(2), adminLimitExceeded(11),
+    undefinedAttributeType(17) and inappropriateMatching(18).
+
+5.1 EntrySelectionPartialResponse extended partial response
+
+    The EntrySelectionPartialResponse is sent to return partial
+    results, as the operation progresses. This is used to inform the
+    client about the result of the operations on each selected entry
+    and for returning search continuation results.
+
+    The EntrySelectionPartialResponse MUST be returned by the server
+
+Haripriya S. INTERNET-DRAFT                                          4
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+    in the following cases: 
+
+    a. Immediately after attempting the operation for each entry
+    selected by the EntrySelection filter.
+
+    b. The server is unable to search an entry in the scope, at or
+    under the baseObject, but can return references to another set of
+    servers for continuing the operation.
+
+    The EntrySelectionPartialResponse is returned in a generalized
+    "ExtendedPartialResponse". ExtendedPartialResponse is defined in
+    the [extpartresp] document as follows:
+
+      ExtendedPartialResponse ::= [ APPLICATION 25 ] SEQUENCE {
+          responseName       [0] LDAPOID OPTIONAL,
+          response           [1] OCTET STRING OPTIONAL }
+      
+    Note: The current version of the [ExtPartResp] draft does not
+    define a generalized ExtendedPartialResponse. Work is going on to
+    generalize it. This draft assumes a generalized
+    ExtendedPartialResponse for its purpose.
+      
+    A specific ExtendedPartialResponse for EntrySelection is defined
+    from generalized ExtendedPartialResponse as follows:
+
+    The EntrySelectionPartialResponse will be a 'specific' generalized
+    ExtendedPartialResponse with the 'responseName' of <toBeDone> and
+    the value of 'response' field is an octet string which is the BER
+    encoding of the following:
+
+      EntrySelectionPartialResult ::= CHOICE {
+        entry              [0] EntryResult,
+        searchContinuation [1] SEQUENCE OF LDAPURL
+      }
+ 
+      EntryResult ::= SEQUENCE {
+	resultcode             resultCode
+        matchedDN              LDAPDN
+      }
+ 
+    resultCode is defined as in RFC 2251 [RFC2251] 4.1.10 for LDAPResult.
+ 
+6. Semantics of the EntrySelection and EntrySelectionResponse
+    Controls
+    
+    The EntrySelection control, will behave like an LDAP search
+    operation at the server. The server MUST select all the entries
+    that are selected as per the EntrySelection control, before
+    starting the modify or delete operation on any of the matched
+    entries.  If deleting entries, the server MUST make sure that all
+    the child entries in the selected list are processed before their
+    parents are processed for deletion. The server SHOULD NOT process
+    the entries in such a way that it would orphan the entries.
+
+Haripriya S. INTERNET-DRAFT                                          5
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+    
+    If the condition of the EntryCriterion evaluates to TRUE with
+    respect to a given DN (either the base DN if the scope is base, or
+    any of the subtree/children DNs if the subtree or onelevel scope
+    is set), then the LDAP server should do the modify or the delete
+    operation that has been specified in the delete or modify request.
+    If the condition evaluates to UNKNOWN or FALSE, then the operation
+    MUST NOT be attempted on the corresponding DN.
+
+    If the 'timelimit' in the EntrySelection control is exceeded
+    before the search is over, only the entries selected will be
+    considered for modification/deletion, and the ModifyResponse or
+    DeleteResponse will return a resultCode of 'timeLimitExceeded'. If
+    the 'optimeLimit' in the control is exceeded before the whole
+    operation (the selection plus the modifies/deletes) is complete,
+    then operation will be stopped, and a ModifyResponse or
+    DeleteResponse is returned, with resultCode being
+    'timeLimitExceeded'. The EntrySelectionPartialResponses that may
+    have been received by the client in the latter case will indicate
+    to the client that the timeout did not happen during the
+    selection, but during the operation.
+    
+6.1 Atomicity of the operation and effect of abandon: 
+    
+    The modify or delete operation on each selected entry MUST be done
+    atomically, but the server NEED NOT ensure that the modify/delete
+    operation across all selected entries are done as one atomic
+    operation. The atomicity of the entire operation will be the same
+    as if a client first did a search, and then based on the entries
+    selected, gave a series of modify or delete requests. If a client
+    makes changes to some of the entries that are selected by the
+    EntrySelection filter, while the operation is in progress, the
+    combined result of the operations is undefined.
+
+    The server MUST send extended partial responses for each selected
+    entry on which the modify/delete opeation was attempted. If the
+    client sends an abandon request in the middle of processing, the
+    server MUST stop the processing immediately, including the
+    modify/delete on the current entry it was processing. The server
+    MUST NOT send a ModifyResponse/DeleteResponse, or an
+    EntrySelectionPartialResponse for the current entry in this
+    case. The client will be able to find the entries for which the
+    operation has been tried, along with the the result of the
+    operation, by looking at the EntrySelectionPartialResponses that
+    have been received from the server. The client MUST NOT expect
+    that the modify/delete operation on all the selected entries will
+    be done as one atomic operation.
+    
+7. Errors and Return Codes
+    
+    If modify or delete operations succeed on all the objects where
+    one or more objects are selected, and no timeouts occured, then
+    the LDAP operation MUST return a result code of success.
+
+Haripriya S. INTERNET-DRAFT                                          6
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+    
+7.1 Deciding on the return values
+   
+    The server MUST decide what values and error codes to return based
+    on the decision function below, and on the return values of LDAP
+    modify and delete operations. The decision logic to be followed at
+    the server end is discussed as a pseudo-code below, and each
+    tagged branch (eg. // 7.1.3 ) represents a sub-section describing
+    a specific decision that must be followed by the server.
+
+    LDAPopnresult: Result Code for the LDAP operation ( modify or
+    delete). This is the value that will be sent in the LDAPResult of
+    LDAPResponse. This can be any of the resultcodes specified for
+    Modify, Delete and Search operations in [rescodes].
+    
+    LDAPopnDN: The DN returned in the LDAPResponse.
+    
+    selectResult: The result code for the select operation due to
+    EntrySelection control.
+    
+    entryResult: The result code associated with each entry for which
+    the operation was attempted to be sent in
+    EntrySelectionPartialResponses.
+
+    entryDN: The DN of the entry on which the modify or delete was
+    attempted.
+
+    entry: The entry field in the EntrySelectionPartialResponse
+
+    The following conditions are possible:
+    
+    if (baseDN is not available)
+      if (there are no referrals) // 7.1.1
+        LDAPopnresult = noSuchObject
+        LDAPopnDN = BaseDN
+        send LDAPResponse
+      else (if there are referrals) // 7.1.2
+        LDAPopnresult = referral
+        referrals field is filled with referral, send LDAPResponse
+      endif
+    else /* baseDN exists */
+      while (there are continuation references found during searching) do
+        Send the continuation references in 'searchContinuation' // 7.1.3
+          in EntrySelectionPartialResponse packets, 
+          'entry' field not sent.
+      done
+      if (search was successful or resulted in
+          timeLimitExceeded or adminLimitExceeded) // 7.1.4
+	LDAPopnresult = success/timeLimitExceeded/adminLimitExceeded
+        if (no entries are returned by the search) // 7.1.5
+          send LDAPResponse and return
+        else /* Entries are returned by search */
+          while (there are entries remaining to be processed) // 7.1.6 
+
+Haripriya S. INTERNET-DRAFT                                          7
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+            process entry named by entryDN
+            lasterror = error code returned for operation on entry
+            if (adminLimit OR optimeLimit exceeded 
+                while in modify/delete) // 7.1.7
+              LDAPopnresult = adminLimitExceeded/timeLimitExceeded
+              toquit = yes
+            else if (lasterror != success AND continueOnError is not set)
+                                        // 7.1.8
+              toquit = yes
+            endif
+            Fill up an EntrySelectionPartialResponse with
+            entry.resultCode = lasterror
+            entry.matchedDN = entryDN
+            Send EntrySelectionPartialResponse, with entry field, 
+              searchContinuation field not sent
+            if (toquit == yes) // 7.1.9
+              break;                        
+          endif /* some entries remaining */
+        endif /* Some entries returned by search */
+      else /* Search was not successful */ // 7.1.11
+        LDAPopnresult = selectResult
+        LDAPopnDN = baseDN
+      endif
+      if (LDAPopnresult == success) { // 7.1.12
+        LDAPopnresult = lasterror
+        if (lasterror required matchedDN to be returned // 7.1.13 
+            as per RFC 2251 4.1.10)
+          LDAPopnDN = entryDN
+        endif
+      endif
+      Send ModifyResponse or DeleteResponse with LDAPResult containing
+        LDAPopnDN and LDAPopnResult  
+    endif
+
+    The user can decide to stop on error in modify/delete or can set
+    the continueOnError to 1, so that if even an error occurs during
+    modify/delete on an entry, the whole operation will still
+    continue. Otherwise when the first error occurs, the server MUST
+    stop processing the modify or delete for further entries.
+    
+    If the number of modifies or deletes possible in a single LDAP
+    operation is exceeded, then the server SHOULD return
+    adminLimitExceeded(11).  In this case objects should have been
+    processed till the error was reached, and the situation is defined
+    in 7.1.7.
+    
+7.2 Behavior of server with respect to Criticality
+    
+    The default behavior in the absence of the Criticality field is
+    as if the Criticality field is set to false for the control. If
+    the control is not recognized, and the Criticality is set to TRUE,
+    then the server MUST return an unavailableCriticalExtension
+    result code. If the control is not recognized and the criticality
+
+Haripriya S. INTERNET-DRAFT                                          8
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+    is set to False, then the server should try to perform the
+    operation specified on the BaseDN alone and ignore the control. In
+    case unavailablecriticalextension is returned, then the server
+    should not send any of the EntrySelectionPartialResponses.
+    
+8. Making the operation idempotent with respect to retries
+    
+    Multi-entry deletions even if done partially (only on a subset of
+    all the entries that were selected) will result in idempotent
+    retries, because the deleted entries will not be returned by the
+    EntrySelection filter the next time.  But in an entry modify, an
+    add or a delete value, and or an add or delete attribute could
+    cause a AttributeOrValueAlreadyExists or noSuchAttribute, if the
+    operation has already been done.
+    
+    Example: Let ou=hr,o=org be an organizationalUnit in company org.
+    Let cn=jsmith,ou=hr,o=org and cn=mwhite,ou=hr,o=org be two objects
+    of class "inetOrgPerson" under this ou.  A multivalued attribute
+    "telephoneNumber" and a singlevalued attribute "preferredLanguage"
+    are optional attributes for "inetOrgPerson". Let the client
+    request, a modify operation on "ou=hr,o=org", with an
+    EntrySelection control with the LDAP search filter[RFC 2254]
+    "objectclass=inetOrgPerson", be as follows (in [ldif] format):
+    
+      dn: ou=hr,o=org
+      changetype: modify
+      add: telephoneNumber
+      telephoneNumber: 801-861-2222
+      -
+      delete: preferredLanguage
+    
+    If the first time around both entries "jsmith" and "mwhite" had
+    "preferredLanguage", and the operation failed on "mwhite" but
+    succeeded on "jsmith", then when the retry is done the operation
+    on "jsmith" would fail due to two reasons:
+    
+    i) The value "801-861-2222" for "telephoneNumber" already exists -
+    AttributeOrValueAlreadyExists
+    
+    ii) The attribute "preferredLanguage" is already deleted -
+    noSuchAttribute
+    
+    The approach taken here is to let the client's filter take care of
+    such conditions creating noSuchAttribute (modify or delete a
+    attribute that does not exist), or AttributeOrValueAlreadyExists
+    (adding an already existing value to a multivalued attribute or
+    adding a single valued attribute which already exists). The
+    argument behind this approach is that such conditions could even
+    happen the first time around (without a retry), if the entry was
+    already in that state.
+    
+    In case the client takes care of these two error conditions, the
+    client's filter in the EntrySelection should be the equivalent of
+
+Haripriya S. INTERNET-DRAFT                                          9
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+    
+    '(&(objectclass=inetOrgPerson)(!(telephoneNumber="801-861-2222"))
+                                               (preferredLanguage=*))'
+    
+    so that it can avoid changing the same attributes twice and thus
+    getting an error.
+    
+    NOTE: There is no [ldif] format available for specifying the
+    information in an EntrySelection control yet. These examples are
+    not working examples but just to illustrate a situation.
+
+6. Interaction with the TreeDelete control [treedelete]
+    
+    If a TreeDelete control is set for a delete operation, then its
+    semantics is the same as if an EntrySelection control is sent with
+    the search filter being "objectclass=*", and the scope being
+    "sub". This similarity is with respect to the functionality of the
+    operation, but error handling and behavior with respect to
+    referrals etc. may vary. Also, the semantics for partial
+    processing of the operation for the EntrySelection control are
+    different from the TreeDelete control.
+    
+    If both the TreeDelete control and the EntrySelection control are
+    present on a given LDAP delete request, then the server SHOULD
+    return an LDAP resultcode of unwillingToPerform(53).
+    
+7. Security Considerations
+    
+    There are no direct security related issues discussed in this
+    document. But this control could indirectly cause a server to deny
+    service to legitimate clients because of the server being loaded
+    by a huge number of modifies and deletes due to this
+    control. Administrative limits MAY be set for a given server to
+    cope with such situations, and if exceeded the server SHOULD
+    return with an adminLimitExceeded error.
+    
+8. References
+    
+    [RFC 2251]
+        M.  Wahl,  T. Howes, S.  Kille,  "Lightweight Directory Access
+        Protocol (v3)", RFC 2251, December 1997.
+    
+    [RFC 2254]
+        T. Howes, "The String  Representation of LDAP Search Filters",
+        RFC 2254, December 1997.
+    
+    [RFC 2119]
+        Bradner, S., "Key words for use in RFCs to Indicate
+        Requirement Levels, "RFC 2119, Harvard University, March 1997.
+    
+    [rescodes]
+        Mike Just, K. Leclair, Jim Sermersheim, Mark smith, "LDAPv3
+        Result Codes: Definitions and Appropriate Use",
+
+Haripriya S. INTERNET-DRAFT                                          10
+
+                      EntrySelection control for
+       LDAP modify and delete on multiple entries, August 2000
+
+        INTERNET-DRAFT, April 2000, <URL:http://
+        www.ietf.org/internet-drafts/draft-just-ldapv3-rescodes-02.txt>
+    
+    [ldif]
+        Gordon Good, "The LDAP Data Interchange Format (LDIF) -
+        Technical Specification", Netscape Communications,
+        INTERNET-DRAFT, March 2000, <URL:http://
+        www.ietf.org/internet-drafts/draft-good-ldap-ldif-06.txt>
+    
+    [treedelete]
+        M. P.  Armijo, "Tree Delete Control", Microsoft Corporation,
+        INTERNET-DRAFT November 12, 1999, <URL:http://
+        www.ietf.org/internet-drafts/draft-armijo-ldap-treedelete-02.txt>
+        ( This document is now expired )
+    
+    [extpartresp] 
+
+    R. Harrison, "Extended Partial Response Protocol Enhancement
+    to LDAP v3", Novell Inc., INTERNET-DRAFT June 2000, <URL:http://
+    www.ietf.org/internet-drafts/draft-rharrison-ldap-extpartresp-01.txt>
+ 
+9. Acknowledgements
+    
+    I sincerely thank Kurt D. Zeilenga who gave such invaluable inputs
+    which changed the whole approach of the document from its initial
+    version.  I also thank K. K. Subramaniam, VithalPrasad Gaitonde,
+    Dinakar Sitaram, and Girish Elchuri who reviewed this document and
+    gave their valuable suggestions, and the Novell Standards Board
+    for their review.
+    
+10. Address
+    
+    Haripriya S.
+    Novell Inc.
+    49/1, 49/3, Garvebhavi Palya,
+    7th Mile, Hosur Road,
+    Bangalore - 560068
+    India
+    Phone: +91-80-5721858 Extn:2121
+    Email: sharipriya@novell.com
+
+This internet draft expires on 25 February 2001
+
+
+
