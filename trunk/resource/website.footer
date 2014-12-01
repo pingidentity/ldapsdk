@@ -1,7 +1,169 @@
-</div>
+</span>
+                          </div><!--end layout-widget-wrapper -->
+                        </div><!--end widget-span -->
+                      </div><!--end row-->
+                      </div><!--end row-wrapper -->
+                    </div><!--end widget-span -->
+                  <div class="span4 widget-span widget-type-rich_text aside" style="" data-widget-type="rich_text" data-x="8" data-w="4">
+                    <div class="cell-wrapper layout-widget-wrapper">
+                      <span id="hs_cos_wrapper_module_14159042281815177" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text">
+<!-- SIDEBAR for SUBNAV & JUMP LINKS -->  
+                      <ul>
+                        <li>
+                          <a href="${BASE}release-notes.html">Release Notes</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}javadoc/index.html" target="_blank">Generated API Documentation</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}getting-started/index.html">Getting Started</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}advantages/index.html">UnboundID LDAP SDK Advantages</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}persist/index.html">Using the Persistence Framework</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}in-memory-directory-server.html">Using the In-Memory Directory Server</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}examples/index.html">Example Source Code</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}specs/index.html">LDAP Specifications</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}ldapsdk-faq.html">Frequently-Asked Questions</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}help.html">Getting Help</a>
+                          <br><br>
+                        </li>
+                      </ul>
+                    </span>
+                    </div><!--end layout-widget-wrapper -->
+                  </div><!--end widget-span -->
+                </div><!--end row-->
+                </div><!--end row-wrapper -->
+              </div><!--end widget-span -->
+          </div><!--end row-->
+          </div><!--end row-wrapper -->
+        </div><!--end widget-span -->
+    </div><!--end row-->
+    </div><!--end row-wrapper -->
+  </div><!--end widget-span -->
+  </div><!--end row-->
+  </div><!--end row-wrapper -->
 
-<?php include('${BASE}../../../inc/rtcol_start.php') ?>
-<?php include('${BASE}../../../inc/rtcol_next-steps.php') ?>
-<?php include('${BASE}../../../inc/rtcol_feat-download-ldap-sdk.php') ?>
-<?php include('${BASE}../../../inc/rtcol_end.php') ?>
-<?php include('${BASE}../../../inc/footer.php') ?>
+    </div><!--end body -->
+  </div><!--end body wrapper -->
+
+  <div class="footer-container-wrapper">
+    <div class="footer-container container-fluid">
+
+      <div class="row-fluid-wrapper row-depth-1 row-number-1 ">
+      <div class="row-fluid ">
+        <div class="span12 widget-span widget-type-global_group footer" style="" data-widget-type="global_group" data-x="0" data-w="12">
+  <div class="">        <div class="row-fluid-wrapper row-depth-1 row-number-1 ">
+      <div class="row-fluid ">
+        <div id="footer" class="span12 widget-span widget-type-cell section" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+          <div class="row-fluid-wrapper row-depth-1 row-number-2 ">
+          <div class="row-fluid ">
+            <div class="span12 widget-span widget-type-cell container" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+              <div class="row-fluid-wrapper row-depth-2 row-number-1 ">
+              <div class="row-fluid ">
+                <div class="span6 widget-span widget-type-cell logo_block" style="" data-widget-type="cell" data-x="0" data-w="6">
+
+                  <div class="row-fluid-wrapper row-depth-3 row-number-1 ">
+                  <div class="row-fluid ">
+                    <div class="span12 widget-span widget-type-rich_text sponsored_by" style="" data-widget-type="rich_text" data-x="0" data-w="12">
+                      <div class="cell-wrapper layout-widget-wrapper">
+                        <span id="hs_cos_wrapper_module_1416250291729860" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p>Sponsored by</p></span>
+                      </div><!--end layout-widget-wrapper -->
+                    </div><!--end widget-span -->
+                  </div><!--end row-->
+                  </div><!--end row-wrapper -->
+                  <div class="row-fluid-wrapper row-depth-3 row-number-2 ">
+                  <div class="row-fluid ">
+                    <div class="span12 widget-span widget-type-rich_text logo" style="" data-widget-type="rich_text" data-x="0" data-w="12">
+                      <div class="cell-wrapper layout-widget-wrapper">
+                        <span id="hs_cos_wrapper_module_1416250269365496" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><a href="https://go.unboundid.com/"><img src="${BASE}images/footer-logo.png" alt="footer-logo"></a></span>
+                      </div><!--end layout-widget-wrapper -->
+                    </div><!--end widget-span -->
+                  </div><!--end row-->
+                  </div><!--end row-wrapper -->
+                  <div class="row-fluid-wrapper row-depth-3 row-number-3 ">
+                  <div class="row-fluid ">
+                    <div class="span12 widget-span widget-type-rich_text copyright" style="" data-widget-type="rich_text" data-x="0" data-w="12">
+                      <div class="cell-wrapper layout-widget-wrapper">
+                        <span id="hs_cos_wrapper_module_1416250294473975" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p>©${YEAR} UnboundID. The LDAP SDK for Java is developed by UnboundID.</p></span>
+                      </div><!--end layout-widget-wrapper -->
+                    </div><!--end widget-span -->
+                  </div><!--end row-->
+                  </div><!--end row-wrapper -->
+                </div><!--end widget-span -->
+              <div class="span6 widget-span widget-type-cell nav_address" style="" data-widget-type="cell" data-x="6" data-w="6">
+
+                <div class="row-fluid-wrapper row-depth-2 row-number-1 ">
+                <div class="row-fluid ">
+                  <div class="span12 widget-span widget-type-raw_html social_nav" style="" data-widget-type="raw_html" data-x="0" data-w="12">
+                    <div class="cell-wrapper layout-widget-wrapper">
+                      <span id="hs_cos_wrapper_module_14162485993094412" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_raw_html" style="" data-hs-cos-general-type="widget" data-hs-cos-type="raw_html"><a href="https://twitter.com/unboundid"><i class="fa fa-twitter"></i></a>
+  <a href="https://www.linkedin.com/company/497942"><i class="fa fa-linkedin"></i></a>
+  <a href="https://www.youtube.com/user/UnboundID"><i class="fa fa-youtube-play"></i></a>
+  <a href="https://plus.google.com/117882194977541022244/about"><i class="fa fa-google-plus"></i></a></span>
+                    </div><!--end layout-widget-wrapper -->
+                  </div><!--end widget-span -->
+                </div><!--end row-->
+                </div><!--end row-wrapper -->
+                <div class="row-fluid-wrapper row-depth-2 row-number-2 ">
+                <div class="row-fluid ">
+                  <div class="span12 widget-span widget-type-rich_text address" style="" data-widget-type="rich_text" data-x="0" data-w="12">
+                    <div class="cell-wrapper layout-widget-wrapper">
+                      <span id="hs_cos_wrapper_module_14162504111262539" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p><strong>UnboundID</strong><br>13809 Research Blvd, Suite 500<br>Austin, TX 78750&nbsp;</p></span>
+                    </div><!--end layout-widget-wrapper -->
+                  </div><!--end widget-span -->
+                </div><!--end row-->
+                </div><!--end row-wrapper -->
+                <div class="row-fluid-wrapper row-depth-2 row-number-3 ">
+                <div class="row-fluid ">
+                  <div class="span12 widget-span widget-type-rich_text email" style="" data-widget-type="rich_text" data-x="0" data-w="12">
+                    <div class="cell-wrapper layout-widget-wrapper">
+                      <span id="hs_cos_wrapper_module_14162504125722657" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p><a href="mailto:info@unboundid.com">info@unboundid.com</a></p></span>
+                    </div><!--end layout-widget-wrapper -->
+                  </div><!--end widget-span -->
+                </div><!--end row-->
+                </div><!--end row-wrapper -->
+              </div><!--end widget-span -->
+          </div><!--end row-->
+          </div><!--end row-wrapper -->
+        </div><!--end widget-span -->
+    </div><!--end row-->
+    </div><!--end row-wrapper -->
+  </div><!--end widget-span -->
+  </div><!--end row-->
+  </div><!--end row-wrapper -->
+  </div>
+
+        </div><!--end widget-span -->
+      </div><!--end row-->
+      </div><!--end row-wrapper -->
+
+    </div><!--end footer -->
+  </div><!--end footer wrapper -->
+  
+
+  </body>
+</html>
