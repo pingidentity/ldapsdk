@@ -67,7 +67,7 @@ ${TARGET="offline"}                    <br>
                   <td align="left"><a href="specifications.${EXTENSION}">Supported standards-based controls</a></td>
                   <td align="center">3</td>
                   <td align="center">7</td>
-                  <td align="center">28</td>
+                  <td align="center">32</td>
                 </tr>
                 <tr>
                   <td align="left"><a href="specifications.${EXTENSION}">Supported standards-based extended operations</a></td>
@@ -85,7 +85,7 @@ ${TARGET="offline"}                    <br>
                   <td align="left"><a href="asynchronous.${EXTENSION}">Direct support for asynchronous operations</a></td>
                   <td align="center">No</td>
                   <td align="center">Yes (via queue polling)</td>
-                  <td align="center">Yes (via notification interface)</td>
+                  <td align="center">Yes (via notification interface or Java futures API)</td>
                 </tr>
                 <tr>
                   <td align="left"><a href="connection-pools.${EXTENSION}">Support for connection pooling</a></td>
@@ -190,7 +190,7 @@ ${TARGET="offline"}                    <br>
                   <td align="left"><a href="other.${EXTENSION}">Provided example tools</a></td>
                   <td align="center">0</td>
                   <td align="center">3</td>
-                  <td align="center">9</td>
+                  <td align="center">13</td>
                 </tr>
               </table>
 
@@ -220,6 +220,12 @@ ${TARGET="offline"}                    <br>
                   <td align="center">Basic</td>
                   <td align="center">None</td>
                   <td align="center">Enhanced</td>
+                </tr>
+                <tr>
+                  <td align="left">Secure communication with SASL QoS</td>
+                  <td align="center">Yes</td>
+                  <td align="center">No</td>
+                  <td align="center">Yes</td>
                 </tr>
                 <tr>
                   <td align="left">Prevent simple binds with a DN but no password</td>
@@ -258,7 +264,7 @@ ${TARGET="offline"}                    <br>
                     <ul>
                       <li>Password expired</li>
                       <li>Password expiring</li>
-                      <li>Password policy (Commercial Edition only)</li>
+                      <li>Password policy</li>
                       <li>Account usability (Commercial Edition only)</li>
                     </ul>
                   </td>
@@ -286,6 +292,7 @@ ${TARGET="offline"}                    <br>
                       <li>LDAP transactions</li>
                       <li>Batched transactions (Commercial Edition only)</li>
                       <li>Interactive transactions (Commercial Edition only)</li>
+                      <li>Multi-update operations (Commercial Edition only)</li>
                     </ul>
                   </td>
                 </tr>

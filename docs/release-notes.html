@@ -10,6 +10,44 @@ ${TARGET="offline"}                    <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 2.3.8</h3>
+
+              <p>
+                The following changes were made between the 2.3.7 and 2.3.8 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fix a synchronization bug in the in-memory directory server that could
+                  potentially cause a concurrent modification exception under concurrent load from
+                  multiple connections.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new <tt>Filter.simplifyFilter</tt> method that can be used to simplify a
+                  search filter in a manner that may allow some directory servers to process the
+                  search more efficiently.  Some searches used within the persistence framework
+                  have been updated to use this method to simplify the filters generated for those
+                  searches.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a utility class that can be used to work with OIDs.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the documentation to include a number of LDAP specification documents,
+                  including LDAP-related RFCs and Internet Drafts, as well as an OID reference and
+                  a result code reference.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 2.3.7</h3>
 
               <p>
