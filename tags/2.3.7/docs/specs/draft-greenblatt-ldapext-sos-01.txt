@@ -1,0 +1,303 @@
+Application Working Group                               Bruce Greenblatt
+Internet Draft
+<draft-greenblatt-ldapext-sos-01>
+Expires in six months
+
+
+                Simple Operations on Subtrees (for LDAP)
+
+
+Status of this Memo
+
+
+     This document is an Internet-Draft and is in full conformance with
+all provisions of Section 10 of RFC2026.
+
+     This document is an Internet-Draft. Internet-Drafts are working
+documents of the Internet Engineering Task Force (IETF), its areas,
+andits working groups. Note that other groups may also distribute work-
+ing documents as Internet-Drafts.
+
+     Internet-Drafts are draft documents valid for a maximum of six
+months.  Internet-Drafts may be updated, replaced, or made obsolete by
+other documents at any time. It is not appropriate to use Internet-
+Drafts as reference material or to cite them other than as a "working
+draft" or "work in progress".
+
+
+     The list of current Internet-Drafts can be accessed at
+     http://www.ietf.org/ietf/1id-abstracts.txt
+
+     The list of Internet-Draft Shadow Directories can be accessed at
+     http://www.ietf.org/shadow.html.
+
+
+
+     To learn the current status of any Internet-Draft, please check the
+1id-abstracts.txt listing contained in the Internet-Drafts Shadow Direc-
+tories on ds.internic.net (US East Coast), nic.nordu.net (Europe),
+ftp.isi.edu (US West Coast), or munnari.oz.au (Pacific Rim).
+
+     Distribution of this document is unlimited.
+
+     Abstract
+
+     This draft defines several new LDAP extensions.  These extensions
+are operations that can manipulate an entire portion of Directory Infor-
+mation Tree at once (DIT).  This draft does not presume any specific DIT
+structure or schema modifications.
+
+1.  Requirements
+
+     Here are some requirements that for building real world LDAP appli-
+cations that try to operate on an entire subtree.
+
+-    Provide user feedback as to the progress of the long lived opera-
+     tion.  In many scenarios, a subtree operation (e.g. subtree copy)
+     may take a long period of time (many hours for large subtrees).  It
+
+
+
+Greenblatt                                                      [Page 1]
+
+
+
+
+
+Internet Draft                                                 July 2000
+
+
+     is essential to have a progress bar move across the screen as the
+     entries are deleted.
+
+-    As the delete subtree crosses containers into other LDAP servers,
+     additional authentication credentials may be required to be
+     retrieved from the LDAP client, in order to allow the operation to
+     proceed.
+
+-    If the authenticated user has access to only a portion of the sub-
+     tree to be deleted, it should be possible for the part of the sub-
+     tree that is possible to delete, to in fact be deleted.  It should
+     also be possible to submit the operation in such a way that no
+     entries from the subtree are deleted unless it is possible to
+     delete all entries from the subtree.
+
+-    The list of entries that has been deleted by the operation should
+     be returned to the client.  An incremental list of deleted entries
+     could be returned with the progress indication above.
+
+-    It should be possible to "cancel" the delete subtree operation,
+     just as the long lived Search operation can be "abandoned".
+
+-    It should be possible to delete only certain types of entries from
+     the subtree.  For example, delete all printer objects from the sub-
+     tree.
+
+     Note that this current draft does not necessarily address all of
+the requirements above.
+
+2.  Mechanism
+
+     Operations that make changes to the Directory Information Tree
+(DIT) via that are part of the standard set of protocol operations oper-
+ate on a single object.  This document defines three new LDAP operations
+that manipulate an entire DIT subtree.  These three operations are:
+
+-    Copy Subtree
+
+-    Delete Subtree
+
+-    Update Subtree
+
+     The syntax that is used in any LDAP extended request is:
+
+     ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+                requestName      [0] LDAPOID,
+                requestValue     [1] OCTET STRING OPTIONAL }
+
+
+
+
+Greenblatt                                                      [Page 2]
+
+
+
+
+
+Internet Draft                                                 July 2000
+
+
+     The corresponding response syntax is:
+
+     ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
+                COMPONENTS OF LDAPResult,
+                responseName     [10] LDAPOID OPTIONAL,
+                response         [11] OCTET STRING OPTIONAL }
+
+     The extensions defined in this draft obey this syntax.  All OIDs
+defined in this draft are rooted from:
+
+1.3.6.1.4.1.5515
+
+1.3.6.1.4.1 has been assigned as IANA-registered Private Enterprises,
+and IANA has assigned 5515 to Directory Tools and Application Services,
+Inc. (DTASI).  1.3.6.1.4.1.5515.3 is the root OID for LDAP extended
+operations, and 1.3.6.1.4.1.5515.4 is the root OID for LDAP control
+extensions (none of which are currently defined in this draft).  Thus,
+the OIDs for these extended operations are:
+
+-    1.3.6.1.4.1.5515.3.1 - Copy Subtree Request
+
+-    1.3.6.1.4.1.5515.3.2 - Copy Subtree Response
+
+-    1.3.6.1.4.1.5515.3.3 - Delete Subtree Request
+
+-    1.3.6.1.4.1.5515.3.4 - Delete Subtree Response
+
+-    1.3.6.1.4.1.5515.3.5 - Update Subtree Request
+
+-    1.3.6.1.4.1.5515.3.6 - Update Subtree Response
+
+
+2.1.  Copy Subtree
+
+     The Copy Subtree operation makes a replica of all objects from one
+subtree (the source) in the DIT in another part (the target) in the DIT.
+Note that if the LDAP client submitting the operation does not have
+access to some objects in the source subtree, then objects corresponding
+to them will not be created in the target subtree.  Similarly, if the
+LDAP client submitting the operation does not have access to some object
+attributes in the source subtree, then the corresponding object in the
+target subtree will be missing those attributes.  The Copy Subtree
+Request names the source and target of the operation:
+CopySubtreeRequest ::= SEQUENCE {
+    source           LDAPDN,
+    target           LDAPDN,
+    filter           Filter OPTIONAL}
+
+
+
+
+Greenblatt                                                      [Page 3]
+
+
+
+
+
+Internet Draft                                                 July 2000
+
+
+     If the filter is present in the request, only those objects in the
+source subtree that match the filter are copied to the target subtree.
+
+
+2.2.  Delete Subtree
+
+     The Delete Subtree operation removes all objects from a specified
+part (the target) in the DIT.  Note that if the LDAP client submitting
+the operation does not have access to some objects in the target sub-
+tree, then those objects will not be deleted, and neither will any
+objects betwween the target and the inaccessible object.    The Delete
+Subtree Request names the target:
+DeleteSubtreeRequest ::= SEQUENCE {
+    source          LDAPDN,
+    filter          Filter OPTIONAL}
+
+     If the filter is present in the request, only those objects in the
+source subtree that match the filter are deleted.
+
+
+2.3.  Update Subtree
+
+     The Update Subtree operation makes the same change to all objects
+in a subtree (the target) in the DIT.  Note that if the LDAP client sub-
+mitting the operation does not have access to some objects in the source
+subtree, then objects corresponding to them will not be modified.  Simi-
+larly, if the LDAP client submitting the operation does not have access
+to some object attributes in the target subtree that are to be modified,
+then the update operation fails on those objects.  The format of the
+Update Subtree request is identical to the Modify Operation:
+UpdateSubtreeRequest ::= SEQUENCE {
+    object          LDAPDN,
+    modification    SEQUENCE OF SEQUENCE {
+    operation       ENUMERATED {
+    add     (0),
+    delete  (1),
+    replace (2) },
+    modification    AttributeTypeAndValues }
+    filter          Filter OPTIONAL}
+
+     If the filter is present in the request, only those objects in the
+source subtree that match the filter are updated.
+
+
+3.  References
+
+[1]  M. Wahl, et. al., "Lightweight Directory Access Protocol (v3)," RFC
+     2251, July 1997.
+
+
+
+Greenblatt                                                      [Page 4]
+
+
+
+
+
+Internet Draft                                                 July 2000
+
+
+4.  Author's Address
+
+     Bruce Greenblatt
+     DTASI
+     6841 Heaton Moor Drive
+     San Jose, CA 95119
+     USA
+     Phone: +1-408-390-4776
+     Email: bgreenblatt@dtasi.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Greenblatt                                                      [Page 5]
+
+

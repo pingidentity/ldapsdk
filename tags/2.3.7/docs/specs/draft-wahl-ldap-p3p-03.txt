@@ -1,0 +1,840 @@
+
+
+
+Network Working Group                                            M. Wahl
+Internet-Draft                                     Informed Control Inc.
+Intended status: Standards Track                       December 12, 2006
+Expires: June 15, 2007
+
+
+                     P3P Policy Attributes for LDAP
+                         draft-wahl-ldap-p3p-03
+
+Status of this Memo
+
+   By submitting this Internet-Draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on June 15, 2007.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2006).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 1]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+Abstract
+
+   This document defines attributes for use in the Lightweight Directory
+   Access Protocol (LDAP) which contain URIs for privacy policy
+   documents.  These documents describe the privacy policy concerning
+   access to a directory server, and the privacy policies that apply to
+   the contents of the directory (a subtree of entries).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 2]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+1.  Introduction
+
+   The W3C Platform for Privacy Preferences 1.1 (P3P1.1) specifications
+   [1] describe an XML document format for encoding privacy policy
+   information for an Internet-accessible resource.  The initial
+   targeted application for P3P was web sites accessed by web browsers
+   using HTTP, and thus the specifications include a lookup mechanisms
+   and conventions for how to find a P3P document governing a web site.
+   These mechanisms are specific to the HTTP protocol and do not
+   translate well into other protocols that use URIs which are not HTTP
+   URIs.
+
+   One of the major network-accessible repositories of personal
+   information within an enterprise is its directory service.  It is
+   desirable to be able to determine the privacy policy of a directory
+   service: what policy statements does the enterprise make concerning
+   the contents of the directory?  In addition, as most directory
+   servers log personal identifiers in their log files, it is also
+   desirable to be able to determine the privacy policy of the directory
+   server itself.
+
+   This document discusses how LDAP clients can obtain the URI of a P3P
+   privacy policy statement from a directory server via LDAPv3 [2].
+
+   These attributes enable a directory client to retrieve the privacy
+   policies and ensure their appropriateness to the planned interaction,
+   before sending further requests to the directory server.
+
+   The words "MUST", "SHOULD" and "MAY" are used as defined in RFC 2119
+   [3].
+
+   Please send comments to the author at mark.wahl@informed-control.com.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 3]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+2.  Policy documents
+
+   The attributes defined in this document contain Uniform Resource
+   Identifiers (URIs) [4].  The URIs are anticipated to be of a scheme,
+   such as http [7], which has a protocol for the retrieval of an XML
+   document.  This document does not define how to retrieve XML content
+   from the directory server itself; it is expected that an LDAP client
+   that wishes to parse P3P-formatted XML documents would also be
+   capable of having an HTTP client embedded within it, it just needs to
+   know what HTTP URI to use to obtain the document.
+
+   Unlike the use of privacy policies by web sites accessed via HTTP as
+   described in section 2 of P3P1.1 [1], this specification does not
+   incorporate the indirection procedures of the policy reference file.
+   (Policy reference files are not used as their INCLUDE and EXCLUDE
+   elements assume a relative URL hierarchy that incompatible with the
+   hierarchy used in LDAP URLs, and the policy documents are likely
+   stored on a different kind of server than the directory server
+   itself).  Instead, the URI retrieved from the directory server
+   directly identifies the document containing the POLICIES element, and
+   the POLICY within that element.
+
+   The URI stored in the directory attributes defined in the sections
+   below MUST identify a file which is an UTF-8 encoded XML format
+   document.  That file MUST contain a POLICIES element, as defined in
+   section 3.2 of P3P1.1 [1].  The URI MUST contain a URI fragment that
+   specifies the name of the policy within that POLICIES element.
+
+   For example, a directory entry might contain the attribute
+
+       subtreeP3PrivacyPolicy: http://www.example.com/pol.xml#policy-ds
+
+   The client SHOULD then attempt to contact the server for
+   www.example.com via HTTP, and obtain the file /pol.xml.
+
+   The policy file is UTF-8 encoded, and defined in section 3.2 of
+   P3P1.1 [1].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 4]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+   A policy file might resemble (contents simplified for readability):
+
+
+       <POLICIES xmlns="http://www.w3.org/2002/01/P3Pv1">
+            <POLICY name="policy-www"
+             discuri="http://www.example.com/disc.html"> ... </POLICY>
+            <POLICY name="policy-ds"
+             discuri="http://www.example.com/disc.html">
+                <ENTITY>
+                   ...
+                </ENTITY>
+                <ACCESS>
+                   ...
+                </ACCESS>
+                <DISPUTES-GROUP>
+                   ...
+                </DISPUTES-GROUP>
+                <STATEMENT>
+                   ...
+                </STATEMENT>
+            </POLICY>
+       </POLICIES>
+
+   The client would then locate the POLICY element which has a name
+   matching that of the fragment in the URI, policy-ds.  The POLICY
+   element is defined in section 3.2.2 of P3P1.1, and the client
+   processing of this information MUST be in accordance with section
+   2.4.4 of P3P1.1.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 5]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+3.  Attribute for Directory Server Privacy Policy
+
+   The serverP3PrivacyPolicy attribute publishes the policy of the
+   directory server as it relates to collecting data from the LDAP
+   client.  The purpose of this attribute is to ensure that directory
+   clients have the ability to become aware of the privacy implications
+   of further interactions with a particular directory server.  Based on
+   this information, the directory client might choose to disconnect or
+   might present an end user with information on the privacy policy.
+
+   The semantics of this attribute are analogous to those of a web
+   server publishing via HTTP and P3P the policy for browsers accessing
+   a web site hosted on that server.  Specifically, it informs the
+   directory client that operation requests sent to the directory server
+   might be used for one or more purposes, as described in the policy
+   document.
+
+   The attribute type is defined as follows (with lines wrapped for
+   readability):
+
+       attributeTypes: ( 1.3.6.1.4.1.21008.97.74.1.1
+                        NAME 'serverP3PrivacyPolicy'
+                        EQUALITY caseExactMatch
+                        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+                        SINGLE-VALUE USAGE directoryOperation )
+
+   The value is a single URI, which is encoded as a string in the UTF-8
+   charset.  The form of URI is specified in section 2 above.  The
+   caseExactMatch and Directory String syntax are defined in RFC 4517
+   [6].
+
+   This attribute MAY be present in the directory server's root DSE.
+   The attribute is retrievable if a client performs a base object
+   search of the root DSE (with a distinguished name of zero length)
+   with a filter of "(objectClass=*)", as described in section 5.1 of
+   RFC 4512 [5].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 6]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+4.  Attribute for Directory Subtree Privacy Policy
+
+   The subtreeP3PrivacyPolicy attribute publishes the policy of the
+   directory service as it relates to the privacy protection of a
+   subtree of entries, typically entries representing individual
+   persons, that are in a particular subtree of the directory.
+
+   The semantics of this attribute is different from that of the
+   previous section.  This attribute provides a directory client that
+   might be searching and extracting information from a particular
+   directory subtree information about individuals, with the privacy
+   policy governing that information.  How these individuals'
+   information was entered into the directory is outside of the scope of
+   this document, but is is assumed that the privacy policy applied to
+   the gathering of this information, and SHOULD be respected by clients
+   that are searching it.
+
+   The attribute type is defined as follows:
+
+       attributeTypes: ( 1.3.6.1.4.1.21008.97.74.1.2
+                        NAME 'subtreeP3PrivacyPolicy'
+                        EQUALITY caseExactMatch
+                        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+                        SINGLE-VALUE )
+
+   The value is a single URI, which is encoded as a string in the UTF-8
+   charset.  The form of URI is specified in section 2 above.  The
+   caseExactMatch and Directory String syntax are defined in RFC 4517
+   [6].
+
+   This attribute MAY be present in any entry.
+
+   In order to allow this class to be present on objects of many
+   different structural classes, an auxiliary object class is defined.
+
+       objectClasses: ( 1.3.6.1.4.1.21008.97.74.1.3
+                       NAME 'subtreeP3PrivacyPolicyClass'
+                       AUXILIARY
+                       MAY ( subtreeP3PrivacyPolicy ) )
+
+   This auxiliary class might most usefully be combined with the
+   organization or organizationalUnit classes.
+
+   Clients MUST NOT assume the absence of this class in an entry's
+   objectClass implies that the subtreeP3PrivacyPolicy attribute is not
+   present in the entry, as this attribute might be part of a privately-
+   defined schema object class, or be provided through collective
+   attributes.
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 7]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+   A client SHOULD locate this attribute in entries which are typically
+   used for the base object of subtrees of entries representing people,
+   before searching to extract data from those entries.  For example,
+   the attribute may be stored in the base organization entry, or in an
+   organizationalUnit entry for a particular category of users (such as
+   employees or customers).
+
+   Representation of privacy policy links in deployments intending to
+   apply multiple privacy policies within a naming content is outside of
+   the scope of this document.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 8]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+5.  Data Schema
+
+   This document does not attempt to define a general mapping between
+   the LDAP schema representation and the P3P Basic Data Structures and
+   base data schema.
+
+   For a policy referenced by a serverP3PPrivacyPolicy, the anticipated
+   P3P data structures that would be used in the policy would be those
+   of the login, cert, access log and Internet addresses of sections 5.5
+   of P3P1.1 [1].  The login id would correspond to the distinguished
+   name or other identifier which the client provides in an
+   authenticated bind request.  A client which sends add, modify or
+   modDN operations SHOULD also check for the subtreeP3PrivacyPolicy for
+   the subtree in which these operations are targeted.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                 [Page 9]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+6.  Security Considerations
+
+   This document addresses two security concerns with LDAP directories.
+
+   The first concern is that most directory servers maintain a log of
+   client requests.  For each connection, the log might contain the
+   incoming connection's source IP addresses, the distinguished name or
+   other forms of identity used in bind requests, the type and fields of
+   requests sent by the client, as well as the server's responses.  This
+   log may contain personally identifiable information, particularly
+   bind information, as well as information that could later be
+   correlated with other server's log information, in order to identify
+   the user and their patterns of operations.  Some organizations which
+   operate directory services, in particular publicly accessible
+   services or those which are available to the organization's partners
+   and customers, may wish to advertise the privacy policy of their
+   directory servers, in order to ensure that persons operating
+   directory clients accessing those servers are aware of what data is
+   being collected and the procedures surrounding this.
+
+   The second concern is that most directories contain a significant
+   quantity of personally identifiable and personal information about
+   individuals who are represented by entries in the directory.
+   Directory clients SHOULD ensure that information which is obtained
+   from the directory is handled in such a way that the privacy
+   protections asserted for those individual's information is not
+   violated.  This document defines a mechanism for a client to at least
+   be able to obtain the privacy protection requirements in the form of
+   a P3P policy element, and a client application which parses this can
+   determine whether its handling of the information is in accordance
+   with the policy.
+
+   Directory server deployments which provide unrestricted or public
+   access to information SHOULD permit clients to search to retrieve the
+   serverP3PrivacyPolicy attribute from the root DSE without needing to
+   have bound.  The server SHOULD also consider this operation part of
+   the P3P "Safe Zone", as described in section 2.4.3 of P3P1.1 [1].
+
+   Directory clients SHOULD exercise good practice when determining how
+   to access the resources identified by the URIs present in the
+   serverP3PrivacyPolicy and subtreeP3PrivacyPolicy attributes.
+
+   Section 7 of RFC 3986 [4] also discusses security considerations when
+   handling URIs.
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                [Page 10]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+7.  IANA Considerations
+
+   The following declarations will be submitted to IANA to register the
+   attribute type and object class definitions.
+
+
+      Subject: Request for LDAP Descriptor Registration
+      Descriptor (short name): serverP3PrivacyPolicy
+      Object Identifier: 1.3.6.1.4.1.21008.97.74.1.1
+      Person & email address to contact for further information:
+      Mark Wahl <Mark.Wahl@informed-control.com>
+      Usage: attributeTypes
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+
+      Subject: Request for LDAP Descriptor Registration
+      Descriptor (short name): subtreeP3PrivacyPolicy
+      Object Identifier: 1.3.6.1.4.1.21008.97.74.1.2
+      Person & email address to contact for further information:
+      Mark Wahl <Mark.Wahl@informed-control.com>
+      Usage: attributeTypes
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+
+      Subject: Request for LDAP Descriptor Registration
+      Descriptor (short name): subtreeP3PrivacyPolicyClass
+      Object Identifier: 1.3.6.1.4.1.21008.97.74.1.3
+      Person & email address to contact for further information:
+      Mark Wahl <Mark.Wahl@informed-control.com>
+      Usage: objectClasses
+      Specification: RFC XXXX
+      Author/Change Controller: IESG
+      Comments:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                [Page 11]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+8.  References
+
+8.1.  Normative References
+
+   [1]  Cranor, L., Dobbs, B., Egelman, S., Hogben, G., Humphrey, J.,
+        Langheinrich, M., Marchiori, M., Presler-Marshall, M., Reagle,
+        J., Schunter, M., Stampley, D., and R. Wenning, "The Platform
+        for Privacy Preferences 1.1 (P3P1.1) Specification",
+        February 2006, <http://www.w3.org/TR/P3P11/>.
+
+   [2]  Zeilenga, K., "Lightweight Directory Access Protocol (LDAP):
+        Technical Specification Road Map", RFC 4510, June 2006.
+
+   [3]  Bradner, S., "Key words for use in RFCs to Indicate Requirement
+        Levels", RFC 2119, BCP 14, March 1997.
+
+   [4]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+        Resource Identifier (URI): Generic Syntax", RFC 3986,
+        January 2005.
+
+   [5]  Zeilenga, K., "Lightweight Directory Access Protocol (LDAP):
+        Directory Information Models", RFC 4512, June 2006.
+
+   [6]  Legg, S., "LDAP: Syntaxes and Matching Rules", RFC 4517,
+        June 2006.
+
+8.2.  Informative References
+
+   [7]  "Hypertext Transfer Protocol -- HTTP/1.1", RFC 2616, June 1999.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                [Page 12]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+Appendix A.  Copyright
+
+   Copyright (C) The Internet Society 2006.  This document is subject to
+   the rights, licenses and restrictions contained in BCP 78, and except
+   as set forth therein, the authors retain all their rights.  This
+   document and the information contained herein are provided on an "AS
+   IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS OR
+   IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                [Page 13]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+Author's Address
+
+   Mark Wahl
+   Informed Control Inc.
+   PO Box 90626
+   Austin, TX  78709
+   US
+
+   Email: mark.wahl@informed-control.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Wahl                      Expires June 15, 2007                [Page 14]
+
+Internet-Draft       P3P Policy Attributes for LDAP        December 2006
+
+
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2006).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+
+Acknowledgment
+
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
+
+
+
+
+
+Wahl                      Expires June 15, 2007                [Page 15]
+

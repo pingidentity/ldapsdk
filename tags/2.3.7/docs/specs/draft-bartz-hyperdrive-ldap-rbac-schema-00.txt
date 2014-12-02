@@ -1,0 +1,1014 @@
+Network Working Group                                           L. Bartz
+Internet Draft                                  Internal Revenue Service
+Expires six months from                                 October 21, 1997
+
+
+               LDAP Schema for Role Based Access Control
+           < draft-bartz-hyperdrive-ldap-rbac-schema-00.txt >
+
+
+Status of this Memo
+
+
+   This document is an Internet-Draft.  Internet-Drafts are working
+   documents of the Internet Engineering Task Force (IETF), its areas,
+   and its working groups.  Note that other groups may also distribute
+   working documents as Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet- Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   To view the entire list of current Internet-Drafts, please check the
+   "1id-abstracts.txt" listing contained in the Internet-Drafts Shadow
+   Directories on ftp.is.co.za (Africa), ftp.nordu.net (Europe),
+   munnari.oz.au (Pacific Rim), ds.internic.net (US East Coast), or
+   ftp.isi.edu (US West Coast).
+
+
+
+Abstract
+
+
+   Role Based Access Control (RBAC) is an authorization strategy in
+   which an entity's permission to access and manipulate targeted
+   resources is determined by the entity's role or function within a
+   certain organizational context. RBAC's principal motivation is to
+   streamline security policy administration. Many discrete authoriza-
+   tions can be aggregated within a defined role. One or many roles may
+   be assigned or attributed to individuals. This draft describes LDAP
+   object classes and attributes which support RBAC. Adoption of this
+   schema across multiple LDAP implementations will enable RBAC intero-
+   perability among heterogeneous underlying directory services.
+
+
+
+
+
+
+
+
+Bartz                                                           [Page 1]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+Table of Contents
+
+
+   1. Introduction
+
+   2. Object Class model
+
+   3. Object Relationships
+
+   4. Object Class Specifications
+
+   5. Behavioral Overview
+
+   6. Security Considerations
+
+   7. References
+
+   8. Author's Address
+
+
+1. Introduction
+
+
+   The Lightweight Directory Access Protocol (LDAP) [6,7] is rapidly
+   becoming the ubiquitous mechanism for accessing and manipulating
+   directory data. Many diverse directory implementations, data stores,
+   client applications, and API suites are acquiring LDAP interfaces and
+   functionality.
+
+   This widespread LDAP protocol compliance enables interoperability.
+   But protocol compliance in the absence of architecture still leaves
+   us a long way from integration. Unless LDAP-compliant implementations
+   can rely upon each other to provide and interpret meaningful content,
+   little is achieved.
+
+   Common schema implementations provide architectural elements in the
+   form of LDAP object classes and attributes. Widespread adoption and
+   support of these architectural elements will add value to interoper-
+   able implementations, yielding potential for integration of hetero-
+   geneous underlying strategies. This integration is realizable on
+   enterprise and Internet scales.
+
+   The scope of functionality addressed by this draft is authorization
+   and access control.
+
+   Role Based Access Control (RBAC) [1,2,3] is an authorization strategy
+   in which an entity's permission to access and manipulate targeted
+   resources is determined by the entity's role or function within a
+
+
+
+Bartz                                                           [Page 2]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+   certain organizational context. RBAC's principal motivation is to
+   streamline security policy administration.
+
+   Under RBAC, many discrete authorizations can be aggregated within a
+   defined role. One or many roles may be assigned or attributed to
+   individuals. Roles may be constructed or attributed hierarchically,
+   so that one role may be constructed of several other roles, even
+   further streamlining administrative overhead. Some roles are also
+   mutually exclusive or conflicting, implying a requirement for defin-
+   ing such relationships within the architecture.
+
+   This draft describes LDAP object classes and attributes which support
+   RBAC. Adoption of this schema across multiple LDAP implementations
+   will enable RBAC interoperability among heterogeneous underlying
+   directory services.
+
+   This LDAP RBAC strategy is called "hyperDRIVE" [13], as a working
+   name and convenient discussion handle. The working name will be used
+   throughout this document.
+
+
+
+2. Object Class Model
+
+
+   The discovery and definition of the hyperDRIVE objects focuses upon
+   three principal responsibilities of an integrated security function,
+   namely authentication, authorization, and access.
+
+   We define each responsibility:
+
+
+2.1 Access
+
+
+   Access, in the hyperDRIVE context, encompasses the location of target
+   objects, and the methods and modes of access to, and of, network com-
+   puting resources. Access answers the questions, "What is the target?
+   To which asset(s) are we selectively allowing access? What is the
+   nature of the the access?" For some, the familiar acronym CRUD
+   (create, read, update, delete) is included in this concept, as
+   describing particular modes of access. In RBAC terminology, this
+   object points to an operation or privilege.
+
+   The hyperDRIVE object "operationAccessor" (see 4.2) fulfills this
+   responsibility. The operationAccessor's premier attribute is a URL
+   type. The URL represents a globally unique access reference to the
+   precise target data and functionality intended by the implementor.
+
+
+
+Bartz                                                           [Page 3]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+2.2 Authorization
+
+
+   Authorization, in the RBAC context, is the mapping or aggregation of
+   one or more operations or privileges to a defined role. Also included
+   are the related constructs of role hierarchies, mutually exclusive
+   roles, and statically defined separation of duties.
+
+   The hyperDRIVE object "role" (see 4.3) fulfills this responsibility.
+
+   In hyperDRIVE, roles are assigned or mapped to persons, not vice
+   versa as some RBAC literature describes. A person potentially
+   possesses many roles. Roles do not possess persons.
+
+
+2.3 Authentication
+
+
+   Authentication and authorization are certainly separate responsibili-
+   ties and separate activities. Much of the published RBAC literature
+   treats the choice of authentication strategy as inconsequential with
+   respect to the functionality of the RBAC strategy.  hyperDRIVE, on
+   the other hand, specifies X.509 [12] certificate-based authentication
+   as an integral and indispensible component.
+
+   The X.509 certificate's "subject" attribute (or field), is the Dis-
+   tinguished Name (DN) of the certificate's possessor, which is gen-
+   erally a person. The DN is a unique direct index into the same LDAP
+   directory information base which holds the operationAccessor and role
+   objects. The X.509 "subject" DN binds the authenticated identity (of
+   the entity who possesses and presents the certificate at run time) to
+   an object in the directory which describes the person. The hyperDRIVE
+   object "hyperDrivePerson" (see 4.4) extends the directory's person
+   object . The hyperDrivePerson accomplishes the binding of the authen-
+   ticated identity to the assigned role(s).
+
+
+3. Object Relationships
+
+
+   This ASCII representation of a Unified Modeling Language (UML) [8]
+   schematic illustrates the static object relationships. Observe that
+   the "Role" object possesses an attribute "operations", which is an
+   aggregation of references to operationAccessor objects. Likewise, the
+   hyperDrivePerson object possesses an attribute "roles", which is an
+   aggregation of references to "Role" objects.
+
+
+
+
+
+Bartz                                                           [Page 4]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+                                                    +------------------+
+                                                +---| operationAccessor|
+                                                |   +------------------+
+                                                |   |                  |
+                                                |   | common name      |
+                          +------------------+  |   |                  |
+                      +---| Role             |  |   | description      |
+                      |   +------------------+  |   |                  |
+                      |   |                  |  |   | objectOwner      |
+                      |   | common name      |  |   |                  |
+                      |   |                  |  |   | organizational-  |
+                      |   | description      |  |   |        -UnitDN   |
+                      |   |                  |  |   |                  |
+                      |   | roleOwner        |  |   | <<URL>> execURL  |
+                      |   |                  |  |   |                  |
+                      |   | organizational-  |  |   | certificate      |
+                      |   |        -UnitDN   |  |   |                  |
+                      |   |                  |  |   | review+ApprovalDN|
+                      |   | includedRole     |  |   |                  |
+                      |   |                  |  |   | maintenanceDN    |
+                      |   | conflictingRole  |  |   |                  |
+                      |   |                  |  |   | member           |
+                      |   | review+ApprovalDN|  |   |                  |
+                      |   |                  |  |   | operationType    |
+                      |   | maintenanceDN    |  |   |                  |
+                      |   |                  |  |   +------------------+
+                      |   | +------------+   |  |
++------------------+  |   | | Operations |<>----+
+| hyperDrivePerson |  |   | +------------+-+ |
++------------------+  |   | |              | |
+|                  |  |   | |<<multi-      | |
+| objectOwner      |  |   | |    -valued>> | |
+|                  |  |   | |<<disting.-   | |
+| review+ApprovalDN|  |   | |      -name>> | |
+|                  |  |   | |______________| |
+| maintenanceDN    |  |   +------------------+
+|                  |  |
+| +-------+        |  |
+| | Roles |<>---------+
+| +-------+------+ |
+| |              | |
+| |<<multi-      | |
+| |    -valued>> | |
+| |<<disting.-   | |
+| |      -name>> | |
+| |______________| |
++------------------+
+
+
+
+
+Bartz                                                           [Page 5]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+4. Object Class Specifications
+
+
+4.1. ASN.1 representation
+
+
+
+   id-hyprDrv         OBJECT IDENTIFIER   ::=  { /* to be APPLIED-FOR */ }
+
+   /**********************************************************************
+   *  hyperDRIVE Definitions                                             *
+   *  Internal Revenue Service, U.S. Department of the Treasury          *
+   *  October 10, 1997                                                   *
+   *                                                                     *
+   *  -- Note: borrowed attributes:                                      *
+   *                                                                     *
+   *     Attribute                 Source                                *
+   *                                                                     *
+   *     commonName                X.500 Standard Attributes             *
+   *     description               X.500 Standard Attributes             *
+   *     member                    X.500 Standard Attributes             *
+   *     userCertificate           X.500 Standard Attributes             *
+   *     manager                   COSINE/Internet X.500 Pilot Attributes*
+   *     labeledURL                University of Michigan                *
+   *                                                                     *
+   *                                                                     *
+   **********************************************************************/
+
+   /**********************************************************************
+   *  hyperDRIVE base OIDs                                               *
+   **********************************************************************/
+
+   id-hD          OBJECT IDENTIFIER   ::=  { id-hyprDrv 0 }
+   id-hD-at       OBJECT IDENTIFIER   ::=  { id-hD 0 }
+   id-hD-oc       OBJECT IDENTIFIER   ::=  { id-hD 1 }
+   id-hD-mr       OBJECT IDENTIFIER   ::=  { id-hD 2 }
+
+   /**********************************************************************
+   *  hyperDRIVE Attributes                                              *
+   **********************************************************************/
+
+   id-at-hD-organizationalUnitDN      OBJECT IDENTIFIER ::= {id-hD-at 0}
+   id-at-hD-objectOwner               OBJECT IDENTIFIER ::= {id-hD-at 1}
+   id-at-hD-reviewAndApprovalDN       OBJECT IDENTIFIER ::= {id-hD-at 2}
+   id-at-hD-maintenanceDN             OBJECT IDENTIFIER ::= {id-hD-at 3}
+   id-at-hD-roleOwner                 OBJECT IDENTIFIER ::= {id-hD-at 4}
+   id-at-hD-locationDN                OBJECT IDENTIFIER ::= {id-hD-at 5}
+   id-at-hD-includedRole              OBJECT IDENTIFIER ::= {id-hD-at 6}
+
+
+
+Bartz                                                           [Page 6]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+   id-at-hD-conflictingRole           OBJECT IDENTIFIER ::= {id-hD-at 7}
+   id-at-hD-roles                     OBJECT IDENTIFIER ::= {id-hD-at 8}
+   id-at-hD-operations                OBJECT IDENTIFIER ::= {id-hD-at 9}
+   id-at-hD-hyperDriveObjectType      OBJECT IDENTIFIER ::= {id-hD-at 10}
+
+   /***********************************************************
+   *  hyperDRIVE Structural Object Classes                    *
+   ***********************************************************/
+
+   id-oc-hD-operationAccessor    OBJECT IDENTIFIER   ::= {id-hD-oc 0 }
+   id-oc-hD-role                 OBJECT IDENTIFIER   ::= {id-hD-oc 1 }
+
+   /***********************************************************
+   *  hyperDRIVE NON-Structural Object Classes                *
+   ***********************************************************/
+
+   id-oc-hD-hyperDrivePerson               OBJECT IDENTIFIER   ::= {id-hD-oc 2 }
+   id-oc-hD-hyperDriveLocality             OBJECT IDENTIFIER   ::= {id-hD-oc 3 }
+   id-oc-hD-hyperDriveOrganizationalUnit   OBJECT IDENTIFIER   ::= {id-hD-oc 4 }
+
+   /*******************************************************
+   *  hyperDRIVE Attribute Definitions and Matching Rules *
+   *******************************************************/
+
+   organizationalUnitDN ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-organizationalUnitDN } }
+
+   objectOwner ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-objectOwner } }
+
+   reviewAndApprovalDN ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-reviewAndApprovalDN } }
+
+   maintenanceDN ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-maintenanceDN } }
+
+   roleOwner ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-roleOwner } }
+
+
+
+Bartz                                                           [Page 7]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+   locationDN ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-locationDN } }
+
+   includedRole ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-includedRole } }
+
+   conflictingRole ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-conflictingRole } }
+
+   roles ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-roles } }
+
+   operations ATTRIBUTE ::=      {
+        WITH SYNTAX    DistinguishedName
+        EQUALITY MATCHING RULE distinguishedNameMatch
+        ID   { id-at-hD-operations } }
+
+   hyperDriveObjectType ATTRIBUTE  ::=       {
+        WITH SYNTAX              DirectoryString
+        EQUALITY MATCHING RULE   caseIgnoreMatch
+        SUBSTRINGS MATCHING RULE caseIgnoreSubstringsMatch
+        ID                  { id-at-hD-hyperDriveObjectType } }
+
+   /***********************************************************
+   *  hyperDRIVE Object Class Definitions                     *
+   ***********************************************************/
+
+   operationAccessor   OBJECT-CLASS   ::=  {
+        SUBCLASS OF    top
+        MUST CONTAIN   commonName
+        MAY CONTAIN  { description |
+                       objectOwner |
+                       organizationalUnitDN |
+                       labeledURL |
+                       userCertificate |
+                       reviewAndApprovalDN |
+                       maintenanceDN |
+                       member |
+                       hyperDriveObjectType }
+        ID           { id-oc-hD-operationAccessor } }
+
+
+
+Bartz                                                           [Page 8]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+   role                OBJECT-CLASS   ::=  {
+        SUBCLASS OF    top
+        MUST CONTAIN   commonName
+        MAY CONTAIN  { description |
+                       roleOwner |
+                       organizationalUnitDN |
+                       reviewAndApprovalDN |
+                       maintenanceDN |
+                       includedRole |
+                       conflictingRole |
+                       operations }
+        ID             { id-oc-hD-role } }
+
+   hyperDrivePerson    OBJECT-CLASS   ::=  {
+        SUBCLASS OF    person
+        MAY CONTAIN  { objectOwner |
+                       reviewAndApprovalDN |
+                       maintenanceDN |
+                       locationDN |
+                       organizationalUnitDN |
+                       roles }
+        ID             { id-oc-hD-hyperDrivePerson } }
+
+   hyperDriveLocality  OBJECT-CLASS   ::=  {
+        SUBCLASS OF    locality
+        MAY CONTAIN  { labeledURL |
+                       hyperDriveLocality |
+                       organizationalUnitDN |
+                       member }
+        ID             { id-oc-hD-hyperDriveLocality } }
+
+   hyperDriveOrganizationalUnit   OBJECT-CLASS   ::=  {
+        SUBCLASS OF    organizationalUnit
+        MAY CONTAIN  { manager |
+                       labeledURL |
+                       hyperDriveOrganizationalUnit |
+                       locationDN |
+                       member }
+        ID           { id-oc-hD-hyperDriveOrganizationalUnit } }
+
+   /***********************************************************
+   *  END hyperDRIVE Definitions                              *
+   ***********************************************************/
+
+
+
+
+
+
+
+
+Bartz                                                           [Page 9]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+4.2. operationAccessor
+
+
+   Description:
+
+         The operationAccessor object class is the directory's represen-
+         tation of an operation (referenced by the URL) which requires
+         restricted access authorization and navigational representation
+         in the directory.
+
+   Attributes:
+
+         - commonName: the full, formal name of the operationAccessor.
+
+         - description: mildly verbose description .
+
+         - objectOwner: distinguished name(s) of the persons or role(s)
+         which "own" the right to permit or deny authorization to access
+         and manipulate the target object/operation.
+
+         - organizationalUnitDN: the distinguished name of the highest-
+         level organizational unit to which the target object/operation
+         belongs.
+
+         - execURL: the URL through which the target object/operation is
+         accessed, executed, manipulated
+
+         - applicationCertificate: the X.509 certificate, containing
+         public key and other attributes, which the target
+         object/operation uses to identify itself and its actions.
+
+         - review+ApprovalDN: the DN of the operationAccessor through
+         which the owner's right and responsibility is exercised. .
+
+         - maintenanceDN: the DN of the operationAccessor through which
+         maintenance on this object is performed.
+
+         - member: distinguished name(s) of directory object(s) which
+         are permitted access to the target .
+
+         - hyperDriveObjectType: a string value which indicates what
+         general type of object is represented. Suggested values
+         include: "production", "information", "administrative", and
+         "review+approval".
+
+   Naming Rules:
+
+         The commonName attribute must be used for naming.
+
+
+
+Bartz                                                          [Page 10]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+   Structure Rules:
+
+         A directory entry for operationAccessor must have an immedi-
+         ately superior entry of organizationalUnit.
+
+   Relationships:
+
+         organizationalUnit
+
+         role
+
+
+4.3. role
+
+
+   Description:
+
+         The role object is a container for aggregations of operationAc-
+         cessor objects.
+
+   Attributes:
+
+         - commonName: the full, formal name of the role
+
+         - description: mildly verbose description
+
+         - roleOwner: distinguished name(s) of the persons, or roles
+         which "own" the right to permit or deny assignment of the role
+         to persons.
+
+         - organizationUnitDN: the distinguished name of the highest-
+         level organizational unit to which the role object belongs.
+
+         - review+ApprovalDN: the DN of the operationAccessor object
+         through which the owner's right and responsibility is exer-
+         cised.
+
+         - maintenanceDN: the DN of the operationAccessor object through
+         which maintenance on this object is performed.
+
+         - includedRole: a list of one or more distinguished names (DN)
+         of role object. This attribute supports the implementation of
+         role hierarchies.
+
+         - conflictingRole: a list of one or more distinguished names
+         (DN) of role object. This attribute supports the implementation
+         of mutually exclusive role policies.
+
+
+
+
+Bartz                                                          [Page 11]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+         - operations: a list of one or more distinguished names (DN) of
+         operationAccessor object.
+
+   Naming Rules:
+
+         The commonName attribute must be used for naming.
+
+   Structure Rules:
+
+         A directory entry for operationAccessor must have an immedi-
+         ately superior entry of organizationalUnit.
+
+   Relationships:
+
+         organizationalUnit
+
+         operationAccessor
+
+         hyperDrivePerson
+
+
+4.4. hyperDrivePerson
+
+
+   Description:
+
+         The hyperDrivePerson object is an extension of the directory's
+         person object, and is a container for aggregations of role
+         objects.
+
+   Attributes:
+
+         - objectOwner: distinguished name(s) of the person(s), or
+         role(s) which "owns" the right to permit or deny authorization
+         to access and manipulate this object.
+
+         - review+ApprovalDN: the DN of the operationAccessor through
+         which the owner's right and responsibility is exercised.
+
+         - maintenanceDN: the DN of the operationAccessor through which
+         maintenance on this object is performed.
+
+         - roles: a list of one or more distinguished names (DN) of role
+         object. This attribute accomplishes the assignment of role
+         objects to the person.
+
+   Naming Rules:
+
+
+
+
+Bartz                                                          [Page 12]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+         The commonName attribute must be used for naming.
+
+   Structure Rules:
+
+         hyperDrivePerson is a non-structural object class which extends
+         another person-descriptive object class, such as newPilotPer-
+         son.
+
+   Relationships:
+
+         organizationalUnit
+
+         role
+
+
+
+5. Behavioral Overview
+
+
+   The runtime behavior of the hyperDRIVE objects is described in terms
+   of a proof-of-concept system- or enterprise-scale framework. A frame-
+   work named hyperDRIVE was developed to demonstrate the functionality
+   of the RBAC LDAP infrastructure. See [13] for an explicit descrip-
+   tion.
+
+   The hyperDRIVE framework appears to qualify as a system-scale or
+   enterprise-scale framework, as described in [14], "Horizontal-
+   Vertical-Metadata" (HVM) design pattern. As per the HVM design pat-
+   tern, the LDAP-accessible repositories are Metadata and hyperDRIVE
+   provides a substantial portion of the functionality of the Horizontal
+   framework.
+
+   In brief:
+
+   hyperDRIVE's authentication mechanism is via X.509 certificates,
+   which clients and servers exchange and verify to establish mutually
+   authenticated Secure Socket Layer (SSL) [9] sessions.
+
+   hyperDRIVE's authorization model is Role Based Access Control (RBAC).
+   The Lightweight Directory Access Protocol (LDAP) directory contains
+   objects which describe people (hyperDrivePerson) and objects which
+   describe enterprise information resources and the operations which
+   involve those resources (operationAccessor). Additional directory
+   objects (role) are aggregations of operationAccessor. One or more
+   role objects are assigned to each person, thus achieving the RBAC
+   objective.
+
+   hyperDRIVE provides its customers with a Java applet, which is a GUI
+
+
+
+Bartz                                                          [Page 13]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+   navigation guide, or menu. The hyperDRIVE navigation guide is con-
+   structed on the fly from the customer's LDAP-hosted RBAC profile.
+
+   The hyperDRIVE Guide applet establishes distributed object communica-
+   tion with an object request broker (ORB) server which resides,
+   according to the Java applet "sandbox" policy [5], on the same host
+   from which the applet was served.
+
+   The client applet requests role objects and operationAccessor objects
+   which apply to the customer's DN. We refer to distributed object com-
+   munication by the name of the Object Management Group's Common Object
+   Request Broker Architecture (OMG/CORBA) [11] Internet Inter-ORB pro-
+   tocol, or IIOP.
+
+   The hyperDRIVE proof-of-concept framework uses a freeware ORB, known
+   as HORB [10]. The development roadmap for hyperDRIVE portends a tran-
+   sition to CORBA compliance and IIOP.
+
+   The ORB contacts the well-known LDAP server, requesting role and
+   operationAccessor objects which apply to the customer's DN.
+
+   The LDAP server is "well-known" to the ORB server because its name
+   was given to the ORB server in a list at the time the ORB server was
+   instantiated. In hyperDRIVE, ORB servers and active objects are pro-
+   vided with lists of trusted LDAP servers, just as SSL servers are
+   provided with a list of trusted certificate authorities.
+
+   The LDAP server provides the requested role and operationAccessor
+   objects.
+
+   The ORB provides the requested directory objects. The hyperDRIVE
+   Guide applet can now act as a navigation tool for the customer,
+   displaying names, descriptions, and links which describe operations
+   for which the customer is authorized .
+
+   Through the hyperDRIVE Guide applet, the customer invokes an opera-
+   tion. The customer's web client suite invokes the URL against the
+   target, while simultaneously attaining a mutually authenticated SSL
+   session with the web server which hosts the targeted operation.
+
+   The targeted server and active objects are (via SSL) provided with
+   the customer's authenticated identity. Just as the hyperDRIVE Guide
+   applet, the targeted services will use the customer's DN (from the
+   X.509 certificate) as an index into the LDAP RBAC information base.
+
+   hyperDRIVE provides servers, applications, and active objects with
+   capabilities and facilities to consult the LDAP-hosted RBAC data.
+   Through this consultation, the entities assure themselves of the
+
+
+
+Bartz                                                          [Page 14]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+   appropriateness of customer requests. hyperDRIVE empowers servers to
+   protect their resources. It empowers applications and objects to pro-
+   tect themselves, in the manner of [4].
+
+
+
+6. Security Considerations
+
+
+   This draft describes a directory infrastructure which may be used to
+   implement and manage a security policy. The data described by this
+   schema should be protected from casual observance (i.e. "browsing")
+   and must be protected from anonymous or unauthorized manipulation.
+   Implementors must exercise due diligence in assuring the authenti-
+   cated identity of any entities which are allowed to access and mani-
+   pulate the data described by this schema. The degree of rigor applied
+   to the authentication process must be commensurate with the sensi-
+   tivity of the data or processes which are represented by the schema's
+   accessor objects.
+
+   To this end, the authorization parameters of the directory implemen-
+   tation underlying the LDAP interface, as well as the authorization
+   policies of the LDAP interface itself, should be set to the maximum
+   level of restriction which allows the intended functionality.
+
+   Failure to apply this strategy with due diligence may result in expo-
+   sure of the assets the strategy is intended to shield.
+
+
+
+7. References
+
+
+
+   [1] David F. Ferraiolo and Richard Kuhn, "Role Based Access Control",
+   Proceedings of the 15th NIST-NSA National Computer Security Confer-
+   ence, Baltimore, MD, 13-16 October 1992.
+   URL:http://hissa.ncsl.nist.gov/rbac/paper/rbac1.html
+
+   [2] John Barkley, "Implementing Role Based Access Control Using
+   Object Technology", First ACM/NIST Workshop on Role-Based Access Con-
+   trol, Gaithersburg, MD, USA, Nov. 1995.
+   URL:http://hissa.ncsl.nist.gov/rbac/rbacot/titlewrkshp.html
+
+   [3] David F. Ferraiolo, Janet A. Cugini, D. Richard Kuhn, "Role-Based
+   Access Control (RBAC): Features and Motivations", National Institute
+   of Standards and Technology, U.S.  Department of Commerce, Gaithers-
+   burg, MD 20899, 11th Annual Computer Security Applications
+
+
+
+Bartz                                                          [Page 15]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+   Proceedings 1995.
+   URL:http://hissa.ncsl.nist.gov/rbac/newpaper/rbac.html
+
+   [4] Roy H. Campbell, Tin Qian, Willy Liao, Zhaoyu Liu, "Active Capa-
+   bility: A Unified security Model for Supporting Mobile, Dynamic and
+   Application Specific Delegation", Security White Paper, System
+   Software Research Group, Department of Computer Science, University
+   of Illinois at Urbana-Champaign, February 16, 1996.
+   URL:http://choices.cs.uiuc.edu/Security/Papers/delegate.ps
+
+   [5] J. Steven Fritzinger, Marianne Mueller, "Java Security", (c)
+   1996, Sun Microsystems, Inc.
+   URL:http://www.javasoft.com/security/whitepaper.txt
+
+   [6] W. Yeong, T. Howes, S. Kille, "Lightweight Directory Access Pro-
+   tocol. Request for Comments (RFC) 1777", March, 1995.
+   URL:ftp://ds.internic.net/rfc/rfc1777.txt
+
+   [7] T. Howes, S. Kille, W. Yeong, C. Robbins, "The String Representa-
+   tion of Standard Attribute Syntaxes. RFC 1778", March, 1995.
+   URL:ftp://ds.internic.net/rfc/rfc1778.txt
+
+   [8] Rational Software Corporation, "UML Notation Guide, Version 1.0",
+   January 13, 1997.
+   URL:http://www.rational.com/uml/start/notation_guide.html
+
+   [9] Netscape Communications Corporation, "The SSL Protocol, Version
+   3.0", March 1996.  URL:http://home.netscape.com/eng/ssl3/ssl-toc.html
+
+   [10] Satoshi, Hirano, "HORB: Distributed Execution of Java Programs",
+   Electrotechnical Laboratory and RingServer Project, 1-1-4 Umezono
+   Tsukuba, 305 Japan, March 1997.
+   URL:http://ring.etl.go.jp/~hirano/horb_wwwca97.ps
+
+   [11] Object Management Group, "OMA Executive Overview", February 3,
+   1997.  URL:http://www.omg.org/omg00/omaov.htm
+
+   [12] R. Housley, W. Ford, T. Polk, D. Solo, "Internet Public Key
+   Infrastructure, Part I:  X.509 Certificate and CRL Profile", Internet
+   Draft,August 1, 1997 URL:ftp://ietf.org/internet-drafts/draft-ietf-
+   pkix-ipki-part1-05.txt
+
+   [13] L. S. Bartz, "hyperDrive: Leveraging LDAP to implement RBAC on
+   the Web", in Proceedings of the Second ACM RBAC Workshop, pgs. 69-74,
+   November, 1997.  URL:http://hissa.ncsl.nist.gov/rbac/
+
+   [14] Thomas J. Mowbray, Raphael C. Malveau, "CORBA Design Patterns",
+   John Wiley and Sons, Inc., 1997
+
+
+
+Bartz                                                          [Page 16]
+
+
+
+
+
+INTERNET-DRAFT            LDAP Schema for RBAC          October 21, 1997
+
+
+8. Author's Address
+
+
+   Larry Bartz
+   Internal Revenue Service
+   575 N. Pennsylvania Street
+   Attn: Stop 15
+   Indianapolis, IN 46204
+   USA
+
+   Phone: +1 317 226-7060
+   Email: lbartz@infostream.cr.irs.gov
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bartz                                                          [Page 17]
+
+

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!-- start coded_template: id:2099975582 path:generated_layouts/2099975562.html -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]--><!--[if IE 7]>    
+<html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]--><!--[if IE 8]>    
+<html class="no-js lt-ie9" lang="en"> <![endif]--><!--[if gt IE 8]><!-->
+<html class="no-js" lang="en"><!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="author" content="UnboundID Corp.">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+<!-- UPDATE PAGE TITLE HERE -->
+    <title>LDAP</title> 
+    <link rel="shortcut icon" href="//cdn2.hubspot.net/hub/405650/file-1005453378-ico/images/favicon.ico?t=1416511326909">
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <link href="${BASE}css/public_common.css" rel="stylesheet">
+    <link href="${BASE}css/layout.css" rel="stylesheet">
+    <link href="${BASE}css/style_ldap.min.css" rel="stylesheet">
+    <link href="${BASE}css/base.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+    <script src="https://static.hsappstatic.net/content_shared_assets/static-1.3864/js/css3-mediaqueries.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,900,300italic,400italic,600italic,700italic,900italic" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700,500,300" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Exo:200,300,400,500,700,800" rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+  </head>
+  <body class="  hs-content-id-1917259562 hs-site-page page hs-content-path-getting-started-with-ldap hs-content-name-ldapcom-10-getting-started-with-ldap  " style="">
+    <div class="header-container-wrapper">
+    <div class="header-container container-fluid">
+      <div class="row-fluid-wrapper row-depth-1 row-number-1 ">
+        <div class="row-fluid ">
+        <div class="span12 widget-span widget-type-cell interior" style="" data-widget-type="cell" data-x="0" data-w="12">
+          <div class="row-fluid-wrapper row-depth-1 row-number-2 ">
+          <div class="row-fluid ">
+            <div class="span12 widget-span widget-type-global_group " style="" data-widget-type="global_group" data-x="0" data-w="12">
+              <div class="header">        
+                <div class="row-fluid-wrapper row-depth-1 row-number-1 ">
+                  <div class="row-fluid ">
+                    <div id="header" class="span12 widget-span widget-type-cell section" style="" data-widget-type="cell" data-x="0" data-w="12">
+                      <div class="row-fluid-wrapper row-depth-1 row-number-2 ">
+                        <div class="row-fluid ">
+                          <div class="span12 widget-span widget-type-cell " style="" data-widget-type="cell" data-x="0" data-w="12">
+                            <div class="row-fluid-wrapper row-depth-2 row-number-1 ">
+                            <div class="row-fluid ">
+                              <div class="span12 widget-span widget-type-cell nav_wrapper" style="" data-widget-type="cell" data-x="0" data-w="12">
+                              <div class="row-fluid-wrapper row-depth-3 row-number-1 ">
+                                <div class="row-fluid ">
+                                  <div class="span12 widget-span widget-type-cell " style="" data-widget-type="cell" data-x="0" data-w="12">
+                                  <div class="row-fluid-wrapper row-depth-3 row-number-2 ">
+                                    <div class="row-fluid ">
+                                      <div class="span12 widget-span widget-type-menu nav_primary container" style="" data-widget-type="menu" data-x="0" data-w="12">
+                                        <div class="cell-wrapper layout-widget-wrapper">
+                                          <span id="hs_cos_wrapper_module_14141041471997021" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_menu" style="" data-hs-cos-general-type="widget" data-hs-cos-type="menu">
+                                            <div id="hs_menu_wrapper_module_14141041471997021" class="hs-menu-wrapper active-branch no-flyouts hs-menu-flow-horizontal" data-sitemap-name="ldap">
+                                             <ul class=" active-branch">
+                                                <li class="hs-menu-item hs-menu-depth-1 active hs-item-has-children active-branch"><a href="https://www.ldap.com/getting-started-with-ldap">Getting Started with LDAP</a></li>
+                                                <li class="hs-menu-item hs-menu-depth-1"><a href="https://www.ldap.com/developing-clients-apps">Developing Clients &amp; Apps</a></li>
+                                                <li class="hs-menu-item hs-menu-depth-1"><a href="https://www.ldap.com/ldap-specs">LDAP Specs</a></li>
+                                                <li class="hs-menu-item hs-menu-depth-1"><a href="https://www.ldap.com/blog">Blog</a></li>
+                                             </ul>
+                                            </div>
+                                          </span>
+                                        </div><!--end layout-widget-wrapper -->
+                                      </div><!--end widget-span -->
+                                    </div><!--end row-->
+                                  </div><!--end row-wrapper -->
+                                  <div class="row-fluid-wrapper row-depth-3 row-number-3 ">
+                                    <div class="row-fluid ">
+                                      <div class="span12 widget-span widget-type-raw_html social_nav" style="" data-widget-type="raw_html" data-x="0" data-w="12">
+                                        <div class="cell-wrapper layout-widget-wrapper">
+<!-- Hide the UnboundID-specific social links
+                                          <span id="hs_cos_wrapper_module_141589903233513879" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_raw_html" style="" data-hs-cos-general-type="widget" data-hs-cos-type="raw_html">
+                                            <a href="http://twitter.com/unboundid"><i class="fa fa-twitter"></i></a>
+                                            <a href="http://www.linkedin.com/company/497942"><i class="fa fa-linkedin"></i></a>
+                                            <a href="http://www.youtube.com/user/UnboundID"><i class="fa fa-youtube-play"></i></a>
+                                            <a href="http://plus.google.com/117882194977541022244/about"><i class="fa fa-google-plus"></i></a>
+                                          </span>
+ -->
+                                        </div><!--end layout-widget-wrapper -->
+                                      </div><!--end widget-span -->
+                                    </div><!--end row-->
+                                  </div><!--end row-wrapper -->
+                                </div><!--end widget-span -->
+                              </div><!--end row-->
+                            </div><!--end row-wrapper -->
+                          </div><!--end widget-span -->
+                        </div><!--end row-->
+                      </div><!--end row-wrapper -->
+                    </div><!--end widget-span -->
+                  </div><!--end row-->
+                </div><!--end row-wrapper -->
+              </div><!--end widget-span -->
+            </div><!--end row-->
+          </div><!--end row-wrapper -->
+        </div>
+      </div><!--end widget-span -->
+    </div><!--end row-->
+  </div><!--end row-wrapper -->
+          <div class="row-fluid-wrapper row-depth-1 row-number-3 ">
+          <div class="row-fluid ">
+            <div class="span12 widget-span widget-type-cell texture_bg" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+              <div class="row-fluid-wrapper row-depth-2 row-number-1 ">
+              <div class="row-fluid ">
+                <div class="span12 widget-span widget-type-cell container" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+                  <div class="row-fluid-wrapper row-depth-3 row-number-1 ">
+                  <div class="row-fluid ">
+                    <div class="span9 widget-span widget-type-header header" style="" data-widget-type="header" data-x="0" data-w="9">
+                      <div class="cell-wrapper layout-widget-wrapper">
+                        <span id="hs_cos_wrapper_module_14159041779443715" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_header" style="" data-hs-cos-general-type="widget" data-hs-cos-type="header">
+<!-- UPDATE PAGE HEADER HERE -->
+                          <h1>UnboundID LDAP SDK for Java Documentation</h1>
+                        </span>
+                      </div><!--end layout-widget-wrapper -->
+                    </div><!--end widget-span -->
+                    <div class="span3 widget-span widget-type-cell logo" style="" data-widget-type="cell" data-x="9" data-w="3">
+
+                      <div class="row-fluid-wrapper row-depth-3 row-number-2 ">
+                      <div class="row-fluid ">
+                        <div class="span12 widget-span widget-type-global_widget ldap_logo" style="" data-widget-type="global_widget" data-x="0" data-w="12">
+                          <div class="cell-wrapper layout-widget-wrapper">
+                            <span id="hs_cos_wrapper_ldap_logo" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_linked_image" style="" data-hs-cos-general-type="widget" data-hs-cos-type="linked_image"><a href="https://www.ldap.com/" id="hs-link-ldap_logo" style="border-width:0px;border:0px;"><img src="${BASE}images/LDAPCOM_logo.jpg" class="hs-image-widget " style="width:279px;border-width:0px;border:0px;" width="279" alt="LDAPCOM_logo.jpg" title="LDAPCOM_logo.jpg"></a></span>
+                          </div><!--end layout-widget-wrapper -->
+                        </div><!--end widget-span -->
+                      </div><!--end row-->
+                      </div><!--end row-wrapper -->
+                      <div class="row-fluid-wrapper row-depth-3 row-number-3 ">
+                      <div class="row-fluid ">
+                        <div class="span12 widget-span widget-type-global_widget unboundid_logo" style="" data-widget-type="global_widget" data-x="0" data-w="12">
+                          <div class="cell-wrapper layout-widget-wrapper">
+                            <span id="hs_cos_wrapper_unboundid_logo" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_linked_image" style="" data-hs-cos-general-type="widget" data-hs-cos-type="linked_image"><a href="https://www.unboundid.com/" id="hs-link-unboundid_logo" style="border-width:0px;border:0px;"><img src="${BASE}images/UNBOUNDID_sponsored_logo.jpg" class="hs-image-widget " style="width:279px;border-width:0px;border:0px;" width="279" alt="UNBOUNDID_sponsored_logo.jpg" title="UNBOUNDID_sponsored_logo.jpg"></a></span>
+                          </div><!--end layout-widget-wrapper -->
+                        </div><!--end widget-span -->
+                      </div><!--end row-->
+                      </div><!--end row-wrapper -->
+                    </div><!--end widget-span -->
+                </div><!--end row-->
+                </div><!--end row-wrapper -->
+              </div><!--end widget-span -->
+          </div><!--end row-->
+          </div><!--end row-wrapper -->
+        </div><!--end widget-span -->
+    </div><!--end row-->
+    </div><!--end row-wrapper -->
+  </div><!--end widget-span -->
+  </div><!--end row-->
+  </div><!--end row-wrapper -->
+
+    </div><!--end header -->
+  </div><!--end header wrapper -->
+
+  <div class="body-container-wrapper">
+    <div class="body-container container-fluid">
+      <div class="row-fluid-wrapper row-depth-1 row-number-1 ">
+      <div class="row-fluid ">
+        <div class="span12 widget-span widget-type-cell torso" style="" data-widget-type="cell" data-x="0" data-w="12">
+          <div class="row-fluid-wrapper row-depth-1 row-number-2 ">
+          <div class="row-fluid ">
+            <div class="span12 widget-span widget-type-cell container" style="" data-widget-type="cell" data-x="0" data-w="12">
+              <div class="row-fluid-wrapper row-depth-2 row-number-1 ">
+              <div class="row-fluid ">
+                <div class="span12 widget-span widget-type-cell " style="" data-widget-type="cell" data-x="0" data-w="12">
+                <div class="row-fluid-wrapper row-depth-3 row-number-1 ">
+                  <div class="row-fluid ">
+                    <div class="span8 widget-span widget-type-cell content" style="" data-widget-type="cell" data-x="0" data-w="8">
+                    <div class="row-fluid-wrapper row-depth-3 row-number-2 ">
+                      <div class="row-fluid ">
+                        <div class="span12 widget-span widget-type-rich_text intro" style="" data-widget-type="rich_text" data-x="0" data-w="12">
+                          <div class="cell-wrapper layout-widget-wrapper">
+                            <span id="hs_cos_wrapper_module_141634972542617336" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text">
+<!-- ENTER INTRO TEXT HERE -->
+<!-- <p> Intro Text </p> -->
+                            </span>
+                          </div><!--end layout-widget-wrapper -->
+                        </div><!--end widget-span -->
+                      </div><!--end row-->
+                      </div><!--end row-wrapper -->
+                      <div class="row-fluid-wrapper row-depth-3 row-number-3 ">
+                      <div class="row-fluid ">
+                        <div class="span12 widget-span widget-type-rich_text main" style="" data-widget-type="rich_text" data-x="0" data-w="12">
+                          <div class="cell-wrapper layout-widget-wrapper">
+                            <span id="hs_cos_wrapper_module_14159041873173857" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text">
+<!-- BODY CONTENT GOES HERE -->                            

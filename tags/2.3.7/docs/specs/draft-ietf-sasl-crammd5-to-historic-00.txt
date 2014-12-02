@@ -1,0 +1,339 @@
+
+
+
+
+
+
+INTERNET-DRAFT                                     Kurt D. Zeilenga
+Intended Category: Informational                   Isode Limited
+Expires in six months                              20 November 2008
+Obsoletes: 2195
+
+
+
+                           CRAM-MD5 to Historic
+               <draft-ietf-sasl-crammd5-to-historic-00.txt>
+
+
+
+Status of this Memo
+
+  This document is intended to be, after appropriate review and
+  revision, submitted to the RFC Editor as a Informational document.
+  Distribution of this memo is unlimited.  It is suggested that
+  technical discussion regarding this document take place on the IETF
+  SASL WG mailing list <ietf-sasl@imc.org>.  Please send editorial
+  comments directly to the author <Kurt.Zeilenga@Isode.COM>.
+
+  By submitting this Internet-Draft, each author represents that any
+  applicable patent or other IPR claims of which he or she is aware have
+  been or will be disclosed, and any of which he or she becomes aware
+  will be disclosed, in accordance with Section 6 of BCP 79.
+
+  Internet-Drafts are working documents of the Internet Engineering Task
+  Force (IETF), its areas, and its working groups. Note that other
+  groups may also distribute working documents as Internet-Drafts.
+
+  Internet-Drafts are draft documents valid for a maximum of six months
+  and may be updated, replaced, or obsoleted by other documents at any
+  time. It is inappropriate to use Internet-Drafts as reference material
+  or to cite them other than as "work in progress."
+
+  The list of current Internet-Drafts can be accessed at
+  http://www.ietf.org/1id-abstracts.html.
+
+  The list of Internet-Draft Shadow Directories can be accessed at
+  http://www.ietf.org/shadow.html.
+
+
+  Copyright (C) The IETF Trust (2008).
+
+  Please see the Full Copyright section near the end of this document
+  for more information.
+
+
+
+
+
+Zeilenga         draft-ietf-sasl-crammd5-to-historic-00         [Page 1]
+
+INTERNET-DRAFT                  CRAM-MD5                20 November 2008
+
+
+Abstract
+
+  This document recommends the retirement of the CRAM-MD5 authentication
+  mechanism, and discusses the reasons for doing so.  This document
+  recommends RFC 2195 and its predecessor, RFC 2095, be moved to
+  Historic status.
+
+
+  [[Note to RFC Editor: please publish at same time that [SCRAM] is
+  published.]]
+
+
+1. CRAM-MD5
+
+  CRAM-MD5 [RFC2195] is a authentication mechanism.  It was originally
+  designed for use in Internet Messaging Access Protocol (IMAP)
+  [RFC3501] and Post Office Protocol (POP) [RFC1939].  It is also
+  registered as a Simple Authentication and Security Layer (SASL)
+  [RFC4422] mechanism [IANA-SASL], though it has not been formally
+  specified as SASL mechanism.
+
+  CRAM-MD5 is a simple challenge/response protocol for establishing that
+  both parties have knowledge of a shared secret derived from the user's
+  password, presumedly a sequence of characters.
+
+  While CRAM-MD5 is widely implemented and deployed on the Internet,
+  interoperability is only possible where the client and server have an
+  a priori agreement on the character set and encoding of the password,
+  and any normalization to be applied before input to the cryptographic
+  functions applied by both client and server.   Even where the client
+  and server are implemented by the same developer, the client and
+  server will not operate properly in absence of an a priori agreement
+  (such as "passwords shall be a sequence of ASCII printable characters,
+  encoded in a octet with zero parity, with no normalization").
+
+  CRAM-MD5 does not provide adequate security services for use on the
+  Internet.  CRAM-MD5 does not protect the user's authentication
+  identifier from eavesdroppers.  CRAM-MD5 challenge/response exchange
+  is subject to a number of passive and active attacks.
+
+  CRAM-MD5 does not provide any data security services nor channel
+  bindings [CBIND] to data security services (e.g., TLS [RFC5246])
+  provided externally.
+
+  RFC 2195 states no recommendation (or mandate) that implementors only
+  offer CRAM-MD5 when external data security services are in place.  RFC
+  2195 does not recommend (or mandate) that implementations supporting
+  CRAM-MD5 implement any external data security service.
+
+
+
+Zeilenga         draft-ietf-sasl-crammd5-to-historic-00         [Page 2]
+
+INTERNET-DRAFT                  CRAM-MD5                20 November 2008
+
+
+  While it possible to revise RFC 2195 to address these and other
+  deficiencies of the authentication mechanism, these changes would be
+  disruptive to existing deployments.  For instance, if a revision were
+  to specify that a particular character set, encoding, and
+  normalization of the password is to be used, this mandate would
+  disruptive to deployers who use an incompatible character set,
+  encoding, and/or normalization.  Addition of additional security
+  features, such as channel bindings, seems more appropriately done by
+  introduced in a new mechanism.
+
+
+2. Recommendations
+
+  It is recommended RFC 2195 and its predecessor, RFC 2095, be moved to
+  Historic status.
+
+  It is recommended that application protocol designers and deployers
+  consider the SASL PLAIN [RFC4616] mechanism protected by TLS [RFC5246]
+  and/or the SASL Salted Challenge Response Authentication Mechanism
+  (SCRAM) [SCRAM] as alternatives to CRAM-MD5.
+
+
+3. Security Considerations
+
+  The retirement of CRAM-MD5 may lead to use of stronger authentication
+  mechanisms and, hence, may improve Internet security.
+
+
+4. IANA Considerations
+
+  It is requested that IANA update the SASL CRAM-MD5 registration upon
+  publication approval of this document.
+
+      Subject: Updated Registration of SASL CRAM-MD5 mechanism
+      SASL mechanism (or prefix for the family): CRAM-MD5
+      Security considerations: see RFC XXXX
+      Published specification (recommended): RFC XXXX, RFC 2195
+      Person & email address to contact for further information:
+           Kurt Zeilenga <kurt.zeilenga@isode.com>
+      Intended usage: LIMITED
+      Owner/Change controller: IESG
+
+
+7. Acknowledgments
+
+  TBD
+
+
+
+
+
+Zeilenga         draft-ietf-sasl-crammd5-to-historic-00         [Page 3]
+
+INTERNET-DRAFT                  CRAM-MD5                20 November 2008
+
+
+8. Author's Address
+
+  Kurt D. Zeilenga
+  Isode Limited
+
+  Email: Kurt.Zeilenga@Isode.COM
+
+
+9. References
+
+  [[Note to the RFC Editor: please replace the citation tags used in
+  referencing Internet-Drafts with tags of the form RFCnnnn where
+  possible.]]
+
+9.1. Normative References
+
+  [RFC2095]     Klensin, J., R. Catoe, and P. Krumviede, "IMAP/POP
+                AUTHorize Extension for Simple Challenge/Response", RFC
+                2095, January 1997.
+
+  [RFC2195]     Klensin, J., R. Catoe, and P. Krumviede, "IMAP/POP
+                AUTHorize Extension for Simple Challenge/Response", RFC
+                2195, September 1997.
+
+  [IANA-SASL]   IANA, "SIMPLE AUTHENTICATION AND SECURITY LAYER (SASL)
+                MECHANISMS",
+                <http://www.iana.org/assignments/sasl-mechanisms>.
+
+
+9.2. Informative References
+
+
+  [RFC1939]     Myers, J. and M. Rose, "Post Office Protocol - Version
+                3", STD 53, RFC 1939, May 1996.
+
+  [RFC3501]     Crispin, M., "INTERNET MESSAGE ACCESS PROTOCOL - VERSION
+                4rev1", RFC 3501, March 2003.
+  [RFC4422]     Melnikov, A. (Editor), K. Zeilenga (Editor), "Simple
+                Authentication and Security Layer (SASL)", RFC 4422,
+                June 2006.
+
+  [RFC4616]     Zeilenga, K., "The PLAIN Simple Authentication and
+                Security Layer (SASL) Mechanism", RFC 4616, August 2006.
+
+
+  [RFC5246]     Dierks, T. and, E. Rescorla, "The Transport Layer
+                Security (TLS) Protocol Version 1.2", RFC 5246, August
+                2008.
+
+
+
+Zeilenga         draft-ietf-sasl-crammd5-to-historic-00         [Page 4]
+
+INTERNET-DRAFT                  CRAM-MD5                20 November 2008
+
+
+  [SCRAM]         Menon-Sen, Abhijit, C. Newman, "Salted Challenge
+                Response Authentication Mechanism (SCRAM)", draft-
+                newman-auth-scram-xx.txt, a work in progress.
+
+  [CBIND]       Williams, N., "On the Use of Channel Bindings to Secure
+                Channels", draft-williams-on-channel-binding-xx.txt, a
+                work in progress.
+
+
+Intellectual Property
+
+  The IETF takes no position regarding the validity or scope of any
+  Intellectual Property Rights or other rights that might be claimed to
+  pertain to the implementation or use of the technology described in
+  this document or the extent to which any license under such rights
+  might or might not be available; nor does it represent that it has
+  made any independent effort to identify any such rights.  Information
+  on the procedures with respect to rights in RFC documents can be found
+  in BCP 78 and BCP 79.
+
+  Copies of IPR disclosures made to the IETF Secretariat and any
+  assurances of licenses to be made available, or the result of an
+  attempt made to obtain a general license or permission for the use of
+  such proprietary rights by implementers or users of this specification
+  can be obtained from the IETF on-line IPR repository at
+  http://www.ietf.org/ipr.
+
+  The IETF invites any interested party to bring to its attention any
+  copyrights, patents or patent applications, or other proprietary
+  rights that may cover technology that may be required to implement
+  this standard.  Please address the information to the IETF at
+  ietf-ipr@ietf.org.
+
+
+
+Full Copyright
+
+  Copyright (C) The IETF Trust (2008).
+
+  This document is subject to the rights, licenses and restrictions
+  contained in BCP 78, and except as set forth therein, the authors
+  retain all their rights.
+
+  This document and the information contained herein are provided on an
+  "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+  OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+  THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+  OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+
+
+
+Zeilenga         draft-ietf-sasl-crammd5-to-historic-00         [Page 5]
+
+INTERNET-DRAFT                  CRAM-MD5                20 November 2008
+
+
+  THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+  WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Zeilenga         draft-ietf-sasl-crammd5-to-historic-00         [Page 6]
+

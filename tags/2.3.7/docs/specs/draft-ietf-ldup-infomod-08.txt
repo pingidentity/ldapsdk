@@ -1,0 +1,1703 @@
+
+
+                                                                         
+    Internet Draft                                         Richard Huber 
+    Document: draft-ietf-ldup-infomod-08.txt           AT&T Laboratories 
+    Expires: April 30 2004                                John McMeeking 
+    Intended Category: Experimental                                  IBM 
+                                                              Ryan Moats 
+                                                          Lemur Networks 
+                                                            October 2003 
+     
+                     LDUP Replication Information Model 
+                       draft-ietf-ldup-infomod-08.txt 
+     
+     
+ 1.   Status of this Memo 
+     
+    This document is an Internet-Draft and is in full conformance 
+    with all provisions of Section 10 of RFC2026. 
+  
+     
+    Internet-Drafts are working documents of the Internet Engineering 
+    Task Force (IETF), its areas, and its working groups.  Note that      
+    other groups may also distribute working documents as Internet-
+    Drafts. 
+     
+    Internet-Drafts are draft documents valid for a maximum of six 
+    months and may be updated, replaced, or obsoleted by other 
+    documents at any time.  It is inappropriate to use Internet-Drafts 
+    as reference material or to cite them other than as "work in 
+    progress." 
+     
+    The list of current Internet-Drafts can be accessed at 
+         http://www.ietf.org/ietf/1id-abstracts.txt 
+     
+    The list of Internet-Draft Shadow Directories can be accessed at 
+         http://www.ietf.org/shadow.html. 
+     
+    This Internet-Draft expires March, 2002. 
+     
+     
+ 2.   Abstract 
+     
+    [LDUP Model] describes the architectural approach to replication of 
+    LDAP directory contents.  This document describes the information 
+    model and schema elements which support LDAP Replication Services 
+    which conform to [LDUP Model]. 
+     
+    Directory schema are extended to provide object classes, 
+    subentries, and attributes to describe areas of the namespace which 
+    are under common administrative authority, units of replication 
+    (i.e., subtrees, or partitions of the namespace, which are 
+    replicated), servers which hold replicas of various types for the 
+    various partitions of the namespace, which namespaces are held on 
+    given servers, and the progress of various namespace management and 
+    replication operations.  Among other things, this knowledge of 
+      
+    Huber, et al           Expires April 2004                  [Page 1] 
+
+                         LDUP Information Model                         
+
+    where directory content is located will provide the basis for 
+    dynamic generation of LDAP referrals for clients who can follow 
+    them. 
+     
+    The controlling framework by which the relationships, types, and 
+    health of replicas of the directory content will be defined so 
+    that, as much as possible, directory content is itself used to 
+    monitor and control the environment. 
+     
+    Security information, including access control policy identifiers 
+    and information will be treated as directory content by the 
+    replication protocols when specified by the LDAPEXT group.  Note 
+    that [RFC2820] specifies that access control information must be 
+    stored as LDAP attributes.  Access control information will be 
+    replicated properly under any access control scheme that satisfies 
+    this requirement. 
+     
+    The information model will describe required and optional house-
+    keeping duties for compliant systems to implement, such as garbage 
+    collection of deleted objects, reconciliation of moved and renamed 
+    objects, update sequencing and transaction bracketing of changes, 
+    etc. 
+     
+    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", 
+    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and  "OPTIONAL" in 
+    this document are to be interpreted as described in RFC 2119 
+    [RFC2119]. The sections below reiterate these definitions and 
+    include some additional ones. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+    Huber, et al           Expires April 2004                  [Page 2] 
+
+                         LDUP Information Model                         
+
+  
+ 3.   Table of Contents 
+     
+     
+    1. Status of this Memo...........................................1 
+    2. Abstract......................................................1 
+    3. Table of Contents.............................................3 
+    4. Introduction..................................................5 
+    4.1.  Scope......................................................5 
+    4.2.  Terms and Definitions......................................5 
+    5. Data design...................................................5 
+    6. Directory Knowledge...........................................5 
+    7. Schema........................................................6 
+    7.1.  Data Structure Definitions.................................6 
+    7.1.1.  LdapChangeSequenceNumber.................................7 
+    7.2.  Attribute Definitions......................................8 
+    7.2.1.  supportedReplicationProtocols............................8 
+    7.2.2.  attributeExclusionFilter.................................8 
+    7.2.3.  attributeInclusionFilter.................................9 
+    7.2.4.  replicaURI...............................................9 
+    7.2.5.  replicationStatus.......................................10 
+    7.2.6.  replicaType.............................................10 
+    7.2.7.  updateVector............................................11 
+    7.2.8.  replicaSecondaryURI.....................................11 
+    7.2.9.  lostAndFoundEntryDN.....................................12 
+    7.2.10. replicaOnline...........................................12 
+    7.2.11. replicaDN...............................................12 
+    7.2.12. replicationMechanismOID.................................12 
+    7.2.13. replicationCredentialsDN................................13 
+    7.2.14. replicationScheduleDN...................................13 
+    7.2.15. updateVectorTrigger.....................................13 
+    7.2.16. secondsToWaitDefault....................................14 
+    7.2.17. secondsToWait1..........................................14 
+    7.2.18. attrReplicationGroup1...................................15 
+    7.2.19. secondsToWait2..........................................15 
+    7.2.20. attrReplicationGroup2...................................16 
+    7.2.21. scheduleTimePeriod......................................16 
+    7.2.22. scheduleMonthOfYearMask.................................16 
+    7.2.23. scheduleDayOfMonthMask..................................16 
+    7.2.24. scheduleDayOfWeekMask...................................17 
+    7.2.25. scheduleTimeOfDayMask...................................17 
+    7.2.26. scheduleLocalOrUtcTime..................................17 
+    7.3.  Class Definitions.........................................17 
+    7.3.1.  ReplicationContext......................................17 
+    7.3.2.  replicaSubentry.........................................18 
+    7.3.3.  replicaAgreement........................................19 
+    7.3.4.  replicaEventSchedule....................................20 
+    7.3.5.  replicaTimeSchedule.....................................22 
+      
+    Huber, et al           Expires April 2004                  [Page 3] 
+
+                         LDUP Information Model                         
+
+    8. Semantics of the information model...........................22 
+    9. Object Identifier Assignments................................25 
+    10.  Security Considerations....................................27 
+    11.  Copyright Notice...........................................28 
+    12.  Acknowledgements...........................................29 
+    13.  Authors' Addresses.........................................29 
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+    Huber, et al           Expires April 2004                  [Page 4] 
+
+                         LDUP Information Model                         
+
+     
+ 4.   Introduction 
+     
+ 4.1. Scope 
+     
+    This document describes schema for information used to control 
+    replication. 
+     
+    Management and status schema elements are defined. 
+     
+    Semantic interpretation of schema elements, including any special 
+    handling expectations, are provided here. 
+     
+ 4.2. Terms and Definitions 
+     
+    Definitions are provided in [RFC3384]. 
+     
+ 5.   Data design 
+     
+    As described in [LDUP Model], knowledge of replicated portions of 
+    the directory information tree (DIT) is stored in the directory 
+    itself. 
+     
+    An auxiliary class is defined to designate containers, or nodes, in 
+    the DIT which are the root-most, or base, of replication contexts.  
+    Directory subentries [LDAP Subentry] are used to hold information 
+    about replicas. 
+     
+    In defining the replication agreement data model, describing the 
+    constraints under which replication between two replicas will 
+    occur, this document describes only the least set of information 
+    necessary to ensure interoperability between implementations.  The 
+    current document defines data elements sufficient to describe most 
+    common replication needs.  The specification of complex replication 
+    agreements and constraints is better served by usage of the 
+    emerging "policy model" [Policy schema].   
+     
+ 6.   Directory Knowledge 
+     
+    Information about what replicas exist, what they contain, their 
+    types, where they are stored, and how they may be contacted 
+    inevitably provides the basis for distributed directory knowledge.  
+    As namespaces from stand-alone servers are inter-connected with one 
+    another, this replica information can and will be used by name 
+    resolution operations to locate servers holding copies of specific 
+    objects, and to optimize distributed searches which span multiple 
+    Naming Contexts. 
+     
+    However, the focus of this document is NOT to fully enable such 
+    distributed directory uses.  Instead, we are focused on how 
+    portions of the namespace (Directory Information Tree - DIT) may be 
+    replicated, and how those replicas are configured and related to 
+    one another via Replication Agreements. 
+     
+      
+    Huber, et al           Expires April 2004                  [Page 5] 
+
+                         LDUP Information Model                         
+
+    As such, the following high-level description (from [LDUP Model]) 
+    of the information model envisioned is provided as a reference for 
+    the reader before presenting the detailed specifications.  
+     
+    Generally, the DSE Naming Context attribute of an LDAPv3 server 
+    names the Naming Contexts for which there are replicas on that 
+    server. 
+     
+    The Replication Context Auxiliary Class (replicationContext) is 
+    added to container objects which may have separately defined 
+    replication policy. 
+     
+    Immediately subordinate to a Replication Context object are the 
+    Replica Subentry containers which identify where the identified 
+    replica resides (i.e., its LDAP Access Point), its type 
+    (Updateable, ReadOnly), if it is sparse, the LDAP search filter 
+    which defines what object classes it holds, and if it is 
+    fractional, the attributes it does or does not hold. 
+     
+    Immediately subordinate in the namespace to a Replica Subentry are 
+    Replication Agreement leaf entries which each identify another 
+    Replica, the scheduling policy for replication operations 
+    (including times when replication is to be performed, when it is 
+    not to be performed, or the policies governing event-driven 
+    replication initiation).  These Replication Agreements are used to 
+    specify constraints on when the replica will supply what changes to 
+    the "pointed to" other replica, as either the replication initiator 
+    or responder. 
+     
+    Replication Agreements are not defined to cover the following 
+    advanced policy characteristics: 
+     
+      - when a replica would allow consumers to request a replication 
+         session 
+      - when a replica would allow suppliers to start a replication 
+         session 
+      - when a replica would request a replication session from a 
+         supplier. 
+     
+    These advanced policy specifications imply the specification of 
+    complex replication agreements and constraints.  This is better 
+    served by usage of the emerging "policy model" [Policy schema].  
+    Interoperable policies for replication agreements is left as a 
+    follow-on work effort. 
+     
+     
+ 7.   Schema 
+     
+ 7.1. Data Structure Definitions 
+     
+    For the purposes of defining the encoding rules for attribute 
+    structures, the BNF definitions in section 4.1 of [RFC2252] will be 
+    used.  They are based on the BNF styles of [RFC822]. 
+     
+      
+    Huber, et al           Expires April 2004                  [Page 6] 
+
+                         LDUP Information Model                         
+
+    To avoid requiring new syntax support to be added unnecessarily to 
+    existing LDAPv3 directory service implementations (and the 
+    accompanying matching rules, etc. they would entail), a string 
+    encoding is defined for ldapChangeSequenceNumber which can use 
+    CaseIgnoreString matching rules for ordering and equality. 
+     
+ 7.1.1. LdapChangeSequenceNumber 
+     
+    ( 1.3.6.1.4.1.1466.115.121.1.TBD 
+       DESC 'LDAP Change Sequence Number' ) 
+     
+    Values in this syntax are encoded according to the following BNF.  
+    Note there MUST NOT be any white space separators, unless they are 
+    in replicaID, which must be encoded according to the instructions 
+    below. 
+     
+    This encoding is specified so that the CaseIgnoreString equality 
+    and ordering rules will work correctly when replicaNumber is used. 
+    When replicaID is used, CaseIgnoreString comparison rules will not 
+    work unless each replicaID is exactly the same length with no 
+    padded white spaces (because CaseIgnoreString suppresses duplicate 
+    adjacent white space when it compares two strings). 
+     
+    LDAPChangeSequenceNumber = GeneralizedZTime "#" \ 
+                               S1 "#" replicaID "#" S2 
+     
+    GeneralizedZTime = yyyy | mm | dd | hh | mi | ss | "Z" 
+     
+    yyyy = dddd <four digit year, e.g. 1998> 
+     
+    mm = dd <two digit month of the year, e.g. 06> 
+     
+    dd = dd <two digit day of month, e.g. 17> 
+     
+    hh = dd <two digit hour of the day, inclusive range (00..23)> 
+     
+    mi = dd <two digit minute of the hour, inclusive range (00..59)> 
+     
+    ss = dd <two digit seconds of the minute, inclusive range (00..59)> 
+     
+    replicaID = dstring  
+     
+    S1, S2 = numericstring 
+     
+    The GeneralizedTime is used as described (cf. [X680] section 39.3 
+    case b) without separators or white space, and representing a 
+    coordinated universal time (i.e., Greenwich Mean Time, or GMT).  
+    All times referenced by this syntax MUST be normalized to GMT - no 
+    local times, nor time zone offsets are permitted.  To simplify 
+    comparisons of two CSNs, the "Z" MUST be the UTF-8 capital-Z 
+    character. 
+     
+    The ReplicaID represents the specific Replica of this Naming 
+    Context where the event associated with this 
+      
+    Huber, et al           Expires April 2004                  [Page 7] 
+
+                         LDUP Information Model                         
+
+    LDAPChangeSequenceNumber occurred. Note that in actual transfer, 
+    the replicaID MAY be represented by a number which is associated 
+    with the entryUUID of the replicaSubEntry associated with the 
+    replica (see the specification of the replicaIDTable in [LDUP 
+    Update Protocol]).  When associated with an item of information 
+    within a replica, the replicaID should be traceable to the 
+    entryUUID of the replicaSubEntry associated with the replica on 
+    which the modification was made.  This allows for compressed 
+    internal storage of change sequence numbers while still ensuring 
+    that change sequence numbers will be universally unique regardless 
+    of the replication context from which they were first produced. 
+     
+    S1 and S2 are sequence numbers which are used to order two events 
+    with the same Generalized Time and replicaID.  In order to use 
+    string matching rules for equality and ordering with values with 
+    this encoding, the length of each field must be consistent.  Thus, 
+    all instances of S1 MUST be represented with the same number of 
+    digits, using leading zeros as necessary.  The same with S2 and 
+    replicaID. 
+     
+ 7.2. Attribute Definitions 
+     
+ 7.2.1. supportedReplicationProtocols 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'supportedReplicationProtocols' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 
+       EQUALITY caseIgnoreMatch 
+       DESC 'set of OIDs which represent the (set of) protocols 
+             supported by this server' ) 
+     
+    This attribute is added to the root DSE entry of servers which 
+    support replication as defined by [LDUP Model]. 
+     
+     
+     
+        
+ 7.2.2. attributeExclusionFilter 
+     
+    ( 2.16.840.1.113719.1.142.4.1 NAME 'attributeExclusionFilter' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 
+       SINGLE-VALUE 
+      
+       USAGE dSAOperation ) 
+     
+    The attributeExclusionFilter is intended to contain a list of 
+    attributes in the form of an AttributeDescriptionList as described 
+    in section 4.5.1 Search Request of [RFC2251] with the following 
+    interpretation:  an empty attributeExclusionFilter means that no 
+    attributes are excluded; the special values "*" and "1.1" mean that 
+    ALL attributes are excluded. 
+     
+    A non-empty attributeExclusionFilter attribute on a replica 
+    subentry describes the attributes NOT PRESENT on entries held by 
+    that replica.  Replicas MUST NOT accept changes for attributes 
+      
+    Huber, et al           Expires April 2004                  [Page 8] 
+
+                         LDUP Information Model                         
+
+    they're not permitted to hold, per the attributeInclusionFilter and 
+    attributeExclusionFilter attributes on their replica subentry. 
+     
+    A non-empty attributeExclusionFilter attribute on a replication 
+    agreement subentry describes which additional attributes are to be 
+    excluded from the updates to be sent from the supplier replica to 
+    the consumer replica. 
+     
+ 7.2.3. attributeInclusionFilter 
+     
+    ( 2.16.840.1.113719.1.142.4.2 NAME 'attributeInclusionFilter' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 
+       SINGLE-VALUE 
+      
+       USAGE dSAOperation ) 
+     
+    The attributeInclusionFilter is intended to contain a list of 
+    attributes in the form of an AttributeDescriptionList as described 
+    in section 4.5.1 Search Request of [RFC2251] with the following 
+    interpretation:  an empty attributeInclusionFilter means that all 
+    attributes are included; the special value "*" means that ALL 
+    attributes are included; the special value "1.1" is meaningless and 
+    is ignored in this usage. 
+     
+    A non-empty attributeInclusionFilter attribute on a replica 
+    subentry describes the attributes that may be PRESENT on entries 
+    held by that replica.  Replicas MUST NOT accept changes for 
+    attributes they're not permitted to hold, per the 
+    attributeInclusionFilter and attributeExclusionFilter attributes on 
+    their replica subentry. 
+     
+    It is an error to specify both an attributeExclusionFilter and an 
+    attributInclusionFilter in the same replicaSubentry.  
+     
+ 7.2.4. replicaURI 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'replicaURI' 
+       DESC 'LDAP URLs which indicate how to connect to this replica' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+       EQUALITY caseExactMatch 
+       USAGE dSAOperation ) 
+     
+    The replicaURI attribute is a multi-valued attribute used to list 
+    the set of LDAP URLs that should be used to contact the replica for 
+    replication sessions.  If all URLs in the replicaURL attribute are 
+    not contactable, the replicaSecondaryURL attribute values should be 
+    used to establish a replication session with the replica. 
+     
+    The replicaURI MUST be an LDAP URL as specified in RFC 2255.  The 
+    replicaURI SHOULD specify only the host name (or IP address) of the 
+    destination replica and possibly a port number.  Filters, base DN, 
+    and other LDAP URL components MUST be ignored if they are supplied.  
+     
+
+      
+    Huber, et al           Expires April 2004                  [Page 9] 
+
+                         LDUP Information Model                         
+
+ 7.2.5. replicationStatus 
+     
+    (2.16.840.1.113719.1.142.4.3 NAME 'replicationStatus' 
+       DESC 'human readable status of last replication attempt' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+       SINGLE-VALUE 
+       NO-USER-MODIFICATION 
+       USAGE dSAOperation ) 
+     
+    The replicationStatus attribute MAY be used to hold a human 
+    readable message describing the most recent replication session 
+    attempt for a replication agreement. 
+     
+    For example, such a messages might include  
+     
+    1) 9980805162203Z # Success # 
+     
+    2) 19980805162322Z # Failure # Server too busy, try again 
+     
+    3) 19980805170215Z # Failure # Unable to connect to DSA 
+     
+    4) 19980806002301Z # Failure # Authentication failed 
+     
+    5) 19980806003201Z # Failure # lost connection, reset by peer 
+     
+    It is suggested, but not required, that the time of a replication 
+    attempt (completion, if successful or failure, if not), the result 
+    of the attempt, and any additional information about a failure be 
+    included in the string message. 
+     
+    It is suggested, but not required, that the messages be stored with 
+    language tags (English, French, German, Japanese, Chinese, per 
+    [RFC2596]) particularly if multiple translations of the error 
+    messages are available to the DSA implementers. 
+     
+    Sequences of status entries SHOULD be written to log files or other 
+    persistent storage, or in multi-valued replication history 
+    attributes, but are not specified here. 
+     
+ 7.2.6. replicaType 
+     
+    (2.16.840.1.113719.1.142.4.4 NAME 'replicaType' 
+       DESC 'Enum: 0-reserved, 1-reserved, 2-Updateable, 
+             3-ReadOnly, all others reserved' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+       EQUALITY integerMatch 
+       SINGLE-VALUE 
+      
+       USAGE dSAOperation ) 
+     
+    ReplicaType is a simple enumeration, used to identify what kind of 
+    replica is being described in a Replica object entry. 
+     
+
+      
+    Huber, et al           Expires April 2004                 [Page 10] 
+
+                         LDUP Information Model                         
+
+    A ReadOnly replica only accepts LDAP Search operations (to Read 
+    entries, list containers, and search for entries).  Because no 
+    updates ever originate from ReadOnly replicas, they never have 
+    changes to send to another replica.  However, a ReadOnly replica 
+    may be designated a supplier DSA in a replica agreement, if it is 
+    simply passing along information it receives from Updateable 
+    replicas about entries and their changes. 
+     
+    ReadOnly replicas may be partial replicas. 
+     
+    An Updateable replica may accept both LDAP Search operations (to 
+    read, list, or search entries), as well as modification operations 
+    (to add, modify, or delete entries).   
+     
+    The consequences of having partial updateable replicas are not 
+    fully understood.  LDAP DSAs MAY require updateable replicas to be 
+    complete replicas. 
+     
+     
+     
+    The way in which replicas change their type, as from ReadOnly to 
+    Updateable, is discussed in [LDUP MRM]. 
+     
+    Section 5.1 "Replica Type" of [LDUP MODEL] details the permissible 
+    combinations of replica types and sparse/fractional replicas. 
+     
+ 7.2.7. updateVector 
+     
+    ( 2.16.840.1.113719.1.142.4.6 NAME 'updateVector' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.TBD 
+       EQUALITY caseIgnoreMatch 
+       ORDERING caseIgnoreOrderingMatch 
+       NO-USER-MODIFICATION 
+       USAGE dSAOperation ) 
+     
+    The attribute updateVector is a multi-valued attribute which 
+    contains information for a replica describing the latest changes 
+    received by the replica from other replicas. 
+     
+    There may be only one ldapChangeSequenceNumber entry from each 
+    replica in the updateVector.  That is to say, there is a unique 
+    value constraint on the ReplicaID component of entries in the list. 
+     
+ 7.2.8. replicaSecondaryURI 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'replicaSecondaryURI' 
+       DESC 'LDAP URLs which indicate how to connect to this replica' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 
+       EQUALITY caseExactMatch 
+       USAGE dSAOperation ) 
+     
+    The replicaSecondaryURI attribute is a multi-valued attribute used 
+    to list the set of LDAP URLs that should be used to contact the 
+
+      
+    Huber, et al           Expires April 2004                 [Page 11] 
+
+                         LDUP Information Model                         
+
+    replica for replication sessions if all LDAP URLs in the replicaURL 
+    attribute are not contactable.  
+     
+ 7.2.9. lostAndFoundEntryDN 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'lostAndFoundEntryDN' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 
+       EQUALITY distinguishedNameMatch 
+       SINGLE-VALUE 
+       DESC 'name of the entry under which orphaned entries will 
+             be moved during replication update processing by this 
+             replica.' ) 
+     
+    This attribute indicates the location under which the replica will 
+    move orphaned entries that are encountered while performing 
+    replication updates.  The attribute is single-valued and is 
+    specific to each replica. 
+     
+ 7.2.10. replicaOnline 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'replicaOnline' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 
+       EQUALITY booleanMatch 
+       SINGLE-VALUE 
+       DESC 'indicates whether or not the replica will 
+             will initiate and/or respond to replication 
+             session start requests.' ) 
+     
+    This attribute indicates whether the replica is ready and willing 
+    to participate in replication sessions with other replicas that are 
+    defined as holding the replication context. 
+  
+ 7.2.11. replicaDN 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'replicaDN' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 
+       EQUALITY distinguishedNameMatch 
+       SINGLE-VALUE 
+       DESC 'name of the consumer replicaSubentry entry that the 
+             replicaAgreement links to.' ) 
+     
+    This attribute is used to link a replicaAgreement entry (associated 
+    with a supplier of replication update information) to the consumer 
+    replica that will be contacted by replication sessions constrained 
+    by the replicaAgreement. 
+     
+ 7.2.12. replicationMechanismOID 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'replicationMechanismOID' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 
+       EQUALITY caseIgnoreMatch 
+       SINGLE-VALUE 
+       DESC 'the OID which represents the specific  
+             replication protocol used for replication 
+      
+    Huber, et al           Expires April 2004                 [Page 12] 
+
+                         LDUP Information Model                         
+
+             sessions between the identified supplier and 
+             consumer replicas.' ) 
+     
+    This attribute identifies the specific replication protocol used 
+    for replication sessions between the supplier and consumer replicas 
+    associated by the replicaAgreement entry.  This attribute must be a 
+    value that is within the set of attribute values for the 
+    supportedReplicationProtocols attribute in the root DSE entry. 
+     
+ 7.2.13. replicationCredentialsDN 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'replicationCredentialsDN' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 
+       EQUALITY distinguishedNameMatch 
+       SINGLE-VALUE 
+       DESC 'name of a separate entry in the directory tree which 
+             contains the credentials information used in identifying 
+             the supplier replica to the consumer replica when 
+             initiating a replication session.' ) 
+     
+    This attribute is used to establish a separate entry in the 
+    directory tree that will hold the credentials information that is 
+    used to establish the supplier's identity at the consumer when 
+    starting a replication session.  By placing credentials information 
+    in a separate entry, "pointed to" with this attribute, credentials 
+    information can be placed in a portion of the directory tree that 
+    is not replicated across multiple replicas.  It can also be 
+    ôsharedö by several replication contexts. 
+     
+ 7.2.14. replicationScheduleDN 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'replicationScheduleDN' 
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 
+       EQUALITY distinguishedNameMatch 
+       SINGLE-VALUE 
+       DESC 'name of an entry which contains the specific 
+             information used to establish when replication 
+             sessions will be initiated by this replica 
+             supplier.' ) 
+     
+    This attribute is used to "point to" either a replicaEventSchedule 
+    or replicaTimeSchedule entry which describes when replication 
+    sessions should be initiated by a replica supplier.  If not 
+    specified, a default schedule is assumed.  See the section 
+    describing the replicaAgreement for more details. 
+     
+ 7.2.15. updateVectorTrigger 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'updateVectorTrigger' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 
+       EQUALITY booleanMatch 
+       SINGLE-VALUE 
+       DESC 'indicates whether or not updates made to the 
+             replicas updateVector should be treated as 
+      
+    Huber, et al           Expires April 2004                 [Page 13] 
+
+                         LDUP Information Model                         
+
+             updates that cause the secondsToWaitDefault 
+             attribute value to be used in determining 
+             when to initiate a replication session.' ) 
+     
+    This attribute is used to indicate whether or not changes to the 
+    replica's updateVector should be included as updates that cause the 
+    secondsToWaitDefault attribute value to be used when determining 
+    when to initiate replication sessions. 
+     
+    If updateVectorTrigger is set to FALSE, then secondsToWaitDefault 
+    will not be used when the replica's updateVector is updated.  This 
+    implies that some other update will need to be performed to the 
+    replica before the updated updateVector will be sent via a 
+    replication session. 
+     
+    If upateVectorTrigger is set to TRUE, then updates to the 
+    updateVector will be used in determining when replication sessions 
+    should be initiated. 
+     
+    Note that setting secondsToWaitDefault to 0 coupled with 
+    updateVectorTrigger to TRUE would cause replication sessions to 
+    continually "chase themselves", potentially clogging networks with 
+    an infinite loop of replication sessions.  This combination SHOULD 
+    be prevented in implementations. 
+     
+    If not specified, the value for updateVectorTrigger is assumed to 
+    be FALSE. 
+     
+ 7.2.16. secondsToWaitDefault 
+     
+    (2.16.840.1.113719.1.142.4.x NAME 'secondsToWaitDefault' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+       EQUALITY integerMatch 
+       SINGLE-VALUE 
+       DESC 'The number of seconds to wait after an update 
+             is made to the replica before initiating a 
+             replication session.' 
+     
+       USAGE dSAOperation ) 
+     
+    This attribute indicates the number of seconds that a replica 
+    should wait after an update is made to the replica before 
+    initiating a replication session.  If not specified, the value is 
+    assumed to be 0.  This attribute value is used for updates to all 
+    attributes that are NOT specified by either the attrs1 or attrs2 
+    attributes. 
+     
+    This attribute is always used for updates made to the replica's 
+    updateVector if the updateVectorTrigger attribute is set to TRUE.  
+     
+ 7.2.17. secondsToWait1 
+     
+     
+    (2.16.840.1.113719.1.142.4.x NAME 'secondsToWait1' 
+      
+    Huber, et al           Expires April 2004                 [Page 14] 
+
+                         LDUP Information Model                         
+
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+       EQUALITY integerMatch 
+       SINGLE-VALUE 
+       DESC 'The number of seconds to wait after an update 
+             is made to any attributes named in the attrs1 
+             attribute before initiating a replication session.' 
+     
+       USAGE dSAOperation ) 
+     
+    This attribute is similar to the secondsToWaitDefault attribute in 
+    how it is used.  This attribute, however, is used to apply only to 
+    the attributes listed in the attrs1 attribute.  This allows updates 
+    to different attributes to cause replication sessions to be 
+    initiated either sooner or later than updates made to other 
+    attributes. 
+     
+     
+ 7.2.18. attrReplicationGroup1 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'attrReplicationGroup1' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 
+       EQUALITY caseIgnoreMatch 
+       DESC 'the set of attributes that are associated with 
+             the secondsToWait1 attribute.  When updates are 
+             made to any of these attributes on the replica, 
+             a replication session will be delayed until 
+             after secondsToWait1 seconds have passed.' ) 
+     
+    This attribute identifies a set of attributes that are associated 
+    with the secondsToWait1 attribute.  When secondsToWait1 seconds 
+    have passed since an update to any attribute identified in the 
+    attrs1 attribute, a replication session will be initiated. 
+     
+ 7.2.19. secondsToWait2 
+     
+    (2.16.840.1.113719.1.142.4.x NAME 'secondsToWait2' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+       EQUALITY integerMatch 
+       SINGLE-VALUE 
+       DESC 'The number of seconds to wait after an update 
+             is made to any attributes named in the attrs2 
+             attribute before initiating a replication session.' 
+     
+       USAGE dSAOperation ) 
+     
+    This attribute is similar to the secondsToWaitDefault attribute in 
+    how it is used.  This attribute, however, is used to apply only to 
+    the attributes listed in the attrs2 attribute.  This allows updates 
+    to different attributes to cause replication sessions to be 
+    initiated either sooner or later than updates made to other 
+    attributes. 
+     
+     
+
+      
+    Huber, et al           Expires April 2004                 [Page 15] 
+
+                         LDUP Information Model                         
+
+ 7.2.20. attrReplicationGroup2 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'attrReplicationGroup2' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 
+       EQUALITY caseIgnoreMatch 
+       DESC 'the set of attributes that are associated with 
+             the secondsToWait2 attribute.  When updates are 
+             made to any of these attributes on the replica, 
+             a replication session will be delayed until 
+             after secondsToWait2 seconds have passed.' ) 
+     
+    This attribute identifies a set of attributes that are associated 
+    with the secondsToWait2 attribute.  When secondsToWait2 seconds 
+    have passed since an update to any attribute identified in the 
+    attrs2 attribute, a replication session will be initiated. 
+     
+ 7.2.21. scheduleTimePeriod 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'scheduleTimePeriod' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 
+       EQUALITY caseIgnoreMatch 
+       SINGLE-VALUE 
+       DESC 'the absolute time range over which this time 
+             specification is valid.' ) 
+     
+    This attribute is patterned after the TimePeriod property 
+    identified in RFC 3060 [RFC3060] and [Policy Schema].  See these 
+    references for details on the format and interpretation of this 
+    attribute. 
+     
+ 7.2.22. scheduleMonthOfYearMask 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'scheduleMonthOfYearMask' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 
+       SINGLE-VALUE 
+       DESC 'mask identifying the months of the year during 
+             which replication sessions should be performed.' ) 
+     
+    This attribute is patterned after the MonthOfYearMask property 
+    identified in RFC 3060 [RFC3060] and [Policy Schema].  See these 
+    references for details on the format and interpretation of this 
+    attribute. 
+  
+ 7.2.23. scheduleDayOfMonthMask 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'scheduleDayOfMonthMask' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 
+       SINGLE-VALUE 
+       DESC 'mask identifying the days of the month during 
+             which replication sessions should be performed.' ) 
+     
+    This attribute is patterned after the DayOfMonthMask property 
+    identified in RFC 3060 [RFC3060] and [Policy Schema].  See these 
+
+      
+    Huber, et al           Expires April 2004                 [Page 16] 
+
+                         LDUP Information Model                         
+
+    references for details on the format and interpretation of this 
+    attribute. 
+     
+ 7.2.24. scheduleDayOfWeekMask 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'scheduleDayOfWeekMask' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 
+       SINGLE-VALUE 
+       DESC 'mask identifying the days of the week during 
+             which replication sessions should be performed.' ) 
+     
+    This attribute is patterned after the DayOfWeekMask property 
+    identified in RFC 3060 [RFC3060] and [Policy Schema].  See these 
+    references for details on the format and interpretation of this 
+    attribute. 
+     
+ 7.2.25. scheduleTimeOfDayMask 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'scheduleTimeOfDayMask' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 
+       EQUALITY caseIgnoreMatch 
+       DESC 'mask identifying the times during the day when 
+             replication sessions should be initiated.' ) 
+     
+    This attribute is patterned after the TimeOfDayMask property 
+    identified in RFC 3060 [RFC3060] and [Policy Schema].  See these 
+    references for details on the format and interpretation of this 
+    attribute. 
+     
+ 7.2.26. scheduleLocalOrUtcTime 
+     
+    ( 2.16.840.1.113719.1.142.4.x NAME 'scheduleLocalOrUtcTime' 
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+       EQUALITY integerMatch 
+       SINGLE-VALUE 
+       DESC 'flag indicating whether or not times in the 
+             scheduleTimeOfDayMask are in UTC time or 
+             local time.' ) 
+     
+    This attribute is patterned after the LocaOrUtcTime property 
+    identified in RFC 3060 [RFC3060] and [Policy Schema].  See these 
+    references for details on the format and interpretation of this 
+    attribute. 
+  
+ 7.3. Class Definitions 
+     
+ 7.3.1. ReplicationContext 
+     
+    ( 2.16.840.1.113719.1.142.6.2.2 NAME 'replicationContext' 
+       SUP top 
+       AUXILIARY ) 
+     
+    The replicationContext auxiliary class, when present on an object, 
+    indicates the beginning, or root, of one or more replication 
+      
+    Huber, et al           Expires April 2004                 [Page 17] 
+
+                         LDUP Information Model                         
+
+    contexts.  The replication context is said to be rooted at the 
+    entry with the replicationContext auxiliary class in its list of 
+    object classes.  The root-most entry of a replication context is 
+    the entry with the replicationContext auxiliary class in its list 
+    of object classes. 
+       
+    Characteristics of the replication topology of a replication 
+    context are defined in the replicaSubentry sub-entries associated 
+    with the replication context. 
+     
+    The attribute accessControlPolicyOID has been removed from here, 
+    and should be published as an subentry subordinate to the 
+    replicationContext, instead. 
+     
+    The attribute nameContextCreationTimestamp used here in previous 
+    drafts has been eliminated as redundant.  The 
+    ldapChangeSequenceNumber associated with the replicationContext 
+    value in the list of objectclass attribute values serves the same 
+    purpose. 
+     
+ 7.3.2. replicaSubentry 
+     
+    ( 2.16.840.1.113719.1.142.6.3.2 NAME 'replicaSubentry-2' 
+       SUP subentry 
+       STRUCTURAL 
+       MUST ( cn $ 
+              replicaURI $ 
+              replicaType $ 
+              lostAndFoundEntryDN $ 
+              replicaOnline ) 
+       MAY ( attributeExclusionFilter $ 
+             attributeInclusionFilter $ 
+             replicaSecondaryURI $ 
+             description $ 
+             updateVector ) ) 
+     
+    Entries of type replicaSubentry MUST be named by their cn attribute 
+    as defined in [LDAP Subentry].  A replicationContext may have more 
+    than one replicaSubentry.  All replicaSubentries MUST be placed 
+    just below their associated replicationContext root entries in the 
+    directory tree. 
+     
+    All replicas MUST hold all replicaSubentries for the replication 
+    context.  This is required for update vectors. 
+      
+    The attributes attributeExclusionFilter and 
+    attributeInclusionFilter, if present, govern which entries and 
+    attributes from the local naming context are to be sent (or not 
+    sent) to the replica named in replicaDN of replica agreements for 
+    this replica. The attributeExclusionFilter names attributes which 
+    SHOULD NOT be sent.  The attributeInclusionFilter names attributes 
+    which SHOULD be sent. 
+     
+
+      
+    Huber, et al           Expires April 2004                 [Page 18] 
+
+                         LDUP Information Model                         
+
+    The attribute replicaURI contains information in ldapURI format 
+    that can be used to contact (i.e., open a connection to) this 
+    replica.  The replicaSecondaryURI contains the set of ldapURI 
+    format addresses that can be used as backup addresses if the 
+    replicaURI values cannot be used. 
+     
+    The lostAndFoundEntryDN attribute is single-valued attribute that 
+    contains the distinguished name of the lost and found entry under 
+    which orphaned entries are placed. 
+     
+    The replicaOnline attribute is a Boolean attribute which indicates 
+    whether or not this replica will supply and/or accept replication 
+    sessions.  This attribute can be used to prevent replication 
+    sessions from being started before replicaAgreement entries have 
+    been defined. 
+     
+    The attribute description contains a human-readable description of 
+    the sub-entry.  
+     
+    The attribute updateVector contains a set of 
+    ldapChangeSequenceNumbers, one for each of the other replicas for 
+    this naming context, which records, from this replicas perspective, 
+    the last change event received from the other indicated replica. 
+     
+    The subtreespecification attribute of the subentry superior object 
+    class is used to define the scope of the replication context.  Use 
+    of the subtreespecification value SHOULD be limited to the base and 
+    components of ChopSpecification portions of this attribute. 
+     
+ 7.3.3. replicaAgreement 
+     
+    ( ?? NAME 'replicaAgreement'  
+       SUP top 
+       STRUCTURAL 
+       MUST ( cn ) 
+       MAY ( description $ 
+             replicaDN $ 
+             replicationMechanismOID $ 
+             replicationStatus $ 
+             replicationCredentialsDN $ 
+             replicationScheduleDN ) )  
+     
+    If present, entries of this type MUST be placed just below 
+    replicaSubentry entries in the directory tree.   
+     
+    If replicaAgreements are used, each replica MUST hold all replica 
+    agreements for which it is a supplier as well as the entries 
+    containing control information referred to by those replica 
+    agreements (credentials, schedules, etc.). 
+     
+    Name subordination is used to associate a replicaAgreement with the 
+    replicaSubentry representing the supplier of changes for all 
+    subordinate replication agreements. 
+  
+      
+    Huber, et al           Expires April 2004                 [Page 19] 
+
+                         LDUP Information Model                         
+
+     
+    Processing of allowable changes to be sent is as follows: 
+     
+    1) the attributeInclusionFilter from the replica subentry defines a 
+    set of attributes which SHOULD be sent, less exclusions; 
+     
+    2) the union of attributes excluded by the attributeExclusionFilter 
+    from the replicaSubentry and the attributeExclusionFilter from the 
+    replicaAgreement defines a set of attributes which SHOULD NOT be 
+    sent; 
+     
+    3) the subtraction of attributes which SHOULD NOT be sent by (2) 
+    from the attributes which SHOULD be sent by (1) constitute the set 
+    of attributes for which changes MAY be sent. 
+     
+    The attribute description contains a human-readable description of 
+    the sub-entry. 
+     
+    The attribute replicaDN of syntax distinguishedName names another 
+    sub-entry of type replicaSubentry to whom changes are to be sent.  
+    If there is no value for the replicaDN attribute on a 
+    replicaAgreement, the replicaAgreement is ignored.  Absence of a 
+    value may occur briefly when replicas and replica agreements are 
+    first being created, or when the replica to which a replica 
+    agreement applies is being deleted. 
+     
+    The attribute replicationMechanismOID is used to indicate the type 
+    of replication protocol that is used between the supplier and 
+    consumer.  If not specified, the default replication protocol 
+    defined in [LDUP Update Replication Protocol] is assumed. 
+     
+    The attribute replicationStatus MAY be used to record the most 
+    recent result of an attempt to send changes to the replica named in 
+    replicaDN, whether success, or if failure, the nature of the 
+    problem encountered. 
+     
+    The attribute replicationCredentialsDN, if present, names an entry 
+    which contains information used to initialize authenticated the 
+    LDAP connection between the supplier and consumer.  Separating the 
+    credentials information from the replicaAgreement itself allows for 
+    this information to be placed outside of the replication context.  
+     
+    The attribute replicationScheduleDN, if present, names an entry 
+    which governs the schedule for replication attempts.  If not 
+    present, replication MUST be attempted when there are changes to be 
+    sent (i.e. a default replica schedule of type replicaEventSchedule 
+    is assumed with secondsToWaitDefault=0 and 
+    updateVectorTrigger=FALSE).  See Section on replicaEventSchedule 
+    for more information about these attributes and their meaning. 
+     
+     
+ 7.3.4. replicaEventSchedule 
+     
+    ( 2.16.840.1.113719.1.142.6.x.1 NAME 'replicaEventSchedule'  
+      
+    Huber, et al           Expires April 2004                 [Page 20] 
+
+                         LDUP Information Model                         
+
+       SUP top 
+       STRUCTURAL 
+       MUST ( cn ) 
+       MAY ( description $ 
+             updateVectorTrigger $ 
+             secondsToWaitDefault $ 
+             secondsToWait1 $ 
+             attrs1 $ 
+             secondsToWait2 $ 
+             attrs2 ) ) 
+     
+     
+    The replicaEventSchedule object class is used to specify when to 
+    initiate replication sessions in terms of the time to wait after an 
+    update is made to the supplier replica. 
+     
+    The attribute cn is used as the naming attribute for the 
+    replicaEventSchedule object class.  It is thought that 
+    replicaEventSchedule entries would be placed below replicaAgreement 
+    entries but this is not required. 
+     
+    The attribute description contains a human-readable description of 
+    the sub-entry. 
+     
+    The attribute updateVectorTrigger is a Boolean attribute which 
+    indicates whether or not the update of the supplier's updateVector 
+    attribute should, itself, be used to trigger replication sessions.  
+    Since the updateVector is, itself, an attribute, it has CSNs 
+    associated with each of its values.  Note that these CSNs may be 
+    different from the CSNs that are in the attribute values 
+    themselves.  Thus, it is possible that the update to the 
+    updateVector would, itself, need to be treated as an update to be 
+    replicated.  Indeed, this is necessary in order for "transitive 
+    replication" to work. 
+     
+    The secondsToWaitDefault attribute is a non-negative integer value.  
+    This value indicates the number of seconds to wait after an update 
+    is made before starting a replication session.  This value is used 
+    for all attributes other than those noted in the attrs1 and attrs2 
+    attributes. 
+     
+    The secondsToWait1 attribute is similar to the secondsToWaitDefault 
+    attribute.  This non-negative integer value is used whenever any 
+    attribute listed in the attrs1 attribute is updated. 
+     
+    The secondsToWait2 attribute is similar to the secondsToWait1 
+    attribute but is associated with the attrs2 attribute. 
+     
+    Note that whenever any of these seconds-to-wait time periods has 
+    expired, a replication session should be initiated and the full set 
+    of information that needs to be replicated should be sent to the 
+    consumer replica.  This implies that some information would be 
+    replicated before its associated seconds-to-wait time period had 
+    expired. 
+      
+    Huber, et al           Expires April 2004                 [Page 21] 
+
+                         LDUP Information Model                         
+
+     
+ 7.3.5. replicaTimeSchedule 
+     
+    ( 2.16.840.1.113719.1.142.6.x.1 NAME 'replicaTimeSchedule'  
+       SUP top 
+       STRUCTURAL 
+       MUST ( cn ) 
+       MAY ( description $ 
+             scheduleTimePeriod $ 
+             scheduleMonthOfYearMask $ 
+             scheduleDayOfMonthMask $ 
+             scheduleDayOfWeekMask $ 
+             scheduleTimeOfDayMask $ 
+             scheduleLocalOrUtcTime ) ) 
+     
+    The replicaTimeSchedule object class is used to specify when to 
+    initiate replication sessions based on a scheduled time basis 
+    rather than in relation to when updates are made to the supplier 
+    replica. 
+     
+    The attribute cn is used as the naming attribute for the 
+    replicaTimechedule object class.  It is thought that 
+    replicaTimeSchedule entries would be placed below replicaAgreement 
+    entries but this is not required. 
+     
+    The attribute description contains a human-readable description of 
+    the sub-entry. 
+     
+    The remaining attributes in this object class are patterned after 
+    the attributes defined for the policyTimePeriodCondition construct 
+    defined in the Policy Core Information Model [RFC3060].  Because 
+    the LDAP schema mapping for this portion of the CIM model is not 
+    complete at this time, these attributes are defined specifically 
+    for this LDUP-related object class.  Refer to RFC 3060 for details 
+    of the formats for the scheduleTimePeriod, scheduleMonthOfYearMask, 
+    scheduleDayOfMonthMask, scheduleDayOfWeekMask, 
+    scheduleTimeOfDayMask, and scheduleLocalOrUtcTime attributes. 
+     
+ 8.   Semantics of the information model 
+     
+    The intent of this information model is to allow for useful and 
+    expected operation while requiring a minimum amount of data to be 
+    specified.  In this spirit, replicaAgreement entries are treated as 
+    "constraints" on when to initiate replication sessions, not 
+    "requirements" on being able to initiate replication sessions. 
+     
+    To clarify this concept, two examples are provided in this section. 
+     
+    The first example shows the minimal set of information required to 
+    get replication going between three replicas: 
+     
+    dn: ou=accounting, o=your company 
+    objectclass: organizationalUnit 
+    objectclass: replicationContext 
+      
+    Huber, et al           Expires April 2004                 [Page 22] 
+
+                         LDUP Information Model                         
+
+    ou: accounting 
+     
+    dn: cn=replica1, ou=accounting, o=your company 
+    objectclass: subentry 
+    objectclass: replicaSubentry-2 
+    cn: replica1 
+    subtreespecification: {} 
+    description: replica in location 1 
+    replicaURI: ldap://sys1.yourcompany.com 
+    replicaType: 2 
+    lostAndFoundEntryDN: cn=lostAndFound1, o=your company 
+    replicaOnline: TRUE 
+     
+    dn: cn=replica2, ou=accounting, o=your company 
+    objectclass: subentry 
+    objectclass: replicaSubentry-2 
+    cn: replica2 
+    subtreespecification: {} 
+    description: replica in location 2 
+    replicaURI: ldap://sys2.yourcompany.com 
+    replicaType: 2 
+    lostAndFoundEntryDN: cn=lostAndFound2, o=your company 
+    replicaOnline: TRUE 
+     
+    dn: cn=replica3, ou=accounting, o=your company 
+    objectclass: subentry 
+    objectclass: replicaSubentry-2 
+    cn: replica3 
+    subtreespecification: {} 
+    description: replica in location 3 
+    replicaURI: ldap://sys2.yourcompany.com 
+    replicaType: 2 
+    lostAndFoundEntryDN: cn=lostAndFound3, o=your company 
+    replicaOnline: TRUE 
+     
+    With replicaSubentry entries defined as shown in this first 
+    example, replication sessions will be initiated by all replicas 
+    whenever an update is made to any attribute within any entries in 
+    the replicationContext.  The default event schedule will be used 
+    which indicates that a replication session is initiated immediately 
+    after an update is made to a replica.  Further, replication 
+    sessions would be initiated to ALL OTHER replicas.  As this shows, 
+    maximal replication is defined using a minimal amount of 
+    configuration. 
+     
+    The second example shows how replication sessions can be 
+    constrained by replicaAgreement entries.  This example builds on 
+    the data shown in the first example.  Assume that the following 
+    entries are added to the entries defined in the first example: 
+     
+    dn: cn=agreement1->2, cn=replica1, ou=accounting, o=your company 
+    objectclass: replicaAgreement 
+    cn: agreement1->2 
+    description: Replica agreement constraining replication sessions 
+      
+    Huber, et al           Expires April 2004                 [Page 23] 
+
+                         LDUP Information Model                         
+
+     from replica 1 to replica 2. 
+    replicationScheduleDN: cn=schedule1, cn=replica1, 
+     ou=accounting, o=your company 
+    replicaDN: cn=replica2, ou=accounting, o=your company 
+     
+    dn: cn=agreement1->3, cn=replica1, ou=accounting, o=your company 
+    objectclass: replicaAgreement 
+    cn: agreement1->3 
+    description: Replica agreement constraining replication sessions 
+     from replica 1 to replica 3. 
+    replicationScheduleDN: cn=schedule1, cn=replica1, 
+     ou=accounting, o=your company 
+    replicaDN: cn=replica3, ou=accounting, o=your company 
+     
+    dn: cn=schedule1, cn=replica1, ou=accounting, o=your company 
+    objectclass: replicaEventSchedule 
+    cn: schedule1 
+    description: schedule that initiates replication one minute 
+     after any update (including to the updateVector) is made 
+     to the replica. 
+    secondsToWaitDefault: 60 
+    updateVectorTrigger: TRUE 
+     
+    dn: cn=agreement2->1, cn=replica2, ou=accounting, o=your company 
+    objectclass: replicaAgreement 
+    cn: agreement2->1 
+    description: Replica agreement constraining replication sessions 
+     from replica 2 to replica 1. 
+    replicationScheduleDN: cn=schedule2, cn=replica2, 
+     ou=accounting, o=your company 
+    replicaDN: cn=replica1, ou=accounting, o=your company 
+     
+    dn: cn=agreement2->3, cn=replica2, ou=accounting, o=your company 
+    objectclass: replicaAgreement 
+    cn: agreement2->3 
+    description: Replica agreement constraining replication sessions 
+     from replica 2 to replica 3. 
+    replicationScheduleDN: cn=schedule2, cn=replica2, 
+     ou=accounting, o=your company 
+    replicaDN: cn=replica2, ou=accounting, o=your company 
+     
+    dn: cn=schedule2, cn=replica2, ou=accounting, o=your company 
+    objectclass: replicaEventSchedule 
+    cn: schedule2 
+    description: schedule that initiates replication two minutes 
+     after any update (including to the updateVector) is made 
+     to the replica. 
+    secondsToWaitDefault: 120 
+    updateVectorTrigger: TRUE 
+     
+    dn: cn=agreement3->1, cn=replica3, ou=accounting, o=your company 
+    objectclass: replicaAgreement 
+    cn: agreement3->1 
+    description: Replica agreement constraining replication sessions 
+      
+    Huber, et al           Expires April 2004                 [Page 24] 
+
+                         LDUP Information Model                         
+
+     from replica 3 to replica 1. 
+    replicationScheduleDN: cn=schedule3, cn=replica3, 
+     ou=accounting, o=your company 
+    replicaDN: cn=replica1, ou=accounting, o=your company 
+     
+    dn: cn=agreement3->2, cn=replica3, ou=accounting, o=your company 
+    objectclass: replicaAgreement 
+    cn: agreement3->2 
+    description: Replica agreement constraining replication sessions 
+     from replica 3 to replica 2. 
+    replicationScheduleDN: cn=schedule3, cn=replica3, 
+     ou=accounting, o=your company 
+    replicaDN: cn=replica2, ou=accounting, o=your company 
+     
+    dn: cn=schedule3, cn=replica3, ou=accounting, o=your company 
+    objectclass: replicaEventSchedule 
+    cn: schedule3 
+    description: schedule that initiates replication one minute 
+     after any update (including to the updateVector) is made 
+     to the replica. 
+    secondsToWaitDefault: 60 
+    updateVectorTrigger: TRUE 
+     
+    In this example, replication sessions are limited such that they 
+    will begin one or two minutes after an update is made to any one 
+    replica, depending on the replica on which the update was made.  
+    This "constrains" the replication session initiation from the 
+    default of "immediate replication" of updates. 
+     
+    There are many ways in which the constraints around when to 
+    initiate and/or accept replication sessions between two replicas.  
+    The information model defined here provides a small set of options.  
+    More elaborate policies can be defined and this is left as a future 
+    exercise.  It is hoped that the work from the Policy workgroup can 
+    offer schema that would support the creation of these complex 
+    policies. 
+     
+     
+ 9.   Object Identifier Assignments 
+     
+    The LDUP OID prefix is  
+     
+    ID ::= OBJECT IDENTIFIER 
+     
+    ldup ID ::= { joint-iso-ccitt(2) country(16) us(840) 
+                  organization(1) novell(113719) novell-internal-
+    OIDS(1) ldup(142) } 
+     
+    The OID assignments defined in this document are: 
+     
+    Attributes: 
+     
+    attributeExclusionFilter ID ::= 2.16.840.1.113719.1.142.4.1 
+    attributeInclusionFilter ID ::= 2.16.840.1.113719.1.142.4.2 
+      
+    Huber, et al           Expires April 2004                 [Page 25] 
+
+                         LDUP Information Model                         
+
+    replicationStatus        ID ::= 2.16.840.1.113719.1.142.4.3 
+    replicaType              ID ::= 2.16.840.1.113719.1.142.4.4 
+    secToWaitClass1          ID ::= 2.16.840.1.113719.1.142.4.5.1 - 
+    OBSOLETE 
+    secToWaitClass2          ID ::= 2.16.840.1.113719.1.142.4.5.2 - 
+    OBSOLETE 
+    secToWaitClass3          ID ::= 2.16.840.1.113719.1.142.4.5.3 - 
+    OBSOLETE 
+    secToWaitClass4          ID ::= 2.16.840.1.113719.1.142.4.5.4 - 
+    OBSOLETE 
+    secToWaitClass5          ID ::= 2.16.840.1.113719.1.142.4.5.5 - 
+    OBSOLETE 
+    updateVector             ID ::= 2.16.840.1.113719.1.142.4.6 
+    replicaURI               ID ::= 2.16.840.1.113719.1.142.4.x 
+    replicaSecondaryURI      ID ::= 2.16.840.1.113719.1.142.4.x 
+    lostAndFoundEntryDN      ID ::= 2.16.840.1.113719.1.142.4.x 
+    replicaOnline            ID ::= 2.16.840.1.113719.1.142.4.x 
+    replicaDN                ID ::= 2.16.840.1.113719.1.142.4.x 
+    replicationMechanismOID  ID ::= 2.16.840.1.113719.1.142.4.x 
+    replicationCredentialsDN ID ::= 2.16.840.1.113719.1.142.4.x 
+    replicationScheduleDN    ID ::= 2.16.840.1.113719.1.142.4.x 
+    updateVectorTrigger      ID ::= 2.16.840.1.113719.1.142.4.x 
+    secondsToWaitDefault     ID ::= 2.16.840.1.113719.1.142.4.x 
+    secondsToWait1           ID ::= 2.16.840.1.113719.1.142.4.x 
+    attrReplicationGroup1    ID ::= 2.16.840.1.113719.1.142.4.x 
+    secondsToWait2           ID ::= 2.16.840.1.113719.1.142.4.x 
+    attrReplicationGroup2    ID ::= 2.16.840.1.113719.1.142.4.x 
+    scheduleTimePeriod       ID ::= 2.16.840.1.113719.1.142.4.x 
+    scheduleMonthOfYearMask  ID ::= 2.16.840.1.113719.1.142.4.x 
+    scheduleDayOfMonthMask   ID ::= 2.16.840.1.113719.1.142.4.x 
+    scheduleDayOfWeekMask    ID ::= 2.16.840.1.113719.1.142.4.x 
+    scheduleTimeOfDayMask    ID ::= 2.16.840.1.113719.1.142.4.x 
+    scheduleLocalOrUtcTime   ID ::= 2.16.840.1.113719.1.142.4.x 
+    supportedReplicationProtocols ID ::= 2.16.840.1.113719.1.142.4.x 
+    replicaContextRoots      ID ::= 2.16.840.1.113719.1.142.4.x 
+    replicaSubentries        ID ::= 2.16.840.1.113719.1.142.4.x 
+     
+    Object Classes: 
+     
+    eventScheduledSubentry   ID ::= 2.16.840.1.113719.1.142.6.1 - 
+    OBSOLETE 
+    nameContext              ID ::= 2.16.840.1.113719.1.142.6.2.1 - 
+    OBSOLETE 
+    replicaSubentry          ID ::= 2.16.840.1.113719.1.142.6.3.1 - 
+    OBSOLETE 
+    replicaAgreementSubentry ID ::= 2.16.840.1.113719.1.142.6.4.1 û 
+    OBSOLETE 
+    replicationContext       ID ::= 2.16.840.1.113719.1.142.6.2.2 
+    replicaSubEntry-2        ID ::= 2.16.840.1.113719.1.142.6.3.2 
+    replicaAgreementSubEntry-2 ID ::= 2.16.840.1.113719.1.142.6.4.2 - 
+    OBSOLETE 
+    eventScheduledSubentry   ID ::= 2.16.840.1.113719.1.142.6.1 - 
+    OBSOLETE 
+    replicaEventSchedule     ID ::= 2.16.840.1.113719.1.142.6.x.1 
+      
+    Huber, et al           Expires April 2004                 [Page 26] 
+
+                         LDUP Information Model                         
+
+    replicaTimeSchedule      ID ::= 2.16.840.1.113719.1.142.6.x.1 
+    replicaAgreement         ID ::= TBD 
+     
+    Note:  Object Class OIDs have version numbers, Attribute OIDs 
+    don't. 
+     
+ 10.  Security Considerations 
+     
+    Many of the attributes and object classes described in this 
+    document should be considered "security sensitive", and protected 
+    from unintended modification by LDAP servers.  Generally, creating 
+    Naming Contexts, Replicas and Replica Agreement entries should only 
+    be allowed by directory administrators who are authorized to do so. 
+       
+    The values of attributes defined here are intended to control the 
+    behavior of the directory service agents, themselves.  Unintended 
+    modification of their values may result in incomplete replication 
+    of data (if ldapSearchFilter or attributeExclusionFilter are 
+    changed), inappropriate disclosure of information (if 
+    attributeInclusionFilter is changed), or updates may be lost (if 
+    updateVector is changed). 
+      
+    To avoid depending to much on the ldapAccessPoint values for other 
+    replicas, connections between LDAP servers for the purpose of 
+    replication MUST ALWAYS be authenticated using an authentication 
+    mechanism appropriate for the nature of information to be 
+    exchanged. 
+     
+    References 
+     
+    [LDUP Model] - J. Merrells, E. Reed, U. Srinivisan, "An Abstract 
+    Model of LDAP Replication", Internet draft, draft-ietf-ldup-model-
+    08.txt, March 2003. 
+     
+    [LDUP MRM] û R. Moats, R. Huber, J. McMeeking, ôMandatory LDAP 
+    Replica Management,ö Internet Draft, draft-ietf-ldup-mrm-02.txt, 
+    March 2003. 
+     
+     
+    [LDAP Subentry] û K. Zeilenga, Stephen Legg, "Subentries in LDAP", 
+    Internet draft, draft-zeilenga-ldap-subentry-07.txt, August 2002. 
+     
+    [LDUP Update Protocol] û J. McMeeking, "The LDUP Replication Update 
+    Protocol", Internet Draft, draft-ietf-ldup-protocol-04.txt, March 
+    2003. 
+     
+    [Policy Schema] - J. Strassner, B. Moore, R. Moats, E. Ellesson,  
+    "Policy Core LDAP Schema", Internet draft, draft-ietf-policy-core-
+    schema-16.txt, October 2002. 
+     
+    [RFC822] û D. Crocker, "STANDARD FOR THE FORMAT OF ARPA INTERNET 
+    TEXT MESSAGES", August 1982, RFC 822. 
+     
+
+      
+    Huber, et al           Expires April 2004                 [Page 27] 
+
+                         LDUP Information Model                         
+
+    [RFC2251] û M. Wahl, T. Howes, S. Kille, "Lightweight Directory 
+    Access Protocol (v3)", December 1997, RFC 2251. 
+     
+    [RFC2252] û M. Wahl, A. Coulbeck, T. Howes, S. Kille, "Lightweight 
+    Directory Access Protocol (v3): Attribute Syntax Definitions", 
+    December 1997, RFC 2252. 
+     
+    [RFC2255] û T. Howes, M. Smith, ôThe LDAP URL Formatö, December 
+    1997, RFC 2255. 
+     
+    [RFC2596] - 2596 M. Wahl, T. Howes, ôUse of Language Codes in 
+    LDAPö, May 1999, RFC 2596. 
+     
+    [RFC2820] û E. Stokes, D. Byrne, B. Blakley, P. Behara, ôAccess 
+    Control Requirements for LDAP,ö May 2000, RFC 2820. 
+     
+    [RFC3060] û B. Moore, E. Ellesson, J. Strassner, A. Westerinen, 
+    "Policy Core Information Model û Version 1 Specification", February 
+    2001, RFC 3060. 
+     
+    [RFC3384] - E. Stokes, R. Weiser, R. Moats, R. Huber, "Lightweight 
+    Directory Access Protocol (version 3) Replication Requirements", 
+    October 2002, RFC 3384. 
+     
+    [X518] - ITU-T Recommendation X.518 (1997) | ISO/IEC 9594-4:1998, 
+    Information Technology û Open Systems Interconnection û The 
+    Directory: Procedures for Distributed Operation. 
+     
+    [X680] - ITU-T Recommendation X.680 (1994) | ISO/IEC 8824-1:1995, 
+    Information technology û Abstract Syntax Notation One (ASN.1): 
+    Specification of Basic Notation. 
+     
+ 11.  Copyright Notice 
+     
+    Copyright (C) The Internet Society (2001). All Rights Reserved.  
+     
+    This document and translations of it may be copied and furnished to 
+    others, and derivative works that comment on or otherwise explain 
+    it or assist in its implementation may be prepared, copied, 
+    published and distributed, in whole or in part, without restriction 
+    of any kind, provided that the above copyright notice and this 
+    paragraph are included on all such copies and derivative works. 
+    However, this document itself may not be modified in any way, such 
+    as by removing the copyright notice or references to the Internet 
+    Society or other Internet organizations, except as needed for the 
+    purpose of developing Internet standards in which case the 
+    procedures for copyrights defined in the Internet Standards process 
+    must be followed, or as required to translate it into languages 
+    other than English. 
+     
+    The limited permissions granted above are perpetual and will not be 
+    revoked by the Internet Society or its successors or assigns. 
+     
+
+      
+    Huber, et al           Expires April 2004                 [Page 28] 
+
+                         LDUP Information Model                         
+
+    This document and the information contained herein is provided on 
+    an "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET 
+    ENGINEERING TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR 
+    IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF 
+    THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED 
+    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. 
+     
+ 12.  Acknowledgements 
+     
+    The authors would like to thank Ed Reed and Tim Han, the authors of 
+    the original infomod draft, for all their work. 
+     
+    The IETF takes no position regarding the validity or scope of any 
+    intellectual property or other rights that might be claimed to 
+    pertain to the implementation or use of the technology described in 
+    this document or the extent to which any license under such rights 
+    might or might not be available; neither does it represent that it 
+    has made any effort to identify any such rights. Information on the 
+    IETF's procedures with respect to rights in standards-track and 
+    standards-related documentation can be found in BCP-11. Copies of 
+    claims of rights made available for publication and any assurances 
+    of licenses to be made available, or the result of an attempt made 
+    to obtain a general license or permission for the use of such 
+    proprietary rights by implementers or users of this specification 
+    can be obtained from the IETF Secretariat. 
+     
+    The IETF invites any interested party to bring to its attention any 
+    copyrights, patents or patent applications, or other proprietary 
+    rights which may cover technology that may be required to practice 
+    this standard. Please address the information to the IETF Executive 
+    Director. 
+     
+ 13.  Authors' Addresses 
+     
+    Richard Huber 
+    AT&T Laboratories 
+    Email: rvh@att.com 
+     
+    John McMeeking 
+    IBM 
+    Email: jmcmeek@us.ibm.com  
+     
+    Ryan Moats 
+    Lemur Networks, Inc. 
+    Email: rmoats@lemurnetworks.net 
+     
+    LDUP Mailing List:  ietf-ldup@idc.org 
+     
+
+
+
+
+
+
+      
+    Huber, et al           Expires April 2004                 [Page 29] 

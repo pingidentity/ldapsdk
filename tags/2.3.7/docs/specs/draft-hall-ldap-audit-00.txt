@@ -1,0 +1,313 @@
+
+
+   Internet Draft                                          Eric A. Hall 
+   Document: draft-hall-ldap-audit-00.txt                    Consultant 
+   Expires: 2003                                             March 2003 
+    
+    
+                   The generalizedAudit object class and 
+                    the generalizedAuditEvent attribute 
+    
+    
+   Status of this Memo 
+    
+   This document is an Internet-Draft and is in full conformance 
+   with all provisions of Section 10 of RFC2026. 
+    
+    
+   Internet-Drafts are working documents of the Internet Engineering 
+   Task Force (IETF), its areas, and its working groups.  Note that      
+   other groups may also distribute working documents as Internet-
+   Drafts. 
+    
+   Internet-Drafts are draft documents valid for a maximum of six 
+   months and may be updated, replaced, or obsoleted by other documents 
+   at any time.  It is inappropriate to use Internet-Drafts as 
+   reference material or to cite them other than as "work in progress." 
+    
+   The list of current Internet-Drafts can be accessed at 
+        http://www.ietf.org/ietf/1id-abstracts.txt 
+   The list of Internet-Draft Shadow Directories can be accessed at 
+        http://www.ietf.org/shadow.html. 
+    
+    
+   1.  Introduction and Overview 
+    
+   This document defines an LDAP auxiliary object class and a single 
+   attribute, which together can be used to store and track the 
+   entities who may have accessed or modified a specific entry in an 
+   LDAP directory information tree. For example, an LDAP application 
+   may need to store information which can indicate when an entry was 
+   created, when it was accessed, who modified it, and other kinds of 
+   similar information, with this information acting as a general-
+   purpose auditing log for that entry. 
+    
+   The object class and attributes defined herein are designed for that 
+   purpose in particular, and are not intended to serve as detailed 
+   auditing information capable of withstanding court-of-law scrutiny, 
+   nor are they designed to be used for journaling-playback purposes. 
+   They are simply to be used for storing general information about the 
+   changes which have been made to a specific entry. 
+    
+    
+   2.  The generalizedAudit Object Class 
+    
+   The generalizedAudit object class is an auxiliary object class, 
+   subordinate to the Top object class. This object class may be used 
+     
+   Hall                 Expires September 2003                       1 
+                The generalizedAudit Object Class and      March 2003 
+                 the generalizedAuditEvent Attribute 
+    
+   with any other object class. Since this object class may be bound to 
+   any entry, it may be linked directly to a canonical entry, or it may 
+   be used to populate an external database which only contains audit-
+   log entries, or it may be used in any other scenario that suits the 
+   needs of the local administrator; this specification does not 
+   require any specific model to always be used. 
+    
+   For example, an inetOrgPerson entry may have the generalizedAudit 
+   object class defined, with each of the audit events being stored as 
+   supplemental attributes along with the canonical entry. Conversely, 
+   an alternate tree may be defined which only contains "shadow" 
+   entries that refer back to the canonical entries, with the shadow 
+   tree containing the auditing attributes separate from the canonical 
+   attributes. Both of those usage scenarios (and any others) are 
+   explicitly allowed. 
+    
+   The generalizedAudit object class only contains a single attribute, 
+   which is generalizedAuditEvent. This attribute is optional, allowing 
+   the attribute to be defined whenever the object class has been 
+   specifically declared for use, but not requiring its presence in all 
+   such cases. 
+    
+   The schema definition for the generalizedAudit object class is as 
+   follows: 
+    
+       GeneralizedAudit 
+       ( OID-TBD NAME 'generalizedAudit' DESC 'Generalized auditing 
+          information.' SUP top AUXILIARY MAY generalizedAuditEvent ) 
+    
+    
+   3.  The generalizedAuditEvent Attribute 
+    
+   The generalizedAuditEvent attribute is multi-valued, allowing a 
+   single instance of the attribute to record information about 
+   multiple discrete events. For example, one instance of the attribute 
+   may declare when an entry was first created, while other instances 
+   of that attribute may declare all of the subsequent modifications 
+   which have been made to the entry. 
+    
+   The generalizedAuditEvent attribute is a structured sequence 
+   attribute, containing multiple subordinate fields. Each field 
+   provides atomic information about the event that is being logged, 
+   with each instance of the attribute collectively providing detailed 
+   information about that event. 
+    
+   The sub-fields provided with this attribute are: 
+    
+     * auditEventTimestamp 
+       The date and time of the event. 
+    
+     * auditEventSerialNumber 
+     
+   Hall                 Expires September 2003                       2 
+                The generalizedAudit Object Class and      March 2003 
+                 the generalizedAuditEvent Attribute 
+    
+       A 32-bit integer associated with this event. This value rolls 
+       over as needed. This value must be coupled with the Timestamp 
+       sub-field to provide a unique identifier. Note that the use of a 
+       32-bit serial number in conjunction with the Timestamp 
+       information allows four billion uniquely-identifiable audit 
+       events for every second. 
+    
+     * auditEventType 
+       An eight-bit integer identifying the kind of event which has 
+       occurred. The numeric (decimal) values defined in this 
+       specification are: 
+        
+       [0] - RESERVED - Reserved for future use. 
+        
+       [1] - CREATED - Indicates that the entry was created. 
+        
+       [2] - DELETED - Indicates that the entry was deleted. Note that 
+       when the generalizedAudit object class is bound to a canonical 
+       entry, the DELETED event should not ever appear, since deleting 
+       the entry should cause the associated attribute values to also 
+       be deleted. 
+        
+       [3] - READ - Indicates that the entry was accessed but was not 
+       modified. 
+        
+       [4] - MODIFIED - Indicates that one or more of the attribute 
+       values associated with the entry were modified. Note that when 
+       the generalizedAudit object class is bound to a canonical entry, 
+       this value SHOULD NOT be logged as a result of another audit 
+       event also being logged (EG, a MODIFIED event should not be 
+       created just because a READ event is also being logged). 
+        
+       [5] - MOVED - Indicates that the entry was relocated. Note that 
+       when the generalizedAudit object class is bound to a canonical 
+       entry, it is expected that the MOVED value will only be used in 
+       those cases where the entry only exists as a referral source. 
+        
+       [6-127] - RESERVED - Additional standards-track values may be 
+       defined, and those values will be allocated from this range. 
+        
+       [128-255] - RESERVED -- Application-specific and/or private 
+       values may be defined as necessary, but MUST make use of this 
+       range. Since these values are expected to be re-used by multiple 
+       applications, additional mechanisms SHOULD be specified along 
+       with those definitions to avoid ambiguities which would 
+     
+   Hall                 Expires September 2003                       3 
+                The generalizedAudit Object Class and      March 2003 
+                 the generalizedAuditEvent Attribute 
+    
+       otherwise naturally occur (this may include additional object 
+       class definitions, naming rules, or any other mechanisms). 
+        
+       Applications and/or systems may choose to use any of these 
+       attributes, and are specifically not required to use all of 
+       them. For example, some applications may only need creation and 
+       deletion events, while others may need all of them, and both of 
+       these usage scenarios are explicitly allowed. 
+    
+     * auditEventEntityDN 
+       The LDAP distinguished name of the person or entity who caused 
+       the action to occur. This value uses a distinguished name to 
+       provide a pointer to the person or role who performed the 
+       action. In those cases where a logged event was performed by an 
+       anonymous entity, the DN MUST point to its own DN. 
+    
+     * auditEventEntityName 
+       The textual name of the person or entity who caused the action 
+       to occur, if known. In those cases where a logged event was 
+       performed by an anonymous entity, or where the name is not known 
+       or desired, this attribute value MUST be empty. 
+    
+     * auditEventClientIpv4Address 
+       The IPv4 address of the LDAP client which caused the event to be 
+       logged, if known. In those cases where the client is using IPv6, 
+       this attribute MUST use the value of "0.0.0.0". 
+    
+     * auditEventClientIpv6Address 
+       The IPv6 address of the LDAP client which caused the event to be 
+       logged, if known. In those cases where the client is using IPv6, 
+       this attribute MUST use the value of "::0". 
+    
+     * auditEventClientHostname 
+       The DNS domain name of the LDAP client which caused the event to 
+       be logged, if known. In those cases where a hostname does not 
+       exist, cannot be found, or is not desired, this attribute value 
+       MUST be empty. 
+    
+     * auditEventNotes 
+       An optional, free-text description for the event. This data is 
+       limited to 1024 octets. 
+    
+   The generalizedAuditEvent attribute is to be treated as an 
+   operational attribute, meaning that it should not be returned in 
+   response messages unless explicitly requested by the client. 
+    
+   The schema definition for the generalizedAuditEvent attribute is as 
+   follows: 
+     
+   Hall                 Expires September 2003                       4 
+                The generalizedAudit Object Class and      March 2003 
+                 the generalizedAuditEvent Attribute 
+    
+    
+       generalizedAuditEvent 
+          ( OID-TBD NAME 'generalizedAuditEvent' DESC 'Generalized 
+          auditing details.' auditSequence USAGE distributedOperation ) 
+    
+   The structure of the auditSequence sequence is as follows: 
+    
+       auditSequence  
+          ( auditEventTimestamp SYNTAX 1.3.6.1.4.1.1466.115.121.1.24, 
+          auditEventSerialNumber SYNTAX 
+          1.3.6.1.4.1.1466.115.121.1.27{4}, auditEventType SYNTAX 
+          1.3.6.1.4.1.1466.115.121.1.27{1}, auditEventEntityDN SYNTAX 
+          1.3.6.1.4.1.1466.115.121.1.12, auditEventEntityName SYNTAX 
+          1.3.6.1.4.1.1466.115.121.1.15, auditEventClientIpv4Address 
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15, 
+          auditEventClientIpv6Address 1.3.6.1.4.1.1466.115.121.1.15, 
+          auditEventClientHostname 1.3.6.1.4.1.1466.115.121.1.15, 
+          auditEventNotes 1.3.6.1.4.1.1466.115.121.1.15{1024} ) 
+    
+    
+   4.  Example 
+    
+   An example of a generalizedAuditEvent associated with a specific DN 
+   is shown below: 
+    
+        cn=ehall,dc=example,dc=com 
+           [top object class] 
+           [inetOrgPerson object class] 
+            cn: ehall 
+            mail: ehall@example.com 
+            phone: +1-615-555-1212 
+           [generalizedAudit object class] 
+            generalizedAuditEvent[0]: { 
+                2003-03-14 13:01:00, 
+                1390302, 
+                1, 
+                cn=admin,dc=example,dc=com, 
+                "Directory Administrator" 
+                127.0.0.1, 
+                ::0, 
+                "", 
+                "new hire" } 
+            generalizedAuditEvent[1]: { 
+                2003-03-15 09:23:52, 
+                8290352, 
+                4, 
+                cn=admin,dc=example,dc=com, 
+                "Directory Administrator" 
+                127.0.0.1, 
+                ::0, 
+                "", 
+     
+   Hall                 Expires September 2003                       5 
+                The generalizedAudit Object Class and      March 2003 
+                 the generalizedAuditEvent Attribute 
+    
+                "assigned an email address" } 
+            generalizedAuditEvent[2]: { 
+                2003-03-15 10:01:19, 
+                9238523, 
+                4, 
+                cn=joe,dc=example,dc=com, 
+                "Joe Admin" 
+                10.10.0.9, 
+                ::0, 
+                "joe-home.example.com", 
+                "assigned a phone number" } 
+    
+   This example shows three auditing events associated with this entry. 
+   The first instance of the generalizedAuditEvent attribute shows when 
+   the entry was created, while the second and subsequent instances 
+   shows when the entry was modified. 
+    
+    
+   5.  Security Considerations 
+    
+   There may be security considerations with making changelog 
+   information available about attributes which are themselves not 
+   viewable by some party, since the information may provide hints 
+   about the substance of the data. For example, an Added event may 
+   indicate when a person associated with an entry was hired, even 
+   though the "hired" attribute associated with that entry may not be 
+   directly visible. 
+    
+    
+   6.  Author's Addresses 
+    
+   Eric A. Hall 
+   1840 41st Avenue, Suite 102 
+   Capitola, CA  95010 
+    
+   ehall@ehsco.com 
+

@@ -1,0 +1,1120 @@
+
+
+
+Network Working Group                                             H. Chu
+Internet-Draft                                               Symas Corp.
+Intended status: Informational                          October 15, 2009
+Expires: April 18, 2010
+
+
+              An LDAP Schema for Kerberos KDC Information
+                      draft-chu-ldap-kdc-schema-00
+
+Status of this Memo
+
+   This Internet-Draft is submitted to IETF in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on April 18, 2010.
+
+Copyright Notice
+
+   Copyright (c) 2009 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents in effect on the date of
+   publication of this document (http://trustee.ietf.org/license-info).
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                 [Page 1]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+Abstract
+
+   This document describes an LDAP [RFC4511] schema for implementing the
+   Kerberos 5 [RFC4120] KDC Information Model
+   [I-D.ietf-krb-wg-kdc-model].  It also defines additional elements
+   which are not covered by the Information Model, but are already in
+   common use.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                 [Page 2]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+1.  Background and Motivation
+
+   Both Kerberos and LDAP are frequently used separately for distributed
+   authentication.  They can also be used in combination, but typically
+   their user databases remained separate.  This distinction in
+   databases causes unnecessary duplication of data and administration
+   overhead.  As such it is desirable for both systems to share a single
+   database.  Since the LDAP data model is more general it is most
+   appropriate to store the Kerberos data in LDAP.
+
+   A number of Kerberos implementations already have support for using
+   LDAP as their KDC backing store.  However, each implementation uses
+   its own schema, and the multiple schemas are mutually incompatible.
+   For the sake of interoperability and administrative ease, it is
+   important to define a single standard schema that can be used
+   uniformly by all Kerberos KDC implementations and interoperates with
+   existing LDAP specifications.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                 [Page 3]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+2.  General Issues
+
+2.1.  Terminology
+
+   The key words "MUST", "SHOULD", and "MAY" used in this document are
+   to be interpreted as described in [RFC2119].
+
+   The OIDs defined below are derived from TBD.OID:
+   KRBSYN = TBD.OID.0
+   KRBATTR = TBD.OID.1
+   KRBOC = TBD.OID.2
+
+2.2.  Schema
+
+   The attributes and classes defined in this document are summarized
+   below.
+
+2.2.1.  Attributes
+
+   The following attributes are defined in this document:
+
+      krbPrincipalName
+      krbPrincipalAliases
+      krbTicketMaxLife
+      krbTicketMaxRenewal
+      krbEncSaltTypes
+      krbRealmName
+      krbPrincipalRealm
+      krbKeySet
+      krbKeyVersion
+      krbTicketPolicy
+      krbExtraData
+      krbPrincNamingAttr
+      krbPrincContainer
+      krbPwdPolicy
+      krbLDAPURI
+
+   Additionally, some of the attributes defined in LDAP Password Policy
+   [I-D.behera-ldap-password-policy] are required.
+
+   Note: The MIT/Novell schema includes a number of elements for storing
+   the KDC configuration in LDAP.  The Information Model doesn't cover
+   these aspects, so I've omitted them for now.  Do we need to add them?
+
+2.2.2.  Object Classes
+
+   The following object classes are defined in this document:
+
+
+
+
+Chu                      Expires April 18, 2010                 [Page 4]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+      krbKDCInfo
+      krbPrincipal
+      krbRealm
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                 [Page 5]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+3.  Attribute Definitions
+
+   This section contains attribute definitions to be implemented by KDCs
+   supporting this schema:
+
+     ( KRBATTR.1
+                   NAME 'krbPrincipalName'
+                   DESC 'Canonical principal name'
+                   EQUALITY caseExactIA5Match
+                   SUBSTR caseExactSubstringsMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+                   SINGLE-VALUE )
+
+
+     ( KRBATTR.2
+                   NAME 'krbPrincipalAliases'
+                   SUP krbPrincipalName )
+
+   These attributes implement section 6.1.1.1 of the Information Model.
+   The krbPrincipalName attribute contains the canonical name of the
+   principal.  Any aliases are stored in the krbPrincipalAliases
+   attribute.  Since the krbPrincipalAliases attribute is a subtype of
+   the krbPrincipalName attribute, a search on krbPrincipalName will
+   also search the aliases.
+
+
+     ( KRBATTR.3
+                   NAME 'krbTicketMaxLife'
+                   EQUALITY integerMatch
+                   ORDERING integerOrderingMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+                   SINGLE-VALUE )
+
+   This attribute implements section 6.1.1.11 of the Information Model.
+   It holds the maximum ticket lifetime in seconds for a principal.
+
+
+     ( KRBATTR.4
+                   NAME 'krbTicketMaxRenewal'
+                   EQUALITY integerMatch
+                   ORDERING integerOrderingMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+                   SINGLE-VALUE )
+
+   This attribute implements section 6.1.1.12 of the Information Model.
+   It holds the maximum time in seconds a ticket may be renewed for.
+
+
+
+
+
+Chu                      Expires April 18, 2010                 [Page 6]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+     ( KRBATTR.5
+                   NAME 'krbEncSaltTypes'
+                   EQUALITY caseIgnoreMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+   This attribute implements section 6.1.1.13 of the Information Model.
+   Holds the allowed encryption/salt type combinations for this
+   principal.  If empty or absent any combination supported by the
+   implementation is allowed.
+   Note that sections 6.1.1.2 thru 6.1.1.10 are implemented using the
+   LDAP Password Policy schema.
+
+
+     ( KRBATTR.6
+                   NAME 'krbRealmName'
+                   EQUALITY octetStringMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+
+     ( KRBATTR.7
+                   NAME 'krbPrincipalRealm'
+                   DESC 'DN of krbRealm entry'
+                   SUP distinguishedName )
+
+   These attributes provide information about the current realm.  They
+   provide the minimal set of information required to implement section
+   6.1.3 of the Information Model.
+
+
+     ( KRBATTR.8
+                   NAME 'krbKeyVersion'
+                   EQUALITY integerMatch
+                   ORDERING integerOrderingMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+                   SINGLE-VALUE )
+
+   This attribute implements section 6.2.1.1 of the Information Model.
+   It stores the version number of the current key.
+
+
+     ( KRBATTR.9
+                   NAME 'krbKeySet'
+                   EQUALITY octetStringMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+   This attribute implements sections 6.3.1.1 thru 6.3.1.4 of the
+   Information Model.  Sections 6.3.1.5 thru 6.3.1.7 are implemented
+   using the LDAP Password Policy schema.  This attribute holds the
+
+
+
+Chu                      Expires April 18, 2010                 [Page 7]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+   principal's keys optionally encrypted with the Master Key. The
+   attribute is encoded using ASN.1 [X.680] DER [X.690].
+
+   ##### The format of the value for this attribute is explained below,
+   ##### KrbKeySet ::= SEQUENCE {
+   ##### kvno                      [0] UInt32,
+   ##### mkvno                     [1] UInt32 OPTIONAL,
+   ##### keys                      [2] SEQUENCE OF KrbKey,
+   ##### ...
+   ##### }
+   #####
+   ##### KrbKey ::= SEQUENCE {
+   ##### salt      [0] KrbSalt OPTIONAL,
+   ##### key       [1] EncryptionKey,
+   ##### s2kparams [2] OCTET STRING OPTIONAL,
+   ##### ...
+   ##### }
+   #####
+   ##### KrbSalt ::= SEQUENCE {
+   ##### type      [0] Int32,
+   ##### salt      [1] OCTET STRING OPTIONAL
+   ##### }
+   #####
+   ##### EncryptionKey ::= SEQUENCE {
+   ##### keytype   [0] Int32,
+   ##### keyvalue  [1] OCTET STRING
+   ##### }
+
+
+     ( KRBATTR.10
+                   NAME 'krbTicketPolicy'
+                   EQUALITY integerMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+                   SINGLE-VALUE )
+
+   This attribute is related to section 6.4 of the Information Model.
+   It defines the flags that a user is allowed or required to use in a
+   ticket request.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                 [Page 8]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+   #krb5KDCFlagsSyntax SYNTAX ::= {
+   #   WITH SYNTAX            INTEGER
+   #--        initial(0),             -- require as-req
+   #--        forwardable(1),         -- may issue forwardable
+   #--        proxiable(2),           -- may issue proxiable
+   #--        renewable(3),           -- may issue renewable
+   #--        postdate(4),            -- may issue postdatable
+   #--        server(5),              -- may be server
+   #--        client(6),              -- may be client
+   #--        invalid(7),             -- entry is invalid
+   #--        require-preauth(8),     -- must use preauth
+   #--        change-pw(9),           -- change password service
+   #--        require-hwauth(10),     -- must use hwauth
+   #--        ok-as-delegate(11),     -- as in TicketFlags
+   #--        user-to-user(12),       -- may use user-to-user auth
+   #--        immutable(13)           -- may not be deleted
+   #   ID                     { 1.3.6.1.4.1.5322.10.0.1 }
+   #}
+
+
+     ( KRBATTR.11
+                   NAME 'krbExtraData'
+                   EQUALITY octetStringMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+   This attribute holds arbitrary data that may be needed by a
+   particular implementation.  The values are encoded in ASN.1 DER.
+
+   ##### The format of the values for this attribute is explained below,
+   ##### ExtraData ::= SEQUENCE {
+   ##### tag       [0] OCTET STRING,
+   ##### data      [1] OCTET STRING
+   ##### }
+
+   The following four attributes are outside the scope of the
+   Information Model but may be useful in some deployments.
+
+     ( KRBATTR.12
+                   NAME 'krbPrincNamingAttr'
+                   EQUALITY objectIdentifierMatch
+                   SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+                   SINGLE-VALUE )
+
+   This attribute records what attribute will be used to name newly
+   created principal entries.
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                 [Page 9]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+     ( KRBATTR.13
+                   NAME 'krbPrincContainer'
+                   DESC 'DN of container entry for principals'
+                   SUP distinguishedName
+                   SINGLE-VALUE )
+
+   This attribute points to the container entry under which new
+   principal entries will be created.
+
+     ( KRBATTR.14
+                   NAME 'krbPwdPolicy'
+                   DESC 'DN of password policy subentry'
+                   SUP distinguishedName
+                   SINGLE-VALUE )
+
+   This attribute points to the LDAP password policy subentry containing
+   the policy that should be applied to Kerberos principals.  Note that
+   in LDAP servers with full subentry support, the subentry's subtree
+   search specification defines what entries the subentry applies to, so
+   this attribute is unnecessary; it is provided merely for
+   informational purposes.
+
+     ( KRBATTR.15
+                   NAME 'krbLDAPURI'
+                   DESC 'LDAP search parameters for locating principals'
+                   SUP labeledURI )
+
+   This attribute contains LDAP URIs that the KDC will search when
+   locating principals.  The URI values must conform to the syntax
+   defined in [RFC4516].  As a special case, the URI prefix "ldap:///"
+   is taken to mean the current LDAP server.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 10]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+4.  Class Definitions
+
+   This section contains class definitions to be implemented by KDCs
+   supporting the schema.
+
+
+     ( KRBOC.1 NAME 'krbKDCInfo' SUP top AUXILIARY
+         MAY ( krbTicketMaxLife $ krbTicketMaxRenewal $
+           krbEncSaltTypes $ krbTicketPolicy $
+           krbKeySet $ krbKeyVersion ) )
+
+
+     ( KRBOC.2 NAME 'krbPrincipal' SUP krbKDCInfo AUXILIARY
+         MUST ( krbPrincipalName )
+         MAY ( krbPrincipalAliases $ krbPrincipalRealm $
+           krbExtraData ) )
+
+
+     ( KRBOC.3 NAME 'krbRealm' SUP krbKDCInfo AUXILIARY
+         MUST ( krbRealmName )
+         MAY ( krbPrincNamingAttr $ krbPrincContainer $
+           krbPwdPolicy $ krbLDAPURI ) )
+
+   Note that in a krbRealm object the krbKeySet and krbKeyVersion
+   attributes actually reflect the Master key for the realm.  In this
+   case the krbKeySet's mkvno field and all other optional fields are
+   omitted.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 11]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+5.  Implementation Details
+
+   Since the LDAP Password Policy is intimately involved in the security
+   mechanisms of this proposal, the directory should be treated as more
+   than just a passive data store.  (The KDC can certainly read the
+   policy attributes and evaluate them itself, but that would mean
+   needlessly duplicating all of the functionality that is already
+   implemented in the directory server.)  This means that for every
+   Kerberos authentication being serviced, a corresponding LDAP
+   operation must also be performed, in order to allow the password
+   policy mechanisms to operate.
+
+   The mechanism outlined here assumes that the plain LDAP credentials
+   and the Kerberos credentials are unified (or at least synchronized).
+   In that case, for every incoming Kerberos authentication request, the
+   KDC can issue an LDAP Compare request using the known credentials of
+   the user and the LDAP Password Policy control.  The result of the
+   request will carry any relevant error codes if the account is
+   disabled, the password is expired, or various other failures.  If
+   preauthentication is in use and the request is invalid, a Compare
+   with known invalid credentials may be used to update the password
+   policy state.
+
+5.1.  Model Details
+
+   A number of data elements described in the Information Model are
+   delegated to the LDAP DSA for management.  Details of their usage are
+   described here.
+
+5.1.1.  principalNotUsedBefore
+
+   Section 6.1.1.2 of the Information Model.  This corresponds to the
+   pwdStartTime attribute.  If the KDC is using LDAP requests to operate
+   the Password Policy mechanism then it does not need to reference or
+   manipulate this attribute directly.
+
+5.1.2.  principalNotUsedAfter
+
+   Section 6.1.1.3 of the Information Model.  This corresponds to the
+   pwdEndTime attribute.  If the KDC is using LDAP requests to operate
+   the Password Policy mechanism then it does not need to reference or
+   manipulate this attribute directly.
+
+5.1.3.  principalIsDisabled
+
+   Section 6.1.1.4 of the Information Model.  If the KDC is using LDAP
+   requests to operate the Password Policy mechanism then it does not
+   need to reference or manipulate this attribute directly.  Otherwise,
+
+
+
+Chu                      Expires April 18, 2010                [Page 12]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+   this effect is controlled by setting the pwdStartTime attribute to a
+   value greater than or equal to the pwdEndTime attribute.
+
+5.1.4.  principalNumberOfFailedAuthenticationAttempts
+
+   Section 6.1.1.5 of the Information Model.  If the KDC is using LDAP
+   requests to operate the Password Policy mechanism then it does not
+   need to reference or manipulate this attribute directly.  Otherwise,
+   this value is obtained by counting the number of values stored in the
+   pwdFailureTime attribute.
+
+5.1.5.  principalLastFailedAuthentication
+
+   Section 6.1.1.6 of the Information Model.  If the KDC is using LDAP
+   requests to operate the Password Policy mechanism then it does not
+   need to reference or manipulate this attribute directly.  Otherwise,
+   this value is obtained by retrieving the values stored in the
+   pwdFailureTime attribute and selecting the most recent value.
+
+5.1.6.  principalLastSuccessfulAuthentication
+
+   Section 6.1.1.7 of the Information Model.  This corresponds to the
+   pwdLastSuccess attribute.  If the KDC is using LDAP requests to
+   operate the Password Policy mechanism then it does not need to
+   reference or manipulate this attribute directly.
+
+5.1.7.  principalLastCredentialChangeTime
+
+   Section 6.1.1.8 of the Information Model.  This corresponds to the
+   pwdChangedTime attribute.  If the KDC uses the LDAP Password Modify
+   [RFC3062] request then it does not need to reference or manipulate
+   this attribute directly.
+
+5.1.8.  principalCreateTime
+
+   Section 6.1.1.9 of the Information Model.  This corresponds to the
+   createTimestamp attribute.  The KDC does not need to reference or
+   manipulate this attribute directly.
+
+5.1.9.  principalModifyTime
+
+   Section 6.1.1.10 of the Information Model.  This corresponds to the
+   modifyTimestamp attribute.  The KDC does not need to reference or
+   manipulate this attribute directly.
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 13]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+5.2.  KeySet details
+
+   The krbKeySet attribute is multi-valued but it is expected that it
+   will usually only contain one value.  During a password change
+   operation the KDC may choose to keep one previous value present to
+   allow currently active clients to continue to operate using the
+   previous key.  How long to retain this old password is unspecified
+   here.  Note also that the LDAP Password Policy mechanism already has
+   provisions for password history management, so the krbKeySet
+   attribute should not be used for long-term password history tracking.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 14]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+6.  Security Considerations
+
+   This entire document is concerned with an implementation of a secure
+   distributed authentication mechanism.  It should be understood that
+   the various keys used here are all sensitive pieces of data and must
+   be adequately protected using access controls and other mechanisms.
+   Likewise all communications between the KDC and DSA must be protected
+   whenever sensitive data is being referenced.
+
+   In common practice the KDC and DSA have been colocated on a single
+   host and communicated over a local LDAP IPC [I-D.chu-ldap-ldapi]
+   session.  As such it was implied that the host security was
+   equivalent for both.  If a KDC is configured to use a remote DSA, the
+   remote host should be configured with at least the same level of
+   security as the KDC host, and a secure channel MUST be used for the
+   LDAP session.
+
+   Storing the Master Key in the DSA makes it even more crucial that the
+   LDAP host, service, and data files be adequately protected.  Backups
+   of the LDAP database should also be encrypted to protect the
+   integrity of any keys contained therein.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 15]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+7.  IANA Considerations
+
+   In accordance with [RFC4520] the following registrations are
+   requested.
+
+7.1.  Object Identifiers
+
+   [[List of OIDs, registration template goes here...]]
+
+7.2.  LDAP Descriptors
+
+   [[List of Attribute and ObjectClass descriptors, template goes
+   here...]]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 16]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+8.  Acknowledgements
+
+   Thanks to Simo Sorce from Red Hat Inc. and Love Hoernquist Aestrand
+   from Apple Corp. for their feedback on this document.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 17]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+9.  References
+
+9.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC3062]  Zeilenga, K., "LDAP Password Modify Extended Operation",
+              RFC 3062, February 2001.
+
+   [RFC4120]  Neuman, C., Yu, T., Hartman, S., and K. Raeburn, "The
+              Kerberos Network Authentication Service (V5)", RFC 4120,
+              July 2005.
+
+   [RFC4511]  Sermersheim, J., "Lightweight Directory Access Protocol
+              (LDAP): The Protocol", RFC 4511, June 2006.
+
+   [RFC4516]  Smith, M. and T. Howes, "Lightweight Directory Access
+              Protocol (LDAP): Uniform Resource Locator", RFC 4516,
+              June 2006.
+
+   [RFC4520]  Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
+              Considerations for the Lightweight Directory Access
+              Protocol (LDAP)", BCP 64, RFC 4520, June 2006.
+
+   [I-D.behera-ldap-password-policy]
+              Sermersheim, J., Poitou, L., and H. Chu, "Password Policy
+              for LDAP Directories",
+              draft-behera-ldap-password-policy-10 (work in progress),
+              August 2009.
+
+   [I-D.ietf-krb-wg-kdc-model]
+              Johansson, L., "An information model for Kerberos version
+              5", draft-ietf-krb-wg-kdc-model-05 (work in progress),
+              July 2009.
+
+   [X.680]    International Telecommunications Union, "Abstract Syntax
+              Notation One (ASN.1): Specification of basic notation",
+              ITU-T Recommendation X.680, July 2002.
+
+   [X.690]    International Telecommunications Union, "Information
+              Technology - ASN.1 encoding rules: Specification of Basic
+              Encoding Rules (BER),  Canonical Encoding Rules (CER) and
+              Distinguished Encoding Rules (DER)", ITU-T
+              Recommendation X.690, July 2002.
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 18]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+9.2.  Informative References
+
+   [I-D.chu-ldap-ldapi]
+              Chu, H., "Using LDAP Over IPC Mechanisms",
+              draft-chu-ldap-ldapi-00 (work in progress), March 2007.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 19]
+
+Internet-Draft               LDAP KDC Schema                October 2009
+
+
+Author's Address
+
+   Howard Chu
+   Symas Corp.
+   18740 Oxnard Street, Suite 313A
+   Tarzana, California  91356
+   US
+
+   Phone: +1 818 757-7087
+   Email: hyc@symas.com
+   URI:   http://www.symas.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chu                      Expires April 18, 2010                [Page 20]
+

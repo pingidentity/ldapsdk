@@ -1,0 +1,240 @@
+
+
+
+
+
+
+Application Working Group                                      L. Howard
+INTERNET-DRAFT                                             PADL Software
+Expires in six months from                                   1 June 2003
+Intended Category: Informational
+
+
+
+    A Structural Object Class for Arbitrary Auxiliary Object Classes
+                   <draft-howard-namedobject-01.txt>
+
+
+
+Status of this Memo
+
+This document is an Internet-Draft and is in full conformance with all
+provisions of Section 10 of RFC2026.
+
+This document is an Internet-Draft. Internet-Drafts are working docu-
+ments of the Internet Engineering Task Force (IETF), its areas, and its
+working groups. Note that other groups may also distribute working docu-
+ments as Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six months.
+Internet-Drafts may be updated, replaced, or made obsolete by other doc-
+uments at any time. It is not appropriate to use Internet-Drafts as ref-
+erence material or to cite them other than as a "working draft" or "work
+in progress".
+
+To learn the current status of any Internet-Draft, please check the 1id-
+abstracts.txt listing contained in the Internet-Drafts Shadow Directo-
+ries on ds.internic.net (US East Coast), nic.nordu.net (Europe),
+ftp.isi.edu (US West Coast), or munnari.oz.au (PacificRim).
+
+Distribution of this document is unlimited.
+
+Abstract
+
+
+The Lightweight Directory Access Protocol (LDAP) supports auxiliary
+object classes for adding additional attributes to a directory entry.
+
+This document defines a structural object class that may be used when no
+other structural object class is available.
+
+1. Background
+
+
+
+
+
+
+Howard                                                          [Page 1]
+
+
+
+
+
+Internet Draft             namedObject schema                1 June 2003
+
+
+Schema for LDAP directories often define auxiliary object classes that
+are intended to be used with a specific structural object class.
+
+For example, the posixGroup object class [RFC2307bis] is an auxiliary
+object class that may be used to overlay POSIX group identification on
+an existing group of distinguished names.  In this case, it is suggested
+that the groupOfUniqueNames object class be used as a structural object
+class. However, this may sometimes be inappropriate: that groupOfUnique-
+Names requires at least one member may make it impossible to migrate
+existing group information. [RFC2307bis] could define a specific struc-
+tural object class for this case (say, structuralPosixGroup), but this
+would unnecessarily add to the proliferation of redundant schema.
+
+This document defines a structural object class, namedObject, that man-
+dates no attributes other than a common name. Arbitrary auxiliary object
+classes may be thus associated with entries which have this as a struc-
+tural object class.
+
+2. Object Class Definitions
+
+
+The namedObject object class defines one mandatory attribute, a common
+name. The OID arc is iso(1) org(3) dod(6) internet(1) private(4) enter-
+prise(1) padl(5322) namedObjectSchema(13) objectClasses(1).
+
+     ( 1.3.6.1.4.1.5322.13.1.1 NAME 'namedObject' SUP top
+       STRUCTURAL MAY cn )
+
+Other attributes allowed by auxiliary classes may be used for naming
+purposes.
+
+An example entry would be:
+
+     dn: cn=Sample Entry,dc=padl,dc=com
+     objectClass: top
+     objectClass: namedObject
+     cn: Sample Entry
+
+An example entry with an auxiliary class from [RFC2307bis] would be:
+
+     dn: cn=wheel,ou=Groups,dc=padl,dc=com
+     objectClass: top
+     objectClass: namedObject
+     objectClass: posixGroup
+     cn: wheel
+     gidNumber: 0
+     memberUid: root
+
+
+
+
+Howard                                                          [Page 2]
+
+
+
+
+
+Internet Draft             namedObject schema                1 June 2003
+
+
+3. Security Considerations
+
+
+The introduction of this schema element does not impact the security of
+the Internet. See [RFC2251] for general LDAP security considerations.
+
+4. IANA Considerations
+
+
+No IANA assignments are requested.
+
+This document uses the OID 1.3.6.1.4.1.5322.13.1.1 to identity the name-
+dObject schema element. This OID was assigned by PADL Software Pty Ltd
+under its IANA assigned private enterprise allocation for use in this
+specification.
+
+5. References
+
+
+[RFC2251]
+     M. Wahl, T. Howes, S. Kille, "Lightweight Directory Access Protocol
+     (v3)", RFC 2251, December 1997.
+
+[RFC2252]
+     Wahl, M., Coulbeck, A., Howes, T., and S. Kille, "Lightweight
+     Directory Access Protocol (v3): Attribute Syntax Definitions", RFC
+     2252, December 1997.
+
+[RFC2307bis]
+     L. Howard, M. Ansari, "An Approach for Using LDAP as a Network
+     Information Service", draft-howard-rfc2307bis-02.txt (a work in
+     progress).
+
+6. Author's Address
+
+     Luke Howard
+     PADL Software Pty. Ltd.
+     PO Box 59
+     Central Park Vic 3145
+     Australia
+     EMail: lukeh@padl.com
+
+7. Full Copyright Statement
+
+
+Copyright (C) The Internet Society (2002).  All Rights Reserved.
+
+
+
+
+
+Howard                                                          [Page 3]
+
+
+
+
+
+Internet Draft             namedObject schema                1 June 2003
+
+
+This document and translations of it may be copied and furnished to oth-
+ers, and derivative works that comment on or otherwise explain it or
+assist in its implementation may be prepared, copied, published and dis-
+tributed, in whole or in part, without restriction of any kind, provided
+that the above copyright notice and this paragraph are included on all
+such copies and derivative works.  However, this document itself may not
+be modified in any way, such as by removing the copyright notice or ref-
+erences to the Internet Society or other Internet organizations, except
+as needed for the purpose of developing Internet standards in which case
+the procedures for copyrights defined in the Internet Standards process
+must be followed, or as required to translate it into languages other
+than English.
+
+The limited permissions granted above are perpetual and will not be
+revoked by the Internet Society or its successors or assigns.
+
+This document and the information contained herein is provided on an "AS
+IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING TASK
+FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FIT-
+NESS FOR A PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Howard                                                          [Page 4]
+
+

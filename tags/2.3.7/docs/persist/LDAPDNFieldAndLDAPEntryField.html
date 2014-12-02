@@ -1,0 +1,49 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Using the UnboundID LDAP SDK Persistence Framework</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>The <tt>@LDAPDNField</tt> and <tt>@LDAPEntryField</tt> Annotation Types</h2>
+
+              <p>
+                The <tt>@LDAPDNField</tt> annotation type may be used to mark at most one field in
+                a Java class, and when initializing and instance of that class with information
+                from an LDAP entry, the DN of that entry will be stored in that field.  If a field
+                is marked with this annotation type, then it must have a type of
+                <tt>java.lang.String</tt>.
+              </p>
+
+              <p>
+                The <tt>@LDAPEntryField</tt> annotation type may be used to mark at most one field
+                in a Java class, and when initializing an instance of that class with information
+                from an LDAP entry, a read-only copy of that entry will be stored in that field.
+                If a field is marked with this annotation type, then it must have a type of
+                <tt>com.unboundid.ldap.sdk.ReadOnlyEntry</tt>.
+              </p>
+
+              <p>
+                Zero, one, or both of these annotation types may be used in any class marked with
+                the <tt>@LDAPObject</tt> annotation type (although if a class contains a field
+                marked with the <tt>@LDAPEntryField</tt> annotation type then the DN of the entry
+                can be gotten from that, so there really isn't a need to also have a field marked
+                with the <tt>@LDAPDNField</tt> annotation type).  Neither field may be marked
+                <tt>static</tt> or <tt>final</tt>, although they may have any access modifier,
+                including <tt>public</tt>, <tt>private</tt>, <tt>protected</tt>, or the default of
+                package-level access.
+              </p>
+
+              <p>
+                When attempting to modify or delete an entry retrieved using the LDAP SDK
+                persistence framework, either of these fields may be used to obtain the DN of the
+                target entry.  In addition, when performing a modify operation, if the class
+                contains a field marked with the <tt>@LDAPEntryField</tt> annotation type then that
+                entry may be used to better identify the changes made to the object so that it can
+                construct a more concise set of modifications.
+              </p>

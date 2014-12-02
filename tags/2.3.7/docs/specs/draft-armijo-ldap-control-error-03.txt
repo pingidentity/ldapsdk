@@ -1,0 +1,242 @@
+
+   INTERNET-DRAFT                                            Asaf Kashi 
+   Intended Category: Standards Track             Microsoft Corporation 
+   <draft-armijo-ldap-control-error-03.txt>                 March, 2002               
+   Expires: September, 2002 
+                                                   
+                               
+                               
+                     The LDAP controlError Result Code 
+    
+    
+1. Status of this Memo 
+    
+   This document is an Internet-Draft and is in full conformance with 
+   all provisions of Section 10 of RFC2026. 
+    
+   Internet-Drafts are working documents of the Internet Engineering 
+   Task Force (IETF), its areas, and its working groups.  Note that 
+   other groups may also distribute working documents as Internet-
+   Drafts. 
+    
+   Internet-Drafts are draft documents valid for a maximum of six 
+   months and may be updated, replaced, or obsoleted by other documents 
+   at any time.  It is inappropriate to use Internet- Drafts as 
+   reference material or to cite them other than as "work in progress." 
+    
+   The list of current Internet-Drafts can be accessed at 
+   http://www.ietf.org/ietf/1id-abstracts.txt 
+    
+   The list of Internet-Draft Shadow Directories can be accessed at 
+   http://www.ietf.org/shadow.html. 
+    
+   Distribution of this memo is unlimited.  It is filed as <draft-
+   armijo-ldap-control-error-03.txt>, and expires September, 2002.   
+    
+   Please send comments to the author. 
+    
+    
+2. Abstract 
+    
+   This document defines a controlError result code to be used in 
+   LDAPv3 [1] control extension specifications.  The purpose of this 
+   result code is to let the client know that the operation which 
+   returned this result code was not successful due to an attached 
+   control and that further information is available in one or more 
+   controls attached to the response. 
+    
+    
+3. Conventions used in this document 
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", 
+   "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in 
+   this document are to be interpreted as described in RFC 2119 [2]. 
+    
+    
+     
+   Kashi                   Standards Track                          1 
+                    Result Code for LDAP Controls          March 2002 
+    
+4. Background and Intended Usage 
+    
+   LDAPv3 allows for the extension of the protocol through the use of 
+   controls.  These controls allow existing operations to be enhanced 
+   to provide additional functionality for directory operations.  
+   Complex controls are being established that are bringing up error 
+   conditions not anticipated in the LDAPv3 specifications. 
+    
+   This document provides a result code, controlError, which is used to 
+   signify a control specific error.  The purpose of this result code 
+   is to let the client know that the operation which returned this 
+   result code was not successful due to an attached control and that 
+   further information is available in one or more controls attached to 
+   the response. 
+    
+   The controlError result code SHOULD be used in a response message to 
+   signal that a control specific error condition occurred and 
+   additional information is available in the attached control response 
+   message.  An example of a control specification using this result 
+   code can be seen in the VLV control specification. [3] 
+ 
+    
+5. The LDAP controlError Result Code 
+    
+   The LDAPResult construct as defined in section 4.1.10 of RFC 2251 
+   [1] includes a list of valid result codes.  The LDAPResult construct 
+   is repeated here for readability: 
+    
+    
+   LDAPResult ::= SEQUENCE { 
+                resultCode    ENUMERATED { 
+                             success                      (0), 
+                             operationsError              (1), 
+                             protocolError                (2), 
+                             timeLimitExceeded            (3), 
+                             sizeLimitExceeded            (4), 
+                             compareFalse                 (5), 
+                             compareTrue                  (6), 
+                             authMethodNotSupported       (7), 
+                             strongAuthRequired           (8), 
+                                        -- 9 reserved -- 
+                             referral                     (10),  -- new 
+                             adminLimitExceeded           (11),  -- new 
+                             unavailableCriticalExtension (12),  -- new 
+                             confidentialityRequired      (13),  -- new 
+                             saslBindInProgress           (14),  -- new 
+                             noSuchAttribute              (16), 
+                             undefinedAttributeType       (17), 
+                             inappropriateMatching        (18), 
+                             constraintViolation          (19), 
+                             attributeOrValueExists       (20), 
+                             invalidAttributeSyntax       (21), 
+                                        -- 22-31 unused -- 
+                             noSuchObject                 (32), 
+    
+   Kashi                   Standards Track                          2 
+                    Result Code for LDAP Controls          March 2002 
+    
+                             aliasProblem                 (33), 
+                             invalidDNSyntax              (34), 
+                             -- 35 reserved for undefined isLeaf -- 
+                             aliasDereferencingProblem    (36), 
+                                        -- 37-47 unused -- 
+                             inappropriateAuthentication  (48), 
+                             invalidCredentials           (49), 
+                             insufficientAccessRights     (50), 
+                             busy                         (51), 
+                             unavailable                  (52), 
+                             unwillingToPerform           (53), 
+                             loopDetect                   (54), 
+                                        -- 55-63 unused -- 
+                             namingViolation              (64), 
+                             objectClassViolation         (65), 
+                             notAllowedOnNonLeaf          (66), 
+                             notAllowedOnRDN              (67), 
+                             entryAlreadyExists           (68), 
+                             objectClassModsProhibited    (69), 
+                                    -- 70 reserved for CLDAP -- 
+                             affectsMultipleDSAs          (71), -- new 
+                                    -- 72-79 unused -- 
+                             other                        (80) }, 
+                               -- 81-90 reserved for APIs -- 
+                matchedDN       LDAPDN, 
+                errorMessage    LDAPString, 
+                referral        [3] Referral OPTIONAL } 
+    
+     
+    
+   This document adds another valid result code, controlError(76).   
+    
+   The controlError MUST be defined in any control specification that 
+   makes use of the result code.  A control specification SHALL define 
+   under what conditions the controlError result is to be returned and 
+   which control will be attached to the response message.  In 
+   addition, the control specification SHALL define the control 
+   specific errors returned in the attached control. 
+    
+   A control specification SHOULD NOT use controlError to represent any 
+   condition that can be defined using any existing result code in RFC 
+   2251. 
+    
+   The controlError result code MUST be defined in control 
+   specifications to signify that the client should parse an embedded 
+   result code for additional control specific results.   
+    
+   In cases where a client receives an LDAP response with the result 
+   code of controlError and no attached controls, the response is to be 
+   treated as an unknown error condition. 
+    
+    
+    
+    
+   Kashi                   Standards Track                          3 
+                    Result Code for LDAP Controls          March 2002 
+    
+6. Security Considerations 
+    
+   This document defines an extension to RFC 2251 [1] and has the same 
+   security issues.  See the security considerations section in [1] for 
+   more details.  In addition the result code defined in this document 
+   is used in other control specifications and as such their individual 
+   security considerations must be examined. 
+    
+    
+7. Acknowledgement 
+    
+   Michael Armijo of Microsoft co-authored a previous version of this 
+   document. 
+ 
+    
+8. Author∆s Address 
+    
+   Asaf Kashi 
+   One Microsoft Way 
+   Redmond, WA 98052 
+   asafk@microsoft.com 
+    
+    
+9. References 
+    
+   [1]  Wahl, M., Howes, T. and S. Kille, "Lightweight Directory Access 
+   Protocol(v3)", RFC 2251, December 1997. 
+    
+   [2]  Bradner, S., "Key words for use in RFCs to Indicate Requirement 
+   Levels", RFC 2119, March 1997 
+    
+   [3]  Boreham et al, "LDAP Extensions for Scrolling View Browsing of 
+   Search Results", Internet-Draft, November 2001 
+        Work in progress published as: 
+        <draft-ietf-ldapext-ldapv3-vlv-0x.txt> 
+    
+    
+10. Full Copyright Statement 
+    
+   Copyright (C) The Internet Society (2001).  All Rights Reserved. 
+   This document and translations of it may be copied and furnished to 
+   others, and derivative works that comment on or otherwise explain it 
+   or assist in its implementation may be prepared, copied, published 
+   and distributed, in whole or in part, without restriction of any 
+   kind, provided that the above copyright notice and this paragraph 
+   are included on all such copies and derivative works.  However, this 
+   document itself may not be modified in any way, such as by removing 
+   the copyright notice or references to the Internet Society or other 
+   Internet organizations, except as needed for the purpose of 
+   developing Internet standards in which case the procedures for 
+   copyrights defined in the Internet Standards process must be 
+   followed, or as required to translate it into languages other than 
+   English. 
+    
+    
+   Kashi                   Standards Track                          4 
+                    Result Code for LDAP Controls          March 2002 
+    
+   The limited permissions granted above are perpetual and will not be 
+   revoked by the Internet Society or its successors or assigns. 
+    
+   This document and the information contained herein is provided on an 
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING 
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING 
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION 
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF 
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE." 
+    
+   Kashi                   Standards Track                          5 

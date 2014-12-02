@@ -1,0 +1,227 @@
+
+
+
+
+
+
+Network Working Group                                        K. Zeilenga
+Request for Comments: 3352                           OpenLDAP Foundation
+Obsoletes: 1798                                               March 2003
+Category: Informational
+
+
+     Connection-less Lightweight Directory Access Protocol (CLDAP)
+                           to Historic Status
+
+
+Status of this Memo
+
+   This memo provides information for the Internet community.  It does
+   not specify an Internet standard of any kind.  Distribution of this
+   memo is unlimited.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2003).  All Rights Reserved.
+
+Abstract
+
+   The Connection-less Lightweight Directory Access Protocol (CLDAP)
+   technical specification, RFC 1798, was published in 1995 as a
+   Proposed Standard.  This document discusses the reasons why the CLDAP
+   technical specification has not been furthered on the Standard Track.
+   This document recommends that RFC 1798 be moved to Historic status.
+
+1. Background
+
+   Connection-less Lightweight Directory Access Protocol (CLDAP)
+   [RFC1798] was published in 1995 as a Proposed Standard.  The protocol
+   was targeted at applications which require lookup of small amounts of
+   information held in the directory.  The protocol avoids the overhead
+   of establishing (and closing) a connection and the session bind and
+   unbind operations needed in connection-oriented directory access
+   protocols.  The CLDAP was designed to complement version 2 of the
+   Lightweight Directory Access Protocol (LDAPv2) [RFC1777], now
+   Historic [HISTORIC].
+
+   In the seven years since its publication, CLDAP has not become widely
+   deployed on the Internet.  There are a number of probable reasons for
+   this:
+
+   - Limited functionality:
+        + anonymous only,
+        + read only,
+        + small result sizes only, and
+
+
+
+Zeilenga                     Informational                      [Page 1]
+
+RFC 3352                CLDAP to Historic Status              March 2003
+
+
+   - Insufficient security capabilities:
+        + no integrity protection,
+        + no confidentiality protection
+   - Inadequate internationalization support;
+   - Insufficient extensibility; and
+   - Lack of multiple independently developed implementations.
+
+   The CLDAP technical specification has normative references to
+   multiple obsolete technical specifications including X.501(88),
+   X.511(88), RFC 1487 (the predecessor to RFC 1777, the now Historic
+   LDAPv2 technical specification).  Unless the technical specification
+   were to be updated, CLDAP cannot remain on the standards track
+   because of the Normative reference to a Historic RFC.
+
+   The community recognized in the mid-1990s that CLDAP needed to be
+   updated.  In response to this, the IETF chartered the LDAP Extensions
+   Working Group (LDAPext WG) in 1997 to undertake this update.  The
+   LDAPext WG is concluding without producing an update to CLDAP.
+   Currently, there is no standardization effort to update CLDAP.
+
+   It should be noted that the community still has interest in
+   developing a "connection-less" directory access protocol.  However,
+   based on operational experience, has determined that further
+   experimentation is necessary to address outstanding technical issues.
+   In particular, security considerations associated with
+   "connection-less" services need to be addressed.
+
+2. Recommendation
+
+   As there is no viable standardization effort to update CLDAP as
+   necessary to keep it on the standards track and the community
+   currently considers this an area requiring further experimentation,
+   RFC 1798 must be moved to Historic status.
+
+   It is recommended that those interested in connection-less access to
+   X.500-based directory services experiment with [LDAPUDP] and other
+   alternatives which might become available.
+
+3. Security Considerations
+
+   The security of the Internet will not be impacted by the retirement
+   of CLDAP.
+
+4. Acknowledgment
+
+   The author would like to thank the designers of CLDAP for their
+   contribution to the Internet community.
+
+
+
+
+Zeilenga                     Informational                      [Page 2]
+
+RFC 3352                CLDAP to Historic Status              March 2003
+
+
+5. Normative References
+
+   [HISTORIC] Zeilenga, K., "Lightweight Directory Access Protocol
+              version 2 (LDAPv2) to Historic Status", RFC 3494, February
+              2003.
+
+   [CLDAP]    Young, A. "Connection-less Lightweight Directory Access
+              Protocol," RFC 1798, June 1995.
+
+6. Informative References
+
+   [LDAPUDP]  Johansson, L. and R. Hedberg, "Lightweight Directory
+              Access Protocol over UDP/IP," Work in Progress.
+
+   [RFC1777]  Yeong, W., Howes, T. and S. Kille, "Lightweight Directory
+              Access Protocol", RFC 1777, March 1995.
+
+   [RFC3377]  Hodges, J. and R. Morgan, "Lightweight Directory Access
+              Protocol (v3): Technical Specification", RFC 3377,
+              September 2002.
+
+   [X501]     The Directory: Models.  CCITT Recommendation X.501 ISO/IEC
+              JTC 1/SC21; International Standard 9594-2, 1988.
+
+   [X511]     The Directory: Abstract Service Definition.  CCITT
+              Recommendation X.511, ISO/IEC JTC 1/SC21; International
+              Standard 9594-3, 1988.
+
+7. Author's Address
+
+   Kurt D. Zeilenga
+   OpenLDAP Foundation
+
+   EMail: Kurt@OpenLDAP.org
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Zeilenga                     Informational                      [Page 3]
+
+RFC 3352                CLDAP to Historic Status              March 2003
+
+
+8.  Full Copyright Statement
+
+   Copyright (C) The Internet Society (2003).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Acknowledgement
+
+   Funding for the RFC Editor function is currently provided by the
+   Internet Society.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Zeilenga                     Informational                      [Page 4]
+

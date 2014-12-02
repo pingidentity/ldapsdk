@@ -1,0 +1,283 @@
+
+
+   INTERNET-DRAFT                                            Asaf Kashi 
+   Category: Standards Track                      Microsoft Corporation 
+   <draft-kashi-attr-scoped-query-01.txt>                 November 2001 
+                                                                        
+ 
+ 
+                    Attribute Scoped Query: control for 
+                searching DN-valued multi-value attributes 
+    
+    
+1. Status of this Memo 
+ 
+   This document is an Internet-Draft and is in full conformance with 
+   all provisions of Section 10 of RFC2026. 
+    
+   Internet-Drafts are working documents of the Internet Engineering 
+   Task Force (IETF), its areas, and its working groups.  Note that 
+   other groups may also distribute working documents as Internet-
+   Drafts. 
+    
+   Internet-Drafts are draft documents valid for a maximum of six 
+   months and may be updated, replaced, or obsoleted by other documents 
+   at any time.  It is inappropriate to use Internet-Drafts as 
+   reference material or to cite them other than as "work in progress." 
+    
+   The list of current Internet-Drafts can be accessed at 
+   http://www.ietf.org/ietf/1id-abstracts.txt 
+    
+   The list of Internet-Draft Shadow Directories can be accessed at 
+   http://www.ietf.org/shadow.html. 
+    
+   This document is intended to be submitted, after review and 
+   revision, as a Standards Track document.  Distribution of this memo 
+   is unlimited.  It is filed as <draft-kashi-attr-scoped-query-
+   01.txt>, and expires May, 2002. 
+    
+   Please send comments to the author.  Full copyright section near the 
+   end of the document. 
+    
+    
+2. Abstract 
+    
+   There are times when an LDAP [1] search would return a DN-valued 
+   attribute with multiple values.  As the number of values in a multi-
+   value attribute increases, it becomes apparent that being able to 
+   query the multi-valued attribute is increasingly valuable.  This 
+   document describes an LDAP extended search control that returns DN-
+   valued attributes as objects and their attributes in the 
+   searchResultEntry and also allows filters to be applied to the 
+   values in a large multi-valued attribute.  Using this control to 
+   search multi-valued attributes reduces the number of client queries 
+   required to search multi-valued attributes. 
+     
+   Kashi                   Standards Track                          1 
+                 Attribute Scoped Query: control for    November 2001 
+              searching DN-valued multi-value attributes 
+    
+3. Conventions used in this document 
+    
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", 
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this 
+   document are to be interpreted as described in RFC-2119 [2]. 
+    
+    
+4. ASQ Control for searching DN-valued multi-value attributes 
+    
+   The Attribute Scoped Query control is a new control specified as per 
+   section 4.1.12 of RFC 2251[1].  The ASQ control allows a sorted 
+   search of large DN-valued multi-value attributes.  By returning the 
+   DN-valued attributes as objects and also allowing for filters to be 
+   applied, the control lowers clients parsing overhead and the network 
+   traffic depending on the filter applied. 
+    
+    
+4.1 Attribute Query Control 
+    
+   The ASQ control MUST only be used with a SearchRequest message.  
+   (This section of the document references attributes defined in 
+   section 4.5.1 of RFC2251 [1] for a SearchRequest.)  A server MUST 
+   ignore the control if used with any other message unless the 
+   criticality field is set to True, in which case the entire operation 
+   MUST fail and MUST instead return the resultCode 
+   unsupportedCriticalExtension as per section 4.1.12 of RFC 2251[1].  
+   The server MUST list that it recognizes this control in the 
+   supportedControl attribute in the root DSE(section 4.1.12 of RFC 
+   2251 [1]). 
+    
+   The attributeQuery control is included in the searchRequest and 
+   searchResult messages as part of the server controls field of the 
+   LDAPMessage. The structure of this control is as follows: 
+    
+   attributeQueryControl ::= SEQUENCE { 
+                controlType     1.2.840.113556.1.4.1504  
+                controlValue    attributeQueryControlValue 
+                criticality     TRUE 
+        } 
+    
+    
+   The attributeQueryRequestControlValue in the SearchRequest is an 
+   OCTET STRING wrapping the BER-encoded version of the following: 
+   attributeQueryRequestControlValue ::= SEQUENCE { 
+                sourceAttribute         string   
+        } 
+    
+   sourceAttribute: Specifies which DN-valued attribute of the object 
+   in the searchRequest the attribute query should be performed 
+   against.  Only ONE sourceAttribute may be specified.  
+    
+    
+   Kashi                   Standards Track                          2 
+                 Attribute Scoped Query: control for    November 2001 
+              searching DN-valued multi-value attributes 
+    
+4.2 Attribute Query Response Control 
+    
+   The attributeQueryResponseControlValue in the SearchResponse is an 
+   OCTET STRING wrapping the BER-encoded version of the following: 
+   attributeQueryResponseControlValue ::= SEQUENCE { 
+                result  ENUMERATED { 
+                success                 (0), 
+                invalidAttributeSyntax  (21), 
+                unwillingToPerform      (53), 
+                affectsMultipleDSAs     (71), 
+                } 
+        } 
+    
+    
+   Result: 
+   Success is returned when the query can be successfully completed and 
+   information can be returned for all referenced objects.  
+   InvalidAttributeSyntax: returned when the values of the attribute 
+   specified in sourceAttribute are not of a DN-Value and cannot be 
+   resolved. 
+   UnwillingToPerform: returned when scope is NOT baseObject(0). 
+   affectsMultipleDSAs: This is a special error code stating that 
+   entries were returned, but that not all information was available on 
+   the local server.  The client MAY wish to chase down individual 
+   objects not on the server to resolve the missing information. 
+    
+    
+    
+4.3 Attribute Scoped Query Semantics 
+    
+   The Search Result will consist of each value of the multi-value DN-
+   valued attribute returned as a SearchResultEntry, with all 
+   attributes specified in the AttributeDescriptionList.   
+    
+   The server will use all other SearchRequest options to determine the 
+   values returned in the result set.  Note that use of this control is 
+   limited to a baseObject (0) scoped search. 
+    
+   The server MAY resolve information for objects that are not stored 
+   on the local DSA.  In this case the server can utilize chaining to 
+   return all information that the user has permissions to view.  The 
+   use of chaining MUST NOT violate permissions in the DIT. 
+    
+   If the server decides not to perform chaining, it SHOULD return the 
+   referrals for attributes not available on the DSA.  The server MUST 
+   return the error code affectsMultipleDSAs(71) to inform the client 
+   that some information that might otherwise be available is not 
+   present. 
+    
+    
+    
+   Kashi                   Standards Track                          3 
+                 Attribute Scoped Query: control for    November 2001 
+              searching DN-valued multi-value attributes 
+    
+5. Example: 
+    
+    
+   Assume the following object and attribute values: 
+   dn:cn=foo,dc=bar,dc=com; 
+        members:cn=homer,dc=bar,dc=com; 
+                cn=marge,dc=bar,dc=com; 
+                cn=bart,dc=bar,dc=com; 
+        objectClass:Top;group; 
+        cn:Foo; 
+        bogusAtt:Value; 
+   dn:cn=homer,dc=bar,dc=com; 
+        objectClass:Top;user; 
+        telephoneNumber:123-4567; 
+                        456-7890; 
+        office:15/1515; 
+        shoesize:12; 
+   dn:cn=marge,dc=bar,dc=com; 
+        objectClass:Top;group; 
+        members:cn=lisa,dc=bar,dc=com 
+                cn=maggie,dc=bar,dc=com 
+   dn:cn=bart,dc=bar,dc=com; 
+        objectClass:Top;printer; 
+        office:20/2020; 
+   dn=cn=barnie,dc=bar,dc=com; 
+        objectclass:Top;user; 
+        office:12/1212; 
+    
+   If a sorted base object searchRequest with attribute description 
+   list  objectClass;telephoneNumber;office' was performed on 
+   "cn=foo,dc=bar,dc=com" with control Attribute Scoped Query with 
+   values: 
+   sourceAttribute:members 
+   the server would return a searchResult with control Attribute Scoped 
+   Query and controlValue result success with the following 
+   SearchResultEntry messages: 
+   dn:cn=homer,dc=bar,dc=com; 
+        objectClass:Top;user; 
+        telephoneNumber:123-4567; 
+                        456-7890; 
+        office:15/1515; 
+   dn:cn=marge,dc=bar,dc=com; 
+        objectClass:Top;group; 
+   dn:cn=bart,dc=bar,dc=com; 
+        objectClass:Top;printer; 
+        office:20/2020; 
+    
+    
+6. Security Considerations 
+    
+   There are no known security considerations for this document.  See 
+   the security considerations sections of [1] for security 
+   considerations of LDAP in general. 
+    
+   Kashi                   Standards Track                          4 
+                 Attribute Scoped Query: control for    November 2001 
+              searching DN-valued multi-value attributes 
+    
+    
+7. Acknowledgements 
+    
+   This document is based upon work done by Michael P. Armijo, Don 
+   Hacherl, and Marios Zikos. 
+    
+    
+8. Author's Address 
+    
+   Asaf Kashi 
+   Microsoft Corp. 
+   1 Microsoft Way 
+   Redmond, WA 98052 
+   USA 
+   asafk@microsoft.com 
+   +1 425 882-8080 
+    
+    
+9. References 
+    
+   [1] Wahl, M., Kille, S. and Howes, T., "Lightweight Directory Access 
+       Protocol (v3)", Internet Standard, RFC 2251, December, 1997. 
+    
+   [2] Bradner, S., "Key words for use in RFCs to Indicate Requirement 
+       Levels", BCP 14, RFC 2119, March 1997. 
+    
+    
+10. Full Copyright Statement 
+    
+   Copyright (C) The Internet Society (2001).  All Rights Reserved. 
+   This document and translations of it may be copied and furnished to 
+   others, and derivative works that comment on or otherwise explain it 
+   or assist in its implementation may be prepared, copied, published 
+   and distributed, in whole or in part, without restriction of any 
+   kind, provided that the above copyright notice and this paragraph 
+   are included on all such copies and derivative works.  However, this 
+   document itself may not be modified in any way, such as by removing 
+   the copyright notice or references to the Internet Society or other 
+   Internet organizations, except as needed for the purpose of 
+   developing Internet standards in which case the procedures for 
+   copyrights defined in the Internet Standards process must be 
+   followed, or as required to translate it into languages other than 
+   English. 
+    
+   The limited permissions granted above are perpetual and will not be 
+   revoked by the Internet Society or its successors or assigns. 
+    
+   This document and the information contained herein is provided on an 
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING 
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING 
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION 
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF 
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE." 
+    
+   Kashi                   Standards Track                          5 

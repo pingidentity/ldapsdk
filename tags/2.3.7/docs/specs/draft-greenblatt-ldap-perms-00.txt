@@ -1,0 +1,425 @@
+
+
+LDAPEXT Working Group                                     B. Greenblatt 
+Internet Draft                                      Directory Tools and 
+                                                            Application 
+                                                         Services, Inc. 
+Document: <draft-greenblatt-ldap-perms-00.txt>               April 2001 
+Category: Standards Track                                               
+ 
+ 
+                Application Defined Permissions for LDAP 
+ 
+ 
+Status of this Memo 
+ 
+   This document is an Internet-Draft and is in full conformance with 
+      all provisions of Section 10 of RFC2026 [1].  
+    
+   Internet-Drafts are working documents of the Internet Engineering 
+   Task Force (IETF), its areas, and its working groups. Note that 
+   other groups may also distribute working documents as Internet-
+   Drafts. Internet-Drafts are draft documents valid for a maximum of 
+   six months and may be updated, replaced, or obsoleted by other 
+   documents at any time. It is inappropriate to use Internet- Drafts 
+   as reference material or to cite them other than as "work in 
+   progress."  
+   The list of current Internet-Drafts can be accessed at 
+   http://www.ietf.org/ietf/1id-abstracts.txt  
+   The list of Internet-Draft Shadow Directories can be accessed at 
+   http://www.ietf.org/shadow.html. 
+    
+    
+    
+    
+1. Abstract 
+    
+   In the current ACL Model draft [2], the kinds of permissions that an 
+   LDAP server understands are limited to those defined in clause 
+   4.1.1.  Certain LDAP integrated applications need to store their own 
+   Application Defined Permissions (ADP) as well.  For example, 
+   consider an application that allows users to perform several 
+   different actions on various types of objects.  Let's call these 
+   objects foo objects, and the actions foo-1 through foo-n.  None of 
+   these correspond to the add, delete, export, etc. permissions 
+   defined in clause 4.1.1.  The application should be able to have a 
+   ACI assigned to an entry that represents a foo object that grants 
+   permissions to perform some foo-i actions to some list of subject 
+   entries (i.e. users, groups, organizationalUnits, domainContexts, 
+   etc.).   
+    
+   These permissions canÆt be granted with the mechanisms currently 
+   defined in the ACL Model draft.  This would require a new permission 
+   level, but it is not appropriate to shoe-horn this in to the BNF of 
+   4.1.1 or the ASN.1 of 4.1.2.  This draft will define new LDAP Schema 
+   information for holding the application defined permissions, and 
+
+  
+Greenblatt      Standards Track û Expires October 2001               1 
+
+                Application Defined Permissions for LDAP     April 2001 
+
+ 
+ 
+   show how the mechanism of the ACL Model can be used with these new 
+   schema elements. 
+    
+   In addition to granting rights, the applications also need to be 
+   able to verify that a subject entry has the appropriate rights to 
+   perform an operation against a specified object.  This should work 
+   as defined in the existing model.  The effective rights control or 
+   extended operation will work for this.  The application also would 
+   like to be able to find all of the entries in a specified scope to 
+   which a specified user has permission to perform action foo.   
+    
+   This draft provides new definitions which build upon those in the 
+   ACL Model draft that allow for application defined permissions in 
+   addition to the system defined permissions of the ACL Model.  This 
+   draft should only be read after reading [2], as it builds on the 
+   definitions and concepts defined there. 
+    
+2. Conventions used in this document 
+    
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", 
+   "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in 
+   this document are to be interpreted as described in RFC-2119 [3]. 
+    
+    
+3. Schema for Application Defined Permissions 
+    
+   Servers that support ADPs MUST advertise their support by placing 
+   the following object identifier in the 
+   ôsupportedAccessControlSchemesö attribute of the root DSE: 
+    
+   1.3.6.1.4.1.5515.3.1 
+    
+   If an LDAP Server supports ADPs, the above OID MUST be specified as 
+   a value in the accessControlSchemes attribute of the ldapACISubEntry 
+   entry in naming contexts as appropriate. 
+    
+   1.3.6.1.4.1 has been assigned as IANA-registered Private 
+   Enterprises, and IANA has assigned 5515 to Directory Tools and 
+   Application Services, Inc. (DTASI). 
+    
+   1.3.6.1.4.1.5515.3 is the root OID for specified attribute values.   
+    
+3.1 The Application Defined Access Control Information Attributes 
+    
+   The application defined access control information attributes, 
+   applicationDefinedEntryACI and applicationDefinedSubtreeACI are 
+   defined as: 
+    
+   ( 1.3.6.1.4.1.5515.2.9 NAME 'applicationDefinedEntryACI' SUP 
+   'entryACI' )  
+    
+   ( 1.3.6.1.4.1.5515.2.10 NAME 'applicationDefinedSubtreeACI' SUP 
+   'subtreeACI' )  
+
+Greenblatt                 Standards Track                          2 
+
+                Application Defined Permissions for LDAP     April 2001 
+
+ 
+ 
+    
+3.1.1 The BNF 
+    
+   Here's the BNF for permissions to include application defined 
+   permissions.  Values of this syntax use BNF encoding conventions 
+   described in [4].  This is a slightly modified version of the BNF 
+   defined in [2]. 
+    
+   applicationDefinedEntryACI = rights "#" attr "#" subject 
+    
+   applicationDefinedSubtreeACI = rights "#" attr "#" subject 
+    
+   rights = (("grant:" / "deny:") permissions) / 
+             ("grant:" permissions ";deny:" permissions) 
+    
+   permissions = ([permission ("," permission)*]) 
+    
+   permission = oidstring ; application defined permission 
+    
+   oidstring = digit ("." digit)* 
+    
+   digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
+    
+   ; attr and subject are defined in [2] 
+    
+3.1.2 The ASN.1 Binary Format 
+ 
+
+   Here's the modified ASN.1 for permissions to include application 
+   defined permissions.  Thie following data type is used to represent 
+   this syntax when transferred in binary form.  This is a slightly 
+   modified version of the ASN.1 defined in [2]. 
+    
+    
+   ApplicationDefinedEntryACI ::= SEQUENCE { 
+    
+         rights     SEQUENCE OF CHOICE { 
+               grant       [0] ApplicationDefinedPermissions, 
+               deny        [1] ApplicationDefinedPermissions}, 
+         attr       CHOICE { 
+               all         [0] NULL, 
+               entry       [1] NULL, 
+               attributes  [2] SEQUENCE OF Attribute }, 
+         subject    SEQUENCE { 
+            authnLevel   CHOICE { 
+               any      [0] NULL, 
+               simple   [1] NULL, 
+               sasl     [2] CHOICE { 
+                  any       [0] NULL, 
+                  mechanism [1] LDAPString -- from [LDAPv3] 
+               } 
+               none     [3] NULL, 
+               anonymous [4] NULL 
+            }, 
+
+Greenblatt                 Standards Track                          3 
+
+                Application Defined Permissions for LDAP     April 2001 
+
+ 
+ 
+         subjectName CHOICE { 
+               dn          [0] DN, 
+               user              [1] UTF8String 
+               role        [1] DN, 
+               group       [2] DN, 
+               subtree     [3] DN, 
+               ipAddress   [4] IPAddress, 
+               public      [6] NULL, 
+               this        [7] NULL }, } -- may be expanded 
+                                             per [AuthMeth] 
+ 
+
+   ApplicationDefinedSubtreeACI ::= SEQUENCE { 
+    
+         rights     SEQUENCE OF CHOICE { 
+               grant       [0] ApplicationDefinedPermissions, 
+               deny        [1] ApplicationDefinedPermissions }, 
+         attr       CHOICE { 
+               all         [0] NULL, 
+               entry       [1] NULL, 
+               attributes  [2] SEQUENCE OF Attribute }, 
+         subject    SEQUENCE { 
+            authnLevel   CHOICE { 
+               any      [0] NULL, 
+               simple   [1] NULL, 
+               sasl     [2] CHOICE { 
+                  any       [0] NULL, 
+                  mechanism [1] LDAPString -- from [LDAPv3] 
+               } 
+               none     [3] NULL, 
+               anonymous [4] NULL 
+            }, 
+         subjectName CHOICE { 
+               dn          [0] DN, 
+               user        [1] UTF8String 
+               role        [1] DN, 
+               group       [2] DN, 
+               subtree     [3] DN, 
+               ipAddress   [4] IPAddress, 
+               public      [6] NULL, 
+               this        [7] NULL }, }  
+    
+    
+      ApplicationDefinedPermission ::= OID 
+    
+      ApplicationDefinedPermissions ::= SEQUENCE OF  
+               ApplicationDefinedPermission 
+    
+4. Notes on Application Defined Permissions 
+    
+   In order to define an ADP, the application developer needs to 
+   register an OID with some registration authority (such as IANA).  
+   Once the application developer has obtained the OID, it can be used 
+   as the root for defining the ADPs needed by the LDAP integrated 
+
+Greenblatt                 Standards Track                          4 
+
+                Application Defined Permissions for LDAP     April 2001 
+
+ 
+ 
+   application.  Servers that advertise their support of the ADP 
+   through the use 1.3.6.1.4.1.5515.3.1 the OID in the 
+   æsupportedAccesControlSchemesÆ MUST support any OID in values of the 
+   the ACI information attributes: applicationDefinedEntryACI and 
+   applicationDefinedSubtreeACI. 
+    
+5. Example of an Application Defined Permissions 
+    
+   Application defined permissions are not intended to restrict the 
+   ability of any subject to perform LDAP operations against any LDAP 
+   entry.  Application defined permissions are defined to allow LDAP 
+   applications to store their access control information within LDAP 
+   entries.  For example, an electronic commerce application may make 
+   use of LDAP to store access control information about which 
+   customers have the ability to purchase various items that the 
+   electronic commerce application provides.  This application can 
+   create an OID to represent the "purchase" permission.  Then the 
+   application can create entries in the DIT representing the inventory 
+   items that are under access control.  Finally, the application can 
+   assign rights to purchase these items, by creating ACI attributes to 
+   the inventory item entries, using other DIT entries as the subject 
+   of the ACI attribute. 
+    
+   Once the DIT has been set up, the GetEffectiveRights operation and 
+   controls can be used to determine which users have rights to 
+   purchase various inventory items. 
+    
+   Example #1 
+    
+   dn: o=XYZ, c=US 
+   applicationDefinedSubtreACI: 
+   grant:5.4.3.2.1#[entry]#group:cn=G1,ou=ABC,o=XYZ,c=US 
+    
+   Assume that the OID 5.4.3.2.1 (which is not a legal OID), defines 
+   the "purchase" permission.  This ACI means that for the entire 
+   subtree rooted at "o = XYZ, c=us", all members of the named group 
+   have the permission to purchase all entries in the subtree. 
+    
+   Example #2 
+    
+   dn: cn=partNumber1,ou=parts,o=XYZ, c=US 
+   applicationDefinedentryACI: grant:5.4.3.2.1#[entry]#authzID-
+   dn:cn=bgreenblatt,dc=dtasi,dc=com 
+    
+   Assume again the OID 5.4.3.2.1, defines the "purchase" permission.  
+   This ACI means that the entry defined by the distinguished name 
+   ôcn=bgreenblatt,dc=dtasi,dc=comö has the permission to purchase the 
+   item denoted by the entry ôcn=partNumber1,ou=parts,o=XYZ, c=USö. 
+                                                                         
+
+    
+6. Security Considerations 
+ 
+
+   This document proposes protocol elements for transmission of 
+   security policy information.  Security considerations are discussed 
+
+Greenblatt                 Standards Track                          5 
+
+                Application Defined Permissions for LDAP     April 2001 
+
+ 
+ 
+   throughout this draft.  Because subject security attribute 
+   information is used to evaluate decision requests by applications, 
+   it is security-sensitive information and must be protected against 
+   unauthorized modification whenever it is stored or transmitted. 
+    
+   There is no interaction of application defined access controls with 
+   any directory functions (other than the ones defined in this [2]). 
+    
+    
+7. References 
+ 
+   1  Bradner, S., "The Internet Standards Process -- Revision 3", BCP 
+      9, RFC 2026, October 1996. 
+    
+   2  Stokes, E., et. al., ôAccess Control Model for LDAPv3ö, Internet 
+      Draft (work in Progress), March 2001. 
+    
+   3  Bradner, S., "Key words for use in RFCs to Indicate Requirement 
+      Levels", BCP 14, RFC 2119, March 1997 
+    
+   4 Crocker, D. and Overell, P.(Editors), "Augmented BNF for Syntax 
+      Specifications: ABNF", RFC 2234, Internet Mail Consortium and 
+      Demon Internet Ltd., November 1997 
+    
+8. Author's Address 
+    
+   Bruce Greenblatt 
+   Directory Tools and Application Services, Inc. 
+   6841 Heaton Moor Drive 
+   San Jose, CA 95119 
+   Email: bgreenblatt@directory-applications.com 
+    
+Full Copyright Statement 
+ 
+
+   "Copyright (C) The Internet Society (date). All Rights Reserved. 
+   This document and translations of it may be copied and furnished to 
+   others, and derivative works that comment on or otherwise explain it 
+   or assist in its implmentation may be prepared, copied, published 
+   and distributed, in whole or in part, without restriction of any 
+   kind, provided that the above copyright notice and this paragraph 
+   are included on all such copies and derivative works. However, this 
+   document itself may not be modified in any way, such as by removing 
+   the copyright notice or references to the Internet Society or other 
+   Internet organizations, except as needed for the purpose of 
+   developing Internet standards in which case the procedures for 
+   copyrights defined in the Internet Standards process must be 
+   followed, or as required to translate it into languages other than 
+   English.  The limited permissions granted above are perpetual and 
+   will not be revoked by the Internet Society or its successors or 
+   assigns. 
+    
+   This document and the information contained herein is provided on an 
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING 
+
+Greenblatt                 Standards Track                          6 
+
+                Application Defined Permissions for LDAP     April 2001 
+
+ 
+ 
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING 
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION 
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF 
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Greenblatt                 Standards Track                          7 
+

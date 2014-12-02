@@ -1,0 +1,395 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Improved Security Functionality</h2>
+
+              <p>
+                Directory Servers are commonly used to store sensitive information and are used to
+                perform sensitive operations like authentication and authorization.  As a result,
+                it is very important to ensure that clients can communicate security with the
+                server and can ensure that the requests generated are exactly what they are
+                intended to be.
+              </p>
+
+              <p></p>
+              <h3>Secure Communication</h3>
+
+              <p>
+                Secure communication in LDAP is generally accomplished through SSL or StartTLS.
+                JNDI, the Netscape Directory SDK for Java, and the UnboundID LDAP SDK for Java all
+                support communication using SSL, but the Netscape SDK does not provide any support
+                for StartTLS.
+              </p>
+
+              <p>
+                The UnboundID LDAP SDK for Java also provides a mechanism to help simplify
+                communication over SSL/TLS.  Unfortunately, Java has traditionally made SSL/TLS
+                communication more complex than it needs to be, but the included
+                <TT>com.unboundid.util.ssl</TT> package provides a number of classes to make this
+                easier.  The SSLUtil class can be used to easily create <TT>SSLSocketFactory</TT>
+                and <TT>SSLContext</TT> objects, and a number of key manager and trust manager
+                implementations make it possible to control how client certificates are selected
+                and whether server certificates are trusted.
+              </p>
+
+              <p></p>
+              <h3>Authentication and Authorization</h3>
+
+              <p>
+                The LDAP protocol specification includes an unfortunate quirk which has been
+                responsible for a number of significant client-side security problems in the past.
+                It states that servers should treat simple bind operations that contain a bind DN
+                but a zero-length password should be treated as anonymous binds.  If the server
+                receives such a request, then it will return a SUCCESS result, which may lead the
+                client to believe that the authentication was performed as the user specified as
+                the bind DN.  This can lead to cases in which the client inappropriately allows a
+                user to access sensitive information.  To help address this problem, the UnboundID
+                LDAP SDK for Java will not allow these kinds of bind operations by default.  There
+                is virtually no reason to allow them in the first place, and they are almost always
+                attempts by malicious users to subvert the security of the directory-enabled
+                application.  This behavior can be disabled if the client has a legitimate reason
+                to perform binds with a DN but no password, but such instances will likely be
+                extremely rare.
+              </p>
+
+              <p>
+                When the client does authenticate to the server, it may be desirable to ensure that
+                authorization identity used for the client connection is what the client expects it
+                to be.  LDAP offers two standard extensions that can be used to make this
+                determination.  The first is the authorization identity request control (as defined
+                in RFC 3829), which indicates that the server should include the authorization
+                identity in the bind response.  The second is the "Who Am I?" extended operation
+                (as defined in RFC 4532), which can be used to obtain the authorization identity at
+                any time after the bind is complete.  The UnboundID LDAP SDK for Java supports both
+                of these options.  Neither JNDI nor the Netscape Directory SDK for Java support
+                either one.
+              </p>
+
+              <p>
+                It is also important to ensure that operations are processed with the appropriate
+                authorization identity in the server.  It is often infeasible and undesirable to
+                maintain a separate connection for each user currently accessing the application,
+                or to store the credentials and rebind to the server before processing each
+                operation.  For that reason, is is often preferable to use the proxied
+                authorization control to request that the operation be processed under the
+                authority the appropriate end user.  The UnboundID LDAP SDK for Java supports both
+                versions of the proxied authorization control.  The Netscape Directory SDK
+                supports only the proxied authorization V1 control but not V2.  JNDI does not
+                support either version of this control.
+              </p>
+
+              <p>
+                While the vast majority of clients perform simple authentication (which uses a bind
+                DN and password), LDAP also allows the use of the Simple Authentication and
+                Security Layer (SASL, as defined in RFC 4422).  This can allow for authentication
+                using alternate forms of credentials and enhanced functionality.  The most
+                commonly-used SASL mechanisms for LDAP clients include:
+              </p>
+
+              <ul>
+                <li>
+                  <b>ANONYMOUS</b> -- This is basically the equivalent of establishing an
+                  unauthenticated session, with the slight added benefit of providing a trace
+                  string that may appear in the server log.  The UnboundID LDAP SDK for Java
+                  provides support for this mechanism, but neither JNDI nor the Netscape Directory
+                  SDK for Java support it.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>CRAM-MD5</b> -- This is a mechanism that can allow password-based
+                  authentication over an otherwise insecure channel in a manner that will not
+                  expose the password (although it does require that the server have access to the
+                  clear-text password).  It is similar to DIGEST-MD5 but is slightly weaker and has
+                  fewer features.  The UnboundID LDAP SDK for Java provides support for this
+                  mechanism.  The Netscape Directory SDK for Java does not.  JNDI can use it
+                  through the Java SASL framework, although this is significantly more complex
+                  than the API exposed by the UnboundID LDAP SDK for Java.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>DIGEST-MD5</b> -- This is a mechanism that can allow password-based
+                  authentication over an otherwise insecure channel in a manner that will not
+                  expose the password (although it does require that the server have access to the
+                  clear-text password).  It is similar to CRAM-MD5 but uses a more secure algorithm
+                  and offers additional functionality.  The UnboundID LDAP SDK for Java provides
+                  support for this mechanism.  The Netscape Directory SDK for Java does not.  JNDI
+                  can use it through the Java SASL framework, although this is significantly more
+                  complex than the API exposed by the UnboundID LDAP SDK for Java.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>EXTERNAL</b> -- This is a mechanism that can be used to perform authentication
+                  based on information that the server may have about the client that is not
+                  directly provided as part of the LDAP protocol layer.  It is most commonly in the
+                  form of an SSL client certificate.  The UnboundID LDAP SDK for Java, JNDI, and
+                  the Netscape Directory SDK for Java all provide support for this mechanism.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>GSSAPI</b> -- This is a mechanism that can be used to leverage an existing
+                  Kerberos V authentication session.  The UnboundID LDAP SDK for Java provides
+                  support for this mechanism using a relatively simple API.  JNDI can use it
+                  through the Java SASL framework, although this can be complex to use properly.
+                  The Netscape Directory SDK for Java does not support the use of GSSAPI.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>PLAIN</b> -- This is a mechanism that can be used to authenticate using an
+                  authentication ID and password, and optionally allows the specification of an
+                  alternate authorization identity.  The UnboundID LDAP SDK for Java provides
+                  support for this mechanism.  The Netscape Directory SDK for Java does not.  JNDI
+                  can use it through the Java SASL framework, although this is significantly more
+                  complex than the API exposed by the UnboundID LDAP SDK for Java.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Password Policy Interaction</h3>
+
+              <p>
+                Some directory servers have rich password policy functionality, which can provide
+                capabilities like ensuring users have strong passwords, requiring users to change
+                their passwords regularly, requiring users to authenticate securely, and locking
+                accounts after too many failed attempts.  In order to provide the best possible
+                user experience, the client should be able to interact with the directory server's
+                password policy when appropriate.
+              </p>
+
+              <p>
+                One of the simplest ways that a client can interact with the directory server
+                password policy is to be able to distinguish when the user's password has expired
+                or is about to expire.  This information is commonly returned in the password
+                expired / password expiring controls as defined in draft-vchu-ldap-pwd-policy.
+                Both the UnboundID LDAP SDK for Java and the Netscape Directory SDK for Java
+                provide support for this control.  JNDI does not.
+              </p>
+
+              <p>
+                Another key aspect of password policy integration is the ability to change user
+                passwords in the directory.  It is true that most servers support changing client
+                passwords using standard LDAP modify operations, but RFC 3062 defines a special
+                extended operation that may be used for this purpose as well.  It also includes
+                provisions for allowing users to include their current password as part of
+                specifying a new password, as well as allowing the server to automatically generate
+                a new password for the client.  The UnboundID LDAP SDK for Java provides support
+                for this password modify extended operation, while it is not available for use with
+                either JNDI or the Netscape Directory SDK for Java.
+              </p>
+
+              <p>
+                The UnboundID LDAP SDK for Java also provides enhanced password policy interaction
+                when it is used to communicate with an UnboundID Directory Server instance.  Note,
+                however, that these capabilities are not fully standardized and therefore they may
+                not work with other servers and are only supported when interacting with an
+                UnboundID server.  These additional capabilities include:
+              </p>
+
+              <ul>
+                <li>
+                  Support for the password policy control as defined in
+                  draft-behera-ldap-password-policy.  This control may be used to get warning
+                  and/or error information about interactions with a user's password policy.
+                  <br><br>
+                </li>
+
+                <li>
+                  Support for the account usability control.  This control may be used to determine
+                  whether an account is currently usable, and if not the reason that it is
+                  unavailable.
+                  <br><br>
+                </li>
+
+                <li>
+                  Support for the password policy state extended operation.  This control may be
+                  used to retrieve and alter virtually any kind of password policy state
+                  information for a user.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Atomic Operations</h3>
+
+              <p>
+                Directory servers are often highly concurrent applications and can process many
+                requests at the same time.  Similarly, directory servers are generally deployed in
+                replicated configurations so that operations can be processed at the same time
+                across multiple servers.  The nature of these kinds of environments means that it
+                can be difficult to ensure that multiple clients aren't trying to access and/or
+                alter the same data at the same time.  If client A reads an entry from a directory
+                and then sends an update to modify that entry based on what it read, it could be
+                highly undesirable for client B to modify the entry after client A has performed
+                the read but before it has performed the modify.  Allowing data to be modified in
+                unexpected ways can be a significant security problem, and it can be important to
+                ensure that there are ways of preventing such problems.
+              </p>
+
+              <p>
+                Protection against these kinds of problems often comes in the form of various types
+                of atomic operations.  The UnboundID LDAP SDK for Java supports a number of
+                features that may fit into this category:
+              </p>
+
+              <ul>
+                <li>
+                  LDAP increment modify extension (RFC 4525) -- This enhancement to the modify
+                  operation allows a client to request that the integer value of an attribute be
+                  incremented or decremented by a specified amount.  The client does not need to
+                  know what the current value is, but only how much it should be incremented or
+                  decremented.  Neither JNDI nor the Netscape Directory SDK for Java directly
+                  support this feature.
+                  <br><br>
+                </li>
+
+                <li>
+                  LDAP read entry controls (RFC 4527) -- These controls allow a client to retrieve
+                  an entry exactly as it appeared either immediately before or immediately after
+                  performing a write operation so that it can be sure of the contents of the
+                  updated entry at the time of the write operation (it is particularly useful in
+                  conjunction with the increment modify extension).  Neither JNDI nor the Netscape
+                  Directory SDK for Java include support for these controls.
+                  <br><br>
+                </li>
+
+                <li>
+                  LDAP assertion control (RFC 4528) -- This control can be used to ensure that the
+                  target entry matches a specified filter before performing an operation against
+                  it.  This allows clients to ensure that the information that it used to determine
+                  what to include in the update has not changed since the client read the entry.
+                  Neither JNDI nor the Netscape Directory SDK for Java include support for this
+                  control.
+                  <br><br>
+                </li>
+
+                <li>
+                  Batched Transactions (based on draft-zeilenga-ldap-txn) -- This specification
+                  defines a pair of extended operations and a control that may be used to allow
+                  multiple write operations to be processed using the same transaction and
+                  therefore applied atomically.  Neither JNDI nor the Netscape Directory SDK for
+                  Java include support for this capability.  Note, however, that because this
+                  specification has not yet been fully standardized, it is extremely unlike that
+                  the implementation included in the UnboundID LDAP SDK for Java will work with any
+                  server other than the UnboundID Directory Server.  As such, it is only available
+                  in the Commercial Edition of the LDAP SDK for Java.
+                  <br><br>
+                </li>
+
+                <li>
+                  Interactive Transactions (UnboundID-specific) -- This allows a client to request
+                  that multiple operations, including both write operations (like add, delete,
+                  modify, and modify DN) and read operations (like search and compare), be
+                  performed as a single atomic unit using a transaction.  Neither JNDI nor the
+                  Netscape Directory SDK for Java provide support for this capability.  This
+                  capability is only available in the Commercial Edition of the LDAP SDK for Java
+                  and may only be used with the UnboundID Directory Server.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Search Filter Construction</h3>
+
+              <p>
+                One of the most common security problems for applications that interact with
+                relational databases is that of SQL injection attacks.  In this case, a malicious
+                user knows that what gets entered into a form will be directly included in an SQL
+                query, and that entering a specially-crafted value may result in a significantly
+                different behavior than the application developer intended, potentially even
+                exposing sensitive data or allowing information to be altered in unexpected ways.
+              </p>
+
+              <p>
+                While it is unlikely that this kind of attack can be used to alter the contents of
+                a directory server, it is certainly not inconceivable that it could be used to
+                expose sensitive data or at least more data than the application developer
+                intended.  For example, consider a simple address book lookup application with a
+                form that allows the user to enter the name of the user for whom to search.  This
+                is a very common application, and it is very common for it to generate a filter
+                using an algorithm that looks something like the following:
+              </p>
+
+              <pre>
+String filter = "(|(cn=" + searchText + ")(sn=" + searchText +
+                ")(givenName=" + searchText + "))";
+</pre>
+
+              <p>
+                However, consider the case in which the user entered something like
+                "<tt>X)(objectClass=*</tt>".  The application may then get tricked into sending a
+                search to the directory with a filter that looks like
+                "<tt>(|(cn=X)(objectClass=*)(givenName=X)(objectClass=*)(sn=X)(objectClass=*))</tt>",
+                and the directory may reveal much more information than it should.
+              </p>
+
+              <p>
+                One way to thwart these kinds of attacks is for developers to make sure that they
+                either restrict the kinds of information they will allow to be entered, or to
+                sanitize the input before using it in the filter.  This can work, but it introduces
+                the possibility that the restrictions on input data can interfere with the ability
+                to perform legitimate searches, or that some special cases may be overlooked when
+                the data is sanitized so that vulnerabilities remain.
+              </p>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides an alternative mechanism to address this
+                problem in the form of filter construction.  Rather than creating a string
+                representation of the filter, it is possible to construct a filter by specifying
+                the components that it should contain.  For example, the following code would
+                produce a search filter like the one above but without the possibility of malicious
+                input producing unexpected results:
+              </p>
+
+              <pre>
+Filter filter = Filter.createANDFilter(
+     Filter.createEqualityFilter("cn", searchText),
+     Filter.createEqualityFilter("sn", searchText),
+     Filter.createEqualityFilter("givenName", searchText));
+</pre>
+
+              <p>
+                With the above code, even if a malicious user entered something like
+                "<tt>X)(objectClass=*</tt>" into the search field, the LDAP SDK would properly
+                handle it and the filter that got sent to the server would actually be the
+                equivalent of
+                "<tt>(|(cn=X\29\28objectClass=\2A)(sn=X\29\28objectClass=\2A)(givenName=X\29\28objectClass=\2A))</tt>".
+              </p>
+
+              <p>
+                Not only does this reduce or eliminate the need to sanitize the data, it is also
+                more efficient because the SDK doesn't have to parse the filter string because it's
+                already given the data in the form that it needs to encode the filter for sending
+                to the server.
+              </p>
+
+              <p></p>
+              <h3>Get Effective Rights Control</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides support for a get effective rights control
+                which may be used by clients in order to determine the capabilities that a user has
+                when interacting with a specified entry in the directory.  It can be used to
+                determine whether a given user would have permission to perform a requested
+                operation.  This could be used to allow an application to customize the interface
+                that it presents to a user so that operations which the user does not have rights
+                to perform are not made available.
+              </p>
+
+              <p>
+                Note that the get effective rights control is only supported for use in conjunction
+                with the UnboundID Directory Server.
+              </p>
