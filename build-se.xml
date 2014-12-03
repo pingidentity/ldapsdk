@@ -308,7 +308,8 @@
     <copydocs sourceDir="${docs.dir}" destinationDir="${se.package.dir}/docs"
               headerFile="${resource.dir}/localdoc.header"
               footerFile="${resource.dir}/localdoc.footer" extension="html"
-              target="offline" />
+              target="offline" ldapSdkHomeUrl="${LDAP_SDK_HOME_URL}"
+              ldapSdkDocsBaseUrl="${LDAP_SDK_DOCS_BASE_URL}" />
 
     <copy todir="${se.package.dir}/docs">
       <fileset dir="${se.package.dir}">
@@ -360,7 +361,7 @@
                    value="http://www.unboundid.com/" />
         <attribute name="Bundle-ManifestVersion" value="2" />
         <attribute name="Bundle-Copyright"
-                   value="Copyright 2008-2014-${year} UnboundID Corp." />
+                   value="Copyright 2008-${year} UnboundID Corp." />
         <attribute name="Bundle-Name"
                    value="UnboundID LDAP SDK for Java (Standard Edition)" />
         <attribute name="Bundle-SymbolicName"
@@ -371,7 +372,7 @@
                    value="J2SE-1.5" />
         <attribute name="Bundle-Category" value="communication,network" />
         <attribute name="Bundle-DocURL"
-                   value="http://www.unboundid.com/products/ldapsdk/" />
+                   value="${LDAP_SDK_HOME_URL}" />
         <attribute name="Export-Package"
                    value="com.unboundid.asn1${VER},com.unboundid.ldap.listener${VER},com.unboundid.ldap.listener.interceptor${VER},com.unboundid.ldap.matchingrules${VER},com.unboundid.ldap.sdk${VER},com.unboundid.ldap.sdk.controls${VER},com.unboundid.ldap.sdk.experimental${VER},com.unboundid.ldap.sdk.extensions${VER},com.unboundid.ldap.sdk.migrate.jndi${VER},com.unboundid.ldap.sdk.migrate.ldapjdk${VER},com.unboundid.ldap.sdk.persist${VER},com.unboundid.ldap.sdk.schema${VER},com.unboundid.ldif${VER},com.unboundid.util${VER},com.unboundid.util.args${VER},com.unboundid.util.ssl${VER}" />
         <attribute name="Import-Package"
@@ -465,7 +466,8 @@
     <copydocs sourceDir="${me.docs.dir}" destinationDir="${me.package.dir}/docs"
               headerFile="${resource.dir}/localdoc.header"
               footerFile="${resource.dir}/localdoc.footer" extension="html"
-              target="offline" />
+              target="offline" ldapSdkHomeUrl="${LDAP_SDK_HOME_URL}"
+              ldapSdkDocsBaseUrl="${LDAP_SDK_DOCS_BASE_URL}" />
 
     <copy todir="${me.package.dir}/docs">
       <fileset dir="${me.package.dir}">
