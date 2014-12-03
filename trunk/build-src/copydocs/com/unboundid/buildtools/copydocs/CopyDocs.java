@@ -67,6 +67,16 @@ import org.apache.tools.ant.Task;
  *     "offline" or "website".
  *     <BR><BR>
  *   </LI>
+ *   <LI>
+ *     <CODE>${LDAP_SDK_HOME_URL}</CODE> -- This will be replaced with the URL
+ *     to the home page for the UnboundID LDAP SDK for Java.
+ *     <BR><BR>
+ *   </LI>
+ *   <LI>
+ *     <CODE>${LDAP_SDK_DOCS_BASE_URL}</CODE> -- This will be replaced with the
+ *     URL to the base page for the LDAP SDK generated documentation.
+ *     <BR><BR>
+ *   </LI>
  * </UL>
  *
  *
@@ -102,6 +112,12 @@ public class CopyDocs
   // The extension to use for files that are processed.
   private String extension;
 
+  // The URL to the base page for the LDAP SDK generated documentation.
+  private String ldapSDKDocsBaseURL;
+
+  // The URL to the home page for the UnboundID LDAP SDK for Java.
+  private String ldapSDKHomeURL;
+
   // The target that indicates the ultimate location for the generated
   // documentation.  The value may be either "offline" if the documentation
   // should be generated for offline use or "website" if the documentation will
@@ -118,12 +134,14 @@ public class CopyDocs
    */
   public CopyDocs()
   {
-    destinationDir = null;
-    footerFile     = null;
-    headerFile     = null;
-    sourceDir      = null;
-    extension      = null;
-    target         = null;
+    destinationDir     = null;
+    footerFile         = null;
+    headerFile         = null;
+    sourceDir          = null;
+    extension          = null;
+    target             = null;
+    ldapSDKHomeURL     = null;
+    ldapSDKDocsBaseURL = null;
   }
 
 
@@ -207,6 +225,33 @@ public class CopyDocs
 
 
   /**
+   * Specifies the URL to the home page for the UnboundID LDAP SDK for Java.
+   *
+   * @param  ldapSDKHomeURL  The URL to the home page for the UnboundID LDAP SDK
+   *                         for Java.
+   */
+  public void setLdapSdkHomeUrl(final String ldapSDKHomeURL)
+  {
+    this.ldapSDKHomeURL = ldapSDKHomeURL;
+  }
+
+
+
+  /**
+   * Specifies the URL to the base page for the generated LDAP SDK
+   * documentation.
+   *
+   * @param  ldapSDKDocsBaseURL  The URL to the base page for the generated LDAP
+   *                             SDK documentation.
+   */
+  public void setLdapSdkDocsBaseUrl(final String ldapSDKDocsBaseURL)
+  {
+    this.ldapSDKDocsBaseURL = ldapSDKDocsBaseURL;
+  }
+
+
+
+  /**
    * Performs the processing for this task.
    *
    * @throws  BuildException  If a problem occurs during processing.
@@ -249,6 +294,16 @@ public class CopyDocs
     {
       throw new BuildException("Invalid target specified (must be either " +
                                "'offline' or 'website')");
+    }
+
+    if (ldapSDKHomeURL == null)
+    {
+      throw new BuildException("No LDAP SDK home URL specified.");
+    }
+
+    if (ldapSDKDocsBaseURL == null)
+    {
+      throw new BuildException("No LDAP SDK docs base URL specified.");
     }
 
 
@@ -378,6 +433,8 @@ public class CopyDocs
     l = l.replace("${BASE}", base);
     l = l.replace("${YEAR}", year);
     l = l.replace("${EXTENSION}", extension);
+    l = l.replace("${LDAP_SDK_HOME_URL}", ldapSDKHomeURL);
+    l = l.replace("${LDAP_SDK_DOCS_BASE_URL}", ldapSDKDocsBaseURL);
 
     return l;
   }
