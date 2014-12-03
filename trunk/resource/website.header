@@ -11,7 +11,7 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 <!-- UPDATE PAGE TITLE HERE -->
-    <title>LDAP</title> 
+    <title>UnboundID LDAP SDK for Java Documentation</title> 
     <link rel="shortcut icon" href="//cdn2.hubspot.net/hub/405650/file-1005453378-ico/images/favicon.ico?t=1416511326909">
     
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
