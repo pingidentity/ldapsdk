@@ -151,6 +151,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.LDAPConnectionOptions",
     "com.unboundid.ldap.sdk.LDAPConnectionPool",
     "com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheck",
+    "com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheckResult",
     "com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheckThread",
     "com.unboundid.ldap.sdk.LDAPConnectionPoolStatistics",
     "com.unboundid.ldap.sdk.LDAPConnectionReader",

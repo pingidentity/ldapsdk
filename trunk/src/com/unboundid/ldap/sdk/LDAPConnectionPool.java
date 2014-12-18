@@ -2442,11 +2442,56 @@ public final class LDAPConnectionPool
   @Override()
   protected void doHealthCheck()
   {
+    invokeHealthCheck(null, true);
+  }
+
+
+
+  /**
+   * Invokes a synchronous one-time health-check against the connections in this
+   * pool that are not currently in use.  This will be independent of any
+   * background health checking that may be automatically performed by the pool.
+   *
+   * @param  healthCheck         The health check to use.  If this is
+   *                             {@code null}, then the pool's
+   *                             currently-configured health check (if any) will
+   *                             be used.  If this is {@code null} and there is
+   *                             no health check configured for the pool, then
+   *                             only a basic set of checks.
+   * @param  checkForExpiration  Indicates whether to check to see if any
+   *                             connections have been established for longer
+   *                             than the maximum connection age.  If this is
+   *                             {@code true} then any expired connections will
+   *                             be closed and replaced with newly-established
+   *                             connections.
+   *
+   * @return  An object with information about the result of the health check
+   *          processing.
+   */
+  public LDAPConnectionPoolHealthCheckResult invokeHealthCheck(
+              final LDAPConnectionPoolHealthCheck healthCheck,
+              final boolean checkForExpiration)
+  {
+    // Determine which health check to use.
+    final LDAPConnectionPoolHealthCheck hc;
+    if (healthCheck == null)
+    {
+      hc = this.healthCheck;
+    }
+    else
+    {
+      hc = healthCheck;
+    }
+
+
     // Create a set used to hold connections that we've already examined.  If we
     // encounter the same connection twice, then we know that we don't need to
     // do any more work.
     final HashSet<LDAPConnection> examinedConnections =
          new HashSet<LDAPConnection>(numConnections);
+    int numExamined = 0;
+    int numDefunct = 0;
+    int numExpired = 0;
 
     for (int i=0; i < numConnections; i++)
     {
@@ -2467,8 +2512,10 @@ public final class LDAPConnectionPool
         break;
       }
 
+      numExamined++;
       if (! conn.isConnected())
       {
+        numDefunct++;
         conn = handleDefunctConnection(conn);
         if (conn != null)
         {
@@ -2477,8 +2524,10 @@ public final class LDAPConnectionPool
       }
       else
       {
-        if (connectionIsExpired(conn))
+        if (checkForExpiration && connectionIsExpired(conn))
         {
+          numExpired++;
+
           try
           {
             final LDAPConnection newConnection = createConnection();
@@ -2525,6 +2574,7 @@ public final class LDAPConnectionPool
             final LDAPResponse response = conn.readResponse(0);
             if (response instanceof ConnectionClosedResponse)
             {
+              numDefunct++;
               conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
                    ERR_POOL_HEALTH_CHECK_CONN_CLOSED.get(), null);
               poolStatistics.incrementNumConnectionsClosedDefunct();
@@ -2554,6 +2604,7 @@ public final class LDAPConnectionPool
               final LDAPResult r = (LDAPResult) response;
               if (r.getResultCode() == ResultCode.SERVER_DOWN)
               {
+                numDefunct++;
                 conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
                      ERR_POOL_HEALTH_CHECK_CONN_CLOSED.get(), null);
                 poolStatistics.incrementNumConnectionsClosedDefunct();
@@ -2575,6 +2626,7 @@ public final class LDAPConnectionPool
             else
             {
               debugException(le);
+              numDefunct++;
               conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
                    ERR_POOL_HEALTH_CHECK_READ_FAILURE.get(
                         getExceptionMessage(le)), le);
@@ -2590,6 +2642,7 @@ public final class LDAPConnectionPool
           catch (final Exception e)
           {
             debugException(e);
+            numDefunct++;
             conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
                  ERR_POOL_HEALTH_CHECK_READ_FAILURE.get(getExceptionMessage(e)),
                  e);
@@ -2612,6 +2665,7 @@ public final class LDAPConnectionPool
               catch (final Exception e)
               {
                 debugException(e);
+                numDefunct++;
                 conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT,
                      null, e);
                 poolStatistics.incrementNumConnectionsClosedDefunct();
@@ -2628,7 +2682,7 @@ public final class LDAPConnectionPool
 
         try
         {
-          healthCheck.ensureConnectionValidForContinuedUse(conn);
+          hc.ensureConnectionValidForContinuedUse(conn);
           if (availableConnections.offer(conn))
           {
             examinedConnections.add(conn);
@@ -2644,6 +2698,7 @@ public final class LDAPConnectionPool
         catch (Exception e)
         {
           debugException(e);
+          numDefunct++;
           conn = handleDefunctConnection(conn);
           if (conn != null)
           {
@@ -2652,6 +2707,9 @@ public final class LDAPConnectionPool
         }
       }
     }
+
+    return new LDAPConnectionPoolHealthCheckResult(numExamined, numExpired,
+         numDefunct);
   }
 
 
