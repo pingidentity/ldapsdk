@@ -3,9 +3,9 @@
 
 
 Internet Draft                                           M. R. Bannister
-<draft-bannister-dbis-mapping-04.txt>              Prose Consulting Ltd.
-Category: Informational                                 December 3, 2014
-Expires June 6, 2015
+<draft-bannister-dbis-mapping-06.txt>              Prose Consulting Ltd.
+Category: Informational                                  January 6, 2015
+Expires July 10, 2015
 
                  Directory-Based Information Services:
                             Mapping Objects
@@ -33,13 +33,13 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on June 6, 2015.
+   This Internet-Draft will expire on July 10, 2015.
 
    Comments are solicited and should be addressed to the author.
 
 Copyright Notice
 
-   Copyright (c) 2014 IETF Trust and the persons identified as the
+   Copyright (c) 2015 IETF Trust and the persons identified as the
    document authors.  All rights reserved.   
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Abstract
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 1]
+Bannister, Mark R.       Expires July 10, 2015                  [Page 1]
 
-Internet Draft                DBIS Mapping              December 3, 2014
+Internet Draft                DBIS Mapping               January 6, 2015
 
 
    This is one of several documents that describe the components within
@@ -109,9 +109,9 @@ Table of Contents
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 2]
+Bannister, Mark R.       Expires July 10, 2015                  [Page 2]
 
-Internet Draft                DBIS Mapping              December 3, 2014
+Internet Draft                DBIS Mapping               January 6, 2015
 
 
    1. Concepts  . . . . . . . . . . . . . . . . . . . . . . . . . . .  3
@@ -152,7 +152,7 @@ Internet Draft                DBIS Mapping              December 3, 2014
      4.1. Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
      4.2. en (exactName)  . . . . . . . . . . . . . . . . . . . . . . 12
      4.3. rn (regularName)  . . . . . . . . . . . . . . . . . . . . . 12
-   5. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . . 13
+   5. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . . 12
    6. Implementation Notes  . . . . . . . . . . . . . . . . . . . . . 13
      6.1. Caching . . . . . . . . . . . . . . . . . . . . . . . . . . 13
    7. Security Considerations . . . . . . . . . . . . . . . . . . . . 13
@@ -165,9 +165,9 @@ Internet Draft                DBIS Mapping              December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 3]
+Bannister, Mark R.       Expires July 10, 2015                  [Page 3]
 
-Internet Draft                DBIS Mapping              December 3, 2014
+Internet Draft                DBIS Mapping               January 6, 2015
 
 
 1.1. Databases
@@ -221,9 +221,9 @@ Internet Draft                DBIS Mapping              December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 4]
+Bannister, Mark R.       Expires July 10, 2015                  [Page 4]
 
-Internet Draft                DBIS Mapping              December 3, 2014
+Internet Draft                DBIS Mapping               January 6, 2015
 
 
    The dbisDomainObject class is defined as follows:
@@ -277,9 +277,9 @@ Internet Draft                DBIS Mapping              December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 5]
+Bannister, Mark R.       Expires July 10, 2015                  [Page 5]
 
-Internet Draft                DBIS Mapping              December 3, 2014
+Internet Draft                DBIS Mapping               January 6, 2015
 
 
        attributetype ( 1.3.6.1.4.1.23780.219.2.36 NAME 'negativeTTL'
@@ -333,9 +333,9 @@ Internet Draft                DBIS Mapping              December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 6]
+Bannister, Mark R.       Expires July 10, 2015                  [Page 6]
 
-Internet Draft                DBIS Mapping              December 3, 2014
+Internet Draft                DBIS Mapping               January 6, 2015
 
 
    it defines a framework that MUST be followed for the specification of
@@ -389,9 +389,9 @@ Internet Draft                DBIS Mapping              December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 7]
+Bannister, Mark R.       Expires July 10, 2015                  [Page 7]
 
-Internet Draft                DBIS Mapping              December 3, 2014
+Internet Draft                DBIS Mapping               January 6, 2015
 
 
 3.3.2. dbisMapDN
@@ -445,9 +445,9 @@ Internet Draft                DBIS Mapping              December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 8]
+Bannister, Mark R.       Expires July 10, 2015                  [Page 8]
 
-Internet Draft                DBIS Mapping              December 3, 2014
+Internet Draft                DBIS Mapping               January 6, 2015
 
 
    Changing this attribute has no effect on the dbisMapFilter, which
@@ -471,14 +471,10 @@ Internet Draft                DBIS Mapping              December 3, 2014
 
          from_attr   = keystring
          to_attr     = keystring
-         classname   = keystring
          dbisMapAttr = to_attr EQUALS from_attr
 
    The attribute used in the database is identified by from_attr and
    this SHALL be rewritten by the DUA to the attribute to_attr.
-
-   If a class name is specified then the attribute will be rewritten
-   only when it is used in conjunction with the named class.
 
    If the dbisMapAttr attribute is missing from the dbisMapConfig entry
    then the DUA SHALL continue with the default attributes for the
@@ -498,26 +494,24 @@ Internet Draft                DBIS Mapping              December 3, 2014
          EQUALITY caseIgnoreIA5Match
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                  [Page 9]
-
-Internet Draft                DBIS Mapping              December 3, 2014
-
-
    The string representation of the dbisTransAttr attribute is defined
    by the following grammar, which uses the ABNF notation defined in
    [RFC5234].  The productions used that are not defined here are
    defined in section 1.2 of [draft-bannister-dbis-netgroup-00]:
+ 
+
+
+Bannister, Mark R.       Expires July 10, 2015                  [Page 9]
+
+Internet Draft                DBIS Mapping               January 6, 2015
+
 
          attrname      = keystring
          prefix        = keystring
          suffix        = SLASH keystring
          incr          = PLUS number
          decr          = HYPHEN number
-         trans         = prefix / suffix / prefix suffix / incr / decr
-         classname     = keystring
+         trans         = prefix / suffix / incr / decr
          dbisTransAttr = attrname EQUALS trans
 
    The value of the attribute attrname wherever it appears in the
@@ -525,9 +519,6 @@ Internet Draft                DBIS Mapping              December 3, 2014
    new string prefix and/or suffix.  Alternatively, if the attribute
    value is numeric, then it may be incremented or decremented by adding
    or subtracting the given number.
-
-   If a class name is specified then the attribute will be rewritten
-   only when it is used in conjunction with the named class.
 
    If the dbisTransAttr attribute is missing from the dbisMapConfig
    entry then the DUA SHALL continue with the unedited values for the
@@ -554,13 +545,6 @@ Internet Draft                DBIS Mapping              December 3, 2014
    precedence.
 
 3.3.8. notNetgroup
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 10]
-
-Internet Draft                DBIS Mapping              December 3, 2014
-
 
    One or more netgroup names identifying the host names of the DUAs
    that should NOT apply the configuration map are given in the
@@ -570,6 +554,14 @@ Internet Draft                DBIS Mapping              December 3, 2014
    This allows configuration map entries to be excluded from particular
    groups of hosts.  The DUA SHALL exclude this configuration map entry
    if the DUA is a member of the given netgroup, even if the DUA is also
+ 
+
+
+Bannister, Mark R.       Expires July 10, 2015                 [Page 10]
+
+Internet Draft                DBIS Mapping               January 6, 2015
+
+
    a member of any given exactNetgroup attributes.
 
 3.3.9. profileTTL
@@ -610,13 +602,6 @@ Internet Draft                DBIS Mapping              December 3, 2014
    The disableObject attribute MAY be associated with a dbisMapConfig
    entry to disable this configuration component, and is defined as
    follows:
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 11]
-
-Internet Draft                DBIS Mapping              December 3, 2014
-
 
        attributetype ( 1.3.6.1.4.1.23780.219.2.5
          NAME 'disableObject'
@@ -625,6 +610,14 @@ Internet Draft                DBIS Mapping              December 3, 2014
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
 
    A DUA SHALL ignore entries that have the disableObject attribute set
+ 
+
+
+Bannister, Mark R.       Expires July 10, 2015                 [Page 11]
+
+Internet Draft                DBIS Mapping               January 6, 2015
+
+
    to TRUE.
 
 4. Common Attributes
@@ -666,14 +659,6 @@ Internet Draft                DBIS Mapping              December 3, 2014
 
    The rn attribute is identical to the cn attribute defined in
    [RFC4519] with the exception that it is SINGLE-VALUE.  If multiple
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 12]
-
-Internet Draft                DBIS Mapping              December 3, 2014
-
-
    names, or aliases, are required for an entry then these are
    configured as described in section 2.6 of [RFC4512].
 
@@ -681,6 +666,13 @@ Internet Draft                DBIS Mapping              December 3, 2014
 
    The following syntaxes are used by the attributes defined in this
    document:
+ 
+
+
+Bannister, Mark R.       Expires July 10, 2015                 [Page 12]
+
+Internet Draft                DBIS Mapping               January 6, 2015
+
 
    -----------------------------------------------------------
    Syntax OID                     Value             Reference
@@ -722,13 +714,6 @@ Internet Draft                DBIS Mapping              December 3, 2014
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 13]
-
-Internet Draft                DBIS Mapping              December 3, 2014
-
 
    [RFC2849]  Good, G., "The LDAP Data Interchange Format (LDIF) -
               Technical Specification", RFC 2849, June 2000.
@@ -736,6 +721,14 @@ Internet Draft                DBIS Mapping              December 3, 2014
    [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
               (LDAP): Technical Specification Road Map", RFC 4510, June
               2006.
+
+ 
+
+
+Bannister, Mark R.       Expires July 10, 2015                 [Page 13]
+
+Internet Draft                DBIS Mapping               January 6, 2015
+
 
    [RFC4512]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
               (LDAP): Directory Information Models", RFC 4512, June
@@ -778,19 +771,20 @@ Internet Draft                DBIS Mapping              December 3, 2014
               en.wikipedia.org/wiki/Network_Information_Service>.
 
 Author's Address
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 14]
-
-Internet Draft                DBIS Mapping              December 3, 2014
-
 
    Mark R. Bannister
    Prose Consulting Ltd.
    73 Claygate Lane
    Esher, Surrey, KT10 0BQ
    United Kingdom
+
+ 
+
+
+Bannister, Mark R.       Expires July 10, 2015                 [Page 14]
+
+Internet Draft                DBIS Mapping               January 6, 2015
+
 
    Tel: +44 7764 604316
    EMail: dbis@proseconsulting.co.uk
@@ -837,4 +831,10 @@ Internet Draft                DBIS Mapping              December 3, 2014
 
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 15]
+
+
+
+
+
+
+Bannister, Mark R.       Expires July 10, 2015                 [Page 15]
