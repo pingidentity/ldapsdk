@@ -1066,6 +1066,60 @@ public final class Debug
 
 
   /**
+   * Writes debug information about the provided ASN.1 element that was read, if
+   * appropriate.
+   *
+   * @param  l         The log level that should be used for the debug
+   *                   information.
+   * @param  dataType  A string representation of the data type for the data
+   *                   that was read.
+   * @param  berType   The BER type for the element that was read.
+   * @param  length    The number of bytes in the value of the element that was
+   *                   read.
+   * @param  value     A representation of the value that was read.  The debug
+   *                   message will include the string representation of this
+   *                   value, unless the value is a byte array in which it will
+   *                   be a hex representation of the bytes that it contains.
+   *                   It may be {@code null} for an ASN.1 null element.
+   */
+  public static void debugASN1Read(final Level l, final String dataType,
+                                   final int berType, final int length,
+                                   final Object value)
+  {
+    if (debugEnabled && debugTypes.contains(DebugType.ASN1))
+    {
+      final StringBuilder buffer = new StringBuilder();
+      addCommonHeader(buffer, l);
+      buffer.append("readASN1Element=\"dataType='");
+      buffer.append(dataType);
+      buffer.append("' berType='");
+      buffer.append(toHex((byte) (berType & 0xFF)));
+      buffer.append('\'');
+      buffer.append("' valueLength=");
+      buffer.append(length);
+
+      if (value != null)
+      {
+        buffer.append(" value='");
+        if (value instanceof byte[])
+        {
+          toHex((byte[]) value, buffer);
+        }
+        else
+        {
+          buffer.append(value);
+        }
+        buffer.append('\'');
+      }
+      buffer.append('"');
+
+      logger.log(l, buffer.toString());
+    }
+  }
+
+
+
+  /**
    * Writes debug information about the provided LDIF record to be written, if
    * if appropriate.  If it is to be logged, then it will be sent to the
    * underlying logger using the {@code INFO} level.

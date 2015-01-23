@@ -549,7 +549,10 @@ public final class ASN1StreamReader
       }
 
       totalBytesRead++;
-      return (value != 0);
+
+      final Boolean booleanValue = (value != 0x00);
+      debugASN1Read(Level.INFO, "Boolean", type, 1, booleanValue);
+      return booleanValue;
     }
     else
     {
@@ -656,6 +659,7 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
+    debugASN1Read(Level.INFO, "Integer", type, length, intValue);
     return intValue;
   }
 
@@ -743,6 +747,7 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
+    debugASN1Read(Level.INFO, "Long", type, length, longValue);
     return longValue;
   }
 
@@ -777,6 +782,7 @@ public final class ASN1StreamReader
       skip(length);
       throw new ASN1Exception(ERR_NULL_HAS_VALUE.get());
     }
+    debugASN1Read(Level.INFO, "Null", type, 0, null);
   }
 
 
@@ -823,6 +829,7 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
+    debugASN1Read(Level.INFO, "byte[]", type, length, value);
     return value;
   }
 
@@ -870,7 +877,10 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
-    return toUTF8String(value);
+
+    final String s = toUTF8String(value);
+    debugASN1Read(Level.INFO, "String", type, length, s);
+    return s;
   }
 
 
@@ -905,6 +915,7 @@ public final class ASN1StreamReader
 
     final int length = readLength();
 
+    debugASN1Read(Level.INFO, "Sequence Header", type, length, null);
     return new ASN1StreamReaderSequence(this, (byte) type, length);
   }
 
@@ -939,6 +950,7 @@ public final class ASN1StreamReader
 
     final int length = readLength();
 
+    debugASN1Read(Level.INFO, "Set Header", type, length, null);
     return new ASN1StreamReaderSet(this, (byte) type, length);
   }
 
