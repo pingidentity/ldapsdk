@@ -2229,8 +2229,15 @@ public final class StaticUtils
     catch (final Exception e)
     {
       debugException(e);
-      return new IOException(message + " (caused by " +
-           getExceptionMessage(cause) + ')');
+      if (message == null)
+      {
+        return new IOException(getExceptionMessage(cause));
+      }
+      else
+      {
+        return new IOException(message + " (caused by " +
+             getExceptionMessage(cause) + ')');
+      }
     }
   }
 }
