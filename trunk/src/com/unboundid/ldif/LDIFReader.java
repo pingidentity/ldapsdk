@@ -1304,7 +1304,7 @@ public final class LDIFReader
       catch (InterruptedException e)
       {
         debugException(e);
-        throw new IOException(getExceptionMessage(e));
+        throw createIOExceptionWithCause(null, e);
       }
     }
     if (result == null)
@@ -1396,7 +1396,7 @@ public final class LDIFReader
     }
     else
     {
-      throw new IOException(getExceptionMessage(t));
+      throw createIOExceptionWithCause(null, t);
     }
   }
 

@@ -22,6 +22,8 @@ package com.unboundid.util;
 
 
 
+import java.lang.reflect.Constructor;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -2182,6 +2184,53 @@ public final class StaticUtils
     else
     {
       return -1;
+    }
+  }
+
+
+
+  /**
+   * Creates a new {@code IOException} with a cause.  The constructor needed to
+   * do this wasn't available until Java SE 6, so reflection is used to invoke
+   * this constructor in versions of Java that provide it.  In Java SE 5, the
+   * provided message will be augmented with information about the cause.
+   *
+   * @param  message  The message to use for the exception.  This may be
+   *                  {@code null} if the message should be generated from the
+   *                  provided cause.
+   * @param  cause    The underlying cause for the exception.  It may be
+   *                  {@code null} if the exception should have only a message.
+   *
+   * @return  The {@code IOException} object that was created.
+   */
+  public static IOException createIOExceptionWithCause(final String message,
+                                                       final Throwable cause)
+  {
+    if (cause == null)
+    {
+      return new IOException(message);
+    }
+
+    try
+    {
+      if (message == null)
+      {
+        final Constructor<IOException> constructor =
+             IOException.class.getConstructor(Throwable.class);
+        return constructor.newInstance(cause);
+      }
+      else
+      {
+        final Constructor<IOException> constructor =
+             IOException.class.getConstructor(String.class, Throwable.class);
+        return constructor.newInstance(message, cause);
+      }
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      return new IOException(message + " (caused by " +
+           getExceptionMessage(cause) + ')');
     }
   }
 }

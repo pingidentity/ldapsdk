@@ -155,7 +155,7 @@ final class LDAPConnectionInternals
     catch (final LDAPException le)
     {
       debugException(le);
-      throw new IOException(le.getMessage());
+      throw createIOExceptionWithCause(null, le);
     }
 
     if (options.getReceiveBufferSize() > 0)
