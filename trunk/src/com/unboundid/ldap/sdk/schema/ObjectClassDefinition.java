@@ -895,7 +895,10 @@ public final class ObjectClassDefinition
     for (final String s : oc.superiorClasses)
     {
       final ObjectClassDefinition d = schema.getObjectClass(s);
-      getSuperiorRequiredAttributes(schema, d, attrSet);
+      if (d != null)
+      {
+        getSuperiorRequiredAttributes(schema, d, attrSet);
+      }
     }
   }
 
@@ -997,7 +1000,10 @@ public final class ObjectClassDefinition
     for (final String s : oc.superiorClasses)
     {
       final ObjectClassDefinition d = schema.getObjectClass(s);
-      getSuperiorOptionalAttributes(schema, d, attrSet, requiredSet);
+      if (d != null)
+      {
+        getSuperiorOptionalAttributes(schema, d, attrSet, requiredSet);
+      }
     }
   }
 
