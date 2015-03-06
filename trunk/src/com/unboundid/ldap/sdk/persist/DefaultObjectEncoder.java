@@ -1468,6 +1468,7 @@ public final class DefaultObjectEncoder
     {
       try
       {
+        @SuppressWarnings("rawtypes")
         final Class<? extends Enum> enumClass = (Class<? extends Enum>) t;
         return Enum.valueOf(enumClass, v.stringValue());
       }

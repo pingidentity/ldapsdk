@@ -185,7 +185,7 @@ public final class LDAPObjectHandler<T>
    *                                class that makes it unsuitable for use with
    *                                the persistence framework.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   LDAPObjectHandler(final Class<T> type)
        throws LDAPPersistException
   {
