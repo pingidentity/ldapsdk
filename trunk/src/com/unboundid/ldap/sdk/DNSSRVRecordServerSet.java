@@ -96,9 +96,9 @@ import com.unboundid.util.ThreadSafetyLevel;
  * can be retrieved (e.g., for a provider URL of "dns://1.2.3.4 dns://1.2.3.5",
  * it will first try to use the DNS server running on system with IP address
  * "1.2.3.4", but if that is not successful then it will try the DNS server
- * running on the system with IP address "1.2.3.5").  See the <A HREF="
- * http://download.oracle.com/javase/6/docs/technotes/guides/jndi/jndi-dns.html
- * "> JNDI DNS service provider documentation</A> for more details on acceptable
+ * running on the system with IP address "1.2.3.5").  See the <A HREF=
+ *"http://download.oracle.com/javase/6/docs/technotes/guides/jndi/jndi-dns.html"
+ * > JNDI DNS service provider documentation</A> for more details on acceptable
  * formats for the provider URL.
  */
 @NotMutable()

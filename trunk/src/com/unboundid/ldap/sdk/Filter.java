@@ -3292,12 +3292,14 @@ attrNameLoop:
    *   <LI>Any AND or OR filter that contains only a single filter component
    *       will be converted to just that embedded filter component to eliminate
    *       the unnecessary AND or OR wrapper.  For example, the filter
-   *       "(&(uid=john.doe))" will be converted to just "(uid=john.doe)".</LI>
+   *       "(&amp;(uid=john.doe))" will be converted to just
+   *       "(uid=john.doe)".</LI>
    *   <LI>Any AND components inside of an AND filter will be merged into the
    *       outer AND filter.  Any OR components inside of an OR filter will be
    *       merged into the outer OR filter.  For example, the filter
-   *       "(&(objectClass=person)(&(givenName=John)(sn=Doe)))" will be
-   *       converted to "(&(objectClass=person)(givenName=John)(sn=Doe))".</LI>
+   *       "(&amp;(objectClass=person)(&amp;(givenName=John)(sn=Doe)))" will be
+   *       converted to
+   *       "(&amp;(objectClass=person)(givenName=John)(sn=Doe))".</LI>
    *   <LI>If {@code reOrderElements} is true, then this method will attempt to
    *       re-order the elements inside AND and OR filters in an attempt to
    *       ensure that the components which are likely to be the most efficient

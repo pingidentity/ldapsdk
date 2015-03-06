@@ -32,6 +32,13 @@ public abstract class LDAPSDKException
        extends Exception
 {
   /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = 8080186918165352228L;
+
+
+
+  /**
    * Creates a new instance of this exception with the provided message.
    *
    * @param  message  The message to use for this exception.

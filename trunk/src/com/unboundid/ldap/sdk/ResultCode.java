@@ -43,7 +43,8 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  * The result codes that are currently defined include:
  * <BR>
  * <CENTER>
- *   <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="50%">
+ *   <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="50%"
+ *          SUMMARY="Result Code Names and Numeric Values">
  *     <TR>
  *       <TH ALIGN="LEFT">Name</TH>
  *       <TH ALIGN="RIGHT">Integer Value</TH>

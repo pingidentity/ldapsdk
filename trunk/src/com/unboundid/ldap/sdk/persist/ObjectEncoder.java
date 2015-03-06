@@ -50,6 +50,13 @@ public abstract class ObjectEncoder
        implements Serializable
 {
   /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -5139516629886911696L;
+
+
+
+  /**
    * Indicates whether this object encoder may be used to encode or decode
    * objects of the specified type.
    *
