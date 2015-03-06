@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -57,9 +58,10 @@ import static com.unboundid.util.Debug.*;
  * }
  * </PRE>
  */
+@NotExtensible()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class RootDSE
+public class RootDSE
        extends ReadOnlyEntry
 {
   /**
@@ -201,7 +203,7 @@ public final class RootDSE
    * server supports that capability, but will also attempt to retrieve specific
    * attributes by name in case it does not.
    */
-  private static final String[] REQUEST_ATTRS =
+  protected static final String[] REQUEST_ATTRS =
   {
     "*",
     "+",
@@ -278,7 +280,7 @@ public final class RootDSE
    *          current server becomes available, or {@code null} if the server
    *          does not publish that information.
    */
-  public String[] getAltServerURIs()
+  public final String[] getAltServerURIs()
   {
     return getAttributeValues(ATTR_ALT_SERVER);
   }
@@ -293,7 +295,7 @@ public final class RootDSE
    *          information, or {@code null} if the server does not publish that
    *          information or no changelog is available.
    */
-  public String getChangelogDN()
+  public final String getChangelogDN()
   {
     return getAttributeValue(ATTR_CHANGELOG_DN);
   }
@@ -307,7 +309,7 @@ public final class RootDSE
    * @return  The change number for the first entry contained in the LDAP
    *          changelog, if available.
    */
-  public Long getFirstChangeNumber()
+  public final Long getFirstChangeNumber()
   {
     return getAttributeValueAsLong(ATTR_FIRST_CHANGE_NUMBER);
   }
@@ -321,7 +323,7 @@ public final class RootDSE
    * @return  The change number for the last entry contained in the LDAP
    *          changelog, if available.
    */
-  public Long getLastChangeNumber()
+  public final Long getLastChangeNumber()
   {
     return getAttributeValueAsLong(ATTR_LAST_CHANGE_NUMBER);
   }
@@ -335,7 +337,7 @@ public final class RootDSE
    * @return  The change number for the last entry purged from the LDAP
    *          changelog, if available.
    */
-  public Long getLastPurgedChangeNumber()
+  public final Long getLastPurgedChangeNumber()
   {
     return getAttributeValueAsLong(ATTR_LAST_PURGED_CHANGE_NUMBER);
   }
@@ -348,7 +350,7 @@ public final class RootDSE
    * @return  The DNs of the naming contexts provided by the directory server,
    *          or {@code null} if the server does not publish that information.
    */
-  public String[] getNamingContextDNs()
+  public final String[] getNamingContextDNs()
   {
     return getAttributeValues(ATTR_NAMING_CONTEXT);
   }
@@ -363,7 +365,7 @@ public final class RootDSE
    *          root DSE, or {@code null} if the server does not publish that
    *          information.
    */
-  public String getSubschemaSubentryDN()
+  public final String getSubschemaSubentryDN()
   {
     return getAttributeValue(ATTR_SUBSCHEMA_SUBENTRY);
   }
@@ -378,7 +380,7 @@ public final class RootDSE
    *          by the server, or {@code null} if the server does not publish
    *          that information.
    */
-  public String[] getSupportedAuthPasswordSchemeNames()
+  public final String[] getSupportedAuthPasswordSchemeNames()
   {
     return getAttributeValues(ATTR_SUPPORTED_AUTH_PASSWORD_STORAGE_SCHEME);
   }
@@ -397,7 +399,7 @@ public final class RootDSE
    *          the specified authentication password storage scheme, or
    *          {@code false} if it does not.
    */
-  public boolean supportsAuthPasswordScheme(final String scheme)
+  public final boolean supportsAuthPasswordScheme(final String scheme)
   {
     return hasAttributeValue(ATTR_SUPPORTED_AUTH_PASSWORD_STORAGE_SCHEME,
                              scheme);
@@ -413,7 +415,7 @@ public final class RootDSE
    *          server root DSE, or {@code null} if the server does not publish
    *          that information.
    */
-  public String[] getSupportedControlOIDs()
+  public final String[] getSupportedControlOIDs()
   {
     return getAttributeValues(ATTR_SUPPORTED_CONTROL);
   }
@@ -430,7 +432,7 @@ public final class RootDSE
    * @return  {@code true} if the server indicates that it supports the request
    *          control with the specified OID, or {@code false} if it does not.
    */
-  public boolean supportsControl(final String controlOID)
+  public final boolean supportsControl(final String controlOID)
   {
     return hasAttributeValue(ATTR_SUPPORTED_CONTROL, controlOID);
   }
@@ -445,7 +447,7 @@ public final class RootDSE
    *          server root DSE, or {@code null} if the server does not publish
    *          that information.
    */
-  public String[] getSupportedExtendedOperationOIDs()
+  public final String[] getSupportedExtendedOperationOIDs()
   {
     return getAttributeValues(ATTR_SUPPORTED_EXTENDED_OPERATION);
   }
@@ -463,7 +465,8 @@ public final class RootDSE
    * @return  {@code true} if the server indicates that it supports the extended
    *          operation with the specified OID, or {@code false} if it does not.
    */
-  public boolean supportsExtendedOperation(final String extendedOperationOID)
+  public final boolean supportsExtendedOperation(
+                            final String extendedOperationOID)
   {
     return hasAttributeValue(ATTR_SUPPORTED_EXTENDED_OPERATION,
                              extendedOperationOID);
@@ -479,7 +482,7 @@ public final class RootDSE
    *          DSE, or {@code null} if the server does not publish that
    *          information.
    */
-  public String[] getSupportedFeatureOIDs()
+  public final String[] getSupportedFeatureOIDs()
   {
     return getAttributeValues(ATTR_SUPPORTED_FEATURE);
   }
@@ -496,7 +499,7 @@ public final class RootDSE
    * @return  {@code true} if the server indicates that it supports the feature
    *          with the specified OID, or {@code false} if it does not.
    */
-  public boolean supportsFeature(final String featureOID)
+  public final boolean supportsFeature(final String featureOID)
   {
     return hasAttributeValue(ATTR_SUPPORTED_FEATURE, featureOID);
   }
@@ -511,7 +514,7 @@ public final class RootDSE
    *          root DSE, or {@code null} if the server does not publish that
    *          information.
    */
-  public int[] getSupportedLDAPVersions()
+  public final int[] getSupportedLDAPVersions()
   {
     final String[] versionStrs =
          getAttributeValues(ATTR_SUPPORTED_LDAP_VERSION);
@@ -550,7 +553,7 @@ public final class RootDSE
    * @return  {@code true} if the server indicates that it supports the
    *          specified LDAP protocol version, or {@code false} if it does not.
    */
-  public boolean supportsLDAPVersion(final int ldapVersion)
+  public final boolean supportsLDAPVersion(final int ldapVersion)
   {
     return hasAttributeValue(ATTR_SUPPORTED_LDAP_VERSION,
                              String.valueOf(ldapVersion));
@@ -566,7 +569,7 @@ public final class RootDSE
    *          server root DSE, or {@code null} if the server does not publish
    *          that information.
    */
-  public String[] getSupportedSASLMechanismNames()
+  public final String[] getSupportedSASLMechanismNames()
   {
     return getAttributeValues(ATTR_SUPPORTED_SASL_MECHANISM);
   }
@@ -583,7 +586,7 @@ public final class RootDSE
    * @return  {@code true} if the server indicates that it supports the
    *          specified SASL mechanism, or {@code false} if it does not.
    */
-  public boolean supportsSASLMechanism(final String mechanismName)
+  public final boolean supportsSASLMechanism(final String mechanismName)
   {
     return hasAttributeValue(ATTR_SUPPORTED_SASL_MECHANISM, mechanismName);
   }
@@ -596,7 +599,7 @@ public final class RootDSE
    * @return  The name of the directory server vendor, or {@code null} if the
    *          server does not publish that information.
    */
-  public String getVendorName()
+  public final String getVendorName()
   {
     return getAttributeValue(ATTR_VENDOR_NAME);
   }
@@ -609,7 +612,7 @@ public final class RootDSE
    * @return  The directory server version string, or {@code null} if the server
    *          does not publish that information.
    */
-  public String getVendorVersion()
+  public final String getVendorVersion()
   {
     return getAttributeValue(ATTR_VENDOR_VERSION);
   }

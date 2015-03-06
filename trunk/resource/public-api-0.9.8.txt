@@ -1717,43 +1717,43 @@ class com.unboundid.ldap.sdk.ResultCode method public java.lang.String toString(
 class com.unboundid.ldap.sdk.ResultCode method public static boolean isClientSideResultCode(com.unboundid.ldap.sdk.ResultCode)
 class com.unboundid.ldap.sdk.ResultCode method public static boolean isConnectionUsable(com.unboundid.ldap.sdk.ResultCode)
 class com.unboundid.ldap.sdk.ResultCode method public static com.unboundid.ldap.sdk.ResultCode valueOf(int)
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_ALT_SERVER
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_CHANGELOG_DN
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_FIRST_CHANGE_NUMBER
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_LAST_CHANGE_NUMBER
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_LAST_PURGED_CHANGE_NUMBER
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_NAMING_CONTEXT
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUBSCHEMA_SUBENTRY
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_AUTH_PASSWORD_STORAGE_SCHEME
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_CONTROL
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_EXTENDED_OPERATION
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_FEATURE
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_LDAP_VERSION
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_SASL_MECHANISM
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_VENDOR_NAME
-class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_VENDOR_VERSION
-class com.unboundid.ldap.sdk.RootDSE method public boolean supportsAuthPasswordScheme(java.lang.String)
-class com.unboundid.ldap.sdk.RootDSE method public boolean supportsControl(java.lang.String)
-class com.unboundid.ldap.sdk.RootDSE method public boolean supportsExtendedOperation(java.lang.String)
-class com.unboundid.ldap.sdk.RootDSE method public boolean supportsFeature(java.lang.String)
-class com.unboundid.ldap.sdk.RootDSE method public boolean supportsLDAPVersion(int)
-class com.unboundid.ldap.sdk.RootDSE method public boolean supportsSASLMechanism(java.lang.String)
-class com.unboundid.ldap.sdk.RootDSE method public int[] getSupportedLDAPVersions()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.Long getFirstChangeNumber()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.Long getLastChangeNumber()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.Long getLastPurgedChangeNumber()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String getChangelogDN()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String getSubschemaSubentryDN()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String getVendorName()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String getVendorVersion()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getAltServerURIs()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getNamingContextDNs()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedAuthPasswordSchemeNames()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedControlOIDs()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedExtendedOperationOIDs()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedFeatureOIDs()
-class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedSASLMechanismNames()
-class com.unboundid.ldap.sdk.RootDSE method public static com.unboundid.ldap.sdk.RootDSE getRootDSE(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_ALT_SERVER
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_CHANGELOG_DN
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_FIRST_CHANGE_NUMBER
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_LAST_CHANGE_NUMBER
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_LAST_PURGED_CHANGE_NUMBER
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_NAMING_CONTEXT
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUBSCHEMA_SUBENTRY
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_AUTH_PASSWORD_STORAGE_SCHEME
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_CONTROL
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_EXTENDED_OPERATION
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_FEATURE
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_LDAP_VERSION
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_SUPPORTED_SASL_MECHANISM
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_VENDOR_NAME
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE field public static final java.lang.String ATTR_VENDOR_VERSION
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public boolean supportsAuthPasswordScheme(java.lang.String)
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public boolean supportsControl(java.lang.String)
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public boolean supportsExtendedOperation(java.lang.String)
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public boolean supportsFeature(java.lang.String)
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public boolean supportsLDAPVersion(int)
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public boolean supportsSASLMechanism(java.lang.String)
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public int[] getSupportedLDAPVersions()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.Long getFirstChangeNumber()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.Long getLastChangeNumber()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.Long getLastPurgedChangeNumber()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String getChangelogDN()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String getSubschemaSubentryDN()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String getVendorName()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String getVendorVersion()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getAltServerURIs()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getNamingContextDNs()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedAuthPasswordSchemeNames()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedControlOIDs()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedExtendedOperationOIDs()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedFeatureOIDs()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public java.lang.String[] getSupportedSASLMechanismNames()
+@NotExtensible class com.unboundid.ldap.sdk.RootDSE method public static com.unboundid.ldap.sdk.RootDSE getRootDSE(com.unboundid.ldap.sdk.LDAPInterface) throws com.unboundid.ldap.sdk.LDAPException
 class com.unboundid.ldap.sdk.RoundRobinServerSet constructor public com.unboundid.ldap.sdk.RoundRobinServerSet(java.lang.String[],int[])
 class com.unboundid.ldap.sdk.RoundRobinServerSet constructor public com.unboundid.ldap.sdk.RoundRobinServerSet(java.lang.String[],int[],com.unboundid.ldap.sdk.LDAPConnectionOptions)
 class com.unboundid.ldap.sdk.RoundRobinServerSet constructor public com.unboundid.ldap.sdk.RoundRobinServerSet(java.lang.String[],int[],javax.net.SocketFactory)
