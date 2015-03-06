@@ -46,6 +46,13 @@ public abstract class OIDAllocator
        implements Serializable
 {
   /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = -2031217984148568974L;
+
+
+
+  /**
    * Allocates an OID for the attribute type with the specified name.
    *
    * @param  name  The name of the attribute type for which to generate an OID.
