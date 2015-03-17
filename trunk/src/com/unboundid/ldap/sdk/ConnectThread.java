@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -117,9 +118,26 @@ final class ConnectThread
 
     try
     {
-      final Socket s = socketFactory.createSocket(address, port);
-      SSLUtil.applyEnabledSSLProtocols(s);
+      boolean connectNeeded;
+      Socket s;
+      try
+      {
+        s = socketFactory.createSocket();
+        connectNeeded = true;
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        s = socketFactory.createSocket(address, port);
+        connectNeeded = false;
+      }
       socket.set(s);
+
+      if (connectNeeded)
+      {
+        s.connect(new InetSocketAddress(address, port));
+      }
+      SSLUtil.applyEnabledSSLProtocols(s);
       connected.set(true);
     }
     catch (final Throwable t)

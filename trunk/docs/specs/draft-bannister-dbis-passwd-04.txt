@@ -3,9 +3,9 @@
 
 
 Internet Draft                                           M. R. Bannister
-<draft-bannister-dbis-passwd-03.txt>               Prose Consulting Ltd.
-Category: Informational                                 December 3, 2014
-Expires June 6, 2015
+<draft-bannister-dbis-passwd-04.txt>               Prose Consulting Ltd.
+Category: Informational                                    March 6, 2015
+Expires September 7, 2015
 
                  Directory-Based Information Services:
                             Users and Groups
@@ -33,11 +33,11 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on June 6, 2015.
+   This Internet-Draft will expire on September 7, 2015.
 
 Copyright Notice
 
-   Copyright (c) 2014 IETF Trust and the persons identified as the
+   Copyright (c) 2015 IETF Trust and the persons identified as the
    document authors.  All rights reserved.   
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Copyright Notice
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 1]
+Bannister, Mark R.     Expires September 7, 2015                [Page 1]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
 Abstract          
@@ -109,9 +109,9 @@ Table of Contents
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 2]
+Bannister, Mark R.     Expires September 7, 2015                [Page 2]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
          2.1.3.9. loginShell  . . . . . . . . . . . . . . . . . . . .  9
@@ -165,9 +165,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 3]
+Bannister, Mark R.     Expires September 7, 2015                [Page 3]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
    7.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 20
@@ -221,9 +221,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 4]
+Bannister, Mark R.     Expires September 7, 2015                [Page 4]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
        dn: cn=group,en=sales.corp,ou=domain-mappings,
@@ -277,9 +277,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 5]
+Bannister, Mark R.     Expires September 7, 2015                [Page 5]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
 2.1.2.2. dbisPasswdConfig
@@ -333,9 +333,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 6]
+Bannister, Mark R.     Expires September 7, 2015                [Page 6]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
    One or more DNs identifying the search base for overlay entries are
@@ -389,9 +389,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 7]
+Bannister, Mark R.     Expires September 7, 2015                [Page 7]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
          DESC 'The absolute path to the home directory'
@@ -445,9 +445,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 8]
+Bannister, Mark R.     Expires September 7, 2015                [Page 8]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
          altscheme    = "x-" keystring
@@ -501,9 +501,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 9]
+Bannister, Mark R.     Expires September 7, 2015                [Page 9]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
    format [RFC2849].  As posixUserAccount is an auxiliary class, it has
@@ -557,9 +557,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 10]
+Bannister, Mark R.     Expires September 7, 2015               [Page 10]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
          MAY dbisOverlayDN )
@@ -613,9 +613,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 11]
+Bannister, Mark R.     Expires September 7, 2015               [Page 11]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
    A DUA MUST support both formats, but SHALL ignore the userPassword
@@ -669,9 +669,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 12]
+Bannister, Mark R.     Expires September 7, 2015               [Page 12]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
          posixGroupAccount entry to provide one or more DNs of the
@@ -725,9 +725,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 13]
+Bannister, Mark R.     Expires September 7, 2015               [Page 13]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
 3.2. Object Classes
@@ -781,9 +781,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 14]
+Bannister, Mark R.     Expires September 7, 2015               [Page 14]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
    that has an overlay configuration, it SHALL also search for a
@@ -837,9 +837,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 15]
+Bannister, Mark R.     Expires September 7, 2015               [Page 15]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
    "sales-merger" netgroup will get an alternative UID of 5001 and
@@ -893,9 +893,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 16]
+Bannister, Mark R.     Expires September 7, 2015               [Page 16]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
    document:
@@ -949,9 +949,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 17]
+Bannister, Mark R.     Expires September 7, 2015               [Page 17]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
      encrypted password in NIS-compatible passwd entries, or not at all.
@@ -969,7 +969,7 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
    The NIS-compatible group database fields are mapped as follows:
 
          group    = en
-         password = %x78           ; lowercase "x", see below
+         password = %x2a           ; asterisk "*", see below
          gid      = gidNumber
          users    = exactUser      ; derived, see below
 
@@ -977,9 +977,8 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
 
    In the group mappings above:
 
-   - For security it is RECOMMENDED that the password be set to "x" as
-     in section 5.1.2 and not to authPassword.  See section 6 for
-     security considerations.
+   - For security it is RECOMMENDED that the password be set to "*" and
+     not to authPassword.  See section 6 for security considerations.
 
    - The list of users is a de-duplicated comma-separated list of
      exactUser attributes.  See section 2.2.3.5.
@@ -1002,12 +1001,13 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
    comes from the dbisMapDN attribute assigned to the dbisMapConfig
    entry. Note that a dbisMapConfig entry may have more than one of
    these.
+
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 18]
+Bannister, Mark R.     Expires September 7, 2015               [Page 18]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
    Where it appears in search filters below, the text "dbisMapFilter"
@@ -1061,9 +1061,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 19]
+Bannister, Mark R.     Expires September 7, 2015               [Page 19]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
 6. Security Considerations
@@ -1117,9 +1117,9 @@ Internet Draft           DBIS Users and Groups          December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 20]
+Bannister, Mark R.     Expires September 7, 2015               [Page 20]
 
-Internet Draft           DBIS Users and Groups          December 3, 2014
+Internet Draft           DBIS Users and Groups             March 6, 2015
 
 
               2008.
@@ -1173,4 +1173,4 @@ Author's Address
 
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 21]
+Bannister, Mark R.     Expires September 7, 2015               [Page 21]
