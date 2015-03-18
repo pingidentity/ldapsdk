@@ -402,7 +402,7 @@ public class Entry
   public Entry(final Schema schema, final String... entryLines)
          throws LDIFException
   {
-    final Entry e = LDIFReader.decodeEntry(entryLines);
+    final Entry e = LDIFReader.decodeEntry(false, schema, entryLines);
 
     this.schema = schema;
 
