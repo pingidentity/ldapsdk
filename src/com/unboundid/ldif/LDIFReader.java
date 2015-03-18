@@ -2790,7 +2790,7 @@ public final class LDIFReader
         // acceptable.
         if (attrObject == null)
         {
-          attr = new Attribute(attributeName, "");
+          attr = new Attribute(attributeName, matchingRule, "");
           attributes.put(lowerName, attr);
         }
         else
@@ -2831,7 +2831,7 @@ public final class LDIFReader
           final byte[] valueBytes = Base64.decode(line.substring(pos));
           if (attrObject == null)
           {
-            attr = new Attribute(attributeName, valueBytes);
+            attr = new Attribute(attributeName, matchingRule, valueBytes);
             attributes.put(lowerName, attr);
           }
           else
@@ -2895,7 +2895,7 @@ public final class LDIFReader
 
         if (attrObject == null)
         {
-          attr = new Attribute(attributeName, urlBytes);
+          attr = new Attribute(attributeName, matchingRule, urlBytes);
           attributes.put(lowerName, attr);
         }
         else
@@ -2941,7 +2941,7 @@ public final class LDIFReader
         final String valueString = line.substring(pos);
         if (attrObject == null)
         {
-          attr = new Attribute(attributeName, valueString);
+          attr = new Attribute(attributeName, matchingRule, valueString);
           attributes.put(lowerName, attr);
         }
         else
