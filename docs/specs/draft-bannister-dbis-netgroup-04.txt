@@ -3,9 +3,9 @@
 
 
 Internet Draft                                           M. R. Bannister
-<draft-bannister-dbis-netgroup-03.txt>             Prose Consulting Ltd.
-Category: Informational                                 December 3, 2014
-Expires June 6, 2015
+<draft-bannister-dbis-netgroup-04.txt>             Prose Consulting Ltd.
+Category: Informational                                   March 23, 2015
+Expires September 24, 2015
 
                  Directory-Based Information Services:
                        Netgroups and Netservices
@@ -33,13 +33,13 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on June 6, 2015.
+   This Internet-Draft will expire on September 24, 2015.
 
    Comments are solicited and should be addressed to the author.
 
 Copyright Notice
 
-   Copyright (c) 2014 IETF Trust and the persons identified as the
+   Copyright (c) 2015 IETF Trust and the persons identified as the
    document authors.  All rights reserved.   
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Copyright Notice
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 1]
+Bannister, Mark R.     Expires September 24, 2015               [Page 1]
 
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
 
 
 Abstract          
@@ -101,53 +101,54 @@ Table of Contents
          3.1.3.1. en  . . . . . . . . . . . . . . . . . . . . . . . .  6
          3.1.3.2. netgroupHost  . . . . . . . . . . . . . . . . . . .  6
          3.1.3.3. netgroupUser  . . . . . . . . . . . . . . . . . . .  7
-         3.1.3.4. exactNetgroup . . . . . . . . . . . . . . . . . . .  7
-         3.1.3.5. description . . . . . . . . . . . . . . . . . . . .  8
-         3.1.3.6. manager . . . . . . . . . . . . . . . . . . . . . .  8
-         3.1.3.7. disableObject . . . . . . . . . . . . . . . . . . .  8
-       3.1.4. Example Netgroup Entry  . . . . . . . . . . . . . . . .  8
+         3.1.3.4. netgroupTriple  . . . . . . . . . . . . . . . . . .  7
+         3.1.3.5. exactNetgroup . . . . . . . . . . . . . . . . . . .  8
+         3.1.3.6. description . . . . . . . . . . . . . . . . . . . .  8
+         3.1.3.7. manager . . . . . . . . . . . . . . . . . . . . . .  8
+         3.1.3.8. disableObject . . . . . . . . . . . . . . . . . . .  8
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 2]
+Bannister, Mark R.     Expires September 24, 2015               [Page 2]
 
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
 
 
+       3.1.4. Example Netgroup Entry  . . . . . . . . . . . . . . . .  9
        3.1.5. Determining Host Membership . . . . . . . . . . . . . .  9
        3.1.6. Determining User Membership . . . . . . . . . . . . . .  9
-     3.2. netservice  . . . . . . . . . . . . . . . . . . . . . . . .  9
+     3.2. netservice  . . . . . . . . . . . . . . . . . . . . . . . . 10
        3.2.1. Definition  . . . . . . . . . . . . . . . . . . . . . . 10
        3.2.2. Object Classes  . . . . . . . . . . . . . . . . . . . . 10
-         3.2.2.1. Introduction  . . . . . . . . . . . . . . . . . . . 10
-         3.2.2.2. dbisNetserviceConfig  . . . . . . . . . . . . . . . 10
+         3.2.2.1. Introduction  . . . . . . . . . . . . . . . . . . . 11
+         3.2.2.2. dbisNetserviceConfig  . . . . . . . . . . . . . . . 11
          3.2.2.3. netserviceObject  . . . . . . . . . . . . . . . . . 11
          3.2.2.4. netserviceDescriptor  . . . . . . . . . . . . . . . 11
        3.2.3. Attributes  . . . . . . . . . . . . . . . . . . . . . . 11
          3.2.3.1. en  . . . . . . . . . . . . . . . . . . . . . . . . 11
-         3.2.3.2. exactNetgroup . . . . . . . . . . . . . . . . . . . 11
+         3.2.3.2. exactNetgroup . . . . . . . . . . . . . . . . . . . 12
          3.2.3.3. exactNetservice . . . . . . . . . . . . . . . . . . 12
          3.2.3.4. description . . . . . . . . . . . . . . . . . . . . 12
-         3.2.3.5. manager . . . . . . . . . . . . . . . . . . . . . . 12
-         3.2.3.6. disableObject . . . . . . . . . . . . . . . . . . . 12
+         3.2.3.5. manager . . . . . . . . . . . . . . . . . . . . . . 13
+         3.2.3.6. disableObject . . . . . . . . . . . . . . . . . . . 13
        3.2.4. Example Netservice Entries  . . . . . . . . . . . . . . 13
    4. Common Attributes . . . . . . . . . . . . . . . . . . . . . . . 14
      4.1. Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
      4.2. notNetgroup . . . . . . . . . . . . . . . . . . . . . . . . 14
-   5. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . . 14
-   6. Implementation Notes  . . . . . . . . . . . . . . . . . . . . . 14
+   5. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . . 15
+   6. Implementation Notes  . . . . . . . . . . . . . . . . . . . . . 15
      6.1. NIS Netgroups . . . . . . . . . . . . . . . . . . . . . . . 15
-     6.2. Forming netgroupHost or netgroupUser Entries  . . . . . . . 15
+     6.2. Forming netgroupHost or netgroupUser Entries  . . . . . . . 16
      6.3. Common Search Filters . . . . . . . . . . . . . . . . . . . 16
        6.3.1. Search Parameters . . . . . . . . . . . . . . . . . . . 16
-       6.3.2. Find Configuration Map for Domain . . . . . . . . . . . 16
+       6.3.2. Find Configuration Map for Domain . . . . . . . . . . . 17
        6.3.3. List All Entries  . . . . . . . . . . . . . . . . . . . 17
        6.3.4. Find Specific Netgroup or Netservice  . . . . . . . . . 17
-       6.3.5. Find Netgroups By Membership  . . . . . . . . . . . . . 17
+       6.3.5. Find Netgroups By Membership  . . . . . . . . . . . . . 18
        6.3.6. Member of a Specific Netgroup . . . . . . . . . . . . . 18
-       6.3.7. Which Netgroups are Enabled?  . . . . . . . . . . . . . 18
+       6.3.7. Which Netgroups are Enabled?  . . . . . . . . . . . . . 19
        6.3.8. Find Netservices By Membership  . . . . . . . . . . . . 19
-       6.3.9. Member of a Specific Netservice . . . . . . . . . . . . 19
+       6.3.9. Member of a Specific Netservice . . . . . . . . . . . . 20
    7. Security Considerations . . . . . . . . . . . . . . . . . . . . 20
    8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 20
      8.1.  Normative References . . . . . . . . . . . . . . . . . . . 20
@@ -161,13 +162,12 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    The term "domain" used within this document does not refer to DBIS
    domains [draft-bannister-dbis-mapping-00] but rather to DNS domains
    [RFC1034].
-
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 3]
+Bannister, Mark R.     Expires September 24, 2015               [Page 3]
 
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
 
 
 1.2. Common ABNF Productions
@@ -221,9 +221,9 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 4]
+Bannister, Mark R.     Expires September 24, 2015               [Page 4]
 
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
 
 
        objectClass: dbisNetgroupConfig
@@ -277,9 +277,9 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 5]
+Bannister, Mark R.     Expires September 24, 2015               [Page 5]
 
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
 
 
    object class dbisNetgroupConfig.
@@ -303,8 +303,8 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
          DESC 'DBIS netgroup entry'
          SUP top STRUCTURAL
          MUST en
-         MAY ( netgroupHost $ netgroupUser $ exactNetgroup $
-               description $ manager $ disableObject ) )
+         MAY ( netgroupHost $ netgroupUser $ netgroupTriple $
+               exactNetgroup $ description $ manager $ disableObject ) )
 
 3.1.3. Attributes
 
@@ -333,9 +333,9 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
  
 
 
-Bannister, Mark R.        Expires June 6, 2015                  [Page 6]
+Bannister, Mark R.     Expires September 24, 2015               [Page 6]
 
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
 
 
    in section 1.2 of this document:
@@ -381,19 +381,37 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    containing one.  This is explained further in section 6.2 of this
    document.
 
-3.1.3.4. exactNetgroup
+3.1.3.4. netgroupTriple
+
+   For backwards compatibility with RFC2307 client software, DBIS also
+   permits netgroup membership to be expressed in the form of netgroup
+   triples (see section 6.1) by providing one or more netgroupTriple
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015               [Page 7]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
+   attributes that MAY be assigned to a netgroupObject entry:
+
+       attributetype ( 1.3.6.1.4.1.23780.219.2.37 NAME 'netgroupTriple'
+         DESC 'Case exact netgroup triple'
+         EQUALITY caseExactMatch
+         SUBSTR caseExactSubstringsMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+   A DUA SHALL convert host name and domain name components to lower
+   case characters prior to forming a netgroupTriple attribute or filter
+   containing one.  This is explained further in section 6.2 of this
+   document.
+
+3.1.3.5. exactNetgroup
 
    Members of other netgroups may be inherited by this netgroup by
    providing additional netgroup names to inherit in one or more
    exactNetgroup attributes that MAY be assigned to a netgroupObject
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                  [Page 7]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
-
    entry:
 
        attributetype ( 1.3.6.1.4.1.23780.219.2.10 NAME 'exactNetgroup'
@@ -407,23 +425,31 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    been disabled with the disableObject attribute, then it SHALL NOT be
    included in the response to the client.
 
-3.1.3.5. description
+3.1.3.6. description
 
    The description attribute MAY be associated with a netgroupObject
    entry to provide an arbitrary description of the entry.
 
-3.1.3.6. manager
+3.1.3.7. manager
 
    The manager attribute MAY be associated with a netgroupObject entry
    to provide one or more DNs of the individuals, groups or systems that
    are responsible for maintaining the entry.
 
-3.1.3.7. disableObject
+3.1.3.8. disableObject
 
    A netgroup entry MAY be disabled by setting the disableObject
    attribute [draft-bannister-dbis-mapping-00] to TRUE.  If an entry is
    disabled, then the DUA SHALL behave as if the netgroup does not
    exist.  The DUA MAY optionally provide a separate mechanism for
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015               [Page 8]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
    listing disabled entries, but they MUST be clearly marked as disabled
    so that no confusion can arise.
 
@@ -442,14 +468,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
        netgroupUser: julie@*.market.sales.corp
        exactNetgroup: board-mgmt
        exactNetgroup: board-mgmt-remote
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                  [Page 8]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
-
        description: Sales Management Privileges
 
 3.1.5. Determining Host Membership
@@ -480,6 +498,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
 
    b) The user name matches the user component of the netgroupUser
       attribute exactly, and the unqualified host name of the DUA which
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015               [Page 9]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
       is obtained as described in section 3.1.5 and converted to
       lowercase matches the host component of the netgroupUser attribute
       exactly.
@@ -497,14 +523,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
       matches this attribute when the ASTERISK DOT prefix is removed.
 
 3.2. netservice
-
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                  [Page 9]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
 
 3.2.1. Definition
 
@@ -536,6 +554,13 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    netserviceDescriptor class.
 
 3.2.2. Object Classes
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 10]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
 
 3.2.2.1. Introduction
 
@@ -553,14 +578,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
          NAME 'dbisNetserviceConfig'
          DESC 'DBIS netservice configuration map'
          SUP dbisMapConfig STRUCTURAL )
-
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 10]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
 
 3.2.2.3. netserviceObject
 
@@ -593,6 +610,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    The service-name of the netservice and each service-descriptor is
    stored in LDAP attributes of type en which is defined in [draft-
    bannister-dbis-mapping-00].  The en attribute MUST be associated with
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 11]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
    a netserviceObject and netserviceDescriptor entry, and SHALL form the
    RDN of each.
 
@@ -605,19 +630,11 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    Users or hosts are granted a netservice if they are members of one or
    more netgroups identified by exactNetgroup attributes that MAY be
    assigned to a netserviceDescriptor entry.  The exactNetgroup
-   attribute is defined in section 3.1.3.4 of this document.
+   attribute is defined in section 3.1.3.5 of this document.
 
    The DUA SHALL validate that a netgroup referenced by this attribute
    exists and is enabled.  If the netgroup is not defined, or if it has
    been disabled with the disableObject attribute, then it SHALL NOT be
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 11]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
-
    considered when determining netservice grants.
 
 3.2.3.3. exactNetservice
@@ -649,6 +666,13 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    The description attribute MAY be associated with a netserviceObject
    or netserviceDescriptor entry to provide an arbitrary description of
    the entry.
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 12]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
 
 3.2.3.5. manager
 
@@ -666,14 +690,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    MUST be clearly marked as disabled so that no confusion can arise.
 
    The disableObject attribute may be set on either the netserviceObject
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 12]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
-
    or netserviceDescriptor entry.  If set on the netserviceObject entry
    then the DUA SHALL treat all netserviceDescriptor entries underneath
    as disabled too.
@@ -706,6 +722,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
        description: FTP Service
 
        dn: en=login,en=ftp,ou=netservice,o=infra
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 13]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
        objectClass: top
        objectClass: netserviceDescriptor
        en: login
@@ -721,14 +745,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
        objectClass: top
        objectClass: netserviceDescriptor
        en: login
-
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 13]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
 
        dn: en=anonymous,en=login,en=web,ou=netservice,o=infra
        objectClass: top
@@ -762,6 +778,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
 
    The DUA SHALL validate that a netgroup referenced by this attribute
    exists and is enabled.  If the netgroup is not defined, or if it has
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 14]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
    been disabled with the disableObject attribute, then it SHALL NOT be
    included in the response to the client.
 
@@ -778,13 +802,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    -----------------------------------------------------------
 
 6. Implementation Notes
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 14]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
 
 6.1. NIS Netgroups
 
@@ -817,6 +834,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
          t-all-domain       = LPAREN COMMA COMMA domain RPAREN
          t-user             = LPAREN COMMA user COMMA RPAREN
          t-user-host        = LPAREN host COMMA user COMMA RPAREN
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 15]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
          t-user-host-domain = LPAREN host-domain COMMA user COMMA RPAREN
          t-user-all-domain  = LPAREN COMMA user COMMA domain RPAREN
 
@@ -834,14 +859,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
 
    As the user name component of the netgroupUser attribute is case
    sensitive while the other components are not, a DUA SHALL convert
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 15]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
-
    host name and domain name components to lower case characters prior
    to forming a netgroupHost or netgroupUser attribute or filter
    containing one.  This is to ensure that the exact case match
@@ -873,6 +890,13 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    comes from the dbisMapDN attribute assigned to the dbisMapConfig
    entry. Note that a dbisMapConfig entry may have more than one of
    these.
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 16]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
 
    Where it appears in search filters below, the text "dbisMapFilter"
    refers to the value assigned to the attribute of the same name in the
@@ -890,13 +914,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    To locate the configuration map for a given DBIS domain, search for
    entries underneath the dbisDomainObject entry [draft-bannister-dbis-
    mapping-00].
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 16]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
 
    Netgroup maps can be found with the following search filter:
 
@@ -929,6 +946,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    defined in section 3.2.3.6.
 
    When searching for specific netservices by name, this filter may
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 17]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
    return more than one result, as namespace uniqueness is determined by
    the path and not by the name of a single LDAP entry.
 
@@ -946,14 +971,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
          ))
 
    To obtain a list of all netgroups that a system named "host" with the
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 17]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
-
    fully-qualified DNS domain name "domain" is a member of, the
    following search filter may be used:
 
@@ -985,6 +1002,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
          ))
 
    To determine if a system named "host" with the fully-qualified DNS
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 18]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
    domain name "domain" is a member of a specific netgroup called
    "name", the following search filter may be used:
 
@@ -1002,13 +1027,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    operation.
 
 6.3.7. Which Netgroups are Enabled?
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 18]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
 
    Sometimes it is necessary to determine from a list of netgroups which
    ones are enabled.  This can be performed using one search operation. 
@@ -1040,6 +1058,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    If any netservice entry found is a netserviceDescriptor and not a
    netserviceObject, then an additional test SHALL be performed for the
    disableObject attribute on the parent netserviceObject to determine
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 19]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
    whether this netservice is disabled, as defined in section 3.2.3.6.
 
 6.3.9. Member of a Specific Netservice
@@ -1057,14 +1083,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    given netservice.  The exactNetgroup attribute associated with this
    entry contains the list of netgroups assigned the web:login/anonymous
    netservice.
-
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 19]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
 
    Additionally, the following search filter can be used to locate
    netservices that include one called "netservice" in their definition
@@ -1096,6 +1114,14 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
               (LDAP): Technical Specification Road Map", RFC 4510, June
               2006.
 
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 20]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
    [RFC4512]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
               (LDAP): Directory Information Models", RFC 4512, June
               2006.
@@ -1114,13 +1140,6 @@ Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
    [RFC5234]  Crocker, D., Ed., and P. Overell, "Augmented BNF for
               Syntax Specifications: ABNF", STD 68, RFC 5234, January
               2008.
- 
-
-
-Bannister, Mark R.        Expires June 6, 2015                 [Page 20]
-
-Internet Draft       DBIS Netgroups and Netservices     December 3, 2014
-
 
    [draft-bannister-dbis-mapping-00]  Bannister, M. R., "Directory-Based
               Information Services: Mapping Objects", draft-bannister-
@@ -1151,6 +1170,14 @@ Author's Address
    Esher, Surrey, KT10 0BQ
    United Kingdom
 
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 21]
+
+Internet Draft       DBIS Netgroups and Netservices       March 23, 2015
+
+
    Tel: +44 7764 604316
    EMail: dbis@proseconsulting.co.uk
 
@@ -1173,4 +1200,33 @@ Author's Address
 
 
 
-Bannister, Mark R.        Expires June 6, 2015                 [Page 21]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 22]

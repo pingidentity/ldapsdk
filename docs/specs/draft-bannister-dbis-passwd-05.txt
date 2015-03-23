@@ -3,9 +3,9 @@
 
 
 Internet Draft                                           M. R. Bannister
-<draft-bannister-dbis-passwd-04.txt>               Prose Consulting Ltd.
-Category: Informational                                    March 6, 2015
-Expires September 7, 2015
+<draft-bannister-dbis-passwd-05.txt>               Prose Consulting Ltd.
+Category: Informational                                   March 23, 2015
+Expires September 24, 2015
 
                  Directory-Based Information Services:
                             Users and Groups
@@ -33,7 +33,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on September 7, 2015.
+   This Internet-Draft will expire on September 24, 2015.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 1]
+Bannister, Mark R.     Expires September 24, 2015               [Page 1]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
 Abstract          
@@ -109,9 +109,9 @@ Table of Contents
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 2]
+Bannister, Mark R.     Expires September 24, 2015               [Page 2]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
          2.1.3.9. loginShell  . . . . . . . . . . . . . . . . . . . .  9
@@ -136,8 +136,8 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
        2.2.4. Example Group Entry . . . . . . . . . . . . . . . . . . 13
    3. Overlays  . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
      3.1. Definition  . . . . . . . . . . . . . . . . . . . . . . . . 13
-     3.2. Object Classes  . . . . . . . . . . . . . . . . . . . . . . 14
-       3.2.1. Introduction  . . . . . . . . . . . . . . . . . . . . . 14
+     3.2. Object Classes  . . . . . . . . . . . . . . . . . . . . . . 13
+       3.2.1. Introduction  . . . . . . . . . . . . . . . . . . . . . 13
        3.2.2. dbisPasswdOverlay . . . . . . . . . . . . . . . . . . . 14
        3.2.3. dbisGroupOverlay  . . . . . . . . . . . . . . . . . . . 14
      3.3. Attributes  . . . . . . . . . . . . . . . . . . . . . . . . 14
@@ -161,13 +161,13 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
        5.2.3. List All Entries  . . . . . . . . . . . . . . . . . . . 19
        5.2.4. Find Specific Entry . . . . . . . . . . . . . . . . . . 19
        5.2.5. Find Entry by ID  . . . . . . . . . . . . . . . . . . . 19
-   6. Security Considerations . . . . . . . . . . . . . . . . . . . . 20
+   6. Security Considerations . . . . . . . . . . . . . . . . . . . . 19
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 3]
+Bannister, Mark R.     Expires September 24, 2015               [Page 3]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
    7.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 20
@@ -221,9 +221,9 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 4]
+Bannister, Mark R.     Expires September 24, 2015               [Page 4]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
        dn: cn=group,en=sales.corp,ou=domain-mappings,
@@ -277,9 +277,9 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 5]
+Bannister, Mark R.     Expires September 24, 2015               [Page 5]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
 2.1.2.2. dbisPasswdConfig
@@ -333,9 +333,9 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 6]
+Bannister, Mark R.     Expires September 24, 2015               [Page 6]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
    One or more DNs identifying the search base for overlay entries are
@@ -389,9 +389,9 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 7]
+Bannister, Mark R.     Expires September 24, 2015               [Page 7]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
          DESC 'The absolute path to the home directory'
@@ -445,9 +445,9 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 8]
+Bannister, Mark R.     Expires September 24, 2015               [Page 8]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
          altscheme    = "x-" keystring
@@ -501,9 +501,9 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
  
 
 
-Bannister, Mark R.     Expires September 7, 2015                [Page 9]
+Bannister, Mark R.     Expires September 24, 2015               [Page 9]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
    format [RFC2849].  As posixUserAccount is an auxiliary class, it has
@@ -557,9 +557,9 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
  
 
 
-Bannister, Mark R.     Expires September 7, 2015               [Page 10]
+Bannister, Mark R.     Expires September 24, 2015              [Page 10]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
          MAY dbisOverlayDN )
@@ -613,9 +613,9 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
  
 
 
-Bannister, Mark R.     Expires September 7, 2015               [Page 11]
+Bannister, Mark R.     Expires September 24, 2015              [Page 11]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
 
    A DUA MUST support both formats, but SHALL ignore the userPassword
@@ -641,56 +641,51 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
 
 2.2.3.6. uniqueMember
 
-         For compatibility, group members may alternatively be stored in
-         the uniqueMember attribute which is defined in section 2.40 of
-         [RFC4519] and that MAY be assigned to a posixGroupAccount
-         entry.
+   For compatibility, group members may alternatively be stored in the
+   uniqueMember attribute which is defined in section 2.40 of [RFC4519]
+   and that MAY be assigned to a posixGroupAccount entry.
 
-         This is intended to support existing configurations only and
-         SHOULD NOT be used for new entries, which should use exactUser
-         instead.  A DUA MUST support both formats.
+   This is intended to support existing configurations only and SHOULD
+   NOT be used for new entries, which should use exactUser instead.  A
+   DUA MUST support both formats.
 
-         Members referenced by the uniqueMember attribute SHALL be
-         assumed to have been presented via the existing configuration
-         map, even if they were located in a different base DN.  The
-         uniqueMember attribute is therefore not suitable for
-         referencing users or groups that are defined with a different
-         schema.  The exactUser attribute does not suffer this problem.
+   Members referenced by the uniqueMember attribute SHALL be assumed to
+   have been presented via the existing configuration map, even if they
+   were located in a different base DN.  The uniqueMember attribute is
+   therefore not suitable for referencing users or groups that are
+   defined with a different schema.  The exactUser attribute does not
+   suffer this problem.
 
 2.2.3.7. description
 
-         The description attribute MAY be associated with a
-         posixGroupAccount entry to provide an arbitrary description of
-         the entry.
+   The description attribute MAY be associated with a posixGroupAccount
+   entry to provide an arbitrary description of the entry.
 
 2.2.3.8. manager
 
-         The manager attribute MAY be associated with a
+   The manager attribute MAY be associated with a posixGroupAccount
+   entry to provide one or more DNs of the individuals, groups or
+   systems that are responsible for maintaining the entry.
  
 
 
-Bannister, Mark R.     Expires September 7, 2015               [Page 12]
+Bannister, Mark R.     Expires September 24, 2015              [Page 12]
 
-Internet Draft           DBIS Users and Groups             March 6, 2015
+Internet Draft           DBIS Users and Groups            March 23, 2015
 
-
-         posixGroupAccount entry to provide one or more DNs of the
-         individuals, groups or systems that are responsible for
-         maintaining the entry.
 
 2.2.3.9. disableObject
 
-         A group account MAY be disabled by setting the disableObject
-         attribute to TRUE.  If an entry is disabled, then the DUA SHALL
-         behave as if the group does not exist.  The DUA MAY optionally
-         provide a separate mechanism for listing disabled entries, but
-         they MUST be clearly marked as disabled so that no confusion
-         can arise.
+   A group account MAY be disabled by setting the disableObject
+   attribute to TRUE.  If an entry is disabled, then the DUA SHALL
+   behave as if the group does not exist.  The DUA MAY optionally
+   provide a separate mechanism for listing disabled entries, but they
+   MUST be clearly marked as disabled so that no confusion can arise.
 
 2.2.4. Example Group Entry
 
-         The following is an example of a posixGroupAccount entry in
-         LDIF format [RFC2849]:
+   The following is an example of a posixGroupAccount entry in LDIF
+   format [RFC2849]:
 
        dn: en=finance,ou=group,ou=sales,o=infra
        objectClass: top
@@ -722,19 +717,19 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
    A DUA SHALL process overlays after any transformations defined in the
    configuration map [draft-bannister-dbis-mapping-00].
 
- 
-
-
-Bannister, Mark R.     Expires September 7, 2015               [Page 13]
-
-Internet Draft           DBIS Users and Groups             March 6, 2015
-
-
 3.2. Object Classes
 
 3.2.1. Introduction
 
    The top-level DN underneath which to search for overlay entries SHALL
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 13]
+
+Internet Draft           DBIS Users and Groups            March 23, 2015
+
+
    be defined by the dbisOverlayDN attribute which is associated with
    either a dbisPasswdConfig or dbisGroupConfig entry.  Overlay entries
    MUST reside underneath this DN if they are to be used by a DUA.
@@ -778,19 +773,18 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
    entry.
 
    When a DUA looks up a posixUserAccount or posixGroupAccount entry
- 
-
-
-Bannister, Mark R.     Expires September 7, 2015               [Page 14]
-
-Internet Draft           DBIS Users and Groups             March 6, 2015
-
-
    that has an overlay configuration, it SHALL also search for a
    dbisPasswdOverlay or dbisGroupOverlay entry.
 
    If a default entry, i.e. en=*, is found, the uidNumber attribute is
    ignored if assigned to the dbisPasswdOverlay object.
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 14]
+
+Internet Draft           DBIS Users and Groups            March 23, 2015
+
 
 3.3.2. uidNumber
 
@@ -834,20 +828,20 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
    The following is an example of a dbisPasswdOverlay entry in LDIF
    format [RFC2849], and corresponding dbisMapConfig entries.  In this
    example, the user "julie" who logs into hosts that are part of the
- 
-
-
-Bannister, Mark R.     Expires September 7, 2015               [Page 15]
-
-Internet Draft           DBIS Users and Groups             March 6, 2015
-
-
    "sales-merger" netgroup will get an alternative UID of 5001 and
    "/bin/sh" as the login shell.  If "julie" logs into any other host,
    she will get her normal UID and login shell:
 
        dn: cn=passwd,en=sales.corp,ou=domain-mappings,o=infra
        objectClass: top
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 15]
+
+Internet Draft           DBIS Users and Groups            March 23, 2015
+
+
        objectClass: dbisMapConfig
        objectClass: dbisPasswdConfig
        cn: passwd
@@ -890,20 +884,20 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
 4. Attribute Syntax
 
    The following syntaxes are used by the attributes defined in this
- 
-
-
-Bannister, Mark R.     Expires September 7, 2015               [Page 16]
-
-Internet Draft           DBIS Users and Groups             March 6, 2015
-
-
    document:
 
    -----------------------------------------------------------
    Syntax OID                     Value             Reference
    -----------------------------------------------------------
    1.3.6.1.4.1.1466.115.121.1.12  DN                [RFC4517]
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 16]
+
+Internet Draft           DBIS Users and Groups            March 23, 2015
+
+
    1.3.6.1.4.1.1466.115.121.1.15  Directory String  [RFC4517]
    1.3.6.1.4.1.1466.115.121.1.26  IA5 String        [RFC4517]
    1.3.6.1.4.1.1466.115.121.1.27  Integer           [RFC4517]
@@ -946,19 +940,19 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
      secure.  As this is not relevant for an LDAP schema, the
      authPassword attribute is associated with the posixUserAccount
      object class.  An implementer may therefore optionally report the
- 
-
-
-Bannister, Mark R.     Expires September 7, 2015               [Page 17]
-
-Internet Draft           DBIS Users and Groups             March 6, 2015
-
-
      encrypted password in NIS-compatible passwd entries, or not at all.
       For security it is RECOMMENDED that any individual user cannot
      display the encrypted password for any other user or group account,
      but only their own encrypted password. See section 6 for security
      considerations.
+
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 17]
+
+Internet Draft           DBIS Users and Groups            March 23, 2015
+
 
    - gecos is determined by looking up the attribute identified by the
      dbisMapGecos attribute given on the configuration map entry.  See
@@ -1002,20 +996,19 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
    entry. Note that a dbisMapConfig entry may have more than one of
    these.
 
- 
-
-
-Bannister, Mark R.     Expires September 7, 2015               [Page 18]
-
-Internet Draft           DBIS Users and Groups             March 6, 2015
-
-
    Where it appears in search filters below, the text "dbisMapFilter"
    refers to the value assigned to the attribute of the same name in the
    corresponding dbisMapConfig entry.  Note that passwd and group
    databases have different dbisMapConfig entries. Attribute names used
    in these search filters may be modified by the dbisMapAttr attribute
    assigned to the dbisMapConfig entry.
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 18]
+
+Internet Draft           DBIS Users and Groups            March 23, 2015
+
 
 5.2.2. Find Configuration Map for Domain
 
@@ -1058,14 +1051,6 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
 
          (&(dbisMapFilter)(!(disableObject=TRUE))(gidNumber=gid))
 
- 
-
-
-Bannister, Mark R.     Expires September 7, 2015               [Page 19]
-
-Internet Draft           DBIS Users and Groups             March 6, 2015
-
-
 6. Security Considerations
 
    Passwd and group database entries contain encrypted passwords and
@@ -1073,6 +1058,13 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
    to prevent eavesdropping.  A DUA SHOULD NOT allow a user to see any
    encrypted passwords except they MAY see the password on their own
    posixUserAccount entry in encrypted form.
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 19]
+
+Internet Draft           DBIS Users and Groups            March 23, 2015
+
 
    The security considerations discussed in [draft-bannister-dbis-
    mapping-00] and [RFC3112] apply equally to this document.
@@ -1114,14 +1106,6 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
 
    [RFC5234]  Crocker, D., Ed., and P. Overell, "Augmented BNF for
               Syntax Specifications: ABNF", STD 68, RFC 5234, January
- 
-
-
-Bannister, Mark R.     Expires September 7, 2015               [Page 20]
-
-Internet Draft           DBIS Users and Groups             March 6, 2015
-
-
               2008.
 
    [draft-bannister-dbis-mapping-00]  Bannister, M. R., "Directory-Based
@@ -1130,6 +1114,14 @@ Internet Draft           DBIS Users and Groups             March 6, 2015
 
    [draft-bannister-dbis-netgroup-00]  Bannister, M. R., "Directory-
               Based Information Services: Netgroups and Netservices",
+ 
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 20]
+
+Internet Draft           DBIS Users and Groups            March 23, 2015
+
+
               draft-bannister-dbis-netgroups-00.txt, August 2013.
 
 7.2.  Informative References
@@ -1173,4 +1165,12 @@ Author's Address
 
 
 
-Bannister, Mark R.     Expires September 7, 2015               [Page 21]
+
+
+
+
+
+
+
+
+Bannister, Mark R.     Expires September 24, 2015              [Page 21]
