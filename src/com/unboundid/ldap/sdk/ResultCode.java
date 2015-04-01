@@ -1495,6 +1495,26 @@ public final class ResultCode
 
 
   /**
+   * The integer value (30221003) for the "MIRRORED_SUBTREE_DIGEST_MISMATCH"
+   * result code.
+   */
+  public static final int MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE =
+      30221003;
+
+
+
+  /**
+   * The result code (30221003) that should be used by a node in a topology of
+   * servers to indicate that its subtree digest does not match that of its
+   * master's.
+   */
+  public static final ResultCode MIRRORED_SUBTREE_DIGEST_MISMATCH =
+      new ResultCode(INFO_RC_MIRRORED_SUBTREE_DIGEST_MISMATCH.get(),
+          MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE);
+
+
+
+  /**
    * The set of result code objects created with undefined int result code
    * values.
    */
@@ -1758,6 +1778,8 @@ public final class ResultCode
         return INTERACTIVE_TRANSACTION_ABORTED;
       case DATABASE_LOCK_CONFLICT_INT_VALUE:
         return DATABASE_LOCK_CONFLICT;
+      case MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE:
+        return MIRRORED_SUBTREE_DIGEST_MISMATCH;
     }
 
     synchronized (UNDEFINED_RESULT_CODES)
@@ -1861,7 +1883,8 @@ public final class ResultCode
       E_SYNC_REFRESH_REQUIRED,
       NO_OPERATION,
       INTERACTIVE_TRANSACTION_ABORTED,
-      DATABASE_LOCK_CONFLICT
+      DATABASE_LOCK_CONFLICT,
+      MIRRORED_SUBTREE_DIGEST_MISMATCH
     };
   }
 
