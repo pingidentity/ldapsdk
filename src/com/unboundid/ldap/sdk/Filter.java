@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2015 UnboundID Corp.
+ * Copyright 2007-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2015 UnboundID Corp.
+ * Copyright (C) 2008-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -3292,14 +3292,12 @@ attrNameLoop:
    *   <LI>Any AND or OR filter that contains only a single filter component
    *       will be converted to just that embedded filter component to eliminate
    *       the unnecessary AND or OR wrapper.  For example, the filter
-   *       "(&amp;(uid=john.doe))" will be converted to just
-   *       "(uid=john.doe)".</LI>
+   *       "(&(uid=john.doe))" will be converted to just "(uid=john.doe)".</LI>
    *   <LI>Any AND components inside of an AND filter will be merged into the
    *       outer AND filter.  Any OR components inside of an OR filter will be
    *       merged into the outer OR filter.  For example, the filter
-   *       "(&amp;(objectClass=person)(&amp;(givenName=John)(sn=Doe)))" will be
-   *       converted to
-   *       "(&amp;(objectClass=person)(givenName=John)(sn=Doe))".</LI>
+   *       "(&(objectClass=person)(&(givenName=John)(sn=Doe)))" will be
+   *       converted to "(&(objectClass=person)(givenName=John)(sn=Doe))".</LI>
    *   <LI>If {@code reOrderElements} is true, then this method will attempt to
    *       re-order the elements inside AND and OR filters in an attempt to
    *       ensure that the components which are likely to be the most efficient

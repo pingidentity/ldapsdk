@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2015 UnboundID Corp.
+ * Copyright 2007-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2015 UnboundID Corp.
+ * Copyright (C) 2008-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -1304,7 +1304,7 @@ public final class LDIFReader
       catch (InterruptedException e)
       {
         debugException(e);
-        throw createIOExceptionWithCause(null, e);
+        throw new IOException(getExceptionMessage(e));
       }
     }
     if (result == null)
@@ -1396,7 +1396,7 @@ public final class LDIFReader
     }
     else
     {
-      throw createIOExceptionWithCause(null, t);
+      throw new IOException(getExceptionMessage(t));
     }
   }
 
@@ -2790,7 +2790,7 @@ public final class LDIFReader
         // acceptable.
         if (attrObject == null)
         {
-          attr = new Attribute(attributeName, matchingRule, "");
+          attr = new Attribute(attributeName, "");
           attributes.put(lowerName, attr);
         }
         else
@@ -2831,7 +2831,7 @@ public final class LDIFReader
           final byte[] valueBytes = Base64.decode(line.substring(pos));
           if (attrObject == null)
           {
-            attr = new Attribute(attributeName, matchingRule, valueBytes);
+            attr = new Attribute(attributeName, valueBytes);
             attributes.put(lowerName, attr);
           }
           else
@@ -2895,7 +2895,7 @@ public final class LDIFReader
 
         if (attrObject == null)
         {
-          attr = new Attribute(attributeName, matchingRule, urlBytes);
+          attr = new Attribute(attributeName, urlBytes);
           attributes.put(lowerName, attr);
         }
         else
@@ -2941,7 +2941,7 @@ public final class LDIFReader
         final String valueString = line.substring(pos);
         if (attrObject == null)
         {
-          attr = new Attribute(attributeName, matchingRule, valueString);
+          attr = new Attribute(attributeName, valueString);
           attributes.put(lowerName, attr);
         }
         else

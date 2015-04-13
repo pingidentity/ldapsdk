@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2015 UnboundID Corp.
+ * Copyright 2008-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2015 UnboundID Corp.
+ * Copyright (C) 2008-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -31,13 +31,6 @@ package com.unboundid.util;
 public abstract class LDAPSDKException
        extends Exception
 {
-  /**
-   * The serial version UID for this serializable class.
-   */
-  private static final long serialVersionUID = 8080186918165352228L;
-
-
-
   /**
    * Creates a new instance of this exception with the provided message.
    *

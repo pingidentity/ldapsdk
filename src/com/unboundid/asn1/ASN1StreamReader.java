@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2015 UnboundID Corp.
+ * Copyright 2009-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2015 UnboundID Corp.
+ * Copyright (C) 2009-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -549,10 +549,7 @@ public final class ASN1StreamReader
       }
 
       totalBytesRead++;
-
-      final Boolean booleanValue = (value != 0x00);
-      debugASN1Read(Level.INFO, "Boolean", type, 1, booleanValue);
-      return booleanValue;
+      return (value != 0);
     }
     else
     {
@@ -659,7 +656,6 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
-    debugASN1Read(Level.INFO, "Integer", type, length, intValue);
     return intValue;
   }
 
@@ -747,7 +743,6 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
-    debugASN1Read(Level.INFO, "Long", type, length, longValue);
     return longValue;
   }
 
@@ -782,7 +777,6 @@ public final class ASN1StreamReader
       skip(length);
       throw new ASN1Exception(ERR_NULL_HAS_VALUE.get());
     }
-    debugASN1Read(Level.INFO, "Null", type, 0, null);
   }
 
 
@@ -829,7 +823,6 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
-    debugASN1Read(Level.INFO, "byte[]", type, length, value);
     return value;
   }
 
@@ -877,10 +870,7 @@ public final class ASN1StreamReader
     }
 
     totalBytesRead += length;
-
-    final String s = toUTF8String(value);
-    debugASN1Read(Level.INFO, "String", type, length, s);
-    return s;
+    return toUTF8String(value);
   }
 
 
@@ -915,7 +905,6 @@ public final class ASN1StreamReader
 
     final int length = readLength();
 
-    debugASN1Read(Level.INFO, "Sequence Header", type, length, null);
     return new ASN1StreamReaderSequence(this, (byte) type, length);
   }
 
@@ -950,7 +939,6 @@ public final class ASN1StreamReader
 
     final int length = readLength();
 
-    debugASN1Read(Level.INFO, "Set Header", type, length, null);
     return new ASN1StreamReaderSet(this, (byte) type, length);
   }
 
