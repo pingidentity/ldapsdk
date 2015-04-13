@@ -1,0 +1,122 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Advantages of the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Improved Connection Pooling</h2>
+
+              <p>
+                JNDI provides basic support for connection pooling through the use of the
+                "<tt>com.sun.jndi.ldap.connect.pool</tt>" property (although it is not clear
+                whether this property is available in non-Sun Java implementations).  If this
+                property is set to "true" in the environment properties when creating a context,
+                then the JNDI implementation will create a connection pool that will create
+                connections as needed, but return connections from the pool when they are
+                available.  There is virtually no control over the properties of the connection
+                pool, nor is it possible to have multiple connection pools within the same JVM
+                instance.  While it is relatively nice that JNDI connection pooling is largely
+                transparent to the client, it requires that clients be designed with a relatively
+                poor pattern of closing connections after each sequence of operations, which will
+                return them to the pool if there is one, but can easily lead to the unintended
+                behavior of repeatedly creating and tearing down connections.
+              </p>
+
+              <p>
+                The Netscape Directory SDK for Java provides basic connection pooling support
+                through the <tt>netscape.ldap.util.ConnectionPool</tt> class.  Connections are
+                checked out from the pool using the <tt>getConnection</tt> method, which may block
+                if the pool does not have any available connections.  Connections are returned to
+                the pool by calling the rather unintuitive <tt>close</tt> method.  It requires
+                clients to be developed with explicit knowledge of and interaction with the
+                connection pool, and it does not provide any capability for performing operations
+                within the context of the pool itself.
+              </p>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides an enhanced connection pooling mechanism
+                that provides many of the good aspects of the JNDI and Netscape implementations
+                without the negatives, and also provides additional functionality.  The connection
+                pooling implementation provided by the UnboundID LDAP SDK for Java has the
+                following properties:
+              </p>
+
+              <ul>
+                <li>
+                  It is possible to have multiple distinct connection pools in use by the same
+                  application or different applications within the same JVM.
+                  <br><br>
+                </li>
+
+                <li>
+                  It is possible to explicitly check out and release connections.
+                  <br><br>
+                </li>
+
+                <li>
+                  It is possible to lazily create connections as needed.
+                  <br><br>
+                </li>
+
+                <li>
+                  It is possible to indicate that a connection may have become invalidated when
+                  releasing a connection to indicate that it should no longer be used by the pool.
+                  <br><br>
+                </li>
+
+                <li>
+                  It is possible to configure the connection pooling to specify whether it should
+                  block if no connections are available and if so for how long.  It is also
+                  possible to configure whether it should attempt to create a new connection if
+                  none are available.
+                  <br><br>
+                </li>
+
+                <li>
+                  It provides support for processing operations within the context of the pool, so
+                  processing those operations will automatically check out and return the
+                  connection and perform all necessary error handling, without requiring the client
+                  developer to concern themselves with those details.
+                  <br><br>
+                </li>
+
+                <li>
+                  It provides a method for processing multiple operations over the same pooled
+                  connection without the need for the caller to perform the necessary connection
+                  management or error handling.
+                  <br><br>
+                </li>
+
+                <li>
+                  It implements the same <tt>LDAPInterface</tt> interface as the
+                  <tt>LDAPConnection</tt> class.  This means that clients can be developed to use
+                  <tt>LDAPInterface</tt> objects instead of <tt>LDAPConnection</tt> objects in
+                  cases where it doesn't matter if the operation is performed on an individual
+                  connection or a pooled connection.
+                  <br><br>
+                </li>
+
+                <li>
+                  It works in conjunction with the <A HREF="failover-load-balancing.${EXTENSION}">Support
+                  for Failover and Load Balancing</A> so that the pool can contain connections to
+                  multiple servers, allowing the load to be spread between them.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                The UnboundID LDAP SDK for Java also offers a second connection pool
+                implementation that provides the ability to define separate servers (or sets of
+                servers) for read and write operations.  With this read-write connection pool,
+                one set of connections will be established for write operations like add, delete,
+                modify, and modify DN operations, and another set of connections (potentially
+                established to a different set of servers) will be used for read operations like
+                search, bind, and compare operations.  This can be useful for environments
+                containing a number of read-only replicas that cannot accept write operations.
+              </p>

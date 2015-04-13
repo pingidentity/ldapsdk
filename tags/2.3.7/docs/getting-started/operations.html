@@ -1,0 +1,194 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="http://www.unboundid.com/products/ldapsdk/" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Getting Started with the LDAP SDK</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Performing LDAP Operations</h2>
+
+              <p>
+                <tt>LDAPConnection</tt> objects provide a number of methods for processing
+                operations against an LDAP directory server.  This document provides basic
+                information about processing such operations.
+              </p>
+
+              <p></p>
+              <h3>Operation Requests</h3>
+
+              <p>
+                The <tt>LDAPConnection</tt> object provides a number of convenience methods for
+                processing different types of operations, but for each operation there is also a
+                method that takes an <tt>LDAPRequest</tt> subclass (e.g., <tt>AddRequest</tt> for
+                add operations, <tt>BindRequest</tt> for bind operations, etc.).  In most cases,
+                these request objects are mutable and can be altered and re-used across multiple
+                requests.  This makes it possible, for example, to construct a search request for a
+                common type of request that the application needs to make, and simply alter the
+                filter and re-send the updated request without the need to create a completely new
+                request object.
+              </p>
+
+              <p>
+                Using request objects also provides a greater set of options than the most
+                commonly-used options provided through the methods in the <tt>LDAPConnection</tt>
+                class.  In particular, it is possible to include controls in these requests, which
+                is not available with the other methods used to request operations in the
+                <tt>LDAPConnection</tt> class, and you can also use it to specify a timeout for the
+                operation that differs from the default timeout specified in the associated
+                connection options.  Further, it is necessary to use these request objects if you
+                wish to process asynchronous operations.  Note, however, that request objects
+                themselves are not threadsafe and therefore a single request object should not be
+                used to process multiple concurrent operations.
+              </p>
+
+              <p></p>
+              <h3>Operation Results</h3>
+
+              <p>
+                All operations listed below other than those in the "Other Convenience Methods"
+                section return an <tt>LDAPResult</tt> object (or one of its subclasses), which
+                includes the following information:
+              </p>
+
+              <ul>
+                <li>
+                  The LDAP result code for the operation.
+                 </li>
+
+                <li>
+                  The matched DN string (if one was provided)
+                </li>
+
+                <li>
+                  A diagnostic message providing additional information about the result (if one
+                  was provided)
+                </li>
+
+                <li>
+                  The referral URLs (if any were provided)
+                </li>
+
+                <li>
+                  The response controls for the operation (if any were provided)
+                </li>
+              </ul>
+
+              <p>
+                When processing synchronous operations (which is the case for all operations
+                described on this page), the LDAP SDK will only return an <tt>LDAPResult</tt>
+                object when the operation completes successfully.  For operations that do not
+                complete successfully, it will instead throw an <tt>LDAPException</tt>.
+                <tt>LDAPException</tt> objects include all of the same elements as an
+                <tt>LDAPResult</tt> object, so all of the above information will still be
+                available.  The added benefit of throwing an exception in this case, however, is
+                that it eliminates the need for the caller to have to explicitly check the result
+                code of the operation to determine if it was successful.
+              </p>
+
+              <p>
+                The types of result that may be returned include:
+              </p>
+
+              <ul>
+                <li>
+                  Add, delete, modify, and modify DN operations return simple <tt>LDAPResult</tt>
+                  objects.
+                </li>
+
+                <li>
+                  Bind operations return <tt>BindResult</tt> objects, which may include an optional
+                  server SASL credentials element.
+                </li>
+
+                <li>
+                  Compare operations return <tt>CompareResult</tt> objects, which provide a
+                  convenience method for indicating whether the compare assertion matched the
+                  target entry.
+                </li>
+
+                <li>
+                  Extended operations return <tt>ExtendedResult</tt> objects, which may include a
+                  response OID and/or value.  Subclasses for specific types of extended operations
+                  may provide other methods for accessing the content of the response.
+                </li>
+
+                <li>
+                  Search operations return <tt>SearchResult</tt> objects, which include the number
+                  of entries and referrals returned, and may also hold the returned entries and/or
+                  references.
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Processing Search Operations</h3>
+
+              <p>
+                Search operations differ from other types of LDAP operations in that there may be
+                multiple responses to a single request.  In addition to the search result done
+                message, each entry and reference is returned in a separate message.  As a result,
+                processing such operations in the LDAP SDK is somewhat different than for other
+                operations.
+              </p>
+
+              <p>
+                There are two basic ways to perform search operations in the UnboundID LDAP SDK for
+                Java.  One approach, which works for all types of searches, is to use the
+                <tt>SearchResultListener</tt> interface.  If a search request includes a reference
+                to a <tt>SearchResultListener</tt>, then its <tt>searchEntryReturned</tt> method
+                will be called for each entry returned from the server.  Further, if the server
+                returns referrals as part of the search operation and the connection is not
+                configured to automatically follow referrals, then the listener's
+                <tt>searchReferenceReturned</tt> method will be called so that the referral can be
+                handled.
+              </p>
+
+              <p>
+                If no <tt>SearchResultListener</tt> is provided as part of the search request, then
+                the SDK will collect all search result entries and references and include them in
+                the <tt>SearchResult</tt> object that is returned from the search.  This is
+                significantly more convenient, but does introduce a risk of running out of
+                available memory on the client if a search matches a very large number of entries.
+                If a search request may cause the server to return a large number of entries, then
+                it should use a <tt>SearchResultListener</tt> to process the entries as they are
+                returned rather than attempting to collect them all in memory until the search is
+                complete.
+              </p>
+
+              <p></p>
+              <h3>Other Convenience Methods</h3>
+
+              <p>
+                In addition to methods that may be used for performing standard LDAP operations,
+                the <tt>LDAPConnection</tt> class provides methods that may be useful when
+                interacting with the server.
+              </p>
+
+              <p>
+                If you wish to retrieve a single entry from the server and you know the DN of that
+                entry, then you could use a search operation to retrieve that entry, but you may
+                also use one of the <tt>getEntry</tt> methods.  These methods allow you to specify
+                just the DN of the entry (and optionally a set of attributes to include in the
+                entry) and will return the requested entry if it exists.
+              </p>
+
+              <p>
+                The directory server's root DSE is a special entry with a zero-length DN that
+                provides information about the capabilities of the server.  This may include
+                information like the base DNs for data in the directory, supported controls and
+                extended operations, and product version information.  The <tt>LDAPConnection</tt>
+                class provides a <tt>getRootDSE</tt> method that may be used to retrieve and parse
+                the server root DSE.
+              </p>
+
+              <p>
+                The directory server also publishes schema information about the attribute types,
+                object classes, syntaxes, and other schema elements that it supports.  The
+                <tt>getSchema</tt> method may be used to retrieve a <tt>Schema</tt> object that
+                includes parsed versions of the server schema elements so that the client can
+                determine the types of information that may be stored in the directory.
+              </p>
