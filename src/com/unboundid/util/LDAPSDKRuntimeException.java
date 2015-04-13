@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2015 UnboundID Corp.
+ * Copyright 2009-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2015 UnboundID Corp.
+ * Copyright (C) 2009-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -31,13 +31,6 @@ package com.unboundid.util;
 public abstract class LDAPSDKRuntimeException
        extends RuntimeException
 {
-  /**
-   * The serial version UID for this serializable class.
-   */
-  private static final long serialVersionUID = -805259180160427851L;
-
-
-
   /**
    * Creates a new instance of this exception with the provided message.
    *

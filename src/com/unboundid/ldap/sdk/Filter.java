@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2015 UnboundID Corp.
+ * Copyright 2007-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2015 UnboundID Corp.
+ * Copyright (C) 2008-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -25,11 +25,8 @@ package com.unboundid.ldap.sdk;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.TreeMap;
 
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Buffer;
@@ -453,25 +450,6 @@ public final class Filter
 
 
   /**
-   * Creates a new AND search filter with the provided components.
-   *
-   * @param  andComponents  The set of filter components to include in the AND
-   *                        filter.  It must not be {@code null}.
-   *
-   * @return  The created AND search filter.
-   */
-  public static Filter createANDFilter(final Collection<Filter> andComponents)
-  {
-    ensureNotNull(andComponents);
-
-    return new Filter(null, FILTER_TYPE_AND,
-                      andComponents.toArray(new Filter[andComponents.size()]),
-                      null, null, null, null, NO_SUB_ANY, null, null, false);
-  }
-
-
-
-  /**
    * Creates a new OR search filter with the provided components.
    *
    * @param  orComponents  The set of filter components to include in the OR
@@ -498,25 +476,6 @@ public final class Filter
    * @return  The created OR search filter.
    */
   public static Filter createORFilter(final List<Filter> orComponents)
-  {
-    ensureNotNull(orComponents);
-
-    return new Filter(null, FILTER_TYPE_OR,
-                      orComponents.toArray(new Filter[orComponents.size()]),
-                      null, null, null, null, NO_SUB_ANY, null, null, false);
-  }
-
-
-
-  /**
-   * Creates a new OR search filter with the provided components.
-   *
-   * @param  orComponents  The set of filter components to include in the OR
-   *                       filter.  It must not be {@code null}.
-   *
-   * @return  The created OR search filter.
-   */
-  public static Filter createORFilter(final Collection<Filter> orComponents)
   {
     ensureNotNull(orComponents);
 
@@ -3280,285 +3239,6 @@ attrNameLoop:
       default:
         throw new LDAPException(ResultCode.PARAM_ERROR,
                                 ERR_FILTER_INVALID_TYPE.get());
-    }
-  }
-
-
-
-  /**
-   * Attempts to simplify the provided filter to allow it to be more efficiently
-   * processed by the server.  The simplifications it will make include:
-   * <UL>
-   *   <LI>Any AND or OR filter that contains only a single filter component
-   *       will be converted to just that embedded filter component to eliminate
-   *       the unnecessary AND or OR wrapper.  For example, the filter
-   *       "(&amp;(uid=john.doe))" will be converted to just
-   *       "(uid=john.doe)".</LI>
-   *   <LI>Any AND components inside of an AND filter will be merged into the
-   *       outer AND filter.  Any OR components inside of an OR filter will be
-   *       merged into the outer OR filter.  For example, the filter
-   *       "(&amp;(objectClass=person)(&amp;(givenName=John)(sn=Doe)))" will be
-   *       converted to
-   *       "(&amp;(objectClass=person)(givenName=John)(sn=Doe))".</LI>
-   *   <LI>If {@code reOrderElements} is true, then this method will attempt to
-   *       re-order the elements inside AND and OR filters in an attempt to
-   *       ensure that the components which are likely to be the most efficient
-   *       come earlier than those which are likely to be the least efficient.
-   *       This can speed up processing in servers that process filter
-   *       components in a left-to-right order.</LI>
-   * </UL>
-   * <BR><BR>
-   * The simplification will happen recursively, in an attempt to generate a
-   * filter that is as simple and efficient as possible.
-   *
-   * @param  filter           The filter to attempt to simplify.
-   * @param  reOrderElements  Indicates whether this method may re-order the
-   *                          elements in the filter so that, in a server that
-   *                          evaluates the components in a left-to-right order,
-   *                          the components which are likely to be more
-   *                          efficient to process will be listed before those
-   *                          which are likely to be less efficient.
-   *
-   * @return  The simplified filter, or the original filter if the provided
-   *          filter is not one that can be simplified any further.
-   */
-  public static Filter simplifyFilter(final Filter filter,
-                                      final boolean reOrderElements)
-  {
-    final byte filterType = filter.filterType;
-    switch (filterType)
-    {
-      case FILTER_TYPE_AND:
-      case FILTER_TYPE_OR:
-        // These will be handled below.
-        break;
-
-      case FILTER_TYPE_NOT:
-        // We may be able to simplify the filter component contained inside the
-        // NOT.
-        return createNOTFilter(simplifyFilter(filter.notComp, reOrderElements));
-
-      default:
-        // We can't simplify this filter, so just return what was provided.
-        return filter;
-    }
-
-
-    // An AND filter with zero components is an LDAP true filter, and we can't
-    // simplify that.  An OR filter with zero components is an LDAP false
-    // filter, and we can't simplify that either.  The set of components
-    // should never be null for an AND or OR filter, but if that happens to be
-    // the case, then we'll return the original filter.
-    final Filter[] components = filter.filterComps;
-    if ((components == null) || (components.length == 0))
-    {
-      return filter;
-    }
-
-
-    // For either an AND or an OR filter with just a single component, then just
-    // return that embedded component.  But simplify it first.
-    if (components.length == 1)
-    {
-      return simplifyFilter(components[0], reOrderElements);
-    }
-
-
-    // If we've gotten here, then we have a filter with multiple components.
-    // Simplify each of them to the extent possible, un-embed any ANDs
-    // contained inside an AND or ORs contained inside an OR, and eliminate any
-    // duplicate components in the resulting top-level filter.
-    final LinkedHashSet<Filter> componentSet = new LinkedHashSet<Filter>(10);
-    for (final Filter f : components)
-    {
-      final Filter simplifiedFilter = simplifyFilter(f, reOrderElements);
-      if (simplifiedFilter.filterType == FILTER_TYPE_AND)
-      {
-        if (filterType == FILTER_TYPE_AND)
-        {
-          // This is an AND nested inside an AND.  In that case, we'll just put
-          // all the nested components inside the outer AND.
-          componentSet.addAll(Arrays.asList(simplifiedFilter.filterComps));
-        }
-        else
-        {
-          componentSet.add(simplifiedFilter);
-        }
-      }
-      else if (simplifiedFilter.filterType == FILTER_TYPE_OR)
-      {
-        if (filterType == FILTER_TYPE_OR)
-        {
-          // This is an OR nested inside an OR.  In that case, we'll just put
-          // all the nested components inside the outer OR.
-          componentSet.addAll(Arrays.asList(simplifiedFilter.filterComps));
-        }
-        else
-        {
-          componentSet.add(simplifiedFilter);
-        }
-      }
-      else
-      {
-        componentSet.add(simplifiedFilter);
-      }
-    }
-
-
-    // It's possible at this point that we are down to just a single component.
-    // That can happen if the filter was an AND or an OR with a duplicate
-    // element, like "(&(a=b)(a=b))".  In that case, just return that one
-    // component.
-    if (componentSet.size() == 1)
-    {
-      return componentSet.iterator().next();
-    }
-
-
-    // If we should re-order the components, then use the following priority
-    // list:
-    //
-    // 1.  Equality components that target an attribute other than objectClass.
-    //     These are most likely to require only a single database lookup to get
-    //     the candidate list, and that candidate list will frequently be small.
-    // 2.  Equality components that target the objectClass attribute.  These are
-    //     likely to require only a single database lookup to get the candidate
-    //     list, but the candidate list is more likely to be larger.
-    // 3.  Approximate match components.  These are also likely to require only
-    //     a single database lookup to get the candidate list, but that
-    //     candidate list is likely to have a larger number of candidates.
-    // 4.  Presence components that target an attribute other than objectClass.
-    //     These are also likely to require only a single database lookup to get
-    //     the candidate list, but are likely to have a large number of
-    //     candidates.
-    // 5.  Substring components that have a subInitial element.  These are
-    //     generally the most efficient substring filters to process, requiring
-    //     access to fewer database keys than substring filters with only subAny
-    //     and/or subFinal components.
-    // 6.  Substring components that only have subAny and/or subFinal elements.
-    //     These will probably require a number of database lookups and will
-    //     probably result in large candidate lists.
-    // 7.  Greater-or-equal components and less-or-equal components.  These
-    //     will probably require a number of database lookups and will probably
-    //     result in large candidate lists.
-    // 8.  Extensible match components.  Even if these are indexed, there isn't
-    //     any good way to know how expensive they might be to process or how
-    //     big the candidate list might be.
-    // 9.  Presence components that target the objectClass attribute.  This is
-    //     likely to require only a single database lookup to get the candidate
-    //     list, but the candidate list will also be extremely large (if it's
-    //     indexed at all) since it will match every entry.
-    // 10. NOT components.  These are generally not possible to index and
-    //     therefore cannot be used to create a candidate list.
-    //
-    // AND and OR components will be ordered according to the first of their
-    // embedded components  Since the filter has already been simplified, then
-    // the first element in the list will be the one we think will be the most
-    // efficient to process.
-    if (reOrderElements)
-    {
-      final TreeMap<Integer,LinkedHashSet<Filter>> m =
-           new TreeMap<Integer,LinkedHashSet<Filter>>();
-      for (final Filter f : componentSet)
-      {
-        final Filter prioritizeComp;
-        if ((f.filterType == FILTER_TYPE_AND) ||
-            (f.filterType == FILTER_TYPE_OR))
-        {
-          if (f.filterComps.length > 0)
-          {
-            prioritizeComp = f.filterComps[0];
-          }
-          else
-          {
-            prioritizeComp = f;
-          }
-        }
-        else
-        {
-          prioritizeComp = f;
-        }
-
-        final Integer slot;
-        switch (prioritizeComp.filterType)
-        {
-          case FILTER_TYPE_EQUALITY:
-            if (prioritizeComp.attrName.equalsIgnoreCase("objectClass"))
-            {
-              slot = 2;
-            }
-            else
-            {
-              slot = 1;
-            }
-            break;
-
-          case FILTER_TYPE_APPROXIMATE_MATCH:
-            slot = 3;
-            break;
-
-          case FILTER_TYPE_PRESENCE:
-            if (prioritizeComp.attrName.equalsIgnoreCase("objectClass"))
-            {
-              slot = 9;
-            }
-            else
-            {
-              slot = 4;
-            }
-            break;
-
-          case FILTER_TYPE_SUBSTRING:
-            if (prioritizeComp.subInitial == null)
-            {
-              slot = 6;
-            }
-            else
-            {
-              slot = 5;
-            }
-            break;
-
-          case FILTER_TYPE_GREATER_OR_EQUAL:
-          case FILTER_TYPE_LESS_OR_EQUAL:
-            slot = 7;
-            break;
-
-          case FILTER_TYPE_EXTENSIBLE_MATCH:
-            slot = 8;
-            break;
-
-          case FILTER_TYPE_NOT:
-          default:
-            slot = 10;
-            break;
-        }
-
-        LinkedHashSet<Filter> filterSet = m.get(slot-1);
-        if (filterSet == null)
-        {
-          filterSet = new LinkedHashSet<Filter>(10);
-          m.put(slot-1, filterSet);
-        }
-        filterSet.add(f);
-      }
-
-      componentSet.clear();
-      for (final LinkedHashSet<Filter> filterSet : m.values())
-      {
-        componentSet.addAll(filterSet);
-      }
-    }
-
-
-    // Return the new, possibly simplified filter.
-    if (filterType == FILTER_TYPE_AND)
-    {
-      return createANDFilter(componentSet);
-    }
-    else
-    {
-      return createORFilter(componentSet);
     }
   }
 

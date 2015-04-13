@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2015 UnboundID Corp.
+ * Copyright 2011-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.minimalsource;
@@ -151,7 +151,6 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.LDAPConnectionOptions",
     "com.unboundid.ldap.sdk.LDAPConnectionPool",
     "com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheck",
-    "com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheckResult",
     "com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheckThread",
     "com.unboundid.ldap.sdk.LDAPConnectionPoolStatistics",
     "com.unboundid.ldap.sdk.LDAPConnectionReader",

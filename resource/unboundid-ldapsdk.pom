@@ -1,9 +1,9 @@
 <!--
- ! Copyright 2007-2015 UnboundID Corp.
+ ! Copyright 2007-2014 UnboundID Corp.
  ! All Rights Reserved.
  -->
 <!--
- ! Copyright (C) 2008-2015 UnboundID Corp.
+ ! Copyright (C) 2008-2014 UnboundID Corp.
  !
  ! This program is free software; you can redistribute it and/or modify
  ! it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,30 +23,30 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+ 
     <groupId>com.unboundid</groupId>
     <artifactId>unboundid-ldapsdk</artifactId>
     <version>${MMP}</version>
     <packaging>jar</packaging>
-
+ 
     <name>UnboundID LDAP SDK for Java</name>
-
+ 
     <description>
       The UnboundID LDAP SDK for Java is a fast, comprehensive, and easy-to-use
       Java API for communicating with LDAP directory servers and performing
       related tasks like reading and writing LDIF, encoding and decoding data
       using base64 and ASN.1 BER, and performing secure communication.
     </description>
-
-    <url>${LDAP_SDK_HOME_URL}</url>
-
+ 
+    <url>http://www.unboundid.com/products/ldap-sdk/</url>
+ 
     <inceptionYear>2009</inceptionYear>
-
+ 
     <organization>
       <name>UnboundID Corp.</name>
       <url>http://www.unboundid.com</url>
     </organization>
-
+ 
     <developers>
       <developer>
         <id>dirmgr</id>
@@ -54,7 +54,7 @@
         <email>neil.wilson@unboundid.com</email>
       </developer>
     </developers>
-
+ 
     <licenses>
       <license>
         <name>GNU General Public License version 2 (GPLv2)</name>
@@ -66,11 +66,11 @@
       </license>
       <license>
         <name>UnboundID LDAP SDK Free Use License</name>
-        <url>${LDAP_SDK_DOCS_BASE_URL}LICENSE-UnboundID-LDAPSDK.txt</url>
+        <url>http://www.unboundid.com/products/ldapsdk/docs/LICENSE-UnboundID-LDAPSDK.txt</url>
         <comments>This license is available from the UnboundID website.</comments>
       </license>
     </licenses>
-
+ 
     <scm>
       <url>http://ldap-sdk.svn.sourceforge.net/viewvc/ldap-sdk/trunk/</url>
       <connection>scm:svn:https://ldap-sdk.svn.sourceforge.net/svnroot/ldap-sdk/trunk</connection>

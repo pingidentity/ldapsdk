@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2015 UnboundID Corp.
+ * Copyright 2007-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2015 UnboundID Corp.
+ * Copyright (C) 2008-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -895,10 +895,7 @@ public final class ObjectClassDefinition
     for (final String s : oc.superiorClasses)
     {
       final ObjectClassDefinition d = schema.getObjectClass(s);
-      if (d != null)
-      {
-        getSuperiorRequiredAttributes(schema, d, attrSet);
-      }
+      getSuperiorRequiredAttributes(schema, d, attrSet);
     }
   }
 
@@ -1000,10 +997,7 @@ public final class ObjectClassDefinition
     for (final String s : oc.superiorClasses)
     {
       final ObjectClassDefinition d = schema.getObjectClass(s);
-      if (d != null)
-      {
-        getSuperiorOptionalAttributes(schema, d, attrSet, requiredSet);
-      }
+      getSuperiorOptionalAttributes(schema, d, attrSet, requiredSet);
     }
   }
 

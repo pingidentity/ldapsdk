@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2015 UnboundID Corp.
+ * Copyright 2010-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2010-2015 UnboundID Corp.
+ * Copyright (C) 2010-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -69,8 +69,8 @@ import static com.unboundid.util.Validator.*;
  * {@link #parseExampleCommandLine} method regardless of the platform.  This
  * method can be used when needing to parse a command line that was generated
  * by this class outside of a shell environment, e.g. if the full command line
- * was read from a file.  Special characters that are escaped include |, &amp;,
- * ;, (, ), !, ", ', *, ?, $, and `.
+ * was read from a file.  Special characters that are escaped include |, &, ;,
+ * (, ), !, ", ', *, ?, $, and `.
  */
 @ThreadSafety(level = ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class ExampleCommandLineArgument implements Serializable

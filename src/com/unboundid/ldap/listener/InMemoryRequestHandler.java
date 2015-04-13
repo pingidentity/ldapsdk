@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2015 UnboundID Corp.
+ * Copyright 2011-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2015 UnboundID Corp.
+ * Copyright (C) 2011-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -241,7 +241,7 @@ public final class InMemoryRequestHandler
   private final Set<String> referentialIntegrityAttributes;
 
   // The map of entries currently held in the server.
-  private final Map<DN,ReadOnlyEntry> entryMap;
+  private final TreeMap<DN,ReadOnlyEntry> entryMap;
 
 
 
@@ -432,8 +432,7 @@ public final class InMemoryRequestHandler
     this.connection = connection;
 
     authenticatedDN = DN.NULL_DN;
-    connectionState =
-         Collections.synchronizedMap(new LinkedHashMap<String,Object>(0));
+    connectionState = new LinkedHashMap<String,Object>(0);
 
     config                         = parent.config;
     generateOperationalAttributes  = parent.generateOperationalAttributes;
@@ -489,13 +488,10 @@ public final class InMemoryRequestHandler
    * @return  The snapshot created based on the current content of this
    *          in-memory request handler.
    */
-  public InMemoryDirectoryServerSnapshot createSnapshot()
+  public synchronized InMemoryDirectoryServerSnapshot createSnapshot()
   {
-    synchronized (entryMap)
-    {
-      return new InMemoryDirectoryServerSnapshot(entryMap,
-           firstChangeNumber.get(), lastChangeNumber.get());
-    }
+    return new InMemoryDirectoryServerSnapshot(entryMap,
+         firstChangeNumber.get(), lastChangeNumber.get());
   }
 
 
@@ -507,33 +503,31 @@ public final class InMemoryRequestHandler
    * @param  snapshot  The snapshot to be restored.  It must not be
    *                   {@code null}.
    */
-  public void restoreSnapshot(final InMemoryDirectoryServerSnapshot snapshot)
+  public synchronized void restoreSnapshot(
+                                final InMemoryDirectoryServerSnapshot snapshot)
   {
-    synchronized (entryMap)
-    {
-      entryMap.clear();
-      entryMap.putAll(snapshot.getEntryMap());
+    entryMap.clear();
+    entryMap.putAll(snapshot.getEntryMap());
 
-      for (final InMemoryDirectoryServerEqualityAttributeIndex i :
-           equalityIndexes.values())
+    for (final InMemoryDirectoryServerEqualityAttributeIndex i :
+         equalityIndexes.values())
+    {
+      i.clear();
+      for (final Entry e : entryMap.values())
       {
-        i.clear();
-        for (final Entry e : entryMap.values())
+        try
         {
-          try
-          {
-            i.processAdd(e);
-          }
-          catch (final Exception ex)
-          {
-            Debug.debugException(ex);
-          }
+          i.processAdd(e);
+        }
+        catch (final Exception ex)
+        {
+          Debug.debugException(ex);
         }
       }
-
-      firstChangeNumber.set(snapshot.getFirstChangeNumber());
-      lastChangeNumber.set(snapshot.getLastChangeNumber());
     }
+
+    firstChangeNumber.set(snapshot.getFirstChangeNumber());
+    lastChangeNumber.set(snapshot.getLastChangeNumber());
   }
 
 
@@ -571,7 +565,7 @@ public final class InMemoryRequestHandler
    *          instance, or {@code null} if this instance is not associated with
    *          any client connection.
    */
-  public LDAPListenerClientConnection getClientConnection()
+  public synchronized LDAPListenerClientConnection getClientConnection()
   {
     return connection;
   }
@@ -660,7 +654,7 @@ public final class InMemoryRequestHandler
    *          specific to the connection associated with this request handler
    *          instance.
    */
-  public Map<String,Object> getConnectionState()
+  public synchronized Map<String,Object> getConnectionState()
   {
     return connectionState;
   }
@@ -739,359 +733,354 @@ public final class InMemoryRequestHandler
    *          {@code AddResponseProtocolOp}.
    */
   @Override()
-  public LDAPMessage processAddRequest(final int messageID,
+  public synchronized LDAPMessage processAddRequest(final int messageID,
                                        final AddRequestProtocolOp request,
                                        final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    // Process the provided request controls.
+    final Map<String,Control> controlMap;
+    try
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
-
-      // Process the provided request controls.
-      final Map<String,Control> controlMap;
-      try
-      {
-        controlMap = RequestControlPreProcessor.processControls(
-             LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST, controls);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
-
-
-      // If this operation type is not allowed, then reject it.
-      final boolean isInternalOp =
-           controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
-      if ((! isInternalOp) &&
-           (! config.getAllowedOperationTypes().contains(OperationType.ADD)))
-      {
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_ADD_NOT_ALLOWED.get(), null));
-      }
-
-
-      // If this operation type requires authentication, then ensure that the
-      // client is authenticated.
-      if ((authenticatedDN.isNullDN() &&
-           config.getAuthenticationRequiredOperationTypes().contains(
-                OperationType.ADD)))
-      {
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_ADD_REQUIRES_AUTH.get(), null));
-      }
-
-
-      // See if this add request is part of a transaction.  If so, then perform
-      // appropriate processing for it and return success immediately without
-      // actually doing any further processing.
-      try
-      {
-        final ASN1OctetString txnID =
-             processTransactionRequest(messageID, request, controlMap);
-        if (txnID != null)
-        {
-          return new LDAPMessage(messageID, new AddResponseProtocolOp(
-               ResultCode.SUCCESS_INT_VALUE, null,
-               INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID,
-             new AddResponseProtocolOp(le.getResultCode().intValue(),
-                  le.getMatchedDN(), le.getDiagnosticMessage(),
-                  StaticUtils.toList(le.getReferralURLs())),
-             le.getResponseControls());
-      }
-
-
-      // Get the entry to be added.  If a schema was provided, then make sure
-      // the attributes are created with the appropriate matching rules.
-      final Entry entry;
-      final Schema schema = schemaRef.get();
-      if (schema == null)
-      {
-        entry = new Entry(request.getDN(), request.getAttributes());
-      }
-      else
-      {
-        final List<Attribute> providedAttrs = request.getAttributes();
-        final List<Attribute> newAttrs =
-             new ArrayList<Attribute>(providedAttrs.size());
-        for (final Attribute a : providedAttrs)
-        {
-          final String baseName = a.getBaseName();
-          final MatchingRule matchingRule =
-               MatchingRule.selectEqualityMatchingRule(baseName, schema);
-          newAttrs.add(new Attribute(a.getName(), matchingRule,
-               a.getRawValues()));
-        }
-
-        entry = new Entry(request.getDN(), schema, newAttrs);
-      }
-
-      // Make sure that the DN is valid.
-      final DN dn;
-      try
-      {
-        dn = entry.getParsedDN();
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-             ERR_MEM_HANDLER_ADD_MALFORMED_DN.get(request.getDN(),
-                  le.getMessage()),
-             null));
-      }
-
-      // See if the DN is the null DN, the schema entry DN, or a changelog
-      // entry.
-      if (dn.isNullDN())
-      {
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_ADD_ROOT_DSE.get(), null));
-      }
-      else if (dn.isDescendantOf(subschemaSubentryDN, true))
-      {
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_ADD_SCHEMA.get(subschemaSubentryDN.toString()),
-             null));
-      }
-      else if (dn.isDescendantOf(changeLogBaseDN, true))
-      {
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_ADD_CHANGELOG.get(changeLogBaseDN.toString()),
-             null));
-      }
-
-      // See if there is a referral at or above the target entry.
-      if (! controlMap.containsKey(
-           ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
-      {
-        final Entry referralEntry = findNearestReferral(dn);
-        if (referralEntry != null)
-        {
-          return new LDAPMessage(messageID, new AddResponseProtocolOp(
-               ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
-               INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
-               getReferralURLs(dn, referralEntry)));
-        }
-      }
-
-      // See if another entry exists with the same DN.
-      if (entryMap.containsKey(dn))
-      {
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_ADD_ALREADY_EXISTS.get(request.getDN()), null));
-      }
-
-      // Make sure that all RDN attribute values are present in the entry.
-      final RDN      rdn           = dn.getRDN();
-      final String[] rdnAttrNames  = rdn.getAttributeNames();
-      final byte[][] rdnAttrValues = rdn.getByteArrayAttributeValues();
-      for (int i=0; i < rdnAttrNames.length; i++)
-      {
-        final MatchingRule matchingRule =
-             MatchingRule.selectEqualityMatchingRule(rdnAttrNames[i], schema);
-        entry.addAttribute(new Attribute(rdnAttrNames[i], matchingRule,
-             rdnAttrValues[i]));
-      }
-
-      // Make sure that all superior object classes are present in the entry.
-      if (schema != null)
-      {
-        final String[] objectClasses = entry.getObjectClassValues();
-        if (objectClasses != null)
-        {
-          final LinkedHashMap<String,String> ocMap =
-               new LinkedHashMap<String,String>(objectClasses.length);
-          for (final String ocName : objectClasses)
-          {
-            final ObjectClassDefinition oc = schema.getObjectClass(ocName);
-            if (oc == null)
-            {
-              ocMap.put(StaticUtils.toLowerCase(ocName), ocName);
-            }
-            else
-            {
-              ocMap.put(StaticUtils.toLowerCase(oc.getNameOrOID()), ocName);
-              for (final ObjectClassDefinition supClass :
-                   oc.getSuperiorClasses(schema, true))
-              {
-                ocMap.put(StaticUtils.toLowerCase(supClass.getNameOrOID()),
-                     supClass.getNameOrOID());
-              }
-            }
-          }
-
-          final String[] newObjectClasses = new String[ocMap.size()];
-          ocMap.values().toArray(newObjectClasses);
-          entry.setAttribute("objectClass", newObjectClasses);
-        }
-      }
-
-      // If a schema was provided, then make sure the entry complies with it.
-      // Also make sure that there are no attributes marked with
-      // NO-USER-MODIFICATION.
-      final EntryValidator entryValidator = entryValidatorRef.get();
-      if (entryValidator != null)
-      {
-        final ArrayList<String> invalidReasons =
-             new ArrayList<String>(1);
-        if (! entryValidator.entryIsValid(entry, invalidReasons))
-        {
-          return new LDAPMessage(messageID, new AddResponseProtocolOp(
-               ResultCode.OBJECT_CLASS_VIOLATION_INT_VALUE, null,
-               ERR_MEM_HANDLER_ADD_VIOLATES_SCHEMA.get(request.getDN(),
-                    StaticUtils.concatenateStrings(invalidReasons)), null));
-        }
-
-        if (! isInternalOp)
-        {
-          for (final Attribute a : entry.getAttributes())
-          {
-            final AttributeTypeDefinition at =
-                 schema.getAttributeType(a.getBaseName());
-            if ((at != null) && at.isNoUserModification())
-            {
-              return new LDAPMessage(messageID, new AddResponseProtocolOp(
-                   ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
-                   ERR_MEM_HANDLER_ADD_CONTAINS_NO_USER_MOD.get(request.getDN(),
-                        a.getName()), null));
-            }
-          }
-        }
-      }
-
-      // If the entry contains a proxied authorization control, then process it.
-      final DN authzDN;
-      try
-      {
-        authzDN = handleProxiedAuthControl(controlMap);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-
-      // Add a number of operational attributes to the entry.
-      if (generateOperationalAttributes)
-      {
-        final Date d = new Date();
-        if (! entry.hasAttribute("entryDN"))
-        {
-          entry.addAttribute(new Attribute("entryDN",
-               DistinguishedNameMatchingRule.getInstance(),
-               dn.toNormalizedString()));
-        }
-        if (! entry.hasAttribute("entryUUID"))
-        {
-          entry.addAttribute(new Attribute("entryUUID",
-               UUID.randomUUID().toString()));
-        }
-        if (! entry.hasAttribute("subschemaSubentry"))
-        {
-          entry.addAttribute(new Attribute("subschemaSubentry",
-               DistinguishedNameMatchingRule.getInstance(),
-               subschemaSubentryDN.toString()));
-        }
-        if (! entry.hasAttribute("creatorsName"))
-        {
-          entry.addAttribute(new Attribute("creatorsName",
-               DistinguishedNameMatchingRule.getInstance(),
-               authzDN.toString()));
-        }
-        if (! entry.hasAttribute("createTimestamp"))
-        {
-          entry.addAttribute(new Attribute("createTimestamp",
-               GeneralizedTimeMatchingRule.getInstance(),
-               StaticUtils.encodeGeneralizedTime(d)));
-        }
-        if (! entry.hasAttribute("modifiersName"))
-        {
-          entry.addAttribute(new Attribute("modifiersName",
-               DistinguishedNameMatchingRule.getInstance(),
-               authzDN.toString()));
-        }
-        if (! entry.hasAttribute("modifyTimestamp"))
-        {
-          entry.addAttribute(new Attribute("modifyTimestamp",
-               GeneralizedTimeMatchingRule.getInstance(),
-               StaticUtils.encodeGeneralizedTime(d)));
-        }
-      }
-
-      // If the request includes the assertion request control, then check it
-      // now.
-      try
-      {
-        handleAssertionRequestControl(controlMap, entry);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new AddResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-
-      // If the request includes the post-read request control, then create the
-      // appropriate response control.
-      final PostReadResponseControl postReadResponse =
-           handlePostReadControl(controlMap, entry);
-      if (postReadResponse != null)
-      {
-        responseControls.add(postReadResponse);
-      }
-
-      // See if the entry DN is one of the defined base DNs.  If so, then we can
-      // add the entry.
-      if (baseDNs.contains(dn))
-      {
-        entryMap.put(dn, new ReadOnlyEntry(entry));
-        indexAdd(entry);
-        addChangeLogEntry(request, authzDN);
-        return new LDAPMessage(messageID,
-             new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
-                  null),
-             responseControls);
-      }
-
-      // See if the parent entry exists.  If so, then we can add the entry.
-      final DN parentDN = dn.getParent();
-      if ((parentDN != null) && entryMap.containsKey(parentDN))
-      {
-        entryMap.put(dn, new ReadOnlyEntry(entry));
-        indexAdd(entry);
-        addChangeLogEntry(request, authzDN);
-        return new LDAPMessage(messageID,
-             new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
-                  null),
-             responseControls);
-      }
-
-      // The add attempt must fail.
+      controlMap = RequestControlPreProcessor.processControls(
+           LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST, controls);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
       return new LDAPMessage(messageID, new AddResponseProtocolOp(
-           ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
-           ERR_MEM_HANDLER_ADD_MISSING_PARENT.get(request.getDN(),
-                dn.getParentString()),
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+    final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.ADD)))
+    {
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.ADD)))
+    {
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_REQUIRES_AUTH.get(), null));
+    }
+
+
+    // See if this add request is part of a transaction.  If so, then perform
+    // appropriate processing for it and return success immediately without
+    // actually doing any further processing.
+    try
+    {
+      final ASN1OctetString txnID =
+           processTransactionRequest(messageID, request, controlMap);
+      if (txnID != null)
+      {
+        return new LDAPMessage(messageID, new AddResponseProtocolOp(
+             ResultCode.SUCCESS_INT_VALUE, null,
+             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID,
+           new AddResponseProtocolOp(le.getResultCode().intValue(),
+                le.getMatchedDN(), le.getDiagnosticMessage(),
+                StaticUtils.toList(le.getReferralURLs())),
+           le.getResponseControls());
+    }
+
+
+    // Get the entry to be added.  If a schema was provided, then make sure the
+    // attributes are created with the appropriate matching rules.
+    final Entry entry;
+    final Schema schema = schemaRef.get();
+    if (schema == null)
+    {
+      entry = new Entry(request.getDN(), request.getAttributes());
+    }
+    else
+    {
+      final List<Attribute> providedAttrs = request.getAttributes();
+      final List<Attribute> newAttrs =
+           new ArrayList<Attribute>(providedAttrs.size());
+      for (final Attribute a : providedAttrs)
+      {
+        final String baseName = a.getBaseName();
+        final MatchingRule matchingRule =
+             MatchingRule.selectEqualityMatchingRule(baseName, schema);
+        newAttrs.add(new Attribute(a.getName(), matchingRule,
+             a.getRawValues()));
+      }
+
+      entry = new Entry(request.getDN(), schema, newAttrs);
+    }
+
+    // Make sure that the DN is valid.
+    final DN dn;
+    try
+    {
+      dn = entry.getParsedDN();
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_MALFORMED_DN.get(request.getDN(),
+                le.getMessage()),
            null));
     }
+
+    // See if the DN is the null DN, the schema entry DN, or a changelog entry.
+    if (dn.isNullDN())
+    {
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_ROOT_DSE.get(), null));
+    }
+    else if (dn.isDescendantOf(subschemaSubentryDN, true))
+    {
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_SCHEMA.get(subschemaSubentryDN.toString()),
+           null));
+    }
+    else if (dn.isDescendantOf(changeLogBaseDN, true))
+    {
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_CHANGELOG.get(changeLogBaseDN.toString()),
+           null));
+    }
+
+    // See if there is a referral at or above the target entry.
+    if (! controlMap.containsKey(
+               ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
+    {
+      final Entry referralEntry = findNearestReferral(dn);
+      if (referralEntry != null)
+      {
+        return new LDAPMessage(messageID, new AddResponseProtocolOp(
+             ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
+             INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
+             getReferralURLs(dn, referralEntry)));
+      }
+    }
+
+    // See if another entry exists with the same DN.
+    if (entryMap.containsKey(dn))
+    {
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_ADD_ALREADY_EXISTS.get(request.getDN()), null));
+    }
+
+    // Make sure that all RDN attribute values are present in the entry.
+    final RDN      rdn           = dn.getRDN();
+    final String[] rdnAttrNames  = rdn.getAttributeNames();
+    final byte[][] rdnAttrValues = rdn.getByteArrayAttributeValues();
+    for (int i=0; i < rdnAttrNames.length; i++)
+    {
+      final MatchingRule matchingRule =
+           MatchingRule.selectEqualityMatchingRule(rdnAttrNames[i], schema);
+      entry.addAttribute(new Attribute(rdnAttrNames[i], matchingRule,
+           rdnAttrValues[i]));
+    }
+
+    // Make sure that all superior object classes are present in the entry.
+    if (schema != null)
+    {
+      final String[] objectClasses = entry.getObjectClassValues();
+      if (objectClasses != null)
+      {
+        final LinkedHashMap<String,String> ocMap =
+             new LinkedHashMap<String,String>(objectClasses.length);
+        for (final String ocName : objectClasses)
+        {
+          final ObjectClassDefinition oc = schema.getObjectClass(ocName);
+          if (oc == null)
+          {
+            ocMap.put(StaticUtils.toLowerCase(ocName), ocName);
+          }
+          else
+          {
+            ocMap.put(StaticUtils.toLowerCase(oc.getNameOrOID()), ocName);
+            for (final ObjectClassDefinition supClass :
+                 oc.getSuperiorClasses(schema, true))
+            {
+              ocMap.put(StaticUtils.toLowerCase(supClass.getNameOrOID()),
+                   supClass.getNameOrOID());
+            }
+          }
+        }
+
+        final String[] newObjectClasses = new String[ocMap.size()];
+        ocMap.values().toArray(newObjectClasses);
+        entry.setAttribute("objectClass", newObjectClasses);
+      }
+    }
+
+    // If a schema was provided, then make sure the entry complies with it.
+    // Also make sure that there are no attributes marked with
+    // NO-USER-MODIFICATION.
+    final EntryValidator entryValidator = entryValidatorRef.get();
+    if (entryValidator != null)
+    {
+      final ArrayList<String> invalidReasons =
+           new ArrayList<String>(1);
+      if (! entryValidator.entryIsValid(entry, invalidReasons))
+      {
+        return new LDAPMessage(messageID, new AddResponseProtocolOp(
+             ResultCode.OBJECT_CLASS_VIOLATION_INT_VALUE, null,
+             ERR_MEM_HANDLER_ADD_VIOLATES_SCHEMA.get(request.getDN(),
+                  StaticUtils.concatenateStrings(invalidReasons)), null));
+      }
+
+      if (! isInternalOp)
+      {
+        for (final Attribute a : entry.getAttributes())
+        {
+          final AttributeTypeDefinition at =
+               schema.getAttributeType(a.getBaseName());
+          if ((at != null) && at.isNoUserModification())
+          {
+            return new LDAPMessage(messageID, new AddResponseProtocolOp(
+                 ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
+                 ERR_MEM_HANDLER_ADD_CONTAINS_NO_USER_MOD.get(request.getDN(),
+                      a.getName()), null));
+          }
+        }
+      }
+    }
+
+    // If the entry contains a proxied authorization control, then process it.
+    final DN authzDN;
+    try
+    {
+      authzDN = handleProxiedAuthControl(controlMap);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+
+    // Add a number of operational attributes to the entry.
+    if (generateOperationalAttributes)
+    {
+      final Date d = new Date();
+      if (! entry.hasAttribute("entryDN"))
+      {
+        entry.addAttribute(new Attribute("entryDN",
+             DistinguishedNameMatchingRule.getInstance(),
+             dn.toNormalizedString()));
+      }
+      if (! entry.hasAttribute("entryUUID"))
+      {
+        entry.addAttribute(new Attribute("entryUUID",
+             UUID.randomUUID().toString()));
+      }
+      if (! entry.hasAttribute("subschemaSubentry"))
+      {
+        entry.addAttribute(new Attribute("subschemaSubentry",
+             DistinguishedNameMatchingRule.getInstance(),
+             subschemaSubentryDN.toString()));
+      }
+      if (! entry.hasAttribute("creatorsName"))
+      {
+        entry.addAttribute(new Attribute("creatorsName",
+             DistinguishedNameMatchingRule.getInstance(),
+             authzDN.toString()));
+      }
+      if (! entry.hasAttribute("createTimestamp"))
+      {
+        entry.addAttribute(new Attribute("createTimestamp",
+             GeneralizedTimeMatchingRule.getInstance(),
+             StaticUtils.encodeGeneralizedTime(d)));
+      }
+      if (! entry.hasAttribute("modifiersName"))
+      {
+        entry.addAttribute(new Attribute("modifiersName",
+             DistinguishedNameMatchingRule.getInstance(),
+             authzDN.toString()));
+      }
+      if (! entry.hasAttribute("modifyTimestamp"))
+      {
+        entry.addAttribute(new Attribute("modifyTimestamp",
+             GeneralizedTimeMatchingRule.getInstance(),
+             StaticUtils.encodeGeneralizedTime(d)));
+      }
+    }
+
+    // If the request includes the assertion request control, then check it now.
+    try
+    {
+      handleAssertionRequestControl(controlMap, entry);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new AddResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+
+    // If the request includes the post-read request control, then create the
+    // appropriate response control.
+    final PostReadResponseControl postReadResponse =
+         handlePostReadControl(controlMap, entry);
+    if (postReadResponse != null)
+    {
+      responseControls.add(postReadResponse);
+    }
+
+    // See if the entry DN is one of the defined base DNs.  If so, then we can
+    // add the entry.
+    if (baseDNs.contains(dn))
+    {
+      entryMap.put(dn, new ReadOnlyEntry(entry));
+      indexAdd(entry);
+      addChangeLogEntry(request, authzDN);
+      return new LDAPMessage(messageID,
+           new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
+                null),
+           responseControls);
+    }
+
+    // See if the parent entry exists.  If so, then we can add the entry.
+    final DN parentDN = dn.getParent();
+    if ((parentDN != null) && entryMap.containsKey(parentDN))
+    {
+      entryMap.put(dn, new ReadOnlyEntry(entry));
+      indexAdd(entry);
+      addChangeLogEntry(request, authzDN);
+      return new LDAPMessage(messageID,
+           new AddResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
+                null),
+           responseControls);
+    }
+
+    // The add attempt must fail.
+    return new LDAPMessage(messageID, new AddResponseProtocolOp(
+         ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
+         ERR_MEM_HANDLER_ADD_MISSING_PARENT.get(request.getDN(),
+              dn.getParentString()),
+         null));
   }
 
 
@@ -1123,207 +1112,166 @@ public final class InMemoryRequestHandler
    *          {@code BindResponseProtocolOp}.
    */
   @Override()
-  public LDAPMessage processBindRequest(final int messageID,
-                                        final BindRequestProtocolOp request,
-                                        final List<Control> controls)
+  public synchronized LDAPMessage processBindRequest(final int messageID,
+                                       final BindRequestProtocolOp request,
+                                       final List<Control> controls)
   {
-    synchronized (entryMap)
-    {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
 
-      // If this operation type is not allowed, then reject it.
-      if (! config.getAllowedOperationTypes().contains(OperationType.BIND))
+    // If this operation type is not allowed, then reject it.
+    if (! config.getAllowedOperationTypes().contains(OperationType.BIND))
+    {
+      return new LDAPMessage(messageID, new BindResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_BIND_NOT_ALLOWED.get(), null, null));
+    }
+
+
+    authenticatedDN = DN.NULL_DN;
+
+
+    // If this operation type requires authentication and it is a simple bind
+    // request , then ensure that the request includes credentials.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.BIND)))
+    {
+      if ((request.getCredentialsType() ==
+           BindRequestProtocolOp.CRED_TYPE_SIMPLE) &&
+           ((request.getSimplePassword() == null) ||
+                request.getSimplePassword().getValueLength() == 0))
       {
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_BIND_NOT_ALLOWED.get(), null, null));
+             ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
+             ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
+      }
+    }
+
+
+    // Get the parsed bind DN.
+    final DN bindDN;
+    try
+    {
+      bindDN = new DN(request.getBindDN(), schemaRef.get());
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new BindResponseProtocolOp(
+           ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
+           ERR_MEM_HANDLER_BIND_MALFORMED_DN.get(request.getBindDN(),
+                le.getMessage()),
+           null, null));
+    }
+
+    // If the bind request is for a SASL bind, then see if there is a SASL
+    // mechanism handler that can be used to process it.
+    if (request.getCredentialsType() == BindRequestProtocolOp.CRED_TYPE_SASL)
+    {
+      final String mechanism = request.getSASLMechanism();
+      final InMemorySASLBindHandler handler = saslBindHandlers.get(mechanism);
+      if (handler == null)
+      {
+        return new LDAPMessage(messageID, new BindResponseProtocolOp(
+             ResultCode.AUTH_METHOD_NOT_SUPPORTED_INT_VALUE, null,
+             ERR_MEM_HANDLER_SASL_MECH_NOT_SUPPORTED.get(mechanism), null,
+             null));
       }
 
-
-      authenticatedDN = DN.NULL_DN;
-
-
-      // If this operation type requires authentication and it is a simple bind
-      // request , then ensure that the request includes credentials.
-      if ((authenticatedDN.isNullDN() &&
-           config.getAuthenticationRequiredOperationTypes().contains(
-                OperationType.BIND)))
+      try
       {
-        if ((request.getCredentialsType() ==
-             BindRequestProtocolOp.CRED_TYPE_SIMPLE) &&
-             ((request.getSimplePassword() == null) ||
-                  request.getSimplePassword().getValueLength() == 0))
+        final BindResult bindResult = handler.processSASLBind(this, messageID,
+             bindDN, request.getSASLCredentials(), controls);
+
+        // If the SASL bind was successful but the connection is
+        // unauthenticated, then see if we allow that.
+        if ((bindResult.getResultCode() == ResultCode.SUCCESS) &&
+            (authenticatedDN == DN.NULL_DN) &&
+            config.getAuthenticationRequiredOperationTypes().contains(
+                 OperationType.BIND))
         {
           return new LDAPMessage(messageID, new BindResponseProtocolOp(
                ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
                ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
         }
-      }
 
-
-      // Get the parsed bind DN.
-      final DN bindDN;
-      try
-      {
-        bindDN = new DN(request.getBindDN(), schemaRef.get());
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
-             ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-             ERR_MEM_HANDLER_BIND_MALFORMED_DN.get(request.getBindDN(),
-                  le.getMessage()),
+             bindResult.getResultCode().intValue(),
+             bindResult.getMatchedDN(), bindResult.getDiagnosticMessage(),
+             Arrays.asList(bindResult.getReferralURLs()),
+             bindResult.getServerSASLCredentials()),
+             Arrays.asList(bindResult.getResponseControls()));
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        return new LDAPMessage(messageID, new BindResponseProtocolOp(
+             ResultCode.OTHER_INT_VALUE, null,
+             ERR_MEM_HANDLER_SASL_BIND_FAILURE.get(
+                  StaticUtils.getExceptionMessage(e)),
              null, null));
       }
+    }
 
-      // If the bind request is for a SASL bind, then see if there is a SASL
-      // mechanism handler that can be used to process it.
-      if (request.getCredentialsType() == BindRequestProtocolOp.CRED_TYPE_SASL)
+    // If we've gotten here, then the bind must use simple authentication.
+    // Process the provided request controls.
+    final Map<String,Control> controlMap;
+    try
+    {
+      controlMap = RequestControlPreProcessor.processControls(
+           LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST, controls);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new BindResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null, null));
+    }
+    final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+
+    // If the bind DN is the null DN, then the bind will be considered
+    // successful as long as the password is also empty.
+    final ASN1OctetString bindPassword = request.getSimplePassword();
+    if (bindDN.isNullDN())
+    {
+      if (bindPassword.getValueLength() == 0)
       {
-        final String mechanism = request.getSASLMechanism();
-        final InMemorySASLBindHandler handler = saslBindHandlers.get(mechanism);
-        if (handler == null)
+        if (controlMap.containsKey(AuthorizationIdentityRequestControl.
+             AUTHORIZATION_IDENTITY_REQUEST_OID))
         {
-          return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               ResultCode.AUTH_METHOD_NOT_SUPPORTED_INT_VALUE, null,
-               ERR_MEM_HANDLER_SASL_MECH_NOT_SUPPORTED.get(mechanism), null,
-               null));
+          responseControls.add(new AuthorizationIdentityResponseControl(""));
         }
-
-        try
-        {
-          final BindResult bindResult = handler.processSASLBind(this, messageID,
-               bindDN, request.getSASLCredentials(), controls);
-
-          // If the SASL bind was successful but the connection is
-          // unauthenticated, then see if we allow that.
-          if ((bindResult.getResultCode() == ResultCode.SUCCESS) &&
-               (authenticatedDN == DN.NULL_DN) &&
-               config.getAuthenticationRequiredOperationTypes().contains(
-                    OperationType.BIND))
-          {
-            return new LDAPMessage(messageID, new BindResponseProtocolOp(
-                 ResultCode.INVALID_CREDENTIALS_INT_VALUE, null,
-                 ERR_MEM_HANDLER_BIND_REQUIRES_AUTH.get(), null, null));
-          }
-
-          return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               bindResult.getResultCode().intValue(),
-               bindResult.getMatchedDN(), bindResult.getDiagnosticMessage(),
-               Arrays.asList(bindResult.getReferralURLs()),
-               bindResult.getServerSASLCredentials()),
-               Arrays.asList(bindResult.getResponseControls()));
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               ResultCode.OTHER_INT_VALUE, null,
-               ERR_MEM_HANDLER_SASL_BIND_FAILURE.get(
-                    StaticUtils.getExceptionMessage(e)),
-               null, null));
-        }
+        return new LDAPMessage(messageID,
+             new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
+                  null, null, null),
+             responseControls);
       }
-
-      // If we've gotten here, then the bind must use simple authentication.
-      // Process the provided request controls.
-      final Map<String,Control> controlMap;
-      try
-      {
-        controlMap = RequestControlPreProcessor.processControls(
-             LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST, controls);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new BindResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null, null));
-      }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
-
-      // If the bind DN is the null DN, then the bind will be considered
-      // successful as long as the password is also empty.
-      final ASN1OctetString bindPassword = request.getSimplePassword();
-      if (bindDN.isNullDN())
-      {
-        if (bindPassword.getValueLength() == 0)
-        {
-          if (controlMap.containsKey(AuthorizationIdentityRequestControl.
-               AUTHORIZATION_IDENTITY_REQUEST_OID))
-          {
-            responseControls.add(new AuthorizationIdentityResponseControl(""));
-          }
-          return new LDAPMessage(messageID,
-               new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
-                    null, null, null),
-               responseControls);
-        }
-        else
-        {
-          return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               ResultCode.INVALID_CREDENTIALS_INT_VALUE,
-               getMatchedDNString(bindDN),
-               ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()),
-               null, null));
-        }
-      }
-
-      // If the bind DN is not null and the password is empty, then reject the
-      // request.
-      if ((! bindDN.isNullDN()) && (bindPassword.getValueLength() == 0))
-      {
-        return new LDAPMessage(messageID, new BindResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_BIND_SIMPLE_DN_WITHOUT_PASSWORD.get(), null,
-             null));
-      }
-
-      // See if the bind DN is in the set of additional bind credentials.  If
-      // so, then use the password there.
-      final byte[] additionalCreds = additionalBindCredentials.get(bindDN);
-      if (additionalCreds != null)
-      {
-        if (Arrays.equals(additionalCreds, bindPassword.getValue()))
-        {
-          authenticatedDN = bindDN;
-          if (controlMap.containsKey(AuthorizationIdentityRequestControl.
-               AUTHORIZATION_IDENTITY_REQUEST_OID))
-          {
-            responseControls.add(new AuthorizationIdentityResponseControl(
-                 "dn:" + bindDN.toString()));
-          }
-          return new LDAPMessage(messageID,
-               new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
-                    null, null, null),
-               responseControls);
-        }
-        else
-        {
-          return new LDAPMessage(messageID, new BindResponseProtocolOp(
-               ResultCode.INVALID_CREDENTIALS_INT_VALUE,
-               getMatchedDNString(bindDN),
-               ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()),
-               null, null));
-        }
-      }
-
-      // If the target user doesn't exist, then reject the request.
-      final Entry userEntry = entryMap.get(bindDN);
-      if (userEntry == null)
+      else
       {
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
              ResultCode.INVALID_CREDENTIALS_INT_VALUE,
              getMatchedDNString(bindDN),
-             ERR_MEM_HANDLER_BIND_NO_SUCH_USER.get(request.getBindDN()), null,
+             ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()), null,
              null));
       }
+    }
 
-      // If the user entry has a userPassword value that matches the provided
-      // password, then the bind will be successful.  Otherwise, it will fail.
-      if (userEntry.hasAttributeValue("userPassword", bindPassword.getValue(),
-           OctetStringMatchingRule.getInstance()))
+    // If the bind DN is not null and the password is empty, then reject the
+    // request.
+    if ((! bindDN.isNullDN()) && (bindPassword.getValueLength() == 0))
+    {
+      return new LDAPMessage(messageID, new BindResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_BIND_SIMPLE_DN_WITHOUT_PASSWORD.get(), null, null));
+    }
+
+    // See if the bind DN is in the set of additional bind credentials.  If so,
+    // then use the password there.
+    final byte[] additionalCreds = additionalBindCredentials.get(bindDN);
+    if (additionalCreds != null)
+    {
+      if (Arrays.equals(additionalCreds, bindPassword.getValue()))
       {
         authenticatedDN = bindDN;
         if (controlMap.containsKey(AuthorizationIdentityRequestControl.
@@ -1345,6 +1293,41 @@ public final class InMemoryRequestHandler
              ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()), null,
              null));
       }
+    }
+
+    // If the target user doesn't exist, then reject the request.
+    final Entry userEntry = entryMap.get(bindDN);
+    if (userEntry == null)
+    {
+      return new LDAPMessage(messageID, new BindResponseProtocolOp(
+           ResultCode.INVALID_CREDENTIALS_INT_VALUE, getMatchedDNString(bindDN),
+           ERR_MEM_HANDLER_BIND_NO_SUCH_USER.get(request.getBindDN()), null,
+           null));
+    }
+
+    // If the user entry has a userPassword value that matches the provided
+    // password, then the bind will be successful.  Otherwise, it will fail.
+    if (userEntry.hasAttributeValue("userPassword", bindPassword.getValue(),
+             OctetStringMatchingRule.getInstance()))
+    {
+      authenticatedDN = bindDN;
+      if (controlMap.containsKey(AuthorizationIdentityRequestControl.
+           AUTHORIZATION_IDENTITY_REQUEST_OID))
+      {
+        responseControls.add(new AuthorizationIdentityResponseControl(
+             "dn:" + bindDN.toString()));
+      }
+      return new LDAPMessage(messageID,
+           new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
+                null, null),
+           responseControls);
+    }
+    else
+    {
+      return new LDAPMessage(messageID, new BindResponseProtocolOp(
+           ResultCode.INVALID_CREDENTIALS_INT_VALUE, getMatchedDNString(bindDN),
+           ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()), null,
+           null));
     }
   }
 
@@ -1372,137 +1355,133 @@ public final class InMemoryRequestHandler
    *          {@code CompareResponseProtocolOp}.
    */
   @Override()
-  public LDAPMessage processCompareRequest(final int messageID,
-                          final CompareRequestProtocolOp request,
-                          final List<Control> controls)
+  public synchronized LDAPMessage processCompareRequest(final int messageID,
+                                       final CompareRequestProtocolOp request,
+                                       final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    // Process the provided request controls.
+    final Map<String,Control> controlMap;
+    try
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
-
-      // Process the provided request controls.
-      final Map<String,Control> controlMap;
-      try
-      {
-        controlMap = RequestControlPreProcessor.processControls(
-             LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST, controls);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new CompareResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
-
-
-      // If this operation type is not allowed, then reject it.
-      final boolean isInternalOp =
-           controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
-      if ((! isInternalOp) &&
-           (! config.getAllowedOperationTypes().contains(
-                OperationType.COMPARE)))
-      {
-        return new LDAPMessage(messageID, new CompareResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_COMPARE_NOT_ALLOWED.get(), null));
-      }
-
-
-      // If this operation type requires authentication, then ensure that the
-      // client is authenticated.
-      if ((authenticatedDN.isNullDN() &&
-           config.getAuthenticationRequiredOperationTypes().contains(
-                OperationType.COMPARE)))
-      {
-        return new LDAPMessage(messageID, new CompareResponseProtocolOp(
-             ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_COMPARE_REQUIRES_AUTH.get(), null));
-      }
-
-
-      // Get the parsed target DN.
-      final DN dn;
-      try
-      {
-        dn = new DN(request.getDN(), schemaRef.get());
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new CompareResponseProtocolOp(
-             ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-             ERR_MEM_HANDLER_COMPARE_MALFORMED_DN.get(request.getDN(),
-                  le.getMessage()),
-             null));
-      }
-
-      // See if the target entry or one of its superiors is a smart referral.
-      if (! controlMap.containsKey(
-           ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
-      {
-        final Entry referralEntry = findNearestReferral(dn);
-        if (referralEntry != null)
-        {
-          return new LDAPMessage(messageID, new CompareResponseProtocolOp(
-               ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
-               INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
-               getReferralURLs(dn, referralEntry)));
-        }
-      }
-
-      // Get the target entry (optionally checking for the root DSE or subschema
-      // subentry).  If it does not exist, then fail.
-      final Entry entry;
-      if (dn.isNullDN())
-      {
-        entry = generateRootDSE();
-      }
-      else if (dn.equals(subschemaSubentryDN))
-      {
-        entry = subschemaSubentryRef.get();
-      }
-      else
-      {
-        entry = entryMap.get(dn);
-      }
-      if (entry == null)
-      {
-        return new LDAPMessage(messageID, new CompareResponseProtocolOp(
-             ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
-             ERR_MEM_HANDLER_COMPARE_NO_SUCH_ENTRY.get(request.getDN()), null));
-      }
-
-      // If the request includes an assertion or proxied authorization control,
-      // then perform the appropriate processing.
-      try
-      {
-        handleAssertionRequestControl(controlMap, entry);
-        handleProxiedAuthControl(controlMap);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new CompareResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-
-      // See if the entry contains the assertion value.
-      final int resultCode;
-      if (entry.hasAttributeValue(request.getAttributeName(),
-           request.getAssertionValue().getValue()))
-      {
-        resultCode = ResultCode.COMPARE_TRUE_INT_VALUE;
-      }
-      else
-      {
-        resultCode = ResultCode.COMPARE_FALSE_INT_VALUE;
-      }
-      return new LDAPMessage(messageID,
-           new CompareResponseProtocolOp(resultCode, null, null, null),
-           responseControls);
+      controlMap = RequestControlPreProcessor.processControls(
+           LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST, controls);
     }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+    final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.COMPARE)))
+    {
+      return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_COMPARE_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.COMPARE)))
+    {
+      return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_COMPARE_REQUIRES_AUTH.get(), null));
+    }
+
+
+    // Get the parsed target DN.
+    final DN dn;
+    try
+    {
+      dn = new DN(request.getDN(), schemaRef.get());
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+           ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
+           ERR_MEM_HANDLER_COMPARE_MALFORMED_DN.get(request.getDN(),
+                le.getMessage()),
+           null));
+    }
+
+    // See if the target entry or one of its superiors is a smart referral.
+    if (! controlMap.containsKey(
+               ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
+    {
+      final Entry referralEntry = findNearestReferral(dn);
+      if (referralEntry != null)
+      {
+        return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+             ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
+             INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
+             getReferralURLs(dn, referralEntry)));
+      }
+    }
+
+    // Get the target entry (optionally checking for the root DSE or subschema
+    // subentry).  If it does not exist, then fail.
+    final Entry entry;
+    if (dn.isNullDN())
+    {
+      entry = generateRootDSE();
+    }
+    else if (dn.equals(subschemaSubentryDN))
+    {
+      entry = subschemaSubentryRef.get();
+    }
+    else
+    {
+      entry = entryMap.get(dn);
+    }
+    if (entry == null)
+    {
+      return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+           ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
+           ERR_MEM_HANDLER_COMPARE_NO_SUCH_ENTRY.get(request.getDN()), null));
+    }
+
+    // If the request includes an assertion or proxied authorization control,
+    // then perform the appropriate processing.
+    try
+    {
+      handleAssertionRequestControl(controlMap, entry);
+      handleProxiedAuthControl(controlMap);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new CompareResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+
+    // See if the entry contains the assertion value.
+    final int resultCode;
+    if (entry.hasAttributeValue(request.getAttributeName(),
+             request.getAssertionValue().getValue()))
+    {
+      resultCode = ResultCode.COMPARE_TRUE_INT_VALUE;
+    }
+    else
+    {
+      resultCode = ResultCode.COMPARE_FALSE_INT_VALUE;
+    }
+    return new LDAPMessage(messageID,
+         new CompareResponseProtocolOp(resultCode, null, null, null),
+         responseControls);
   }
 
 
@@ -1533,209 +1512,206 @@ public final class InMemoryRequestHandler
    *          {@code DeleteResponseProtocolOp}.
    */
   @Override()
-  public LDAPMessage processDeleteRequest(final int messageID,
-                                          final DeleteRequestProtocolOp request,
-                                          final List<Control> controls)
+  public synchronized LDAPMessage processDeleteRequest(final int messageID,
+                                       final DeleteRequestProtocolOp request,
+                                       final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    // Process the provided request controls.
+    final Map<String,Control> controlMap;
+    try
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
-
-      // Process the provided request controls.
-      final Map<String,Control> controlMap;
-      try
-      {
-        controlMap = RequestControlPreProcessor.processControls(
-             LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, controls);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
-
-
-      // If this operation type is not allowed, then reject it.
-      final boolean isInternalOp =
-           controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
-      if ((! isInternalOp) &&
-           (! config.getAllowedOperationTypes().contains(OperationType.DELETE)))
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_DELETE_NOT_ALLOWED.get(), null));
-      }
-
-
-      // If this operation type requires authentication, then ensure that the
-      // client is authenticated.
-      if ((authenticatedDN.isNullDN() &&
-           config.getAuthenticationRequiredOperationTypes().contains(
-                OperationType.DELETE)))
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_DELETE_REQUIRES_AUTH.get(), null));
-      }
-
-
-      // See if this delete request is part of a transaction.  If so, then
-      // perform appropriate processing for it and return success immediately
-      // without actually doing any further processing.
-      try
-      {
-        final ASN1OctetString txnID =
-             processTransactionRequest(messageID, request, controlMap);
-        if (txnID != null)
-        {
-          return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-               ResultCode.SUCCESS_INT_VALUE, null,
-               INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID,
-             new DeleteResponseProtocolOp(le.getResultCode().intValue(),
-                  le.getMatchedDN(), le.getDiagnosticMessage(),
-                  StaticUtils.toList(le.getReferralURLs())),
-             le.getResponseControls());
-      }
-
-
-      // Get the parsed target DN.
-      final DN dn;
-      try
-      {
-        dn = new DN(request.getDN(), schemaRef.get());
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-             ERR_MEM_HANDLER_DELETE_MALFORMED_DN.get(request.getDN(),
-                  le.getMessage()),
-             null));
-      }
-
-      // See if the target entry or one of its superiors is a smart referral.
-      if (! controlMap.containsKey(
-           ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
-      {
-        final Entry referralEntry = findNearestReferral(dn);
-        if (referralEntry != null)
-        {
-          return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-               ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
-               INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
-               getReferralURLs(dn, referralEntry)));
-        }
-      }
-
-      // Make sure the target entry isn't the root DSE or schema, or a changelog
-      // entry.
-      if (dn.isNullDN())
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_DELETE_ROOT_DSE.get(), null));
-      }
-      else if (dn.equals(subschemaSubentryDN))
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_DELETE_SCHEMA.get(subschemaSubentryDN.toString()),
-             null));
-      }
-      else if (dn.isDescendantOf(changeLogBaseDN, true))
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_DELETE_CHANGELOG.get(request.getDN()), null));
-      }
-
-      // Get the target entry.  If it does not exist, then fail.
-      final Entry entry = entryMap.get(dn);
-      if (entry == null)
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
-             ERR_MEM_HANDLER_DELETE_NO_SUCH_ENTRY.get(request.getDN()), null));
-      }
-
-      // Create a list with the DN of the target entry, and all the DNs of its
-      // subordinates.  If the entry has subordinates and the subtree delete
-      // control was not provided, then fail.
-      final ArrayList<DN> subordinateDNs = new ArrayList<DN>(entryMap.size());
-      for (final DN mapEntryDN : entryMap.keySet())
-      {
-        if (mapEntryDN.isDescendantOf(dn, false))
-        {
-          subordinateDNs.add(mapEntryDN);
-        }
-      }
-
-      if ((! subordinateDNs.isEmpty()) &&
-           (! controlMap.containsKey(
-                SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID)))
-      {
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             ResultCode.NOT_ALLOWED_ON_NONLEAF_INT_VALUE, null,
-             ERR_MEM_HANDLER_DELETE_HAS_SUBORDINATES.get(request.getDN()),
-             null));
-      }
-
-      // Handle the necessary processing for the assertion, pre-read, and
-      // proxied auth controls.
-      final DN authzDN;
-      try
-      {
-        handleAssertionRequestControl(controlMap, entry);
-
-        final PreReadResponseControl preReadResponse =
-             handlePreReadControl(controlMap, entry);
-        if (preReadResponse != null)
-        {
-          responseControls.add(preReadResponse);
-        }
-
-        authzDN = handleProxiedAuthControl(controlMap);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-
-      // At this point, the entry will be removed.  However, if this will be a
-      // subtree delete, then we want to delete all of its subordinates first so
-      // that the changelog will show the deletes in the appropriate order.
-      for (int i=(subordinateDNs.size() - 1); i >= 0; i--)
-      {
-        final DN subordinateDN = subordinateDNs.get(i);
-        final Entry subEntry = entryMap.remove(subordinateDN);
-        indexDelete(subEntry);
-        addDeleteChangeLogEntry(subEntry, authzDN);
-        handleReferentialIntegrityDelete(subordinateDN);
-      }
-
-      // Finally, remove the target entry and create a changelog entry for it.
-      entryMap.remove(dn);
-      indexDelete(entry);
-      addDeleteChangeLogEntry(entry, authzDN);
-      handleReferentialIntegrityDelete(dn);
-
-      return new LDAPMessage(messageID,
-           new DeleteResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
-                null, null),
-           responseControls);
+      controlMap = RequestControlPreProcessor.processControls(
+           LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, controls);
     }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+    final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.DELETE)))
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.DELETE)))
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_REQUIRES_AUTH.get(), null));
+    }
+
+
+    // See if this delete request is part of a transaction.  If so, then perform
+    // appropriate processing for it and return success immediately without
+    // actually doing any further processing.
+    try
+    {
+      final ASN1OctetString txnID =
+           processTransactionRequest(messageID, request, controlMap);
+      if (txnID != null)
+      {
+        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+             ResultCode.SUCCESS_INT_VALUE, null,
+             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID,
+           new DeleteResponseProtocolOp(le.getResultCode().intValue(),
+                le.getMatchedDN(), le.getDiagnosticMessage(),
+                StaticUtils.toList(le.getReferralURLs())),
+           le.getResponseControls());
+    }
+
+
+    // Get the parsed target DN.
+    final DN dn;
+    try
+    {
+      dn = new DN(request.getDN(), schemaRef.get());
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_MALFORMED_DN.get(request.getDN(),
+                le.getMessage()),
+           null));
+    }
+
+    // See if the target entry or one of its superiors is a smart referral.
+    if (! controlMap.containsKey(
+               ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
+    {
+      final Entry referralEntry = findNearestReferral(dn);
+      if (referralEntry != null)
+      {
+        return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+             ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
+             INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
+             getReferralURLs(dn, referralEntry)));
+      }
+    }
+
+    // Make sure the target entry isn't the root DSE or schema, or a changelog
+    // entry.
+    if (dn.isNullDN())
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_ROOT_DSE.get(), null));
+    }
+    else if (dn.equals(subschemaSubentryDN))
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_SCHEMA.get(subschemaSubentryDN.toString()),
+           null));
+    }
+    else if (dn.isDescendantOf(changeLogBaseDN, true))
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_CHANGELOG.get(request.getDN()), null));
+    }
+
+    // Get the target entry.  If it does not exist, then fail.
+    final Entry entry = entryMap.get(dn);
+    if (entry == null)
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
+           ERR_MEM_HANDLER_DELETE_NO_SUCH_ENTRY.get(request.getDN()), null));
+    }
+
+    // Create a list with the DN of the target entry, and all the DNs of its
+    // subordinates.  If the entry has subordinates and the subtree delete
+    // control was not provided, then fail.
+    final ArrayList<DN> subordinateDNs = new ArrayList<DN>(entryMap.size());
+    for (final DN mapEntryDN : entryMap.keySet())
+    {
+      if (mapEntryDN.isDescendantOf(dn, false))
+      {
+        subordinateDNs.add(mapEntryDN);
+      }
+    }
+
+    if ((! subordinateDNs.isEmpty()) &&
+        (! controlMap.containsKey(
+               SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID)))
+    {
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           ResultCode.NOT_ALLOWED_ON_NONLEAF_INT_VALUE, null,
+           ERR_MEM_HANDLER_DELETE_HAS_SUBORDINATES.get(request.getDN()),
+           null));
+    }
+
+    // Handle the necessary processing for the assertion, pre-read, and proxied
+    // auth controls.
+    final DN authzDN;
+    try
+    {
+      handleAssertionRequestControl(controlMap, entry);
+
+      final PreReadResponseControl preReadResponse =
+           handlePreReadControl(controlMap, entry);
+      if (preReadResponse != null)
+      {
+        responseControls.add(preReadResponse);
+      }
+
+      authzDN = handleProxiedAuthControl(controlMap);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new DeleteResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+
+    // At this point, the entry will be removed.  However, if this will be a
+    // subtree delete, then we want to delete all of its subordinates first so
+    // that the changelog will show the deletes in the appropriate order.
+    for (int i=(subordinateDNs.size() - 1); i >= 0; i--)
+    {
+      final DN subordinateDN = subordinateDNs.get(i);
+      final Entry subEntry = entryMap.remove(subordinateDN);
+      indexDelete(subEntry);
+      addDeleteChangeLogEntry(subEntry, authzDN);
+      handleReferentialIntegrityDelete(subordinateDN);
+    }
+
+    // Finally, remove the target entry and create a changelog entry for it.
+    entryMap.remove(dn);
+    indexDelete(entry);
+    addDeleteChangeLogEntry(entry, authzDN);
+    handleReferentialIntegrityDelete(dn);
+
+    return new LDAPMessage(messageID,
+         new DeleteResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
+              null),
+         responseControls);
   }
 
 
@@ -1806,90 +1782,86 @@ public final class InMemoryRequestHandler
    *          {@code ExtendedResponseProtocolOp}.
    */
   @Override()
-  public LDAPMessage processExtendedRequest(final int messageID,
-                          final ExtendedRequestProtocolOp request,
-                          final List<Control> controls)
+  public synchronized LDAPMessage processExtendedRequest(final int messageID,
+                                       final ExtendedRequestProtocolOp request,
+                                       final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    boolean isInternalOp = false;
+    for (final Control c : controls)
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
-
-      boolean isInternalOp = false;
-      for (final Control c : controls)
+      if (c.getOID().equals(OID_INTERNAL_OPERATION_REQUEST_CONTROL))
       {
-        if (c.getOID().equals(OID_INTERNAL_OPERATION_REQUEST_CONTROL))
-        {
-          isInternalOp = true;
-          break;
-        }
+        isInternalOp = true;
+        break;
       }
+    }
 
 
-      // If this operation type is not allowed, then reject it.
-      if ((! isInternalOp) &&
-           (! config.getAllowedOperationTypes().contains(
-                OperationType.EXTENDED)))
-      {
-        return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_EXTENDED_NOT_ALLOWED.get(), null, null, null));
-      }
+    // If this operation type is not allowed, then reject it.
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.EXTENDED)))
+    {
+      return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_EXTENDED_NOT_ALLOWED.get(), null, null, null));
+    }
 
 
-      // If this operation type requires authentication, then ensure that the
-      // client is authenticated.
-      if ((authenticatedDN.isNullDN() &&
-           config.getAuthenticationRequiredOperationTypes().contains(
-                OperationType.EXTENDED)))
-      {
-        return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
-             ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_EXTENDED_REQUIRES_AUTH.get(), null, null, null));
-      }
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.EXTENDED)))
+    {
+      return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_EXTENDED_REQUIRES_AUTH.get(), null, null, null));
+    }
 
 
-      final String oid = request.getOID();
-      final InMemoryExtendedOperationHandler handler =
-           extendedRequestHandlers.get(oid);
-      if (handler == null)
-      {
-        return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_EXTENDED_OP_NOT_SUPPORTED.get(oid), null, null,
-             null));
-      }
+    final String oid = request.getOID();
+    final InMemoryExtendedOperationHandler handler =
+         extendedRequestHandlers.get(oid);
+    if (handler == null)
+    {
+      return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_EXTENDED_OP_NOT_SUPPORTED.get(oid), null, null,
+           null));
+    }
 
-      try
-      {
-        final Control[] controlArray = new Control[controls.size()];
-        controls.toArray(controlArray);
+    try
+    {
+      final Control[] controlArray = new Control[controls.size()];
+      controls.toArray(controlArray);
 
-        final ExtendedRequest extendedRequest = new ExtendedRequest(oid,
-             request.getValue(), controlArray);
+      final ExtendedRequest extendedRequest = new ExtendedRequest(oid,
+           request.getValue(), controlArray);
 
-        final ExtendedResult extendedResult =
-             handler.processExtendedOperation(this, messageID, extendedRequest);
+      final ExtendedResult extendedResult =
+           handler.processExtendedOperation(this, messageID, extendedRequest);
 
-        return new LDAPMessage(messageID,
-             new ExtendedResponseProtocolOp(
-                  extendedResult.getResultCode().intValue(),
-                  extendedResult.getMatchedDN(),
-                  extendedResult.getDiagnosticMessage(),
-                  Arrays.asList(extendedResult.getReferralURLs()),
-                  extendedResult.getOID(), extendedResult.getValue()),
-             extendedResult.getResponseControls());
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
+      return new LDAPMessage(messageID,
+           new ExtendedResponseProtocolOp(
+                extendedResult.getResultCode().intValue(),
+                extendedResult.getMatchedDN(),
+                extendedResult.getDiagnosticMessage(),
+                Arrays.asList(extendedResult.getReferralURLs()),
+                extendedResult.getOID(), extendedResult.getValue()),
+           extendedResult.getResponseControls());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
 
-        return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
-             ResultCode.OTHER_INT_VALUE, null,
-             ERR_MEM_HANDLER_EXTENDED_OP_FAILURE.get(
-                  StaticUtils.getExceptionMessage(e)),
-             null, null, null));
-      }
+      return new LDAPMessage(messageID, new ExtendedResponseProtocolOp(
+           ResultCode.OTHER_INT_VALUE, null,
+           ERR_MEM_HANDLER_EXTENDED_OP_FAILURE.get(
+                StaticUtils.getExceptionMessage(e)),
+           null, null, null));
     }
   }
 
@@ -1922,272 +1894,269 @@ public final class InMemoryRequestHandler
    *          {@code ModifyResponseProtocolOp}.
    */
   @Override()
-  public LDAPMessage processModifyRequest(final int messageID,
-                                          final ModifyRequestProtocolOp request,
-                                          final List<Control> controls)
+  public synchronized LDAPMessage processModifyRequest(final int messageID,
+                                       final ModifyRequestProtocolOp request,
+                                       final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    // Process the provided request controls.
+    final Map<String,Control> controlMap;
+    try
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+      controlMap = RequestControlPreProcessor.processControls(
+           LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST, controls);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+    final ArrayList<Control> responseControls = new ArrayList<Control>(1);
 
-      // Process the provided request controls.
-      final Map<String,Control> controlMap;
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.MODIFY)))
+    {
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MODIFY_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.MODIFY)))
+    {
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_MODIFY_REQUIRES_AUTH.get(), null));
+    }
+
+
+    // See if this modify request is part of a transaction.  If so, then perform
+    // appropriate processing for it and return success immediately without
+    // actually doing any further processing.
+    try
+    {
+      final ASN1OctetString txnID =
+           processTransactionRequest(messageID, request, controlMap);
+      if (txnID != null)
+      {
+        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+             ResultCode.SUCCESS_INT_VALUE, null,
+             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID,
+           new ModifyResponseProtocolOp(le.getResultCode().intValue(),
+                le.getMatchedDN(), le.getDiagnosticMessage(),
+                StaticUtils.toList(le.getReferralURLs())),
+           le.getResponseControls());
+    }
+
+
+    // Get the parsed target DN.
+    final DN dn;
+    final Schema schema = schemaRef.get();
+    try
+    {
+      dn = new DN(request.getDN(), schema);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_MALFORMED_DN.get(request.getDN(),
+                le.getMessage()),
+           null));
+    }
+
+    // See if the target entry or one of its superiors is a smart referral.
+    if (! controlMap.containsKey(
+               ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
+    {
+      final Entry referralEntry = findNearestReferral(dn);
+      if (referralEntry != null)
+      {
+        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+             ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
+             INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
+             getReferralURLs(dn, referralEntry)));
+      }
+    }
+
+    // See if the target entry is the root DSE, the subschema subentry, or a
+    // changelog entry.
+    if (dn.isNullDN())
+    {
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_ROOT_DSE.get(), null));
+    }
+    else if (dn.equals(subschemaSubentryDN))
+    {
       try
       {
-        controlMap = RequestControlPreProcessor.processControls(
-             LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST, controls);
+        validateSchemaMods(request);
       }
       catch (final LDAPException le)
       {
-        Debug.debugException(le);
         return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
-
-
-      // If this operation type is not allowed, then reject it.
-      final boolean isInternalOp =
-           controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
-      if ((! isInternalOp) &&
-           (! config.getAllowedOperationTypes().contains(OperationType.MODIFY)))
-      {
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MODIFY_NOT_ALLOWED.get(), null));
-      }
-
-
-      // If this operation type requires authentication, then ensure that the
-      // client is authenticated.
-      if ((authenticatedDN.isNullDN() &&
-           config.getAuthenticationRequiredOperationTypes().contains(
-                OperationType.MODIFY)))
-      {
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_MODIFY_REQUIRES_AUTH.get(), null));
-      }
-
-
-      // See if this modify request is part of a transaction.  If so, then
-      // perform appropriate processing for it and return success immediately
-      // without actually doing any further processing.
-      try
-      {
-        final ASN1OctetString txnID =
-             processTransactionRequest(messageID, request, controlMap);
-        if (txnID != null)
-        {
-          return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-               ResultCode.SUCCESS_INT_VALUE, null,
-               INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID,
-             new ModifyResponseProtocolOp(le.getResultCode().intValue(),
-                  le.getMatchedDN(), le.getDiagnosticMessage(),
-                  StaticUtils.toList(le.getReferralURLs())),
-             le.getResponseControls());
-      }
-
-
-      // Get the parsed target DN.
-      final DN dn;
-      final Schema schema = schemaRef.get();
-      try
-      {
-        dn = new DN(request.getDN(), schema);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_MALFORMED_DN.get(request.getDN(),
-                  le.getMessage()),
+             le.getResultCode().intValue(), le.getMatchedDN(), le.getMessage(),
              null));
       }
+    }
+    else if (dn.isDescendantOf(changeLogBaseDN, true))
+    {
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_CHANGELOG.get(request.getDN()), null));
+    }
 
-      // See if the target entry or one of its superiors is a smart referral.
-      if (! controlMap.containsKey(
-           ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
-      {
-        final Entry referralEntry = findNearestReferral(dn);
-        if (referralEntry != null)
-        {
-          return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-               ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
-               INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
-               getReferralURLs(dn, referralEntry)));
-        }
-      }
-
-      // See if the target entry is the root DSE, the subschema subentry, or a
-      // changelog entry.
-      if (dn.isNullDN())
-      {
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_ROOT_DSE.get(), null));
-      }
-      else if (dn.equals(subschemaSubentryDN))
-      {
-        try
-        {
-          validateSchemaMods(request);
-        }
-        catch (final LDAPException le)
-        {
-          return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-               le.getResultCode().intValue(), le.getMatchedDN(),
-               le.getMessage(), null));
-        }
-      }
-      else if (dn.isDescendantOf(changeLogBaseDN, true))
-      {
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_CHANGELOG.get(request.getDN()), null));
-      }
-
-      // Get the target entry.  If it does not exist, then fail.
-      Entry entry = entryMap.get(dn);
-      if (entry == null)
-      {
-        if (dn.equals(subschemaSubentryDN))
-        {
-          entry = subschemaSubentryRef.get().duplicate();
-        }
-        else
-        {
-          return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-               ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
-               ERR_MEM_HANDLER_MOD_NO_SUCH_ENTRY.get(request.getDN()), null));
-        }
-      }
-
-
-      // Attempt to apply the modifications to the entry.  If successful, then a
-      // copy of the entry will be returned with the modifications applied.
-      final Entry modifiedEntry;
-      try
-      {
-        modifiedEntry = Entry.applyModifications(entry,
-             controlMap.containsKey(PermissiveModifyRequestControl.
-                  PERMISSIVE_MODIFY_REQUEST_OID),
-             request.getModifications());
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             le.getResultCode().intValue(), null,
-             ERR_MEM_HANDLER_MOD_FAILED.get(request.getDN(), le.getMessage()),
-             null));
-      }
-
-      // If a schema was provided, use it to validate the resulting entry.
-      // Also, ensure that no NO-USER-MODIFICATION attributes were targeted.
-      final EntryValidator entryValidator = entryValidatorRef.get();
-      if (entryValidator != null)
-      {
-        final ArrayList<String> invalidReasons = new ArrayList<String>(1);
-        if (! entryValidator.entryIsValid(modifiedEntry, invalidReasons))
-        {
-          return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-               ResultCode.OBJECT_CLASS_VIOLATION_INT_VALUE, null,
-               ERR_MEM_HANDLER_MOD_VIOLATES_SCHEMA.get(request.getDN(),
-                    StaticUtils.concatenateStrings(invalidReasons)),
-               null));
-        }
-
-        for (final Modification m : request.getModifications())
-        {
-          final Attribute a = m.getAttribute();
-          final String baseName = a.getBaseName();
-          final AttributeTypeDefinition at = schema.getAttributeType(baseName);
-          if ((! isInternalOp) && (at != null) && at.isNoUserModification())
-          {
-            return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-                 ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
-                 ERR_MEM_HANDLER_MOD_NO_USER_MOD.get(request.getDN(),
-                      a.getName()), null));
-          }
-        }
-      }
-
-
-      // Perform the appropriate processing for the assertion and proxied
-      // authorization controls.
-      // Perform the appropriate processing for the assertion, pre-read,
-      // post-read, and proxied authorization controls.
-      final DN authzDN;
-      try
-      {
-        handleAssertionRequestControl(controlMap, entry);
-
-        authzDN = handleProxiedAuthControl(controlMap);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-
-      // Update modifiersName and modifyTimestamp.
-      if (generateOperationalAttributes)
-      {
-        modifiedEntry.setAttribute(new Attribute("modifiersName",
-             DistinguishedNameMatchingRule.getInstance(),
-             authzDN.toString()));
-        modifiedEntry.setAttribute(new Attribute("modifyTimestamp",
-             GeneralizedTimeMatchingRule.getInstance(),
-             StaticUtils.encodeGeneralizedTime(new Date())));
-      }
-
-      // Perform the appropriate processing for the pre-read and post-read
-      // controls.
-      final PreReadResponseControl preReadResponse =
-           handlePreReadControl(controlMap, entry);
-      if (preReadResponse != null)
-      {
-        responseControls.add(preReadResponse);
-      }
-
-      final PostReadResponseControl postReadResponse =
-           handlePostReadControl(controlMap, modifiedEntry);
-      if (postReadResponse != null)
-      {
-        responseControls.add(postReadResponse);
-      }
-
-
-      // Replace the entry in the map and return a success result.
+    // Get the target entry.  If it does not exist, then fail.
+    Entry entry = entryMap.get(dn);
+    if (entry == null)
+    {
       if (dn.equals(subschemaSubentryDN))
       {
-        final Schema newSchema = new Schema(modifiedEntry);
-        subschemaSubentryRef.set(new ReadOnlyEntry(modifiedEntry));
-        schemaRef.set(newSchema);
-        entryValidatorRef.set(new EntryValidator(newSchema));
+        entry = subschemaSubentryRef.get().duplicate();
       }
       else
       {
-        entryMap.put(dn, new ReadOnlyEntry(modifiedEntry));
-        indexDelete(entry);
-        indexAdd(modifiedEntry);
+        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+             ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
+             ERR_MEM_HANDLER_MOD_NO_SUCH_ENTRY.get(request.getDN()), null));
       }
-      addChangeLogEntry(request, authzDN);
-      return new LDAPMessage(messageID,
-           new ModifyResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
-                null, null),
-           responseControls);
     }
+
+
+    // Attempt to apply the modifications to the entry.  If successful, then a
+    // copy of the entry will be returned with the modifications applied.
+    final Entry modifiedEntry;
+    try
+    {
+      modifiedEntry = Entry.applyModifications(entry,
+           controlMap.containsKey(PermissiveModifyRequestControl.
+                PERMISSIVE_MODIFY_REQUEST_OID),
+           request.getModifications());
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           le.getResultCode().intValue(), null,
+           ERR_MEM_HANDLER_MOD_FAILED.get(request.getDN(), le.getMessage()),
+           null));
+    }
+
+    // If a schema was provided, use it to validate the resulting entry.  Also,
+    // ensure that no NO-USER-MODIFICATION attributes were targeted.
+    final EntryValidator entryValidator = entryValidatorRef.get();
+    if (entryValidator != null)
+    {
+      final ArrayList<String> invalidReasons = new ArrayList<String>(1);
+      if (! entryValidator.entryIsValid(modifiedEntry, invalidReasons))
+      {
+        return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+             ResultCode.OBJECT_CLASS_VIOLATION_INT_VALUE, null,
+             ERR_MEM_HANDLER_MOD_VIOLATES_SCHEMA.get(request.getDN(),
+                  StaticUtils.concatenateStrings(invalidReasons)),
+             null));
+      }
+
+      for (final Modification m : request.getModifications())
+      {
+        final Attribute a = m.getAttribute();
+        final String baseName = a.getBaseName();
+        final AttributeTypeDefinition at = schema.getAttributeType(baseName);
+        if ((! isInternalOp) && (at != null) && at.isNoUserModification())
+        {
+          return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+               ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
+               ERR_MEM_HANDLER_MOD_NO_USER_MOD.get(request.getDN(),
+                    a.getName()), null));
+        }
+      }
+    }
+
+
+    // Perform the appropriate processing for the assertion and proxied
+    // authorization controls.
+    // Perform the appropriate processing for the assertion, pre-read,
+    // post-read, and proxied authorization controls.
+    final DN authzDN;
+    try
+    {
+      handleAssertionRequestControl(controlMap, entry);
+
+      authzDN = handleProxiedAuthControl(controlMap);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+
+    // Update modifiersName and modifyTimestamp.
+    if (generateOperationalAttributes)
+    {
+      modifiedEntry.setAttribute(new Attribute("modifiersName",
+           DistinguishedNameMatchingRule.getInstance(),
+           authzDN.toString()));
+      modifiedEntry.setAttribute(new Attribute("modifyTimestamp",
+           GeneralizedTimeMatchingRule.getInstance(),
+           StaticUtils.encodeGeneralizedTime(new Date())));
+    }
+
+    // Perform the appropriate processing for the pre-read and post-read
+    // controls.
+    final PreReadResponseControl preReadResponse =
+         handlePreReadControl(controlMap, entry);
+    if (preReadResponse != null)
+    {
+      responseControls.add(preReadResponse);
+    }
+
+    final PostReadResponseControl postReadResponse =
+         handlePostReadControl(controlMap, modifiedEntry);
+    if (postReadResponse != null)
+    {
+      responseControls.add(postReadResponse);
+    }
+
+
+    // Replace the entry in the map and return a success result.
+    if (dn.equals(subschemaSubentryDN))
+    {
+      final Schema newSchema = new Schema(modifiedEntry);
+      subschemaSubentryRef.set(new ReadOnlyEntry(modifiedEntry));
+      schemaRef.set(newSchema);
+      entryValidatorRef.set(new EntryValidator(newSchema));
+    }
+    else
+    {
+      entryMap.put(dn, new ReadOnlyEntry(modifiedEntry));
+      indexDelete(entry);
+      indexAdd(modifiedEntry);
+    }
+    addChangeLogEntry(request, authzDN);
+    return new LDAPMessage(messageID,
+         new ModifyResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null, null,
+              null),
+         responseControls);
   }
 
 
@@ -2355,451 +2324,444 @@ public final class InMemoryRequestHandler
    *          {@code ModifyDNResponseProtocolOp}.
    */
   @Override()
-  public LDAPMessage processModifyDNRequest(final int messageID,
-                          final ModifyDNRequestProtocolOp request,
-                          final List<Control> controls)
+  public synchronized LDAPMessage processModifyDNRequest(final int messageID,
+                                       final ModifyDNRequestProtocolOp request,
+                                       final List<Control> controls)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    // Process the provided request controls.
+    final Map<String,Control> controlMap;
+    try
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
+      controlMap = RequestControlPreProcessor.processControls(
+           LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST, controls);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+    final ArrayList<Control> responseControls = new ArrayList<Control>(1);
 
-      // Process the provided request controls.
-      final Map<String,Control> controlMap;
+
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.MODIFY_DN)))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MODIFY_DN_NOT_ALLOWED.get(), null));
+    }
+
+
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.MODIFY_DN)))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_MODIFY_DN_REQUIRES_AUTH.get(), null));
+    }
+
+
+    // See if this modify DN request is part of a transaction.  If so, then
+    // perform appropriate processing for it and return success immediately
+    // without actually doing any further processing.
+    try
+    {
+      final ASN1OctetString txnID =
+           processTransactionRequest(messageID, request, controlMap);
+      if (txnID != null)
+      {
+        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+             ResultCode.SUCCESS_INT_VALUE, null,
+             INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
+      }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID,
+           new ModifyDNResponseProtocolOp(le.getResultCode().intValue(),
+                le.getMatchedDN(), le.getDiagnosticMessage(),
+                StaticUtils.toList(le.getReferralURLs())),
+           le.getResponseControls());
+    }
+
+
+    // Get the parsed target DN, new RDN, and new superior DN values.
+    final DN dn;
+    final Schema schema = schemaRef.get();
+    try
+    {
+      dn = new DN(request.getDN(), schema);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_MALFORMED_DN.get(request.getDN(),
+                le.getMessage()),
+           null));
+    }
+
+    final RDN newRDN;
+    try
+    {
+      newRDN = new RDN(request.getNewRDN(), schema);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_MALFORMED_NEW_RDN.get(request.getDN(),
+                request.getNewRDN(), le.getMessage()),
+           null));
+    }
+
+    final DN newSuperiorDN;
+    final String newSuperiorString = request.getNewSuperiorDN();
+    if (newSuperiorString == null)
+    {
+      newSuperiorDN = null;
+    }
+    else
+    {
       try
       {
-        controlMap = RequestControlPreProcessor.processControls(
-             LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST, controls);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
-
-
-      // If this operation type is not allowed, then reject it.
-      final boolean isInternalOp =
-           controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
-      if ((! isInternalOp) &&
-           (! config.getAllowedOperationTypes().contains(
-                OperationType.MODIFY_DN)))
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MODIFY_DN_NOT_ALLOWED.get(), null));
-      }
-
-
-      // If this operation type requires authentication, then ensure that the
-      // client is authenticated.
-      if ((authenticatedDN.isNullDN() &&
-           config.getAuthenticationRequiredOperationTypes().contains(
-                OperationType.MODIFY_DN)))
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_MODIFY_DN_REQUIRES_AUTH.get(), null));
-      }
-
-
-      // See if this modify DN request is part of a transaction.  If so, then
-      // perform appropriate processing for it and return success immediately
-      // without actually doing any further processing.
-      try
-      {
-        final ASN1OctetString txnID =
-             processTransactionRequest(messageID, request, controlMap);
-        if (txnID != null)
-        {
-          return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-               ResultCode.SUCCESS_INT_VALUE, null,
-               INFO_MEM_HANDLER_OP_IN_TXN.get(txnID.stringValue()), null));
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID,
-             new ModifyDNResponseProtocolOp(le.getResultCode().intValue(),
-                  le.getMatchedDN(), le.getDiagnosticMessage(),
-                  StaticUtils.toList(le.getReferralURLs())),
-             le.getResponseControls());
-      }
-
-
-      // Get the parsed target DN, new RDN, and new superior DN values.
-      final DN dn;
-      final Schema schema = schemaRef.get();
-      try
-      {
-        dn = new DN(request.getDN(), schema);
+        newSuperiorDN = new DN(newSuperiorString, schema);
       }
       catch (final LDAPException le)
       {
         Debug.debugException(le);
         return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
              ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_MALFORMED_DN.get(request.getDN(),
-                  le.getMessage()),
+             ERR_MEM_HANDLER_MOD_DN_MALFORMED_NEW_SUPERIOR.get(request.getDN(),
+                  request.getNewSuperiorDN(), le.getMessage()),
              null));
       }
+    }
 
-      final RDN newRDN;
-      try
+    // See if the target entry or one of its superiors is a smart referral.
+    if (! controlMap.containsKey(
+               ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
+    {
+      final Entry referralEntry = findNearestReferral(dn);
+      if (referralEntry != null)
       {
-        newRDN = new RDN(request.getNewRDN(), schema);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
         return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_MALFORMED_NEW_RDN.get(request.getDN(),
-                  request.getNewRDN(), le.getMessage()),
-             null));
+             ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
+             INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
+             getReferralURLs(dn, referralEntry)));
       }
+    }
 
-      final DN newSuperiorDN;
-      final String newSuperiorString = request.getNewSuperiorDN();
-      if (newSuperiorString == null)
+    // See if the target is the root DSE, the subschema subentry, or a changelog
+    // entry.
+    if (dn.isNullDN())
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_ROOT_DSE.get(), null));
+    }
+    else if (dn.equals(subschemaSubentryDN))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_SOURCE_IS_SCHEMA.get(), null));
+    }
+    else if (dn.isDescendantOf(changeLogBaseDN, true))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_SOURCE_IS_CHANGELOG.get(), null));
+    }
+
+    // Construct the new DN.
+    final DN newDN;
+    if (newSuperiorDN == null)
+    {
+      final DN originalParent = dn.getParent();
+      if (originalParent == null)
       {
-        newSuperiorDN = null;
+        newDN = new DN(newRDN);
       }
       else
       {
-        try
-        {
-          newSuperiorDN = new DN(newSuperiorString, schema);
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-          return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-               ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-               ERR_MEM_HANDLER_MOD_DN_MALFORMED_NEW_SUPERIOR.get(
-                    request.getDN(), request.getNewSuperiorDN(),
-                    le.getMessage()),
-               null));
-        }
+        newDN = new DN(newRDN, originalParent);
       }
+    }
+    else
+    {
+      newDN = new DN(newRDN, newSuperiorDN);
+    }
 
-      // See if the target entry or one of its superiors is a smart referral.
-      if (! controlMap.containsKey(
-           ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
-      {
-        final Entry referralEntry = findNearestReferral(dn);
-        if (referralEntry != null)
-        {
-          return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-               ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
-               INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
-               getReferralURLs(dn, referralEntry)));
-        }
-      }
+    // If the new DN matches the old DN, then fail.
+    if (newDN.equals(dn))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_NEW_DN_SAME_AS_OLD.get(request.getDN()),
+           null));
+    }
 
-      // See if the target is the root DSE, the subschema subentry, or a
-      // changelog entry.
-      if (dn.isNullDN())
+    // If the new DN is below a smart referral, then fail.
+    if (! controlMap.containsKey(
+               ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
+    {
+      final Entry referralEntry = findNearestReferral(newDN);
+      if (referralEntry != null)
       {
         return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_ROOT_DSE.get(), null));
-      }
-      else if (dn.equals(subschemaSubentryDN))
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_SOURCE_IS_SCHEMA.get(), null));
-      }
-      else if (dn.isDescendantOf(changeLogBaseDN, true))
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_SOURCE_IS_CHANGELOG.get(), null));
-      }
-
-      // Construct the new DN.
-      final DN newDN;
-      if (newSuperiorDN == null)
-      {
-        final DN originalParent = dn.getParent();
-        if (originalParent == null)
-        {
-          newDN = new DN(newRDN);
-        }
-        else
-        {
-          newDN = new DN(newRDN, originalParent);
-        }
-      }
-      else
-      {
-        newDN = new DN(newRDN, newSuperiorDN);
-      }
-
-      // If the new DN matches the old DN, then fail.
-      if (newDN.equals(dn))
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_NEW_DN_SAME_AS_OLD.get(request.getDN()),
+             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, referralEntry.getDN(),
+             ERR_MEM_HANDLER_MOD_DN_NEW_DN_BELOW_REFERRAL.get(request.getDN(),
+                  referralEntry.getDN().toString(), newDN.toString()),
              null));
       }
+    }
 
-      // If the new DN is below a smart referral, then fail.
-      if (! controlMap.containsKey(
-           ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID))
-      {
-        final Entry referralEntry = findNearestReferral(newDN);
-        if (referralEntry != null)
-        {
-          return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-               ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, referralEntry.getDN(),
-               ERR_MEM_HANDLER_MOD_DN_NEW_DN_BELOW_REFERRAL.get(request.getDN(),
-                    referralEntry.getDN().toString(), newDN.toString()),
-               null));
-        }
-      }
+    // If the target entry doesn't exist, then fail.
+    final Entry originalEntry = entryMap.get(dn);
+    if (originalEntry == null)
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
+           ERR_MEM_HANDLER_MOD_DN_NO_SUCH_ENTRY.get(request.getDN()), null));
+    }
 
-      // If the target entry doesn't exist, then fail.
-      final Entry originalEntry = entryMap.get(dn);
-      if (originalEntry == null)
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(dn),
-             ERR_MEM_HANDLER_MOD_DN_NO_SUCH_ENTRY.get(request.getDN()), null));
-      }
+    // If the new DN matches the subschema subentry DN, then fail.
+    if (newDN.equals(subschemaSubentryDN))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_TARGET_IS_SCHEMA.get(request.getDN(),
+                newDN.toString()),
+           null));
+    }
 
-      // If the new DN matches the subschema subentry DN, then fail.
-      if (newDN.equals(subschemaSubentryDN))
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_TARGET_IS_SCHEMA.get(request.getDN(),
-                  newDN.toString()),
-             null));
-      }
+    // If the new DN is at or below the changelog base DN, then fail.
+    if (newDN.isDescendantOf(changeLogBaseDN, true))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_TARGET_IS_CHANGELOG.get(request.getDN(),
+                newDN.toString()),
+           null));
+    }
 
-      // If the new DN is at or below the changelog base DN, then fail.
-      if (newDN.isDescendantOf(changeLogBaseDN, true))
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_TARGET_IS_CHANGELOG.get(request.getDN(),
-                  newDN.toString()),
-             null));
-      }
+    // If the new DN already exists, then fail.
+    if (entryMap.containsKey(newDN))
+    {
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_MOD_DN_TARGET_ALREADY_EXISTS.get(request.getDN(),
+                newDN.toString()),
+           null));
+    }
 
-      // If the new DN already exists, then fail.
-      if (entryMap.containsKey(newDN))
-      {
-        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             ResultCode.ENTRY_ALREADY_EXISTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_MOD_DN_TARGET_ALREADY_EXISTS.get(request.getDN(),
-                  newDN.toString()),
-             null));
-      }
-
-      // If the new DN is not a base DN and its parent does not exist, then
-      // fail.
-      if (baseDNs.contains(newDN))
+    // If the new DN is not a base DN and its parent does not exist, then fail.
+    if (baseDNs.contains(newDN))
+    {
+      // The modify DN can be processed.
+    }
+    else
+    {
+      final DN newParent = newDN.getParent();
+      if ((newParent != null) && entryMap.containsKey(newParent))
       {
         // The modify DN can be processed.
       }
       else
       {
-        final DN newParent = newDN.getParent();
-        if ((newParent != null) && entryMap.containsKey(newParent))
-        {
-          // The modify DN can be processed.
-        }
-        else
-        {
-          return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-               ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(newDN),
-               ERR_MEM_HANDLER_MOD_DN_PARENT_DOESNT_EXIST.get(request.getDN(),
-                    newDN.toString()),
-               null));
-        }
-      }
-
-      // Create a copy of the entry and update it to reflect the new DN (with
-      // attribute value changes).
-      final RDN originalRDN = dn.getRDN();
-      final Entry updatedEntry = originalEntry.duplicate();
-      updatedEntry.setDN(newDN);
-      if (request.deleteOldRDN() && (! newRDN.equals(originalRDN)))
-      {
-        final String[] oldRDNNames  = originalRDN.getAttributeNames();
-        final byte[][] oldRDNValues = originalRDN.getByteArrayAttributeValues();
-        for (int i=0; i < oldRDNNames.length; i++)
-        {
-          updatedEntry.removeAttributeValue(oldRDNNames[i], oldRDNValues[i]);
-        }
-
-        final String[] newRDNNames  = newRDN.getAttributeNames();
-        final byte[][] newRDNValues = newRDN.getByteArrayAttributeValues();
-        for (int i=0; i < newRDNNames.length; i++)
-        {
-          final MatchingRule matchingRule =
-               MatchingRule.selectEqualityMatchingRule(newRDNNames[i], schema);
-          updatedEntry.addAttribute(new Attribute(newRDNNames[i], matchingRule,
-               newRDNValues[i]));
-        }
-      }
-
-      // If a schema was provided, then make sure the updated entry conforms to
-      // the schema.  Also, reject the attempt if any of the new RDN attributes
-      // is marked with NO-USER-MODIFICATION.
-      final EntryValidator entryValidator = entryValidatorRef.get();
-      if (entryValidator != null)
-      {
-        final ArrayList<String> invalidReasons = new ArrayList<String>(1);
-        if (! entryValidator.entryIsValid(updatedEntry, invalidReasons))
-        {
-          return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-               ResultCode.OBJECT_CLASS_VIOLATION_INT_VALUE, null,
-               ERR_MEM_HANDLER_MOD_DN_VIOLATES_SCHEMA.get(request.getDN(),
-                    StaticUtils.concatenateStrings(invalidReasons)),
-               null));
-        }
-
-        final String[] oldRDNNames = originalRDN.getAttributeNames();
-        for (int i=0; i < oldRDNNames.length; i++)
-        {
-          final String name = oldRDNNames[i];
-          final AttributeTypeDefinition at = schema.getAttributeType(name);
-          if ((! isInternalOp) && (at != null) && at.isNoUserModification())
-          {
-            final byte[] value = originalRDN.getByteArrayAttributeValues()[i];
-            if (! updatedEntry.hasAttributeValue(name, value))
-            {
-              return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-                   ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
-                   ERR_MEM_HANDLER_MOD_DN_NO_USER_MOD.get(request.getDN(),
-                        name), null));
-            }
-          }
-        }
-
-        final String[] newRDNNames = newRDN.getAttributeNames();
-        for (int i=0; i < newRDNNames.length; i++)
-        {
-          final String name = newRDNNames[i];
-          final AttributeTypeDefinition at = schema.getAttributeType(name);
-          if ((! isInternalOp) && (at != null) && at.isNoUserModification())
-          {
-            final byte[] value = newRDN.getByteArrayAttributeValues()[i];
-            if (! originalEntry.hasAttributeValue(name, value))
-            {
-              return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-                   ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
-                   ERR_MEM_HANDLER_MOD_DN_NO_USER_MOD.get(request.getDN(),
-                        name), null));
-            }
-          }
-        }
-      }
-
-      // Perform the appropriate processing for the assertion and proxied
-      // authorization controls
-      final DN authzDN;
-      try
-      {
-        handleAssertionRequestControl(controlMap, originalEntry);
-
-        authzDN = handleProxiedAuthControl(controlMap);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
         return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
+             ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(newDN),
+             ERR_MEM_HANDLER_MOD_DN_PARENT_DOESNT_EXIST.get(request.getDN(),
+                  newDN.toString()),
+             null));
+      }
+    }
+
+    // Create a copy of the entry and update it to reflect the new DN (with
+    // attribute value changes).
+    final RDN originalRDN = dn.getRDN();
+    final Entry updatedEntry = originalEntry.duplicate();
+    updatedEntry.setDN(newDN);
+    if (request.deleteOldRDN() && (! newRDN.equals(originalRDN)))
+    {
+      final String[] oldRDNNames  = originalRDN.getAttributeNames();
+      final byte[][] oldRDNValues = originalRDN.getByteArrayAttributeValues();
+      for (int i=0; i < oldRDNNames.length; i++)
+      {
+        updatedEntry.removeAttributeValue(oldRDNNames[i], oldRDNValues[i]);
       }
 
-      // Update the modifiersName, modifyTimestamp, and entryDN operational
-      // attributes.
-      if (generateOperationalAttributes)
+      final String[] newRDNNames  = newRDN.getAttributeNames();
+      final byte[][] newRDNValues = newRDN.getByteArrayAttributeValues();
+      for (int i=0; i < newRDNNames.length; i++)
       {
-        updatedEntry.setAttribute(new Attribute("modifiersName",
-             DistinguishedNameMatchingRule.getInstance(),
-             authzDN.toString()));
-        updatedEntry.setAttribute(new Attribute("modifyTimestamp",
-             GeneralizedTimeMatchingRule.getInstance(),
-             StaticUtils.encodeGeneralizedTime(new Date())));
-        updatedEntry.setAttribute(new Attribute("entryDN",
-             DistinguishedNameMatchingRule.getInstance(),
-             newDN.toNormalizedString()));
+        final MatchingRule matchingRule =
+             MatchingRule.selectEqualityMatchingRule(newRDNNames[i], schema);
+        updatedEntry.addAttribute(new Attribute(newRDNNames[i], matchingRule,
+             newRDNValues[i]));
+      }
+    }
+
+    // If a schema was provided, then make sure the updated entry conforms to
+    // the schema.  Also, reject the attempt if any of the new RDN attributes
+    // is marked with NO-USER-MODIFICATION.
+    final EntryValidator entryValidator = entryValidatorRef.get();
+    if (entryValidator != null)
+    {
+      final ArrayList<String> invalidReasons = new ArrayList<String>(1);
+      if (! entryValidator.entryIsValid(updatedEntry, invalidReasons))
+      {
+        return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+             ResultCode.OBJECT_CLASS_VIOLATION_INT_VALUE, null,
+             ERR_MEM_HANDLER_MOD_DN_VIOLATES_SCHEMA.get(request.getDN(),
+                  StaticUtils.concatenateStrings(invalidReasons)),
+             null));
       }
 
-      // Perform the appropriate processing for the pre-read and post-read
-      // controls.
-      final PreReadResponseControl preReadResponse =
-           handlePreReadControl(controlMap, originalEntry);
-      if (preReadResponse != null)
+      final String[] oldRDNNames = originalRDN.getAttributeNames();
+      for (int i=0; i < oldRDNNames.length; i++)
       {
-        responseControls.add(preReadResponse);
-      }
-
-      final PostReadResponseControl postReadResponse =
-           handlePostReadControl(controlMap, updatedEntry);
-      if (postReadResponse != null)
-      {
-        responseControls.add(postReadResponse);
-      }
-
-      // Remove the old entry and add the new one.
-      entryMap.remove(dn);
-      entryMap.put(newDN, new ReadOnlyEntry(updatedEntry));
-      indexDelete(originalEntry);
-      indexAdd(updatedEntry);
-
-      // If the target entry had any subordinates, then rename them as well.
-      final RDN[] oldDNComps = dn.getRDNs();
-      final RDN[] newDNComps = newDN.getRDNs();
-      final Set<DN> dnSet = new LinkedHashSet<DN>(entryMap.keySet());
-      for (final DN mapEntryDN : dnSet)
-      {
-        if (mapEntryDN.isDescendantOf(dn, false))
+        final String name = oldRDNNames[i];
+        final AttributeTypeDefinition at = schema.getAttributeType(name);
+        if ((! isInternalOp) && (at != null) && at.isNoUserModification())
         {
-          final Entry o = entryMap.remove(mapEntryDN);
-          final Entry e = o.duplicate();
-
-          final RDN[] oldMapEntryComps = mapEntryDN.getRDNs();
-          final int compsToSave = oldMapEntryComps.length - oldDNComps.length;
-
-          final RDN[] newMapEntryComps =
-               new RDN[compsToSave + newDNComps.length];
-          System.arraycopy(oldMapEntryComps, 0, newMapEntryComps, 0,
-               compsToSave);
-          System.arraycopy(newDNComps, 0, newMapEntryComps, compsToSave,
-               newDNComps.length);
-
-          final DN newMapEntryDN = new DN(newMapEntryComps);
-          e.setDN(newMapEntryDN);
-          if (generateOperationalAttributes)
+          final byte[] value = originalRDN.getByteArrayAttributeValues()[i];
+          if (! updatedEntry.hasAttributeValue(name, value))
           {
-            e.setAttribute(new Attribute("entryDN",
-                 DistinguishedNameMatchingRule.getInstance(),
-                 newMapEntryDN.toNormalizedString()));
+            return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+                 ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
+                 ERR_MEM_HANDLER_MOD_DN_NO_USER_MOD.get(request.getDN(),
+                      name), null));
           }
-          entryMap.put(newMapEntryDN, new ReadOnlyEntry(e));
-          indexDelete(o);
-          indexAdd(e);
-          handleReferentialIntegrityModifyDN(mapEntryDN, newMapEntryDN);
         }
       }
 
-      addChangeLogEntry(request, authzDN);
-      handleReferentialIntegrityModifyDN(dn, newDN);
-      return new LDAPMessage(messageID,
-           new ModifyDNResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
-                null, null),
-           responseControls);
+      final String[] newRDNNames = newRDN.getAttributeNames();
+      for (int i=0; i < newRDNNames.length; i++)
+      {
+        final String name = newRDNNames[i];
+        final AttributeTypeDefinition at = schema.getAttributeType(name);
+        if ((! isInternalOp) && (at != null) && at.isNoUserModification())
+        {
+          final byte[] value = newRDN.getByteArrayAttributeValues()[i];
+          if (! originalEntry.hasAttributeValue(name, value))
+          {
+            return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+                 ResultCode.CONSTRAINT_VIOLATION_INT_VALUE, null,
+                 ERR_MEM_HANDLER_MOD_DN_NO_USER_MOD.get(request.getDN(),
+                      name), null));
+          }
+        }
+      }
     }
+
+    // Perform the appropriate processing for the assertion and proxied
+    // authorization controls
+    final DN authzDN;
+    try
+    {
+      handleAssertionRequestControl(controlMap, originalEntry);
+
+      authzDN = handleProxiedAuthControl(controlMap);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new ModifyDNResponseProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+
+    // Update the modifiersName, modifyTimestamp, and entryDN operational
+    // attributes.
+    if (generateOperationalAttributes)
+    {
+      updatedEntry.setAttribute(new Attribute("modifiersName",
+           DistinguishedNameMatchingRule.getInstance(),
+           authzDN.toString()));
+      updatedEntry.setAttribute(new Attribute("modifyTimestamp",
+           GeneralizedTimeMatchingRule.getInstance(),
+           StaticUtils.encodeGeneralizedTime(new Date())));
+      updatedEntry.setAttribute(new Attribute("entryDN",
+           DistinguishedNameMatchingRule.getInstance(),
+           newDN.toNormalizedString()));
+    }
+
+    // Perform the appropriate processing for the pre-read and post-read
+    // controls.
+    final PreReadResponseControl preReadResponse =
+         handlePreReadControl(controlMap, originalEntry);
+    if (preReadResponse != null)
+    {
+      responseControls.add(preReadResponse);
+    }
+
+    final PostReadResponseControl postReadResponse =
+         handlePostReadControl(controlMap, updatedEntry);
+    if (postReadResponse != null)
+    {
+      responseControls.add(postReadResponse);
+    }
+
+    // Remove the old entry and add the new one.
+    entryMap.remove(dn);
+    entryMap.put(newDN, new ReadOnlyEntry(updatedEntry));
+    indexDelete(originalEntry);
+    indexAdd(updatedEntry);
+
+    // If the target entry had any subordinates, then rename them as well.
+    final RDN[] oldDNComps = dn.getRDNs();
+    final RDN[] newDNComps = newDN.getRDNs();
+    final Set<DN> dnSet = new LinkedHashSet<DN>(entryMap.keySet());
+    for (final DN mapEntryDN : dnSet)
+    {
+      if (mapEntryDN.isDescendantOf(dn, false))
+      {
+        final Entry o = entryMap.remove(mapEntryDN);
+        final Entry e = o.duplicate();
+
+        final RDN[] oldMapEntryComps = mapEntryDN.getRDNs();
+        final int compsToSave = oldMapEntryComps.length - oldDNComps.length ;
+
+        final RDN[] newMapEntryComps = new RDN[compsToSave + newDNComps.length];
+        System.arraycopy(oldMapEntryComps, 0, newMapEntryComps, 0,
+             compsToSave);
+        System.arraycopy(newDNComps, 0, newMapEntryComps, compsToSave,
+             newDNComps.length);
+
+        final DN newMapEntryDN = new DN(newMapEntryComps);
+        e.setDN(newMapEntryDN);
+        if (generateOperationalAttributes)
+        {
+          e.setAttribute(new Attribute("entryDN",
+               DistinguishedNameMatchingRule.getInstance(),
+               newMapEntryDN.toNormalizedString()));
+        }
+        entryMap.put(newMapEntryDN, new ReadOnlyEntry(e));
+        indexDelete(o);
+        indexAdd(e);
+        handleReferentialIntegrityModifyDN(mapEntryDN, newMapEntryDN);
+      }
+    }
+
+    addChangeLogEntry(request, authzDN);
+    handleReferentialIntegrityModifyDN(dn, newDN);
+    return new LDAPMessage(messageID,
+         new ModifyDNResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
+              null, null),
+         responseControls);
   }
 
 
@@ -2886,59 +2848,56 @@ public final class InMemoryRequestHandler
    *          {@code SearchResultDoneProtocolOp}.
    */
   @Override()
-  public LDAPMessage processSearchRequest(final int messageID,
-                                          final SearchRequestProtocolOp request,
-                                          final List<Control> controls)
+  public synchronized LDAPMessage processSearchRequest(final int messageID,
+                                       final SearchRequestProtocolOp request,
+                                       final List<Control> controls)
   {
-    synchronized (entryMap)
+    final List<SearchResultEntry> entryList =
+         new ArrayList<SearchResultEntry>(entryMap.size());
+    final List<SearchResultReference> referenceList =
+         new ArrayList<SearchResultReference>(entryMap.size());
+
+    final LDAPMessage returnMessage = processSearchRequest(messageID, request,
+         controls, entryList, referenceList);
+
+    for (final SearchResultEntry e : entryList)
     {
-      final List<SearchResultEntry> entryList =
-           new ArrayList<SearchResultEntry>(entryMap.size());
-      final List<SearchResultReference> referenceList =
-           new ArrayList<SearchResultReference>(entryMap.size());
-
-      final LDAPMessage returnMessage = processSearchRequest(messageID, request,
-           controls, entryList, referenceList);
-
-      for (final SearchResultEntry e : entryList)
+      try
       {
-        try
-        {
-          connection.sendSearchResultEntry(messageID, e, e.getControls());
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-          return new LDAPMessage(messageID,
-               new SearchResultDoneProtocolOp(le.getResultCode().intValue(),
-                    le.getMatchedDN(), le.getDiagnosticMessage(),
-                    StaticUtils.toList(le.getReferralURLs())),
-               le.getResponseControls());
-        }
+        connection.sendSearchResultEntry(messageID, e, e.getControls());
       }
-
-      for (final SearchResultReference r : referenceList)
+      catch (final LDAPException le)
       {
-        try
-        {
-          connection.sendSearchResultReference(messageID,
-               new SearchResultReferenceProtocolOp(
-                    StaticUtils.toList(r.getReferralURLs())),
-               r.getControls());
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-          return new LDAPMessage(messageID,
-               new SearchResultDoneProtocolOp(le.getResultCode().intValue(),
-                    le.getMatchedDN(), le.getDiagnosticMessage(),
-                    StaticUtils.toList(le.getReferralURLs())),
-               le.getResponseControls());
-        }
+        Debug.debugException(le);
+        return new LDAPMessage(messageID,
+             new SearchResultDoneProtocolOp(le.getResultCode().intValue(),
+                  le.getMatchedDN(), le.getDiagnosticMessage(),
+                  StaticUtils.toList(le.getReferralURLs())),
+             le.getResponseControls());
       }
-
-      return returnMessage;
     }
+
+    for (final SearchResultReference r : referenceList)
+    {
+      try
+      {
+        connection.sendSearchResultReference(messageID,
+             new SearchResultReferenceProtocolOp(
+                  StaticUtils.toList(r.getReferralURLs())),
+             r.getControls());
+      }
+      catch (final LDAPException le)
+      {
+        Debug.debugException(le);
+        return new LDAPMessage(messageID,
+             new SearchResultDoneProtocolOp(le.getResultCode().intValue(),
+                  le.getMatchedDN(), le.getDiagnosticMessage(),
+                  StaticUtils.toList(le.getReferralURLs())),
+             le.getResponseControls());
+      }
+    }
+
+    return returnMessage;
   }
 
 
@@ -2976,152 +2935,205 @@ public final class InMemoryRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be an
    *          {@code SearchResultDoneProtocolOp}.
    */
-  LDAPMessage processSearchRequest(final int messageID,
-                   final SearchRequestProtocolOp request,
-                   final List<Control> controls,
-                   final List<SearchResultEntry> entryList,
-                   final List<SearchResultReference> referenceList)
+  synchronized LDAPMessage processSearchRequest(final int messageID,
+                                final SearchRequestProtocolOp request,
+                                final List<Control> controls,
+                                final List<SearchResultEntry> entryList,
+                                final List<SearchResultReference> referenceList)
   {
-    synchronized (entryMap)
+    // Sleep before processing, if appropriate.
+    sleepBeforeProcessing();
+
+    // Process the provided request controls.
+    final Map<String,Control> controlMap;
+    try
     {
-      // Sleep before processing, if appropriate.
-      sleepBeforeProcessing();
-
-      // Process the provided request controls.
-      final Map<String,Control> controlMap;
-      try
-      {
-        controlMap = RequestControlPreProcessor.processControls(
-             LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST, controls);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
-      final ArrayList<Control> responseControls = new ArrayList<Control>(1);
+      controlMap = RequestControlPreProcessor.processControls(
+           LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST, controls);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+    final ArrayList<Control> responseControls = new ArrayList<Control>(1);
 
 
-      // If this operation type is not allowed, then reject it.
-      final boolean isInternalOp =
-           controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
-      if ((! isInternalOp) &&
-           (! config.getAllowedOperationTypes().contains(OperationType.SEARCH)))
-      {
-        return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-             ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
-             ERR_MEM_HANDLER_SEARCH_NOT_ALLOWED.get(), null));
-      }
+    // If this operation type is not allowed, then reject it.
+    final boolean isInternalOp =
+         controlMap.containsKey(OID_INTERNAL_OPERATION_REQUEST_CONTROL);
+    if ((! isInternalOp) &&
+        (! config.getAllowedOperationTypes().contains(OperationType.SEARCH)))
+    {
+      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+           ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, null,
+           ERR_MEM_HANDLER_SEARCH_NOT_ALLOWED.get(), null));
+    }
 
 
-      // If this operation type requires authentication, then ensure that the
-      // client is authenticated.
-      if ((authenticatedDN.isNullDN() &&
-           config.getAuthenticationRequiredOperationTypes().contains(
-                OperationType.SEARCH)))
-      {
-        return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-             ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
-             ERR_MEM_HANDLER_SEARCH_REQUIRES_AUTH.get(), null));
-      }
+    // If this operation type requires authentication, then ensure that the
+    // client is authenticated.
+    if ((authenticatedDN.isNullDN() &&
+        config.getAuthenticationRequiredOperationTypes().contains(
+             OperationType.SEARCH)))
+    {
+      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+           ResultCode.INSUFFICIENT_ACCESS_RIGHTS_INT_VALUE, null,
+           ERR_MEM_HANDLER_SEARCH_REQUIRES_AUTH.get(), null));
+    }
 
 
-      // Get the parsed base DN.
-      final DN baseDN;
-      final Schema schema = schemaRef.get();
-      try
-      {
-        baseDN = new DN(request.getBaseDN(), schema);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-             ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
-             ERR_MEM_HANDLER_SEARCH_MALFORMED_BASE.get(request.getBaseDN(),
-                  le.getMessage()),
-             null));
-      }
+    // Get the parsed base DN.
+    final DN baseDN;
+    final Schema schema = schemaRef.get();
+    try
+    {
+      baseDN = new DN(request.getBaseDN(), schema);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+           ResultCode.INVALID_DN_SYNTAX_INT_VALUE, null,
+           ERR_MEM_HANDLER_SEARCH_MALFORMED_BASE.get(request.getBaseDN(),
+                le.getMessage()),
+                null));
+    }
 
-      // See if the search base or one of its superiors is a smart referral.
-      final boolean hasManageDsaIT = controlMap.containsKey(
-           ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID);
-      if (! hasManageDsaIT)
-      {
-        final Entry referralEntry = findNearestReferral(baseDN);
-        if (referralEntry != null)
-        {
-          return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-               ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
-               INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
-               getReferralURLs(baseDN, referralEntry)));
-        }
-      }
-
-      // Make sure that the base entry exists.  It may be the root DSE or
-      // subschema subentry.
-      final Entry baseEntry;
-      boolean includeChangeLog = true;
-      if (baseDN.isNullDN())
-      {
-        baseEntry = generateRootDSE();
-        includeChangeLog = false;
-      }
-      else if (baseDN.equals(subschemaSubentryDN))
-      {
-        baseEntry = subschemaSubentryRef.get();
-      }
-      else
-      {
-        baseEntry = entryMap.get(baseDN);
-      }
-
-      if (baseEntry == null)
+    // See if the search base or one of its superiors is a smart referral.
+    final boolean hasManageDsaIT = controlMap.containsKey(
+         ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID);
+    if (! hasManageDsaIT)
+    {
+      final Entry referralEntry = findNearestReferral(baseDN);
+      if (referralEntry != null)
       {
         return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-             ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(baseDN),
-             ERR_MEM_HANDLER_SEARCH_BASE_DOES_NOT_EXIST.get(
-                  request.getBaseDN()),
-             null));
+             ResultCode.REFERRAL_INT_VALUE, referralEntry.getDN(),
+             INFO_MEM_HANDLER_REFERRAL_ENCOUNTERED.get(),
+             getReferralURLs(baseDN, referralEntry)));
       }
+    }
 
-      // Perform any necessary processing for the assertion and proxied auth
-      // controls.
-      try
-      {
-        handleAssertionRequestControl(controlMap, baseEntry);
-        handleProxiedAuthControl(controlMap);
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
-             le.getResultCode().intValue(), null, le.getMessage(), null));
-      }
+    // Make sure that the base entry exists.  It may be the root DSE or
+    // subschema subentry.
+    final Entry baseEntry;
+    boolean includeChangeLog = true;
+    if (baseDN.isNullDN())
+    {
+      baseEntry = generateRootDSE();
+      includeChangeLog = false;
+    }
+    else if (baseDN.equals(subschemaSubentryDN))
+    {
+      baseEntry = subschemaSubentryRef.get();
+    }
+    else
+    {
+      baseEntry = entryMap.get(baseDN);
+    }
 
-      // Create a temporary list to hold all of the entries to be returned.
-      // These entries will not have been pared down based on the requested
-      // attributes.
-      final List<Entry> fullEntryList = new ArrayList<Entry>(entryMap.size());
+    if (baseEntry == null)
+    {
+      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+           ResultCode.NO_SUCH_OBJECT_INT_VALUE, getMatchedDNString(baseDN),
+           ERR_MEM_HANDLER_SEARCH_BASE_DOES_NOT_EXIST.get(request.getBaseDN()),
+           null));
+    }
+
+    // Perform any necessary processing for the assertion and proxied auth
+    // controls.
+    try
+    {
+      handleAssertionRequestControl(controlMap, baseEntry);
+      handleProxiedAuthControl(controlMap);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+           le.getResultCode().intValue(), null, le.getMessage(), null));
+    }
+
+    // Create a temporary list to hold all of the entries to be returned.  These
+    // entries will not have been pared down based on the requested attributes.
+    final List<Entry> fullEntryList = new ArrayList<Entry>(entryMap.size());
 
 findEntriesAndRefs:
+    {
+      // Check the scope.  If it is a base-level search, then we only need to
+      // examine the base entry.  Otherwise, we'll have to scan the entire entry
+      // map.
+      final Filter filter = request.getFilter();
+      final SearchScope scope = request.getScope();
+      final boolean includeSubEntries = ((scope == SearchScope.BASE) ||
+           controlMap.containsKey(
+                SubentriesRequestControl.SUBENTRIES_REQUEST_OID));
+      if (scope == SearchScope.BASE)
       {
-        // Check the scope.  If it is a base-level search, then we only need to
-        // examine the base entry.  Otherwise, we'll have to scan the entire
-        // entry map.
-        final Filter filter = request.getFilter();
-        final SearchScope scope = request.getScope();
-        final boolean includeSubEntries = ((scope == SearchScope.BASE) ||
-             controlMap.containsKey(
-                  SubentriesRequestControl.SUBENTRIES_REQUEST_OID));
-        if (scope == SearchScope.BASE)
+        try
         {
+          if (filter.matchesEntry(baseEntry, schema))
+          {
+            processSearchEntry(baseEntry, includeSubEntries, includeChangeLog,
+                 hasManageDsaIT, fullEntryList, referenceList);
+          }
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+
+        break findEntriesAndRefs;
+      }
+
+      // If the search uses a single-level scope and the base DN is the root
+      // DSE, then we will only examine the defined base entries for the data
+      // set.
+      if ((scope == SearchScope.ONE) && baseDN.isNullDN())
+      {
+        for (final DN dn : baseDNs)
+        {
+          final Entry e = entryMap.get(dn);
+          if (e != null)
+          {
+            try
+            {
+              if (filter.matchesEntry(e, schema))
+              {
+                processSearchEntry(e, includeSubEntries, includeChangeLog,
+                     hasManageDsaIT, fullEntryList, referenceList);
+              }
+            }
+            catch (final Exception ex)
+            {
+              Debug.debugException(ex);
+            }
+          }
+        }
+
+        break findEntriesAndRefs;
+      }
+
+
+      // Try to use indexes to process the request.  If we can't use any
+      // indexes to get a candidate list, then just iterate over all the
+      // entries.  It's not necessary to consider the root DSE for non-base
+      // scopes.
+      final Set<DN> candidateDNs = indexSearch(filter);
+      if (candidateDNs == null)
+      {
+        for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
+        {
+          final DN dn = me.getKey();
+          final Entry entry = me.getValue();
           try
           {
-            if (filter.matchesEntry(baseEntry, schema))
+            if (dn.matchesBaseAndScope(baseDN, scope) &&
+                filter.matchesEntry(entry, schema))
             {
-              processSearchEntry(baseEntry, includeSubEntries, includeChangeLog,
+              processSearchEntry(entry, includeSubEntries, includeChangeLog,
                    hasManageDsaIT, fullEntryList, referenceList);
             }
           }
@@ -3129,317 +3141,255 @@ findEntriesAndRefs:
           {
             Debug.debugException(e);
           }
-
-          break findEntriesAndRefs;
-        }
-
-        // If the search uses a single-level scope and the base DN is the root
-        // DSE, then we will only examine the defined base entries for the data
-        // set.
-        if ((scope == SearchScope.ONE) && baseDN.isNullDN())
-        {
-          for (final DN dn : baseDNs)
-          {
-            final Entry e = entryMap.get(dn);
-            if (e != null)
-            {
-              try
-              {
-                if (filter.matchesEntry(e, schema))
-                {
-                  processSearchEntry(e, includeSubEntries, includeChangeLog,
-                       hasManageDsaIT, fullEntryList, referenceList);
-                }
-              }
-              catch (final Exception ex)
-              {
-                Debug.debugException(ex);
-              }
-            }
-          }
-
-          break findEntriesAndRefs;
-        }
-
-
-        // Try to use indexes to process the request.  If we can't use any
-        // indexes to get a candidate list, then just iterate over all the
-        // entries.  It's not necessary to consider the root DSE for non-base
-        // scopes.
-        final Set<DN> candidateDNs = indexSearch(filter);
-        if (candidateDNs == null)
-        {
-          for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
-          {
-            final DN dn = me.getKey();
-            final Entry entry = me.getValue();
-            try
-            {
-              if (dn.matchesBaseAndScope(baseDN, scope) &&
-                   filter.matchesEntry(entry, schema))
-              {
-                processSearchEntry(entry, includeSubEntries, includeChangeLog,
-                     hasManageDsaIT, fullEntryList, referenceList);
-              }
-            }
-            catch (final Exception e)
-            {
-              Debug.debugException(e);
-            }
-          }
-        }
-        else
-        {
-          for (final DN dn : candidateDNs)
-          {
-            try
-            {
-              if (! dn.matchesBaseAndScope(baseDN, scope))
-              {
-                continue;
-              }
-
-              final Entry entry = entryMap.get(dn);
-              if (filter.matchesEntry(entry, schema))
-              {
-                processSearchEntry(entry, includeSubEntries, includeChangeLog,
-                     hasManageDsaIT, fullEntryList, referenceList);
-              }
-            }
-            catch (final Exception e)
-            {
-              Debug.debugException(e);
-            }
-          }
         }
       }
-
-
-      // If the request included the server-side sort request control, then sort
-      // the matching entries appropriately.
-      final ServerSideSortRequestControl sortRequestControl =
-           (ServerSideSortRequestControl) controlMap.get(
-                ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID);
-      if (sortRequestControl != null)
+      else
       {
-        final EntrySorter entrySorter = new EntrySorter(false, schema,
-             sortRequestControl.getSortKeys());
-        final SortedSet<Entry> sortedEntrySet = entrySorter.sort(fullEntryList);
-        fullEntryList.clear();
-        fullEntryList.addAll(sortedEntrySet);
-
-        responseControls.add(new ServerSideSortResponseControl(
-             ResultCode.SUCCESS, null, false));
-      }
-
-
-      // If the request included the simple paged results control, then handle
-      // it.
-      final SimplePagedResultsControl pagedResultsControl =
-           (SimplePagedResultsControl)
-                controlMap.get(SimplePagedResultsControl.PAGED_RESULTS_OID);
-      if (pagedResultsControl != null)
-      {
-        final int totalSize = fullEntryList.size();
-        final int pageSize = pagedResultsControl.getSize();
-        final ASN1OctetString cookie = pagedResultsControl.getCookie();
-
-        final int offset;
-        if ((cookie == null) || (cookie.getValueLength() == 0))
+        for (final DN dn : candidateDNs)
         {
-          // This is the first request in the series, so start at the beginning
-          // of the list.
-          offset = 0;
-        }
-        else
-        {
-          // The cookie value will simply be an integer representation of the
-          // offset within the result list at which to start the next batch.
           try
           {
-            final ASN1Integer offsetInteger =
-                 ASN1Integer.decodeAsInteger(cookie.getValue());
-            offset = offsetInteger.intValue();
+            if (! dn.matchesBaseAndScope(baseDN, scope))
+            {
+              continue;
+            }
+
+            final Entry entry = entryMap.get(dn);
+            if (filter.matchesEntry(entry, schema))
+            {
+              processSearchEntry(entry, includeSubEntries, includeChangeLog,
+                   hasManageDsaIT, fullEntryList, referenceList);
+            }
           }
           catch (final Exception e)
           {
             Debug.debugException(e);
-            return new LDAPMessage(messageID,
-                 new SearchResultDoneProtocolOp(
-                      ResultCode.PROTOCOL_ERROR_INT_VALUE, null,
-                      ERR_MEM_HANDLER_MALFORMED_PAGED_RESULTS_COOKIE.get(),
-                      null),
-                 responseControls);
           }
-        }
-
-        // Create an iterator that will be used to remove entries from the
-        // result set that are outside of the requested page of results.
-        int pos = 0;
-        final Iterator<Entry> iterator = fullEntryList.iterator();
-
-        // First, remove entries at the beginning of the list until we hit the
-        // offset.
-        while (iterator.hasNext() && (pos < offset))
-        {
-          iterator.next();
-          iterator.remove();
-          pos++;
-        }
-
-        // Next, skip over the entries that should be returned.
-        int keptEntries = 0;
-        while (iterator.hasNext() && (keptEntries < pageSize))
-        {
-          iterator.next();
-          pos++;
-          keptEntries++;
-        }
-
-        // If there are still entries left, then remove them and create a cookie
-        // to include in the response.  Otherwise, use an empty cookie.
-        if (iterator.hasNext())
-        {
-          responseControls.add(new SimplePagedResultsControl(totalSize,
-               new ASN1OctetString(new ASN1Integer(pos).encode()), false));
-          while (iterator.hasNext())
-          {
-            iterator.next();
-            iterator.remove();
-          }
-        }
-        else
-        {
-          responseControls.add(new SimplePagedResultsControl(totalSize,
-               new ASN1OctetString(), false));
         }
       }
+    }
 
 
-      // If the request includes the virtual list view request control, then
-      // handle it.
-      final VirtualListViewRequestControl vlvRequest =
-           (VirtualListViewRequestControl) controlMap.get(
-                VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID);
-      if (vlvRequest != null)
+    // If the request included the server-side sort request control, then sort
+    // the matching entries appropriately.
+    final ServerSideSortRequestControl sortRequestControl =
+         (ServerSideSortRequestControl) controlMap.get(
+              ServerSideSortRequestControl.SERVER_SIDE_SORT_REQUEST_OID);
+    if (sortRequestControl != null)
+    {
+      final EntrySorter entrySorter = new EntrySorter(false, schema,
+           sortRequestControl.getSortKeys());
+      final SortedSet<Entry> sortedEntrySet = entrySorter.sort(fullEntryList);
+      fullEntryList.clear();
+      fullEntryList.addAll(sortedEntrySet);
+
+      responseControls.add(new ServerSideSortResponseControl(ResultCode.SUCCESS,
+           null, false));
+    }
+
+
+    // If the request included the simple paged results control, then handle it.
+    final SimplePagedResultsControl pagedResultsControl =
+         (SimplePagedResultsControl)
+         controlMap.get(SimplePagedResultsControl.PAGED_RESULTS_OID);
+    if (pagedResultsControl != null)
+    {
+      final int totalSize = fullEntryList.size();
+      final int pageSize = pagedResultsControl.getSize();
+      final ASN1OctetString cookie = pagedResultsControl.getCookie();
+
+      final int offset;
+      if ((cookie == null) || (cookie.getValueLength() == 0))
       {
-        final int totalEntries = fullEntryList.size();
-        final ASN1OctetString assertionValue = vlvRequest.getAssertionValue();
-
-        // Figure out the position of the target entry in the list.
-        int offset = vlvRequest.getTargetOffset();
-        if (assertionValue == null)
-        {
-          // The offset is one-based, so we need to adjust it for the list's
-          // zero-based offset.  Also, make sure to put it within the bounds of
-          // the list.
-          offset--;
-          offset = Math.max(0, offset);
-          offset = Math.min(fullEntryList.size(), offset);
-        }
-        else
-        {
-          final SortKey primarySortKey = sortRequestControl.getSortKeys()[0];
-
-          final Entry testEntry = new Entry("cn=test", schema,
-               new Attribute(primarySortKey.getAttributeName(),
-                    assertionValue));
-
-          final EntrySorter entrySorter =
-               new EntrySorter(false, schema, primarySortKey);
-
-          offset = fullEntryList.size();
-          for (int i=0; i < fullEntryList.size(); i++)
-          {
-            if (entrySorter.compare(fullEntryList.get(i), testEntry) >= 0)
-            {
-              offset = i;
-              break;
-            }
-          }
-        }
-
-        // Get the start and end positions based on the before and after counts.
-        final int beforeCount = Math.max(0, vlvRequest.getBeforeCount());
-        final int afterCount  = Math.max(0, vlvRequest.getAfterCount());
-
-        final int start = Math.max(0, (offset - beforeCount));
-        final int end =
-             Math.min(fullEntryList.size(), (offset + afterCount + 1));
-
-        // Create an iterator to use to alter the list so that it only contains
-        // the appropriate set of entries.
-        int pos = 0;
-        final Iterator<Entry> iterator = fullEntryList.iterator();
-        while (iterator.hasNext())
-        {
-          iterator.next();
-          if ((pos < start) || (pos >= end))
-          {
-            iterator.remove();
-          }
-          pos++;
-        }
-
-        // Create the appropriate response control.
-        responseControls.add(new VirtualListViewResponseControl((offset+1),
-             totalEntries, ResultCode.SUCCESS, null));
-      }
-
-
-      // Process the set of requested attributes so that we can pare down the
-      // entries.
-      final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
-      final AtomicBoolean allOpAttrs = new AtomicBoolean(false);
-      final Map<String,List<List<String>>> returnAttrs =
-           processRequestedAttributes(request.getAttributes(), allUserAttrs,
-                allOpAttrs);
-
-      final int sizeLimit;
-      if (request.getSizeLimit() > 0)
-      {
-        sizeLimit = Math.min(request.getSizeLimit(), maxSizeLimit);
+        // This is the first request in the series, so start at the beginning of
+        // the list.
+        offset = 0;
       }
       else
       {
-        sizeLimit = maxSizeLimit;
-      }
-
-      int entryCount = 0;
-      for (final Entry e : fullEntryList)
-      {
-        entryCount++;
-        if (entryCount > sizeLimit)
+        // The cookie value will simply be an integer representation of the
+        // offset within the result list at which to start the next batch.
+        try
         {
+          final ASN1Integer offsetInteger =
+               ASN1Integer.decodeAsInteger(cookie.getValue());
+          offset = offsetInteger.intValue();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
           return new LDAPMessage(messageID,
                new SearchResultDoneProtocolOp(
-                    ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE, null,
-                    ERR_MEM_HANDLER_SEARCH_SIZE_LIMIT_EXCEEDED.get(), null),
+                    ResultCode.PROTOCOL_ERROR_INT_VALUE, null,
+                    ERR_MEM_HANDLER_MALFORMED_PAGED_RESULTS_COOKIE.get(), null),
                responseControls);
-        }
-
-        final Entry trimmedEntry = trimForRequestedAttributes(e,
-             allUserAttrs.get(), allOpAttrs.get(), returnAttrs);
-        if (request.typesOnly())
-        {
-          final Entry typesOnlyEntry = new Entry(trimmedEntry.getDN(), schema);
-          for (final Attribute a : trimmedEntry.getAttributes())
-          {
-            typesOnlyEntry.addAttribute(new Attribute(a.getName()));
-          }
-          entryList.add(new SearchResultEntry(typesOnlyEntry));
-        }
-        else
-        {
-          entryList.add(new SearchResultEntry(trimmedEntry));
         }
       }
 
-      return new LDAPMessage(messageID,
-           new SearchResultDoneProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
-                null, null),
-           responseControls);
+      // Create an iterator that will be used to remove entries from the result
+      // set that are outside of the requested page of results.
+      int pos = 0;
+      final Iterator<Entry> iterator = fullEntryList.iterator();
+
+      // First, remove entries at the beginning of the list until we hit the
+      // offset.
+      while (iterator.hasNext() && (pos < offset))
+      {
+        iterator.next();
+        iterator.remove();
+        pos++;
+      }
+
+      // Next, skip over the entries that should be returned.
+      int keptEntries = 0;
+      while (iterator.hasNext() && (keptEntries < pageSize))
+      {
+        iterator.next();
+        pos++;
+        keptEntries++;
+      }
+
+      // If there are still entries left, then remove them and create a cookie
+      // to include in the response.  Otherwise, use an empty cookie.
+      if (iterator.hasNext())
+      {
+        responseControls.add(new SimplePagedResultsControl(totalSize,
+             new ASN1OctetString(new ASN1Integer(pos).encode()), false));
+        while (iterator.hasNext())
+        {
+          iterator.next();
+          iterator.remove();
+        }
+      }
+      else
+      {
+        responseControls.add(new SimplePagedResultsControl(totalSize,
+             new ASN1OctetString(), false));
+      }
     }
+
+
+    // If the request includes the virtual list view request control, then
+    // handle it.
+    final VirtualListViewRequestControl vlvRequest =
+         (VirtualListViewRequestControl) controlMap.get(
+              VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID);
+    if (vlvRequest != null)
+    {
+      final int totalEntries = fullEntryList.size();
+      final ASN1OctetString assertionValue = vlvRequest.getAssertionValue();
+
+      // Figure out the position of the target entry in the list.
+      int offset = vlvRequest.getTargetOffset();
+      if (assertionValue == null)
+      {
+        // The offset is one-based, so we need to adjust it for the list's
+        // zero-based offset.  Also, make sure to put it within the bounds of
+        // the list.
+        offset--;
+        offset = Math.max(0, offset);
+        offset = Math.min(fullEntryList.size(), offset);
+      }
+      else
+      {
+        final SortKey primarySortKey = sortRequestControl.getSortKeys()[0];
+
+        final Entry testEntry = new Entry("cn=test", schema,
+             new Attribute(primarySortKey.getAttributeName(), assertionValue));
+
+        final EntrySorter entrySorter =
+             new EntrySorter(false, schema, primarySortKey);
+
+        offset = fullEntryList.size();
+        for (int i=0; i < fullEntryList.size(); i++)
+        {
+          if (entrySorter.compare(fullEntryList.get(i), testEntry) >= 0)
+          {
+            offset = i;
+            break;
+          }
+        }
+      }
+
+      // Get the start and end positions based on the before and after counts.
+      final int beforeCount = Math.max(0, vlvRequest.getBeforeCount());
+      final int afterCount  = Math.max(0, vlvRequest.getAfterCount());
+
+      final int start = Math.max(0, (offset - beforeCount));
+      final int end = Math.min(fullEntryList.size(), (offset + afterCount + 1));
+
+      // Create an iterator to use to alter the list so that it only contains
+      // the appropriate set of entries.
+      int pos = 0;
+      final Iterator<Entry> iterator = fullEntryList.iterator();
+      while (iterator.hasNext())
+      {
+        iterator.next();
+        if ((pos < start) || (pos >= end))
+        {
+          iterator.remove();
+        }
+        pos++;
+      }
+
+      // Create the appropriate response control.
+      responseControls.add(new VirtualListViewResponseControl((offset+1),
+           totalEntries, ResultCode.SUCCESS, null));
+    }
+
+
+    // Process the set of requested attributes so that we can pare down the
+    // entries.
+    final AtomicBoolean allUserAttrs = new AtomicBoolean(false);
+    final AtomicBoolean allOpAttrs = new AtomicBoolean(false);
+    final Map<String,List<List<String>>> returnAttrs =
+         processRequestedAttributes(request.getAttributes(), allUserAttrs,
+              allOpAttrs);
+
+    final int sizeLimit;
+    if (request.getSizeLimit() > 0)
+    {
+      sizeLimit = Math.min(request.getSizeLimit(), maxSizeLimit);
+    }
+    else
+    {
+      sizeLimit = maxSizeLimit;
+    }
+
+    int entryCount = 0;
+    for (final Entry e : fullEntryList)
+    {
+      entryCount++;
+      if (entryCount > sizeLimit)
+      {
+        return new LDAPMessage(messageID,
+             new SearchResultDoneProtocolOp(
+                  ResultCode.SIZE_LIMIT_EXCEEDED_INT_VALUE, null,
+                  ERR_MEM_HANDLER_SEARCH_SIZE_LIMIT_EXCEEDED.get(), null),
+             responseControls);
+      }
+
+      final Entry trimmedEntry = trimForRequestedAttributes(e,
+           allUserAttrs.get(), allOpAttrs.get(), returnAttrs);
+      if (request.typesOnly())
+      {
+        final Entry typesOnlyEntry = new Entry(trimmedEntry.getDN(), schema);
+        for (final Attribute a : trimmedEntry.getAttributes())
+        {
+          typesOnlyEntry.addAttribute(new Attribute(a.getName()));
+        }
+        entryList.add(new SearchResultEntry(typesOnlyEntry));
+      }
+      else
+      {
+        entryList.add(new SearchResultEntry(trimmedEntry));
+      }
+    }
+
+    return new LDAPMessage(messageID,
+         new SearchResultDoneProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
+              null, null),
+         responseControls);
   }
 
 
@@ -3708,28 +3658,25 @@ findEntriesAndRefs:
    *
    * @return  The number of entries currently held in the server.
    */
-  public int countEntries(final boolean includeChangeLog)
+  public synchronized int countEntries(final boolean includeChangeLog)
   {
-    synchronized (entryMap)
+    if (includeChangeLog || (maxChangelogEntries == 0))
     {
-      if (includeChangeLog || (maxChangelogEntries == 0))
-      {
-        return entryMap.size();
-      }
-      else
-      {
-        int count = 0;
+      return entryMap.size();
+    }
+    else
+    {
+      int count = 0;
 
-        for (final DN dn : entryMap.keySet())
+      for (final DN dn : entryMap.keySet())
+      {
+        if (! dn.isDescendantOf(changeLogBaseDN, true))
         {
-          if (! dn.isDescendantOf(changeLogBaseDN, true))
-          {
-            count++;
-          }
+          count++;
         }
-
-        return count;
       }
+
+      return count;
     }
   }
 
@@ -3747,24 +3694,21 @@ findEntriesAndRefs:
    * @throws  LDAPException  If the provided string cannot be parsed as a valid
    *                         DN.
    */
-  public int countEntriesBelow(final String baseDN)
+  public synchronized int countEntriesBelow(final String baseDN)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final DN parsedBaseDN = new DN(baseDN, schemaRef.get());
+
+    int count = 0;
+    for (final DN dn : entryMap.keySet())
     {
-      final DN parsedBaseDN = new DN(baseDN, schemaRef.get());
-
-      int count = 0;
-      for (final DN dn : entryMap.keySet())
+      if (dn.isDescendantOf(parsedBaseDN, true))
       {
-        if (dn.isDescendantOf(parsedBaseDN, true))
-        {
-          count++;
-        }
+        count++;
       }
-
-      return count;
     }
+
+    return count;
   }
 
 
@@ -3774,12 +3718,9 @@ findEntriesAndRefs:
    * enabled, then all changelog entries will also be cleared but the base
    * "cn=changelog" entry will be retained.
    */
-  public void clear()
+  public synchronized void clear()
   {
-    synchronized (entryMap)
-    {
-      restoreSnapshot(initialSnapshot);
-    }
+    restoreSnapshot(initialSnapshot);
   }
 
 
@@ -3801,69 +3742,67 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem occurs while reading entries or adding
    *                         them to the server.
    */
-  public int importFromLDIF(final boolean clear, final LDIFReader ldifReader)
+  public synchronized int importFromLDIF(final boolean clear,
+                                         final LDIFReader ldifReader)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
+    boolean restoreSnapshot = true;
+
+    try
     {
-      final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
-      boolean restoreSnapshot = true;
-
-      try
+      if (clear)
       {
-        if (clear)
-        {
-          restoreSnapshot(initialSnapshot);
-        }
-
-        int entriesAdded = 0;
-        while (true)
-        {
-          final Entry entry;
-          try
-          {
-            entry = ldifReader.readEntry();
-            if (entry == null)
-            {
-              restoreSnapshot = false;
-              return entriesAdded;
-            }
-          }
-          catch (final LDIFException le)
-          {
-            Debug.debugException(le);
-            throw new LDAPException(ResultCode.LOCAL_ERROR,
-                 ERR_MEM_HANDLER_INIT_FROM_LDIF_READ_ERROR.get(le.getMessage()),
-                 le);
-          }
-          catch (final Exception e)
-          {
-            Debug.debugException(e);
-            throw new LDAPException(ResultCode.LOCAL_ERROR,
-                 ERR_MEM_HANDLER_INIT_FROM_LDIF_READ_ERROR.get(
-                      StaticUtils.getExceptionMessage(e)),
-                 e);
-          }
-
-          addEntry(entry, true);
-          entriesAdded++;
-        }
+        restoreSnapshot(initialSnapshot);
       }
-      finally
+
+      int entriesAdded = 0;
+      while (true)
       {
+        final Entry entry;
         try
         {
-          ldifReader.close();
+          entry = ldifReader.readEntry();
+          if (entry == null)
+          {
+            restoreSnapshot = false;
+            return entriesAdded;
+          }
+        }
+        catch (final LDIFException le)
+        {
+          Debug.debugException(le);
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_MEM_HANDLER_INIT_FROM_LDIF_READ_ERROR.get(le.getMessage()),
+               le);
         }
         catch (final Exception e)
         {
           Debug.debugException(e);
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_MEM_HANDLER_INIT_FROM_LDIF_READ_ERROR.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
         }
 
-        if (restoreSnapshot)
-        {
-          restoreSnapshot(snapshot);
-        }
+        addEntry(entry, true);
+        entriesAdded++;
+      }
+    }
+    finally
+    {
+      try
+      {
+        ldifReader.close();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+
+      if (restoreSnapshot)
+      {
+        restoreSnapshot(snapshot);
       }
     }
   }
@@ -3889,81 +3828,78 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while attempting to
    *                         write an entry to LDIF.
    */
-  public int exportToLDIF(final LDIFWriter ldifWriter,
-                          final boolean excludeGeneratedAttrs,
-                          final boolean excludeChangeLog,
-                          final boolean closeWriter)
+  public synchronized int exportToLDIF(final LDIFWriter ldifWriter,
+                                       final boolean excludeGeneratedAttrs,
+                                       final boolean excludeChangeLog,
+                                       final boolean closeWriter)
          throws LDAPException
   {
-    synchronized (entryMap)
+    boolean exceptionThrown = false;
+
+    try
     {
-      boolean exceptionThrown = false;
+      int entriesWritten = 0;
 
-      try
+      for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
       {
-        int entriesWritten = 0;
-
-        for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
+        final DN dn = me.getKey();
+        if (excludeChangeLog && dn.isDescendantOf(changeLogBaseDN, true))
         {
-          final DN dn = me.getKey();
-          if (excludeChangeLog && dn.isDescendantOf(changeLogBaseDN, true))
-          {
-            continue;
-          }
-
-          final Entry entry;
-          if (excludeGeneratedAttrs)
-          {
-            entry = me.getValue().duplicate();
-            entry.removeAttribute("entryDN");
-            entry.removeAttribute("entryUUID");
-            entry.removeAttribute("subschemaSubentry");
-            entry.removeAttribute("creatorsName");
-            entry.removeAttribute("createTimestamp");
-            entry.removeAttribute("modifiersName");
-            entry.removeAttribute("modifyTimestamp");
-          }
-          else
-          {
-            entry = me.getValue();
-          }
-
-          try
-          {
-            ldifWriter.writeEntry(entry);
-            entriesWritten++;
-          }
-          catch (final Exception e)
-          {
-            Debug.debugException(e);
-            exceptionThrown = true;
-            throw new LDAPException(ResultCode.LOCAL_ERROR,
-                 ERR_MEM_HANDLER_LDIF_WRITE_ERROR.get(entry.getDN(),
-                      StaticUtils.getExceptionMessage(e)),
-                 e);
-          }
+          continue;
         }
 
-        return entriesWritten;
-      }
-      finally
-      {
-        if (closeWriter)
+        final Entry entry;
+        if (excludeGeneratedAttrs)
         {
-          try
+          entry = me.getValue().duplicate();
+          entry.removeAttribute("entryDN");
+          entry.removeAttribute("entryUUID");
+          entry.removeAttribute("subschemaSubentry");
+          entry.removeAttribute("creatorsName");
+          entry.removeAttribute("createTimestamp");
+          entry.removeAttribute("modifiersName");
+          entry.removeAttribute("modifyTimestamp");
+        }
+        else
+        {
+          entry = me.getValue();
+        }
+
+        try
+        {
+          ldifWriter.writeEntry(entry);
+          entriesWritten++;
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          exceptionThrown = true;
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_MEM_HANDLER_LDIF_WRITE_ERROR.get(entry.getDN(),
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
+      }
+
+      return entriesWritten;
+    }
+    finally
+    {
+      if (closeWriter)
+      {
+        try
+        {
+          ldifWriter.close();
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          if (! exceptionThrown)
           {
-            ldifWriter.close();
-          }
-          catch (final Exception e)
-          {
-            Debug.debugException(e);
-            if (! exceptionThrown)
-            {
-              throw new LDAPException(ResultCode.LOCAL_ERROR,
-                   ERR_MEM_HANDLER_LDIF_WRITE_CLOSE_ERROR.get(
-                        StaticUtils.getExceptionMessage(e)),
-                   e);
-            }
+            throw new LDAPException(ResultCode.LOCAL_ERROR,
+                 ERR_MEM_HANDLER_LDIF_WRITE_CLOSE_ERROR.get(
+                      StaticUtils.getExceptionMessage(e)),
+                 e);
           }
         }
       }
@@ -4042,28 +3978,25 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem was encountered while attempting to
    *                         add any of the entries to the server.
    */
-  public void addEntries(final List<? extends Entry> entries)
+  public synchronized void addEntries(final List<? extends Entry> entries)
          throws LDAPException
   {
-    synchronized (entryMap)
-    {
-      final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
-      boolean restoreSnapshot = true;
+    final InMemoryDirectoryServerSnapshot snapshot = createSnapshot();
+    boolean restoreSnapshot = true;
 
-      try
+    try
+    {
+      for (final Entry e : entries)
       {
-        for (final Entry e : entries)
-        {
-          addEntry(e, false);
-        }
-        restoreSnapshot = false;
+        addEntry(e, false);
       }
-      finally
+      restoreSnapshot = false;
+    }
+    finally
+    {
+      if (restoreSnapshot)
       {
-        if (restoreSnapshot)
-        {
-          restoreSnapshot(snapshot);
-        }
+        restoreSnapshot(snapshot);
       }
     }
   }
@@ -4084,34 +4017,31 @@ findEntriesAndRefs:
    *                         the DN of an entry that cannot be deleted (e.g.,
    *                         the null DN).
    */
-  public int deleteSubtree(final String baseDN)
+  public synchronized int deleteSubtree(final String baseDN)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final DN dn = new DN(baseDN, schemaRef.get());
+    if (dn.isNullDN())
     {
-      final DN dn = new DN(baseDN, schemaRef.get());
-      if (dn.isNullDN())
-      {
-        throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
-             ERR_MEM_HANDLER_DELETE_ROOT_DSE.get());
-      }
-
-      int numDeleted = 0;
-
-      final Iterator<Map.Entry<DN,ReadOnlyEntry>> iterator =
-           entryMap.entrySet().iterator();
-      while (iterator.hasNext())
-      {
-        final Map.Entry<DN,ReadOnlyEntry> e = iterator.next();
-        if (e.getKey().isDescendantOf(dn, true))
-        {
-          iterator.remove();
-          numDeleted++;
-        }
-      }
-
-      return numDeleted;
+      throw new LDAPException(ResultCode.UNWILLING_TO_PERFORM,
+           ERR_MEM_HANDLER_DELETE_ROOT_DSE.get());
     }
+
+    int numDeleted = 0;
+
+    final Iterator<Map.Entry<DN,ReadOnlyEntry>> iterator =
+         entryMap.entrySet().iterator();
+    while (iterator.hasNext())
+    {
+      final Map.Entry<DN,ReadOnlyEntry> e = iterator.next();
+      if (e.getKey().isDescendantOf(dn, true))
+      {
+        iterator.remove();
+        numDeleted++;
+      }
+    }
+
+    return numDeleted;
   }
 
 
@@ -4168,7 +4098,7 @@ findEntriesAndRefs:
    *
    * @throws  LDAPException  If the provided DN is malformed.
    */
-  public ReadOnlyEntry getEntry(final String dn)
+  public synchronized ReadOnlyEntry getEntry(final String dn)
          throws LDAPException
   {
     return getEntry(new DN(dn, schemaRef.get()));
@@ -4185,29 +4115,26 @@ findEntriesAndRefs:
    * @return  The requested entry, or {@code null} if no entry exists with the
    *          given DN.
    */
-  public ReadOnlyEntry getEntry(final DN dn)
+  public synchronized ReadOnlyEntry getEntry(final DN dn)
   {
-    synchronized (entryMap)
+    if (dn.isNullDN())
     {
-      if (dn.isNullDN())
+      return generateRootDSE();
+    }
+    else if (dn.equals(subschemaSubentryDN))
+    {
+      return subschemaSubentryRef.get();
+    }
+    else
+    {
+      final Entry e = entryMap.get(dn);
+      if (e == null)
       {
-        return generateRootDSE();
-      }
-      else if (dn.equals(subschemaSubentryDN))
-      {
-        return subschemaSubentryRef.get();
+        return null;
       }
       else
       {
-        final Entry e = entryMap.get(dn);
-        if (e == null)
-        {
-          return null;
-        }
-        else
-        {
-          return new ReadOnlyEntry(e);
-        }
+        return new ReadOnlyEntry(e);
       }
     }
   }
@@ -4230,122 +4157,119 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while performing the
    *                         search.
    */
-  public List<ReadOnlyEntry> search(final String baseDN,
-                                    final SearchScope scope,
-                                    final Filter filter)
+  public synchronized List<ReadOnlyEntry> search(final String baseDN,
+                                                 final SearchScope scope,
+                                                 final Filter filter)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final DN parsedDN;
+    final Schema schema = schemaRef.get();
+    try
     {
-      final DN parsedDN;
-      final Schema schema = schemaRef.get();
+      parsedDN = new DN(baseDN, schema);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+           ERR_MEM_HANDLER_SEARCH_MALFORMED_BASE.get(baseDN, le.getMessage()),
+           le);
+    }
+
+    final ReadOnlyEntry baseEntry;
+    if (parsedDN.isNullDN())
+    {
+      baseEntry = generateRootDSE();
+    }
+    else if (parsedDN.equals(subschemaSubentryDN))
+    {
+      baseEntry = subschemaSubentryRef.get();
+    }
+    else
+    {
+      final Entry e = entryMap.get(parsedDN);
+      if (e == null)
+      {
+        throw new LDAPException(ResultCode.NO_SUCH_OBJECT,
+             ERR_MEM_HANDLER_SEARCH_BASE_DOES_NOT_EXIST.get(baseDN),
+             getMatchedDNString(parsedDN), null);
+      }
+
+      baseEntry = new ReadOnlyEntry(e);
+    }
+
+    if (scope == SearchScope.BASE)
+    {
+      final List<ReadOnlyEntry> entryList = new ArrayList<ReadOnlyEntry>(1);
+
       try
       {
-        parsedDN = new DN(baseDN, schema);
+        if (filter.matchesEntry(baseEntry, schema))
+        {
+          entryList.add(baseEntry);
+        }
       }
       catch (final LDAPException le)
       {
         Debug.debugException(le);
-        throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-             ERR_MEM_HANDLER_SEARCH_MALFORMED_BASE.get(baseDN, le.getMessage()),
-             le);
-      }
-
-      final ReadOnlyEntry baseEntry;
-      if (parsedDN.isNullDN())
-      {
-        baseEntry = generateRootDSE();
-      }
-      else if (parsedDN.equals(subschemaSubentryDN))
-      {
-        baseEntry = subschemaSubentryRef.get();
-      }
-      else
-      {
-        final Entry e = entryMap.get(parsedDN);
-        if (e == null)
-        {
-          throw new LDAPException(ResultCode.NO_SUCH_OBJECT,
-               ERR_MEM_HANDLER_SEARCH_BASE_DOES_NOT_EXIST.get(baseDN),
-               getMatchedDNString(parsedDN), null);
-        }
-
-        baseEntry = new ReadOnlyEntry(e);
-      }
-
-      if (scope == SearchScope.BASE)
-      {
-        final List<ReadOnlyEntry> entryList = new ArrayList<ReadOnlyEntry>(1);
-
-        try
-        {
-          if (filter.matchesEntry(baseEntry, schema))
-          {
-            entryList.add(baseEntry);
-          }
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-        }
-
-        return Collections.unmodifiableList(entryList);
-      }
-
-      if ((scope == SearchScope.ONE) && parsedDN.isNullDN())
-      {
-        final List<ReadOnlyEntry> entryList =
-             new ArrayList<ReadOnlyEntry>(baseDNs.size());
-
-        try
-        {
-          for (final DN dn : baseDNs)
-          {
-            final Entry e = entryMap.get(dn);
-            if ((e != null) && filter.matchesEntry(e, schema))
-            {
-              entryList.add(new ReadOnlyEntry(e));
-            }
-          }
-        }
-        catch (final LDAPException le)
-        {
-          Debug.debugException(le);
-        }
-
-        return Collections.unmodifiableList(entryList);
-      }
-
-      final List<ReadOnlyEntry> entryList = new ArrayList<ReadOnlyEntry>(10);
-      for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
-      {
-        final DN dn = me.getKey();
-        if (dn.matchesBaseAndScope(parsedDN, scope))
-        {
-          // We don't want to return changelog entries searches based at the
-          // root DSE.
-          if (parsedDN.isNullDN() && dn.isDescendantOf(changeLogBaseDN, true))
-          {
-            continue;
-          }
-
-          try
-          {
-            final Entry entry = me.getValue();
-            if (filter.matchesEntry(entry, schema))
-            {
-              entryList.add(new ReadOnlyEntry(entry));
-            }
-          }
-          catch (final LDAPException le)
-          {
-            Debug.debugException(le);
-          }
-        }
       }
 
       return Collections.unmodifiableList(entryList);
     }
+
+    if ((scope == SearchScope.ONE) && parsedDN.isNullDN())
+    {
+      final List<ReadOnlyEntry> entryList =
+           new ArrayList<ReadOnlyEntry>(baseDNs.size());
+
+      try
+      {
+        for (final DN dn : baseDNs)
+        {
+          final Entry e = entryMap.get(dn);
+          if ((e != null) && filter.matchesEntry(e, schema))
+          {
+            entryList.add(new ReadOnlyEntry(e));
+          }
+        }
+      }
+      catch (final LDAPException le)
+      {
+        Debug.debugException(le);
+      }
+
+      return Collections.unmodifiableList(entryList);
+    }
+
+    final List<ReadOnlyEntry> entryList = new ArrayList<ReadOnlyEntry>(10);
+    for (final Map.Entry<DN,ReadOnlyEntry> me : entryMap.entrySet())
+    {
+      final DN dn = me.getKey();
+      if (dn.matchesBaseAndScope(parsedDN, scope))
+      {
+        // We don't want to return changelog entries searches based at the
+        // root DSE.
+        if (parsedDN.isNullDN() && dn.isDescendantOf(changeLogBaseDN, true))
+        {
+          continue;
+        }
+
+        try
+        {
+          final Entry entry = me.getValue();
+          if (filter.matchesEntry(entry, schema))
+          {
+            entryList.add(new ReadOnlyEntry(entry));
+          }
+        }
+        catch (final LDAPException le)
+        {
+          Debug.debugException(le);
+        }
+      }
+    }
+
+    return Collections.unmodifiableList(entryList);
   }
 
 
@@ -5261,41 +5185,23 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem prevents resolving the authorization
    *                         ID to a user DN.
    */
-  public DN getDNForAuthzID(final String authzID)
+  public synchronized DN getDNForAuthzID(final String authzID)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final String lowerAuthzID = StaticUtils.toLowerCase(authzID);
+    if (lowerAuthzID.startsWith("dn:"))
     {
-      final String lowerAuthzID = StaticUtils.toLowerCase(authzID);
-      if (lowerAuthzID.startsWith("dn:"))
+      if (lowerAuthzID.equals("dn:"))
       {
-        if (lowerAuthzID.equals("dn:"))
-        {
-          return DN.NULL_DN;
-        }
-        else
-        {
-          final DN dn = new DN(authzID.substring(3), schemaRef.get());
-          if (entryMap.containsKey(dn) ||
-               additionalBindCredentials.containsKey(dn))
-          {
-            return dn;
-          }
-          else
-          {
-            throw new LDAPException(ResultCode.AUTHORIZATION_DENIED,
-                 ERR_MEM_HANDLER_NO_SUCH_IDENTITY.get(authzID));
-          }
-        }
+        return DN.NULL_DN;
       }
-      else if (lowerAuthzID.startsWith("u:"))
+      else
       {
-        final Filter f =
-             Filter.createEqualityFilter("uid", authzID.substring(2));
-        final List<ReadOnlyEntry> entryList = search("", SearchScope.SUB, f);
-        if (entryList.size() == 1)
+        final DN dn = new DN(authzID.substring(3), schemaRef.get());
+        if (entryMap.containsKey(dn) ||
+            additionalBindCredentials.containsKey(dn))
         {
-          return entryList.get(0).getParsedDN();
+          return dn;
         }
         else
         {
@@ -5303,11 +5209,26 @@ findEntriesAndRefs:
                ERR_MEM_HANDLER_NO_SUCH_IDENTITY.get(authzID));
         }
       }
+    }
+    else if (lowerAuthzID.startsWith("u:"))
+    {
+      final Filter f =
+           Filter.createEqualityFilter("uid", authzID.substring(2));
+      final List<ReadOnlyEntry> entryList = search("", SearchScope.SUB, f);
+      if (entryList.size() == 1)
+      {
+        return entryList.get(0).getParsedDN();
+      }
       else
       {
         throw new LDAPException(ResultCode.AUTHORIZATION_DENIED,
              ERR_MEM_HANDLER_NO_SUCH_IDENTITY.get(authzID));
       }
+    }
+    else
+    {
+      throw new LDAPException(ResultCode.AUTHORIZATION_DENIED,
+           ERR_MEM_HANDLER_NO_SUCH_IDENTITY.get(authzID));
     }
   }
 
@@ -5542,7 +5463,7 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final String dn)
+  public synchronized boolean entryExists(final String dn)
          throws LDAPException
   {
     return (getEntry(dn) != null);
@@ -5563,27 +5484,24 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final String dn, final String filter)
+  public synchronized boolean entryExists(final String dn, final String filter)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final Entry e = getEntry(dn);
+    if (e == null)
     {
-      final Entry e = getEntry(dn);
-      if (e == null)
-      {
-        return false;
-      }
+      return false;
+    }
 
-      final Filter f = Filter.create(filter);
-      try
-      {
-        return f.matchesEntry(e, schemaRef.get());
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
-        return false;
-      }
+    final Filter f = Filter.create(filter);
+    try
+    {
+      return f.matchesEntry(e, schemaRef.get());
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      return false;
     }
   }
 
@@ -5603,30 +5521,27 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public boolean entryExists(final Entry entry)
+  public synchronized boolean entryExists(final Entry entry)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final Entry e = getEntry(entry.getDN());
+    if (e == null)
     {
-      final Entry e = getEntry(entry.getDN());
-      if (e == null)
-      {
-        return false;
-      }
+      return false;
+    }
 
-      for (final Attribute a : entry.getAttributes())
+    for (final Attribute a : entry.getAttributes())
+    {
+      for (final byte[] value : a.getValueByteArrays())
       {
-        for (final byte[] value : a.getValueByteArrays())
+        if (! e.hasAttributeValue(a.getName(), value))
         {
-          if (! e.hasAttributeValue(a.getName(), value))
-          {
-            return false;
-          }
+          return false;
         }
       }
-
-      return true;
     }
+
+    return true;
   }
 
 
@@ -5641,7 +5556,7 @@ findEntriesAndRefs:
    *
    * @throws  AssertionError  If the target entry does not exist.
    */
-  public void assertEntryExists(final String dn)
+  public synchronized void assertEntryExists(final String dn)
          throws LDAPException, AssertionError
   {
     final Entry e = getEntry(dn);
@@ -5665,33 +5580,30 @@ findEntriesAndRefs:
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          match the provided filter.
    */
-  public void assertEntryExists(final String dn, final String filter)
+  public synchronized void assertEntryExists(final String dn,
+                                             final String filter)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    final Entry e = getEntry(dn);
+    if (e == null)
     {
-      final Entry e = getEntry(dn);
-      if (e == null)
-      {
-        throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
-      }
+      throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
+    }
 
-      final Filter f = Filter.create(filter);
-      try
+    final Filter f = Filter.create(filter);
+    try
+    {
+      if (! f.matchesEntry(e, schemaRef.get()))
       {
-        if (! f.matchesEntry(e, schemaRef.get()))
-        {
-          throw new AssertionError(
-               ERR_MEM_HANDLER_TEST_ENTRY_DOES_NOT_MATCH_FILTER.get(dn,
-                    filter));
-        }
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
         throw new AssertionError(
              ERR_MEM_HANDLER_TEST_ENTRY_DOES_NOT_MATCH_FILTER.get(dn, filter));
       }
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      throw new AssertionError(
+           ERR_MEM_HANDLER_TEST_ENTRY_DOES_NOT_MATCH_FILTER.get(dn, filter));
     }
   }
 
@@ -5711,49 +5623,45 @@ findEntriesAndRefs:
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          match the provided filter.
    */
-  public void assertEntryExists(final Entry entry)
+  public synchronized void assertEntryExists(final Entry entry)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    final Entry e = getEntry(entry.getDN());
+    if (e == null)
     {
-      final Entry e = getEntry(entry.getDN());
-      if (e == null)
+      throw new AssertionError(
+           ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(entry.getDN()));
+    }
+
+
+    final Collection<Attribute> attrs = entry.getAttributes();
+    final List<String> messages = new ArrayList<String>(attrs.size());
+
+    final Schema schema = schemaRef.get();
+    for (final Attribute a : entry.getAttributes())
+    {
+      final Filter presFilter = Filter.createPresenceFilter(a.getName());
+      if (! presFilter.matchesEntry(e, schema))
       {
-        throw new AssertionError(
-             ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(entry.getDN()));
+        messages.add(ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(entry.getDN(),
+             a.getName()));
+        continue;
       }
 
-
-      final Collection<Attribute> attrs = entry.getAttributes();
-      final List<String> messages = new ArrayList<String>(attrs.size());
-
-      final Schema schema = schemaRef.get();
-      for (final Attribute a : entry.getAttributes())
+      for (final byte[] value : a.getValueByteArrays())
       {
-        final Filter presFilter = Filter.createPresenceFilter(a.getName());
-        if (! presFilter.matchesEntry(e, schema))
+        final Filter eqFilter = Filter.createEqualityFilter(a.getName(), value);
+        if (! eqFilter.matchesEntry(e, schema))
         {
-          messages.add(ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(entry.getDN(),
-               a.getName()));
-          continue;
-        }
-
-        for (final byte[] value : a.getValueByteArrays())
-        {
-          final Filter eqFilter = Filter.createEqualityFilter(a.getName(),
-               value);
-          if (! eqFilter.matchesEntry(e, schema))
-          {
-            messages.add(ERR_MEM_HANDLER_TEST_VALUE_MISSING.get(entry.getDN(),
-                 a.getName(), StaticUtils.toUTF8String(value)));
-          }
+          messages.add(ERR_MEM_HANDLER_TEST_VALUE_MISSING.get(entry.getDN(),
+               a.getName(), StaticUtils.toUTF8String(value)));
         }
       }
+    }
 
-      if (! messages.isEmpty())
-      {
-        throw new AssertionError(StaticUtils.concatenateStrings(messages));
-      }
+    if (! messages.isEmpty())
+    {
+      throw new AssertionError(StaticUtils.concatenateStrings(messages));
     }
   }
 
@@ -5771,23 +5679,21 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingEntryDNs(final Collection<String> dns)
+  public synchronized List<String> getMissingEntryDNs(
+                                        final Collection<String> dns)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final List<String> missingDNs = new ArrayList<String>(dns.size());
+    for (final String dn : dns)
     {
-      final List<String> missingDNs = new ArrayList<String>(dns.size());
-      for (final String dn : dns)
+      final Entry e = getEntry(dn);
+      if (e == null)
       {
-        final Entry e = getEntry(dn);
-        if (e == null)
-        {
-          missingDNs.add(dn);
-        }
+        missingDNs.add(dn);
       }
-
-      return missingDNs;
     }
+
+    return missingDNs;
   }
 
 
@@ -5803,25 +5709,22 @@ findEntriesAndRefs:
    *
    * @throws  AssertionError  If any of the target entries does not exist.
    */
-  public void assertEntriesExist(final Collection<String> dns)
+  public synchronized void assertEntriesExist(final Collection<String> dns)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    final List<String> missingDNs = getMissingEntryDNs(dns);
+    if (missingDNs.isEmpty())
     {
-      final List<String> missingDNs = getMissingEntryDNs(dns);
-      if (missingDNs.isEmpty())
-      {
-        return;
-      }
-
-      final List<String> messages = new ArrayList<String>(missingDNs.size());
-      for (final String dn : missingDNs)
-      {
-        messages.add(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
-      }
-
-      throw new AssertionError(StaticUtils.concatenateStrings(messages));
+      return;
     }
+
+    final List<String> messages = new ArrayList<String>(missingDNs.size());
+    for (final String dn : missingDNs)
+    {
+      messages.add(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
+    }
+
+    throw new AssertionError(StaticUtils.concatenateStrings(messages));
   }
 
 
@@ -5842,32 +5745,29 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingAttributeNames(final String dn,
-                           final Collection<String> attributeNames)
+  public synchronized List<String> getMissingAttributeNames(final String dn,
+                                        final Collection<String> attributeNames)
          throws LDAPException
   {
-    synchronized (entryMap)
+    final Entry e = getEntry(dn);
+    if (e == null)
     {
-      final Entry e = getEntry(dn);
-      if (e == null)
-      {
-        return null;
-      }
-
-      final Schema schema = schemaRef.get();
-      final List<String> missingAttrs =
-           new ArrayList<String>(attributeNames.size());
-      for (final String attr : attributeNames)
-      {
-        final Filter f = Filter.createPresenceFilter(attr);
-        if (! f.matchesEntry(e, schema))
-        {
-          missingAttrs.add(attr);
-        }
-      }
-
-      return missingAttrs;
+      return null;
     }
+
+    final Schema schema = schemaRef.get();
+    final List<String> missingAttrs =
+         new ArrayList<String>(attributeNames.size());
+    for (final String attr : attributeNames)
+    {
+      final Filter f = Filter.createPresenceFilter(attr);
+      if (! f.matchesEntry(e, schema))
+      {
+        missingAttrs.add(attr);
+      }
+    }
+
+    return missingAttrs;
   }
 
 
@@ -5886,31 +5786,28 @@ findEntriesAndRefs:
    * @throws  AssertionError  If the target entry does not exist or does not
    *                          contain all of the specified attributes.
    */
-  public void assertAttributeExists(final String dn,
-                                    final Collection<String> attributeNames)
+  public synchronized void assertAttributeExists(final String dn,
+                                final Collection<String> attributeNames)
         throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    final List<String> missingAttrs =
+         getMissingAttributeNames(dn, attributeNames);
+    if (missingAttrs == null)
     {
-      final List<String> missingAttrs =
-           getMissingAttributeNames(dn, attributeNames);
-      if (missingAttrs == null)
-      {
-        throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
-      }
-      else if (missingAttrs.isEmpty())
-      {
-        return;
-      }
-
-      final List<String> messages = new ArrayList<String>(missingAttrs.size());
-      for (final String attr : missingAttrs)
-      {
-        messages.add(ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(dn, attr));
-      }
-
-      throw new AssertionError(StaticUtils.concatenateStrings(messages));
+      throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
     }
+    else if (missingAttrs.isEmpty())
+    {
+      return;
+    }
+
+    final List<String> messages = new ArrayList<String>(missingAttrs.size());
+    for (final String attr : missingAttrs)
+    {
+      messages.add(ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(dn, attr));
+    }
+
+    throw new AssertionError(StaticUtils.concatenateStrings(messages));
   }
 
 
@@ -5933,33 +5830,30 @@ findEntriesAndRefs:
    * @throws  LDAPException  If a problem is encountered while trying to
    *                         communicate with the directory server.
    */
-  public List<String> getMissingAttributeValues(final String dn,
+  public synchronized List<String> getMissingAttributeValues(final String dn,
                            final String attributeName,
                            final Collection<String> attributeValues)
        throws LDAPException
   {
-    synchronized (entryMap)
+    final Entry e = getEntry(dn);
+    if (e == null)
     {
-      final Entry e = getEntry(dn);
-      if (e == null)
-      {
-        return null;
-      }
-
-      final Schema schema = schemaRef.get();
-      final List<String> missingValues =
-           new ArrayList<String>(attributeValues.size());
-      for (final String value : attributeValues)
-      {
-        final Filter f = Filter.createEqualityFilter(attributeName, value);
-        if (! f.matchesEntry(e, schema))
-        {
-          missingValues.add(value);
-        }
-      }
-
-      return missingValues;
+      return null;
     }
+
+    final Schema schema = schemaRef.get();
+    final List<String> missingValues =
+         new ArrayList<String>(attributeValues.size());
+    for (final String value : attributeValues)
+    {
+      final Filter f = Filter.createEqualityFilter(attributeName, value);
+      if (! f.matchesEntry(e, schema))
+      {
+        missingValues.add(value);
+      }
+    }
+
+    return missingValues;
   }
 
 
@@ -5981,42 +5875,39 @@ findEntriesAndRefs:
    *                          contain the specified attribute, or that attribute
    *                          does not have all of the specified values.
    */
-  public void assertValueExists(final String dn,
+  public synchronized void assertValueExists(final String dn,
                                 final String attributeName,
                                 final Collection<String> attributeValues)
         throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    final List<String> missingValues =
+         getMissingAttributeValues(dn, attributeName, attributeValues);
+    if (missingValues == null)
     {
-      final List<String> missingValues =
-           getMissingAttributeValues(dn, attributeName, attributeValues);
-      if (missingValues == null)
-      {
-        throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
-      }
-      else if (missingValues.isEmpty())
-      {
-        return;
-      }
-
-      // See if the attribute exists at all in the entry.
-      final Entry e = getEntry(dn);
-      final Filter f = Filter.createPresenceFilter(attributeName);
-      if (! f.matchesEntry(e,  schemaRef.get()))
-      {
-        throw new AssertionError(
-             ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(dn, attributeName));
-      }
-
-      final List<String> messages = new ArrayList<String>(missingValues.size());
-      for (final String value : missingValues)
-      {
-        messages.add(ERR_MEM_HANDLER_TEST_VALUE_MISSING.get(dn, attributeName,
-             value));
-      }
-
-      throw new AssertionError(StaticUtils.concatenateStrings(messages));
+      throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
     }
+    else if (missingValues.isEmpty())
+    {
+      return;
+    }
+
+    // See if the attribute exists at all in the entry.
+    final Entry e = getEntry(dn);
+    final Filter f = Filter.createPresenceFilter(attributeName);
+    if (! f.matchesEntry(e,  schemaRef.get()))
+    {
+      throw new AssertionError(
+           ERR_MEM_HANDLER_TEST_ATTR_MISSING.get(dn, attributeName));
+    }
+
+    final List<String> messages = new ArrayList<String>(missingValues.size());
+    for (final String value : missingValues)
+    {
+      messages.add(ERR_MEM_HANDLER_TEST_VALUE_MISSING.get(dn, attributeName,
+           value));
+    }
+
+    throw new AssertionError(StaticUtils.concatenateStrings(messages));
   }
 
 
@@ -6031,7 +5922,7 @@ findEntriesAndRefs:
    *
    * @throws  AssertionError  If the target entry is found in the server.
    */
-  public void assertEntryMissing(final String dn)
+  public synchronized void assertEntryMissing(final String dn)
          throws LDAPException, AssertionError
   {
     final Entry e = getEntry(dn);
@@ -6057,34 +5948,30 @@ findEntriesAndRefs:
    * @throws  AssertionError  If the target entry is missing from the server, or
    *                          if it contains any of the target attributes.
    */
-  public void assertAttributeMissing(final String dn,
-                                     final Collection<String> attributeNames)
+  public synchronized void assertAttributeMissing(final String dn,
+                                final Collection<String> attributeNames)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    final Entry e = getEntry(dn);
+    if (e == null)
     {
-      final Entry e = getEntry(dn);
-      if (e == null)
-      {
-        throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
-      }
+      throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
+    }
 
-      final Schema schema = schemaRef.get();
-      final List<String> messages =
-           new ArrayList<String>(attributeNames.size());
-      for (final String name : attributeNames)
+    final Schema schema = schemaRef.get();
+    final List<String> messages = new ArrayList<String>(attributeNames.size());
+    for (final String name : attributeNames)
+    {
+      final Filter f = Filter.createPresenceFilter(name);
+      if (f.matchesEntry(e, schema))
       {
-        final Filter f = Filter.createPresenceFilter(name);
-        if (f.matchesEntry(e, schema))
-        {
-          messages.add(ERR_MEM_HANDLER_TEST_ATTR_EXISTS.get(dn, name));
-        }
+        messages.add(ERR_MEM_HANDLER_TEST_ATTR_EXISTS.get(dn, name));
       }
+    }
 
-      if (! messages.isEmpty())
-      {
-        throw new AssertionError(StaticUtils.concatenateStrings(messages));
-      }
+    if (! messages.isEmpty())
+    {
+      throw new AssertionError(StaticUtils.concatenateStrings(messages));
     }
   }
 
@@ -6105,36 +5992,32 @@ findEntriesAndRefs:
    * @throws  AssertionError  If the target entry is missing from the server, or
    *                          if it contains any of the target attribute values.
    */
-  public void assertValueMissing(final String dn,
-                                 final String attributeName,
-                                 final Collection<String> attributeValues)
+  public synchronized void assertValueMissing(final String dn,
+                                final String attributeName,
+                                final Collection<String> attributeValues)
          throws LDAPException, AssertionError
   {
-    synchronized (entryMap)
+    final Entry e = getEntry(dn);
+    if (e == null)
     {
-      final Entry e = getEntry(dn);
-      if (e == null)
-      {
-        throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
-      }
+      throw new AssertionError(ERR_MEM_HANDLER_TEST_ENTRY_MISSING.get(dn));
+    }
 
-      final Schema schema = schemaRef.get();
-      final List<String> messages =
-           new ArrayList<String>(attributeValues.size());
-      for (final String value : attributeValues)
+    final Schema schema = schemaRef.get();
+    final List<String> messages = new ArrayList<String>(attributeValues.size());
+    for (final String value : attributeValues)
+    {
+      final Filter f = Filter.createEqualityFilter(attributeName, value);
+      if (f.matchesEntry(e, schema))
       {
-        final Filter f = Filter.createEqualityFilter(attributeName, value);
-        if (f.matchesEntry(e, schema))
-        {
-          messages.add(ERR_MEM_HANDLER_TEST_VALUE_EXISTS.get(dn, attributeName,
-               value));
-        }
+        messages.add(ERR_MEM_HANDLER_TEST_VALUE_EXISTS.get(dn, attributeName,
+             value));
       }
+    }
 
-      if (! messages.isEmpty())
-      {
-        throw new AssertionError(StaticUtils.concatenateStrings(messages));
-      }
+    if (! messages.isEmpty())
+    {
+      throw new AssertionError(StaticUtils.concatenateStrings(messages));
     }
   }
 }

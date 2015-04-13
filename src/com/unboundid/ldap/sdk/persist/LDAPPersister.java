@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2015 UnboundID Corp.
+ * Copyright 2009-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2015 UnboundID Corp.
+ * Copyright (C) 2009-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -1414,8 +1414,7 @@ public final class LDAPPersister<T>
     }
     else
     {
-      filter = Filter.simplifyFilter(
-           Filter.createANDFilter(handler.createFilter(o), extraFilter), true);
+      filter = Filter.createANDFilter(handler.createFilter(o), extraFilter);
     }
 
     final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
@@ -1579,8 +1578,7 @@ public final class LDAPPersister<T>
       base = baseDN;
     }
 
-    final Filter f = Filter.simplifyFilter(
-         Filter.createANDFilter(filter, handler.createBaseFilter()), true);
+    final Filter f = Filter.createANDFilter(filter, handler.createBaseFilter());
     final SearchListenerBridge<T> bridge = new SearchListenerBridge<T>(this, l);
 
     final SearchRequest searchRequest = new SearchRequest(bridge, base, scope,
@@ -1755,8 +1753,7 @@ public final class LDAPPersister<T>
     }
     else
     {
-      filter = Filter.simplifyFilter(
-           Filter.createANDFilter(handler.createFilter(o), extraFilter), true);
+      filter = Filter.createANDFilter(handler.createFilter(o), extraFilter);
     }
 
     final SearchRequest searchRequest = new SearchRequest(base, scope,

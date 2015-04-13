@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2015 UnboundID Corp.
+ * Copyright 2009-2014 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2015 UnboundID Corp.
+ * Copyright (C) 2009-2014 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -49,13 +49,6 @@ import static com.unboundid.util.StaticUtils.*;
 public abstract class ObjectEncoder
        implements Serializable
 {
-  /**
-   * The serial version UID for this serializable class.
-   */
-  private static final long serialVersionUID = -5139516629886911696L;
-
-
-
   /**
    * Indicates whether this object encoder may be used to encode or decode
    * objects of the specified type.
