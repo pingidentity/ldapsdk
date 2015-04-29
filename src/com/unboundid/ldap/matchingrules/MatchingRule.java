@@ -23,11 +23,13 @@ package com.unboundid.ldap.matchingrules;
 
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Extensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -501,6 +503,25 @@ public abstract class MatchingRule
     {
       return TelephoneNumberMatchingRule.getInstance();
     }
+    else if (lowerName.equals("jsonobjectexactmatch") ||
+             lowerName.equals("1.3.6.1.4.1.30221.2.4.12"))
+    {
+      // This is the jsonObjectExactMatch matching rule.  That rule is only
+      // supported in the Commercial Edition of the LDAP SDK.  Use reflection to
+      // get it if it's available.
+      try
+      {
+        final Class<?> c = Class.forName("com.unboundid.ldap.sdk.unboundidds." +
+             "json.JSONObjectExactMatchingRule");
+        final Method m = c.getMethod("getInstance");
+        return (MatchingRule) m.invoke(null);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        return CaseIgnoreStringMatchingRule.getInstance();
+      }
+    }
     else
     {
       return getDefaultEqualityMatchingRule();
@@ -892,6 +913,23 @@ public abstract class MatchingRule
     else if (syntaxOID.equals("1.3.6.1.4.1.1466.115.121.1.50"))
     {
       return TelephoneNumberMatchingRule.getInstance();
+    }
+    else if (syntaxOID.equals("1.3.6.1.4.1.30221.2.3.4")) // JSON object
+    {
+      // This is only supported in the Commercial Edition of the LDAP SDK.  Use
+      // reflection to get the appropriate matching rule if it's available.
+      try
+      {
+        final Class<?> c = Class.forName("com.unboundid.ldap.sdk.unboundidds." +
+             "json.JSONObjectExactMatchingRule");
+        final Method m = c.getMethod("getInstance");
+        return (MatchingRule) m.invoke(null);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        return CaseIgnoreStringMatchingRule.getInstance();
+      }
     }
     else
     {
