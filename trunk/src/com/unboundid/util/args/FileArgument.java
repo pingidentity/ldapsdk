@@ -77,6 +77,9 @@ public final class FileArgument
   // relative paths.
   private File relativeBaseDirectory;
 
+  // The argument value validators that have been registered for this argument.
+  private final List<ArgumentValueValidator> validators;
+
   // The list of default values for this argument.
   private final List<File> defaultValues;
 
@@ -239,7 +242,8 @@ public final class FileArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values                = new ArrayList<File>();
+    values                = new ArrayList<File>(5);
+    validators            = new ArrayList<ArgumentValueValidator>(5);
     relativeBaseDirectory = null;
   }
 
@@ -261,7 +265,9 @@ public final class FileArgument
     parentMustExist       = source.parentMustExist;
     defaultValues         = source.defaultValues;
     relativeBaseDirectory = source.relativeBaseDirectory;
-         values           = new ArrayList<File>();
+    validators            =
+         new ArrayList<ArgumentValueValidator>(source.validators);
+    values                = new ArrayList<File>(5);
   }
 
 
@@ -366,6 +372,21 @@ public final class FileArgument
 
 
   /**
+   * Updates this argument to ensure that the provided validator will be invoked
+   * for any values provided to this argument.  This validator will be invoked
+   * after all other validation has been performed for this argument.
+   *
+   * @param  validator  The argument value validator to be invoked.  It must not
+   *                    be {@code null}.
+   */
+  public void addValueValidator(final ArgumentValueValidator validator)
+  {
+    validators.add(validator);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -434,6 +455,11 @@ public final class FileArgument
     {
       throw new ArgumentException(ERR_ARG_MAX_OCCURRENCES_EXCEEDED.get(
                                        getIdentifierString()));
+    }
+
+    for (final ArgumentValueValidator v : validators)
+    {
+      v.validateArgumentValue(this, valueString);
     }
 
     values.add(f);

@@ -63,6 +63,9 @@ public final class StringArgument
   // The set of values assigned to this argument.
   private final ArrayList<String> values;
 
+  // The argument value validators that have been registered for this argument.
+  private final List<ArgumentValueValidator> validators;
+
   // The list of default values that will be used if no values were provided.
   private final List<String> defaultValues;
 
@@ -352,7 +355,20 @@ public final class StringArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values                = new ArrayList<String>();
+    if ((this.allowedValues != null) && (this.defaultValues != null))
+    {
+      for (final String s : this.defaultValues)
+      {
+        if (! this.allowedValues.contains(s))
+        {
+          throw new ArgumentException(
+               ERR_ARG_DEFAULT_VALUE_NOT_ALLOWED.get(2, getIdentifierString()));
+        }
+      }
+    }
+
+    values                = new ArrayList<String>(5);
+    validators            = new ArrayList<ArgumentValueValidator>(5);
     valueRegex            = null;
     valueRegexExplanation = null;
   }
@@ -373,7 +389,9 @@ public final class StringArgument
     defaultValues         = source.defaultValues;
     valueRegex            = source.valueRegex;
     valueRegexExplanation = source.valueRegexExplanation;
-    values                = new ArrayList<String>();
+    values                = new ArrayList<String>(5);
+    validators            =
+         new ArrayList<ArgumentValueValidator>(source.validators);
   }
 
 
@@ -457,6 +475,21 @@ public final class StringArgument
 
 
   /**
+   * Updates this argument to ensure that the provided validator will be invoked
+   * for any values provided to this argument.  This validator will be invoked
+   * after all other validation has been performed for this argument.
+   *
+   * @param  validator  The argument value validator to be invoked.  It must not
+   *                    be {@code null}.
+   */
+  public void addValueValidator(final ArgumentValueValidator validator)
+  {
+    validators.add(validator);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -499,6 +532,11 @@ public final class StringArgument
                     valueRegexExplanation));
         }
       }
+    }
+
+    for (final ArgumentValueValidator v : validators)
+    {
+      v.validateArgumentValue(this, valueString);
     }
 
     values.add(valueString);

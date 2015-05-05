@@ -30,6 +30,7 @@ import java.util.List;
 
 import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.CompareResult;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -41,6 +42,7 @@ import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
+import com.unboundid.util.args.ControlArgument;
 
 
 
@@ -81,6 +83,12 @@ public final class LDAPCompare
 
   // The argument parser for this tool.
   private ArgumentParser parser;
+
+  // The argument used to specify any bind controls that should be used.
+  private ControlArgument bindControls;
+
+  // The argument used to specify any compare controls that should be used.
+  private ControlArgument compareControls;
 
 
 
@@ -223,9 +231,31 @@ public final class LDAPCompare
   public void addNonLDAPArguments(final ArgumentParser parser)
          throws ArgumentException
   {
-    // No additional named arguments are required, but we should save a
-    // reference to the argument parser.
+    // Save a reference to the argument parser.
     this.parser = parser;
+
+    String description =
+         "Information about a control to include in the bind request.";
+    bindControls = new ControlArgument(null, "bindControl", false, 0, null,
+         description);
+    parser.addArgument(bindControls);
+
+
+    description = "Information about a control to include in compare requests.";
+    compareControls = new ControlArgument('J', "control", false, 0, null,
+         description);
+    parser.addArgument(compareControls);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected List<Control> getBindControls()
+  {
+    return bindControls.getValues();
   }
 
 
@@ -322,6 +352,7 @@ public final class LDAPCompare
       {
         compareRequest = new CompareRequest(targetDN, attributeName,
                                             assertionValueBytes);
+        compareRequest.setControls(compareControls.getValues());
       }
       else
       {

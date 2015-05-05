@@ -63,6 +63,9 @@ public final class IntegerArgument
   // The upper bound for this argument.
   private final int upperBound;
 
+  // The argument value validators that have been registered for this argument.
+  private final List<ArgumentValueValidator> validators;
+
   // The list of default values that will be used if no values were provided.
   private final List<Integer> defaultValues;
 
@@ -353,7 +356,8 @@ public final class IntegerArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<Integer>();
+    values = new ArrayList<Integer>(5);
+    validators = new ArrayList<ArgumentValueValidator>(5);
   }
 
 
@@ -371,7 +375,8 @@ public final class IntegerArgument
     lowerBound    = source.lowerBound;
     upperBound    = source.upperBound;
     defaultValues = source.defaultValues;
-    values        = new ArrayList<Integer>();
+    validators    = new ArrayList<ArgumentValueValidator>(source.validators);
+    values        = new ArrayList<Integer>(5);
   }
 
 
@@ -415,6 +420,21 @@ public final class IntegerArgument
 
 
   /**
+   * Updates this argument to ensure that the provided validator will be invoked
+   * for any values provided to this argument.  This validator will be invoked
+   * after all other validation has been performed for this argument.
+   *
+   * @param  validator  The argument value validator to be invoked.  It must not
+   *                    be {@code null}.
+   */
+  public void addValueValidator(final ArgumentValueValidator validator)
+  {
+    validators.add(validator);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -450,6 +470,11 @@ public final class IntegerArgument
     {
       throw new ArgumentException(ERR_ARG_MAX_OCCURRENCES_EXCEEDED.get(
                                        getIdentifierString()));
+    }
+
+    for (final ArgumentValueValidator v : validators)
+    {
+      v.validateArgumentValue(this, valueString);
     }
 
     values.add(intValue);

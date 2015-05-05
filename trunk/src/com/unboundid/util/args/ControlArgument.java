@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2015 UnboundID Corp.
+ * Copyright 2015 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2015 UnboundID Corp.
+ * Copyright (C) 2015 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,30 +23,56 @@ package com.unboundid.util.args;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.util.Base64;
+import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
-import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.args.ArgsMessages.*;
 
 
 
 /**
- * This class defines an argument that is intended to hold one or more
- * search filter values.  Filter arguments must take values, and those values
- * must be able to be parsed as LDAP search filters.
+ * This class defines an argument that is intended to hold information about one
+ * or more LDAP controls.  Values for this argument must be in one of the
+ * following formats:
+ * <UL>
+ *   <LI>
+ *     oid -- The numeric OID for the control.  The control will not be critical
+ *     and will not have a value.
+ *   </LI>
+ *   <LI>
+ *     oid:criticality -- The numeric OID followed by a colon and the
+ *     criticality.  The control will be critical if the criticality value is
+ *     any of the following:  {@code true}, {@code t}, {@code yes}, {@code y},
+ *     {@code on}, or {@code 1}.  The control will be non-critical if the
+ *     criticality value is any of the following:  {@code false}, {@code f},
+ *     {@code no}, {@code n}, {@code off}, or {@code 0}.  No other criticality
+ *     values will be accepted.
+ *   </LI>
+ *   <LI>
+ *     oid:criticality:value -- The numeric OID followed by a colon and the
+ *     criticality, then a colon and then a string that represents the value for
+ *     the control.
+ *   </LI>
+ *   <LI>
+ *     oid:criticality::base64value -- The numeric OID  followed by a colon and
+ *     the criticality, then two colons and then a string that represents the
+ *     base64-encoded value for the control.
+ *   </LI>
+ * </UL>
  */
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
-public final class FilterArgument
+public final class ControlArgument
        extends Argument
 {
   /**
@@ -56,19 +82,19 @@ public final class FilterArgument
 
 
 
-  // The set of values assigned to this argument.
-  private final ArrayList<Filter> values;
-
   // The argument value validators that have been registered for this argument.
   private final List<ArgumentValueValidator> validators;
 
   // The list of default values for this argument.
-  private final List<Filter> defaultValues;
+  private final List<Control> defaultValues;
+
+  // The set of values assigned to this argument.
+  private final List<Control> values;
 
 
 
   /**
-   * Creates a new filter argument with the provided information.  It will not
+   * Creates a new control argument with the provided information.  It will not
    * have a default value.
    *
    * @param  shortIdentifier   The short identifier for this argument.  It may
@@ -84,28 +110,30 @@ public final class FilterArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} to use a default placeholder that
+   *                           describes the expected syntax for values.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    *
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public FilterArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description)
+  public ControlArgument(final Character shortIdentifier,
+                         final String longIdentifier, final boolean isRequired,
+                         final int maxOccurrences,
+                         final String valuePlaceholder,
+                         final String description)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
-         valuePlaceholder, description, (List<Filter>) null);
+         valuePlaceholder, description, (List<Control>) null);
   }
 
 
 
   /**
-   * Creates a new filter argument with the provided information.
+   * Creates a new control argument with the provided information.
    *
    * @param  shortIdentifier   The short identifier for this argument.  It may
    *                           not be {@code null} if the long identifier is
@@ -120,8 +148,9 @@ public final class FilterArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} to use a default placeholder that
+   *                           describes the expected syntax for values.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    * @param  defaultValue      The default value to use for this argument if no
@@ -131,22 +160,24 @@ public final class FilterArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public FilterArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description,
-                        final Filter defaultValue)
+  public ControlArgument(final Character shortIdentifier,
+                         final String longIdentifier, final boolean isRequired,
+                         final int maxOccurrences,
+                         final String valuePlaceholder,
+                         final String description, final Control defaultValue)
          throws ArgumentException
   {
     this(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
          valuePlaceholder, description,
-         ((defaultValue == null) ? null : Arrays.asList(defaultValue)));
+         ((defaultValue == null)
+              ? null :
+              Collections.singletonList(defaultValue)));
   }
 
 
 
   /**
-   * Creates a new filter argument with the provided information.
+   * Creates a new control argument with the provided information.
    *
    * @param  shortIdentifier   The short identifier for this argument.  It may
    *                           not be {@code null} if the long identifier is
@@ -161,8 +192,9 @@ public final class FilterArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} to use a default placeholder that
+   *                           describes the expected syntax for values.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    * @param  defaultValues     The set of default values to use for this
@@ -171,21 +203,19 @@ public final class FilterArgument
    * @throws  ArgumentException  If there is a problem with the definition of
    *                             this argument.
    */
-  public FilterArgument(final Character shortIdentifier,
-                        final String longIdentifier, final boolean isRequired,
-                        final int maxOccurrences, final String valuePlaceholder,
-                        final String description,
-                        final List<Filter> defaultValues)
+  public ControlArgument(final Character shortIdentifier,
+                         final String longIdentifier, final boolean isRequired,
+                         final int maxOccurrences,
+                         final String valuePlaceholder,
+                         final String description,
+                         final List<Control> defaultValues)
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
-          valuePlaceholder, description);
-
-    if (valuePlaceholder == null)
-    {
-      throw new ArgumentException(ERR_ARG_MUST_TAKE_VALUE.get(
-                                       getIdentifierString()));
-    }
+         (valuePlaceholder == null)
+              ? "{oid}[:{criticality}[:{stringValue}|::{base64Value}]]"
+              : valuePlaceholder,
+         description);
 
     if ((defaultValues == null) || defaultValues.isEmpty())
     {
@@ -196,25 +226,25 @@ public final class FilterArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<Filter>(5);
+    values = new ArrayList<Control>(5);
     validators = new ArrayList<ArgumentValueValidator>(5);
   }
 
 
 
   /**
-   * Creates a new filter argument that is a "clean" copy of the provided source
-   * argument.
+   * Creates a new control argument that is a "clean" copy of the provided
+   * source argument.
    *
    * @param  source  The source argument to use for this argument.
    */
-  private FilterArgument(final FilterArgument source)
+  private ControlArgument(final ControlArgument source)
   {
     super(source);
 
     defaultValues = source.defaultValues;
     validators    = new ArrayList<ArgumentValueValidator>(source.validators);
-    values        = new ArrayList<Filter>(5);
+    values        = new ArrayList<Control>(5);
   }
 
 
@@ -226,7 +256,7 @@ public final class FilterArgument
    * @return   The list of default values for this argument, or {@code null} if
    *           there are no default values.
    */
-  public List<Filter> getDefaultValues()
+  public List<Control> getDefaultValues()
   {
     return defaultValues;
   }
@@ -255,17 +285,84 @@ public final class FilterArgument
   protected void addValue(final String valueString)
             throws ArgumentException
   {
-    final Filter filter;
-    try
+    final String oid;
+    boolean isCritical = false;
+    ASN1OctetString value = null;
+
+    final int firstColonPos = valueString.indexOf(':');
+    if (firstColonPos < 0)
     {
-      filter = Filter.create(valueString);
+      oid = valueString;
     }
-    catch (LDAPException le)
+    else
     {
-      debugException(le);
-      throw new ArgumentException(ERR_FILTER_VALUE_NOT_FILTER.get(valueString,
-                                       getIdentifierString(), le.getMessage()),
-                                  le);
+      oid = valueString.substring(0, firstColonPos);
+
+      final String criticalityStr;
+      final int secondColonPos = valueString.indexOf(':', (firstColonPos+1));
+      if (secondColonPos < 0)
+      {
+        criticalityStr = valueString.substring(firstColonPos+1);
+      }
+      else
+      {
+        criticalityStr = valueString.substring(firstColonPos+1, secondColonPos);
+
+        final int doubleColonPos = valueString.indexOf("::");
+        if (doubleColonPos == secondColonPos)
+        {
+          try
+          {
+            value = new ASN1OctetString(
+                 Base64.decode(valueString.substring(doubleColonPos+2)));
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            throw new ArgumentException(
+                 ERR_CONTROL_ARG_INVALID_BASE64_VALUE.get(valueString,
+                      getIdentifierString(),
+                      valueString.substring(doubleColonPos+2)),
+                 e);
+          }
+        }
+        else
+        {
+          value = new ASN1OctetString(valueString.substring(secondColonPos+1));
+        }
+      }
+
+      final String lowerCriticalityStr =
+           StaticUtils.toLowerCase(criticalityStr);
+      if (lowerCriticalityStr.equals("true") ||
+          lowerCriticalityStr.equals("t") ||
+          lowerCriticalityStr.equals("yes") ||
+          lowerCriticalityStr.equals("y") ||
+          lowerCriticalityStr.equals("on") ||
+          lowerCriticalityStr.equals("1"))
+      {
+        isCritical = true;
+      }
+      else if (lowerCriticalityStr.equals("false") ||
+               lowerCriticalityStr.equals("f") ||
+               lowerCriticalityStr.equals("no") ||
+               lowerCriticalityStr.equals("n") ||
+               lowerCriticalityStr.equals("off") ||
+               lowerCriticalityStr.equals("0"))
+      {
+        isCritical = false;
+      }
+      else
+      {
+        throw new ArgumentException(ERR_CONTROL_ARG_INVALID_CRITICALITY.get(
+             valueString, getIdentifierString(), criticalityStr));
+      }
+    }
+
+    if (! StaticUtils.isNumericOID(oid))
+    {
+      throw new ArgumentException(ERR_CONTROL_ARG_INVALID_OID.get(
+           valueString, getIdentifierString(), oid));
     }
 
     if (values.size() >= getMaxOccurrences())
@@ -279,7 +376,7 @@ public final class FilterArgument
       v.validateArgumentValue(this, valueString);
     }
 
-    values.add(filter);
+    values.add(new Control(oid, isCritical, value));
   }
 
 
@@ -292,7 +389,7 @@ public final class FilterArgument
    *          provided, or {@code null} if there is no value and no default
    *          value.
    */
-  public Filter getValue()
+  public Control getValue()
   {
     if (values.isEmpty())
     {
@@ -320,7 +417,7 @@ public final class FilterArgument
    * @return  The set of values for this argument, or the default values if none
    *          were provided.
    */
-  public List<Filter> getValues()
+  public List<Control> getValues()
   {
     if (values.isEmpty() && (defaultValues != null))
     {
@@ -349,7 +446,7 @@ public final class FilterArgument
   @Override()
   public String getDataTypeName()
   {
-    return INFO_FILTER_TYPE_NAME.get();
+    return INFO_CONTROL_TYPE_NAME.get();
   }
 
 
@@ -360,7 +457,7 @@ public final class FilterArgument
   @Override()
   public String getValueConstraints()
   {
-    return INFO_FILTER_CONSTRAINTS.get();
+    return INFO_CONTROL_CONSTRAINTS.get();
   }
 
 
@@ -369,9 +466,9 @@ public final class FilterArgument
    * {@inheritDoc}
    */
   @Override()
-  public FilterArgument getCleanCopy()
+  public ControlArgument getCleanCopy()
   {
-    return new FilterArgument(this);
+    return new ControlArgument(this);
   }
 
 
@@ -382,7 +479,7 @@ public final class FilterArgument
   @Override()
   public void toString(final StringBuilder buffer)
   {
-    buffer.append("FilterArgument(");
+    buffer.append("ControlArgument(");
     appendBasicToStringInfo(buffer);
 
     if ((defaultValues != null) && (! defaultValues.isEmpty()))
@@ -396,7 +493,7 @@ public final class FilterArgument
       {
         buffer.append(", defaultValues={");
 
-        final Iterator<Filter> iterator = defaultValues.iterator();
+        final Iterator<Control> iterator = defaultValues.iterator();
         while (iterator.hasNext())
         {
           buffer.append('\'');
