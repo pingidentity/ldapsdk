@@ -1513,6 +1513,7 @@ public final class LDAPConnectionPool
         }
       }
 
+      poolStatistics.incrementNumConnectionsClosedDefunct();
       handleDefunctConnection(conn);
       for (int i=0; i < numConnections; i++)
       {
@@ -1532,11 +1533,13 @@ public final class LDAPConnectionPool
           catch (LDAPException le)
           {
             debugException(le);
+            poolStatistics.incrementNumConnectionsClosedDefunct();
             handleDefunctConnection(conn);
           }
         }
         else
         {
+          poolStatistics.incrementNumConnectionsClosedDefunct();
           handleDefunctConnection(conn);
         }
       }
@@ -1586,6 +1589,7 @@ public final class LDAPConnectionPool
           catch (LDAPException le)
           {
             debugException(le);
+            poolStatistics.incrementNumConnectionsClosedDefunct();
             handleDefunctConnection(conn);
           }
         }
@@ -1676,6 +1680,7 @@ public final class LDAPConnectionPool
         catch (final LDAPException le)
         {
           debugException(le);
+          poolStatistics.incrementNumConnectionsClosedDefunct();
           handleDefunctConnection(conn);
           continue;
         }
@@ -1931,6 +1936,7 @@ public final class LDAPConnectionPool
                              final LDAPConnection connection)
          throws LDAPException
   {
+    poolStatistics.incrementNumConnectionsClosedDefunct();
     connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, null,
                                  null);
     connection.terminate(null);
@@ -2516,6 +2522,7 @@ public final class LDAPConnectionPool
       if (! conn.isConnected())
       {
         numDefunct++;
+        poolStatistics.incrementNumConnectionsClosedDefunct();
         conn = handleDefunctConnection(conn);
         if (conn != null)
         {
@@ -2699,6 +2706,7 @@ public final class LDAPConnectionPool
         {
           debugException(e);
           numDefunct++;
+          poolStatistics.incrementNumConnectionsClosedDefunct();
           conn = handleDefunctConnection(conn);
           if (conn != null)
           {

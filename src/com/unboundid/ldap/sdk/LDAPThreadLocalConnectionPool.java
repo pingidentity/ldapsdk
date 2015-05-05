@@ -974,6 +974,7 @@ public final class LDAPThreadLocalConnectionPool
                              final LDAPConnection connection)
          throws LDAPException
   {
+    poolStatistics.incrementNumConnectionsClosedDefunct();
     connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, null,
                                  null);
     connection.terminate(null);
