@@ -4,12 +4,12 @@ Network Working Group                                        Pat Fleming
 INTERNET-DRAFT                                               Independent
 Obsoletes: 3712 (if approved)                               Ira McDonald
 Intended Status: Informational                                High North
-Expires: 19 October 2015                                   19 April 2015
+Expires: 30 October 2015                                   30 April 2015
 
 
              Lightweight Directory Access Protocol (LDAP):
                       Schema for Printer Services
-              <draft-mcdonald-ldap-printer-schema-12.txt>
+              <draft-mcdonald-ldap-printer-schema-13.txt>
 
 
 Abstract 
@@ -48,14 +48,14 @@ Status of this Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress." 
    
-   This Internet-Draft will expire on 19 October 2015.  
+   This Internet-Draft will expire on 30 October 2015.  
 
 
 Copyright Notice 
 
-Fleming, McDonald            Expires 19 October 2015            [Page 1]
+Fleming, McDonald            Expires 30 October 2015            [Page 1]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
    Copyright (c) 2015 IETF Trust and the persons identified as the
@@ -109,9 +109,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald            Expires 19 October 2015            [Page 2]
+Fleming, McDonald            Expires 30 October 2015            [Page 2]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
                            Table of Contents
 
@@ -165,9 +165,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
   4.26.  printer-job-priority-supported ........................      32
   4.27.  printer-copies-supported ..............................      32
 
-Fleming, McDonald            Expires 19 October 2015            [Page 3]
+Fleming, McDonald            Expires 30 October 2015            [Page 3]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
   4.28.  printer-job-k-octets-supported ........................      32
   4.29.  printer-current-operator ..............................      33
@@ -221,9 +221,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald            Expires 19 October 2015            [Page 4]
+Fleming, McDonald            Expires 30 October 2015            [Page 4]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
 
@@ -277,9 +277,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    
 
 
-Fleming, McDonald            Expires 19 October 2015            [Page 5]
+Fleming, McDonald            Expires 30 October 2015            [Page 5]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -333,9 +333,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
        Note:  The printer-natural-language-configured attribute contains
        a language tag [BCP47] for these description attributes (for
 
-Fleming, McDonald            Expires 19 October 2015            [Page 6]
+Fleming, McDonald            Expires 30 October 2015            [Page 6]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
        example, to support text-to-speech conversions).  
        
@@ -389,9 +389,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
        Case insensitive equality matching is more user-friendly for
        description attributes.  
 
-Fleming, McDonald            Expires 19 October 2015            [Page 7]
+Fleming, McDonald            Expires 30 October 2015            [Page 7]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
        
    3)  Keyword 
@@ -445,9 +445,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this 
    document are to be interpreted as described in [RFC2119].  
 
-Fleming, McDonald            Expires 19 October 2015            [Page 8]
+Fleming, McDonald            Expires 30 October 2015            [Page 8]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -501,9 +501,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald            Expires 19 October 2015            [Page 9]
+Fleming, McDonald            Expires 30 October 2015            [Page 9]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
 
@@ -557,9 +557,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 10]
+Fleming, McDonald           Expires 30 October 2015            [Page 10]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -613,9 +613,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
            printer-job-priority-supported $ 
            printer-copies-supported $ 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 11]
+Fleming, McDonald           Expires 30 October 2015            [Page 11]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
            printer-job-k-octets-supported $ 
            printer-current-operator $
@@ -669,9 +669,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    DESC  'Printer information.'
    AUXILIARY
 
-Fleming, McDonald           Expires 19 October 2015            [Page 12]
+Fleming, McDonald           Expires 30 October 2015            [Page 12]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    SUP   printerAbstract
    MAY   ( printer-uri $ 
@@ -725,9 +725,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 13]
+Fleming, McDonald           Expires 30 October 2015            [Page 13]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
 
@@ -781,9 +781,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    defined in [RFC2911], [RFC3805], [PWG5107.2], or [PWG5100.13].  Some
    source attribute names have been prefixed with 'printer-' as
 
-Fleming, McDonald           Expires 19 October 2015            [Page 14]
+Fleming, McDonald           Expires 30 October 2015            [Page 14]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    recommended in [RFC2926], to address the flat namespace for LDAP
    identifiers.  
@@ -837,9 +837,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    printer-output-features-supported
                                    [prtOutputBursting]
 
-Fleming, McDonald           Expires 19 October 2015            [Page 15]
+Fleming, McDonald           Expires 30 October 2015            [Page 15]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
                                    [prtOutputDecollating]
                                    [prtOutputPageCollated]
@@ -893,9 +893,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    Note:  See Sections 1.1, 1.2, and 1.3 for rationale for design
    choices.  
 
-Fleming, McDonald           Expires 19 October 2015            [Page 16]
+Fleming, McDonald           Expires 30 October 2015            [Page 16]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -949,9 +949,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    values) constraints of the IPP/1.1 separate attributes.  
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 17]
+Fleming, McDonald           Expires 30 October 2015            [Page 17]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    Defined keywords for fields include:  
@@ -1005,9 +1005,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    EQUALITY caseIgnoreMatch
    SUBSTR caseIgnoreSubstringsMatch
 
-Fleming, McDonald           Expires 19 October 2015            [Page 18]
+Fleming, McDonald           Expires 30 October 2015            [Page 18]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    SYNTAX  1.3.6.1.4.1.1466.115.121.1.15
    SINGLE-VALUE
@@ -1061,9 +1061,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    Note:  For compatibility with IPP/1.1 [RFC2911], language tags in
    this attribute SHOULD be lowercase normalized.  
 
-Fleming, McDonald           Expires 19 October 2015            [Page 19]
+Fleming, McDonald           Expires 30 October 2015            [Page 19]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -1117,9 +1117,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
         Printer'
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 20]
+Fleming, McDonald           Expires 30 October 2015            [Page 20]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    Note:  For compatibility with IPP/1.1 [RFC2911], values of this
@@ -1173,9 +1173,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    SYNTAX  1.3.6.1.4.1.1466.115.121.1.15
    SINGLE-VALUE
 
-Fleming, McDonald           Expires 19 October 2015            [Page 21]
+Fleming, McDonald           Expires 30 October 2015            [Page 21]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    )
    
@@ -1229,9 +1229,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 22]
+Fleming, McDonald           Expires 30 October 2015            [Page 22]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -1285,9 +1285,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
          IPP string attributes that correspond to attributes of
          syntax DirectoryString (UTF-8) for this directory entry.'
 
-Fleming, McDonald           Expires 19 October 2015            [Page 23]
+Fleming, McDonald           Expires 30 October 2015            [Page 23]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    EQUALITY caseIgnoreMatch
    SYNTAX  1.3.6.1.4.1.1466.115.121.1.15
@@ -1341,9 +1341,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    Note:  For compatibility with IPP/1.1 [RFC2911], language tags in
    this attribute SHOULD be lowercase normalized.  
 
-Fleming, McDonald           Expires 19 October 2015            [Page 24]
+Fleming, McDonald           Expires 30 October 2015            [Page 24]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -1397,9 +1397,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    SUBSTR caseIgnoreSubstringsMatch
    SYNTAX  1.3.6.1.4.1.1466.115.121.1.15
 
-Fleming, McDonald           Expires 19 October 2015            [Page 25]
+Fleming, McDonald           Expires 30 October 2015            [Page 25]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    )
    
@@ -1453,9 +1453,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
          output by this Printer.'
    EQUALITY integerMatch
 
-Fleming, McDonald           Expires 19 October 2015            [Page 26]
+Fleming, McDonald           Expires 30 October 2015            [Page 26]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    ORDERING integerOrderingMatch
    SYNTAX  1.3.6.1.4.1.1466.115.121.1.27  
@@ -1509,9 +1509,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 27]
+Fleming, McDonald           Expires 30 October 2015            [Page 27]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -1565,9 +1565,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    Note:  For compatibility with IPP/1.1 [RFC2911], values of this
    attribute SHOULD NOT exceed 255 octets in length.  
 
-Fleming, McDonald           Expires 19 October 2015            [Page 28]
+Fleming, McDonald           Expires 30 October 2015            [Page 28]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    Values defined in IPP/1.1 [RFC2911] and recorded in the IANA IPP
@@ -1621,9 +1621,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 29]
+Fleming, McDonald           Expires 30 October 2015            [Page 29]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -1677,9 +1677,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    used in the printer-xri-supported and printer-resolution-supported
    attributes ('<' and '>', respectively), chosen for compatibility with
 
-Fleming, McDonald           Expires 19 October 2015            [Page 30]
+Fleming, McDonald           Expires 30 October 2015            [Page 30]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    the IANA-registered SLP 'service:printer:' v2.0 template [SLPPRT20].
    
@@ -1733,9 +1733,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 31]
+Fleming, McDonald           Expires 30 October 2015            [Page 31]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -1789,9 +1789,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    EQUALITY integerMatch
    ORDERING integerOrderingMatch
 
-Fleming, McDonald           Expires 19 October 2015            [Page 32]
+Fleming, McDonald           Expires 30 October 2015            [Page 32]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    SYNTAX  1.3.6.1.4.1.1466.115.121.1.27  
    SINGLE-VALUE
@@ -1845,9 +1845,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    )
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 33]
+Fleming, McDonald           Expires 30 October 2015            [Page 33]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    The value of this attribute SHOULD include information that would
@@ -1901,9 +1901,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    NAME 'printer-stacking-order-supported'
    DESC 'List of stacking orders of pages as they are printed and
 
-Fleming, McDonald           Expires 19 October 2015            [Page 34]
+Fleming, McDonald           Expires 30 October 2015            [Page 34]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
          ejected supported by this Printer.'
    EQUALITY caseIgnoreMatch
@@ -1957,9 +1957,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    prtOutputDecollating, prtOutputPageCollated, and
    prtOutputOffsetStacking are:  
 
-Fleming, McDonald           Expires 19 October 2015            [Page 35]
+Fleming, McDonald           Expires 30 October 2015            [Page 35]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
        'bursting'
@@ -2013,9 +2013,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    ( 1.3.18.0.2.24.46.1.101
    NAME 'printer-device-id'
 
-Fleming, McDonald           Expires 19 October 2015            [Page 36]
+Fleming, McDonald           Expires 30 October 2015            [Page 36]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    DESC 'The IEEE 1284 Device ID for this Printer.'
    EQUALITY caseIgnoreMatch
@@ -2069,9 +2069,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    The UUID of this Printer (Print Service) instance on this Imaging
    Device (host system).  For example:  
 
-Fleming, McDonald           Expires 19 October 2015            [Page 37]
+Fleming, McDonald           Expires 30 October 2015            [Page 37]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
        'urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6'
@@ -2125,9 +2125,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 38]
+Fleming, McDonald           Expires 30 October 2015            [Page 38]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    
@@ -2181,9 +2181,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    [RFC5870].  
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 39]
+Fleming, McDonald           Expires 30 October 2015            [Page 39]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    Note:  For compatibility with IPP/1.1 [RFC2911] and [PWG5100.13],
@@ -2237,9 +2237,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
        'subscription-object' (Subscription object defined in [RFC3995])
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 40]
+Fleming, McDonald           Expires 30 October 2015            [Page 40]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    Note:  The value 'unknown' MUST only be reported if the corresponding
@@ -2293,9 +2293,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 41]
+Fleming, McDonald           Expires 30 October 2015            [Page 41]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
 
@@ -2349,9 +2349,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 42]
+Fleming, McDonald           Expires 30 October 2015            [Page 42]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
 
@@ -2405,9 +2405,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    printer-device-service-count                  1.3.18.0.2.24.46.1.102
    printer-uuid                                  1.3.18.0.2.24.46.1.104
 
-Fleming, McDonald           Expires 19 October 2015            [Page 43]
+Fleming, McDonald           Expires 30 October 2015            [Page 43]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    printer-charge-info                           1.3.18.0.2.24.46.1.105
    printer-charge-info-uri                       1.3.18.0.2.24.46.1.106
@@ -2418,8 +2418,13 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    
    7.2.  Object Classes and Attribute Types from RFC 3712
    
+   This section is strictly informative.  None of the LDAP OIDs listed
+   in this section should be re-registered by IANA when this document is
+   published.  
+   
    The following Object Class OIDs were assigned by IBM (see section
-   1.3.1) and registered by IANA when RFC 3712 was published.  
+   1.3.1) and were already registered by IANA when RFC 3712 was
+   published.  
    
    Object Class                                  OID
    ------------------------------------          -----------------------
@@ -2431,7 +2436,8 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    printerLPR                                    1.3.18.0.2.6.253
    
    The following Attribute Type OIDs were assigned by IBM (see section
-   1.3.1) and registered by IANA when RFC 3712 was published.  
+   1.3.1) and were already registered by IANA when RFC 3712 was
+   published.  
    
    Attribute Type                                OID
    ------------------------------------          -----------------------
@@ -2454,17 +2460,17 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    printer-pages-per-minute                      1.3.18.0.2.4.1127
    printer-pages-per-minute-color                1.3.18.0.2.4.1126
    printer-finishings-supported                  1.3.18.0.2.4.1125
+
+Fleming, McDonald           Expires 30 October 2015            [Page 44]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    printer-number-up-supported                   1.3.18.0.2.4.1124
    printer-sides-supported                       1.3.18.0.2.4.1123
    printer-media-supported                       1.3.18.0.2.4.1122
    printer-media-local-supported                 1.3.18.0.2.4.1117
    printer-resolution-supported                  1.3.18.0.2.4.1121
    printer-print-quality-supported               1.3.18.0.2.4.1120
-
-Fleming, McDonald           Expires 19 October 2015            [Page 44]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    printer-job-priority-supported                1.3.18.0.2.4.1110
    printer-copies-supported                      1.3.18.0.2.4.1118
    printer-job-k-octets-supported                1.3.18.0.2.4.1111
@@ -2511,15 +2517,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-
-
-
-
-
-
-Fleming, McDonald           Expires 19 October 2015            [Page 45]
+Fleming, McDonald           Expires 30 October 2015            [Page 45]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
 
@@ -2573,9 +2573,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 46]
+Fleming, McDonald           Expires 30 October 2015            [Page 46]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
 
@@ -2629,9 +2629,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    [PWG5100.14] Sweet, M., and I. McDonald.  IEEE-ISTO PWG IPP
    Everywhere, January 2013.  
 
-Fleming, McDonald           Expires 19 October 2015            [Page 47]
+Fleming, McDonald           Expires 30 October 2015            [Page 47]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    <ftp://ftp.pwg.org/pub/pwg/candidates/ 
    cs-ippeve10-20130128-5100.14.pdf> 
@@ -2685,9 +2685,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    [RFC4519] A. Sciberras, Ed.  Lightweight Directory Access Protocol
    (LDAP): Schema for User Applications, RFC 4519, June 2006.  
 
-Fleming, McDonald           Expires 19 October 2015            [Page 48]
+Fleming, McDonald           Expires 30 October 2015            [Page 48]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    [RFC4524] K. Zeilenga, Ed.  COSINE LDAP/X.500 Schema, RFC 4524, June 
@@ -2741,9 +2741,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    February 2006.  
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 49]
+Fleming, McDonald           Expires 30 October 2015            [Page 49]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
    
    [IANASLP] Internet Assigned Numbers Authority (IANA) Registry
@@ -2797,9 +2797,9 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    Archived in [IANASLP] as "printer.2.0.en".  
 
 
-Fleming, McDonald           Expires 19 October 2015            [Page 50]
+Fleming, McDonald           Expires 30 October 2015            [Page 50]
 
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
 
 
 
@@ -2829,8 +2829,7 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
        project.  
        
    4)  Added implementation note to section 4 about string encodings 
-       - added discussion of 'List of xxx' and and 'One of xxx'
-       encodings; 
+       - added discussion of 'List of xxx' and 'One of xxx' encodings; 
        - stated that any of these attributes can be represented as
        multiple instances (i.e., to avoid length overflow).  
        
@@ -2851,14 +2850,13 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
        C0 and C1 control characters.  
        
    8)  Clarified section 9 'Security Considerations' 
-
-
-Fleming, McDonald           Expires 19 October 2015            [Page 51]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
        - added note about security vulnerabilities caused by use of DEL
        or any C0 or C1 control characters in names.  
+
+Fleming, McDonald           Expires 30 October 2015            [Page 51]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
        
    9)  Clarified terms and abbreviations 
        - renamed section 2 Conventions Used in This Document; 
@@ -2872,10 +2870,17 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
    [ [RFC Editor:  This section to be deleted before RFC publication] ] 
    
+   30 April 2015 - draft-mcdonald-ldap-printer-schema-13.txt 
+   Editorial - revised section 7.2 Object Classes and Attribute Types
+   from RFC 3712 to clarify that the section is Informative and that
+   IANA does NOT need to change registration of any of these existing
+   LDAP OIDs, per advice advice of Amanda Baber on 30 April 2015 during
+   IANA final review.  
+   
    19 April 2015 - draft-mcdonald-ldap-printer-schema-12.txt 
    Editorial - revised section 7.1 Registration of Attribute Types to
-   correct title of registration, per advice of Rolf Sonneveld on 16
-   April 2015 during IANA review by LDAP Designated Experts.  
+   correct title of registration form, per advice of Rolf Sonneveld on
+   16 April 2015 during IANA review by LDAP Designated Experts.  
    
    23 March 2015 - draft-mcdonald-ldap-printer-schema-11.txt 
    Editorial - revised section 2 Conventions Used in This Document to
@@ -2903,16 +2908,16 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    December 2014.  
    Editorial - revised section 4.3 printer-name to change "MAY" to "can"
    throughout the second Note paragraph, per advice of Alexey Melnikov
+
+Fleming, McDonald           Expires 30 October 2015            [Page 52]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    on 16 December 2014.  
    Editorial - revised section 4.13
    printer-generated-natural-language-supported to change example of
    from "fr-fr" to "fr-ca" (French as spoken in Canada) as a better
    illustration, per advice of Alexey Melnikov on 16 December 2014.  
-
-Fleming, McDonald           Expires 19 October 2015            [Page 52]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    Editorial - revised section 7 IANA Considerations to make clear which
    OIDs were already previously assigned by IBM and IANA-registered by
    RFC 3712, per advice of Nevil Brownlee on 18 December 2014.  
@@ -2959,16 +2964,16 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    that this document obsoletes [RFC3712], per Alexey Melnikov.  
    Editorial - added section 1.1 'Relationship to SLP Printer Service'
    and section 1.2 'Source of LDAP Printer Attributes' for clarity.  
+
+Fleming, McDonald           Expires 30 October 2015            [Page 53]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    Editorial - added section 1.3 'Sources of LDAP Printer Schema OIDs'
    to describe permanent delegation of "1.3.18.0.2.24.46" to the
    IEEE-ISTO PWG by IBM in October 2011, per Alexey Melnikov.  
    Editorial - added section 1.4 'Rationale for Design Choices' for
    clarity.  
-
-Fleming, McDonald           Expires 19 October 2015            [Page 53]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    Editorial - revised sections 3.1, 3.4, 3.5, and 3.6 to delete
    erroneous SHOULD references to structural classes, per Alexey
    Melnikov.  
@@ -3015,16 +3020,15 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    printer-charge-info, printer-charge-info-uri, printer-geo-location,
    printer-ipp-features-supported, to remove length restrictions in
    syntax and add textual notes instead about IPP compatibility (where
+
+Fleming, McDonald           Expires 30 October 2015            [Page 54]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    applicable), per Alexey Melnikov.  
    Editorial - added appendix A 'Changes since RFC 3712', per Alexey
    Melnikov.  
    Editorial - added missing informative reference to [RFC3712].  
-
-
-Fleming, McDonald           Expires 19 October 2015            [Page 54]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    
    
    19 September 2013 - draft-mcdonald-ldap-printer-schema-05.txt 
@@ -3072,15 +3076,15 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    Editorial - revised section 4 Definition of Attribute Types to add
    implementation note contrasting 'List of xxx' and 'One of xxx' and
    stating that any of these attributes can be represented as multiple
+
+Fleming, McDonald           Expires 30 October 2015            [Page 55]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    instances (i.e., to avoid length overflow), per IEEE-ISTO PWG IPP WG
    review.  
    Global - revised all comma-delimited examples to include both single-
    and multi-valued examples, per IEEE-ISTO PWG IPP WG review.  
-
-Fleming, McDonald           Expires 19 October 2015            [Page 55]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    Editorial - revised section 4.2 printer-xri-supported text and
    examples to show optional *trailing* whitespace after '<' delimiters,
    per IEEE-ISTO PWG IPP WG review.  
@@ -3127,16 +3131,16 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    
    20 May 2012 - draft-mcdonald-ldap-printer-schema-02.txt 
    Working draft - for IEEE-ISTO PWG IPP Everywhere project 
+
+
+Fleming, McDonald           Expires 30 October 2015            [Page 56]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    Cover - changed intended category to Standards Track for consistency 
    w/ recent LDAP schema specs and IPP Everywhere recommendations.  
    Global - replace 'must' w/ 'MUST', 'should' w/ 'SHOULD', and 'may' w/
    'can' or 'MAY' (as appropriate) for Standards Track document.  
-
-
-Fleming, McDonald           Expires 19 October 2015            [Page 56]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    Global - updated publication and expiration dates in copyright,
    header, footer, and boilerplate.  
    Global - replaced [RFC1759] references (obsolete) w/ [RFC3805], per
@@ -3183,16 +3187,17 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    new attributes, per IEEE-ISTO PWG IPP WG review.  
    Revised section 10.1 to add BCP 14 to [RFC2119] definition, per
    IEEE-ISTO PWG IPP WG review.  
+
+
+Fleming, McDonald           Expires 30 October 2015            [Page 57]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    Revised section 10.1 and section 10.2 to move [RFC2617], [RFC3987],
    [RFC4122], [RFC5198], [RFC5246], [RFC5280], [RFC5870], [STD63] from
    informative to normative references, per IEEE-ISTO PWG IPP WG review.
    
    3 April 2012 - draft-mcdonald-ldap-printer-schema-01.txt 
-
-Fleming, McDonald           Expires 19 October 2015            [Page 57]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    Working draft - for IEEE-ISTO PWG IPP Everywhere project 
    Global - changed [IPPEVE1] to [PWG5100.EVE] and [IPPJPS3] to
    [PWG5100.JPS3], per IEEE-ISTO PWG IPP WG review.  
@@ -3238,17 +3243,18 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    per IEEE-ISTO PWG IPP WG review.  
    Revised section 4 subsection printer-uuid, to change 'should' to
    'must' for conformance to [RFC4122], per IEEE-ISTO PWG IPP WG review.
+
+
+Fleming, McDonald           Expires 30 October 2015            [Page 58]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    Revised section 10 References, to update out-of-date references.  
    
    2 October 2011 - draft-mcdonald-ldap-printer-schema-00.txt 
    Working draft - for IEEE-ISTO PWG IPP Everywhere project 
    Revised document to add current I-D individual submission
    boilerplate.  
-
-Fleming, McDonald           Expires 19 October 2015            [Page 58]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    Revised Abstract and section 1 Introduction, to cite [PWG5107.2] and 
    [PWG5100.JPS3] new attribute sources.  
    Revised section 3.2 printerAbstract, to add new attributes from
@@ -3294,17 +3300,17 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
    USA
    Phone: +1 507-356-8277
    Email: patfleminghtc@gmail.com
+
+Fleming, McDonald           Expires 30 October 2015            [Page 59]
+
+Internet-Draft      LDAP Schema for Printer Services       30 April 2015
+
    
    
    Ira McDonald
    High North Inc
    221 Ridge Ave
    Grand Marais, MI 49839
-
-Fleming, McDonald           Expires 19 October 2015            [Page 59]
-
-Internet-Draft      LDAP Schema for Printer Services       19 April 2015
-
    USA
    Phone: +1 906-494-2434
    Email: blueroofmusic@gmail.com
@@ -3351,10 +3357,4 @@ Internet-Draft      LDAP Schema for Printer Services       19 April 2015
 
 
 
-
-
-
-
-
-
-Fleming, McDonald           Expires 19 October 2015            [Page 60]
+Fleming, McDonald           Expires 30 October 2015            [Page 60]
