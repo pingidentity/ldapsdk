@@ -1360,6 +1360,7 @@ public final class Filter
         int     attrEndPos   = -1;
         byte    tempFilterType = 0x00;
         boolean filterTypeKnown = false;
+        boolean equalFound = false;
 attrNameLoop:
         while (l <= r)
         {
@@ -1440,14 +1441,23 @@ attrNameLoop:
               // It could be either an equality, presence, or substring filter.
               // We'll need to look at the value to determine that.
               attrEndPos = l - 1;
+              equalFound = true;
               break attrNameLoop;
           }
         }
 
         if (attrEndPos <= attrStartPos)
         {
-          throw new LDAPException(ResultCode.FILTER_ERROR,
-                                  ERR_FILTER_EMPTY_ATTR_NAME.get(startPos));
+          if (equalFound)
+          {
+            throw new LDAPException(ResultCode.FILTER_ERROR,
+                 ERR_FILTER_EMPTY_ATTR_NAME.get(startPos));
+          }
+          else
+          {
+            throw new LDAPException(ResultCode.FILTER_ERROR,
+                 ERR_FILTER_NO_EQUAL_SIGN.get(startPos));
+          }
         }
         attrName = filterString.substring(attrStartPos, attrEndPos);
 
@@ -1475,7 +1485,7 @@ attrNameLoop:
             // We have either a matching rule ID or a dnAttributes flag, or
             // both.  Iterate through the filter until we find the equal sign,
             // and then figure out what we have from that.
-            boolean equalFound = false;
+            equalFound = false;
             final int substrStartPos = l - 1;
             while (l <= r)
             {
