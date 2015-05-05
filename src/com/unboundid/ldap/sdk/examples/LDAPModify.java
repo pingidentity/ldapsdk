@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
+import java.util.List;
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -40,6 +42,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.ControlArgument;
 import com.unboundid.util.args.FileArgument;
 
 
@@ -73,6 +76,9 @@ import com.unboundid.util.args.FileArgument;
  *       continue if an error occurs while processing an earlier change.  If
  *       this is not provided, then the command will exit on the first error
  *       that occurs.</LI>
+ *   <LI>"--bindControl {control}" -- specifies a control that should be
+ *       included in the bind request sent by this tool before performing any
+ *       update operations.</LI>
  * </UL>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
@@ -93,6 +99,9 @@ public final class LDAPModify
   // Indicates whether LDIF records without a changetype should be considered
   // add records.
   private BooleanArgument defaultAdd;
+
+  // The argument used to specify any bind controls that should be used.
+  private ControlArgument bindControls;
 
   // The LDIF file to be processed.
   private FileArgument ldifFile;
@@ -228,6 +237,23 @@ public final class LDAPModify
     ldifFile = new FileArgument('f', "ldifFile", false, 1, "{path}",
                                 description, true, false, true, false);
     parser.addArgument(ldifFile);
+
+
+    description = "Information about a control to include in the bind request.";
+    bindControls = new ControlArgument(null, "bindControl", false, 0, null,
+         description);
+    parser.addArgument(bindControls);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected List<Control> getBindControls()
+  {
+    return bindControls.getValues();
   }
 
 

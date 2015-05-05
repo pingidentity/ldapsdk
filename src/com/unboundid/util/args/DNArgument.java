@@ -59,6 +59,9 @@ public final class DNArgument
   // The set of values assigned to this argument.
   private final ArrayList<DN> values;
 
+  // The argument value validators that have been registered for this argument.
+  private final List<ArgumentValueValidator> validators;
+
   // The list of default values for this argument.
   private final List<DN> defaultValues;
 
@@ -190,7 +193,8 @@ public final class DNArgument
       this.defaultValues = Collections.unmodifiableList(defaultValues);
     }
 
-    values = new ArrayList<DN>();
+    values = new ArrayList<DN>(5);
+    validators = new ArrayList<ArgumentValueValidator>(5);
   }
 
 
@@ -206,7 +210,8 @@ public final class DNArgument
     super(source);
 
     defaultValues = source.defaultValues;
-    values        = new ArrayList<DN>();
+    values        = new ArrayList<DN>(5);
+    validators    = new ArrayList<ArgumentValueValidator>(source.validators);
   }
 
 
@@ -221,6 +226,21 @@ public final class DNArgument
   public List<DN> getDefaultValues()
   {
     return defaultValues;
+  }
+
+
+
+  /**
+   * Updates this argument to ensure that the provided validator will be invoked
+   * for any values provided to this argument.  This validator will be invoked
+   * after all other validation has been performed for this argument.
+   *
+   * @param  validator  The argument value validator to be invoked.  It must not
+   *                    be {@code null}.
+   */
+  public void addValueValidator(final ArgumentValueValidator validator)
+  {
+    validators.add(validator);
   }
 
 
@@ -249,6 +269,11 @@ public final class DNArgument
     {
       throw new ArgumentException(ERR_ARG_MAX_OCCURRENCES_EXCEEDED.get(
                                        getIdentifierString()));
+    }
+
+    for (final ArgumentValueValidator v : validators)
+    {
+      v.validateArgumentValue(this, valueString);
     }
 
     values.add(parsedDN);

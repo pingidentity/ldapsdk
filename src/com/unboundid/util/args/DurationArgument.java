@@ -22,6 +22,8 @@ package com.unboundid.util.args;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.unboundid.util.Debug;
@@ -65,6 +67,9 @@ public final class DurationArgument
   private static final long serialVersionUID = -8824262632728709264L;
 
 
+
+  // The argument value validators that have been registered for this argument.
+  private final List<ArgumentValueValidator> validators;
 
   // The default value for this argument, in nanoseconds.
   private final Long defaultValueNanos;
@@ -306,6 +311,7 @@ public final class DurationArgument
     }
 
     valueNanos = null;
+    validators = new ArrayList<ArgumentValueValidator>(5);
   }
 
 
@@ -325,6 +331,8 @@ public final class DurationArgument
     minValueNanos     = source.minValueNanos;
     lowerBoundStr     = source.lowerBoundStr;
     upperBoundStr     = source.upperBoundStr;
+    validators        =
+         new ArrayList<ArgumentValueValidator>(source.validators);
     valueNanos        = null;
   }
 
@@ -424,6 +432,21 @@ public final class DurationArgument
 
 
   /**
+   * Updates this argument to ensure that the provided validator will be invoked
+   * for any values provided to this argument.  This validator will be invoked
+   * after all other validation has been performed for this argument.
+   *
+   * @param  validator  The argument value validator to be invoked.  It must not
+   *                    be {@code null}.
+   */
+  public void addValueValidator(final ArgumentValueValidator validator)
+  {
+    validators.add(validator);
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -462,6 +485,11 @@ public final class DurationArgument
     }
     else
     {
+      for (final ArgumentValueValidator v : validators)
+      {
+        v.validateArgumentValue(this, valueString);
+      }
+
       valueNanos = proposedValueNanos;
     }
   }

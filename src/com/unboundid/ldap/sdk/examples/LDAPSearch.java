@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -48,6 +49,7 @@ import com.unboundid.util.WakeableSleeper;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.ControlArgument;
 import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
@@ -90,6 +92,11 @@ import com.unboundid.util.args.ScopeArgument;
  *       "--repeatIntervalMillis" is used without "--numSearches", then the
  *       searches will continue to be repeated until the tool is
  *       interrupted.</LI>
+ *   <LI>"--bindControl {control}" -- specifies a control that should be
+ *       included in the bind request sent by this tool before performing any
+ *       search operations.</LI>
+ *   <LI>"-J {control}" or "--control {control}" -- specifies a control that
+ *       should be included in the search request(s) sent by this tool.</LI>
  * </UL>
  * In addition, after the above named arguments are provided, a set of one or
  * more unnamed trailing arguments must be given.  The first argument should be
@@ -134,6 +141,12 @@ public final class LDAPSearch
 
   // The argument used to indicate whether to use terse mode.
   private BooleanArgument terseMode;
+
+  // The argument used to specify any bind controls that should be used.
+  private ControlArgument bindControls;
+
+  // The argument used to specify any search controls that should be used.
+  private ControlArgument searchControls;
 
   // The number of times to perform the search.
   private IntegerArgument numSearches;
@@ -309,6 +322,18 @@ public final class LDAPSearch
     parser.addArgument(followReferrals);
 
 
+    description = "Information about a control to include in the bind request.";
+    bindControls = new ControlArgument(null, "bindControl", false, 0, null,
+         description);
+    parser.addArgument(bindControls);
+
+
+    description = "Information about a control to include in search requests.";
+    searchControls = new ControlArgument('J', "control", false, 0, null,
+         description);
+    parser.addArgument(searchControls);
+
+
     description = "Generate terse output with minimal additional information.";
     terseMode = new BooleanArgument('t', "terse", description);
     parser.addArgument(terseMode);
@@ -335,6 +360,17 @@ public final class LDAPSearch
                                       description, 1, Integer.MAX_VALUE);
     parser.addArgument(numSearches);
     parser.addDependentArgumentSet(numSearches, repeatIntervalMillis);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected List<Control> getBindControls()
+  {
+    return bindControls.getValues();
   }
 
 
@@ -414,6 +450,12 @@ public final class LDAPSearch
                            DereferencePolicy.NEVER, 0, 0, false, filter,
                            attributesToReturn);
     searchRequest.setFollowReferrals(followReferrals.isPresent());
+
+    final List<Control> controlList = searchControls.getValues();
+    if (controlList != null)
+    {
+      searchRequest.setControls(controlList);
+    }
 
 
     final boolean infinite;
