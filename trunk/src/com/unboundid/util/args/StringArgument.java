@@ -359,7 +359,8 @@ public final class StringArgument
     {
       for (final String s : this.defaultValues)
       {
-        if (! this.allowedValues.contains(s))
+        final String lowerDefault = toLowerCase(s);
+        if (! this.allowedValues.contains(lowerDefault))
         {
           throw new ArgumentException(
                ERR_ARG_DEFAULT_VALUE_NOT_ALLOWED.get(2, getIdentifierString()));
