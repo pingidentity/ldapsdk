@@ -363,7 +363,7 @@ public final class StringArgument
         if (! this.allowedValues.contains(lowerDefault))
         {
           throw new ArgumentException(
-               ERR_ARG_DEFAULT_VALUE_NOT_ALLOWED.get(2, getIdentifierString()));
+               ERR_ARG_DEFAULT_VALUE_NOT_ALLOWED.get(s, getIdentifierString()));
         }
       }
     }
