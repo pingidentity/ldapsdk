@@ -512,7 +512,7 @@ public abstract class MatchingRule
       try
       {
         final Class<?> c = Class.forName("com.unboundid.ldap.sdk.unboundidds." +
-             "json.JSONObjectExactMatchingRule");
+             "jsonfilter.JSONObjectExactMatchingRule");
         final Method m = c.getMethod("getInstance");
         return (MatchingRule) m.invoke(null);
       }
@@ -921,7 +921,7 @@ public abstract class MatchingRule
       try
       {
         final Class<?> c = Class.forName("com.unboundid.ldap.sdk.unboundidds." +
-             "json.JSONObjectExactMatchingRule");
+             "jsonfilter.JSONObjectExactMatchingRule");
         final Method m = c.getMethod("getInstance");
         return (MatchingRule) m.invoke(null);
       }

@@ -374,7 +374,7 @@
         <attribute name="Bundle-DocURL"
                    value="${LDAP_SDK_HOME_URL}" />
         <attribute name="Export-Package"
-                   value="com.unboundid.asn1${VER},com.unboundid.ldap.listener${VER},com.unboundid.ldap.listener.interceptor${VER},com.unboundid.ldap.matchingrules${VER},com.unboundid.ldap.sdk${VER},com.unboundid.ldap.sdk.controls${VER},com.unboundid.ldap.sdk.experimental${VER},com.unboundid.ldap.sdk.extensions${VER},com.unboundid.ldap.sdk.migrate.jndi${VER},com.unboundid.ldap.sdk.migrate.ldapjdk${VER},com.unboundid.ldap.sdk.persist${VER},com.unboundid.ldap.sdk.schema${VER},com.unboundid.ldif${VER},com.unboundid.util${VER},com.unboundid.util.args${VER},com.unboundid.util.ssl${VER}" />
+                   value="com.unboundid.asn1${VER},com.unboundid.ldap.listener${VER},com.unboundid.ldap.listener.interceptor${VER},com.unboundid.ldap.matchingrules${VER},com.unboundid.ldap.sdk${VER},com.unboundid.ldap.sdk.controls${VER},com.unboundid.ldap.sdk.experimental${VER},com.unboundid.ldap.sdk.extensions${VER},com.unboundid.ldap.sdk.migrate.jndi${VER},com.unboundid.ldap.sdk.migrate.ldapjdk${VER},com.unboundid.ldap.sdk.persist${VER},com.unboundid.ldap.sdk.schema${VER},com.unboundid.ldif${VER},com.unboundid.util${VER},com.unboundid.util.args${VER},com.unboundid.util.json${VER},com.unboundid.util.ssl${VER}" />
         <attribute name="Import-Package"
                    value="javax.naming,javax.naming.directory,javax.naming.ldap,javax.net,javax.net.ssl,javax.security.auth,javax.security.auth.callback,javax.security.auth.login,javax.security.auth.x500,javax.security.sasl" />
         <attribute name="Sealed" value="true" />
