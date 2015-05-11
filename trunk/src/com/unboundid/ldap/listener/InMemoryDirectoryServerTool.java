@@ -150,6 +150,12 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       store.  If this argument is provided, then the "--keyStorePath"
  *       argument must also be provided, along with exactly one of the
  *       "--useSSL" or "--useStartTLS" arguments.</LI>
+ *   <LI>"--keyStoreType {type}" -- specifies the type of keystore represented
+ *       by the file specified by the keystore path.  If this argument is
+ *       provided, then the "--keyStorePath" argument must also be provided,
+ *       along with exactly one of the "--useSSL" or "--useStartTLS" arguments.
+ *       If this argument is not provided, then a default key store type of
+ *       "JKS" will be assumed.</LI>
  *   <LI>"-P {path}" or "--trustStorePath {path}" -- specifies the path to the
  *       JKS trust store file that should be used to determine whether to trust
  *       any SSL certificates that may be presented by the client.  If this
@@ -164,6 +170,12 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       "--useSSL" or "--useStartTLS" arguments.  If an SSL trust store path
  *       was provided without a trust store password, then the server will
  *       attempt to use the trust store without a password.</LI>
+ *   <LI>"--trustStoreType {type}" -- specifies the type of trust store
+ *       represented by the file specified by the trust store path.  If this
+ *       argument is provided, then the "--trustStorePath" argument must also
+ *       be provided, along with exactly one of the "--useSSL" or
+ *       "--useStartTLS" arguments.  If this argument is not provided, then a
+ *       default trust store type of "JKS" will be assumed.</LI>
  *   <LI>"--vendorName {name}" -- specifies the vendor name value to appear in
  *       the server root DSE.</LI>
  *   <LI>"--vendorVersion {version}" -- specifies the vendor version value to
@@ -256,9 +268,15 @@ public final class InMemoryDirectoryServerTool
   // the SSL key store
   private StringArgument keyStorePasswordArgument;
 
+  // The argument used to specify the key store type.
+  private StringArgument keyStoreTypeArgument;
+
   // The argument used to specify the password to use to access the contents of
   // the SSL trust store
   private StringArgument trustStorePasswordArgument;
+
+  // The argument used to specify the trust store type.
+  private StringArgument trustStoreTypeArgument;
 
   // The argument used to specify the server vendor name.
   private StringArgument vendorNameArgument;
@@ -350,7 +368,9 @@ public final class InMemoryDirectoryServerTool
     additionalBindPasswordArgument    = null;
     equalityIndexArgument             = null;
     keyStorePasswordArgument          = null;
+    keyStoreTypeArgument              = null;
     trustStorePasswordArgument        = null;
+    trustStoreTypeArgument            = null;
     vendorNameArgument                = null;
     vendorVersionArgument             = null;
   }
@@ -488,6 +508,10 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_PW.get());
     parser.addArgument(keyStorePasswordArgument);
 
+    keyStoreTypeArgument = new StringArgument(null, "keyStoreType",
+         false, 1, "{type}", "The keystore type.", "JKS");
+    parser.addArgument(keyStoreTypeArgument);
+
     trustStorePathArgument = new FileArgument('P', "trustStorePath", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PATH.get(), true, true, true,
@@ -498,6 +522,10 @@ public final class InMemoryDirectoryServerTool
          false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PW.get());
     parser.addArgument(trustStorePasswordArgument);
+
+    trustStoreTypeArgument = new StringArgument(null, "trustStoreType",
+         false, 1, "{type}", "The trust store type.", "JKS");
+    parser.addArgument(trustStoreTypeArgument);
 
     vendorNameArgument = new StringArgument(null, "vendorName", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
@@ -807,7 +835,8 @@ public final class InMemoryDirectoryServerTool
       {
         final KeyManager keyManager = new KeyStoreKeyManager(
              keyStorePathArgument.getValue(),
-             keyStorePasswordArgument.getValue().toCharArray());
+             keyStorePasswordArgument.getValue().toCharArray(),
+             keyStoreTypeArgument.getValue(), null);
 
         final TrustManager trustManager;
         if (trustStorePathArgument.isPresent())
@@ -823,7 +852,8 @@ public final class InMemoryDirectoryServerTool
           }
 
           trustManager = new TrustStoreTrustManager(
-               trustStorePathArgument.getValue(), password, "JKS", true);
+               trustStorePathArgument.getValue(), password,
+               trustStoreTypeArgument.getValue(), true);
         }
         else
         {
