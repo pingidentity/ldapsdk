@@ -87,6 +87,7 @@ public class SanityCheckSE
     "com.unboundid.ldif",
     "com.unboundid.util",
     "com.unboundid.util.args",
+    "com.unboundid.util.json",
     "com.unboundid.util.parallel",
     "com.unboundid.util.ssl"
   };

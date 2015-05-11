@@ -177,6 +177,53 @@ public final class StaticUtils
 
 
   /**
+   * Indicates whether the provided character is a printable ASCII character, as
+   * per RFC 4517 section 3.2.  The only printable characters are:
+   * <UL>
+   *   <LI>All uppercase and lowercase ASCII alphabetic letters</LI>
+   *   <LI>All ASCII numeric digits</LI>
+   *   <LI>The following additional ASCII characters:  single quote, left
+   *       parenthesis, right parenthesis, plus, comma, hyphen, period, equals,
+   *       forward slash, colon, question mark, space.</LI>
+   * </UL>
+   *
+   * @param  c  The character for which to make the determination.
+   *
+   * @return  {@code true} if the provided character is a printable ASCII
+   *          character, or {@code false} if not.
+   */
+  public static boolean isPrintable(final char c)
+  {
+    if (((c >= 'a') && (c <= 'z')) ||
+        ((c >= 'A') && (c <= 'Z')) ||
+        ((c >= '0') && (c <= '9')))
+    {
+      return true;
+    }
+
+    switch (c)
+    {
+      case '\'':
+      case '(':
+      case ')':
+      case '+':
+      case ',':
+      case '-':
+      case '.':
+      case '=':
+      case '/':
+      case ':':
+      case '?':
+      case ' ':
+        return true;
+      default:
+        return false;
+    }
+  }
+
+
+
+  /**
    * Indicates whether the contents of the provided byte array represent a
    * printable LDAP string, as per RFC 4517 section 3.2.  The only characters
    * allowed in a printable string are:
