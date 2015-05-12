@@ -313,24 +313,87 @@ public final class JSONObject
    *
    * @param  chars  The characters that comprise the string representation of
    *                the JSON object.
+   *
+   * @throws  JSONException  If a problem is encountered while skipping
+   *                         whitespace.
    */
   private void skipWhitespace(final char[] chars)
+          throws JSONException
   {
-    while (true)
+    while (decodePos < chars.length)
     {
-      if (decodePos >= chars.length)
-      {
-        return;
-      }
-
       switch (chars[decodePos])
       {
+        // The space, tab, newline, and carriage return characters are
+        // considered valid JSON whitespace.
         case ' ':
         case '\t':
         case '\n':
         case '\r':
           decodePos++;
           break;
+
+        // Technically, JSON does not provide support for comments.  But this
+        // implementation will accept two types of comments:
+        // - Comments that start with /* and end with */ (potentially spanning
+        //   multiple lines).
+        // - Comments that start with // and continue until the end of the line.
+        // All comments will be ignored by the parser.
+        case '/':
+          final int commentStartPos = decodePos;
+          if ((decodePos+1) >= chars.length)
+          {
+            return;
+          }
+          else if (chars[decodePos+1] == '/')
+          {
+            decodePos += 2;
+
+            // Keep reading until we encounter a newline or carriage return, or
+            // until we hit the end of the string.
+            while (decodePos < chars.length)
+            {
+              if ((chars[decodePos] == '\n') || (chars[decodePos] == '\r'))
+              {
+                break;
+              }
+              decodePos++;
+            }
+            break;
+          }
+          else if (chars[decodePos+1] == '*')
+          {
+            decodePos += 2;
+
+            // Keep reading until we encounter "*/".  We must encounter "*/"
+            // before hitting the end of the string.
+            boolean closeFound = false;
+            while (decodePos < chars.length)
+            {
+              if (chars[decodePos] == '*')
+              {
+                if (((decodePos+1) < chars.length) &&
+                    (chars[decodePos+1] == '/'))
+                {
+                  closeFound = true;
+                  decodePos += 2;
+                  break;
+                }
+              }
+              decodePos++;
+            }
+
+            if (! closeFound)
+            {
+              throw new JSONException(ERR_OBJECT_UNCLOSED_COMMENT.get(
+                   new String(chars), commentStartPos));
+            }
+            break;
+          }
+          else
+          {
+            return;
+          }
 
         default:
           return;
