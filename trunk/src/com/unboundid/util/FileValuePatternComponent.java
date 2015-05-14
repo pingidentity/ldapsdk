@@ -27,6 +27,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.unboundid.util.UtilityMessages.*;
 
@@ -34,7 +35,8 @@ import static com.unboundid.util.UtilityMessages.*;
 
 /**
  * This class defines a file value pattern component, which may be used provide
- * string values read from a specified local file.
+ * string values read from a specified local file.  Values may be accessed in
+ * random or sequential order.
  */
 final class FileValuePatternComponent
       extends ValuePatternComponent
@@ -45,6 +47,13 @@ final class FileValuePatternComponent
   private static final long serialVersionUID = 2773328295435703361L;
 
 
+
+  // A counter used to determine the index for the next value to return if
+  // accessing the file in sequential order.
+  private final AtomicLong sequentialCounter;
+
+  // Indicates whether to iterate through the file in sequential order.
+  private final boolean sequential;
 
   // The lines that make up the data file.
   private final String[] lines;
@@ -61,19 +70,24 @@ final class FileValuePatternComponent
   /**
    * Creates a new file value pattern component with the provided information.
    *
-   * @param  path  The path to the file from which to read the data.
-   * @param  seed  The value that will be used to seed the initial random number
-   *               generator.
+   * @param  path        The path to the file from which to read the data.
+   * @param  seed        The value that will be used to seed the initial random
+   *                     number generator.
+   * @param  sequential  Indicates whether to iterate through the file in
+   *                     sequential order rather than at random.
    *
    * @throws  IOException  If a problem occurs while reading data from the
    *                       specified file.
    */
-  FileValuePatternComponent(final String path, final long seed)
+  FileValuePatternComponent(final String path, final long seed,
+                            final boolean sequential)
        throws IOException
   {
     // Create the random number generators that will be used.
-    seedRandom = new Random(seed);
-    random     = new ThreadLocal<Random>();
+    this.sequential   = sequential;
+    sequentialCounter = new AtomicLong(0L);
+    seedRandom        = new Random(seed);
+    random            = new ThreadLocal<Random>();
 
 
     final ArrayList<String> lineList = new ArrayList<String>(100);
@@ -114,14 +128,24 @@ final class FileValuePatternComponent
   @Override()
   void append(final StringBuilder buffer)
   {
-    Random r = random.get();
-    if (r == null)
+    final int index;
+    if (sequential)
     {
-      r = new Random(seedRandom.nextLong());
-      random.set(r);
+      index = (int) (sequentialCounter.getAndIncrement() % lines.length);
+    }
+    else
+    {
+      Random r = random.get();
+      if (r == null)
+      {
+        r = new Random(seedRandom.nextLong());
+        random.set(r);
+      }
+
+      index = r.nextInt(lines.length);
     }
 
-    buffer.append(lines[r.nextInt(lines.length)]);
+    buffer.append(lines[index]);
   }
 
 
