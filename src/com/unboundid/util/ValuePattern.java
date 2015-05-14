@@ -112,7 +112,12 @@ import static com.unboundid.util.UtilityMessages.*;
  *       using four digits.</LI>
  *   <LI><CODE>[file:///tmp/mydata.txt]</CODE> -- A URL reference that will
  *       cause randomly-selected lines from the specified local file to be used
- *       in place of the bracketed range.</LI>
+ *       in place of the bracketed range.  To make it clear that the file
+ *       contents are randomly accessed, you may use {@code randomfile} in place
+ *       of {@code file}.</LI>
+ *   <LI><CODE>[sequentialfile:///tmp/mydata.txt]</CODE> -- A URL reference that
+ *       will cause lines from the specified local file, selected in sequential
+ *       order, to be used in place of the bracketed range.</LI>
  *   <LI><CODE>[http://server.example.com/tmp/mydata.txt]</CODE> -- A URL
  *       reference that will cause randomly-selected lines from the specified
  *       remote HTTP-accessible file to be used in place of the bracketed
@@ -345,7 +350,35 @@ public final class ValuePattern
         final String path = bracketedToken.substring(5);
         try
         {
-          l.add(new FileValuePatternComponent(path, r.nextLong()));
+          l.add(new FileValuePatternComponent(path, r.nextLong(), false));
+        }
+        catch (IOException ioe)
+        {
+          debugException(ioe);
+          throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
+               path, getExceptionMessage(ioe)), o+pos);
+        }
+      }
+      else if (bracketedToken.startsWith("randomfile:"))
+      {
+        final String path = bracketedToken.substring(11);
+        try
+        {
+          l.add(new FileValuePatternComponent(path, r.nextLong(), false));
+        }
+        catch (IOException ioe)
+        {
+          debugException(ioe);
+          throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
+               path, getExceptionMessage(ioe)), o+pos);
+        }
+      }
+      else if (bracketedToken.startsWith("sequentialfile:"))
+      {
+        final String path = bracketedToken.substring(15);
+        try
+        {
+          l.add(new FileValuePatternComponent(path, r.nextLong(), true));
         }
         catch (IOException ioe)
         {
