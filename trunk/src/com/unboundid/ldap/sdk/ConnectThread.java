@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
@@ -55,9 +56,6 @@ final class ConnectThread
   // Indicates whether the connection has been successfully established.
   private final AtomicBoolean connected;
 
-  // Indicates whether the thread has been started.
-  private final AtomicBoolean started;
-
   // The socket used for the connection.
   private final AtomicReference<Socket> socket;
 
@@ -66,6 +64,9 @@ final class ConnectThread
 
   // The exception caught while trying to establish the connection.
   private final AtomicReference<Throwable> exception;
+
+  // A latch that will be used to indicate that the thread has actually started.
+  private final CountDownLatch startLatch;
 
   // The port to which the connection should be established.
   private final int port;
@@ -98,11 +99,11 @@ final class ConnectThread
     this.address       = address;
     this.port          = port;
 
-    connected = new AtomicBoolean(false);
-    started   = new AtomicBoolean(false);
-    socket    = new AtomicReference<Socket>();
-    thread    = new AtomicReference<Thread>();
-    exception = new AtomicReference<Throwable>();
+    connected  = new AtomicBoolean(false);
+    socket     = new AtomicReference<Socket>();
+    thread     = new AtomicReference<Thread>();
+    exception  = new AtomicReference<Throwable>();
+    startLatch = new CountDownLatch(1);
   }
 
 
@@ -114,7 +115,7 @@ final class ConnectThread
   public void run()
   {
     thread.set(Thread.currentThread());
-    started.set(true);
+    startLatch.countDown();
 
     try
     {
@@ -170,9 +171,17 @@ final class ConnectThread
   Socket getConnectedSocket(final long timeoutMillis)
          throws LDAPException
   {
-    while (! started.get())
+    while (startLatch.getCount() > 0L)
     {
-      Thread.yield();
+      try
+      {
+        startLatch.await();
+        break;
+      }
+      catch (final InterruptedException ie)
+      {
+        debugException(ie);
+      }
     }
 
     final Thread t = thread.get();
