@@ -118,8 +118,8 @@ public final class LDAPListener
 
   /**
    * Creates a new {@code LDAPListener} object with the provided configuration.
-   * The {@link #start} method must be called after creating the object to
-   * actually start listening for requests.
+   * The {@link #startListening} method must be called after creating the object
+   * to actually start listening for requests.
    *
    * @param  config  The configuration to use for this listener.
    */
