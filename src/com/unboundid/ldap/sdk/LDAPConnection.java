@@ -1320,13 +1320,14 @@ public final class LDAPConnection
    * Retrieves a string representation of the host and port for the server to
    * to which the last connection attempt was made.  It does not matter whether
    * the connection attempt was successful, nor does it matter whether it is
-   * still established.  This is intended for internal use in error messages.
+   * still established.  This is primarily intended for internal use in error
+   * messages.
    *
    * @return  A string representation of the host and port for the server to
    *          which the last connection attempt was made, or an empty string if
    *          no connection attempt has yet been made on this connection.
    */
-  String getHostPort()
+  public String getHostPort()
   {
     if (hostPort == null)
     {
