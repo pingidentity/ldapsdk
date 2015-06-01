@@ -145,6 +145,49 @@ import static com.unboundid.util.Validator.*;
  * is part of a connection pool.  It is acceptable for the pool to maintain
  * connections which have been configured with StartTLS security prior to being
  * added to the pool (via the use of the {@link StartTLSPostConnectProcessor}).
+ * <BR><BR>
+ * <H2>Pool Connection Management</H2>
+ * When creating a connection pool, you may specify an initial number of
+ * connections and a maximum number of connections.  The initial number of
+ * connections is the number of connections that should be immediately
+ * established and available for use when the pool is created.  The maximum
+ * number of connections is the largest number of unused connections that may
+ * be available in the pool at any time.
+ * <BR><BR>
+ * Whenever a connection is needed, whether by an attempt to check out a
+ * connection or to use one of the pool's methods to process an operation, the
+ * pool will first check to see if there is a connection that has already been
+ * established but is not currently in use, and if so then that connection will
+ * be used.  If there aren't any unused connections that are already
+ * established, then the pool will determine if it has yet created the maximum
+ * number of connections, and if not then it will immediately create a new
+ * connection and use it.  If the pool has already created the maximum number
+ * of connections, then the pool may wait for a period of time (as indicated by
+ * the {@link #getMaxWaitTimeMillis()} method, which has a default value of zero
+ * to indicate that it should not wait at all) for an in-use connection to be
+ * released back to the pool.  If no connection is available after the specified
+ * wait time (or there should not be any wait time), then the pool may
+ * automatically create a new connection to use if
+ * {@link #getCreateIfNecessary()} returns {@code true} (which is the default).
+ * If it is able to successfully create a connection, then it will be used.  If
+ * it cannot create a connection, or if {@code getCreateIfNecessary()} returns
+ * {@code false}, then an {@link LDAPException} will be thrown.
+ * <BR><BR>
+ * Note that the maximum number of connections specified when creating a pool
+ * refers to the maximum number of connections that should be available for use
+ * at any given time.  If {@code getCreateIfNecessary()} returns {@code true},
+ * then there may temporarily be more active connections than the configured
+ * maximum number of connections.  This can be useful during periods of heavy
+ * activity, because the pool will keep those connections established until the
+ * number of unused connections exceeds the configured maximum.  If you wish to
+ * enforce a hard limit on the maximum number of connections so that there
+ * cannot be more than the configured maximum in use at any time, then use the
+ * {@link #setCreateIfNecessary(boolean)} method to indicate that the pool
+ * should not automatically create connections when one is needed but none are
+ * available, and you may also want to use the
+ * {@link #setMaxWaitTimeMillis(long)} method to specify a maximum wait time to
+ * allow the pool to wait for a connection to become available rather than
+ * throwing an exception if no connections are immediately available.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class LDAPConnectionPool
@@ -309,7 +352,10 @@ public final class LDAPConnectionPool
    * @param  maxConnections      The maximum number of connections that should
    *                             be maintained in the pool.  It must be greater
    *                             than or equal to the initial number of
-   *                             connections.
+   *                             connections.  See the "Pool Connection
+   *                             Management" section of the class-level
+   *                             documentation for an explanation of how the
+   *                             pool treats the maximum number of connections.
    *
    * @throws  LDAPException  If the provided connection cannot be used to
    *                         initialize the pool, or if a problem occurs while
@@ -346,7 +392,11 @@ public final class LDAPConnectionPool
    * @param  maxConnections        The maximum number of connections that should
    *                               be maintained in the pool.  It must be
    *                               greater than or equal to the initial number
-   *                               of connections.
+   *                               of connections.  See the "Pool Connection
+   *                               Management" section of the class-level
+   *                               documentation for an explanation of how the
+   *                               pool treats the maximum number of
+   *                               connections.
    * @param  postConnectProcessor  A processor that should be used to perform
    *                               any post-connect processing for connections
    *                               in this pool.  It may be {@code null} if no
@@ -392,7 +442,11 @@ public final class LDAPConnectionPool
    * @param  maxConnections         The maximum number of connections that
    *                                should be maintained in the pool.  It must
    *                                be greater than or equal to the initial
-   *                                number of connections.
+   *                                number of connections.  See the "Pool
+   *                                Connection Management" section of the
+   *                                class-level documentation for an explanation
+   *                                of how the pool treats the maximum number of
+   *                                connections.
    * @param  postConnectProcessor   A processor that should be used to perform
    *                                any post-connect processing for connections
    *                                in this pool.  It may be {@code null} if no
@@ -448,7 +502,11 @@ public final class LDAPConnectionPool
    * @param  maxConnections         The maximum number of connections that
    *                                should be maintained in the pool.  It must
    *                                be greater than or equal to the initial
-   *                                number of connections.
+   *                                number of connections.  See the "Pool
+   *                                Connection Management" section of the
+   *                                class-level documentation for an
+   *                                explanation of how the pool treats the
+   *                                maximum number of connections.
    * @param  initialConnectThreads  The number of concurrent threads to use to
    *                                establish the initial set of connections.
    *                                A value greater than one indicates that the
@@ -510,7 +568,11 @@ public final class LDAPConnectionPool
    * @param  maxConnections         The maximum number of connections that
    *                                should be maintained in the pool.  It must
    *                                be greater than or equal to the initial
-   *                                number of connections.
+   *                                number of connections.  See the "Pool
+   *                                Connection Management" section of the
+   *                                class-level documentation for an explanation
+   *                                of how the pool treats the maximum number of
+   *                                connections.
    * @param  initialConnectThreads  The number of concurrent threads to use to
    *                                establish the initial set of connections.
    *                                A value greater than one indicates that the
@@ -682,7 +744,7 @@ public final class LDAPConnectionPool
     maxDefunctReplacementConnectionAge = null;
     minDisconnectInterval              = 0L;
     lastExpiredDisconnectTime          = 0L;
-    maxWaitTime                        = 5000L;
+    maxWaitTime                        = 0L;
     closed                             = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
@@ -744,7 +806,11 @@ public final class LDAPConnectionPool
    * @param  maxConnections      The maximum number of connections that should
    *                             be maintained in the pool.  It must be greater
    *                             than or equal to the initial number of
-   *                             connections, and must not be zero.
+   *                             connections, and must not be zero.  See the
+   *                             "Pool Connection Management" section of the
+   *                             class-level documentation for an explanation of
+   *                             how the pool treats the maximum number of
+   *                             connections.
    *
    * @throws  LDAPException  If a problem occurs while attempting to establish
    *                         any of the connections.  If this is thrown, then
@@ -780,7 +846,11 @@ public final class LDAPConnectionPool
    * @param  maxConnections        The maximum number of connections that should
    *                               be maintained in the pool.  It must be
    *                               greater than or equal to the initial number
-   *                               of connections, and must not be zero.
+   *                               of connections, and must not be zero.  See
+   *                               the "Pool Connection Management" section of
+   *                               the class-level documentation for an
+   *                               explanation of how the pool treats the
+   *                               maximum number of connections.
    * @param  postConnectProcessor  A processor that should be used to perform
    *                               any post-connect processing for connections
    *                               in this pool.  It may be {@code null} if no
@@ -823,6 +893,10 @@ public final class LDAPConnectionPool
    *                                should be maintained in the pool.  It must
    *                                be greater than or equal to the initial
    *                                number of connections, and must not be zero.
+   *                                See the "Pool Connection Management" section
+   *                                of the class-level documentation for an
+   *                                explanation of how the pool treats the
+   *                                maximum number of connections.
    * @param  postConnectProcessor   A processor that should be used to perform
    *                                any post-connect processing for connections
    *                                in this pool.  It may be {@code null} if no
@@ -876,6 +950,10 @@ public final class LDAPConnectionPool
    *                                should be maintained in the pool.  It must
    *                                be greater than or equal to the initial
    *                                number of connections, and must not be zero.
+   *                                See the "Pool Connection Management" section
+   *                                of the class-level documentation for an
+   *                                explanation of how the pool treats the
+   *                                maximum number of connections.
    * @param  initialConnectThreads  The number of concurrent threads to use to
    *                                establish the initial set of connections.
    *                                A value greater than one indicates that the
@@ -936,6 +1014,10 @@ public final class LDAPConnectionPool
    *                                should be maintained in the pool.  It must
    *                                be greater than or equal to the initial
    *                                number of connections, and must not be zero.
+   *                                See the "Pool Connection Management" section
+   *                                of the class-level documentation for an
+   *                                explanation of how the pool treats the
+   *                                maximum number of connections.
    * @param  initialConnectThreads  The number of concurrent threads to use to
    *                                establish the initial set of connections.
    *                                A value greater than one indicates that the
@@ -1064,7 +1146,7 @@ public final class LDAPConnectionPool
     maxDefunctReplacementConnectionAge = null;
     minDisconnectInterval              = 0L;
     lastExpiredDisconnectTime          = 0L;
-    maxWaitTime                        = 5000L;
+    maxWaitTime                        = 0L;
     closed                             = false;
 
     healthCheckThread = new LDAPConnectionPoolHealthCheckThread(this);
