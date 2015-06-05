@@ -10,7 +10,11 @@
 <!-- SIDEBAR for SUBNAV & JUMP LINKS -->  
                       <ul>
                         <li>
-                          <a href="${BASE}release-notes.html">Release Notes</a>
+                          <a href="${BASE}release-notes.html">Standard Edition Release Notes</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}commercial-edition/release-notes.html">Commercial Edition Release Notes</a>
                           <br><br>
                         </li>
                         <li>
@@ -18,11 +22,15 @@
                           <br><br>
                         </li>
                         <li>
-                          <a href="${BASE}getting-started/index.html">Getting Started</a>
+                          <a href="${BASE}ldapsdk-faq.html">Frequently-Asked Questions</a>
                           <br><br>
                         </li>
                         <li>
                           <a href="${BASE}advantages/index.html">UnboundID LDAP SDK Advantages</a>
+                          <br><br>
+                        </li>
+                        <li>
+                          <a href="${BASE}getting-started/index.html">Getting Started</a>
                           <br><br>
                         </li>
                         <li>
@@ -34,15 +42,15 @@
                           <br><br>
                         </li>
                         <li>
+                          <a href="${BASE}commercial-edition/index.html">Additional Functionality in the Commercial Edition</a>
+                          <br><br>
+                        </li>
+                        <li>
                           <a href="${BASE}examples/index.html">Example Source Code</a>
                           <br><br>
                         </li>
                         <li>
                           <a href="${BASE}specs/index.html">LDAP Specifications</a>
-                          <br><br>
-                        </li>
-                        <li>
-                          <a href="${BASE}ldapsdk-faq.html">Frequently-Asked Questions</a>
                           <br><br>
                         </li>
                         <li>

@@ -121,13 +121,12 @@
   <!-- Create a distributable package including the JAR file, docs, etc. -->
   <target name="package" description="Create a distributable package"
           depends="compile,define-copydocs,build-se.package">
-    <antcall target="generate-website-docs" />
-    <antcall target="generate-old-website-docs" />
-
     <property name="ce.buildid" value="${basename}-ce" />
     <property name="ce.package.dir" location="${package.dir}/${ce.buildid}" />
 
     <antcall target="package-ce" />
+
+    <antcall target="generate-website-docs" />
 
     <antcall target="sanitycheck-ce" inheritAll="true" inheritRefs="true" />
   </target>
@@ -146,6 +145,12 @@
               target="website" ldapSdkHomeUrl="${LDAP_SDK_HOME_URL}"
               ldapSdkDocsBaseUrl="${LDAP_SDK_DOCS_BASE_URL}" />
 
+    <copydocs sourceDir="${ce.docs.dir}" destinationDir="${package.dir}/www"
+              headerFile="${resource.dir}/website.header"
+              footerFile="${resource.dir}/website.footer" extension="html"
+              target="website" ldapSdkHomeUrl="${LDAP_SDK_HOME_URL}"
+              ldapSdkDocsBaseUrl="${LDAP_SDK_DOCS_BASE_URL}" />
+
     <copy todir="${package.dir}/www/examples">
       <fileset dir="${src.dir}/com/unboundid/ldap/sdk/examples">
         <include name="*.java" />
@@ -158,7 +163,7 @@
     </copy>
 
     <copy todir="${package.dir}/www">
-      <fileset dir="${se.distroot.dir}">
+      <fileset dir="${ce.distroot.dir}">
         <include name="LICENSE*.txt" />
       </fileset>
     </copy>
@@ -166,15 +171,14 @@
     <javadoc destdir="${package.dir}/www/javadoc" source="1.5"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
-             windowtitle="UnboundID LDAP SDK for Java ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Standard Edition)"
-             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Standard Edition)"
+             windowtitle="UnboundID LDAP SDK for Java ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}"
+             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}"
              maxmemory="${MEM}" access="protected"
              stylesheetfile="${resource.dir}/unboundid-javadoc.css"
              bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-${year} &amp;ndash; UnboundID Corp. &amp;ndash; All Rights Reserved.&lt;/div&gt;">
       <fileset dir="${src.dir}" defaultexcludes="yes">
         <exclude name="**/*Helper*" />
         <exclude name="**/*Constants*" />
-        <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
         <exclude name="com/unboundid/util/parallel/**" />
       </fileset>
       <classpath>
@@ -188,66 +192,6 @@
 
     <zip destfile="${package.dir}/www.zip" compress="true">
       <zipfileset dir="${package.dir}/www" filemode="644" dirmode="755" />
-    </zip>
-  </target>
-
-
-
-
-  <!-- Generate documentation suitable for publishing on the old version of the
-       website. -->
-  <target name="generate-old-website-docs">
-    <mkdir dir="${package.dir}/old-www" />
-    <mkdir dir="${package.dir}/old-www/javadoc" />
-
-    <copydocs sourceDir="${docs.dir}" destinationDir="${package.dir}/old-www"
-              headerFile="${resource.dir}/old-website.header"
-              footerFile="${resource.dir}/old-website.footer" extension="php"
-              target="website" ldapSdkHomeUrl="${LDAP_SDK_HOME_URL}"
-              ldapSdkDocsBaseUrl="${LDAP_SDK_DOCS_BASE_URL}" />
-
-    <copy todir="${package.dir}/old-www/examples">
-      <fileset dir="${src.dir}/com/unboundid/ldap/sdk/examples">
-        <include name="*.java" />
-        <exclude name="**/package-info.java" />
-      </fileset>
-      <fileset dir="${src.dir}/com/unboundid/ldap/sdk/unboundidds/examples">
-        <include name="*.java" />
-        <exclude name="**/package-info.java" />
-      </fileset>
-    </copy>
-
-    <copy todir="${package.dir}/old-www">
-      <fileset dir="${se.distroot.dir}">
-        <include name="LICENSE*.txt" />
-      </fileset>
-    </copy>
-
-    <javadoc destdir="${package.dir}/old-www/javadoc" source="1.5"
-             useexternalfile="true"
-             additionalparam="-quiet" linksource="yes"
-             windowtitle="UnboundID LDAP SDK for Java ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Standard Edition)"
-             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Standard Edition)"
-             maxmemory="${MEM}" access="protected"
-             stylesheetfile="${resource.dir}/unboundid-javadoc.css"
-             bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-${year} &amp;ndash; UnboundID Corp. &amp;ndash; All Rights Reserved.&lt;/div&gt;">
-      <fileset dir="${src.dir}" defaultexcludes="yes">
-        <exclude name="**/*Helper*" />
-        <exclude name="**/*Constants*" />
-        <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
-        <exclude name="com/unboundid/util/parallel/**" />
-      </fileset>
-      <classpath>
-        <pathelement location="${classes.dir}" />
-      </classpath>
-    </javadoc>
-
-    <delete file="${package.dir}/old-www/javadoc/resources/inherit.gif" />
-    <copy file="${resource.dir}/inherit.gif"
-          toFile="${package.dir}/old-www/javadoc/resources/inherit.gif" />
-
-    <zip destfile="${package.dir}/old-www.zip" compress="true">
-      <zipfileset dir="${package.dir}/old-www" filemode="644" dirmode="755" />
     </zip>
   </target>
 
