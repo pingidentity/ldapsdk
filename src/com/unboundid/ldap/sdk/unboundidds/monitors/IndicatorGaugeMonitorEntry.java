@@ -1,0 +1,218 @@
+/*
+ * Copyright 2014-2015 UnboundID Corp.
+ * All Rights Reserved.
+ */
+/*
+ * Copyright (C) 2015 UnboundID Corp.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+package com.unboundid.ldap.sdk.unboundidds.monitors;
+
+
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.util.NotMutable;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
+
+import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
+
+
+
+/**
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * This class defines an indicator gauge monitor entry, which obtains its
+ * information from a non-numeric value in a monitor entry.
+ */
+@NotMutable()
+@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
+public final class IndicatorGaugeMonitorEntry
+       extends GaugeMonitorEntry
+{
+  /**
+   * The structural object class used in gauge monitor entries.
+   */
+  static final String INDICATOR_GAUGE_MONITOR_OC =
+       "ds-indicator-gauge-monitor-entry";
+
+
+
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = 6487368235968435879L;
+
+
+
+  // The set of observed values for the gauge.
+  private final List<String> observedValues;
+
+  // The current value for the gauge.
+  private final String currentValue;
+
+  // The previous value observed for the gauge.
+  private final String previousValue;
+
+
+
+  /**
+   * Creates a new indicator gauge monitor entry from the provided entry.
+   *
+   * @param  entry  The entry to be parsed as a indicator gauge monitor entry.
+   *                It must not be {@code null}.
+   */
+  public IndicatorGaugeMonitorEntry(final Entry entry)
+  {
+    super(entry);
+
+    currentValue = getString("value");
+    previousValue = getString("previous-value");
+
+    final String observedValuesStr = getString("observed-values");
+    if (observedValuesStr == null)
+    {
+      observedValues = Collections.emptyList();
+    }
+    else
+    {
+      final ArrayList<String> valueList = new ArrayList<String>(10);
+      final StringTokenizer tokenizer =
+           new StringTokenizer(observedValuesStr, ",");
+      while (tokenizer.hasMoreTokens())
+      {
+        valueList.add(tokenizer.nextToken());
+      }
+      observedValues = Collections.unmodifiableList(valueList);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the current value for the gauge, if available.
+   *
+   * @return The current value for the gauge, or {@code null} if it was not
+   *          included in the monitor entry.
+   */
+  public String getCurrentValue()
+  {
+    return currentValue;
+  }
+
+
+
+  /**
+   * Retrieves the previous value for the gauge, if available.
+   *
+   * @return  The previous value for the gauge, or {@code null} if it was not
+   *          included in the monitor entry.
+   */
+  public String getPreviousValue()
+  {
+    return previousValue;
+  }
+
+
+
+  /**
+   * Retrieves the set of observed values for the gauge, if available.
+   *
+   * @return  The set of observed values for the gauge, or {@code null} if it
+   *          was not included in the monitor entry.
+   */
+  public List<String> getObservedValues()
+  {
+    return observedValues;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getMonitorDisplayName()
+  {
+    return INFO_INDICATOR_GAUGE_MONITOR_DISPNAME.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getMonitorDescription()
+  {
+    return INFO_INDICATOR_GAUGE_MONITOR_DESC.get();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public Map<String,MonitorAttribute> getMonitorAttributes()
+  {
+    final Map<String,MonitorAttribute> superAttributes =
+         super.getMonitorAttributes();
+
+    final LinkedHashMap<String,MonitorAttribute> attrs =
+         new LinkedHashMap<String,MonitorAttribute>(superAttributes.size() + 3);
+    attrs.putAll(superAttributes);
+
+    if (currentValue != null)
+    {
+      addMonitorAttribute(attrs,
+           "value",
+           INFO_INDICATOR_GAUGE_DISPNAME_CURRENT_VALUE.get(),
+           INFO_INDICATOR_GAUGE_DESC_CURRENT_VALUE.get(),
+           currentValue);
+    }
+
+    if (previousValue != null)
+    {
+      addMonitorAttribute(attrs,
+           "previous-value",
+           INFO_INDICATOR_GAUGE_DISPNAME_PREVIOUS_VALUE.get(),
+           INFO_INDICATOR_GAUGE_DESC_PREVIOUS_VALUE.get(),
+           previousValue);
+    }
+
+    if (! observedValues.isEmpty())
+    {
+      addMonitorAttribute(attrs,
+           "observed-values",
+           INFO_INDICATOR_GAUGE_DISPNAME_OBSERVED_VALUES.get(),
+           INFO_INDICATOR_GAUGE_DESC_OBSERVED_VALUES.get(),
+           observedValues);
+    }
+
+    return Collections.unmodifiableMap(attrs);
+  }
+}

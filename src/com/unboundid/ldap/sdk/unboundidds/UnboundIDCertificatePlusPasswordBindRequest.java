@@ -1,0 +1,254 @@
+/*
+ * Copyright 2012-2015 UnboundID Corp.
+ * All Rights Reserved.
+ */
+/*
+ * Copyright (C) 2015 UnboundID Corp.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+package com.unboundid.ldap.sdk.unboundidds;
+
+
+
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.BindResult;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.InternalSDKHelper;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.SASLBindRequest;
+import com.unboundid.util.ThreadSafety;
+import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
+
+
+
+/**
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * This class provides support for an UnboundID-proprietary SASL mechanism that
+ * provides multifactor authentication using the combination of a client
+ * certificate (presented during SSL/TLS negotiation) and a static password.
+ * <BR><BR>
+ * The name for this SASL mechanism is "UNBOUNDID-CERTIFICATE-PLUS-PASSWORD".
+ * The SASL credentials consist simply of the static password for the user
+ * identified by the certificate, to make the SASL mechanism as easy as possible
+ * to use from other client APIs.
+ */
+@ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
+public final class UnboundIDCertificatePlusPasswordBindRequest
+       extends SASLBindRequest
+{
+  /**
+   * The name for the UnboundID certificate plus password SASL mechanism.
+   */
+  public static final String UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME =
+       "UNBOUNDID-CERTIFICATE-PLUS-PASSWORD";
+
+
+
+  /**
+   * The serial version UID for this serializable class.
+   */
+  private static final long serialVersionUID = 8863298749835036708L;
+
+
+
+  // The password to use to authenticate.
+  private final ASN1OctetString password;
+
+  // The message ID from the last LDAP message sent from this request.
+  private volatile int messageID = -1;
+
+
+
+  /**
+   * Creates a new certificate plus password bind request with the provided
+   * information.
+   *
+   * @param  password  The password to use to authenticate as user identified by
+   *                   the certificate.  It must not be {@code null} or empty.
+   * @param  controls  The set of controls to include in the bind request.  It
+   *                   may be {@code null} or empty if no request controls are
+   *                   needed.
+   */
+  public UnboundIDCertificatePlusPasswordBindRequest(final String password,
+                                                     final Control... controls)
+  {
+    this(new ASN1OctetString(CRED_TYPE_SASL, password), controls);
+  }
+
+
+
+  /**
+   * Creates a new certificate plus password bind request with the provided
+   * information.
+   *
+   * @param  password  The password to use to authenticate as user identified by
+   *                   the certificate.  It must not be {@code null} or empty.
+   * @param  controls  The set of controls to include in the bind request.  It
+   *                   may be {@code null} or empty if no request controls are
+   *                   needed.
+   */
+  public UnboundIDCertificatePlusPasswordBindRequest(final byte[] password,
+                                                     final Control... controls)
+  {
+    this(new ASN1OctetString(CRED_TYPE_SASL, password), controls);
+  }
+
+
+
+  /**
+   * Creates a new certificate plus password bind request with the provided
+   * information.
+   *
+   * @param  password  The password to use to authenticate as user identified by
+   *                   the certificate.  It must not be {@code null} or empty.
+   * @param  controls  The set of controls to include in the bind request.  It
+   *                   may be {@code null} or empty if no request controls are
+   *                   needed.
+   */
+  private UnboundIDCertificatePlusPasswordBindRequest(
+               final ASN1OctetString password, final Control... controls)
+  {
+    super(controls);
+
+    Validator.ensureFalse((password.getValueLength() == 0),
+         "The bind password must not be empty");
+
+    this.password = password;
+  }
+
+
+
+  /**
+   * Retrieves the password to use to authenticate as the user identified by the
+   * certificate.
+   *
+   * @return  The password to use to authenticate as the user identified by the
+   *          certificate.
+   */
+  public ASN1OctetString getPassword()
+  {
+    return password;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String getSASLMechanismName()
+  {
+    return UNBOUNDID_CERT_PLUS_PW_MECHANISM_NAME;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected BindResult process(final LDAPConnection connection, final int depth)
+            throws LDAPException
+  {
+    messageID = InternalSDKHelper.nextMessageID(connection);
+    return sendBindRequest(connection, "", password, getControls(),
+         getResponseTimeoutMillis(connection));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public int getLastMessageID()
+  {
+    return messageID;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public UnboundIDCertificatePlusPasswordBindRequest duplicate()
+  {
+    return duplicate(getControls());
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public UnboundIDCertificatePlusPasswordBindRequest duplicate(
+              final Control[] controls)
+  {
+    final UnboundIDCertificatePlusPasswordBindRequest bindRequest =
+         new UnboundIDCertificatePlusPasswordBindRequest(password, controls);
+    bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
+    return bindRequest;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public UnboundIDCertificatePlusPasswordBindRequest getRebindRequest(
+              final String host, final int port)
+  {
+    return duplicate();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("UnboundIDCertificatePlusPasswordBindRequest(");
+
+    final Control[] controls = getControls();
+    if (controls.length > 0)
+    {
+      buffer.append("controls={");
+      for (int i=0; i < controls.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append(controls[i]);
+      }
+      buffer.append('}');
+    }
+
+    buffer.append(')');
+  }
+}

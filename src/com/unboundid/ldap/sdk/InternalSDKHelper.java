@@ -420,4 +420,23 @@ public final class InternalSDKHelper
   {
     return connection.nextMessageID();
   }
+
+
+
+  /**
+   * Retrieves the last successful bind request processed on the provided
+   * connection.
+   *
+   * @param  connection  The LDAP connection for which to obtain the last
+   *                     successful bind request.
+   *
+   * @return  The last successful bind request processed on the provided
+   *          connection.  It may be {@code null} if no bind has been performed
+   *          on the connection, or if the last bind attempt was not successful.
+   */
+  @InternalUseOnly()
+  public static BindRequest getLastBindRequest(final LDAPConnection connection)
+  {
+    return connection.getLastBindRequest();
+  }
 }

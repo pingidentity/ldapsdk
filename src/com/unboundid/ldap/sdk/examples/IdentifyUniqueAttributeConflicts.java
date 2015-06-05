@@ -56,6 +56,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.DNArgument;
+import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
 
@@ -72,6 +73,10 @@ import com.unboundid.util.args.StringArgument;
  * <UL>
  *   <LI>"-b {baseDN}" or "--baseDN {baseDN}" -- specifies the base DN to use
  *       for the searches.  At least one base DN must be provided.</LI>
+ *   <LI>"-f" {filter}" or "--filter "{filter}" -- specifies an optional
+ *       filter to use for identifying entries across which uniqueness should be
+ *       enforced.  If this is not provided, then all entries containing the
+ *       target attribute(s) will be examined.</LI>
  *   <LI>"-A {attribute}" or "--attribute {attribute}" -- specifies an attribute
  *       for which to enforce uniqueness.  At least one unique attribute must be
  *       provided.</LI>
@@ -125,7 +130,7 @@ public final class IdentifyUniqueAttributeConflicts
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -7904414224384249176L;
+  private static final long serialVersionUID = -7506817625818259323L;
 
 
 
@@ -142,6 +147,9 @@ public final class IdentifyUniqueAttributeConflicts
 
   // The argument used to specify the base DNs to use for searches.
   private DNArgument baseDNArgument;
+
+  // The argument used to specify a filter indicating which entries to examine.
+  private FilterArgument filterArgument;
 
   // The argument used to specify the search page size.
   private IntegerArgument pageSizeArgument;
@@ -226,6 +234,7 @@ public final class IdentifyUniqueAttributeConflicts
     super(outStream, errStream);
 
     baseDNArgument = null;
+    filterArgument = null;
     pageSizeArgument = null;
     attributeArgument = null;
     multipleAttributeBehaviorArgument = null;
@@ -245,7 +254,7 @@ public final class IdentifyUniqueAttributeConflicts
    * Retrieves the name of this tool.  It should be the name of the command used
    * to invoke this tool.
    *
-   * @return  The name for this tool.
+   * @return The name for this tool.
    */
   @Override()
   public String getToolName()
@@ -258,7 +267,7 @@ public final class IdentifyUniqueAttributeConflicts
   /**
    * Retrieves a human-readable description for this tool.
    *
-   * @return  A human-readable description for this tool.
+   * @return A human-readable description for this tool.
    */
   @Override()
   public String getToolDescription()
@@ -274,7 +283,7 @@ public final class IdentifyUniqueAttributeConflicts
   /**
    * Retrieves a version string for this tool, if available.
    *
-   * @return  A version string for this tool, or {@code null} if none is
+   * @return A version string for this tool, or {@code null} if none is
    *          available.
    */
   @Override()
@@ -292,11 +301,11 @@ public final class IdentifyUniqueAttributeConflicts
    *
    * @param  parser  The argument parser to which the arguments should be added.
    *
-   * @throws  ArgumentException  If a problem occurs while adding the arguments.
+   * @throws ArgumentException  If a problem occurs while adding the arguments.
    */
   @Override()
   public void addNonLDAPArguments(final ArgumentParser parser)
-         throws ArgumentException
+       throws ArgumentException
   {
     String description = "The search base DN(s) to use to find entries with " +
          "attributes for which to find uniqueness conflicts.  At least one " +
@@ -304,6 +313,14 @@ public final class IdentifyUniqueAttributeConflicts
     baseDNArgument = new DNArgument('b', "baseDN", true, 0, "{dn}",
          description);
     parser.addArgument(baseDNArgument);
+
+    description = "A filter that will be used to identify the set of " +
+         "entries in which to identify uniqueness conflicts.  If this is not " +
+         "specified, then all entries containing the target attribute(s) " +
+         "will be examined.";
+    filterArgument = new FilterArgument('f', "filter", false, 1, "{filter}",
+         description);
+    parser.addArgument(filterArgument);
 
     description = "The attribute(s) for which to find missing references.  " +
          "At least one attribute must be specified, and each attribute " +
@@ -430,7 +447,7 @@ public final class IdentifyUniqueAttributeConflicts
 
       // Construct a search filter that will be used to find all entries with
       // unique attributes.
-      final Filter filter;
+      Filter filter;
       if (attributes.length == 1)
       {
         filter = Filter.createPresenceFilter(attributes[0]);
@@ -445,6 +462,11 @@ public final class IdentifyUniqueAttributeConflicts
           conflictCounts.put(attributes[i], new AtomicLong(0L));
         }
         filter = Filter.createORFilter(orComps);
+      }
+
+      if (filterArgument.isPresent())
+      {
+        filter = Filter.createANDFilter(filterArgument.getValue(), filter);
       }
 
 
@@ -674,7 +696,7 @@ public final class IdentifyUniqueAttributeConflicts
         {
           for (final String value : a.getValues())
           {
-            final Filter filter;
+            Filter filter;
             if (uniqueAcrossAttributes)
             {
               final Filter[] orComps = new Filter[attributes.length];
@@ -687,6 +709,12 @@ public final class IdentifyUniqueAttributeConflicts
             else
             {
               filter = Filter.createEqualityFilter(attrName, value);
+            }
+
+            if (filterArgument.isPresent())
+            {
+              filter = Filter.createANDFilter(filterArgument.getValue(),
+                   filter);
             }
 
 baseDNLoop:

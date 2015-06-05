@@ -543,6 +543,8 @@
 
 
     <!-- Create a jar file with the minimal source. -->
+    <property name="MMP"
+              value="${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}" />
     <jar jarfile="${me.package.dir}/unboundid-ldapsdk-me.jar"
          compress="true"
          index="true">
@@ -617,12 +619,15 @@
       <zipfileset dir="${package.dir}" includes="${me.buildid}/**/*"
                   filemode="644" dirmode="755" />
     </zip>
+
+    <antcall target="create-minimal-edition-maven-repository" />
   </target>
 
 
 
 
-  <!-- Generate the appropriate structure for a Maven repository. -->
+  <!-- Generate the appropriate structure for a Maven repository for the
+       Standard Edition. -->
   <target name="create-maven-repository">
     <property name="maven.dir"
               location="${package.dir}/unboundid-ldapsdk-${MMP}-maven" />
@@ -688,6 +693,78 @@
       <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-javadoc.jar.asc unboundid-ldapsdk-${MMP}-javadoc.jar" />
     </exec>
   </target>
+
+
+
+
+  <!-- Generate the appropriate structure for a Maven repository for the
+       Minimal Edition. -->
+  <target name="create-minimal-edition-maven-repository">
+    <property name="maven.dir"
+              location="${package.dir}/unboundid-ldapsdk-minimal-edition-${MMP}-maven" />
+    <mkdir dir="${maven.dir}" />
+
+    <copy file="${me.package.dir}/unboundid-ldapsdk-me.jar"
+          toFile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMP}.jar" />
+    <copy file="${me.package.dir}/src.zip"
+          toFile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMP}-sources.jar" />
+    <jar jarfile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMP}-javadoc.jar"
+         compress="true"
+         index="true">
+      <fileset dir="${me.package.dir}/docs/javadoc" />
+    </jar>
+
+
+    <!-- Copy the POM into place. -->
+    <copy file="${resource.dir}/unboundid-ldapsdk-minimal-edition.pom"
+          tofile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMP}.pom"
+          overwrite="true">
+      <filterchain>
+        <expandproperties />
+      </filterchain>
+    </copy>
+
+
+    <!-- Sign the Maven artifacts.  This will only actually be done for
+         release builds (if the env.GPG_PASSPHRASE property is set). -->
+    <antcall target="sign-minimal-edition-maven-components" />
+
+
+    <!-- Generate a jar file with all the Maven artifacts. -->
+    <jar jarfile="${package.dir}/unboundid-ldapsdk-minimal-edition-${MMP}-maven.jar"
+         compress="true" index="false">
+      <fileset dir="${maven.dir}" />
+    </jar>
+
+    <delete dir="${maven.dir}" />
+  </target>
+
+
+
+
+  <!-- Sign the Maven components with GPG if the key is available. -->
+  <target name="sign-minimal-edition-maven-components" if="env.GPG_PASSPHRASE">
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMP}.pom.asc unboundid-ldapsdk-minimal-edition-${MMP}.pom" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMP}.jar.asc unboundid-ldapsdk-minimal-edition-${MMP}.jar" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMP}-sources.jar.asc unboundid-ldapsdk-minimal-edition-${MMP}-sources.jar" />
+    </exec>
+
+    <exec dir="${maven.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMP}-javadoc.jar.asc unboundid-ldapsdk-minimal-edition-${MMP}-javadoc.jar" />
+    </exec>
+  </target>
+
 
 
 

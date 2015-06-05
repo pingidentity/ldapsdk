@@ -1,0 +1,989 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Commercial Edition Release Notes</h2>
+
+              <p>
+                This document provides information about changes that have been made between
+                releases of the Commercial Edition of the UnboundID LDAP SDK for Java.  This
+                document reflects only changes that are specific to the Commercial Edition.  For
+                changes that impact both the Standard Edition and Commercial Edition versions of
+                the LDAP SDK, see the
+                <a href="../release-notes.html">Standard Edition Release Notes</a>.
+              </p>
+
+              <h3>Version 2.3.8</h3>
+
+              <p>
+                The following changes were made between the 2.3.7 and 2.3.8 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the <tt>UnboundIDChangelogEntry</tt> class to add support for the
+                  upcoming ds-changelog-target-attribute attribute, which will indicate which
+                  attributes were included in the associated change.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the access log parsing framework to add support for the usedPrivileges
+                  and missingPrivileges access log elements.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+              <h3>Version 2.3.7</h3>
+
+              <p>
+                The following changes were made between the 2.3.6 and 2.3.7 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add support for a get backend set ID control, which can be used to request that
+                  the Directory Proxy Server return information about which entry-balancing
+                  backend set(s) were used to process the associated operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a route to backend set control, which can be used to influence
+                  the entry-balancing backend set(s) to which the Directory Proxy Server forwards
+                  a request for processing.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a matching entry count control, which can be used to request
+                  that the Directory Server or Directory Proxy Server return information about the
+                  number of entries that match the search criteria rather than returning the
+                  matching entries themselves.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a transaction settings request control that may be included in
+                  an end transaction or atomic multi-update extended request to specify a number
+                  of transaction-related settings that should be used when processing and
+                  committing the transaction.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a number of extended operations that may be used to interact
+                  with notification destinations and subscriptions in the UnboundID Directory
+                  Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update support for the set subtree accessibility extended request to make it
+                  possible to atomically alter the accessibility of multiple subtrees in a single
+                  request.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for parsing alarm entries as exposed in the alarms backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for retrieving and parsing the group cache monitor entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for retrieving and parsing the recent CPU and memory usage monitor
+                  entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for retrieving and parsing the result code monitor entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for retrieving and parsing gauge monitor entries.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the support for the processing time histogram monitor entry to make it
+                  possible to retrieve information about extended operations, and to support an
+                  upcoming format change for aggregate percent values.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the support for the load-balancing algorithm monitor entry to make it
+                  possible to retrieve information about aggregate local and non-local health
+                  check states, as well as the name of the load-balancing algorithm.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the deliver-one-time-password tool so that it provides a more useful
+                  error message if the underlying extended request does not complete successfully.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+              <h3>Version 2.3.6</h3>
+
+              <p>
+                The following changes were made between the 2.3.5 and 2.3.6 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add support for the retire password and purge password request controls.  Also
+                  update the password policy state extended request to support a number of
+                  operations for interacting with retired passwords, and update the access log
+                  parser to support the new <tt>retiredPasswordUsed</tt> element that may appear
+                  in bind response messages.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for load-balancing algorithm monitor entries.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the class-level documentation for the start interactive transaction
+                  extended request to indicate that it is no longer recommended for use, and to
+                  suggest alternative means of achieving atomicity and/or bulk operations.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+              <h3>Version 2.3.5</h3>
+
+              <p>
+                The following changes were made between the 2.3.4 and 2.3.5 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add support for a new list configurations extended operation, which may be used
+                  to request information about active, baseline, and archived configurations
+                  available to the server, and a get configuration extended operation, which may
+                  be used to retrieve a specific version of the configuration.  These are primarily
+                  intended for use in processing performed by the new config-diff tool, but may be
+                  useful in other contexts as well.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a get backup compatibility descriptor extended operation, and for
+                  an identify backup compatibility problems extended operation.  These operations
+                  may be used to help determine whether a backup taken from one server instance can
+                  be successfully restored into another server instance.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+              <h3>Version 2.3.4</h3>
+
+              <p>
+                The following changes were made between the 2.3.3 and 2.3.4 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add support for an extended operation and a SASL mechanism that can be used to
+                  support multifactor authentication using a one-time password delivered to the
+                  end user through some out-of-band mechanism (e.g., e-mail, SMS messages, etc.).
+                  A command-line tool has also been provided that can be used to easily test the
+                  ability to deliver one-time passwords to users, and the LDAP command-line tool
+                  API has been updated to provide support for this new SASL mechanism.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the summarize-access-log tool to provide additional information, including
+                  a breakdown of selected client connection policies and their relative
+                  percentages, a breakdown of disconnect reasons and their relative percentages,
+                  and information about the number and relative percentage of operations that
+                  resulted in access to uncached data.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+              <h3>Version 2.3.3</h3>
+
+              <p>
+                The following changes were made between the 2.3.2 and 2.3.3 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fix a problem with the CSS file used to generate javadoc documentation that could
+                  cause it to appear malformed when built with Java SE 7, even though it looked
+                  fine when built with Java SE 6.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+              <h3>Version 2.3.2</h3>
+
+              <p>
+                The following changes were made between the 2.3.1 and 2.3.2 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add support for a new multi-update extended operation that can be used to
+                  request multiple updates in a single request.  The updates may optionally be
+                  processed as a single atomic unit so that any failure encountered while
+                  processing any of the operations will prevent any of the changes from being
+                  applied.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a new UNBOUNDID-CERTIFICATE-PLUS-PASSWORD SASL mechanism handler
+                  that can be used to perform multifactor authentication using both a client
+                  certificate and a password.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a new set of controls that can be used with a bind operation to
+                  request information about a number of user resource limits, including the user's
+                  size limit, time limit, idle time limit, lookthrough limit, group membership,
+                  assigned privileges, default entry balancing authorization DN, and the name of
+                  the client connection policy that would have been assigned to the user.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for extended operations that can be used to get and set information
+                  about restricted subtree accessibility in the server.  This makes it possible to
+                  indicate that a specified subtree should be hidden or read-only except for
+                  access by a specified user.  A command-line tool has been provided that can be
+                  used to get and set the accessibility of a specified subtree in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a control that can be used to indicate that updates for certain
+                  operational attributes (e.g., last access time, last login time, last login IP
+                  address, and lastmod attributes) should be suppressed for the associated
+                  operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a set of controls that can be used in conjunction with assured
+                  replication, in order to request the desired assurance level and receive
+                  feedback about the level of assurance that was attained.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a control that can be used in conjunction with a delete or
+                  modify DN operation to indicate that no referential integrity processing should
+                  be performed for the associated operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a task that can be used to cause the server to re-encode
+                  entries within a specified branch.  This can help transition existing data to
+                  use encryption, compression, uncached content, or other altered encodings
+                  without the need to export data to LDIF and re-import.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a class and command-line tool that can be used to help move a single entry
+                  or a tree of entries from one server to another.  The move can be accomplished
+                  using either interactive transactions or via restricted subtree accessibility.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update support for the get changelog batch extended request to make it possible
+                  to indicate whether to return modifications to and/or deletes of soft-deleted
+                  entries.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>MonitorManager</tt> class so that methods for retrieving monitor
+                  entries now allow <tt>LDAPInterface</tt> objects as an alternative to
+                  <tt>LDAPConnection</tt>.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>SASLUtils</tt> class so that if the Commercial Edition classes
+                  are available, then any Commercial Edition SASL mechanisms will be supported.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the log parsing API to add support for the new security negotiation,
+                  entry rebalancing, and assured replication access log message types, and for the
+                  uncachedDataAccessed element.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 2.3.1</h3>
+
+              <p>
+                The following changes were made between the 2.3.0 and 2.3.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add support for HMAC-based one-time passwords (HOTP, as described in RFC 4226)
+                  and time-based one-time passwords (TOTP, as described in RFC 6238).  Also, add
+                  support for a new UNBOUNDID-TOTP SASL mechanism, which can be used to perform
+                  multifactor authentication (combining a TOTP code with a username and password)
+                  to UnboundID Directory Server instances which support this mechanism, and a
+                  validate TOTP password extended request that can be used to validate a TOTP
+                  password without performing a bind on the connection.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a number of changes in support for soft delete and undelete functionality
+                  in the UnboundID Directory Server.  This includes a soft delete request control
+                  (to request a soft delete operation) and a corresponding response control, a
+                  hard delete request control (to request an entry be completely removed), an
+                  undelete request control (to request that a soft-deleted entry be restored), and
+                  a soft-deleted entry access request control (to request that search results
+                  include soft-deleted entries).  It also includes updates to access log parsing,
+                  changelog entry parsing, and monitor entry parsing to expose information about
+                  soft delete and undelete processing, and a new <tt>SoftDeletedEntry</tt> object
+                  that can obtain information about a soft-deleted entry stored in the server.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+              <h3>Version 2.3.0</h3>
+
+              <p>
+                The following changes were made between the 2.2.0 and 2.3.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Add support for new start and end administrative session extended operations.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update changelog entry support to reflect a number of changes, including
+                  information about suppressed attributes and virtual attributes.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update support for the get changelog batch extended operation to make it
+                  possible to indicate that the set of changelog entries to retrieve should be
+                  filtered based on target attributes, and to indicate whether changelog entries
+                  should be pared based on access control and sensitive attribute constraints
+                  (optionally using the identity of another target user).
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for the new audit data security task, which can be used to examine
+                  all entries in a specified set of backends for potential security-related
+                  issues.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the support for the enter and leave lockdown mode tasks to make it
+                  possible to specify a reason that the server is being placed in or taken out of
+                  lockdown mode.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update monitor entry support for the new FIFO entry cache and per-application
+                  processing time histogram monitor entries.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update monitor entry support for the general monitor entry to add support for
+                  the new thirdPartyExtensionDN attribute.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update monitor entry support for the UnboundID work queue to add support for new
+                  attributes regarding the use of a separate thread pool for administrative
+                  operations.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update monitor entry support for the replication server monitor entry to add
+                  support for the new ssl-encryption-available attribute.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the <tt>summarize-access-log</tt> tool to add support for working with
+                  gzip-compressed access log files.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update access log parsing support to add support for a number of new log fields,
+                  including the use of an administrative session worker thread, add and modify
+                  attribute names, search entry attributes returned, and search request size
+                  limit, time limit, typesOnly, and dereference policy values.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improve documentation for UnboundID-proprietary controls and extended
+                  operations, and provide examples for elements that were missing them.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 2.2.0</h3>
+
+              <p>
+                The following changes were made between the 2.1.0 and 2.2.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the access log parsing code to add support for the new
+                  intermediateResponsesReturned element that can appear in result messages for
+                  operations in which one or more intermediate responses were returned.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDIF import task to provide support for the new strip trailing
+                  spaces option.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for the new operation purpose request control, which may be
+                  included in any kind of LDAP request to identify the reason for that operation.
+                  The log parsing framework has also been updated to provide a mechanism for
+                  accessing operation purpose information in server access log messages.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 2.1.0</h3>
+
+              <p>
+                The following changes were made between the 2.0.1 and 2.1.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new <tt>UnboundIDChangeLogEntry</tt> class which provides access to
+                  a number of attributes which are specific to changelog entries included in the
+                  UnboundID Directory Server, including the full set of previous and resulting
+                  values for attributes altered by the associated operation, as well as the
+                  values of other specified key attributes from the target entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the access log parsing code to add support for the serversAccessed and
+                  replicationChangeID elements which may appear in result log messages.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 2.0.1</h3>
+
+              <p>
+                The following changes were made between the 2.0.0 and 2.0.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added support for a new task which may be used to cause the server to reload the
+                  set of defined encryption settings definitions.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the support for parsing UnboundID server log files to handle timestamps
+                  with millisecond accuracy, and to add support the new intermediate response
+                  access log message type.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the summarize-access-log example tool so that it can differentiate
+                  between unindexed searches that were completed successfully and those that were
+                  rejected by the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK monitor parsing capabilities to support the new index
+                  monitor entry type.  Also, update the version monitor entry type to provide
+                  methods for accessing version information for several libraries used by the
+                  server, and to update the replication summary monitor entry to support the
+                  new term "replication backlog" rather than the old and potentially confusing
+                  term "missing changes".
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for an exclude branch request control, which can be used to
+                  request that entries at or below one or more base DNs be excluded from search
+                  results.
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 2.0.0</h3>
+
+              <p>
+                The following changes were made between the 1.1.6 and 2.0.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the LDAP join control support to include the ability to use the reverse
+                  DN join type which has recently been added to the UnboundID Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for Java-based and Groovy-scripted third-party tasks that will be
+                  supported in an upcoming version of the UnboundID Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for get a server ID request control, get server ID response
+                  control, and route to server request control, which may be used in an upcoming
+                  version of the UnboundID Directory Server and/or Directory Proxy Server to
+                  retrieve information about which server was used to process a request, and to
+                  request that an operation be processed by a specific server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for a get changelog batch extended operation which will be
+                  supported in an upcoming version of the UnboundID Directory Server in order to
+                  retrieve a set of changes processed within the server.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 1.1.6</h3>
+
+              <p>
+                The following changes were made between the 1.1.5 and 1.1.6 releases:
+              </p>
+
+              <ul>
+                <li>
+                  There were no significant changes applicable to only the Commercial Edition in
+                  this release.
+                  <br><br>
+                </li>
+              </ul>
+
+
+              <h3>Version 1.1.5</h3>
+
+              <p>
+                The following changes were made between the 1.1.4 and 1.1.5 releases:
+              </p>
+
+              <ul>
+                <li>
+                  There were no significant changes applicable to only the Commercial Edition in
+                  this release.
+                  <br><br>
+                </li>
+              </ul>
+
+
+              <h3>Version 1.1.4</h3>
+
+              <p>
+                The following changes were made between the 1.1.3 and 1.1.4 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added support for a new dump DB details task which can be used to cause the
+                  UnboundID Directory Server to write a summary of the contents of the databases in
+                  a JE backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for a new administrative alert task which can be used to cause the
+                  UnboundID Directory Server to generate an arbitrary administrative alert and/or
+                  to alter the set of degraded and unavailable alert types.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved support for replication server monitor entries to provide the ability to
+                  parse additional replication server content, including the last known status for
+                  the server, the last successful connect time, the last failed attempt time, and
+                  the number of failed connection attempts.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the support for the UnboundID work queue monitor entry to include access
+                  to the recent-average-queue-size and current-worker-thread-percent-busy
+                  attributes.
+                  <br><br>
+                </li>
+              </ul>
+
+
+              <h3>Version 1.1.3</h3>
+
+              <p>
+                The following changes were made between the 1.1.2 and 1.1.3 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new example tool that uses the stream directory values extended operation
+                  to dump a list of the DNs of all entries located at or below a specified base DN.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the system info monitor entry to add support for the new userName,
+                  jvmPID, systemProperty, and environmentVariable attributes.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the join request control to support  the new "contains" join rule, which
+                  makes it possible to have a generated filter using a subAny substring filter
+                  rather than an equality filter.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the access log parsing code to add support for parsing forward
+                  information contained in result messages, and for parsing client certificate log
+                  messages.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 1.1.2</h3>
+
+              <p>
+                The following changes were made between the 1.1.1 and 1.1.2 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added support for a new extended schema info request control, which can be
+                  included in a search request targeting the schema subentry to cause it to
+                  return extended information (including elements like X-SCHEMA-FILE and
+                  X-READ-ONLY) in the schema elements that are returned.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the UnboundID work queue monitor entry to include support for the new
+                  num-busy-worker-threads, average-operation-queue-time-millis, and
+                  recent-operation-queue-time-millis attributes.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the access log parsing code to provide the ability to access the new
+                  qtime element if it is present.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for the search task, which can be used to perform an internal
+                  search in the UnboundID Directory Server and write the results to an LDIF file
+                  on the server filesystem.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 1.1.1</h3>
+
+              <p>
+                The following changes were made between the 1.1.0 and 1.1.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the access log parsing classes to add support for the FORWARD-FAILED
+                  messages which may be logged by the UnboundID Directory Proxy Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for the administrative operation request control that may be
+                  included in client requests sent to the UnboundID Directory Server to indicate
+                  that the associated operation is administrative in nature rather than part of a
+                  normal client request.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the monitor entry parsing code to provide support for the
+                  num-operations-in-progress and num-persistent-searches-in-progress attributes
+                  exposed in the active operations monitor entry.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 1.1.0</h3>
+
+              <p>
+                The following changes were made between the 1.0.0 and 1.1.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  There were no significant changes applicable to only the Commercial Edition in
+                  this release.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 1.0.0</h3>
+
+              <p>
+                The following changes were made between the 0.9.10 and 1.0.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added an example tool that may be used to analyze and summarize the contents of
+                  one or more UnboundID Directory Server access logs.  A number of useful items
+                  are included, including information about the number, rate, and duration of
+                  operations processed, the most common result codes returned, and the most common
+                  types of filters used.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+             <h3>Version 0.9.10</h3>
+
+              <p>
+                The following changes were made between the 0.9.9 and 0.9.10 releases:
+              </p>
+
+              <ul>
+                <li>
+                  There were no significant changes applicable only to the Commercial Edition in
+                  this release.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 0.9.9</h3>
+
+              <p>
+                The following changes were made between the 0.9.8 and 0.9.9 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added support for the unsolicited cancel response control, which may be included
+                  in responses the that UnboundID Directory Server sends for requests that are
+                  canceled by the server for some reason other than being canceled by the client
+                  (e.g., if the server is shutting down or the client connection is being
+                  terminated and all outstanding operations for the client are being canceled).
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for the stream values extended request and intermediate response.
+                  This request may be used to retrieve information about entry DNs or attribute
+                  values for a specified set of entries in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added the ability to parse alert entries as included in the administrative alert
+                  backend of the UnboundID Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the general monitor entry to add support for the degraded-alert-type,
+                  unavailable-alert-type, instanceName, and startupID attributes.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the active operations monitor entry to add support for the list of
+                  active persistent searches.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the processing time histogram monitor entry to add support for the
+                  total count and average response time attributes.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for the LDAP external server, replica, replication server, and
+                  replication summary monitor entry types.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the monitor entry API so that information from any types of Directory
+                  Server monitor entries which are not explicitly supported by the LDAP SDK may
+                  still be accessed using the generic API.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new API which may be used for parsing access and error log messages as
+                  generated by the UnboundID Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for the replication repair request control, which may be used to
+                  process an add, delete, modify, or modify DN operation which will not be
+                  replicated to any other server.  This control is primarily intended for use in
+                  manually repairing replication conflicts.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 0.9.8</h3>
+
+              <p>
+                The following changes were made between the 0.9.7 and 0.9.8 releases:
+              </p>
+
+              <ul>
+                <li>
+                  There were no changes applicable only to the Commercial Edition in this release.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 0.9.7</h3>
+
+              <p>
+                The following changes were made between the 0.9.6 and 0.9.7 releases:
+              </p>
+
+              <ul>
+                <li>
+                  There were no changes applicable only to the Commercial Edition in this release.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 0.9.6</h3>
+
+              <p>
+                The following changes were made between the 0.9.5 and 0.9.6 releases:
+              </p>
+
+              <ul>
+                <li>
+                  There were no changes applicable only to the Commercial Edition in this release.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+              <h3>Version 0.9.5</h3>
+
+              <p>
+                This was the initial public release of the UnboundID LDAP SDK for Java.
+              </p>
+

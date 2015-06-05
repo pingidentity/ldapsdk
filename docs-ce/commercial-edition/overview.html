@@ -1,0 +1,532 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="top">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                    <br>
+                    <a href="index.${EXTENSION}" style="font-size: 85%">Additional Functionality in the Commercial Edition</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Overview of Additional Functionality in the Commercial Edition</h2>
+
+              <p>
+              The Commercial Edition of the UnboundID LDAP SDK for Java provides a significant
+                amount of additional functionality that is available for use when the SDK is used
+                to communicate with an instance of the UnboundID Directory Server.  This page
+                describes that additional functionality.
+              </p>
+
+              <p></p>
+              <h3>Additional Controls</h3>
+
+              <p>
+                The following additional controls are available when communicating with an
+                UnboundID Directory Server instance:
+              </p>
+
+              <ul>
+                <li>
+                  <b>Account Usability Control</b> -- Provides information about whether a
+                  specified user account is available for use, and if not information about why it
+                  may be unavailable.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Administrative Operation Control</b> -- Indicates that the associated request
+                  is intended for some administrative purpose rather than a general application
+                  request.  Operations with this control may be treated specially by the server,
+                  including placing additional information in access log messages and excluding
+                  them from inclusion in response time histogram tracking.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Batched Transaction Specification Control</b> -- Indicates that the associated
+                  operation is part of a batched transaction.  This must be used in conjunction
+                  with the start batched transaction and end batched transaction extended
+                  operations.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Exclude Branch Control</b> -- Provides the ability to exclude entries in
+                  a specified set of branches from search results.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Extended Schema Information Control</b> -- Provides the ability to request
+                  that the server return extended information (including information about
+                  the files in which schema elements are defined and whether those definitions are
+                  considered read-only) as part of the server schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Authorization Entry Control</b> -- Provides the ability to retrieve the
+                  entries for the authentication and/or authorization entries for the user in the
+                  bind response received from the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Effective Rights Control</b> -- Provides access to information about what
+                  rights a specified user has when interacting with a given entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Server ID Control</b> -- Provides a way for the client to request
+                  information about which server was actually used to process a request (including
+                  the ability to make that determination through a Directory Proxy Server).  It
+                  may be used in conjunction with the route to server request control to request
+                  that an operation be processed by a specific server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Ignore NO-USER-MODIFICATION Control</b> -- Provides the ability to add an
+                  entry to a Directory Server that already contains attributes which may be marked
+                  NO-USER-MODIFICATION in the server schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Interactive Transaction Specification Control</b> -- Indicates that the
+                  specified operation is part of an interactive transaction.  This must be used in
+                  conjunction with the start interactive transaction and end interactive
+                  transaction extended operations.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Intermediate Client Control</b> -- May be used to help track requests and
+                  responses through a directory environment (e.g., between a client, a directory
+                  proxy server, and a directory server).
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Join Control</b> -- Can be used to correlate search result entries with other
+                  entries related based on a given set of criteria.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>No Operation Control</b> -- Provides the ability to request that the server
+                  validate that a write operation would likely succeed, but without making any
+                  changes to data in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Operation Purpose Control</b> -- Provides the ability for a client to
+                  identify itself to the server and provide information about the reason for the
+                  associated operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Password Policy Control</b> -- Provides password policy-related information
+                  for a user account.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Real Attributes Only Control</b> -- Indicates that search entries returned
+                  should not include any virtual attributes.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Replication Repair Control</b> -- Provides the ability to make a change in
+                  the server which will not be replicated to other servers, primarily intended for
+                  fixing problems due to replication conflicts.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Retain Identity Control</b> -- May be used with a bind request to indicate
+                  that the server should process the bind but not actually change the identity
+                  associated with the client connection.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Route to Server Control</b> -- May be used to request that the operation be
+                  routed to a particular backend server.  This is primarily intended for use when
+                  the request is to be sent through a Directory Proxy Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Unsolicited Cancel Control</b> -- Indicates that the associated operation was
+                  canceled by the Directory Server for a reason other than being canceled by the
+                  client (e.g., because the client connection is being closed or the server is
+                  shutting down and all outstanding requests are being canceled).
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Virtual Attributes Only Control</b> -- Indicates that search entries returned
+                  should only include virtual attributes.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Additional Extended Operations</h3>
+
+              <p>
+                The following additional extended operations are available when communicating with
+                an UnboundID Directory Server instance:
+              </p>
+
+              <ul>
+                <li>
+                  <b>End Administrative Session</b> -- Indicates that the server should end an
+                  active administrative session for the connection.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>End Batched Transaction</b> -- Indicates that the server should either commit
+                  or abort a batched transaction.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>End Interactive Transaction</b> -- Indicates that the server should either
+                  commit or abort an interactive transaction.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Changelog Batch</b> -- Allows the client to request a batch of changelog
+                  entries from the server.  This may be used to retrieve information about changes
+                  in a manner that works across multiple servers (and through a Directory Proxy
+                  Server) and can resume where the last batch ended.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Get Connection ID</b> -- Allows the client to request the connection ID
+                  associated with the client connection used to issue the request.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Password Policy State</b> -- Allows the client to get and set a number of
+                  properties related to a user's password policy state.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Start Administrative Session</b> -- Creates an administrative session that
+                  can be used to request that operations be processed using a dedicated pool of
+                  worker threads.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Start Batched Transaction</b> -- Indicates that the client wishes to perform
+                  multiple updates as part of a single atomic transaction.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Start Interactive Transaction</b> -- Indicates that the client wishes to
+                  process multiple operations as a single atomic unit using a transaction.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Stream Directory Values</b> -- Provides the ability to obtain a list of entry
+                  DNs and/or the values of specified attributes for all entries in a specified
+                  portion of the DIT.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Access to Monitor Data</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides access to the following types of monitor
+                information:
+              </p>
+
+              <ul>
+                <li>
+                  <b>Active Operations</b> -- Information about operations currently in progress in
+                  the Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Backend</b> -- Information about configured Directory Server backends.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Client Connection</b> -- Information about all client connections currently
+                  established.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Connection Handler</b> -- Information about configured Directory Server
+                  connection handlers.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Disk Space Usage</b> -- Information about components of the server which may
+                  consume a significant amount of disk space.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Entry Cache</b> -- Information about the state of the Directory Server entry
+                  cache.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>FIFO Entry Cache</b> -- Information about the state of a FIFO entry cache
+                  configured in the Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>General</b> -- General information about the state of the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Index</b> -- Information about index content and usage in a Berkeley DB JE
+                  backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>JE Environment</b> -- Information about the Berkeley DB Java Edition
+                  environment in use by a Directory Server backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>LDAP External Server</b> -- Information about backend servers used by the
+                  UnboundID Directory Proxy Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>LDAP Statistics</b> -- Information about the types of communication performed
+                  by an LDAP connection handler.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Memory Usage</b> -- Information about memory usage and garbage collection
+                  within the JVM.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Processing Time Histogram</b> -- Information about the time required for the
+                  server to process various types of operations.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Replica</b> -- Information about the sate of a replica for a portion of the
+                  replicated content.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Replication Server</b> -- Information about the state of a replication server
+                  for a portion of the replicated content.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Replication Summary</b> -- Information about the replication state for a
+                  specified portion of the server DIT.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Stack Trace</b> -- A stack trace of all threads running in the Directory
+                  Server JVM.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>System Info</b> -- Information about the underlying system and JVM used to
+                  run the Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Traditional Work Queue</b> -- Information about the state of the Directory
+                  Server traditional work queue.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>UnboundID Work Queue</b> -- Information about the state of the enhanced
+                  UnboundID Directory Server work queue.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Version</b> -- Information about the Directory Server version.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Support for Managing Tasks</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides support for scheduling and managing the
+                following types of tasks:
+              </p>
+
+              <ul>
+                <li>
+                  <b>Add Schema File</b> -- Add the contents of one or more schema files to the
+                  server schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Alert</b> -- Generate arbitrary administrative alerts and alter the the set
+                  of degraded and unavailable alert types for the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Audit Data Security</b> -- Provides the ability to initiate a data security
+                  audit in the server to identify information in entries that may have an
+                  impact on the security of the environment.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Backup</b> -- Back up the contents of one or more Directory Server backends.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Disconnect Client</b> -- Terminate a specified client connection.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Dump DB Details</b> -- Retrieve information about the state of the individual
+                  databases that comprise a Berkeley DB JE backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Enter Lockdown Mode</b> -- Cause the Directory Server to enter a restricted
+                  operation mode.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Export</b> -- Export the contents of a Directory Server backend to LDIF.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Groovy-Scripted</b> -- Invokes a custom task written in the Groovy scripting
+                  language with the UnboundID Server SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Import</b> -- Import LDIF data into a Directory Server backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Leave Lockdown Mode</b> -- Cause the Directory Server to leave the restricted
+                  operation mode.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Rebuild</b> -- Generate or rebuild indexes for a Berkeley DB Java Edition
+                  backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Refresh Encryption Settings</b> -- Causes the Directory Server to reload its
+                  encryption settings definitions after a change was made to the set of
+                  definitions.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Restore</b> -- Restore a backup for a specified Directory Server backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Search</b> -- Perform an internal search and write the results to a specified
+                  file on the server filesystem.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Shutdown</b> -- Shut down or restart the Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Third-Party</b> -- Invokes a custom Java-based task written with the
+                  UnboundID Server SDK.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Other Commercial Edition APIs</h3>
+
+              <p>
+                The UnboundID LDAP SDK for Java also provides support for the following additional
+                capabilities that are specifically intended for use in conjunction with the
+                UnboundID Directory Server:
+              </p>
+
+              <ul>
+                <li>
+                  <b>Alert Entry Parsing</b> -- The LDAP SDK provides support for parsing alert
+                  entries as included in the UnboundID Directory Server's administrative alerts
+                  backend.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Changelog Entry Parsing</b> -- The LDAP SDK provides support for parsing
+                  UnboundID-proprietary attributes contained in changelog entries, including
+                  information about values of updated attributes before and after the change, and
+                  also about key attributes from the entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  <b>Log File Parsing</b> -- The LDAP SDK provides support for parsing access and
+                  error log messages generated by the UnboundID Directory Server.
+                  <br><br>
+                </li>
+              </ul>

@@ -35,7 +35,10 @@
       The UnboundID LDAP SDK for Java is a fast, comprehensive, and easy-to-use
       Java API for communicating with LDAP directory servers and performing
       related tasks like reading and writing LDIF, encoding and decoding data
-      using base64 and ASN.1 BER, and performing secure communication.
+      using base64 and ASN.1 BER, and performing secure communication.  This
+      package contains the Standard Edition of the LDAP SDK, which is a
+      complete, general-purpose library for communicating with LDAPv3 directory
+      servers.
     </description>
 
     <url>${LDAP_SDK_HOME_URL}</url>
