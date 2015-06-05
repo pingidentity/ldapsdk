@@ -1,0 +1,3 @@
+build
+gen-src
+src/com/unboundid/ldap/sdk/Version.java
