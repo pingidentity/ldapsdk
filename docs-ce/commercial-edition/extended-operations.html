@@ -24,7 +24,112 @@ ${TARGET="offline"}                    <br>
               </p>
 
               <p></p>
-              <h3>Get Connection ID Operation</h3>
+              <h3>Clear Missed Notification Changes</h3>
+
+              <p>
+                The clear missed notification changes operation may be used to clear a server
+                alarm condition about missed change notifications.
+              </p>
+
+              <p></p>
+              <h3>Delete Notification Destination</h3>
+
+              <p>
+                The delete notification destination operation may be used to remove a notification
+                destination, and all of its associated subscriptions, from the server.
+              </p>
+
+              <p></p>
+              <h3>Delete Notification Subscription</h3>
+
+              <p>
+                The delete notification subscription operation may be used to remove a
+                notification subscription from the server.
+              </p>
+
+              <p></p>
+              <h3>Deliver and Consume Single-Use Token</h3>
+
+              <p>
+                The deliver single-use token operation may be used to generate a time-limited,
+                single-use token and deliver it to a user through some out-of-band mechanism
+                (e.g., email, SMS, voice call, etc.).  The consume single-use token operation maye
+                be used to indicate that the user has received that token.  These operations may
+                be useful for things like verifying that a user can receive email at a given
+                address or SMS messages at a given mobile number.
+              </p>
+
+              <p></p>
+              <h3>Deliver One-Time Password</h3>
+
+              <p>
+                The deliver one-time password operation may be used to generate a time-limited,
+                single-use password and deliver it to a user through some out-of-band mechanism
+                (e.g., email, SMS, voice call, etc.) after verifying that a provided static
+                password is valid for that user.  This one-time password can be used to bind to
+                the server via the UNBOUNDID-DELIVERED-OTP SASL mechanism as a means of performing
+                two-factor authentication.
+              </p>
+
+              <p></p>
+              <h3>Deliver Password Reset Token</h3>
+
+              <p>
+                The deliver password reset token operation may be used to generate a time-limited,
+                single-use token and deliver it to a user through some out-of-band mechanism
+                (e.g., email, SMS, voice call, etc.).  This token can be provided to the password
+                modify operation in lieu of the user's current password in order to give that user
+                the ability to choose a new password.  This can be used to help automate the
+                process of resetting a password that the end user had forgotten or allowed to
+                expire.
+              </p>
+
+              <p></p>
+              <h3>Get Backup Compatibility Descriptor and Identify Backup Compatibility Problems</h3>
+
+              <p>
+                The get backup compatibility descriptor operation may be used to obtain a set of
+                properties that a backend will use when creating a backup.  The backup compatibility
+                descriptor will automatically be embedded in any backup performed by the server,
+                but this operation may be used to get that descriptor without actually performing
+                a backup.  The identify backup compatibility problems operation may be used to
+                determine whether a backup with a given backup compatibility descriptor may be
+                restored to that backend.  This set of operations is particularly useful when
+                attempting to restore a backup from one server into another server, or when
+                performing online replica initialization between instances, to ensure that the
+                target instance will be able to properly handle the data contained in the backup.
+              </p>
+
+              <p></p>
+              <h3>Get Changelog Batch</h3>
+
+              <p>
+                The get changelog batch operation may be used to retrieve information about a set
+                of changes processed by the server.  This operation can be used via polling or by
+                blocking for changes to become available, can be used to retrieve only a subset of
+                changes matching a given set of criteria (e.g., only certain change types, only
+                changes to certain attributes, etc.), and can safely be used across all replicas
+                in the environment, even if their changelogs may contain a slightly different
+                operation order as a result of the difference between changes being processed
+                locally versus those received from replication.
+              </p>
+
+              <p></p>
+              <h3>Get and List Configurations</h3>
+
+              <p>
+                The get configuration operation may be used to retrieve information about the
+                server configuration.  This may be the current configuration, a known baseline
+                configuration, or a configuration that the server may have held in the past.  The
+                list configurations operation may be used to retrieve information about the set
+                of configurations that can be retrieved using the get configuration operation.
+                These operations may be used to help identify configuration differences between
+                server instances, as well as to determine what configuration changes have been
+                applied to a server over time.
+              </p>
+
+              <p></p>
+              <h3>Get Connection ID</h3>
 
               <p>
                 The get connection ID extended operation provides a mechanism that allows the
@@ -57,7 +162,60 @@ if (result.getResultCode() == ResultCode.SUCCESS)
 </pre>
 
               <p></p>
-              <h3> Password Policy State Operation</h3>
+              <h3>Get Password Quality Requirements</h3>
+
+              <p>
+                The get password quality requirements may be used to retrieve information about
+                the constraints that will be enforced for passwords for a given user in a
+                specified operation.  This may be used to allow an application to provide
+                guidelines when allowing a user to change his or her password, and may also
+                provide information that an application may be able to leverage in order to
+                perform some client-side validation for a proposed password.
+              </p>
+
+              <p></p>
+              <h3>Get and Set Subtree Accessibility</h3>
+
+              <p>
+                The set subtree accessibility operation may be used to alter the accessibility of
+                one or more subtrees in the DIT.  This operation can be used to make subtrees
+                fully accessible, read-only, or hidden.  The get subtree accessibility operation
+                can be used to retrieve information about subtree accessibility restrictions that
+                are currently in place in the server.
+              </p>
+
+              <p></p>
+              <h3>Get Supported OTP Delivery Mechanisms</h3>
+
+              <p>
+                The get supported OTP delivery mechanisms operation may be used to obtain
+                information about the set of mechanisms that the server offers for conveying
+                one-time passwords, password reset tokens, and single-use tokens to end users,
+                and which of those mechanisms may be available for use by a specified user.
+              </p>
+
+              <p></p>
+              <h3>List Notification Subscriptions</h3>
+
+              <p>
+                The list notification subscriptions operation may be used to obtain information
+                about the set of notification destinations that have been defined, along with
+                their associated subscriptions.
+              </p>
+
+              <p></p>
+              <h3>Multi-Update</h3>
+
+              <p>
+                The multi-update operation provides a mechanism for sending information about
+                multiple add, delete, modify, modify DN, and/or password modify operations that
+                should be processed in a single request.  The client can indicate whether all of
+                the changes should be processed as a single atomic unit, or whether they should be
+                processed as if they had been separate requests.
+              </p>
+
+              <p></p>
+              <h3>Password Policy State</h3>
 
               <p>
                 The password policy state extended operation provides a powerful mechanism that can
@@ -240,7 +398,38 @@ if (pwpStateResult.getResultCode() == ResultCode.SUCCESS)
 </pre>
 
               <p></p>
-              <h3>Start and End Batched Transaction Operations</h3>
+              <h3>Set Notification Destination</h3>
+
+              <p>
+                The set notification destination operation may be used to create or update a
+                notification destination in the server.
+              </p>
+
+              <p></p>
+              <h3>Set Notification Subscription</h3>
+
+              <p>
+                The set notification destination operation may be used to create or update a
+                notification subscription in the server.
+              </p>
+
+              <p></p>
+              <h3>Start and End Administrative Session</h3>
+
+              <p>
+                The start administrative session operation may be used to indicate that the client
+                is about to perform a sequence of operations that are intended for administrative
+                use.  It may optionally request that subsequent operations in that session be
+                processed in a separate, dedicated pool of worker threads that are not used for
+                processing normal operations and may be used to help an administrator diagnose a
+                problem or take corrective action even if all normal worker threads are currently
+                busy processing expensive operations.  The end administrative session operation
+                may be used to indicate that any following requests should not be considered part
+                of the administrative session.
+              </p>
+
+              <p></p>
+              <h3>Start and End Batched Transaction</h3>
 
               <p>
                 The start batched transaction and end batched transaction extended operations, and
@@ -386,7 +575,7 @@ finally
 </pre>
 
               <p></p>
-              <h3>Start and End Interactive Transaction Operations</h3>
+              <h3>Start and End Interactive Transaction</h3>
 
               <p>
                 The start interactive transaction and end interactive transaction extended
@@ -479,3 +668,16 @@ finally
   }
 }
 </pre>
+
+              <p></p>
+              <h3>Stream Directory Values</h3>
+
+              <p>
+                The stream directory values operation may be used to request that a Directory
+                Server retrieve information about all unique entry DNs and/or all unique
+                values for a specified attribute or set of indexed attributes.  Although it is
+                primarily used by the Directory Proxy Server for populating the entry-balancing
+                global index, it may also be useful for other purposes (e.g., it provides a very
+                efficient way to retrieve a list of the DNs of all entries in a specified portion
+                of the DIT).
+              </p>
