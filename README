@@ -1,0 +1,62 @@
+This is the source code and build environment for the UnboundID LDAP SDK for
+Java, a fast, comprehensive, and easy-to-use Java API for communicating with
+LDAP directory servers and performing related tasks like reading and writing
+LDIF, encoding and decoding data using Base64 and ASN.1 BER, and performing
+secure communication.
+
+The LDAP SDK is open source under the terms of the GPLv2 and LGPLv2.1 licenses.
+It is also available under the non-open source UnboundID LDAP SDK Free Use
+License, which allows the LDAP SDK to be freely used in free or commercial
+applications as long as the LDAP SDK itself is not altered.  See the
+LICENSE-GPLv2.txt, LICENSE-LGPLv2.1.txt, and LICENSE-UnboundID-LDAPSDK.txt
+files for the specific details of each license.
+
+There are three editions of the LDAP SDK:
+
+- The Standard Edition is a full-featured, standards-compliant API for
+  interacting with any LDAPv3 directory server.  It provides support for a
+  number of standard and de-facto standard controls, extended operations, and
+  features.  If you're writing an application to work with any kind of
+  directory server, then this is probably the version that you want.
+
+- The Minimal Edition is a stripped-down version of the LDAP SDK that is
+  designed for resource-constrained environments (e.g., Android apps) where
+  space is at a premium.  It contains full support for the LDAPv3 protocol, but
+  omits a number of optional elements that are less frequently used.
+
+- The Commercial Edition contains everything in the Standard Edition, plus a
+  number of additional features that are specifically intended for use in
+  conjunction with UnboundID server products.  This includes support for using
+  a number of proprietary controls and extended operations, retrieving server
+  monitor data, creating and managing administrative tasks, parsing access and
+  error log content, etc.  If you're not using UnboundID server products, then
+  the Commercial Edition does not provide any additional benefit over the
+  Standard Edition.
+
+The contents of this repository can be used to build all three editions of the
+LDAP SDK.  The easiest way to do this is to simply run the build.sh shell
+script (or the build.bat batch file on Windows systems) without any arguments,
+or to invoke Apache Ant directly and target the build.xml build file.  If you
+want to save a little time and don't care about building the Commercial
+Edition, then you can run the build-se.sh shell script (or build-se.bat batch
+file, or build-se.xml Ant build file) to build only the Standard and Minimal
+Editions.  The resulting build files may be found in the build/package
+directory.
+
+To ask questions, provide feedback, report bugs, submit feature requests, or
+engage in any other discussion about the LDAP SDK, you may use one of the
+following options:
+
+- Use the online discussion forum at
+  http://sourceforge.net/p/ldap-sdk/discussion/
+
+- Send an e-mail message to the ldap-sdk-discuss@lists.sourceforge.net mailing
+  list, or to ldapsdk-support@unboundid.com if the details of the discussion
+  should not be publicly available.
+
+- If you have an UnboundID support contract, you may get assistance with the
+  LDAP SDK in the same way as for other UnboundID products.  Contact
+  ldapsdk-support@unboundid.com for more information about obtaining a support
+  contract specifically for the LDAP SDK, or info@unboundid.com for general
+  information about any UnboundID products.
+
