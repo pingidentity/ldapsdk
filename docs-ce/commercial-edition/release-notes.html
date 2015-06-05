@@ -19,10 +19,105 @@ ${TARGET="offline"}                    <br>
                 <a href="../release-notes.html">Standard Edition Release Notes</a>.
               </p>
 
+              <h3>Version 3.0.0</h3>
+
+              <p>
+                The following changes were made between the 2.3.8 and 3.0.0 releases of the
+                Commercial Edition:
+              </p>
+
+              <ul>
+                <li>
+                  The Commercial Edition of the UnboundID LDAP SDK for Java is now open source
+                  under the terms of the GNU General Public License version 2 and the GNU Lesser
+                  General Public License version 2.1.  The Commercial Edition source code is
+                  available in the GitHub repository at
+                  <a href="https://github.com/UnboundID/ldapsdk">https://github.com/UnboundID/ldapsdk</a>.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a new JSON object filter mechanism, which can be used to perform
+                  advanced matching against JSON objects stored in the Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a new deliver password reset token extended operation that can
+                  generate a single-use token and deliver it to a specified user through some
+                  out-of-band mechanism (e.g., email, SMS, voice call, etc.).  This password reset
+                  token can be provided to the password modify extended operation as an
+                  alternative to the user's current password in order to allow that user to choose
+                  a new password.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a new get password quality requirements extended operation that
+                  can be used to retrieve information about the constraints that the server will
+                  impose on user passwords.  A new set of password validation details request and
+                  response controls can be used to obtain information about the result of any
+                  validation performed against a password included in the associated request.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a new deliver single-use tokens extended operation that can be
+                  used to generate and deliver single-use tokens for arbitrary purposes (e.g., for
+                  validating a provided email address or phone number).  The new consume
+                  single-use tokens extended operation can be used to consume those tokens after
+                  they have been delivered.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for a new get supported OTP delivery mechanisms extended operation
+                  that can be used to determine which out-of-band mechanisms can be used to
+                  deliver one-time passwords, password reset tokens, and other single-use tokens
+                  to a specified user.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add support for creating and interacting with the Directory Proxy Server's
+                  reload global index task.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the matching entry count control to add the ability to determine whether
+                  the associated search is considered indexed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add a new get changelog batch change selection criteria that can be used to
+                  target only changelog entries that match a specific notification destination.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update access log parsing support to provide the ability to get information
+                  about any privileges used, or any required privileges that were missing, in the
+                  course of processing an operation.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the javadoc documentation for all Commercial Edition classes to add a
+                  note to help clarify that they are part of the Commercial Edition and are not
+                  available in the Standard Edition of the LDAP SDK.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 2.3.8</h3>
 
               <p>
-                The following changes were made between the 2.3.7 and 2.3.8 releases:
+                The following changes were made between the 2.3.7 and 2.3.8 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -45,7 +140,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.7</h3>
 
               <p>
-                The following changes were made between the 2.3.6 and 2.3.7 releases:
+                The following changes were made between the 2.3.6 and 2.3.7 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -145,7 +241,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.6</h3>
 
               <p>
-                The following changes were made between the 2.3.5 and 2.3.6 releases:
+                The following changes were made between the 2.3.5 and 2.3.6 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -176,7 +273,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.5</h3>
 
               <p>
-                The following changes were made between the 2.3.4 and 2.3.5 releases:
+                The following changes were made between the 2.3.4 and 2.3.5 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -204,7 +302,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.4</h3>
 
               <p>
-                The following changes were made between the 2.3.3 and 2.3.4 releases:
+                The following changes were made between the 2.3.3 and 2.3.4 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -233,7 +332,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.3</h3>
 
               <p>
-                The following changes were made between the 2.3.2 and 2.3.3 releases:
+                The following changes were made between the 2.3.2 and 2.3.3 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -250,7 +350,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.2</h3>
 
               <p>
-                The following changes were made between the 2.3.1 and 2.3.2 releases:
+                The following changes were made between the 2.3.1 and 2.3.2 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -359,7 +460,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.1</h3>
 
               <p>
-                The following changes were made between the 2.3.0 and 2.3.1 releases:
+                The following changes were made between the 2.3.0 and 2.3.1 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -394,7 +496,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.0</h3>
 
               <p>
-                The following changes were made between the 2.2.0 and 2.3.0 releases:
+                The following changes were made between the 2.2.0 and 2.3.0 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -484,7 +587,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.2.0</h3>
 
               <p>
-                The following changes were made between the 2.1.0 and 2.2.0 releases:
+                The following changes were made between the 2.1.0 and 2.2.0 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -516,7 +620,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.1.0</h3>
 
               <p>
-                The following changes were made between the 2.0.1 and 2.1.0 releases:
+                The following changes were made between the 2.0.1 and 2.1.0 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -542,7 +647,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.0.1</h3>
 
               <p>
-                The following changes were made between the 2.0.0 and 2.0.1 releases:
+                The following changes were made between the 2.0.0 and 2.0.1 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -589,7 +695,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.0.0</h3>
 
               <p>
-                The following changes were made between the 1.1.6 and 2.0.0 releases:
+                The following changes were made between the 1.1.6 and 2.0.0 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -628,7 +735,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.6</h3>
 
               <p>
-                The following changes were made between the 1.1.5 and 1.1.6 releases:
+                The following changes were made between the 1.1.5 and 1.1.6 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -643,7 +751,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.5</h3>
 
               <p>
-                The following changes were made between the 1.1.4 and 1.1.5 releases:
+                The following changes were made between the 1.1.4 and 1.1.5 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -658,7 +767,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.4</h3>
 
               <p>
-                The following changes were made between the 1.1.3 and 1.1.4 releases:
+                The following changes were made between the 1.1.3 and 1.1.4 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -696,7 +806,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.3</h3>
 
               <p>
-                The following changes were made between the 1.1.2 and 1.1.3 releases:
+                The following changes were made between the 1.1.2 and 1.1.3 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -733,7 +844,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.2</h3>
 
               <p>
-                The following changes were made between the 1.1.1 and 1.1.2 releases:
+                The following changes were made between the 1.1.1 and 1.1.2 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -772,7 +884,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.1</h3>
 
               <p>
-                The following changes were made between the 1.1.0 and 1.1.1 releases:
+                The following changes were made between the 1.1.0 and 1.1.1 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -804,7 +917,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.0</h3>
 
               <p>
-                The following changes were made between the 1.0.0 and 1.1.0 releases:
+                The following changes were made between the 1.0.0 and 1.1.0 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -821,7 +935,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.0.0</h3>
 
               <p>
-                The following changes were made between the 0.9.10 and 1.0.0 releases:
+                The following changes were made between the 0.9.10 and 1.0.0 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -841,7 +956,8 @@ ${TARGET="offline"}                    <br>
              <h3>Version 0.9.10</h3>
 
               <p>
-                The following changes were made between the 0.9.9 and 0.9.10 releases:
+                The following changes were made between the 0.9.9 and 0.9.10 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -858,7 +974,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.9</h3>
 
               <p>
-                The following changes were made between the 0.9.8 and 0.9.9 releases:
+                The following changes were made between the 0.9.8 and 0.9.9 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -936,7 +1053,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.8</h3>
 
               <p>
-                The following changes were made between the 0.9.7 and 0.9.8 releases:
+                The following changes were made between the 0.9.7 and 0.9.8 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -952,7 +1070,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.7</h3>
 
               <p>
-                The following changes were made between the 0.9.6 and 0.9.7 releases:
+                The following changes were made between the 0.9.6 and 0.9.7 releases of the
+                Commercial Edition:
               </p>
 
               <ul>
@@ -968,7 +1087,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.6</h3>
 
               <p>
-                The following changes were made between the 0.9.5 and 0.9.6 releases:
+                The following changes were made between the 0.9.5 and 0.9.6 releases of the
+                Commercial Edition:
               </p>
 
               <ul>

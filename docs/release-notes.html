@@ -8,12 +8,110 @@ ${TARGET="offline"}                    <br>
                 </tr>
               </table>
 
-              <h2>Release Notes</h2>
+              <h2>Standard Edition Release Notes</h2>
+
+              <h3>Version 3.0.0</h3>
+
+              <p>
+                The following changes were made between the 2.3.8 and 3.0.0 releases of the
+                Standard Edition:
+              </p>
+
+              <ul>
+                <li>
+                  Make the UnboundID LDAP SDK for Java available via GitHub at
+                  <a href="https://github.com/UnboundID/ldapsdk">https://github.com/UnboundID/ldapsdk</a>.
+                  The SourceForge subversion repository, mailing lists, and discussion forums will
+                  continue to be maintained in addition to the new GitHub support.
+                  <br><br>
+                </li>
+
+                <li>
+                  The LDAP SDK now includes support for using a JSON-based configuration to
+                  specify a number of settings that can be used to create LDAP connections and
+                  connection pools.  This includes options for connecting to a single server or
+                  selecting from a group of servers using a number of algorithms, securing
+                  communication with SSL or StartTLS, and authenticating connections using simple
+                  or SASL mechanisms.  Basic support for creating, parsing, and interacting with
+                  general-purpose JSON objects is also available.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug in the LDIF reader's attribute parsing code that could prevent it from
+                  using the correct matching rule for attributes read from LDIF.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fix a bug that could cause the Schema class to throw a null pointer exception
+                  when attempting to get the set of required or optional attribute type
+                  definitions for an object class in the event that any of the superclasses were
+                  not defined in the schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add the ability to manually invoke a synchronous health check against an
+                  LDAP connection pool, optionally with a different health check mechanism than
+                  is otherwise configured for the pool.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the default LDAP connection pool configuration so that it no longer has
+                  the possibility of blocking for up to five seconds while waiting for a
+                  connection to be released if one is needed but none are immediately available.
+                  <br><br>
+                </li>
+
+                <li>
+                  Ensure that connection pool statistics are properly updated when a connection is
+                  closed as a result of a health check failure.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update support for parsing command-line arguments to add special support for
+                  arguments that describe LDAP controls, and to add improved support for
+                  ensuring that argument values match a number of common formats.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improve support for establishing connections with a connect timeout to try to
+                  separate the process of creating a socket and connecting it to the target
+                  server whenever possible.
+                  <br><br>
+                </li>
+
+                <li>
+                  Add the ability to specify an alternate key or trust store type when running the
+                  in-memory directory server via the command line.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the value pattern support to make it possible to access the contents of
+                  files in sequential order.  It was previously only possible to access file
+                  contents in random order.
+                  <br><br>
+                </li>
+
+                <li>
+                  Update the identify-unique-attribute-conflicts example tool to make it possible
+                  to only identify conflicts in entries that match a given filter.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
 
               <h3>Version 2.3.8</h3>
 
               <p>
-                The following changes were made between the 2.3.7 and 2.3.8 releases:
+                The following changes were made between the 2.3.7 and 2.3.8 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -51,7 +149,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.7</h3>
 
               <p>
-                The following changes were made between the 2.3.6 and 2.3.7 releases:
+                The following changes were made between the 2.3.6 and 2.3.7 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -250,7 +349,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.6</h3>
 
               <p>
-                The following changes were made between the 2.3.5 and 2.3.6 releases:
+                The following changes were made between the 2.3.5 and 2.3.6 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -336,7 +436,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.5</h3>
 
               <p>
-                The following changes were made between the 2.3.4 and 2.3.5 releases:
+                The following changes were made between the 2.3.4 and 2.3.5 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -537,7 +638,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.4</h3>
 
               <p>
-                The following changes were made between the 2.3.3 and 2.3.4 releases:
+                The following changes were made between the 2.3.3 and 2.3.4 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -617,7 +719,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.3</h3>
 
               <p>
-                The following changes were made between the 2.3.2 and 2.3.3 releases:
+                The following changes were made between the 2.3.2 and 2.3.3 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -634,7 +737,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.2</h3>
 
               <p>
-                The following changes were made between the 2.3.1 and 2.3.2 releases:
+                The following changes were made between the 2.3.1 and 2.3.2 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -897,7 +1001,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.1</h3>
 
               <p>
-                The following changes were made between the 2.3.0 and 2.3.1 releases:
+                The following changes were made between the 2.3.0 and 2.3.1 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1039,7 +1144,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.3.0</h3>
 
               <p>
-                The following changes were made between the 2.2.0 and 2.3.0 releases:
+                The following changes were made between the 2.2.0 and 2.3.0 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1268,7 +1374,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.2.0</h3>
 
               <p>
-                The following changes were made between the 2.1.0 and 2.2.0 releases:
+                The following changes were made between the 2.1.0 and 2.2.0 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1426,7 +1533,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.1.0</h3>
 
               <p>
-                The following changes were made between the 2.0.1 and 2.1.0 releases:
+                The following changes were made between the 2.0.1 and 2.1.0 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1637,7 +1745,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.0.1</h3>
 
               <p>
-                The following changes were made between the 2.0.0 and 2.0.1 releases:
+                The following changes were made between the 2.0.0 and 2.0.1 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1725,7 +1834,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 2.0.0</h3>
 
               <p>
-                The following changes were made between the 1.1.6 and 2.0.0 releases:
+                The following changes were made between the 1.1.6 and 2.0.0 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1824,7 +1934,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.6</h3>
 
               <p>
-                The following changes were made between the 1.1.5 and 1.1.6 releases:
+                The following changes were made between the 1.1.5 and 1.1.6 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1857,7 +1968,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.5</h3>
 
               <p>
-                The following changes were made between the 1.1.4 and 1.1.5 releases:
+                The following changes were made between the 1.1.4 and 1.1.5 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1887,7 +1999,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.4</h3>
 
               <p>
-                The following changes were made between the 1.1.3 and 1.1.4 releases:
+                The following changes were made between the 1.1.3 and 1.1.4 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -1976,7 +2089,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.3</h3>
 
               <p>
-                The following changes were made between the 1.1.2 and 1.1.3 releases:
+                The following changes were made between the 1.1.2 and 1.1.3 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2071,7 +2185,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.2</h3>
 
               <p>
-                The following changes were made between the 1.1.1 and 1.1.2 releases:
+                The following changes were made between the 1.1.1 and 1.1.2 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2151,7 +2266,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.1</h3>
 
               <p>
-                The following changes were made between the 1.1.0 and 1.1.1 releases:
+                The following changes were made between the 1.1.0 and 1.1.1 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2323,7 +2439,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.1.0</h3>
 
               <p>
-                The following changes were made between the 1.0.0 and 1.1.0 releases:
+                The following changes were made between the 1.0.0 and 1.1.0 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2469,7 +2586,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 1.0.0</h3>
 
               <p>
-                The following changes were made between the 0.9.10 and 1.0.0 releases:
+                The following changes were made between the 0.9.10 and 1.0.0 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2573,7 +2691,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.10</h3>
 
               <p>
-                The following changes were made between the 0.9.9 and 0.9.10 releases:
+                The following changes were made between the 0.9.9 and 0.9.10 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2648,7 +2767,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.9</h3>
 
               <p>
-                The following changes were made between the 0.9.8 and 0.9.9 releases:
+                The following changes were made between the 0.9.8 and 0.9.9 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2813,7 +2933,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.8</h3>
 
               <p>
-                The following changes were made between the 0.9.7 and 0.9.8 releases:
+                The following changes were made between the 0.9.7 and 0.9.8 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2904,7 +3025,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.7</h3>
 
               <p>
-                The following changes were made between the 0.9.6 and 0.9.7 releases:
+                The following changes were made between the 0.9.6 and 0.9.7 releases of the
+                Standard Edition:
               </p>
 
               <ul>
@@ -2970,7 +3092,8 @@ ${TARGET="offline"}                    <br>
               <h3>Version 0.9.6</h3>
 
               <p>
-                The following changes were made between the 0.9.5 and 0.9.6 releases:
+                The following changes were made between the 0.9.5 and 0.9.6 releases of the
+                Standard Edition:
               </p>
 
               <ul>
