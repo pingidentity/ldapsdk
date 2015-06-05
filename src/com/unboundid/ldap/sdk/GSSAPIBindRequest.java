@@ -800,6 +800,22 @@ public final class GSSAPIBindRequest
 
 
   /**
+   * Indicates whether to allow the client to use credentials that are outside
+   * of the current subject, obtained via some system-specific mechanism.
+   *
+   * @return  {@code true} if the client will only be allowed to use credentials
+   *          that are within the current subject, or {@code false} if the
+   *          client will be allowed to use credentials outside the current
+   *          subject.
+   */
+  public boolean useSubjectCredentialsOnly()
+  {
+    return useSubjectCredentialsOnly;
+  }
+
+
+
+  /**
    * Retrieves a set of system properties that will not be altered by GSSAPI
    * processing.
    *
