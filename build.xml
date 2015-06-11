@@ -43,7 +43,7 @@
 
 
   <!-- Get the Subversion revision number for the current source. -->
-  <target name="svnversion">
+  <target name="svnversion" unless="svn.version">
     <mkdir dir="${svnversion.classes.dir}" />
     <javac srcdir="${svnversion.src.dir}" destdir="${svnversion.classes.dir}"
            source="1.5" target="1.5" deprecation="true" fork="true"
