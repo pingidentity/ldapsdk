@@ -901,7 +901,7 @@ public final class LDAPThreadLocalConnectionPool
       }
       else
       {
-        connection.bind(bindRequest);
+        connection.bind(bindRequest.duplicate());
       }
 
       releaseConnection(connection);

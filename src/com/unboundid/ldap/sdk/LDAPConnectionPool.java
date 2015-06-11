@@ -1911,7 +1911,7 @@ public final class LDAPConnectionPool
       }
       else
       {
-        connection.bind(bindRequest);
+        connection.bind(bindRequest.duplicate());
       }
 
       releaseConnection(connection);
