@@ -221,6 +221,10 @@ public final class LDIFReader
   // A line number counter.
   private long lineNumberCounter = 0;
 
+  // The change record translator to use, if any.
+  private final LDIFReaderChangeRecordTranslator changeRecordTranslator;
+
+  // The entry translator to use, if any.
   private final LDIFReaderEntryTranslator entryTranslator;
 
   // The schema that will be used when processing, if applicable.
@@ -359,7 +363,49 @@ public final class LDIFReader
                     final LDIFReaderEntryTranslator entryTranslator)
          throws IOException
   {
-    this(createAggregateInputStream(files), numParseThreads, entryTranslator);
+    this(files, numParseThreads, entryTranslator, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF reader that will read data from the specified files in
+   * the order in which they are provided and optionally parses the LDIF records
+   * asynchronously using the specified number of threads.
+   *
+   * @param  files                   The files from which the data is to be
+   *                                 read.  It must not be {@code null} or
+   *                                 empty.
+   * @param  numParseThreads         If this value is greater than zero, then
+   *                                 the specified number of threads will be
+   *                                 used to asynchronously read and parse the
+   *                                 LDIF file.
+   * @param  entryTranslator         The LDIFReaderEntryTranslator to apply to
+   *                                 entries before they are returned.  This is
+   *                                 normally {@code null}, which causes entries
+   *                                 to be returned unaltered.  This is
+   *                                 particularly useful when parsing the input
+   *                                 file in parallel because the entry
+   *                                 translation is also done in parallel.
+   * @param  changeRecordTranslator  The LDIFReaderChangeRecordTranslator to
+   *                                 apply to change records before they are
+   *                                 returned.  This is normally {@code null},
+   *                                 which causes change records to be returned
+   *                                 unaltered.  This is particularly useful
+   *                                 when parsing the input file in parallel
+   *                                 because the change record translation is
+   *                                 also done in parallel.
+   *
+   * @throws  IOException  If a problem occurs while opening the file for
+   *                       reading.
+   */
+  public LDIFReader(final File[] files, final int numParseThreads,
+              final LDIFReaderEntryTranslator entryTranslator,
+              final LDIFReaderChangeRecordTranslator changeRecordTranslator)
+         throws IOException
+  {
+    this(createAggregateInputStream(files), numParseThreads, entryTranslator,
+         changeRecordTranslator);
   }
 
 
@@ -485,11 +531,50 @@ public final class LDIFReader
   public LDIFReader(final InputStream inputStream, final int numParseThreads,
                     final LDIFReaderEntryTranslator entryTranslator)
   {
+    this(inputStream, numParseThreads, entryTranslator, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF reader that will read data from the specified stream
+   * and parses the LDIF records asynchronously using the specified number of
+   * threads.
+   *
+   * @param  inputStream             The input stream from which the data is to
+   *                                 be read.  It must not be {@code null}.
+   * @param  numParseThreads         If this value is greater than zero, then
+   *                                 the specified number of threads will be
+   *                                 used to asynchronously read and parse the
+   *                                 LDIF file.
+   * @param  entryTranslator         The LDIFReaderEntryTranslator to apply to
+   *                                 entries before they are returned.  This is
+   *                                 normally {@code null}, which causes entries
+   *                                 to be returned unaltered.  This is
+   *                                 particularly useful when parsing the input
+   *                                 file in parallel because the entry
+   *                                 translation is also done in parallel.
+   * @param  changeRecordTranslator  The LDIFReaderChangeRecordTranslator to
+   *                                 apply to change records before they are
+   *                                 returned.  This is normally {@code null},
+   *                                 which causes change records to be returned
+   *                                 unaltered.  This is particularly useful
+   *                                 when parsing the input file in parallel
+   *                                 because the change record translation is
+   *                                 also done in parallel.
+   *
+   * @see #LDIFReader(BufferedReader, int, LDIFReaderEntryTranslator)
+   *      constructor for more details about asynchronous processing.
+   */
+  public LDIFReader(final InputStream inputStream, final int numParseThreads,
+              final LDIFReaderEntryTranslator entryTranslator,
+              final LDIFReaderChangeRecordTranslator changeRecordTranslator)
+  {
     // UTF-8 is required by RFC 2849.  Java guarantees it's always available.
-    this(new BufferedReader(new InputStreamReader(inputStream,
-                                                  Charset.forName("UTF-8")),
-                            DEFAULT_BUFFER_SIZE),
-         numParseThreads, entryTranslator);
+    this(new BufferedReader(
+              new InputStreamReader(inputStream, Charset.forName("UTF-8")),
+              DEFAULT_BUFFER_SIZE),
+         numParseThreads, entryTranslator, changeRecordTranslator);
   }
 
 
@@ -564,12 +649,51 @@ public final class LDIFReader
                     final int numParseThreads,
                     final LDIFReaderEntryTranslator entryTranslator)
   {
+    this(reader, numParseThreads, entryTranslator, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF reader that will read data from the specified buffered
+   * reader and parses the LDIF records asynchronously using the specified
+   * number of threads.  The encoding of the underlying Reader must be set to
+   * "UTF-8" as required by RFC 2849.
+   *
+   * @param reader                   The buffered reader that will be used to
+   *                                 read the LDIF data.  It must not be
+   *                                 {@code null}.
+   * @param  numParseThreads         If this value is greater than zero, then
+   *                                 the specified number of threads will be
+   *                                 used to asynchronously read and parse the
+   *                                 LDIF file.
+   * @param  entryTranslator         The LDIFReaderEntryTranslator to apply to
+   *                                 entries before they are returned.  This is
+   *                                 normally {@code null}, which causes entries
+   *                                 to be returned unaltered.  This is
+   *                                 particularly useful when parsing the input
+   *                                 file in parallel because the entry
+   *                                 translation is also done in parallel.
+   * @param  changeRecordTranslator  The LDIFReaderChangeRecordTranslator to
+   *                                 apply to change records before they are
+   *                                 returned.  This is normally {@code null},
+   *                                 which causes change records to be returned
+   *                                 unaltered.  This is particularly useful
+   *                                 when parsing the input file in parallel
+   *                                 because the change record translation is
+   *                                 also done in parallel.
+   */
+  public LDIFReader(final BufferedReader reader, final int numParseThreads,
+              final LDIFReaderEntryTranslator entryTranslator,
+              final LDIFReaderChangeRecordTranslator changeRecordTranslator)
+  {
     ensureNotNull(reader);
     ensureTrue(numParseThreads >= 0,
                "LDIFReader.numParseThreads must not be negative.");
 
     this.reader = reader;
     this.entryTranslator = entryTranslator;
+    this.changeRecordTranslator = changeRecordTranslator;
 
     duplicateValueBehavior = DuplicateValueBehavior.STRIP;
     trailingSpaceBehavior  = TrailingSpaceBehavior.REJECT;
@@ -1179,7 +1303,11 @@ public final class LDIFReader
       }
     }
 
-    if (!(record instanceof Entry))
+    if (record instanceof Entry)
+    {
+      return (Entry) record;
+    }
+    else if (record instanceof LDIFChangeRecord)
     {
       try
       {
@@ -1196,7 +1324,8 @@ public final class LDIFReader
       }
     }
 
-    return (Entry) record;
+    throw new AssertionError("LDIFRecords must either be an Entry or an " +
+                             "LDIFChangeRecord");
   }
 
 
@@ -1223,14 +1352,26 @@ public final class LDIFReader
   private LDIFChangeRecord readChangeRecordAsync(final boolean defaultAdd)
           throws IOException, LDIFException
   {
-    final Result<UnparsedLDIFRecord, LDIFRecord> result =
-         readLDIFRecordResultAsync();
-    if (result == null)
+    Result<UnparsedLDIFRecord, LDIFRecord> result = null;
+    LDIFRecord record = null;
+    while (record == null)
     {
-      return null;
+      result = readLDIFRecordResultAsync();
+      if (result == null)
+      {
+        return null;
+      }
+
+      record = result.getOutput();
+
+      // This is a special value that means we should skip this Entry.  We have
+      // to use something different than null because null means EOF.
+      if (record == SKIP_ENTRY)
+      {
+        record = null;
+      }
     }
 
-    final LDIFRecord record = result.getOutput();
     if (record instanceof LDIFChangeRecord)
     {
       return (LDIFChangeRecord) record;
@@ -1480,15 +1621,24 @@ public final class LDIFReader
   private LDIFChangeRecord readChangeRecordInternal(final boolean defaultAdd)
        throws IOException, LDIFException
   {
-    final UnparsedLDIFRecord unparsedRecord = readUnparsedRecord();
-    if (unparsedRecord.isEOF())
+    LDIFChangeRecord r = null;
+    while (r == null)
     {
-      return null;
-    }
+      final UnparsedLDIFRecord unparsedRecord = readUnparsedRecord();
+      if (unparsedRecord.isEOF())
+      {
+        return null;
+      }
 
-    final LDIFChangeRecord r =
-         decodeChangeRecord(unparsedRecord, relativeBasePath, defaultAdd);
-    debugLDIFRead(r);
+      r = decodeChangeRecord(unparsedRecord, relativeBasePath, defaultAdd);
+      debugLDIFRead(r);
+
+      if (changeRecordTranslator != null)
+      {
+        r = changeRecordTranslator.translate(r,
+             unparsedRecord.getFirstLineNumber());
+      }
+    }
     return r;
   }
 
@@ -3973,6 +4123,17 @@ public final class LDIFReader
       if ((record instanceof Entry) && (entryTranslator != null))
       {
         record = entryTranslator.translate((Entry) record,
+             input.getFirstLineNumber());
+
+        if (record == null)
+        {
+          record = SKIP_ENTRY;
+        }
+      }
+      if ((record instanceof LDIFChangeRecord) &&
+          (changeRecordTranslator != null))
+      {
+        record = changeRecordTranslator.translate((LDIFChangeRecord) record,
              input.getFirstLineNumber());
 
         if (record == null)

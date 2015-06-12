@@ -109,6 +109,9 @@ public final class LDIFWriter
   // It will only be used when operating synchronously.
   private final ByteStringBuffer buffer;
 
+  // The translator to use for change records to be written, if any.
+  private final LDIFWriterChangeRecordTranslator changeRecordTranslator;
+
   // The translator to use for entries to be written, if any.
   private final LDIFWriterEntryTranslator entryTranslator;
 
@@ -232,11 +235,55 @@ public final class LDIFWriter
   public LDIFWriter(final OutputStream outputStream, final int parallelThreads,
                     final LDIFWriterEntryTranslator entryTranslator)
   {
+    this(outputStream, parallelThreads, entryTranslator, null);
+  }
+
+
+
+  /**
+   * Creates a new LDIF writer that will write entries to the provided output
+   * stream optionally using parallelThreads when writing batches of LDIF
+   * records.
+   *
+   * @param  outputStream            The output stream to which the data is to
+   *                                 be written.  It must not be {@code null}.
+   * @param  parallelThreads         If this value is greater than zero, then
+   *                                 the specified number of threads will be
+   *                                 used to encode entries before writing them
+   *                                 to the output for the
+   *                                 {@code writeLDIFRecords(List)} method.
+   *                                 Note this is the only output method that
+   *                                 will use multiple threads.  This should
+   *                                 only be set to greater than zero when
+   *                                 performance analysis has demonstrated that
+   *                                 writing the LDIF is a bottleneck.  The
+   *                                 default synchronous processing is normally
+   *                                 fast enough.  There is no benefit in
+   *                                 passing in a value greater than the number
+   *                                 of processors in the system.  A value of
+   *                                 zero implies the default behavior of
+   *                                 reading and parsing LDIF records
+   *                                 synchronously when one of the read methods
+   *                                 is called.
+   * @param  entryTranslator         An optional translator that will be used to
+   *                                 alter entries before they are actually
+   *                                 written.  This may be {@code null} if no
+   *                                 translator is needed.
+   * @param  changeRecordTranslator  An optional translator that will be used to
+   *                                 alter change records before they are
+   *                                 actually written.  This may be {@code null}
+   *                                 if no translator is needed.
+   */
+  public LDIFWriter(final OutputStream outputStream, final int parallelThreads,
+              final LDIFWriterEntryTranslator entryTranslator,
+              final LDIFWriterChangeRecordTranslator changeRecordTranslator)
+  {
     ensureNotNull(outputStream);
     ensureTrue(parallelThreads >= 0,
-               "LDIFWriter.parallelThreads must not be negative.");
+         "LDIFWriter.parallelThreads must not be negative.");
 
     this.entryTranslator = entryTranslator;
+    this.changeRecordTranslator = changeRecordTranslator;
     buffer = new ByteStringBuffer();
 
     if (outputStream instanceof BufferedOutputStream)
@@ -265,6 +312,16 @@ public final class LDIFWriter
                if ((entryTranslator != null) && (input instanceof Entry))
                {
                  r = entryTranslator.translateEntryToWrite((Entry) input);
+                 if (r == null)
+                 {
+                   return null;
+                 }
+               }
+               else if ((changeRecordTranslator != null) &&
+                        (input instanceof LDIFChangeRecord))
+               {
+                 r = changeRecordTranslator.translateChangeRecordToWrite(
+                      (LDIFChangeRecord) input);
                  if (r == null)
                  {
                    return null;
@@ -440,10 +497,7 @@ public final class LDIFWriter
   public void writeChangeRecord(final LDIFChangeRecord changeRecord)
          throws IOException
   {
-    ensureNotNull(changeRecord);
-
-    debugLDIFWrite(changeRecord);
-    writeLDIF(changeRecord);
+    writeChangeRecord(changeRecord, null);
   }
 
 
@@ -465,13 +519,27 @@ public final class LDIFWriter
   {
     ensureNotNull(changeRecord);
 
-    debugLDIFWrite(changeRecord);
+    final LDIFChangeRecord r;
+    if (changeRecordTranslator == null)
+    {
+      r = changeRecord;
+    }
+    else
+    {
+      r = changeRecordTranslator.translateChangeRecordToWrite(changeRecord);
+      if (r == null)
+      {
+        return;
+      }
+    }
+
     if (comment != null)
     {
       writeComment(comment, false, false);
     }
 
-    writeLDIF(changeRecord);
+    debugLDIFWrite(r);
+    writeLDIF(r);
   }
 
 
@@ -511,6 +579,16 @@ public final class LDIFWriter
     if ((entryTranslator != null) && (record instanceof Entry))
     {
       r = entryTranslator.translateEntryToWrite((Entry) record);
+      if (r == null)
+      {
+        return;
+      }
+    }
+    else if ((changeRecordTranslator != null) &&
+             (record instanceof LDIFChangeRecord))
+    {
+      r = changeRecordTranslator.translateChangeRecordToWrite(
+           (LDIFChangeRecord) record);
       if (r == null)
       {
         return;
