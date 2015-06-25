@@ -4357,6 +4357,12 @@ findEntriesAndRefs:
    */
   private ReadOnlyEntry generateRootDSE()
   {
+    final ReadOnlyEntry rootDSEFromCfg = config.getRootDSEEntry();
+    if (rootDSEFromCfg != null)
+    {
+      return rootDSEFromCfg;
+    }
+
     final Entry rootDSEEntry = new Entry(DN.NULL_DN, schemaRef.get());
     rootDSEEntry.addAttribute("objectClass", "top", "ds-root-dse");
     rootDSEEntry.addAttribute(new Attribute("supportedLDAPVersion",

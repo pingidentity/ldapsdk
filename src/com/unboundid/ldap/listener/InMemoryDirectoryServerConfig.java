@@ -36,8 +36,10 @@ import java.util.logging.Handler;
 
 import com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor;
 import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
+import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.schema.Schema;
@@ -151,6 +153,9 @@ public class InMemoryDirectoryServerConfig
   // requiring a corresponding entry in the data set.
   private final Map<DN,byte[]> additionalBindCredentials;
 
+  // The entry to use for the server root DSE.
+  private ReadOnlyEntry rootDSEEntry;
+
   // The schema to use for the server.
   private Schema schema;
 
@@ -223,6 +228,7 @@ public class InMemoryDirectoryServerConfig
     maxSizeLimit                         = 0;
     exceptionHandler                     = null;
     equalityIndexAttributes              = new ArrayList<String>(10);
+    rootDSEEntry                         = null;
     schema                               = Schema.getDefaultStandardSchema();
     allowedOperationTypes                = EnumSet.allOf(OperationType.class);
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
@@ -293,6 +299,7 @@ public class InMemoryDirectoryServerConfig
     maxChangeLogEntries                = cfg.maxChangeLogEntries;
     maxSizeLimit                       = cfg.maxSizeLimit;
     exceptionHandler                   = cfg.exceptionHandler;
+    rootDSEEntry                       = cfg.rootDSEEntry;
     schema                             = cfg.schema;
     vendorName                         = cfg.vendorName;
     vendorVersion                      = cfg.vendorVersion;
@@ -1218,6 +1225,46 @@ public class InMemoryDirectoryServerConfig
   public void setVendorVersion(final String vendorVersion)
   {
     this.vendorVersion = vendorVersion;
+  }
+
+
+
+  /**
+   * Retrieves a predefined entry that should always be returned as the
+   * in-memory directory server's root DSE, if defined.
+   *
+   * @return  A predefined entry that should always be returned as the in-memory
+   *          directory server's root DSE, or {@code null} if the root DSE
+   *          should be dynamically generated.
+   */
+  public ReadOnlyEntry getRootDSEEntry()
+  {
+    return rootDSEEntry;
+  }
+
+
+
+  /**
+   * Specifies an entry that should always be returned as the in-memory
+   * directory server's root DSE.  Note that if a specific root DSE entry is
+   * provided, then
+   *
+   * @param  rootDSEEntry  An entry that should always be returned as the
+   *                       in-memory directory server's root DSE, or
+   *                       {@code null} to indicate that the root DSE should be
+   *                       dynamically generated.
+   */
+  public void setRootDSEEntry(final Entry rootDSEEntry)
+  {
+    if (rootDSEEntry == null)
+    {
+      this.rootDSEEntry = null;
+      return;
+    }
+
+    final Entry e = rootDSEEntry.duplicate();
+    e.setDN("");
+    this.rootDSEEntry = new ReadOnlyEntry(e);
   }
 
 
