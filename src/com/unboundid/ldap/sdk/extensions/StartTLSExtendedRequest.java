@@ -288,7 +288,23 @@ public final class StartTLSExtendedRequest
 
 
   /**
-   * {@inheritDoc}
+   * Sends this StartTLS request to the server and performs the necessary
+   * client-side security processing if the operation is processed successfully.
+   * That this method is guaranteed to throw an {@code LDAPException} if the
+   * server returns a non-success result.
+   *
+   * @param  connection  The connection to use to communicate with the directory
+   *                     server.
+   * @param  depth       The current referral depth for this request.  It should
+   *                     always be zero for the initial request, and should only
+   *                     be incremented when following referrals.
+   *
+   * @return The extended result received from the server if StartTLS processing
+   *         was completed successfully.
+   *
+   * @throws  LDAPException  If the server returned a non-success result, or if
+   *                         a problem was encountered while performing
+   *                         client-side security processing.
    */
   @Override()
   public ExtendedResult process(final LDAPConnection connection,
@@ -303,6 +319,10 @@ public final class StartTLSExtendedRequest
     if (result.getResultCode() == ResultCode.SUCCESS)
     {
       InternalSDKHelper.convertToTLS(connection, sslSocketFactory);
+    }
+    else
+    {
+      throw new LDAPException(result);
     }
 
     return result;
