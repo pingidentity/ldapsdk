@@ -1,0 +1,280 @@
+
+
+
+
+Internet Engineering Task Force                                P. Spacek
+Internet-Draft                                             Red Hat, Inc.
+Intended status: Standards Track                           June 29, 2015
+Expires: December 31, 2015
+
+
+The Lightweight Directory Access Protocol (LDAP) Content Synchronization
+                      Operation with Transactions
+              draft-spacek-ldapext-syncrepl-transaction-00
+
+Abstract
+
+   This document specifies LDAP Control which extends the persist stage
+   of the Content Synchronization Operation with information about LDAP
+   transaction boundaries.  This information can be used to support
+   application-level transactions or for application-level
+   optimizations.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on December 31, 2015.
+
+Copyright Notice
+
+   Copyright (c) 2015 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+
+
+
+
+
+
+
+
+
+
+
+Spacek                  Expires December 31, 2015               [Page 1]
+
+Internet-Draft LDAP Content Synchronization & Transactions     June 2015
+
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Document Conventions  . . . . . . . . . . . . . . . . . . . .   3
+   3.  Elements of the LDAP Content Synchronization with
+       Transactions  . . . . . . . . . . . . . . . . . . . . . . . .   3
+     3.1.  Transaction Notification Control  . . . . . . . . . . . .   3
+     3.2.  Start Transaction Notification Message  . . . . . . . . .   3
+     3.3.  End Transaction Notification Message  . . . . . . . . . .   3
+   4.  Interaction with the Content Synchronization Operation  . . .   3
+     4.1.  Refresh stage . . . . . . . . . . . . . . . . . . . . . .   4
+     4.2.  Persist stage . . . . . . . . . . . . . . . . . . . . . .   4
+   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   5
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   5
+   7.  Normative References  . . . . . . . . . . . . . . . . . . . .   5
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   5
+
+1.  Introduction
+
+   The LDAP Content Synchronization Operation [RFC4533] and LDAP
+   Transactions [RFC5805] are not integrated, which makes the Content
+   Synchronization Operation less useful.
+
+   The client using the Content Synchronization Operation has no
+   information of which changes were part of a single transaction.  As a
+   result, the client cannot replicate transaction semantics reliably,
+   especially when a connection to an LDAP server is interrupted in the
+   middle of the persist stage of the Content Synchronization Operation.
+
+   Some clients could use the information where an LDAP transaction
+   started and ended for transactions at application level to guarantee
+   consistency of application data.  Altenatively, some applications can
+   use transaction boundaries for optimizations when further processing
+   of the data is triggered by the end of a transaction.  This might
+   allow the application to save some overhead by processing changes in
+   groups.
+
+
+
+
+
+Spacek                  Expires December 31, 2015               [Page 2]
+
+Internet-Draft LDAP Content Synchronization & Transactions     June 2015
+
+
+2.  Document Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [RFC2119].
+
+   Term "transaction identifier" has the same definition as in
+   [RFC5805].
+
+3.  Elements of the LDAP Content Synchronization with Transactions
+
+   Existing protocol messages and semantics defined by [RFC4533] are not
+   changed.  The protocol flow is only extended with Transaction
+   Notification Control, Start, and End Transaction Notification
+   Messages.
+
+3.1.  Transaction Notification Control
+
+   The Transaction Notification Control is an LDAPControl [RFC4511]
+   where the controlType is "TBD1" and the controlValue is absent.  The
+   criticality may be TRUE or FALSE.
+
+3.2.  Start Transaction Notification Message
+
+   The Start Transaction Notification message is an IntermediateResponse
+   [RFC4511] where the responseName is "TBD2" and the responseValue is a
+   transaction identifier as defined in [RFC5805].
+
+3.3.  End Transaction Notification Message
+
+   The End Transaction Notification message is an IntermediateResponse
+   [RFC4511] where the responseName is "TBD3" and the responseValue is
+   absent.
+
+4.  Interaction with the Content Synchronization Operation
+
+   The client requests information about LDAP Transaction to be added to
+   the Content Synchronization Operation by sending Transaction
+   Notification Control along with a SearchRequest Message that contains
+   a Sync Request Control [RFC4533].  All attempts to use Transaction
+   Notification Control without Sync Request Control MUST be denied with
+   the unwillingToPerform [RFC4511] result code.
+
+
+
+
+
+
+
+
+
+Spacek                  Expires December 31, 2015               [Page 3]
+
+Internet-Draft LDAP Content Synchronization & Transactions     June 2015
+
+
+   Please note that [RFC5805] defined that LDAP Transactions have
+   atomic, consistency, isolation, durability (ACID) properties without
+   further specification of the "isolation" level.  This extension
+   assumes that an isolation property guarantees that uncommited changes
+   are generaly not visible to LDAP clients and thus not returned in the
+   Content Synchronization Operation results.
+
+4.1.  Refresh stage
+
+   The refresh stage of the Content Synchronization Operation is
+   unaffected by Transaction Notification Control.  The control affects
+   neither Content Determination nor protocol messages sent during the
+   refresh stage.
+
+   Transaction-aware clients MUST treat the refresh stage as a single
+   transaction.  Messages that mark end of the refresh stage are defined
+   in [RFC4533].
+
+4.2.  Persist stage
+
+   Existing protocol messages and semantics defined by [RFC4533] are not
+   changed.  The protocol flow in the persist stage is extended only
+   with Start and End Transaction Notification Messages.
+
+   A Start Transaction Notification Message MUST be sent to a client
+   when a transaction is successfully commited but before any of the
+   changes contained in the transaction are sent to the client.  The
+   message MUST contain transaction identifier which was used to
+   identify the transaction in the protocol exchange with the client
+   that did modifications to the data as defined in [RFC5805].
+
+   TODO: Is it a good idea?  Should we rather define an Ignore-own-
+   writes control?
+
+   The transaction identifier allows the client to distinguish its own
+   transactions from other's transactions done on the same server and to
+   optimize the client's behavior.  [RFC5805] section 5 defines
+   transaction identifiers as specific to a particular LDAP association,
+   so clients have to take into account that a transaction identifier
+   will not match if changes are done on a different server than the
+   Content Synchronization Operation.
+
+   The Start Transaction Notification Message MUST be followed by all
+   Change notification messages as defined in the persist stage of
+   [RFC4533].  A server MUST NOT interleave changes made in multiple
+   transactions to ensure that Start and End messages unambiguously
+   identify one transaction.
+
+
+
+
+Spacek                  Expires December 31, 2015               [Page 4]
+
+Internet-Draft LDAP Content Synchronization & Transactions     June 2015
+
+
+   An End Transaction Notification Message MUST be sent right after all
+   Change notifications for given transaction were sent to the client.
+   This message signalizes to the client that the transaction marked by
+   the Start Transaction Notification Message is complete and all
+   changes can be commited.
+
+5.  IANA Considerations
+
+   TBD
+
+6.  Security Considerations
+
+   This document merely adds information about transaction boundaries to
+   the existing Content Synchronization Operation.  The only potential
+   information leak is a transaction identifier returned in a Start
+   Transaction Notification Message.  This is believed not to add any
+   security risk.
+
+7.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC4511]  Sermersheim, J., "Lightweight Directory Access Protocol
+              (LDAP): The Protocol", RFC 4511, June 2006.
+
+   [RFC4533]  Zeilenga, K. and J. Choi, "The Lightweight Directory
+              Access Protocol (LDAP) Content Synchronization Operation",
+              RFC 4533, June 2006.
+
+   [RFC5805]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP) Transactions", RFC 5805, March 2010.
+
+Author's Address
+
+   Petr Spacek
+   Red Hat, Inc.
+
+   Email: pspacek@redhat.com
+
+
+
+
+
+
+
+
+
+
+
+
+Spacek                  Expires December 31, 2015               [Page 5]
