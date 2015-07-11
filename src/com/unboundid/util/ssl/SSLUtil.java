@@ -22,6 +22,7 @@ package com.unboundid.util.ssl;
 
 
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
@@ -150,20 +151,13 @@ public final class SSLUtil
 
 
   /**
-   * The set of SSL protocols that will be enabled for use if available in SSL
-   * SSL sockets created within the LDAP SDK.
+   * The default set of SSL protocols that will be enabled for use if available
+   * for SSL sockets created within the LDAP SDK.
    */
   private static final AtomicReference<Set<String>> ENABLED_SSL_PROTOCOLS =
        new AtomicReference<Set<String>>();
 
 
-
-  /**
-   * The set of SSL protocols, in all lowercase, that will be enabled for use if
-   * available in SSL sockets created within the LDAP SDK.
-   */
-  private static final AtomicReference<Set<String>>
-       LOWER_ENABLED_SSL_PROTOCOLS = new AtomicReference<Set<String>>();
 
   static
   {
@@ -438,7 +432,9 @@ public final class SSLUtil
   public SSLSocketFactory createSSLSocketFactory()
          throws GeneralSecurityException
   {
-    return createSSLContext().getSocketFactory();
+    return new SetEnabledProtocolsSSLSocketFactory(
+         createSSLContext().getSocketFactory(),
+         ENABLED_SSL_PROTOCOLS.get());
   }
 
 
@@ -460,7 +456,8 @@ public final class SSLUtil
   public SSLSocketFactory createSSLSocketFactory(final String protocol)
          throws GeneralSecurityException
   {
-    return createSSLContext(protocol).getSocketFactory();
+    return new SetEnabledProtocolsSSLSocketFactory(
+         createSSLContext(protocol).getSocketFactory(), protocol);
   }
 
 
@@ -629,21 +626,11 @@ public final class SSLUtil
     if (enabledSSLProtocols == null)
     {
       ENABLED_SSL_PROTOCOLS.set(Collections.<String>emptySet());
-      LOWER_ENABLED_SSL_PROTOCOLS.set(Collections.<String>emptySet());
     }
     else
     {
-      final HashSet<String> lowerProtocols =
-           new HashSet<String>(enabledSSLProtocols.size());
-      for (final String s : enabledSSLProtocols)
-      {
-        lowerProtocols.add(StaticUtils.toLowerCase(s));
-      }
-
       ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(
            new HashSet<String>(enabledSSLProtocols)));
-      LOWER_ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(
-           new HashSet<String>(lowerProtocols)));
     }
   }
 
@@ -661,20 +648,54 @@ public final class SSLUtil
    *
    * @throws  LDAPException  If {@link #getEnabledSSLProtocols} returns a
    *                         non-empty set but none of the values in that set
-   *                         are supported by
+   *                         are supported by the socket.
    */
   public static void applyEnabledSSLProtocols(final Socket socket)
          throws LDAPException
   {
-    if ((socket == null) || (!(socket instanceof SSLSocket)))
+    try
+    {
+      applyEnabledSSLProtocols(socket, ENABLED_SSL_PROTOCOLS.get());
+    }
+    catch (final IOException ioe)
+    {
+      Debug.debugException(ioe);
+      throw new LDAPException(ResultCode.CONNECT_ERROR, ioe.getMessage(), ioe);
+    }
+  }
+
+
+
+  /**
+   * Updates the provided socket to apply the appropriate set of enabled SSL
+   * protocols.  This will only have any effect for sockets that are instances
+   * of {@code javax.net.ssl.SSLSocket}, but it is safe to call for any kind of
+   * {@code java.net.Socket}.  This should be called before attempting any
+   * communication over the socket, as
+   *
+   * @param  socket     The socket on which to apply the configured set of
+   *                    enabled SSL protocols.
+   * @param  protocols  The set of protocols that should be enabled for the
+   *                    socket, if available.
+   *
+   * @throws  IOException  If {@link #getEnabledSSLProtocols} returns a
+   *                       non-empty set but none of the values in that set are
+   *                       supported by the socket.
+   */
+  static void applyEnabledSSLProtocols(final Socket socket,
+                                       final Set<String> protocols)
+         throws IOException
+  {
+    if ((socket == null) || (!(socket instanceof SSLSocket)) ||
+        protocols.isEmpty())
     {
       return;
     }
 
-    final Set<String> lowerEnabledProtocols = LOWER_ENABLED_SSL_PROTOCOLS.get();
-    if (lowerEnabledProtocols.isEmpty())
+    final Set<String> lowerProtocols = new HashSet<String>(protocols.size());
+    for (final String s : protocols)
     {
-      return;
+      lowerProtocols.add(StaticUtils.toLowerCase(s));
     }
 
     final SSLSocket sslSocket = (SSLSocket) socket;
@@ -684,8 +705,7 @@ public final class SSLUtil
          new ArrayList<String>(supportedProtocols.length);
     for (final String supportedProtocol : supportedProtocols)
     {
-      if (lowerEnabledProtocols.contains(
-           StaticUtils.toLowerCase(supportedProtocol)))
+      if (lowerProtocols.contains(StaticUtils.toLowerCase(supportedProtocol)))
       {
         enabledList.add(supportedProtocol);
       }
@@ -694,8 +714,7 @@ public final class SSLUtil
     if (enabledList.isEmpty())
     {
       final StringBuilder enabledBuffer = new StringBuilder();
-      final Iterator<String> enabledIterator =
-           ENABLED_SSL_PROTOCOLS.get().iterator();
+      final Iterator<String> enabledIterator = protocols.iterator();
       while (enabledIterator.hasNext())
       {
         enabledBuffer.append('\'');
@@ -721,7 +740,7 @@ public final class SSLUtil
         supportedBuffer.append('\'');
       }
 
-      throw new LDAPException(ResultCode.CONNECT_ERROR,
+      throw new IOException(
            ERR_NO_ENABLED_SSL_PROTOCOLS_AVAILABLE_FOR_SOCKET.get(
                 enabledBuffer.toString(), supportedBuffer.toString(),
                 PROPERTY_ENABLED_SSL_PROTOCOLS,
@@ -837,17 +856,6 @@ public final class SSLUtil
       }
     }
 
-    // Get all-lowercase representations of the enabled protocols for more
-    // efficient comparisons.
-    final HashSet<String> lowerEnabledProtocols =
-         new HashSet<String>(enabledProtocols.size());
-    for (final String s : enabledProtocols)
-    {
-      lowerEnabledProtocols.add(StaticUtils.toLowerCase(s));
-    }
-
     ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(enabledProtocols));
-    LOWER_ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(
-         lowerEnabledProtocols));
   }
 }

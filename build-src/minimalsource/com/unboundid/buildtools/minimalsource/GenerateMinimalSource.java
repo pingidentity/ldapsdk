@@ -272,6 +272,8 @@ public final class GenerateMinimalSource
     "com.unboundid.util.ssl.KeyStoreKeyManager",
     "com.unboundid.util.ssl.PKCS11KeyManager",
     "com.unboundid.util.ssl.PromptTrustManager",
+    "com.unboundid.util.ssl.SetEnabledProtocolsSocket",
+    "com.unboundid.util.ssl.SetEnabledProtocolsSSLSocketFactory",
     "com.unboundid.util.ssl.SSLSocketVerifier",
     "com.unboundid.util.ssl.SSLUtil",
     "com.unboundid.util.ssl.TrustAllSSLSocketVerifier",

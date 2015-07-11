@@ -30,8 +30,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 
-import com.unboundid.util.ssl.SSLUtil;
-
 import static com.unboundid.ldap.sdk.LDAPMessages.*;
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
@@ -138,7 +136,6 @@ final class ConnectThread
       {
         s.connect(new InetSocketAddress(address, port));
       }
-      SSLUtil.applyEnabledSSLProtocols(s);
       connected.set(true);
     }
     catch (final Throwable t)
