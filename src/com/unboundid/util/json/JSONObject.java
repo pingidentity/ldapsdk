@@ -1090,6 +1090,48 @@ public final class JSONObject
    * {@inheritDoc}
    */
   @Override()
+  public String toSingleLineString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toSingleLineString(buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toSingleLineString(final StringBuilder buffer)
+  {
+    buffer.append("{ ");
+
+    final Iterator<Map.Entry<String,JSONValue>> iterator =
+         fields.entrySet().iterator();
+    while (iterator.hasNext())
+    {
+      final Map.Entry<String,JSONValue> e = iterator.next();
+      JSONString.encodeString(e.getKey(), buffer);
+      buffer.append(':');
+      e.getValue().toSingleLineString(buffer);
+
+      if (iterator.hasNext())
+      {
+        buffer.append(',');
+      }
+      buffer.append(' ');
+    }
+
+    buffer.append('}');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public String toNormalizedString()
   {
     final StringBuilder buffer = new StringBuilder();

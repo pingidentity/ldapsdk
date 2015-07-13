@@ -168,6 +168,28 @@ public final class JSONBoolean
    * {@inheritDoc}
    */
   @Override()
+  public String toSingleLineString()
+  {
+    return stringRepresentation;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toSingleLineString(final StringBuilder buffer)
+  {
+    buffer.append(stringRepresentation);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public String toNormalizedString()
   {
     return stringRepresentation;

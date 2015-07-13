@@ -139,6 +139,28 @@ public abstract class JSONValue
 
 
   /**
+   * Retrieves a single-line string representation of this value as it should
+   * appear in a JSON object, including any necessary quoting, escaping, etc.
+   *
+   * @return A string representation of this value as it should appear in a
+   *          JSON object.
+   */
+  public abstract String toSingleLineString();
+
+
+
+  /**
+   * Appends a single-line string representation of this value (as it should
+   * appear in a JSON object, including any necessary quoting, escaping, etc.)
+   * to the provided buffer.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
+   */
+  public abstract void toSingleLineString(final StringBuilder buffer);
+
+
+
+  /**
    * Retrieves a normalized string representation of this value.  All equivalent
    * JSON values must have equivalent normalized representations, even if there
    * are other legal representations for the value.

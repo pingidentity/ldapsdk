@@ -421,6 +421,43 @@ public final class JSONArray
    * {@inheritDoc}
    */
   @Override()
+  public String toSingleLineString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toSingleLineString(buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toSingleLineString(final StringBuilder buffer)
+  {
+    buffer.append("[ ");
+
+    final Iterator<JSONValue> iterator = values.iterator();
+    while (iterator.hasNext())
+    {
+      iterator.next().toSingleLineString(buffer);
+      if (iterator.hasNext())
+      {
+        buffer.append(',');
+      }
+      buffer.append(' ');
+    }
+
+    buffer.append(']');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public String toNormalizedString()
   {
     final StringBuilder buffer = new StringBuilder();

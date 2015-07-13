@@ -302,6 +302,28 @@ public final class JSONString
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public String toSingleLineString()
+  {
+    return toString();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toSingleLineString(final StringBuilder buffer)
+  {
+    toString(buffer);
+  }
+
+
+
+  /**
    * Appends a minimally-escaped JSON representation of the provided string to
    * the given buffer.  When escaping is required, the most user-friendly form
    * of escaping will be used.

@@ -122,6 +122,28 @@ public final class JSONNull
    * {@inheritDoc}
    */
   @Override()
+  public String toSingleLineString()
+  {
+    return "null";
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toSingleLineString(final StringBuilder buffer)
+  {
+    buffer.append("null");
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public String toNormalizedString()
   {
     return "null";
