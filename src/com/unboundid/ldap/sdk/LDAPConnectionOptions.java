@@ -315,7 +315,8 @@ public final class LDAPConnectionOptions
     DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE = ((vmVendor != null) &&
          (vmVendor.contains("sun microsystems") ||
           vmVendor.contains("oracle") ||
-          vmVendor.contains("apple")));
+          vmVendor.contains("apple") ||
+          vmVendor.contains("azul systems")));
   }
 
 
