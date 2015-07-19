@@ -142,9 +142,9 @@ final class LDAPConnectionInternals
     try
     {
       final ConnectThread connectThread =
-           new ConnectThread(socketFactory, inetAddress, port);
+           new ConnectThread(socketFactory, inetAddress, port, timeout);
       connectThread.start();
-      socket = connectThread.getConnectedSocket(timeout);
+      socket = connectThread.getConnectedSocket();
 
       if (socket instanceof SSLSocket)
       {

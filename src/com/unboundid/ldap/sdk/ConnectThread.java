@@ -66,6 +66,10 @@ final class ConnectThread
   // A latch that will be used to indicate that the thread has actually started.
   private final CountDownLatch startLatch;
 
+  // The maximum length of time in milliseconds that the connection attempt
+  // should be allowed to block.
+  private final int connectTimeoutMillis;
+
   // The port to which the connection should be established.
   private final int port;
 
@@ -81,21 +85,26 @@ final class ConnectThread
    * Creates a new instance of this connect thread with the provided
    * information.
    *
-   * @param  socketFactory  The socket factory to use to create the socket.
-   * @param  address        The address to which the connection should be
-   *                        established.
-   * @param  port           The port to which the connection should be
-   *                        established.
+   * @param  socketFactory         The socket factory to use to create the
+   *                               socket.
+   * @param  address               The address to which the connection should be
+   *                               established.
+   * @param  port                  The port to which the connection should be
+   *                               established.
+   * @param  connectTimeoutMillis  The maximum length of time in milliseconds
+   *                               that the connection attempt should be allowed
+   *                               to block.
    */
   ConnectThread(final SocketFactory socketFactory, final InetAddress address,
-                final int port)
+                final int port, final int connectTimeoutMillis)
   {
     super("Background connect thread for " + address + ':' + port);
     setDaemon(true);
 
-    this.socketFactory = socketFactory;
-    this.address       = address;
-    this.port          = port;
+    this.socketFactory        = socketFactory;
+    this.address              = address;
+    this.port                 = port;
+    this.connectTimeoutMillis = connectTimeoutMillis;
 
     connected  = new AtomicBoolean(false);
     socket     = new AtomicReference<Socket>();
@@ -134,7 +143,7 @@ final class ConnectThread
 
       if (connectNeeded)
       {
-        s.connect(new InetSocketAddress(address, port));
+        s.connect(new InetSocketAddress(address, port), connectTimeoutMillis);
       }
       connected.set(true);
     }
@@ -155,17 +164,13 @@ final class ConnectThread
    * Gets the connection after it has been established.  This should be called
    * immediately after starting the thread.
    *
-   * @param  timeoutMillis  The maximum length of time in milliseconds to wait
-   *                        for the connection to be established.  It may be
-   *                        zero if no timeout should be used.
-   *
    * @return  The socket that has been connected to the target server.
    *
    * @throws  LDAPException  If a problem occurs while attempting to establish
    *                         the connection, or if it cannot be established
    *                         within the specified time limit.
    */
-  Socket getConnectedSocket(final long timeoutMillis)
+  Socket getConnectedSocket()
          throws LDAPException
   {
     while (startLatch.getCount() > 0L)
@@ -186,7 +191,7 @@ final class ConnectThread
     {
       try
       {
-        t.join(timeoutMillis);
+        t.join(connectTimeoutMillis);
       }
       catch (Exception e)
       {
@@ -228,7 +233,7 @@ final class ConnectThread
     if (cause == null)
     {
       throw new LDAPException(ResultCode.CONNECT_ERROR,
-           ERR_CONNECT_THREAD_TIMEOUT.get(address, port, timeoutMillis));
+           ERR_CONNECT_THREAD_TIMEOUT.get(address, port, connectTimeoutMillis));
     }
     else
     {
