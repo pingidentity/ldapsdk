@@ -1,0 +1,560 @@
+ 
+
+
+
+Internet Draft                                           M. R. Bannister
+<draft-bannister-dbis-devices-05.txt>              Prose Consulting Ltd.
+Category: Informational                                    July 24, 2015
+Expires January 25, 2016
+
+                 Directory-Based Information Services:
+                                Devices
+
+Status of this Memo
+
+   Distribution of this memo is unlimited.
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on January 25, 2016.
+
+Copyright Notice
+
+   Copyright (c) 2015 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.   
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.
+
+
+
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 1]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+Abstract          
+
+   This document extends Directory-Based Information Services (DBIS)
+   described in [draft-bannister-dbis-mapping-00] to support ethers and
+   bootparams databases.
+
+   The database schemas SHALL be backwards compatible with the Network
+   Information Service [NIS] but stored within [X.500] entries so that
+   they may be resolved with the Lightweight Directory Access Protocol
+   [RFC4510].
+
+   An ethers database maps 48-bit Ethernet addresses to IP addresses or
+   host names, and bootparams maps hosts to boot-time kernel parameters.
+
+   This document describes LDAP object classes and attributes required
+   to extend hosts entries [draft-bannister-dbis-hosts-00] to support
+   parameters for ethers and bootparams maps.
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED" and "MAY" in this document are
+   to be interpreted as described in [RFC2119].
+
+Table of Contents
+
+   1. Configuration Maps  . . . . . . . . . . . . . . . . . . . . . .  3
+     1.1. Scope . . . . . . . . . . . . . . . . . . . . . . . . . . .  3
+     1.2. Example Configuration Map Entry . . . . . . . . . . . . . .  3
+   2. Database  . . . . . . . . . . . . . . . . . . . . . . . . . . .  4
+     2.1. ethers  . . . . . . . . . . . . . . . . . . . . . . . . . .  4
+       2.1.1. Definition  . . . . . . . . . . . . . . . . . . . . . .  4
+       2.1.2. Object Classes  . . . . . . . . . . . . . . . . . . . .  4
+         2.1.2.1. Introduction  . . . . . . . . . . . . . . . . . . .  4
+         2.1.2.2. dbisEtherConfig . . . . . . . . . . . . . . . . . .  4
+         2.1.2.3. ieee802Device . . . . . . . . . . . . . . . . . . .  5
+       2.1.3. Attributes  . . . . . . . . . . . . . . . . . . . . . .  5
+         2.1.3.1. macAddress  . . . . . . . . . . . . . . . . . . . .  5
+       2.1.4. Example Host Entry with ieee802Device . . . . . . . . .  5
+     2.2. bootparams  . . . . . . . . . . . . . . . . . . . . . . . .  5
+       2.2.1. Definition  . . . . . . . . . . . . . . . . . . . . . .  6
+       2.2.2. Object Classes  . . . . . . . . . . . . . . . . . . . .  6
+         2.2.2.1. Introduction  . . . . . . . . . . . . . . . . . . .  6
+         2.2.2.2. dbisBootConfig  . . . . . . . . . . . . . . . . . .  6
+         2.2.2.3. bootableDevice  . . . . . . . . . . . . . . . . . .  6
+       2.2.3. Attributes  . . . . . . . . . . . . . . . . . . . . . .  6
+         2.2.3.1. bootFile  . . . . . . . . . . . . . . . . . . . . .  7
+         2.2.3.2. bootParameter . . . . . . . . . . . . . . . . . . .  7
+       2.2.4. Example Host Entry with bootableDevice  . . . . . . . .  7
+   3. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . .  7
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 2]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+   4. Implementation Notes  . . . . . . . . . . . . . . . . . . . . .  8
+     4.1. NIS Compatible Field Mapping  . . . . . . . . . . . . . . .  8
+       4.1.1. Introduction  . . . . . . . . . . . . . . . . . . . . .  8
+       4.1.2. ethers  . . . . . . . . . . . . . . . . . . . . . . . .  8
+       4.1.3. bootparams  . . . . . . . . . . . . . . . . . . . . . .  8
+     4.2. Common Search Filters . . . . . . . . . . . . . . . . . . .  8
+       4.2.1. Search Parameters . . . . . . . . . . . . . . . . . . .  8
+       4.2.2. Find Host by Ethernet Address . . . . . . . . . . . . .  9
+   5. Security Considerations . . . . . . . . . . . . . . . . . . . .  9
+   6.  References . . . . . . . . . . . . . . . . . . . . . . . . . .  9
+     6.1.  Normative References . . . . . . . . . . . . . . . . . . .  9
+     6.2.  Informative References . . . . . . . . . . . . . . . . . . 10
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 10
+
+
+1. Configuration Maps
+
+1.1. Scope
+
+   The automount database uses the standard configuration maps defined
+   in [draft-bannister-dbis-mapping-00], section 3.
+
+   Additionally, dbisMapConfig entries for ethers databases SHALL have
+   assigned the object class dbisEtherConfig, and entries for bootparams
+   databases SHALL have the object class dbisBootConfig.
+
+   It is RECOMMENDED that the dbisMapConfig entry for an ethers or
+   bootparams database have the dbisMapFilter attribute set according to
+   the following table:
+
+         ----------------------------------------------
+         Database      dbisMapFilter
+         ----------------------------------------------
+         ethers        objectClass=ieee802Device
+         bootparams    objectClass=bootableDevice
+         ----------------------------------------------
+
+1.2. Example Configuration Map Entry
+
+   The following gives an example of a configuration map entry for an
+   ethers database:
+
+       dn: cn=ethers,en=sales.corp,ou=domain-mappings,o=infra
+       objectClass: top
+       objectClass: dbisMapConfig
+       objectClass: dbisEtherConfig
+       cn: ethers
+       dbisMapDN: ou=hosts,o=infra
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 3]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+       dbisMapDN: ou=lab,ou=hosts,o=infra
+       dbisMapFilter: objectClass=ieee802Device
+       profileTTL: 900
+       description: Primary ethers database
+
+   The following is an example of a configuration map entry for a
+   bootparams database:
+
+       dn: cn=bootparams,en=sales.corp,ou=domain-mappings,o=infra
+       objectClass: top
+       objectClass: dbisMapConfig
+       objectClass: dbisBootConfig
+       cn: bootparams
+       dbisMapDN: ou=hosts,o=infra
+       dbisMapDN: ou=lab,ou=hosts,o=infra
+       dbisMapFilter: objectClass=bootableDevice
+       profileTTL: 900
+       description: Primary bootparams database
+
+2. Database
+
+2.1. ethers
+
+2.1.1. Definition
+
+   An ethers database contains the following fields:
+
+   - 48-bit Ethernet address in colon-separated form.
+
+   - Host name.
+
+   The information that makes up a database entry is obtained from the
+   attributes described in the following sections.
+
+2.1.2. Object Classes
+
+2.1.2.1. Introduction
+
+   A dbisMapConfig entry for an ethers database SHALL be assigned the
+   object class dbisEtherConfig.
+
+   A host entry, defined by the object class ipv4HostObject or
+   ipv6HostObject [draft-bannister-dbis-hosts-00], MAY be augmented by
+   the ieee802Device class to add information for the ethers map.
+
+2.1.2.2. dbisEtherConfig
+
+   The dbisEtherConfig class is defined as follows:
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 4]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.37
+         NAME 'dbisEtherConfig'
+         DESC 'DBIS ethers configuration map'
+         SUP dbisMapConfig STRUCTURAL )
+
+2.1.2.3. ieee802Device
+
+   The ieee802Device class is defined as follows:
+
+       objectclass ( 1.3.6.1.1.1.2.11 NAME 'ieee802Device'
+         DESC 'A device with a 48-bit Ethernet address'
+         SUP top AUXILIARY
+         MAY macAddress )
+
+   This is an auxiliary class and it is RECOMMENDED that it is
+   associated with ipv4HostObject or ipv6HostObject entries.  However,
+   if it is preferred for Ethernet addresses to be kept in separate
+   entries it MAY be associated with the device class instead [RFC2256].
+
+2.1.3. Attributes
+
+2.1.3.1. macAddress
+
+   The 48-bit Ethernet address is stored in the LDAP attribute
+   macAddress which MAY be associated with an ieee802Device entry:
+
+       attributetype ( 1.3.6.1.1.1.1.22
+         NAME ('macAddress')
+         DESC 'MAC address in maximal, colon separated hex
+               notation, eg. 00:00:92:90:ee:e2'
+         EQUALITY caseIgnoreIA5Match
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+2.1.4. Example Host Entry with ieee802Device
+
+   The following is an example of an ipv4HostObject entry in LDIF format
+   [RFC2849] with an ieee802Device class:
+
+       dn: rn=kilcher,ou=hosts,o=infra
+       objectClass: top
+       objectClass: ipHostObject
+       objectClass: ipv4HostObject
+       objectClass: ieee802Device
+       rn: kilcher
+       ipv4Address: 10.11.12.13
+       macAddress: 08:00:27:00:50:f2
+
+2.2. bootparams
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 5]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+2.2.1. Definition
+
+   A bootparams database contains the following fields:
+
+   - Host name.
+
+   - Boot parameters.
+
+   The boot parameters are interpreted by the operating system kernel
+   and vary between platforms.  This schema does not attempt to define
+   unique attributes for each parameter.
+
+2.2.2. Object Classes
+
+2.2.2.1. Introduction
+
+   A dbisMapConfig entry for a bootparams database SHALL be assigned the
+   object class dbisBootConfig.
+
+   A host entry, defined by the object class ipv4HostObject or
+   ipv6HostObject [draft-bannister-dbis-hosts-00], MAY be augmented by
+   the bootableDevice class to add information for the bootparams map,
+   which provides configuration information for rpc.bootparamd.
+
+2.2.2.2. dbisBootConfig
+
+   The dbisBootConfig class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.38
+         NAME 'dbisBootConfig'
+         DESC 'DBIS bootparams configuration map'
+         SUP dbisMapConfig STRUCTURAL )
+
+2.2.2.3. bootableDevice
+
+   The bootableDevice class is defined as follows:
+
+       objectclass ( 1.3.6.1.1.1.2.12 NAME 'bootableDevice'
+         DESC 'A device with boot parameters'
+         SUP top AUXILIARY
+         MAY ( bootFile $ bootParameter ) )
+
+   This is an auxiliary class and it is RECOMMENDED that it is
+   associated with ipv4HostObject or ipv6HostObject entries.  However,
+   if it is preferred for Ethernet addresses to be kept in separate
+   entries it MAY be associated with the device class instead [RFC2256].
+
+2.2.3. Attributes
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 6]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+2.2.3.1. bootFile
+
+   The boot image name is stored in the LDAP attribute bootFile which
+   MAY be associated with a bootableDevice entry:
+
+       attributetype ( 1.3.6.1.1.1.1.24 NAME 'bootFile'
+         DESC 'Boot image name'
+         EQUALITY caseExactIA5Match
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+2.2.3.2. bootParameter
+
+   Boot parameters are stored as "key=value" pairs in the LDAP attribute
+   bootParameter which MAY be associated with a bootableDevice entry:
+
+       attributetype ( 1.3.6.1.1.1.1.23 NAME 'bootParameter'
+         DESC 'rpc.bootparamd parameter'
+         EQUALITY caseExactIA5Match
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+2.2.4. Example Host Entry with bootableDevice
+
+   The following is an example of an ipv4HostObject entry in LDIF format
+   [RFC2849] with a bootableDevice class:
+
+       dn: rn=kilcher,ou=hosts,o=infra
+       objectClass: top
+       objectClass: ipHostObject
+       objectClass: ipv4HostObject
+       objectClass: ieee802Device
+       objectClass: bootableDevice
+       rn: kilcher
+       ipv4Address: 10.11.12.13
+       macAddress: 08:00:27:00:50:f2
+       bootParameter: root=alaska:/export/client/root
+       bootParameter: domain=country.music.edu
+
+3. Attribute Syntax
+
+   The following syntaxes are used by the attributes defined in this
+   document:
+
+   -----------------------------------------------------------
+   Syntax OID                     Value             Reference
+   -----------------------------------------------------------
+   1.3.6.1.4.1.1466.115.121.1.26  IA5 String        [RFC4517]
+   -----------------------------------------------------------
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 7]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+4. Implementation Notes
+
+4.1. NIS Compatible Field Mapping
+
+4.1.1. Introduction
+
+   All fields that are required to generate NIS-compatible space-
+   separated ethers or bootparams database formats exist in this schema
+   and can be mapped to attribute types using common ABNF productions
+   described in [draft-bannister-dbis-netgroup-00], section 1.2.
+
+   These are described for each database in the following sections.
+
+4.1.2. ethers
+
+   The NIS-compatible ethers database fields are mapped as follows:
+
+         ether-addr  = macAddress
+         hostname    = rn / en	; depending on class, see below
+
+         ethers-entry = ether-addr SPACE hostname
+
+   In the ethers mappings above:
+
+   - hostname comes from the rn attribute if the ipv4HostObject or
+     ipv6HostObject class was used.  If instead the ieee802Device was
+     associated with an object with the device class, then the hostname
+     comes from the cn attribute.
+
+4.1.3. bootparams
+
+   The NIS-compatible bootparams database fields are mapped as follows:
+
+         hostname   = rn / en      ; depending on class, see below
+         params     = bootParameter *(SPACE bootParameter)
+
+         bootparams-entry = hostname SPACE params
+
+   In the bootparams mappings above:
+
+   - hostname comes from the rn attribute if the ipv4HostObject or
+     ipv6HostObject class was used.  If instead the bootableDevice was
+     associated with an object with the device class, then the hostname
+     comes from the cn attribute.
+
+4.2. Common Search Filters
+
+4.2.1. Search Parameters
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 8]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+   This section provides example LDAP search filters [RFC4515] for
+   obtaining database entries with commonly used input criteria.
+
+   These filters augment those already provided for the hosts database
+   in [draft-bannister-dbis-hosts-00] and are intended to find ethers
+   and bootparams entries associated with ipv4HostObject or
+   ipv6HostObject classes.
+
+   Class and attribute names used in these search filters may be
+   modified by the dbisMapClass and dbisMapAttr attributes assigned to
+   the dbisMapConfig entry [draft-bannister-dbis-mapping-00].
+
+4.2.2. Find Host by Ethernet Address
+
+   If a hosts entry has an Ethernet address "ether", its definition is
+   located using the following search filter.
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))
+             (objectClass=ieee802Device)(macAddress=ether))
+
+5. Security Considerations
+
+   The security considerations discussed in [draft-bannister-dbis-
+   mapping-00] apply equally to this document.
+
+6.  References
+
+6.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC2256]  Wahl, M., "A Summary of the X.500(96) User Schema for use
+              with LDAPv3", RFC 2256, December 1997.
+
+   [RFC2849]  Good, G., "The LDAP Data Interchange Format (LDIF) -
+              Technical Specification", RFC 2849, June 2000.
+
+   [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510, June
+              2006.
+
+   [RFC4515]  Smith, M., Ed., and T. Howes, "Lightweight Directory
+              Access Protocol (LDAP): String Representation of Search
+              Filters", RFC 4515, June 2006.
+
+   [RFC4517]  Legg, S., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Syntaxes and Matching Rules", RFC 4517, June 2006.
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 9]
+
+Internet Draft                DBIS Devices                 July 24, 2015
+
+
+   [draft-bannister-dbis-mapping-00]  Bannister, M. R., "Directory-Based
+              Information Services: Mapping Objects", draft-bannister-
+              dbis-mapping-00.txt, August 2013.
+
+   [draft-bannister-dbis-netgroup-00]  Bannister, M. R., "Directory-
+              Based Information Services: Netgroups and Netservices",
+              draft-bannister-dbis-netgroups-00.txt, August 2013.
+
+   [draft-bannister-dbis-hosts-00]  Bannister, M. R., "Directory-Based
+              Information Services: Hosts, Networks and Services",
+              draft-bannister-dbis-hosts-00.txt, August 2013.
+
+6.2.  Informative References
+
+   [X.500]  Weider, C. and J. Reynolds, "Executive Introduction to
+              Directory Services Using the X.500 Protocol", FYI 13, RFC
+              1308, March 1992.
+
+   [NIS]  Wikipedia, "Network Information Service", <http://
+              en.wikipedia.org/wiki/Network_Information_Service>.
+
+Author's Address
+
+   Mark R. Bannister
+   Prose Consulting Ltd.
+   73 Claygate Lane
+   Esher, Surrey, KT10 0BQ
+   United Kingdom
+
+   Tel: +44 7764 604316
+   EMail: dbis@proseconsulting.co.uk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 10]

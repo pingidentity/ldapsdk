@@ -1,0 +1,1344 @@
+ 
+
+
+
+Internet Draft                                           M. R. Bannister
+<draft-bannister-dbis-hosts-07.txt>                Prose Consulting Ltd.
+Category: Informational                                    July 24, 2015
+Expires January 25, 2016
+
+                 Directory-Based Information Services:
+                      Hosts, Networks and Services
+
+Status of this Memo
+
+   Distribution of this memo is unlimited.
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on January 25, 2016.
+
+Copyright Notice
+
+   Copyright (c) 2015 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.   
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.
+
+
+
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 1]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+Abstract          
+
+   This document extends Directory-Based Information Services (DBIS)
+   described in [draft-bannister-dbis-mapping-00] to support hosts,
+   networks, netmasks, protocols, rpc and services databases.
+
+   The database schemas SHALL be backwards compatible with the Network
+   Information Service [NIS] but stored within [X.500] entries so that
+   they may be resolved with the Lightweight Directory Access Protocol
+   [RFC4510].
+
+   A hosts database maps hostnames to IP addresses, networks map network
+   names to network numbers, netmasks map network numbers to netmasks,
+   protocols map network protocol names to protocol numbers, rpc maps
+   Remote Procedure Call [RFC1057] program names to RPC program numbers
+   and services map network service names to port numbers and protocols.
+
+   This document describes configuration maps [draft-bannister-dbis-
+   mapping-00] for hosts, networks, protocols, rpc and services, and
+   database entries referenced by those maps.
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED" and "MAY" in this document are
+   to be interpreted as described in [RFC2119].
+
+Table of Contents
+
+   1. Configuration Maps  . . . . . . . . . . . . . . . . . . . . . .  4
+     1.1. Scope . . . . . . . . . . . . . . . . . . . . . . . . . . .  4
+     1.2. Example Configuration Map Entries . . . . . . . . . . . . .  5
+   2. Database  . . . . . . . . . . . . . . . . . . . . . . . . . . .  5
+     2.1. hosts . . . . . . . . . . . . . . . . . . . . . . . . . . .  5
+       2.1.1. Definition  . . . . . . . . . . . . . . . . . . . . . .  5
+       2.1.2. Object Classes  . . . . . . . . . . . . . . . . . . . .  5
+         2.1.2.1. Introduction  . . . . . . . . . . . . . . . . . . .  5
+         2.1.2.2. dbisHostConfig  . . . . . . . . . . . . . . . . . .  5
+         2.1.2.3. ipHostObject  . . . . . . . . . . . . . . . . . . .  6
+         2.1.2.4. ipv4HostObject  . . . . . . . . . . . . . . . . . .  6
+         2.1.2.5. ipv6HostObject  . . . . . . . . . . . . . . . . . .  6
+       2.1.3. Attributes  . . . . . . . . . . . . . . . . . . . . . .  6
+         2.1.3.1. rn  . . . . . . . . . . . . . . . . . . . . . . . .  6
+         2.1.3.2. authPassword  . . . . . . . . . . . . . . . . . . .  7
+         2.1.3.3. userPassword  . . . . . . . . . . . . . . . . . . .  7
+         2.1.3.4. ipv4Address . . . . . . . . . . . . . . . . . . . .  7
+         2.1.3.5. ipv6Address . . . . . . . . . . . . . . . . . . . .  7
+       2.1.4. Example Host Entry  . . . . . . . . . . . . . . . . . .  7
+     2.2. networks  . . . . . . . . . . . . . . . . . . . . . . . . .  8
+       2.2.1. Definition  . . . . . . . . . . . . . . . . . . . . . .  8
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 2]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+       2.2.2. Object Classes  . . . . . . . . . . . . . . . . . . . .  8
+         2.2.2.1. Introduction  . . . . . . . . . . . . . . . . . . .  8
+         2.2.2.2. dbisNetworkConfig . . . . . . . . . . . . . . . . .  9
+         2.2.2.3. ipNetworkObject . . . . . . . . . . . . . . . . . .  9
+       2.2.3. Attributes  . . . . . . . . . . . . . . . . . . . . . .  9
+         2.2.3.1. en  . . . . . . . . . . . . . . . . . . . . . . . .  9
+         2.2.3.2. ipNetworkNumber . . . . . . . . . . . . . . . . . .  9
+         2.2.3.3. ipNetmaskNumber . . . . . . . . . . . . . . . . . . 10
+       2.2.4. Example Network Entry . . . . . . . . . . . . . . . . . 10
+     2.3. protocols . . . . . . . . . . . . . . . . . . . . . . . . . 10
+       2.3.1. Definition  . . . . . . . . . . . . . . . . . . . . . . 10
+       2.3.2. Object Classes  . . . . . . . . . . . . . . . . . . . . 11
+         2.3.2.1. Introduction  . . . . . . . . . . . . . . . . . . . 11
+         2.3.2.2. dbisProtocolConfig  . . . . . . . . . . . . . . . . 11
+         2.3.2.3. ipProtocolObject  . . . . . . . . . . . . . . . . . 11
+       2.3.3. Attributes  . . . . . . . . . . . . . . . . . . . . . . 11
+         2.3.3.1. en  . . . . . . . . . . . . . . . . . . . . . . . . 11
+         2.3.3.2. ipProtocolNumber  . . . . . . . . . . . . . . . . . 11
+       2.3.4. Example Protocol Entry  . . . . . . . . . . . . . . . . 12
+     2.4. rpc . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+       2.4.1. Definition  . . . . . . . . . . . . . . . . . . . . . . 12
+       2.4.2. Object Classes  . . . . . . . . . . . . . . . . . . . . 12
+         2.4.2.1. Introduction  . . . . . . . . . . . . . . . . . . . 12
+         2.4.2.2. dbisRpcConfig . . . . . . . . . . . . . . . . . . . 13
+         2.4.2.3. rpcObject . . . . . . . . . . . . . . . . . . . . . 13
+       2.4.3. Attributes  . . . . . . . . . . . . . . . . . . . . . . 13
+         2.4.3.1. en  . . . . . . . . . . . . . . . . . . . . . . . . 13
+         2.4.3.2. rpcNumber . . . . . . . . . . . . . . . . . . . . . 13
+       2.4.4. Example RPC Entry . . . . . . . . . . . . . . . . . . . 13
+     2.5. services  . . . . . . . . . . . . . . . . . . . . . . . . . 14
+       2.5.1. Definition  . . . . . . . . . . . . . . . . . . . . . . 14
+       2.5.2. Object Classes  . . . . . . . . . . . . . . . . . . . . 14
+         2.5.2.1. Introduction  . . . . . . . . . . . . . . . . . . . 14
+         2.5.2.2. dbisServiceConfig . . . . . . . . . . . . . . . . . 14
+         2.5.2.3. ipServiceObject . . . . . . . . . . . . . . . . . . 15
+       2.5.3. Attributes  . . . . . . . . . . . . . . . . . . . . . . 15
+         2.5.3.1. en  . . . . . . . . . . . . . . . . . . . . . . . . 15
+         2.5.3.2. ipServicePort . . . . . . . . . . . . . . . . . . . 15
+         2.5.3.3. ipProtocolName  . . . . . . . . . . . . . . . . . . 15
+       2.5.4. Example Service Entry . . . . . . . . . . . . . . . . . 16
+   3. Common Attributes . . . . . . . . . . . . . . . . . . . . . . . 16
+     3.1. Definition  . . . . . . . . . . . . . . . . . . . . . . . . 16
+     3.2. description . . . . . . . . . . . . . . . . . . . . . . . . 17
+     3.3. manager . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+     3.4. l . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+     3.5. disableObject . . . . . . . . . . . . . . . . . . . . . . . 17
+   4. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . . 17
+   5. Implementation Notes  . . . . . . . . . . . . . . . . . . . . . 17
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 3]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+     5.1. NIS Compatible Field Mapping  . . . . . . . . . . . . . . . 17
+       5.1.1. Introduction  . . . . . . . . . . . . . . . . . . . . . 17
+       5.1.2. hosts . . . . . . . . . . . . . . . . . . . . . . . . . 18
+       5.1.3. networks  . . . . . . . . . . . . . . . . . . . . . . . 18
+       5.1.4. netmasks  . . . . . . . . . . . . . . . . . . . . . . . 18
+       5.1.5. protocols . . . . . . . . . . . . . . . . . . . . . . . 18
+       5.1.6. rpc . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+       5.1.7. services  . . . . . . . . . . . . . . . . . . . . . . . 19
+     5.2. Common Search Filters . . . . . . . . . . . . . . . . . . . 19
+       5.2.1. Search Parameters . . . . . . . . . . . . . . . . . . . 19
+       5.2.2. Find Configuration Map for Domain . . . . . . . . . . . 20
+       5.2.3. List All Entries  . . . . . . . . . . . . . . . . . . . 20
+       5.2.4. Find Specific Entry . . . . . . . . . . . . . . . . . . 21
+       5.2.5. Find Host by Address  . . . . . . . . . . . . . . . . . 21
+       5.2.6. Find Network by Address . . . . . . . . . . . . . . . . 21
+       5.2.7. Find Protocol by Number . . . . . . . . . . . . . . . . 21
+       5.2.8. Find RPC by Number  . . . . . . . . . . . . . . . . . . 21
+       5.2.9. Find Service by Name and Protocol . . . . . . . . . . . 22
+       5.2.10. Find Service by Port and Protocol  . . . . . . . . . . 22
+   6. Security Considerations . . . . . . . . . . . . . . . . . . . . 22
+   7.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 22
+     7.1.  Normative References . . . . . . . . . . . . . . . . . . . 22
+     7.2.  Informative References . . . . . . . . . . . . . . . . . . 23
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 23
+
+
+1. Configuration Maps
+
+1.1. Scope
+
+   All databases described in this document use the standard
+   configuration maps defined in [draft-bannister-dbis-mapping-00],
+   section 3.
+
+   Additionally, dbisMapConfig entries for the databases described in
+   this document SHALL have assigned the object classes described below.
+    It is RECOMMENDED that the dbisMapConfig entry for a passwd or group
+   database have the dbisMapFilter attribute set according to the
+   following table:
+
+     --------------------------------------------------------------
+     Database   Configuration Class   dbisMapFilter
+     --------------------------------------------------------------
+     hosts      dbisHostConfig        objectClass=ipHostObject
+     networks   dbisNetworkConfig     objectClass=ipNetworkObject
+     protocols  dbisProtocolConfig    objectClass=ipProtocolObject
+     rpc        dbisRpcConfig         objectClass=rpcObject
+     services   dbisServiceConfig     objectClass=ipServiceObject
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 4]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+     --------------------------------------------------------------
+
+1.2. Example Configuration Map Entries
+
+   The following gives an example of a configuration map entry for a
+   hosts database:
+
+       dn: cn=hosts,en=sales.corp,ou=domain-mappings,o=infra
+       objectClass: top
+       objectClass: dbisMapConfig
+       objectClass: dbisHostConfig
+       cn: hosts
+       dbisMapDN: cn=hosts,ou=dbis,o=infra
+       dbisMapFilter: objectClass=ipHostObject
+       profileTTL: 900
+       description: Primary hosts database
+
+2. Database
+
+2.1. hosts
+
+2.1.1. Definition
+
+   A hosts database contains the following fields:
+
+   - IPv4 or IPv6 address.
+
+   - Canonical host name.
+
+   - Aliases.
+
+   The information that makes up a database entry is obtained from the
+   attributes described in the following sections.
+
+2.1.2. Object Classes
+
+2.1.2.1. Introduction
+
+   A dbisMapConfig entry for a hosts database SHALL be assigned the
+   object class dbisHostConfig.
+
+   A host entry SHALL be defined by an LDAP entry with the object class
+   ipv4HostObject or ipv6HostObject for IPv4 and IPv6 addresses
+   respectively.
+
+2.1.2.2. dbisHostConfig
+
+   The dbisHostConfig class is defined as follows:
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 5]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.15 NAME 'dbisHostConfig'
+         DESC 'DBIS hosts configuration map'
+         SUP dbisMapConfig STRUCTURAL )
+
+2.1.2.3. ipHostObject
+
+   The ipHostObject class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.16 NAME 'ipHostObject'
+         DESC 'An IP address and associated host name'
+         SUP top ABSTRACT
+         MUST rn
+         MAY ( authPassword $ userPassword $ description $ manager $
+               l $ disableObject ) )
+
+   This class is an abstract class and is not to be used directly. The
+   ipv4HostObject or ipv6HostObject classes must be used instead.
+
+2.1.2.4. ipv4HostObject
+
+   The ipv4HostObject class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.17 NAME 'ipv4HostObject'
+         DESC 'An IPv4 address'
+         SUP ipHostObject STRUCTURAL
+         MUST ipv4Address )
+
+2.1.2.5. ipv6HostObject
+
+   The ipv6HostObject class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.18 NAME 'ipv6HostObject'
+         DESC 'An IPv6 address'
+         SUP ipHostObject STRUCTURAL
+         MUST ipv6Address )
+
+2.1.3. Attributes
+
+2.1.3.1. rn
+
+   The fully-qualified canonical name of the host is stored in the LDAP
+   attribute rn which is defined in [draft-bannister-dbis-mapping-00].
+   The rn attribute MUST be associated with an ipHostObject entry and
+   SHALL form the RDN.
+
+   If required, alias entries may be defined according to section 2.6 of
+   [RFC4512] and as permitted by section 1.2 of [draft-bannister-dbis-
+   mapping-00].
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 6]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+2.1.3.2. authPassword
+
+   An encrypted password may be stored in the authPassword attribute,
+   which is defined in section 2.5 of [RFC3112], and that MAY be
+   assigned to an ipHostObject entry.  All notes regarding the use of
+   the authPassword attribute described in section 2.1.3.7 of [draft-
+   bannister-dbis-passwd-01] apply equally to this document.
+
+2.1.3.3. userPassword
+
+   For compatibility, an encrypted password may alternatively be stored
+   in the userPassword attribute which is defined in section 2.41 of
+   [RFC4519] and that MAY be assigned to an ipHostObject entry.  All
+   notes regarding the use of the userPassword attribute described in
+   section 2.1.3.8 of [draft-bannister-dbis-passwd-01] apply equally to
+   this document.
+
+2.1.3.4. ipv4Address
+
+   The IPv4 address in dotteetd decimal format is stored in the
+   ipv4Address attribute which MUST be associated with an ipv4HostObject
+   entry:
+
+       attributetype ( 1.3.6.1.4.1.23780.219.2.27 NAME 'ipv4Address'
+         DESC 'An IPv4 address in dotted decimal format'
+         EQUALITY caseIgnoreIA5Match SINGLE-VALUE
+         SUBSTR caseIgnoreIA5SubstringsMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{15} )
+
+2.1.3.5. ipv6Address
+
+   The IPv6 address [RFC2373] is stored in the ipv6Address attribute
+   that MUST be associated with an ipv6HostObject entry:
+
+       attributetype ( 1.3.6.1.4.1.23780.219.2.28 NAME 'ipv6Address'
+         DESC 'An IPv6 address [RFC2373]'
+         EQUALITY caseIgnoreIA5Match SINGLE-VALUE
+         SUBSTR caseIgnoreIA5SubstringsMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{45} )
+
+2.1.4. Example Host Entry
+
+   The following is an example of an ipv4HostObject entry in LDIF format
+   [RFC2849]:
+
+       dn: rn=picard,ou=hosts,o=infra
+       objectClass: top
+       objectClass: ipHostObject
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 7]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+       objectClass: ipv4HostObject
+       rn: picard
+       ipv4Address: 10.11.12.13
+
+   The following is an example of an ipv6HostObject entry:
+
+       dn: rn=picard-hive,ou=hosts,o=infra
+       objectClass: top
+       objectClass: ipHostObject
+       objectClass: ipv6HostObject
+       rn: picard-hive
+       ipv6Address: 0:1:2:3:4:5:6:7
+
+   The following is an example of a host alias entry:
+
+       dn: rn=picard-eth0,ou=hosts,o=infra
+       objectClass: top
+       objectClass: alias
+       objectClass: extensibleObject
+       rn: picard-eth0
+       aliasedObjectName: rn=picard,ou=hosts,o=infra
+
+2.2. networks
+
+2.2.1. Definition
+
+   A networks database contains the following fields:
+
+   - Network name.
+
+   - IP network number.
+
+   - Aliases.
+
+   The NIS netmasks map additionally contains the IP network mask.
+
+   The information that makes up a database entry is obtained from the
+   attributes described in the following sections.
+
+2.2.2. Object Classes
+
+2.2.2.1. Introduction
+
+   A dbisMapConfig entry for a networks database SHALL be assigned the
+   object class dbisNetworkConfig.
+
+   A network entry SHALL be defined by an LDAP entry with the object
+   class ipNetworkObject.
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 8]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+2.2.2.2. dbisNetworkConfig
+
+   The dbisNetworkConfig class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.19 NAME 'dbisNetworkConfig'
+         DESC 'DBIS networks configuration map'
+         SUP dbisMapConfig STRUCTURAL )
+
+2.2.2.3. ipNetworkObject
+
+   The ipNetworkObject class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.20 NAME 'ipNetworkObject'
+         DESC 'An IP network entry'
+         SUP top STRUCTURAL
+         MUST ipNetworkNumber
+         MAY ( en $ ipNetmaskNumber $ description $ manager $
+               l $ disableObject ) )
+
+2.2.3. Attributes
+
+2.2.3.1. en
+
+   The name of the network is stored in the LDAP attribute en which is
+   defined in [draft-bannister-dbis-mapping-00].  The en attribute MAY
+   be associated with an ipNetworkObject entry, and if provided SHALL
+   form the RDN.
+
+   If required, alias entries may be defined according to section 2.6 of
+   [RFC4512] and as permitted by section 1.2 of [draft-bannister-dbis-
+   mapping-00].
+
+2.2.3.2. ipNetworkNumber
+
+   The IP network address in dotted decimal format is stored in the
+   ipNetworkNumber attribute which MUST be associated with an
+   ipNetworkObject entry:
+
+       attributetype ( 1.3.6.1.1.1.1.20 NAME 'ipNetworkNumber'
+         DESC 'IP network as a dotted decimal, eg. 192.168,
+               omitting leading zeros'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTR caseIgnoreIA5SubstringsMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+   If the en attribute is not provided, then the ipNetworkNumber SHALL
+   form the RDN.
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 9]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+2.2.3.3. ipNetmaskNumber
+
+   The IP netmask address in dotted decimal format is stored in the
+   ipNetmaskNumber attribute which MAY be associated with an
+   ipNetworkObject entry:
+
+       attributetype ( 1.3.6.1.1.1.1.21 NAME 'ipNetmaskNumber'
+         DESC 'IP netmask as a dotted decimal, eg. 255.255.255.0,
+               omitting leading zeros'
+         EQUALITY caseIgnoreIA5Match
+         SUBSTR caseIgnoreIA5SubstringsMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+2.2.4. Example Network Entry
+
+   The following is an example of an ipNetworkObject entry in LDIF
+   format [RFC2849]:
+
+       dn: en=lab,ou=networks,o=infra
+       objectClass: top
+       objectClass: ipNetworkObject
+       en: lab
+       ipNetworkNumber: 10.23.10
+       ipNetmaskNumber: 255.255.255.0
+
+   The following is an example of a network alias entry:
+
+       dn: en=testnet,ou=networks,o=infra
+       objectClass: top
+       objectClass: alias
+       objectClass: extensibleObject
+       en: testnet
+       aliasedObjectName: en=lab,ou=networks,o=infra
+
+2.3. protocols
+
+2.3.1. Definition
+
+   A protocols database contains the following fields:
+
+   - Protocol name.
+
+   - Protocol number.
+
+   - Aliases.
+
+   The information that makes up a database entry is obtained from the
+   attributes described in the following sections.
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 10]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+2.3.2. Object Classes
+
+2.3.2.1. Introduction
+
+   A dbisMapConfig entry for a protocols database SHALL be assigned the
+   object class dbisProtocolConfig.
+
+   A protocol entry SHALL be defined by an LDAP entry with the object
+   class ipProtocolObject.
+
+2.3.2.2. dbisProtocolConfig
+
+   The dbisProtocolConfig class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.21 NAME 'dbisProtocolConfig'
+         DESC 'DBIS protocols configuration map'
+         SUP dbisMapConfig STRUCTURAL )
+
+2.3.2.3. ipProtocolObject
+
+   The ipProtocolObject class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.22 NAME 'ipProtocolObject'
+         DESC 'An IP protocol entry'
+         SUP top STRUCTURAL
+         MUST ( en $ ipProtocolNumber )
+         MAY ( description $ manager $ disableObject ) )
+
+2.3.3. Attributes
+
+2.3.3.1. en
+
+   The name of the protocol is stored in the LDAP attribute en which is
+   defined in [draft-bannister-dbis-mapping-00].  The en attribute MUST
+   be associated with an ipProtocolObject entry and SHALL form the RDN.
+
+   If required, alias entries may be defined according to section 2.6 of
+   [RFC4512] and as permitted by section 1.2 of [draft-bannister-dbis-
+   mapping-00].
+
+2.3.3.2. ipProtocolNumber
+
+   The IP protocol number is stored in the ipProtocolNumber attribute
+   which MUST be associated with an ipProtocolObject entry:
+
+       attributetype ( 1.3.6.1.1.1.1.17 NAME 'ipProtocolNumber'
+         DESC 'IP protocol number'
+         EQUALITY integerMatch
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 11]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+         ORDERING integerOrderingMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+2.3.4. Example Protocol Entry
+
+   The following is an example of an ipProtocolObject entry in LDIF
+   format [RFC2849]:
+
+       dn: en=ip,ou=protocols,o=infra
+       objectClass: top
+       objectClass: ipProtocolObject
+       en: ip
+       ipProtocolNumber: 0
+
+   The following is an example of a protocol alias entry:
+
+       dn: en=IP,ou=protocols,o=infra
+       objectClass: top
+       objectClass: alias
+       objectClass: extensibleObject
+       en: IP
+       aliasedObjectName: en=ip,ou=protocols,o=infra
+
+2.4. rpc
+
+2.4.1. Definition
+
+   An RPC database contains the following fields:
+
+   - RPC program name.
+
+   - RPC program number.
+
+   - Aliases.
+
+   The information that makes up a database entry is obtained from the
+   attributes described in the following sections.
+
+2.4.2. Object Classes
+
+2.4.2.1. Introduction
+
+   A dbisMapConfig entry for an rpc database SHALL be assigned the
+   object class dbisRpcConfig.
+
+   A protocol entry SHALL be defined by an LDAP entry with the object
+   class rpcObject.
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 12]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+2.4.2.2. dbisRpcConfig
+
+   The dbisRpcConfig class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.23 NAME 'dbisRpcConfig'
+         DESC 'DBIS rpc configuration map'
+         SUP dbisMapConfig STRUCTURAL )
+
+2.4.2.3. rpcObject
+
+   The rpcObject class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.24 NAME 'rpcObject'
+         DESC 'An rpc entry [RFC1057]'
+         SUP top STRUCTURAL
+         MUST ( en $ rpcNumber )
+         MAY ( description $ manager $ disableObject ) )
+
+2.4.3. Attributes
+
+2.4.3.1. en
+
+   The name of the RPC program is stored in the LDAP attribute en which
+   is defined in [draft-bannister-dbis-mapping-00].  The en attribute
+   MUST be associated with an rpcObject entry and SHALL form the RDN.
+
+   If required, alias entries may be defined according to section 2.6 of
+   [RFC4512] and as permitted by section 1.2 of [draft-bannister-dbis-
+   mapping-00].
+
+2.4.3.2. rpcNumber
+
+   The RPC program number is stored in the rpcNumber attribute which
+   MUST be associated with an rpcObject entry:
+
+       attributetype ( 1.3.6.1.4.1.23780.219.2.29 NAME 'rpcNumber'
+         DESC 'RPC program number [RFC1057]'
+         EQUALITY integerMatch
+         ORDERING integerOrderingMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+2.4.4. Example RPC Entry
+
+   The following is an example of an rpcObject entry in LDIF format
+   [RFC2849]:
+
+       dn: en=rpcbind,ou=rpc,o=infra
+       objectClass: top
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 13]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+       objectClass: rpcObject
+       en: rpcbind
+       rpcNumber: 100000
+
+   The following is an example of an RPC alias entry:
+
+       dn: en=portmap,ou=protocols,o=infra
+       objectClass: top
+       objectClass: alias
+       objectClass: extensibleObject
+       en: portmap
+       aliasedObjectName: en=rpcbind,ou=rpc,o=infra
+
+2.5. services
+
+2.5.1. Definition
+
+   A services database contains the following fields:
+
+   - Service name.
+
+   - Port number and protocol name.
+
+   - Aliases.
+
+   The information that makes up a database entry is obtained from the
+   attributes described in the following sections.
+
+   The RDN may be comprised of just the en attribute, however, where an
+   entry cannot be uniquely identified due to the presence of another
+   service that uses the same service name and port number but a
+   different protocol name, a multi-valued RDN [RFC4512] SHALL be used
+   instead.  An example may be found in section 2.5.4 below.
+
+2.5.2. Object Classes
+
+2.5.2.1. Introduction
+
+   A dbisMapConfig entry for a services database SHALL be assigned the
+   object class dbisServiceConfig.
+
+   A service entry SHALL be defined by an LDAP entry with the object
+   class ipServiceObject.
+
+2.5.2.2. dbisServiceConfig
+
+   The dbisServiceConfig class is defined as follows:
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 14]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.25 NAME 'dbisServiceConfig'
+         DESC 'DBIS services configuration map'
+         SUP dbisMapConfig STRUCTURAL )
+
+2.5.2.3. ipServiceObject
+
+   The ipServiceObject class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.26 NAME 'ipServiceObject'
+         DESC 'An IP service entry'
+         SUP top STRUCTURAL
+         MUST ( en $ ipServicePort $ ipProtocolName )
+         MAY ( description $ manager $ disableObject ) )
+
+2.5.3. Attributes
+
+2.5.3.1. en
+
+   The name of the service is stored in the LDAP attribute en which is
+   defined in [draft-bannister-dbis-mapping-00].  The en attribute MUST
+   be associated with an ipServiceObject entry and SHALL form the RDN,
+   except where noted in section 2.5.1 above.
+
+   If required, alias entries may be defined according to section 2.6 of
+   [RFC4512] and as permitted by section 1.2 of [draft-bannister-dbis-
+   mapping-00].
+
+2.5.3.2. ipServicePort
+
+   The IP port number is stored in the ipServicePort attribute which
+   MUST be associated with an ipServiceObject entry:
+
+       attributetype ( 1.3.6.1.1.1.1.15
+         NAME ( 'ipServicePort' )
+         DESC 'IP port number'
+         EQUALITY integerMatch
+         ORDERING integerOrderingMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+2.5.3.3. ipProtocolName
+
+   The IP service protocol name is stored in the ipProtocolName
+   attribute which MUST be associated with an ipServiceObject entry:
+
+       attributetype ( 1.3.6.1.4.1.23780.219.2.30 NAME 'ipProtocolName'
+         DESC 'IP protocol name'
+         EQUALITY caseExactMatch SINGLE-VALUE
+         SUBSTR caseExactSubstringsMatch
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 15]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )
+
+   The ipProtocolName may form part of a multi-valued RDN as discussed
+   in section 2.5.1 above.
+
+2.5.4. Example Service Entry
+
+   The following is an example of an ipServiceObject entry in LDIF
+   format [RFC2849]:
+
+       dn: en=smtp,ou=services,o=infra
+       objectClass: top
+       objectClass: ipServiceObject
+       en: smtp
+       ipServicePort: 25
+       ipProtocolName: tcp
+
+   The following is an example of a service alias entry:
+
+       dn: en=mail,ou=services,o=infra
+       objectClass: top
+       objectClass: alias
+       objectClass: extensibleObject
+       en: mail
+       aliasedObjectName: en=smtp,ou=services,o=infra
+
+   The following is an example of two multi-valued service entries:
+
+       dn: en=rpcbind+ipProtocolName=udp,ou=services,o=infra
+       objectClass: top
+       objectClass: ipServiceObject
+       en: rpcbind
+       ipServicePort: 111
+       ipProtocolName: udp
+
+       dn: en=rpcbind+ipProtocolName=tcp,ou=services,o=infra
+       objectClass: top
+       objectClass: ipServiceObject
+       en: rpcbind
+       ipServicePort: 111
+       ipProtocolName: tcp
+
+3. Common Attributes
+
+3.1. Definition
+
+   This document makes use of the common attributes defined below.
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 16]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+3.2. description
+
+   The description attribute MAY be associated with an entry to provide
+   an arbitrary description of the entry.
+
+3.3. manager
+
+   The manager attribute MAY be associated with an entry to provide one
+   or more DNs of the individuals, groups or systems that are
+   responsible for maintaining the entry.
+
+3.4. l
+
+   The l attribute MAY be associated with an entry to provide details of
+   locality.
+
+3.5. disableObject
+
+   An entry MAY be disabled by setting the disableObject attribute
+   [draft-bannister-dbis-mapping-00] to TRUE.  If an entry is disabled,
+   then the DUA SHALL behave as if the entry does not exist. The DUA MAY
+   optionally provide a separate mechanism for listing disabled entries,
+   but they MUST be clearly marked as disabled so that no confusion can
+   arise.
+
+4. Attribute Syntax
+
+   The following syntaxes are used by the attributes defined in this
+   document:
+
+   -----------------------------------------------------------
+   Syntax OID                     Value             Reference
+   -----------------------------------------------------------
+   1.3.6.1.4.1.1466.115.121.1.15  Directory String  [RFC4517]
+   1.3.6.1.4.1.1466.115.121.1.26  IA5 String        [RFC4517]
+   1.3.6.1.4.1.1466.115.121.1.27  Integer           [RFC4517]
+   -----------------------------------------------------------
+
+5. Implementation Notes
+
+5.1. NIS Compatible Field Mapping
+
+5.1.1. Introduction
+
+   All fields that are required to generate NIS-compatible space-
+   separated hosts, networks, netmasks, protocols, rpc or services
+   database formats exist in this schema and can be mapped to attribute
+   types using common ABNF productions described in [draft-bannister-
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 17]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+   dbis-netgroup-00], section 1.2.
+
+   These are described for each database in the following sections.
+
+5.1.2. hosts
+
+   The NIS-compatible hosts database fields are mapped as follows:
+
+         ipaddr      = ipv4Address / ipv6Address
+         hostname    = rn
+         alias       = rn           ; derived, see below
+
+         hosts-entry = ipaddr SPACE hostname *(SPACE alias)
+
+   In the hosts mappings above:
+
+   - alias is derived from the rn attribute used with entries that
+     reference this one via aliasedObjectName.
+
+5.1.3. networks
+
+   The NIS-compatible networks database fields are mapped as follows:
+
+         network-name   = en
+         network-number = ipNetworkNumber
+         alias          = en       ; derived, see below
+
+         networks-entry = network-name SPACE network-number
+                              *(SPACE alias)
+
+   In the networks mappings above:
+
+   - alias is derived from the en attribute used with entries that
+     reference this one via aliasedObjectName.
+
+5.1.4. netmasks
+
+   The NIS-compatible netmasks database fields are mapped as follows:
+
+         network-number = ipNetworkNumber
+         netmask        = ipNetmaskNumber
+
+         netmasks-entry = network-number SPACE netmask
+
+5.1.5. protocols
+
+   The NIS-compatible protocols database fields are mapped as follows:
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 18]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+         proto-name     = en
+         proto-number   = ipProtocolNumber
+         alias          = en       ; derived, see below
+
+         protocols-entry = proto-name SPACE proto-number *(SPACE alias)
+
+   In the protocols mappings above:
+
+   - alias is derived from the en attribute used with entries that
+     reference this one via aliasedObjectName.
+
+5.1.6. rpc
+
+   The NIS-compatible rpc database fields are mapped as follows:
+
+         rpc-name       = en
+         rpc-number     = rpcNumber
+         alias          = en       ; derived, see below
+
+         rpc-entry = rpc-name SPACE rpc-number *(SPACE alias)
+
+   In the rpc mappings above:
+
+   - alias is derived from the en attribute used with entries that
+     reference this one via aliasedObjectName.
+
+5.1.7. services
+
+   The NIS-compatible services database fields are mapped as follows:
+
+         service-name     = en
+         service-port     = ipServicePort
+         service-protocol = ipProtocolName
+         alias            = en     ; derived, see below
+
+         services-entry = service-name SPACE service-port SLASH
+                               service-protocol *(SPACE alias)
+
+   In the services mappings above:
+
+   - alias is derived from the en attribute used with entries that
+     reference this one via aliasedObjectName.
+
+5.2. Common Search Filters
+
+5.2.1. Search Parameters
+
+   This section provides example LDAP search filters [RFC4515] for
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 19]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+   obtaining database entries with commonly used input criteria.
+
+   To simplify the examples, all databases are assumed to have been
+   defined with only a single configuration map entry (dbisMapConfig). 
+   However, [draft-bannister-dbis-mapping-00] permits multiple such
+   entries, so an implementation must support this, increasing the
+   number of search operations as necessary to locate all of the
+   database entries in scope.
+
+   The base DN used in the search operations described in this section
+   comes from the dbisMapDN attribute assigned to the dbisMapConfig
+   entry. Note that a dbisMapConfig entry may have more than one of
+   these.
+
+   Where it appears in search filters below, the text "dbisMapFilter"
+   refers to the value assigned to the attribute of the same name in the
+   corresponding dbisMapConfig entry.  Note that each database has
+   different dbisMapConfig entries.  Attribute names used in these
+   search filters may be modified by the dbisMapAttr attribute assigned
+   to the dbisMapConfig entry.
+
+5.2.2. Find Configuration Map for Domain
+
+   To locate the configuration map for a given DBIS domain, search for
+   entries underneath the dbisDomainObject entry [draft-bannister-dbis-
+   mapping-00].
+
+   Hosts maps can be found with the following search filter:
+
+         (&(objectClass=dbisHostConfig)(!(disableObject=TRUE)))
+
+   Networks maps can be found with:
+
+         (&(objectClass=dbisNetworkConfig)(!(disableObject=TRUE)))
+
+   Protocols maps can be found with:
+
+         (&(objectClass=dbisProtocolConfig)(!(disableObject=TRUE)))
+
+   RPC maps can be found with:
+
+         (&(objectClass=dbisRpcConfig)(!(disableObject=TRUE)))
+
+   Services maps can be found with:
+
+         (&(objectClass=dbisServiceConfig)(!(disableObject=TRUE)))
+
+5.2.3. List All Entries
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 20]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+   Entries for a given database are enumerated by applying the
+   dbisMapFilter as follows:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE)))
+
+   This filter returns all enabled entries.
+
+5.2.4. Find Specific Entry
+
+   If a hosts entry is known by "name", its definition is located using
+   the following search filter:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))(rn=name))
+
+   If a networks, protocols, rpc or services entry is known by "name",
+   its definition is located using the following search filter:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))(en=name))
+
+5.2.5. Find Host by Address
+
+   If a hosts entry has an IPv4 address "ipv4", its definition is
+   located using the following search filter:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))(ipv4Address=ipv4))
+
+   If a hosts entry has an IPv6 address "ipv6", it may be located using:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))(ipv6Address=ipv6))
+
+5.2.6. Find Network by Address
+
+   To locate a networks entry by its address "netip", use the following
+   search filter:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))
+             (ipNetworkNumber=netip))
+
+5.2.7. Find Protocol by Number
+
+   Given the IP protocol number "protonum", the following search filter
+   will locate the associated protocols entry:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))
+             (ipProtocolNumber=protonum))
+
+5.2.8. Find RPC by Number
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 21]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+   To locate an rpc entry by its program number "rpcnum", use the
+   following search filter:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))(rpcNumber=rpcnum))
+
+5.2.9. Find Service by Name and Protocol
+
+   To find the services entry for a given service name "servname" and
+   protocol "servproto", the following search filter may be used:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))
+             (en=servname)(ipProtocolName=servproto))
+
+5.2.10. Find Service by Port and Protocol
+
+   To find the services entry for a given service port "servport" and
+   protocol "servproto", the following search filter may be used:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE))
+             (ipServicePort=servport)(ipProtocolName=servproto))
+
+6. Security Considerations
+
+   The security considerations discussed in [draft-bannister-dbis-
+   mapping-00] and [draft-bannister-dbis-passwd-01] apply equally to
+   this document.
+
+7.  References
+
+7.1.  Normative References
+
+   [RFC1057]  Sun Microsystems, Inc., "RPC: Remote Procedure Call
+              Protocol Specification: Version 2", RFC1057, June 1988.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC2373]  Hinden, R. and Deering, S., "IP Version 6 Addressing
+              Architecture", RFC 2373, July 1998.
+
+   [RFC2849]  Good, G., "The LDAP Data Interchange Format (LDIF) -
+              Technical Specification", RFC 2849, June 2000.
+
+   [RFC3112]  Zeilenga, K., "LDAP Authentication Password Schema", RFC
+              3112, May 2001.
+
+   [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510, June
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 22]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+              2006.
+
+   [RFC4512]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512, June
+              2006.
+
+   [RFC4515]  Smith, M., Ed., and T. Howes, "Lightweight Directory
+              Access Protocol (LDAP): String Representation of Search
+              Filters", RFC 4515, June 2006.
+
+   [RFC4517]  Legg, S., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Syntaxes and Matching Rules", RFC 4517, June 2006.
+
+   [RFC4519]  Sciberras, A., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Schema for User Applications", RFC 4519, June
+              2006.
+
+   [draft-bannister-dbis-mapping-00]  Bannister, M. R., "Directory-Based
+              Information Services: Mapping Objects", draft-bannister-
+              dbis-mapping-00.txt, August 2013.
+
+   [draft-bannister-dbis-netgroup-00]  Bannister, M. R., "Directory-
+              Based Information Services: Netgroups and Netservices",
+              draft-bannister-dbis-netgroups-00.txt, August 2013.
+
+   [draft-bannister-dbis-passwd-01]  Bannister, M. R., "Directory-Based
+              Information Services: Users and Groups", draft-bannister-
+              dbis-passwd-01.txt, September 2013.
+
+7.2.  Informative References
+
+   [X.500]  Weider, C. and J. Reynolds, "Executive Introduction to
+              Directory Services Using the X.500 Protocol", FYI 13, RFC
+              1308, March 1992.
+
+   [NIS]  Wikipedia, "Network Information Service", <http://
+              en.wikipedia.org/wiki/Network_Information_Service>.
+
+Author's Address
+
+   Mark R. Bannister
+   Prose Consulting Ltd.
+   73 Claygate Lane
+   Esher, Surrey, KT10 0BQ
+   United Kingdom
+
+   Tel: +44 7764 604316
+   EMail: dbis@proseconsulting.co.uk
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 23]
+
+Internet Draft     DBIS Hosts, Networks and Services       July 24, 2015
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bannister, Mark R.      Expires January 25, 2016               [Page 24]

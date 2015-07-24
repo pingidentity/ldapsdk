@@ -1,0 +1,448 @@
+ 
+
+
+
+Internet Draft                                           M. R. Bannister
+<draft-bannister-dbis-custom-04.txt>               Prose Consulting Ltd.
+Category: Informational                                    July 24, 2015
+Expires January 25, 2016
+
+                 Directory-Based Information Services:
+                              Custom Maps
+
+Status of this Memo
+
+   Distribution of this memo is unlimited.
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on January 25, 2016.
+
+Copyright Notice
+
+   Copyright (c) 2015 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.   
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.
+
+
+
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 1]
+
+Internet Draft              DBIS Custom Maps               July 24, 2015
+
+
+Abstract          
+
+   This document extends Directory-Based Information Services (DBIS)
+   described in [draft-bannister-dbis-mapping-00] to support custom
+   databases.
+
+   The custom database schema SHALL be backwards compatible with the
+   Network Information Service [NIS] but stored within [X.500] entries
+   so that they may be resolved with the Lightweight Directory Access
+   Protocol [RFC4510].
+
+   A custom database contains arbitrary key/value pairs.
+
+   This document describes configuration maps [draft-bannister-dbis-
+   mapping-00] for custom databases, and database entries referenced by
+   those maps.
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED" and "MAY" in this document are
+   to be interpreted as described in [RFC2119].
+
+Table of Contents
+
+   1. Configuration Maps  . . . . . . . . . . . . . . . . . . . . . .  3
+     1.1. Scope . . . . . . . . . . . . . . . . . . . . . . . . . . .  3
+     1.2. Example Configuration Map Entry . . . . . . . . . . . . . .  3
+   2. Database  . . . . . . . . . . . . . . . . . . . . . . . . . . .  3
+     2.1. Definition  . . . . . . . . . . . . . . . . . . . . . . . .  3
+     2.2. Object Classes  . . . . . . . . . . . . . . . . . . . . . .  4
+       2.2.1. Introduction  . . . . . . . . . . . . . . . . . . . . .  4
+       2.2.2. dbisCustomConfig  . . . . . . . . . . . . . . . . . . .  4
+       2.2.3. customMapEntry  . . . . . . . . . . . . . . . . . . . .  4
+     2.3. Attributes  . . . . . . . . . . . . . . . . . . . . . . . .  4
+       2.3.1. customMapName . . . . . . . . . . . . . . . . . . . . .  4
+       2.3.2. en  . . . . . . . . . . . . . . . . . . . . . . . . . .  4
+       2.3.3. customMapValue  . . . . . . . . . . . . . . . . . . . .  5
+       2.3.4. description . . . . . . . . . . . . . . . . . . . . . .  5
+       2.3.5. manager . . . . . . . . . . . . . . . . . . . . . . . .  5
+       2.3.6. disableObject . . . . . . . . . . . . . . . . . . . . .  5
+     2.4. Example Custom Map Entries  . . . . . . . . . . . . . . . .  5
+   3. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . .  6
+   4. Implementation Notes  . . . . . . . . . . . . . . . . . . . . .  6
+     4.1. Common Search Filters . . . . . . . . . . . . . . . . . . .  6
+       4.1.1. Search Parameters . . . . . . . . . . . . . . . . . . .  6
+       4.1.2. Find Configuration Map for Domain . . . . . . . . . . .  6
+       4.1.3. List Custom Entries . . . . . . . . . . . . . . . . . .  7
+   5. Security Considerations . . . . . . . . . . . . . . . . . . . .  7
+   6.  References . . . . . . . . . . . . . . . . . . . . . . . . . .  7
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 2]
+
+Internet Draft              DBIS Custom Maps               July 24, 2015
+
+
+     6.1.  Normative References . . . . . . . . . . . . . . . . . . .  7
+     6.2.  Informative References . . . . . . . . . . . . . . . . . .  7
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . .  8
+
+
+1. Configuration Maps
+
+1.1. Scope
+
+   A custom database uses the standard configuration maps defined in
+   [draft-bannister-dbis-mapping-00], section 3.
+
+   Additionally, dbisMapConfig entries for custom databases SHALL have
+   assigned the object class dbisCustomConfig to identify that they
+   relate to a custom database.
+
+   It is RECOMMENDED that the dbisMapConfig entry for a custom database
+   have the dbisMapFilter attribute set according to the following
+   table:
+
+         -------------------------------------------------------
+         Database      dbisMapFilter
+         -------------------------------------------------------
+         custom        objectClass=customMapEntry
+         -------------------------------------------------------
+
+1.2. Example Configuration Map Entry
+
+   The following gives an example of a configuration map entry for a
+   custom database called "console":
+
+       dn: cn=cons,en=sales.corp,ou=domain-mappings,o=infra
+       objectClass: top
+       objectClass: dbisMapConfig
+       objectClass: dbisCustomConfig
+       cn: cons
+       customMapName: console
+       dbisMapDN: ou=console,ou=dbis,o=infra
+       dbisMapFilter: objectClass=customMapEntry
+       profileTTL: 900
+       description: Primary console database (custom map)
+
+2. Database
+
+2.1. Definition
+
+   A custom database entry contains the following information:
+
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 3]
+
+Internet Draft              DBIS Custom Maps               July 24, 2015
+
+
+   - Key name.
+
+   - Value.
+
+2.2. Object Classes
+
+2.2.1. Introduction
+
+     A dbisMapConfig entry for a custom database SHALL be assigned the
+     object class dbisCustomConfig.
+
+     Custom map entries SHALL have the object class customMapEntry.
+
+2.2.2. dbisCustomConfig
+
+   The dbisCustomConfig class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.33 NAME 'dbisCustomConfig'
+         DESC 'DBIS custom database configuration map'
+         SUP dbisMapConfig STRUCTURAL
+         MUST customMapName )
+
+2.2.3. customMapEntry
+
+   The customMapEntry class is defined as follows:
+
+       objectclass ( 1.3.6.1.4.1.23780.219.1.35 NAME 'customMapEntry'
+         DESC 'DBIS custom map entry'
+         SUP top STRUCTURAL
+         MUST ( en $ customMapValue )
+         MAY ( description $ disableObject ) )
+
+2.3. Attributes
+
+2.3.1. customMapName
+
+   The name of the custom map is stored in the LDAP attribute
+   customMapName which MUST be assigned to a dbisCustomConfig entry:
+
+       attributetype ( 1.3.6.1.4.1.23780.219.2.34 NAME 'customMapName'
+         DESC 'Name of DBIS custom map'
+         EQUALITY caseExactMatch SINGLE-VALUE
+         SUBSTR caseExactSubstringsMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )
+
+2.3.2. en
+
+   Each custom map entry's key is stored in the LDAP attribute en which
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 4]
+
+Internet Draft              DBIS Custom Maps               July 24, 2015
+
+
+   is defined in [draft-bannister-dbis-mapping-00].  The en attribute
+   MUST be associated with customMapEntry objects and SHALL form the
+   RDN.
+
+2.3.3. customMapValue
+
+   Each entry's value is stored in the LDAP attribute customMapValue
+   that MUST be assigned to a customMapEntry:
+
+       attributetype ( 1.3.6.1.4.1.23780.219.2.35 NAME 'customMapValue'
+         DESC 'DBIS custom map value'
+         EQUALITY caseExactIA5Match
+         SUBSTR caseExactIA5SubstringsMatch
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+2.3.4. description
+
+   The description attribute MAY be associated with an entry to provide
+   an arbitrary description of the entry.
+
+2.3.5. manager
+
+   The manager attribute MAY be associated with an entry to provide one
+   or more DNs of the individuals, groups or systems that are
+   responsible for maintaining the entry.
+
+2.3.6. disableObject
+
+   An entry MAY be disabled by setting the disableObject attribute
+   [draft-bannister-dbis-mapping-00] to TRUE.  If an entry is disabled,
+   then the DUA SHALL behave as if the entry does not exist.  The DUA
+   MAY optionally provide a separate mechanism for listing disabled
+   entries, but they MUST be clearly marked as disabled so that no
+   confusion can arise.
+
+2.4. Example Custom Map Entries
+
+   The following is an example of some custom map entries in LDIF format
+   [RFC2849]:
+
+       dn: ou=console,ou=custom,o=infra
+       objectClass: top
+       objectClass: organizationalUnit
+       ou: console
+
+       dn: en=kirk,ou=console,ou=custom,o=infra
+       objectClass: top
+       objectClass: customMapEntry
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 5]
+
+Internet Draft              DBIS Custom Maps               July 24, 2015
+
+
+       en: kirk
+       customMapValue: 2079 ssh
+
+       dn: en=spock,ou=console,ou=custom,o=infra
+       objectClass: top
+       objectClass: customMapEntry
+       en: spock
+       customMapValue: 53179 telnet
+
+3. Attribute Syntax
+
+   The following syntaxes are used by the attributes defined in this
+   document:
+
+   -----------------------------------------------------------
+   Syntax OID                     Value             Reference
+   -----------------------------------------------------------
+   1.3.6.1.4.1.1466.115.121.1.26  IA5 String        [RFC4517]
+   -----------------------------------------------------------
+
+4. Implementation Notes
+
+4.1. Common Search Filters
+
+4.1.1. Search Parameters
+
+   This section provides example LDAP search filters [RFC4515] for
+   obtaining database entries with commonly used input criteria.
+
+   To simplify the examples, all databases are assumed to have been
+   defined with only a single configuration map entry (dbisMapConfig). 
+   However, [draft-bannister-dbis-mapping-00] permits multiple such
+   entries, so an implementation must support this, increasing the
+   number of search operations as necessary to locate all of the
+   database entries in scope.
+
+   The base DN used in the search operations described in this section
+   comes from the dbisMapDN attribute assigned to the dbisMapConfig
+   entry. Note that a dbisMapConfig entry may have more than one of
+   these.
+
+   Where it appears in search filters below, the text "dbisMapFilter"
+   refers to the value assigned to the attribute of the same name in the
+   corresponding dbisMapConfig entry.  Class and attribute names used in
+   these search filters may be modified by the dbisMapClass and
+   dbisMapAttr attributes assigned to the dbisMapConfig entry.
+
+4.1.2. Find Configuration Map for Domain
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 6]
+
+Internet Draft              DBIS Custom Maps               July 24, 2015
+
+
+   To locate the configuration map for a given DBIS domain, search for
+   entries underneath the dbisDomainObject entry [draft-bannister-dbis-
+   mapping-00] using the following filter:
+
+         (&(objectClass=dbisCustomConfig)(!(disableObject=TRUE)))
+
+4.1.3. List Custom Entries
+
+   Custom maps are enumerated by applying the dbisMapFilter as follows:
+
+         (&(dbisMapFilter)(!(disableObject=TRUE)))
+
+   This filter returns all custom map entries under a given base DN.
+
+5. Security Considerations
+
+   The security considerations discussed in [draft-bannister-dbis-
+   mapping-00] apply equally to this document.
+
+6.  References
+
+6.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC2849]  Good, G., "The LDAP Data Interchange Format (LDIF) -
+              Technical Specification", RFC 2849, June 2000.
+
+   [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510, June
+              2006.
+
+   [RFC4515]  Smith, M., Ed., and T. Howes, "Lightweight Directory
+              Access Protocol (LDAP): String Representation of Search
+              Filters", RFC 4515, June 2006.
+
+   [RFC4517]  Legg, S., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Syntaxes and Matching Rules", RFC 4517, June 2006.
+
+   [draft-bannister-dbis-mapping-00]  Bannister, M. R., "Directory-Based
+              Information Services: Mapping Objects", draft-bannister-
+              dbis-mapping-00.txt, August 2013.
+
+6.2.  Informative References
+
+   [X.500]  Weider, C. and J. Reynolds, "Executive Introduction to
+              Directory Services Using the X.500 Protocol", FYI 13, RFC
+ 
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 7]
+
+Internet Draft              DBIS Custom Maps               July 24, 2015
+
+
+              1308, March 1992.
+
+   [NIS]  Wikipedia, "Network Information Service", <http://
+              en.wikipedia.org/wiki/Network_Information_Service>.
+
+Author's Address
+
+   Mark R. Bannister
+   Prose Consulting Ltd.
+   73 Claygate Lane
+   Esher, Surrey, KT10 0BQ
+   United Kingdom
+
+   Tel: +44 7764 604316
+   EMail: dbis@proseconsulting.co.uk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bannister, Mark R.      Expires January 25, 2016                [Page 8]
