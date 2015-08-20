@@ -3,9 +3,9 @@
 
 
 Internet Draft                                           M. R. Bannister
-<draft-bannister-dbis-automounter-05.txt>          Prose Consulting Ltd.
-Category: Informational                                    July 24, 2015
-Expires January 25, 2016
+<draft-bannister-dbis-automounter-06.txt>          Prose Consulting Ltd.
+Category: Informational                                  August 19, 2015
+Expires February 20, 2016
 
                  Directory-Based Information Services:
                               Automounter
@@ -33,7 +33,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on January 25, 2016.
+   This Internet-Draft will expire on February 20, 2016.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
  
 
 
-Bannister, Mark R.      Expires January 25, 2016                [Page 1]
+Bannister, Mark R.     Expires February 20, 2016                [Page 1]
 
-Internet Draft              DBIS Automounter               July 24, 2015
+Internet Draft              DBIS Automounter             August 19, 2015
 
 
 Abstract          
@@ -92,7 +92,7 @@ Table of Contents
        2.2.2. dbisAutomountConfig . . . . . . . . . . . . . . . . . .  5
        2.2.3. automountMapObject  . . . . . . . . . . . . . . . . . .  5
        2.2.4. automountMaster . . . . . . . . . . . . . . . . . . . .  6
-       2.2.5. automountMulti  . . . . . . . . . . . . . . . . . . . .  6
+       2.2.5. automountMultiMount . . . . . . . . . . . . . . . . . .  6
        2.2.6. automountEntry  . . . . . . . . . . . . . . . . . . . .  6
        2.2.7. automountInclude  . . . . . . . . . . . . . . . . . . .  6
      2.3. Attributes  . . . . . . . . . . . . . . . . . . . . . . . .  7
@@ -100,38 +100,39 @@ Table of Contents
        2.3.2. automountUseMap . . . . . . . . . . . . . . . . . . . .  7
        2.3.3. automountOption . . . . . . . . . . . . . . . . . . . .  7
        2.3.4. automountLocation . . . . . . . . . . . . . . . . . . .  8
-       2.3.5. description . . . . . . . . . . . . . . . . . . . . . .  8
-       2.3.6. manager . . . . . . . . . . . . . . . . . . . . . . . .  8
-       2.3.7. disableObject . . . . . . . . . . . . . . . . . . . . .  8
-     2.4. Example Automount Entries . . . . . . . . . . . . . . . . .  8
-   3. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . . 11
-   4. Implementation Notes  . . . . . . . . . . . . . . . . . . . . . 12
+       2.3.5. automountMapType  . . . . . . . . . . . . . . . . . . .  8
+       2.3.6. description . . . . . . . . . . . . . . . . . . . . . .  8
+       2.3.7. manager . . . . . . . . . . . . . . . . . . . . . . . .  8
+       2.3.8. disableObject . . . . . . . . . . . . . . . . . . . . .  9
+     2.4. Example Automount Entries . . . . . . . . . . . . . . . . .  9
+   3. Attribute Syntax  . . . . . . . . . . . . . . . . . . . . . . . 12
  
 
 
-Bannister, Mark R.      Expires January 25, 2016                [Page 2]
+Bannister, Mark R.     Expires February 20, 2016                [Page 2]
 
-Internet Draft              DBIS Automounter               July 24, 2015
+Internet Draft              DBIS Automounter             August 19, 2015
 
 
+   4. Implementation Notes  . . . . . . . . . . . . . . . . . . . . . 12
      4.1. NIS Compatible Field Mapping  . . . . . . . . . . . . . . . 12
        4.1.1. Introduction  . . . . . . . . . . . . . . . . . . . . . 12
        4.1.2. Master Maps . . . . . . . . . . . . . . . . . . . . . . 12
        4.1.3. Direct Maps . . . . . . . . . . . . . . . . . . . . . . 12
-       4.1.4. Indirect Maps . . . . . . . . . . . . . . . . . . . . . 12
+       4.1.4. Indirect Maps . . . . . . . . . . . . . . . . . . . . . 13
      4.2. Common Search Filters . . . . . . . . . . . . . . . . . . . 13
        4.2.1. Search Parameters . . . . . . . . . . . . . . . . . . . 13
-       4.2.2. Find Configuration Map for Domain . . . . . . . . . . . 13
-       4.2.3. List Automount Maps . . . . . . . . . . . . . . . . . . 13
+       4.2.2. Find Configuration Map for Domain . . . . . . . . . . . 14
+       4.2.3. List Automount Maps . . . . . . . . . . . . . . . . . . 14
        4.2.4. List Automount Entries  . . . . . . . . . . . . . . . . 14
        4.2.5. List Multiple Mount Entries . . . . . . . . . . . . . . 14
-       4.2.6. Find Specific Automount Map . . . . . . . . . . . . . . 14
-       4.2.7. Find Map Includes . . . . . . . . . . . . . . . . . . . 14
+       4.2.6. Find Specific Automount Map . . . . . . . . . . . . . . 15
+       4.2.7. Find Map Includes . . . . . . . . . . . . . . . . . . . 15
    5. Security Considerations . . . . . . . . . . . . . . . . . . . . 15
    6.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 15
      6.1.  Normative References . . . . . . . . . . . . . . . . . . . 15
-     6.2.  Informative References . . . . . . . . . . . . . . . . . . 15
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 15
+     6.2.  Informative References . . . . . . . . . . . . . . . . . . 16
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 16
 
 
 1. Configuration Maps
@@ -161,15 +162,15 @@ Internet Draft              DBIS Automounter               July 24, 2015
 
        dn: cn=automount,en=sales.corp,ou=domain-mappings,o=infra
        objectClass: top
-       objectClass: dbisMapConfig
  
 
 
-Bannister, Mark R.      Expires January 25, 2016                [Page 3]
+Bannister, Mark R.     Expires February 20, 2016                [Page 3]
 
-Internet Draft              DBIS Automounter               July 24, 2015
+Internet Draft              DBIS Automounter             August 19, 2015
 
 
+       objectClass: dbisMapConfig
        objectClass: dbisAutomountConfig
        cn: automount
        dbisMapDN: cn=automount,ou=dbis,o=infra
@@ -217,14 +218,15 @@ Internet Draft              DBIS Automounter               July 24, 2015
    maps.
 
    A "multiple mount entry" defines multiple mount-points for a single
-   key in an indirect map.
  
 
 
-Bannister, Mark R.      Expires January 25, 2016                [Page 4]
+Bannister, Mark R.     Expires February 20, 2016                [Page 4]
 
-Internet Draft              DBIS Automounter               July 24, 2015
+Internet Draft              DBIS Automounter             August 19, 2015
 
+
+   key in an indirect map.
 
    Mount options, substitution symbols and wildcards may be supported by
    an implementation but are beyond the scope of this document.  This
@@ -249,7 +251,7 @@ Internet Draft              DBIS Automounter               July 24, 2015
    automountMapObject entries, which may be located anywhere in the DIT
    as long as they can be located by the dbisMapDN and dbisMapFilter.
 
-   The automountMulti class SHALL be used to identify the top-level
+   The automountMultiMount class SHALL be used to identify the top-level
    object in a multiple mount entry.  Each entry in the multi-mount
    SHALL be a child object in the DIT with the class automountEntry.  A
    DUA implementation MAY elect not to support multiple mount entries.
@@ -257,7 +259,7 @@ Internet Draft              DBIS Automounter               July 24, 2015
    A direct or indirect map may include the entries from another map by
    an entry with the object class automountInclude, which SHALL be a
    child object in the DIT of an automountMapObject or an
-   automountMulti.
+   automountMultiMount.
 
 2.2.2. dbisAutomountConfig
 
@@ -272,20 +274,21 @@ Internet Draft              DBIS Automounter               July 24, 2015
 
    The automountMapObject class is defined as follows:
 
-       objectclass ( 1.3.6.1.4.1.23780.219.1.28
-         NAME 'automountMapObject'
  
 
 
-Bannister, Mark R.      Expires January 25, 2016                [Page 5]
+Bannister, Mark R.     Expires February 20, 2016                [Page 5]
 
-Internet Draft              DBIS Automounter               July 24, 2015
+Internet Draft              DBIS Automounter             August 19, 2015
 
 
+       objectclass ( 1.3.6.1.4.1.23780.219.1.28
+         NAME 'automountMapObject'
          DESC 'Top-level of an automount map, entries are child nodes'
          SUP top STRUCTURAL
          MUST en
-         MAY ( description $ manager $ disableObject ) )
+         MAY ( automountMapType $ description $ manager $
+               disableObject ) )
 
 2.2.4. automountMaster
 
@@ -297,11 +300,11 @@ Internet Draft              DBIS Automounter               July 24, 2015
          MUST automountUseMap
          MAY automountOption )
 
-2.2.5. automountMulti
+2.2.5. automountMultiMount
 
-   The automountMulti class is defined as follows:
+   The automountMultiMount class is defined as follows:
 
-       objectclass ( 1.3.6.1.4.1.23780.219.1.30 NAME 'automountMulti'
+       objectclass ( 1.3.6.1.4.1.23780.219.1.30 NAME 'automountMultiMount'
          DESC 'Automounter multiple mount entry'
          SUP top STRUCTURAL
          MUST en
@@ -327,17 +330,16 @@ Internet Draft              DBIS Automounter               July 24, 2015
 2.2.7. automountInclude
 
    The automountInclude class is defined as follows:
-
-       objectclass ( 1.3.6.1.4.1.23780.219.1.32 NAME 'automountInclude'
-         DESC 'Include another map within an automounter direct map,
  
 
 
-Bannister, Mark R.      Expires January 25, 2016                [Page 6]
+Bannister, Mark R.     Expires February 20, 2016                [Page 6]
 
-Internet Draft              DBIS Automounter               July 24, 2015
+Internet Draft              DBIS Automounter             August 19, 2015
 
 
+       objectclass ( 1.3.6.1.4.1.23780.219.1.32 NAME 'automountInclude'
+         DESC 'Include another map within an automounter direct map,
                indirect map or multiple mount entry'
          SUP top STRUCTURAL
          MUST en
@@ -356,8 +358,9 @@ Internet Draft              DBIS Automounter               July 24, 2015
    map to include when used with the automountInclude class, is stored
    in the LDAP attribute en which is defined in [draft-bannister-dbis-
    mapping-00].  The en attribute MUST be associated with
-   automountMapObject, automountMaster, automountMulti, automountEntry
-   and automountInclude entries and SHALL form the RDN in all cases.
+   automountMapObject, automountMaster, automountMultiMount,
+   automountEntry and automountInclude entries and SHALL form the RDN in
+   all cases.
 
 2.3.2. automountUseMap
 
@@ -374,7 +377,7 @@ Internet Draft              DBIS Automounter               July 24, 2015
 
    Each automount option is stored in one or more LDAP automountOption
    attributes that MAY be assigned to an automountMaster, automountEntry
-   or automountMulti entry:
+   or automountMultiMount entry:
 
        attributetype ( 1.3.6.1.4.1.23780.219.2.32 NAME 'automountOption'
          DESC 'Automounter option'
@@ -383,16 +386,17 @@ Internet Draft              DBIS Automounter               July 24, 2015
 
    Available options are implementation-specific.  Automount options are
    NOT additive, i.e. options on an automountEntry, if provided, SHALL
-   override options on an automountMulti or automountMaster entry. 
-   Options on an automountMulti entry SHALL override options on an
-   automountMaster entry.
  
 
 
-Bannister, Mark R.      Expires January 25, 2016                [Page 7]
+Bannister, Mark R.     Expires February 20, 2016                [Page 7]
 
-Internet Draft              DBIS Automounter               July 24, 2015
+Internet Draft              DBIS Automounter             August 19, 2015
 
+
+   override options on an automountMultiMount or automountMaster entry. 
+   Options on an automountMultiMount entry SHALL override options on an
+   automountMaster entry.
 
 2.3.4. automountLocation
 
@@ -413,18 +417,44 @@ Internet Draft              DBIS Automounter               July 24, 2015
    e.g. serverA(2),serverB(1):path to specify a preference for the
    second server in the list.
 
-2.3.5. description
+2.3.5. automountMapType
+
+   The automountMapType attribute MAY be associated with an
+   automountMapObject and describes the format of the underlying map
+   entries:
+
+       attributetype ( 1.3.6.1.4.1.23780.219.2.38
+         NAME 'automountMapType'
+         DESC 'Type of map (e.g. nis, amd)'
+         EQUALITY caseExactIA5Match
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+   If automountMapType is omitted, or set to the value 'nis', the en,
+   automountOption and automountLocation attributes on child entries
+   MUST be interpreted as described in this document. Otherwise, these
+   attributes may have a different interpretation which is
+   implementation dependent as required to support other map types.
+
+2.3.6. description
 
    The description attribute MAY be associated with an entry to provide
    an arbitrary description of the entry.
 
-2.3.6. manager
+2.3.7. manager
+
+ 
+
+
+Bannister, Mark R.     Expires February 20, 2016                [Page 8]
+
+Internet Draft              DBIS Automounter             August 19, 2015
+
 
    The manager attribute MAY be associated with an entry to provide one
    or more DNs of the individuals, groups or systems that are
    responsible for maintaining the entry.
 
-2.3.7. disableObject
+2.3.8. disableObject
 
    An entry MAY be disabled by setting the disableObject attribute
    [draft-bannister-dbis-mapping-00] to TRUE.  If an entry is disabled,
@@ -442,14 +472,6 @@ Internet Draft              DBIS Automounter               July 24, 2015
        objectClass: top
        objectClass: automountMapObject
        objectClass: automountMaster
- 
-
-
-Bannister, Mark R.      Expires January 25, 2016                [Page 8]
-
-Internet Draft              DBIS Automounter               July 24, 2015
-
-
        en: /home
        automountOption: nobrowse
        automountUseMap: auto_home
@@ -476,6 +498,14 @@ Internet Draft              DBIS Automounter               July 24, 2015
        objectClass: automountMapObject
        objectClass: automountMaster
        en: /-
+ 
+
+
+Bannister, Mark R.     Expires February 20, 2016                [Page 9]
+
+Internet Draft              DBIS Automounter             August 19, 2015
+
+
        automountUseMap: auto_direct
        description: Master entry for direct maps, see auto_direct
 
@@ -497,14 +527,6 @@ Internet Draft              DBIS Automounter               July 24, 2015
        description: Mount /usr/install from three possible servers
 
    The following is an example of indirect map entries:
-
- 
-
-
-Bannister, Mark R.      Expires January 25, 2016                [Page 9]
-
-Internet Draft              DBIS Automounter               July 24, 2015
-
 
        dn: en=auto_home,ou=maps,ou=automount,o=infra
        objectClass: top
@@ -532,6 +554,13 @@ Internet Draft              DBIS Automounter               July 24, 2015
        en: *
        automountLocation: ditton:/export/home/&
        description: Catch-all for user home directories not listed
+ 
+
+
+Bannister, Mark R.     Expires February 20, 2016               [Page 10]
+
+Internet Draft              DBIS Automounter             August 19, 2015
+
 
        dn: en=surrey_home,en=auto_home,ou=maps,ou=automount,o=infra
        objectClass: top
@@ -554,14 +583,6 @@ Internet Draft              DBIS Automounter               July 24, 2015
        automountOption: fstype=hsfs
        automountOption: ro
        automountLocation: :/dev/sr0
- 
-
-
-Bannister, Mark R.      Expires January 25, 2016               [Page 10]
-
-Internet Draft              DBIS Automounter               July 24, 2015
-
-
        description: /media/cdrom
 
    The following is an example of a multiple mount entry:
@@ -574,7 +595,7 @@ Internet Draft              DBIS Automounter               July 24, 2015
 
        dn: en=qa_root,en=qa,ou=maps,ou=automount,o=infra
        objectClass: top
-       objectClass: automountMulti
+       objectClass: automountMultiMount
        en: qa_root
        automountOption: ro
        description: qa_root multi-mount entries are child objects
@@ -589,6 +610,14 @@ Internet Draft              DBIS Automounter               July 24, 2015
        dn: en=/docs,en=qa_root,en=qa,ou=maps,ou=automount,o=infra
        objectClass: top
        objectClass: automountEntry
+ 
+
+
+Bannister, Mark R.     Expires February 20, 2016               [Page 11]
+
+Internet Draft              DBIS Automounter             August 19, 2015
+
+
        en: /docs
        automountLocation: surbiton:/export/qa/docs
        description: /qa/docs
@@ -610,14 +639,6 @@ Internet Draft              DBIS Automounter               July 24, 2015
    Syntax OID                     Value             Reference
    -----------------------------------------------------------
    1.3.6.1.4.1.1466.115.121.1.12  DN                [RFC4517]
- 
-
-
-Bannister, Mark R.      Expires January 25, 2016               [Page 11]
-
-Internet Draft              DBIS Automounter               July 24, 2015
-
-
    1.3.6.1.4.1.1466.115.121.1.26  IA5 String        [RFC4517]
    -----------------------------------------------------------
 
@@ -645,6 +666,13 @@ Internet Draft              DBIS Automounter               July 24, 2015
          master-entry = mount-point SPACE map-name *(SPACE mount-option)
 
 4.1.3. Direct Maps
+ 
+
+
+Bannister, Mark R.     Expires February 20, 2016               [Page 12]
+
+Internet Draft              DBIS Automounter             August 19, 2015
+
 
    The NIS-compatible automount direct map fields are mapped as follows:
 
@@ -666,17 +694,9 @@ Internet Draft              DBIS Automounter               July 24, 2015
 
          mount-point  = en                 ; from automountEntry
          mount-option = automountOption    ; from automountEntry
- 
-
-
-Bannister, Mark R.      Expires January 25, 2016               [Page 12]
-
-Internet Draft              DBIS Automounter               July 24, 2015
-
-
          location     = automountLocation  ; from automountEntry
-         multi-key    = en                 ; from parent automountMulti
-         multi-option = automountOption    ; from parent automountMulti
+         multi-key    = en                 ; from parent automountMultiMount
+         multi-option = automountOption    ; from parent automountMultiMount
          include-map  = en                 ; from automountInclude
 
          mount        = mount-point *(SPACE mount-option)
@@ -702,6 +722,14 @@ Internet Draft              DBIS Automounter               July 24, 2015
    number of search operations as necessary to locate all of the
    database entries in scope.
 
+ 
+
+
+Bannister, Mark R.     Expires February 20, 2016               [Page 13]
+
+Internet Draft              DBIS Automounter             August 19, 2015
+
+
    The base DN used in the search operations described in this section
    comes from the dbisMapDN attribute assigned to the dbisMapConfig
    entry. Note that a dbisMapConfig entry may have more than one of
@@ -722,13 +750,6 @@ Internet Draft              DBIS Automounter               July 24, 2015
          (&(objectClass=dbisAutomountConfig)(!(disableObject=TRUE)))
 
 4.2.3. List Automount Maps
- 
-
-
-Bannister, Mark R.      Expires January 25, 2016               [Page 13]
-
-Internet Draft              DBIS Automounter               July 24, 2015
-
 
    Master maps are enumerated by applying the dbisMapFilter as follows:
 
@@ -748,17 +769,24 @@ Internet Draft              DBIS Automounter               July 24, 2015
 
    To differentiate between a single map entry and a multiple mount
    entry, the objectClass on the parent entry must be tested.  If the
-   class is automountMulti then this entry is part of a multiple mount
-   entry.  In this case the DUA SHALL additionally test for
-   disableObject=TRUE on the automountMulti object.  If this object is
-   marked as disabled then the child entries SHALL also be treated as
+   class is automountMultiMount then this entry is part of a multiple
+   mount entry.  In this case the DUA SHALL additionally test for
+   disableObject=TRUE on the automountMultiMount object.  If this object
+   is marked as disabled then the child entries SHALL also be treated as
    disabled.
 
 4.2.5. List Multiple Mount Entries
 
    Multiple mount entries are enumerated by the following filter:
+ 
 
-         (&(objectClass=automountMulti)(!(disableObject=TRUE)))
+
+Bannister, Mark R.     Expires February 20, 2016               [Page 14]
+
+Internet Draft              DBIS Automounter             August 19, 2015
+
+
+         (&(objectClass=automountMultiMount)(!(disableObject=TRUE)))
 
    The mount-points that make up a multiple mount will be child objects
    with the class automountEntry, see section 4.2.4 above.
@@ -778,13 +806,6 @@ Internet Draft              DBIS Automounter               July 24, 2015
    objects:
 
          (&(objectClass=automountInclude)(!(disableObject=TRUE)))
- 
-
-
-Bannister, Mark R.      Expires January 25, 2016               [Page 14]
-
-Internet Draft              DBIS Automounter               July 24, 2015
-
 
 5. Security Considerations
 
@@ -813,6 +834,14 @@ Internet Draft              DBIS Automounter               July 24, 2015
               (LDAP): Syntaxes and Matching Rules", RFC 4517, June 2006.
 
    [draft-bannister-dbis-mapping-00]  Bannister, M. R., "Directory-Based
+ 
+
+
+Bannister, Mark R.     Expires February 20, 2016               [Page 15]
+
+Internet Draft              DBIS Automounter             August 19, 2015
+
+
               Information Services: Mapping Objects", draft-bannister-
               dbis-mapping-00.txt, August 2013.
 
@@ -834,14 +863,6 @@ Author's Address
    Mark R. Bannister
    Prose Consulting Ltd.
    73 Claygate Lane
- 
-
-
-Bannister, Mark R.      Expires January 25, 2016               [Page 15]
-
-Internet Draft              DBIS Automounter               July 24, 2015
-
-
    Esher, Surrey, KT10 0BQ
    United Kingdom
 
@@ -872,25 +893,4 @@ Internet Draft              DBIS Automounter               July 24, 2015
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Bannister, Mark R.      Expires January 25, 2016               [Page 16]
+Bannister, Mark R.     Expires February 20, 2016               [Page 16]
