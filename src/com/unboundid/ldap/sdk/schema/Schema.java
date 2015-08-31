@@ -38,10 +38,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.NotMutable;
@@ -722,8 +724,10 @@ public final class Schema
       return null;
     }
 
-    final Entry schemaEntry =
-         connection.getEntry(subschemaSubentryDN, SCHEMA_REQUEST_ATTRS);
+    final Entry schemaEntry = connection.searchForEntry(subschemaSubentryDN,
+         SearchScope.BASE,
+         Filter.createEqualityFilter("objectClass", "subschema"),
+         SCHEMA_REQUEST_ATTRS);
     if (schemaEntry == null)
     {
       return null;
