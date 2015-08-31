@@ -34,8 +34,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +53,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.util.AggregateInputStream;
 import com.unboundid.util.Base64;
@@ -1559,7 +1562,7 @@ public final class LDIFReader
        throws IOException, LDIFException
   {
     final UnparsedLDIFRecord unparsedRecord = readUnparsedRecord();
-    return decodeRecord(unparsedRecord, relativeBasePath);
+    return decodeRecord(unparsedRecord, relativeBasePath, schema);
   }
 
 
@@ -1630,7 +1633,8 @@ public final class LDIFReader
         return null;
       }
 
-      r = decodeChangeRecord(unparsedRecord, relativeBasePath, defaultAdd);
+      r = decodeChangeRecord(unparsedRecord, relativeBasePath, defaultAdd,
+           schema);
       debugLDIFRead(r);
 
       if (changeRecordTranslator != null)
@@ -1863,7 +1867,7 @@ public final class LDIFReader
          decodeChangeRecord(
               prepareRecord(DuplicateValueBehavior.STRIP,
                    TrailingSpaceBehavior.REJECT, null, ldifLines),
-              DEFAULT_RELATIVE_BASE_PATH, defaultAdd);
+              DEFAULT_RELATIVE_BASE_PATH, defaultAdd, null);
     debugLDIFRead(r);
     return r;
   }
@@ -1910,7 +1914,7 @@ public final class LDIFReader
                    ? DuplicateValueBehavior.STRIP
                    : DuplicateValueBehavior.REJECT),
               TrailingSpaceBehavior.REJECT, schema, ldifLines),
-         DEFAULT_RELATIVE_BASE_PATH, defaultAdd);
+         DEFAULT_RELATIVE_BASE_PATH, defaultAdd, null);
     debugLDIFRead(r);
     return r;
   }
@@ -2032,6 +2036,7 @@ public final class LDIFReader
    *                           input.  It must not be {@code null} or empty.
    * @param  relativeBasePath  The base path that will be prepended to relative
    *                           paths in order to obtain an absolute path.
+   * @param  schema            The schema to use when parsing.
    *
    * @return  The parsed record, or {@code null} if there are no more entries to
    *          be read.
@@ -2041,7 +2046,8 @@ public final class LDIFReader
    */
   private static LDIFRecord decodeRecord(
                                  final UnparsedLDIFRecord unparsedRecord,
-                                 final String relativeBasePath)
+                                 final String relativeBasePath,
+                                 final Schema schema)
        throws LDIFException
   {
     // If there was an error reading from the input, then we rethrow it here.
@@ -2090,7 +2096,7 @@ public final class LDIFReader
       if (lowerSecondLine.startsWith("control:") ||
           lowerSecondLine.startsWith("changetype:"))
       {
-        r = decodeChangeRecord(unparsedRecord, relativeBasePath, true);
+        r = decodeChangeRecord(unparsedRecord, relativeBasePath, true, schema);
       }
       else
       {
@@ -2240,6 +2246,7 @@ public final class LDIFReader
    *                           record.  If this is {@code false} and the record
    *                           read does not include a changetype, then an
    *                           {@link LDIFException} will be thrown.
+   * @param  schema            The schema to use in parsing.
    *
    * @return  The change record read from LDIF.
    *
@@ -2249,7 +2256,8 @@ public final class LDIFReader
   private static LDIFChangeRecord decodeChangeRecord(
                                        final UnparsedLDIFRecord unparsedRecord,
                                        final String relativeBasePath,
-                                       final boolean defaultAdd)
+                                       final boolean defaultAdd,
+                                       final Schema schema)
           throws LDIFException
   {
     final ArrayList<StringBuilder> ldifLines = unparsedRecord.getLineList();
@@ -2462,7 +2470,7 @@ public final class LDIFReader
       {
         final Modification[] mods = parseModifications(dn,
              unparsedRecord.getTrailingSpaceBehavior(), ldifLines, iterator,
-             firstLineNumber);
+             firstLineNumber, schema);
         return new LDIFModifyChangeRecord(dn, mods, controls);
       }
       else
@@ -3262,6 +3270,7 @@ public final class LDIFReader
    * @param  iterator               The iterator to use to access the
    *                                modification data.
    * @param  firstLineNumber        The line number for the start of the record.
+   * @param  schema                 The schema to use in processing.
    *
    * @return  An array containing the modifications that were read.
    *
@@ -3269,10 +3278,11 @@ public final class LDIFReader
    *                         set of modifications.
    */
   private static Modification[] parseModifications(final String dn,
-       final TrailingSpaceBehavior trailingSpaceBehavior,
-       final ArrayList<StringBuilder> ldifLines,
-       final Iterator<StringBuilder> iterator, final long firstLineNumber)
-       throws LDIFException
+                      final TrailingSpaceBehavior trailingSpaceBehavior,
+                      final ArrayList<StringBuilder> ldifLines,
+                      final Iterator<StringBuilder> iterator,
+                      final long firstLineNumber, final Schema schema)
+          throws LDIFException
   {
     final ArrayList<Modification> modList =
          new ArrayList<Modification>(ldifLines.size());
@@ -3315,7 +3325,7 @@ public final class LDIFReader
                                 firstLineNumber, true, ldifLines, null);
       }
 
-      final String attributeName;
+      String attributeName;
       int length = line.length();
       if (length == (colonPos+1))
       {
@@ -3400,15 +3410,98 @@ public final class LDIFReader
         }
         else if (! line.substring(0, colonPos).equalsIgnoreCase(attributeName))
         {
-          throw new LDIFException(ERR_READ_MOD_CR_ATTR_MISMATCH.get(
-                                       firstLineNumber,
-                                       line.substring(0, colonPos),
-                                       attributeName),
-                                  firstLineNumber, true, ldifLines, null);
+          // There are a couple of cases in which this might be acceptable:
+          // - If the two names are logically equivalent, but have an alternate
+          //   name (or OID) for the target attribute type, or if there are
+          //   attribute options and the options are just in a different order.
+          // - If this is the first value for the target attribute and the
+          //   alternate name includes a "binary" option that the original
+          //   attribute name did not have.  In this case, all subsequent values
+          //   will also be required to have the binary option.
+          final String alternateName = line.substring(0, colonPos);
+
+
+          // Check to see if the base names are equivalent.
+          boolean baseNameEquivalent = false;
+          final String expectedBaseName = Attribute.getBaseName(attributeName);
+          final String alternateBaseName = Attribute.getBaseName(alternateName);
+          if (alternateBaseName.equalsIgnoreCase(expectedBaseName))
+          {
+            baseNameEquivalent = true;
+          }
+          else
+          {
+            if (schema != null)
+            {
+              final AttributeTypeDefinition expectedAT =
+                   schema.getAttributeType(expectedBaseName);
+              final AttributeTypeDefinition alternateAT =
+                   schema.getAttributeType(alternateBaseName);
+              if ((expectedAT != null) && (alternateAT != null) &&
+                  expectedAT.equals(alternateAT))
+              {
+                baseNameEquivalent = true;
+              }
+            }
+          }
+
+
+          // Check to see if the attribute options are equivalent.
+          final Set<String> expectedOptions =
+               Attribute.getOptions(attributeName);
+          final Set<String> lowerExpectedOptions =
+               new HashSet<String>(expectedOptions.size());
+          for (final String s : expectedOptions)
+          {
+            lowerExpectedOptions.add(toLowerCase(s));
+          }
+
+          final Set<String> alternateOptions =
+               Attribute.getOptions(alternateName);
+          final Set<String> lowerAlternateOptions =
+               new HashSet<String>(alternateOptions.size());
+          for (final String s : alternateOptions)
+          {
+            lowerAlternateOptions.add(toLowerCase(s));
+          }
+
+          final boolean optionsEquivalent =
+               lowerAlternateOptions.equals(lowerExpectedOptions);
+
+
+          if (baseNameEquivalent && optionsEquivalent)
+          {
+            // This is fine.  The two attribute descriptions are logically
+            // equivalent.  We'll continue using the attribute description that
+            // was provided first.
+          }
+          else if (valueList.isEmpty() && baseNameEquivalent &&
+                   lowerAlternateOptions.remove("binary") &&
+                   lowerAlternateOptions.equals(lowerExpectedOptions))
+          {
+            // This means that the provided value is the first value for the
+            // attribute, and that the only significant difference is that the
+            // provided attribute description included an unexpected "binary"
+            // option.  We'll accept this, but will require any additional
+            // values for this modification to also include the binary option,
+            // and we'll use the binary option in the attribute that is
+            // eventually created.
+            attributeName = alternateName;
+          }
+          else
+          {
+            // This means that either the base names are different or the sets
+            // of options are incompatible.  This is not acceptable.
+            throw new LDIFException(ERR_READ_MOD_CR_ATTR_MISMATCH.get(
+                                         firstLineNumber,
+                                         line.substring(0, colonPos),
+                                         attributeName),
+                                    firstLineNumber, true, ldifLines, null);
+          }
         }
 
-        final ASN1OctetString value;
         length = line.length();
+        final ASN1OctetString value;
         if (length == (colonPos+1))
         {
           // The colon was the last character on the line.  This is fine.
@@ -4118,7 +4211,7 @@ public final class LDIFReader
     public LDIFRecord process(final UnparsedLDIFRecord input)
            throws LDIFException
     {
-      LDIFRecord record = decodeRecord(input, relativeBasePath);
+      LDIFRecord record = decodeRecord(input, relativeBasePath, schema);
 
       if ((record instanceof Entry) && (entryTranslator != null))
       {
