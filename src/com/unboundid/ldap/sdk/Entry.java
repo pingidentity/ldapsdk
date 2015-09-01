@@ -2437,6 +2437,134 @@ public class Entry
 
 
   /**
+   * Creates a duplicate of the provided entry with the appropriate changes for
+   * a modify DN operation.  Any corresponding changes to the set of attribute
+   * values (to ensure that the new RDN values are present in the entry, and
+   * optionally to remove the old RDN values from the entry) will also be
+   * applied.
+   *
+   * @param  entry         The entry to be renamed.  It must not be
+   *                       {@code null}.
+   * @param  newRDN        The new RDN to use for the entry.  It must not be
+   *                       {@code null}.
+   * @param  deleteOldRDN  Indicates whether attribute values that were present
+   *                       in the old RDN but are no longer present in the new
+   *                       DN should be removed from the entry.
+   *
+   * @return  A new entry that is a duplicate of the provided entry, except with
+   *          any necessary changes for the modify DN.
+   *
+   * @throws  LDAPException  If a problem is encountered during modify DN
+   *                         processing.
+   */
+  public static Entry applyModifyDN(final Entry entry, final String newRDN,
+                                    final boolean deleteOldRDN)
+         throws LDAPException
+  {
+    return applyModifyDN(entry, newRDN, deleteOldRDN, null);
+  }
+
+
+
+  /**
+   * Creates a duplicate of the provided entry with the appropriate changes for
+   * a modify DN operation.  Any corresponding changes to the set of attribute
+   * values (to ensure that the new RDN values are present in the entry, and
+   * optionally to remove the old RDN values from the entry) will also be
+   * applied.
+   *
+   * @param  entry          The entry to be renamed.  It must not be
+   *                        {@code null}.
+   * @param  newRDN         The new RDN to use for the entry.  It must not be
+   *                        {@code null}.
+   * @param  deleteOldRDN   Indicates whether attribute values that were present
+   *                        in the old RDN but are no longer present in the new
+   *                        DN should be removed from the entry.
+   * @param  newSuperiorDN  The new superior DN for the entry.  If this is
+   *                        {@code null}, then the entry will remain below its
+   *                        existing parent.  If it is non-{@code null}, then
+   *                        the resulting DN will be a concatenation of the new
+   *                        RDN and the new superior DN.
+   *
+   * @return  A new entry that is a duplicate of the provided entry, except with
+   *          any necessary changes for the modify DN.
+   *
+   * @throws  LDAPException  If a problem is encountered during modify DN
+   *                         processing.
+   */
+  public static Entry applyModifyDN(final Entry entry, final String newRDN,
+                                    final boolean deleteOldRDN,
+                                    final String newSuperiorDN)
+         throws LDAPException
+  {
+    ensureNotNull(entry);
+    ensureNotNull(newRDN);
+
+    // Parse all of the necessary elements from the request.
+    final DN  parsedOldDN         = entry.getParsedDN();
+    final RDN parsedOldRDN        = parsedOldDN.getRDN();
+    final DN  parsedOldSuperiorDN = parsedOldDN.getParent();
+
+    final RDN parsedNewRDN = new RDN(newRDN);
+
+    final DN  parsedNewSuperiorDN;
+    if (newSuperiorDN == null)
+    {
+      parsedNewSuperiorDN = parsedOldSuperiorDN;
+    }
+    else
+    {
+      parsedNewSuperiorDN = new DN(newSuperiorDN);
+    }
+
+    // Duplicate the provided entry and update it with the new DN.
+    final Entry newEntry = entry.duplicate();
+    if (parsedNewSuperiorDN == null)
+    {
+      // This should only happen if the provided entry has a zero-length DN.
+      // It's extremely unlikely that a directory server would permit this
+      // change, but we'll go ahead and process it.
+      newEntry.setDN(new DN(parsedNewRDN));
+    }
+    else
+    {
+      newEntry.setDN(new DN(parsedNewRDN, parsedNewSuperiorDN));
+    }
+
+    // If deleteOldRDN is true, then remove any values present in the old RDN
+    // that are not present in the new RDN.
+    if (deleteOldRDN && (parsedOldRDN != null))
+    {
+      final String[] oldNames  = parsedOldRDN.getAttributeNames();
+      final byte[][] oldValues = parsedOldRDN.getByteArrayAttributeValues();
+      for (int i=0; i < oldNames.length; i++)
+      {
+        if (! parsedNewRDN.hasAttributeValue(oldNames[i], oldValues[i]))
+        {
+          newEntry.removeAttributeValue(oldNames[i], oldValues[i]);
+        }
+      }
+    }
+
+    // Add any values present in the new RDN that were not present in the old
+    // RDN.
+    final String[] newNames  = parsedNewRDN.getAttributeNames();
+    final byte[][] newValues = parsedNewRDN.getByteArrayAttributeValues();
+    for (int i=0; i < newNames.length; i++)
+    {
+      if ((parsedOldRDN == null) ||
+          (! parsedOldRDN.hasAttributeValue(newNames[i], newValues[i])))
+      {
+        newEntry.addAttribute(newNames[i], newValues[i]);
+      }
+    }
+
+    return newEntry;
+  }
+
+
+
+  /**
    * Generates a hash code for this entry.
    *
    * @return  The generated hash code for this entry.
