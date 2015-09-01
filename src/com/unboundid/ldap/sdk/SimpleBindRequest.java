@@ -509,8 +509,10 @@ public final class SimpleBindRequest
   {
     if (connection.synchronousMode())
     {
-      return processSync(connection,
-           connection.getConnectionOptions().autoReconnect());
+      @SuppressWarnings("deprecation")
+      final boolean autoReconnect =
+           connection.getConnectionOptions().autoReconnect();
+      return processSync(connection, autoReconnect);
     }
 
     // See if a bind DN was provided without a password.  If that is the case

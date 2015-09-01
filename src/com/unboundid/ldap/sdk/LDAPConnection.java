@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2007-2015 UnboundID Corp.
  * All Rights Reserved.
  */
@@ -923,7 +923,7 @@ public final class LDAPConnection
 
     try
     {
-      Thread.sleep(10);
+      Thread.sleep(1000L);
     } catch (final Exception e) {}
 
     connect(reconnectAddress, reconnectPort);
@@ -4252,7 +4252,9 @@ public final class LDAPConnection
     }
     else
     {
-      internals.sendMessage(message, connectionOptions.autoReconnect());
+      @SuppressWarnings("deprecation")
+      final boolean autoReconnect = connectionOptions.autoReconnect();
+      internals.sendMessage(message, autoReconnect);
       lastCommunicationTime = System.currentTimeMillis();
     }
   }

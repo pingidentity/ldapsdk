@@ -69,6 +69,27 @@ public final class NoticeOfDisconnectionExtendedResult
    * Creates a new instance of this notice of disconnection extended result from
    * the provided generic extended result.
    *
+   * @param  resultCode         The result code for the notice of disconnection.
+   * @param  diagnosticMessage  The diagnostic message to include in the
+   *                            notice of disconnection.  It may be {@code null}
+   *                            if no diagnostic message should be included.
+   * @param  responseControls   The set of controls to include in the notice of
+   *                            disconnection.  It may be {@code null} or empty
+   *                            if no response controls are needed.
+   */
+  public NoticeOfDisconnectionExtendedResult(final ResultCode resultCode,
+                                             final String diagnosticMessage,
+                                             final Control... responseControls)
+  {
+    this(0, resultCode, diagnosticMessage, null, null, responseControls);
+  }
+
+
+
+  /**
+   * Creates a new instance of this notice of disconnection extended result from
+   * the provided generic extended result.
+   *
    * @param  extendedResult  The extended result to use to create this notice of
    *                         disconnection extended result.
    */

@@ -338,6 +338,7 @@ public final class LDAPThreadLocalConnectionPool
    *                         the connection.  If a connection had been created,
    *                         it will be closed.
    */
+  @SuppressWarnings("deprecation")
   private LDAPConnection createConnection()
           throws LDAPException
   {

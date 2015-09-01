@@ -1164,6 +1164,7 @@ public final class LDAPConnectionPool
    *                         the connection.  If a connection had been created,
    *                         it will be closed.
    */
+  @SuppressWarnings("deprecation")
   LDAPConnection createConnection()
                  throws LDAPException
   {

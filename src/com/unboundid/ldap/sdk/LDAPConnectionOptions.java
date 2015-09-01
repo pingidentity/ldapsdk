@@ -501,11 +501,24 @@ public final class LDAPConnectionOptions
    * option will not have any effect on pooled connections because defunct
    * pooled connections will be replaced by newly-created connections rather
    * than attempting to re-establish the existing connection.
+   * <BR><BR>
+   * NOTE:  The use of auto-reconnect is strongly discouraged because it is
+   * inherently fragile and can only work under very limited circumstances.  It
+   * is strongly recommended that a connection pool be used instead of the
+   * auto-reconnect option, even in cases where only a single connection is
+   * desired.
    *
    * @return  {@code true} if associated connections should attempt to
    *          automatically reconnect to the target server if the connection is
    *          lost, or {@code false} if not.
+   *
+   * @deprecated  The use of auto-reconnect is strongly discouraged because it
+   *              is inherently fragile and can only work under very limited
+   *              circumstances.  It is strongly recommended that a connection
+   *              pool be used instead of the auto-reconnect option, even in
+   *              cases where only a single connection is desired.
    */
+  @Deprecated()
   public boolean autoReconnect()
   {
     return autoReconnect;
@@ -524,11 +537,24 @@ public final class LDAPConnectionOptions
    * existing connection.  Further, auto-reconnect should not be used with
    * connections that use StartTLS or some other mechanism to alter the state
    * of the connection beyond authentication.
+   * <BR><BR>
+   * NOTE:  The use of auto-reconnect is strongly discouraged because it is
+   * inherently fragile and can only work under very limited circumstances.  It
+   * is strongly recommended that a connection pool be used instead of the
+   * auto-reconnect option, even in cases where only a single connection is
+   * desired.
    *
    * @param  autoReconnect  Specifies whether associated connections should
    *                        attempt to automatically reconnect to the target
    *                        server if the connection is lost.
+   *
+   * @deprecated  The use of auto-reconnect is strongly discouraged because it
+   *              is inherently fragile and can only work under very limited
+   *              circumstances.  It is strongly recommended that a connection
+   *              pool be used instead of the auto-reconnect option, even in
+   *              cases where only a single connection is desired.
    */
+  @Deprecated()
   public void setAutoReconnect(final boolean autoReconnect)
   {
     this.autoReconnect = autoReconnect;

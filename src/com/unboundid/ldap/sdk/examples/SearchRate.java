@@ -553,7 +553,6 @@ public final class SearchRate
   public LDAPConnectionOptions getConnectionOptions()
   {
     final LDAPConnectionOptions options = new LDAPConnectionOptions();
-    options.setAutoReconnect(true);
     options.setUseSynchronousMode(! asynchronousMode.isPresent());
     return options;
   }

@@ -398,8 +398,10 @@ final class LDAPConnectionReader
 
           // If the connection is configured to try to auto-reconnect, then set
           // things up to do that.  Otherwise, terminate the connection.
-          if ((! closeRequested) &&
-              connection.getConnectionOptions().autoReconnect())
+          @SuppressWarnings("deprecation")
+          final boolean autoReconnect =
+               connection.getConnectionOptions().autoReconnect();
+          if ((! closeRequested) && autoReconnect)
           {
             reconnect = true;
             break;
@@ -422,8 +424,11 @@ final class LDAPConnectionReader
           // This should only happen if the socket has been closed.
           connection.setDisconnectInfo(
                DisconnectType.SERVER_CLOSED_WITHOUT_NOTICE, null, null);
+          @SuppressWarnings("deprecation")
+          final boolean autoReconnect =
+               connection.getConnectionOptions().autoReconnect();
           if ((! closeRequested) && (! connection.unbindRequestSent()) &&
-              connection.getConnectionOptions().autoReconnect())
+              autoReconnect)
           {
             reconnect = true;
             break;
@@ -603,7 +608,10 @@ final class LDAPConnectionReader
 
         // If the connection is configured to try to auto-reconnect, then set
         // things up to do that.  Otherwise, terminate the connection.
-        if (connection.getConnectionOptions().autoReconnect())
+        @SuppressWarnings("deprecation")
+        final boolean autoReconnect =
+             connection.getConnectionOptions().autoReconnect();
+        if (autoReconnect)
         {
           reconnect = true;
           break;
@@ -799,7 +807,10 @@ final class LDAPConnectionReader
         }
 
         debug(debugLevel, DebugType.LDAP, message, t);
-        if (! connection.getConnectionOptions().autoReconnect())
+        @SuppressWarnings("deprecation")
+        final boolean autoReconnect =
+             connection.getConnectionOptions().autoReconnect();
+        if (! autoReconnect)
         {
           closeRequested = true;
         }
@@ -835,7 +846,10 @@ final class LDAPConnectionReader
         }
 
         debug(debugLevel, DebugType.LDAP, message, e);
-        if (! connection.getConnectionOptions().autoReconnect())
+        @SuppressWarnings("deprecation")
+        final boolean autoReconnect =
+             connection.getConnectionOptions().autoReconnect();
+        if (! autoReconnect)
         {
           closeRequested = true;
         }

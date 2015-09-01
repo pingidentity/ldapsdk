@@ -36,6 +36,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ServerSocketFactory;
 
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
@@ -270,6 +272,50 @@ public final class LDAPListener
 
 
   /**
+   * Closes all connections that are currently established to this listener.
+   * This has no effect on the ability to accept new connections.
+   *
+   * @param  sendNoticeOfDisconnection  Indicates whether to send the client a
+   *                                    notice of disconnection unsolicited
+   *                                    notification before closing the
+   *                                    connection.
+   */
+  public void closeAllConnections(final boolean sendNoticeOfDisconnection)
+  {
+    final NoticeOfDisconnectionExtendedResult noticeOfDisconnection =
+         new NoticeOfDisconnectionExtendedResult(ResultCode.OTHER, null);
+
+    final ArrayList<LDAPListenerClientConnection> connList =
+         new ArrayList<LDAPListenerClientConnection>(
+              establishedConnections.values());
+    for (final LDAPListenerClientConnection c : connList)
+    {
+      if (sendNoticeOfDisconnection)
+      {
+        try
+        {
+          c.sendUnsolicitedNotification(noticeOfDisconnection);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+        }
+      }
+
+      try
+      {
+        c.close();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+  }
+
+
+
+  /**
    * Indicates that this listener should stop accepting connections.  It may
    * optionally also terminate any existing connections that are already
    * established.
@@ -325,20 +371,7 @@ public final class LDAPListener
 
     if (closeExisting)
     {
-      final ArrayList<LDAPListenerClientConnection> connList =
-           new ArrayList<LDAPListenerClientConnection>(
-                establishedConnections.values());
-      for (final LDAPListenerClientConnection c : connList)
-      {
-        try
-        {
-          c.close();
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-        }
-      }
+      closeAllConnections(false);
     }
   }
 

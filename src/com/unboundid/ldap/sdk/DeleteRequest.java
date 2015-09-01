@@ -262,8 +262,10 @@ public final class DeleteRequest
   {
     if (connection.synchronousMode())
     {
-      return processSync(connection, depth,
-           connection.getConnectionOptions().autoReconnect());
+      @SuppressWarnings("deprecation")
+      final boolean autoReconnect =
+           connection.getConnectionOptions().autoReconnect();
+      return processSync(connection, depth, autoReconnect);
     }
 
     final long requestTime = System.nanoTime();

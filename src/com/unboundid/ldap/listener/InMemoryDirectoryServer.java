@@ -454,6 +454,33 @@ public final class InMemoryDirectoryServer
 
 
   /**
+   * Closes all connections that are currently established to the server.  This
+   * has no effect on the ability to accept new connections.
+   *
+   * @param  sendNoticeOfDisconnection  Indicates whether to send the client a
+   *                                    notice of disconnection unsolicited
+   *                                    notification before closing the
+   *                                    connection.
+   */
+  public synchronized void closeAllConnections(
+                                final boolean sendNoticeOfDisconnection)
+  {
+    for (final LDAPListener l : listeners.values())
+    {
+      try
+      {
+        l.closeAllConnections(sendNoticeOfDisconnection);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+  }
+
+
+
+  /**
    * Shuts down all configured listeners.  Any listeners that are already
    * stopped will be unaffected.
    *

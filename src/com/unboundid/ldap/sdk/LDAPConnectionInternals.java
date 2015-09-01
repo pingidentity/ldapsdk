@@ -432,8 +432,10 @@ final class LDAPConnectionInternals
     {
       final LDAPConnectionOptions connectionOptions =
            connection.getConnectionOptions();
+      @SuppressWarnings("deprecation")
+      final boolean autoReconnect = connectionOptions.autoReconnect();
       final boolean closeRequested = connection.closeRequested();
-      if (connectionOptions.autoReconnect() && (! closeRequested))
+      if (autoReconnect && (! closeRequested))
       {
         connection.reconnect();
         connection.registerResponseAcceptor(messageID,  responseAcceptor);
