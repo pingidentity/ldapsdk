@@ -4,13 +4,13 @@
 
 Network Working Group                                         S. Leonard
 Internet-Draft                                             Penango, Inc.
-Intended Status: Informational                         November 12, 2014
-Expires: April 29, 2015                                                 
+Intended Status: Informational                         September 9, 2015
+Expires: March 12, 2016                                                 
 
 
               Lightweight Directory Access Protocol (LDAP)
                        Registrations for PKCS #9
-                    draft-seantek-ldap-pkcs9-02.txt
+                      draft-seantek-ldap-pkcs9-03
 
 Abstract
 
@@ -33,11 +33,11 @@ Status of This Memo
    time. It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 16, 2015.
+   This Internet-Draft will expire on March 12, 2016.
 
 Copyright Notice
 
-   Copyright (c) 2014 IETF Trust and the persons identified as the
+   Copyright (c) 2015 IETF Trust and the persons identified as the
    document authors. All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -55,7 +55,7 @@ Copyright Notice
 
 Leonard                      Informational                      [Page 1]
 
-Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
+Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
 
 
 1.  Introduction
@@ -111,7 +111,7 @@ Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
 
 Leonard                      Informational                      [Page 2]
 
-Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
+Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
 
 
 4.1.  Semantics of dateOfBirth Clarified
@@ -167,7 +167,7 @@ Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
 
 Leonard                      Informational                      [Page 3]
 
-Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
+Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
 
 
                Short Descriptor     Regular Descriptor
@@ -223,7 +223,7 @@ Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
 
 Leonard                      Informational                      [Page 4]
 
-Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
+Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
 
 
       Subject: Request for LDAP OID Registration
@@ -279,7 +279,7 @@ Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
 
 Leonard                      Informational                      [Page 5]
 
-Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
+Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
 
 
       messageDigest                A 1.2.840.113549.1.9.4
@@ -335,7 +335,7 @@ Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
 
 Leonard                      Informational                      [Page 6]
 
-Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
+Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
 
 
    [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
@@ -370,6 +370,38 @@ Internet-Draft         LDAP PKCS #9 Registrations      November 12, 2014
               Mail Extensions (S/MIME) Version 3.2 Certificate
               Handling", RFC 5750, January 2010.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Leonard                      Informational                      [Page 7]
+
+Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
+
+
+Appendix A.  Acknowledgement of Non-Publication Proposal
+
+   This draft-03 is virtually unchanged from draft-02. However, the
+   prior Expert Reviewer for draft-02 privately suggested that the
+   descriptors of [PKCS9] could be registered per [RFC4520] without
+   publishing an RFC. This appendix acknowledges this possibility.
+
+
 Author's Address
 
    Sean Leonard
@@ -389,4 +421,28 @@ Author's Address
 
 
 
-Leonard                      Informational                      [Page 7]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Leonard                      Informational                      [Page 8]
