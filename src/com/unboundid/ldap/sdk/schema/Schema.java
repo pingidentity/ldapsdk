@@ -848,6 +848,8 @@ public final class Schema
           continue;
         }
 
+        e.addAttribute("objectClass", "top", "ldapSubentry", "subschema");
+
         if (schemaEntry == null)
         {
           schemaEntry = e;
