@@ -329,6 +329,18 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  *       <TD ALIGN="LEFT">DATABASE_LOCK_CONFLICT</TD>
  *       <TD ALIGN="RIGHT">30221002</TD>
  *     </TR>
+ *     <TR>
+ *       <TD ALIGN="LEFT">MIRRORED_SUBTREE_DIGEST_MISMATCH</TD>
+ *       <TD ALIGN="RIGHT">30221003</TD>
+ *     </TR>
+ *     <TR>
+ *       <TD ALIGN="LEFT">TOKEN_DELIVERY_MECHANISM_UNAVAILABLE</TD>
+ *       <TD ALIGN="RIGHT">30221004</TD>
+ *     </TR>
+ *     <TR>
+ *       <TD ALIGN="LEFT">TOKEN_DELIVERY_ATTEMPT_FAILED</TD>
+ *       <TD ALIGN="RIGHT">30221005</TD>
+ *     </TR>
  *   </TABLE>
  * </CENTER>
  */
@@ -1498,8 +1510,7 @@ public final class ResultCode
    * The integer value (30221003) for the "MIRRORED_SUBTREE_DIGEST_MISMATCH"
    * result code.
    */
-  public static final int MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE =
-      30221003;
+  public static final int MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE = 30221003;
 
 
 
@@ -1511,6 +1522,47 @@ public final class ResultCode
   public static final ResultCode MIRRORED_SUBTREE_DIGEST_MISMATCH =
       new ResultCode(INFO_RC_MIRRORED_SUBTREE_DIGEST_MISMATCH.get(),
           MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE);
+
+
+
+  /**
+   * The integer value (30221004) for the "TOKEN_DELIVERY_MECHANISM_UNAVAILABLE"
+   * result code.
+   */
+  public static final int TOKEN_DELIVERY_MECHANISM_UNAVAILABLE_INT_VALUE =
+       30221004;
+
+
+
+  /**
+   * The result code (30221004) that should be used to indicate that the server
+   * could not deliver a one-time password, password reset token, or single-use
+   * token because none of the attempted delivery mechanisms were supported for
+   * the target user.
+   */
+  public static final ResultCode TOKEN_DELIVERY_MECHANISM_UNAVAILABLE =
+      new ResultCode(INFO_RC_TOKEN_DELIVERY_MECHANISM_UNAVAILABLE.get(),
+          TOKEN_DELIVERY_MECHANISM_UNAVAILABLE_INT_VALUE);
+
+
+
+  /**
+   * The integer value (30221005) for the "TOKEN_DELIVERY_ATTEMPT_FAILED"
+   * result code.
+   */
+  public static final int TOKEN_DELIVERY_ATTEMPT_FAILED_INT_VALUE = 30221005;
+
+
+
+  /**
+   * The result code (30221005) that should be used to indicate that the server
+   * could not deliver a one-time password, password reset token, or single-use
+   * token because a failure was encountered while attempting to deliver the
+   * token through all of the supported mechanisms.
+   */
+  public static final ResultCode TOKEN_DELIVERY_ATTEMPT_FAILED =
+      new ResultCode(INFO_RC_TOKEN_DELIVERY_ATTEMPT_FAILED.get(),
+          TOKEN_DELIVERY_ATTEMPT_FAILED_INT_VALUE);
 
 
 
@@ -1780,6 +1832,10 @@ public final class ResultCode
         return DATABASE_LOCK_CONFLICT;
       case MIRRORED_SUBTREE_DIGEST_MISMATCH_INT_VALUE:
         return MIRRORED_SUBTREE_DIGEST_MISMATCH;
+      case TOKEN_DELIVERY_MECHANISM_UNAVAILABLE_INT_VALUE:
+        return TOKEN_DELIVERY_MECHANISM_UNAVAILABLE;
+      case TOKEN_DELIVERY_ATTEMPT_FAILED_INT_VALUE:
+        return TOKEN_DELIVERY_ATTEMPT_FAILED;
     }
 
     synchronized (UNDEFINED_RESULT_CODES)
@@ -1884,7 +1940,9 @@ public final class ResultCode
       NO_OPERATION,
       INTERACTIVE_TRANSACTION_ABORTED,
       DATABASE_LOCK_CONFLICT,
-      MIRRORED_SUBTREE_DIGEST_MISMATCH
+      MIRRORED_SUBTREE_DIGEST_MISMATCH,
+      TOKEN_DELIVERY_MECHANISM_UNAVAILABLE,
+      TOKEN_DELIVERY_ATTEMPT_FAILED
     };
   }
 
