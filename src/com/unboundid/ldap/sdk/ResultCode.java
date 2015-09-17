@@ -345,6 +345,10 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  *       <TD ALIGN="LEFT">TOKEN_DELIVERY_INVALID_RECIPIENT_ID</TD>
  *       <TD ALIGN="RIGHT">30221006</TD>
  *     </TR>
+ *     <TR>
+ *       <TD ALIGN="LEFT">TOKEN_DELIVERY_INVALID_ACCOUNT_STATE</TD>
+ *       <TD ALIGN="RIGHT">30221007</TD>
+ *     </TR>
  *   </TABLE>
  * </CENTER>
  */
@@ -1592,6 +1596,28 @@ public final class ResultCode
 
 
   /**
+   * The integer value (30221007) for the "TOKEN_DELIVERY_INVALID_ACCOUNT_STATE"
+   * result code.
+   */
+  public static final int TOKEN_DELIVERY_INVALID_ACCOUNT_STATE_INT_VALUE =
+       30221007;
+
+
+
+  /**
+   * The result code (30221007) that should be used to indicate that the server
+   * could not deliver a one-time password, password reset token, or single-use
+   * token because the target user account was in an invalid state for receiving
+   * such tokens (e.g., the account is disabled or locked, the password is
+   * expired, etc.).
+   */
+  public static final ResultCode TOKEN_DELIVERY_INVALID_ACCOUNT_STATE =
+      new ResultCode(INFO_RC_TOKEN_DELIVERY_INVALID_ACCOUNT_STATE.get(),
+          TOKEN_DELIVERY_INVALID_ACCOUNT_STATE_INT_VALUE);
+
+
+
+  /**
    * The set of result code objects created with undefined int result code
    * values.
    */
@@ -1863,6 +1889,8 @@ public final class ResultCode
         return TOKEN_DELIVERY_ATTEMPT_FAILED;
       case TOKEN_DELIVERY_INVALID_RECIPIENT_ID_INT_VALUE:
         return TOKEN_DELIVERY_INVALID_RECIPIENT_ID;
+      case TOKEN_DELIVERY_INVALID_ACCOUNT_STATE_INT_VALUE:
+        return TOKEN_DELIVERY_INVALID_ACCOUNT_STATE;
     }
 
     synchronized (UNDEFINED_RESULT_CODES)
@@ -1970,7 +1998,8 @@ public final class ResultCode
       MIRRORED_SUBTREE_DIGEST_MISMATCH,
       TOKEN_DELIVERY_MECHANISM_UNAVAILABLE,
       TOKEN_DELIVERY_ATTEMPT_FAILED,
-      TOKEN_DELIVERY_INVALID_RECIPIENT_ID
+      TOKEN_DELIVERY_INVALID_RECIPIENT_ID,
+      TOKEN_DELIVERY_INVALID_ACCOUNT_STATE
     };
   }
 
