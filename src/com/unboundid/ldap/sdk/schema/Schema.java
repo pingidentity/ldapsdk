@@ -147,6 +147,7 @@ public final class Schema
    */
   private static final String[] SCHEMA_REQUEST_ATTRS =
   {
+    "*",
     ATTR_ATTRIBUTE_SYNTAX,
     ATTR_ATTRIBUTE_TYPE,
     ATTR_DIT_CONTENT_RULE,
