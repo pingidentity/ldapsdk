@@ -26,6 +26,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.experimental.
+            DraftBeheraLDAPPasswordPolicy10RequestControl;
 import com.unboundid.ldap.sdk.extensions.StartTransactionExtendedRequest;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -45,6 +47,27 @@ import static com.unboundid.util.Validator.*;
  * created with the start transaction extended operation, which will obtain a
  * transaction ID, and the transaction may be committed or aborted using the end
  * transaction extended operation.
+ * <BR><BR>
+ * Note that directory servers may limit the set of controls that are available
+ * for use in requests that are part of a transaction.  RFC 5805 section 4
+ * indicates that the following controls may be used in conjunction with the
+ * transaction specification request control:  {@link AssertionRequestControl},
+ * {@link ManageDsaITRequestControl}, {@link PreReadRequestControl}, and
+ * {@link PostReadRequestControl}.  The
+ * {@link ProxiedAuthorizationV1RequestControl} and
+ * {@link ProxiedAuthorizationV2RequestControl} controls cannot be included in
+ * requests that are part of a transaction, but you can include them in the
+ * {@link StartTransactionExtendedRequest} to indicate that all operations
+ * within the transaction should be processed with the specified authorization
+ * identity.
+ * <BR><BR>
+ * The UnboundID Directory Server supports the following additional
+ * UnboundID-specific controls in conjunction with operations included in a
+ * transaction:  account usable request control,
+ * {@link DraftBeheraLDAPPasswordPolicy10RequestControl}, hard delete request
+ * control, intermediate client request control, replication repair request
+ * control, soft delete request control, soft deleted entry access request
+ * control, {@link SubtreeDeleteRequestControl}, and undelete request control.
  * <BR><BR>
  * See the documentation for the {@link StartTransactionExtendedRequest} class
  * for an example of processing an LDAP transaction.
@@ -74,12 +97,12 @@ public final class TransactionSpecificationRequestControl
 
 
   // This is an ugly hack to prevent checkstyle from complaining about the
-  // import for the StartTransactionExtendedRequest class.  It is used
-  // by the @link element in the javadoc, but checkstyle apparently doesn't
-  // recognize that so we just need to use it in some way in this class to
-  // placate checkstyle.
+  // imports for classes only referenced in the javadoc.  Checkstyle apparently
+  // doesn't recognize that so we just need to use it in some way in this class
+  // to placate checkstyle.
   static
   {
+    final DraftBeheraLDAPPasswordPolicy10RequestControl pwPolicyControl = null;
     final StartTransactionExtendedRequest r = null;
   }
 

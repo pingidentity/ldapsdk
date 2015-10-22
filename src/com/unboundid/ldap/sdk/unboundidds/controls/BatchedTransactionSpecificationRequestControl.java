@@ -26,6 +26,13 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
+import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
+import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
+import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
+import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV1RequestControl;
+import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartBatchedTransactionExtendedRequest;
 import com.unboundid.util.NotMutable;
@@ -51,6 +58,28 @@ import static com.unboundid.util.Validator.*;
  * start batched transaction extended operation, which will obtain a transaction
  * ID, and the transaction may be committed or aborted using the end batched
  * transaction extended operation.
+ * <BR><BR>
+ * Note that directory servers may limit the set of controls that are available
+ * for use in requests that are part of a transaction.  RFC 5805 section 4
+ * indicates that the following controls may be used in conjunction with the
+ * transaction specification request control:  {@link AssertionRequestControl},
+ * {@link ManageDsaITRequestControl}, {@link PreReadRequestControl}, and
+ * {@link PostReadRequestControl}.  The
+ * {@link ProxiedAuthorizationV1RequestControl} and
+ * {@link ProxiedAuthorizationV2RequestControl} controls cannot be included in
+ * requests that are part of a transaction, but you can include them in the
+ * {@link StartBatchedTransactionExtendedRequest} to indicate that all
+ * operations within the transaction should be processed with the specified
+ * authorization identity.
+ * <BR><BR>
+ * The UnboundID Directory Server supports the following additional
+ * UnboundID-specific controls in conjunction with operations included in a
+ * transaction:  {@link AccountUsableRequestControl},
+ * {@link HardDeleteRequestControl}, {@link IntermediateClientRequestControl},
+ * {@link PasswordPolicyRequestControl},
+ * {@link ReplicationRepairRequestControl}, {@link SoftDeleteRequestControl},
+ * {@link SoftDeletedEntryAccessRequestControl},
+ * {@link SubtreeDeleteRequestControl}, and {@link UndeleteRequestControl}.
  * <BR><BR>
  * See the documentation for the {@link StartBatchedTransactionExtendedRequest}
  * class for an example of processing a batched transaction.
@@ -82,13 +111,19 @@ public final class BatchedTransactionSpecificationRequestControl
 
 
   // This is an ugly hack to prevent checkstyle from complaining about the
-  // import for the StartBatchedTransactionExtendedRequest class.  It is used
-  // by the @link element in the javadoc, but checkstyle apparently doesn't
-  // recognize that so we just need to use it in some way in this class to
-  // placate checkstyle.
+  // imports for classes only referenced in the javadoc.  Checkstyle apparently
+  // doesn't recognize that so we just need to use it in some way in this class
+  // to placate checkstyle.
   static
   {
-    final StartBatchedTransactionExtendedRequest r = null;
+    final AssertionRequestControl assertionControl = null;
+    final ManageDsaITRequestControl manageDsaITControl = null;
+    final PreReadRequestControl preReadControl = null;
+    final PostReadRequestControl postReadControl = null;
+    final ProxiedAuthorizationV1RequestControl proxiedAuthV1Control = null;
+    final ProxiedAuthorizationV2RequestControl proxiedAuthV2Control = null;
+    final SubtreeDeleteRequestControl subtreeDeleteControl = null;
+    final StartBatchedTransactionExtendedRequest startBatchedTxnRequest = null;
   }
 
 
