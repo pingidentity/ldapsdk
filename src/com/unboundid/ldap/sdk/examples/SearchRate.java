@@ -359,8 +359,9 @@ public final class SearchRate
   {
     String description = "The base DN to use for the searches.  It may be a " +
          "simple DN or a value pattern to specify a range of DNs (e.g., " +
-         "\"uid=user.[1-1000],ou=People,dc=example,dc=com\").  This must be " +
-         "provided.";
+         "\"uid=user.[1-1000],ou=People,dc=example,dc=com\").  See " +
+         ValuePattern.PUBLIC_JAVADOC_URL + " for complete details about the " +
+         "value pattern syntax.  This must be provided.";
     baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
     parser.addArgument(baseDN);
 
@@ -375,7 +376,9 @@ public final class SearchRate
 
     description = "The filter to use for the searches.  It may be a simple " +
                   "filter or a value pattern to specify a range of filters " +
-                  "(e.g., \"(uid=user.[1-1000])\").  This must be provided.";
+                  "(e.g., \"(uid=user.[1-1000])\").  See " +
+                  ValuePattern.PUBLIC_JAVADOC_URL + " for complete details " +
+                  "about the value pattern syntax.  This must be provided.";
     filter = new StringArgument('f', "filter", true, 1, "{filter}",
                                 description);
     parser.addArgument(filter);
@@ -480,7 +483,10 @@ public final class SearchRate
     description = "Indicates that the proxied authorization control (as " +
                   "defined in RFC 4370) should be used to request that " +
                   "operations be processed using an alternate authorization " +
-                  "identity.";
+                  "identity.  This may be a simple authorization ID or it " +
+                  "may be a value pattern to specify a range of " +
+                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
+                  " for complete details about the value pattern syntax.";
     proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
                                  description);
     parser.addArgument(proxyAs);

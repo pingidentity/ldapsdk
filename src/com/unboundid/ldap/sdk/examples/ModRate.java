@@ -340,8 +340,9 @@ public final class ModRate
   {
     String description = "The DN of the entry to modify.  It may be a simple " +
          "DN or a value pattern to specify a range of DN (e.g., " +
-         "\"uid=user.[1-1000],ou=People,dc=example,dc=com\").  This must be " +
-         "provided.";
+         "\"uid=user.[1-1000],ou=People,dc=example,dc=com\").  See " +
+         ValuePattern.PUBLIC_JAVADOC_URL + " for complete details about the " +
+         "value pattern syntax.  This must be provided.";
     entryDN = new StringArgument('b', "entryDN", true, 1, "{dn}", description);
     parser.addArgument(entryDN);
 
@@ -461,7 +462,10 @@ public final class ModRate
     description = "Indicates that the proxied authorization control (as " +
                   "defined in RFC 4370) should be used to request that " +
                   "operations be processed using an alternate authorization " +
-                  "identity.";
+                  "identity.  This may be a simple authorization ID or it " +
+                  "may be a value pattern to specify a range of " +
+                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
+                  " for complete details about the value pattern syntax.";
     proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
                                  description);
     parser.addArgument(proxyAs);

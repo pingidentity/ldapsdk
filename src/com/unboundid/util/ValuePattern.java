@@ -149,6 +149,16 @@ public final class ValuePattern
        implements Serializable
 {
   /**
+   * The URL to the publicly-accessible javadoc for this class, which provides
+   * a detailed overview of the supported value pattern syntax.
+   */
+  public static final String PUBLIC_JAVADOC_URL =
+       "https://docs.ldap.com/ldap-sdk/docs/javadoc/index.html?" +
+            "com/unboundid/util/ValuePattern.html";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 4502778464751705304L;
