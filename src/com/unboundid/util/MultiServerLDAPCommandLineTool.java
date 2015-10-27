@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 import com.unboundid.ldap.sdk.BindRequest;
@@ -144,9 +144,9 @@ public abstract class MultiServerLDAPCommandLineTool
   private final StringArgument[]  trustStorePassword;
 
   // Variables used when creating and authenticating connections.
-  private final BindRequest[] bindRequest;
-  private final ServerSet[]   serverSet;
-  private final SSLContext[]  startTLSContext;
+  private final BindRequest[]      bindRequest;
+  private final ServerSet[]        serverSet;
+  private final SSLSocketFactory[] startTLSSocketFactory;
 
   // The prompt trust manager that will be shared by all connections created for
   // which it is appropriate.  This will allow them to benefit from the common
@@ -249,9 +249,9 @@ public abstract class MultiServerLDAPCommandLineTool
     trustStorePath         = new StringArgument[numServers];
     trustStorePassword     = new StringArgument[numServers];
 
-    bindRequest     = new BindRequest[numServers];
-    serverSet       = new ServerSet[numServers];
-    startTLSContext = new SSLContext[numServers];
+    bindRequest           = new BindRequest[numServers];
+    serverSet             = new ServerSet[numServers];
+    startTLSSocketFactory = new SSLSocketFactory[numServers];
   }
 
 
@@ -556,8 +556,8 @@ public abstract class MultiServerLDAPCommandLineTool
       try
       {
         final ExtendedResult extendedResult =
-             connection.processExtendedOperation(
-                  new StartTLSExtendedRequest(startTLSContext[serverIndex]));
+             connection.processExtendedOperation(new StartTLSExtendedRequest(
+                  startTLSSocketFactory[serverIndex]));
         if (! extendedResult.getResultCode().equals(ResultCode.SUCCESS))
         {
           throw new LDAPException(extendedResult.getResultCode(),
@@ -615,8 +615,8 @@ public abstract class MultiServerLDAPCommandLineTool
     PostConnectProcessor postConnectProcessor = null;
     if (useStartTLS[serverIndex].isPresent())
     {
-      postConnectProcessor =
-           new StartTLSPostConnectProcessor(startTLSContext[serverIndex]);
+      postConnectProcessor = new StartTLSPostConnectProcessor(
+           startTLSSocketFactory[serverIndex]);
     }
 
     return new LDAPConnectionPool(serverSet[serverIndex],
@@ -662,13 +662,13 @@ public abstract class MultiServerLDAPCommandLineTool
     {
       try
       {
-        startTLSContext[serverIndex] = sslUtil.createSSLContext();
+        startTLSSocketFactory[serverIndex] = sslUtil.createSSLSocketFactory();
       }
       catch (Exception e)
       {
         Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_LDAP_TOOL_CANNOT_CREATE_SSL_CONTEXT.get(
+             ERR_LDAP_TOOL_CANNOT_CREATE_SSL_SOCKET_FACTORY.get(
                   StaticUtils.getExceptionMessage(e)), e);
       }
     }

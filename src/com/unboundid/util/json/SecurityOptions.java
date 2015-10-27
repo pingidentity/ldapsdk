@@ -551,8 +551,8 @@ final class SecurityOptions
 
         try
         {
-          postConnectProcessor =
-               new StartTLSPostConnectProcessor(sslUtil.createSSLContext());
+          postConnectProcessor = new StartTLSPostConnectProcessor(
+               sslUtil.createSSLSocketFactory());
         }
         catch (final Exception e)
         {

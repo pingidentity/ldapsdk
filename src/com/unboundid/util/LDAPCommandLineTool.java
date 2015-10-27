@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 import com.unboundid.ldap.sdk.BindRequest;
@@ -215,9 +215,9 @@ public abstract class LDAPCommandLineTool
   private StringArgument  trustStorePassword          = null;
 
   // Variables used when creating and authenticating connections.
-  private BindRequest bindRequest     = null;
-  private ServerSet   serverSet       = null;
-  private SSLContext  startTLSContext = null;
+  private BindRequest      bindRequest           = null;
+  private ServerSet        serverSet             = null;
+  private SSLSocketFactory startTLSSocketFactory = null;
 
   // The prompt trust manager that will be shared by all connections created
   // for which it is appropriate.  This will allow them to benefit from the
@@ -617,7 +617,7 @@ public abstract class LDAPCommandLineTool
       {
         final ExtendedResult extendedResult =
              connection.processExtendedOperation(
-                  new StartTLSExtendedRequest(startTLSContext));
+                  new StartTLSExtendedRequest(startTLSSocketFactory));
         if (! extendedResult.getResultCode().equals(ResultCode.SUCCESS))
         {
           throw new LDAPException(extendedResult.getResultCode(),
@@ -672,7 +672,8 @@ public abstract class LDAPCommandLineTool
     PostConnectProcessor postConnectProcessor = null;
     if (useStartTLS.isPresent())
     {
-      postConnectProcessor = new StartTLSPostConnectProcessor(startTLSContext);
+      postConnectProcessor =
+           new StartTLSPostConnectProcessor(startTLSSocketFactory);
     }
 
     return new LDAPConnectionPool(serverSet, bindRequest, initialConnections,
@@ -714,13 +715,13 @@ public abstract class LDAPCommandLineTool
     {
       try
       {
-        startTLSContext = sslUtil.createSSLContext();
+        startTLSSocketFactory = sslUtil.createSSLSocketFactory();
       }
       catch (Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
-             ERR_LDAP_TOOL_CANNOT_CREATE_SSL_CONTEXT.get(
+             ERR_LDAP_TOOL_CANNOT_CREATE_SSL_SOCKET_FACTORY.get(
                   getExceptionMessage(e)), e);
       }
     }

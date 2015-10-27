@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.NotMutable;
@@ -77,6 +78,9 @@ public final class StartTLSPostConnectProcessor
   // The SSL context to use to perform the negotiation.
   private final SSLContext sslContext;
 
+  // The SSL socket factory to create the secure connection.
+  private final SSLSocketFactory sslSocketFactory;
+
 
 
   /**
@@ -91,6 +95,24 @@ public final class StartTLSPostConnectProcessor
     ensureNotNull(sslContext);
 
     this.sslContext = sslContext;
+    sslSocketFactory = null;
+  }
+
+
+
+  /**
+   * Creates a new instance of this StartTLS post-connect processor that will
+   * use the provided SSL context.
+   *
+   * @param  sslSocketFactory  The SSL socket factory to use to create the
+   *                           TLS-secured socket.  It must not be {@code null}.
+   */
+  public StartTLSPostConnectProcessor(final SSLSocketFactory sslSocketFactory)
+  {
+    ensureNotNull(sslSocketFactory);
+
+    this.sslSocketFactory = sslSocketFactory;
+    sslContext = null;
   }
 
 
@@ -101,8 +123,15 @@ public final class StartTLSPostConnectProcessor
   public void processPreAuthenticatedConnection(final LDAPConnection connection)
          throws LDAPException
   {
-    final StartTLSExtendedRequest startTLSRequest =
-         new StartTLSExtendedRequest(sslContext);
+    final StartTLSExtendedRequest startTLSRequest;
+    if (sslContext == null)
+    {
+      startTLSRequest = new StartTLSExtendedRequest(sslSocketFactory);
+    }
+    else
+    {
+      startTLSRequest = new StartTLSExtendedRequest(sslContext);
+    }
 
     // Since the StartTLS processing will occur during the course of
     // establishing the connection for use in the pool, set the connect timeout
