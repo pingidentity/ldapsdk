@@ -244,6 +244,10 @@ public final class LDAPConnectionPool
   // The number of connections to be held in this pool.
   private final int numConnections;
 
+  // The minimum number of connections that the health check mechanism should
+  // try to keep available for immediate use.
+  private volatile int minConnectionGoal;
+
   // The health check implementation that should be used for this connection
   // pool.
   private LDAPConnectionPoolHealthCheck healthCheck;
@@ -625,13 +629,14 @@ public final class LDAPConnectionPool
     this.postConnectProcessor = postConnectProcessor;
 
     trySynchronousReadDuringHealthCheck = true;
-    healthCheckInterval = DEFAULT_HEALTH_CHECK_INTERVAL;
-    poolStatistics      = new LDAPConnectionPoolStatistics(this);
-    pooledSchema        = null;
-    connectionPoolName  = null;
-    retryOperationTypes = new AtomicReference<Set<OperationType>>(
+    healthCheckInterval       = DEFAULT_HEALTH_CHECK_INTERVAL;
+    poolStatistics            = new LDAPConnectionPoolStatistics(this);
+    pooledSchema              = null;
+    connectionPoolName        = null;
+    retryOperationTypes       = new AtomicReference<Set<OperationType>>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
     numConnections            = maxConnections;
+    minConnectionGoal         = 0;
     availableConnections      =
          new LinkedBlockingQueue<LDAPConnection>(numConnections);
 
@@ -1078,6 +1083,7 @@ public final class LDAPConnectionPool
     connectionPoolName  = null;
     retryOperationTypes = new AtomicReference<Set<OperationType>>(
          Collections.unmodifiableSet(EnumSet.noneOf(OperationType.class)));
+    minConnectionGoal   = 0;
 
     if (healthCheck == null)
     {
@@ -1167,6 +1173,30 @@ public final class LDAPConnectionPool
   @SuppressWarnings("deprecation")
   LDAPConnection createConnection()
                  throws LDAPException
+  {
+    return createConnection(healthCheck);
+  }
+
+
+
+  /**
+   * Creates a new LDAP connection for use in this pool.
+   *
+   * @param  healthCheck  The health check to use to determine whether the
+   *                      newly-created connection is valid.  It may be
+   *                      {@code null} if no additional health checking should
+   *                      be performed for the newly-created connection.
+   *
+   * @return  A new connection created for use in this pool.
+   *
+   * @throws  LDAPException  If a problem occurs while attempting to establish
+   *                         the connection.  If a connection had been created,
+   *                         it will be closed.
+   */
+  @SuppressWarnings("deprecation")
+  private LDAPConnection createConnection(
+                              final LDAPConnectionPoolHealthCheck healthCheck)
+          throws LDAPException
   {
     final LDAPConnection c = serverSet.getConnection(healthCheck);
     c.setConnectionPool(this);
@@ -2561,6 +2591,48 @@ public final class LDAPConnectionPool
               final LDAPConnectionPoolHealthCheck healthCheck,
               final boolean checkForExpiration)
   {
+    return invokeHealthCheck(healthCheck, checkForExpiration,
+         checkForExpiration);
+  }
+
+
+
+  /**
+   * Invokes a synchronous one-time health-check against the connections in this
+   * pool that are not currently in use.  This will be independent of any
+   * background health checking that may be automatically performed by the pool.
+   *
+   * @param  healthCheck             The health check to use.  If this is
+   *                                 {@code null}, then the pool's
+   *                                 currently-configured health check (if any)
+   *                                 will be used.  If this is {@code null} and
+   *                                 there is no health check configured for the
+   *                                 pool, then only a basic set of checks.
+   * @param  checkForExpiration      Indicates whether to check to see if any
+   *                                 connections have been established for
+   *                                 longer than the maximum connection age.  If
+   *                                 this is {@code true} then any expired
+   *                                 connections will be closed and replaced
+   *                                 with newly-established connections.
+   * @param  checkMinConnectionGoal  Indicates whether to check to see if the
+   *                                 currently-available number of connections
+   *                                 is less than the minimum available
+   *                                 connection goal.  If this is {@code true}
+   *                                 the minimum available connection goal is
+   *                                 greater than zero, and the number of
+   *                                 currently-available connections is less
+   *                                 than the goal, then this method will
+   *                                 attempt to create enough new connections to
+   *                                 reach the goal.
+   *
+   * @return  An object with information about the result of the health check
+   *          processing.
+   */
+  public LDAPConnectionPoolHealthCheckResult invokeHealthCheck(
+              final LDAPConnectionPoolHealthCheck healthCheck,
+              final boolean checkForExpiration,
+              final boolean checkMinConnectionGoal)
+  {
     // Determine which health check to use.
     final LDAPConnectionPoolHealthCheck hc;
     if (healthCheck == null)
@@ -2799,6 +2871,31 @@ public final class LDAPConnectionPool
       }
     }
 
+    if (checkMinConnectionGoal)
+    {
+      try
+      {
+        final int neededConnections =
+             minConnectionGoal - availableConnections.size();
+        for (int i=0; i < neededConnections; i++)
+        {
+          final LDAPConnection conn = createConnection(hc);
+          if (! availableConnections.offer(conn))
+          {
+            conn.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_UNNEEDED,
+                                   null, null);
+            poolStatistics.incrementNumConnectionsClosedUnneeded();
+            conn.terminate(null);
+            break;
+          }
+        }
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+      }
+    }
+
     return new LDAPConnectionPoolHealthCheckResult(numExamined, numExpired,
          numDefunct);
   }
@@ -2823,6 +2920,52 @@ public final class LDAPConnectionPool
   public int getMaximumAvailableConnections()
   {
     return numConnections;
+  }
+
+
+
+  /**
+   * Retrieves the goal for the minimum number of available connections that the
+   * pool should try to maintain for immediate use.  If this goal is greater
+   * than zero, then the health checking process will attempt to create enough
+   * new connections to achieve this goal.
+   *
+   * @return  The goal for the minimum number of available connections that the
+   *          pool should try to maintain for immediate use, or zero if it will
+   *          not try to maintain a minimum number of available connections.
+   */
+  public int getMinimumAvailableConnectionGoal()
+  {
+    return minConnectionGoal;
+  }
+
+
+
+  /**
+   * Specifies the goal for the minimum number of available connections that the
+   * pool should try to maintain for immediate use.  If this goal is greater
+   * than zero, then the health checking process will attempt to create enough
+   * new connections to achieve this goal.
+   *
+   * @param  goal  The goal for the minimum number of available connections that
+   *               the pool should try to maintain for immediate use.  A value
+   *               less than or equal to zero indicates that the pool should not
+   *               try to maintain a minimum number of available connections.
+   */
+  public void setMinimumAvailableConnectionGoal(final int goal)
+  {
+    if (goal > numConnections)
+    {
+      minConnectionGoal = numConnections;
+    }
+    else if (goal > 0)
+    {
+      minConnectionGoal = goal;
+    }
+    else
+    {
+      minConnectionGoal = 0;
+    }
   }
 
 
