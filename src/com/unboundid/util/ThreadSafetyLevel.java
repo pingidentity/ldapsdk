@@ -27,7 +27,6 @@ package com.unboundid.util;
  * indicate whether the associated code is safe to be accessed concurrently
  * by multiple threads.
  */
-@ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum ThreadSafetyLevel
 {
   /**
