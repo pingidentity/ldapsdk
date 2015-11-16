@@ -279,4 +279,78 @@ public class BindResult
   {
     return serverSASLCredentials;
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("BindResult(resultCode=");
+    buffer.append(getResultCode());
+
+    final int messageID = getMessageID();
+    if (messageID >= 0)
+    {
+      buffer.append(", messageID=");
+      buffer.append(messageID);
+    }
+
+    final String diagnosticMessage = getDiagnosticMessage();
+    if (diagnosticMessage != null)
+    {
+      buffer.append(", diagnosticMessage='");
+      buffer.append(diagnosticMessage);
+      buffer.append('\'');
+    }
+
+    final String matchedDN = getMatchedDN();
+    if (matchedDN != null)
+    {
+      buffer.append(", matchedDN='");
+      buffer.append(matchedDN);
+      buffer.append('\'');
+    }
+
+    final String[] referralURLs = getReferralURLs();
+    if (referralURLs.length > 0)
+    {
+      buffer.append(", referralURLs={");
+      for (int i=0; i < referralURLs.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append('\'');
+        buffer.append(referralURLs[i]);
+        buffer.append('\'');
+      }
+      buffer.append('}');
+    }
+
+    buffer.append(", hasServerSASLCredentials=");
+    buffer.append(serverSASLCredentials != null);
+
+    final Control[] responseControls = getResponseControls();
+    if (responseControls.length > 0)
+    {
+      buffer.append(", responseControls={");
+      for (int i=0; i < responseControls.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append(responseControls[i]);
+      }
+      buffer.append('}');
+    }
+
+    buffer.append(')');
+  }
 }

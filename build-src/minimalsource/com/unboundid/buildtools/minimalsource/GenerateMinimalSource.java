@@ -146,6 +146,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.IntermediateResponse",
     "com.unboundid.ldap.sdk.IntermediateResponseListener",
     "com.unboundid.ldap.sdk.InternalSDKHelper",
+    "com.unboundid.ldap.sdk.LDAPBindException",
     "com.unboundid.ldap.sdk.LDAPConnection",
     "com.unboundid.ldap.sdk.LDAPConnectionInternals",
     "com.unboundid.ldap.sdk.LDAPConnectionOptions",

@@ -1,9 +1,9 @@
 /*
- * Copyright 2012-2015 UnboundID Corp.
+ * Copyright 2015 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2012-2015 UnboundID Corp.
+ * Copyright (C) 2015 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.util.NotExtensible;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -31,22 +32,26 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 /**
  * This class defines an exception that can be thrown if the server sends a bind
- * response with a result code of {@link ResultCode#SASL_BIND_IN_PROGRESS},
- * which indicates that SASL bind processing has not yet completed.  This is not
- * an error, but neither does it indicate that bind processing has completed.
- * This exception provides access to the bind result and the server SASL
- * credentials that it may optionally contain so that this information may be
- * used to continue bind processing.
+ * response with a result code other than {@link ResultCode#SUCCESS}, which
+ * indicates that the bind operation did not complete successfully.  This may be
+ * used to obtain access to any server SASL credentials contained in the
+ * non-successful bind result.
  */
+@NotExtensible()
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
-public final class SASLBindInProgressException
-       extends LDAPBindException
+public class LDAPBindException
+       extends LDAPException
 {
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -2483660992461709721L;
+  private static final long serialVersionUID = 6545956074186731236L;
+
+
+
+  // The bind result for this exception.
+  private final BindResult bindResult;
 
 
 
@@ -56,30 +61,36 @@ public final class SASLBindInProgressException
    *
    * @param  bindResult  The bind result to use to create this exception.
    */
-  SASLBindInProgressException(final BindResult bindResult)
+  LDAPBindException(final BindResult bindResult)
   {
     super(bindResult);
+
+    this.bindResult = bindResult;
   }
 
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves the bind result that was returned by the server.
+   *
+   * @return  The bind result that was returned by the server.
    */
-  @Override()
   public BindResult getBindResult()
   {
-    return super.getBindResult();
+    return bindResult;
   }
 
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves the server SASL credentials included in the bind result, if any.
+   *
+   * @return  The server SASL credentials included in the bind result, or
+   *          {@code null} if the bind result did not include any server SASL
+   *          credentials.
    */
-  @Override()
   public ASN1OctetString getServerSASLCredentials()
   {
-    return super.getServerSASLCredentials();
+    return bindResult.getServerSASLCredentials();
   }
 }

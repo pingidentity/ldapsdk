@@ -49,7 +49,7 @@ import static com.unboundid.util.StaticUtils.*;
  * information about the Simple Authentication and Security Layer.
  */
 @Extensible()
-@ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
+@ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)
 public abstract class SASLBindRequest
        extends BindRequest
        implements ResponseAcceptor

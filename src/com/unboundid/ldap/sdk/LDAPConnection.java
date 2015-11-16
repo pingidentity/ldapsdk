@@ -2176,7 +2176,7 @@ public final class LDAPConnection
     }
     else
     {
-      throw new LDAPException(bindResult);
+      throw new LDAPBindException(bindResult);
     }
   }
 
