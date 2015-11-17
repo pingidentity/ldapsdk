@@ -1757,7 +1757,8 @@ public final class LDIFReader
    * Decodes the provided set of LDIF lines as an entry.  The provided set of
    * lines must contain exactly one entry.  Long lines may be wrapped as per the
    * LDIF specification, and it is acceptable to have one or more blank lines
-   * following the entry.
+   * following the entry. A default trailing space behavior of
+   * {@link TrailingSpaceBehavior#REJECT} will be used.
    *
    * @param  ldifLines  The set of lines that comprise the LDIF representation
    *                    of the entry.  It must not be {@code null} or empty.
@@ -1783,7 +1784,8 @@ public final class LDIFReader
    * Decodes the provided set of LDIF lines as an entry.  The provided set of
    * lines must contain exactly one entry.  Long lines may be wrapped as per the
    * LDIF specification, and it is acceptable to have one or more blank lines
-   * following the entry.
+   * following the entry. A default trailing space behavior of
+   * {@link TrailingSpaceBehavior#REJECT} will be used.
    *
    * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
    *                                attribute values encountered while parsing.
@@ -1803,11 +1805,46 @@ public final class LDIFReader
                                   final String... ldifLines)
          throws LDIFException
   {
+    return decodeEntry(ignoreDuplicateValues, TrailingSpaceBehavior.REJECT,
+         schema, ldifLines);
+  }
+
+
+
+  /**
+   * Decodes the provided set of LDIF lines as an entry.  The provided set of
+   * lines must contain exactly one entry.  Long lines may be wrapped as per the
+   * LDIF specification, and it is acceptable to have one or more blank lines
+   * following the entry.
+   *
+   * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
+   *                                attribute values encountered while parsing.
+   * @param  trailingSpaceBehavior  The behavior that should be exhibited when
+   *                                encountering attribute values which are not
+   *                                base64-encoded but contain trailing spaces.
+   *                                It must not be {@code null}.
+   * @param  schema                 The schema to use when parsing the record,
+   *                                if applicable.
+   * @param  ldifLines              The set of lines that comprise the LDIF
+   *                                representation of the entry.  It must not be
+   *                                {@code null} or empty.
+   *
+   * @return  The entry read from LDIF.
+   *
+   * @throws  LDIFException  If the provided LDIF data cannot be decoded as an
+   *                         entry.
+   */
+  public static Entry decodeEntry(
+         final boolean ignoreDuplicateValues,
+         final TrailingSpaceBehavior trailingSpaceBehavior,
+         final Schema schema,
+         final String... ldifLines) throws LDIFException
+  {
     final Entry e = decodeEntry(prepareRecord(
               (ignoreDuplicateValues
                    ? DuplicateValueBehavior.STRIP
                    : DuplicateValueBehavior.REJECT),
-              TrailingSpaceBehavior.REJECT, schema, ldifLines),
+         trailingSpaceBehavior, schema, ldifLines),
          DEFAULT_RELATIVE_BASE_PATH);
     debugLDIFRead(e);
     return e;
@@ -1908,12 +1945,57 @@ public final class LDIFReader
                                       final String... ldifLines)
          throws LDIFException
   {
+    return decodeChangeRecord(ignoreDuplicateValues,
+         TrailingSpaceBehavior.REJECT, schema, defaultAdd, ldifLines);
+  }
+
+
+
+  /**
+   * Decodes the provided set of LDIF lines as an LDIF change record.  The
+   * provided set of lines must contain exactly one change record.  Long lines
+   * may be wrapped as per the LDIF specification, and it is acceptable to have
+   * one or more blank lines following the entry.
+   *
+   * @param  ignoreDuplicateValues  Indicates whether to ignore duplicate
+   *                                attribute values encountered while parsing.
+   * @param  trailingSpaceBehavior  The behavior that should be exhibited when
+   *                                encountering attribute values which are not
+   *                                base64-encoded but contain trailing spaces.
+   *                                It must not be {@code null}.
+   * @param  schema                 The schema to use when processing the change
+   *                                record, or {@code null} if no schema should
+   *                                be used and all values should be treated as
+   *                                case-insensitive strings.
+   * @param  defaultAdd             Indicates whether an LDIF record not
+   *                                containing a changetype should be retrieved
+   *                                as an add change record.  If this is
+   *                                {@code false} and the record read does not
+   *                                include a changetype, then an
+   *                                {@link LDIFException} will be thrown.
+   * @param  ldifLines              The set of lines that comprise the LDIF
+   *                                representation of the change record.  It
+   *                                must not be {@code null} or empty.
+   *
+   * @return  The change record read from LDIF.
+   *
+   * @throws  LDIFException  If the provided LDIF data cannot be decoded as a
+   *                         change record.
+   */
+  public static LDIFChangeRecord decodeChangeRecord(
+                     final boolean ignoreDuplicateValues,
+                     final TrailingSpaceBehavior trailingSpaceBehavior,
+                     final Schema schema,
+                     final boolean defaultAdd,
+                     final String... ldifLines)
+         throws LDIFException
+  {
     final LDIFChangeRecord r = decodeChangeRecord(
          prepareRecord(
               (ignoreDuplicateValues
                    ? DuplicateValueBehavior.STRIP
                    : DuplicateValueBehavior.REJECT),
-              TrailingSpaceBehavior.REJECT, schema, ldifLines),
+              trailingSpaceBehavior, schema, ldifLines),
          DEFAULT_RELATIVE_BASE_PATH, defaultAdd, null);
     debugLDIFRead(r);
     return r;

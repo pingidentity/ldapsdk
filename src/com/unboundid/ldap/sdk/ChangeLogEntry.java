@@ -35,6 +35,7 @@ import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFModifyChangeRecord;
 import com.unboundid.ldif.LDIFModifyDNChangeRecord;
 import com.unboundid.ldif.LDIFReader;
+import com.unboundid.ldif.TrailingSpaceBehavior;
 import com.unboundid.ldap.matchingrules.BooleanMatchingRule;
 import com.unboundid.ldap.matchingrules.DistinguishedNameMatchingRule;
 import com.unboundid.ldap.matchingrules.IntegerMatchingRule;
@@ -424,7 +425,8 @@ public class ChangeLogEntry
 
     try
     {
-      final Entry e = LDIFReader.decodeEntry(lineArray);
+      final Entry e = LDIFReader.decodeEntry(true, TrailingSpaceBehavior.RETAIN,
+           null, lineArray);
       return Collections.unmodifiableList(
                   new ArrayList<Attribute>(e.getAttributes()));
     }
@@ -533,7 +535,8 @@ public class ChangeLogEntry
 
       try
       {
-        final Entry e = LDIFReader.decodeEntry(lineArray);
+        final Entry e = LDIFReader.decodeEntry(true,
+             TrailingSpaceBehavior.RETAIN, null, lineArray);
         return Collections.unmodifiableList(
                     new ArrayList<Attribute>(e.getAttributes()));
       }
