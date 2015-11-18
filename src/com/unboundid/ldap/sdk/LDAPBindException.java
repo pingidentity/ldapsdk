@@ -61,7 +61,7 @@ public class LDAPBindException
    *
    * @param  bindResult  The bind result to use to create this exception.
    */
-  LDAPBindException(final BindResult bindResult)
+  public LDAPBindException(final BindResult bindResult)
   {
     super(bindResult);
 
