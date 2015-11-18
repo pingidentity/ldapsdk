@@ -4,13 +4,13 @@
 
 Internet Engineering Task Force                                P. Spacek
 Internet-Draft                                             Red Hat, Inc.
-Intended status: Standards Track                           June 29, 2015
-Expires: December 31, 2015
+Intended status: Standards Track                       November 18, 2015
+Expires: May 21, 2016
 
 
 The Lightweight Directory Access Protocol (LDAP) Content Synchronization
                       Operation with Transactions
-              draft-spacek-ldapext-syncrepl-transaction-00
+              draft-spacek-ldapext-syncrepl-transaction-01
 
 Abstract
 
@@ -35,7 +35,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 31, 2015.
+   This Internet-Draft will expire on May 21, 2016.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Spacek                  Expires December 31, 2015               [Page 1]
+Spacek                    Expires May 21, 2016                  [Page 1]
 
-Internet-Draft LDAP Content Synchronization & Transactions     June 2015
+Internet-Draft LDAP Content Synchronization & Transactions November 2015
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -80,8 +80,8 @@ Table of Contents
    4.  Interaction with the Content Synchronization Operation  . . .   3
      4.1.  Refresh stage . . . . . . . . . . . . . . . . . . . . . .   4
      4.2.  Persist stage . . . . . . . . . . . . . . . . . . . . . .   4
-   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   5
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   5
+   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
    7.  Normative References  . . . . . . . . . . . . . . . . . . . .   5
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   5
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Spacek                  Expires December 31, 2015               [Page 2]
+Spacek                    Expires May 21, 2016                  [Page 2]
 
-Internet-Draft LDAP Content Synchronization & Transactions     June 2015
+Internet-Draft LDAP Content Synchronization & Transactions November 2015
 
 
 2.  Document Conventions
@@ -139,8 +139,8 @@ Internet-Draft LDAP Content Synchronization & Transactions     June 2015
 3.2.  Start Transaction Notification Message
 
    The Start Transaction Notification message is an IntermediateResponse
-   [RFC4511] where the responseName is "TBD2" and the responseValue is a
-   transaction identifier as defined in [RFC5805].
+   [RFC4511] where the responseName is "TBD2" and the responseValue is
+   absent.
 
 3.3.  End Transaction Notification Message
 
@@ -157,22 +157,19 @@ Internet-Draft LDAP Content Synchronization & Transactions     June 2015
    Notification Control without Sync Request Control MUST be denied with
    the unwillingToPerform [RFC4511] result code.
 
-
-
-
-
-
-
-
-
-Spacek                  Expires December 31, 2015               [Page 3]
-
-Internet-Draft LDAP Content Synchronization & Transactions     June 2015
-
+   TODO: THIS SHOULD BE CLARIFIED BY FURTHER UPDATES TO TRANSACTION RFCs
 
    Please note that [RFC5805] defined that LDAP Transactions have
    atomic, consistency, isolation, durability (ACID) properties without
    further specification of the "isolation" level.  This extension
+
+
+
+Spacek                    Expires May 21, 2016                  [Page 3]
+
+Internet-Draft LDAP Content Synchronization & Transactions November 2015
+
+
    assumes that an isolation property guarantees that uncommited changes
    are generaly not visible to LDAP clients and thus not returned in the
    Content Synchronization Operation results.
@@ -196,21 +193,7 @@ Internet-Draft LDAP Content Synchronization & Transactions     June 2015
 
    A Start Transaction Notification Message MUST be sent to a client
    when a transaction is successfully commited but before any of the
-   changes contained in the transaction are sent to the client.  The
-   message MUST contain transaction identifier which was used to
-   identify the transaction in the protocol exchange with the client
-   that did modifications to the data as defined in [RFC5805].
-
-   TODO: Is it a good idea?  Should we rather define an Ignore-own-
-   writes control?
-
-   The transaction identifier allows the client to distinguish its own
-   transactions from other's transactions done on the same server and to
-   optimize the client's behavior.  [RFC5805] section 5 defines
-   transaction identifiers as specific to a particular LDAP association,
-   so clients have to take into account that a transaction identifier
-   will not match if changes are done on a different server than the
-   Content Synchronization Operation.
+   changes contained in the transaction are sent to the client.
 
    The Start Transaction Notification Message MUST be followed by all
    Change notification messages as defined in the persist stage of
@@ -218,19 +201,11 @@ Internet-Draft LDAP Content Synchronization & Transactions     June 2015
    transactions to ensure that Start and End messages unambiguously
    identify one transaction.
 
-
-
-
-Spacek                  Expires December 31, 2015               [Page 4]
-
-Internet-Draft LDAP Content Synchronization & Transactions     June 2015
-
-
-   An End Transaction Notification Message MUST be sent right after all
-   Change notifications for given transaction were sent to the client.
-   This message signalizes to the client that the transaction marked by
-   the Start Transaction Notification Message is complete and all
-   changes can be commited.
+   An End Transaction Notification Message MUST be sent immediatelly
+   after all Change notifications for given transaction were sent to the
+   client.  This message signalizes to the client that the transaction
+   marked by the Start Transaction Notification Message is complete and
+   all changes can be commited.
 
 5.  IANA Considerations
 
@@ -239,10 +214,17 @@ Internet-Draft LDAP Content Synchronization & Transactions     June 2015
 6.  Security Considerations
 
    This document merely adds information about transaction boundaries to
-   the existing Content Synchronization Operation.  The only potential
-   information leak is a transaction identifier returned in a Start
-   Transaction Notification Message.  This is believed not to add any
-   security risk.
+   the existing Content Synchronization Operation.  This is believed not
+   to add any security risk.
+
+
+
+
+
+Spacek                    Expires May 21, 2016                  [Page 4]
+
+Internet-Draft LDAP Content Synchronization & Transactions November 2015
+
 
 7.  Normative References
 
@@ -277,4 +259,22 @@ Author's Address
 
 
 
-Spacek                  Expires December 31, 2015               [Page 5]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Spacek                    Expires May 21, 2016                  [Page 5]
