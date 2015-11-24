@@ -131,13 +131,28 @@ public class SVNVersion
     catch (SVNException svne)
     {
       // This could happen if the Subversion repository version is incompatible
-      // with the subversion client library.  We don't want to make the build
-      // fail in this case, but we will want to print an error message.
+      // with the subversion client library, or if we have a workspace that
+      // isn't a Subversion checkout.  We don't want to make the build fail in
+      // this case, but we will want to print an error message.
       getProject().setProperty(revisionPropertyName, "-1");
-      getProject().setProperty(pathPropertyName, baseDir.getAbsolutePath());
+
+      String projectBasePath;
+      try
+      {
+        projectBasePath = baseDir.getCanonicalPath();
+      }
+      catch (final Exception e)
+      {
+        projectBasePath = baseDir.getAbsolutePath();
+      }
+
+      getProject().setProperty(pathPropertyName,
+           projectBasePath.replace("\\", "\\\\"));
+
       System.err.println("ERROR:  Unable to determine the subversion " +
-                         "revision number and/or path:  " +
-                         String.valueOf(svne));
+           "revision number and/or path:  " + String.valueOf(svne) +
+           ".  Using a default revision number of -1 and a path that is the " +
+           "workspace base path of " + projectBasePath);
     }
     catch (Exception e)
     {
