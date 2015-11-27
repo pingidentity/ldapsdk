@@ -1477,17 +1477,7 @@ public final class LDAPConnection
   @ThreadSafety(level=ThreadSafetyLevel.METHOD_NOT_THREADSAFE)
   public void close()
   {
-    closeRequested = true;
-    setDisconnectInfo(DisconnectType.UNBIND, null, null);
-
-    if (connectionPool == null)
-    {
-      terminate(null);
-    }
-    else
-    {
-      connectionPool.releaseDefunctConnection(this);
-    }
+    close(NO_CONTROLS);
   }
 
 

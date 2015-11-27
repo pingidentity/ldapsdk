@@ -362,9 +362,10 @@ public final class DIGESTMD5BindRequestProperties
 
 
   /**
-   * Retrieves a string representation of the GSSAPI bind request properties.
+   * Retrieves a string representation of the DIGEST-MD5 bind request
+   * properties.
    *
-   * @return  A string representation of the GSSAPI bind request properties.
+   * @return  A string representation of the DIGEST-MD5 bind request properties.
    */
   @Override()
   public String toString()
@@ -377,8 +378,8 @@ public final class DIGESTMD5BindRequestProperties
 
 
   /**
-   * Appends a string representation of the GSSAPI bind request properties to
-   * the provided buffer.
+   * Appends a string representation of the DIGEST-MD5 bind request properties
+   * to the provided buffer.
    *
    * @param  buffer  The buffer to which the information should be appended.
    */

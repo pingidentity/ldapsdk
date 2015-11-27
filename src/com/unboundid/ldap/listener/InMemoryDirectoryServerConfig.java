@@ -84,6 +84,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       changelog.</LI>
  *   <LI>Access Log Handler:  The server will not perform any access
  *       logging.</LI>
+ *   <LI>Code Log Handler:  The server will not perform any code logging.</LI>
  *   <LI>LDAP Debug Log Handler:  The server will not perform any LDAP debug
  *       logging.</LI>
  *   <LI>Listener Exception Handler:  The server will not use a listener
@@ -107,6 +108,10 @@ public class InMemoryDirectoryServerConfig
 
   // Indicates whether to automatically generate operational attributes.
   private boolean generateOperationalAttributes;
+
+  // Indicates whether the code log should include sample code for processing
+  // the requests.
+  private boolean includeRequestProcessingInCodeLog;
 
   // The base DNs to use for the LDAP listener.
   private DN[] baseDNs;
@@ -167,6 +172,10 @@ public class InMemoryDirectoryServerConfig
 
   // The set of attributes for which referential integrity should be maintained.
   private final Set<String> referentialIntegrityAttributes;
+
+  // The path to a file that should be written with code that may be used to
+  // issue the requests received by the server.
+  private String codeLogPath;
 
   // The vendor name to report in the server root DSE.
   private String vendorName;
@@ -235,6 +244,8 @@ public class InMemoryDirectoryServerConfig
     referentialIntegrityAttributes       = new HashSet<String>(0);
     vendorName                           = "UnboundID Corp.";
     vendorVersion                        = Version.FULL_VERSION_STRING;
+    codeLogPath                          = null;
+    includeRequestProcessingInCodeLog    = false;
 
     operationInterceptors = new ArrayList<InMemoryOperationInterceptor>(5);
 
@@ -303,6 +314,8 @@ public class InMemoryDirectoryServerConfig
     schema                             = cfg.schema;
     vendorName                         = cfg.vendorName;
     vendorVersion                      = cfg.vendorVersion;
+    codeLogPath                        = cfg.codeLogPath;
+    includeRequestProcessingInCodeLog  = cfg.includeRequestProcessingInCodeLog;
   }
 
 
@@ -835,6 +848,60 @@ public class InMemoryDirectoryServerConfig
   public void setLDAPDebugLogHandler(final Handler ldapDebugLogHandler)
   {
     this.ldapDebugLogHandler = ldapDebugLogHandler;
+  }
+
+
+
+  /**
+   * Retrieves the path to a file to be written with generated code that may
+   * be used to construct the requests processed by the server.
+   *
+   * @return  The path to a file to be written with generated code that may be
+   *          used to construct the requests processed by the server, or
+   *          {@code null} if no code log should be written.
+   */
+  public String getCodeLogPath()
+  {
+    return codeLogPath;
+  }
+
+
+
+  /**
+   * Indicates whether the code log should include sample code for processing
+   * the generated requests.  This will only be used if {@link #getCodeLogPath}
+   * returns a non-{@code null} value.
+   *
+   * @return  {@code false} if the code log should only include code that
+   *          corresponds to requests received from clients, or {@code true} if
+   *          the code log should also include sample code for processing the
+   *          generated requests and interpreting the results.
+   */
+  public boolean includeRequestProcessingInCodeLog()
+  {
+    return includeRequestProcessingInCodeLog;
+  }
+
+
+
+  /**
+   * Specifies information about code logging that should be performed by the
+   * server, if any.
+   *
+   * @param  codeLogPath        The path to the file to which a code log should
+   *                            be written.  It may be {@code null} if no code
+   *                            log should be written.
+   * @param  includeProcessing  Indicates whether to include sample code that
+   *                            demonstrates how to process the requests and
+   *                            interpret the results.  This will only be
+   *                            used if the {@code codeLogPath} argument is
+   *                            non-{@code null}.
+   */
+  public void setCodeLogDetails(final String codeLogPath,
+                                final boolean includeProcessing)
+  {
+    this.codeLogPath = codeLogPath;
+    includeRequestProcessingInCodeLog = includeProcessing;
   }
 
 
@@ -1475,6 +1542,14 @@ public class InMemoryDirectoryServerConfig
       buffer.append(", ldapDebugLogHandlerClass='");
       buffer.append(ldapDebugLogHandler.getClass().getName());
       buffer.append('\'');
+    }
+
+    if (codeLogPath != null)
+    {
+      buffer.append(", codeLogPath='");
+      buffer.append(codeLogPath);
+      buffer.append("', includeRequestProcessingInCodeLog=");
+      buffer.append(includeRequestProcessingInCodeLog);
     }
 
     if (exceptionHandler != null)

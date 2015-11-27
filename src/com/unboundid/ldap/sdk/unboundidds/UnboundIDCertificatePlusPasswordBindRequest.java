@@ -22,6 +22,9 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.Control;
@@ -29,6 +32,8 @@ import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SASLBindRequest;
+import com.unboundid.ldap.sdk.ToCodeArgHelper;
+import com.unboundid.ldap.sdk.ToCodeHelper;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
@@ -250,5 +255,66 @@ public final class UnboundIDCertificatePlusPasswordBindRequest
     }
 
     buffer.append(')');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs =
+         new ArrayList<ToCodeArgHelper>(2);
+    constructorArgs.add(ToCodeArgHelper.createString("---redacted-password---",
+         "Bind Password"));
+
+    final Control[] controls = getControls();
+    if (controls.length > 0)
+    {
+      constructorArgs.add(ToCodeArgHelper.createControlArray(controls,
+           "Bind Controls"));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces,
+         "UnboundIDCertificatePlusPasswordBindRequest", requestID + "Request",
+         "new UnboundIDCertificatePlusPasswordBindRequest", constructorArgs);
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  BindResult " + requestID +
+           "Result = connection.bind(" + requestID + "Request);");
+      lineList.add(indent + "  // The bind was processed successfully.");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The bind failed.  Maybe the following will " +
+           "help explain why.");
+      lineList.add(indent + "  // Note that the connection is now likely in " +
+           "an unauthenticated state.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add(indent + '}');
+    }
   }
 }

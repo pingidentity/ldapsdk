@@ -228,6 +228,9 @@ public final class InMemoryDirectoryServerTool
   // information should be written about operations processed by the server.
   private FileArgument accessLogFileArgument;
 
+  // The argument used to specify the code log file to use, if any.
+  private FileArgument codeLogFile;
+
   // The argument used to specify the path to the SSL key store file.
   private FileArgument keyStorePathArgument;
 
@@ -473,6 +476,11 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_FILE.get(), false, true, true,
          false);
     parser.addArgument(ldapDebugLogFileArgument);
+
+    codeLogFile = new FileArgument('C', "codeLogFile", false, 1, "{path}",
+         INFO_MEM_DS_TOOL_ARG_DESC_CODE_LOG_FILE.get(), false, true, true,
+         false);
+    parser.addArgument(codeLogFile);
 
     useDefaultSchemaArgument = new BooleanArgument('s', "useDefaultSchema",
          INFO_MEM_DS_TOOL_ARG_DESC_USE_DEFAULT_SCHEMA.get());
@@ -825,6 +833,15 @@ public final class InMemoryDirectoryServerTool
                   StaticUtils.getExceptionMessage(e)),
              e);
       }
+    }
+
+
+    // If a code log file was specified, then update the configuration
+    // accordingly.
+    if (codeLogFile.isPresent())
+    {
+      serverConfig.setCodeLogDetails(codeLogFile.getValue().getAbsolutePath(),
+           true);
     }
 
 

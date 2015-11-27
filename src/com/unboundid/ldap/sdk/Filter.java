@@ -2154,7 +2154,7 @@ attrNameLoop:
         }
 
         emElementList.add(new ASN1OctetString(EXTENSIBLE_TYPE_MATCH_VALUE,
-                                              assertionValue.getValue()));
+             assertionValue.getValue()));
 
         if (dnAttributes)
         {
@@ -4289,6 +4289,429 @@ attrNameLoop:
           }
           break;
       }
+    }
+  }
+
+
+
+  /**
+   * Appends a number of lines comprising the Java source code that can be used
+   * to recreate this filter to the given list.  Note that unless a first line
+   * prefix and/or last line suffix are provided, this will just include the
+   * code for the static method used to create the filter, starting with
+   * "Filter.createXFilter(" and ending with the closing parenthesis for that
+   * method call.
+   *
+   * @param  lineList         The list to which the source code lines should be
+   *                          added.
+   * @param  indentSpaces     The number of spaces that should be used to indent
+   *                          the generated code.  It must not be negative.
+   * @param  firstLinePrefix  An optional string that should precede the static
+   *                          method call (e.g., it could be used for an
+   *                          attribute assignment, like "Filter f = ").  It may
+   *                          be {@code null} or empty if there should be no
+   *                          first line prefix.
+   * @param  lastLineSuffix   An optional suffix that should follow the closing
+   *                          parenthesis of the static method call (e.g., it
+   *                          could be a semicolon to represent the end of a
+   *                          Java statement).  It may be {@code null} or empty
+   *                          if there should be no last line suffix.
+   */
+  public void toCode(final List<String> lineList, final int indentSpaces,
+                     final String firstLinePrefix, final String lastLineSuffix)
+  {
+    // Generate a string with the appropriate indent.
+    final StringBuilder buffer = new StringBuilder();
+    for (int i = 0; i < indentSpaces; i++)
+    {
+      buffer.append(' ');
+    }
+    final String indent = buffer.toString();
+
+
+    // Start the first line, including any appropriate prefix.
+    buffer.setLength(0);
+    buffer.append(indent);
+    if (firstLinePrefix != null)
+    {
+      buffer.append(firstLinePrefix);
+    }
+
+
+    // Figure out what type of filter it is and create the appropriate code for
+    // that type of filter.
+    switch (filterType)
+    {
+      case FILTER_TYPE_AND:
+      case FILTER_TYPE_OR:
+        if (filterType == FILTER_TYPE_AND)
+        {
+          buffer.append("Filter.createANDFilter(");
+        }
+        else
+        {
+          buffer.append("Filter.createORFilter(");
+        }
+        if (filterComps.length == 0)
+        {
+          buffer.append(')');
+          if (lastLineSuffix != null)
+          {
+            buffer.append(lastLineSuffix);
+          }
+          lineList.add(buffer.toString());
+          return;
+        }
+
+        for (int i = 0; i < filterComps.length; i++)
+        {
+          String suffix;
+          if (i == (filterComps.length - 1))
+          {
+            suffix = ")";
+            if (lastLineSuffix != null)
+            {
+              suffix += lastLineSuffix;
+            }
+          }
+          else
+          {
+            suffix = ",";
+          }
+
+          filterComps[i].toCode(lineList, indentSpaces + 5, null, suffix);
+        }
+        return;
+
+
+      case FILTER_TYPE_NOT:
+        buffer.append("Filter.createNOTFilter(");
+        lineList.add(buffer.toString());
+
+        final String suffix;
+        if (lastLineSuffix == null)
+        {
+          suffix = ")";
+        }
+        else
+        {
+          suffix = ')' + lastLineSuffix;
+        }
+        notComp.toCode(lineList, indentSpaces + 5, null, suffix);
+        return;
+
+      case FILTER_TYPE_PRESENCE:
+        buffer.append("Filter.createPresenceFilter(");
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     \"");
+        buffer.append(attrName);
+        buffer.append("\")");
+
+        if (lastLineSuffix != null)
+        {
+          buffer.append(lastLineSuffix);
+        }
+
+        lineList.add(buffer.toString());
+        return;
+
+
+      case FILTER_TYPE_EQUALITY:
+      case FILTER_TYPE_GREATER_OR_EQUAL:
+      case FILTER_TYPE_LESS_OR_EQUAL:
+      case FILTER_TYPE_APPROXIMATE_MATCH:
+        if (filterType == FILTER_TYPE_EQUALITY)
+        {
+          buffer.append("Filter.createEqualityFilter(");
+        }
+        else if (filterType == FILTER_TYPE_GREATER_OR_EQUAL)
+        {
+          buffer.append("Filter.createGreaterOrEqualFilter(");
+        }
+        else if (filterType == FILTER_TYPE_LESS_OR_EQUAL)
+        {
+          buffer.append("Filter.createLessOrEqualFilter(");
+        }
+        else
+        {
+          buffer.append("Filter.createApproximateMatchFilter(");
+        }
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     \"");
+        buffer.append(attrName);
+        buffer.append("\",");
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        if (isSensitiveToCodeAttribute(attrName))
+        {
+          buffer.append("\"---redacted-value---\"");
+        }
+        else if (isPrintableString(assertionValue.getValue()))
+        {
+          buffer.append('"');
+          buffer.append(assertionValue.stringValue());
+          buffer.append('"');
+        }
+        else
+        {
+          byteArrayToCode(assertionValue.getValue(), buffer);
+        }
+
+        buffer.append(')');
+
+        if (lastLineSuffix != null)
+        {
+          buffer.append(lastLineSuffix);
+        }
+
+        lineList.add(buffer.toString());
+        return;
+
+
+      case FILTER_TYPE_SUBSTRING:
+        buffer.append("Filter.createSubstringFilter(");
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     \"");
+        buffer.append(attrName);
+        buffer.append("\",");
+        lineList.add(buffer.toString());
+
+        final boolean isRedacted = isSensitiveToCodeAttribute(attrName);
+        boolean isPrintable = true;
+        if (subInitial != null)
+        {
+          isPrintable = isPrintableString(subInitial.getValue());
+        }
+
+        if (isPrintable && (subAny != null))
+        {
+          for (final ASN1OctetString s : subAny)
+          {
+            if (! isPrintableString(s.getValue()))
+            {
+              isPrintable = false;
+              break;
+            }
+          }
+        }
+
+        if (isPrintable && (subFinal != null))
+        {
+          isPrintable = isPrintableString(subFinal.getValue());
+        }
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        if (subInitial == null)
+        {
+          buffer.append("null");
+        }
+        else if (isRedacted)
+        {
+          buffer.append("\"---redacted-subInitial---\"");
+        }
+        else if (isPrintable)
+        {
+          buffer.append('"');
+          buffer.append(subInitial.stringValue());
+          buffer.append('"');
+        }
+        else
+        {
+          byteArrayToCode(subInitial.getValue(), buffer);
+        }
+        buffer.append(',');
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        if ((subAny == null) || (subAny.length == 0))
+        {
+          buffer.append("null,");
+          lineList.add(buffer.toString());
+        }
+        else if (isRedacted)
+        {
+          buffer.append("new String[]");
+          lineList.add(buffer.toString());
+
+          lineList.add(indent + "     {");
+
+          for (int i=0; i < subAny.length; i++)
+          {
+            buffer.setLength(0);
+            buffer.append(indent);
+            buffer.append("       \"---redacted-subAny-");
+            buffer.append(i+1);
+            buffer.append("---\"");
+            if (i < (subAny.length-1))
+            {
+              buffer.append(',');
+            }
+            lineList.add(buffer.toString());
+          }
+
+          lineList.add(indent + "     },");
+        }
+        else if (isPrintable)
+        {
+          buffer.append("new String[]");
+          lineList.add(buffer.toString());
+
+          lineList.add(indent + "     {");
+
+          for (int i=0; i < subAny.length; i++)
+          {
+            buffer.setLength(0);
+            buffer.append(indent);
+            buffer.append("       \"");
+            buffer.append(subAny[i].stringValue());
+            buffer.append('"');
+            if (i < (subAny.length-1))
+            {
+              buffer.append(',');
+            }
+            lineList.add(buffer.toString());
+          }
+
+          lineList.add(indent + "     },");
+        }
+        else
+        {
+          buffer.append("new String[]");
+          lineList.add(buffer.toString());
+
+          lineList.add(indent + "     {");
+
+          for (int i=0; i < subAny.length; i++)
+          {
+            buffer.setLength(0);
+            buffer.append(indent);
+            buffer.append("       ");
+            byteArrayToCode(subAny[i].getValue(), buffer);
+            if (i < (subAny.length-1))
+            {
+              buffer.append(',');
+            }
+            lineList.add(buffer.toString());
+          }
+
+          lineList.add(indent + "     },");
+        }
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        if (subFinal == null)
+        {
+          buffer.append("null)");
+        }
+        else if (isRedacted)
+        {
+          buffer.append("\"---redacted-subFinal---\")");
+        }
+        else if (isPrintable)
+        {
+          buffer.append('"');
+          buffer.append(subFinal.stringValue());
+          buffer.append("\")");
+        }
+        else
+        {
+          byteArrayToCode(subFinal.getValue(), buffer);
+          buffer.append(')');
+        }
+        if (lastLineSuffix != null)
+        {
+          buffer.append(lastLineSuffix);
+        }
+        lineList.add(buffer.toString());
+        return;
+
+
+      case FILTER_TYPE_EXTENSIBLE_MATCH:
+        buffer.append("Filter.createExtensibleMatchFilter(");
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        if (attrName == null)
+        {
+          buffer.append("null, // Attribute Description");
+        }
+        else
+        {
+          buffer.append('"');
+          buffer.append(attrName);
+          buffer.append("\",");
+        }
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        if (matchingRuleID == null)
+        {
+          buffer.append("null, // Matching Rule ID");
+        }
+        else
+        {
+          buffer.append('"');
+          buffer.append(matchingRuleID);
+          buffer.append("\",");
+        }
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        buffer.append(dnAttributes);
+        buffer.append(", // DN Attributes");
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        if ((attrName != null) && isSensitiveToCodeAttribute(attrName))
+        {
+          buffer.append("\"---redacted-value---\")");
+        }
+        else
+        {
+          if (isPrintableString(assertionValue.getValue()))
+          {
+            buffer.append('"');
+            buffer.append(assertionValue.stringValue());
+            buffer.append("\")");
+          }
+          else
+          {
+            byteArrayToCode(assertionValue.getValue(), buffer);
+            buffer.append(')');
+          }
+        }
+
+        if (lastLineSuffix != null)
+        {
+          buffer.append(lastLineSuffix);
+        }
+        lineList.add(buffer.toString());
+        return;
     }
   }
 }

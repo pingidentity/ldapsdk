@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -835,5 +836,59 @@ public final class DeleteRequest
     }
 
     buffer.append(')');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create the request variable.
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, "DeleteRequest",
+         requestID + "Request", "new DeleteRequest",
+         ToCodeArgHelper.createString(dn, "Entry DN"));
+
+    // If there are any controls, then add them to the request.
+    for (final Control c : getControls())
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "Request.addControl",
+           ToCodeArgHelper.createControl(c, null));
+    }
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  LDAPResult " + requestID +
+           "Result = connection.delete(" + requestID + "Request);");
+      lineList.add(indent + "  // The delete was processed successfully.");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The delete failed.  Maybe the following " +
+           "will help explain why.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add(indent + '}');
+    }
   }
 }

@@ -22,6 +22,7 @@ package com.unboundid.ldap.listener;
 
 
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -138,8 +139,10 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       controls.</LI>
  *   <LI>It supports the use of schema (if provided), but it does not currently
  *       allow updating the schema on the fly.</LI>
- *   <LI>It has the ability to maintain a log of operations processed, either
- *       as a simple access log or a more detailed LDAP debug log.</LI>
+ *   <LI>It has the ability to maintain a log of operations processed, as a
+ *       simple access log, a more detailed LDAP debug log, or even a log with
+ *       generated code that may be used to construct and issue the requests
+ *       received by clients.</LI>
  *   <LI>It has the ability to maintain an LDAP-accessible changelog.</LI>
  *   <LI>It provides an option to generate a number of operational attributes,
  *       including entryDN, entryUUID, creatorsName, createTimestamp,
@@ -302,6 +305,23 @@ public final class InMemoryDirectoryServer
     {
       requestHandler = new LDAPDebuggerRequestHandler(
            config.getLDAPDebugLogHandler(), requestHandler);
+    }
+
+    if (config.getCodeLogPath() != null)
+    {
+      try
+      {
+        requestHandler = new ToCodeRequestHandler(config.getCodeLogPath(),
+             config.includeRequestProcessingInCodeLog(), requestHandler);
+      }
+      catch (final IOException ioe)
+      {
+        Debug.debugException(ioe);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_MEM_DS_CANNOT_OPEN_CODE_LOG.get(config.getCodeLogPath(),
+                  StaticUtils.getExceptionMessage(ioe)),
+             ioe);
+      }
     }
 
     if (! config.getOperationInterceptors().isEmpty())

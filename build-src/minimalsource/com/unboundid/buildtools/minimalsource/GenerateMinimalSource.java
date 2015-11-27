@@ -201,6 +201,8 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.SimpleBindRequest",
     "com.unboundid.ldap.sdk.SingleServerSet",
     "com.unboundid.ldap.sdk.StartTLSPostConnectProcessor",
+    "com.unboundid.ldap.sdk.ToCodeArgHelper",
+    "com.unboundid.ldap.sdk.ToCodeHelper",
     "com.unboundid.ldap.sdk.UnsolicitedNotificationHandler",
     "com.unboundid.ldap.sdk.UpdatableLDAPRequest",
     "com.unboundid.ldap.sdk.Version",

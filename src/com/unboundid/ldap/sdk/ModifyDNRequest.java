@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -1199,5 +1201,72 @@ public final class ModifyDNRequest
     }
 
     buffer.append(')');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs =
+         new ArrayList<ToCodeArgHelper>(4);
+    constructorArgs.add(ToCodeArgHelper.createString(dn, "Current DN"));
+    constructorArgs.add(ToCodeArgHelper.createString(newRDN, "New RDN"));
+    constructorArgs.add(ToCodeArgHelper.createBoolean(deleteOldRDN,
+         "Delete Old RDN Value(s)"));
+
+    if (newSuperiorDN != null)
+    {
+      constructorArgs.add(ToCodeArgHelper.createString(newSuperiorDN,
+           "New Superior Entry DN"));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, "ModifyDNRequest",
+         requestID + "Request", "new ModifyDNRequest", constructorArgs);
+
+
+    // If there are any controls, then add them to the request.
+    for (final Control c : getControls())
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "Request.addControl",
+           ToCodeArgHelper.createControl(c, null));
+    }
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  LDAPResult " + requestID +
+           "Result = connection.modifyDN(" + requestID + "Request);");
+      lineList.add(indent + "  // The modify DN was processed successfully.");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The modify DN failed.  Maybe the following " +
+           "will help explain why.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add(indent + '}');
+    }
   }
 }

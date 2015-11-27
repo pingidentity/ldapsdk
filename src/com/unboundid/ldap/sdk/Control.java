@@ -506,12 +506,17 @@ public class Control
 
 
   /**
-   * Decodes the provided ASN.1 sequence as an LDAP control.
+   * Attempts to create the most appropriate control instance from the provided
+   * information.  If a {@link DecodeableControl} instance has been registered
+   * for the specified OID, then this method will attempt to use that instance
+   * to construct a control.  If that fails, or if no appropriate
+   * {@code DecodeableControl} is registered, then a generic control will be
+   * returned.
    *
-   * @param  oid         The OID for this control.  It must not be {@code null}.
-   * @param  isCritical  Indicates whether this control should be considered
+   * @param  oid         The OID for the control.  It must not be {@code null}.
+   * @param  isCritical  Indicates whether the control should be considered
    *                     critical.
-   * @param  value       The value for this control.  It may be {@code null} if
+   * @param  value       The value for the control.  It may be {@code null} if
    *                     there is no value.
    *
    * @return  The decoded control.
@@ -534,7 +539,7 @@ public class Control
        {
          return decodeableControl.decodeControl(oid, isCritical, value);
        }
-       catch (Exception e)
+       catch (final Exception e)
        {
          debugException(e);
          return new Control(oid, isCritical, value);

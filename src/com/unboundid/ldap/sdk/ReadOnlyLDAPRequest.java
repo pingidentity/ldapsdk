@@ -174,4 +174,27 @@ public interface ReadOnlyLDAPRequest
    *                 this request.
    */
   void toString(final StringBuilder buffer);
+
+
+
+  /**
+   * Appends a number of lines comprising the Java source code that can be used
+   * to recreate this request to the given list.
+   *
+   * @param  lineList           The list to which the source code lines should
+   *                            be added.
+   * @param  requestID          The name that should be used as an identifier
+   *                            for the request.  If this is {@code null} or
+   *                            empty, then a generic ID will be used.
+   * @param  indentSpaces       The number of spaces that should be used to
+   *                            indent the generated code.  It must not be
+   *                            negative.
+   * @param  includeProcessing  Indicates whether the generated code should
+   *                            include code required to actually process the
+   *                            request and handle the result (if {@code true}),
+   *                            or just to generate the request (if
+   *                            {@code false}).
+   */
+  void toCode(final List<String> lineList, final String requestID,
+              final int indentSpaces, final boolean includeProcessing);
 }

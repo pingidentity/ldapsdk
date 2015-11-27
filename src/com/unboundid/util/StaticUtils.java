@@ -29,15 +29,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Version;
 
@@ -91,8 +94,30 @@ public final class StaticUtils
   /**
    * The thread-local date formatter used to encode generalized time values.
    */
-  private static final ThreadLocal<SimpleDateFormat> dateFormatters =
+  private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
        new ThreadLocal<SimpleDateFormat>();
+
+
+
+  /**
+   * A set containing the names of attributes that will be considered sensitive
+   * by the {@code toCode} methods of various request and data structure types.
+   */
+  private static volatile Set<String> TO_CODE_SENSITIVE_ATTRIBUTE_NAMES;
+  static
+  {
+    final HashSet<String> nameSet = new HashSet<String>(4);
+
+    // Add userPassword by name and OID.
+    nameSet.add("userpassword");
+    nameSet.add("2.5.4.35");
+
+    // add authPassword by name and OID.
+    nameSet.add("authpassword");
+    nameSet.add("1.3.6.1.4.1.4203.1.3.4");
+
+    TO_CODE_SENSITIVE_ATTRIBUTE_NAMES = Collections.unmodifiableSet(nameSet);
+  }
 
 
 
@@ -887,6 +912,33 @@ public final class StaticUtils
 
 
   /**
+   * Appends the Java code that may be used to create the provided byte
+   * array to the given buffer.
+   *
+   * @param  array   The byte array containing the data to represent.  It must
+   *                 not be {@code null}.
+   * @param  buffer  The buffer to which the code should be appended.
+   */
+  public static void byteArrayToCode(final byte[] array,
+                                     final StringBuilder buffer)
+  {
+    buffer.append("new byte[] {");
+    for (int i=0; i < array.length; i++)
+    {
+      if (i > 0)
+      {
+        buffer.append(',');
+      }
+
+      buffer.append(" (byte) 0x");
+      toHex(array[i], buffer);
+    }
+    buffer.append(" }");
+  }
+
+
+
+  /**
    * Retrieves a single-line string representation of the stack trace for the
    * provided {@code Throwable}.  It will include the unqualified name of the
    * {@code Throwable} class, a list of source files and line numbers (if
@@ -1089,12 +1141,12 @@ public final class StaticUtils
    */
   public static String encodeGeneralizedTime(final Date d)
   {
-    SimpleDateFormat dateFormat = dateFormatters.get();
+    SimpleDateFormat dateFormat = DATE_FORMATTERS.get();
     if (dateFormat == null)
     {
       dateFormat = new SimpleDateFormat("yyyyMMddHHmmss.SSS'Z'");
       dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-      dateFormatters.set(dateFormat);
+      DATE_FORMATTERS.set(dateFormat);
     }
 
     return dateFormat.format(d);
@@ -2231,6 +2283,89 @@ public final class StaticUtils
     else
     {
       return -1;
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the provided attribute name should be considered a
+   * sensitive attribute for the purposes of {@code toCode} methods.  If an
+   * attribute is considered sensitive, then its values will be redacted in the
+   * output of the {@code toCode} methods.
+   *
+   * @param  name  The name for which to make the determination.  It may or may
+   *               not include attribute options.  It must not be {@code null}.
+   *
+   * @return  {@code true} if the specified attribute is one that should be
+   *          considered sensitive for the
+   */
+  public static boolean isSensitiveToCodeAttribute(final String name)
+  {
+    final String lowerBaseName = Attribute.getBaseName(name).toLowerCase();
+    return TO_CODE_SENSITIVE_ATTRIBUTE_NAMES.contains(lowerBaseName);
+  }
+
+
+
+  /**
+   * Retrieves a set containing the base names (in all lowercase characters) of
+   * any attributes that should be considered sensitive for the purposes of the
+   * {@code toCode} methods.  By default, only the userPassword and
+   * authPassword attributes and their respective OIDs will be included.
+   *
+   * @return  A set containing the base names (in all lowercase characters) of
+   *          any attributes that should be considered sensitive for the
+   *          purposes of the {@code toCode} methods.
+   */
+  public static Set<String> getSensitiveToCodeAttributeBaseNames()
+  {
+    return TO_CODE_SENSITIVE_ATTRIBUTE_NAMES;
+  }
+
+
+
+  /**
+   * Specifies the names of any attributes that should be considered sensitive
+   * for the purposes of the {@code toCode} methods.
+   *
+   * @param  names  The names of any attributes that should be considered
+   *                sensitive for the purposes of the {@code toCode} methods.
+   *                It may be {@code null} or empty if no attributes should be
+   *                considered sensitive.
+   */
+  public static void setSensitiveToCodeAttributes(final String... names)
+  {
+    setSensitiveToCodeAttributes(toList(names));
+  }
+
+
+
+  /**
+   * Specifies the names of any attributes that should be considered sensitive
+   * for the purposes of the {@code toCode} methods.
+   *
+   * @param  names  The names of any attributes that should be considered
+   *                sensitive for the purposes of the {@code toCode} methods.
+   *                It may be {@code null} or empty if no attributes should be
+   *                considered sensitive.
+   */
+  public static void setSensitiveToCodeAttributes(
+                          final Collection<String> names)
+  {
+    if ((names == null) || names.isEmpty())
+    {
+      TO_CODE_SENSITIVE_ATTRIBUTE_NAMES = Collections.emptySet();
+    }
+    else
+    {
+      final HashSet<String> nameSet = new HashSet<String>(names.size());
+      for (final String s : names)
+      {
+        nameSet.add(Attribute.getBaseName(s).toLowerCase());
+      }
+
+      TO_CODE_SENSITIVE_ATTRIBUTE_NAMES = Collections.unmodifiableSet(nameSet);
     }
   }
 

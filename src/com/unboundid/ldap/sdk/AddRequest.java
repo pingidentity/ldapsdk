@@ -1567,4 +1567,79 @@ public final class AddRequest
 
     buffer.append(')');
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs =
+         new ArrayList<ToCodeArgHelper>(attributes.size() + 1);
+    constructorArgs.add(ToCodeArgHelper.createString(dn, "Entry DN"));
+
+    boolean firstAttribute = true;
+    for (final Attribute a : attributes)
+    {
+      final String comment;
+      if (firstAttribute)
+      {
+        firstAttribute = false;
+        comment = "Entry Attributes";
+      }
+      else
+      {
+        comment = null;
+      }
+
+      constructorArgs.add(ToCodeArgHelper.createAttribute(a, comment));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, "AddRequest",
+         requestID + "Request", "new AddRequest", constructorArgs);
+
+
+    // If there are any controls, then add them to the request.
+    for (final Control c : getControls())
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "Request.addControl",
+           ToCodeArgHelper.createControl(c, null));
+    }
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  LDAPResult " + requestID +
+           "Result = connection.add(" + requestID + "Request);");
+      lineList.add(indent + "  // The add was processed successfully.");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The add failed.  Maybe the following will " +
+           "help explain why.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add(indent + '}');
+    }
+  }
 }

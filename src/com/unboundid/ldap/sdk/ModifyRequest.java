@@ -143,7 +143,7 @@ public final class ModifyRequest
 
     ensureNotNull(dn, mods);
     ensureFalse(mods.length == 0,
-                "ModifyRequest.mods must not be empty.");
+         "ModifyRequest.mods must not be empty.");
 
     this.dn = dn;
 
@@ -209,7 +209,7 @@ public final class ModifyRequest
 
     ensureNotNull(dn, mods);
     ensureFalse(mods.length == 0,
-                "ModifyRequest.mods must not be empty.");
+         "ModifyRequest.mods must not be empty.");
 
     this.dn = dn.toString();
 
@@ -281,7 +281,7 @@ public final class ModifyRequest
 
     ensureNotNull(dn, mods);
     ensureFalse(mods.length == 0,
-                "ModifyRequest.mods must not be empty.");
+         "ModifyRequest.mods must not be empty.");
 
     this.dn = dn;
 
@@ -356,7 +356,7 @@ public final class ModifyRequest
 
     ensureNotNull(dn, mods);
     ensureFalse(mods.length == 0,
-                "ModifyRequest.mods must not be empty.");
+         "ModifyRequest.mods must not be empty.");
 
     this.dn = dn.toString();
 
@@ -534,7 +534,7 @@ public final class ModifyRequest
   {
     ensureNotNull(mods);
     ensureFalse(mods.length == 0,
-                "ModifyRequest.setModifications.mods must not be empty.");
+         "ModifyRequest.setModifications.mods must not be empty.");
 
     modifications.clear();
     modifications.addAll(Arrays.asList(mods));
@@ -1245,5 +1245,80 @@ public final class ModifyRequest
     }
 
     buffer.append(')');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs =
+         new ArrayList<ToCodeArgHelper>(modifications.size() + 1);
+    constructorArgs.add(ToCodeArgHelper.createString(dn, "Entry DN"));
+
+    boolean firstMod = true;
+    for (final Modification m : modifications)
+    {
+      final String comment;
+      if (firstMod)
+      {
+        firstMod = false;
+        comment = "Modifications";
+      }
+      else
+      {
+        comment = null;
+      }
+
+      constructorArgs.add(ToCodeArgHelper.createModification(m, comment));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, "ModifyRequest",
+         requestID + "Request", "new ModifyRequest", constructorArgs);
+
+
+    // If there are any controls, then add them to the request.
+    for (final Control c : getControls())
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "Request.addControl",
+           ToCodeArgHelper.createControl(c, null));
+    }
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  LDAPResult " + requestID +
+           "Result = connection.modify(" + requestID + "Request);");
+      lineList.add(indent + "  // The modify was processed successfully.");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The modify failed.  Maybe the following " +
+           "will help explain why.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add(indent + '}');
+    }
   }
 }

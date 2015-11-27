@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
@@ -741,5 +742,134 @@ public final class Modification
     }
 
     return false;
+  }
+
+
+
+  /**
+   * Appends a number of lines comprising the Java source code that can be used
+   * to recreate this modification to the given list.  Note that unless a first
+   * line prefix and/or last line suffix are provided, this will just include
+   * the code for the constructor, starting with "new Modification(" and ending
+   * with the closing parenthesis for that constructor.
+   *
+   * @param  lineList         The list to which the source code lines should be
+   *                          added.
+   * @param  indentSpaces     The number of spaces that should be used to indent
+   *                          the generated code.  It must not be negative.
+   * @param  firstLinePrefix  An optional string that should precede
+   *                          "new Modification(" on the first line of the
+   *                          generated code (e.g., it could be used for an
+   *                          attribute assignment, like "Modification m = ").
+   *                          It may be {@code null} or empty if there should be
+   *                          no first line prefix.
+   * @param  lastLineSuffix   An optional suffix that should follow the closing
+   *                          parenthesis of the constructor (e.g., it could be
+   *                          a semicolon to represent the end of a Java
+   *                          statement or a comma to separate it from another
+   *                          element in an array).  It may be {@code null} or
+   *                          empty if there should be no last line suffix.
+   */
+  public void toCode(final List<String> lineList, final int indentSpaces,
+                     final String firstLinePrefix, final String lastLineSuffix)
+  {
+    // Generate a string with the appropriate indent.
+    final StringBuilder buffer = new StringBuilder();
+    for (int i=0; i < indentSpaces; i++)
+    {
+      buffer.append(' ');
+    }
+    final String indent = buffer.toString();
+
+
+    // Start the constructor.
+    buffer.setLength(0);
+    buffer.append(indent);
+    if (firstLinePrefix != null)
+    {
+      buffer.append(firstLinePrefix);
+    }
+    buffer.append("new Modification(");
+    lineList.add(buffer.toString());
+
+    // There will always be a modification type.
+    buffer.setLength(0);
+    buffer.append(indent);
+    buffer.append("     \"ModificationType.");
+    buffer.append(modificationType.getName());
+    buffer.append(',');
+    lineList.add(buffer.toString());
+
+
+    // There will always be an attribute name.
+    buffer.setLength(0);
+    buffer.append(indent);
+    buffer.append("     \"");
+    buffer.append(attributeName);
+    buffer.append('"');
+
+
+    // If the attribute has any values, then include each on its own line.
+    // If possible, represent the values as strings, but fall back to using
+    // byte arrays if necessary.  But if this is something we might consider a
+    // sensitive attribute (like a password), then use fake values in the form
+    // "---redacted-value-N---" to indicate that the actual value has been
+    // hidden but to still show the correct number of values.
+    if (values.length > 0)
+    {
+      boolean allPrintable = true;
+
+      final ASN1OctetString[] attrValues;
+      if (isSensitiveToCodeAttribute(attributeName))
+      {
+        attrValues = new ASN1OctetString[values.length];
+        for (int i=0; i < values.length; i++)
+        {
+          attrValues[i] =
+               new ASN1OctetString("---redacted-value-" + (i+1) + "---");
+        }
+      }
+      else
+      {
+        attrValues = values;
+        for (final ASN1OctetString v : values)
+        {
+          if (! isPrintableString(v.getValue()))
+          {
+            allPrintable = false;
+            break;
+          }
+        }
+      }
+
+      for (final ASN1OctetString v : attrValues)
+      {
+        buffer.append(',');
+        lineList.add(buffer.toString());
+
+        buffer.setLength(0);
+        buffer.append(indent);
+        buffer.append("     ");
+        if (allPrintable)
+        {
+          buffer.append('"');
+          buffer.append(v.stringValue());
+          buffer.append('"');
+        }
+        else
+        {
+          byteArrayToCode(v.getValue(), buffer);
+        }
+      }
+    }
+
+
+    // Append the closing parenthesis and any last line suffix.
+    buffer.append(')');
+    if (lastLineSuffix != null)
+    {
+      buffer.append(lastLineSuffix);
+    }
+    lineList.add(buffer.toString());
   }
 }

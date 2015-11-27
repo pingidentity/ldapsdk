@@ -2130,4 +2130,88 @@ public final class SearchRequest
 
     buffer.append(')');
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs =
+         new ArrayList<ToCodeArgHelper>(10);
+    constructorArgs.add(ToCodeArgHelper.createString(baseDN, "Base DN"));
+    constructorArgs.add(ToCodeArgHelper.createScope(scope, "Scope"));
+    constructorArgs.add(ToCodeArgHelper.createDerefPolicy(derefPolicy,
+         "Alias Dereference Policy"));
+    constructorArgs.add(ToCodeArgHelper.createInteger(sizeLimit, "Size Limit"));
+    constructorArgs.add(ToCodeArgHelper.createInteger(timeLimit, "Time Limit"));
+    constructorArgs.add(ToCodeArgHelper.createBoolean(typesOnly, "Types Only"));
+    constructorArgs.add(ToCodeArgHelper.createFilter(filter, "Filter"));
+
+    String comment = "Requested Attributes";
+    for (final String s : attributes)
+    {
+      constructorArgs.add(ToCodeArgHelper.createString(s, comment));
+      comment = null;
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, "SearchRequest",
+         requestID + "Request", "new SearchRequest", constructorArgs);
+
+
+    // If there are any controls, then add them to the request.
+    for (final Control c : getControls())
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "Request.addControl",
+           ToCodeArgHelper.createControl(c, null));
+    }
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "SearchResult " + requestID + "Result;");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  " + requestID + "Result = connection.search(" +
+           requestID + "Request);");
+      lineList.add(indent + "  // The search was processed successfully.");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPSearchException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The search failed.  Maybe the following " +
+           "will help explain why.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add("");
+      lineList.add(indent + "  // Even though there was an error, we may " +
+           "have gotten some results.");
+      lineList.add(indent + "  " + requestID + "Result = e.getSearchResult();");
+      lineList.add(indent + '}');
+      lineList.add("");
+      lineList.add(indent + "// If there were results, then process them.");
+      lineList.add(indent + "for (SearchResultEntry e : " + requestID +
+           "Result.getSearchEntries())");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // Do something with the entry.");
+      lineList.add(indent + '}');
+    }
+  }
 }

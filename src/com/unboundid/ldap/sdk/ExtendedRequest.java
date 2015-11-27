@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -613,5 +615,84 @@ public class ExtendedRequest
     }
 
     buffer.append(')');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs =
+         new ArrayList<ToCodeArgHelper>(3);
+    constructorArgs.add(ToCodeArgHelper.createString(oid, "Request OID"));
+    constructorArgs.add(ToCodeArgHelper.createASN1OctetString(value,
+         "Request Value"));
+
+    final Control[] controls = getControls();
+    if (controls.length > 0)
+    {
+      constructorArgs.add(ToCodeArgHelper.createControlArray(controls,
+           "Request Controls"));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, "ExtendedRequest",
+         requestID + "Request", "new ExtendedRequest", constructorArgs);
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  ExtendedResult " + requestID +
+           "Result = connection.processExtendedOperation(" + requestID +
+           "Request);");
+      lineList.add(indent + "  // The extended operation was processed and " +
+           "we have a result.");
+      lineList.add(indent + "  // This does not necessarily mean that the " +
+           "operation was successful.");
+      lineList.add(indent + "  // Examine the result details for more " +
+           "information.");
+      lineList.add(indent + "  ResultCode resultCode = " + requestID +
+           "Result.getResultCode();");
+      lineList.add(indent + "  String message = " + requestID +
+           "Result.getMessage();");
+      lineList.add(indent + "  String matchedDN = " + requestID +
+           "Result.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = " + requestID +
+           "Result.getReferralURLs();");
+      lineList.add(indent + "  String responseOID = " + requestID +
+           "Result.getOID();");
+      lineList.add(indent + "  ASN1OctetString responseValue = " + requestID +
+           "Result.getValue();");
+      lineList.add(indent + "  Control[] responseControls = " + requestID +
+           "Result.getResponseControls();");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // A problem was encountered while attempting " +
+           "to process the extended operation.");
+      lineList.add(indent + "  // Maybe the following will help explain why.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add(indent + '}');
+    }
   }
 }

@@ -1482,4 +1482,175 @@ public final class GSSAPIBindRequest
 
     buffer.append(')');
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create and update the bind request properties object.
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces,
+         "GSSAPIBindRequestProperties", requestID + "RequestProperties",
+         "new GSSAPIBindRequestProperties",
+         ToCodeArgHelper.createString(authenticationID, "Authentication ID"),
+         ToCodeArgHelper.createString("---redacted-password---", "Password"));
+
+    if (authorizationID != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setAuthorizationID",
+           ToCodeArgHelper.createString(authorizationID, null));
+    }
+
+    if (realm != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setRealm",
+           ToCodeArgHelper.createString(realm, null));
+    }
+
+    final ArrayList<String> qopValues = new ArrayList<String>();
+    for (final SASLQualityOfProtection qop : allowedQoP)
+    {
+      qopValues.add("SASLQualityOfProtection." + qop.name());
+    }
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+         requestID + "RequestProperties.setAllowedQoP",
+         ToCodeArgHelper.createRaw(qopValues, null));
+
+    if (kdcAddress != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setKDCAddress",
+           ToCodeArgHelper.createString(kdcAddress, null));
+    }
+
+    if (jaasClientName != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setJAASClientName",
+           ToCodeArgHelper.createString(jaasClientName, null));
+    }
+
+    if (configFilePath != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setConfigFilePath",
+           ToCodeArgHelper.createString(configFilePath, null));
+    }
+
+    if (saslClientServerName != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setSASLClientServerName",
+           ToCodeArgHelper.createString(saslClientServerName, null));
+    }
+
+    if (servicePrincipalProtocol != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setServicePrincipalProtocol",
+           ToCodeArgHelper.createString(servicePrincipalProtocol, null));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+         requestID + "RequestProperties.setUseSubjectCredentialsOnly",
+         ToCodeArgHelper.createBoolean(useSubjectCredentialsOnly, null));
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+         requestID + "RequestProperties.setUseTicketCache",
+         ToCodeArgHelper.createBoolean(useTicketCache, null));
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+         requestID + "RequestProperties.setRequireCachedCredentials",
+         ToCodeArgHelper.createBoolean(requireCachedCredentials, null));
+
+    if (ticketCachePath != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setTicketCachePath",
+           ToCodeArgHelper.createString(ticketCachePath, null));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+         requestID + "RequestProperties.setRenewTGT",
+         ToCodeArgHelper.createBoolean(renewTGT, null));
+
+    if ((suppressedSystemProperties != null) &&
+        (! suppressedSystemProperties.isEmpty()))
+    {
+      final ArrayList<ToCodeArgHelper> suppressedArgs =
+           new ArrayList<ToCodeArgHelper>(suppressedSystemProperties.size());
+      for (final String s : suppressedSystemProperties)
+      {
+        suppressedArgs.add(ToCodeArgHelper.createString(s, null));
+      }
+
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, "List<String>",
+           requestID + "SuppressedProperties", "Arrays.asList", suppressedArgs);
+
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setSuppressedSystemProperties",
+           ToCodeArgHelper.createRaw(requestID + "SuppressedProperties", null));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+         requestID + "RequestProperties.setEnableGSSAPIDebugging",
+         ToCodeArgHelper.createBoolean(enableGSSAPIDebugging, null));
+
+
+    // Create the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs =
+         new ArrayList<ToCodeArgHelper>(2);
+    constructorArgs.add(
+         ToCodeArgHelper.createRaw(requestID + "RequestProperties", null));
+
+    final Control[] controls = getControls();
+    if (controls.length > 0)
+    {
+      constructorArgs.add(ToCodeArgHelper.createControlArray(controls,
+           "Bind Controls"));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, "GSSAPIBindRequest",
+         requestID + "Request", "new GSSAPIBindRequest", constructorArgs);
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  BindResult " + requestID +
+           "Result = connection.bind(" + requestID + "Request);");
+      lineList.add(indent + "  // The bind was processed successfully.");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The bind failed.  Maybe the following will " +
+           "help explain why.");
+      lineList.add(indent + "  // Note that the connection is now likely in " +
+           "an unauthenticated state.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add(indent + '}');
+    }
+  }
 }

@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -1133,5 +1135,89 @@ public final class CompareRequest
     }
 
     buffer.append(')');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void toCode(final List<String> lineList, final String requestID,
+                     final int indentSpaces, final boolean includeProcessing)
+  {
+    // Create the arguments for the request variable.
+    final ArrayList<ToCodeArgHelper> constructorArgs =
+         new ArrayList<ToCodeArgHelper>(3);
+    constructorArgs.add(ToCodeArgHelper.createString(dn, "Entry DN"));
+    constructorArgs.add(ToCodeArgHelper.createString(attributeName,
+         "Attribute Name"));
+
+    // If the attribute is one that we consider sensitive, then we'll use a
+    // redacted value.  Otherwise, try to use the string value if it's
+    // printable, or a byte array value if it's not.
+    if (isSensitiveToCodeAttribute(attributeName))
+    {
+      constructorArgs.add(ToCodeArgHelper.createString("---redacted-value",
+           "Assertion Value (Redacted because " + attributeName + " is " +
+                "configured as a sensitive attribute)"));
+    }
+    else if (isPrintableString(assertionValue.getValue()))
+    {
+      constructorArgs.add(ToCodeArgHelper.createString(
+           assertionValue.stringValue(),
+           "Assertion Value"));
+    }
+    else
+    {
+      constructorArgs.add(ToCodeArgHelper.createByteArray(
+           assertionValue.getValue(), true,
+           "Assertion Value"));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, "CompareRequest",
+         requestID + "Request", "new CompareRequest", constructorArgs);
+
+
+    // If there are any controls, then add them to the request.
+    for (final Control c : getControls())
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "Request.addControl",
+           ToCodeArgHelper.createControl(c, null));
+    }
+
+
+    // Add lines for processing the request and obtaining the result.
+    if (includeProcessing)
+    {
+      // Generate a string with the appropriate indent.
+      final StringBuilder buffer = new StringBuilder();
+      for (int i=0; i < indentSpaces; i++)
+      {
+        buffer.append(' ');
+      }
+      final String indent = buffer.toString();
+
+      lineList.add("");
+      lineList.add(indent + "try");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  CompareResult " + requestID +
+           "Result = connection.compare(" + requestID + "Request);");
+      lineList.add(indent + "  // The compare was processed successfully.");
+      lineList.add(indent + "  boolean compareMatched = " + requestID +
+           "Result.compareMatched();");
+      lineList.add(indent + '}');
+      lineList.add(indent + "catch (LDAPException e)");
+      lineList.add(indent + '{');
+      lineList.add(indent + "  // The compare failed.  Maybe the following " +
+           "will help explain why.");
+      lineList.add(indent + "  ResultCode resultCode = e.getResultCode();");
+      lineList.add(indent + "  String message = e.getMessage();");
+      lineList.add(indent + "  String matchedDN = e.getMatchedDN();");
+      lineList.add(indent + "  String[] referralURLs = e.getReferralURLs();");
+      lineList.add(indent + "  Control[] responseControls = " +
+           "e.getResponseControls();");
+      lineList.add(indent + '}');
+    }
   }
 }

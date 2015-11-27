@@ -550,8 +550,8 @@ public final class GSSAPIBindRequestProperties
    * @param  saslClientServerName  The server name that should be used when
    *                               creating the Java {@code SaslClient}.  It may
    *                               be {@code null} to indicate that the
-   *                               {@code SaslClient} should be created with the
-   *
+   *                               {@code SaslClient} should use the address
+   *                               specified when establishing the connection.
    */
   public void setSASLClientServerName(final String saslClientServerName)
   {

@@ -216,6 +216,36 @@ public final class DereferencePolicy
 
 
   /**
+   * Retrieves the predefined dereference policy with the specified integer
+   * value.
+   *
+   * @param  intValue  The integer value for which to retrieve the corresponding
+   *                   dereference policy.
+   *
+   * @return  The dereference policy with the specified integer value, or
+   *          {@code null} if the provided value does not match any of the
+   *          predefined policies.
+   */
+  public static DereferencePolicy definedValueOf(final int intValue)
+  {
+    switch (intValue)
+    {
+      case 0:
+        return NEVER;
+      case 1:
+        return SEARCHING;
+      case 2:
+        return FINDING;
+      case 3:
+        return ALWAYS;
+      default:
+        return null;
+    }
+  }
+
+
+
+  /**
    * Retrieves an array of all dereference policies defined in the LDAP SDK.
    *
    * @return  An array of all dereference policies defined in the LDAP SDK.

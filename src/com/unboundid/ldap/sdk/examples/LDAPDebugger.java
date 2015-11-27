@@ -33,9 +33,11 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 
 import com.unboundid.ldap.listener.LDAPDebuggerRequestHandler;
+import com.unboundid.ldap.listener.LDAPListenerRequestHandler;
 import com.unboundid.ldap.listener.LDAPListener;
 import com.unboundid.ldap.listener.LDAPListenerConfig;
 import com.unboundid.ldap.listener.ProxyRequestHandler;
+import com.unboundid.ldap.listener.ToCodeRequestHandler;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
@@ -83,6 +85,10 @@ import com.unboundid.util.args.StringArgument;
  *   <LI>"-f {path}" or "--outputFile {path}" -- Specifies the path to the
  *       output file to be written.  If this is not provided, then the output
  *       will be written to standard output.</LI>
+ *   <LI>"-c {path}" or "--codeLogFile {path}" -- Specifies the path to a file
+ *       to be written with generated code that corresponds to requests received
+ *       from clients.  If this is not provided, then no code log will be
+ *       generated.</LI>
  * </UL>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
@@ -99,6 +105,9 @@ public final class LDAPDebugger
 
   // The argument used to specify the output file for the decoded content.
   private BooleanArgument listenUsingSSL;
+
+  // The argument used to specify the code log file to use, if any.
+  private FileArgument codeLogFile;
 
   // The argument used to specify the output file for the decoded content.
   private FileArgument outputFile;
@@ -259,6 +268,15 @@ public final class LDAPDebugger
     outputFile = new FileArgument('f', "outputFile", false, 1, "{path}",
          description, false, true, true, false);
     parser.addArgument(outputFile);
+
+
+    description = "The path to the a code log file to be written.  If a " +
+         "value is provided, then the tool will generate sample code that " +
+         "corresponds to the requests received from clients.  If no value is " +
+         "provided, then no code log will be generated.";
+    codeLogFile = new FileArgument('c', "codeLogFile", false, 1, "{path}",
+         description, false, true, true, false);
+    parser.addArgument(codeLogFile);
   }
 
 
@@ -314,13 +332,32 @@ public final class LDAPDebugger
 
     // Create the debugger request handler that will be used to write the
     // debug output.
-    final LDAPDebuggerRequestHandler debuggingHandler =
+    LDAPListenerRequestHandler requestHandler =
          new LDAPDebuggerRequestHandler(logHandler, proxyHandler);
+
+
+    // If a code log file was specified, then create the appropriate request
+    // handler to accomplish that.
+    if (codeLogFile.isPresent())
+    {
+      try
+      {
+        requestHandler = new ToCodeRequestHandler(codeLogFile.getValue(), false,
+             requestHandler);
+      }
+      catch (final Exception e)
+      {
+        err("Unable to open code log file '",
+             codeLogFile.getValue().getAbsolutePath(), "' for writing:  ",
+             StaticUtils.getExceptionMessage(e));
+        return ResultCode.LOCAL_ERROR;
+      }
+    }
 
 
     // Create and start the LDAP listener.
     final LDAPListenerConfig config =
-         new LDAPListenerConfig(listenPort.getValue(), debuggingHandler);
+         new LDAPListenerConfig(listenPort.getValue(), requestHandler);
     if (listenAddress.isPresent())
     {
       try
