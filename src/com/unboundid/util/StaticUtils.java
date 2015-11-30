@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -133,7 +134,7 @@ public final class StaticUtils
   private static volatile Set<String> TO_CODE_SENSITIVE_ATTRIBUTE_NAMES;
   static
   {
-    final HashSet<String> nameSet = new HashSet<String>(4);
+    final LinkedHashSet<String> nameSet = new LinkedHashSet<String>(4);
 
     // Add userPassword by name and OID.
     nameSet.add("userpassword");
@@ -2421,7 +2422,8 @@ public final class StaticUtils
     }
     else
     {
-      final HashSet<String> nameSet = new HashSet<String>(names.size());
+      final LinkedHashSet<String> nameSet =
+           new LinkedHashSet<String>(names.size());
       for (final String s : names)
       {
         nameSet.add(Attribute.getBaseName(s).toLowerCase());
