@@ -10,6 +10,178 @@ ${TARGET="offline"}                    <br>
 
               <h2>Standard Edition Release Notes</h2>
 
+              <h3>Version 3.0.1</h3>
+
+              <p>
+                The following changes were made between the 3.0.0 and 3.0.1 releases of the
+                Standard Edition:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the command-line tool API to make it possible to run tools in an
+                  interactive mode.  This mode, which is enabled by default in most of the example
+                  tools that ship with the LDAP SDK, allows the tool to prompt the user for the
+                  values of all the connection and authentication details, as well as for any
+                  tool-specific required properties.  It will then display a menu that can be used
+                  to edit the arguments, run the tool with the specified settings, and display the
+                  command-line arguments to run the tool with those settings in non-interactive
+                  mode.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the ldap-debugger tool to add the ability to generate source code that
+                  can be used to process all of the operations passing through it.  The
+                  in-memory directory server has also been updated to provide a similar
+                  capability.  This can help make it easier to migrate applications written using
+                  other APIs to the UnboundID LDAP SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP connection pool to make it possible to configure a minimum
+                  available connection goal.  If set, the connection pool will try to maintain at
+                  least this many connections available for immediate use.  This can help avoid
+                  application performance problems that can result if the pool is empty and
+                  connections must be created on-demand for new requests.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for LDIF translators that can be used to transform LDIF change
+                  records when reading from or writing to LDIF.  These translators are especially
+                  useful when using multiple threads to read or write multiple change records in
+                  parallel.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server to make it possible to use a specific
+                  entry as the root DSE instead of the dynamically-generated version.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added new <tt>Entry.applyModifyDN</tt> methods that can be used to retrieve a
+                  new entry that reflects the changes associated with processing a modify DN
+                  operation against that entry.  In addition to updating the DN for the entry, it
+                  will also apply any appropriate attribute changes for the entry's new RDN.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved support for the LDAP SDK's automatic selection of enabled TLS protocols
+                  to improve compatibility with TLS implementations that do not support the most
+                  recent TLS protocol offered by the JVM and also don't properly handle a TLS
+                  client hello message that references the newer protocol.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK so that it will always throw an <tt>LDAPException</tt> if
+                  the server returns a non-success result for a StartTLS extended operation.  It
+                  was previously possible for the LDAP SDK to return a non-success result without
+                  throwing an exception (as is the case for other types of extended operations),
+                  but that could potentially cause the client to continue using a connection that
+                  it incorrectly believed to be secure.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added the ability to create a <tt>StartTLSPostConnectProcessor</tt> with an
+                  <tt>SSLSocketFactory</tt> instead of an <tt>SSLContext</tt>.  Using a socket
+                  factory created with the <tt>SSLUtil.createSSLSocketFactory</tt> will provide
+                  better support for a the full range of enabled TLS protocols.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>LDAPBindException</tt> class that is a subclass of
+                  <tt>LDAPException</tt> and can provide access to the server SASL credentials
+                  returned to the client in a bind failure.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the LDAP SDK's handling of connect timeouts to ensure that a connection
+                  attempt is less likely to block for longer than the configured connect timeout.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK to include Java implementations from Azul Systems in the
+                  whitelist of JVMs that permit concurrent socket factory use by default.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a potential thread safety problem in the
+                  <tt>LDAPConnectionPool.releaseAndReAuthenticateConnection</tt> method.
+                  <br><br>
+                </li>
+
+                <li>
+                  Deprecated the <tt>LDAPConnectionOptions</tt> support for auto-reconnect.  It
+                  has always been inherently fragile and only useful under limited circumstances.
+                  Using a connection pool, even when only a single connection is expected at any
+                  given time, is a much more reliable and feature-rich way to achieve the same
+                  benefits.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDIF reader to be more permissive when encountering mismatches
+                  between the declared attribute description for a modification and the
+                  attribute description provided with the set of values.  It will now accept
+                  differences in the order of attribute options, and, if a schema is available,
+                  will accept equivalent names (or the numeric OID) for an attribute type.  It
+                  can also handle the case in which the binary transfer option was not included
+                  in the initial attribute description but is used in one or more values.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDIF reader to make it possible to specify the trailing space
+                  behavior when using static methods to decode LDIF entries and change records.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the argument descriptions for arguments in performance testing tools
+                  (including searchrate, modrate, authrate, and search-and-modrate) to provide the
+                  URL to online documentation that describes complete details for the value
+                  pattern syntax.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the methods used to retrieve schema information from the directory
+                  server so that they use the correct "(objectClass=subschema)" filter and will
+                  request all user attributes in addition to the schema-related operational
+                  attributes.  Also, ensure that schema entries read from LDIF files always
+                  include at least the top, ldapSubentry, and subschema object classes.
+                  <br><br>
+                </li>
+
+                <li>
+                  Removed the <tt>@ThreadSafety</tt> annotation from the
+                  <tt>ThreadSafetyLevel</tt> enum class, since an enum should not be marked with
+                  an annotation whose argument list includes a value of that enum.  This will also
+                  eliminate a compile warning when building a Scala application that uses the LDAP
+                  SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the documentation to include the most recent versions of a number of
+                  LDAP-related specifications.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 3.0.0</h3>
 
               <p>
