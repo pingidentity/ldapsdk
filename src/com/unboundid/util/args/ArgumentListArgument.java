@@ -220,6 +220,17 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    return Collections.unmodifiableList(valueStrings);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return false;
@@ -253,9 +264,39 @@ public final class ArgumentListArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    values.clear();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ArgumentListArgument getCleanCopy()
   {
     return new ArgumentListArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (valueStrings != null)
+    {
+      for (final String s : valueStrings)
+      {
+        argStrings.add(getIdentifierString());
+        argStrings.add(s);
+      }
+    }
   }
 
 

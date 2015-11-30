@@ -336,6 +336,45 @@ public final class FilterArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    final List<Filter> filters;
+    if (values.isEmpty())
+    {
+      if (useDefault)
+      {
+        filters = defaultValues;
+      }
+      else
+      {
+        return Collections.emptyList();
+      }
+    }
+    else
+    {
+      filters = values;
+    }
+
+    if ((filters == null) || filters.isEmpty())
+    {
+      return Collections.emptyList();
+    }
+
+    final ArrayList<String> valueStrings =
+         new ArrayList<String>(filters.size());
+    for (final Filter f : filters)
+    {
+      valueStrings.add(f.toString());
+    }
+    return Collections.unmodifiableList(valueStrings);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
@@ -369,9 +408,39 @@ public final class FilterArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    values.clear();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public FilterArgument getCleanCopy()
   {
     return new FilterArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (values != null)
+    {
+      for (final Filter f : values)
+      {
+        argStrings.add(getIdentifierString());
+        argStrings.add(f.toString());
+      }
+    }
   }
 
 

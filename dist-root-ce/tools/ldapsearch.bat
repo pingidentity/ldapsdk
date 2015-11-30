@@ -7,19 +7,9 @@ rem All Rights Reserved.
 rem Get the directory containing this batch file.
 set BATDIR=%~dp0
 
-rem Figure out which Java command to invoke.
-if "%UNBOUNDID_JAVA_HOME%" == "" goto checkJavaHome
-set JAVA_CMD=%UNBOUNDID_JAVA_HOME%\bin\java.exe
-goto runTool
+rem Invoke a number of common script utility functions.
+call "%BATDIR%\.script-util.bat"
 
-:checkJavaHome
-if "%JAVA_HOME%" == "" goto usePath
-set JAVA_CMD=%JAVA_HOME%\bin\java.exe
-goto runTool
-
-:usePath
-set JAVA_CMD=java.exe
-
-:runTool
+rem Invoke the tool with the provided command-line arguments.
 "%JAVA_CMD%" %JAVA_ARGS% -cp "%BATDIR%\..\unboundid-ldapsdk-ce.jar;%CLASSPATH%" com.unboundid.ldap.sdk.examples.LDAPSearch %*
 

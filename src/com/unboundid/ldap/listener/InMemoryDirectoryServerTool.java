@@ -585,6 +585,28 @@ public final class InMemoryDirectoryServerTool
    * {@inheritDoc}
    */
   @Override()
+  public boolean supportsInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean defaultsToInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ResultCode doToolProcessing()
   {
     // Create a base configuration.

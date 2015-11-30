@@ -530,6 +530,58 @@ public class LDAPException
 
 
   /**
+   * Retrieves a string representation of this LDAP result, consisting of
+   * the result code, diagnostic message (if present), matched DN (if present),
+   * and referral URLs (if present).
+   *
+   * @return  A string representation of this LDAP result.
+   */
+  public String getResultString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append("result code='");
+    buffer.append(resultCode);
+    buffer.append('\'');
+
+    if ((diagnosticMessage != null) && (diagnosticMessage.length() > 0))
+    {
+      buffer.append(" diagnostic message='");
+      buffer.append(diagnosticMessage);
+      buffer.append('\'');
+    }
+
+    if ((matchedDN != null) && (matchedDN.length() > 0))
+    {
+      buffer.append("  matched DN='");
+      buffer.append(matchedDN);
+      buffer.append('\'');
+    }
+
+    if ((referralURLs != null) && (referralURLs.length > 0))
+    {
+      buffer.append("  referral URLs={");
+
+      for (int i=0; i < referralURLs.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append('\'');
+        buffer.append(referralURLs[i]);
+        buffer.append('\'');
+      }
+
+      buffer.append('}');
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

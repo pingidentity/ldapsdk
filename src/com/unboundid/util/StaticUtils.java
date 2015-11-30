@@ -92,6 +92,33 @@ public final class StaticUtils
 
 
   /**
+   * The width of the terminal window, in columns.
+   */
+  public static final int TERMINAL_WIDTH_COLUMNS;
+  static
+  {
+    // Try to dynamically determine the size of the terminal window using the
+    // COLUMNS environment variable.
+    int terminalWidth = 80;
+    final String columnsEnvVar = System.getenv("COLUMNS");
+    if (columnsEnvVar != null)
+    {
+      try
+      {
+        terminalWidth = Integer.parseInt(columnsEnvVar);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    TERMINAL_WIDTH_COLUMNS = terminalWidth;
+  }
+
+
+
+  /**
    * The thread-local date formatter used to encode generalized time values.
    */
   private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTERS =
@@ -1372,6 +1399,40 @@ public final class StaticUtils
    */
   public static List<String> wrapLine(final String line, final int maxWidth)
   {
+    return wrapLine(line, maxWidth, maxWidth);
+  }
+
+
+
+  /**
+   * Wraps the contents of the specified line using the given width.  It will
+   * attempt to wrap at spaces to preserve words, but if that is not possible
+   * (because a single "word" is longer than the maximum width), then it will
+   * wrap in the middle of the word at the specified maximum width.
+   *
+   * @param  line                    The line to be wrapped.  It must not be
+   *                                 {@code null}.
+   * @param  maxFirstLineWidth       The maximum length for the first line in
+   *                                 the resulting list.  A value less than or
+   *                                 equal to zero will cause no wrapping to be
+   *                                 performed.
+   * @param  maxSubsequentLineWidth  The maximum length for all lines except the
+   *                                 first line.  This must be greater than zero
+   *                                 unless {@code maxFirstLineWidth} is less
+   *                                 than or equal to zero.
+   *
+   * @return  A list of the wrapped lines.  It may be empty if the provided line
+   *          contained only spaces.
+   */
+  public static List<String> wrapLine(final String line,
+                                      final int maxFirstLineWidth,
+                                      final int maxSubsequentLineWidth)
+  {
+    if (maxFirstLineWidth > 0)
+    {
+      Validator.ensureTrue(maxSubsequentLineWidth > 0);
+    }
+
     // See if the provided string already contains line breaks.  If so, then
     // treat it as multiple lines rather than a single line.
     final int breakPos = line.indexOf('\n');
@@ -1381,20 +1442,21 @@ public final class StaticUtils
       final StringTokenizer tokenizer = new StringTokenizer(line, "\r\n");
       while (tokenizer.hasMoreTokens())
       {
-        lineList.addAll(wrapLine(tokenizer.nextToken(), maxWidth));
+        lineList.addAll(wrapLine(tokenizer.nextToken(), maxFirstLineWidth,
+             maxSubsequentLineWidth));
       }
 
       return lineList;
     }
 
     final int length = line.length();
-    if ((maxWidth <= 0) || (length < maxWidth))
+    if ((maxFirstLineWidth <= 0) || (length < maxFirstLineWidth))
     {
       return Arrays.asList(line);
     }
 
 
-    int wrapPos = maxWidth;
+    int wrapPos = maxFirstLineWidth;
     int lastWrapPos = 0;
     final ArrayList<String> lineList = new ArrayList<String>(5);
     while (true)
@@ -1428,7 +1490,7 @@ public final class StaticUtils
       }
 
       lastWrapPos = wrapPos;
-      wrapPos += maxWidth;
+      wrapPos += maxSubsequentLineWidth;
       if (wrapPos >= length)
       {
         // The last fragment can fit on the line, so we can handle that now and
@@ -1439,7 +1501,7 @@ public final class StaticUtils
         }
         else
         {
-          final String s = trimTrailing(line.substring(lastWrapPos));
+          final String s = line.substring(lastWrapPos);
           if (s.length() > 0)
           {
             lineList.add(s);

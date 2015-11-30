@@ -250,6 +250,28 @@ public final class DeliverPasswordResetToken
    * {@inheritDoc}
    */
   @Override()
+  public boolean supportsInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean defaultsToInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ResultCode doToolProcessing()
   {
     // Get the set of preferred delivery mechanisms.

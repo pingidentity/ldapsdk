@@ -596,6 +596,28 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    if (! values.isEmpty())
+    {
+      return Collections.unmodifiableList(values);
+    }
+    else if (useDefault && (defaultValues != null))
+    {
+      return Collections.unmodifiableList(defaultValues);
+    }
+    else
+    {
+      return Collections.emptyList();
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
@@ -684,9 +706,39 @@ public final class StringArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    values.clear();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public StringArgument getCleanCopy()
   {
     return new StringArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (values != null)
+    {
+      for (final String s : values)
+      {
+        argStrings.add(getIdentifierString());
+        argStrings.add(s);
+      }
+    }
   }
 
 

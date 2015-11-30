@@ -22,6 +22,10 @@ package com.unboundid.util.args;
 
 
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.unboundid.util.Mutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -141,6 +145,18 @@ public final class BooleanArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    return Collections.unmodifiableList(
+         Arrays.asList(String.valueOf(isPresent())));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return false;
@@ -177,6 +193,20 @@ public final class BooleanArgument
   public BooleanArgument getCleanCopy()
   {
     return new BooleanArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    for (int i=0; i < getNumOccurrences(); i++)
+    {
+      argStrings.add(getIdentifierString());
+    }
   }
 
 

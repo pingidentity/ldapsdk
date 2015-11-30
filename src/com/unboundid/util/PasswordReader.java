@@ -22,6 +22,7 @@ package com.unboundid.util;
 
 
 
+import java.io.BufferedReader;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,6 +48,14 @@ import static com.unboundid.util.UtilityMessages.*;
 public final class PasswordReader
        extends Thread
 {
+  /**
+   * The input stream from which to read the password.  This should only be set
+   * when running unit tests.
+   */
+  private static volatile BufferedReader TEST_READER = null;
+
+
+
   // Indicates whether a request has been made for the backspace thread to
   // stop running.
   private final AtomicBoolean stopRequested;
@@ -82,6 +91,24 @@ public final class PasswordReader
   public static byte[] readPassword()
          throws LDAPException
   {
+    // If an input stream is available, then read the password from it.
+    final BufferedReader testReader = TEST_READER;
+    if (testReader != null)
+    {
+      try
+      {
+        return StaticUtils.getBytes(testReader.readLine());
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_PW_READER_FAILURE.get(StaticUtils.getExceptionMessage(e)),
+             e);
+      }
+    }
+
+
     // Try to use the Java SE 6 approach first.
     try
     {
@@ -168,7 +195,6 @@ public final class PasswordReader
 
 
 
-
   /**
    * Repeatedly sends backspace and space characters to standard output in an
    * attempt to try to hide what the user enters.
@@ -186,5 +212,20 @@ public final class PasswordReader
       System.out.print("\u0008 ");
       yield();
     }
+  }
+
+
+
+  /**
+   * Specifies the input stream from which to read the password.  This should
+   * only be set when running unit tests.
+   *
+   * @param  reader  The input stream from which to read the password.  It may
+   *                 be {@code null} to obtain the password from the normal
+   *                 means.
+   */
+  static void setTestReader(final BufferedReader reader)
+  {
+    TEST_READER = reader;
   }
 }

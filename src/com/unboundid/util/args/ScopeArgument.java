@@ -22,8 +22,10 @@ package com.unboundid.util.args;
 
 
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -46,8 +48,8 @@ import static com.unboundid.util.args.ArgsMessages.*;
  *   <LI>singleLevel scope -- one, singleLevel, single-level, oneLevel,
  *       one-level, 1</LI>
  *   <LI>wholeSubtree scope -- sub, subtree, wholeSubtree, whole-subtree, 2</LI>
- *   <LI>subordinateSubtree scope -- subord, subordinate, subordinateSubtree,
- *       subordinate-subtree, 3</LI>
+ *   <LI>subordinateSubtree scope -- subord, subordinate, subordinates,
+ *       subordinateSubtree, subordinate-subtree, 3</LI>
  * </UL>
  */
 @Mutable()
@@ -63,7 +65,7 @@ public final class ScopeArgument
   static
   {
     final HashMap<String,SearchScope> scopeMap =
-         new HashMap<String,SearchScope>(20);
+         new HashMap<String,SearchScope>(21);
 
     scopeMap.put("base", SearchScope.BASE);
     scopeMap.put("baseobject", SearchScope.BASE);
@@ -85,6 +87,7 @@ public final class ScopeArgument
 
     scopeMap.put("subord", SearchScope.SUBORDINATE_SUBTREE);
     scopeMap.put("subordinate", SearchScope.SUBORDINATE_SUBTREE);
+    scopeMap.put("subordinates", SearchScope.SUBORDINATE_SUBTREE);
     scopeMap.put("subordinatesubtree", SearchScope.SUBORDINATE_SUBTREE);
     scopeMap.put("subordinate-subtree", SearchScope.SUBORDINATE_SUBTREE);
     scopeMap.put("3", SearchScope.SUBORDINATE_SUBTREE);
@@ -270,6 +273,48 @@ public final class ScopeArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    SearchScope s = value.get();
+    if (useDefault && (s == null))
+    {
+      s = defaultValue;
+    }
+
+    if (s == null)
+    {
+      return Collections.emptyList();
+    }
+
+    final String scopeStr;
+    switch (s.intValue())
+    {
+      case SearchScope.BASE_INT_VALUE:
+        scopeStr = "base";
+        break;
+      case SearchScope.ONE_INT_VALUE:
+        scopeStr = "one";
+        break;
+      case SearchScope.SUB_INT_VALUE:
+        scopeStr = "sub";
+        break;
+      case SearchScope.SUBORDINATE_SUBTREE_INT_VALUE:
+        scopeStr = "subordinates";
+        break;
+      default:
+        scopeStr = s.getName();
+        break;
+    }
+
+    return Collections.unmodifiableList(Arrays.asList(scopeStr));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return (defaultValue != null);
@@ -303,9 +348,54 @@ public final class ScopeArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    value.set(null);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ScopeArgument getCleanCopy()
   {
     return new ScopeArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    final SearchScope s = value.get();
+    if (s != null)
+    {
+      switch (s.intValue())
+      {
+        case SearchScope.BASE_INT_VALUE:
+          argStrings.add(getIdentifierString());
+          argStrings.add("base");
+          break;
+        case SearchScope.ONE_INT_VALUE:
+          argStrings.add(getIdentifierString());
+          argStrings.add("one");
+          break;
+        case SearchScope.SUB_INT_VALUE:
+          argStrings.add(getIdentifierString());
+          argStrings.add("sub");
+          break;
+        case SearchScope.SUBORDINATE_SUBTREE_INT_VALUE:
+          argStrings.add(getIdentifierString());
+          argStrings.add("subordinates");
+          break;
+      }
+    }
   }
 
 

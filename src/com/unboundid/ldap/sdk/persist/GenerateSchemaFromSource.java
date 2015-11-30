@@ -179,6 +179,44 @@ public final class GenerateSchemaFromSource
 
 
   /**
+   * Indicates whether this tool should provide support for an interactive mode,
+   * in which the tool offers a mode in which the arguments can be provided in
+   * a text-driven menu rather than requiring them to be given on the command
+   * line.  If interactive mode is supported, it may be invoked using the
+   * "--interactive" argument.  Alternately, if interactive mode is supported
+   * and {@link #defaultsToInteractiveMode()} returns {@code true}, then
+   * interactive mode may be invoked by simply launching the tool without any
+   * arguments.
+   *
+   * @return  {@code true} if this tool supports interactive mode, or
+   *          {@code false} if not.
+   */
+  @Override()
+  public boolean supportsInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether this tool defaults to launching in interactive mode if
+   * the tool is invoked without any command-line arguments.  This will only be
+   * used if {@link #supportsInteractiveMode()} returns {@code true}.
+   *
+   * @return  {@code true} if this tool defaults to using interactive mode if
+   *          launched without any command-line arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  public boolean defaultsToInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

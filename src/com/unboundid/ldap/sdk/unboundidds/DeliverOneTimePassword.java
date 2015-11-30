@@ -313,6 +313,28 @@ public final class DeliverOneTimePassword
    * {@inheritDoc}
    */
   @Override()
+  public boolean supportsInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public boolean defaultsToInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ResultCode doToolProcessing()
   {
     // Construct the authentication identity.

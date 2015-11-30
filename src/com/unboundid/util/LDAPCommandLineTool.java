@@ -23,7 +23,10 @@ package com.unboundid.util;
 
 
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
@@ -188,9 +191,6 @@ import static com.unboundid.util.UtilityMessages.*;
 public abstract class LDAPCommandLineTool
        extends CommandLineTool
 {
-
-
-
   // Arguments used to communicate with an LDAP directory server.
   private BooleanArgument promptForBindPassword       = null;
   private BooleanArgument promptForKeyStorePassword   = null;
@@ -247,6 +247,57 @@ public abstract class LDAPCommandLineTool
     super(outStream, errStream);
 
     promptTrustManager = new AtomicReference<PromptTrustManager>();
+  }
+
+
+
+  /**
+   * Retrieves a set containing the long identifiers used for LDAP-related
+   * arguments injected by this class.
+   *
+   * @param  includeAuthenticationArgs  Indicates whether to include
+   *                                    authentication-related arguments.
+   *
+   * @return  A set containing the long identifiers used for LDAP-related
+   *          arguments injected by this class.
+   */
+  static Set<String> getLongLDAPArgumentIdentifiers(
+                          final boolean includeAuthenticationArgs)
+  {
+    final LinkedHashSet<String> ids = new LinkedHashSet<String>(21);
+
+    ids.add("hostname");
+    ids.add("port");
+
+    if (includeAuthenticationArgs)
+    {
+      ids.add("bindDN");
+      ids.add("bindPassword");
+      ids.add("bindPasswordFile");
+      ids.add("promptForBindPassword");
+    }
+
+    ids.add("useSSL");
+    ids.add("useStartTLS");
+    ids.add("trustAll");
+    ids.add("keyStorePath");
+    ids.add("keyStorePassword");
+    ids.add("keyStorePasswordFile");
+    ids.add("promptForKeyStorePassword");
+    ids.add("keyStoreFormat");
+    ids.add("trustStorePath");
+    ids.add("trustStorePassword");
+    ids.add("trustStorePasswordFile");
+    ids.add("promptForTrustStorePassword");
+    ids.add("trustStoreFormat");
+    ids.add("certNickname");
+
+    if (includeAuthenticationArgs)
+    {
+      ids.add("saslOption");
+    }
+
+    return Collections.unmodifiableSet(ids);
   }
 
 

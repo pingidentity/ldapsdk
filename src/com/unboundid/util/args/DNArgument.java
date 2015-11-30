@@ -353,6 +353,43 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    if (values.isEmpty())
+    {
+      if (useDefault && (defaultValues != null))
+      {
+        final ArrayList<String> valueStrings =
+             new ArrayList<String>(defaultValues.size());
+        for (final DN dn : defaultValues)
+        {
+          valueStrings.add(dn.toString());
+        }
+        return Collections.unmodifiableList(valueStrings);
+      }
+      else
+      {
+        return Collections.emptyList();
+      }
+    }
+    else
+    {
+      final ArrayList<String> valueStrings =
+           new ArrayList<String>(values.size());
+      for (final DN dn : values)
+      {
+        valueStrings.add(dn.toString());
+      }
+      return Collections.unmodifiableList(valueStrings);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
@@ -386,9 +423,39 @@ public final class DNArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    values.clear();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public DNArgument getCleanCopy()
   {
     return new DNArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (values != null)
+    {
+      for (final DN dn : values)
+      {
+        argStrings.add(getIdentifierString());
+        argStrings.add(String.valueOf(dn));
+      }
+    }
   }
 
 

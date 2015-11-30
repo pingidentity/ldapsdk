@@ -22,6 +22,10 @@ package com.unboundid.util.args;
 
 
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.unboundid.util.Mutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -166,6 +170,32 @@ public final class BooleanValueArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    if (value == null)
+    {
+      if (useDefault && (defaultValue != null))
+      {
+        return Collections.unmodifiableList(Arrays.asList(
+             defaultValue.toString()));
+      }
+      else
+      {
+        return Collections.emptyList();
+      }
+    }
+    else
+    {
+      return Collections.unmodifiableList(Arrays.asList(value.toString()));
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return (defaultValue != null);
@@ -269,9 +299,36 @@ public final class BooleanValueArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    value = null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public BooleanValueArgument getCleanCopy()
   {
     return new BooleanValueArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (value != null)
+    {
+      argStrings.add(getIdentifierString());
+      argStrings.add(String.valueOf(value));
+    }
   }
 
 

@@ -433,6 +433,67 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    final List<Control> controls;
+    if (values.isEmpty())
+    {
+      if (useDefault)
+      {
+        controls = defaultValues;
+      }
+      else
+      {
+        return Collections.emptyList();
+      }
+    }
+    else
+    {
+      controls = values;
+    }
+
+    if ((controls == null) || controls.isEmpty())
+    {
+      return Collections.emptyList();
+    }
+
+    final StringBuilder buffer = new StringBuilder();
+    final ArrayList<String> valueStrings =
+         new ArrayList<String>(controls.size());
+    for (final Control c : controls)
+    {
+      buffer.setLength(0);
+      buffer.append(c.getOID());
+      buffer.append(':');
+      buffer.append(c.isCritical());
+
+      if (c.hasValue())
+      {
+        final byte[] valueBytes = c.getValue().getValue();
+        if (StaticUtils.isPrintableString(valueBytes))
+        {
+          buffer.append(':');
+          buffer.append(c.getValue().stringValue());
+        }
+        else
+        {
+          buffer.append("::");
+          Base64.encode(valueBytes, buffer);
+        }
+      }
+
+      valueStrings.add(buffer.toString());
+    }
+
+    return Collections.unmodifiableList(valueStrings);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
@@ -466,9 +527,61 @@ public final class ControlArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    values.clear();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ControlArgument getCleanCopy()
   {
     return new ControlArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (values != null)
+    {
+      final StringBuilder buffer = new StringBuilder();
+      for (final Control c : values)
+      {
+        argStrings.add(getIdentifierString());
+
+        buffer.setLength(0);
+        buffer.append(c.getOID());
+        buffer.append(':');
+        buffer.append(c.isCritical());
+
+        if (c.hasValue())
+        {
+          final byte[] valueBytes = c.getValue().getValue();
+          if (StaticUtils.isPrintableString(valueBytes))
+          {
+            buffer.append(':');
+            buffer.append(c.getValue().stringValue());
+          }
+          else
+          {
+            buffer.append("::");
+            Base64.encode(valueBytes, buffer);
+          }
+        }
+
+        argStrings.add(buffer.toString());
+      }
+    }
   }
 
 

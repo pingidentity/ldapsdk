@@ -533,6 +533,45 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    final List<Integer> intValues;
+    if (values.isEmpty())
+    {
+      if (useDefault)
+      {
+        intValues = defaultValues;
+      }
+      else
+      {
+        return Collections.emptyList();
+      }
+    }
+    else
+    {
+      intValues = values;
+    }
+
+    if ((intValues == null) || intValues.isEmpty())
+    {
+      return Collections.emptyList();
+    }
+
+    final ArrayList<String> valueStrings =
+         new ArrayList<String>(intValues.size());
+    for (final Integer i : intValues)
+    {
+      valueStrings.add(i.toString());
+    }
+    return Collections.unmodifiableList(valueStrings);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
@@ -567,9 +606,39 @@ public final class IntegerArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    values.clear();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public IntegerArgument getCleanCopy()
   {
     return new IntegerArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (values != null)
+    {
+      for (final Integer i : values)
+      {
+        argStrings.add(getIdentifierString());
+        argStrings.add(i.toString());
+      }
+    }
   }
 
 

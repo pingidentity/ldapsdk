@@ -65,6 +65,9 @@ public final class ArgumentParser
   // The maximum number of trailing arguments allowed to be provided.
   private final int maxTrailingArgs;
 
+  // The minimum number of trailing arguments allowed to be provided.
+  private final int minTrailingArgs;
+
   // The set of named arguments associated with this parser, indexed by short
   // identifier.
   private final LinkedHashMap<Character,Argument> namedArgsByShortID;
@@ -163,6 +166,55 @@ public final class ArgumentParser
                         final String trailingArgsPlaceholder)
          throws ArgumentException
   {
+    this(commandName, commandDescription, 0, maxTrailingArgs,
+         trailingArgsPlaceholder);
+  }
+
+
+
+  /**
+   * Creates a new instance of this argument parser with the provided
+   * information.
+   *
+   * @param  commandName              The name of the application or utility
+   *                                  with which this argument parser is
+   *                                  associated.  It must not be {@code null}.
+   * @param  commandDescription       A description of the application or
+   *                                  utility with which this argument parser is
+   *                                  associated.  It will be included in
+   *                                  generated usage information.  It must not
+   *                                  be {@code null}.
+   * @param  minTrailingArgs          The minimum number of trailing arguments
+   *                                  that must be provided for this command.  A
+   *                                  value of zero indicates that the command
+   *                                  may be invoked without any trailing
+   *                                  arguments.
+   * @param  maxTrailingArgs          The maximum number of trailing arguments
+   *                                  that may be provided to this command.  A
+   *                                  value of zero indicates that no trailing
+   *                                  arguments will be allowed.  A value less
+   *                                  than zero will indicate that there is no
+   *                                  limit on the number of trailing arguments
+   *                                  allowed.
+   * @param  trailingArgsPlaceholder  A placeholder string that will be included
+   *                                  in usage output to indicate what trailing
+   *                                  arguments may be provided.  It must not be
+   *                                  {@code null} if {@code maxTrailingArgs} is
+   *                                  anything other than zero.
+   *
+   * @throws  ArgumentException  If either the command name or command
+   *                             description is {@code null}, or if the maximum
+   *                             number of trailing arguments is non-zero and
+   *                             the trailing arguments placeholder is
+   *                             {@code null}.
+   */
+  public ArgumentParser(final String commandName,
+                        final String commandDescription,
+                        final int minTrailingArgs,
+                        final int maxTrailingArgs,
+                        final String trailingArgsPlaceholder)
+         throws ArgumentException
+  {
     if (commandName == null)
     {
       throw new ArgumentException(ERR_PARSER_COMMAND_NAME_NULL.get());
@@ -183,6 +235,15 @@ public final class ArgumentParser
     this.commandDescription      = commandDescription;
     this.trailingArgsPlaceholder = trailingArgsPlaceholder;
 
+    if (minTrailingArgs >= 0)
+    {
+      this.minTrailingArgs = minTrailingArgs;
+    }
+    else
+    {
+      this.minTrailingArgs = 0;
+    }
+
     if (maxTrailingArgs >= 0)
     {
       this.maxTrailingArgs = maxTrailingArgs;
@@ -190,6 +251,12 @@ public final class ArgumentParser
     else
     {
       this.maxTrailingArgs = Integer.MAX_VALUE;
+    }
+
+    if (this.minTrailingArgs > this.maxTrailingArgs)
+    {
+      throw new ArgumentException(ERR_PARSER_TRAILING_ARGS_COUNT_MISMATCH.get(
+           this.minTrailingArgs, this.maxTrailingArgs));
     }
 
     namedArgsByShortID    = new LinkedHashMap<Character,Argument>();
@@ -213,6 +280,7 @@ public final class ArgumentParser
   {
     commandName             = source.commandName;
     commandDescription      = source.commandDescription;
+    minTrailingArgs         = source.minTrailingArgs;
     maxTrailingArgs         = source.maxTrailingArgs;
     trailingArgsPlaceholder = source.trailingArgsPlaceholder;
 
@@ -346,6 +414,21 @@ public final class ArgumentParser
 
 
   /**
+   * Indicates whether this argument parser requires at least unnamed trailing
+   * argument to be provided.
+   *
+   * @return  {@code true} if at least one unnamed trailing argument must be
+   *          provided, or {@code false} if the tool may be invoked without any
+   *          such arguments.
+   */
+  public boolean requiresTrailingArguments()
+  {
+    return (minTrailingArgs != 0);
+  }
+
+
+
+  /**
    * Retrieves the placeholder string that will be provided in usage information
    * to indicate what may be included in the trailing arguments.
    *
@@ -356,6 +439,20 @@ public final class ArgumentParser
   public String getTrailingArgumentsPlaceholder()
   {
     return trailingArgsPlaceholder;
+  }
+
+
+
+  /**
+   * Retrieves the minimum number of unnamed trailing arguments that must be
+   * provided.
+   *
+   * @return  The minimum number of unnamed trailing arguments that must be
+   *          provided.
+   */
+  public int getMinTrailingArguments()
+  {
+    return minTrailingArgs;
   }
 
 
@@ -392,18 +489,303 @@ public final class ArgumentParser
 
 
   /**
-   * Retrieves the named argument with the specified long identifier.
+   * Retrieves the named argument with the specified identifier.
    *
-   * @param  longIdentifier  The long identifier of the argument to retrieve.
-   *                         It must not be {@code null}.
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
    *
    * @return  The named argument with the specified long identifier, or
    *          {@code null} if there is no such argument.
    */
-  public Argument getNamedArgument(final String longIdentifier)
+  public Argument getNamedArgument(final String identifier)
   {
-    ensureNotNull(longIdentifier);
-    return namedArgsByLongID.get(toLowerCase(longIdentifier));
+    ensureNotNull(identifier);
+
+    if (identifier.startsWith("--") && (identifier.length() > 2))
+    {
+      return namedArgsByLongID.get(toLowerCase(identifier.substring(2)));
+    }
+    else if (identifier.startsWith("-") && (identifier.length() == 2))
+    {
+      return namedArgsByShortID.get(identifier.charAt(1));
+    }
+    else
+    {
+      return namedArgsByLongID.get(toLowerCase(identifier));
+    }
+  }
+
+
+
+  /**
+   * Retrieves the argument list argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The argument list argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public ArgumentListArgument getArgumentListArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (ArgumentListArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the Boolean argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The Boolean argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public BooleanArgument getBooleanArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (BooleanArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the Boolean value argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The Boolean value argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public BooleanValueArgument getBooleanValueArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (BooleanValueArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the DN argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The DN argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public DNArgument getDNArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (DNArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the duration argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The duration argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public DurationArgument getDurationArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (DurationArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the file argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The file argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public FileArgument getFileArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (FileArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the filter argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The filter argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public FilterArgument getFilterArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (FilterArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the integer argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The integer argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public IntegerArgument getIntegerArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (IntegerArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the scope argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The scope argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public ScopeArgument getScopeArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (ScopeArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the string argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The string argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public StringArgument getStringArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (StringArgument) a;
+    }
   }
 
 
@@ -671,6 +1053,38 @@ public final class ArgumentParser
 
 
   /**
+   * Clears the set of trailing arguments for this argument parser.
+   */
+  void resetTrailingArguments()
+  {
+    trailingArgs.clear();
+  }
+
+
+
+  /**
+   * Adds the provided value to the set of trailing arguments.
+   *
+   * @param  value  The value to add to the set of trailing arguments.
+   *
+   * @throws  ArgumentException  If the parser already has the maximum allowed
+   *                             number of trailing arguments.
+   */
+  void addTrailingArgument(final String value)
+       throws ArgumentException
+  {
+    if ((maxTrailingArgs > 0) && (trailingArgs.size() >= maxTrailingArgs))
+    {
+      throw new ArgumentException(ERR_PARSER_TOO_MANY_TRAILING_ARGS.get(value,
+           commandName, maxTrailingArgs));
+    }
+
+    trailingArgs.add(value);
+  }
+
+
+
+  /**
    * Creates a copy of this argument parser that is "clean" and appears as if it
    * has not been used to parse an argument set.  The new parser will have all
    * of the same arguments and constraints as this parser.
@@ -893,6 +1307,15 @@ public final class ArgumentParser
         throw new ArgumentException(ERR_PARSER_MISSING_REQUIRED_ARG.get(
                                          a.getIdentifierString()));
       }
+    }
+
+
+    // Make sure that at least the minimum number of trailing arguments were
+    // provided.
+    if (trailingArgs.size() < minTrailingArgs)
+    {
+      throw new ArgumentException(ERR_PARSER_NOT_ENOUGH_TRAILING_ARGS.get(
+           commandName, minTrailingArgs, trailingArgsPlaceholder));
     }
 
 
@@ -1223,6 +1646,8 @@ public final class ArgumentParser
     buffer.append(commandName);
     buffer.append("', commandDescription='");
     buffer.append(commandDescription);
+    buffer.append("', minTrailingArgs=");
+    buffer.append(minTrailingArgs);
     buffer.append("', maxTrailingArgs=");
     buffer.append(maxTrailingArgs);
 

@@ -24,11 +24,14 @@ package com.unboundid.util;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
@@ -91,6 +94,9 @@ public abstract class CommandLineTool
 
   // The argument used to request tool help.
   private BooleanArgument helpArgument = null;
+
+  // The argument used to request interactive mode.
+  private BooleanArgument interactiveArgument = null;
 
   // The argument used to request the tool version.
   private BooleanArgument versionArgument = null;
@@ -159,11 +165,21 @@ public abstract class CommandLineTool
     try
     {
       final ArgumentParser parser = createArgumentParser();
-      parser.parse(args);
+      if (supportsInteractiveMode() && defaultsToInteractiveMode() &&
+          ((args == null) || (args.length == 0)))
+      {
+        // We'll skip argument parsing in this case because no arguments were
+        // provided, and the tool may not allow no arguments to be provided in
+        // non-interactive mode.
+      }
+      else
+      {
+        parser.parse(args);
+      }
 
       if (helpArgument.isPresent())
       {
-        out(parser.getUsageString(79));
+        out(parser.getUsageString(StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
         displayExampleUsages();
         return ResultCode.SUCCESS;
       }
@@ -174,7 +190,39 @@ public abstract class CommandLineTool
         return ResultCode.SUCCESS;
       }
 
-      doExtendedArgumentValidation();
+      boolean extendedValidationDone = false;
+      if (interactiveArgument != null)
+      {
+        if (interactiveArgument.isPresent() ||
+            (defaultsToInteractiveMode() &&
+             ((args == null) || (args.length == 0))))
+        {
+          final CommandLineToolInteractiveModeProcessor interactiveProcessor =
+               new CommandLineToolInteractiveModeProcessor(this, parser);
+          try
+          {
+            interactiveProcessor.doInteractiveModeProcessing();
+            extendedValidationDone = true;
+          }
+          catch (final LDAPException le)
+          {
+            debugException(le);
+
+            final String message = le.getMessage();
+            if ((message != null) && (message.length() > 0))
+            {
+              err(message);
+            }
+
+            return le.getResultCode();
+          }
+        }
+      }
+
+      if (! extendedValidationDone)
+      {
+        doExtendedArgumentValidation();
+      }
     }
     catch (ArgumentException ae)
     {
@@ -223,10 +271,11 @@ public abstract class CommandLineTool
 
     out(INFO_CL_TOOL_LABEL_EXAMPLES);
 
+    final int wrapWidth = StaticUtils.TERMINAL_WIDTH_COLUMNS - 1;
     for (final Map.Entry<String[],String> e : examples.entrySet())
     {
       out();
-      wrapOut(2, 79, e.getValue());
+      wrapOut(2, wrapWidth, e.getValue());
       out();
 
       final StringBuilder buffer = new StringBuilder();
@@ -260,7 +309,7 @@ public abstract class CommandLineTool
           arg = cleanArg.getLocalForm();
         }
 
-        if ((buffer.length() + arg.length() + 2) < 79)
+        if ((buffer.length() + arg.length() + 2) < wrapWidth)
         {
           buffer.append(arg);
         }
@@ -313,6 +362,25 @@ public abstract class CommandLineTool
 
 
   /**
+   * Retrieves the minimum number of unnamed trailing arguments that must be
+   * provided for this tool.  If a tool requires the use of trailing arguments,
+   * then it must override this method and the {@link #getMaxTrailingArguments}
+   * arguments to return nonzero values, and it must also override the
+   * {@link #getTrailingArgumentsPlaceholder} method to return a
+   * non-{@code null} value.
+   *
+   * @return  The minimum number of unnamed trailing arguments that may be
+   *          provided for this tool.  A value of zero indicates that the tool
+   *          may be invoked without any trailing arguments.
+   */
+  public int getMinTrailingArguments()
+  {
+    return 0;
+  }
+
+
+
+  /**
    * Retrieves the maximum number of unnamed trailing arguments that may be
    * provided for this tool.  If a tool supports trailing arguments, then it
    * must override this method to return a nonzero value, and must also override
@@ -347,6 +415,42 @@ public abstract class CommandLineTool
 
 
   /**
+   * Indicates whether this tool should provide support for an interactive mode,
+   * in which the tool offers a mode in which the arguments can be provided in
+   * a text-driven menu rather than requiring them to be given on the command
+   * line.  If interactive mode is supported, it may be invoked using the
+   * "--interactive" argument.  Alternately, if interactive mode is supported
+   * and {@link #defaultsToInteractiveMode()} returns {@code true}, then
+   * interactive mode may be invoked by simply launching the tool without any
+   * arguments.
+   *
+   * @return  {@code true} if this tool supports interactive mode, or
+   *          {@code false} if not.
+   */
+  public boolean supportsInteractiveMode()
+  {
+    return false;
+  }
+
+
+
+  /**
+   * Indicates whether this tool defaults to launching in interactive mode if
+   * the tool is invoked without any command-line arguments.  This will only be
+   * used if {@link #supportsInteractiveMode()} returns {@code true}.
+   *
+   * @return  {@code true} if this tool defaults to using interactive mode if
+   *          launched without any command-line arguments, or {@code false} if
+   *          not.
+   */
+  public boolean defaultsToInteractiveMode()
+  {
+    return false;
+  }
+
+
+
+  /**
    * Creates a parser that can be used to to parse arguments accepted by
    * this tool.
    *
@@ -360,10 +464,18 @@ public abstract class CommandLineTool
          throws ArgumentException
   {
     final ArgumentParser parser = new ArgumentParser(getToolName(),
-         getToolDescription(), getMaxTrailingArguments(),
-         getTrailingArgumentsPlaceholder());
+         getToolDescription(), getMinTrailingArguments(),
+         getMaxTrailingArguments(), getTrailingArgumentsPlaceholder());
 
     addToolArguments(parser);
+
+    if (supportsInteractiveMode())
+    {
+      interactiveArgument = new BooleanArgument(null, "interactive",
+           INFO_CL_TOOL_DESCRIPTION_INTERACTIVE.get());
+      interactiveArgument.setUsageArgument(true);
+      parser.addArgument(interactiveArgument);
+    }
 
     helpArgument = new BooleanArgument('H', "help",
          INFO_CL_TOOL_DESCRIPTION_HELP.get());
@@ -397,6 +509,26 @@ public abstract class CommandLineTool
 
 
   /**
+   * Retrieves a set containing the long identifiers used for LDAP-related
+   * arguments injected by this class.
+   *
+   * @return  A set containing the long identifiers used for LDAP-related
+   *          arguments injected by this class.
+   */
+  static Set<String> getUsageArgumentIdentifiers()
+  {
+    final LinkedHashSet<String> ids = new LinkedHashSet<String>(21);
+
+    ids.add("interactive");
+    ids.add("help");
+    ids.add("version");
+
+    return Collections.unmodifiableSet(ids);
+  }
+
+
+
+  /**
    * Adds the command-line arguments supported for use with this tool to the
    * provided argument parser.  The tool may need to retain references to the
    * arguments (and/or the argument parser, if trailing arguments are allowed)
@@ -418,6 +550,9 @@ public abstract class CommandLineTool
    * provided set of command-line arguments were valid.  This method will be
    * called after the basic argument parsing has been performed and immediately
    * before the {@link CommandLineTool#doToolProcessing} method is invoked.
+   * Note that if the tool supports interactive mode, then this method may be
+   * invoked multiple times to allow the user to interactively fix validation
+   * errors.
    *
    * @throws  ArgumentException  If there was a problem with the command-line
    *                             arguments provided to this program.
@@ -574,6 +709,46 @@ public abstract class CommandLineTool
 
 
   /**
+   * Writes the provided message to the standard output stream for this tool,
+   * optionally wrapping and/or indenting the text in the process.
+   * <BR><BR>
+   * This method is completely threadsafe and my be invoked concurrently by any
+   * number of threads.
+   *
+   * @param  firstLineIndent       The number of spaces the first line should be
+   *                               indented.  A value less than or equal to zero
+   *                               indicates that no indent should be used.
+   * @param  subsequentLineIndent  The number of spaces each line except the
+   *                               first should be indented.  A value less than
+   *                               or equal to zero indicates that no indent
+   *                               should be used.
+   * @param  wrapColumn            The column at which to wrap long lines.  A
+   *                               value less than or equal to two indicates
+   *                               that no wrapping should be performed.  If
+   *                               both an indent and a wrap column are to be
+   *                               used, then the wrap column must be greater
+   *                               than the indent.
+   * @param  endWithNewline        Indicates whether a newline sequence should
+   *                               follow the last line that is printed.
+   * @param  msg                   The message components that will be written
+   *                               to the standard output stream.  They will be
+   *                               concatenated together on the same line, and
+   *                               that line will be followed by an end-of-line
+   *                               sequence.
+   */
+  final synchronized void wrapStandardOut(final int firstLineIndent,
+                                          final int subsequentLineIndent,
+                                          final int wrapColumn,
+                                          final boolean endWithNewline,
+                                          final Object... msg)
+  {
+    write(out, firstLineIndent, subsequentLineIndent, wrapColumn,
+         endWithNewline, msg);
+  }
+
+
+
+  /**
    * Retrieves the print writer that will be used for standard error.
    *
    * @return  The print writer that will be used for standard error.
@@ -654,6 +829,43 @@ public abstract class CommandLineTool
   private static void write(final PrintStream stream, final int indent,
                             final int wrapColumn, final Object... msg)
   {
+    write(stream, indent, indent, wrapColumn, true, msg);
+  }
+
+
+
+  /**
+   * Writes the provided message to the given print stream, optionally wrapping
+   * and/or indenting the text in the process.
+   *
+   * @param  stream                The stream to which the message should be
+   *                               written.
+   * @param  firstLineIndent       The number of spaces the first line should be
+   *                               indented.  A value less than or equal to zero
+   *                               indicates that no indent should be used.
+   * @param  subsequentLineIndent  The number of spaces all lines after the
+   *                               first should be indented.  A value less than
+   *                               or equal to zero indicates that no indent
+   *                               should be used.
+   * @param  wrapColumn            The column at which to wrap long lines.  A
+   *                               value less than or equal to two indicates
+   *                               that no wrapping should be performed.  If
+   *                               both an indent and a wrap column are to be
+   *                               used, then the wrap column must be greater
+   *                               than the indent.
+   * @param  endWithNewline        Indicates whether a newline sequence should
+   *                               follow the last line that is printed.
+   * @param  msg                   The message components that will be written
+   *                               to the standard output stream.  They will be
+   *                               concatenated together on the same line, and
+   *                               that line will be followed by an end-of-line
+   *                               sequence.
+   */
+  private static void write(final PrintStream stream, final int firstLineIndent,
+                            final int subsequentLineIndent,
+                            final int wrapColumn,
+                            final boolean endWithNewline, final Object... msg)
+  {
     final StringBuilder buffer = new StringBuilder();
     for (final Object o : msg)
     {
@@ -662,37 +874,49 @@ public abstract class CommandLineTool
 
     if (wrapColumn > 2)
     {
-      final List<String> lines;
-      if (indent > 0)
+      boolean firstLine = true;
+      for (final String line :
+           wrapLine(buffer.toString(), (wrapColumn - firstLineIndent),
+                (wrapColumn - subsequentLineIndent)))
       {
-        for (final String line :
-             wrapLine(buffer.toString(), (wrapColumn - indent)))
+        final int indent;
+        if (firstLine)
+        {
+          indent = firstLineIndent;
+          firstLine = false;
+        }
+        else
+        {
+          stream.println();
+          indent = subsequentLineIndent;
+        }
+
+        if (indent > 0)
         {
           for (int i=0; i < indent; i++)
           {
             stream.print(' ');
           }
-          stream.println(line);
         }
-      }
-      else
-      {
-        for (final String line : wrapLine(buffer.toString(), wrapColumn))
-        {
-          stream.println(line);
-        }
+        stream.print(line);
       }
     }
     else
     {
-      if (indent > 0)
+      if (firstLineIndent > 0)
       {
-        for (int i=0; i < indent; i++)
+        for (int i=0; i < firstLineIndent; i++)
         {
           stream.print(' ');
         }
       }
-      stream.println(buffer.toString());
+      stream.print(buffer.toString());
     }
+
+    if (endWithNewline)
+    {
+      stream.println();
+    }
+    stream.flush();
   }
 }

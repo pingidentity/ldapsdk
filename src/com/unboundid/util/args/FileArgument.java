@@ -654,6 +654,44 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    final List<File> files;
+    if (values.isEmpty())
+    {
+      if (useDefault)
+      {
+        files = defaultValues;
+      }
+      else
+      {
+        return Collections.emptyList();
+      }
+    }
+    else
+    {
+      files = values;
+    }
+
+    if ((files == null) || files.isEmpty())
+    {
+      return Collections.emptyList();
+    }
+
+    final ArrayList<String> valueStrings = new ArrayList<String>(files.size());
+    for (final File f : files)
+    {
+      valueStrings.add(f.getAbsolutePath());
+    }
+    return Collections.unmodifiableList(valueStrings);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return ((defaultValues != null) && (! defaultValues.isEmpty()));
@@ -734,9 +772,39 @@ public final class FileArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    values.clear();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public FileArgument getCleanCopy()
   {
     return new FileArgument(this);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (values != null)
+    {
+      for (final File f : values)
+      {
+        argStrings.add(getIdentifierString());
+        argStrings.add(f.getAbsolutePath());
+      }
+    }
   }
 
 

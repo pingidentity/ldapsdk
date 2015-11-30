@@ -41,6 +41,7 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -260,6 +261,21 @@ public final class LDAPSearch
 
 
   /**
+   * Retrieves the minimum number of unnamed trailing arguments that are
+   * required.
+   *
+   * @return  One, to indicate that at least one trailing argument (representing
+   *          the search filter) must be provided.
+   */
+  @Override()
+  public int getMinTrailingArguments()
+  {
+    return 1;
+  }
+
+
+
+  /**
    * Retrieves the maximum number of unnamed trailing arguments that are
    * allowed.
    *
@@ -285,6 +301,44 @@ public final class LDAPSearch
   public String getTrailingArgumentsPlaceholder()
   {
     return "{filter} [attr1 [attr2 [...]]]";
+  }
+
+
+
+  /**
+   * Indicates whether this tool should provide support for an interactive mode,
+   * in which the tool offers a mode in which the arguments can be provided in
+   * a text-driven menu rather than requiring them to be given on the command
+   * line.  If interactive mode is supported, it may be invoked using the
+   * "--interactive" argument.  Alternately, if interactive mode is supported
+   * and {@link #defaultsToInteractiveMode()} returns {@code true}, then
+   * interactive mode may be invoked by simply launching the tool without any
+   * arguments.
+   *
+   * @return  {@code true} if this tool supports interactive mode, or
+   *          {@code false} if not.
+   */
+  @Override()
+  public boolean supportsInteractiveMode()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether this tool defaults to launching in interactive mode if
+   * the tool is invoked without any command-line arguments.  This will only be
+   * used if {@link #supportsInteractiveMode()} returns {@code true}.
+   *
+   * @return  {@code true} if this tool defaults to using interactive mode if
+   *          launched without any command-line arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  public boolean defaultsToInteractiveMode()
+  {
+    return true;
   }
 
 
@@ -368,6 +422,39 @@ public final class LDAPSearch
    * {@inheritDoc}
    */
   @Override()
+  public void doExtendedNonLDAPArgumentValidation()
+         throws ArgumentException
+  {
+    // There must have been at least one trailing argument provided, and it must
+    // be parsable as a valid search filter.
+    if (parser.getTrailingArguments().isEmpty())
+    {
+      throw new ArgumentException("At least one trailing argument must be " +
+           "provided to specify the search filter.  Additional trailing " +
+           "arguments are allowed to specify the attributes to return in " +
+           "search result entries.");
+    }
+
+    try
+    {
+      Filter.create(parser.getTrailingArguments().get(0));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new ArgumentException(
+           "The first trailing argument value could not be parsed as a valid " +
+                "LDAP search filter.",
+           e);
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected List<Control> getBindControls()
   {
     return bindControls.getValues();
@@ -393,7 +480,7 @@ public final class LDAPSearch
     {
       err("No search filter was provided.");
       err();
-      err(parser.getUsageString(79));
+      err(parser.getUsageString(StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
       return ResultCode.PARAM_ERROR;
     }
 

@@ -432,6 +432,25 @@ public abstract class Argument
 
 
   /**
+   * Retrieves a list containing the string representations of the values for
+   * this argument, if any.  The list returned does not necessarily need to
+   * include values that will be acceptable to the argument, but it should imply
+   * what the values are (e.g., in the case of a boolean argument that doesn't
+   * take a value, it may be the string "true" or "false" even if those values
+   * are not acceptable to the argument itself).
+   *
+   * @param  useDefault  Indicates whether to use any configured default value
+   *                     if the argument doesn't have a user-specified value.
+   *
+   * @return  A string representation of the value for this argument, or an
+   *          empty list if the argument does not have a value.
+   */
+  public abstract List<String> getValueStringRepresentations(
+                                    final boolean useDefault);
+
+
+
+  /**
    * Retrieves the description for this argument.
    *
    * @return  The description for this argument.
@@ -641,6 +660,19 @@ public abstract class Argument
 
 
   /**
+   * Resets this argument so that it appears in the same form as before it was
+   * used to parse arguments.  Subclasses that override this method must call
+   * {@code super.reset()} to ensure that all necessary reset processing is
+   * performed.
+   */
+  protected void reset()
+  {
+    numOccurrences = 0;
+  }
+
+
+
+  /**
    * Creates a copy of this argument that is "clean" and appears as if it has
    * not been used in the course of parsing an argument set.  The new argument
    * will have all of the same identifiers and
@@ -651,6 +683,17 @@ public abstract class Argument
    * @return  The "clean" copy of this argument.
    */
   public abstract Argument getCleanCopy();
+
+
+
+  /**
+   * Updates the provided list to add any strings that should be included on the
+   * command line in order to represent this argument's current state.
+   *
+   * @param  argStrings  The list to update with the string representation of
+   *                     the command-line arguments.
+   */
+  protected abstract void addToCommandLine(final List<String> argStrings);
 
 
 

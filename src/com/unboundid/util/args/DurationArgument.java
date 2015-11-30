@@ -23,6 +23,8 @@ package com.unboundid.util.args;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -372,6 +374,31 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
+  public List<String> getValueStringRepresentations(final boolean useDefault)
+  {
+    final long v;
+    if (valueNanos != null)
+    {
+      v = valueNanos;
+    }
+    else if (useDefault && (defaultValueNanos != null))
+    {
+      v = defaultValueNanos;
+    }
+    else
+    {
+      return Collections.emptyList();
+    }
+
+    return Collections.unmodifiableList(Arrays.asList(nanosToDuration(v)));
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean hasDefaultValue()
   {
     return (defaultValueNanos != null);
@@ -673,9 +700,107 @@ public final class DurationArgument
    * {@inheritDoc}
    */
   @Override()
+  protected void reset()
+  {
+    super.reset();
+    valueNanos = null;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public DurationArgument getCleanCopy()
   {
     return new DurationArgument(this);
+  }
+
+
+
+  /**
+   * Converts the specified number of nanoseconds into a duration string using
+   * the largest possible whole unit (e.g., if the value represents a whole
+   * number of seconds, then the returned string will be expressed in seconds).
+   *
+   * @param  nanos  The number of nanoseconds to convert to a duration string.
+   *
+   * @return  The duration string for the specified number of nanoseconds.
+   */
+  public static String nanosToDuration(final long nanos)
+  {
+    if (nanos == 86400000000000L)
+    {
+      return "1 day";
+    }
+    else if ((nanos % 86400000000000L) == 0L)
+    {
+      return (nanos / 86400000000000L) + " days";
+    }
+    else if (nanos == 3600000000000L)
+    {
+      return "1 hour";
+    }
+    else if ((nanos % 3600000000000L) == 0L)
+    {
+      return (nanos / 3600000000000L) + " hours";
+    }
+    else if (nanos == 60000000000L)
+    {
+      return "1 minute";
+    }
+    else if ((nanos % 60000000000L) == 0L)
+    {
+      return (nanos / 60000000000L) + " minutes";
+    }
+    else if (nanos == 1000000000L)
+    {
+      return "1 second";
+    }
+    else if ((nanos % 1000000000L) == 0L)
+    {
+      return (nanos / 1000000000L) + " seconds";
+    }
+    else if (nanos == 1000000L)
+    {
+      return "1 millisecond";
+    }
+    else if ((nanos % 1000000L) == 0L)
+    {
+     return (nanos / 1000000L) + " milliseconds";
+    }
+    else if (nanos == 1000L)
+    {
+      return "1 microsecond";
+    }
+    else if ((nanos % 1000L) == 0L)
+    {
+     return (nanos / 1000L) + " microseconds";
+    }
+    else if (nanos == 1L)
+    {
+      return "1 nanosecond";
+    }
+    else
+    {
+      return nanos + " nanoseconds";
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected void addToCommandLine(final List<String> argStrings)
+  {
+    if (valueNanos != null)
+    {
+      argStrings.add(getIdentifierString());
+      argStrings.add(nanosToDuration(valueNanos));
+    }
   }
 
 
