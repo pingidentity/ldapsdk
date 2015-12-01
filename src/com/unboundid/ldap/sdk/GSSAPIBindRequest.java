@@ -209,6 +209,10 @@ public final class GSSAPIBindRequest
   // Indicates whether to enable JVM-level debugging for GSSAPI processing.
   private final boolean enableGSSAPIDebugging;
 
+  // Indicates whether to attempt to refresh the configuration before the JAAS
+  // login method is called.
+  private final boolean refreshKrb5Config;
+
   // Indicates whether to attempt to renew the client's existing ticket-granting
   // ticket if authentication uses an existing Kerberos session.
   private final boolean renewTGT;
@@ -217,6 +221,10 @@ public final class GSSAPIBindRequest
   // ticket cache such that authentication will fail if the client does not have
   // an existing Kerberos session.
   private final boolean requireCachedCredentials;
+
+  // Indicates whether to allow the to obtain the credentials to be obtained
+  // from a keytab.
+  private final boolean useKeyTab;
 
   // Indicates whether to allow the client to use credentials that are outside
   // of the current subject.
@@ -254,6 +262,9 @@ public final class GSSAPIBindRequest
 
   // The KDC address for the GSSAPI bind request, if available.
   private final String kdcAddress;
+
+  // The path to the keytab file to use if useKeyTab is true.
+  private final String keyTabPath;
 
   // The realm for the GSSAPI bind request, if available.
   private final String realm;
@@ -542,10 +553,13 @@ public final class GSSAPIBindRequest
     saslClientServerName       = gssapiProperties.getSASLClientServerName();
     servicePrincipalProtocol   = gssapiProperties.getServicePrincipalProtocol();
     enableGSSAPIDebugging      = gssapiProperties.enableGSSAPIDebugging();
+    useKeyTab                  = gssapiProperties.useKeyTab();
     useSubjectCredentialsOnly  = gssapiProperties.useSubjectCredentialsOnly();
     useTicketCache             = gssapiProperties.useTicketCache();
     requireCachedCredentials   = gssapiProperties.requireCachedCredentials();
+    refreshKrb5Config          = gssapiProperties.refreshKrb5Config();
     renewTGT                   = gssapiProperties.renewTGT();
+    keyTabPath                 = gssapiProperties.getKeyTabPath();
     ticketCachePath            = gssapiProperties.getTicketCachePath();
     suppressedSystemProperties =
          gssapiProperties.getSuppressedSystemProperties();
@@ -733,6 +747,50 @@ public final class GSSAPIBindRequest
   public String getServicePrincipalProtocol()
   {
     return servicePrincipalProtocol;
+  }
+
+
+
+  /**
+   * Indicates whether to refresh the configuration before the JAAS
+   * {@code login} method is called.
+   *
+   * @return  {@code true} if the GSSAPI implementation should refresh the
+   *          configuration before the JAAS {@code login} method is called, or
+   *          {@code false} if not.
+   */
+  public boolean refreshKrb5Config()
+  {
+    return refreshKrb5Config;
+  }
+
+
+
+  /**
+   * Indicates whether to use a keytab to obtain the user credentials.
+   *
+   * @return  {@code true} if the GSSAPI login attempt should use a keytab to
+   *          obtain the user credentials, or {@code false} if not.
+   */
+  public boolean useKeyTab()
+  {
+    return useKeyTab;
+  }
+
+
+
+  /**
+   * Retrieves the path to the keytab file from which to obtain the user
+   * credentials.  This will only be used if {@link #useKeyTab} returns
+   * {@code true}.
+   *
+   * @return  The path to the keytab file from which to obtain the user
+   *          credentials, or {@code null} if the default keytab location should
+   *          be used.
+   */
+  public String getKeyTabPath()
+  {
+    return keyTabPath;
   }
 
 
@@ -949,6 +1007,20 @@ public final class GSSAPIBindRequest
     w.println("  com.sun.security.auth.module.Krb5LoginModule required");
     w.println("  client=true");
 
+    if (p.refreshKrb5Config())
+    {
+      w.println("  refreshKrb5Config=true");
+    }
+
+    if (p.useKeyTab())
+    {
+      w.println("  useKeyTab=true");
+      if (p.getKeyTabPath() != null)
+      {
+        w.println("  keyTab=\"" + p.getKeyTabPath() + '"');
+      }
+    }
+
     if (p.useTicketCache())
     {
       w.println("  useTicketCache=true");
@@ -991,6 +1063,20 @@ public final class GSSAPIBindRequest
     w.println(p.getJAASClientName() + " {");
     w.println("  com.ibm.security.auth.module.Krb5LoginModule required");
     w.println("  credsType=initiator");
+
+    if (p.refreshKrb5Config())
+    {
+      w.println("  refreshKrb5Config=true");
+    }
+
+    if (p.useKeyTab())
+    {
+      w.println("  useKeyTab=true");
+      if (p.getKeyTabPath() != null)
+      {
+        w.println("  keyTab=\"" + p.getKeyTabPath() + '"');
+      }
+    }
 
     if (p.useTicketCache())
     {
@@ -1364,6 +1450,9 @@ public final class GSSAPIBindRequest
       gssapiProperties.setUseTicketCache(useTicketCache);
       gssapiProperties.setRequireCachedCredentials(requireCachedCredentials);
       gssapiProperties.setRenewTGT(renewTGT);
+      gssapiProperties.setRefreshKrb5Config(refreshKrb5Config);
+      gssapiProperties.setUseKeyTab(useKeyTab);
+      gssapiProperties.setKeyTabPath(keyTabPath);
       gssapiProperties.setUseSubjectCredentialsOnly(useSubjectCredentialsOnly);
       gssapiProperties.setTicketCachePath(ticketCachePath);
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
@@ -1555,6 +1644,21 @@ public final class GSSAPIBindRequest
       ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
            requestID + "RequestProperties.setServicePrincipalProtocol",
            ToCodeArgHelper.createString(servicePrincipalProtocol, null));
+    }
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+         requestID + "RequestProperties.setRefreshKrb5Config",
+         ToCodeArgHelper.createBoolean(refreshKrb5Config, null));
+
+    ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+         requestID + "RequestProperties.setUseKeyTab",
+         ToCodeArgHelper.createBoolean(useKeyTab, null));
+
+    if (keyTabPath != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setKeyTabPath",
+           ToCodeArgHelper.createString(keyTabPath, null));
     }
 
     ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,

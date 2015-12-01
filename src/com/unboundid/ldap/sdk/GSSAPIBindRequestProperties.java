@@ -64,6 +64,10 @@ public final class GSSAPIBindRequestProperties
   // Indicates whether to enable JVM-level debugging for GSSAPI processing.
   private boolean enableGSSAPIDebugging;
 
+  // Indicates whether to attempt to refresh the configuration before the JAAS
+  // login method is called.
+  private boolean refreshKrb5Config;
+
   // Indicates whether to attempt to renew the client's existing ticket-granting
   // ticket if authentication uses an existing Kerberos session.
   private boolean renewTGT;
@@ -72,6 +76,10 @@ public final class GSSAPIBindRequestProperties
   // ticket cache such that authentication will fail if the client does not have
   // an existing Kerberos session.
   private boolean requireCachedCredentials;
+
+  // Indicates whether to allow the to obtain the credentials to be obtained
+  // from a keytab.
+  private boolean useKeyTab;
 
   // Indicates whether to allow the client to use credentials that are outside
   // of the current subject.
@@ -102,6 +110,9 @@ public final class GSSAPIBindRequestProperties
 
   // The KDC address for the GSSAPI bind request, if available.
   private String kdcAddress;
+
+  // The path to the keytab file to use if useKeyTab is true.
+  private String keyTabPath;
 
   // The realm for the GSSAPI bind request, if available.
   private String realm;
@@ -201,11 +212,14 @@ public final class GSSAPIBindRequestProperties
     servicePrincipalProtocol   = "ldap";
     enableGSSAPIDebugging      = false;
     jaasClientName             = "GSSAPIBindRequest";
+    refreshKrb5Config          = false;
     renewTGT                   = false;
+    useKeyTab                  = false;
     useSubjectCredentialsOnly  = true;
     useTicketCache             = true;
     requireCachedCredentials   = false;
     saslClientServerName       = null;
+    keyTabPath                 = null;
     ticketCachePath            = null;
     suppressedSystemProperties = Collections.emptySet();
     allowedQoP                 = Collections.unmodifiableList(Arrays.asList(
@@ -598,6 +612,35 @@ public final class GSSAPIBindRequestProperties
 
 
   /**
+   * Indicates whether to refresh the configuration before the JAAS
+   * {@code login} method is called.
+   *
+   * @return  {@code true} if the GSSAPI implementation should refresh the
+   *          configuration before the JAAS {@code login} method is called, or
+   *          {@code false} if not.
+   */
+  public boolean refreshKrb5Config()
+  {
+    return refreshKrb5Config;
+  }
+
+
+
+  /**
+   * Specifies whether to refresh the configuration before the JAAS
+   * {@code login} method is called.
+   *
+   * @param  refreshKrb5Config  Indicates whether to refresh the configuration
+   *                            before the JAAS {@code login} method is called.
+   */
+  public void setRefreshKrb5Config(final boolean refreshKrb5Config)
+  {
+    this.refreshKrb5Config = refreshKrb5Config;
+  }
+
+
+
+  /**
    * Indicates whether to allow the client to use credentials that are outside
    * of the current subject, obtained via some system-specific mechanism.
    *
@@ -627,6 +670,63 @@ public final class GSSAPIBindRequestProperties
                    final boolean useSubjectCredentialsOnly)
   {
     this.useSubjectCredentialsOnly = useSubjectCredentialsOnly;
+  }
+
+
+
+  /**
+   * Indicates whether to use a keytab to obtain the user credentials.
+   *
+   * @return  {@code true} if the GSSAPI login attempt should use a keytab to
+   *          obtain the user credentials, or {@code false} if not.
+   */
+  public boolean useKeyTab()
+  {
+    return useKeyTab;
+  }
+
+
+
+  /**
+   * Specifies whether to use a keytab to obtain the user credentials.
+   *
+   * @param  useKeyTab  Indicates whether to use a keytab to obtain the user
+   *                    credentials.
+   */
+  public void setUseKeyTab(final boolean useKeyTab)
+  {
+    this.useKeyTab = useKeyTab;
+  }
+
+
+
+  /**
+   * Retrieves the path to the keytab file from which to obtain the user
+   * credentials.  This will only be used if {@link #useKeyTab} returns
+   * {@code true}.
+   *
+   * @return  The path to the keytab file from which to obtain the user
+   *          credentials, or {@code null} if the default keytab location should
+   *          be used.
+   */
+  public String getKeyTabPath()
+  {
+    return keyTabPath;
+  }
+
+
+
+  /**
+   * Specifies the path to the keytab file from which to obtain the user
+   * credentials.
+   *
+   * @param  keyTabPath  The path to the keytab file from which to obtain the
+   *                     user credentials.  It may be {@code null} if the
+   *                     default keytab location should be used.
+   */
+  public void setKeyTabPath(final String keyTabPath)
+  {
+    this.keyTabPath = keyTabPath;
   }
 
 
@@ -891,9 +991,20 @@ public final class GSSAPIBindRequestProperties
       buffer.append("', ");
     }
 
-    buffer.append("useSubjectCredentialsOnly=");
+    buffer.append(", refreshKrb5Config=");
+    buffer.append(refreshKrb5Config);
+    buffer.append(", useSubjectCredentialsOnly=");
     buffer.append(useSubjectCredentialsOnly);
+    buffer.append(", useKeyTab=");
+    buffer.append(useKeyTab);
     buffer.append(", ");
+
+    if (keyTabPath != null)
+    {
+      buffer.append("keyTabPath='");
+      buffer.append(keyTabPath);
+      buffer.append("', ");
+    }
 
     if (useTicketCache)
     {
