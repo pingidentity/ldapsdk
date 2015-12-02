@@ -117,6 +117,13 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Updated the GSSAPI implementation to add support for including the
+                  refreshKrb5Config, useKeyTab, and keyTab properties in the dynamically-generated
+                  JAAS configuration file.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the LDAP SDK to include Java implementations from Azul Systems in the
                   whitelist of JVMs that permit concurrent socket factory use by default.
                   <br><br>
@@ -177,6 +184,16 @@ ${TARGET="offline"}                    <br>
                   an annotation whose argument list includes a value of that enum.  This will also
                   eliminate a compile warning when building a Scala application that uses the LDAP
                   SDK.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the way that the LDAP SDK maintains thread-local buffers used for
+                  building LDAP messages.  Previously, the LDAP SDK would create thread-local
+                  buffers and maintain them for the life of the threads used to construct LDAP
+                  messages.  It will now only maintain these buffers as long as there is at least
+                  one connection established.  Once all connections are closed, any buffers that
+                  may have been created will be freed.
                   <br><br>
                 </li>
 
