@@ -1161,6 +1161,24 @@ public final class StaticUtils
 
 
   /**
+   * Encodes the provided timestamp in generalized time format.
+   *
+   * @param  timestamp  The timestamp to be encoded in generalized time format.
+   *                    It should use the same format as the
+   *                    {@code System.currentTimeMillis()} method (i.e., the
+   *                    number of milliseconds since 12:00am UTC on January 1,
+   *                    1970).
+   *
+   * @return  The generalized time representation of the provided date.
+   */
+  public static String encodeGeneralizedTime(final long timestamp)
+  {
+    return encodeGeneralizedTime(new Date(timestamp));
+  }
+
+
+
+  /**
    * Encodes the provided date in generalized time format.
    *
    * @param  d  The date to be encoded in generalized time format.
