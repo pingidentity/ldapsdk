@@ -122,7 +122,7 @@ public class LDAPConnection
 
 
   // The connection used to perform the actual communication with the server.
-  private final com.unboundid.ldap.sdk.LDAPConnection conn;
+  private volatile com.unboundid.ldap.sdk.LDAPConnection conn;
 
   // The default constraints that will be used for non-search operations.
   private LDAPConstraints constraints;
@@ -456,9 +456,19 @@ public class LDAPConnection
 
     try
     {
-      conn.connect(host, port);
+      conn.close();
+      if (socketFactory == null)
+      {
+        conn = new com.unboundid.ldap.sdk.LDAPConnection(host, port);
+      }
+      else
+      {
+
+        conn = new com.unboundid.ldap.sdk.LDAPConnection(
+             new LDAPToJavaSocketFactory(socketFactory), host, port);
+      }
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       throw new LDAPException(le);
@@ -597,9 +607,20 @@ public class LDAPConnection
   public void disconnect()
          throws LDAPException
   {
-    conn.close();
     authDN = null;
     authPW = null;
+
+    conn.close();
+    if (socketFactory == null)
+    {
+      conn = new com.unboundid.ldap.sdk.LDAPConnection();
+    }
+    else
+    {
+
+      conn = new com.unboundid.ldap.sdk.LDAPConnection(
+           new LDAPToJavaSocketFactory(socketFactory));
+    }
   }
 
 
@@ -618,8 +639,6 @@ public class LDAPConnection
     final int    port = getPort();
     final String dn   = authDN;
     final String pw   = authPW;
-
-    conn.close();
 
     if ((dn == null) || (pw == null))
     {
