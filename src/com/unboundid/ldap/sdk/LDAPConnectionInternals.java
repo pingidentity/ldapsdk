@@ -29,6 +29,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -52,6 +54,22 @@ import static com.unboundid.util.StaticUtils.*;
 @InternalUseOnly()
 final class LDAPConnectionInternals
 {
+  /**
+   * A count of the number of active connections.
+   */
+  private static final AtomicLong ACTIVE_CONNECTION_COUNT = new AtomicLong(0L);
+
+
+
+  /**
+   * A set of thread-local ASN.1 buffers used to prepare messages to be written.
+   */
+  private static final AtomicReference<ThreadLocal<ASN1Buffer>> ASN1_BUFFERS =
+       new AtomicReference<ThreadLocal<ASN1Buffer>>(
+            new ThreadLocal<ASN1Buffer>());
+
+
+
   // The counter that will be used to obtain the next message ID to use when
   // sending requests to the server.
   private final AtomicInteger nextMessageID;
@@ -86,10 +104,6 @@ final class LDAPConnectionInternals
 
   // The address of the server to which the connection is established.
   private final String host;
-
-  // The thread-local ASN.1 buffer used for writing elements.
-  private static final ThreadLocal<ASN1Buffer> asn1Buffers =
-       new ThreadLocal<ASN1Buffer>();
 
 
 
@@ -194,6 +208,8 @@ final class LDAPConnectionInternals
 
       throw ioe;
     }
+
+    ACTIVE_CONNECTION_COUNT.incrementAndGet();
   }
 
 
@@ -483,11 +499,11 @@ final class LDAPConnectionInternals
                               ERR_CONN_NOT_ESTABLISHED.get());
     }
 
-    ASN1Buffer buffer = asn1Buffers.get();
+    ASN1Buffer buffer = ASN1_BUFFERS.get().get();
     if (buffer == null)
     {
       buffer = new ASN1Buffer();
-      asn1Buffers.set(buffer);
+      ASN1_BUFFERS.get().set(buffer);
     }
 
     buffer.clear();
@@ -647,6 +663,20 @@ final class LDAPConnectionInternals
             "Connection closed by LDAP SDK finalizer:  " + toString());
     }
     disconnectInfo.notifyDisconnectHandler();
+
+    final long remainingActiveConnections =
+         ACTIVE_CONNECTION_COUNT.decrementAndGet();
+    if (remainingActiveConnections <= 0L)
+    {
+      ASN1_BUFFERS.set(new ThreadLocal<ASN1Buffer>());
+
+      if (remainingActiveConnections < 0L)
+      {
+        // This should never happen, but if it does then we'll reset the count
+        // to zero so that we don't keep needlessly resetting the buffers.
+        ACTIVE_CONNECTION_COUNT.compareAndSet(remainingActiveConnections, 0L);
+      }
+    }
   }
 
 
@@ -667,6 +697,18 @@ final class LDAPConnectionInternals
     {
       return -1L;
     }
+  }
+
+
+
+  /**
+   * Retrieves the number of active connections.
+   *
+   * @return  The number of active connections.
+   */
+  static long getActiveConnectionCount()
+  {
+    return ACTIVE_CONNECTION_COUNT.get();
   }
 
 
