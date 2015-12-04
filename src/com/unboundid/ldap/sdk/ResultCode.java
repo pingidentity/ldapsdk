@@ -23,7 +23,7 @@ package com.unboundid.ldap.sdk;
 
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -1621,8 +1621,8 @@ public final class ResultCode
    * The set of result code objects created with undefined int result code
    * values.
    */
-  private static final HashMap<Integer,ResultCode> UNDEFINED_RESULT_CODES =
-       new HashMap<Integer,ResultCode>();
+  private static final ConcurrentHashMap<Integer,ResultCode>
+       UNDEFINED_RESULT_CODES = new ConcurrentHashMap<Integer,ResultCode>(10);
 
 
 
@@ -1893,25 +1893,27 @@ public final class ResultCode
         return TOKEN_DELIVERY_INVALID_ACCOUNT_STATE;
     }
 
-    synchronized (UNDEFINED_RESULT_CODES)
+    ResultCode rc = UNDEFINED_RESULT_CODES.get(intValue);
+    if (rc == null)
     {
-      ResultCode rc = UNDEFINED_RESULT_CODES.get(intValue);
-      if (rc == null)
+      if (name == null)
       {
-        if (name == null)
-        {
-          rc = new ResultCode(intValue);
-        }
-        else
-        {
-          rc = new ResultCode(name, intValue);
-        }
-
-        UNDEFINED_RESULT_CODES.put(intValue, rc);
+        rc = new ResultCode(intValue);
+      }
+      else
+      {
+        rc = new ResultCode(name, intValue);
       }
 
-      return rc;
+      final ResultCode existingRC =
+           UNDEFINED_RESULT_CODES.putIfAbsent(intValue, rc);
+      if (existingRC != null)
+      {
+        return existingRC;
+      }
     }
+
+    return rc;
   }
 
 
