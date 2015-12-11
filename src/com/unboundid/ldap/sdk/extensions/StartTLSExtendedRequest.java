@@ -31,6 +31,7 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.InternalSDKHelper;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPExtendedOperationException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -322,7 +323,7 @@ public final class StartTLSExtendedRequest
     }
     else
     {
-      throw new LDAPException(result);
+      throw new LDAPExtendedOperationException(result);
     }
 
     return result;

@@ -144,7 +144,7 @@ public final class StartTLSPostConnectProcessor
          connection.processExtendedOperation(startTLSRequest);
     if (! r.getResultCode().equals(ResultCode.SUCCESS))
     {
-      throw new LDAPException(r);
+      throw new LDAPExtendedOperationException(r);
     }
   }
 

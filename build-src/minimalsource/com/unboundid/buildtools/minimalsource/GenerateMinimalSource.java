@@ -158,6 +158,7 @@ public final class GenerateMinimalSource
     "com.unboundid.ldap.sdk.LDAPConnectionReader",
     "com.unboundid.ldap.sdk.LDAPConnectionStatistics",
     "com.unboundid.ldap.sdk.LDAPException",
+    "com.unboundid.ldap.sdk.LDAPExtendedOperationException",
     "com.unboundid.ldap.sdk.LDAPInterface",
     "com.unboundid.ldap.sdk.LDAPRequest",
     "com.unboundid.ldap.sdk.LDAPResult",

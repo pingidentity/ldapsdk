@@ -56,8 +56,7 @@ public class LDAPBindException
 
 
   /**
-   * Creates a new SASL bind in progress exception from the provided bind
-   * result.
+   * Creates a new LDAP bind exception from the provided bind result.
    *
    * @param  bindResult  The bind result to use to create this exception.
    */
