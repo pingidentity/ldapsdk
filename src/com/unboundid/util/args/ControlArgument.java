@@ -95,6 +95,32 @@ public final class ControlArgument
 
   /**
    * Creates a new control argument with the provided information.  It will not
+   * be required, will be allowed any number of times, will use a default
+   * placeholder, and will not have a default value.
+   *
+   * @param  shortIdentifier   The short identifier for this argument.  It may
+   *                           not be {@code null} if the long identifier is
+   *                           {@code null}.
+   * @param  longIdentifier    The long identifier for this argument.  It may
+   *                           not be {@code null} if the short identifier is
+   *                           {@code null}.
+   * @param  description       A human-readable description for this argument.
+   *                           It must not be {@code null}.
+   *
+   * @throws  ArgumentException  If there is a problem with the definition of
+   *                             this argument.
+   */
+  public ControlArgument(final Character shortIdentifier,
+                         final String longIdentifier, final String description)
+         throws ArgumentException
+  {
+    this(shortIdentifier, longIdentifier, false, 0, null, description);
+  }
+
+
+
+  /**
+   * Creates a new control argument with the provided information.  It will not
    * have a default value.
    *
    * @param  shortIdentifier   The short identifier for this argument.  It may
@@ -213,7 +239,7 @@ public final class ControlArgument
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
          (valuePlaceholder == null)
-              ? "{oid}[:{criticality}[:{stringValue}|::{base64Value}]]"
+              ? INFO_PLACEHOLDER_CONTROL.get()
               : valuePlaceholder,
          description);
 

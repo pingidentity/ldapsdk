@@ -72,6 +72,36 @@ public final class ArgumentListArgument
 
 
   /**
+   * Creates a new argument list argument with the provided information.  It
+   * will not be required, will permit at most one occurrence, and will use a
+   * default placeholder.
+   *
+   * @param  shortIdentifier   The short identifier for this argument.  It may
+   *                           not be {@code null} if the long identifier is
+   *                           {@code null}.
+   * @param  longIdentifier    The long identifier for this argument.  It may
+   *                           not be {@code null} if the short identifier is
+   *                           {@code null}.
+   * @param  description       A human-readable description for this argument.
+   *                           It must not be {@code null}.
+   * @param  parser            The argument parser that will be used to
+   *                           process values provided for this argument.
+   *
+   * @throws  ArgumentException  If there is a problem with the definition of
+   *                             this argument.
+   */
+  public ArgumentListArgument(final Character shortIdentifier,
+                              final String longIdentifier,
+                              final String description,
+                              final ArgumentParser parser)
+         throws ArgumentException
+  {
+    this(shortIdentifier, longIdentifier, false, 1, null, description, parser);
+  }
+
+
+
+  /**
    * Creates a new argument list argument with the provided information.
    *
    * @param  shortIdentifier   The short identifier for this argument.  It may
@@ -87,8 +117,9 @@ public final class ArgumentListArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} if a default placeholder should
+   *                           be used.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    * @param  parser            The argument parser that will be used to
@@ -107,7 +138,10 @@ public final class ArgumentListArgument
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired, maxOccurrences,
-         valuePlaceholder, description);
+         (valuePlaceholder == null)
+              ? INFO_PLACEHOLDER_ARGS.get()
+              : valuePlaceholder,
+         description);
 
     this.parser = parser.getCleanCopy();
 

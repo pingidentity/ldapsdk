@@ -72,6 +72,33 @@ public final class IntegerArgument
 
 
   /**
+   * Creates a new integer argument with the provided information.  It will not
+   * be required, will permit at most one occurrence, will use a default
+   * placeholder, will not have a default value, and will not impose any
+   * restrictions on the range of values that may be assigned to this argument.
+   *
+   * @param  shortIdentifier   The short identifier for this argument.  It may
+   *                           not be {@code null} if the long identifier is
+   *                           {@code null}.
+   * @param  longIdentifier    The long identifier for this argument.  It may
+   *                           not be {@code null} if the short identifier is
+   *                           {@code null}.
+   * @param  description       A human-readable description for this argument.
+   *                           It must not be {@code null}.
+   *
+   * @throws  ArgumentException  If there is a problem with the definition of
+   *                             this argument.
+   */
+  public IntegerArgument(final Character shortIdentifier,
+                         final String longIdentifier, final String description)
+         throws ArgumentException
+  {
+    this(shortIdentifier, longIdentifier, false, 1, null, description);
+  }
+
+
+
+  /**
    * Creates a new integer argument with the provided information.  There will
    * not be any default values, nor will there be any restriction on values that
    * may be assigned to this argument.
@@ -89,8 +116,9 @@ public final class IntegerArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} if a default placeholder should
+   *                           be used.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    *
@@ -129,8 +157,9 @@ public final class IntegerArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} if a default placeholder should
+   *                           be used.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    * @param  lowerBound        The smallest value that this argument is allowed
@@ -175,8 +204,9 @@ public final class IntegerArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} if a default placeholder should
+   *                           be used.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    * @param  defaultValue      The default value that will be used for this
@@ -219,8 +249,9 @@ public final class IntegerArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} if a default placeholder should
+   *                           be used.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    * @param  defaultValues     The set of default values that will be used for
@@ -260,8 +291,9 @@ public final class IntegerArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} if a default placeholder should
+   *                           be used.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    * @param  lowerBound        The smallest value that this argument is allowed
@@ -310,8 +342,9 @@ public final class IntegerArgument
    *                           or equal to zero indicates that it may be present
    *                           any number of times.
    * @param  valuePlaceholder  A placeholder to display in usage information to
-   *                           indicate that a value must be provided.  It must
-   *                           not be {@code null}.
+   *                           indicate that a value must be provided.  It may
+   *                           be {@code null} if a default placeholder should
+   *                           be used.
    * @param  description       A human-readable description for this argument.
    *                           It must not be {@code null}.
    * @param  lowerBound        The smallest value that this argument is allowed
@@ -336,13 +369,10 @@ public final class IntegerArgument
          throws ArgumentException
   {
     super(shortIdentifier, longIdentifier, isRequired,  maxOccurrences,
-          valuePlaceholder, description);
-
-    if (valuePlaceholder == null)
-    {
-      throw new ArgumentException(ERR_ARG_MUST_TAKE_VALUE.get(
-                                       getIdentifierString()));
-    }
+         (valuePlaceholder == null)
+              ? INFO_PLACEHOLDER_VALUE.get()
+              : valuePlaceholder,
+         description);
 
     this.lowerBound = lowerBound;
     this.upperBound = upperBound;
