@@ -62,7 +62,7 @@ import static com.unboundid.util.StaticUtils.*;
  *       override this behavior if desired.</LI>
  *   <LI>The {@link #ensureConnectionValidAfterException} method may be invoked
  *       if an exception is caught while processing an operation with a
- *       connection which is part of a connection pool.  The default
+ *       connection that is part of a connection pool.  The default
  *       implementation provided in this class only examines the result code of
  *       the provided exception and uses the
  *       {@link ResultCode#isConnectionUsable(ResultCode)} method to make the
@@ -95,14 +95,91 @@ public class LDAPConnectionPoolHealthCheck
    * connection is available to be checked out and used for processing
    * operations.  This method will be invoked by either {@link ServerSet} used
    * by the connection pool (if it supports enhanced health checking) or by the
-   * connection pool itself at the time that a new connection is created.
+   * connection pool itself at the time that a new connection is created.  No
+   * authentication will have been performed on this connection at the time the
+   * health check is invoked.
    *
    * @param  connection  The connection to be examined.
    *
-   * @throws  LDAPException  If a problem is detected which suggests that the
+   * @throws  LDAPException  If a problem is detected that suggests that the
    *                         provided connection is not suitable for use.
    */
   public void ensureNewConnectionValid(final LDAPConnection connection)
+         throws LDAPException
+  {
+    // No processing is performed in this default implementation.
+  }
+
+
+
+  /**
+   * Performs any desired processing to determine whether the provided
+   * connection is valid after processing a bind operation with the provided
+   * result.
+   * <BR><BR>
+   * This method will be invoked under the following circumstances:
+   * <UL>
+   *   <LI>
+   *     If you create a connection pool with a {@link ServerSet} and a
+   *     non-{@code null} {@link BindRequest}, then this health check method
+   *     will be invoked for every new connection created by the pool after
+   *     processing that {@code BindRequest} on the connection.  If you create a
+   *     connection pool with a {@code ServerSet} but a {@code null}
+   *     {@code BindRequest}, then no authentication will be attempted (and
+   *     therefore this health check method will not be invoked for)
+   *     newly-created connections.
+   *   </LI>
+   *   <LI>
+   *     If you create a connection pool with an {@link LDAPConnection} after
+   *     having performed a bind operation on that connection, then every new
+   *     connection created by the pool will attempt to perform the same type of
+   *     bind operation and this health check method will be invoked after that
+   *     bind attempt has completed.  If you create a connection pool with an
+   *     {@code LDAPConnection} that has not been authenticated, then no
+   *     authentication will be attempted (and therefore this health check
+   *     method will not be invoked for) newly-created connections.
+   *   </LI>
+   *   <LI>
+   *     If you call a connection pool's {@code bindAndRevertAuthentication}
+   *     method, then this health check method will be called after the second
+   *     bind operation (the one used to revert authentication) has completed.
+   *     In this case, this health check method will be called even if the
+   *     connection pool was created with a {@code null} {@code BindRequest} or
+   *     with an unauthenticated {@code LDAPConnection}.  In that case, the
+   *     bind operation used to revert authentication will be a
+   *     {@link SimpleBindRequest} with an empty DN and password.
+   *   </LI>
+   *   <LI>
+   *     If you call a connection pool's
+   *     {@code releaseAndReAuthenticateConnection} method, then this health
+   *     check method will be called after the bind operation has completed.  As
+   *     with {@code bindAndRevertAuthentication}, this health check method will
+   *     be called even if the connection pool was created with a {@code null}
+   *     {@code BindRequest} or with an unauthenticated {@code LDAPConnection}.
+   *   </LI>
+   * </UL>
+   * <BR><BR>
+   * Note that this health check method may be invoked even if the bind
+   * attempt was not successful.  This is useful because it allows the health
+   * check to intercept a failed authentication attempt and differentiate it
+   * from other types of failures in the course of trying to create or check out
+   * a connection.  In the event that it is invoked with a {@code BindResult}
+   * that has a result code other than {@link ResultCode#SUCCESS}, if this
+   * method throws an exception then that exception will be propagated to the
+   * caller.  If this method does not throw an exception when provided with a
+   * non-{@code SUCCESS} result, then the connection pool itself will throw an
+   * exception using the information in the bind result.
+   *
+   * @param  connection  The connection to be examined.
+   * @param  bindResult  The bind result obtained from the authentication
+   *                     process.
+   *
+   * @throws  LDAPException  If a problem is detected that suggests that the
+   *                         provided connection is not suitable for use.
+   */
+  public void ensureConnectionValidAfterAuthentication(
+                   final LDAPConnection connection,
+                   final BindResult bindResult)
          throws LDAPException
   {
     // No processing is performed in this default implementation.
@@ -121,7 +198,7 @@ public class LDAPConnectionPoolHealthCheck
    *
    * @param  connection  The connection to be examined.
    *
-   * @throws  LDAPException  If a problem is detected which suggests that the
+   * @throws  LDAPException  If a problem is detected that suggests that the
    *                         provided connection is not suitable for use.
    */
   public void ensureConnectionValidForCheckout(final LDAPConnection connection)
@@ -143,7 +220,7 @@ public class LDAPConnectionPoolHealthCheck
    *
    * @param  connection  The connection to be examined.
    *
-   * @throws  LDAPException  If a problem is detected which suggests that the
+   * @throws  LDAPException  If a problem is detected that suggests that the
    *                         provided connection is not suitable for use.
    */
   public void ensureConnectionValidForRelease(final LDAPConnection connection)
@@ -164,7 +241,7 @@ public class LDAPConnectionPoolHealthCheck
    *
    * @param  connection  The connection to be examined.
    *
-   * @throws  LDAPException  If a problem is detected which suggests that the
+   * @throws  LDAPException  If a problem is detected that suggests that the
    *                         provided connection is not suitable for use.
    */
   public void ensureConnectionValidForContinuedUse(
@@ -193,7 +270,7 @@ public class LDAPConnectionPoolHealthCheck
    * @param  exception   The exception that was caught while processing an
    *                     operation on the connection.
    *
-   * @throws  LDAPException  If a problem is detected which suggests that the
+   * @throws  LDAPException  If a problem is detected that suggests that the
    *                         provided connection is not suitable for use.
    */
   public void ensureConnectionValidAfterException(

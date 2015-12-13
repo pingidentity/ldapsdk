@@ -355,6 +355,8 @@ public final class LDAPThreadLocalConnectionPool
       c.setConnectionOptions(opts);
     }
 
+
+    // Invoke pre-authentication post-connect processing.
     if (postConnectProcessor != null)
     {
       try
@@ -388,38 +390,58 @@ public final class LDAPThreadLocalConnectionPool
       }
     }
 
+
+    // Authenticate the connection if appropriate.
+    BindResult bindResult = null;
     try
     {
       if (bindRequest != null)
       {
-        c.bind(bindRequest.duplicate());
+        bindResult = c.bind(bindRequest.duplicate());
       }
     }
-    catch (Exception e)
+    catch (final LDAPBindException lbe)
     {
-      debugException(e);
+      debugException(lbe);
+      bindResult = lbe.getBindResult();
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      bindResult = new BindResult(le);
+    }
+
+    if (bindResult != null)
+    {
       try
       {
-        poolStatistics.incrementNumFailedConnectionAttempts();
-        c.setDisconnectInfo(DisconnectType.BIND_FAILED, null, e);
-        c.terminate(null);
+        healthCheck.ensureConnectionValidAfterAuthentication(c, bindResult);
+        if (bindResult.getResultCode() != ResultCode.SUCCESS)
+        {
+          throw new LDAPBindException(bindResult);
+        }
       }
-      catch (Exception e2)
+      catch (final LDAPException le)
       {
-        debugException(e2);
-      }
+        debugException(le);
 
-      if (e instanceof LDAPException)
-      {
-        throw ((LDAPException) e);
-      }
-      else
-      {
-        throw new LDAPException(ResultCode.CONNECT_ERROR,
-             ERR_POOL_CONNECT_ERROR.get(getExceptionMessage(e)), e);
+        try
+        {
+          poolStatistics.incrementNumFailedConnectionAttempts();
+          c.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
+          c.terminate(null);
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+        }
+
+        throw le;
       }
     }
 
+
+    // Invoke post-authentication post-connect processing.
     if (postConnectProcessor != null)
     {
       try
@@ -452,6 +474,8 @@ public final class LDAPThreadLocalConnectionPool
       }
     }
 
+
+    // Get the pooled schema if appropriate.
     if (opts.usePooledSchema())
     {
       final long currentTime = System.currentTimeMillis();
@@ -495,8 +519,11 @@ public final class LDAPThreadLocalConnectionPool
       }
     }
 
+
+    // Finish setting up the connection.
     c.setConnectionPoolName(connectionPoolName);
     poolStatistics.incrementNumSuccessfulConnectionAttempts();
+
     return c;
   }
 
@@ -896,13 +923,49 @@ public final class LDAPThreadLocalConnectionPool
 
     try
     {
-      if (bindRequest == null)
+      BindResult bindResult;
+      try
       {
-        connection.bind("", "");
+        if (bindRequest == null)
+        {
+          bindResult = connection.bind("", "");
+        }
+        else
+        {
+          bindResult = connection.bind(bindRequest.duplicate());
+        }
       }
-      else
+      catch (final LDAPBindException lbe)
       {
-        connection.bind(bindRequest.duplicate());
+        debugException(lbe);
+        bindResult = lbe.getBindResult();
+      }
+
+      try
+      {
+        healthCheck.ensureConnectionValidAfterAuthentication(connection,
+             bindResult);
+        if (bindResult.getResultCode() != ResultCode.SUCCESS)
+        {
+          throw new LDAPBindException(bindResult);
+        }
+      }
+      catch (final LDAPException le)
+      {
+        debugException(le);
+
+        try
+        {
+          connection.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
+          connection.terminate(null);
+          releaseDefunctConnection(connection);
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+        }
+
+        throw le;
       }
 
       releaseConnection(connection);

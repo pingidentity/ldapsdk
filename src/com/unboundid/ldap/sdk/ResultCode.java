@@ -170,7 +170,7 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  *       <TD ALIGN="RIGHT">53</TD>
  *     </TR>
  *     <TR>
- *       <TD ALIGN="LEFT">LOOP-DETECT</TD>
+ *       <TD ALIGN="LEFT">LOOP_DETECT</TD>
  *       <TD ALIGN="RIGHT">54</TD>
  *     </TR>
  *     <TR>
