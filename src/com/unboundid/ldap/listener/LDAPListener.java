@@ -43,6 +43,8 @@ import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
+import static com.unboundid.ldap.listener.ListenerMessages.*;
+
 
 
 /**
@@ -226,7 +228,6 @@ public final class LDAPListener
           continue;
         }
 
-
         final LDAPListenerClientConnection c;
         try
         {
@@ -242,6 +243,16 @@ public final class LDAPListener
             exceptionHandler.connectionCreationFailure(s, le);
           }
 
+          continue;
+        }
+
+        final int maxConnections = config.getMaxConnections();
+        if ((maxConnections > 0) &&
+            (establishedConnections.size() >= maxConnections))
+        {
+          c.close(new LDAPException(ResultCode.BUSY,
+               ERR_LDAP_LISTENER_MAX_CONNECTIONS_ESTABLISHED.get(
+                    maxConnections)));
           continue;
         }
 

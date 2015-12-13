@@ -69,6 +69,9 @@ public final class LDAPListenerConfig
   // The port on which to listen for client connections.
   private int listenPort;
 
+  // The maximum number of concurrent connections that will be allowed.
+  private int maxConnections;
+
   // The receive buffer size to use for sockets accepted by the listener.
   private int receiveBufferSize;
 
@@ -113,6 +116,7 @@ public final class LDAPListenerConfig
     useTCPNoDelay       = true;
     lingerTimeout       = 5;
     listenAddress       = null;
+    maxConnections      = 0;
     receiveBufferSize   = 0;
     sendBufferSize      = 0;
     exceptionHandler    = null;
@@ -357,6 +361,46 @@ public final class LDAPListenerConfig
 
 
   /**
+   * Retrieves the maximum number of concurrent connections that the listener
+   * will allow.  If a client tries to establish a new connection while the
+   * listener already has the maximum number of concurrent connections, then the
+   * new connection will be rejected.
+   *
+   * @return  The maximum number of concurrent connections that the listener
+   *          will allow, or zero if no limit should be enforced.
+   */
+  public int getMaxConnections()
+  {
+    return maxConnections;
+  }
+
+
+
+  /**
+   * Specifies the maximum number of concurrent connections that the listener
+   * will allow.  If a client tries to establish a new connection while the
+   * listener already has the maximum number of concurrent connections, then the
+   * new connection will be rejected.
+   *
+   * @param  maxConnections  The maximum number of concurrent connections that
+   *                         the listener will allow.  A value that is less than
+   *                         or equal to zero indicates no limit.
+   */
+  public void setMaxConnections(final int maxConnections)
+  {
+    if (maxConnections > 0)
+    {
+      this.maxConnections = maxConnections;
+    }
+    else
+    {
+      this.maxConnections = 0;
+    }
+  }
+
+
+
+  /**
    * Retrieves the receive buffer size that should be used for sockets accepted
    * by the listener.
    *
@@ -519,11 +563,91 @@ public final class LDAPListenerConfig
     copy.useTCPNoDelay       = useTCPNoDelay;
     copy.listenAddress       = listenAddress;
     copy.lingerTimeout       = lingerTimeout;
+    copy.maxConnections      = maxConnections;
     copy.receiveBufferSize   = receiveBufferSize;
     copy.sendBufferSize      = sendBufferSize;
     copy.exceptionHandler    = exceptionHandler;
     copy.serverSocketFactory = serverSocketFactory;
 
     return copy;
+  }
+
+
+
+  /**
+   * Retrieves a string representation of this LDAP listener config.
+   *
+   * @return  A string representation of this LDAP listener config.
+   */
+  @Override()
+  public String toString()
+  {
+    final StringBuilder buffer = new StringBuilder();
+    toString(buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a string representation of this LDAP listener config to the
+   * provided buffer.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
+   */
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("LDAPListenerConfig(listenAddress=");
+
+    if (listenAddress == null)
+    {
+      buffer.append("null");
+    }
+    else
+    {
+      buffer.append('\'');
+      buffer.append(listenAddress.getHostAddress());
+      buffer.append('\'');
+    }
+
+    buffer.append(", listenPort=");
+    buffer.append(listenPort);
+    buffer.append(", requestHandlerClass='");
+    buffer.append(requestHandler.getClass().getName());
+    buffer.append("', serverSocketFactoryClass='");
+    buffer.append(serverSocketFactory.getClass().getName());
+    buffer.append('\'');
+
+    if (exceptionHandler != null)
+    {
+      buffer.append(", exceptionHandlerClass='");
+      buffer.append(exceptionHandler.getClass().getName());
+      buffer.append('\'');
+    }
+
+    buffer.append(", useKeepAlive=");
+    buffer.append(useKeepAlive);
+    buffer.append(", useTCPNoDelay=");
+    buffer.append(useTCPNoDelay);
+
+    if (useLinger)
+    {
+      buffer.append(", useLinger=true, lingerTimeout=");
+      buffer.append(lingerTimeout);
+    }
+    else
+    {
+      buffer.append(", useLinger=false");
+    }
+
+    buffer.append(", maxConnections=");
+    buffer.append(maxConnections);
+    buffer.append(", useReuseAddress=");
+    buffer.append(useReuseAddress);
+    buffer.append(", receiveBufferSize=");
+    buffer.append(receiveBufferSize);
+    buffer.append(", sendBufferSize=");
+    buffer.append(sendBufferSize);
+    buffer.append(')');
   }
 }

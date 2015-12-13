@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk.extensions;
 
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
@@ -97,6 +98,22 @@ public final class NoticeOfDisconnectionExtendedResult
               final ExtendedResult extendedResult)
   {
     super(extendedResult);
+  }
+
+
+
+  /**
+   * Creates a new instance of this notice of disconnection extended result from
+   * the provided LDAP exception.
+   *
+   * @param  ldapException  The LDAP exception to use to create this notice of
+   *                        disconnection extended result.
+   */
+  public NoticeOfDisconnectionExtendedResult(final LDAPException ldapException)
+  {
+    this(0, ldapException.getResultCode(), ldapException.getDiagnosticMessage(),
+         ldapException.getMatchedDN(), ldapException.getReferralURLs(),
+         ldapException.getResponseControls());
   }
 
 

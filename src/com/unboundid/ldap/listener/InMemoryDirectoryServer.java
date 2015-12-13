@@ -358,6 +358,7 @@ public final class InMemoryDirectoryServer
 
       final LDAPListenerConfig listenerCfg = new LDAPListenerConfig(
            c.getListenPort(), listenerRequestHandler);
+      listenerCfg.setMaxConnections(config.getMaxConnections());
       listenerCfg.setExceptionHandler(config.getListenerExceptionHandler());
       listenerCfg.setListenAddress(c.getListenAddress());
       listenerCfg.setServerSocketFactory(c.getServerSocketFactory());

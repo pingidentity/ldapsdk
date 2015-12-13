@@ -53,6 +53,7 @@ import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPRuntimeException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
 import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ObjectPair;
@@ -368,6 +369,15 @@ public final class LDAPListenerClientConnection
       {
         Debug.debugException(e);
       }
+    }
+
+    try
+    {
+      sendUnsolicitedNotification(new NoticeOfDisconnectionExtendedResult(le));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
     }
 
     try

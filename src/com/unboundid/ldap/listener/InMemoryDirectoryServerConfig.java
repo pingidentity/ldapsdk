@@ -127,6 +127,9 @@ public class InMemoryDirectoryServerConfig
   // The maximum number of entries to retain in a generated changelog.
   private int maxChangeLogEntries;
 
+  // The maximum number of concurrent connections that will be allowed.
+  private int maxConnections;
+
   // The maximum number of entries that may be returned in any single search
   // operation.
   private int maxSizeLimit;
@@ -234,6 +237,7 @@ public class InMemoryDirectoryServerConfig
     enforceSingleStructuralObjectClass   = true;
     generateOperationalAttributes        = true;
     maxChangeLogEntries                  = 0;
+    maxConnections                       = 0;
     maxSizeLimit                         = 0;
     exceptionHandler                     = null;
     equalityIndexAttributes              = new ArrayList<String>(10);
@@ -308,6 +312,7 @@ public class InMemoryDirectoryServerConfig
     accessLogHandler                   = cfg.accessLogHandler;
     ldapDebugLogHandler                = cfg.ldapDebugLogHandler;
     maxChangeLogEntries                = cfg.maxChangeLogEntries;
+    maxConnections                     = cfg.maxConnections;
     maxSizeLimit                       = cfg.maxSizeLimit;
     exceptionHandler                   = cfg.exceptionHandler;
     rootDSEEntry                       = cfg.rootDSEEntry;
@@ -1073,6 +1078,50 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves the maximum number of concurrent connections that the server will
+   * allow.  If a client tries to establish a new connection while the server
+   * already has the maximum number of concurrent connections, then the new
+   * connection will be rejected.  Note that if the server is configured with
+   * multiple listeners, then each listener will be allowed to have up to this
+   * number of connections.
+   *
+   * @return  The maximum number of concurrent connections that the server will
+   *          allow, or zero if no limit should be enforced.
+   */
+  public int getMaxConnections()
+  {
+    return maxConnections;
+  }
+
+
+
+  /**
+   * Specifies the maximum number of concurrent connections that the server will
+   * allow.  If a client tries to establish a new connection while the server
+   * already has the maximum number of concurrent connections, then the new
+   * connection will be rejected.  Note that if the server is configured with
+   * multiple listeners, then each listener will be allowed to have up to this
+   * number of connections.
+   *
+   * @param  maxConnections  The maximum number of concurrent connections that
+   *                         the server will allow.  A value that is less than
+   *                         or equal to zero indicates no limit.
+   */
+  public void setMaxConnections(final int maxConnections)
+  {
+    if (maxConnections > 0)
+    {
+      this.maxConnections = maxConnections;
+    }
+    else
+    {
+      this.maxConnections = 0;
+    }
+  }
+
+
+
+  /**
    * Retrieves the maximum number of entries that the server should return in
    * any search operation.
    *
@@ -1493,6 +1542,8 @@ public class InMemoryDirectoryServerConfig
       buffer.append(maxChangeLogEntries);
     }
 
+    buffer.append(", maxConnections=");
+    buffer.append(maxConnections);
     buffer.append(", maxSizeLimit=");
     buffer.append(maxSizeLimit);
 
