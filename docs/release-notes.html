@@ -70,6 +70,13 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Updated the LDAP listener framework and the in-memory directory server to make
+                  it possible to limit the number of connections that may be established at any
+                  given time.
+                  <br><br>
+                </li>
+
+                <li>
                   Added new <tt>Entry.applyModifyDN</tt> methods that can be used to retrieve a
                   new entry that reflects the changes associated with processing a modify DN
                   operation against that entry.  In addition to updating the DN for the entry, it
@@ -111,6 +118,13 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Added a new <tt>LDAPExtendedOperationException</tt> class that is a subclass of
+                  <tt>LDAPException</tt> and can provide access to the OID and value returned to
+                  the client in an extended operation failure.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved the LDAP SDK's handling of connect timeouts to ensure that a connection
                   attempt is less likely to block for longer than the configured connect timeout.
                   <br><br>
@@ -120,6 +134,42 @@ ${TARGET="offline"}                    <br>
                   Updated the GSSAPI implementation to add support for including the
                   refreshKrb5Config, useKeyTab, and keyTab properties in the dynamically-generated
                   JAAS configuration file.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP connection pool health check to add the ability to perform
+                  validation after the pool performs a bind, either at the time a connection is
+                  created or when the pool re-authenticates a connection as a result of a call to
+                  <tt>bindAndRevertAuthentication</tt> or
+                  <tt>releaseAndReAuthenticateConnection</tt>.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new password expiration LDAP connection pool health check that can be
+                  used to warn about or reject connections in which the bind result indicates a
+                  current or upcoming password-policy-related problem like password expiration or
+                  account lockout.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new aggregate LDAP connection pool health check that can be used to
+                  invoke multiple health checks as a single unit.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new aggregate post-connect processor that can be used to invoke multiple
+                  post-connect processors as a single unit.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP command-line tool API to make it possible to specify more
+                  options when creating a connection pool using the settings provided via
+                  command-line arguments.
                   <br><br>
                 </li>
 
@@ -158,6 +208,14 @@ ${TARGET="offline"}                    <br>
                 <li>
                   Updated the LDIF reader to make it possible to specify the trailing space
                   behavior when using static methods to decode LDIF entries and change records.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added minimal constructors for a number of argument types that assume common
+                  values for a number of properties.  Also added default placeholder strings for
+                  arguments so that it is not always necessary to provide a non-null value when
+                  creating an argument.
                   <br><br>
                 </li>
 
