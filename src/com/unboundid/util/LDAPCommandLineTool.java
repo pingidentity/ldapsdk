@@ -23,6 +23,7 @@ package com.unboundid.util;
 
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,12 +34,14 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
+import com.unboundid.ldap.sdk.AggregatePostConnectProcessor;
 import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
+import com.unboundid.ldap.sdk.LDAPConnectionPoolHealthCheck;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.PostConnectProcessor;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -714,21 +717,117 @@ public abstract class LDAPCommandLineTool
                                        final int maxConnections)
             throws LDAPException
   {
+    return getConnectionPool(initialConnections, maxConnections, 1, null, null,
+         true, null);
+  }
+
+
+
+  /**
+   * Retrieves a connection pool that may be used to communicate with the target
+   * directory server.
+   * <BR><BR>
+   * Note that this method is threadsafe and may be invoked by multiple threads
+   * accessing the same instance only while that instance is in the process of
+   * invoking the {@link #doToolProcessing} method.
+   *
+   * @param  initialConnections       The number of connections that should be
+   *                                  initially established in the pool.
+   * @param  maxConnections           The maximum number of connections to
+   *                                  maintain in the pool.
+   * @param  initialConnectThreads    The number of concurrent threads to use to
+   *                                  establish the initial set of connections.
+   *                                  A value greater than one indicates that
+   *                                  the attempt to establish connections
+   *                                  should be parallelized.
+   * @param  beforeStartTLSProcessor  An optional post-connect processor that
+   *                                  should be used for the connection pool and
+   *                                  should be invoked before any StartTLS
+   *                                  post-connect processor that may be needed
+   *                                  based on the selected arguments.  It may
+   *                                  be {@code null} if no such post-connect
+   *                                  processor is needed.
+   * @param  afterStartTLSProcessor   An optional post-connect processor that
+   *                                  should be used for the connection pool and
+   *                                  should be invoked after any StartTLS
+   *                                  post-connect processor that may be needed
+   *                                  based on the selected arguments.  It may
+   *                                  be {@code null} if no such post-connect
+   *                                  processor is needed.
+   * @param  throwOnConnectFailure    If an exception should be thrown if a
+   *                                  problem is encountered while attempting to
+   *                                  create the specified initial number of
+   *                                  connections.  If {@code true}, then the
+   *                                  attempt to create the pool will fail if
+   *                                  any connection cannot be established.  If
+   *                                  {@code false}, then the pool will be
+   *                                  created but may have fewer than the
+   *                                  initial number of connections (or possibly
+   *                                  no connections).
+   * @param  healthCheck              An optional health check that should be
+   *                                  configured for the connection pool.  It
+   *                                  may be {@code null} if the default health
+   *                                  checking should be performed.
+   *
+   * @return  A connection that may be used to communicate with the target
+   *          directory server.
+   *
+   * @throws  LDAPException  If a problem occurs while creating the connection
+   *                         pool.
+   */
+  @ThreadSafety(level=ThreadSafetyLevel.METHOD_THREADSAFE)
+  public final LDAPConnectionPool getConnectionPool(
+                    final int initialConnections, final int maxConnections,
+                    final int initialConnectThreads,
+                    final PostConnectProcessor beforeStartTLSProcessor,
+                    final PostConnectProcessor afterStartTLSProcessor,
+                    final boolean throwOnConnectFailure,
+                    final LDAPConnectionPoolHealthCheck healthCheck)
+            throws LDAPException
+  {
+    // Create the server set and bind request, if necessary.
     if (serverSet == null)
     {
       serverSet   = createServerSet();
       bindRequest = createBindRequest();
     }
 
-    PostConnectProcessor postConnectProcessor = null;
+
+    // Prepare the post-connect processor for the pool.
+    final ArrayList<PostConnectProcessor> pcpList =
+         new ArrayList<PostConnectProcessor>(3);
+    if (beforeStartTLSProcessor != null)
+    {
+      pcpList.add(beforeStartTLSProcessor);
+    }
+
     if (useStartTLS.isPresent())
     {
-      postConnectProcessor =
-           new StartTLSPostConnectProcessor(startTLSSocketFactory);
+      pcpList.add(new StartTLSPostConnectProcessor(startTLSSocketFactory));
+    }
+
+    if (afterStartTLSProcessor != null)
+    {
+      pcpList.add(afterStartTLSProcessor);
+    }
+
+    final PostConnectProcessor postConnectProcessor;
+    switch (pcpList.size())
+    {
+      case 0:
+        postConnectProcessor = null;
+        break;
+      case 1:
+        postConnectProcessor = pcpList.get(0);
+        break;
+      default:
+        postConnectProcessor = new AggregatePostConnectProcessor(pcpList);
+        break;
     }
 
     return new LDAPConnectionPool(serverSet, bindRequest, initialConnections,
-                                  maxConnections, postConnectProcessor);
+         maxConnections, initialConnectThreads, postConnectProcessor,
+         throwOnConnectFailure, healthCheck);
   }
 
 

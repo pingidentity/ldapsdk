@@ -1036,7 +1036,7 @@ public final class LDAPConnectionPool
    *                                problem is encountered while attempting to
    *                                create the specified initial number of
    *                                connections.  If {@code true}, then the
-   *                                attempt to create the pool will fail.if any
+   *                                attempt to create the pool will fail if any
    *                                connection cannot be established.  If
    *                                {@code false}, then the pool will be created
    *                                but may have fewer than the initial number
