@@ -380,7 +380,7 @@ public final class LDAPDebugger
     {
       try
       {
-        requestHandler = new ToCodeRequestHandler(codeLogFile.getValue(), false,
+        requestHandler = new ToCodeRequestHandler(codeLogFile.getValue(), true,
              requestHandler);
       }
       catch (final Exception e)
