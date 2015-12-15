@@ -57,7 +57,7 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
-                  Updated the GSSAPI bind request implementation to add the ability to use obtain
+                  Updated the GSSAPI bind request implementation to add the ability to obtain
                   credentials from a keytab, and to indicate that the configuration should be
                   refreshed before attempting the JAAS login.
                   <br><br>
@@ -127,13 +127,6 @@ ${TARGET="offline"}                    <br>
                 <li>
                   Improved the LDAP SDK's handling of connect timeouts to ensure that a connection
                   attempt is less likely to block for longer than the configured connect timeout.
-                  <br><br>
-                </li>
-
-                <li>
-                  Updated the GSSAPI implementation to add support for including the
-                  refreshKrb5Config, useKeyTab, and keyTab properties in the dynamically-generated
-                  JAAS configuration file.
                   <br><br>
                 </li>
 
