@@ -584,19 +584,18 @@ public final class AssuredReplicationResponseControl
 
 
   /**
-   * Extracts an assured replication response control from the provided LDAP
-   * result.  If there are multiple assured replication response controls
-   * included in the result, then only the first will be returned.
+   * Extracts all assured replication response controls from the provided LDAP
+   * result.
    *
    * @param  result  The LDAP result from which to retrieve the assured
-   *                 replication response control.
+   *                 replication response controls.
    *
-   * @return  The assured replication response control contained in the provided
-   *          LDAP result, or {@code null} if the result did not contain an
-   *          assured replication response control.
+   * @return  A list containing the assured replication response controls
+   *          contained in the provided LDAP result, or an empty list if the
+   *          result did not contain any assured replication response control.
    *
    * @throws  LDAPException  If a problem is encountered while attempting to
-   *                         decode the assured replication response control
+   *                         decode any assured replication response control
    *                         contained in the provided result.
    */
   public static List<AssuredReplicationResponseControl> getAll(

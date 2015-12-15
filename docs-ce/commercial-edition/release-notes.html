@@ -19,6 +19,60 @@ ${TARGET="offline"}                    <br>
                 <a href="../release-notes.html">Standard Edition Release Notes</a>.
               </p>
 
+              <h3>Version 3.1.0</h3>
+
+              <p>
+                The following changes were made between the 3.0.0 and 3.1.0 releases of the
+                Commercial Edition:
+              </p>
+
+              <ul>
+                <li>
+                  Added support for a new "name with entryUUID" control that can be included in an
+                  add request to indicate that the resulting entry should use the server-generated
+                  entryUUID as the naming attribute.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for a new get password policy state issues request control that
+                  may be included in a bind request under certain circumstances to obtain
+                  detailed information about notices, warnings, and errors pertaining to the
+                  password policy state for the user trying to authenticate.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated support for the password policy state extended operation to provide
+                  access to additional information, including the last authentication time,
+                  the account activation time, and summaries of the notice, warning, and error
+                  conditions for the user's password policy state.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for a new task that can be used to synchronize encryption settings
+                  definitions between server instances within the same topology.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added new result codes that may be used to obtain information about the status
+                  of an attempt to deliver a one-time password, a password reset token, or a
+                  single-use token.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new start administrative session post-connect processor that can be used
+                  to create a connection pool in which the connections are part of an
+                  administrative session.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 3.0.0</h3>
 
               <p>

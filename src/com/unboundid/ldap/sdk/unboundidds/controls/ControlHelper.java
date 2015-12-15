@@ -82,6 +82,11 @@ public final class ControlHelper
          new GetBackendSetIDResponseControl());
 
     Control.registerDecodeableControl(
+         GetPasswordPolicyStateIssuesResponseControl.
+              GET_PASSWORD_POLICY_STATE_ISSUES_RESPONSE_OID,
+         new GetPasswordPolicyStateIssuesResponseControl());
+
+    Control.registerDecodeableControl(
          GetServerIDResponseControl.GET_SERVER_ID_RESPONSE_OID,
          new GetServerIDResponseControl());
 

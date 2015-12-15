@@ -211,7 +211,7 @@ public final class SubtreeAccessibility
   @Override()
   public String getToolDescription()
   {
-    return "List or update the a set of subtree accessibility restrictions " +
+    return "List or update the set of subtree accessibility restrictions " +
          "defined in the Directory Server.";
   }
 

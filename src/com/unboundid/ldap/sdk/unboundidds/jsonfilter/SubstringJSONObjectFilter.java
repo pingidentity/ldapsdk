@@ -636,7 +636,7 @@ public final class SubstringJSONObjectFilter
     {
       if (v instanceof JSONString)
       {
-        if (matchesSubstring(v))
+        if (matchesValue(v))
         {
           return true;
         }
@@ -645,7 +645,7 @@ public final class SubstringJSONObjectFilter
       {
         for (final JSONValue arrayValue : ((JSONArray) v).getValues())
         {
-          if (matchesSubstring(arrayValue))
+          if (matchesValue(arrayValue))
           {
             return true;
           }
@@ -659,29 +659,46 @@ public final class SubstringJSONObjectFilter
 
 
   /**
-   * Indicates whether the provided JSON value matches the substring assertion
-   * defined in this filter.
+   * Indicates whether the substring assertion defined in this filter matches
+   * the provided JSON value.
    *
    * @param  v  The value for which to make the determination.
    *
-   * @return  {@code true} if the provided value matches this substring
-   *          assertion, or {@code false} if not.
+   * @return  {@code true} if the substring assertion matches the provided
+   *          value, or {@code false} if not.
    */
-  private boolean matchesSubstring(final JSONValue v)
+  private boolean matchesValue(final JSONValue v)
   {
     if (! (v instanceof JSONString))
     {
       return false;
     }
 
+    return matchesString(((JSONString) v).stringValue());
+  }
+
+
+
+  /**
+   * Indicates whether the substring assertion defined in this filter matches
+   * the provided string.
+   *
+   * @param  s  The string for which to make the determination.
+   *
+   * @return  {@code true} if the substring assertion defined in this filter
+   *          matches the provided string, or {@code false} if not.
+   */
+  public boolean matchesString(final String s)
+  {
+
     final String stringValue;
     if (caseSensitive)
     {
-      stringValue = ((JSONString) v).stringValue();
+      stringValue = s;
     }
     else
     {
-      stringValue = StaticUtils.toLowerCase(((JSONString) v).stringValue());
+      stringValue = StaticUtils.toLowerCase(s);
     }
 
     if (stringValue.length() < minLength)
@@ -709,14 +726,14 @@ public final class SubstringJSONObjectFilter
       buffer.setLength(lengthMinusEndsWith);
     }
 
-    for (final String s : matchContains)
+    for (final String containsElement : matchContains)
     {
-      final int index = buffer.indexOf(s);
+      final int index = buffer.indexOf(containsElement);
       if (index < 0)
       {
         return false;
       }
-      buffer.delete(0, (index+s.length()));
+      buffer.delete(0, (index+containsElement.length()));
     }
 
     return true;

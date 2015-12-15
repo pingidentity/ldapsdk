@@ -189,6 +189,15 @@ public final class UnboundIDWorkQueueMonitorEntry
 
 
   /**
+   * The name of the attribute that contains the total number of requests that
+   * have were stolen from their primary queue by a worker thread associated
+   * with a different queue.
+   */
+  private static final String ATTR_REQUESTS_STOLEN = "stolen-count";
+
+
+
+  /**
    * The name of the attribute that contains the current size of the work queue
    * reserved for operations processed as part of administrative sessions.
    */
@@ -285,6 +294,9 @@ public final class UnboundIDWorkQueueMonitorEntry
   // The total number of requests rejected due to a full work queue.
   private final Long requestsRejected;
 
+  // The total number of requests rejected due to a full work queue.
+  private final Long requestsStolen;
+
 
 
   /**
@@ -302,6 +314,7 @@ public final class UnboundIDWorkQueueMonitorEntry
     recentAverageSize         = getLong(ATTR_RECENT_AVERAGE_SIZE);
     maxSize                   = getLong(ATTR_MAX_SIZE);
     requestsRejected          = getLong(ATTR_REQUESTS_REJECTED);
+    requestsStolen            = getLong(ATTR_REQUESTS_STOLEN);
     numBusyWorkerThreads      = getLong(ATTR_NUM_BUSY_WORKER_THREADS);
     numWorkerThreads          = getLong(ATTR_NUM_WORKER_THREADS);
     currentPercentBusy        = getLong(ATTR_CURRENT_PCT_BUSY);
@@ -388,6 +401,22 @@ public final class UnboundIDWorkQueueMonitorEntry
   public Long getRequestsRejectedDueToQueueFull()
   {
     return requestsRejected;
+  }
+
+
+
+  /**
+   * Retrieves the total number of operation requests that have been stolen from
+   * their primary queue by a worker thread associated with a different queue.
+   *
+   * @return  The total number of operation requests that have been stolen from
+   *          their primary queue by a worker thread associated with a different
+   *          queue, or {@code null} if that information was not included in the
+   *          monitor entry.
+   */
+  public Long getRequestsStolen()
+  {
+    return requestsStolen;
   }
 
 
@@ -616,6 +645,15 @@ public final class UnboundIDWorkQueueMonitorEntry
            INFO_UNBOUNDID_WORK_QUEUE_DISPNAME_REQUESTS_REJECTED.get(),
            INFO_UNBOUNDID_WORK_QUEUE_DESC_REQUESTS_REJECTED.get(),
            requestsRejected);
+    }
+
+    if (requestsStolen != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_REQUESTS_STOLEN,
+           INFO_UNBOUNDID_WORK_QUEUE_DISPNAME_REQUESTS_STOLEN.get(),
+           INFO_UNBOUNDID_WORK_QUEUE_DESC_REQUESTS_STOLEN.get(),
+           requestsStolen);
     }
 
     if (currentSize != null)

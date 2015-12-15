@@ -726,6 +726,7 @@ public class Task
          new RestoreTask(),
          new SearchTask(),
          new ShutdownTask(),
+         new SynchronizeEncryptionSettingsTask(),
          new ThirdPartyTask());
 
     return Collections.unmodifiableList(taskList);
@@ -1684,6 +1685,11 @@ public class Task
       else if (taskClass.equals(ShutdownTask.SHUTDOWN_TASK_CLASS))
       {
         return new ShutdownTask(entry);
+      }
+      else if (taskClass.equals(SynchronizeEncryptionSettingsTask.
+                    SYNCHRONIZE_ENCRYPTION_SETTINGS_TASK_CLASS))
+      {
+        return new SynchronizeEncryptionSettingsTask(entry);
       }
       else if (taskClass.equals(ThirdPartyTask.THIRD_PARTY_TASK_CLASS))
       {

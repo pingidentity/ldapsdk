@@ -58,6 +58,8 @@ import static com.unboundid.util.StaticUtils.*;
  *   <LI>Get the DN of the password policy configuration entry for the target
  *       user.</LI>
  *   <LI>Get, set, and clear the account disabled flag for the target user.</LI>
+ *   <LI>Get, set, and clear the account activation time for the target
+ *       user.</LI>
  *   <LI>Get, set, and clear the account expiration time for the target
  *       user.</LI>
  *   <LI>Get the length of time in seconds until the target user account
@@ -474,6 +476,89 @@ public final class PasswordPolicyStateOperation
 
 
   /**
+   * The operation type that may be used to get the time that the user's account
+   * will become active.
+   */
+  public static final int OP_TYPE_GET_ACCOUNT_ACTIVATION_TIME = 45;
+
+
+
+  /**
+   * The operation type that may be used to set the time that the user's account
+   * will become active.
+   */
+  public static final int OP_TYPE_SET_ACCOUNT_ACTIVATION_TIME = 46;
+
+
+
+  /**
+   * The operation type that may be used to clear the user's account activation
+   * time.
+   */
+  public static final int OP_TYPE_CLEAR_ACCOUNT_ACTIVATION_TIME = 47;
+
+
+
+  /**
+   * The operation type that may be used to retrieve the length of time in
+   * seconds until the user's account will become active.
+   */
+  public static final int OP_TYPE_GET_SECONDS_UNTIL_ACCOUNT_ACTIVATION = 48;
+
+
+
+  /**
+   * The operation type that may be used to retrieve the IP address from which
+   * the user last authenticated to the server.
+   */
+  public static final int OP_TYPE_GET_LAST_LOGIN_IP_ADDRESS = 49;
+
+
+
+  /**
+   * The operation type that may be used to set the IP address from which the
+   * user last authenticated to the server.
+   */
+  public static final int OP_TYPE_SET_LAST_LOGIN_IP_ADDRESS = 50;
+
+
+
+  /**
+   * The operation type that may be used to clear the last login IP address in
+   * the user's entry.
+   */
+  public static final int OP_TYPE_CLEAR_LAST_LOGIN_IP_ADDRESS = 51;
+
+
+
+  /**
+   * The operation type that may be used to retrieve a list of structured
+   * strings that provide information about notices pertaining to account
+   * usability.
+   */
+  public static final int OP_TYPE_GET_ACCOUNT_USABILITY_NOTICES = 52;
+
+
+
+  /**
+   * The operation type that may be used to retrieve a list of structured
+   * strings that provide information about warnings that may affect the account
+   * usability.
+   */
+  public static final int OP_TYPE_GET_ACCOUNT_USABILITY_WARNINGS = 53;
+
+
+
+  /**
+   * The operation type that may be used to retrieve a list of structured
+   * strings that provide information about errors that may affect the account
+   * usability.
+   */
+  public static final int OP_TYPE_GET_ACCOUNT_USABILITY_ERRORS = 54;
+
+
+
+  /**
    * The set of values that will be used if there are no values.
    */
   private static final ASN1OctetString[] NO_VALUES = new ASN1OctetString[0];
@@ -483,7 +568,7 @@ public final class PasswordPolicyStateOperation
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -7430165299583556387L;
+  private static final long serialVersionUID = -8633392131121248115L;
 
 
 
@@ -536,12 +621,15 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to request
-   * the DN of the password policy configuration entry for the user.
+   * the DN of the password policy configuration entry for the user.  The result
+   * returned should include an operation of type
+   * {@link #OP_TYPE_GET_PW_POLICY_DN} with a single string value that is the
+   * DN of the password policy configuration entry.
    *
-   * @return  The created password policy state operation.
+   * @return The created password policy state operation.
    */
   public static PasswordPolicyStateOperation
-       createGetPasswordPolicyDNOperation()
+  createGetPasswordPolicyDNOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_GET_PW_POLICY_DN);
   }
@@ -550,12 +638,15 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * whether the user account is disabled.
+   * whether the user account is disabled.  The result returned should include
+   * an operation of type {@link #OP_TYPE_GET_ACCOUNT_DISABLED_STATE} with a
+   * single boolean value of {@code true} if the account is disabled, or
+   * {@code false} if the account is not disabled.
    *
-   * @return  The created password policy state operation.
+   * @return The created password policy state operation.
    */
   public static PasswordPolicyStateOperation
-       createGetAccountDisabledStateOperation()
+  createGetAccountDisabledStateOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_GET_ACCOUNT_DISABLED_STATE);
   }
@@ -564,44 +655,138 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to specify
-   * whether the user account is disabled.
+   * whether the user account is disabled.  The result returned should include
+   * an operation of type {@link #OP_TYPE_GET_ACCOUNT_DISABLED_STATE} with a
+   * single boolean value of {@code true} if the account has been disabled, or
+   * {@code false} if the account is not disabled.
    *
    * @param  isDisabled  Indicates whether the user account should be disabled.
    *
-   * @return  The created password policy state operation.
+   * @return The created password policy state operation.
    */
   public static PasswordPolicyStateOperation
-       createSetAccountDisabledStateOperation(final boolean isDisabled)
+  createSetAccountDisabledStateOperation(final boolean isDisabled)
   {
     final ASN1OctetString[] values =
-    {
-      new ASN1OctetString(String.valueOf(isDisabled))
-    };
+         {
+              new ASN1OctetString(String.valueOf(isDisabled))
+         };
 
     return new PasswordPolicyStateOperation(OP_TYPE_SET_ACCOUNT_DISABLED_STATE,
-                                            values);
+         values);
   }
 
 
 
   /**
    * Creates a new password policy state operation that may be used to clear
-   * the user account disabled state in the user's entry.
+   * the user account disabled state in the user's entry.  The result returned
+   * should include an operation of type
+   * {@link #OP_TYPE_GET_ACCOUNT_DISABLED_STATE} with a single boolean value of
+   * {@code true} if the account is disabled, or {@code false} if the account is
+   * not disabled.
    *
-   * @return  The created password policy state operation.
+   * @return The created password policy state operation.
    */
   public static PasswordPolicyStateOperation
-       createClearAccountDisabledStateOperation()
+  createClearAccountDisabledStateOperation()
   {
     return new PasswordPolicyStateOperation(
-                    OP_TYPE_CLEAR_ACCOUNT_DISABLED_STATE);
+         OP_TYPE_CLEAR_ACCOUNT_DISABLED_STATE);
   }
 
 
 
   /**
    * Creates a new password policy state operation that may be used to retrieve
-   * the time that the user's account expires.
+   * the time that the user's account will become active.  The result returned
+   * should include an operation of type
+   * {@link #OP_TYPE_GET_ACCOUNT_ACTIVATION_TIME} with a single string value
+   * that is the generalized time representation of the account activation time,
+   * or a {@code null} value if the account does not have an activation time.
+   *
+   * @return The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+  createGetAccountActivationTimeOperation()
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_GET_ACCOUNT_ACTIVATION_TIME);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to set the
+   * time that the user's account expires.  The result returned should include
+   * an operation of type {@link #OP_TYPE_GET_ACCOUNT_ACTIVATION_TIME} with a
+   * single string value that is the generalized time representation of the
+   * account activation time, or a {@code null} value if the account does not
+   * have an activation time.
+   *
+   * @param  expirationTime  The time that the user's account should expire.
+   *
+   * @return The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+  createSetAccountActivationTimeOperation(final Date expirationTime)
+  {
+    final ASN1OctetString[] values =
+         {
+              new ASN1OctetString(encodeGeneralizedTime(expirationTime))
+         };
+
+    return new PasswordPolicyStateOperation(OP_TYPE_SET_ACCOUNT_ACTIVATION_TIME,
+         values);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to clear
+   * the account expiration time in the user's entry.  The result returned
+   * should include an operation of type
+   * {@link #OP_TYPE_GET_ACCOUNT_ACTIVATION_TIME} with a single string value
+   * that is the generalized time representation of the account activation time,
+   * or a {@code null} value if the account does not have an activation time.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+       createClearAccountActivationTimeOperation()
+  {
+    return new PasswordPolicyStateOperation(
+                    OP_TYPE_CLEAR_ACCOUNT_ACTIVATION_TIME);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to determine
+   * the length of time in seconds until the user's account becomes active.  The
+   * result returned should include an operation of type
+   * {@link #OP_TYPE_GET_SECONDS_UNTIL_ACCOUNT_ACTIVATION} with a single integer
+   * value representing the number of seconds until the account becomes active,
+   * or a {@code null} value if the account does not have an activation time.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+       createGetSecondsUntilAccountActivationOperation()
+  {
+    return new PasswordPolicyStateOperation(
+                    OP_TYPE_GET_SECONDS_UNTIL_ACCOUNT_ACTIVATION);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to retrieve
+   * the time that the user's account expires.  The result returned should
+   * include an operation of type {@link #OP_TYPE_GET_ACCOUNT_EXPIRATION_TIME}
+   * with a single string value that is the generalized time representation of
+   * the account expiration time, or a {@code null} value if the account does
+   * not have an expiration time.
    *
    * @return  The created password policy state operation.
    */
@@ -616,7 +801,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to set the
-   * time that the user's account expires.
+   * time that the user's account expires.  The result returned should include
+   * an operation of type {@link #OP_TYPE_GET_ACCOUNT_EXPIRATION_TIME} with a
+   * single string value that is the generalized time representation of the
+   * account expiration time, or a {@code null} value if the account does not
+   * have an expiration time.
    *
    * @param  expirationTime  The time that the user's account should expire.
    *
@@ -638,7 +827,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to clear
-   * the account expiration time in the user's entry.
+   * the account expiration time in the user's entry.  The result returned
+   * should include an operation of type
+   * {@link #OP_TYPE_GET_ACCOUNT_EXPIRATION_TIME} with a single string value
+   * that is the generalized time representation of the account expiration time,
+   * or a {@code null} value if the account does not have an expiration time.
    *
    * @return  The created password policy state operation.
    */
@@ -653,7 +846,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * the length of time in seconds until the user's account is expired.
+   * the length of time in seconds until the user's account is expired.  The
+   * result returned should include an operation of type
+   * {@link #OP_TYPE_GET_SECONDS_UNTIL_ACCOUNT_EXPIRATION} with a single integer
+   * value representing the number of seconds until the account will expire, or
+   * a {@code null} value if the account does not have an expiration time.
    *
    * @return  The created password policy state operation.
    */
@@ -668,7 +865,10 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * when the user's password was last changed.
+   * when the user's password was last changed.  The result returned should
+   * include an operation of type {@link #OP_TYPE_GET_PW_CHANGED_TIME} with a
+   * single string value that is the generalized time representation of the
+   * time the password was last changed.
    *
    * @return  The created password policy state operation.
    */
@@ -682,7 +882,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * when the user first received a password expiration warning.
+   * when the user first received a password expiration warning.  The result
+   * returned should include an operation of type
+   * {@link #OP_TYPE_GET_PW_EXPIRATION_WARNED_TIME} with a single string value
+   * that is the generalized time representation of the time the user received
+   * the first expiration warning.
    *
    * @return  The created password policy state operation.
    */
@@ -697,7 +901,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to clear the
-   * password expiration warned time from the user's entry.
+   * password expiration warned time from the user's entry.  The result returned
+   * should include an operation of type
+   * {@link #OP_TYPE_GET_PW_EXPIRATION_WARNED_TIME} with a single string value
+   * that is the generalized time representation of the time the user received
+   * the first expiration warning.
    *
    * @return  The created password policy state operation.
    */
@@ -712,7 +920,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * the length of time in seconds until the user's password expires.
+   * the length of time in seconds until the user's password expires.  The
+   * result returned should include an operation of type
+   * {@link #OP_TYPE_GET_SECONDS_UNTIL_PW_EXPIRATION} with a single integer
+   * value that is the number of seconds until the user's password expires, or
+   * a {@code null} value if the user's password will not expire.
    *
    * @return  The created password policy state operation.
    */
@@ -728,7 +940,11 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to determine
    * the length of time in seconds until the user is eligible to start receiving
-   * password expiration warnings.
+   * password expiration warnings.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_SECONDS_UNTIL_PW_EXPIRATION_WARNING}
+   * with a single integer value that is the number of seconds until the user is
+   * eligible to receive the first expiration warning, or a {@code null} value
+   * if the user's password will not expire.
    *
    * @return  The created password policy state operation.
    */
@@ -744,7 +960,10 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to retrieve
    * the times that the user has unsuccessfully tried to authenticate since the
-   * last successful authentication.
+   * last successful authentication.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_AUTH_FAILURE_TIMES} with an array of
+   * string values representing the timestamps (in generalized time format) of
+   * the authentication failures.
    *
    * @return  The created password policy state operation.
    */
@@ -759,7 +978,10 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to add the
    * current time to the set of times that the user has unsuccessfully tried to
-   * authenticate since the last successful authentication.
+   * authenticate since the last successful authentication.  The result returned
+   * should include an operation of type {@link #OP_TYPE_GET_AUTH_FAILURE_TIMES}
+   * with an array of string values representing the timestamps (in generalized
+   * time format) of the authentication failures.
    *
    * @return  The created password policy state operation.
    */
@@ -780,7 +1002,10 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to specify
    * the set of times that the user has unsuccessfully tried to authenticate
-   * since the last successful authentication.
+   * since the last successful authentication.  The result returned should
+   * include an operation of type {@link #OP_TYPE_GET_AUTH_FAILURE_TIMES} with
+   * an array of string values representing the timestamps (in generalized time
+   * format) of the authentication failures.
    *
    * @param  authFailureTimes  The set of times that the user has unsuccessfully
    *                           tried to authenticate since the last successful
@@ -816,7 +1041,10 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to clear the
    * set of times that the user has unsuccessfully tried to authenticate since
-   * the last successful authentication.
+   * the last successful authentication.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_AUTH_FAILURE_TIMES} with an array of
+   * string values representing the timestamps (in generalized time format) of
+   * the authentication failures.
    *
    * @return  The created password policy state operation.
    */
@@ -831,7 +1059,12 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to determine
    * the length of time in seconds until the user's account is automatically
-   * unlocked after too many failed authentication attempts.
+   * unlocked after too many failed authentication attempts.  The result
+   * returned should include an operation of type
+   * {@link #OP_TYPE_GET_SECONDS_UNTIL_AUTH_FAILURE_UNLOCK} with a single
+   * integer value that represents the number of seconds until the account
+   * becomes unlocked, or a {@code null} value if the account is not temporarily
+   * locked as a result of authentication failures.
    *
    * @return  The created password policy state operation.
    */
@@ -847,6 +1080,12 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to determine
    * the number of authentication failures required to lock the user's account.
+   * The result returned should include an operation of type
+   * {@link #OP_TYPE_GET_REMAINING_AUTH_FAILURE_COUNT} with a single integer
+   * value that represents the number of authentication failures that a user
+   * will be permitted before the account is locked, or a {@code null} value if
+   * the password policy is not configured to lock accounts as a result of too
+   * many failed authentication attempts.
    *
    * @return  The created password policy state operation.
    */
@@ -861,7 +1100,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * the time that the user last successfully authenticated to the server.
+   * the time that the user last successfully authenticated to the server.  The
+   * result returned should include an operation of type
+   * {@link #OP_TYPE_GET_LAST_LOGIN_TIME} with a single string value that is
+   * the generalized time representation of the user's last login time, or a
+   * {@code null} value if no last login time is available.
    *
    * @return  The created password policy state operation.
    */
@@ -874,7 +1117,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to set
-   * the time that the user last successfully authenticated to the server.
+   * the time that the user last successfully authenticated to the server.  The
+   * result returned should include an operation of type
+   * {@link #OP_TYPE_GET_LAST_LOGIN_TIME} with a single string value that is
+   * the generalized time representation of the user's last login time, or a
+   * {@code null} value if no last login time is available.
    *
    * @param  lastLoginTime  The last login time to set in the user's entry.
    *
@@ -896,7 +1143,11 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to clear
-   * the last login time time from the user's entry.
+   * the last login time from the user's entry.  The result returned should
+   * include an operation of type {@link #OP_TYPE_GET_LAST_LOGIN_TIME} with a
+   * single string value that is the generalized time representation of the
+   * user's last login time, or a {@code null} value if no last login time is
+   * available.
    *
    * @return  The created password policy state operation.
    */
@@ -909,8 +1160,76 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
+   * the IP address from which the user last successfully authenticated to the
+   * server.  The result returned should include an operation of type
+   * {@link #OP_TYPE_GET_LAST_LOGIN_IP_ADDRESS} with a single string value that
+   * is the user's last login IP address, or a {@code null} value if no last
+   * login IP address is available.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createGetLastLoginIPAddressOperation()
+  {
+    return new PasswordPolicyStateOperation(OP_TYPE_GET_LAST_LOGIN_IP_ADDRESS);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to set
+   * the IP address from which the user last successfully authenticated to the
+   * server.  The result returned should include an operation of type
+   * {@link #OP_TYPE_GET_LAST_LOGIN_IP_ADDRESS} with a single string value that
+   * is the user's last login IP address, or a {@code null} value if no last
+   * login IP address is available.
+   *
+   * @param  lastLoginIPAddress  The last login IP address to set in the user's
+   *                             entry.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+       createSetLastLoginIPAddressOperation(final String lastLoginIPAddress)
+  {
+    final ASN1OctetString[] values =
+    {
+      new ASN1OctetString(lastLoginIPAddress)
+    };
+
+    return new PasswordPolicyStateOperation(OP_TYPE_SET_LAST_LOGIN_IP_ADDRESS,
+                                            values);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to clear
+   * the last login IP address from the user's entry.  The result returned
+   * should include an operation of type
+   * {@link #OP_TYPE_GET_LAST_LOGIN_IP_ADDRESS} with a single string value that
+   * is the user's last login IP address, or a {@code null} value if no last
+   * login IP address is available.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createClearLastLoginIPAddressOperation()
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_CLEAR_LAST_LOGIN_IP_ADDRESS);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to determine
    * the length of time in seconds until the user's account is locked due to
-   * inactivity.
+   * inactivity.  The result returned should include an operation of type
+   * {@link #OP_TYPE_GET_SECONDS_UNTIL_IDLE_LOCKOUT} with a single integer value
+   * that represents the number of seconds until the user's account is locked as
+   * a result of being idle for too long, or a {@code null} value if no idle
+   * account lockout is configured.
    *
    * @return  The created password policy state operation.
    */
@@ -926,7 +1245,10 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to determine
    * whether the user's password has been reset by an administrator and must be
-   * changed before performing any other operations.
+   * changed before performing any other operations.  The result returned should
+   * include an operation of type {@link #OP_TYPE_GET_PW_RESET_STATE} with a
+   * single boolean value of {@code true} if the user's password must be changed
+   * before the account can be used, or {@code false} if not.
    *
    * @return  The created password policy state operation.
    */
@@ -941,7 +1263,10 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to specify
    * whether the user's password has been reset by an administrator and must be
-   * changed before performing any other operations.
+   * changed before performing any other operations.  The result returned should
+   * include an operation of type {@link #OP_TYPE_GET_PW_RESET_STATE} with a
+   * single boolean value of {@code true} if the user's password must be changed
+   * before the account can be used, or {@code false} if not.
    *
    * @param  isReset  Specifies whether the user's password must be changed
    *                  before performing any other operations.
@@ -963,7 +1288,10 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to clear the
-   * password reset state information in the user's entry.
+   * password reset state information in the user's entry.  The result returned
+   * should include an operation of type {@link #OP_TYPE_GET_PW_RESET_STATE}
+   * with a single boolean value of {@code true} if the user's password must be
+   * changed before the account can be used, or {@code false} if not.
    *
    * @return  The created password policy state operation.
    */
@@ -978,7 +1306,12 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to determine
    * the length of time in seconds that the user has left to change his/her
-   * password after an administrative reset before the account is locked.
+   * password after an administrative reset before the account is locked.  The
+   * result returned should include an operation of type
+   * {@link #OP_TYPE_GET_SECONDS_UNTIL_PW_RESET_LOCKOUT} with a single integer
+   * value that represents the number of seconds until the user's account will
+   * be locked unless the password is reset, or a {@code null} value if the
+   * user's password is not in a "must change" state.
    *
    * @return  The created password policy state operation.
    */
@@ -994,7 +1327,9 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to retrieve
    * the set of times that the user has authenticated using grace logins since
-   * his/her password expired.
+   * his/her password expired.  The result returned should include an operation
+   * of type {@link #OP_TYPE_GET_GRACE_LOGIN_USE_TIMES} with an array of string
+   * values in generalized time format.
    *
    * @return  The created password policy state operation.
    */
@@ -1009,7 +1344,9 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to add the
    * current time to the set of times that the user has authenticated using
-   * grace logins since his/her password expired.
+   * grace logins since his/her password expired.  The result returned should
+   * include an operation of type {@link #OP_TYPE_GET_GRACE_LOGIN_USE_TIMES}
+   * with an array of string values in generalized time format.
    *
    * @return  The created password policy state operation.
    */
@@ -1030,7 +1367,9 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to specify
    * the set of times that the user has authenticated using grace logins since
-   * his/her password expired.
+   * his/her password expired.  The result returned should include an operation
+   * of type {@link #OP_TYPE_GET_GRACE_LOGIN_USE_TIMES} with an array of string
+   * values in generalized time format.
    *
    * @param  graceLoginUseTimes  The set of times that the user has
    *                             authenticated using grace logins since his/her
@@ -1065,7 +1404,9 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to clear
    * the set of times that the user has authenticated using grace logins since
-   * his/her password expired.
+   * his/her password expired.  The result returned should include an operation
+   * of type {@link #OP_TYPE_GET_GRACE_LOGIN_USE_TIMES} with an array of string
+   * values in generalized time format.
    *
    * @return  The created password policy state operation.
    */
@@ -1080,7 +1421,12 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to retrieve
-   * the number of remaining grace logins available to the user.
+   * the number of remaining grace logins available to the user.  The result
+   * returned should include an operation of type
+   * {@link #OP_TYPE_GET_REMAINING_GRACE_LOGIN_COUNT} with a single integer
+   * value that represents the number of remaining grace logins, or a
+   * {@code null} value if grace login functionality is not enabled for the
+   * user.
    *
    * @return  The created password policy state operation.
    */
@@ -1096,7 +1442,11 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to retrieve
    * the last required password change time that with which the user has
-   * complied.
+   * complied.  The result returned should include an operation of type
+   * {@link #OP_TYPE_GET_PW_CHANGED_BY_REQUIRED_TIME} with a single string
+   * value that is the generalized time representation of the most recent
+   * required password change time with which the user complied, or a
+   * {@code null} value if this is not available for the user.
    *
    * @return  The created password policy state operation.
    */
@@ -1112,7 +1462,11 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to update
    * the user's entry to indicate that he/she has complied with the required
-   * password change time.
+   * password change time.  The result returned should include an operation of
+   * type {@link #OP_TYPE_GET_PW_CHANGED_BY_REQUIRED_TIME} with a single string
+   * value that is the generalized time representation of the most recent
+   * required password change time with which the user complied, or a
+   * {@code null} value if this is not available for the user.
    *
    * @return  The created password policy state operation.
    */
@@ -1127,7 +1481,12 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to clear
-   * the last required password change time from the user's entry.
+   * the last required password change time from the user's entry.  The result
+   * returned should include an operation of type
+   * {@link #OP_TYPE_GET_PW_CHANGED_BY_REQUIRED_TIME} with a single string value
+   * that is the generalized time representation of the most recent required
+   * password change time with which the user complied, or a {@code null} value
+   * if this is not available for the user.
    *
    * @return  The created password policy state operation.
    */
@@ -1143,7 +1502,12 @@ public final class PasswordPolicyStateOperation
   /**
    * Creates a new password policy state operation that may be used to retrieve
    * the length of time in seconds until the required password change time
-   * arrives.
+   * arrives.  The result returned should include an operation of type
+   * {@link #OP_TYPE_GET_SECONDS_UNTIL_REQUIRED_CHANGE_TIME} with a single
+   * integer value that represents the number of seconds before the user will
+   * be required to change his/her password as a result of the
+   * require-change-by-time property, or a {@code null} value if the user is
+   * not required to change their password for this reason.
    *
    * @return  The created password policy state operation.
    */
@@ -1158,7 +1522,10 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to retrieve
-   * the password history values stored in the user's entry.
+   * the password history values stored in the user's entry.  The result
+   * returned should include an operation of type
+   * {@link #OP_TYPE_GET_PW_HISTORY} with an array of strings representing the
+   * user's password history content.
    *
    * @return  The created password policy state operation.
    */
@@ -1171,7 +1538,9 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to clear the
-   * password history values stored in the user's entry.
+   * password history values stored in the user's entry.  The result returned
+   * should include an operation of type {@link #OP_TYPE_GET_PW_HISTORY} with an
+   * array of strings representing the user's password history content.
    *
    * @return  The created password policy state operation.
    */
@@ -1185,7 +1554,10 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * whether the user has a valid retired password.
+   * whether the user has a valid retired password.  The result returned should
+   * include an operation of type {@link #OP_TYPE_HAS_RETIRED_PASSWORD} with a
+   * single boolean value of {@code true} if the user has a valid retired
+   * password, or {@code false} if not.
    *
    * @return  The created password policy state operation.
    */
@@ -1198,7 +1570,12 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * the time that the user's former password was retired.
+   * the time that the user's former password was retired.  The result returned
+   * should include an operation of type
+   * {@link #OP_TYPE_GET_PASSWORD_RETIRED_TIME} with a single string value that
+   * is the generalized time representation of the time the user's former
+   * password was retired, or a {@code null} value if the user does not have a
+   * valid retired password.
    *
    * @return  The created password policy state operation.
    */
@@ -1212,7 +1589,12 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to determine
-   * the length of time until the user's retired password expires.
+   * the length of time until the user's retired password expires.  The result
+   * returned should include an operation of type
+   * {@link #OP_TYPE_GET_RETIRED_PASSWORD_EXPIRATION_TIME} with a single string
+   * value that is the generalized time representation of the time the user's
+   * retired password will cease to be valid, or a {@code null} value if the
+   * user does not have a valid retired password.
    *
    * @return  The created password policy state operation.
    */
@@ -1227,7 +1609,10 @@ public final class PasswordPolicyStateOperation
 
   /**
    * Creates a new password policy state operation that may be used to purge
-   * any retired password from the user's entry.
+   * any retired password from the user's entry.  The result returned should
+   * include an operation of type {@link #OP_TYPE_HAS_RETIRED_PASSWORD} with a
+   * single boolean value of {@code true} if the user has a valid retired
+   * password, or {@code false} if not.
    *
    * @return  The created password policy state operation.
    */
@@ -1235,6 +1620,63 @@ public final class PasswordPolicyStateOperation
                      createPurgeRetiredPasswordOperation()
   {
     return new PasswordPolicyStateOperation(OP_TYPE_PURGE_RETIRED_PASSWORD);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to retrieve
+   * information about any password policy state notices pertaining to the
+   * usability of the user's account.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_ACCOUNT_USABILITY_NOTICES} with an
+   * array of strings that represent
+   * {@link PasswordPolicyStateAccountUsabilityWarning} values.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createGetAccountUsabilityNoticesOperation()
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_GET_ACCOUNT_USABILITY_NOTICES);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to retrieve
+   * information about any password policy state warnings that may impact the
+   * usability of the user's account.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_ACCOUNT_USABILITY_WARNINGS} with an
+   * array of strings that represent
+   * {@link PasswordPolicyStateAccountUsabilityWarning} values.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createGetAccountUsabilityWarningsOperation()
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_GET_ACCOUNT_USABILITY_WARNINGS);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to retrieve
+   * information about any password policy state errors that may impact the
+   * usability of the user's account.  The result returned should include an
+   * operation of type {@link #OP_TYPE_GET_ACCOUNT_USABILITY_ERRORS} with an
+   * array of strings that represent
+   * {@link PasswordPolicyStateAccountUsabilityError} values.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation
+                     createGetAccountUsabilityErrorsOperation()
+  {
+    return new PasswordPolicyStateOperation(
+         OP_TYPE_GET_ACCOUNT_USABILITY_ERRORS);
   }
 
 
