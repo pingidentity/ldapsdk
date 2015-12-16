@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.unboundid.util.Debug;
@@ -1481,76 +1482,224 @@ public final class ArgumentParser
       lines.add(INFO_USAGE_OPTIONS_INCLUDE.get());
 
 
-      // We know that there are named arguments, so we'll want to display them
-      // and their descriptions.
+      // If there are any argument groups, then collect the arguments in those
+      // groups.
+      boolean hasRequired = false;
+      final LinkedHashMap<String,List<Argument>> argumentsByGroup =
+           new LinkedHashMap<String,List<Argument>>(10);
+      final ArrayList<Argument> argumentsWithoutGroup =
+           new ArrayList<Argument>(namedArgs.size());
+      final ArrayList<Argument> usageArguments =
+           new ArrayList<Argument>(namedArgs.size());
       for (final Argument a : namedArgs)
       {
         if (a.isHidden())
         {
-          // This shouldn't be included in the usage output.
+          // This argument shouldn't be included in the usage output.
           continue;
         }
 
-        final StringBuilder argLine = new StringBuilder();
-        boolean first = true;
-        for (final Character c : a.getShortIdentifiers())
+        if (a.isRequired() && (! a.hasDefaultValue()))
         {
-          if (first)
+          hasRequired = true;
+        }
+
+        final String argumentGroup = a.getArgumentGroupName();
+        if (argumentGroup == null)
+        {
+          if (a.isUsageArgument())
           {
-            argLine.append('-');
-            first = false;
+            usageArguments.add(a);
           }
           else
           {
-            argLine.append(", -");
-          }
-          argLine.append(c);
-        }
-
-        for (final String s : a.getLongIdentifiers())
-        {
-          if (first)
-          {
-            argLine.append("--");
-          }
-          else
-          {
-            argLine.append(", --");
-          }
-          argLine.append(s);
-        }
-
-        final String valuePlaceholder = a.getValuePlaceholder();
-        if (valuePlaceholder != null)
-        {
-          argLine.append(' ');
-          argLine.append(valuePlaceholder);
-        }
-
-        // NOTE:  This line won't be wrapped.  That's intentional because I
-        // think it would probably look bad no matter how we did it.
-        lines.add(argLine.toString());
-
-        // The description should be wrapped, if necessary.  We'll also want to
-        // indent it (unless someone chose an absurdly small wrap width) to make
-        // it stand out from the argument lines.
-        final String description = a.getDescription();
-        if (maxWidth > 10)
-        {
-          final List<String> descLines = wrapLine(description, (maxWidth-4));
-          for (final String s : descLines)
-          {
-            lines.add("    " + s);
+            argumentsWithoutGroup.add(a);
           }
         }
         else
         {
-          lines.addAll(wrapLine(description, maxWidth));
+          List<Argument> groupArgs = argumentsByGroup.get(argumentGroup);
+          if (groupArgs == null)
+          {
+            groupArgs = new ArrayList<Argument>(10);
+            argumentsByGroup.put(argumentGroup, groupArgs);
+          }
+
+          groupArgs.add(a);
+        }
+      }
+
+
+      // Iterate through the defined argument groups and display usage
+      // information for each of them.
+      for (final Map.Entry<String,List<Argument>> e :
+           argumentsByGroup.entrySet())
+      {
+        lines.add("");
+        lines.add("  " + e.getKey());
+        lines.add("");
+        for (final Argument a : e.getValue())
+        {
+          getArgUsage(a, lines, true, maxWidth);
+        }
+      }
+
+      if (! argumentsWithoutGroup.isEmpty())
+      {
+        if (argumentsByGroup.isEmpty())
+        {
+          for (final Argument a : argumentsWithoutGroup)
+          {
+            getArgUsage(a, lines, false, maxWidth);
+          }
+        }
+        else
+        {
+          lines.add("");
+          lines.add("  " + INFO_USAGE_UNGROUPED_ARGS.get());
+          lines.add("");
+          for (final Argument a : argumentsWithoutGroup)
+          {
+            getArgUsage(a, lines, true, maxWidth);
+          }
+        }
+      }
+
+      if (! usageArguments.isEmpty())
+      {
+        if (argumentsByGroup.isEmpty())
+        {
+          for (final Argument a : usageArguments)
+          {
+            getArgUsage(a, lines, false, maxWidth);
+          }
+        }
+        else
+        {
+          lines.add("");
+          lines.add("  " + INFO_USAGE_USAGE_ARGS.get());
+          lines.add("");
+          for (final Argument a : usageArguments)
+          {
+            getArgUsage(a, lines, true, maxWidth);
+          }
+        }
+      }
+
+      if (hasRequired)
+      {
+        lines.add("");
+        if (argumentsByGroup.isEmpty())
+        {
+          lines.add("* " + INFO_USAGE_ARG_IS_REQUIRED.get());
+        }
+        else
+        {
+          lines.add("  * " + INFO_USAGE_ARG_IS_REQUIRED.get());
         }
       }
     }
 
     return lines;
+  }
+
+
+
+  /**
+   * Adds usage information for the provided argument to the given list.
+   *
+   * @param  a         The argument for which to get the usage information.
+   * @param  lines     The list to which the resulting lines should be added.
+   * @param  indent    Indicates whether to indent each line.
+   * @param  maxWidth  The maximum width of each line, in characters.
+   */
+  private static void getArgUsage(final Argument a, final List<String> lines,
+                                  final boolean indent, final int maxWidth)
+  {
+    final StringBuilder argLine = new StringBuilder();
+    if (indent && (maxWidth > 10))
+    {
+      if (a.isRequired() && (! a.hasDefaultValue()))
+      {
+        argLine.append("  * ");
+      }
+      else
+      {
+        argLine.append("    ");
+      }
+    }
+    else if (a.isRequired() && (! a.hasDefaultValue()))
+    {
+      argLine.append("* ");
+    }
+
+    boolean first = true;
+    for (final Character c : a.getShortIdentifiers())
+    {
+      if (first)
+      {
+        argLine.append('-');
+        first = false;
+      }
+      else
+      {
+        argLine.append(", -");
+      }
+      argLine.append(c);
+    }
+
+    for (final String s : a.getLongIdentifiers())
+    {
+      if (first)
+      {
+        argLine.append("--");
+      }
+      else
+      {
+        argLine.append(", --");
+      }
+      argLine.append(s);
+    }
+
+    final String valuePlaceholder = a.getValuePlaceholder();
+    if (valuePlaceholder != null)
+    {
+      argLine.append(' ');
+      argLine.append(valuePlaceholder);
+    }
+
+    // NOTE:  This line won't be wrapped.  That's intentional because I
+    // think it would probably look bad no matter how we did it.
+    lines.add(argLine.toString());
+
+
+    // The description should be wrapped, if necessary.  We'll also want to
+    // indent it (unless someone chose an absurdly small wrap width) to make
+    // it stand out from the argument lines.
+    final String description = a.getDescription();
+    if (maxWidth > 10)
+    {
+      final String indentString;
+      if (indent)
+      {
+        indentString = "        ";
+      }
+      else
+      {
+        indentString = "    ";
+      }
+
+      final List<String> descLines = wrapLine(description,
+           (maxWidth-indentString.length()));
+      for (final String s : descLines)
+      {
+        lines.add(indentString + s);
+      }
+    }
+    else
+    {
+      lines.addAll(wrapLine(description, maxWidth));
+    }
   }
 
 

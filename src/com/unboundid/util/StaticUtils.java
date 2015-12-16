@@ -1923,6 +1923,23 @@ public final class StaticUtils
    */
   public static String capitalize(final String s)
   {
+    return capitalize(s, false);
+  }
+
+
+
+  /**
+   * Capitalizes the provided string.  The first character of the string (or
+   * optionally the first character of each word in the string)
+   *
+   * @param  s         The string to be capitalized.
+   * @param  allWords  Indicates whether to capitalize all words in the string,
+   *                   or only the first word.
+   *
+   * @return  A capitalized version of the provided string.
+   */
+  public static String capitalize(final String s, final boolean allWords)
+  {
     if (s == null)
     {
       return null;
@@ -1937,15 +1954,32 @@ public final class StaticUtils
         return s.toUpperCase();
 
       default:
-        final char c = s.charAt(0);
-        if (Character.isUpperCase(c))
+        boolean capitalize = true;
+        final char[] chars = s.toCharArray();
+        final StringBuilder buffer = new StringBuilder(chars.length);
+        for (final char c : chars)
         {
-          return s;
+          // Whitespace and punctuation awill be considered word breaks.
+          if (Character.isWhitespace(c) ||
+              (((c >= '!') && (c <= '.')) ||
+               ((c >= ':') && (c <= '@')) ||
+               ((c >= '[') && (c <= '`')) ||
+               ((c >= '{') && (c <= '~'))))
+          {
+            buffer.append(c);
+            capitalize |= allWords;
+          }
+          else if (capitalize)
+          {
+            buffer.append(Character.toUpperCase(c));
+            capitalize = false;
+          }
+          else
+          {
+            buffer.append(c);
+          }
         }
-        else
-        {
-          return Character.toUpperCase(c) + s.substring(1);
-        }
+        return buffer.toString();
     }
   }
 

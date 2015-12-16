@@ -69,9 +69,6 @@ public abstract class Argument
   // Indicates whether this argument is used to display usage information.
   private boolean isUsageArgument;
 
-  // The short identifier for this argument, or an empty list if there are none.
-  private final ArrayList<Character> shortIdentifiers;
-
   // The maximum number of times this argument is allowed to be provided.
   private int maxOccurrences;
 
@@ -79,12 +76,18 @@ public abstract class Argument
   // arguments.
   private int numOccurrences;
 
-  // The description for this argument.
-  private final String description;
+  // The short identifier for this argument, or an empty list if there are none.
+  private final List<Character> shortIdentifiers;
 
   // The long identifier(s) for this argument, or an empty list if there are
   // none.
-  private final ArrayList<String> longIdentifiers;
+  private final List<String> longIdentifiers;
+
+  // The argument group name for this argument, if any.
+  private String argumentGroupName;
+
+  // The description for this argument.
+  private final String description;
 
   // The value placeholder for this argument, or {@code null} if it does not
   // take a value.
@@ -160,10 +163,11 @@ public abstract class Argument
       this.maxOccurrences = Integer.MAX_VALUE;
     }
 
-    numOccurrences  = 0;
-    isHidden        = false;
-    isRegistered    = false;
-    isUsageArgument = false;
+    argumentGroupName = null;
+    numOccurrences    = 0;
+    isHidden          = false;
+    isRegistered      = false;
+    isUsageArgument   = false;
   }
 
 
@@ -176,12 +180,13 @@ public abstract class Argument
    */
   protected Argument(final Argument source)
   {
-    isHidden         = source.isHidden;
-    isRequired       = source.isRequired;
-    isUsageArgument  = source.isUsageArgument;
-    maxOccurrences   = source.maxOccurrences;
-    description      = source.description;
-    valuePlaceholder = source.valuePlaceholder;
+    argumentGroupName = source.argumentGroupName;
+    isHidden          = source.isHidden;
+    isRequired        = source.isRequired;
+    isUsageArgument   = source.isUsageArgument;
+    maxOccurrences    = source.maxOccurrences;
+    description       = source.description;
+    valuePlaceholder  = source.valuePlaceholder;
 
     isRegistered   = false;
     numOccurrences = 0;
@@ -458,6 +463,37 @@ public abstract class Argument
   public final String getDescription()
   {
     return description;
+  }
+
+
+
+  /**
+   * Retrieves the name of the argument group to which this argument belongs.
+   *
+   * @return  The name of the argument group to which this argument belongs, or
+   *          {@code null} if this argument has not been assigned to any group.
+   */
+  public final String getArgumentGroupName()
+  {
+    return argumentGroupName;
+  }
+
+
+
+  /**
+   * Sets the name of the argument group to which this argument belongs.  If
+   * a tool updates arguments to specify an argument group for some or all of
+   * the arguments, then the usage information will have the arguments listed
+   * together in their respective groups.  Note that usage arguments should
+   * generally not be assigned to an argument group.
+   *
+   * @param  argumentGroupName  The argument group name for this argument.  It
+   *                            may be {@code null} if this argument should not
+   *                            be assigned to any particular group.
+   */
+  public final void setArgumentGroupName(final String argumentGroupName)
+  {
+    this.argumentGroupName = argumentGroupName;
   }
 
 
@@ -797,6 +833,13 @@ public abstract class Argument
 
     buffer.append(", description='");
     buffer.append(description);
+
+    if (argumentGroupName != null)
+    {
+      buffer.append("', argumentGroup='");
+      buffer.append(argumentGroupName);
+    }
+
     buffer.append("', isRequired=");
     buffer.append(isRequired);
 

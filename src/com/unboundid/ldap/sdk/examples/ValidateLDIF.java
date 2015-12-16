@@ -360,24 +360,31 @@ public final class ValidateLDIF
                   "duplicate values for the same attribute.";
     ignoreDuplicateValues =
          new BooleanArgument(null, "ignoreDuplicateValues", description);
+    ignoreDuplicateValues.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreDuplicateValues);
 
     description = "Ignore validation failures due to object classes not " +
                   "defined in the schema.";
     ignoreUndefinedObjectClasses =
          new BooleanArgument(null, "ignoreUndefinedObjectClasses", description);
+    ignoreUndefinedObjectClasses.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreUndefinedObjectClasses);
 
     description = "Ignore validation failures due to attributes not defined " +
                   "in the schema.";
     ignoreUndefinedAttributes =
          new BooleanArgument(null, "ignoreUndefinedAttributes", description);
+    ignoreUndefinedAttributes.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreUndefinedAttributes);
 
     description = "Ignore validation failures due to entries with malformed " +
                   "DNs.";
     ignoreMalformedDNs =
          new BooleanArgument(null, "ignoreMalformedDNs", description);
+    ignoreMalformedDNs.setArgumentGroupName("Validation Strictness Arguments");
     parser.addArgument(ignoreMalformedDNs);
 
     description = "Ignore validation failures due to entries without exactly " +
@@ -385,6 +392,8 @@ public final class ValidateLDIF
     ignoreStructuralObjectClasses =
          new BooleanArgument(null, "ignoreStructuralObjectClasses",
                              description);
+    ignoreStructuralObjectClasses.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreStructuralObjectClasses);
 
     description = "Ignore validation failures due to entries with object " +
@@ -392,6 +401,8 @@ public final class ValidateLDIF
     ignoreProhibitedObjectClasses =
          new BooleanArgument(null, "ignoreProhibitedObjectClasses",
                              description);
+    ignoreProhibitedObjectClasses.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreProhibitedObjectClasses);
 
     description = "Ignore validation failures due to entries that are " +
@@ -399,35 +410,46 @@ public final class ValidateLDIF
     ignoreMissingSuperiorObjectClasses =
          new BooleanArgument(null, "ignoreMissingSuperiorObjectClasses",
               description);
+    ignoreMissingSuperiorObjectClasses.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreMissingSuperiorObjectClasses);
 
     description = "Ignore validation failures due to entries with attributes " +
                   "that are not allowed.";
     ignoreProhibitedAttributes =
          new BooleanArgument(null, "ignoreProhibitedAttributes", description);
+    ignoreProhibitedAttributes.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreProhibitedAttributes);
 
     description = "Ignore validation failures due to entries missing " +
                   "required attributes.";
     ignoreMissingAttributes =
          new BooleanArgument(null, "ignoreMissingAttributes", description);
+    ignoreMissingAttributes.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreMissingAttributes);
 
     description = "Ignore validation failures due to entries with multiple " +
                   "values for single-valued attributes.";
     ignoreSingleValuedAttributes =
          new BooleanArgument(null, "ignoreSingleValuedAttributes", description);
+    ignoreSingleValuedAttributes.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreSingleValuedAttributes);
 
     description = "Ignore validation failures due to entries with attribute " +
                   "values that violate their associated syntax.";
     ignoreAttributeSyntax =
          new BooleanArgument(null, "ignoreAttributeSyntax", description);
+    ignoreAttributeSyntax.setArgumentGroupName(
+         "Validation Strictness Arguments");
     parser.addArgument(ignoreAttributeSyntax);
 
     description = "Ignore validation failures due to entries with RDNs " +
                   "that violate the associated name form definition.";
     ignoreNameForms = new BooleanArgument(null, "ignoreNameForms", description);
+    ignoreNameForms.setArgumentGroupName("Validation Strictness Arguments");
     parser.addArgument(ignoreNameForms);
   }
 

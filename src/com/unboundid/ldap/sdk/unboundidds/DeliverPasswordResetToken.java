@@ -211,36 +211,49 @@ public final class DeliverPasswordResetToken
     userDN = new DNArgument('b', "userDN", true, 1,
          INFO_DELIVER_PW_RESET_TOKEN_PLACEHOLDER_DN.get(),
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_USER_DN.get());
+    userDN.setArgumentGroupName(INFO_DELIVER_PW_RESET_TOKEN_GROUP_ID.get());
     parser.addArgument(userDN);
 
     deliveryMechanism = new StringArgument('m', "deliveryMechanism", false, 0,
          INFO_DELIVER_PW_RESET_TOKEN_PLACEHOLDER_NAME.get(),
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_MECH.get());
+    deliveryMechanism.setArgumentGroupName(
+         INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
     parser.addArgument(deliveryMechanism);
 
     messageSubject = new StringArgument('s', "messageSubject", false, 1,
          INFO_DELIVER_PW_RESET_TOKEN_PLACEHOLDER_SUBJECT.get(),
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_SUBJECT.get());
+    messageSubject.setArgumentGroupName(
+         INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
     parser.addArgument(messageSubject);
 
     fullTextBeforeToken = new StringArgument('f', "fullTextBeforeToken", false,
          1, INFO_DELIVER_PW_RESET_TOKEN_PLACEHOLDER_FULL_BEFORE.get(),
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_FULL_BEFORE.get());
+    fullTextBeforeToken.setArgumentGroupName(
+         INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
     parser.addArgument(fullTextBeforeToken);
 
     fullTextAfterToken = new StringArgument('F', "fullTextAfterToken", false,
          1, INFO_DELIVER_PW_RESET_TOKEN_PLACEHOLDER_FULL_AFTER.get(),
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_FULL_AFTER.get());
+    fullTextAfterToken.setArgumentGroupName(
+         INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
     parser.addArgument(fullTextAfterToken);
 
     compactTextBeforeToken = new StringArgument('c', "compactTextBeforeToken",
          false, 1, INFO_DELIVER_PW_RESET_TOKEN_PLACEHOLDER_COMPACT_BEFORE.get(),
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_COMPACT_BEFORE.get());
+    compactTextBeforeToken.setArgumentGroupName(
+         INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
     parser.addArgument(compactTextBeforeToken);
 
     compactTextAfterToken = new StringArgument('C', "compactTextAfterToken",
          false, 1, INFO_DELIVER_PW_RESET_TOKEN_PLACEHOLDER_COMPACT_AFTER.get(),
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_COMPACT_AFTER.get());
+    compactTextAfterToken.setArgumentGroupName(
+         INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
     parser.addArgument(compactTextAfterToken);
   }
 

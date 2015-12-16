@@ -422,133 +422,179 @@ public final class InMemoryDirectoryServerTool
   public void addToolArguments(final ArgumentParser parser)
          throws ArgumentException
   {
-    baseDNArgument = new DNArgument('b', "baseDN", true, 0,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_BASE_DN.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_BASE_DN.get());
-    parser.addArgument(baseDNArgument);
-
     portArgument = new IntegerArgument('p', "port", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PORT.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_PORT.get(), 0, 65535);
+    portArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(portArgument);
-
-    ldifFileArgument = new FileArgument('l', "ldifFile", false, 1,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_LDIF_FILE.get(), true, true, true, false);
-    parser.addArgument(ldifFileArgument);
-
-    additionalBindDNArgument = new DNArgument('D', "additionalBindDN", false, 1,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_BIND_DN.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_ADDITIONAL_BIND_DN.get());
-    parser.addArgument(additionalBindDNArgument);
-
-    additionalBindPasswordArgument = new StringArgument('w',
-         "additionalBindPassword", false, 1,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_ADDITIONAL_BIND_PW.get());
-    parser.addArgument(additionalBindPasswordArgument);
-
-    maxChangeLogEntriesArgument = new IntegerArgument('c',
-         "maxChangeLogEntries", false, 1,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_COUNT.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_MAX_CHANGELOG_ENTRIES.get(), 0,
-         Integer.MAX_VALUE, 0);
-    parser.addArgument(maxChangeLogEntriesArgument);
-
-    accessLogToStandardOutArgument = new BooleanArgument('A',
-         "accessLogToStandardOut",
-         INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_TO_STDOUT.get());
-    parser.addArgument(accessLogToStandardOutArgument);
-
-    accessLogFileArgument = new FileArgument('a', "accessLogFile", false, 1,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_FILE.get(), false, true, true,
-         false);
-    parser.addArgument(accessLogFileArgument);
-
-    ldapDebugLogToStandardOutArgument = new BooleanArgument(null,
-         "ldapDebugLogToStandardOut",
-         INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_TO_STDOUT.get());
-    parser.addArgument(ldapDebugLogToStandardOutArgument);
-
-    ldapDebugLogFileArgument = new FileArgument('d', "ldapDebugLogFile", false,
-         1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_FILE.get(), false, true, true,
-         false);
-    parser.addArgument(ldapDebugLogFileArgument);
-
-    codeLogFile = new FileArgument('C', "codeLogFile", false, 1, "{path}",
-         INFO_MEM_DS_TOOL_ARG_DESC_CODE_LOG_FILE.get(), false, true, true,
-         false);
-    parser.addArgument(codeLogFile);
-
-    useDefaultSchemaArgument = new BooleanArgument('s', "useDefaultSchema",
-         INFO_MEM_DS_TOOL_ARG_DESC_USE_DEFAULT_SCHEMA.get());
-    parser.addArgument(useDefaultSchemaArgument);
-
-    useSchemaFileArgument = new FileArgument('S', "useSchemaFile", false, 0,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_USE_SCHEMA_FILE.get(), true, true, false,
-         false);
-    parser.addArgument(useSchemaFileArgument);
-
-    equalityIndexArgument = new StringArgument('I', "equalityIndex", false, 0,
-         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_ATTR.get(),
-         INFO_MEM_DS_TOOL_ARG_DESC_EQ_INDEX.get());
-    parser.addArgument(equalityIndexArgument);
 
     useSSLArgument = new BooleanArgument('Z', "useSSL",
          INFO_MEM_DS_TOOL_ARG_DESC_USE_SSL.get());
+    useSSLArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(useSSLArgument);
 
     useStartTLSArgument = new BooleanArgument('q', "useStartTLS",
          INFO_MEM_DS_TOOL_ARG_DESC_USE_START_TLS.get());
+    useStartTLSArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(useStartTLSArgument);
 
     keyStorePathArgument = new FileArgument('K', "keyStorePath", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_PATH.get(), true, true, true,
          false);
+    keyStorePathArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(keyStorePathArgument);
 
     keyStorePasswordArgument = new StringArgument('W', "keyStorePassword",
          false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_PW.get());
+    keyStorePasswordArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(keyStorePasswordArgument);
 
     keyStoreTypeArgument = new StringArgument(null, "keyStoreType",
          false, 1, "{type}", "The keystore type.", "JKS");
+    keyStoreTypeArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(keyStoreTypeArgument);
 
     trustStorePathArgument = new FileArgument('P', "trustStorePath", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PATH.get(), true, true, true,
          false);
+    trustStorePathArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(trustStorePathArgument);
 
     trustStorePasswordArgument = new StringArgument('T', "trustStorePassword",
          false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PW.get());
+    trustStorePasswordArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(trustStorePasswordArgument);
 
     trustStoreTypeArgument = new StringArgument(null, "trustStoreType",
          false, 1, "{type}", "The trust store type.", "JKS");
+    trustStoreTypeArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     parser.addArgument(trustStoreTypeArgument);
+
+    dontStartArgument = new BooleanArgument(null, "dontStart",
+         INFO_MEM_DS_TOOL_ARG_DESC_DONT_START.get());
+    dontStartArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
+    dontStartArgument.setHidden(true);
+    parser.addArgument(dontStartArgument);
+
+    baseDNArgument = new DNArgument('b', "baseDN", true, 0,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_BASE_DN.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_BASE_DN.get());
+    baseDNArgument.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    parser.addArgument(baseDNArgument);
+
+    ldifFileArgument = new FileArgument('l', "ldifFile", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_LDIF_FILE.get(), true, true, true, false);
+    ldifFileArgument.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    parser.addArgument(ldifFileArgument);
+
+    additionalBindDNArgument = new DNArgument('D', "additionalBindDN", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_BIND_DN.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_ADDITIONAL_BIND_DN.get());
+    additionalBindDNArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    parser.addArgument(additionalBindDNArgument);
+
+    additionalBindPasswordArgument = new StringArgument('w',
+         "additionalBindPassword", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_ADDITIONAL_BIND_PW.get());
+    additionalBindPasswordArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    parser.addArgument(additionalBindPasswordArgument);
+
+    useDefaultSchemaArgument = new BooleanArgument('s', "useDefaultSchema",
+         INFO_MEM_DS_TOOL_ARG_DESC_USE_DEFAULT_SCHEMA.get());
+    useDefaultSchemaArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    parser.addArgument(useDefaultSchemaArgument);
+
+    useSchemaFileArgument = new FileArgument('S', "useSchemaFile", false, 0,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_USE_SCHEMA_FILE.get(), true, true, false,
+         false);
+    useSchemaFileArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    parser.addArgument(useSchemaFileArgument);
+
+    equalityIndexArgument = new StringArgument('I', "equalityIndex", false, 0,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_ATTR.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_EQ_INDEX.get());
+    equalityIndexArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    parser.addArgument(equalityIndexArgument);
+
+    maxChangeLogEntriesArgument = new IntegerArgument('c',
+         "maxChangeLogEntries", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_COUNT.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_MAX_CHANGELOG_ENTRIES.get(), 0,
+         Integer.MAX_VALUE, 0);
+    maxChangeLogEntriesArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
+    parser.addArgument(maxChangeLogEntriesArgument);
 
     vendorNameArgument = new StringArgument(null, "vendorName", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_NAME.get());
+    vendorNameArgument.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_DATA.get());
     parser.addArgument(vendorNameArgument);
 
     vendorVersionArgument = new StringArgument(null, "vendorVersion", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_VERSION.get());
+    vendorVersionArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_DATA.get());
     parser.addArgument(vendorVersionArgument);
 
-    dontStartArgument = new BooleanArgument(null, "dontStart",
-         INFO_MEM_DS_TOOL_ARG_DESC_DONT_START.get());
-    dontStartArgument.setHidden(true);
-    parser.addArgument(dontStartArgument);
+    accessLogToStandardOutArgument = new BooleanArgument('A',
+         "accessLogToStandardOut",
+         INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_TO_STDOUT.get());
+    accessLogToStandardOutArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
+    parser.addArgument(accessLogToStandardOutArgument);
+
+    accessLogFileArgument = new FileArgument('a', "accessLogFile", false, 1,
+         INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_ACCESS_LOG_FILE.get(), false, true, true,
+         false);
+    accessLogFileArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
+    parser.addArgument(accessLogFileArgument);
+
+    ldapDebugLogToStandardOutArgument = new BooleanArgument(null,
+         "ldapDebugLogToStandardOut",
+         INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_TO_STDOUT.get());
+    ldapDebugLogToStandardOutArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
+    parser.addArgument(ldapDebugLogToStandardOutArgument);
+
+    ldapDebugLogFileArgument = new FileArgument('d', "ldapDebugLogFile", false,
+         1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
+         INFO_MEM_DS_TOOL_ARG_DESC_LDAP_DEBUG_LOG_FILE.get(), false, true, true,
+         false);
+    ldapDebugLogFileArgument.setArgumentGroupName(
+         INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
+    parser.addArgument(ldapDebugLogFileArgument);
+
+    codeLogFile = new FileArgument('C', "codeLogFile", false, 1, "{path}",
+         INFO_MEM_DS_TOOL_ARG_DESC_CODE_LOG_FILE.get(), false, true, true,
+         false);
+    codeLogFile.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
+    parser.addArgument(codeLogFile);
 
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,
          useSchemaFileArgument);

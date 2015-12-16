@@ -312,107 +312,138 @@ public abstract class LDAPCommandLineTool
   public final void addToolArguments(final ArgumentParser parser)
          throws ArgumentException
   {
+    final String argumentGroup;
+    final boolean supportsAuthentication = supportsAuthentication();
+    if (supportsAuthentication)
+    {
+      argumentGroup = INFO_LDAP_TOOL_ARG_GROUP_CONNECT_AND_AUTH.get();
+    }
+    else
+    {
+      argumentGroup = INFO_LDAP_TOOL_ARG_GROUP_CONNECT.get();
+    }
+
+
     host = new StringArgument('h', "hostname", true,
          (supportsMultipleServers() ? 0 : 1),
          INFO_LDAP_TOOL_PLACEHOLDER_HOST.get(),
          INFO_LDAP_TOOL_DESCRIPTION_HOST.get(), "localhost");
+    host.setArgumentGroupName(argumentGroup);
     parser.addArgument(host);
 
     port = new IntegerArgument('p', "port", true,
          (supportsMultipleServers() ? 0 : 1),
          INFO_LDAP_TOOL_PLACEHOLDER_PORT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65535, 389);
+    port.setArgumentGroupName(argumentGroup);
     parser.addArgument(port);
 
-    final boolean supportsAuthentication = supportsAuthentication();
     if (supportsAuthentication)
     {
       bindDN = new DNArgument('D', "bindDN", false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_DN.get());
+      bindDN.setArgumentGroupName(argumentGroup);
       parser.addArgument(bindDN);
 
       bindPassword = new StringArgument('w', "bindPassword", false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
+      bindPassword.setArgumentGroupName(argumentGroup);
       parser.addArgument(bindPassword);
 
       bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
            false);
+      bindPasswordFile.setArgumentGroupName(argumentGroup);
       parser.addArgument(bindPasswordFile);
 
       promptForBindPassword = new BooleanArgument(null, "promptForBindPassword",
            1, INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_PROMPT.get());
+      promptForBindPassword.setArgumentGroupName(argumentGroup);
       parser.addArgument(promptForBindPassword);
     }
 
     useSSL = new BooleanArgument('Z', "useSSL", 1,
          INFO_LDAP_TOOL_DESCRIPTION_USE_SSL.get());
+    useSSL.setArgumentGroupName(argumentGroup);
     parser.addArgument(useSSL);
 
     useStartTLS = new BooleanArgument('q', "useStartTLS", 1,
          INFO_LDAP_TOOL_DESCRIPTION_USE_START_TLS.get());
+    useStartTLS.setArgumentGroupName(argumentGroup);
     parser.addArgument(useStartTLS);
 
     trustAll = new BooleanArgument('X', "trustAll", 1,
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_ALL.get());
+    trustAll.setArgumentGroupName(argumentGroup);
     parser.addArgument(trustAll);
 
     keyStorePath = new StringArgument('K', "keyStorePath", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PATH.get());
+    keyStorePath.setArgumentGroupName(argumentGroup);
     parser.addArgument(keyStorePath);
 
     keyStorePassword = new StringArgument('W', "keyStorePassword", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD.get());
+    keyStorePassword.setArgumentGroupName(argumentGroup);
     parser.addArgument(keyStorePassword);
 
     keyStorePasswordFile = new FileArgument('u', "keyStorePasswordFile", false,
          1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_FILE.get());
+    keyStorePasswordFile.setArgumentGroupName(argumentGroup);
     parser.addArgument(keyStorePasswordFile);
 
     promptForKeyStorePassword = new BooleanArgument(null,
          "promptForKeyStorePassword", 1,
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_PROMPT.get());
+    promptForKeyStorePassword.setArgumentGroupName(argumentGroup);
     parser.addArgument(promptForKeyStorePassword);
 
     keyStoreFormat = new StringArgument(null, "keyStoreFormat", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_FORMAT.get());
+    keyStoreFormat.setArgumentGroupName(argumentGroup);
     parser.addArgument(keyStoreFormat);
 
     trustStorePath = new StringArgument('P', "trustStorePath", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PATH.get());
+    trustStorePath.setArgumentGroupName(argumentGroup);
     parser.addArgument(trustStorePath);
 
     trustStorePassword = new StringArgument('T', "trustStorePassword", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD.get());
+    trustStorePassword.setArgumentGroupName(argumentGroup);
     parser.addArgument(trustStorePassword);
 
     trustStorePasswordFile = new FileArgument('U', "trustStorePasswordFile",
          false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_FILE.get());
+    trustStorePasswordFile.setArgumentGroupName(argumentGroup);
     parser.addArgument(trustStorePasswordFile);
 
     promptForTrustStorePassword = new BooleanArgument(null,
          "promptForTrustStorePassword", 1,
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_PROMPT.get());
+    promptForTrustStorePassword.setArgumentGroupName(argumentGroup);
     parser.addArgument(promptForTrustStorePassword);
 
     trustStoreFormat = new StringArgument(null, "trustStoreFormat", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_FORMAT.get());
+    trustStoreFormat.setArgumentGroupName(argumentGroup);
     parser.addArgument(trustStoreFormat);
 
     certificateNickname = new StringArgument('N', "certNickname", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_CERT_NICKNAME.get(),
          INFO_LDAP_TOOL_DESCRIPTION_CERT_NICKNAME.get());
+    certificateNickname.setArgumentGroupName(argumentGroup);
     parser.addArgument(certificateNickname);
 
     if (supportsAuthentication)
@@ -420,6 +451,7 @@ public abstract class LDAPCommandLineTool
       saslOption = new StringArgument('o', "saslOption", false, 0,
            INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
            INFO_LDAP_TOOL_DESCRIPTION_SASL_OPTION.get());
+      saslOption.setArgumentGroupName(argumentGroup);
       parser.addArgument(saslOption);
     }
 

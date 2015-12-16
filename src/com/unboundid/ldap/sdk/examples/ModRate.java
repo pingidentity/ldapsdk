@@ -382,6 +382,7 @@ public final class ModRate
          ValuePattern.PUBLIC_JAVADOC_URL + " for complete details about the " +
          "value pattern syntax.  This must be provided.";
     entryDN = new StringArgument('b', "entryDN", true, 1, "{dn}", description);
+    entryDN.setArgumentGroupName("Modification Arguments");
     parser.addArgument(entryDN);
 
 
@@ -390,6 +391,7 @@ public final class ModRate
                   "times.  At least one attribute must be specified.";
     attribute = new StringArgument('A', "attribute", true, 0, "{name}",
                                    description);
+    attribute.setArgumentGroupName("Modification Arguments");
     parser.addArgument(attribute);
 
 
@@ -398,6 +400,7 @@ public final class ModRate
                   "length of ten bytes will be used.";
     valueLength = new IntegerArgument('l', "valueLength", true, 1, "{num}",
                                       description, 1, Integer.MAX_VALUE, 10);
+    valueLength.setArgumentGroupName("Modification Arguments");
     parser.addArgument(valueLength);
 
 
@@ -408,6 +411,7 @@ public final class ModRate
     characterSet = new StringArgument('C', "characterSet", true, 1, "{chars}",
                                       description,
                                       "abcdefghijklmnopqrstuvwxyz");
+    characterSet.setArgumentGroupName("Modification Arguments");
     parser.addArgument(characterSet);
 
 
@@ -416,6 +420,7 @@ public final class ModRate
                   "will be used.";
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
+    numThreads.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(numThreads);
 
 
@@ -425,6 +430,7 @@ public final class ModRate
     collectionInterval = new IntegerArgument('i', "intervalDuration", true, 1,
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
+    collectionInterval.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(collectionInterval);
 
 
@@ -434,6 +440,7 @@ public final class ModRate
     numIntervals = new IntegerArgument('I', "numIntervals", true, 1, "{num}",
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
+    numIntervals.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(numIntervals);
 
     description = "The number of modify iterations that should be processed " +
@@ -444,6 +451,7 @@ public final class ModRate
                   "re-established.";
     iterationsBeforeReconnect = new IntegerArgument(null,
          "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
+    iterationsBeforeReconnect.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of modifies to perform per second.  It " +
@@ -455,6 +463,7 @@ public final class ModRate
     ratePerSecond = new IntegerArgument('r', "ratePerSecond", false, 1,
                                         "{modifies-per-second}", description,
                                         1, Integer.MAX_VALUE);
+    ratePerSecond.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -464,6 +473,7 @@ public final class ModRate
     variableRateData = new FileArgument(null, variableRateDataArgName, false, 1,
                                         "{path}", description, true, true, true,
                                         false);
+    variableRateData.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -471,6 +481,7 @@ public final class ModRate
     sampleRateFile = new FileArgument(null, generateSampleRateFileArgName,
                                       false, 1, "{path}", description, false,
                                       true, true, false);
+    sampleRateFile.setArgumentGroupName("Rate Management Arguments");
     sampleRateFile.setUsageArgument(true);
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
@@ -481,6 +492,7 @@ public final class ModRate
                   "a chance to warm up without skewing performance results.";
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
+    warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +

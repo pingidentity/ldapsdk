@@ -416,6 +416,7 @@ public final class SearchAndModRate
          ValuePattern.PUBLIC_JAVADOC_URL + " for complete details about the " +
          "value pattern syntax.  This must be provided.";
     baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
+    baseDN.setArgumentGroupName("Search And Modification Arguments");
     parser.addArgument(baseDN);
 
 
@@ -424,6 +425,7 @@ public final class SearchAndModRate
                   "a default scope of 'sub' will be used.";
     scopeArg = new ScopeArgument('s', "scope", false, "{scope}", description,
                                  SearchScope.SUB);
+    scopeArg.setArgumentGroupName("Search And Modification Arguments");
     parser.addArgument(scopeArg);
 
 
@@ -434,6 +436,7 @@ public final class SearchAndModRate
                   "about the value pattern syntax.  This must be provided.";
     filter = new StringArgument('f', "filter", true, 1, "{filter}",
                                 description);
+    filter.setArgumentGroupName("Search And Modification Arguments");
     parser.addArgument(filter);
 
 
@@ -444,6 +447,7 @@ public final class SearchAndModRate
                   "include all user attributes.";
     returnAttributes = new StringArgument('A', "attribute", false, 0, "{name}",
                                           description);
+    returnAttributes.setArgumentGroupName("Search And Modification Arguments");
     parser.addArgument(returnAttributes);
 
 
@@ -452,6 +456,7 @@ public final class SearchAndModRate
                   "times.  At least one attribute must be specified.";
     modifyAttributes = new StringArgument('m', "modifyAttribute", true, 0,
                                           "{name}", description);
+    modifyAttributes.setArgumentGroupName("Search And Modification Arguments");
     parser.addArgument(modifyAttributes);
 
 
@@ -460,6 +465,7 @@ public final class SearchAndModRate
                   "length of ten bytes will be used.";
     valueLength = new IntegerArgument('l', "valueLength", true, 1, "{num}",
                                       description, 1, Integer.MAX_VALUE, 10);
+    valueLength.setArgumentGroupName("Search And Modification Arguments");
     parser.addArgument(valueLength);
 
 
@@ -470,6 +476,7 @@ public final class SearchAndModRate
     characterSet = new StringArgument('C', "characterSet", true, 1, "{chars}",
                                       description,
                                       "abcdefghijklmnopqrstuvwxyz");
+    characterSet.setArgumentGroupName("Search And Modification Arguments");
     parser.addArgument(characterSet);
 
 
@@ -478,6 +485,7 @@ public final class SearchAndModRate
                   "be used.";
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
+    numThreads.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(numThreads);
 
 
@@ -487,6 +495,7 @@ public final class SearchAndModRate
     collectionInterval = new IntegerArgument('i', "intervalDuration", true, 1,
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
+    collectionInterval.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(collectionInterval);
 
 
@@ -496,6 +505,7 @@ public final class SearchAndModRate
     numIntervals = new IntegerArgument('I', "numIntervals", true, 1, "{num}",
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
+    numIntervals.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(numIntervals);
 
     description = "The number of search and modify iterations that should be " +
@@ -506,6 +516,7 @@ public final class SearchAndModRate
                   "closed and re-established.";
     iterationsBeforeReconnect = new IntegerArgument(null,
          "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
+    iterationsBeforeReconnect.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of searches to perform per second.  It " +
@@ -517,6 +528,7 @@ public final class SearchAndModRate
     ratePerSecond = new IntegerArgument('r', "ratePerSecond", false, 1,
                                         "{searches-per-second}", description,
                                         1, Integer.MAX_VALUE);
+    ratePerSecond.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -526,6 +538,7 @@ public final class SearchAndModRate
     variableRateData = new FileArgument(null, variableRateDataArgName, false, 1,
                                         "{path}", description, true, true, true,
                                         false);
+    variableRateData.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -533,6 +546,7 @@ public final class SearchAndModRate
     sampleRateFile = new FileArgument(null, generateSampleRateFileArgName,
                                       false, 1, "{path}", description, false,
                                       true, true, false);
+    sampleRateFile.setArgumentGroupName("Rate Management Arguments");
     sampleRateFile.setUsageArgument(true);
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
@@ -543,6 +557,7 @@ public final class SearchAndModRate
                   "a chance to warm up without skewing performance results.";
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
+    warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +

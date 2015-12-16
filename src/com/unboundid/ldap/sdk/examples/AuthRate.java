@@ -388,6 +388,7 @@ public final class AuthRate
          ValuePattern.PUBLIC_JAVADOC_URL + " for complete details about the " +
          "value pattern syntax.  This must be provided.";
     baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
+    baseDN.setArgumentGroupName("Search and Authentication Arguments");
     parser.addArgument(baseDN);
 
 
@@ -396,6 +397,7 @@ public final class AuthRate
                   "default scope of 'sub' will be used.";
     scopeArg = new ScopeArgument('s', "scope", false, "{scope}", description,
                                  SearchScope.SUB);
+    scopeArg.setArgumentGroupName("Search and Authentication Arguments");
     parser.addArgument(scopeArg);
 
 
@@ -406,6 +408,7 @@ public final class AuthRate
                   "about the value pattern syntax.  This must be provided.";
     filter = new StringArgument('f', "filter", true, 1, "{filter}",
                                 description);
+    filter.setArgumentGroupName("Search and Authentication Arguments");
     parser.addArgument(filter);
 
 
@@ -416,6 +419,7 @@ public final class AuthRate
                   "with all user attributes.";
     attributes = new StringArgument('A', "attribute", false, 0, "{name}",
                                     description);
+    attributes.setArgumentGroupName("Search and Authentication Arguments");
     parser.addArgument(attributes);
 
 
@@ -423,6 +427,7 @@ public final class AuthRate
                   "from the searches.  This must be provided.";
     userPassword = new StringArgument('C', "credentials", true, 1, "{password}",
                                       description);
+    userPassword.setArgumentGroupName("Search and Authentication Arguments");
     parser.addArgument(userPassword);
 
 
@@ -437,6 +442,7 @@ public final class AuthRate
     allowedAuthTypes.add("plain");
     authType = new StringArgument('a', "authType", true, 1, "{authType}",
                                   description, allowedAuthTypes, "simple");
+    authType.setArgumentGroupName("Search and Authentication Arguments");
     parser.addArgument(authType);
 
 
@@ -445,6 +451,7 @@ public final class AuthRate
                   "a default of one thread will be used.";
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
+    numThreads.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(numThreads);
 
 
@@ -454,6 +461,7 @@ public final class AuthRate
     collectionInterval = new IntegerArgument('i', "intervalDuration", true, 1,
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
+    collectionInterval.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(collectionInterval);
 
 
@@ -463,6 +471,7 @@ public final class AuthRate
     numIntervals = new IntegerArgument('I', "numIntervals", true, 1, "{num}",
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
+    numIntervals.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(numIntervals);
 
     description = "The target number of authorizations to perform per " +
@@ -474,6 +483,7 @@ public final class AuthRate
     ratePerSecond = new IntegerArgument('r', "ratePerSecond", false, 1,
                                         "{auths-per-second}", description,
                                         1, Integer.MAX_VALUE);
+    ratePerSecond.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -483,6 +493,7 @@ public final class AuthRate
     variableRateData = new FileArgument(null, variableRateDataArgName, false, 1,
                                         "{path}", description, true, true, true,
                                         false);
+    variableRateData.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -490,6 +501,7 @@ public final class AuthRate
     sampleRateFile = new FileArgument(null, generateSampleRateFileArgName,
                                       false, 1, "{path}", description, false,
                                       true, true, false);
+    sampleRateFile.setArgumentGroupName("Rate Management Arguments");
     sampleRateFile.setUsageArgument(true);
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
@@ -500,6 +512,7 @@ public final class AuthRate
                   "a chance to warm up without skewing performance results.";
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
+    warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +

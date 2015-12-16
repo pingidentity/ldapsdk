@@ -401,6 +401,7 @@ public final class SearchRate
          ValuePattern.PUBLIC_JAVADOC_URL + " for complete details about the " +
          "value pattern syntax.  This must be provided.";
     baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
+    baseDN.setArgumentGroupName("Search Arguments");
     parser.addArgument(baseDN);
 
 
@@ -409,6 +410,7 @@ public final class SearchRate
                   "a default scope of 'sub' will be used.";
     scopeArg = new ScopeArgument('s', "scope", false, "{scope}", description,
                                  SearchScope.SUB);
+    scopeArg.setArgumentGroupName("Search Arguments");
     parser.addArgument(scopeArg);
 
 
@@ -419,6 +421,7 @@ public final class SearchRate
                   "about the value pattern syntax.  This must be provided.";
     filter = new StringArgument('f', "filter", true, 1, "{filter}",
                                 description);
+    filter.setArgumentGroupName("Search Arguments");
     parser.addArgument(filter);
 
 
@@ -429,6 +432,7 @@ public final class SearchRate
                   "include all user attributes.";
     attributes = new StringArgument('A', "attribute", false, 0, "{name}",
                                     description);
+    attributes.setArgumentGroupName("Search Arguments");
     parser.addArgument(attributes);
 
 
@@ -437,6 +441,7 @@ public final class SearchRate
                   "be used.";
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
+    numThreads.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(numThreads);
 
 
@@ -446,6 +451,7 @@ public final class SearchRate
     collectionInterval = new IntegerArgument('i', "intervalDuration", true, 1,
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
+    collectionInterval.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(collectionInterval);
 
 
@@ -455,6 +461,7 @@ public final class SearchRate
     numIntervals = new IntegerArgument('I', "numIntervals", true, 1, "{num}",
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
+    numIntervals.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(numIntervals);
 
     description = "The number of search iterations that should be processed " +
@@ -465,6 +472,7 @@ public final class SearchRate
                   "re-established.";
     iterationsBeforeReconnect = new IntegerArgument(null,
          "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
+    iterationsBeforeReconnect.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of searches to perform per second.  It " +
@@ -476,6 +484,7 @@ public final class SearchRate
     ratePerSecond = new IntegerArgument('r', "ratePerSecond", false, 1,
                                         "{searches-per-second}", description,
                                         1, Integer.MAX_VALUE);
+    ratePerSecond.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -485,6 +494,7 @@ public final class SearchRate
     variableRateData = new FileArgument(null, variableRateDataArgName, false, 1,
                                         "{path}", description, true, true, true,
                                         false);
+    variableRateData.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -493,6 +503,7 @@ public final class SearchRate
                                       false, 1, "{path}", description, false,
                                       true, true, false);
     sampleRateFile.setUsageArgument(true);
+    sampleRateFile.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
 
@@ -502,6 +513,7 @@ public final class SearchRate
                   "a chance to warm up without skewing performance results.";
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
+    warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +

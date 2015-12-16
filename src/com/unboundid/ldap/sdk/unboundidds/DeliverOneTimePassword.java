@@ -232,56 +232,75 @@ public final class DeliverOneTimePassword
     bindDN = new DNArgument('D', "bindDN", false, 1,
          INFO_DELIVER_OTP_PLACEHOLDER_DN.get(),
          INFO_DELIVER_OTP_DESCRIPTION_BIND_DN.get());
+    bindDN.setArgumentGroupName(INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
     parser.addArgument(bindDN);
 
     userName = new StringArgument('n', "userName", false, 1,
          INFO_DELIVER_OTP_PLACEHOLDER_USERNAME.get(),
          INFO_DELIVER_OTP_DESCRIPTION_USERNAME.get());
+    userName.setArgumentGroupName(INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
     parser.addArgument(userName);
 
     bindPassword = new StringArgument('w', "bindPassword", false, 1,
          INFO_DELIVER_OTP_PLACEHOLDER_PASSWORD.get(),
          INFO_DELIVER_OTP_DESCRIPTION_BIND_PW.get());
+    bindPassword.setArgumentGroupName(INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
     parser.addArgument(bindPassword);
 
     bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
          INFO_DELIVER_OTP_PLACEHOLDER_PATH.get(),
          INFO_DELIVER_OTP_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
          false);
+    bindPasswordFile.setArgumentGroupName(
+         INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
     parser.addArgument(bindPasswordFile);
 
     promptForBindPassword = new BooleanArgument(null, "promptForBindPassword",
          1, INFO_DELIVER_OTP_DESCRIPTION_BIND_PW_PROMPT.get());
+    promptForBindPassword.setArgumentGroupName(
+         INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
     parser.addArgument(promptForBindPassword);
 
     deliveryMechanism = new StringArgument('m', "deliveryMechanism", false, 0,
          INFO_DELIVER_OTP_PLACEHOLDER_NAME.get(),
          INFO_DELIVER_OTP_DESCRIPTION_MECH.get());
+    deliveryMechanism.setArgumentGroupName(
+         INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
     parser.addArgument(deliveryMechanism);
 
     messageSubject = new StringArgument('s', "messageSubject", false, 1,
          INFO_DELIVER_OTP_PLACEHOLDER_SUBJECT.get(),
          INFO_DELIVER_OTP_DESCRIPTION_SUBJECT.get());
+    messageSubject.setArgumentGroupName(
+         INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
     parser.addArgument(messageSubject);
 
     fullTextBeforeOTP = new StringArgument('f', "fullTextBeforeOTP", false,
          1, INFO_DELIVER_OTP_PLACEHOLDER_FULL_BEFORE.get(),
          INFO_DELIVER_OTP_DESCRIPTION_FULL_BEFORE.get());
+    fullTextBeforeOTP.setArgumentGroupName(
+         INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
     parser.addArgument(fullTextBeforeOTP);
 
     fullTextAfterOTP = new StringArgument('F', "fullTextAfterOTP", false,
          1, INFO_DELIVER_OTP_PLACEHOLDER_FULL_AFTER.get(),
          INFO_DELIVER_OTP_DESCRIPTION_FULL_AFTER.get());
+    fullTextAfterOTP.setArgumentGroupName(
+         INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
     parser.addArgument(fullTextAfterOTP);
 
     compactTextBeforeOTP = new StringArgument('c', "compactTextBeforeOTP",
          false, 1, INFO_DELIVER_OTP_PLACEHOLDER_COMPACT_BEFORE.get(),
          INFO_DELIVER_OTP_DESCRIPTION_COMPACT_BEFORE.get());
+    compactTextBeforeOTP.setArgumentGroupName(
+         INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
     parser.addArgument(compactTextBeforeOTP);
 
     compactTextAfterOTP = new StringArgument('C', "compactTextAfterOTP",
          false, 1, INFO_DELIVER_OTP_PLACEHOLDER_COMPACT_AFTER.get(),
          INFO_DELIVER_OTP_DESCRIPTION_COMPACT_AFTER.get());
+    compactTextAfterOTP.setArgumentGroupName(
+         INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
     parser.addArgument(compactTextAfterOTP);
 
 
