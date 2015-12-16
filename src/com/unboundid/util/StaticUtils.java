@@ -1959,7 +1959,7 @@ public final class StaticUtils
         final StringBuilder buffer = new StringBuilder(chars.length);
         for (final char c : chars)
         {
-          // Whitespace and punctuation awill be considered word breaks.
+          // Whitespace and punctuation will be considered word breaks.
           if (Character.isWhitespace(c) ||
               (((c >= '!') && (c <= '.')) ||
                ((c >= ':') && (c <= '@')) ||
