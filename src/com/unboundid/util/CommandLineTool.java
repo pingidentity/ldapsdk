@@ -22,6 +22,7 @@ package com.unboundid.util;
 
 
 
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collections;
@@ -175,6 +176,15 @@ public abstract class CommandLineTool
       else
       {
         parser.parse(args);
+      }
+
+      final File generatedPropertiesFile = parser.getGeneratedPropertiesFile();
+      if (supportsPropertiesFile() && (generatedPropertiesFile != null))
+      {
+        wrapOut(0, StaticUtils.TERMINAL_WIDTH_COLUMNS - 1,
+             INFO_CL_TOOL_WROTE_PROPERTIES_FILE.get(
+                  generatedPropertiesFile.getAbsolutePath()));
+        return ResultCode.SUCCESS;
       }
 
       if (helpArgument.isPresent())
@@ -451,6 +461,22 @@ public abstract class CommandLineTool
 
 
   /**
+   * Indicates whether this tool supports the use of a properties file for
+   * specifying default values for arguments that aren't specified on the
+   * command line.
+   *
+   * @return  {@code true} if this tool supports the use of a properties file
+   *          for specifying default values for arguments that aren't specified
+   *          on the command line, or {@code false} if not.
+   */
+  public boolean supportsPropertiesFile()
+  {
+    return false;
+  }
+
+
+
+  /**
    * Creates a parser that can be used to to parse arguments accepted by
    * this tool.
    *
@@ -501,6 +527,11 @@ public abstract class CommandLineTool
            INFO_CL_TOOL_DESCRIPTION_VERSION.get());
       versionArgument.setUsageArgument(true);
       parser.addArgument(versionArgument);
+    }
+
+    if (supportsPropertiesFile())
+    {
+      parser.enablePropertiesFileSupport();
     }
 
     return parser;

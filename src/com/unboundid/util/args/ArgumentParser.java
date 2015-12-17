@@ -22,13 +22,18 @@ package com.unboundid.util.args;
 
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
@@ -57,9 +62,57 @@ public final class ArgumentParser
        implements Serializable
 {
   /**
+   * The name of the system property that can be used to specify the default
+   * properties file that should be used to obtain the default values for
+   * arguments not specified via the command line.
+   */
+  public static final String PROPERTY_DEFAULT_PROPERTIES_FILE_PATH =
+       ArgumentParser.class.getName() + ".propertiesFilePath";
+
+
+
+  /**
+   * The name of an environment variable that can be used to specify the default
+   * properties file that should be used to obtain the default values for
+   * arguments not specified via the command line.
+   */
+  public static final String ENV_DEFAULT_PROPERTIES_FILE_PATH =
+       "UNBOUNDID_TOOL_PROPERTIES_FILE_PATH";
+
+
+
+  /**
+   * The name of the argument used to specify the path to a properties file from
+   * which to obtain the default values for arguments not specified via the
+   * command line.
+   */
+  private static final String ARG_NAME_PROPERTIES_FILE_PATH =
+       "propertiesFilePath";
+
+
+
+  /**
+   * The name of the argument used to specify the path to a file to be generated
+   * with information about the properties that the tool supports.
+   */
+  private static final String ARG_NAME_GENERATE_PROPERTIES_FILE =
+       "generatePropertiesFile";
+
+
+
+  /**
+   * The name of the argument used to indicate that the tool should not use any
+   * properties file to obtain default values for arguments not specified via
+   * the command line.
+   */
+  private static final String ARG_NAME_NO_PROPERTIES_FILE = "noPropertiesFile";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 361008526269946465L;
+  private static final long serialVersionUID = 3053102992180360269L;
 
 
 
@@ -473,6 +526,100 @@ public final class ArgumentParser
 
 
   /**
+   * Updates this argument parser to enable support for a properties file that
+   * can be used to specify the default values for any properties that were not
+   * supplied via the command line.  This method should be invoked after the
+   * argument parser has been configured with all of the other arguments that it
+   * supports and before the {@link #parse} method is invoked.  In addition,
+   * after invoking the {@code parse} method, the caller must also invoke the
+   * {@link #getGeneratedPropertiesFile} method to determine if the only
+   * processing performed that should be performed is the generation of a
+   * properties file that will have already been performed.
+   * <BR><BR>
+   * This method will update the argument parser to add the following additional
+   * arguments:
+   * <UL>
+   *   <LI>
+   *     {@code propertiesFilePath} -- Specifies the path to the properties file
+   *     that should be used to obtain default values for any arguments not
+   *     provided on the command line.  If this is not specified and the
+   *     {@code noPropertiesFile} argument is not present, then the argument
+   *     parser may use a default properties file path specified using either
+   *     the {@code com.unboundid.util.args.ArgumentParser..propertiesFilePath}
+   *     system property or the {@code UNBOUNDID_TOOL_PROPERTIES_FILE_PATH}
+   *     environment variable.
+   *   </LI>
+   *   <LI>
+   *     {@code generatePropertiesFile} -- Indicates that the tool should
+   *     generate a properties file for this argument parser and write it to the
+   *     specified location.  The generated properties file will not have any
+   *     properties set, but will include comments that describe all of the
+   *     supported arguments, as well general information about the use of a
+   *     properties file.  If this argument is specified on the command line,
+   *     then no other arguments should be given.
+   *   </LI>
+   *   <LI>
+   *     {@code noPropertiesFile} -- Indicates that the tool should not use a
+   *     properties file to obtain default values for any arguments not provided
+   *     on the command line.
+   *   </LI>
+   * </UL>
+   *
+   * @throws  ArgumentException  If any of the arguments related to properties
+   *                             file processing conflicts with an argument that
+   *                             has already been added to the argument parser.
+   */
+  public void enablePropertiesFileSupport()
+         throws ArgumentException
+  {
+    final FileArgument propertiesFilePath = new FileArgument(null,
+         ARG_NAME_PROPERTIES_FILE_PATH, false, 1, null,
+         INFO_ARG_DESCRIPTION_PROP_FILE_PATH.get(), true, true, true, false);
+    propertiesFilePath.setUsageArgument(true);
+    addArgument(propertiesFilePath);
+
+    final FileArgument generatePropertiesFile = new FileArgument(null,
+         ARG_NAME_GENERATE_PROPERTIES_FILE, false, 1, null,
+         INFO_ARG_DESCRIPTION_GEN_PROP_FILE.get(), false, true, true, false);
+    generatePropertiesFile.setUsageArgument(true);
+    addArgument(generatePropertiesFile);
+
+    final BooleanArgument noPropertiesFile = new BooleanArgument(null,
+         ARG_NAME_NO_PROPERTIES_FILE, INFO_ARG_DESCRIPTION_NO_PROP_FILE.get());
+    noPropertiesFile.setUsageArgument(true);
+    addArgument(noPropertiesFile);
+
+
+    // The propertiesFilePath and noPropertiesFile arguments cannot be used
+    // together.
+    addExclusiveArgumentSet(propertiesFilePath, noPropertiesFile);
+  }
+
+
+
+  /**
+   * Indicates whether this argument parser was used to generate a properties
+   * file.  If so, then the tool invoking the parser should return without
+   * performing any further processing.
+   *
+   * @return  A {@code File} object that represents the path to the properties
+   *          file that was generated, or {@code null} if no properties file was
+   *          generated.
+   */
+  public File getGeneratedPropertiesFile()
+  {
+    final Argument a = getNamedArgument(ARG_NAME_GENERATE_PROPERTIES_FILE);
+    if ((a == null) || (! a.isPresent()) || (! (a instanceof FileArgument)))
+    {
+      return null;
+    }
+
+    return ((FileArgument) a).getValue();
+  }
+
+
+
+  /**
    * Retrieves the named argument with the specified short identifier.
    *
    * @param  shortIdentifier  The short identifier of the argument to retrieve.
@@ -597,6 +744,33 @@ public final class ArgumentParser
     else
     {
       return (BooleanValueArgument) a;
+    }
+  }
+
+
+
+  /**
+   * Retrieves the control argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The control argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public ControlArgument getControlArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (ControlArgument) a;
     }
   }
 
@@ -1112,8 +1286,8 @@ public final class ArgumentParser
          throws ArgumentException
   {
     // Iterate through the provided args strings and process them.
-    boolean inTrailingArgs   = false;
-    boolean usageArgProvided = false;
+    boolean inTrailingArgs      = false;
+    boolean skipFinalValidation = false;
     for (int i=0; i < args.length; i++)
     {
       final String s = args[i];
@@ -1160,9 +1334,9 @@ public final class ArgumentParser
         {
           throw new ArgumentException(ERR_PARSER_NO_SUCH_LONG_ID.get(argName));
         }
-        else if(a.isUsageArgument())
+        else if (a.isUsageArgument())
         {
-          usageArgProvided = true;
+          skipFinalValidation |= skipFinalValidationBecauseOfArgument(a);
         }
 
         a.incrementOccurrences();
@@ -1209,9 +1383,9 @@ public final class ArgumentParser
           {
             throw new ArgumentException(ERR_PARSER_NO_SUCH_SHORT_ID.get(c));
           }
-          else if(a.isUsageArgument())
+          else if (a.isUsageArgument())
           {
-            usageArgProvided = true;
+            skipFinalValidation |= skipFinalValidationBecauseOfArgument(a);
           }
 
           a.incrementOccurrences();
@@ -1237,9 +1411,9 @@ public final class ArgumentParser
           {
             throw new ArgumentException(ERR_PARSER_NO_SUCH_SHORT_ID.get(c));
           }
-          else if(a.isUsageArgument())
+          else if (a.isUsageArgument())
           {
-            usageArgProvided = true;
+            skipFinalValidation |= skipFinalValidationBecauseOfArgument(a);
           }
 
           a.incrementOccurrences();
@@ -1260,9 +1434,9 @@ public final class ArgumentParser
                 throw new ArgumentException(
                                ERR_PARSER_NO_SUBSEQUENT_SHORT_ARG.get(c, s));
               }
-              else if(a.isUsageArgument())
+              else if (a.isUsageArgument())
               {
-                usageArgProvided = true;
+                skipFinalValidation |= skipFinalValidationBecauseOfArgument(a);
               }
 
               a.incrementOccurrences();
@@ -1292,9 +1466,17 @@ public final class ArgumentParser
     }
 
 
+    // Perform any appropriate processing related to the use of a properties
+    // file.
+    if (! handlePropertiesFile())
+    {
+      return;
+    }
+
+
     // If a usage argument was provided, then no further validation should be
     // performed.
-    if (usageArgProvided)
+    if (skipFinalValidation)
     {
       return;
     }
@@ -1424,6 +1606,560 @@ public final class ArgumentParser
         }
         throw new ArgumentException(ERR_PARSER_REQUIRED_CONFLICT.get(
                                          buffer.toString()));
+      }
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the provided argument is one that indicates that the
+   * parser should skip all validation except that performed when assigning
+   * values from command-line arguments.  Validation that will be skipped
+   * includes ensuring that all required arguments have values, ensuring that
+   * the minimum number of trailing arguments were provided, and ensuring that
+   * there were no dependent/exclusive/required argument set conflicts.
+   *
+   * @param  a  The argument for which to make the determination.
+   *
+   * @return  {@code true} if the provided argument is one that indicates that
+   *          final validation should be skipped, or {@code false} if not.
+   */
+  private static boolean skipFinalValidationBecauseOfArgument(final Argument a)
+  {
+    // We will skip final validation for all usage arguments except the
+    // propertiesFilePath and noPropertiesFile arguments.
+    if (ARG_NAME_PROPERTIES_FILE_PATH.equals(a.getLongIdentifier()) ||
+        ARG_NAME_NO_PROPERTIES_FILE.equals(a.getLongIdentifier()))
+    {
+      return false;
+    }
+
+    return a.isUsageArgument();
+  }
+
+
+
+  /**
+   * Performs any appropriate properties file processing for this argument
+   * parser.
+   *
+   * @return  {@code true} if the tool should continue processing, or
+   *          {@code false} if it should return immediately.
+   *
+   * @throws  ArgumentException  If a problem is encountered while attempting
+   *                             to parse a properties file or update arguments
+   *                             with the values contained in it.
+   */
+  private boolean handlePropertiesFile()
+          throws ArgumentException
+  {
+    final BooleanArgument noPropertiesFile;
+    final FileArgument generatePropertiesFile;
+    final FileArgument propertiesFilePath;
+    try
+    {
+      propertiesFilePath = getFileArgument(ARG_NAME_PROPERTIES_FILE_PATH);
+      generatePropertiesFile =
+           getFileArgument(ARG_NAME_GENERATE_PROPERTIES_FILE);
+      noPropertiesFile = getBooleanArgument(ARG_NAME_NO_PROPERTIES_FILE);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+
+      // This should only ever happen if the argument parser has an argument
+      // with a name that conflicts with one of the properties file arguments
+      // but isn't of the right type.  In this case, we'll assume that no
+      // properties file will be used.
+      return true;
+    }
+
+
+    // If any of the properties file arguments isn't defined, then we'll assume
+    // that no properties file will be used.
+    if ((propertiesFilePath == null) || (generatePropertiesFile == null) ||
+        (noPropertiesFile == null))
+    {
+      return true;
+    }
+
+
+    // If the noPropertiesFile argument is present, then don't do anything but
+    // make sure that neither of the other arguments was specified.
+    if (noPropertiesFile.isPresent())
+    {
+      if (propertiesFilePath.isPresent())
+      {
+        throw new ArgumentException(ERR_PARSER_EXCLUSIVE_CONFLICT.get(
+             noPropertiesFile.getIdentifierString(),
+             propertiesFilePath.getIdentifierString()));
+      }
+      else if (generatePropertiesFile.isPresent())
+      {
+        throw new ArgumentException(ERR_PARSER_EXCLUSIVE_CONFLICT.get(
+             noPropertiesFile.getIdentifierString(),
+             generatePropertiesFile.getIdentifierString()));
+      }
+      else
+      {
+        return true;
+      }
+    }
+
+
+    // If the generatePropertiesFile argument is present, then make sure the
+    // propertiesFilePath argument is not set and generate the output.
+    if (generatePropertiesFile.isPresent())
+    {
+      if (propertiesFilePath.isPresent())
+      {
+        throw new ArgumentException(ERR_PARSER_EXCLUSIVE_CONFLICT.get(
+             generatePropertiesFile.getIdentifierString(),
+             propertiesFilePath.getIdentifierString()));
+      }
+      else
+      {
+        generatePropertiesFile(
+             generatePropertiesFile.getValue().getAbsolutePath());
+        return false;
+      }
+    }
+
+
+    // If the propertiesFilePath argument is present, then try to make use of
+    // the specified file.
+    if (propertiesFilePath.isPresent())
+    {
+      final File propertiesFile = propertiesFilePath.getValue();
+      if (propertiesFile.exists() && propertiesFile.isFile())
+      {
+        handlePropertiesFile(propertiesFilePath.getValue());
+      }
+      else
+      {
+        throw new ArgumentException(
+             ERR_PARSER_NO_SUCH_PROPERTIES_FILE.get(
+                  propertiesFilePath.getIdentifierString(),
+                  propertiesFile.getAbsolutePath()));
+      }
+      return true;
+    }
+
+
+    // We may still use a properties file if the path was specified in either a
+    // JVM property or an environment variable.  If both are defined, the JVM
+    // property will take precedence.  If a property or environment variable
+    // specifies an invalid value, then we'll just ignore it.
+    String path = System.getProperty(PROPERTY_DEFAULT_PROPERTIES_FILE_PATH);
+    if (path == null)
+    {
+      path = System.getenv(ENV_DEFAULT_PROPERTIES_FILE_PATH);
+    }
+
+    if (path != null)
+    {
+      final File propertiesFile = new File(path);
+      if (propertiesFile.exists() && propertiesFile.isFile())
+      {
+        handlePropertiesFile(propertiesFile);
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
+   * Write an empty properties file for this argument parser to the specified
+   * path.
+   *
+   * @param  path  The path to the properties file to be written.
+   *
+   * @throws  ArgumentException  If a problem is encountered while writing the
+   *                             properties file.
+   */
+  private void generatePropertiesFile(final String path)
+          throws ArgumentException
+  {
+    final PrintWriter w;
+    try
+    {
+      w = new PrintWriter(path);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new ArgumentException(
+           ERR_PARSER_GEN_PROPS_CANNOT_OPEN_FILE.get(path,
+                getExceptionMessage(e)),
+           e);
+    }
+
+    try
+    {
+      wrapComment(w, INFO_PARSER_GEN_PROPS_HEADER_1.get(commandName));
+      w.println('#');
+      wrapComment(w,
+           INFO_PARSER_GEN_PROPS_HEADER_2.get(commandName,
+                ARG_NAME_PROPERTIES_FILE_PATH,
+                PROPERTY_DEFAULT_PROPERTIES_FILE_PATH,
+                ENV_DEFAULT_PROPERTIES_FILE_PATH, ARG_NAME_NO_PROPERTIES_FILE));
+      w.println('#');
+
+      for (final Argument a : getNamedArguments())
+      {
+        if (a.isUsageArgument() || a.isHidden())
+        {
+          continue;
+        }
+
+        final String argName = a.getLongIdentifier();
+        if (argName != null)
+        {
+          wrapComment(w,
+               INFO_PARSER_GEN_PROPS_HEADER_3.get(commandName, argName));
+          w.println('#');
+          break;
+        }
+      }
+
+      wrapComment(w, INFO_PARSER_GEN_PROPS_HEADER_4.get());
+      w.println('#');
+      wrapComment(w, INFO_PARSER_GEN_PROPS_HEADER_5.get(commandName));
+
+      for (final Argument a : getNamedArguments())
+      {
+        if (a.isUsageArgument() || a.isHidden())
+        {
+          continue;
+        }
+
+        w.println();
+        w.println();
+        wrapComment(w, a.getDescription());
+        w.println('#');
+
+        final String constraints = a.getValueConstraints();
+        if ((constraints != null) && (constraints.length() > 0) &&
+            (! (a instanceof BooleanArgument)))
+        {
+          wrapComment(w, constraints);
+          w.println('#');
+        }
+
+        final String identifier;
+        if (a.getLongIdentifier() != null)
+        {
+          identifier = a.getLongIdentifier();
+        }
+        else
+        {
+          identifier = a.getIdentifierString();
+        }
+
+        String placeholder = a.getValuePlaceholder();
+        if (placeholder == null)
+        {
+          if (a instanceof BooleanArgument)
+          {
+            placeholder = "{true|false}";
+          }
+          else
+          {
+            placeholder = "";
+          }
+        }
+
+        final String propertyName = commandName + '.' + identifier;
+        w.println("# " + propertyName + '=' + placeholder);
+
+        if (a.isPresent())
+        {
+          for (final String s : a.getValueStringRepresentations(false))
+          {
+            w.println(propertyName + '=' + s);
+          }
+        }
+      }
+    }
+    finally
+    {
+      w.close();
+    }
+  }
+
+
+
+  /**
+   * Wraps the given string and writes it as a comment to the provided writer.
+   *
+   * @param  w  The writer to use to write the wrapped and commented string.
+   * @param  s  The string to be wrapped and written.
+   */
+  private static void wrapComment(final PrintWriter w, final String s)
+  {
+    for (final String line : wrapLine(s, 77))
+    {
+      w.println("# " + line);
+    }
+  }
+
+
+
+  /**
+   * Reads the contents of the specified properties file and updates the
+   * configured arguments as appropriate.
+   *
+   * @param  propertiesFile  The properties file to process.
+   *
+   * @throws  ArgumentException  If a problem is encountered while examining the
+   *                             properties file, or while trying to assign a
+   *                             property value to a corresponding argument.
+   */
+  private void handlePropertiesFile(final File propertiesFile)
+          throws ArgumentException
+  {
+    final BufferedReader reader;
+    try
+    {
+      reader = new BufferedReader(new FileReader(propertiesFile));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new ArgumentException(
+           ERR_PARSER_CANNOT_OPEN_PROP_FILE.get(
+                propertiesFile.getAbsolutePath(), getExceptionMessage(e)),
+           e);
+    }
+
+    try
+    {
+      // Read all of the lines of the file, ignoring comments and unwrapping
+      // properties that span multiple lines.
+      boolean lineIsContinued = false;
+      int lineNumber = 0;
+      final ArrayList<ObjectPair<Integer,StringBuilder>> propertyLines =
+           new ArrayList<ObjectPair<Integer,StringBuilder>>(10);
+      while (true)
+      {
+        String line;
+        try
+        {
+          line = reader.readLine();
+          lineNumber++;
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          throw new ArgumentException(
+               ERR_PARSER_ERROR_READING_PROP_FILE.get(
+                    propertiesFile.getAbsolutePath(), getExceptionMessage(e)),
+               e);
+        }
+
+
+        // If the line is null, then we've reached the end of the file.  If we
+        // expect a previous line to have been continued, then this is an error.
+        if (line == null)
+        {
+          if (lineIsContinued)
+          {
+            throw new ArgumentException(
+                 ERR_PARSER_PROP_FILE_MISSING_CONTINUATION.get(
+                      (lineNumber-1), propertiesFile.getAbsolutePath()));
+          }
+          break;
+        }
+
+
+        // See if the line has any leading whitespace, and if so then trim it
+        // off.  If there is leading whitespace, then make sure that we expect
+        // the previous line to be continued.
+        final int initialLength = line.length();
+        line = trimLeading(line);
+        final boolean hasLeadingWhitespace = (line.length() < initialLength);
+        if (hasLeadingWhitespace && (! lineIsContinued))
+        {
+          throw new ArgumentException(
+               ERR_PARSER_PROP_FILE_UNEXPECTED_LEADING_SPACE.get(
+                    propertiesFile.getAbsolutePath(), lineNumber));
+        }
+
+
+        // If the line is empty or starts with "#", then skip it.  But make sure
+        // we didn't expect the previous line to be continued.
+        if ((line.length() == 0) || line.startsWith("#"))
+        {
+          if (lineIsContinued)
+          {
+            throw new ArgumentException(
+                 ERR_PARSER_PROP_FILE_MISSING_CONTINUATION.get(
+                      (lineNumber-1), propertiesFile.getAbsolutePath()));
+          }
+          continue;
+        }
+
+
+        // See if the line ends with a backslash and if so then trim it off.
+        final boolean hasTrailingBackslash = line.endsWith("\\");
+        if (line.endsWith("\\"))
+        {
+          line = line.substring(0, (line.length() - 1));
+        }
+
+
+        // If the previous line needs to be continued, then append the new line
+        // to it.  Otherwise, add it as a new line.
+        if (lineIsContinued)
+        {
+          propertyLines.get(propertyLines.size() - 1).getSecond().append(line);
+        }
+        else
+        {
+          propertyLines.add(new ObjectPair<Integer,StringBuilder>(lineNumber,
+               new StringBuilder(line)));
+        }
+
+        lineIsContinued = hasTrailingBackslash;
+      }
+
+
+      // Parse all of the lines into a map of identifiers and their
+      // corresponding values.
+      if (propertyLines.isEmpty())
+      {
+        return;
+      }
+
+      final HashMap<String,ArrayList<String>> propertyMap =
+           new HashMap<String,ArrayList<String>>(propertyLines.size());
+      for (final ObjectPair<Integer,StringBuilder> p : propertyLines)
+      {
+        final String line = p.getSecond().toString();
+        final int equalPos = line.indexOf('=');
+        if (equalPos <= 0)
+        {
+          throw new ArgumentException(ERR_PARSER_MALFORMED_PROP_LINE.get(
+               propertiesFile.getAbsolutePath(), p.getFirst(), line));
+        }
+
+        final String propertyName = line.substring(0, equalPos).trim();
+        final String propertyValue = line.substring(equalPos+1).trim();
+        if (propertyValue.length() == 0)
+        {
+          // The property doesn't have a value, so we can ignore it.
+          continue;
+        }
+
+
+        // An argument can have multiple identifiers, and we will allow any of
+        // them to be used to reference it.  To deal with this, we'll map the
+        // argument identifier to its corresponding argument and then use the
+        // preferred identifier for that argument in the map.
+        boolean prefixedWithToolName = false;
+        Argument a = getNamedArgument(propertyName);
+        if (a == null)
+        {
+          // It could be that the argument name was prefixed with the tool name.
+          // Check to see if that was the case.
+          if (propertyName.startsWith(commandName + '.'))
+          {
+            final String basePropertyName =
+                 propertyName.substring(commandName.length()+1);
+            a = getNamedArgument(basePropertyName);
+            prefixedWithToolName = true;
+          }
+        }
+
+        if (a == null)
+        {
+          // This could mean that there's a typo in the property name, but it's
+          // more likely the case that the property is for a different tool.  In
+          // either case, we'll ignore it.
+          continue;
+        }
+
+        final String canonicalPropertyName;
+        if (prefixedWithToolName)
+        {
+          canonicalPropertyName = commandName + '.' + a.getIdentifierString();
+        }
+        else
+        {
+          canonicalPropertyName = a.getIdentifierString();
+        }
+
+        ArrayList<String> valueList = propertyMap.get(canonicalPropertyName);
+        if (valueList == null)
+        {
+          valueList = new ArrayList<String>(5);
+          propertyMap.put(canonicalPropertyName, valueList);
+        }
+        valueList.add(propertyValue);
+      }
+
+
+      // Iterate through all of the named arguments for the argument parser and
+      // see if we should use the properties to assign values to any of the
+      // arguments that weren't provided on the command line.
+      for (final Argument a : namedArgs)
+      {
+        if (a.getNumOccurrences() > 0)
+        {
+          // The argument was provided on the command line, and that will always
+          // override anything that might be in the properties file.
+          continue;
+        }
+
+
+        // See if the properties file had a property that is specific to the
+        // tool.  If so, then try to assign its values to the argument.  If not,
+        // then fall back to checking for a set of values that are generic to
+        // any tool that has an argument with that name.
+        List<String> values =
+             propertyMap.get(commandName + '.' + a.getIdentifierString());
+        if (values == null)
+        {
+          values = propertyMap.get(a.getIdentifierString());
+        }
+
+        if (values != null)
+        {
+          for (final String value : values)
+          {
+            if (a instanceof BooleanArgument)
+            {
+              // We'll treat this as a BooleanValueArgument.
+              final BooleanValueArgument bva = new BooleanValueArgument(
+                   a.getShortIdentifier(), a.getLongIdentifier(), false, null,
+                   a.getDescription());
+              bva.addValue(value);
+              if (bva.getValue())
+              {
+                a.incrementOccurrences();
+              }
+            }
+            else
+            {
+              a.addValue(value);
+              a.incrementOccurrences();
+            }
+          }
+        }
+      }
+    }
+    finally
+    {
+      try
+      {
+        reader.close();
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
       }
     }
   }

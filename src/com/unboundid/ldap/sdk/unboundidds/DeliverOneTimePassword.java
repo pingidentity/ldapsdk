@@ -351,6 +351,23 @@ public final class DeliverOneTimePassword
 
 
   /**
+   * Indicates whether this tool supports the use of a properties file for
+   * specifying default values for arguments that aren't specified on the
+   * command line.
+   *
+   * @return  {@code true} if this tool supports the use of a properties file
+   *          for specifying default values for arguments that aren't specified
+   *          on the command line, or {@code false} if not.
+   */
+  @Override()
+  public boolean supportsPropertiesFile()
+  {
+    return true;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

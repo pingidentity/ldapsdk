@@ -473,6 +473,23 @@ public final class SummarizeAccessLog
 
 
   /**
+   * Indicates whether this tool supports the use of a properties file for
+   * specifying default values for arguments that aren't specified on the
+   * command line.
+   *
+   * @return  {@code true} if this tool supports the use of a properties file
+   *          for specifying default values for arguments that aren't specified
+   *          on the command line, or {@code false} if not.
+   */
+  @Override()
+  public boolean supportsPropertiesFile()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the command-line arguments supported for use with this tool to the
    * provided argument parser.  The tool may need to retain references to the
    * arguments (and/or the argument parser, if trailing arguments are allowed)
