@@ -350,6 +350,23 @@ public final class IdentifyUniqueAttributeConflicts
 
 
   /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments needed by this command-line tool to the provided
    * argument parser which are not related to connecting or authenticating to
    * the directory server.
@@ -367,6 +384,7 @@ public final class IdentifyUniqueAttributeConflicts
          "base DN must be specified.";
     baseDNArgument = new DNArgument('b', "baseDN", true, 0, "{dn}",
          description);
+    baseDNArgument.addLongIdentifier("base-dn");
     parser.addArgument(baseDNArgument);
 
     description = "A filter that will be used to identify the set of " +
@@ -401,6 +419,8 @@ public final class IdentifyUniqueAttributeConflicts
     multipleAttributeBehaviorArgument = new StringArgument('m',
          "multipleAttributeBehavior", false, 1, "{behavior}", description,
          allowedValues, BEHAVIOR_UNIQUE_WITHIN_ATTR);
+    multipleAttributeBehaviorArgument.addLongIdentifier(
+         "multiple-attribute-behavior");
     parser.addArgument(multipleAttributeBehaviorArgument);
 
     description = "The maximum number of entries to retrieve at a time when " +
@@ -412,6 +432,7 @@ public final class IdentifyUniqueAttributeConflicts
     pageSizeArgument =
          new IntegerArgument('z', "simplePageSize", false, 1, "{num}",
               description, 1, Integer.MAX_VALUE);
+    pageSizeArgument.addLongIdentifier("simple-page-size");
     parser.addArgument(pageSizeArgument);
   }
 

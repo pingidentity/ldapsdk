@@ -294,6 +294,23 @@ public final class LDAPCompare
 
 
   /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments used by this program that aren't already provided by the
    * generic {@code LDAPCommandLineTool} framework.
    *
@@ -312,6 +329,7 @@ public final class LDAPCompare
          "Information about a control to include in the bind request.";
     bindControls = new ControlArgument(null, "bindControl", false, 0, null,
          description);
+    bindControls.addLongIdentifier("bind-control");
     parser.addArgument(bindControls);
 
 

@@ -243,16 +243,19 @@ public final class GenerateSchemaFromSource
     classNameArg = new StringArgument('c', "javaClass", true, 1,
          INFO_GEN_SCHEMA_VALUE_PLACEHOLDER_CLASS.get(),
          INFO_GEN_SCHEMA_ARG_DESCRIPTION_JAVA_CLASS.get());
+    classNameArg.addLongIdentifier("java-class");
     parser.addArgument(classNameArg);
 
     outputFileArg = new FileArgument('f', "outputFile", true, 1,
          INFO_GEN_SCHEMA_VALUE_PLACEHOLDER_PATH.get(),
          INFO_GEN_SCHEMA_ARG_DESCRIPTION_OUTPUT_FILE.get(), false, true, true,
          false);
+    outputFileArg.addLongIdentifier("output-file");
     parser.addArgument(outputFileArg);
 
     modifyFormatArg = new BooleanArgument('m', "modifyFormat",
          INFO_GEN_SCHEMA_ARG_DESCRIPTION_MODIFY_FORMAT.get());
+    modifyFormatArg.addLongIdentifier("modify-format");
     parser.addArgument(modifyFormatArg);
   }
 

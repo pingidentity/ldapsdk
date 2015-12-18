@@ -388,6 +388,23 @@ public final class AuthRate
 
 
   /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments used by this program that aren't already provided by the
    * generic {@code LDAPCommandLineTool} framework.
    *
@@ -406,6 +423,7 @@ public final class AuthRate
          "value pattern syntax.  This must be provided.";
     baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
     baseDN.setArgumentGroupName("Search and Authentication Arguments");
+    baseDN.addLongIdentifier("base-dn");
     parser.addArgument(baseDN);
 
 
@@ -460,6 +478,7 @@ public final class AuthRate
     authType = new StringArgument('a', "authType", true, 1, "{authType}",
                                   description, allowedAuthTypes, "simple");
     authType.setArgumentGroupName("Search and Authentication Arguments");
+    authType.addLongIdentifier("auth-type");
     parser.addArgument(authType);
 
 
@@ -469,6 +488,7 @@ public final class AuthRate
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
     numThreads.setArgumentGroupName("Rate Management Arguments");
+    numThreads.addLongIdentifier("num-threads");
     parser.addArgument(numThreads);
 
 
@@ -479,6 +499,7 @@ public final class AuthRate
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
     collectionInterval.setArgumentGroupName("Rate Management Arguments");
+    collectionInterval.addLongIdentifier("interval-duration");
     parser.addArgument(collectionInterval);
 
 
@@ -489,6 +510,7 @@ public final class AuthRate
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
     numIntervals.setArgumentGroupName("Rate Management Arguments");
+    numIntervals.addLongIdentifier("num-intervals");
     parser.addArgument(numIntervals);
 
     description = "The target number of authorizations to perform per " +
@@ -501,6 +523,7 @@ public final class AuthRate
                                         "{auths-per-second}", description,
                                         1, Integer.MAX_VALUE);
     ratePerSecond.setArgumentGroupName("Rate Management Arguments");
+    ratePerSecond.addLongIdentifier("rate-per-second");
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -511,6 +534,7 @@ public final class AuthRate
                                         "{path}", description, true, true, true,
                                         false);
     variableRateData.setArgumentGroupName("Rate Management Arguments");
+    variableRateData.addLongIdentifier("variable-rate-data");
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -519,6 +543,7 @@ public final class AuthRate
                                       false, 1, "{path}", description, false,
                                       true, true, false);
     sampleRateFile.setArgumentGroupName("Rate Management Arguments");
+    sampleRateFile.addLongIdentifier("generate-sample-rate-file");
     sampleRateFile.setUsageArgument(true);
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
@@ -530,6 +555,7 @@ public final class AuthRate
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
     warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
+    warmUpIntervals.addLongIdentifier("warm-up-intervals");
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +
@@ -544,12 +570,14 @@ public final class AuthRate
     allowedFormats.add("without-date");
     timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
          "{format}", description, allowedFormats, "none");
+    timestampFormat.addLongIdentifier("timestamp-format");
     parser.addArgument(timestampFormat);
 
     description = "Indicates that information about the result codes for " +
                   "failed operations should not be displayed.";
     suppressErrorsArgument = new BooleanArgument(null,
          "suppressErrorResultCodes", 1, description);
+    suppressErrorsArgument.addLongIdentifier("suppress-error-result-codes");
     parser.addArgument(suppressErrorsArgument);
 
     description = "Generate output in CSV format rather than a " +
@@ -560,6 +588,7 @@ public final class AuthRate
     description = "Specifies the seed to use for the random number generator.";
     randomSeed = new IntegerArgument('R', "randomSeed", false, 1, "{value}",
          description);
+    randomSeed.addLongIdentifier("random-seed");
     parser.addArgument(randomSeed);
   }
 

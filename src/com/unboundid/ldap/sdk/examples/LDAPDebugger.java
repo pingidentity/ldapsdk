@@ -283,6 +283,23 @@ public final class LDAPDebugger
 
 
   /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments used by this program that aren't already provided by the
    * generic {@code LDAPCommandLineTool} framework.
    *
@@ -299,6 +316,7 @@ public final class LDAPDebugger
          "all interfaces.";
     listenAddress = new StringArgument('a', "listenAddress", false, 1,
          "{address}", description);
+    listenAddress.addLongIdentifier("listen-address");
     parser.addArgument(listenAddress);
 
 
@@ -307,6 +325,7 @@ public final class LDAPDebugger
          "selected.";
     listenPort = new IntegerArgument('L', "listenPort", true, 1, "{port}",
          description, 0, 65535, 0);
+    listenPort.addLongIdentifier("listen-port");
     parser.addArgument(listenPort);
 
 
@@ -315,6 +334,7 @@ public final class LDAPDebugger
          "communication between the LDAP debugger and the backend server.";
     listenUsingSSL = new BooleanArgument('S', "listenUsingSSL", 1,
          description);
+    listenUsingSSL.addLongIdentifier("listen-using-ssl");
     parser.addArgument(listenUsingSSL);
 
 
@@ -322,6 +342,7 @@ public final class LDAPDebugger
          "is provided, then the output will be written to standard output.";
     outputFile = new FileArgument('f', "outputFile", false, 1, "{path}",
          description, false, true, true, false);
+    outputFile.addLongIdentifier("output-file");
     parser.addArgument(outputFile);
 
 
@@ -331,6 +352,7 @@ public final class LDAPDebugger
          "provided, then no code log will be generated.";
     codeLogFile = new FileArgument('c', "codeLogFile", false, 1, "{path}",
          description, false, true, true, false);
+    codeLogFile.addLongIdentifier("code-log-file");
     parser.addArgument(codeLogFile);
   }
 

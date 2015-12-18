@@ -344,12 +344,20 @@ public abstract class LDAPCommandLineTool
            INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_DN.get());
       bindDN.setArgumentGroupName(argumentGroup);
+      if (includeAlternateLongIdentifiers())
+      {
+        bindDN.addLongIdentifier("bind-dn");
+      }
       parser.addArgument(bindDN);
 
       bindPassword = new StringArgument('w', "bindPassword", false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
       bindPassword.setArgumentGroupName(argumentGroup);
+      if (includeAlternateLongIdentifiers())
+      {
+        bindPassword.addLongIdentifier("bind-password");
+      }
       parser.addArgument(bindPassword);
 
       bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
@@ -357,93 +365,179 @@ public abstract class LDAPCommandLineTool
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
            false);
       bindPasswordFile.setArgumentGroupName(argumentGroup);
+      if (includeAlternateLongIdentifiers())
+      {
+        bindPasswordFile.addLongIdentifier("bind-password-file");
+      }
       parser.addArgument(bindPasswordFile);
 
       promptForBindPassword = new BooleanArgument(null, "promptForBindPassword",
            1, INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_PROMPT.get());
       promptForBindPassword.setArgumentGroupName(argumentGroup);
+      if (includeAlternateLongIdentifiers())
+      {
+        promptForBindPassword.addLongIdentifier("prompt-for-bind-password");
+      }
       parser.addArgument(promptForBindPassword);
     }
 
     useSSL = new BooleanArgument('Z', "useSSL", 1,
          INFO_LDAP_TOOL_DESCRIPTION_USE_SSL.get());
     useSSL.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      useSSL.addLongIdentifier("use-ssl");
+    }
     parser.addArgument(useSSL);
 
     useStartTLS = new BooleanArgument('q', "useStartTLS", 1,
          INFO_LDAP_TOOL_DESCRIPTION_USE_START_TLS.get());
     useStartTLS.setArgumentGroupName(argumentGroup);
+      if (includeAlternateLongIdentifiers())
+      {
+        useStartTLS.addLongIdentifier("use-starttls");
+        useStartTLS.addLongIdentifier("use-start-tls");
+      }
     parser.addArgument(useStartTLS);
 
     trustAll = new BooleanArgument('X', "trustAll", 1,
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_ALL.get());
     trustAll.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      trustAll.addLongIdentifier("trustAllCertificates");
+      trustAll.addLongIdentifier("trust-all");
+      trustAll.addLongIdentifier("trust-all-certificates");
+    }
     parser.addArgument(trustAll);
 
     keyStorePath = new StringArgument('K', "keyStorePath", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PATH.get());
     keyStorePath.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      keyStorePath.addLongIdentifier("key-store-path");
+    }
     parser.addArgument(keyStorePath);
 
     keyStorePassword = new StringArgument('W', "keyStorePassword", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD.get());
     keyStorePassword.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      keyStorePassword.addLongIdentifier("keyStorePIN");
+      keyStorePassword.addLongIdentifier("key-store-password");
+      keyStorePassword.addLongIdentifier("key-store-pin");
+    }
     parser.addArgument(keyStorePassword);
 
     keyStorePasswordFile = new FileArgument('u', "keyStorePasswordFile", false,
          1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_FILE.get());
     keyStorePasswordFile.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      keyStorePasswordFile.addLongIdentifier("keyStorePINFile");
+      keyStorePasswordFile.addLongIdentifier("key-store-password-file");
+      keyStorePasswordFile.addLongIdentifier("key-store-pin-file");
+    }
     parser.addArgument(keyStorePasswordFile);
 
     promptForKeyStorePassword = new BooleanArgument(null,
          "promptForKeyStorePassword", 1,
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_PROMPT.get());
     promptForKeyStorePassword.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      promptForKeyStorePassword.addLongIdentifier("promptForKeyStorePIN");
+      promptForKeyStorePassword.addLongIdentifier(
+           "prompt-for-key-store-password");
+      promptForKeyStorePassword.addLongIdentifier("prompt-for-key-store-pin");
+    }
     parser.addArgument(promptForKeyStorePassword);
 
     keyStoreFormat = new StringArgument(null, "keyStoreFormat", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_FORMAT.get());
     keyStoreFormat.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      keyStoreFormat.addLongIdentifier("keyStoreType");
+      keyStoreFormat.addLongIdentifier("key-store-format");
+      keyStoreFormat.addLongIdentifier("key-store-type");
+    }
     parser.addArgument(keyStoreFormat);
 
     trustStorePath = new StringArgument('P', "trustStorePath", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PATH.get());
     trustStorePath.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      trustStorePath.addLongIdentifier("trust-store-path");
+    }
     parser.addArgument(trustStorePath);
 
     trustStorePassword = new StringArgument('T', "trustStorePassword", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD.get());
     trustStorePassword.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      trustStorePassword.addLongIdentifier("trustStorePIN");
+      trustStorePassword.addLongIdentifier("trust-store-password");
+      trustStorePassword.addLongIdentifier("trust-store-pin");
+    }
     parser.addArgument(trustStorePassword);
 
     trustStorePasswordFile = new FileArgument('U', "trustStorePasswordFile",
          false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_FILE.get());
     trustStorePasswordFile.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      trustStorePasswordFile.addLongIdentifier("trustStorePINFile");
+      trustStorePasswordFile.addLongIdentifier("trust-store-password-file");
+      trustStorePasswordFile.addLongIdentifier("trust-store-pin-file");
+    }
     parser.addArgument(trustStorePasswordFile);
 
     promptForTrustStorePassword = new BooleanArgument(null,
          "promptForTrustStorePassword", 1,
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_PROMPT.get());
     promptForTrustStorePassword.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      promptForTrustStorePassword.addLongIdentifier("promptForTrustStorePIN");
+      promptForTrustStorePassword.addLongIdentifier(
+           "prompt-for-trust-store-password");
+      promptForTrustStorePassword.addLongIdentifier(
+           "prompt-for-trust-store-pin");
+    }
     parser.addArgument(promptForTrustStorePassword);
 
     trustStoreFormat = new StringArgument(null, "trustStoreFormat", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_FORMAT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_FORMAT.get());
     trustStoreFormat.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      trustStoreFormat.addLongIdentifier("trustStoreType");
+      trustStoreFormat.addLongIdentifier("trust-store-format");
+      trustStoreFormat.addLongIdentifier("trust-store-type");
+    }
     parser.addArgument(trustStoreFormat);
 
     certificateNickname = new StringArgument('N', "certNickname", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_CERT_NICKNAME.get(),
          INFO_LDAP_TOOL_DESCRIPTION_CERT_NICKNAME.get());
     certificateNickname.setArgumentGroupName(argumentGroup);
+    if (includeAlternateLongIdentifiers())
+    {
+      certificateNickname.addLongIdentifier("certificate-nickname");
+    }
     parser.addArgument(certificateNickname);
 
     if (supportsAuthentication)
@@ -452,6 +546,10 @@ public abstract class LDAPCommandLineTool
            INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
            INFO_LDAP_TOOL_DESCRIPTION_SASL_OPTION.get());
       saslOption.setArgumentGroupName(argumentGroup);
+      if (includeAlternateLongIdentifiers())
+      {
+        saslOption.addLongIdentifier("sasl-option");
+      }
       parser.addArgument(saslOption);
     }
 
@@ -565,6 +663,22 @@ public abstract class LDAPCommandLineTool
   protected boolean supportsAuthentication()
   {
     return true;
+  }
+
+
+
+  /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return false;
   }
 
 

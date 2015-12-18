@@ -233,18 +233,21 @@ public final class DeliverOneTimePassword
          INFO_DELIVER_OTP_PLACEHOLDER_DN.get(),
          INFO_DELIVER_OTP_DESCRIPTION_BIND_DN.get());
     bindDN.setArgumentGroupName(INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
+    bindDN.addLongIdentifier("bind-dn");
     parser.addArgument(bindDN);
 
     userName = new StringArgument('n', "userName", false, 1,
          INFO_DELIVER_OTP_PLACEHOLDER_USERNAME.get(),
          INFO_DELIVER_OTP_DESCRIPTION_USERNAME.get());
     userName.setArgumentGroupName(INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
+    userName.addLongIdentifier("user-name");
     parser.addArgument(userName);
 
     bindPassword = new StringArgument('w', "bindPassword", false, 1,
          INFO_DELIVER_OTP_PLACEHOLDER_PASSWORD.get(),
          INFO_DELIVER_OTP_DESCRIPTION_BIND_PW.get());
     bindPassword.setArgumentGroupName(INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
+    bindPassword.addLongIdentifier("bind-password");
     parser.addArgument(bindPassword);
 
     bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
@@ -253,12 +256,14 @@ public final class DeliverOneTimePassword
          false);
     bindPasswordFile.setArgumentGroupName(
          INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
+    bindPasswordFile.addLongIdentifier("bind-password-file");
     parser.addArgument(bindPasswordFile);
 
     promptForBindPassword = new BooleanArgument(null, "promptForBindPassword",
          1, INFO_DELIVER_OTP_DESCRIPTION_BIND_PW_PROMPT.get());
     promptForBindPassword.setArgumentGroupName(
          INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
+    promptForBindPassword.addLongIdentifier("prompt-for-bind-password");
     parser.addArgument(promptForBindPassword);
 
     deliveryMechanism = new StringArgument('m', "deliveryMechanism", false, 0,
@@ -266,6 +271,7 @@ public final class DeliverOneTimePassword
          INFO_DELIVER_OTP_DESCRIPTION_MECH.get());
     deliveryMechanism.setArgumentGroupName(
          INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
+    deliveryMechanism.addLongIdentifier("delivery-mechanism");
     parser.addArgument(deliveryMechanism);
 
     messageSubject = new StringArgument('s', "messageSubject", false, 1,
@@ -273,6 +279,7 @@ public final class DeliverOneTimePassword
          INFO_DELIVER_OTP_DESCRIPTION_SUBJECT.get());
     messageSubject.setArgumentGroupName(
          INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
+    messageSubject.addLongIdentifier("message-subject");
     parser.addArgument(messageSubject);
 
     fullTextBeforeOTP = new StringArgument('f', "fullTextBeforeOTP", false,
@@ -280,6 +287,7 @@ public final class DeliverOneTimePassword
          INFO_DELIVER_OTP_DESCRIPTION_FULL_BEFORE.get());
     fullTextBeforeOTP.setArgumentGroupName(
          INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
+    fullTextBeforeOTP.addLongIdentifier("full-text-before-otp");
     parser.addArgument(fullTextBeforeOTP);
 
     fullTextAfterOTP = new StringArgument('F', "fullTextAfterOTP", false,
@@ -287,6 +295,7 @@ public final class DeliverOneTimePassword
          INFO_DELIVER_OTP_DESCRIPTION_FULL_AFTER.get());
     fullTextAfterOTP.setArgumentGroupName(
          INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
+    fullTextAfterOTP.addLongIdentifier("full-text-after-otp");
     parser.addArgument(fullTextAfterOTP);
 
     compactTextBeforeOTP = new StringArgument('c', "compactTextBeforeOTP",
@@ -294,6 +303,7 @@ public final class DeliverOneTimePassword
          INFO_DELIVER_OTP_DESCRIPTION_COMPACT_BEFORE.get());
     compactTextBeforeOTP.setArgumentGroupName(
          INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
+    compactTextBeforeOTP.addLongIdentifier("compact-text-before-otp");
     parser.addArgument(compactTextBeforeOTP);
 
     compactTextAfterOTP = new StringArgument('C', "compactTextAfterOTP",
@@ -301,6 +311,7 @@ public final class DeliverOneTimePassword
          INFO_DELIVER_OTP_DESCRIPTION_COMPACT_AFTER.get());
     compactTextAfterOTP.setArgumentGroupName(
          INFO_DELIVER_OTP_GROUP_DELIVERY_MECH.get());
+    compactTextAfterOTP.addLongIdentifier("compact-text-after-otp");
     parser.addArgument(compactTextAfterOTP);
 
 
@@ -361,6 +372,23 @@ public final class DeliverOneTimePassword
    */
   @Override()
   public boolean supportsPropertiesFile()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
   {
     return true;
   }

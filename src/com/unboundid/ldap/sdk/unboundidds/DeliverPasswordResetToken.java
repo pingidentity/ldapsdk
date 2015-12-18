@@ -212,6 +212,7 @@ public final class DeliverPasswordResetToken
          INFO_DELIVER_PW_RESET_TOKEN_PLACEHOLDER_DN.get(),
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_USER_DN.get());
     userDN.setArgumentGroupName(INFO_DELIVER_PW_RESET_TOKEN_GROUP_ID.get());
+    userDN.addLongIdentifier("user-dn");
     parser.addArgument(userDN);
 
     deliveryMechanism = new StringArgument('m', "deliveryMechanism", false, 0,
@@ -219,6 +220,7 @@ public final class DeliverPasswordResetToken
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_MECH.get());
     deliveryMechanism.setArgumentGroupName(
          INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
+    deliveryMechanism.addLongIdentifier("delivery-mechanism");
     parser.addArgument(deliveryMechanism);
 
     messageSubject = new StringArgument('s', "messageSubject", false, 1,
@@ -226,6 +228,7 @@ public final class DeliverPasswordResetToken
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_SUBJECT.get());
     messageSubject.setArgumentGroupName(
          INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
+    messageSubject.addLongIdentifier("message-subject");
     parser.addArgument(messageSubject);
 
     fullTextBeforeToken = new StringArgument('f', "fullTextBeforeToken", false,
@@ -233,6 +236,7 @@ public final class DeliverPasswordResetToken
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_FULL_BEFORE.get());
     fullTextBeforeToken.setArgumentGroupName(
          INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
+    fullTextBeforeToken.addLongIdentifier("full-text-before-token");
     parser.addArgument(fullTextBeforeToken);
 
     fullTextAfterToken = new StringArgument('F', "fullTextAfterToken", false,
@@ -240,6 +244,7 @@ public final class DeliverPasswordResetToken
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_FULL_AFTER.get());
     fullTextAfterToken.setArgumentGroupName(
          INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
+    fullTextAfterToken.addLongIdentifier("full-text-after-token");
     parser.addArgument(fullTextAfterToken);
 
     compactTextBeforeToken = new StringArgument('c', "compactTextBeforeToken",
@@ -247,6 +252,7 @@ public final class DeliverPasswordResetToken
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_COMPACT_BEFORE.get());
     compactTextBeforeToken.setArgumentGroupName(
          INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
+    compactTextBeforeToken.addLongIdentifier("compact-text-before-token");
     parser.addArgument(compactTextBeforeToken);
 
     compactTextAfterToken = new StringArgument('C', "compactTextAfterToken",
@@ -254,6 +260,7 @@ public final class DeliverPasswordResetToken
          INFO_DELIVER_PW_RESET_TOKEN_DESCRIPTION_COMPACT_AFTER.get());
     compactTextAfterToken.setArgumentGroupName(
          INFO_DELIVER_PW_RESET_TOKEN_GROUP_DELIVERY_MECH.get());
+    compactTextAfterToken.addLongIdentifier("compact-text-after-token");
     parser.addArgument(compactTextAfterToken);
   }
 
@@ -292,6 +299,23 @@ public final class DeliverPasswordResetToken
    */
   @Override()
   public boolean supportsPropertiesFile()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
   {
     return true;
   }

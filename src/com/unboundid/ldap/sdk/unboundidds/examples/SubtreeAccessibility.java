@@ -286,6 +286,23 @@ public final class SubtreeAccessibility
 
 
   /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments needed by this command-line tool to the provided
    * argument parser which are not related to connecting or authenticating to
    * the directory server.
@@ -307,6 +324,7 @@ public final class SubtreeAccessibility
     baseDN = new DNArgument('b', "baseDN", false, 1, "{dn}",
          "The base DN of the subtree for which an accessibility restriction " +
               "is to be updated.");
+    baseDN.addLongIdentifier("base-dn");
     parser.addArgument(baseDN);
 
 
@@ -325,6 +343,7 @@ public final class SubtreeAccessibility
     bypassUserDN = new DNArgument('B', "bypassUserDN", false, 1, "{dn}",
          "The DN of a user who is allowed to bypass restrictions on the " +
               "target subtree.");
+    bypassUserDN.addLongIdentifier("bypass-user-dn");
     parser.addArgument(bypassUserDN);
 
 

@@ -576,17 +576,20 @@ public final class ArgumentParser
          ARG_NAME_PROPERTIES_FILE_PATH, false, 1, null,
          INFO_ARG_DESCRIPTION_PROP_FILE_PATH.get(), true, true, true, false);
     propertiesFilePath.setUsageArgument(true);
+    propertiesFilePath.addLongIdentifier("properties-file-path");
     addArgument(propertiesFilePath);
 
     final FileArgument generatePropertiesFile = new FileArgument(null,
          ARG_NAME_GENERATE_PROPERTIES_FILE, false, 1, null,
          INFO_ARG_DESCRIPTION_GEN_PROP_FILE.get(), false, true, true, false);
     generatePropertiesFile.setUsageArgument(true);
+    generatePropertiesFile.addLongIdentifier("generate-properties-file");
     addArgument(generatePropertiesFile);
 
     final BooleanArgument noPropertiesFile = new BooleanArgument(null,
          ARG_NAME_NO_PROPERTIES_FILE, INFO_ARG_DESCRIPTION_NO_PROP_FILE.get());
     noPropertiesFile.setUsageArgument(true);
+    noPropertiesFile.addLongIdentifier("no-properties-file");
     addArgument(noPropertiesFile);
 
 
@@ -2389,6 +2392,7 @@ public final class ArgumentParser
       if (first)
       {
         argLine.append("--");
+        first = false;
       }
       else
       {

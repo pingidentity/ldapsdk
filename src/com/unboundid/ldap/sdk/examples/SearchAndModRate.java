@@ -416,6 +416,23 @@ public final class SearchAndModRate
 
 
   /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments used by this program that aren't already provided by the
    * generic {@code LDAPCommandLineTool} framework.
    *
@@ -434,6 +451,7 @@ public final class SearchAndModRate
          "value pattern syntax.  This must be provided.";
     baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
     baseDN.setArgumentGroupName("Search And Modification Arguments");
+    baseDN.addLongIdentifier("base-dn");
     parser.addArgument(baseDN);
 
 
@@ -474,6 +492,7 @@ public final class SearchAndModRate
     modifyAttributes = new StringArgument('m', "modifyAttribute", true, 0,
                                           "{name}", description);
     modifyAttributes.setArgumentGroupName("Search And Modification Arguments");
+    modifyAttributes.addLongIdentifier("modify-attribute");
     parser.addArgument(modifyAttributes);
 
 
@@ -483,6 +502,7 @@ public final class SearchAndModRate
     valueLength = new IntegerArgument('l', "valueLength", true, 1, "{num}",
                                       description, 1, Integer.MAX_VALUE, 10);
     valueLength.setArgumentGroupName("Search And Modification Arguments");
+    valueLength.addLongIdentifier("value-length");
     parser.addArgument(valueLength);
 
 
@@ -494,6 +514,7 @@ public final class SearchAndModRate
                                       description,
                                       "abcdefghijklmnopqrstuvwxyz");
     characterSet.setArgumentGroupName("Search And Modification Arguments");
+    characterSet.addLongIdentifier("character-set");
     parser.addArgument(characterSet);
 
 
@@ -503,6 +524,7 @@ public final class SearchAndModRate
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
     numThreads.setArgumentGroupName("Rate Management Arguments");
+    numThreads.addLongIdentifier("num-threads");
     parser.addArgument(numThreads);
 
 
@@ -513,6 +535,7 @@ public final class SearchAndModRate
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
     collectionInterval.setArgumentGroupName("Rate Management Arguments");
+    collectionInterval.addLongIdentifier("interval-duration");
     parser.addArgument(collectionInterval);
 
 
@@ -523,6 +546,7 @@ public final class SearchAndModRate
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
     numIntervals.setArgumentGroupName("Rate Management Arguments");
+    numIntervals.addLongIdentifier("num-intervals");
     parser.addArgument(numIntervals);
 
     description = "The number of search and modify iterations that should be " +
@@ -534,6 +558,7 @@ public final class SearchAndModRate
     iterationsBeforeReconnect = new IntegerArgument(null,
          "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
     iterationsBeforeReconnect.setArgumentGroupName("Rate Management Arguments");
+    iterationsBeforeReconnect.addLongIdentifier("iterations-before-reconnect");
     parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of searches to perform per second.  It " +
@@ -546,6 +571,7 @@ public final class SearchAndModRate
                                         "{searches-per-second}", description,
                                         1, Integer.MAX_VALUE);
     ratePerSecond.setArgumentGroupName("Rate Management Arguments");
+    ratePerSecond.addLongIdentifier("rate-per-second");
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -556,6 +582,7 @@ public final class SearchAndModRate
                                         "{path}", description, true, true, true,
                                         false);
     variableRateData.setArgumentGroupName("Rate Management Arguments");
+    variableRateData.addLongIdentifier("variable-rate-data");
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -564,6 +591,7 @@ public final class SearchAndModRate
                                       false, 1, "{path}", description, false,
                                       true, true, false);
     sampleRateFile.setArgumentGroupName("Rate Management Arguments");
+    sampleRateFile.addLongIdentifier("generate-sample-rate-file");
     sampleRateFile.setUsageArgument(true);
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
@@ -575,6 +603,7 @@ public final class SearchAndModRate
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
     warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
+    warmUpIntervals.addLongIdentifier("warm-up-intervals");
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +
@@ -589,6 +618,7 @@ public final class SearchAndModRate
     allowedFormats.add("without-date");
     timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
          "{format}", description, allowedFormats, "none");
+    timestampFormat.addLongIdentifier("timestamp-format");
     parser.addArgument(timestampFormat);
 
     description = "Indicates that the proxied authorization control (as " +
@@ -600,12 +630,14 @@ public final class SearchAndModRate
                   " for complete details about the value pattern syntax.";
     proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
                                  description);
+    proxyAs.addLongIdentifier("proxy-as");
     parser.addArgument(proxyAs);
 
     description = "Indicates that information about the result codes for " +
                   "failed operations should not be displayed.";
     suppressErrors = new BooleanArgument(null,
          "suppressErrorResultCodes", 1, description);
+    suppressErrors.addLongIdentifier("suppress-error-result-codes");
     parser.addArgument(suppressErrors);
 
     description = "Generate output in CSV format rather than a " +
@@ -616,6 +648,7 @@ public final class SearchAndModRate
     description = "Specifies the seed to use for the random number generator.";
     randomSeed = new IntegerArgument('R', "randomSeed", false, 1, "{value}",
          description);
+    randomSeed.addLongIdentifier("random-seed");
     parser.addArgument(randomSeed);
   }
 

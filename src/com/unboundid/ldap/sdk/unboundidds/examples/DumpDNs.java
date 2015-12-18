@@ -261,6 +261,23 @@ public final class DumpDNs
 
 
   /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments needed by this command-line tool to the provided
    * argument parser which are not related to connecting or authenticating to
    * the directory server.
@@ -276,12 +293,14 @@ public final class DumpDNs
     baseDN = new DNArgument('b', "baseDN", true, 1, "{dn}",
          "The base DN below which to dump the DNs of all entries in the " +
               "Directory Server.");
+    baseDN.addLongIdentifier("base-dn");
     parser.addArgument(baseDN);
 
     outputFile = new FileArgument('f', "outputFile", false, 1, "{path}",
          "The path of the output file to which the entry DNs will be " +
               "written.  If this is not provided, then entry DNs will be " +
               "written to standard output.", false, true, true, false);
+    outputFile.addLongIdentifier("output-file");
     parser.addArgument(outputFile);
   }
 

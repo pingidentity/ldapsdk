@@ -278,6 +278,23 @@ public final class GenerateSourceFromSchema
 
 
   /**
+   * Indicates whether the LDAP-specific arguments should include alternate
+   * versions of all long identifiers that consist of multiple words so that
+   * they are available in both camelCase and dash-separated versions.
+   *
+   * @return  {@code true} if this tool should provide multiple versions of
+   *          long identifiers for LDAP-specific arguments, or {@code false} if
+   *          not.
+   */
+  @Override()
+  protected boolean includeAlternateLongIdentifiers()
+  {
+    return true;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -288,46 +305,55 @@ public final class GenerateSourceFromSchema
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_PATH.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_OUTPUT_DIRECTORY.get(), true, true,
          false, true);
+    outputDirectoryArg.addLongIdentifier("output-directory");
     parser.addArgument(outputDirectoryArg);
 
     structuralClassArg = new StringArgument('s', "structuralClass", true, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_STRUCTURAL_CLASS.get());
+    structuralClassArg.addLongIdentifier("structural-class");
     parser.addArgument(structuralClassArg);
 
     auxiliaryClassArg = new StringArgument('a', "auxiliaryClass", false, 0,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_AUXILIARY_CLASS.get());
+    auxiliaryClassArg.addLongIdentifier("auxiliary-class");
     parser.addArgument(auxiliaryClassArg);
 
     rdnAttributeArg = new StringArgument('r', "rdnAttribute", true, 0,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_RDN_ATTRIBUTE.get());
+    rdnAttributeArg.addLongIdentifier("rdn-attribute");
     parser.addArgument(rdnAttributeArg);
 
     lazyAttributeArg = new StringArgument('l', "lazyAttribute", false, 0,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_LAZY_ATTRIBUTE.get());
+    lazyAttributeArg.addLongIdentifier("lazy-attribute");
     parser.addArgument(lazyAttributeArg);
 
     operationalAttributeArg = new StringArgument('O', "operationalAttribute",
          false, 0, INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_OPERATIONAL_ATTRIBUTE.get());
+    operationalAttributeArg.addLongIdentifier("operational-attribute");
     parser.addArgument(operationalAttributeArg);
 
     defaultParentDNArg = new DNArgument('b', "defaultParentDN", false, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_DN.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_DEFAULT_PARENT_DN.get());
+    defaultParentDNArg.addLongIdentifier("default-parent-dn");
     parser.addArgument(defaultParentDNArg);
 
     packageNameArg = new StringArgument('n', "packageName", false, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_PACKAGE_NAME.get());
+    packageNameArg.addLongIdentifier("package-name");
     parser.addArgument(packageNameArg);
 
     classNameArg = new StringArgument('c', "className", false, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_CLASS_NAME.get());
+    classNameArg.addLongIdentifier("class-name");
     parser.addArgument(classNameArg);
 
     terseArg = new BooleanArgument('t', "terse", 1,
