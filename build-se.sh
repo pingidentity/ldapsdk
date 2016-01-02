@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Copyright 2007-2015 UnboundID Corp.
+# Copyright 2007-2016 UnboundID Corp.
 # All Rights Reserved.
 #
 # -----
 #
-# Copyright (C) 2008-2015 UnboundID Corp.
+# Copyright (C) 2008-2016 UnboundID Corp.
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License (GPLv2 only)
 # or the terms of the GNU Lesser General Public License (LGPLv2.1 only)

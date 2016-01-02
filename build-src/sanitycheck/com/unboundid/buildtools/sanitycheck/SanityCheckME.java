@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2015 UnboundID Corp.
+ * Copyright 2008-2016 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.sanitycheck;

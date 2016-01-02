@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2015 UnboundID Corp.
+ * Copyright 2011-2016 UnboundID Corp.
  * All Rights Reserved.
  */
 package com.unboundid.buildtools.minimalsource;

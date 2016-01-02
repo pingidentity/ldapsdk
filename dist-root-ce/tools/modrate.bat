@@ -1,6 +1,6 @@
 @echo off
 
-rem Copyright 2008-2015 UnboundID Corp.
+rem Copyright 2008-2016 UnboundID Corp.
 rem All Rights Reserved.
 
 

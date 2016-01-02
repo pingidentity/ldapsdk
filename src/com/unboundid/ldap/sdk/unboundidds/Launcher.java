@@ -1,9 +1,9 @@
 /*
- * Copyright 2010-2015 UnboundID Corp.
+ * Copyright 2010-2016 UnboundID Corp.
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2015 UnboundID Corp.
+ * Copyright (C) 2015-2016 UnboundID Corp.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)

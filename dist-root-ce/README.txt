@@ -1,5 +1,5 @@
 UnboundID LDAP SDK for Java (Commercial Edition)
-Copyright 2008-2015 UnboundID Corp.  All Rights Reserved.
+Copyright 2008-2016 UnboundID Corp.  All Rights Reserved.
 
 This package contains Commercial Edition of the UnboundID LDAP SDK for Java.
 It contains the following elements:
