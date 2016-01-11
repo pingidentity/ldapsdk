@@ -342,8 +342,19 @@ public final class LDAPThreadLocalConnectionPool
   private LDAPConnection createConnection()
           throws LDAPException
   {
-    final LDAPConnection c = serverSet.getConnection(healthCheck);
+    final LDAPConnection c;
+    try
+    {
+      c = serverSet.getConnection(healthCheck);
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      poolStatistics.incrementNumFailedConnectionAttempts();
+      throw le;
+    }
     c.setConnectionPool(this);
+
 
     // Auto-reconnect must be disabled for pooled connections, so turn it off
     // if the associated connection options have it enabled for some reason.
