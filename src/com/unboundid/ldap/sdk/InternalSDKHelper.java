@@ -439,4 +439,21 @@ public final class InternalSDKHelper
   {
     return connection.getLastBindRequest();
   }
+
+
+
+  /**
+   * Retrieves the schema that will be used for the provided entry, if any.
+   *
+   * @param  entry  The entry for which to retrieve the schema.  It must not be
+   *                {@code null}.
+   *
+   * @return  The schema that will be used for the provided entry, or
+   *          {@code null} if no schema was provided for the entry.
+   */
+  @InternalUseOnly()
+  public static Schema getEntrySchema(final Entry entry)
+  {
+    return entry.getSchema();
+  }
 }
