@@ -42,6 +42,7 @@ import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.ProtocolOp;
 import com.unboundid.ldif.LDIFAddChangeRecord;
+import com.unboundid.ldif.LDIFChangeRecord;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.InternalUseOnly;
@@ -324,7 +325,10 @@ public final class AddRequest
    * Creates a new add request with the provided entry in LDIF form.
    *
    * @param  ldifLines  The lines that comprise the LDIF representation of the
-   *                    entry to add.  It must not be {@code null} or empty.
+   *                    entry to add.  It must not be {@code null} or empty.  It
+   *                    may represent a standard LDIF entry, or it may represent
+   *                    an LDIF add change record (optionally including
+   *                    controls).
    *
    * @throws  LDIFException  If the provided LDIF data cannot be decoded as an
    *                         entry.
@@ -332,7 +336,24 @@ public final class AddRequest
   public AddRequest(final String... ldifLines)
          throws LDIFException
   {
-    this(LDIFReader.decodeEntry(ldifLines));
+    super(null);
+
+    final LDIFChangeRecord changeRecord =
+         LDIFReader.decodeChangeRecord(true, ldifLines);
+    if (changeRecord instanceof LDIFAddChangeRecord)
+    {
+      dn = changeRecord.getDN();
+      attributes = new ArrayList<Attribute>(Arrays.asList(
+           ((LDIFAddChangeRecord) changeRecord).getAttributes()));
+      setControls(changeRecord.getControls());
+    }
+    else
+    {
+      throw new LDIFException(
+           ERR_ADD_INAPPROPRIATE_CHANGE_TYPE.get(
+                changeRecord.getChangeType().name()),
+           0L, true, Arrays.asList(ldifLines), null);
+    }
   }
 
 
