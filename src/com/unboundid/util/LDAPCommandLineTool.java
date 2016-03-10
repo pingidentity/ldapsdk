@@ -195,6 +195,7 @@ public abstract class LDAPCommandLineTool
        extends CommandLineTool
 {
   // Arguments used to communicate with an LDAP directory server.
+  private BooleanArgument helpSASL                    = null;
   private BooleanArgument promptForBindPassword       = null;
   private BooleanArgument promptForKeyStorePassword   = null;
   private BooleanArgument promptForTrustStorePassword = null;
@@ -298,6 +299,7 @@ public abstract class LDAPCommandLineTool
     if (includeAuthenticationArgs)
     {
       ids.add("saslOption");
+      ids.add("helpSASL");
     }
 
     return Collections.unmodifiableSet(ids);
@@ -551,6 +553,20 @@ public abstract class LDAPCommandLineTool
         saslOption.addLongIdentifier("sasl-option");
       }
       parser.addArgument(saslOption);
+
+      if (supportsSASLHelp())
+      {
+        helpSASL = new BooleanArgument(null, "helpSASL",
+             INFO_LDAP_TOOL_DESCRIPTION_HELP_SASL.get());
+        helpSASL.setArgumentGroupName(argumentGroup);
+        if (includeAlternateLongIdentifiers())
+        {
+          helpSASL.addLongIdentifier("help-sasl");
+        }
+        helpSASL.setUsageArgument(true);
+        parser.addArgument(helpSASL);
+        setHelpSASLArgument(helpSASL);
+      }
     }
 
 
@@ -661,6 +677,21 @@ public abstract class LDAPCommandLineTool
    *          not.
    */
   protected boolean supportsAuthentication()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether this tool should provide a "--help-sasl" argument that
+   * provides information about the supported SASL mechanisms and their
+   * associated properties.
+   *
+   * @return  {@code true} if this tool should provide a "--help-sasl" argument,
+   *          or {@code false} if not.
+   */
+  protected boolean supportsSASLHelp()
   {
     return true;
   }

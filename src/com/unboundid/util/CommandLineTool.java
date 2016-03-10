@@ -96,6 +96,9 @@ public abstract class CommandLineTool
   // The argument used to request tool help.
   private BooleanArgument helpArgument = null;
 
+  // The argument used to request help about SASL authentication.
+  private BooleanArgument helpSASLArgument = null;
+
   // The argument used to request interactive mode.
   private BooleanArgument interactiveArgument = null;
 
@@ -191,6 +194,12 @@ public abstract class CommandLineTool
       {
         out(parser.getUsageString(StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
         displayExampleUsages();
+        return ResultCode.SUCCESS;
+      }
+
+      if ((helpSASLArgument != null) && helpSASLArgument.isPresent())
+      {
+        out(SASLUtils.getUsageString(StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
         return ResultCode.SUCCESS;
       }
 
@@ -535,6 +544,20 @@ public abstract class CommandLineTool
     }
 
     return parser;
+  }
+
+
+
+  /**
+   * Specifies the argument that is used to retrieve usage information about
+   * SASL authentication.
+   *
+   * @param  helpSASLArgument  The argument that is used to retrieve usage
+   *                           information about SASL authentication.
+   */
+  void setHelpSASLArgument(final BooleanArgument helpSASLArgument)
+  {
+    this.helpSASLArgument = helpSASLArgument;
   }
 
 

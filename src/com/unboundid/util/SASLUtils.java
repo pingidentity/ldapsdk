@@ -1021,4 +1021,113 @@ public final class SASLUtils
            ERR_SASL_OPTION_MALFORMED_BOOLEAN_VALUE.get(o));
     }
   }
+
+
+
+  /**
+   * Retrieves a string representation of the SASL usage information.  This will
+   * include the supported SASL mechanisms and the properties that may be used
+   * with each.
+   *
+   * @param  maxWidth  The maximum line width to use for the output.  If this is
+   *                   less than or equal to zero, then no wrapping will be
+   *                   performed.
+   *
+   * @return  A string representation of the usage information
+   */
+  public static String getUsageString(final int maxWidth)
+  {
+    final StringBuilder buffer = new StringBuilder();
+
+    for (final String line : getUsage(maxWidth))
+    {
+      buffer.append(line);
+      buffer.append(EOL);
+    }
+
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Retrieves lines that make up the SASL usage information, optionally
+   * wrapping long lines.
+   *
+   * @param  maxWidth  The maximum line width to use for the output.  If this is
+   *                   less than or equal to zero, then no wrapping will be
+   *                   performed.
+   *
+   * @return  The lines that make up the SASL usage information.
+   */
+  public static List<String> getUsage(final int maxWidth)
+  {
+    final ArrayList<String> lines = new ArrayList<String>(100);
+
+    boolean first = true;
+    for (final SASLMechanismInfo i : getSupportedSASLMechanisms())
+    {
+      if (first)
+      {
+        first = false;
+      }
+      else
+      {
+        lines.add("");
+        lines.add("");
+      }
+
+      lines.addAll(
+           wrapLine(INFO_SASL_HELP_MECHANISM.get(i.getName()), maxWidth));
+      lines.add("");
+
+      for (final String line : wrapLine(i.getDescription(), maxWidth - 4))
+      {
+        lines.add("  " + line);
+      }
+      lines.add("");
+
+      for (final String line :
+           wrapLine(INFO_SASL_HELP_MECHANISM_OPTIONS.get(i.getName()),
+                maxWidth - 4))
+      {
+        lines.add("  " + line);
+      }
+
+      if (i.acceptsPassword())
+      {
+        lines.add("");
+        if (i.requiresPassword())
+        {
+          for (final String line :
+               wrapLine(INFO_SASL_HELP_PASSWORD_REQUIRED.get(i.getName()),
+                    maxWidth - 4))
+          {
+            lines.add("  " + line);
+          }
+        }
+        else
+        {
+          for (final String line :
+               wrapLine(INFO_SASL_HELP_PASSWORD_OPTIONAL.get(i.getName()),
+                    maxWidth - 4))
+          {
+            lines.add("  " + line);
+          }
+        }
+      }
+
+      for (final SASLOption o : i.getOptions())
+      {
+        lines.add("");
+        lines.add("  * " + o.getName());
+        for (final String line : wrapLine(o.getDescription(), maxWidth - 14))
+        {
+          lines.add("       " + line);
+        }
+      }
+    }
+
+    return lines;
+  }
 }
