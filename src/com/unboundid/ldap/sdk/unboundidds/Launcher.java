@@ -70,9 +70,9 @@ import com.unboundid.util.ThreadSafetyLevel;
  *   <LI>authrate -- Launch the {@link AuthRate} tool.</LI>
  *   <LI>deliver-one-time-password -- Launch the
  *       {@link DeliverOneTimePassword} tool.</LI>
+ *   <LI>deliver-password-reset-token -- Launch the
+ *       {@link DeliverPasswordResetToken} tool.</LI>
  *   <LI>dump-dns -- Launch the {@link DumpDNs} tool.</LI>
- *   <LI>in-memory-directory-server -- Launch the
- *       {@link InMemoryDirectoryServerTool} tool.</LI>
  *   <LI>generate-schema-from-source -- Launch the
  *       {@link GenerateSchemaFromSource} tool.</LI>
  *   <LI>generate-source-from-schema -- Launch the
@@ -89,6 +89,8 @@ import com.unboundid.util.ThreadSafetyLevel;
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>move-subtree -- Launch the {@link MoveSubtree} tool.</LI>
+ *   <LI>register-yubikey-otp-device -- Launch the
+ *       {@link RegisterYubiKeyOTPDevice} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
  *   <LI>search-and-mod-rate -- Launch the {@link SearchAndModRate} tool.</LI>
  *   <LI>subtree-accessibility -- Launch the {@link SubtreeAccessibility}
@@ -170,6 +172,11 @@ public final class Launcher
     {
       return DeliverOneTimePassword.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("deliver-password-reset-token"))
+    {
+      return DeliverPasswordResetToken.main(remainingArgs, outStream,
+           errStream);
+    }
     else if (firstArg.equals("dump-dns"))
     {
       return DumpDNs.main(remainingArgs, outStream, errStream);
@@ -221,6 +228,10 @@ public final class Launcher
     {
       return MoveSubtree.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("register-yubikey-otp-device"))
+    {
+      return RegisterYubiKeyOTPDevice.main(remainingArgs, outStream, errStream);
+    }
     else if (firstArg.equals("searchrate"))
     {
       return SearchRate.main(remainingArgs, outStream, errStream);
@@ -250,6 +261,7 @@ public final class Launcher
         err.println("Supported tool names include:");
         err.println("     authrate");
         err.println("     deliver-one-time-password");
+        err.println("     deliver-password-reset-token");
         err.println("     dump-dns");
         err.println("     identify-references-to-missing-entries");
         err.println("     identify-unique-attribute-conflicts");
@@ -262,6 +274,7 @@ public final class Launcher
         err.println("     ldap-debugger");
         err.println("     modrate");
         err.println("     move-subtree");
+        err.println("     register-yubikey-otp-device");
         err.println("     searchrate");
         err.println("     search-and-mod-rate");
         err.println("     subtree-accessibility");

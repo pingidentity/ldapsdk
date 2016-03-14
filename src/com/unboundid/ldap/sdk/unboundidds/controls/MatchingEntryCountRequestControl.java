@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import com.unboundid.asn1.ASN1Boolean;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Integer;
+import com.unboundid.asn1.ASN1Long;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.Control;
@@ -80,10 +81,13 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * encoding:
  * <PRE>
  *   MatchingEntryCountRequest ::= SEQUENCE {
- *        maxCandidatesToExamine       [0] INTEGER (0 .. MAX) DEFAULT 0,
- *        alwaysExamineCandidates      [1] BOOLEAN DEFAULT FALSE,
- *        processSearchIfUnindexed     [2] BOOLEAN DEFAULT FALSE,
- *        includeDebugInfo             [3] BOOLEAN DEFAULT FALSE,
+ *        maxCandidatesToExamine           [0] INTEGER (0 .. MAX) DEFAULT 0,
+ *        alwaysExamineCandidates          [1] BOOLEAN DEFAULT FALSE,
+ *        processSearchIfUnindexed         [2] BOOLEAN DEFAULT FALSE,
+ *        includeDebugInfo                 [3] BOOLEAN DEFAULT FALSE,
+ *        skipResolvingExplodedIndexes     [4] BOOLEAN DEFAULT FALSE,
+ *        fastShortCircuitThreshold        [5] INTEGER (0 .. MAX) OPTIONAL,
+ *        slowShortCircuitThreshold        [6] INTEGER (0 .. MAX) OPTIONAL,
  *        ... }
  * </PRE>
  *
@@ -137,9 +141,36 @@ public final class MatchingEntryCountRequestControl
 
 
   /**
+   * The BER type for the element that indicates whether to skip resolving
+   * exploded indexes if the number of matching entries is known.
+   */
+  private static final byte TYPE_SKIP_RESOLVING_EXPLODED_INDEXES = (byte) 0x84;
+
+
+
+  /**
+   * The BER type for the element that specifies the short-circuit threshold to
+   * use when performing index processing that is expected to be very fast
+   * (e.g., filter components that can be evaluated with a single index lookup,
+   * like presence, equality, and approximate match components).
+   */
+  private static final byte TYPE_FAST_SHORT_CIRCUIT_THRESHOLD = (byte) 0x85;
+
+
+
+  /**
+   * The BER type for the element that specifies the short-circuit threshold to
+   * use when evaluating filter components that are not covered by the fast
+   * short-circuit threshold.
+   */
+  private static final byte TYPE_SLOW_SHORT_CIRCUIT_THRESHOLD = (byte) 0x86;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -6077150575658563941L;
+  private static final long serialVersionUID = 7981532783303485308L;
 
 
 
@@ -156,10 +187,22 @@ public final class MatchingEntryCountRequestControl
   // is not indexed.
   private final boolean processSearchIfUnindexed;
 
+  // Indicates whether the server should skip retrieving the entry ID set for
+  // an exploded index key if the number of matching entries is known.
+  private final boolean skipResolvingExplodedIndexes;
+
   // The maximum number of candidate entries that should be examined if it is
   // not possible to obtain an exact count using only information contained in
   // the server indexes.
   private final int maxCandidatesToExamine;
+
+  // The short-circuit threshold that the server will use when evaluating filter
+  // components that are not categorized as fast.
+  private final Long slowShortCircuitThreshold;
+
+  // The short-circuit threshold that the server will for index processing that
+  // should be very fast.
+  private final Long fastShortCircuitThreshold;
 
 
 
@@ -280,16 +323,213 @@ public final class MatchingEntryCountRequestControl
               final boolean processSearchIfUnindexed,
               final boolean includeDebugInfo)
   {
+    this(isCritical, maxCandidatesToExamine, alwaysExamineCandidates,
+         processSearchIfUnindexed, false, null, null, includeDebugInfo);
+  }
+
+
+
+  /**
+   * Creates a new matching entry count request control with the provided
+   * information.
+   *
+   * @param  isCritical                    Indicates whether this control should
+   *                                       be critical.
+   * @param  maxCandidatesToExamine        The maximum number of candidate
+   *                                       entries that the server should
+   *                                       retrieve and examine to determine
+   *                                       whether they actually match the
+   *                                       search criteria.  If the search is
+   *                                       partially indexed and the total
+   *                                       number of candidate entries is less
+   *                                       than or equal to this value, then
+   *                                       these candidate entries will be
+   *                                       examined to determine which of them
+   *                                       match the search criteria so that an
+   *                                       accurate count can be determined.  If
+   *                                       the search is fully indexed such that
+   *                                       the all candidate entries are known
+   *                                       to match the search criteria, then
+   *                                       the server may still examine each of
+   *                                       these entries if the number of
+   *                                       candidates is less than
+   *                                       {@code maxCandidatesToExamine} and
+   *                                       {@code alwaysExamineCandidates} is
+   *                                       true in order to allow the entry
+   *                                       count that is returned to be
+   *                                       restricted to only those entries that
+   *                                       would actually be returned to the
+   *                                       client.  This will be ignored for
+   *                                       searches that are completely
+   *                                       unindexed.
+   *                                       <BR><BR>
+   *                                       The value for this argument must be
+   *                                       greater than or equal to zero.  If it
+   *                                       is zero, then the server will not
+   *                                       examine any entries, so a
+   *                                       partially-indexed search will only be
+   *                                       able to return a count that is an
+   *                                       upper bound, and a fully-indexed
+   *                                       search will only be able to return an
+   *                                       unexamined exact count.  If there
+   *                                       should be no bound on the number of
+   *                                       entries to retrieve, then a value of
+   *                                       {@code Integer.MAX_VALUE} may be
+   *                                       specified.
+   * @param  alwaysExamineCandidates       Indicates whether the server should
+   *                                       always examine candidate entries to
+   *                                       determine whether they would actually
+   *                                       be returned to the client in a normal
+   *                                       search.  This will only be used for
+   *                                       fully-indexed searches in which the
+   *                                       set of matching entries is known.  If
+   *                                       the value is {@code true} and the
+   *                                       number of candidates is smaller than
+   *                                       {@code maxCandidatesToExamine}, then
+   *                                       each matching entry will be
+   *                                       internally retrieved and examined to
+   *                                       determine whether it would be
+   *                                       returned to the client based on the
+   *                                       details of the search request (e.g.,
+   *                                       whether the requester has permission
+   *                                       to access the entry, whether it's an
+   *                                       LDAP subentry, replication conflict
+   *                                       entry, soft-deleted entry, or other
+   *                                       type of entry that is normally
+   *                                       hidden) so that an exact count can be
+   *                                       returned.  If this is {@code false}
+   *                                       or the number of candidates exceeds
+   *                                       {@code maxCandidatesToExamine}, then
+   *                                       the server will only be able to
+   *                                       return an unexamined count which may
+   *                                       include entries that match the search
+   *                                       criteria but that would not normally
+   *                                       be returned to the requester.
+   * @param  processSearchIfUnindexed      Indicates whether the server should
+   *                                       attempt to determine the number of
+   *                                       matching entries if the search
+   *                                       criteria is completely unindexed.  If
+   *                                       this is {@code true} and the
+   *                                       requester has the unindexed-search
+   *                                       privilege, then the server will
+   *                                       iterate through all entries in the
+   *                                       scope (which may take a very long
+   *                                       time to complete) in order to to
+   *                                       determine which of them match the
+   *                                       search criteria so that it can return
+   *                                       an accurate count.  If this is
+   *                                       {@code false} or the requester does
+   *                                       not have the unindexed-search
+   *                                       privilege, then the server will not
+   *                                       spend any time attempting to
+   *                                       determine the number of matching
+   *                                       entries and will instead return a
+   *                                       matching entry count response control
+   *                                       indicating that the entry count is
+   *                                       unknown.
+   * @param  skipResolvingExplodedIndexes  Indicates whether the server should
+   *                                       skip the effort of actually
+   *                                       retrieving the candidate entry IDs
+   *                                       for exploded index keys in which the
+   *                                       number of matching entries is known.
+   *                                       Skipping the process of retrieving
+   *                                       the candidate entry IDs can allow the
+   *                                       server to more quickly estimate the
+   *                                       matching entry count, but the
+   *                                       resulting estimate may be less
+   *                                       accurate.
+   * @param  fastShortCircuitThreshold     Specifies the short-circuit threshold
+   *                                       that the server should use when
+   *                                       determining whether to continue with
+   *                                       index processing in an attempt to
+   *                                       further pare down a candidate set
+   *                                       that already has a defined superset
+   *                                       of the entries that actually match
+   *                                       the filter.  Short-circuiting may
+   *                                       allow the server to skip
+   *                                       potentially-costly index processing
+   *                                       and allow it to obtain the matching
+   *                                       entry count estimate faster, but the
+   *                                       resulting estimate may be less
+   *                                       accurate.  The fast short-circuit
+   *                                       threshold will be used for index
+   *                                       processing that is expected to be
+   *                                       very fast (e.g., when performing
+   *                                       index lookups for presence, equality,
+   *                                       and approximate-match components,
+   *                                       which should only require accessing a
+   *                                       single index key).  A value that is
+   *                                       less than or equal to zero indicates
+   *                                       that the server should never short
+   *                                       circuit when performing fast index
+   *                                       processing.  A value of {@code null}
+   *                                       indicates that the server should
+   *                                       determine the appropriate fast
+   *                                       short-circuit threshold to use.
+   * @param  slowShortCircuitThreshold     Specifies the short-circuit threshold
+   *                                       that the server should use when
+   *                                       determining whether to continue with
+   *                                       index processing for evaluation that
+   *                                       may be more expensive than what falls
+   *                                       into the "fast" category (e.g.,
+   *                                       substring and range filter
+   *                                       components).  A value that is less
+   *                                       than or equal to zero indicates that
+   *                                       the server should never short circuit
+   *                                       when performing slow index
+   *                                       processing.  A value of {@code null}
+   *                                       indicates that the server should
+   *                                       determine the appropriate fast
+   *                                       short-circuit threshold to use.
+   * @param  includeDebugInfo              Indicates whether the server should
+   *                                       include debug information in the
+   *                                       response that may help better
+   *                                       understand how it arrived at the
+   *                                       result.  If any debug information is
+   *                                       returned, it will be in the form of
+   *                                       human-readable text that is not
+   *                                       intended to be machine-parsable.
+   */
+  public MatchingEntryCountRequestControl(final boolean isCritical,
+              final int maxCandidatesToExamine,
+              final boolean alwaysExamineCandidates,
+              final boolean processSearchIfUnindexed,
+              final boolean skipResolvingExplodedIndexes,
+              final Long fastShortCircuitThreshold,
+              final Long slowShortCircuitThreshold,
+              final boolean includeDebugInfo)
+  {
     super(MATCHING_ENTRY_COUNT_REQUEST_OID, isCritical,
          encodeValue(maxCandidatesToExamine, alwaysExamineCandidates,
-              processSearchIfUnindexed, includeDebugInfo));
+              processSearchIfUnindexed, skipResolvingExplodedIndexes,
+              fastShortCircuitThreshold, slowShortCircuitThreshold,
+              includeDebugInfo));
 
     Validator.ensureTrue(maxCandidatesToExamine >= 0);
 
-    this.maxCandidatesToExamine   = maxCandidatesToExamine;
-    this.alwaysExamineCandidates  = alwaysExamineCandidates;
-    this.processSearchIfUnindexed = processSearchIfUnindexed;
-    this.includeDebugInfo         = includeDebugInfo;
+    this.maxCandidatesToExamine       = maxCandidatesToExamine;
+    this.alwaysExamineCandidates      = alwaysExamineCandidates;
+    this.processSearchIfUnindexed     = processSearchIfUnindexed;
+    this.skipResolvingExplodedIndexes = skipResolvingExplodedIndexes;
+    this.includeDebugInfo             = includeDebugInfo;
+
+    if (fastShortCircuitThreshold == null)
+    {
+      this.fastShortCircuitThreshold = null;
+    }
+    else
+    {
+      this.fastShortCircuitThreshold = Math.max(0L, fastShortCircuitThreshold);
+    }
+
+    if (slowShortCircuitThreshold == null)
+    {
+      this.slowShortCircuitThreshold = null;
+    }
+    else
+    {
+      this.slowShortCircuitThreshold = Math.max(0L, slowShortCircuitThreshold);
+    }
   }
 
 
@@ -321,7 +561,10 @@ public final class MatchingEntryCountRequestControl
       boolean alwaysExamine    = false;
       boolean debug            = false;
       boolean processUnindexed = false;
+      boolean skipExploded     = false;
       int     maxCandidates    = 0;
+      Long    fastSCThreshold  = null;
+      Long    slowSCThreshold  = null;
       final ASN1Element[] elements =
            ASN1Sequence.decodeAsSequence(value.getValue()).elements();
       for (final ASN1Element e : elements)
@@ -349,6 +592,20 @@ public final class MatchingEntryCountRequestControl
             debug = ASN1Boolean.decodeAsBoolean(e).booleanValue();
             break;
 
+          case TYPE_SKIP_RESOLVING_EXPLODED_INDEXES:
+            skipExploded = ASN1Boolean.decodeAsBoolean(e).booleanValue();
+            break;
+
+          case TYPE_FAST_SHORT_CIRCUIT_THRESHOLD:
+            fastSCThreshold =
+                 Math.max(0L, ASN1Long.decodeAsLong(e).longValue());
+            break;
+
+          case TYPE_SLOW_SHORT_CIRCUIT_THRESHOLD:
+            slowSCThreshold =
+                 Math.max(0L, ASN1Long.decodeAsLong(e).longValue());
+            break;
+
           default:
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_MATCHING_ENTRY_COUNT_REQUEST_INVALID_ELEMENT_TYPE.get(
@@ -356,10 +613,13 @@ public final class MatchingEntryCountRequestControl
         }
       }
 
-      maxCandidatesToExamine   = maxCandidates;
-      alwaysExamineCandidates  = alwaysExamine;
-      processSearchIfUnindexed = processUnindexed;
-      includeDebugInfo         = debug;
+      maxCandidatesToExamine       = maxCandidates;
+      alwaysExamineCandidates      = alwaysExamine;
+      processSearchIfUnindexed     = processUnindexed;
+      includeDebugInfo             = debug;
+      skipResolvingExplodedIndexes = skipExploded;
+      fastShortCircuitThreshold    = fastSCThreshold;
+      slowShortCircuitThreshold    = slowSCThreshold;
     }
     catch (final LDAPException le)
     {
@@ -382,31 +642,51 @@ public final class MatchingEntryCountRequestControl
    * Encodes the provided information into an ASN.1 octet string suitable for
    * use as the control value.
    *
-   * @param  maxCandidatesToExamine    The maximum number of candidate entries
-   *                                   that the server should retrieve and
-   *                                   examine to determine whether they
-   *                                   actually match the search criteria.
-   * @param  alwaysExamineCandidates   Indicates whether the server should
-   *                                   always examine candidate entries to
-   *                                   determine whether they would actually
-   *                                   be returned to the client in a normal
-   *                                   search with the same criteria.
-   * @param  processSearchIfUnindexed  Indicates whether the server should
-   *                                   attempt to determine the number of
-   *                                   matching entries if the search criteria
-   *                                   is completely unindexed.
-   * @param  includeDebugInfo          Indicates whether the server should
-   *                                   include debug information in the response
-   *                                   that may help better understand how it
-   *                                   arrived at the result.
+   * @param  maxCandidatesToExamine        The maximum number of candidate
+   *                                       entries that the server should
+   *                                       retrieve and examine to determine
+   *                                       whether they actually match the
+   *                                       search criteria.
+   * @param  alwaysExamineCandidates       Indicates whether the server should
+   *                                       always examine candidate entries to
+   *                                       determine whether they would actually
+   *                                       be returned to the client in a normal
+   *                                       search with the same criteria.
+   * @param  processSearchIfUnindexed      Indicates whether the server should
+   *                                       attempt to determine the number of
+   *                                       matching entries if the search
+   *                                       criteria is completely unindexed.
+   * @param  skipResolvingExplodedIndexes  Indicates whether the server should
+   *                                       skip the effort of actually
+   *                                       retrieving the candidate entry IDs
+   *                                       for exploded index keys in which the
+   *                                       number of matching entries is known.
+   * @param  fastShortCircuitThreshold     Specifies the short-circuit threshold
+   *                                       that the server should use when
+   *                                       determining whether to continue with
+   *                                       index processing for fast index
+   *                                       processing.
+   * @param  slowShortCircuitThreshold     Specifies the short-circuit threshold
+   *                                       that the server should use when
+   *                                       determining whether to continue with
+   *                                       index processing for slow index
+   *                                       processing.
+   * @param  includeDebugInfo              Indicates whether the server should
+   *                                       include debug information in the
+   *                                       response that may help better
+   *                                       understand how it arrived at the
+   *                                       result.
    *
    * @return  The ASN.1 octet string containing the encoded control value.
    */
   private static ASN1OctetString encodeValue(
-                                      final int maxCandidatesToExamine,
-                                      final boolean alwaysExamineCandidates,
-                                      final boolean processSearchIfUnindexed,
-                                      final boolean includeDebugInfo)
+                      final int maxCandidatesToExamine,
+                      final boolean alwaysExamineCandidates,
+                      final boolean processSearchIfUnindexed,
+                      final boolean skipResolvingExplodedIndexes,
+                      final Long fastShortCircuitThreshold,
+                      final Long slowShortCircuitThreshold,
+                      final boolean includeDebugInfo)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);
 
@@ -429,6 +709,23 @@ public final class MatchingEntryCountRequestControl
     if (includeDebugInfo)
     {
       elements.add(new ASN1Boolean(TYPE_INCLUDE_DEBUG_INFO, true));
+    }
+
+    if (skipResolvingExplodedIndexes)
+    {
+      elements.add(new ASN1Boolean(TYPE_SKIP_RESOLVING_EXPLODED_INDEXES, true));
+    }
+
+    if (fastShortCircuitThreshold != null)
+    {
+      elements.add(new ASN1Long(TYPE_FAST_SHORT_CIRCUIT_THRESHOLD,
+           Math.max(0L, fastShortCircuitThreshold)));
+    }
+
+    if (slowShortCircuitThreshold != null)
+    {
+      elements.add(new ASN1Long(TYPE_SLOW_SHORT_CIRCUIT_THRESHOLD,
+           Math.max(0L, slowShortCircuitThreshold)));
     }
 
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
@@ -511,6 +808,91 @@ public final class MatchingEntryCountRequestControl
 
 
   /**
+   * Indicates whether the server should skip the effort of actually retrieving
+   * the candidate entry IDs for exploded index keys in which the number of
+   * matching entries is known.  Skipping the process of accessing an exploded
+   * index can allow the server to more quickly arrive at the matching entry
+   * count estimate, but that estimate may be less accurate than if it had
+   * actually retrieved those candidates.
+   *
+   * @return  {@code true} if the server should skip the effort of actually
+   *          retrieving the candidate entry IDs for exploded index keys in
+   *          which the number of matching entries is known, or {@code false} if
+   *          it may retrieve candidates from an exploded index in the course of
+   *          determining the matching entry count.
+   */
+  public boolean skipResolvingExplodedIndexes()
+  {
+    return skipResolvingExplodedIndexes;
+  }
+
+
+
+  /**
+   * Retrieves the short-circuit threshold that the server should use when
+   * determining whether to continue with index processing in an attempt to
+   * further pare down a candidate set that already has a defined superset of
+   * the entries that actually match the filter.  If the number of entries in
+   * that candidate set is less than or equal to the short-circuit threshold,
+   * then the server may simply use that candidate set in the course of
+   * determining the matching entry count, even if there may be additional
+   * processing that can be performed (e.g., further filter components to
+   * evaluate) that may allow the server to pare down the results even further.
+   * Short-circuiting may allow the server to obtain the matching entry count
+   * estimate faster, but may also cause the resulting estimate to be less
+   * accurate.
+   * <BR><BR>
+   * The value returned by this method will be used for cases in which the
+   * server is performing the fastest types of index processing.  For example,
+   * this may include evaluating presence, equality, or approximate match
+   * components, which should only require retrieving a single index key to
+   * obtain the candidate set.
+   *
+   * @return  The short-circuit threshold that should be used for fast index
+   *          processing, zero if the server should not short-circuit at all
+   *          during fast index processing, or {@code null} if the server should
+   *          determine the appropriate fast short-circuit threshold to use.
+   */
+  public Long getFastShortCircuitThreshold()
+  {
+    return fastShortCircuitThreshold;
+  }
+
+
+
+  /**
+   * Retrieves the short-circuit threshold that the server should use when
+   * determining whether to continue with index processing in an attempt to
+   * further pare down a candidate set that already has a defined superset of
+   * the entries that actually match the filter.  If the number of entries in
+   * that candidate set is less than or equal to the short-circuit threshold,
+   * then the server may simply use that candidate set in the course of
+   * determining the matching entry count, even if there may be additional
+   * processing that can be performed (e.g., further filter components to
+   * evaluate) that may allow the server to pare down the results even further.
+   * Short-circuiting may allow the server to obtain the matching entry count
+   * estimate faster, but may also cause the resulting estimate to be less
+   * accurate.
+   * <BR><BR>
+   * The value returned by this method will be used for cases in which the
+   * server is performing index processing that is not considered to be among
+   * the fastest types of processing.  For example, this may include evaluating
+   * substring and range components, as they may require retrieving many index
+   * keys to obtain the full candidate set.
+   *
+   * @return  The short-circuit threshold that should be used for slow index
+   *          processing, or zero if the server should not short-circuit at all
+   *          during slow index processing, or {@code null} if the server should
+   *          determine the appropriate slow short-circuit threshold to use.
+   */
+  public Long getSlowShortCircuitThreshold()
+  {
+    return slowShortCircuitThreshold;
+  }
+
+
+
+  /**
    * Indicates whether the server should include debug information in the
    * response control that provides additional information about how the server
    * arrived at the result.  If debug information is to be provided, it will be
@@ -551,6 +933,12 @@ public final class MatchingEntryCountRequestControl
     buffer.append(alwaysExamineCandidates);
     buffer.append(", processSearchIfUnindexed=");
     buffer.append(processSearchIfUnindexed);
+    buffer.append(", skipResolvingExplodedIndexes=");
+    buffer.append(skipResolvingExplodedIndexes);
+    buffer.append(", fastShortCircuitThreshold=");
+    buffer.append(fastShortCircuitThreshold);
+    buffer.append(", slowShortCircuitThreshold=");
+    buffer.append(slowShortCircuitThreshold);
     buffer.append(", includeDebugInfo=");
     buffer.append(includeDebugInfo);
     buffer.append(')');

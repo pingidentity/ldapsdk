@@ -121,6 +121,24 @@ public final class SASLHelper
               new SASLOption(SASL_OPTION_TOTP_PASSWORD,
                    INFO_SASL_UNBOUNDID_TOTP_OPTION_TOTP_PASSWORD.get(), true,
                    false)));
+
+    saslMap.put(
+         StaticUtils.toLowerCase(
+              UnboundIDYubiKeyOTPBindRequest.
+                   UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME),
+         new SASLMechanismInfo(
+              UnboundIDYubiKeyOTPBindRequest.
+                   UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME,
+              INFO_SASL_UNBOUNDID_YUBIKEY_OTP_DESCRIPTION.get(), true, false,
+              new SASLOption(SASLUtils.SASL_OPTION_AUTH_ID,
+                   INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_AUTH_ID.get(), true,
+                   false),
+              new SASLOption(SASLUtils.SASL_OPTION_AUTHZ_ID,
+                   INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_AUTHZ_ID.get(), false,
+                   false),
+              new SASLOption(SASL_OPTION_OTP,
+                   INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_OTP.get(), true,
+                   false)));
   }
 
 
@@ -170,6 +188,11 @@ public final class SASLHelper
              UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME))
     {
       return createUNBOUNDIDTOTPBindRequest(password, options, controls);
+    }
+    else if (mechanism.equalsIgnoreCase(
+         UnboundIDYubiKeyOTPBindRequest.UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME))
+    {
+      return createUNBOUNDIDYUBIKEYOTPBindRequest(password, options, controls);
     }
     else
     {
@@ -290,6 +313,61 @@ public final class SASLHelper
          UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME);
 
     return new SingleUseTOTPBindRequest(authID, authzID, totpPassword, password,
+         controls);
+  }
+
+
+
+  /**
+   * Creates a SASL UNBOUNDID-YUBIKEY-OTP bind request using the provided
+   * password and set of options.
+   *
+   * @param  password  The password to use for the bind request.
+   * @param  options   The set of SASL options for the bind request.
+   * @param  controls  The set of controls to include in the request.
+   *
+   * @return  The SASL UNBOUNDID-YUBIKEY-OTP bind request that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  private static UnboundIDYubiKeyOTPBindRequest
+                      createUNBOUNDIDYUBIKEYOTPBindRequest(
+                           final byte[] password,
+                           final Map<String,String> options,
+                           final Control... controls)
+          throws LDAPException
+  {
+    // The authID option is required.
+    final String authID =
+         options.remove(StaticUtils.toLowerCase(SASLUtils.SASL_OPTION_AUTH_ID));
+    if (authID == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASLUtils.SASL_OPTION_AUTH_ID,
+                UnboundIDYubiKeyOTPBindRequest.
+                     UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME));
+    }
+
+    // The otp option is required.
+    final String otp = options.remove(StaticUtils.toLowerCase(SASL_OPTION_OTP));
+    if (otp == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_OTP,
+                UnboundIDYubiKeyOTPBindRequest.
+                     UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME));
+    }
+
+    // The authzID option is optional.
+    final String authzID = options.remove(StaticUtils.toLowerCase(
+         SASLUtils.SASL_OPTION_AUTHZ_ID));
+
+    // Ensure no unsupported options were provided.
+    SASLUtils.ensureNoUnsupportedOptions(options,
+         UnboundIDYubiKeyOTPBindRequest.UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME);
+
+    return new UnboundIDYubiKeyOTPBindRequest(authID, authzID, password, otp,
          controls);
   }
 }
