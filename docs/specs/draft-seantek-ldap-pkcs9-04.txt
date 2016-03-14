@@ -4,13 +4,13 @@
 
 Network Working Group                                         S. Leonard
 Internet-Draft                                             Penango, Inc.
-Intended Status: Informational                         September 9, 2015
-Expires: March 12, 2016                                                 
+Intended Status: Informational                            March 12, 2016
+Expires: September 13, 2016                                             
 
 
               Lightweight Directory Access Protocol (LDAP)
                        Registrations for PKCS #9
-                      draft-seantek-ldap-pkcs9-03
+                      draft-seantek-ldap-pkcs9-04
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time. It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 12, 2016.
+   This Internet-Draft will expire on September 13, 2016.
 
 Copyright Notice
 
@@ -55,7 +55,7 @@ Copyright Notice
 
 Leonard                      Informational                      [Page 1]
 
-Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
+Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
 
 1.  Introduction
@@ -111,7 +111,7 @@ Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
 
 Leonard                      Informational                      [Page 2]
 
-Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
+Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
 
 4.1.  Semantics of dateOfBirth Clarified
@@ -167,7 +167,7 @@ Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
 
 Leonard                      Informational                      [Page 3]
 
-Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
+Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
 
                Short Descriptor     Regular Descriptor
@@ -216,15 +216,17 @@ Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
    in this technical specification, and shall update the LDAP Descriptor
    registry [RFC4520], as indicated below.
 
-7.1.  Object Identifier Registration
+
 
  
 
 
 Leonard                      Informational                      [Page 4]
 
-Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
+Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
+
+7.1.  Object Identifier Registration
 
       Subject: Request for LDAP OID Registration
       Person & email address to contact for further information:
@@ -272,16 +274,15 @@ Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
       countryOfResidence           A 1.3.6.1.5.5.7.9.5
 
       pnym                         A 2.5.4.65
-
-      contentType                  A 1.2.840.113549.1.9.3
  
 
 
 Leonard                      Informational                      [Page 5]
 
-Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
+Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
 
+      contentType                  A 1.2.840.113549.1.9.3
       messageDigest                A 1.2.840.113549.1.9.4
       signingTime                  A 1.2.840.113549.1.9.5
       counterSignature             A 1.2.840.113549.1.9.6
@@ -329,13 +330,12 @@ Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
    [PKCS9]    Nystrom, M. and Kaliski, B., "PKCS #9: Selected Object
               Classes and Attribute Types Version 2.0", RFC 2985,
               November 2000.
-
  
 
 
 Leonard                      Informational                      [Page 6]
 
-Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
+Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
 
    [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
@@ -371,37 +371,6 @@ Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
               Handling", RFC 5750, January 2010.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-Leonard                      Informational                      [Page 7]
-
-Internet-Draft         LDAP PKCS #9 Registrations      September 9, 2015
-
-
-Appendix A.  Acknowledgement of Non-Publication Proposal
-
-   This draft-03 is virtually unchanged from draft-02. However, the
-   prior Expert Reviewer for draft-02 privately suggested that the
-   descriptors of [PKCS9] could be registered per [RFC4520] without
-   publishing an RFC. This appendix acknowledges this possibility.
-
-
 Author's Address
 
    Sean Leonard
@@ -420,29 +389,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Leonard                      Informational                      [Page 8]
+Leonard                      Informational                      [Page 7]
