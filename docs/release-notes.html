@@ -10,6 +10,83 @@ ${TARGET="offline"}                    <br>
 
               <h2>Standard Edition Release Notes</h2>
 
+              <h3>Version 3.1.1</h3>
+
+              <p>
+                The following changes were made between the 3.1.0 and 3.1.1 releases of the
+                Standard Edition:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the <tt>AddRequest</tt> constructor that allows you to create an add
+                  request from lines that compose the LDIF representation so that you can use an
+                  LDIF add change record (including the "<tt>changetype: add</tt>" line, and
+                  optionally including one or more controls) as an alternative to providing the
+                  LDIF representation of an entry.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added two new LDAP listener request handler implementations that can be used to
+                  limit the load that LDAP clients are able to impose on the server.  The
+                  concurrent request limiter implementation imposes a limit on the number of
+                  requests that may be processed simultaneously.  The rate limiter implementation
+                  imposes a limit on the maximum rate of operations that may be processed in a
+                  particular time period.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in which the LDAP connection pool statistics were not always
+                  properly updated after an unsuccessful attempt to establish a new connection for
+                  use in the pool.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated LDAP command-line tools to provide a new "<tt>--helpSASL</tt>" argument
+                  that can be used to display information about the supported SASL mechanisms and
+                  the SASL options available for each mechanism.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the command-line argument parser to the use of a properties file for
+                  obtaining default values for a specified set of arguments.  This can help
+                  administrators define a properties file with commonly-used argument values
+                  (e.g., LDAP server address, port, TLS settings, bind DN, etc.) so that they do
+                  not need to be explicitly specified in the set of arguments when running a tool.
+                  Command-line tools can choose to enable or disable this feature, and tools that
+                  enable it will also have an option to generate a template file that makes it
+                  easier to specify the desired properties for that file.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the command-line argument parser to support assigning group names to
+                  arguments.  This allows related arguments to be grouped together in the usage
+                  information obtained with the "<tt>--help</tt>" argument.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated command-line tools to provide alternate long identifiers for a number of
+                  arguments.  This primarily covers the difference between camelCase versus
+                  dash-separated words (e.g., what was previously only available as
+                  "<tt>--bindDN</tt>" can now alternately be specified as "<tt>--bind-dn</tt>").
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the documentation to include the most recent versions of a number of
+                  LDAP-related specifications.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 3.1.0</h3>
 
               <p>
