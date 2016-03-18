@@ -26,7 +26,7 @@
 
     <groupId>com.unboundid</groupId>
     <artifactId>unboundid-ldapsdk-minimal-edition</artifactId>
-    <version>${MMP}</version>
+    <version>${MMPQ}</version>
     <packaging>jar</packaging>
 
     <name>UnboundID LDAP SDK for Java Minimal Edition</name>

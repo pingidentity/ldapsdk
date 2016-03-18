@@ -550,8 +550,7 @@ public class SanityCheckCE
              "in the " + jarFile.getAbsolutePath() + " manifest");
       }
 
-      String versionStr = ";version=\"" + MAJOR_VERSION + '.' + MINOR_VERSION +
-           '.' + POINT_VERSION + '"';
+      String versionStr = ";version=\"" + NUMERIC_VERSION_STRING + '"';
 
       StringTokenizer tokenizer = new StringTokenizer(exportPackageStr, ", ");
       while (tokenizer.hasMoreTokens())
