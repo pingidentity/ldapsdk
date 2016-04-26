@@ -86,6 +86,13 @@
   <property name="MEM" value="512M" />
 
 
+  <!-- Define a number of version-related properties. -->
+  <loadproperties srcFile="version.properties" />
+  <property name="MMP"
+            value="${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}" />
+  <property name="MMPQ" value="${MMP}${VERSION_QUALIFIER}" />
+
+
 
 
   <!-- Clean up after an earlier build. -->
@@ -333,8 +340,6 @@
       </fileset>
     </copy>
 
-    <property name="MMP"
-              value="${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}" />
     <property name="VER" value=";version=&quot;${MMP}&quot;" />
 
     <jar jarfile="${se.package.dir}/unboundid-ldapsdk-se.jar"
@@ -352,8 +357,7 @@
         <attribute name="Build-Time" value="${timestamp}" />
         <attribute name="Implementation-Title"
                    value="${PRODUCT_NAME} (Standard Edition)" />
-        <attribute name="Implementation-Version"
-                   value="${MMP}${VERSION_QUALIFIER}" />
+        <attribute name="Implementation-Version" value="${MMPQ}" />
         <attribute name="Source-Path" value="${svn.path}" />
         <attribute name="Source-Revision" value="${svn.version}" />
         <attribute name="Implementation-Vendor" value="UnboundID Corp." />
@@ -384,8 +388,8 @@
     <javadoc destdir="${se.package.dir}/docs/javadoc" source="1.5"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
-             windowtitle="UnboundID LDAP SDK for Java ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Standard Edition)"
-             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Standard Edition)"
+             windowtitle="UnboundID LDAP SDK for Java ${MMPQ} (Standard Edition)"
+             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MMPQ} (Standard Edition)"
              maxmemory="${MEM}" access="protected"
              stylesheetfile="${resource.dir}/unboundid-javadoc.css"
              bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-${year} &amp;ndash; UnboundID Corp. &amp;ndash; All Rights Reserved.&lt;/div&gt;">
@@ -543,8 +547,6 @@
 
 
     <!-- Create a jar file with the minimal source. -->
-    <property name="MMP"
-              value="${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}" />
     <jar jarfile="${me.package.dir}/unboundid-ldapsdk-me.jar"
          compress="true"
          index="true">
@@ -553,8 +555,7 @@
         <attribute name="Build-Time" value="${timestamp}" />
         <attribute name="Implementation-Title"
                    value="${PRODUCT_NAME} (Minimal Edition)" />
-        <attribute name="Implementation-Version"
-                   value="${MMP}${VERSION_QUALIFIER}" />
+        <attribute name="Implementation-Version" value="${MMPQ}" />
         <attribute name="Source-Path" value="${svn.path}" />
         <attribute name="Source-Revision" value="${svn.version}" />
         <attribute name="Implementation-Vendor" value="UnboundID Corp." />
@@ -569,8 +570,8 @@
     <javadoc destdir="${me.package.dir}/docs/javadoc" source="1.5"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
-             windowtitle="UnboundID LDAP SDK for Java ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Minimal Edition)"
-             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Minimal Edition)"
+             windowtitle="UnboundID LDAP SDK for Java ${MMPQ} (Minimal Edition)"
+             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MMPQ} (Minimal Edition)"
              maxmemory="${MEM}" access="protected"
              stylesheetfile="${resource.dir}/unboundid-javadoc.css"
              bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-${year} &amp;ndash; UnboundID Corp. &amp;ndash; All Rights Reserved.&lt;/div&gt;">
@@ -630,14 +631,14 @@
        Standard Edition. -->
   <target name="create-maven-repository">
     <property name="maven.dir"
-              location="${package.dir}/unboundid-ldapsdk-${MMP}-maven" />
+              location="${package.dir}/unboundid-ldapsdk-${MMPQ}-maven" />
     <mkdir dir="${maven.dir}" />
 
     <copy file="${se.package.dir}/unboundid-ldapsdk-se.jar"
-          toFile="${maven.dir}/unboundid-ldapsdk-${MMP}.jar" />
+          toFile="${maven.dir}/unboundid-ldapsdk-${MMPQ}.jar" />
     <copy file="${se.package.dir}/src.zip"
-          toFile="${maven.dir}/unboundid-ldapsdk-${MMP}-sources.jar" />
-    <jar jarfile="${maven.dir}/unboundid-ldapsdk-${MMP}-javadoc.jar"
+          toFile="${maven.dir}/unboundid-ldapsdk-${MMPQ}-sources.jar" />
+    <jar jarfile="${maven.dir}/unboundid-ldapsdk-${MMPQ}-javadoc.jar"
          compress="true"
          index="true">
       <fileset dir="${se.package.dir}/docs/javadoc" />
@@ -646,7 +647,7 @@
 
     <!-- Copy the POM into place. -->
     <copy file="${resource.dir}/unboundid-ldapsdk.pom"
-          tofile="${maven.dir}/unboundid-ldapsdk-${MMP}.pom"
+          tofile="${maven.dir}/unboundid-ldapsdk-${MMPQ}.pom"
           overwrite="true">
       <filterchain>
         <expandproperties />
@@ -660,7 +661,7 @@
 
 
     <!-- Generate a jar file with all the Maven artifacts. -->
-    <jar jarfile="${package.dir}/unboundid-ldapsdk-${MMP}-maven.jar"
+    <jar jarfile="${package.dir}/unboundid-ldapsdk-${MMPQ}-maven.jar"
          compress="true" index="false">
       <fileset dir="${maven.dir}" />
     </jar>
@@ -675,22 +676,22 @@
   <target name="sign-maven-components" if="env.GPG_PASSPHRASE">
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.pom.asc unboundid-ldapsdk-${MMP}.pom" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}.pom.asc unboundid-ldapsdk-${MMPQ}.pom" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}.jar.asc unboundid-ldapsdk-${MMP}.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}.jar.asc unboundid-ldapsdk-${MMPQ}.jar" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-sources.jar.asc unboundid-ldapsdk-${MMP}-sources.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}-sources.jar.asc unboundid-ldapsdk-${MMPQ}-sources.jar" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMP}-javadoc.jar.asc unboundid-ldapsdk-${MMP}-javadoc.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}-javadoc.jar.asc unboundid-ldapsdk-${MMPQ}-javadoc.jar" />
     </exec>
   </target>
 
@@ -701,14 +702,14 @@
        Minimal Edition. -->
   <target name="create-minimal-edition-maven-repository">
     <property name="maven.dir"
-              location="${package.dir}/unboundid-ldapsdk-minimal-edition-${MMP}-maven" />
+              location="${package.dir}/unboundid-ldapsdk-minimal-edition-${MMPQ}-maven" />
     <mkdir dir="${maven.dir}" />
 
     <copy file="${me.package.dir}/unboundid-ldapsdk-me.jar"
-          toFile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMP}.jar" />
+          toFile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMPQ}.jar" />
     <copy file="${me.package.dir}/src.zip"
-          toFile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMP}-sources.jar" />
-    <jar jarfile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMP}-javadoc.jar"
+          toFile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMPQ}-sources.jar" />
+    <jar jarfile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMPQ}-javadoc.jar"
          compress="true"
          index="true">
       <fileset dir="${me.package.dir}/docs/javadoc" />
@@ -717,7 +718,7 @@
 
     <!-- Copy the POM into place. -->
     <copy file="${resource.dir}/unboundid-ldapsdk-minimal-edition.pom"
-          tofile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMP}.pom"
+          tofile="${maven.dir}/unboundid-ldapsdk-minimal-edition-${MMPQ}.pom"
           overwrite="true">
       <filterchain>
         <expandproperties />
@@ -731,7 +732,7 @@
 
 
     <!-- Generate a jar file with all the Maven artifacts. -->
-    <jar jarfile="${package.dir}/unboundid-ldapsdk-minimal-edition-${MMP}-maven.jar"
+    <jar jarfile="${package.dir}/unboundid-ldapsdk-minimal-edition-${MMPQ}-maven.jar"
          compress="true" index="false">
       <fileset dir="${maven.dir}" />
     </jar>
@@ -746,22 +747,22 @@
   <target name="sign-minimal-edition-maven-components" if="env.GPG_PASSPHRASE">
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMP}.pom.asc unboundid-ldapsdk-minimal-edition-${MMP}.pom" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMPQ}.pom.asc unboundid-ldapsdk-minimal-edition-${MMPQ}.pom" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMP}.jar.asc unboundid-ldapsdk-minimal-edition-${MMP}.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMPQ}.jar.asc unboundid-ldapsdk-minimal-edition-${MMPQ}.jar" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMP}-sources.jar.asc unboundid-ldapsdk-minimal-edition-${MMP}-sources.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMPQ}-sources.jar.asc unboundid-ldapsdk-minimal-edition-${MMPQ}-sources.jar" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMP}-javadoc.jar.asc unboundid-ldapsdk-minimal-edition-${MMP}-javadoc.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-minimal-edition-${MMPQ}-javadoc.jar.asc unboundid-ldapsdk-minimal-edition-${MMPQ}-javadoc.jar" />
     </exec>
   </target>
 

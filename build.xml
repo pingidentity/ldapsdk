@@ -171,8 +171,8 @@
     <javadoc destdir="${package.dir}/www/javadoc" source="1.5"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
-             windowtitle="UnboundID LDAP SDK for Java ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}"
-             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}"
+             windowtitle="UnboundID LDAP SDK for Java ${MMPQ}"
+             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MMPQ}"
              maxmemory="${MEM}" access="protected"
              stylesheetfile="${resource.dir}/unboundid-javadoc.css"
              bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-${year} &amp;ndash; UnboundID Corp. &amp;ndash; All Rights Reserved.&lt;/div&gt;">
@@ -190,7 +190,7 @@
     <copy file="${resource.dir}/inherit.gif"
           toFile="${package.dir}/www/javadoc/resources/inherit.gif" />
 
-    <zip destfile="${package.dir}/www.zip" compress="true">
+    <zip destfile="${package.dir}/unboundid-ldapsdk-${MMPQ}-www.zip" compress="true">
       <zipfileset dir="${package.dir}/www" filemode="644" dirmode="755" />
     </zip>
   </target>
@@ -202,14 +202,14 @@
        Commercial Edition. -->
   <target name="create-commercial-edition-maven-repository">
     <property name="maven.dir"
-              location="${package.dir}/unboundid-ldapsdk-${MMP}-maven" />
+              location="${package.dir}/unboundid-ldapsdk-${MMPQ}-maven" />
     <mkdir dir="${maven.dir}" />
 
     <copy file="${ce.package.dir}/unboundid-ldapsdk-ce.jar"
-          toFile="${maven.dir}/unboundid-ldapsdk-commercial-edition-${MMP}.jar" />
+          toFile="${maven.dir}/unboundid-ldapsdk-commercial-edition-${MMPQ}.jar" />
     <copy file="${ce.package.dir}/src.zip"
-          toFile="${maven.dir}/unboundid-ldapsdk-commercial-edition-${MMP}-sources.jar" />
-    <jar jarfile="${maven.dir}/unboundid-ldapsdk-commercial-edition-${MMP}-javadoc.jar"
+          toFile="${maven.dir}/unboundid-ldapsdk-commercial-edition-${MMPQ}-sources.jar" />
+    <jar jarfile="${maven.dir}/unboundid-ldapsdk-commercial-edition-${MMPQ}-javadoc.jar"
          compress="true"
          index="true">
       <fileset dir="${ce.package.dir}/docs/javadoc" />
@@ -218,7 +218,7 @@
 
     <!-- Copy the POM into place. -->
     <copy file="${resource.dir}/unboundid-ldapsdk-commercial-edition.pom"
-          tofile="${maven.dir}/unboundid-ldapsdk-commercial-edition-${MMP}.pom"
+          tofile="${maven.dir}/unboundid-ldapsdk-commercial-edition-${MMPQ}.pom"
           overwrite="true">
       <filterchain>
         <expandproperties />
@@ -232,7 +232,7 @@
 
 
     <!-- Generate a jar file with all the Maven artifacts. -->
-    <jar jarfile="${package.dir}/unboundid-ldapsdk-commercial-edition-${MMP}-maven.jar"
+    <jar jarfile="${package.dir}/unboundid-ldapsdk-commercial-edition-${MMPQ}-maven.jar"
          compress="true" index="false">
       <fileset dir="${maven.dir}" />
     </jar>
@@ -248,22 +248,22 @@
           if="env.GPG_PASSPHRASE">
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-commercial-edition-${MMP}.pom.asc unboundid-ldapsdk-commercial-edition-${MMP}.pom" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-commercial-edition-${MMPQ}.pom.asc unboundid-ldapsdk-commercial-edition-${MMPQ}.pom" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-commercial-edition-${MMP}.jar.asc unboundid-ldapsdk-commercial-edition-${MMP}.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-commercial-edition-${MMPQ}.jar.asc unboundid-ldapsdk-commercial-edition-${MMPQ}.jar" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-commercial-edition-${MMP}-sources.jar.asc unboundid-ldapsdk-commercial-edition-${MMP}-sources.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-commercial-edition-${MMPQ}-sources.jar.asc unboundid-ldapsdk-commercial-edition-${MMPQ}-sources.jar" />
     </exec>
 
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
-      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-commercial-edition-${MMP}-javadoc.jar.asc unboundid-ldapsdk-commercial-edition-${MMP}-javadoc.jar" />
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-commercial-edition-${MMPQ}-javadoc.jar.asc unboundid-ldapsdk-commercial-edition-${MMPQ}-javadoc.jar" />
     </exec>
   </target>
 
@@ -323,8 +323,6 @@
       </fileset>
     </copy>
 
-    <property name="MMP"
-              value="${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}" />
     <property name="VER" value=";version=&quot;${MMP}&quot;" />
 
     <jar jarfile="${ce.package.dir}/unboundid-ldapsdk-ce.jar" compress="true"
@@ -336,8 +334,7 @@
         <attribute name="Build-Time" value="${timestamp}" />
         <attribute name="Implementation-Title"
                    value="${PRODUCT_NAME} (Commercial Edition)" />
-        <attribute name="Implementation-Version"
-                   value="${MMP}${VERSION_QUALIFIER}" />
+        <attribute name="Implementation-Version" value="${MMPQ}" />
         <attribute name="Source-Path" value="${svn.path}" />
         <attribute name="Source-Revision" value="${svn.version}" />
         <attribute name="Implementation-Vendor" value="UnboundID Corp." />
@@ -368,8 +365,8 @@
     <javadoc destdir="${ce.package.dir}/docs/javadoc" source="1.5"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
-             windowtitle="UnboundID LDAP SDK for Java ${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Commercial Edition)"
-             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER} (Commercial Edition)"
+             windowtitle="UnboundID LDAP SDK for Java ${MMPQ} (Commercial Edition)"
+             doctitle="UnboundID LDAP SDK for Java&lt;br&gt;${MMPQ} (Commercial Edition)"
              maxmemory="${MEM}" access="protected"
              stylesheetfile="${resource.dir}/unboundid-javadoc.css"
              bottom="&lt;div id=&quot;footer&quot;&gt;Copyright &amp;copy; 2008-${year} &amp;ndash; UnboundID Corp. &amp;ndash; All Rights Reserved.&lt;/div&gt;">
@@ -711,7 +708,7 @@
      !   sonar.jdbc.password - recommended
      ! -->
     <property name="sonar.projectKey" value="com.unboundid.product.ldap.sdk:directory" />
-    <property name="sonar.projectVersion" value="${MAJOR_VERSION}.${MINOR_VERSION}.${POINT_VERSION}${VERSION_QUALIFIER}" />
+    <property name="sonar.projectVersion" value="${MMPQ}" />
     <property name="sonar.projectName" value="${PRODUCT_NAME}" />
     <property name="sonar.sources" value="${src.dir},${buildsrc.dir},${gensrc.dir}" />
     <property name="sonar.java.coveragePlugin" value="emma" />
