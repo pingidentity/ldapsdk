@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.IntermediateResponse;
 import com.unboundid.ldap.sdk.IntermediateResponseListener;
@@ -318,6 +319,27 @@ public final class DumpDNs
               "written to standard output.", false, true, true, false);
     outputFile.addLongIdentifier("output-file");
     parser.addArgument(outputFile);
+  }
+
+
+
+  /**
+   * Retrieves the connection options that should be used for connections that
+   * are created with this command line tool.  Subclasses may override this
+   * method to use a custom set of connection options.
+   *
+   * @return  The connection options that should be used for connections that
+   *          are created with this command line tool.
+   */
+  @Override()
+  public LDAPConnectionOptions getConnectionOptions()
+  {
+    final LDAPConnectionOptions options = new LDAPConnectionOptions();
+
+    options.setUseSynchronousMode(true);
+    options.setResponseTimeoutMillis(0L);
+
+    return options;
   }
 
 

@@ -36,7 +36,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -155,7 +156,7 @@ public final class IdentifyUniqueAttributeConflicts
   private IntegerArgument pageSizeArgument;
 
   // The connection to use for finding unique attribute conflicts.
-  private LDAPConnection findConflictsConnection;
+  private LDAPConnectionPool findConflictsPool;
 
   // A map with counts of unique attribute conflicts by attribute type.
   private final Map<String, AtomicLong> conflictCounts;
@@ -238,7 +239,7 @@ public final class IdentifyUniqueAttributeConflicts
     pageSizeArgument = null;
     attributeArgument = null;
     multipleAttributeBehaviorArgument = null;
-    findConflictsConnection = null;
+    findConflictsPool = null;
     allowConflictsInSameEntry = false;
     uniqueAcrossAttributes = false;
     attributes = null;
@@ -475,6 +476,27 @@ public final class IdentifyUniqueAttributeConflicts
 
 
   /**
+   * Retrieves the connection options that should be used for connections that
+   * are created with this command line tool.  Subclasses may override this
+   * method to use a custom set of connection options.
+   *
+   * @return  The connection options that should be used for connections that
+   *          are created with this command line tool.
+   */
+  @Override()
+  public LDAPConnectionOptions getConnectionOptions()
+  {
+    final LDAPConnectionOptions options = new LDAPConnectionOptions();
+
+    options.setUseSynchronousMode(true);
+    options.setResponseTimeoutMillis(0L);
+
+    return options;
+  }
+
+
+
+  /**
    * Performs the core set of processing for this tool.
    *
    * @return  A result code that indicates whether the processing completed
@@ -524,10 +546,12 @@ public final class IdentifyUniqueAttributeConflicts
 
     // Establish a connection to the target directory server to use for finding
     // entries with unique attributes.
-    final LDAPConnection findUniqueAttributesConnection;
+    final LDAPConnectionPool findUniqueAttributesPool;
     try
     {
-      findUniqueAttributesConnection = getConnection();
+      findUniqueAttributesPool = getConnectionPool(1, 1);
+      findUniqueAttributesPool.
+           setRetryFailedOperationsDueToInvalidConnections(true);
     }
     catch (final LDAPException le)
     {
@@ -542,7 +566,8 @@ public final class IdentifyUniqueAttributeConflicts
       // Establish a connection to use for finding unique attribute conflicts.
       try
       {
-        findConflictsConnection = getConnection();
+        findConflictsPool= getConnectionPool(1, 1);
+        findConflictsPool.setRetryFailedOperationsDueToInvalidConnections(true);
       }
       catch (final LDAPException le)
       {
@@ -600,7 +625,7 @@ public final class IdentifyUniqueAttributeConflicts
           SearchResult searchResult;
           try
           {
-            searchResult = findUniqueAttributesConnection.search(searchRequest);
+            searchResult = findUniqueAttributesPool.search(searchRequest);
           }
           catch (final LDAPSearchException lse)
           {
@@ -677,11 +702,11 @@ public final class IdentifyUniqueAttributeConflicts
     }
     finally
     {
-      findUniqueAttributesConnection.close();
+      findUniqueAttributesPool.close();
 
-      if (findConflictsConnection != null)
+      if (findConflictsPool != null)
       {
-        findConflictsConnection.close();
+        findConflictsPool.close();
       }
     }
   }
@@ -835,7 +860,7 @@ baseDNLoop:
               SearchResult searchResult;
               try
               {
-                searchResult = findConflictsConnection.search(baseDN,
+                searchResult = findConflictsPool.search(baseDN,
                      SearchScope.SUB, DereferencePolicy.NEVER, 2, 0, false,
                      filter, "1.1");
               }

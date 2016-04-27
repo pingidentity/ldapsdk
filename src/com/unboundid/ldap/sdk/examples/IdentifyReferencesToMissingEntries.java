@@ -34,7 +34,8 @@ import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -103,7 +104,7 @@ public final class IdentifyReferencesToMissingEntries
   private IntegerArgument pageSizeArgument;
 
   // The connection to use for retrieving referenced entries.
-  private LDAPConnection getReferencedEntriesConnection;
+  private LDAPConnectionPool getReferencedEntriesPool;
 
   // A map with counts of missing references by attribute type.
   private final Map<String,AtomicLong> missingReferenceCounts;
@@ -177,7 +178,7 @@ public final class IdentifyReferencesToMissingEntries
     baseDNArgument = null;
     pageSizeArgument = null;
     attributeArgument = null;
-    getReferencedEntriesConnection = null;
+    getReferencedEntriesPool = null;
 
     entriesExamined = new AtomicLong(0L);
     missingReferenceCounts = new TreeMap<String, AtomicLong>();
@@ -381,6 +382,27 @@ public final class IdentifyReferencesToMissingEntries
 
 
   /**
+   * Retrieves the connection options that should be used for connections that
+   * are created with this command line tool.  Subclasses may override this
+   * method to use a custom set of connection options.
+   *
+   * @return  The connection options that should be used for connections that
+   *          are created with this command line tool.
+   */
+  @Override()
+  public LDAPConnectionOptions getConnectionOptions()
+  {
+    final LDAPConnectionOptions options = new LDAPConnectionOptions();
+
+    options.setUseSynchronousMode(true);
+    options.setResponseTimeoutMillis(0L);
+
+    return options;
+  }
+
+
+
+  /**
    * Performs the core set of processing for this tool.
    *
    * @return  A result code that indicates whether the processing completed
@@ -391,10 +413,11 @@ public final class IdentifyReferencesToMissingEntries
   {
     // Establish a connection to the target directory server to use for
     // finding references to entries.
-    final LDAPConnection findReferencesConnection;
+    final LDAPConnectionPool findReferencesPool;
     try
     {
-      findReferencesConnection = getConnection();
+      findReferencesPool = getConnectionPool(1, 1);
+      findReferencesPool.setRetryFailedOperationsDueToInvalidConnections(true);
     }
     catch (final LDAPException le)
     {
@@ -409,7 +432,9 @@ public final class IdentifyReferencesToMissingEntries
       // Establish a second connection to use for retrieving referenced entries.
       try
       {
-        getReferencedEntriesConnection = getConnection();
+        getReferencedEntriesPool = getConnectionPool(1,1);
+        getReferencedEntriesPool.
+             setRetryFailedOperationsDueToInvalidConnections(true);
       }
       catch (final LDAPException le)
       {
@@ -464,7 +489,7 @@ public final class IdentifyReferencesToMissingEntries
           SearchResult searchResult;
           try
           {
-            searchResult = findReferencesConnection.search(searchRequest);
+            searchResult = findReferencesPool.search(searchRequest);
           }
           catch (final LDAPSearchException lse)
           {
@@ -542,11 +567,11 @@ public final class IdentifyReferencesToMissingEntries
     }
     finally
     {
-      findReferencesConnection.close();
+      findReferencesPool.close();
 
-      if (getReferencedEntriesConnection != null)
+      if (getReferencedEntriesPool != null)
       {
-        getReferencedEntriesConnection.close();
+        getReferencedEntriesPool.close();
       }
     }
   }
@@ -627,7 +652,7 @@ public final class IdentifyReferencesToMissingEntries
             try
             {
               final SearchResultEntry e =
-                   getReferencedEntriesConnection.getEntry(value, "1.1");
+                   getReferencedEntriesPool.getEntry(value, "1.1");
               if (e == null)
               {
                 err("Entry '", searchEntry.getDN(), "' includes attribute ",
