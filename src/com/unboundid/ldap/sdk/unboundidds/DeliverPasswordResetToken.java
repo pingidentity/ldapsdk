@@ -292,6 +292,17 @@ public final class DeliverPasswordResetToken
    * {@inheritDoc}
    */
   @Override()
+  protected boolean supportsOutputFile()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean defaultToPromptForBindPassword()
   {
     return true;

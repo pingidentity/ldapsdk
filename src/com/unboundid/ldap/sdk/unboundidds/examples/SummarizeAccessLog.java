@@ -473,6 +473,26 @@ public final class SummarizeAccessLog
 
 
   /**
+   * Indicates whether this tool should provide arguments for redirecting output
+   * to a file.  If this method returns {@code true}, then the tool will offer
+   * an "--outputFile" argument that will specify the path to a file to which
+   * all standard output and standard error content will be written, and it will
+   * also offer a "--teeToStandardOut" argument that can only be used if the
+   * "--outputFile" argument is present and will cause all output to be written
+   * to both the specified output file and to standard output.
+   *
+   * @return  {@code true} if this tool should provide arguments for redirecting
+   *          output to a file, or {@code false} if not.
+   */
+  @Override()
+  protected boolean supportsOutputFile()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether this tool supports the use of a properties file for
    * specifying default values for arguments that aren't specified on the
    * command line.

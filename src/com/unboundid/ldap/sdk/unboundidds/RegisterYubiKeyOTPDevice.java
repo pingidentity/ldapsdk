@@ -309,13 +309,20 @@ public final class RegisterYubiKeyOTPDevice
 
 
   /**
-   * Indicates whether this tool should default to interactively prompting for
-   * the bind password if a password is required but no argument was provided
-   * to indicate how to get the password.
-   *
-   * @return  {@code true} if this tool should default to interactively
-   *          prompting for the bind password, or {@code false} if not.
+   * {@inheritDoc}
    */
+  @Override()
+  protected boolean supportsOutputFile()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   protected boolean defaultToPromptForBindPassword()
   {
     return true;

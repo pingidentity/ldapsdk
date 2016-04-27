@@ -333,6 +333,26 @@ public final class IdentifyUniqueAttributeConflicts
 
 
   /**
+   * Indicates whether this tool should provide arguments for redirecting output
+   * to a file.  If this method returns {@code true}, then the tool will offer
+   * an "--outputFile" argument that will specify the path to a file to which
+   * all standard output and standard error content will be written, and it will
+   * also offer a "--teeToStandardOut" argument that can only be used if the
+   * "--outputFile" argument is present and will cause all output to be written
+   * to both the specified output file and to standard output.
+   *
+   * @return  {@code true} if this tool should provide arguments for redirecting
+   *          output to a file, or {@code false} if not.
+   */
+  @Override()
+  protected boolean supportsOutputFile()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether this tool should default to interactively prompting for
    * the bind password if a password is required but no argument was provided
    * to indicate how to get the password.
@@ -340,6 +360,7 @@ public final class IdentifyUniqueAttributeConflicts
    * @return  {@code true} if this tool should default to interactively
    *          prompting for the bind password, or {@code false} if not.
    */
+  @Override()
   protected boolean defaultToPromptForBindPassword()
   {
     return true;

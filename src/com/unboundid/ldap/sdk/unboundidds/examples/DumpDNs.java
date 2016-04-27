@@ -251,6 +251,7 @@ public final class DumpDNs
    * @return  {@code true} if this tool should default to interactively
    *          prompting for the bind password, or {@code false} if not.
    */
+  @Override()
   protected boolean defaultToPromptForBindPassword()
   {
     return true;

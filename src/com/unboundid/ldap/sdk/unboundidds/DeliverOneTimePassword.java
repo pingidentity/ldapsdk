@@ -362,6 +362,17 @@ public final class DeliverOneTimePassword
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected boolean supportsOutputFile()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether this tool supports the use of a properties file for
    * specifying default values for arguments that aren't specified on the
    * command line.

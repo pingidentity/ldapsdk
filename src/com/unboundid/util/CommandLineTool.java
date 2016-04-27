@@ -23,6 +23,7 @@ package com.unboundid.util;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collections;
@@ -37,6 +38,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.FileArgument;
 
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
@@ -87,11 +89,20 @@ import static com.unboundid.util.UtilityMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)
 public abstract class CommandLineTool
 {
+  // The print stream that was originally used for standard output.  It may not
+  // be the current standard output stream if an output file has been
+  // configured.
+  private final PrintStream originalOut;
+
+  // The print stream that was originally used for standard error.  It may not
+  // be the current standard error stream if an output file has been configured.
+  private final PrintStream originalErr;
+
   // The print stream to use for messages written to standard output.
-  private final PrintStream out;
+  private volatile PrintStream out;
 
   // The print stream to use for messages written to standard error.
-  private final PrintStream err;
+  private volatile PrintStream err;
 
   // The argument used to request tool help.
   private BooleanArgument helpArgument = null;
@@ -102,8 +113,16 @@ public abstract class CommandLineTool
   // The argument used to request interactive mode.
   private BooleanArgument interactiveArgument = null;
 
+  // The argument used to indicate that output should be written to standard out
+  // as well as the specified output file.
+  private BooleanArgument teeOutputArgument = null;
+
   // The argument used to request the tool version.
   private BooleanArgument versionArgument = null;
+
+  // The argument used to specify the output file for standard output and
+  // standard error.
+  private FileArgument outputFileArgument = null;
 
 
 
@@ -142,6 +161,9 @@ public abstract class CommandLineTool
     {
       err = new PrintStream(errStream);
     }
+
+    originalOut = out;
+    originalErr = err;
   }
 
 
@@ -248,6 +270,36 @@ public abstract class CommandLineTool
       debugException(ae);
       err(ae.getMessage());
       return ResultCode.PARAM_ERROR;
+    }
+
+    if ((outputFileArgument != null) && outputFileArgument.isPresent())
+    {
+      final File outputFile = outputFileArgument.getValue();
+
+      final PrintStream outputFileStream;
+      try
+      {
+        final FileOutputStream fos = new FileOutputStream(outputFile);
+        outputFileStream = new PrintStream(fos, true, "UTF-8");
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        err(ERR_CL_TOOL_ERROR_CREATING_OUTPUT_FILE.get(
+             outputFile.getAbsolutePath(), getExceptionMessage(e)));
+        return ResultCode.LOCAL_ERROR;
+      }
+
+      if ((teeOutputArgument != null) && teeOutputArgument.isPresent())
+      {
+        out = new PrintStream(new TeeOutputStream(out, outputFileStream));
+        err = new PrintStream(new TeeOutputStream(err, outputFileStream));
+      }
+      else
+      {
+        out = outputFileStream;
+        err = outputFileStream;
+      }
     }
 
 
@@ -486,6 +538,25 @@ public abstract class CommandLineTool
 
 
   /**
+   * Indicates whether this tool should provide arguments for redirecting output
+   * to a file.  If this method returns {@code true}, then the tool will offer
+   * an "--outputFile" argument that will specify the path to a file to which
+   * all standard output and standard error content will be written, and it will
+   * also offer a "--teeToStandardOut" argument that can only be used if the
+   * "--outputFile" argument is present and will cause all output to be written
+   * to both the specified output file and to standard output.
+   *
+   * @return  {@code true} if this tool should provide arguments for redirecting
+   *          output to a file, or {@code false} if not.
+   */
+  protected boolean supportsOutputFile()
+  {
+    return false;
+  }
+
+
+
+  /**
    * Creates a parser that can be used to to parse arguments accepted by
    * this tool.
    *
@@ -510,6 +581,26 @@ public abstract class CommandLineTool
            INFO_CL_TOOL_DESCRIPTION_INTERACTIVE.get());
       interactiveArgument.setUsageArgument(true);
       parser.addArgument(interactiveArgument);
+    }
+
+    if (supportsOutputFile())
+    {
+      outputFileArgument = new FileArgument(null, "outputFile", false, 1, null,
+           INFO_CL_TOOL_DESCRIPTION_OUTPUT_FILE.get(), false, true, true,
+           false);
+      outputFileArgument.addLongIdentifier("output-file");
+      outputFileArgument.setUsageArgument(true);
+      parser.addArgument(outputFileArgument);
+
+      teeOutputArgument = new BooleanArgument(null, "teeOutput", 1,
+           INFO_CL_TOOL_DESCRIPTION_TEE_OUTPUT.get(
+                outputFileArgument.getIdentifierString()));
+      teeOutputArgument.addLongIdentifier("tee-output");
+      teeOutputArgument.setUsageArgument(true);
+      parser.addArgument(teeOutputArgument);
+
+      parser.addDependentArgumentSet(teeOutputArgument,
+           outputFileArgument);
     }
 
     helpArgument = new BooleanArgument('H', "help",
@@ -703,13 +794,28 @@ public abstract class CommandLineTool
 
 
   /**
-   * Retrieves the print writer that will be used for standard output.
+   * Retrieves the print stream that will be used for standard output.
    *
-   * @return  The print writer that will be used for standard output.
+   * @return  The print stream that will be used for standard output.
    */
   public final PrintStream getOut()
   {
     return out;
+  }
+
+
+
+  /**
+   * Retrieves the print stream that may be used to write to the original
+   * standard output.  This may be different from the current standard output
+   * stream if an output file has been configured.
+   *
+   * @return  The print stream that may be used to write to the original
+   *          standard output.
+   */
+  public final PrintStream getOriginalOut()
+  {
+    return originalOut;
   }
 
 
@@ -803,13 +909,28 @@ public abstract class CommandLineTool
 
 
   /**
-   * Retrieves the print writer that will be used for standard error.
+   * Retrieves the print stream that will be used for standard error.
    *
-   * @return  The print writer that will be used for standard error.
+   * @return  The print stream that will be used for standard error.
    */
   public final PrintStream getErr()
   {
     return err;
+  }
+
+
+
+  /**
+   * Retrieves the print stream that may be used to write to the original
+   * standard error.  This may be different from the current standard error
+   * stream if an output file has been configured.
+   *
+   * @return  The print stream that may be used to write to the original
+   *          standard error.
+   */
+  public final PrintStream getOriginalErr()
+  {
+    return originalErr;
   }
 
 

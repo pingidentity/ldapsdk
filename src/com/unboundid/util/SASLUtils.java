@@ -702,9 +702,9 @@ public final class SASLUtils
     {
       if (promptForPassword)
       {
-        tool.getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        tool.getOriginalOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
         pw = PasswordReader.readPassword();
-        tool.getOut().println();
+        tool.getOriginalOut().println();
       }
       else
       {
@@ -771,9 +771,9 @@ public final class SASLUtils
     {
       if (promptForPassword)
       {
-        tool.getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        tool.getOriginalOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
         pw = PasswordReader.readPassword();
-        tool.getOut().println();
+        tool.getOriginalOut().println();
       }
       else
       {
@@ -961,9 +961,9 @@ public final class SASLUtils
       {
         if (promptForPassword)
         {
-          tool.getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+          tool.getOriginalOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
           gssapiProperties.setPassword(PasswordReader.readPassword());
-          tool.getOut().println();
+          tool.getOriginalOut().println();
         }
         else
         {
@@ -1011,9 +1011,9 @@ public final class SASLUtils
     {
       if (promptForPassword)
       {
-        tool.getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        tool.getOriginalOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
         pw = PasswordReader.readPassword();
-        tool.getOut().println();
+        tool.getOriginalOut().println();
       }
       else
       {
