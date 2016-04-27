@@ -361,6 +361,21 @@ public final class LDAPSearch
 
 
   /**
+   * Indicates whether this tool should default to interactively prompting for
+   * the bind password if a password is required but no argument was provided
+   * to indicate how to get the password.
+   *
+   * @return  {@code true} if this tool should default to interactively
+   *          prompting for the bind password, or {@code false} if not.
+   */
+  protected boolean defaultToPromptForBindPassword()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether the LDAP-specific arguments should include alternate
    * versions of all long identifiers that consist of multiple words so that
    * they are available in both camelCase and dash-separated versions.

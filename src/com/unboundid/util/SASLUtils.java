@@ -475,6 +475,64 @@ public final class SASLUtils
                                                   final Control... controls)
          throws LDAPException
   {
+    return createBindRequest(bindDN, password, false, null, mechanism, options,
+         controls);
+  }
+
+
+
+  /**
+   * Creates a new SASL bind request using the provided information.
+   *
+   * @param  bindDN             The bind DN to use for the SASL bind request.
+   *                            For most SASL mechanisms, this should be
+   *                            {@code null}, since the identity of the target
+   *                            user should be specified in some other way
+   *                            (e.g., via an "authID" SASL option).
+   * @param  password           The password to use for the SASL bind request.
+   *                            It may be {@code null} if no password is
+   *                            required for the desired SASL mechanism.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  mechanism          The name of the SASL mechanism to use.  It may
+   *                            be {@code null} if the provided set of options
+   *                            contains a "mech" option to specify the desired
+   *                            SASL option.
+   * @param  options            The set of SASL options to use when creating the
+   *                            bind request, in the form "name=value".  It may
+   *                            be {@code null} or empty if no SASL options are
+   *                            needed and a value was provided for the
+   *                            {@code mechanism} argument.  If the set of SASL
+   *                            options includes a "mech" option, then the
+   *                            {@code mechanism} argument must be {@code null}
+   *                            or have a value that matches the value of the
+   *                            "mech" SASL option.
+   * @param  controls           The set of controls to include in the request.
+   *
+   * @return  The SASL bind request created using the provided information.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  public static SASLBindRequest createBindRequest(final String bindDN,
+                                     final byte[] password,
+                                     final boolean promptForPassword,
+                                     final CommandLineTool tool,
+                                     final String mechanism,
+                                     final List<String> options,
+                                     final Control... controls)
+         throws LDAPException
+  {
+    if (promptForPassword)
+    {
+      Validator.ensureNotNull(tool);
+    }
+
     // Parse the provided set of options to ensure that they are properly
     // formatted in name-value form, and extract the SASL mechanism.
     final String mech;
@@ -507,12 +565,14 @@ public final class SASLUtils
     }
     else if (mech.equalsIgnoreCase(CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME))
     {
-      return createCRAMMD5BindRequest(password, optionsMap, controls);
+      return createCRAMMD5BindRequest(password, promptForPassword, tool,
+           optionsMap, controls);
     }
     else if (mech.equalsIgnoreCase(
                   DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME))
     {
-      return createDIGESTMD5BindRequest(password, optionsMap, controls);
+      return createDIGESTMD5BindRequest(password, promptForPassword, tool,
+           optionsMap, controls);
     }
     else if (mech.equalsIgnoreCase(EXTERNALBindRequest.EXTERNAL_MECHANISM_NAME))
     {
@@ -520,11 +580,13 @@ public final class SASLUtils
     }
     else if (mech.equalsIgnoreCase(GSSAPIBindRequest.GSSAPI_MECHANISM_NAME))
     {
-      return createGSSAPIBindRequest(password, optionsMap, controls);
+      return createGSSAPIBindRequest(password, promptForPassword, tool,
+           optionsMap, controls);
     }
     else if (mech.equalsIgnoreCase(PLAINBindRequest.PLAIN_MECHANISM_NAME))
     {
-      return createPLAINBindRequest(password, optionsMap, controls);
+      return createPLAINBindRequest(password, promptForPassword, tool,
+           optionsMap, controls);
     }
     else
     {
@@ -611,9 +673,16 @@ public final class SASLUtils
    * Creates a SASL CRAM-MD5 bind request using the provided password and set of
    * options.
    *
-   * @param  password  The password to use for the bind request.
-   * @param  options   The set of SASL options for the bind request.
-   * @param  controls  The set of controls to include in the request.
+   * @param  password           The password to use for the bind request.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  options            The set of SASL options for the bind request.
+   * @param  controls           The set of controls to include in the request.
    *
    * @return  The SASL CRAM-MD5 bind request that was created.
    *
@@ -622,15 +691,31 @@ public final class SASLUtils
    */
   private static CRAMMD5BindRequest createCRAMMD5BindRequest(
                                          final byte[] password,
+                                         final boolean promptForPassword,
+                                         final CommandLineTool tool,
                                          final Map<String,String> options,
                                          final Control[] controls)
           throws LDAPException
   {
+    final byte[] pw;
     if (password == null)
     {
-      throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
-                CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
+      if (promptForPassword)
+      {
+        tool.getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        pw = PasswordReader.readPassword();
+        tool.getOut().println();
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
+                  CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
+      }
+    }
+    else
+    {
+      pw = password;
     }
 
 
@@ -648,7 +733,7 @@ public final class SASLUtils
     ensureNoUnsupportedOptions(options,
          CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME);
 
-    return new CRAMMD5BindRequest(authID, password, controls);
+    return new CRAMMD5BindRequest(authID, pw, controls);
   }
 
 
@@ -657,9 +742,16 @@ public final class SASLUtils
    * Creates a SASL DIGEST-MD5 bind request using the provided password and set
    * of options.
    *
-   * @param  password  The password to use for the bind request.
-   * @param  options   The set of SASL options for the bind request.
-   * @param  controls  The set of controls to include in the request.
+   * @param  password           The password to use for the bind request.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  options            The set of SASL options for the bind request.
+   * @param  controls           The set of controls to include in the request.
    *
    * @return  The SASL DIGEST-MD5 bind request that was created.
    *
@@ -668,15 +760,31 @@ public final class SASLUtils
    */
   private static DIGESTMD5BindRequest createDIGESTMD5BindRequest(
                                            final byte[] password,
+                                           final boolean promptForPassword,
+                                           final CommandLineTool tool,
                                            final Map<String,String> options,
                                            final Control[] controls)
           throws LDAPException
   {
+    final byte[] pw;
     if (password == null)
     {
-      throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
-                DIGESTMD5BindRequest.DIGESTMD5_MECHANISM_NAME));
+      if (promptForPassword)
+      {
+        tool.getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        pw = PasswordReader.readPassword();
+        tool.getOut().println();
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
+                  CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
+      }
+    }
+    else
+    {
+      pw = password;
     }
 
     // The authID option is required.
@@ -689,7 +797,7 @@ public final class SASLUtils
     }
 
     final DIGESTMD5BindRequestProperties properties =
-         new DIGESTMD5BindRequestProperties(authID, password);
+         new DIGESTMD5BindRequestProperties(authID, pw);
 
     // The authzID option is optional.
     properties.setAuthorizationID(
@@ -754,9 +862,16 @@ public final class SASLUtils
    * Creates a SASL GSSAPI bind request using the provided password and set of
    * options.
    *
-   * @param  password  The password to use for the bind request.
-   * @param  options   The set of SASL options for the bind request.
-   * @param  controls  The set of controls to include in the request.
+   * @param  password           The password to use for the bind request.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  options            The set of SASL options for the bind request.
+   * @param  controls           The set of controls to include in the request.
    *
    * @return  The SASL GSSAPI bind request that was created.
    *
@@ -765,6 +880,8 @@ public final class SASLUtils
    */
   private static GSSAPIBindRequest createGSSAPIBindRequest(
                                         final byte[] password,
+                                        final boolean promptForPassword,
+                                        final CommandLineTool tool,
                                         final Map<String,String> options,
                                         final Control[] controls)
           throws LDAPException
@@ -842,8 +959,17 @@ public final class SASLUtils
       if (! (gssapiProperties.useTicketCache() &&
            gssapiProperties.requireCachedCredentials()))
       {
-        throw new LDAPException(ResultCode.PARAM_ERROR,
-             ERR_SASL_OPTION_GSSAPI_PASSWORD_REQUIRED.get());
+        if (promptForPassword)
+        {
+          tool.getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+          gssapiProperties.setPassword(PasswordReader.readPassword());
+          tool.getOut().println();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_SASL_OPTION_GSSAPI_PASSWORD_REQUIRED.get());
+        }
       }
     }
 
@@ -856,9 +982,16 @@ public final class SASLUtils
    * Creates a SASL PLAIN bind request using the provided password and set of
    * options.
    *
-   * @param  password  The password to use for the bind request.
-   * @param  options   The set of SASL options for the bind request.
-   * @param  controls  The set of controls to include in the request.
+   * @param  password           The password to use for the bind request.
+   * @param  promptForPassword  Indicates whether to interactively prompt for
+   *                            the password if one is needed but none was
+   *                            provided.
+   * @param  tool               The command-line tool whose input and output
+   *                            streams should be used when prompting for the
+   *                            bind password.  It may be {@code null} if
+   *                            {@code promptForPassword} is {@code false}.
+   * @param  options            The set of SASL options for the bind request.
+   * @param  controls           The set of controls to include in the request.
    *
    * @return  The SASL PLAIN bind request that was created.
    *
@@ -867,15 +1000,31 @@ public final class SASLUtils
    */
   private static PLAINBindRequest createPLAINBindRequest(
                                         final byte[] password,
+                                        final boolean promptForPassword,
+                                        final CommandLineTool tool,
                                         final Map<String,String> options,
                                         final Control[] controls)
           throws LDAPException
   {
+    final byte[] pw;
     if (password == null)
     {
-      throw new LDAPException(ResultCode.PARAM_ERROR,
-           ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
-                PLAINBindRequest.PLAIN_MECHANISM_NAME));
+      if (promptForPassword)
+      {
+        tool.getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        pw = PasswordReader.readPassword();
+        tool.getOut().println();
+      }
+      else
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_OPTION_MECH_REQUIRES_PASSWORD.get(
+                  CRAMMD5BindRequest.CRAMMD5_MECHANISM_NAME));
+      }
+    }
+    else
+    {
+      pw = password;
     }
 
     // The authID option is required.
@@ -894,7 +1043,7 @@ public final class SASLUtils
     ensureNoUnsupportedOptions(options,
          PLAINBindRequest.PLAIN_MECHANISM_NAME);
 
-    return new PLAINBindRequest(authID, authzID, password, controls);
+    return new PLAINBindRequest(authID, authzID, pw, controls);
   }
 
 

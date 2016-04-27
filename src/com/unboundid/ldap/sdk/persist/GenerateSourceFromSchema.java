@@ -261,6 +261,21 @@ public final class GenerateSourceFromSchema
 
 
   /**
+   * Indicates whether this tool should default to interactively prompting for
+   * the bind password if a password is required but no argument was provided
+   * to indicate how to get the password.
+   *
+   * @return  {@code true} if this tool should default to interactively
+   *          prompting for the bind password, or {@code false} if not.
+   */
+  protected boolean defaultToPromptForBindPassword()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether this tool supports the use of a properties file for
    * specifying default values for arguments that aren't specified on the
    * command line.

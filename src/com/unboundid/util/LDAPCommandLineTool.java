@@ -609,9 +609,12 @@ public abstract class LDAPCommandLineTool
     if (supportsAuthentication)
     {
       // If a bind DN was provided, then a bind password must have also been
-      // provided.
-      parser.addDependentArgumentSet(bindDN, bindPassword, bindPasswordFile,
-           promptForBindPassword);
+      // provided unless defaultToPromptForBindPassword returns true.
+      if (! defaultToPromptForBindPassword())
+      {
+        parser.addDependentArgumentSet(bindDN, bindPassword, bindPasswordFile,
+             promptForBindPassword);
+      }
 
       // Only one option may be used for specifying the bind password.
       parser.addExclusiveArgumentSet(bindPassword, bindPasswordFile,
@@ -679,6 +682,21 @@ public abstract class LDAPCommandLineTool
   protected boolean supportsAuthentication()
   {
     return true;
+  }
+
+
+
+  /**
+   * Indicates whether this tool should default to interactively prompting for
+   * the bind password if a password is required but no argument was provided
+   * to indicate how to get the password.
+   *
+   * @return  {@code true} if this tool should default to interactively
+   *          prompting for the bind password, or {@code false} if not.
+   */
+  protected boolean defaultToPromptForBindPassword()
+  {
+    return false;
   }
 
 
@@ -1250,16 +1268,17 @@ public abstract class LDAPCommandLineTool
       bindControlList.toArray(bindControls);
     }
 
-    final String pw;
+    byte[] pw;
     if (bindPassword.isPresent())
     {
-      pw = bindPassword.getValue();
+      pw = StaticUtils.getBytes(bindPassword.getValue());
     }
     else if (bindPasswordFile.isPresent())
     {
       try
       {
-        pw = bindPasswordFile.getNonBlankFileLines().get(0);
+        pw = StaticUtils.getBytes(
+             bindPasswordFile.getNonBlankFileLines().get(0));
       }
       catch (Exception e)
       {
@@ -1272,7 +1291,7 @@ public abstract class LDAPCommandLineTool
     else if (promptForBindPassword.isPresent())
     {
       getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
-      pw = StaticUtils.toUTF8String(PasswordReader.readPassword());
+      pw = PasswordReader.readPassword();
       getOut().println();
     }
     else
@@ -1292,11 +1311,20 @@ public abstract class LDAPCommandLineTool
         dnStr = null;
       }
 
-      return SASLUtils.createBindRequest(dnStr, pw, null,
+      return SASLUtils.createBindRequest(dnStr, pw,
+           defaultToPromptForBindPassword(), this, null,
            saslOption.getValues(), bindControls);
     }
     else if (bindDN.isPresent())
     {
+      if ((pw == null) && (! bindDN.getValue().isNullDN()) &&
+          defaultToPromptForBindPassword())
+      {
+        getOut().print(INFO_LDAP_TOOL_ENTER_BIND_PASSWORD.get());
+        pw = PasswordReader.readPassword();
+        getOut().println();
+      }
+
       return new SimpleBindRequest(bindDN.getValue(), pw, bindControls);
     }
     else

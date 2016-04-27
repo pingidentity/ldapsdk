@@ -289,6 +289,17 @@ public final class DeliverPasswordResetToken
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected boolean defaultToPromptForBindPassword()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Indicates whether this tool supports the use of a properties file for
    * specifying default values for arguments that aren't specified on the
    * command line.
