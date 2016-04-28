@@ -616,6 +616,10 @@ public abstract class LDAPCommandLineTool
              promptForBindPassword);
       }
 
+      // If a bind DN was provided, then no SASL options must have been
+      // provided.
+      parser.addExclusiveArgumentSet(bindDN, saslOption);
+
       // Only one option may be used for specifying the bind password.
       parser.addExclusiveArgumentSet(bindPassword, bindPasswordFile,
            promptForBindPassword);
