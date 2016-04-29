@@ -1075,6 +1075,14 @@ public final class StaticUtils
         buffer.append(':');
         buffer.append(lineNumber);
       }
+      else if (elements[i].isNativeMethod())
+      {
+        buffer.append(":native");
+      }
+      else
+      {
+        buffer.append(":unknown");
+      }
       buffer.append(')');
     }
   }
@@ -1114,13 +1122,9 @@ public final class StaticUtils
     {
       buffer.append(((LDAPSDKRuntimeException) t).getExceptionMessage());
     }
-    if ((t instanceof RuntimeException) || (t instanceof Error))
-    {
-      return getStackTrace(t);
-    }
     else
     {
-      buffer.append(String.valueOf(t));
+      return getStackTrace(t);
     }
 
     final Throwable cause = t.getCause();

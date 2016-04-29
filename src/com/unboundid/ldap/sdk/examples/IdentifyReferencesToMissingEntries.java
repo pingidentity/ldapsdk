@@ -494,7 +494,15 @@ public final class IdentifyReferencesToMissingEntries
           catch (final LDAPSearchException lse)
           {
             Debug.debugException(lse);
-            searchResult = lse.getSearchResult();
+            try
+            {
+              searchResult = findReferencesPool.search(searchRequest);
+            }
+            catch (final LDAPSearchException lse2)
+            {
+              Debug.debugException(lse2);
+              searchResult = lse2.getSearchResult();
+            }
           }
 
           if (searchResult.getResultCode() != ResultCode.SUCCESS)

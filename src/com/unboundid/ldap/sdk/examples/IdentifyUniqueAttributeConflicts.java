@@ -630,7 +630,15 @@ public final class IdentifyUniqueAttributeConflicts
           catch (final LDAPSearchException lse)
           {
             Debug.debugException(lse);
-            searchResult = lse.getSearchResult();
+            try
+            {
+              searchResult = findConflictsPool.search(searchRequest);
+            }
+            catch (final LDAPSearchException lse2)
+            {
+              Debug.debugException(lse2);
+              searchResult = lse2.getSearchResult();
+            }
           }
 
           if (searchResult.getResultCode() != ResultCode.SUCCESS)
@@ -858,16 +866,32 @@ baseDNLoop:
             for (final String baseDN : baseDNs)
             {
               SearchResult searchResult;
+              final SearchRequest searchRequest = new SearchRequest(baseDN,
+                   SearchScope.SUB, DereferencePolicy.NEVER, 2, 0, false,
+                   filter, "1.1");
               try
               {
-                searchResult = findConflictsPool.search(baseDN,
-                     SearchScope.SUB, DereferencePolicy.NEVER, 2, 0, false,
-                     filter, "1.1");
+                searchResult = findConflictsPool.search(searchRequest);
               }
               catch (final LDAPSearchException lse)
               {
                 Debug.debugException(lse);
-                searchResult = lse.getSearchResult();
+                if (lse.getResultCode().isConnectionUsable())
+                {
+                  searchResult = lse.getSearchResult();
+                }
+                else
+                {
+                  try
+                  {
+                    searchResult = findConflictsPool.search(searchRequest);
+                  }
+                  catch (final LDAPSearchException lse2)
+                  {
+                    Debug.debugException(lse2);
+                    searchResult = lse2.getSearchResult();
+                  }
+                }
               }
 
               for (final SearchResultEntry e : searchResult.getSearchEntries())
