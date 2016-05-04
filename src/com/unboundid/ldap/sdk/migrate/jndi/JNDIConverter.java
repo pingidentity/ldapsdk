@@ -38,11 +38,14 @@ import com.unboundid.asn1.ASN1Exception;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
+import com.unboundid.ldap.sdk.RDN;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -652,12 +655,55 @@ public final class JNDIConverter
   public static Entry convertSearchEntry(final SearchResult r)
          throws NamingException
   {
+    return convertSearchEntry(r, null);
+  }
+
+
+
+  /**
+   * Converts the provided JNDI search result object to an LDAP SDK entry.
+   *
+   * @param  r              The JNDI search result object to be converted.
+   * @param  contextBaseDN  The base DN for the JNDI context over which the
+   *                        search result was retrieved.  If it is
+   *                        non-{@code null} and non-empty, then it will be
+   *                        appended to the result of the {@code getName} method
+   *                        to obtain the entry's full DN.
+   *
+   * @return  The LDAP SDK entry that corresponds to the provided JNDI search
+   *          result.
+   *
+   * @throws  NamingException  If a problem is encountered during the conversion
+   *                           process.
+   */
+  public static Entry convertSearchEntry(final SearchResult r,
+                                         final String contextBaseDN)
+         throws NamingException
+  {
     if (r == null)
     {
       return null;
     }
 
-    return new Entry(r.getName(), convertAttributes(r.getAttributes()));
+    final String dn;
+    if ((contextBaseDN == null) || (contextBaseDN.length() == 0))
+    {
+      dn = r.getName();
+    }
+    else
+    {
+      final String name = r.getName();
+      if ((name == null) || (name.length() == 0))
+      {
+        dn = contextBaseDN;
+      }
+      else
+      {
+        dn = r.getName() + ',' + contextBaseDN;
+      }
+    }
+
+    return new Entry(dn, convertAttributes(r.getAttributes()));
   }
 
 
@@ -672,15 +718,65 @@ public final class JNDIConverter
    */
   public static SearchResult convertSearchEntry(final Entry e)
   {
+    return convertSearchEntry(e, null);
+  }
+
+
+
+  /**
+   * Converts the provided LDAP SDK entry to a JNDI search result.
+   *
+   * @param  e              The entry to be converted to a JNDI search result.
+   * @param  contextBaseDN  The base DN for the JNDI context over which the
+   *                        search result was retrieved.  If it is
+   *                        non-{@code null} and non-empty, then it will be
+   *                        removed from the end of the entry's DN in order to
+   *                        obtain the name for the {@code SearchResult} that is
+   *                        returned.
+   *
+   * @return  The JNDI search result that corresponds to the provided LDAP SDK
+   *          entry.
+   */
+  public static SearchResult convertSearchEntry(final Entry e,
+                                                final String contextBaseDN)
+  {
     if (e == null)
     {
       return null;
+    }
+
+    String name = e.getDN();
+    if ((contextBaseDN != null) && (contextBaseDN.length() > 0))
+    {
+      try
+      {
+        final DN parsedEntryDN = e.getParsedDN();
+        final DN parsedBaseDN = new DN(contextBaseDN);
+        if (parsedEntryDN.equals(parsedBaseDN))
+        {
+          name = "";
+        }
+        else if (parsedEntryDN.isDescendantOf(parsedBaseDN, false))
+        {
+          final RDN[] entryRDNs = parsedEntryDN.getRDNs();
+          final RDN[] baseRDNs = parsedBaseDN.getRDNs();
+          final RDN[] remainingRDNs =
+               new RDN[entryRDNs.length - baseRDNs.length];
+          System.arraycopy(entryRDNs, 0, remainingRDNs, 0,
+               remainingRDNs.length);
+          name = new DN(remainingRDNs).toString();
+        }
+      }
+      catch (final Exception ex)
+      {
+        Debug.debugException(ex);
+      }
     }
 
     final Collection<Attribute> attrs = e.getAttributes();
     final Attribute[] attributes = new Attribute[attrs.size()];
     attrs.toArray(attributes);
 
-    return new SearchResult(e.getDN(), null, convertAttributes(attributes));
+    return new SearchResult(name, null, convertAttributes(attributes));
   }
 }
