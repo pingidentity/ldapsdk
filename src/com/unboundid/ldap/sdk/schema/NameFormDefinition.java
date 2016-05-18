@@ -323,6 +323,39 @@ public final class NameFormDefinition
   /**
    * Creates a new name form with the provided information.
    *
+   * @param  oid                The OID for this name form.  It must not be
+   *                            {@code null}.
+   * @param  name               The name for this name form.  It may be
+   *                            {@code null} or empty if the name form should
+   *                            only be referenced by OID.
+   * @param  description        The description for this name form.  It may be
+   *                            {@code null} if there is no description.
+   * @param  structuralClass    The name or OID of the structural object class
+   *                            with which this name form is associated.  It
+   *                            must not be {@code null}.
+   * @param  requiredAttribute  he name or OID of the attribute which must be
+   *                            present the RDN for entries with the associated
+   *                            structural class.  It must not be {@code null}.
+   * @param  extensions         The set of extensions for this name form.  It
+   *                            may be {@code null} or empty if there should
+   *                            not be any extensions.
+   */
+  public NameFormDefinition(final String oid, final String name,
+                               final String description,
+                               final String structuralClass,
+                               final String requiredAttribute,
+                               final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false, structuralClass, new String[] { requiredAttribute }, null,
+         extensions);
+  }
+
+
+
+  /**
+   * Creates a new name form with the provided information.
+   *
    * @param  oid                 The OID for this name form.  It must not be
    *                             {@code null}.
    * @param  names               The set of names for this name form.  It may

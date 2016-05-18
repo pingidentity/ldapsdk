@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk.schema;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -324,6 +325,93 @@ public final class DITContentRuleDefinition
     isObsolete = (obsolete != null);
 
     extensions = Collections.unmodifiableMap(exts);
+  }
+
+
+
+  /**
+   * Creates a new DIT content rule with the provided information.
+   *
+   * @param  oid                   The OID for the structural object class with
+   *                               which this DIT content rule is associated.
+   *                               It must not be {@code null}.
+   * @param  name                  The name for this DIT content rule.  It may
+   *                               be {@code null} if the DIT content rule
+   *                               should only be referenced by OID.
+   * @param  description           The description for this DIT content rule.
+   *                               It may be {@code null} if there is no
+   *                               description.
+   * @param  auxiliaryClasses      The names/OIDs of the auxiliary object
+   *                               classes that may be present in entries
+   *                               containing this DIT content rule.
+   * @param  requiredAttributes    The names/OIDs of the attributes which must
+   *                               be present in entries containing this DIT
+   *                               content rule.
+   * @param  optionalAttributes    The names/OIDs of the attributes which may be
+   *                               present in entries containing this DIT
+   *                               content rule.
+   * @param  prohibitedAttributes  The names/OIDs of the attributes which may
+   *                               not be present in entries containing this DIT
+   *                               content rule.
+   * @param  extensions            The set of extensions for this DIT content
+   *                               rule.  It may be {@code null} or empty if
+   *                               there should not be any extensions.
+   */
+  public DITContentRuleDefinition(final String oid, final String name,
+                                  final String description,
+                                  final String[] auxiliaryClasses,
+                                  final String[] requiredAttributes,
+                                  final String[] optionalAttributes,
+                                  final String[] prohibitedAttributes,
+                                  final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false, auxiliaryClasses, requiredAttributes, optionalAttributes,
+         prohibitedAttributes, extensions);
+  }
+
+
+
+  /**
+   * Creates a new DIT content rule with the provided information.
+   *
+   * @param  oid                   The OID for the structural object class with
+   *                               which this DIT content rule is associated.
+   *                               It must not be {@code null}.
+   * @param  name                  The name for this DIT content rule.  It may
+   *                               be {@code null} if the DIT content rule
+   *                               should only be referenced by OID.
+   * @param  description           The description for this DIT content rule.
+   *                               It may be {@code null} if there is no
+   *                               description.
+   * @param  auxiliaryClasses      The names/OIDs of the auxiliary object
+   *                               classes that may be present in entries
+   *                               containing this DIT content rule.
+   * @param  requiredAttributes    The names/OIDs of the attributes which must
+   *                               be present in entries containing this DIT
+   *                               content rule.
+   * @param  optionalAttributes    The names/OIDs of the attributes which may be
+   *                               present in entries containing this DIT
+   *                               content rule.
+   * @param  prohibitedAttributes  The names/OIDs of the attributes which may
+   *                               not be present in entries containing this DIT
+   *                               content rule.
+   * @param  extensions            The set of extensions for this DIT content
+   *                               rule.  It may be {@code null} or empty if
+   *                               there should not be any extensions.
+   */
+  public DITContentRuleDefinition(final String oid, final String name,
+                                  final String description,
+                                  final Collection<String> auxiliaryClasses,
+                                  final Collection<String> requiredAttributes,
+                                  final Collection<String> optionalAttributes,
+                                  final Collection<String> prohibitedAttributes,
+                                  final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false, toArray(auxiliaryClasses), toArray(requiredAttributes),
+         toArray(optionalAttributes), toArray(prohibitedAttributes),
+         extensions);
   }
 
 

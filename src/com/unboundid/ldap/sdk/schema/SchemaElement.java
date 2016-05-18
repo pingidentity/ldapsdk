@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk.schema;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import com.unboundid.ldap.sdk.LDAPException;
@@ -687,6 +688,26 @@ public abstract class SchemaElement
     }
 
     return true;
+  }
+
+
+
+  /**
+   * Converts the provided collection of strings to an array.
+   *
+   * @param  c  The collection to convert to an array.  It may be {@code null}.
+   *
+   * @return  A string array if the provided collection is non-{@code null}, or
+   *          {@code null} if the provided collection is {@code null}.
+   */
+  static String[] toArray(final Collection<String> c)
+  {
+    if (c == null)
+    {
+      return null;
+    }
+
+    return c.toArray(NO_STRINGS);
   }
 
 

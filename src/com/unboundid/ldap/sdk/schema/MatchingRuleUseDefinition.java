@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk.schema;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -276,9 +277,65 @@ public final class MatchingRuleUseDefinition
    *
    * @param  oid              The OID for this matching rule use.  It must not
    *                          be {@code null}.
+   * @param  name             The name for this matching rule use.  It may be
+   *                          {@code null} or empty if the matching rule use
+   *                          should only be referenced by OID.
+   * @param  description      The description for this matching rule use.  It
+   *                          may be {@code null} if there is no description.
+   * @param  applicableTypes  The set of attribute types to which this matching
+   *                          rule use applies.  It must not be empty or
+   *                          {@code null}.
+   * @param  extensions       The set of extensions for this matching rule use.
+   *                          It may be {@code null} or empty if there should
+   *                          not be any extensions.
+   */
+  public MatchingRuleUseDefinition(final String oid, final String name,
+                                   final String description,
+                                   final String[] applicableTypes,
+                                   final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false, applicableTypes, extensions);
+  }
+
+
+
+  /**
+   * Creates a new matching rule use with the provided information.
+   *
+   * @param  oid              The OID for this matching rule use.  It must not
+   *                          be {@code null}.
+   * @param  name             The name for this matching rule use.  It may be
+   *                          {@code null} or empty if the matching rule use
+   *                          should only be referenced by OID.
+   * @param  description      The description for this matching rule use.  It
+   *                          may be {@code null} if there is no description.
+   * @param  applicableTypes  The set of attribute types to which this matching
+   *                          rule use applies.  It must not be empty or
+   *                          {@code null}.
+   * @param  extensions       The set of extensions for this matching rule use.
+   *                          It may be {@code null} or empty if there should
+   *                          not be any extensions.
+   */
+  public MatchingRuleUseDefinition(final String oid, final String name,
+                                   final String description,
+                                   final Collection<String> applicableTypes,
+                                   final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false, toArray(applicableTypes), extensions);
+  }
+
+
+
+  /**
+   * Creates a new matching rule use with the provided information.
+   *
+   * @param  oid              The OID for this matching rule use.  It must not
+   *                          be {@code null}.
    * @param  names            The set of names for this matching rule use.  It
    *                          may be {@code null} or empty if the matching rule
-   *                          should only be referenced by OID.
+   *                          use should only be referenced by OID.
    * @param  description      The description for this matching rule use.  It
    *                          may be {@code null} if there is no description.
    * @param  isObsolete       Indicates whether this matching rule use is

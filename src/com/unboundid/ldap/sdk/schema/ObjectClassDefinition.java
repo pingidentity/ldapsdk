@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk.schema;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -350,6 +351,88 @@ public final class ObjectClassDefinition
     objectClassType = ocType;
 
     extensions = Collections.unmodifiableMap(exts);
+  }
+
+
+
+  /**
+   * Creates a new object class with the provided information.
+   *
+   * @param  oid                 The OID for this object class.  It must not be
+   *                             {@code null}.
+   * @param  name                The name for this object class.  It may be
+   *                             {@code null} if the object class should only be
+   *                             referenced by OID.
+   * @param  description         The description for this object class.  It may
+   *                             be {@code null} if there is no description.
+   * @param  superiorClass       The name/OID of the superior class for this
+   *                             object class.  It may be {@code null} or
+   *                             empty if there is no superior class.
+   * @param  objectClassType     The object class type for this object class.
+   * @param  requiredAttributes  The names/OIDs of the attributes which must be
+   *                             present in entries containing this object
+   *                             class.
+   * @param  optionalAttributes  The names/OIDs of the attributes which may be
+   *                             present in entries containing this object
+   *                             class.
+   * @param  extensions          The set of extensions for this object class.
+   *                             It may be {@code null} or empty if there should
+   *                             not be any extensions.
+   */
+  public ObjectClassDefinition(final String oid, final String name,
+                               final String description,
+                               final String superiorClass,
+                               final ObjectClassType objectClassType,
+                               final String[] requiredAttributes,
+                               final String[] optionalAttributes,
+                               final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false,
+         ((superiorClass == null) ? null : new String[] { superiorClass }),
+         objectClassType, requiredAttributes, optionalAttributes,
+         extensions);
+  }
+
+
+
+  /**
+   * Creates a new object class with the provided information.
+   *
+   * @param  oid                 The OID for this object class.  It must not be
+   *                             {@code null}.
+   * @param  name                The name for this object class.  It may be
+   *                             {@code null} if the object class should only be
+   *                             referenced by OID.
+   * @param  description         The description for this object class.  It may
+   *                             be {@code null} if there is no description.
+   * @param  superiorClass       The name/OID of the superior class for this
+   *                             object class.  It may be {@code null} or
+   *                             empty if there is no superior class.
+   * @param  objectClassType     The object class type for this object class.
+   * @param  requiredAttributes  The names/OIDs of the attributes which must be
+   *                             present in entries containing this object
+   *                             class.
+   * @param  optionalAttributes  The names/OIDs of the attributes which may be
+   *                             present in entries containing this object
+   *                             class.
+   * @param  extensions          The set of extensions for this object class.
+   *                             It may be {@code null} or empty if there should
+   *                             not be any extensions.
+   */
+  public ObjectClassDefinition(final String oid, final String name,
+                               final String description,
+                               final String superiorClass,
+                               final ObjectClassType objectClassType,
+                               final Collection<String> requiredAttributes,
+                               final Collection<String> optionalAttributes,
+                               final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false,
+         ((superiorClass == null) ? null : new String[] { superiorClass }),
+         objectClassType, toArray(requiredAttributes),
+         toArray(optionalAttributes), extensions);
   }
 
 

@@ -110,6 +110,29 @@ public enum AttributeUsage
 
 
   /**
+   * Retrieves the attribute usage value with the specified name.
+   *
+   * @param  name  The name of the attribute usage to retrieve.
+   *
+   * @return  The attribute usage with the specified name, or {@code null} if
+   *          there is no usage with the given name.
+   */
+  public static AttributeUsage forName(final String name)
+  {
+    for (final AttributeUsage u : values())
+    {
+      if (u.name.equalsIgnoreCase(name))
+      {
+        return u;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
    * Retrieves a string representation of this attribute usage.
    *
    * @return  A string representation of this attribute usage.

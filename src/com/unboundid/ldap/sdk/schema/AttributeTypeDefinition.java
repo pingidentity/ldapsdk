@@ -468,6 +468,55 @@ public final class AttributeTypeDefinition
    *
    * @param  oid                    The OID for this attribute type.  It must
    *                                not be {@code null}.
+   * @param  name                   The name for this attribute type.  It may be
+   *                                {@code null} if the attribute type should
+   *                                only be referenced by OID.
+   * @param  description            The description for this attribute type.  It
+   *                                may be {@code null} if there is no
+   *                                description.
+   * @param  equalityMatchingRule   The name or OID of the equality matching
+   *                                rule for this attribute type.  It may be
+   *                                {@code null} if a default rule is to be
+   *                                inherited.
+   * @param  orderingMatchingRule   The name or OID of the ordering matching
+   *                                rule for this attribute type.  It may be
+   *                                {@code null} if a default rule is to be
+   *                                inherited.
+   * @param  substringMatchingRule  The name or OID of the substring matching
+   *                                rule for this attribute type.  It may be
+   *                                {@code null} if a default rule is to be
+   *                                inherited.
+   * @param  syntaxOID              The syntax OID for this attribute type.  It
+   *                                may be {@code null} if a default syntax is
+   *                                to be inherited.
+   * @param  isSingleValued         Indicates whether attributes of this type
+   *                                are only allowed to have a single value.
+   * @param  extensions             The set of extensions for this attribute
+   *                                type.  It may be {@code null} or empty if
+   *                                there should not be any extensions.
+   */
+  public AttributeTypeDefinition(final String oid, final String name,
+                                 final String description,
+                                 final String equalityMatchingRule,
+                                 final String orderingMatchingRule,
+                                 final String substringMatchingRule,
+                                 final String syntaxOID,
+                                 final boolean isSingleValued,
+                                 final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false, null, equalityMatchingRule, orderingMatchingRule,
+         substringMatchingRule, syntaxOID, isSingleValued, false, false,
+         AttributeUsage.USER_APPLICATIONS, extensions);
+  }
+
+
+
+  /**
+   * Creates a new attribute type with the provided information.
+   *
+   * @param  oid                    The OID for this attribute type.  It must
+   *                                not be {@code null}.
    * @param  names                  The set of names for this attribute type.
    *                                It may be {@code null} or empty if the
    *                                attribute type should only be referenced by

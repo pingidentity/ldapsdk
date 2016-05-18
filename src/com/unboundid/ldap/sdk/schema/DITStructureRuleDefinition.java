@@ -340,6 +340,39 @@ public final class DITStructureRuleDefinition
   /**
    * Creates a new DIT structure rule with the provided information.
    *
+   * @param  ruleID          The rule ID for this DIT structure rule.
+   * @param  name            The name for this DIT structure rule.  It may be
+   *                         {@code null} if the DIT structure rule should only
+   *                         be referenced by rule ID.
+   * @param  description     The description for this DIT structure rule.  It
+   *                         may be {@code null} if there is no description.
+   * @param  nameFormID      The name or OID of the name form with which this
+   *                         DIT structure rule is associated.  It must not be
+   *                         {@code null}.
+   * @param  superiorRuleID  The superior rule ID for this DIT structure rule.
+   *                         It may be {@code null} if there are no superior
+   *                         rule IDs.
+   * @param  extensions      The set of extensions for this DIT structure rule.
+   *                         It may be {@code null} or empty if there are no
+   *                         extensions.
+   */
+  public DITStructureRuleDefinition(final int ruleID, final String name,
+                                    final String description,
+                                    final String nameFormID,
+                                    final Integer superiorRuleID,
+                                    final Map<String,String[]> extensions)
+  {
+    this(ruleID, ((name == null) ? null : new String[] { name }), description,
+         false, nameFormID,
+         ((superiorRuleID == null) ? null : new int[] { superiorRuleID }),
+         extensions);
+  }
+
+
+
+  /**
+   * Creates a new DIT structure rule with the provided information.
+   *
    * @param  ruleID           The rule ID for this DIT structure rule.
    * @param  names            The set of names for this DIT structure rule.  It
    *                          may be {@code null} or empty if the DIT structure

@@ -275,6 +275,33 @@ public final class MatchingRuleDefinition
    *
    * @param  oid          The OID for this matching rule.  It must not be
    *                      {@code null}.
+   * @param  name         The names for this matching rule.  It may be
+   *                      {@code null} if the matching rule should only be
+   *                      referenced by OID.
+   * @param  description  The description for this matching rule.  It may be
+   *                      {@code null} if there is no description.
+   * @param  syntaxOID    The syntax OID for this matching rule.  It must not be
+   *                      {@code null}.
+   * @param  extensions   The set of extensions for this matching rule.
+   *                      It may be {@code null} or empty if there should not be
+   *                      any extensions.
+   */
+  public MatchingRuleDefinition(final String oid, final String name,
+                                final String description,
+                                final String syntaxOID,
+                                final Map<String,String[]> extensions)
+  {
+    this(oid, ((name == null) ? null : new String[] { name }), description,
+         false, syntaxOID, extensions);
+  }
+
+
+
+  /**
+   * Creates a new matching rule with the provided information.
+   *
+   * @param  oid          The OID for this matching rule.  It must not be
+   *                      {@code null}.
    * @param  names        The set of names for this matching rule.  It may be
    *                      {@code null} or empty if the matching rule should only
    *                      be referenced by OID.

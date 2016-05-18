@@ -91,6 +91,29 @@ public enum ObjectClassType
 
 
   /**
+   * Retrieves the object class type value with the specified name.
+   *
+   * @param  name  The name of the object class type to retrieve.
+   *
+   * @return  The object class type with the specified name, or {@code null} if
+   *          there is no type with the given name.
+   */
+  public static ObjectClassType forName(final String name)
+  {
+    for (final ObjectClassType t : values())
+    {
+      if (t.name.equalsIgnoreCase(name))
+      {
+        return t;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
    * Retrieves a string representation of this object class type.
    *
    * @return  A string representation of this object class type.
