@@ -246,6 +246,7 @@ public final class DeliverOneTimePassword
     bindPassword = new StringArgument('w', "bindPassword", false, 1,
          INFO_DELIVER_OTP_PLACEHOLDER_PASSWORD.get(),
          INFO_DELIVER_OTP_DESCRIPTION_BIND_PW.get());
+    bindPassword.setSensitive(true);
     bindPassword.setArgumentGroupName(INFO_DELIVER_OTP_GROUP_ID_AND_AUTH.get());
     bindPassword.addLongIdentifier("bind-password");
     parser.addArgument(bindPassword);

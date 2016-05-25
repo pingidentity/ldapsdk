@@ -766,7 +766,14 @@ public final class StringArgument
       for (final String s : values)
       {
         argStrings.add(getIdentifierString());
-        argStrings.add(s);
+        if (isSensitive())
+        {
+          argStrings.add("***REDACTED***");
+        }
+        else
+        {
+          argStrings.add(s);
+        }
       }
     }
   }

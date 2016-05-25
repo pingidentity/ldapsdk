@@ -464,7 +464,14 @@ public final class FilterArgument
       for (final Filter f : values)
       {
         argStrings.add(getIdentifierString());
-        argStrings.add(f.toString());
+        if (isSensitive())
+        {
+          argStrings.add("***REDACTED***");
+        }
+        else
+        {
+          argStrings.add(f.toString());
+        }
       }
     }
   }

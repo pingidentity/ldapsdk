@@ -309,6 +309,7 @@ public abstract class MultiServerLDAPCommandLineTool
       bindPassword[i] = new StringArgument(null, genArgName(i, "bindPassword"),
            false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
+      bindPassword[i].setSensitive(true);
       bindPassword[i].setArgumentGroupName(groupName);
       parser.addArgument(bindPassword[i]);
 
@@ -345,6 +346,7 @@ public abstract class MultiServerLDAPCommandLineTool
            genArgName(i, "keyStorePassword"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD.get());
+      keyStorePassword[i].setSensitive(true);
       keyStorePassword[i].setArgumentGroupName(groupName);
       parser.addArgument(keyStorePassword[i]);
 
@@ -374,6 +376,7 @@ public abstract class MultiServerLDAPCommandLineTool
            genArgName(i, "trustStorePassword"), false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD.get());
+      trustStorePassword[i].setSensitive(true);
       trustStorePassword[i].setArgumentGroupName(groupName);
       parser.addArgument(trustStorePassword[i]);
 

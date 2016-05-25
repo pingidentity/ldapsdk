@@ -328,7 +328,14 @@ public final class ArgumentListArgument
       for (final String s : valueStrings)
       {
         argStrings.add(getIdentifierString());
-        argStrings.add(s);
+        if (isSensitive())
+        {
+          argStrings.add("***REDACTED***");
+        }
+        else
+        {
+          argStrings.add(s);
+        }
       }
     }
   }

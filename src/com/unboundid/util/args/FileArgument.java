@@ -829,7 +829,14 @@ public final class FileArgument
       for (final File f : values)
       {
         argStrings.add(getIdentifierString());
-        argStrings.add(f.getAbsolutePath());
+        if (isSensitive())
+        {
+          argStrings.add("***REDACTED***");
+        }
+        else
+        {
+          argStrings.add(f.getAbsolutePath());
+        }
       }
     }
   }

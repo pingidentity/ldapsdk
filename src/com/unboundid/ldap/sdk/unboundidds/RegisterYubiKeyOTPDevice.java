@@ -234,6 +234,7 @@ public final class RegisterYubiKeyOTPDevice
          INFO_REGISTER_YUBIKEY_OTP_DEVICE_PLACEHOLDER_USER_PW.get(),
          INFO_REGISTER_YUBIKEY_OTP_DEVICE_DESCRIPTION_USER_PW.get(
               authenticationID.getIdentifierString()));
+    userPassword.setSensitive(true);
     userPassword.addLongIdentifier("user-password");
     parser.addArgument(userPassword);
 

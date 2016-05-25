@@ -66,6 +66,9 @@ public abstract class Argument
   // Indicates whether this argument is required to be present.
   private final boolean isRequired;
 
+  // Indicates whether values of this argument should be considered sensitive.
+  private boolean isSensitive;
+
   // Indicates whether this argument is used to display usage information.
   private boolean isUsageArgument;
 
@@ -167,6 +170,7 @@ public abstract class Argument
     numOccurrences    = 0;
     isHidden          = false;
     isRegistered      = false;
+    isSensitive       = false;
     isUsageArgument   = false;
   }
 
@@ -183,6 +187,7 @@ public abstract class Argument
     argumentGroupName = source.argumentGroupName;
     isHidden          = source.isHidden;
     isRequired        = source.isRequired;
+    isSensitive       = source.isSensitive;
     isUsageArgument   = source.isUsageArgument;
     maxOccurrences    = source.maxOccurrences;
     description       = source.description;
@@ -635,6 +640,36 @@ public abstract class Argument
 
 
   /**
+   * Indicates whether values of this argument are considered sensitive.
+   * Argument values that are considered sensitive will be obscured in places
+   * where they may be shown.
+   *
+   * @return  {@code true} if values of this argument are considered sensitive,
+   *          or {@code false} if not.
+   */
+  public final boolean isSensitive()
+  {
+    return isSensitive;
+  }
+
+
+
+  /**
+   * Specifies whether values of this argument are considered sensitive.
+   * Argument values that are considered sensitive will be obscured in places
+   * where they may be shown.
+   *
+   * @param  isSensitive  Indicates whether values of this argument are
+   *                      considered sensitive.
+   */
+  public final void setSensitive(final boolean isSensitive)
+  {
+    this.isSensitive = isSensitive;
+  }
+
+
+
+  /**
    * Indicates whether this argument has been registered with the argument
    * parser.
    *
@@ -711,10 +746,7 @@ public abstract class Argument
   /**
    * Creates a copy of this argument that is "clean" and appears as if it has
    * not been used in the course of parsing an argument set.  The new argument
-   * will have all of the same identifiers and
-   *
-   * The new parser will have all
-   * of the same arguments and constraints as this parser.
+   * will have all of the same identifiers and constraints as this parser.
    *
    * @return  The "clean" copy of this argument.
    */

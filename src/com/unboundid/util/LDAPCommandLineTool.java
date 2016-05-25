@@ -259,21 +259,20 @@ public abstract class LDAPCommandLineTool
    * Retrieves a set containing the long identifiers used for LDAP-related
    * arguments injected by this class.
    *
-   * @param  includeAuthenticationArgs  Indicates whether to include
-   *                                    authentication-related arguments.
+   * @param  tool  The tool to use to help make the determination.
    *
    * @return  A set containing the long identifiers used for LDAP-related
    *          arguments injected by this class.
    */
   static Set<String> getLongLDAPArgumentIdentifiers(
-                          final boolean includeAuthenticationArgs)
+                          final LDAPCommandLineTool tool)
   {
     final LinkedHashSet<String> ids = new LinkedHashSet<String>(21);
 
     ids.add("hostname");
     ids.add("port");
 
-    if (includeAuthenticationArgs)
+    if (tool.supportsAuthentication())
     {
       ids.add("bindDN");
       ids.add("bindPassword");
@@ -296,7 +295,7 @@ public abstract class LDAPCommandLineTool
     ids.add("trustStoreFormat");
     ids.add("certNickname");
 
-    if (includeAuthenticationArgs)
+    if (tool.supportsAuthentication())
     {
       ids.add("saslOption");
       ids.add("helpSASL");
@@ -355,6 +354,7 @@ public abstract class LDAPCommandLineTool
       bindPassword = new StringArgument('w', "bindPassword", false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
+      bindPassword.setSensitive(true);
       bindPassword.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
@@ -426,6 +426,7 @@ public abstract class LDAPCommandLineTool
     keyStorePassword = new StringArgument('W', "keyStorePassword", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD.get());
+    keyStorePassword.setSensitive(true);
     keyStorePassword.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
@@ -485,6 +486,7 @@ public abstract class LDAPCommandLineTool
     trustStorePassword = new StringArgument('T', "trustStorePassword", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD.get());
+    trustStorePassword.setSensitive(true);
     trustStorePassword.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {

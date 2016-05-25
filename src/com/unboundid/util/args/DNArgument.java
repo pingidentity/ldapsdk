@@ -479,7 +479,14 @@ public final class DNArgument
       for (final DN dn : values)
       {
         argStrings.add(getIdentifierString());
-        argStrings.add(String.valueOf(dn));
+        if (isSensitive())
+        {
+          argStrings.add("***REDACTED***");
+        }
+        else
+        {
+          argStrings.add(String.valueOf(dn));
+        }
       }
     }
   }

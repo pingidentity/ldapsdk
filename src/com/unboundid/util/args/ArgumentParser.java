@@ -82,6 +82,22 @@ public final class ArgumentParser
 
 
   /**
+   * The name of the argument used to specify the path to a file to which all
+   * output should be written.
+   */
+  private static final String ARG_NAME_OUTPUT_FILE = "outputFile";
+
+
+
+  /**
+   * The name of the argument used to indicate that output should be written to
+   * both the output file and the console.
+   */
+  private static final String ARG_NAME_TEE_OUTPUT = "teeOutput";
+
+
+
+  /**
    * The name of the argument used to specify the path to a properties file from
    * which to obtain the default values for arguments not specified via the
    * command line.
@@ -116,6 +132,9 @@ public final class ArgumentParser
 
 
 
+  // The properties file used to obtain arguments for this tool.
+  private volatile File propertiesFileUsed;
+
   // The maximum number of trailing arguments allowed to be provided.
   private final int maxTrailingArgs;
 
@@ -129,6 +148,9 @@ public final class ArgumentParser
   // The set of named arguments associated with this parser, indexed by long
   // identifier.
   private final LinkedHashMap<String,Argument> namedArgsByLongID;
+
+  // The set of subcommands associated with this parser, indexed by name.
+  private final LinkedHashMap<String,SubCommand> subCommandsByName;
 
   // The full set of named arguments associated with this parser.
   private final List<Argument> namedArgs;
@@ -145,8 +167,15 @@ public final class ArgumentParser
   // be present.
   private final List<Set<Argument>> requiredArgumentSets;
 
+  // A list of any arguments set from the properties file rather than explicitly
+  // provided on the command line.
+  private final List<String> argumentsSetFromPropertiesFile;
+
   // The list of trailing arguments provided on the command line.
   private final List<String> trailingArgs;
+
+  // The full list of subcommands associated with this argument parser.
+  private final List<SubCommand> subCommands;
 
   // The description for the associated command.
   private final String commandDescription;
@@ -156,6 +185,12 @@ public final class ArgumentParser
 
   // The placeholder string for the trailing arguments.
   private final String trailingArgsPlaceholder;
+
+  // The subcommand with which this argument parser is associated.
+  private volatile SubCommand parentSubCommand;
+
+  // The subcommand that was included in the set of command-line arguments.
+  private volatile SubCommand selectedSubCommand;
 
 
 
@@ -320,6 +355,12 @@ public final class ArgumentParser
     dependentArgumentSets = new ArrayList<ObjectPair<Argument,Set<Argument>>>();
     exclusiveArgumentSets = new ArrayList<Set<Argument>>();
     requiredArgumentSets  = new ArrayList<Set<Argument>>();
+    parentSubCommand      = null;
+    selectedSubCommand    = null;
+    subCommands           = new ArrayList<SubCommand>();
+    subCommandsByName     = new LinkedHashMap<String,SubCommand>(10);
+    propertiesFileUsed    = null;
+    argumentsSetFromPropertiesFile = new ArrayList<String>();
   }
 
 
@@ -328,9 +369,12 @@ public final class ArgumentParser
    * Creates a new argument parser that is a "clean" copy of the provided source
    * argument parser.
    *
-   * @param  source  The source argument parser to use for this argument parser.
+   * @param  source      The source argument parser to use for this argument
+   *                     parser.
+   * @param  subCommand  The subcommand with which this argument parser is to be
+   *                     associated.
    */
-  private ArgumentParser(final ArgumentParser source)
+  ArgumentParser(final ArgumentParser source, final SubCommand subCommand)
   {
     commandName             = source.commandName;
     commandDescription      = source.commandDescription;
@@ -338,6 +382,8 @@ public final class ArgumentParser
     maxTrailingArgs         = source.maxTrailingArgs;
     trailingArgsPlaceholder = source.trailingArgsPlaceholder;
 
+    propertiesFileUsed = null;
+    argumentsSetFromPropertiesFile = new ArrayList<String>();
     trailingArgs = new ArrayList<String>();
 
     namedArgs = new ArrayList<Argument>(source.namedArgs.size());
@@ -420,6 +466,20 @@ public final class ArgumentParser
         newSet.add(argsByID.get(a.getIdentifierString()));
       }
       requiredArgumentSets.add(newSet);
+    }
+
+    parentSubCommand = subCommand;
+    selectedSubCommand = null;
+    subCommands = new ArrayList<SubCommand>(source.subCommands.size());
+    subCommandsByName =
+         new LinkedHashMap<String,SubCommand>(source.subCommandsByName.size());
+    for (final SubCommand sc : source.subCommands)
+    {
+      subCommands.add(sc.getCleanCopy());
+      for (final String name : sc.getNames())
+      {
+        subCommandsByName.put(toLowerCase(name), sc);
+      }
     }
   }
 
@@ -1000,6 +1060,13 @@ public final class ArgumentParser
       {
         throw new ArgumentException(ERR_PARSER_SHORT_ID_CONFLICT.get(c));
       }
+
+      if ((parentSubCommand != null) &&
+          (parentSubCommand.getArgumentParser().namedArgsByShortID.containsKey(
+               c)))
+      {
+        throw new ArgumentException(ERR_PARSER_SHORT_ID_CONFLICT.get(c));
+      }
     }
 
     for (final String s : argument.getLongIdentifiers())
@@ -1007,6 +1074,37 @@ public final class ArgumentParser
       if (namedArgsByLongID.containsKey(toLowerCase(s)))
       {
         throw new ArgumentException(ERR_PARSER_LONG_ID_CONFLICT.get(s));
+      }
+
+      if ((parentSubCommand != null) &&
+          (parentSubCommand.getArgumentParser().namedArgsByLongID.containsKey(
+                toLowerCase(s))))
+      {
+        throw new ArgumentException(ERR_PARSER_LONG_ID_CONFLICT.get(s));
+      }
+    }
+
+    for (final SubCommand sc : subCommands)
+    {
+      final ArgumentParser parser = sc.getArgumentParser();
+      for (final Character c : argument.getShortIdentifiers())
+      {
+        if (parser.namedArgsByShortID.containsKey(c))
+        {
+          throw new ArgumentException(
+               ERR_PARSER_SHORT_ID_CONFLICT_WITH_SUBCOMMAND.get(c,
+                    sc.getPrimaryName()));
+        }
+      }
+
+      for (final String s : argument.getLongIdentifiers())
+      {
+        if (parser.namedArgsByLongID.containsKey(toLowerCase(s)))
+        {
+          throw new ArgumentException(
+               ERR_PARSER_LONG_ID_CONFLICT_WITH_SUBCOMMAND.get(s,
+                    sc.getPrimaryName()));
+        }
       }
     }
 
@@ -1217,6 +1315,168 @@ public final class ArgumentParser
 
 
   /**
+   * Indicates whether any subcommands have been registered with this argument
+   * parser.
+   *
+   * @return  {@code true} if one or more subcommands have been registered with
+   *          this argument parser, or {@code false} if not.
+   */
+  public boolean hasSubCommands()
+  {
+    return (! subCommands.isEmpty());
+  }
+
+
+
+  /**
+   * Retrieves the subcommand that was provided in the set of command-line
+   * arguments, if any.
+   *
+   * @return  The subcommand that was provided in the set of command-line
+   *          arguments, or {@code null} if there is none.
+   */
+  public SubCommand getSelectedSubCommand()
+  {
+    return selectedSubCommand;
+  }
+
+
+
+  /**
+   * Specifies the subcommand that was provided in the set of command-line
+   * arguments.
+   *
+   * @param  subcommand  The subcommand that was provided in the set of
+   *                     command-line arguments.  It may be {@code null} if no
+   *                     subcommand should be used.
+   */
+  void setSelectedSubCommand(final SubCommand subcommand)
+  {
+    selectedSubCommand = subcommand;
+  }
+
+
+
+  /**
+   * Retrieves a list of all subcommands associated with this argument parser.
+   *
+   * @return  A list of all subcommands associated with this argument parser, or
+   *          an empty list if there are no associated subcommands.
+   */
+  public List<SubCommand> getSubCommands()
+  {
+    return Collections.unmodifiableList(subCommands);
+  }
+
+
+
+  /**
+   * Retrieves the subcommand for the provided name.
+   *
+   * @param  name  The name of the subcommand to retrieve.
+   *
+   * @return  The subcommand with the provided name, or {@code null} if there is
+   *          no such subcommand.
+   */
+  public SubCommand getSubCommand(final String name)
+  {
+    if (name == null)
+    {
+      return null;
+    }
+
+    return subCommandsByName.get(toLowerCase(name));
+  }
+
+
+
+  /**
+   * Registers the provided subcommand with this argument parser.
+   *
+   * @param  subCommand  The subcommand to register with this argument parser.
+   *                     It must not be {@code null}.
+   *
+   * @throws  ArgumentException  If this argument parser does not allow
+   *                             subcommands, if there is a conflict between any
+   *                             of the names of the provided subcommand and an
+   *                             already-registered subcommand, or if there is a
+   *                             conflict between any of the subcommand-specific
+   *                             arguments and global arguments.
+   */
+  public void addSubCommand(final SubCommand subCommand)
+         throws ArgumentException
+  {
+    // Ensure that the subcommand isn't already registered with an argument
+    // parser.
+    if (subCommand.getGlobalArgumentParser() != null)
+    {
+      throw new ArgumentException(
+           ERR_PARSER_SUBCOMMAND_ALREADY_REGISTERED_WITH_PARSER.get());
+    }
+
+    // Ensure that the caller isn't trying to create a nested subcommand.
+    if (this.parentSubCommand != null)
+    {
+      throw new ArgumentException(
+           ERR_PARSER_CANNOT_CREATE_NESTED_SUBCOMMAND.get(
+                this.parentSubCommand.getPrimaryName()));
+    }
+
+    // Ensure that this argument parser doesn't allow trailing arguments.
+    if (allowsTrailingArguments())
+    {
+      throw new ArgumentException(
+           ERR_PARSER_WITH_TRAILING_ARGS_CANNOT_HAVE_SUBCOMMANDS.get());
+    }
+
+    // Ensure that the subcommand doesn't have any names that conflict with an
+    // existing subcommand.
+    for (final String name : subCommand.getNames())
+    {
+      if (subCommandsByName.containsKey(toLowerCase(name)))
+      {
+        throw new ArgumentException(
+             ERR_SUBCOMMAND_NAME_ALREADY_IN_USE.get(name));
+      }
+    }
+
+    // Register the subcommand.
+    for (final String name : subCommand.getNames())
+    {
+      subCommandsByName.put(toLowerCase(name), subCommand);
+    }
+    subCommands.add(subCommand);
+    subCommand.setGlobalArgumentParser(this);
+  }
+
+
+
+  /**
+   * Registers the provided additional name for this subcommand.
+   *
+   * @param  name        The name to be registered.  It must not be
+   *                     {@code null} or empty.
+   * @param  subCommand  The subcommand with which the name is associated.  It
+   *                     must not be {@code null}.
+   *
+   * @throws  ArgumentException  If the provided name is already in use.
+   */
+  void addSubCommand(final String name, final SubCommand subCommand)
+       throws ArgumentException
+  {
+    final String lowerName = toLowerCase(name);
+    if (subCommandsByName.containsKey(lowerName))
+    {
+      throw new ArgumentException(
+           ERR_SUBCOMMAND_NAME_ALREADY_IN_USE.get(name));
+    }
+
+    subCommandsByName.put(lowerName, subCommand);
+  }
+
+
+
+  /**
    * Retrieves the set of unnamed trailing arguments in the provided command
    * line arguments.
    *
@@ -1263,6 +1523,39 @@ public final class ArgumentParser
 
 
   /**
+   * Retrieves the properties file that was used to obtain values for arguments
+   * not set on the command line.
+   *
+   * @return  The properties file that was used to obtain values for arguments
+   *          not set on the command line, or {@code null} if no properties file
+   *          was used.
+   */
+  public File getPropertiesFileUsed()
+  {
+    return propertiesFileUsed;
+  }
+
+
+
+  /**
+   * Retrieves a list of the string representations of any arguments used for
+   * the associated tool that were set from a properties file rather than
+   * provided on the command line.  The values of any arguments marked as
+   * sensitive will be obscured.
+   *
+   * @return  A list of the string representations any arguments used for the
+   *          associated tool that were set from a properties file rather than
+   *          provided on the command line, or an empty list if no arguments
+   *          were set from a properties file.
+   */
+  public List<String> getArgumentsSetFromPropertiesFile()
+  {
+    return Collections.unmodifiableList(argumentsSetFromPropertiesFile);
+  }
+
+
+
+  /**
    * Creates a copy of this argument parser that is "clean" and appears as if it
    * has not been used to parse an argument set.  The new parser will have all
    * of the same arguments and constraints as this parser.
@@ -1271,7 +1564,7 @@ public final class ArgumentParser
    */
   public ArgumentParser getCleanCopy()
   {
-    return new ArgumentParser(this);
+    return new ArgumentParser(this, null);
   }
 
 
@@ -1289,8 +1582,10 @@ public final class ArgumentParser
          throws ArgumentException
   {
     // Iterate through the provided args strings and process them.
-    boolean inTrailingArgs      = false;
-    boolean skipFinalValidation = false;
+    ArgumentParser subCommandParser    = null;
+    boolean        inTrailingArgs      = false;
+    boolean        skipFinalValidation = false;
+    String         subCommandName      = null;
     for (int i=0; i < args.length; i++)
     {
       final String s = args[i];
@@ -1332,7 +1627,13 @@ public final class ArgumentParser
           argName = s.substring(2);
         }
 
-        final Argument a = namedArgsByLongID.get(toLowerCase(argName));
+        final String lowerName = toLowerCase(argName);
+        Argument a = namedArgsByLongID.get(lowerName);
+        if ((a == null) && (subCommandParser != null))
+        {
+          a = subCommandParser.namedArgsByLongID.get(lowerName);
+        }
+
         if (a == null)
         {
           throw new ArgumentException(ERR_PARSER_NO_SUCH_LONG_ID.get(argName));
@@ -1381,7 +1682,13 @@ public final class ArgumentParser
         else if (s.length() == 2)
         {
           final char c = s.charAt(1);
-          final Argument a = namedArgsByShortID.get(c);
+
+          Argument a = namedArgsByShortID.get(c);
+          if ((a == null) && (subCommandParser != null))
+          {
+            a = subCommandParser.namedArgsByShortID.get(c);
+          }
+
           if (a == null)
           {
             throw new ArgumentException(ERR_PARSER_NO_SUCH_SHORT_ID.get(c));
@@ -1410,6 +1717,11 @@ public final class ArgumentParser
         {
           char c = s.charAt(1);
           Argument a = namedArgsByShortID.get(c);
+          if ((a == null) && (subCommandParser != null))
+          {
+            a = subCommandParser.namedArgsByShortID.get(c);
+          }
+
           if (a == null)
           {
             throw new ArgumentException(ERR_PARSER_NO_SUCH_SHORT_ID.get(c));
@@ -1432,6 +1744,11 @@ public final class ArgumentParser
             {
               c = s.charAt(j);
               a = namedArgsByShortID.get(c);
+              if ((a == null) && (subCommandParser != null))
+              {
+                a = subCommandParser.namedArgsByShortID.get(c);
+              }
+
               if (a == null)
               {
                 throw new ArgumentException(
@@ -1453,17 +1770,39 @@ public final class ArgumentParser
           }
         }
       }
-      else
+      else if (subCommands.isEmpty())
       {
         inTrailingArgs = true;
         if (maxTrailingArgs == 0)
         {
           throw new ArgumentException(ERR_PARSER_TRAILING_ARGS_NOT_ALLOWED.get(
-                                           s, commandName));
+               s, commandName));
         }
         else
         {
           trailingArgs.add(s);
+        }
+      }
+      else
+      {
+        if (selectedSubCommand == null)
+        {
+          subCommandName = s;
+          selectedSubCommand = subCommandsByName.get(toLowerCase(s));
+          if (selectedSubCommand == null)
+          {
+            throw new ArgumentException(ERR_PARSER_NO_SUCH_SUBCOMMAND.get(s,
+                 commandName));
+          }
+          else
+          {
+            subCommandParser = selectedSubCommand.getArgumentParser();
+          }
+        }
+        else
+        {
+          throw new ArgumentException(ERR_PARSER_CONFLICTING_SUBCOMMANDS.get(
+               subCommandName, s));
         }
       }
     }
@@ -1482,6 +1821,14 @@ public final class ArgumentParser
     if (skipFinalValidation)
     {
       return;
+    }
+
+
+    // If any subcommands are defined, then one must have been provided.
+    if ((! subCommands.isEmpty()) && (selectedSubCommand == null))
+    {
+      throw new ArgumentException(
+           ERR_PARSER_MISSING_SUBCOMMAND.get(commandName));
     }
 
 
@@ -1633,7 +1980,9 @@ public final class ArgumentParser
     // We will skip final validation for all usage arguments except the
     // propertiesFilePath and noPropertiesFile arguments.
     if (ARG_NAME_PROPERTIES_FILE_PATH.equals(a.getLongIdentifier()) ||
-        ARG_NAME_NO_PROPERTIES_FILE.equals(a.getLongIdentifier()))
+        ARG_NAME_NO_PROPERTIES_FILE.equals(a.getLongIdentifier()) ||
+        ARG_NAME_OUTPUT_FILE.equals(a.getLongIdentifier()) ||
+        ARG_NAME_TEE_OUTPUT.equals(a.getLongIdentifier()))
     {
       return false;
     }
@@ -1810,23 +2159,8 @@ public final class ArgumentParser
                 PROPERTY_DEFAULT_PROPERTIES_FILE_PATH,
                 ENV_DEFAULT_PROPERTIES_FILE_PATH, ARG_NAME_NO_PROPERTIES_FILE));
       w.println('#');
-
-      for (final Argument a : getNamedArguments())
-      {
-        if (a.isUsageArgument() || a.isHidden())
-        {
-          continue;
-        }
-
-        final String argName = a.getLongIdentifier();
-        if (argName != null)
-        {
-          wrapComment(w,
-               INFO_PARSER_GEN_PROPS_HEADER_3.get(commandName, argName));
-          w.println('#');
-          break;
-        }
-      }
+      wrapComment(w, INFO_PARSER_GEN_PROPS_HEADER_3.get());
+      w.println('#');
 
       wrapComment(w, INFO_PARSER_GEN_PROPS_HEADER_4.get());
       w.println('#');
@@ -1834,62 +2168,98 @@ public final class ArgumentParser
 
       for (final Argument a : getNamedArguments())
       {
-        if (a.isUsageArgument() || a.isHidden())
-        {
-          continue;
-        }
+        writeArgumentProperties(w, null, a);
+      }
 
-        w.println();
-        w.println();
-        wrapComment(w, a.getDescription());
-        w.println('#');
-
-        final String constraints = a.getValueConstraints();
-        if ((constraints != null) && (constraints.length() > 0) &&
-            (! (a instanceof BooleanArgument)))
+      for (final SubCommand sc : getSubCommands())
+      {
+        for (final Argument a : sc.getArgumentParser().getNamedArguments())
         {
-          wrapComment(w, constraints);
-          w.println('#');
-        }
-
-        final String identifier;
-        if (a.getLongIdentifier() != null)
-        {
-          identifier = a.getLongIdentifier();
-        }
-        else
-        {
-          identifier = a.getIdentifierString();
-        }
-
-        String placeholder = a.getValuePlaceholder();
-        if (placeholder == null)
-        {
-          if (a instanceof BooleanArgument)
-          {
-            placeholder = "{true|false}";
-          }
-          else
-          {
-            placeholder = "";
-          }
-        }
-
-        final String propertyName = commandName + '.' + identifier;
-        w.println("# " + propertyName + '=' + placeholder);
-
-        if (a.isPresent())
-        {
-          for (final String s : a.getValueStringRepresentations(false))
-          {
-            w.println(propertyName + '=' + s);
-          }
+          writeArgumentProperties(w, sc, a);
         }
       }
     }
     finally
     {
       w.close();
+    }
+  }
+
+
+
+  /**
+   * Writes information about the provided argument to the given writer.
+   *
+   * @param  w   The writer to which the properties should be written.  It must
+   *             not be {@code null}.
+   * @param  sc  The subcommand with which the argument is associated.  It may
+   *             be {@code null} if the provided argument is a global argument.
+   * @param  a   The argument for which to write the properties.  It must not be
+   *             {@code null}.
+   */
+  private void writeArgumentProperties(final PrintWriter w,
+                                       final SubCommand sc,
+                                       final Argument a)
+  {
+    if (a.isUsageArgument() || a.isHidden())
+    {
+      return;
+    }
+
+    w.println();
+    w.println();
+    wrapComment(w, a.getDescription());
+    w.println('#');
+
+    final String constraints = a.getValueConstraints();
+    if ((constraints != null) && (constraints.length() > 0) &&
+        (! (a instanceof BooleanArgument)))
+    {
+      wrapComment(w, constraints);
+      w.println('#');
+    }
+
+    final String identifier;
+    if (a.getLongIdentifier() != null)
+    {
+      identifier = a.getLongIdentifier();
+    }
+    else
+    {
+      identifier = a.getIdentifierString();
+    }
+
+    String placeholder = a.getValuePlaceholder();
+    if (placeholder == null)
+    {
+      if (a instanceof BooleanArgument)
+      {
+        placeholder = "{true|false}";
+      }
+      else
+      {
+        placeholder = "";
+      }
+    }
+
+    final String propertyName;
+    if (sc == null)
+    {
+      propertyName = commandName + '.' + identifier;
+    }
+    else
+    {
+      propertyName = commandName + '.' + sc.getPrimaryName() + '.' + identifier;
+    }
+
+    w.println("# " + propertyName + '=' + placeholder);
+
+    if (a.isPresent())
+    {
+      for (final String s : a.getValueStringRepresentations(false))
+      {
+        w.println(propertyName + '=' + s);
+      }
     }
   }
 
@@ -2032,6 +2402,7 @@ public final class ArgumentParser
 
       // Parse all of the lines into a map of identifiers and their
       // corresponding values.
+      propertiesFileUsed = propertiesFile;
       if (propertyLines.isEmpty())
       {
         return;
@@ -2061,8 +2432,10 @@ public final class ArgumentParser
         // An argument can have multiple identifiers, and we will allow any of
         // them to be used to reference it.  To deal with this, we'll map the
         // argument identifier to its corresponding argument and then use the
-        // preferred identifier for that argument in the map.
+        // preferred identifier for that argument in the map.  The same applies
+        // to subcommand names.
         boolean prefixedWithToolName = false;
+        boolean prefixedWithSubCommandName = false;
         Argument a = getNamedArgument(propertyName);
         if (a == null)
         {
@@ -2070,10 +2443,39 @@ public final class ArgumentParser
           // Check to see if that was the case.
           if (propertyName.startsWith(commandName + '.'))
           {
-            final String basePropertyName =
+            prefixedWithToolName = true;
+
+            String basePropertyName =
                  propertyName.substring(commandName.length()+1);
             a = getNamedArgument(basePropertyName);
-            prefixedWithToolName = true;
+
+            if (a == null)
+            {
+              final int periodPos = basePropertyName.indexOf('.');
+              if (periodPos > 0)
+              {
+                final String subCommandName =
+                     basePropertyName.substring(0, periodPos);
+                if ((selectedSubCommand != null) &&
+                    selectedSubCommand.hasName(subCommandName))
+                {
+                  prefixedWithSubCommandName = true;
+                  basePropertyName = basePropertyName.substring(periodPos+1);
+                  a = selectedSubCommand.getArgumentParser().getNamedArgument(
+                       basePropertyName);
+                }
+              }
+              else if (selectedSubCommand != null)
+              {
+                a = selectedSubCommand.getArgumentParser().getNamedArgument(
+                     basePropertyName);
+              }
+            }
+          }
+          else if (selectedSubCommand != null)
+          {
+            a = selectedSubCommand.getArgumentParser().getNamedArgument(
+                 propertyName);
           }
         }
 
@@ -2088,7 +2490,16 @@ public final class ArgumentParser
         final String canonicalPropertyName;
         if (prefixedWithToolName)
         {
-          canonicalPropertyName = commandName + '.' + a.getIdentifierString();
+          if (prefixedWithSubCommandName)
+          {
+            canonicalPropertyName = commandName + '.' +
+                 selectedSubCommand.getPrimaryName() + '.' +
+                 a.getIdentifierString();
+          }
+          else
+          {
+            canonicalPropertyName = commandName + '.' + a.getIdentifierString();
+          }
         }
         else
         {
@@ -2108,50 +2519,14 @@ public final class ArgumentParser
       // Iterate through all of the named arguments for the argument parser and
       // see if we should use the properties to assign values to any of the
       // arguments that weren't provided on the command line.
-      for (final Argument a : namedArgs)
+      setArgsFromPropertiesFile(propertyMap, false);
+
+
+      // If there is a selected subcommand, then iterate through all of its
+      // arguments.
+      if (selectedSubCommand != null)
       {
-        if (a.getNumOccurrences() > 0)
-        {
-          // The argument was provided on the command line, and that will always
-          // override anything that might be in the properties file.
-          continue;
-        }
-
-
-        // See if the properties file had a property that is specific to the
-        // tool.  If so, then try to assign its values to the argument.  If not,
-        // then fall back to checking for a set of values that are generic to
-        // any tool that has an argument with that name.
-        List<String> values =
-             propertyMap.get(commandName + '.' + a.getIdentifierString());
-        if (values == null)
-        {
-          values = propertyMap.get(a.getIdentifierString());
-        }
-
-        if (values != null)
-        {
-          for (final String value : values)
-          {
-            if (a instanceof BooleanArgument)
-            {
-              // We'll treat this as a BooleanValueArgument.
-              final BooleanValueArgument bva = new BooleanValueArgument(
-                   a.getShortIdentifier(), a.getLongIdentifier(), false, null,
-                   a.getDescription());
-              bva.addValue(value);
-              if (bva.getValue())
-              {
-                a.incrementOccurrences();
-              }
-            }
-            else
-            {
-              a.addValue(value);
-              a.incrementOccurrences();
-            }
-          }
-        }
+        setArgsFromPropertiesFile(propertyMap, true);
       }
     }
     finally
@@ -2170,6 +2545,108 @@ public final class ArgumentParser
 
 
   /**
+   * Sets the values of any arguments not provided on the command line but
+   * defined in the properties file.
+   *
+   * @param  propertyMap    A map of properties read from the properties file.
+   * @param  useSubCommand  Indicates whether to use the argument parser
+   *                        associated with the selected subcommand rather than
+   *                        the global argument parser.
+   *
+   * @throws  ArgumentException  If a problem is encountered while examining the
+   *                             properties file, or while trying to assign a
+   *                             property value to a corresponding argument.
+   */
+  private void setArgsFromPropertiesFile(
+                    final Map<String,ArrayList<String>> propertyMap,
+                    final boolean useSubCommand)
+          throws ArgumentException
+  {
+    final ArgumentParser p;
+    if (useSubCommand)
+    {
+      p = selectedSubCommand.getArgumentParser();
+    }
+    else
+    {
+      p = this;
+    }
+
+
+    for (final Argument a : p.namedArgs)
+    {
+      if (a.getNumOccurrences() > 0)
+      {
+        // The argument was provided on the command line, and that will always
+        // override anything that might be in the properties file.
+        continue;
+      }
+
+
+      // If we should use a subcommand, then see if the properties file has a
+      // property that is specific to the selected subcommand.  Then fall back
+      // to a property that is specific to the tool, and finally fall back to
+      // checking for a set of values that are generic to any tool that has an
+      // argument with that name.
+      List<String> values = null;
+      if (useSubCommand)
+      {
+        values = propertyMap.get(commandName + '.' +
+             selectedSubCommand.getPrimaryName()  + '.' +
+             a.getIdentifierString());
+      }
+
+      if (values == null)
+      {
+        values = propertyMap.get(commandName + '.' + a.getIdentifierString());
+      }
+
+      if (values == null)
+      {
+        values = propertyMap.get(a.getIdentifierString());
+      }
+
+      if (values != null)
+      {
+        for (final String value : values)
+        {
+          if (a instanceof BooleanArgument)
+          {
+            // We'll treat this as a BooleanValueArgument.
+            final BooleanValueArgument bva = new BooleanValueArgument(
+                 a.getShortIdentifier(), a.getLongIdentifier(), false, null,
+                 a.getDescription());
+            bva.addValue(value);
+            if (bva.getValue())
+            {
+              a.incrementOccurrences();
+            }
+
+            argumentsSetFromPropertiesFile.add(a.getIdentifierString());
+          }
+          else
+          {
+            a.addValue(value);
+            a.incrementOccurrences();
+
+            argumentsSetFromPropertiesFile.add(a.getIdentifierString());
+            if (a.isSensitive())
+            {
+              argumentsSetFromPropertiesFile.add("***REDACTED***");
+            }
+            else
+            {
+              argumentsSetFromPropertiesFile.add(value);
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+
+  /**
    * Retrieves lines that make up the usage information for this program,
    * optionally wrapping long lines.
    *
@@ -2181,15 +2658,60 @@ public final class ArgumentParser
    */
   public List<String> getUsage(final int maxWidth)
   {
-    final ArrayList<String> lines = new ArrayList<String>(100);
+    // If a subcommand was selected, then provide usage specific to that
+    // subcommand.
+    if (selectedSubCommand != null)
+    {
+      return getSubCommandUsage(maxWidth);
+    }
 
     // First is a description of the command.
+    final ArrayList<String> lines = new ArrayList<String>(100);
     lines.addAll(wrapLine(commandDescription, maxWidth));
     lines.add("");
 
+
+    // If the tool supports subcommands, and if there are fewer than 10
+    // subcommands, then display them inline.
+    if ((! subCommands.isEmpty()) && (subCommands.size() < 10))
+    {
+      lines.add(INFO_USAGE_SUBCOMMANDS_HEADER.get());
+      lines.add("");
+
+      for (final SubCommand sc : subCommands)
+      {
+        final StringBuilder nameBuffer = new StringBuilder();
+        nameBuffer.append("  ");
+
+        final Iterator<String> nameIterator = sc.getNames().iterator();
+        while (nameIterator.hasNext())
+        {
+          nameBuffer.append(nameIterator.next());
+          if (nameIterator.hasNext())
+          {
+            nameBuffer.append(", ");
+          }
+        }
+        lines.add(nameBuffer.toString());
+
+        for (final String descriptionLine :
+             wrapLine(sc.getDescription(), (maxWidth - 4)))
+        {
+          lines.add("    " + descriptionLine);
+        }
+        lines.add("");
+      }
+    }
+
+
     // Next comes the usage.  It may include neither, either, or both of the
     // set of options and trailing arguments.
-    if (namedArgs.isEmpty())
+    if (! subCommands.isEmpty())
+    {
+      lines.addAll(wrapLine(INFO_USAGE_SUBCOMMAND_USAGE.get(commandName),
+                            maxWidth));
+    }
+    else if (namedArgs.isEmpty())
     {
       if (maxTrailingArgs == 0)
       {
@@ -2208,15 +2730,18 @@ public final class ArgumentParser
       if (maxTrailingArgs == 0)
       {
         lines.addAll(wrapLine(INFO_USAGE_OPTIONS_NOTRAILING.get(commandName),
-                              maxWidth));
+             maxWidth));
       }
       else
       {
         lines.addAll(wrapLine(INFO_USAGE_OPTIONS_TRAILING.get(
-                                   commandName, trailingArgsPlaceholder),
-                              maxWidth));
+             commandName, trailingArgsPlaceholder),
+             maxWidth));
       }
+    }
 
+    if (! namedArgs.isEmpty())
+    {
       lines.add("");
       lines.add(INFO_USAGE_OPTIONS_INCLUDE.get());
 
@@ -2231,6 +2756,168 @@ public final class ArgumentParser
       final ArrayList<Argument> usageArguments =
            new ArrayList<Argument>(namedArgs.size());
       for (final Argument a : namedArgs)
+      {
+        if (a.isHidden())
+        {
+          // This argument shouldn't be included in the usage output.
+          continue;
+        }
+
+        if (a.isRequired() && (! a.hasDefaultValue()))
+        {
+          hasRequired = true;
+        }
+
+        final String argumentGroup = a.getArgumentGroupName();
+        if (argumentGroup == null)
+        {
+          if (a.isUsageArgument())
+          {
+            usageArguments.add(a);
+          }
+          else
+          {
+            argumentsWithoutGroup.add(a);
+          }
+        }
+        else
+        {
+          List<Argument> groupArgs = argumentsByGroup.get(argumentGroup);
+          if (groupArgs == null)
+          {
+            groupArgs = new ArrayList<Argument>(10);
+            argumentsByGroup.put(argumentGroup, groupArgs);
+          }
+
+          groupArgs.add(a);
+        }
+      }
+
+
+      // Iterate through the defined argument groups and display usage
+      // information for each of them.
+      for (final Map.Entry<String,List<Argument>> e :
+           argumentsByGroup.entrySet())
+      {
+        lines.add("");
+        lines.add("  " + e.getKey());
+        lines.add("");
+        for (final Argument a : e.getValue())
+        {
+          getArgUsage(a, lines, true, maxWidth);
+        }
+      }
+
+      if (! argumentsWithoutGroup.isEmpty())
+      {
+        if (argumentsByGroup.isEmpty())
+        {
+          for (final Argument a : argumentsWithoutGroup)
+          {
+            getArgUsage(a, lines, false, maxWidth);
+          }
+        }
+        else
+        {
+          lines.add("");
+          lines.add("  " + INFO_USAGE_UNGROUPED_ARGS.get());
+          lines.add("");
+          for (final Argument a : argumentsWithoutGroup)
+          {
+            getArgUsage(a, lines, true, maxWidth);
+          }
+        }
+      }
+
+      if (! usageArguments.isEmpty())
+      {
+        if (argumentsByGroup.isEmpty())
+        {
+          for (final Argument a : usageArguments)
+          {
+            getArgUsage(a, lines, false, maxWidth);
+          }
+        }
+        else
+        {
+          lines.add("");
+          lines.add("  " + INFO_USAGE_USAGE_ARGS.get());
+          lines.add("");
+          for (final Argument a : usageArguments)
+          {
+            getArgUsage(a, lines, true, maxWidth);
+          }
+        }
+      }
+
+      if (hasRequired)
+      {
+        lines.add("");
+        if (argumentsByGroup.isEmpty())
+        {
+          lines.add("* " + INFO_USAGE_ARG_IS_REQUIRED.get());
+        }
+        else
+        {
+          lines.add("  * " + INFO_USAGE_ARG_IS_REQUIRED.get());
+        }
+      }
+    }
+
+    return lines;
+  }
+
+
+
+  /**
+   * Retrieves lines that make up the usage information for the selected
+   * subcommand.
+   *
+   * @param  maxWidth  The maximum line width to use for the output.  If this is
+   *                   less than or equal to zero, then no wrapping will be
+   *                   performed.
+   *
+   * @return  The lines that make up the usage information for the selected
+   *          subcommand.
+   */
+  private List<String> getSubCommandUsage(final int maxWidth)
+  {
+    // First is a description of the subcommand.
+    final ArrayList<String> lines = new ArrayList<String>(100);
+    lines.addAll(wrapLine(selectedSubCommand.getDescription(), maxWidth));
+    lines.add("");
+
+    // Next comes the usage.  It may include neither, either, or both of the
+    // set of options and trailing arguments.
+    final ArgumentParser parser = selectedSubCommand.getArgumentParser();
+    if (parser.namedArgs.isEmpty())
+    {
+      lines.addAll(wrapLine(
+           INFO_SUBCOMMAND_USAGE_NOOPTIONS.get(commandName,
+                selectedSubCommand.getPrimaryName()),
+           maxWidth));
+    }
+    else
+    {
+      lines.addAll(wrapLine(
+           INFO_SUBCOMMAND_USAGE_OPTIONS.get(commandName,
+                selectedSubCommand.getPrimaryName()),
+           maxWidth));
+
+      lines.add("");
+      lines.add(INFO_USAGE_OPTIONS_INCLUDE.get());
+
+
+      // If there are any argument groups, then collect the arguments in those
+      // groups.
+      boolean hasRequired = false;
+      final LinkedHashMap<String,List<Argument>> argumentsByGroup =
+           new LinkedHashMap<String,List<Argument>>(10);
+      final ArrayList<Argument> argumentsWithoutGroup =
+           new ArrayList<Argument>(parser.namedArgs.size());
+      final ArrayList<Argument> usageArguments =
+           new ArrayList<Argument>(parser.namedArgs.size());
+      for (final Argument a : parser.namedArgs)
       {
         if (a.isHidden())
         {
@@ -2559,6 +3246,25 @@ public final class ArgumentParser
       }
     }
 
-    buffer.append("})");
+    buffer.append('}');
+
+    if (! subCommands.isEmpty())
+    {
+      buffer.append(", subCommands={");
+
+      final Iterator<SubCommand> subCommandIterator = subCommands.iterator();
+      while (subCommandIterator.hasNext())
+      {
+        subCommandIterator.next().toString(buffer);
+        if (subCommandIterator.hasNext())
+        {
+          buffer.append(", ");
+        }
+      }
+
+      buffer.append('}');
+    }
+
+    buffer.append(')');
   }
 }

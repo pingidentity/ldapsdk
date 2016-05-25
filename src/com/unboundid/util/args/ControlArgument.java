@@ -585,6 +585,12 @@ public final class ControlArgument
       {
         argStrings.add(getIdentifierString());
 
+        if (isSensitive())
+        {
+          argStrings.add("***REDACTED***");
+          continue;
+        }
+
         buffer.setLength(0);
         buffer.append(c.getOID());
         buffer.append(':');

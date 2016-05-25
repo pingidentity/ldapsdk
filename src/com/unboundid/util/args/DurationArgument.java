@@ -824,7 +824,14 @@ public final class DurationArgument
     if (valueNanos != null)
     {
       argStrings.add(getIdentifierString());
-      argStrings.add(nanosToDuration(valueNanos));
+      if (isSensitive())
+      {
+        argStrings.add("***REDACTED***");
+      }
+      else
+      {
+        argStrings.add(nanosToDuration(valueNanos));
+      }
     }
   }
 

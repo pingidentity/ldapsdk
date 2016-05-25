@@ -498,6 +498,7 @@ public final class AuthRate
                   "from the searches.  This must be provided.";
     userPassword = new StringArgument('C', "credentials", true, 1, "{password}",
                                       description);
+    userPassword.setSensitive(true);
     userPassword.setArgumentGroupName("Search and Authentication Arguments");
     parser.addArgument(userPassword);
 

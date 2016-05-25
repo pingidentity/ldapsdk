@@ -93,6 +93,22 @@ public final class ArgumentHelper
 
 
   /**
+   * Sets the selected subcommand for the argument parser.
+   *
+   * @param  parser      The argument parser for whic hto set the selected
+   *                     subcommand.
+   * @param  subcommand  The subcommand that has been selected.
+   */
+  @InternalUseOnly()
+  public static void setSelectedSubCommand(final ArgumentParser parser,
+                                           final SubCommand subcommand)
+  {
+    parser.setSelectedSubCommand(subcommand);
+  }
+
+
+
+  /**
    * Adds the provided value to the given argument.  This will also increment
    * the number of occurrences for the argument.
    *

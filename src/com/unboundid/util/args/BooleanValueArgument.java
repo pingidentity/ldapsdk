@@ -353,7 +353,14 @@ public final class BooleanValueArgument
     if (value != null)
     {
       argStrings.add(getIdentifierString());
-      argStrings.add(String.valueOf(value));
+      if (isSensitive())
+      {
+        argStrings.add("***REDACTED***");
+      }
+      else
+      {
+        argStrings.add(String.valueOf(value));
+      }
     }
   }
 

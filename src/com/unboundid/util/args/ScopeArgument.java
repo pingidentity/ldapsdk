@@ -401,6 +401,13 @@ public final class ScopeArgument
     final SearchScope s = value.get();
     if (s != null)
     {
+      if (isSensitive())
+      {
+        argStrings.add(getIdentifierString());
+        argStrings.add("***REDACTED***");
+        return;
+      }
+
       switch (s.intValue())
       {
         case SearchScope.BASE_INT_VALUE:

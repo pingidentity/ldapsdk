@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
 
@@ -63,6 +64,7 @@ import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.args.SubCommand;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.PromptTrustManager;
 import com.unboundid.util.ssl.SSLUtil;
@@ -104,7 +106,6 @@ final class CommandLineToolInteractiveModeProcessor
 
 
 
-
   /**
    * Creates a new instance of this command-line tool interactive mode
    * processor with the provided information.
@@ -140,6 +141,14 @@ final class CommandLineToolInteractiveModeProcessor
          INFO_INTERACTIVE_LAUNCHING.get(tool.getToolName()));
 
     final List<String> allArgs = new ArrayList<String>(10);
+
+    final List<SubCommand> subCommands = parser.getSubCommands();
+    if (! subCommands.isEmpty())
+    {
+      final SubCommand subcommand = promptForSubCommand();
+      ArgumentHelper.setSelectedSubCommand(parser, subcommand);
+      allArgs.add(subcommand.getPrimaryName());
+    }
 
     final List<String> ldapArgs = new ArrayList<String>(10);
     if (tool instanceof LDAPCommandLineTool)
@@ -203,6 +212,47 @@ final class CommandLineToolInteractiveModeProcessor
 
       tool.out(buffer);
     }
+  }
+
+
+
+  /**
+   * Interactively prompts for the subcommand that should be used when running
+   * the tool.
+   *
+   * @return  The selected subcommand.
+   *
+   * @throws  LDAPException  If a problem is encountered while determining which
+   *                         subcommand to use.
+   */
+  private SubCommand promptForSubCommand()
+          throws LDAPException
+  {
+    // Get all of the subcommands sorted by name.
+    final List<SubCommand> subCommands = parser.getSubCommands();
+    final TreeMap<String,SubCommand> subCommandsByName =
+         new TreeMap<String,SubCommand>();
+    for (final SubCommand sc : subCommands)
+    {
+      subCommandsByName.put(sc.getPrimaryName(), sc);
+    }
+
+
+    // Create an array of the subcommand names we want to use.
+    int index = 0;
+    final String[] subCommandNames = new String[subCommandsByName.size()];
+    for (final SubCommand sc : subCommandsByName.values())
+    {
+      subCommandNames[index++] = sc.getPrimaryName();
+    }
+
+
+    // Prompt the user to determine which subcommand to use, and associate that
+    // with the target subcommand.
+    final int selectedSubCommandNumber = getNumberedMenuChoice(
+         INFO_INTERACTIVE_SUBCOMMAND_PROMPT.get(), false, null,
+         subCommandNames);
+    return parser.getSubCommand(subCommandNames[selectedSubCommandNumber]);
   }
 
 
@@ -405,7 +455,7 @@ final class CommandLineToolInteractiveModeProcessor
         if (keyStorePIN != null)
         {
           argList.add("--keyStorePassword");
-          argList.add("xxxxxxxx");
+          argList.add("***REDACTED***");
           ArgumentHelper.addValueSuppressException(keyStorePasswordArgument,
                StaticUtils.toUTF8String(keyStorePIN));
         }
@@ -537,7 +587,7 @@ final class CommandLineToolInteractiveModeProcessor
         if (trustStorePIN != null)
         {
           argList.add("--trustStorePassword");
-          argList.add("xxxxxxxx");
+          argList.add("***REDACTED***");
           ArgumentHelper.addValueSuppressException(trustStorePasswordArgument,
                StaticUtils.toUTF8String(trustStorePIN));
         }
@@ -686,7 +736,7 @@ final class CommandLineToolInteractiveModeProcessor
             argList.add("--bindDN");
             argList.add(bindDN.toString());
             argList.add("--bindPassword");
-            argList.add("xxxxxxxx");
+            argList.add("***REDACTED***");
 
             ArgumentHelper.addValueSuppressException(bindDNArgument,
                  bindDN.toString());
@@ -755,7 +805,7 @@ final class CommandLineToolInteractiveModeProcessor
               argList.add("--saslOption");
               argList.add("authID=" + authID);
               argList.add("--bindPassword");
-              argList.add("xxxxxxxx");
+              argList.add("***REDACTED***");
 
               ArgumentHelper.addValueSuppressException(saslOptionArgument,
                    "mech=CRAM-MD5");
@@ -806,7 +856,7 @@ final class CommandLineToolInteractiveModeProcessor
               }
 
               argList.add("--bindPassword");
-              argList.add("xxxxxxxx");
+              argList.add("***REDACTED***");
               ArgumentHelper.addValueSuppressException(bindPasswordArgument,
                    StaticUtils.toUTF8String(pw));
               break;
@@ -840,7 +890,7 @@ final class CommandLineToolInteractiveModeProcessor
               }
 
               argList.add("--bindPassword");
-              argList.add("xxxxxxxx");
+              argList.add("***REDACTED***");
               ArgumentHelper.addValueSuppressException(bindPasswordArgument,
                    StaticUtils.toUTF8String(pw));
               break;
@@ -1133,14 +1183,20 @@ final class CommandLineToolInteractiveModeProcessor
     final ArrayList<Argument> args =
          new ArrayList<Argument>(parser.getNamedArguments());
 
+    if (parser.getSelectedSubCommand() != null)
+    {
+      args.addAll(parser.getSelectedSubCommand().getArgumentParser().
+           getNamedArguments());
+    }
+
     final Set<String> usageArguments =
-         CommandLineTool.getUsageArgumentIdentifiers();
+         CommandLineTool.getUsageArgumentIdentifiers(tool);
 
     final Set<String> ldapArguments;
     if (tool instanceof LDAPCommandLineTool)
     {
       ldapArguments = LDAPCommandLineTool.getLongLDAPArgumentIdentifiers(
-           ((LDAPCommandLineTool) tool).supportsAuthentication());
+           ((LDAPCommandLineTool) tool));
     }
     else
     {
@@ -1217,8 +1273,27 @@ argsLoop:
         int optionNumber = 1;
         for (final Argument arg : args)
         {
-          final List<String> valueStrings =
-               arg.getValueStringRepresentations(true);
+          List<String> valueStrings = arg.getValueStringRepresentations(true);
+          if (arg.isSensitive())
+          {
+            final int size = valueStrings.size();
+            switch (size)
+            {
+              case 0:
+                // No need to do any thing.
+                break;
+              case 1:
+                valueStrings = Collections.singletonList("***REDACTED***");
+                break;
+              default:
+                valueStrings = new ArrayList<String>(size);
+                for (int i=0; i <= size; i++)
+                {
+                  valueStrings.add("***REDACTED" + i + "***");
+                }
+                break;
+            }
+          }
 
           switch (valueStrings.size())
           {
@@ -1368,6 +1443,13 @@ argsLoop:
 
                 final ArrayList<String> argStrings =
                      new ArrayList<String>(2*args.size());
+
+                final SubCommand subcommand = parser.getSelectedSubCommand();
+                if (subcommand != null)
+                {
+                  argStrings.add(subcommand.getPrimaryName());
+                }
+
                 argStrings.addAll(ldapArgs);
                 for (final Argument a : args)
                 {
@@ -2403,8 +2485,27 @@ argsLoop:
 
       while (true)
       {
-        final String newValue = promptForString(
-             INFO_INTERACTIVE_ARG_PROMPT_NEW_VALUE.get(), null, a.isRequired());
+        final String newValue;
+        if (a.isSensitive())
+        {
+          final byte[] newValueBytes = promptForPassword(
+               INFO_INTERACTIVE_ARG_PROMPT_NEW_VALUE.get(), a.isRequired());
+          if (newValueBytes == null)
+          {
+            newValue = null;
+          }
+          else
+          {
+            newValue = StaticUtils.toUTF8String(newValueBytes);
+          }
+        }
+        else
+        {
+          newValue = promptForString(
+               INFO_INTERACTIVE_ARG_PROMPT_NEW_VALUE.get(), null,
+               a.isRequired());
+        }
+
         try
         {
           if (newValue != null)

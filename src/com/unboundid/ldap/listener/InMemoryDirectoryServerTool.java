@@ -456,6 +456,7 @@ public final class InMemoryDirectoryServerTool
     keyStorePasswordArgument = new StringArgument('W', "keyStorePassword",
          false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_KEY_STORE_PW.get());
+    keyStorePasswordArgument.setSensitive(true);
     keyStorePasswordArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     keyStorePasswordArgument.addLongIdentifier("keyStorePIN");
@@ -484,6 +485,7 @@ public final class InMemoryDirectoryServerTool
     trustStorePasswordArgument = new StringArgument('T', "trustStorePassword",
          false, 1, INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_TRUST_STORE_PW.get());
+    trustStorePasswordArgument.setSensitive(true);
     trustStorePasswordArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     trustStorePasswordArgument.addLongIdentifier("trustStorePIN");
@@ -536,6 +538,7 @@ public final class InMemoryDirectoryServerTool
          "additionalBindPassword", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PASSWORD.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_ADDITIONAL_BIND_PW.get());
+    additionalBindPasswordArgument.setSensitive(true);
     additionalBindPasswordArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
     additionalBindPasswordArgument.addLongIdentifier(

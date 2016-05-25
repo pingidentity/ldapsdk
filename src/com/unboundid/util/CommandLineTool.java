@@ -27,10 +27,13 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.LDAPException;
@@ -39,6 +42,7 @@ import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.SubCommand;
 
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
@@ -109,6 +113,9 @@ public abstract class CommandLineTool
 
   // The argument used to request help about SASL authentication.
   private BooleanArgument helpSASLArgument = null;
+
+  // The argument used to request help information about all of the subcommands.
+  private BooleanArgument helpSubcommandsArgument = null;
 
   // The argument used to request interactive mode.
   private BooleanArgument interactiveArgument = null;
@@ -188,9 +195,10 @@ public abstract class CommandLineTool
    */
   public final ResultCode runTool(final String... args)
   {
+    final ArgumentParser parser;
     try
     {
-      final ArgumentParser parser = createArgumentParser();
+      parser = createArgumentParser();
       if (supportsInteractiveMode() && defaultsToInteractiveMode() &&
           ((args == null) || (args.length == 0)))
       {
@@ -215,13 +223,47 @@ public abstract class CommandLineTool
       if (helpArgument.isPresent())
       {
         out(parser.getUsageString(StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
-        displayExampleUsages();
+        displayExampleUsages(parser);
         return ResultCode.SUCCESS;
       }
 
       if ((helpSASLArgument != null) && helpSASLArgument.isPresent())
       {
         out(SASLUtils.getUsageString(StaticUtils.TERMINAL_WIDTH_COLUMNS - 1));
+        return ResultCode.SUCCESS;
+      }
+
+      if ((helpSubcommandsArgument != null) &&
+          helpSubcommandsArgument.isPresent())
+      {
+        final TreeMap<String,SubCommand> subCommands =
+             getSortedSubCommands(parser);
+        for (final SubCommand sc : subCommands.values())
+        {
+          final StringBuilder nameBuffer = new StringBuilder();
+
+          final Iterator<String> nameIterator = sc.getNames().iterator();
+          while (nameIterator.hasNext())
+          {
+            nameBuffer.append(nameIterator.next());
+            if (nameIterator.hasNext())
+            {
+              nameBuffer.append(", ");
+            }
+          }
+          out(nameBuffer.toString());
+
+          for (final String descriptionLine :
+               wrapLine(sc.getDescription(),
+                    (StaticUtils.TERMINAL_WIDTH_COLUMNS - 1)))
+          {
+            out("  " + descriptionLine);
+          }
+          out();
+        }
+
+        wrapOut(0, (StaticUtils.TERMINAL_WIDTH_COLUMNS - 1),
+             INFO_CL_TOOL_USE_SUBCOMMAND_HELP.get(getToolName()));
         return ResultCode.SUCCESS;
       }
 
@@ -303,6 +345,60 @@ public abstract class CommandLineTool
     }
 
 
+    // If any values were selected using a properties file, then display
+    // information about them.
+    final List<String> argsSetFromPropertiesFiles =
+         parser.getArgumentsSetFromPropertiesFile();
+    if (! argsSetFromPropertiesFiles.isEmpty())
+    {
+      for (final String line :
+           wrapLine(
+                INFO_CL_TOOL_ARGS_FROM_PROPERTIES_FILE.get(
+                     parser.getPropertiesFileUsed().getPath()),
+                (TERMINAL_WIDTH_COLUMNS - 3)))
+      {
+        out("# ", line);
+      }
+
+      final StringBuilder buffer = new StringBuilder();
+      for (final String s : argsSetFromPropertiesFiles)
+      {
+        if (s.startsWith("-"))
+        {
+          if (buffer.length() > 0)
+          {
+            out(buffer);
+            buffer.setLength(0);
+          }
+
+          buffer.append("#      ");
+          buffer.append(s);
+        }
+        else
+        {
+          if (buffer.length() == 0)
+          {
+            // This should never happen.
+            buffer.append("#      ");
+          }
+          else
+          {
+            buffer.append(' ');
+          }
+
+          buffer.append(StaticUtils.cleanExampleCommandLineArgument(s));
+        }
+      }
+
+      if (buffer.length() > 0)
+      {
+        out(buffer);
+      }
+
+      out();
+    }
+
+
     final AtomicReference<ResultCode> exitCode =
          new AtomicReference<ResultCode>();
     if (registerShutdownHook())
@@ -329,12 +425,46 @@ public abstract class CommandLineTool
 
 
   /**
+   * Retrieves a sorted map of subcommands for the provided argument parser,
+   * alphabetized by primary name.
+   *
+   * @param  parser  The argument parser for which to get the sorted
+   *                 subcommands.
+   *
+   * @return  The sorted map of subcommands.
+   */
+  private static TreeMap<String,SubCommand> getSortedSubCommands(
+                                                 final ArgumentParser parser)
+  {
+    final TreeMap<String,SubCommand> m = new TreeMap<String,SubCommand>();
+    for (final SubCommand sc : parser.getSubCommands())
+    {
+      m.put(sc.getPrimaryName(), sc);
+    }
+    return m;
+  }
+
+
+
+  /**
    * Writes example usage information for this tool to the standard output
    * stream.
+   *
+   * @param  parser  The argument parser used to process the provided set of
+   *                 command-line arguments.
    */
-  private void displayExampleUsages()
+  private void displayExampleUsages(final ArgumentParser parser)
   {
-    final LinkedHashMap<String[],String> examples = getExampleUsages();
+    final LinkedHashMap<String[],String> examples;
+    if ((parser != null) && (parser.getSelectedSubCommand() != null))
+    {
+      examples = parser.getSelectedSubCommand().getExampleUsages();
+    }
+    else
+    {
+      examples = getExampleUsages();
+    }
+
     if ((examples == null) || examples.isEmpty())
     {
       return;
@@ -609,6 +739,15 @@ public abstract class CommandLineTool
     helpArgument.setUsageArgument(true);
     parser.addArgument(helpArgument);
 
+    if (! parser.getSubCommands().isEmpty())
+    {
+      helpSubcommandsArgument = new BooleanArgument(null, "helpSubcommands", 1,
+           INFO_CL_TOOL_DESCRIPTION_HELP_SUBCOMMANDS.get());
+      helpSubcommandsArgument.addLongIdentifier("help-subcommands");
+      helpSubcommandsArgument.setUsageArgument(true);
+      parser.addArgument(helpSubcommandsArgument);
+    }
+
     final String version = getToolVersion();
     if ((version != null) && (version.length() > 0) &&
         (parser.getNamedArgument("version") == null))
@@ -654,19 +793,39 @@ public abstract class CommandLineTool
 
 
   /**
-   * Retrieves a set containing the long identifiers used for LDAP-related
-   * arguments injected by this class.
+   * Retrieves a set containing the long identifiers used for usage arguments
+   * injected by this class.
    *
-   * @return  A set containing the long identifiers used for LDAP-related
-   *          arguments injected by this class.
+   * @param  tool  The tool to use to help make the determination.
+   *
+   * @return  A set containing the long identifiers used for usage arguments
+   *          injected by this class.
    */
-  static Set<String> getUsageArgumentIdentifiers()
+  static Set<String> getUsageArgumentIdentifiers(final CommandLineTool tool)
   {
-    final LinkedHashSet<String> ids = new LinkedHashSet<String>(21);
+    final LinkedHashSet<String> ids = new LinkedHashSet<String>(9);
 
-    ids.add("interactive");
     ids.add("help");
     ids.add("version");
+    ids.add("helpSubcommands");
+
+    if (tool.supportsInteractiveMode())
+    {
+      ids.add("interactive");
+    }
+
+    if (tool.supportsPropertiesFile())
+    {
+      ids.add("propertiesFilePath");
+      ids.add("generatePropertiesFile");
+      ids.add("noPropertiesFile");
+    }
+
+    if (tool.supportsOutputFile())
+    {
+      ids.add("outputFile");
+      ids.add("teeOutput");
+    }
 
     return Collections.unmodifiableSet(ids);
   }

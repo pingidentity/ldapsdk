@@ -666,7 +666,14 @@ public final class IntegerArgument
       for (final Integer i : values)
       {
         argStrings.add(getIdentifierString());
-        argStrings.add(i.toString());
+        if (isSensitive())
+        {
+          argStrings.add("***REDACTED");
+        }
+        else
+        {
+          argStrings.add(i.toString());
+        }
       }
     }
   }
