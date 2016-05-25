@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +66,7 @@ import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.args.SubCommand;
+import com.unboundid.util.args.TimestampArgument;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.PromptTrustManager;
 import com.unboundid.util.ssl.SSLUtil;
@@ -1799,6 +1801,10 @@ argsLoop:
     {
       promptForString((StringArgument) a);
     }
+    else if (a instanceof TimestampArgument)
+    {
+      promptForTimestamp((TimestampArgument) a);
+    }
     else
     {
       // This should never happen.
@@ -2666,6 +2672,85 @@ argsLoop:
 
 
   /**
+   * Prompts for one or more timestamp values.
+   *
+   * @param  a  The timestamp argument for which to prompt.
+   *
+   * @throws  LDAPException  If a problem is encountered while interacting with
+   *                         the user, or if the user wants to quit.
+   */
+  private void promptForTimestamp(final TimestampArgument a)
+          throws LDAPException
+  {
+    final List<String> stringValues = a.getValueStringRepresentations(true);
+    ArgumentHelper.reset(a);
+
+    if (a.getMaxOccurrences() == 1)
+    {
+      if (! stringValues.isEmpty())
+      {
+        tool.out();
+        tool.wrapStandardOut(0, 0, wrapColumn, true,
+             INFO_INTERACTIVE_ARG_DESC_CURRENT_VALUE.get());
+        tool.wrapStandardOut(5, 10, wrapColumn, true, stringValues.get(0));
+      }
+
+      final ObjectPair<Date,String> p = promptForTimestamp(
+           INFO_INTERACTIVE_ARG_PROMPT_NEW_VALUE.get(), null, a.isRequired());
+      if (p != null)
+      {
+        ArgumentHelper.addValueSuppressException(a, p.getSecond());
+      }
+    }
+    else
+    {
+      if (! stringValues.isEmpty())
+      {
+        tool.out();
+        tool.wrapStandardOut(0, 0, wrapColumn, true,
+             INFO_INTERACTIVE_ARG_DESC_CURRENT_VALUES.get());
+        for (final String s : stringValues)
+        {
+          tool.wrapStandardOut(5, 10, wrapColumn, true, String.valueOf(s));
+        }
+      }
+
+      tool.out();
+      tool.wrapStandardOut(0, 0, wrapColumn, true,
+           INFO_INTERACTIVE_ARG_PROMPT_NEW_VALUES.get());
+
+      boolean first = true;
+      while (true)
+      {
+        final boolean isRequired;
+        if (first)
+        {
+          first = false;
+          isRequired = a.isRequired();
+        }
+        else
+        {
+          isRequired = false;
+        }
+
+        final Filter filterValue = promptForFilter(
+             INFO_INTERACTIVE_ARG_PROMPT_NEW_VALUE.get(), null, isRequired);
+        if (filterValue == null)
+        {
+          return;
+        }
+        else
+        {
+          ArgumentHelper.addValueSuppressException(a,
+               String.valueOf(filterValue));
+        }
+      }
+    }
+  }
+
+
+
+  /**
    * Displays a menu of numbered options, and waits for the user to select one
    * of the options.
    *
@@ -3207,7 +3292,7 @@ argsLoop:
    * @param  mustBeDirectory  Indicates whether the path must represent a
    *                          directory.
    *
-   * @return  The filter obtained from the user, or {@code null} if the user did
+   * @return  The file obtained from the user, or {@code null} if the user did
    *          not provide a value, there is no default value, and no value is
    *          required.
    *
@@ -3384,6 +3469,88 @@ argsLoop:
       else
       {
         return pwBytes;
+      }
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new LDAPException(ResultCode.LOCAL_ERROR,
+           ERR_INTERACTIVE_PROMPT_ERROR_READING_RESPONSE.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+  }
+
+
+
+  /**
+   * Prompts the user to enter a timestamp.
+   *
+   * @param  prompt        The prompt to display to the user.
+   * @param  defaultValue  The value that should be selected if the user
+   *                       presses ENTER without entering a value.
+   * @param  requireValue  Indicates whether a value is required.
+   *
+   * @return  An object pair that contains both the parsed date and the string
+   *          representation provided by the user, or {@code null} if the user
+   *          did not provide a value, there is no default value, and no value
+   *          is required.
+   *
+   * @throws  LDAPException  If an error occurs while obtaining the value from
+   *                         the user.
+   */
+  private ObjectPair<Date,String> promptForTimestamp(final String prompt,
+                                                     final Date defaultValue,
+                                                     final boolean requireValue)
+          throws LDAPException
+  {
+    tool.out();
+
+    final String promptStr;
+    if (defaultValue == null)
+    {
+      promptStr = prompt + ": ";
+    }
+    else
+    {
+      promptStr = prompt + " [" + defaultValue + "]: ";
+    }
+
+    tool.wrapStandardOut(0, 0, wrapColumn, false, promptStr);
+
+    try
+    {
+      String line = systemInReader.readLine().trim();
+      if ((line.length() == 0) && (defaultValue != null))
+      {
+        line = String.valueOf(defaultValue);
+      }
+
+      if (line.length() == 0)
+      {
+        if (requireValue)
+        {
+          tool.wrapErr(0, wrapColumn,
+               ERR_INTERACTIVE_PROMPT_VALUE_REQUIRED.get());
+          return promptForTimestamp(prompt, defaultValue, requireValue);
+        }
+        else
+        {
+          return null;
+        }
+      }
+
+      try
+      {
+        return new ObjectPair<Date,String>(
+             TimestampArgument.parseTimestamp(line), line);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        tool.wrapErr(0, wrapColumn,
+             ERR_INTERACTIVE_PROMPT_INVALID_TIMESTAMP.get());
+        return promptForTimestamp(prompt, defaultValue, requireValue);
       }
     }
     catch (final Exception e)

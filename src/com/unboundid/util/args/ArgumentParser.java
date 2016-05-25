@@ -1029,6 +1029,33 @@ public final class ArgumentParser
 
 
   /**
+   * Retrieves the timestamp argument with the specified identifier.
+   *
+   * @param  identifier  The identifier of the argument to retrieve.  It may be
+   *                     the long identifier without any dashes, the short
+   *                     identifier character preceded by a single dash, or the
+   *                     long identifier preceded by two dashes. It must not be
+   *                     {@code null}.
+   *
+   * @return  The timestamp argument with the specified identifier, or
+   *          {@code null} if there is no such argument.
+   */
+  public TimestampArgument getTimestampArgument(final String identifier)
+  {
+    final Argument a = getNamedArgument(identifier);
+    if (a == null)
+    {
+      return null;
+    }
+    else
+    {
+      return (TimestampArgument) a;
+    }
+  }
+
+
+
+  /**
    * Retrieves the set of named arguments defined for use with this argument
    * parser.
    *
