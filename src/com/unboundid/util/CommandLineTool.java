@@ -108,6 +108,10 @@ public abstract class CommandLineTool
   // The print stream to use for messages written to standard error.
   private volatile PrintStream err;
 
+  // The argument used to indicate that the tool should append to the output
+  // file rather than overwrite it.
+  private BooleanArgument appendToOutputFileArgument = null;
+
   // The argument used to request tool help.
   private BooleanArgument helpArgument = null;
 
@@ -317,11 +321,13 @@ public abstract class CommandLineTool
     if ((outputFileArgument != null) && outputFileArgument.isPresent())
     {
       final File outputFile = outputFileArgument.getValue();
+      final boolean append = ((appendToOutputFileArgument != null) &&
+           appendToOutputFileArgument.isPresent());
 
       final PrintStream outputFileStream;
       try
       {
-        final FileOutputStream fos = new FileOutputStream(outputFile);
+        final FileOutputStream fos = new FileOutputStream(outputFile, append);
         outputFileStream = new PrintStream(fos, true, "UTF-8");
       }
       catch (final Exception e)
@@ -722,6 +728,14 @@ public abstract class CommandLineTool
       outputFileArgument.setUsageArgument(true);
       parser.addArgument(outputFileArgument);
 
+      appendToOutputFileArgument = new BooleanArgument(null,
+           "appendToOutputFile", 1,
+           INFO_CL_TOOL_DESCRIPTION_APPEND_TO_OUTPUT_FILE.get(
+                outputFileArgument.getIdentifierString()));
+      appendToOutputFileArgument.addLongIdentifier("append-to-output-file");
+      appendToOutputFileArgument.setUsageArgument(true);
+      parser.addArgument(appendToOutputFileArgument);
+
       teeOutputArgument = new BooleanArgument(null, "teeOutput", 1,
            INFO_CL_TOOL_DESCRIPTION_TEE_OUTPUT.get(
                 outputFileArgument.getIdentifierString()));
@@ -729,6 +743,8 @@ public abstract class CommandLineTool
       teeOutputArgument.setUsageArgument(true);
       parser.addArgument(teeOutputArgument);
 
+      parser.addDependentArgumentSet(appendToOutputFileArgument,
+           outputFileArgument);
       parser.addDependentArgumentSet(teeOutputArgument,
            outputFileArgument);
     }
@@ -824,6 +840,7 @@ public abstract class CommandLineTool
     if (tool.supportsOutputFile())
     {
       ids.add("outputFile");
+      ids.add("appendToOutputFile");
       ids.add("teeOutput");
     }
 
