@@ -83,7 +83,7 @@
 
 
   <!-- Define the amount of memory to use for forked VMs -->
-  <property name="MEM" value="512M" />
+  <property name="MEM" value="768M" />
 
 
   <!-- Define a number of version-related properties. -->
