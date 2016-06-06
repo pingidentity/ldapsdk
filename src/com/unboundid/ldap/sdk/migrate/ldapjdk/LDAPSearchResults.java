@@ -70,6 +70,12 @@ public class LDAPSearchResults
 
 
 
+  // The asynchronous request ID for these search results.
+  private volatile AsyncRequestID asyncRequestID;
+
+  // Indicates whether the search has been abandoned.
+  private final AtomicBoolean searchAbandoned;
+
   // Indicates whether the end of the result set has been reached.
   private final AtomicBoolean searchDone;
 
@@ -113,12 +119,49 @@ public class LDAPSearchResults
   {
     this.maxWaitTime = maxWaitTime;
 
-    searchDone   = new AtomicBoolean(false);
-    count        = new AtomicInteger(0);
-    lastControls = new AtomicReference<Control[]>();
-    nextResult   = new AtomicReference<Object>();
-    searchResult = new AtomicReference<SearchResult>();
-    resultQueue  = new LinkedBlockingQueue<Object>(50);
+    asyncRequestID = null;
+    searchAbandoned = new AtomicBoolean(false);
+    searchDone      = new AtomicBoolean(false);
+    count           = new AtomicInteger(0);
+    lastControls    = new AtomicReference<Control[]>();
+    nextResult      = new AtomicReference<Object>();
+    searchResult    = new AtomicReference<SearchResult>();
+    resultQueue     = new LinkedBlockingQueue<Object>(50);
+  }
+
+
+
+  /**
+   * Indicates that this search request has been abandoned.
+   */
+  void setAbandoned()
+  {
+    searchAbandoned.set(true);
+  }
+
+
+
+  /**
+   * Retrieves the asynchronous request ID for the associates search operation.
+   *
+   * @return  The asynchronous request ID for the associates search operation.
+   */
+  AsyncRequestID getAsyncRequestID()
+  {
+    return asyncRequestID;
+  }
+
+
+
+  /**
+   * Sets the asynchronous request ID for the associated search operation.
+   *
+   * @param  asyncRequestID  The asynchronous request ID for the associated
+   *                         search operation.
+   */
+  void setAsyncRequestID(final AsyncRequestID asyncRequestID)
+  {
+    this.asyncRequestID = asyncRequestID;
   }
 
 
@@ -146,26 +189,47 @@ public class LDAPSearchResults
       return o;
     }
 
-    if (searchDone.get())
+    if (searchDone.get() || searchAbandoned.get())
     {
       return null;
     }
 
     try
     {
-      if (maxWaitTime > 0)
+      final long stopWaitTime;
+      if (maxWaitTime > 0L)
       {
-        o = resultQueue.poll(maxWaitTime, TimeUnit.MILLISECONDS);
-        if (o == null)
+        stopWaitTime = System.currentTimeMillis() + maxWaitTime;
+      }
+      else
+      {
+        stopWaitTime = Long.MAX_VALUE;
+      }
+
+      while ((! searchAbandoned.get()) &&
+             (System.currentTimeMillis() < stopWaitTime))
+      {
+        o = resultQueue.poll(100L, TimeUnit.MILLISECONDS);
+        if (o != null)
+        {
+          break;
+        }
+      }
+
+      if (o == null)
+      {
+        if (searchAbandoned.get())
+        {
+          o = new SearchResult(-1, ResultCode.USER_CANCELED, null, null, null,
+               0, 0, null);
+          count.incrementAndGet();
+        }
+        else
         {
           o = new SearchResult(-1, ResultCode.TIMEOUT, null, null, null, 0, 0,
                null);
           count.incrementAndGet();
         }
-      }
-      else
-      {
-        o = resultQueue.take();
       }
     }
     catch (Exception e)

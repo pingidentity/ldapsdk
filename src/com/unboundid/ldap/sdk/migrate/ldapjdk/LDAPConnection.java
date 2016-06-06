@@ -24,6 +24,7 @@ package com.unboundid.ldap.sdk.migrate.ldapjdk;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.AsyncRequestID;
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.CompareResult;
@@ -666,6 +667,41 @@ public class LDAPConnection
     {
       conn.abandon(InternalSDKHelper.createAsyncRequestID(id, conn),
                    getControls(null));
+    }
+    catch (com.unboundid.ldap.sdk.LDAPException le)
+    {
+      debugException(le);
+      throw new LDAPException(le);
+    }
+  }
+
+
+
+  /**
+   * Sends a request to abandon the provided search operation.
+   *
+   * @param  searchResults  The search results object for the search to abandon.
+   *
+   * @throws  LDAPException  If a problem occurs while sending the request.
+   */
+  public void abandon(final LDAPSearchResults searchResults)
+         throws LDAPException
+  {
+    try
+    {
+      final AsyncRequestID requestID = searchResults.getAsyncRequestID();
+      if (requestID != null)
+      {
+        searchResults.setAbandoned();
+        conn.abandon(requestID);
+      }
+      else
+      {
+        // This should never happen.
+        throw new LDAPException(
+             "The search request has not been sent to the server",
+             LDAPException.PARAM_ERROR);
+      }
     }
     catch (com.unboundid.ldap.sdk.LDAPException le)
     {
@@ -1448,7 +1484,7 @@ public class LDAPConnection
 
       update(searchRequest, constraints);
 
-      conn.asyncSearch(searchRequest);
+      results.setAsyncRequestID(conn.asyncSearch(searchRequest));
       return results;
     }
     catch (com.unboundid.ldap.sdk.LDAPException le)
