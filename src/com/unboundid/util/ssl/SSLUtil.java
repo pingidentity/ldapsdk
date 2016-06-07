@@ -24,6 +24,7 @@ package com.unboundid.util.ssl;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -500,7 +502,9 @@ public final class SSLUtil
   public SSLServerSocketFactory createSSLServerSocketFactory()
          throws GeneralSecurityException
   {
-    return createSSLContext().getServerSocketFactory();
+    return new SetEnabledProtocolsSSLServerSocketFactory(
+         createSSLContext().getServerSocketFactory(),
+         ENABLED_SSL_PROTOCOLS.get());
   }
 
 
@@ -524,7 +528,8 @@ public final class SSLUtil
                                      final String protocol)
          throws GeneralSecurityException
   {
-    return createSSLContext(protocol).getServerSocketFactory();
+    return new SetEnabledProtocolsSSLServerSocketFactory(
+         createSSLContext(protocol).getServerSocketFactory(), protocol);
   }
 
 
@@ -671,16 +676,15 @@ public final class SSLUtil
    * protocols.  This will only have any effect for sockets that are instances
    * of {@code javax.net.ssl.SSLSocket}, but it is safe to call for any kind of
    * {@code java.net.Socket}.  This should be called before attempting any
-   * communication over the socket, as
+   * communication over the socket.
    *
    * @param  socket     The socket on which to apply the configured set of
    *                    enabled SSL protocols.
    * @param  protocols  The set of protocols that should be enabled for the
    *                    socket, if available.
    *
-   * @throws  IOException  If {@link #getEnabledSSLProtocols} returns a
-   *                       non-empty set but none of the values in that set are
-   *                       supported by the socket.
+   * @throws  IOException  If a problem is encountered while applying the
+   *                       desired set of enabled protocols to the given socket.
    */
   static void applyEnabledSSLProtocols(final Socket socket,
                                        final Set<String> protocols)
@@ -692,14 +696,89 @@ public final class SSLUtil
       return;
     }
 
-    final Set<String> lowerProtocols = new HashSet<String>(protocols.size());
-    for (final String s : protocols)
+    final SSLSocket sslSocket = (SSLSocket) socket;
+    final String[] protocolsToEnable =
+         getSSLProtocolsToEnable(protocols, sslSocket.getSupportedProtocols());
+
+    try
+    {
+      sslSocket.setEnabledProtocols(protocolsToEnable);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+  }
+
+
+
+  /**
+   * Updates the provided server socket to apply the appropriate set of enabled
+   * SSL protocols.  This will only have any effect for server sockets that are
+   * instances of {@code javax.net.ssl.SSLServerSocket}, but it is safe to call
+   * for any kind of {@code java.net.ServerSocket}.  This should be called
+   * before attempting any communication over the socket.
+   *
+   * @param  serverSocket  The server socket on which to apply the configured
+   *                       set of enabled SSL protocols.
+   * @param  protocols     The set of protocols that should be enabled for the
+   *                       server socket, if available.
+   *
+   * @throws  IOException  If a problem is encountered while applying the
+   *                       desired set of enabled protocols to the given server
+   *                       socket.
+   */
+  static void applyEnabledSSLProtocols(final ServerSocket serverSocket,
+                                       final Set<String> protocols)
+         throws IOException
+  {
+    if ((serverSocket == null) ||
+        (!(serverSocket instanceof SSLServerSocket)) ||
+        protocols.isEmpty())
+    {
+      return;
+    }
+
+    final SSLServerSocket sslServerSocket = (SSLServerSocket) serverSocket;
+    final String[] protocolsToEnable = getSSLProtocolsToEnable(protocols,
+         sslServerSocket.getSupportedProtocols());
+
+    try
+    {
+      sslServerSocket.setEnabledProtocols(protocolsToEnable);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the names of the SSL protocols that should be enabled given the
+   * provided information.
+   *
+   * @param  desiredProtocols    The set of protocols that are desired to be
+   *                             enabled.
+   * @param  supportedProtocols  The set of all protocols that are supported.
+   *
+   * @return  The names of the SSL protocols that should be enabled.
+   *
+   * @throws  IOException  If none of the desired values are included in the
+   *                       supported set.
+   */
+  private static String[] getSSLProtocolsToEnable(
+                               final Set<String> desiredProtocols,
+                               final String[] supportedProtocols)
+         throws IOException
+  {
+    final Set<String> lowerProtocols =
+         new HashSet<String>(desiredProtocols.size());
+    for (final String s : desiredProtocols)
     {
       lowerProtocols.add(StaticUtils.toLowerCase(s));
     }
-
-    final SSLSocket sslSocket = (SSLSocket) socket;
-    final String[] supportedProtocols = sslSocket.getSupportedProtocols();
 
     final ArrayList<String> enabledList =
          new ArrayList<String>(supportedProtocols.length);
@@ -714,7 +793,7 @@ public final class SSLUtil
     if (enabledList.isEmpty())
     {
       final StringBuilder enabledBuffer = new StringBuilder();
-      final Iterator<String> enabledIterator = protocols.iterator();
+      final Iterator<String> enabledIterator = desiredProtocols.iterator();
       while (enabledIterator.hasNext())
       {
         enabledBuffer.append('\'');
@@ -748,8 +827,7 @@ public final class SSLUtil
     }
     else
     {
-      final String[] enabledArray = new String[enabledList.size()];
-      sslSocket.setEnabledProtocols(enabledList.toArray(enabledArray));
+      return enabledList.toArray(StaticUtils.NO_STRINGS);
     }
   }
 
