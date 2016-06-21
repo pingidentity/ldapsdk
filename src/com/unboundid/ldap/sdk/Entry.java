@@ -112,6 +112,21 @@ public class Entry
 
 
   /**
+   * Creates a new entry that wraps the provided entry.
+   *
+   * @param  e  The entry to be wrapped.
+   */
+  protected Entry(final Entry e)
+  {
+    parsedDN = e.parsedDN;
+    attributes = e.attributes;
+    schema = e.schema;
+    dn = e.dn;
+  }
+
+
+
+  /**
    * Creates a new entry with the provided DN and no attributes.
    *
    * @param  dn  The DN for this entry.  It must not be {@code null}.

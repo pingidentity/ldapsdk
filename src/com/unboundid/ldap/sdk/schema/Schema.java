@@ -894,14 +894,14 @@ public final class Schema
   public static Schema getDefaultStandardSchema()
          throws LDAPException
   {
+    final Schema s = DEFAULT_STANDARD_SCHEMA.get();
+    if (s != null)
+    {
+      return s;
+    }
+
     synchronized (DEFAULT_STANDARD_SCHEMA)
     {
-      final Schema s = DEFAULT_STANDARD_SCHEMA.get();
-      if (s != null)
-      {
-        return s;
-      }
-
       try
       {
         final ClassLoader classLoader = Schema.class.getClassLoader();

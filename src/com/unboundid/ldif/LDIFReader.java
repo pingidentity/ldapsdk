@@ -1259,16 +1259,26 @@ public final class LDIFReader
   private LDIFRecord readLDIFRecordAsync()
           throws IOException, LDIFException
   {
-    final Result<UnparsedLDIFRecord, LDIFRecord> result =
-         readLDIFRecordResultAsync();
-    if (result == null)
+    Result<UnparsedLDIFRecord, LDIFRecord> result = null;
+    LDIFRecord record = null;
+    while (record == null)
     {
-      return null;
+      result = readLDIFRecordResultAsync();
+      if (result == null)
+      {
+        return null;
+      }
+
+      record = result.getOutput();
+
+      // This is a special value that means we should skip this Entry.  We have
+      // to use something different than null because null means EOF.
+      if (record == SKIP_ENTRY)
+      {
+        record = null;
+      }
     }
-    else
-    {
-      return result.getOutput();
-    }
+    return record;
   }
 
 

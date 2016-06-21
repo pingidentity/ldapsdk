@@ -183,7 +183,7 @@ public class ReadOnlyEntry
    */
   public ReadOnlyEntry(final Entry entry)
   {
-    super(entry.getDN(), entry.getSchema(), entry.getAttributes());
+    super(entry);
   }
 
 

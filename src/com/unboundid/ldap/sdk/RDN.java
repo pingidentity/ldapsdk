@@ -1157,6 +1157,25 @@ valueLoop:
 
 
   /**
+   * Retrieves an array of the attributes that comprise this RDN.
+   *
+   * @return  An array of the attributes that comprise this RDN.
+   */
+  public Attribute[] getAttributes()
+  {
+    final Attribute[] attrs = new Attribute[attributeNames.length];
+    for (int i=0; i < attrs.length; i++)
+    {
+      attrs[i] = new Attribute(attributeNames[i], schema,
+           new ASN1OctetString[] {  attributeValues[i] });
+    }
+
+    return attrs;
+  }
+
+
+
+  /**
    * Retrieves the set of attribute names for this RDN.
    *
    * @return  The set of attribute names for this RDN.
