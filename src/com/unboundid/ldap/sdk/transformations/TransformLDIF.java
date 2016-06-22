@@ -311,7 +311,7 @@ public final class TransformLDIF
     sourceLDIF.setArgumentGroupName(INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(sourceLDIF);
 
-    targetLDIF = new FileArgument('o', "targetLDIF", true, 1, null,
+    targetLDIF = new FileArgument('o', "targetLDIF", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_TARGET_LDIF.get(), false, true, true,
          false);
     targetLDIF.addLongIdentifier("outputLDIF");
@@ -698,6 +698,22 @@ public final class TransformLDIF
   public void doExtendedArgumentValidation()
          throws ArgumentException
   {
+    // Ideally, the targetLDIF argument should always be provided.  But in order
+    // to preserve backward compatibility with a legacy scramble-ldif tool, we
+    // will allow it to be omitted if either --scrambleAttribute or
+    // --sequentialArgument is provided.  In that case, the path of the output
+    // file will be the path of the first input file with ".scrambled" appended
+    // to it.
+    if (! targetLDIF.isPresent())
+    {
+      if (! (scrambleAttribute.isPresent() || sequentialAttribute.isPresent()))
+      {
+        throw new ArgumentException(ERR_TRANSFORM_LDIF_MISSING_REQUIRED_ARG.get(
+             targetLDIF.getIdentifierString()));
+      }
+    }
+
+
     // Make sure that the --renameAttributeFrom and --renameAttributeTo
     // arguments were provided an equal number of times.
     final int renameFromOccurrences = renameAttributeFrom.getNumOccurrences();
@@ -758,6 +774,19 @@ public final class TransformLDIF
          new AggregateLDIFReaderEntryTranslator(entryTranslators);
     final AggregateLDIFReaderChangeRecordTranslator changeRecordTranslator =
          new AggregateLDIFReaderChangeRecordTranslator(changeRecordTranslators);
+
+
+    // Determine the path to the target file to be written.
+    final File targetFile;
+    if (targetLDIF.isPresent())
+    {
+      targetFile = targetLDIF.getValue();
+    }
+    else
+    {
+      targetFile =
+           new File(sourceLDIF.getValue().getAbsolutePath() + ".scrambled");
+    }
 
 
     // Create the LDIF reader.
@@ -824,8 +853,8 @@ processingBlock:
       // Create the output stream to use to write the transformed data.
       try
       {
-        outputStream = new FileOutputStream(targetLDIF.getValue(),
-             appendToTargetLDIF.isPresent());
+        outputStream =
+             new FileOutputStream(targetFile, appendToTargetLDIF.isPresent());
         if (compressTarget.isPresent())
         {
           outputStream = new GZIPOutputStream(outputStream);
@@ -836,7 +865,7 @@ processingBlock:
         Debug.debugException(e);
         wrapErr(0, MAX_OUTPUT_LINE_LENGTH,
              ERR_TRANSFORM_LDIF_ERROR_CREATING_OUTPUT_STREAM.get(
-                  targetLDIF.getValue().getAbsolutePath(),
+                  targetFile.getAbsolutePath(),
                   StaticUtils.getExceptionMessage(e)));
         resultCode = ResultCode.LOCAL_ERROR;
         break processingBlock;
@@ -927,8 +956,7 @@ processingBlock:
         {
           Debug.debugException(e);
           wrapErr(0, MAX_OUTPUT_LINE_LENGTH,
-               ERR_TRANSFORM_LDIF_WRITE_ERROR.get(
-                    targetLDIF.getValue().getAbsolutePath(),
+               ERR_TRANSFORM_LDIF_WRITE_ERROR.get(targetFile.getAbsolutePath(),
                     StaticUtils.getExceptionMessage(e)));
           resultCode = ResultCode.LOCAL_ERROR;
           break processingBlock;
@@ -983,7 +1011,7 @@ processingBlock:
           Debug.debugException(e);
           wrapErr(0, MAX_OUTPUT_LINE_LENGTH,
                ERR_TRANSFORM_LDIF_ERROR_CLOSING_OUTPUT_STREAM.get(
-                    targetLDIF.getValue().getAbsolutePath(),
+                    targetFile.getAbsolutePath(),
                     StaticUtils.getExceptionMessage(e)));
           if (resultCode == ResultCode.SUCCESS)
           {
