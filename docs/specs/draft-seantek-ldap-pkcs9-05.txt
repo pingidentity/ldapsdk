@@ -4,13 +4,14 @@
 
 Network Working Group                                         S. Leonard
 Internet-Draft                                             Penango, Inc.
-Intended Status: Informational                            March 12, 2016
-Expires: September 13, 2016                                             
+Updates: 4520 (if approved)                                June 24, 2016
+Intended Status: Informational                                          
+Expires: December 26, 2016                                              
 
 
               Lightweight Directory Access Protocol (LDAP)
                        Registrations for PKCS #9
-                      draft-seantek-ldap-pkcs9-04
+                      draft-seantek-ldap-pkcs9-05
 
 Abstract
 
@@ -33,11 +34,11 @@ Status of This Memo
    time. It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 13, 2016.
+   This Internet-Draft will expire on December 26, 2016.
 
 Copyright Notice
 
-   Copyright (c) 2015 IETF Trust and the persons identified as the
+   Copyright (c) 2016 IETF Trust and the persons identified as the
    document authors. All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -49,13 +50,68 @@ Copyright Notice
    include Simplified BSD License text as described in Section 4.e of
    the Trust Legal Provisions and are provided without warranty as
    described in the Simplified BSD License.
-
  
 
 
 Leonard                      Informational                      [Page 1]
 
-Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
+Internet-Draft         LDAP PKCS #9 Registrations          June 24, 2016
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Leonard                      Informational                      [Page 2]
+
+Internet-Draft         LDAP PKCS #9 Registrations          June 24, 2016
 
 
 1.  Introduction
@@ -72,6 +128,10 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
    section was never appended. This document provides the IANA
    Considerations section necessary to register appropriate descriptors.
 
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [BCP14].
+
 2.  Syntaxes
 
    Appendix B.1 of [PKCS9] describes various syntaxes used in LDAP to
@@ -85,8 +145,8 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
    Appendix B.3 of [PKCS9] details attribute types for use in LDAP,
    including (by its own admission) attributes that are highly unlikely
-   to be stored in a Directory. For parity, all attributes in Appendix
-   B.3--but not necessarily in PKCS #9 as a whole--are registered via
+   to be stored in a Directory. The attributes in Appendix B.3 that are
+   not highly unlikely to be stored in a Directory are registered via
    this document.
 
    [PKCS9] includes certain attribute types that have found meaningful
@@ -102,17 +162,16 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
          attribute.
 
    As a result, certain applications not only encounter and generate
-   these attributes in practice, but also use short descriptors that
-   have come to be widely recognized.
-
-
  
 
 
-Leonard                      Informational                      [Page 2]
+Leonard                      Informational                      [Page 3]
 
-Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
+Internet-Draft         LDAP PKCS #9 Registrations          June 24, 2016
 
+
+   these attributes in practice, but also use short descriptors that
+   have come to be widely recognized.
 
 4.1.  Semantics of dateOfBirth Clarified
 
@@ -159,15 +218,12 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
 
 
-
-
-
  
 
 
-Leonard                      Informational                      [Page 3]
+Leonard                      Informational                      [Page 4]
 
-Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
+Internet-Draft         LDAP PKCS #9 Registrations          June 24, 2016
 
 
                Short Descriptor     Regular Descriptor
@@ -194,6 +250,41 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
          Table 2: Short Descriptors for Certain Attribute Types
 
+6.  PKCS Attribute Types
+
+   Security-related applications make use of the Object Identifier
+   Descriptors registry, but these registrations are not likely to be
+   used directly by Directory (LDAP) applications. It is apparent that
+   the descriptors for these applications occupy the same broad
+   namespace, although LDAP-related technologies (including
+   distinguished names, which are used outside of LDAP) have very little
+   use for descriptors used by security applications, and vice-versa.
+
+   This section modifies the LDAP Descriptor Registration Template
+   (Appendix A.4 of [RFC4520]) to permit an additional Usage: PKCS
+   attribute type. LDAP implementations do not need to recognize these
+   types. Conversely, PKCS (including PKIX and CMS) applications do not
+   need to recognize non-PKCS attribute types when the context calls for
+   PKCS attribute types (e.g., in CMS [RFC5652] and private key
+   [RFC5958] attributes).
+
+   Generally, the proper way to store PKCS attributes in a directory is
+   to include the attributes within a corresponding PKCS object, and
+   then to store the PKCS object (e.g., PKCS #12 object [RFC7292]) in
+   the appropriate attribute in the pkcsEntity auxiliary object class
+   (Section 4.1 of [PKCS9]).
+
+ 
+
+
+Leonard                      Informational                      [Page 5]
+
+Internet-Draft         LDAP PKCS #9 Registrations          June 24, 2016
+
+
+   The remaining attributes in [PKCS9] are registered as PKCS attribute
+   types in this document.
+
 5.  Object Classes
 
    Appendix B.2 of [PKCS9] details a set of object classes for use in
@@ -213,18 +304,11 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 7.  IANA Considerations
 
    The IANA shall register an LDAP Object Identifier [RFC4520] for use
-   in this technical specification, and shall update the LDAP Descriptor
-   registry [RFC4520], as indicated below.
-
-
-
- 
-
-
-Leonard                      Informational                      [Page 4]
-
-Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
-
+   in this technical specification. The IANA shall update the Note in
+   the LDAP Descriptor registry [RFC4520] to include the new usage PKCS
+   Attribute Type, with symbol P. The IANA shall update the LDAP
+   Descriptor registry [RFC4520] with definitions from [PKCS9] as
+   indicated below.
 
 7.1.  Object Identifier Registration
 
@@ -246,52 +330,69 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
       Person & email address to contact for further information:
           Sean Leonard <dev+ietf@seantek.com>
       Usage: see table
-      Specification: draft-seantek-ldap-pkcs9
-      Author/Change Controller: IESG
-
-      pkcsEntity                   O 1.2.840.113549.1.9.24.1
-      naturalPerson                O 1.2.840.113549.1.9.24.2
-
-      pKCS7PDU                     A 1.2.840.113549.1.9.25.5
-      userPKCS12                   A 2.16.840.1.113730.3.1.216
-      pKCS15Token                  A 1.2.840.113549.1.9.25.1
-      encryptedPrivateKeyInfo      A 1.2.840.113549.1.9.25.2
-
-      e                            A 1.2.840.113549.1.9.1
-
-      unstructuredName             A 1.2.840.113549.1.9.2
-      unstructuredAddress          A 1.2.840.113549.1.9.8
-
-      dob                          A 1.3.6.1.5.5.7.9.1
-      dateOfBirth                  A 1.3.6.1.5.5.7.9.1
-      pob                          A 1.3.6.1.5.5.7.9.2
-      placeOfBirth                 A 1.3.6.1.5.5.7.9.2
-      g                            A 1.3.6.1.5.5.7.9.3
-      gender                       A 1.3.6.1.5.5.7.9.3
-      coc                          A 1.3.6.1.5.5.7.9.4
-      countryOfCitizenship         A 1.3.6.1.5.5.7.9.4
-      cor                          A 1.3.6.1.5.5.7.9.5
-      countryOfResidence           A 1.3.6.1.5.5.7.9.5
-
-      pnym                         A 2.5.4.65
  
 
 
-Leonard                      Informational                      [Page 5]
+Leonard                      Informational                      [Page 6]
 
-Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
+Internet-Draft         LDAP PKCS #9 Registrations          June 24, 2016
 
 
-      contentType                  A 1.2.840.113549.1.9.3
-      messageDigest                A 1.2.840.113549.1.9.4
-      signingTime                  A 1.2.840.113549.1.9.5
-      counterSignature             A 1.2.840.113549.1.9.6
-      challengePassword            A 1.2.840.113549.1.9.7
+      Specification: draft-seantek-ldap-pkcs9
+      Author/Change Controller: IESG
 
-      desc                         A 2.5.4.13
+      pkcsEntity                    O  1.2.840.113549.1.9.24.1
+      naturalPerson                 O  1.2.840.113549.1.9.24.2
 
-      pkcs9CaseIgnoreMatch         M 1.2.840.113549.1.9.27.1
-      signingTimeMatch             M 1.2.840.113549.1.9.27.3
+      pKCS7PDU                      A  1.2.840.113549.1.9.25.5
+      userPKCS12                    A  2.16.840.1.113730.3.1.216
+      pKCS15Token                   A  1.2.840.113549.1.9.25.1
+      encryptedPrivateKeyInfo       A  1.2.840.113549.1.9.25.2
+
+      e                             A  1.2.840.113549.1.9.1
+
+      unstructuredName              A  1.2.840.113549.1.9.2
+      unstructuredAddress           A  1.2.840.113549.1.9.8
+
+      dob                           A  1.3.6.1.5.5.7.9.1
+      dateOfBirth                   A  1.3.6.1.5.5.7.9.1
+      pob                           A  1.3.6.1.5.5.7.9.2
+      placeOfBirth                  A  1.3.6.1.5.5.7.9.2
+      g                             A  1.3.6.1.5.5.7.9.3
+      gender                        A  1.3.6.1.5.5.7.9.3
+      coc                           A  1.3.6.1.5.5.7.9.4
+      countryOfCitizenship          A  1.3.6.1.5.5.7.9.4
+      cor                           A  1.3.6.1.5.5.7.9.5
+      countryOfResidence            A  1.3.6.1.5.5.7.9.5
+
+      pnym                          A  2.5.4.65
+
+      desc                          A  2.5.4.13
+
+      contentType                   P  1.2.840.113549.1.9.3
+      messageDigest                 P  1.2.840.113549.1.9.4
+      signingTime                   P  1.2.840.113549.1.9.5
+      randomNonce                   P  1.2.840.113549.1.9.25.3
+      sequenceNumber                P  1.2.840.113549.1.9.25.4
+      counterSignature              P  1.2.840.113549.1.9.6
+      challengePassword             P  1.2.840.113549.1.9.7
+      extensionRequest              P  1.2.840.113549.1.9.14
+      extendedCertificateAttributes P* 1.2.840.113549.1.9.9
+      friendlyName                  P  1.2.840.113549.1.9.20
+      localKeyId                    P  1.2.840.113549.1.9.21
+      signingDescription            P  1.2.840.113549.1.9.13
+      smimeCapabilities             P  1.2.840.113549.1.9.15
+
+      pkcs9CaseIgnoreMatch          M  1.2.840.113549.1.9.27.1
+      signingTimeMatch              M  1.2.840.113549.1.9.27.3
+
+ 
+
+
+Leonard                      Informational                      [Page 7]
+
+Internet-Draft         LDAP PKCS #9 Registrations          June 24, 2016
+
 
 7.3.  PKCS9String Syntax Registration
 
@@ -327,16 +428,12 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
 
 9.1.  Normative References
 
+   [BCP14]    Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
    [PKCS9]    Nystrom, M. and Kaliski, B., "PKCS #9: Selected Object
               Classes and Attribute Types Version 2.0", RFC 2985,
               November 2000.
- 
-
-
-Leonard                      Informational                      [Page 6]
-
-Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
-
 
    [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
               (LDAP): Technical Specification Road Map", RFC 4510, June
@@ -345,6 +442,13 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
    [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
               (LDAP): Directory Information Models", RFC 4512, June
               2006.
+ 
+
+
+Leonard                      Informational                      [Page 8]
+
+Internet-Draft         LDAP PKCS #9 Registrations          June 24, 2016
+
 
    [RFC4520]  Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
               Considerations for the Lightweight Directory Access
@@ -366,9 +470,19 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 12, 2016
               Infrastructure Certificate and Certificate Revocation List
               (CRL) Profile", RFC 5280, May 2008.
 
+   [RFC5652]  Housley, R., "Cryptographic Message Syntax (CMS)", STD 70,
+              RFC 5652, September 2009.
+
    [RFC5750]  Ramsdell, B. and S. Turner, "Secure/Multipurpose Internet
               Mail Extensions (S/MIME) Version 3.2 Certificate
               Handling", RFC 5750, January 2010.
+
+   [RFC5958]  Turner, S., "Asymmetric Key Packages", RFC 5958, August
+              2010.
+
+   [RFC7292]  Moriarty, K., Ed., Nystrom, M., Parkinson, S., Rusch, A.,
+              and M. Scott, "PKCS #12: Personal Information Exchange
+              Syntax v1.1", RFC 7292, July 2014.
 
 
 Author's Address
@@ -387,6 +501,4 @@ Author's Address
 
 
 
-
-
-Leonard                      Informational                      [Page 7]
+Leonard                      Informational                      [Page 9]
