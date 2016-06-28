@@ -1859,8 +1859,28 @@ public final class ArgumentParser
     }
 
 
+    doFinalValidation(this);
+    if (selectedSubCommand != null)
+    {
+      doFinalValidation(selectedSubCommand.getArgumentParser());
+    }
+  }
+
+
+
+  /**
+   * Performs the final validation for the provided argument parser.
+   *
+   * @param  parser  The argument parser for which to perform the final
+   *                 validation.
+   *
+   * @throws  ArgumentException  If a validation problem is encountered.
+   */
+  private static void doFinalValidation(final ArgumentParser parser)
+          throws ArgumentException
+  {
     // Make sure that all required arguments have values.
-    for (final Argument a : namedArgs)
+    for (final Argument a : parser.namedArgs)
     {
       if (a.isRequired() && (! a.isPresent()))
       {
@@ -1872,15 +1892,17 @@ public final class ArgumentParser
 
     // Make sure that at least the minimum number of trailing arguments were
     // provided.
-    if (trailingArgs.size() < minTrailingArgs)
+    if (parser.trailingArgs.size() < parser.minTrailingArgs)
     {
       throw new ArgumentException(ERR_PARSER_NOT_ENOUGH_TRAILING_ARGS.get(
-           commandName, minTrailingArgs, trailingArgsPlaceholder));
+           parser.commandName, parser.minTrailingArgs,
+           parser.trailingArgsPlaceholder));
     }
 
 
     // Make sure that there are no dependent argument set conflicts.
-    for (final ObjectPair<Argument,Set<Argument>> p : dependentArgumentSets)
+    for (final ObjectPair<Argument,Set<Argument>> p :
+         parser.dependentArgumentSets)
     {
       final Argument targetArg = p.getFirst();
       if (targetArg.isPresent())
@@ -1931,7 +1953,7 @@ public final class ArgumentParser
 
 
     // Make sure that there are no exclusive argument set conflicts.
-    for (final Set<Argument> argSet : exclusiveArgumentSets)
+    for (final Set<Argument> argSet : parser.exclusiveArgumentSets)
     {
       Argument setArg = null;
       for (final Argument a : argSet)
@@ -1953,7 +1975,7 @@ public final class ArgumentParser
     }
 
     // Make sure that there are no required argument set conflicts.
-    for (final Set<Argument> argSet : requiredArgumentSets)
+    for (final Set<Argument> argSet : parser.requiredArgumentSets)
     {
       boolean found = false;
       for (final Argument a : argSet)
