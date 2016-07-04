@@ -22,6 +22,7 @@ package com.unboundid.util.json;
 
 
 
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
@@ -333,6 +334,63 @@ public final class JSONString
    *                 appended.
    */
   static void encodeString(final String s, final StringBuilder buffer)
+  {
+    buffer.append('"');
+
+    for (final char c : s.toCharArray())
+    {
+      switch (c)
+      {
+        case '"':
+          buffer.append("\\\"");
+          break;
+        case '\\':
+          buffer.append("\\\\");
+          break;
+        case '\b': // backspace
+          buffer.append("\\b");
+          break;
+        case '\f': // formfeed
+          buffer.append("\\f");
+          break;
+        case '\n': // newline
+          buffer.append("\\n");
+          break;
+        case '\r': // carriage return
+          buffer.append("\\r");
+          break;
+        case '\t': // horizontal tab
+          buffer.append("\\t");
+          break;
+        default:
+          if (c <= '\u001F')
+          {
+            buffer.append("\\u");
+            buffer.append(String.format("%04X", (int) c));
+          }
+          else
+          {
+            buffer.append(c);
+          }
+          break;
+      }
+    }
+
+    buffer.append('"');
+  }
+
+
+
+  /**
+   * Appends a minimally-escaped JSON representation of the provided string to
+   * the given buffer.  When escaping is required, the most user-friendly form
+   * of escaping will be used.
+   *
+   * @param  s       The string to be encoded.
+   * @param  buffer  The buffer to which the encoded representation should be
+   *                 appended.
+   */
+  static void encodeString(final String s, final ByteStringBuffer buffer)
   {
     buffer.append('"');
 

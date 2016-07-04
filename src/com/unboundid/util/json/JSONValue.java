@@ -142,7 +142,7 @@ public abstract class JSONValue
    * Retrieves a single-line string representation of this value as it should
    * appear in a JSON object, including any necessary quoting, escaping, etc.
    *
-   * @return A string representation of this value as it should appear in a
+   * @return  A string representation of this value as it should appear in a
    *          JSON object.
    */
   public abstract String toSingleLineString();
