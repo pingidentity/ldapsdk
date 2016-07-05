@@ -1136,7 +1136,7 @@ public final class Filter
                                final int endPos, final int depth)
           throws LDAPException
   {
-    if (depth > 50)
+    if (depth > 100)
     {
       throw new LDAPException(ResultCode.FILTER_ERROR,
                               ERR_FILTER_TOO_DEEP.get());
