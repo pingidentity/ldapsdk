@@ -405,12 +405,12 @@ public abstract class CommandLineTool
     }
 
 
+    CommandLineToolShutdownHook shutdownHook = null;
     final AtomicReference<ResultCode> exitCode =
          new AtomicReference<ResultCode>();
     if (registerShutdownHook())
     {
-      final CommandLineToolShutdownHook shutdownHook =
-           new CommandLineToolShutdownHook(this, exitCode);
+      shutdownHook = new CommandLineToolShutdownHook(this, exitCode);
       Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
@@ -423,6 +423,13 @@ public abstract class CommandLineTool
       debugException(e);
       err(getExceptionMessage(e));
       exitCode.set(ResultCode.LOCAL_ERROR);
+    }
+    finally
+    {
+      if (shutdownHook != null)
+      {
+        Runtime.getRuntime().removeShutdownHook(shutdownHook);
+      }
     }
 
     return exitCode.get();
