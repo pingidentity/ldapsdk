@@ -228,6 +228,26 @@ public final class JSONObject
 
 
   /**
+   * Creates a new JSON object with the provided information.
+   *
+   * @param  fields                The set of fields for this JSON object.
+   * @param  stringRepresentation  The string representation for the JSON
+   *                               object.
+   */
+  JSONObject(final LinkedHashMap<String,JSONValue> fields,
+             final String stringRepresentation)
+  {
+    this.fields = Collections.unmodifiableMap(fields);
+    this.stringRepresentation = stringRepresentation;
+
+    hashCode = null;
+    decodePos = -1;
+    decodeBuffer = null;
+  }
+
+
+
+  /**
    * Reads a token from the provided character array, skipping over any
    * insignificant whitespace that may be before the token.  The token that is
    * returned will be one of the following:
@@ -334,10 +354,11 @@ public final class JSONObject
           break;
 
         // Technically, JSON does not provide support for comments.  But this
-        // implementation will accept two types of comments:
+        // implementation will accept three types of comments:
         // - Comments that start with /* and end with */ (potentially spanning
         //   multiple lines).
         // - Comments that start with // and continue until the end of the line.
+        // - Comments that start with # and continue until the end of the line.
         // All comments will be ignored by the parser.
         case '/':
           final int commentStartPos = decodePos;
@@ -394,6 +415,19 @@ public final class JSONObject
           {
             return;
           }
+
+        case '#':
+          // Keep reading until we encounter a newline or carriage return, or
+          // until we hit the end of the string.
+          while (decodePos < chars.length)
+          {
+            if ((chars[decodePos] == '\n') || (chars[decodePos] == '\r'))
+            {
+              break;
+            }
+            decodePos++;
+          }
+          break;
 
         default:
           return;
