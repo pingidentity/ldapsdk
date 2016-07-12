@@ -1121,6 +1121,24 @@ public final class JSONObject
 
 
   /**
+   * Retrieves a string representation of this value as it should appear in a
+   * JSON object formatted in a multi-line representation, including any
+   * necessary quoting, escaping, etc.  The last line will not include a
+   * trailing line break.
+   *
+   * @return A string representation of this value as it should appear in a
+   *          JSON object formatted in a multi-line representation.
+   */
+  public String toMultiLineString()
+  {
+    final JSONBuffer jsonBuffer = new JSONBuffer(null, 0, true);
+    appendToJSONBuffer(jsonBuffer);
+    return jsonBuffer.toString();
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -1237,5 +1255,46 @@ public final class JSONObject
     }
 
     buffer.append('}');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final JSONBuffer buffer)
+  {
+    buffer.beginObject();
+
+    for (final Map.Entry<String,JSONValue> field : fields.entrySet())
+    {
+      final String name = field.getKey();
+      final JSONValue value = field.getValue();
+      value.appendToJSONBuffer(name, buffer);
+    }
+
+    buffer.endObject();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final String fieldName,
+                                 final JSONBuffer buffer)
+  {
+    buffer.beginObject(fieldName);
+
+    for (final Map.Entry<String,JSONValue> field : fields.entrySet())
+    {
+      final String name = field.getKey();
+      final JSONValue value = field.getValue();
+      value.appendToJSONBuffer(name, buffer);
+    }
+
+    buffer.endObject();
   }
 }

@@ -487,4 +487,41 @@ public final class JSONArray
 
     buffer.append(']');
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final JSONBuffer buffer)
+  {
+    buffer.beginArray();
+
+    for (final JSONValue value : values)
+    {
+      value.appendToJSONBuffer(buffer);
+    }
+
+    buffer.endArray();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final String fieldName,
+                                 final JSONBuffer buffer)
+  {
+    buffer.beginArray(fieldName);
+
+    for (final JSONValue value : values)
+    {
+      value.appendToJSONBuffer(buffer);
+    }
+
+    buffer.endArray();
+  }
 }

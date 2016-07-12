@@ -520,4 +520,27 @@ public final class JSONNumber
   {
     buffer.append(normalizedValue.toPlainString());
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final JSONBuffer buffer)
+  {
+    buffer.appendNumber(stringRepresentation);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final String fieldName,
+                                 final JSONBuffer buffer)
+  {
+    buffer.appendNumber(fieldName, stringRepresentation);
+  }
 }

@@ -25,6 +25,7 @@ package com.unboundid.util.json;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -399,6 +400,21 @@ public final class JSONBuffer
    *
    * @param  value  The number to add.
    */
+  public void appendNumber(final BigDecimal value)
+  {
+    addComma();
+    buffer.append(value.toPlainString());
+    needComma = true;
+  }
+
+
+
+  /**
+   * Appends the provided JSON number value.  This will not include a field
+   * name, so it should only be used for number elements in an array.
+   *
+   * @param  value  The number to add.
+   */
   public void appendNumber(final int value)
   {
     addComma();
@@ -434,6 +450,23 @@ public final class JSONBuffer
   {
     addComma();
     buffer.append(value);
+    needComma = true;
+  }
+
+
+
+  /**
+   * Appends a JSON field with the specified name and a number value.
+   *
+   * @param  fieldName  The name of the field.
+   * @param  value      The number value.
+   */
+  public void appendNumber(final String fieldName, final BigDecimal value)
+  {
+    addComma();
+    JSONString.encodeString(fieldName, buffer);
+    buffer.append(':');
+    buffer.append(value.toPlainString());
     needComma = true;
   }
 
@@ -519,6 +552,33 @@ public final class JSONBuffer
     buffer.append(':');
     JSONString.encodeString(value, buffer);
     needComma = true;
+  }
+
+
+
+  /**
+   * Appends the provided JSON value.  This will not include a field name, so it
+   * should only be used for elements in an array.
+   *
+   * @param  value  The value to append.
+   */
+  public void appendValue(final JSONValue value)
+  {
+    value.appendToJSONBuffer(this);
+  }
+
+
+
+  /**
+   * Appends the provided JSON value.  This will not include a field name, so it
+   * should only be used for elements in an array.
+   *
+   * @param  fieldName  The name of the field.
+   * @param  value      The value to append.
+   */
+  public void appendValue(final String fieldName, final JSONValue value)
+  {
+    value.appendToJSONBuffer(fieldName, this);
   }
 
 

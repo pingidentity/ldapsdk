@@ -474,4 +474,27 @@ public final class JSONString
 
     buffer.append('"');
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final JSONBuffer buffer)
+  {
+    buffer.appendString(value);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final String fieldName,
+                                 final JSONBuffer buffer)
+  {
+    buffer.appendString(fieldName, value);
+  }
 }

@@ -180,4 +180,27 @@ public abstract class JSONValue
    * @param  buffer  The buffer to which the information should be appended.
    */
   public abstract void toNormalizedString(final StringBuilder buffer);
+
+
+
+  /**
+   * Appends this value to the provided JSON buffer.  This will not include a
+   * field name, so it should only be used for Boolean value elements in an
+   * array.
+   *
+   * @param  buffer  The JSON buffer to which this value should be appended.
+   */
+  public abstract void appendToJSONBuffer(final JSONBuffer buffer);
+
+
+
+  /**
+   * Appends a field with the given name and this value to the provided JSON
+   * buffer.
+   *
+   * @param  fieldName  The name to use for the field.
+   * @param  buffer     The JSON buffer to which this value should be appended.
+   */
+  public abstract void appendToJSONBuffer(final String fieldName,
+                                          final JSONBuffer buffer);
 }

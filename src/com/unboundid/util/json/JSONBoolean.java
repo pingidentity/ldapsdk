@@ -205,4 +205,27 @@ public final class JSONBoolean
   {
     buffer.append(stringRepresentation);
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final JSONBuffer buffer)
+  {
+    buffer.appendBoolean(booleanValue);
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void appendToJSONBuffer(final String fieldName,
+                                 final JSONBuffer buffer)
+  {
+    buffer.appendBoolean(fieldName, booleanValue);
+  }
 }
