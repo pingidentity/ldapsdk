@@ -168,13 +168,11 @@ public final class LDIFDeleteChangeRecord
   public String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<String>(5);
-    ldifLines.add(LDIFWriter.encodeNameAndValue("dn",
-         new ASN1OctetString(getDN())));
+    encodeNameAndValue("dn", new ASN1OctetString(getDN()), ldifLines);
 
     for (final Control c : getControls())
     {
-      ldifLines.add(LDIFWriter.encodeNameAndValue("control",
-           encodeControlString(c)));
+      encodeNameAndValue("control", encodeControlString(c), ldifLines);
     }
 
     ldifLines.add("changetype: delete");

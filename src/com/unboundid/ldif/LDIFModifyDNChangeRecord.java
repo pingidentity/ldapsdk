@@ -344,24 +344,21 @@ public final class LDIFModifyDNChangeRecord
   public String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<String>(10);
-    ldifLines.add(LDIFWriter.encodeNameAndValue("dn",
-         new ASN1OctetString(getDN())));
+    encodeNameAndValue("dn", new ASN1OctetString(getDN()), ldifLines);
 
     for (final Control c : getControls())
     {
-      ldifLines.add(LDIFWriter.encodeNameAndValue("control",
-           encodeControlString(c)));
+      encodeNameAndValue("control", encodeControlString(c), ldifLines);
     }
 
     ldifLines.add("changetype: moddn");
-    ldifLines.add(LDIFWriter.encodeNameAndValue("newrdn",
-         new ASN1OctetString(newRDN)));
+    encodeNameAndValue("newrdn", new ASN1OctetString(newRDN), ldifLines);
     ldifLines.add("deleteoldrdn: " + (deleteOldRDN ? "1" : "0"));
 
     if (newSuperiorDN != null)
     {
-      ldifLines.add(LDIFWriter.encodeNameAndValue("newsuperior",
-           new ASN1OctetString(newSuperiorDN)));
+      encodeNameAndValue("newsuperior", new ASN1OctetString(newSuperiorDN),
+           ldifLines);
     }
 
     if (wrapColumn > 2)

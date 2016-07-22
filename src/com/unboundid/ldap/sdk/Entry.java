@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
@@ -2712,14 +2713,14 @@ public class Entry
   public final String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<String>(2*attributes.size());
-    ldifLines.add(LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(dn)));
+    encodeNameAndValue("dn", new ASN1OctetString(dn), ldifLines);
 
     for (final Attribute a : attributes.values())
     {
       final String name = a.getName();
       for (final ASN1OctetString value : a.getRawValues())
       {
-        ldifLines.add(LDIFWriter.encodeNameAndValue(name, value));
+        encodeNameAndValue(name, value, ldifLines);
       }
     }
 
@@ -2731,6 +2732,38 @@ public class Entry
     final String[] lineArray = new String[ldifLines.size()];
     ldifLines.toArray(lineArray);
     return lineArray;
+  }
+
+
+
+  /**
+   * Encodes the provided name and value and adds the result to the provided
+   * list of lines.  This will handle the case in which the encoded name and
+   * value includes comments about the base64-decoded representation of the
+   * provided value.
+   *
+   * @param  name   The attribute name to be encoded.
+   * @param  value  The attribute value to be encoded.
+   * @param  lines  The list of lines to be updated.
+   */
+  private static void encodeNameAndValue(final String name,
+                                         final ASN1OctetString value,
+                                         final List<String> lines)
+  {
+    final String line = LDIFWriter.encodeNameAndValue(name, value);
+    if (LDIFWriter.commentAboutBase64EncodedValues() &&
+        line.startsWith(name + "::"))
+    {
+      final StringTokenizer tokenizer = new StringTokenizer(line, "\r\n");
+      while (tokenizer.hasMoreTokens())
+      {
+        lines.add(tokenizer.nextToken());
+      }
+    }
+    else
+    {
+      lines.add(line);
+    }
   }
 
 

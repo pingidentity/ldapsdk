@@ -24,6 +24,7 @@ package com.unboundid.ldif;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.ChangeType;
@@ -309,6 +310,37 @@ public abstract class LDIFChangeRecord
    *          change record.
    */
   public abstract String[] toLDIF(final int wrapColumn);
+
+
+
+  /**
+   * Encodes the provided name and value and adds the result to the provided
+   * list of lines.  This will handle the case in which the encoded name and
+   * value includes comments about the base64-decoded representation of the
+   * provided value.
+   *
+   * @param  name   The attribute name to be encoded.
+   * @param  value  The attribute value to be encoded.
+   * @param  lines  The list of lines to be updated.
+   */
+  static void encodeNameAndValue(final String name, final ASN1OctetString value,
+                                 final List<String> lines)
+  {
+    final String line = LDIFWriter.encodeNameAndValue(name, value);
+    if (LDIFWriter.commentAboutBase64EncodedValues() &&
+        line.startsWith(name + "::"))
+    {
+      final StringTokenizer tokenizer = new StringTokenizer(line, "\r\n");
+      while (tokenizer.hasMoreTokens())
+      {
+        lines.add(tokenizer.nextToken());
+      }
+    }
+    else
+    {
+      lines.add(line);
+    }
+  }
 
 
 

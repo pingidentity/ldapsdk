@@ -88,6 +88,15 @@ import static com.unboundid.util.Validator.*;
 public final class LDIFWriter
 {
   /**
+   * Indicates whether LDIF records should include a comment above each
+   * base64-encoded value that attempts to provide an unencoded representation
+   * of that value (with special characters escaped).
+   */
+  private static volatile boolean commentAboutBase64EncodedValues = false;
+
+
+
+  /**
    * The bytes that comprise the LDIF version header.
    */
   private static final byte[] VERSION_1_HEADER_BYTES =
@@ -100,6 +109,7 @@ public final class LDIFWriter
    * to the appropriate destination.
    */
   private static final int DEFAULT_BUFFER_SIZE = 128 * 1024;
+
 
 
   // The writer that will be used to actually write the data.
@@ -125,6 +135,7 @@ public final class LDIFWriter
   // writing batches of entries.
   private final ParallelProcessor<LDIFRecord,ByteStringBuffer>
        toLdifBytesInvoker;
+
 
 
   /**
@@ -412,6 +423,47 @@ public final class LDIFWriter
     this.wrapColumn = wrapColumn;
 
     wrapColumnMinusTwo = wrapColumn - 2;
+  }
+
+
+
+  /**
+   * Indicates whether the LDIF writer should generate comments that attempt to
+   * provide unencoded representations (with special characters escaped) of any
+   * base64-encoded values in entries and change records that are written by
+   * this writer.
+   *
+   * @return  {@code true} if the LDIF writer should generate comments that
+   *          attempt to provide unencoded representations of any base64-encoded
+   *          values, or {@code false} if not.
+   */
+  public static boolean commentAboutBase64EncodedValues()
+  {
+    return commentAboutBase64EncodedValues;
+  }
+
+
+
+  /**
+   * Specifies whether the LDIF writer should generate comments that attempt to
+   * provide unencoded representations (with special characters escaped) of any
+   * base64-encoded values in entries and change records that are written by
+   * this writer.
+   *
+   * @param  commentAboutBase64EncodedValues  Indicates whether the LDIF writer
+   *                                          should generate comments that
+   *                                          attempt to provide unencoded
+   *                                          representations (with special
+   *                                          characters escaped) of any
+   *                                          base64-encoded values in entries
+   *                                          and change records that are
+   *                                          written by this writer.
+   */
+  public static void setCommentAboutBase64EncodedValues(
+                          final boolean commentAboutBase64EncodedValues)
+  {
+    LDIFWriter.commentAboutBase64EncodedValues =
+         commentAboutBase64EncodedValues;
   }
 
 
@@ -727,12 +779,12 @@ public final class LDIFWriter
           throws IOException
   {
     // We will always wrap comments, even if we won't wrap LDIF entries.  If
-    // there is a wrap column set, then use it.  Otherwise use 79 characters,
-    // and back off two characters for the "# " at the beginning.
+    // there is a wrap column set, then use it.  Otherwise use the terminal
+    // width and back off two characters for the "# " at the beginning.
     final int commentWrapMinusTwo;
     if (wrapColumn <= 0)
     {
-      commentWrapMinusTwo = 77;
+      commentWrapMinusTwo = TERMINAL_WIDTH_COLUMNS - 3;
     }
     else
     {
@@ -972,13 +1024,14 @@ public final class LDIFWriter
                                         final int wrapColumn)
   {
     final int bufferStartPos = buffer.length();
+    final byte[] valueBytes = value.getValue();
+    boolean base64Encoded = false;
 
     try
     {
       buffer.append(name);
       buffer.append(':');
 
-      final byte[] valueBytes = value.getValue();
       final int length = valueBytes.length;
       if (length == 0)
       {
@@ -995,6 +1048,7 @@ public final class LDIFWriter
         case '<':
           buffer.append(": ");
           Base64.encode(valueBytes, buffer);
+          base64Encoded = true;
           return;
       }
 
@@ -1003,6 +1057,7 @@ public final class LDIFWriter
       {
         buffer.append(": ");
         Base64.encode(valueBytes, buffer);
+        base64Encoded = true;
         return;
       }
 
@@ -1014,6 +1069,7 @@ public final class LDIFWriter
         {
           buffer.append(": ");
           Base64.encode(valueBytes, buffer);
+          base64Encoded = true;
           return;
         }
 
@@ -1024,6 +1080,7 @@ public final class LDIFWriter
           case 0x0D:  // The CR character
             buffer.append(": ");
             Base64.encode(valueBytes, buffer);
+            base64Encoded = true;
             return;
         }
       }
@@ -1051,6 +1108,62 @@ public final class LDIFWriter
           }
         }
       }
+
+      if (base64Encoded && commentAboutBase64EncodedValues)
+      {
+        writeBase64DecodedValueComment(valueBytes, buffer, wrapColumn);
+      }
+    }
+  }
+
+
+
+  /**
+   * Appends a comment to the provided buffer with an unencoded representation
+   * of the provided value.  This will only have any effect if
+   * {@code commentAboutBase64EncodedValues} is {@code true}.
+   *
+   * @param  valueBytes  The bytes that comprise the value.
+   * @param  buffer      The buffer to which the comment should be appended.
+   * @param  wrapColumn  The column at which to wrap long lines.
+   */
+  private static void writeBase64DecodedValueComment(final byte[] valueBytes,
+                                                     final StringBuilder buffer,
+                                                     final int wrapColumn)
+  {
+    if (commentAboutBase64EncodedValues)
+    {
+      final int wrapColumnMinusTwo;
+      if (wrapColumn <= 5)
+      {
+        wrapColumnMinusTwo = TERMINAL_WIDTH_COLUMNS - 3;
+      }
+      else
+      {
+        wrapColumnMinusTwo = wrapColumn - 2;
+      }
+
+      final int wrapColumnMinusThree = wrapColumnMinusTwo - 1;
+
+      boolean first = true;
+      final String comment =
+           "Non-base64-encoded representation of the above value: " +
+                getEscapedValue(valueBytes);
+      for (final String s :
+           wrapLine(comment, wrapColumnMinusTwo, wrapColumnMinusThree))
+      {
+        buffer.append(EOL);
+        buffer.append("# ");
+        if (first)
+        {
+          first = false;
+        }
+        else
+        {
+          buffer.append(' ');
+        }
+        buffer.append(s);
+      }
     }
   }
 
@@ -1077,11 +1190,12 @@ public final class LDIFWriter
                                         final int wrapColumn)
   {
     final int bufferStartPos = buffer.length();
+    boolean base64Encoded = false;
 
     try
     {
       buffer.append(name);
-      encodeValue(value, buffer);
+      base64Encoded = encodeValue(value, buffer);
     }
     finally
     {
@@ -1106,6 +1220,11 @@ public final class LDIFWriter
           }
         }
       }
+
+      if (base64Encoded && commentAboutBase64EncodedValues)
+      {
+        writeBase64DecodedValueComment(value.getValue(), buffer, wrapColumn);
+      }
     }
   }
 
@@ -1119,9 +1238,12 @@ public final class LDIFWriter
    *
    * @param  value   The value for the attribute.
    * @param  buffer  The buffer to which the value is to be written.
+   *
+   * @return  {@code true} if the value was base64-encoded, or {@code false} if
+   *          not.
    */
-  static void encodeValue(final ASN1OctetString value,
-                          final ByteStringBuffer buffer)
+  static boolean encodeValue(final ASN1OctetString value,
+                             final ByteStringBuffer buffer)
   {
     buffer.append(':');
 
@@ -1130,7 +1252,7 @@ public final class LDIFWriter
     if (length == 0)
     {
       buffer.append(' ');
-      return;
+      return false;
     }
 
     // If the value starts with a space, colon, or less-than character, then
@@ -1143,7 +1265,7 @@ public final class LDIFWriter
         buffer.append(':');
         buffer.append(' ');
         Base64.encode(valueBytes, buffer);
-        return;
+        return true;
     }
 
     // If the value ends with a space, then it should be base64-encoded.
@@ -1152,7 +1274,7 @@ public final class LDIFWriter
       buffer.append(':');
       buffer.append(' ');
       Base64.encode(valueBytes, buffer);
-      return;
+      return true;
     }
 
     // If any character in the value is outside the ASCII range, or is the
@@ -1164,7 +1286,7 @@ public final class LDIFWriter
         buffer.append(':');
         buffer.append(' ');
         Base64.encode(valueBytes, buffer);
-        return;
+        return true;
       }
 
       switch (valueBytes[i])
@@ -1174,14 +1296,140 @@ public final class LDIFWriter
         case 0x0D:  // The CR character
           buffer.append(':');
           buffer.append(' ');
+
           Base64.encode(valueBytes, buffer);
-          return;
+          return true;
       }
     }
 
     // If we've gotten here, then the string value is acceptable.
     buffer.append(' ');
     buffer.append(valueBytes);
+    return false;
+  }
+
+
+
+  /**
+   * Appends a comment to the provided buffer with an unencoded representation
+   * of the provided value.  This will only have any effect if
+   * {@code commentAboutBase64EncodedValues} is {@code true}.
+   *
+   * @param  valueBytes  The bytes that comprise the value.
+   * @param  buffer      The buffer to which the comment should be appended.
+   * @param  wrapColumn  The column at which to wrap long lines.
+   */
+  private static void writeBase64DecodedValueComment(final byte[] valueBytes,
+                           final ByteStringBuffer buffer,
+                           final int wrapColumn)
+  {
+    if (commentAboutBase64EncodedValues)
+    {
+      final int wrapColumnMinusTwo;
+      if (wrapColumn <= 5)
+      {
+        wrapColumnMinusTwo = TERMINAL_WIDTH_COLUMNS - 3;
+      }
+      else
+      {
+        wrapColumnMinusTwo = wrapColumn - 2;
+      }
+
+      final int wrapColumnMinusThree = wrapColumnMinusTwo - 1;
+
+      boolean first = true;
+      final String comment =
+           "Non-base64-encoded representation of the above value: " +
+                getEscapedValue(valueBytes);
+      for (final String s :
+           wrapLine(comment, wrapColumnMinusTwo, wrapColumnMinusThree))
+      {
+        buffer.append(EOL);
+        buffer.append("# ");
+        if (first)
+        {
+          first = false;
+        }
+        else
+        {
+          buffer.append(' ');
+        }
+        buffer.append(s);
+      }
+    }
+  }
+
+
+
+  /**
+   * Retrieves a string representation of the provided value with all special
+   * characters escaped with backslashes.
+   *
+   * @param  valueBytes  The byte array containing the value to encode.
+   *
+   * @return  A string representation of the provided value with any special
+   *          characters
+   */
+  private static String getEscapedValue(final byte[] valueBytes)
+  {
+    final StringBuilder buffer = new StringBuilder(valueBytes.length * 2);
+    for (int i=0; i < valueBytes.length; i++)
+    {
+      final byte b = valueBytes[i];
+      switch (b)
+      {
+        case '\n':
+          buffer.append("\\n");
+          break;
+        case '\r':
+          buffer.append("\\r");
+          break;
+        case '\t':
+          buffer.append("\\t");
+          break;
+        case ' ':
+          if (i == 0)
+          {
+            buffer.append("\\ ");
+          }
+          else if ( i == (valueBytes.length - 1))
+          {
+            buffer.append("\\20");
+          }
+          else
+          {
+            buffer.append(' ');
+          }
+          break;
+        case '<':
+          if (i == 0)
+          {
+            buffer.append('\\');
+          }
+          buffer.append('<');
+          break;
+        case ':':
+          if (i == 0)
+          {
+            buffer.append('\\');
+          }
+          buffer.append(':');
+          break;
+        default:
+          if ((b >= '!') && (b <= '~'))
+          {
+            buffer.append((char) b);
+          }
+          else
+          {
+            buffer.append("\\");
+            toHex(b, buffer);
+          }
+          break;
+      }
+    }
+
+    return buffer.toString();
   }
 
 

@@ -301,13 +301,11 @@ public final class LDIFAddChangeRecord
   public String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<String>(2*attributes.length);
-    ldifLines.add(LDIFWriter.encodeNameAndValue("dn",
-         new ASN1OctetString(getDN())));
+    encodeNameAndValue("dn", new ASN1OctetString(getDN()), ldifLines);
 
     for (final Control c : getControls())
     {
-      ldifLines.add(LDIFWriter.encodeNameAndValue("control",
-           encodeControlString(c)));
+      encodeNameAndValue("control", encodeControlString(c), ldifLines);
     }
 
     ldifLines.add("changetype: add");
@@ -317,7 +315,7 @@ public final class LDIFAddChangeRecord
       final String name = a.getName();
       for (final ASN1OctetString value : a.getRawValues())
       {
-        ldifLines.add(LDIFWriter.encodeNameAndValue(name, value));
+        encodeNameAndValue(name, value, ldifLines);
       }
     }
 

@@ -323,14 +323,11 @@ public final class LDIFModifyChangeRecord
   public String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<String>(modifications.length*4);
-
-    ldifLines.add(LDIFWriter.encodeNameAndValue("dn",
-         new ASN1OctetString(getDN())));
+    encodeNameAndValue("dn", new ASN1OctetString(getDN()), ldifLines);
 
     for (final Control c : getControls())
     {
-      ldifLines.add(LDIFWriter.encodeNameAndValue("control",
-           encodeControlString(c)));
+      encodeNameAndValue("control", encodeControlString(c), ldifLines);
     }
 
     ldifLines.add("changetype: modify");
@@ -360,7 +357,7 @@ public final class LDIFModifyChangeRecord
 
       for (final ASN1OctetString value : modifications[i].getRawValues())
       {
-        ldifLines.add(LDIFWriter.encodeNameAndValue(attrName, value));
+        encodeNameAndValue(attrName, value, ldifLines);
       }
 
       if (alwaysIncludeTrailingDash || (i < (modifications.length - 1)))
