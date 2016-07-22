@@ -432,9 +432,9 @@ public final class IdentifyUniqueAttributeConflicts
          description);
     parser.addArgument(filterArgument);
 
-    description = "The attribute(s) for which to find missing references.  " +
+    description = "The attributes for which to find uniqueness conflicts.  " +
          "At least one attribute must be specified, and each attribute " +
-         "must be indexed for equality searches and have values which are DNs.";
+         "must be indexed for equality searches.";
     attributeArgument = new StringArgument('A', "attribute", true, 0, "{attr}",
          description);
     parser.addArgument(attributeArgument);
@@ -461,11 +461,11 @@ public final class IdentifyUniqueAttributeConflicts
     parser.addArgument(multipleAttributeBehaviorArgument);
 
     description = "The maximum number of entries to retrieve at a time when " +
-         "attempting to find entries with references to other entries.  This " +
-         "requires that the authenticated user have permission to use the " +
-         "simple paged results control, but it can avoid problems with the " +
-         "server sending entries too quickly for the client to handle.  By " +
-         "default, the simple paged results control will not be used.";
+         "attempting to find uniqueness conflicts.  This requires that the " +
+         "authenticated user have permission to use the simple paged results " +
+         "control, but it can avoid problems with the server sending entries " +
+         "too quickly for the client to handle.  By default, the simple " +
+         "paged results control will not be used.";
     pageSizeArgument =
          new IntegerArgument('z', "simplePageSize", false, 1, "{num}",
               description, 1, Integer.MAX_VALUE);
@@ -680,7 +680,7 @@ public final class IdentifyUniqueAttributeConflicts
       }
 
 
-      // See if there were any missing references found.
+      // See if there were any uniqueness conflicts found.
       boolean conflictFound = false;
       for (final Map.Entry<String,AtomicLong> e : conflictCounts.entrySet())
       {
@@ -722,10 +722,10 @@ public final class IdentifyUniqueAttributeConflicts
 
 
   /**
-   * Retrieves a map that correlates the number of missing references found by
+   * Retrieves a map that correlates the number of uniqueness conflicts found by
    * attribute type.
    *
-   * @return  A map that correlates the number of missing references found by
+   * @return  A map that correlates the number of uniqueness conflicts found by
    *          attribute type.
    */
   public Map<String,AtomicLong> getConflictCounts()
