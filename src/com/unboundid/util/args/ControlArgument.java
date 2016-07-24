@@ -24,11 +24,23 @@ package com.unboundid.util.args;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
+import com.unboundid.ldap.sdk.controls.DontUseCopyRequestControl;
+import com.unboundid.ldap.sdk.controls.ManageDsaITRequestControl;
+import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
+import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
+import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
+import com.unboundid.ldap.sdk.experimental.
+            DraftBeheraLDAPPasswordPolicy10RequestControl;
+import com.unboundid.ldap.sdk.experimental.
+            DraftZeilengaLDAPNoOp12RequestControl;
 import com.unboundid.util.Base64;
 import com.unboundid.util.Debug;
 import com.unboundid.util.Mutable;
@@ -75,6 +87,202 @@ import static com.unboundid.util.args.ArgsMessages.*;
 public final class ControlArgument
        extends Argument
 {
+  /**
+   * A map of human-readable names to the corresponding numeric OIDs.
+   */
+  private static final Map<String,String> OIDS_BY_NAME;
+  static
+  {
+    final HashMap<String,String> oidsByName =
+         new HashMap<String,String>(100);
+
+    // The authorization identity request control.
+    oidsByName.put("authzid",
+         AuthorizationIdentityRequestControl.
+              AUTHORIZATION_IDENTITY_REQUEST_OID);
+    oidsByName.put("authorizationidentity",
+         AuthorizationIdentityRequestControl.
+              AUTHORIZATION_IDENTITY_REQUEST_OID);
+    oidsByName.put("authorization-identity",
+         AuthorizationIdentityRequestControl.
+              AUTHORIZATION_IDENTITY_REQUEST_OID);
+
+    // The don't use copy request control.
+    oidsByName.put("nocopy",
+         DontUseCopyRequestControl.DONT_USE_COPY_REQUEST_OID);
+    oidsByName.put("dontusecopy",
+         DontUseCopyRequestControl.DONT_USE_COPY_REQUEST_OID);
+    oidsByName.put("no-copy",
+         DontUseCopyRequestControl.DONT_USE_COPY_REQUEST_OID);
+    oidsByName.put("dont-use-copy",
+         DontUseCopyRequestControl.DONT_USE_COPY_REQUEST_OID);
+
+    // The LDAP no-operation request control.
+    oidsByName.put("noop",
+         DraftZeilengaLDAPNoOp12RequestControl.NO_OP_REQUEST_OID);
+    oidsByName.put("nooperation",
+         DraftZeilengaLDAPNoOp12RequestControl.NO_OP_REQUEST_OID);
+    oidsByName.put("no-op",
+         DraftZeilengaLDAPNoOp12RequestControl.NO_OP_REQUEST_OID);
+    oidsByName.put("no-operation",
+         DraftZeilengaLDAPNoOp12RequestControl.NO_OP_REQUEST_OID);
+
+    // The LDAP subentries request control.
+    oidsByName.put("subentries",
+         SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+    oidsByName.put("ldapsubentries",
+         SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+    oidsByName.put("ldap-subentries",
+         SubentriesRequestControl.SUBENTRIES_REQUEST_OID);
+
+    // The manage DSA IT request control.
+    oidsByName.put("managedsait",
+         ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID);
+    oidsByName.put("manage-dsa-it",
+         ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID);
+
+    // The permissive modify request control.
+    oidsByName.put("permissivemodify",
+         PermissiveModifyRequestControl.PERMISSIVE_MODIFY_REQUEST_OID);
+    oidsByName.put("permissive-modify",
+         PermissiveModifyRequestControl.PERMISSIVE_MODIFY_REQUEST_OID);
+
+    // The password policy request control.
+    oidsByName.put("pwpolicy",
+         DraftBeheraLDAPPasswordPolicy10RequestControl.
+              PASSWORD_POLICY_REQUEST_OID);
+    oidsByName.put("passwordpolicy",
+         DraftBeheraLDAPPasswordPolicy10RequestControl.
+              PASSWORD_POLICY_REQUEST_OID);
+    oidsByName.put("pw-policy",
+         DraftBeheraLDAPPasswordPolicy10RequestControl.
+              PASSWORD_POLICY_REQUEST_OID);
+    oidsByName.put("password-policy",
+         DraftBeheraLDAPPasswordPolicy10RequestControl.
+              PASSWORD_POLICY_REQUEST_OID);
+
+    // The subtree delete request control.
+    oidsByName.put("subtreedelete",
+         SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
+    oidsByName.put("treedelete",
+         SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
+    oidsByName.put("subtree-delete",
+         SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
+    oidsByName.put("tree-delete",
+         SubtreeDeleteRequestControl.SUBTREE_DELETE_REQUEST_OID);
+
+    // The account usable request control.
+    oidsByName.put("accountusable", "1.3.6.1.4.1.42.2.27.9.5.8");
+    oidsByName.put("account-usable", "1.3.6.1.4.1.42.2.27.9.5.8");
+
+    // The get backend set ID request control.
+    oidsByName.put("backendsetid", "1.3.6.1.4.1.30221.2.5.33");
+    oidsByName.put("getbackendsetid", "1.3.6.1.4.1.30221.2.5.33");
+    oidsByName.put("backendset-id", "1.3.6.1.4.1.30221.2.5.33");
+    oidsByName.put("get-backendset-id", "1.3.6.1.4.1.30221.2.5.33");
+
+    // The get effective rights request control.
+    oidsByName.put("effectiverights", "1.3.6.1.4.1.42.2.27.9.5.2");
+    oidsByName.put("geteffectiverights", "1.3.6.1.4.1.42.2.27.9.5.2");
+    oidsByName.put("effective-rights", "1.3.6.1.4.1.42.2.27.9.5.2");
+    oidsByName.put("get-effective-rights", "1.3.6.1.4.1.42.2.27.9.5.2");
+
+    // The get password policy state issues request control.
+    oidsByName.put("pwpolicystateissues", "1.3.6.1.4.1.30221.2.5.46");
+    oidsByName.put("getpwpolicystateissues", "1.3.6.1.4.1.30221.2.5.46");
+    oidsByName.put("passwordpolicystateissues", "1.3.6.1.4.1.30221.2.5.46");
+    oidsByName.put("getpasswordpolicystateissues", "1.3.6.1.4.1.30221.2.5.46");
+    oidsByName.put("pw-policy-state-issues", "1.3.6.1.4.1.30221.2.5.46");
+    oidsByName.put("get-pw-policy-state-issues", "1.3.6.1.4.1.30221.2.5.46");
+    oidsByName.put("password-policy-state-issues", "1.3.6.1.4.1.30221.2.5.46");
+    oidsByName.put("get-password-policy-state-issues",
+         "1.3.6.1.4.1.30221.2.5.46");
+
+    // The get server ID request control.
+    oidsByName.put("serverid", "1.3.6.1.4.1.30221.2.5.14");
+    oidsByName.put("getserverid", "1.3.6.1.4.1.30221.2.5.14");
+    oidsByName.put("server-id", "1.3.6.1.4.1.30221.2.5.14");
+    oidsByName.put("get-server-id", "1.3.6.1.4.1.30221.2.5.14");
+
+    // The get user resource limits request control.
+    oidsByName.put("userresourcelimits", "1.3.6.1.4.1.30221.2.5.25");
+    oidsByName.put("getuserresourcelimits", "1.3.6.1.4.1.30221.2.5.25");
+    oidsByName.put("user-resource-limits", "1.3.6.1.4.1.30221.2.5.25");
+    oidsByName.put("get-user-resource-limits", "1.3.6.1.4.1.30221.2.5.25");
+
+    // The hard delete request control.
+    oidsByName.put("harddelete", "1.3.6.1.4.1.30221.2.5.22");
+    oidsByName.put("hard-delete", "1.3.6.1.4.1.30221.2.5.22");
+
+    // The ignore NO-USER-MODIFICATION request control.
+    oidsByName.put("ignorenousermod", "1.3.6.1.4.1.30221.2.5.5");
+    oidsByName.put("ignorenousermodification", "1.3.6.1.4.1.30221.2.5.5");
+    oidsByName.put("ignore-no-user-mod", "1.3.6.1.4.1.30221.2.5.5");
+    oidsByName.put("ignore-no-user-modification", "1.3.6.1.4.1.30221.2.5.5");
+
+    // The purge retired password request control.
+    oidsByName.put("purgepassword", "1.3.6.1.4.1.30221.2.5.32");
+    oidsByName.put("purgeretiredpassword", "1.3.6.1.4.1.30221.2.5.32");
+    oidsByName.put("purge-password", "1.3.6.1.4.1.30221.2.5.32");
+    oidsByName.put("purge-retired-password", "1.3.6.1.4.1.30221.2.5.32");
+
+    // The real attributes only request control.
+    oidsByName.put("realattrsonly", "2.16.840.1.113730.3.4.17");
+    oidsByName.put("realattributesonly", "2.16.840.1.113730.3.4.17");
+    oidsByName.put("real-attrs-only", "2.16.840.1.113730.3.4.17");
+    oidsByName.put("real-attributes-only", "2.16.840.1.113730.3.4.17");
+
+    // The replication repair request control.
+    oidsByName.put("replrepair", "1.3.6.1.4.1.30221.1.5.2");
+    oidsByName.put("replicationrepair", "1.3.6.1.4.1.30221.1.5.2");
+    oidsByName.put("repl-repair", "1.3.6.1.4.1.30221.1.5.2");
+    oidsByName.put("replication-repair", "1.3.6.1.4.1.30221.1.5.2");
+
+    // The retain identity request control.
+    oidsByName.put("retainidentity", "1.3.6.1.4.1.30221.2.5.3");
+    oidsByName.put("retain-identity", "1.3.6.1.4.1.30221.2.5.3");
+
+    // The retire password request control.
+    oidsByName.put("retirepassword", "1.3.6.1.4.1.30221.2.5.31");
+    oidsByName.put("retire-password", "1.3.6.1.4.1.30221.2.5.31");
+
+    // The return conflict entries request control.
+    oidsByName.put("returnconflictentries", "1.3.6.1.4.1.30221.2.5.13");
+    oidsByName.put("return-conflict-entries", "1.3.6.1.4.1.30221.2.5.13");
+
+    // The soft delete request control.
+    oidsByName.put("softdelete", "1.3.6.1.4.1.30221.2.5.20");
+    oidsByName.put("soft-delete", "1.3.6.1.4.1.30221.2.5.20");
+
+    // The soft-deleted entry access request control.
+    oidsByName.put("softdeleteentryaccess", "1.3.6.1.4.1.30221.2.5.24");
+    oidsByName.put("softdeletedentryaccess", "1.3.6.1.4.1.30221.2.5.24");
+    oidsByName.put("soft-delete-entry-access", "1.3.6.1.4.1.30221.2.5.24");
+    oidsByName.put("soft-deleted-entry-access", "1.3.6.1.4.1.30221.2.5.24");
+
+    // The suppress referential integrity updates request control.
+    oidsByName.put("suppressreferentialintegrity", "1.3.6.1.4.1.30221.2.5.30");
+    oidsByName.put("suppressreferentialintegrityupdates",
+         "1.3.6.1.4.1.30221.2.5.30");
+    oidsByName.put("suppress-referential-integrity",
+         "1.3.6.1.4.1.30221.2.5.30");
+    oidsByName.put("suppress-referential-integrity-updates",
+         "1.3.6.1.4.1.30221.2.5.30");
+
+    // The undelete request control.
+    oidsByName.put("undelete", "1.3.6.1.4.1.30221.2.5.23");
+
+    // The virtual attributes only request control.
+    oidsByName.put("virtualattrsonly", "2.16.840.1.113730.3.4.19");
+    oidsByName.put("virtualattributesonly", "2.16.840.1.113730.3.4.19");
+    oidsByName.put("virtual-attrs-only", "2.16.840.1.113730.3.4.19");
+    oidsByName.put("virtual-attributes-only", "2.16.840.1.113730.3.4.19");
+
+    OIDS_BY_NAME = Collections.unmodifiableMap(oidsByName);
+  }
+
+
+
   /**
    * The serial version UID for this serializable class.
    */
@@ -311,7 +519,7 @@ public final class ControlArgument
   protected void addValue(final String valueString)
             throws ArgumentException
   {
-    final String oid;
+    String oid;
     boolean isCritical = false;
     ASN1OctetString value = null;
 
@@ -387,8 +595,13 @@ public final class ControlArgument
 
     if (! StaticUtils.isNumericOID(oid))
     {
-      throw new ArgumentException(ERR_CONTROL_ARG_INVALID_OID.get(
-           valueString, getIdentifierString(), oid));
+      final String providedOID = oid;
+      oid = OIDS_BY_NAME.get(StaticUtils.toLowerCase(providedOID));
+      if (oid == null)
+      {
+        throw new ArgumentException(ERR_CONTROL_ARG_INVALID_OID.get(
+             valueString, getIdentifierString(), providedOID));
+      }
     }
 
     if (values.size() >= getMaxOccurrences())
