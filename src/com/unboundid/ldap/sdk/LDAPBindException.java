@@ -70,6 +70,17 @@ public class LDAPBindException
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public LDAPResult toLDAPResult()
+  {
+    return bindResult;
+  }
+
+
+
+  /**
    * Retrieves the bind result that was returned by the server.
    *
    * @return  The bind result that was returned by the server.

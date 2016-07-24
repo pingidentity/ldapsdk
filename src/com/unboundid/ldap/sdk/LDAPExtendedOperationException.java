@@ -71,6 +71,17 @@ public class LDAPExtendedOperationException
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public LDAPResult toLDAPResult()
+  {
+    return extendedResult;
+  }
+
+
+
+  /**
    * Retrieves the extended result that was returned by the server.
    *
    * @return  The extended result that was returned by the server.
