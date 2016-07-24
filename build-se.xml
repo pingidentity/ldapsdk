@@ -346,10 +346,14 @@
          compress="true"
          index="true">
       <fileset dir="${classes.dir}">
-        <exclude name="unboundid-controls.properties" />
-        <exclude name="unboundid-extop.properties" />
-        <exclude name="monitor.properties" />
-        <exclude name="task.properties" />
+        <exclude name="unboundid-ldapsdk-jsonfilter.properties" />
+        <exclude name="unboundid-ldapsdk-log.properties" />
+        <exclude name="unboundid-ldapsdk-monitor.properties" />
+        <exclude name="unboundid-ldapsdk-task.properties" />
+        <exclude name="unboundid-ldapsdk-tools.properties" />
+        <exclude name="unboundid-ldapsdk-unboundidds.properties" />
+        <exclude name="unboundid-ldapsdk-unboundid-controls.properties" />
+        <exclude name="unboundid-ldapsdk-unboundid-extop.properties" />
         <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
       </fileset>
       <manifest>
@@ -424,12 +428,14 @@
         <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
       </zipfileset>
       <zipfileset dir="${messages.dir}" filemode="644" dirmode="755">
-        <exclude name="log.properties" />
-        <exclude name="monitor.properties" />
-        <exclude name="task.properties" />
-        <exclude name="unboundid-controls.properties" />
-        <exclude name="unboundid-extop.properties" />
-        <exclude name="unboundidds.properties" />
+        <exclude name="unboundid-ldapsdk-jsonfilter.properties" />
+        <exclude name="unboundid-ldapsdk-log.properties" />
+        <exclude name="unboundid-ldapsdk-monitor.properties" />
+        <exclude name="unboundid-ldapsdk-task.properties" />
+        <exclude name="unboundid-ldapsdk-tools.properties" />
+        <exclude name="unboundid-ldapsdk-unboundidds.properties" />
+        <exclude name="unboundid-ldapsdk-unboundid-controls.properties" />
+        <exclude name="unboundid-ldapsdk-unboundid-extop.properties" />
       </zipfileset>
     </zip>
 
@@ -602,17 +608,19 @@
         <exclude name="com/unboundid/ldap/sdk/unboundidds/**/*" />
         <exclude name="com/unboundid/util/args/**/*" />
       </zipfileset>
-      <zipfileset dir="${messages.dir}" filemode="644" dirmode="755">
-        <exclude name="args.properties" />
-        <exclude name="controls.properties" />
-        <exclude name="listener.properties" />
-        <exclude name="log.properties" />
-        <exclude name="monitor.properties" />
-        <exclude name="persist.properties" />
-        <exclude name="task.properties" />
-        <exclude name="unboundid-controls.properties" />
-        <exclude name="unboundid-extop.properties" />
-        <exclude name="unboundidds.properties" />
+      <zipfileset dir="${messages.me.dir}" filemode="644" dirmode="755">
+        <exclude name="unboundid-ldapsdk-args.properties" />
+        <exclude name="unboundid-ldapsdk-controls.properties" />
+        <exclude name="unboundid-ldapsdk-jsonfilter.properties" />
+        <exclude name="unboundid-ldapsdk-listener.properties" />
+        <exclude name="unboundid-ldapsdk-log.properties" />
+        <exclude name="unboundid-ldapsdk-monitor.properties" />
+        <exclude name="unboundid-ldapsdk-persist.properties" />
+        <exclude name="unboundid-ldapsdk-task.properties" />
+        <exclude name="unboundid-ldapsdk-tools.properties" />
+        <exclude name="unboundid-ldapsdk-unboundidds.properties" />
+        <exclude name="unboundid-ldapsdk-unboundid-controls.properties" />
+        <exclude name="unboundid-ldapsdk-unboundid-extop.properties" />
       </zipfileset>
     </zip>
 
