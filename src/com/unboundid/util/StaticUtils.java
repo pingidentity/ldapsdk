@@ -23,7 +23,9 @@ package com.unboundid.util;
 
 
 import java.lang.reflect.Constructor;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -2539,6 +2541,71 @@ public final class StaticUtils
       {
         return new IOException(message + " (caused by " +
              getExceptionMessage(cause) + ')');
+      }
+    }
+  }
+
+
+
+  /**
+   * Converts the provided string (which may include line breaks) into a list
+   * containing the lines without the line breaks.
+   *
+   * @param  s  The string to convert into a list of its representative lines.
+   *
+   * @return  A list containing the lines that comprise the given string.
+   */
+  public static List<String> stringToLines(final String s)
+  {
+    final ArrayList<String> l = new ArrayList<String>(10);
+
+    if (s == null)
+    {
+      return l;
+    }
+
+    final BufferedReader reader = new BufferedReader(new StringReader(s));
+
+    try
+    {
+      while (true)
+      {
+        try
+        {
+          final String line = reader.readLine();
+          if (line == null)
+          {
+            return l;
+          }
+          else
+          {
+            l.add(line);
+          }
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+
+          // This should never happen.  If it does, just return a list
+          // containing a single item that is the original string.
+          l.clear();
+          l.add(s);
+          return l;
+        }
+      }
+    }
+    finally
+    {
+      try
+      {
+        // This is technically not necessary in this case, but it's good form.
+        reader.close();
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        // This should never happen, and there's nothing we need to do even if
+        // it does.
       }
     }
   }
