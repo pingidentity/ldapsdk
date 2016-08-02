@@ -3144,9 +3144,26 @@ public final class ArgumentParser
       argLine.append(valuePlaceholder);
     }
 
-    // NOTE:  This line won't be wrapped.  That's intentional because I
-    // think it would probably look bad no matter how we did it.
-    lines.add(argLine.toString());
+    // If we need to wrap the argument line, then align the dashes on the left
+    // edge.
+    int subsequentLineWidth = maxWidth - 4;
+    if (subsequentLineWidth < 4)
+    {
+      subsequentLineWidth = maxWidth;
+    }
+    final List<String> identifierLines =
+         wrapLine(argLine.toString(), maxWidth, subsequentLineWidth);
+    for (int i=0; i < identifierLines.size(); i++)
+    {
+      if (i == 0)
+      {
+        lines.add(identifierLines.get(0));
+      }
+      else
+      {
+        lines.add("    " + identifierLines.get(i));
+      }
+    }
 
 
     // The description should be wrapped, if necessary.  We'll also want to
