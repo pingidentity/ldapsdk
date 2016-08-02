@@ -118,6 +118,8 @@ import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
+import com.unboundid.ldap.sdk.experimental.
+            DraftZeilengaLDAPNoOp12RequestControl;
 import com.unboundid.ldap.sdk.extensions.AbortedTransactionExtendedResult;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldif.LDIFAddChangeRecord;
@@ -4400,6 +4402,7 @@ findEntriesAndRefs:
          AUTHORIZATION_IDENTITY_REQUEST_OID);
     ctlSet.add(DontUseCopyRequestControl.DONT_USE_COPY_REQUEST_OID);
     ctlSet.add(ManageDsaITRequestControl.MANAGE_DSA_IT_REQUEST_OID);
+    ctlSet.add(DraftZeilengaLDAPNoOp12RequestControl.NO_OP_REQUEST_OID);
     ctlSet.add(PermissiveModifyRequestControl.PERMISSIVE_MODIFY_REQUEST_OID);
     ctlSet.add(PostReadRequestControl.POST_READ_REQUEST_OID);
     ctlSet.add(PreReadRequestControl.PRE_READ_REQUEST_OID);

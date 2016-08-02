@@ -45,6 +45,8 @@ import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
+import com.unboundid.ldap.sdk.experimental.
+            DraftZeilengaLDAPNoOp12RequestControl;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
 
@@ -514,6 +516,27 @@ final class RequestControlPreProcessor
         {
           throw new LDAPException(ResultCode.CONSTRAINT_VIOLATION,
                ERR_CONTROL_PROCESSOR_MULTIPLE_CONTROLS.get(oid));
+        }
+      }
+      else if (oid.equals(DraftZeilengaLDAPNoOp12RequestControl.
+           NO_OP_REQUEST_OID))
+      {
+        switch (requestOpType)
+        {
+          case LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST:
+          case LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST:
+          case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST:
+          case LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST:
+            throw new LDAPException(ResultCode.NO_OPERATION,
+                 ERR_CONTROL_PROCESSOR_NO_OPERATION.get());
+
+          default:
+            if (control.isCritical())
+            {
+              throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
+                   ERR_CONTROL_PROCESSOR_UNSUPPORTED_FOR_OP.get(oid));
+            }
+            break;
         }
       }
       else if (oid.equals(InMemoryRequestHandler.
