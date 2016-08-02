@@ -9,17 +9,7 @@ package com.unboundid.buildtools.sanitycheck;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.StringTokenizer;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -33,9 +23,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.RootDSE;
-import com.unboundid.util.InternalUseOnly;
-
-import static com.unboundid.ldap.sdk.Version.*;
 
 
 
@@ -265,7 +252,10 @@ public class SanityCheckME
     {
       try
       {
-        reader.close();
+        if (reader != null)
+        {
+          reader.close();
+        }
       } catch (Exception e) {}
     }
   }

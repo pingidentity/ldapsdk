@@ -2895,7 +2895,10 @@ public final class LDAPConnectionPool
             {
               try
               {
-                s.setSoTimeout(previousTimeout);
+                if (s != null)
+                {
+                  s.setSoTimeout(previousTimeout);
+                }
               }
               catch (final Exception e)
               {

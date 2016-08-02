@@ -348,7 +348,10 @@ public class SanityCheckSE
     {
       try
       {
-        reader.close();
+        if (reader != null)
+        {
+          reader.close();
+        }
       } catch (Exception e) {}
     }
   }
@@ -541,7 +544,10 @@ public class SanityCheckSE
     {
       try
       {
-        zipFile.close();
+        if (zipFile != null)
+        {
+          zipFile.close();
+        }
       } catch (Exception e) {}
     }
   }
@@ -824,7 +830,10 @@ public class SanityCheckSE
     {
       try
       {
-        jar.close();
+        if (jar != null)
+        {
+          jar.close();
+        }
       } catch (Exception e) {}
     }
   }

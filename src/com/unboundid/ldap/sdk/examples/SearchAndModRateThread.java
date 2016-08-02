@@ -386,7 +386,10 @@ final class SearchAndModRateThread
         final long modStartTime = System.nanoTime();
         try
         {
-          connection.modify(modifyRequest);
+          if (connection != null)
+          {
+            connection.modify(modifyRequest);
+          }
         }
         catch (LDAPException le)
         {

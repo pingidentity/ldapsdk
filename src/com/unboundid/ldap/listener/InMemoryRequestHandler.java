@@ -962,7 +962,7 @@ public final class InMemoryRequestHandler
                     StaticUtils.concatenateStrings(invalidReasons)), null));
         }
 
-        if (! isInternalOp)
+        if ((! isInternalOp) && (schema != null))
         {
           for (final Attribute a : entry.getAttributes())
           {
