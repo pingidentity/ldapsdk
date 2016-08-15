@@ -55,6 +55,7 @@ import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
+import com.unboundid.util.args.StringArgument;
 
 import static com.unboundid.util.StaticUtils.*;
 
@@ -106,6 +107,10 @@ import static com.unboundid.util.StaticUtils.*;
  *       attributes not defined in the server schema.</LI>
  *   <LI>"--ignoreMalformedDNs" -- indicates that the validation process should
  *       ignore validation failures due to entries with malformed DNs.</LI>
+ *   <LI>"--ignoreMissingRDNValues" -- indicates that the validation process
+ *       should ignore validation failures due to entries that contain an RDN
+ *       attribute value that is not present in the set of entry
+ *       attributes.</LI>
  *   <LI>"--ignoreStructuralObjectClasses" -- indicates that the validation
  *       process should ignore validation failures due to entries that either do
  *       not have a structural object class or that have multiple structural
@@ -128,6 +133,10 @@ import static com.unboundid.util.StaticUtils.*;
  *   <LI>"--ignoreAttributeSyntax" -- indicates that the validation process
  *       should ignore validation failures due to attribute values which violate
  *       the associated attribute syntax.</LI>
+ *   <LI>"--ignoreSyntaxViolationsForAttribute" -- indicates that the validation
+ *       process should ignore validation failures due to attribute values which
+ *       violate the associated attribute syntax, but only for the specified
+ *       attribute types.</LI>
  *   <LI>"--ignoreNameForms" -- indicates that the validation process should
  *       ignore validation failures due to name form violations (in which the
  *       entry's RDN does not comply with the associated name form).</LI>
@@ -150,6 +159,7 @@ public final class ValidateLDIF
   private BooleanArgument ignoreUndefinedObjectClasses;
   private BooleanArgument ignoreUndefinedAttributes;
   private BooleanArgument ignoreMalformedDNs;
+  private BooleanArgument ignoreMissingRDNValues;
   private BooleanArgument ignoreMissingSuperiorObjectClasses;
   private BooleanArgument ignoreStructuralObjectClasses;
   private BooleanArgument ignoreProhibitedObjectClasses;
@@ -163,6 +173,7 @@ public final class ValidateLDIF
   private FileArgument    ldifFile;
   private FileArgument    rejectFile;
   private IntegerArgument numThreads;
+  private StringArgument  ignoreSyntaxViolationsForAttribute;
 
   // The counter used to keep track of the number of entries processed.
   private final AtomicLong entriesProcessed = new AtomicLong(0L);
@@ -467,6 +478,16 @@ public final class ValidateLDIF
     ignoreMalformedDNs.addLongIdentifier("ignore-malformed-dns");
     parser.addArgument(ignoreMalformedDNs);
 
+    description = "Ignore validation failures due to entries with RDN " +
+                  "attribute values that are missing from the set of entry " +
+                  "attributes.";
+    ignoreMissingRDNValues =
+         new BooleanArgument(null, "ignoreMissingRDNValues", description);
+    ignoreMissingRDNValues.setArgumentGroupName(
+         "Validation Strictness Arguments");
+    ignoreMissingRDNValues.addLongIdentifier("ignore-missing-rdn-values");
+    parser.addArgument(ignoreMissingRDNValues);
+
     description = "Ignore validation failures due to entries without exactly " +
                   "structural object class.";
     ignoreStructuralObjectClasses =
@@ -530,7 +551,12 @@ public final class ValidateLDIF
     parser.addArgument(ignoreSingleValuedAttributes);
 
     description = "Ignore validation failures due to entries with attribute " +
-                  "values that violate their associated syntax.";
+                  "values that violate their associated syntax.  If this is " +
+                  "provided, then no attribute syntax violations will be " +
+                  "flagged.  If this is not provided, then all attribute " +
+                  "syntax violations will be flagged except for violations " +
+                  "in those attributes excluded by the " +
+                  "--ignoreSyntaxViolationsForAttribute argument.";
     ignoreAttributeSyntax =
          new BooleanArgument(null, "ignoreAttributeSyntax", description);
     ignoreAttributeSyntax.setArgumentGroupName(
@@ -538,12 +564,30 @@ public final class ValidateLDIF
     ignoreAttributeSyntax.addLongIdentifier("ignore-attribute-syntax");
     parser.addArgument(ignoreAttributeSyntax);
 
+    description = "The name or OID of an attribute for which to ignore " +
+                  "validation failures due to violations of the associated " +
+                  "attribute syntax.  This argument can only be used if the " +
+                  "--ignoreAttributeSyntax argument is not provided.";
+    ignoreSyntaxViolationsForAttribute = new StringArgument(null,
+         "ignoreSyntaxViolationsForAttribute", false, 0, "{attr}", description);
+    ignoreSyntaxViolationsForAttribute.setArgumentGroupName(
+         "Validation Strictness Arguments");
+    ignoreSyntaxViolationsForAttribute.addLongIdentifier(
+         "ignore-syntax-violations-for-attribute");
+    parser.addArgument(ignoreSyntaxViolationsForAttribute);
+
     description = "Ignore validation failures due to entries with RDNs " +
                   "that violate the associated name form definition.";
     ignoreNameForms = new BooleanArgument(null, "ignoreNameForms", description);
     ignoreNameForms.setArgumentGroupName("Validation Strictness Arguments");
     ignoreNameForms.addLongIdentifier("ignore-name-forms");
     parser.addArgument(ignoreNameForms);
+
+
+    // The ignoreAttributeSyntax and ignoreAttributeSyntaxForAttribute arguments
+    // cannot be used together.
+    parser.addExclusiveArgumentSet(ignoreAttributeSyntax,
+         ignoreSyntaxViolationsForAttribute);
   }
 
 
@@ -614,6 +658,8 @@ public final class ValidateLDIF
     entryValidator = new EntryValidator(schema);
     entryValidator.setCheckAttributeSyntax(!ignoreAttributeSyntax.isPresent());
     entryValidator.setCheckMalformedDNs(!ignoreMalformedDNs.isPresent());
+    entryValidator.setCheckEntryMissingRDNValues(
+         !ignoreMissingRDNValues.isPresent());
     entryValidator.setCheckMissingAttributes(
          !ignoreMissingAttributes.isPresent());
     entryValidator.setCheckNameForms(!ignoreNameForms.isPresent());
@@ -631,6 +677,12 @@ public final class ValidateLDIF
          !ignoreUndefinedAttributes.isPresent());
     entryValidator.setCheckUndefinedObjectClasses(
          !ignoreUndefinedObjectClasses.isPresent());
+
+    if (ignoreSyntaxViolationsForAttribute.isPresent())
+    {
+      entryValidator.setIgnoreSyntaxViolationAttributeTypes(
+           ignoreSyntaxViolationsForAttribute.getValues());
+    }
 
 
     // Create an LDIF reader that can be used to read through the LDIF file.

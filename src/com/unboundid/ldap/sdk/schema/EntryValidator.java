@@ -24,15 +24,18 @@ package com.unboundid.ldap.sdk.schema;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
@@ -59,6 +62,8 @@ import static com.unboundid.util.Validator.*;
  * The types of validation that may be performed for each entry include:
  * <UL>
  *   <LI>Ensure that the entry has a valid DN.</LI>
+ *   <LI>Ensure that all attribute values used in the entry's RDN are also
+ *       present in the entry.</LI>
  *   <LI>Ensure that the entry has exactly one structural object class.</LI>
  *   <LI>Ensure that all of the object classes for the entry are defined in the
  *       schema.</LI>
@@ -109,6 +114,10 @@ public final class EntryValidator
   // A count of the total number of entries examined.
   private final AtomicLong entriesExamined;
 
+  // A count of the number of entries missing an attribute value contained in
+  // the RDN.
+  private final AtomicLong entriesMissingRDNValues;
+
   // A count of the total number of invalid entries encountered.
   private final AtomicLong invalidEntries;
 
@@ -135,6 +144,11 @@ public final class EntryValidator
   // Indicates whether an entry should be considered invalid if it contains an
   // attribute value which violates the associated attribute syntax.
   private boolean checkAttributeSyntax;
+
+  // Indicates whether an entry should be considered invalid if it contains one
+  // or more attribute values in its RDN that are not present in the set of
+  // entry attributes.
+  private boolean checkEntryMissingRDNValues;
 
   // Indicates whether an entry should be considered invalid if its DN cannot be
   // parsed.
@@ -208,6 +222,9 @@ public final class EntryValidator
   // The schema against which entries will be validated.
   private final Schema schema;
 
+  // The attribute types for which to ignore syntax violations.
+  private Set<AttributeTypeDefinition> ignoreSyntaxViolationTypes;
+
 
 
   /**
@@ -221,6 +238,7 @@ public final class EntryValidator
     this.schema = schema;
 
     checkAttributeSyntax              = true;
+    checkEntryMissingRDNValues        = true;
     checkMalformedDNs                 = true;
     checkMissingAttributes            = true;
     checkMissingSuperiorObjectClasses = true;
@@ -232,7 +250,10 @@ public final class EntryValidator
     checkUndefinedAttributes          = true;
     checkUndefinedObjectClasses       = true;
 
+    ignoreSyntaxViolationTypes = Collections.emptySet();
+
     entriesExamined           = new AtomicLong(0L);
+    entriesMissingRDNValues   = new AtomicLong(0L);
     invalidEntries            = new AtomicLong(0L);
     malformedDNs              = new AtomicLong(0L);
     missingSuperiorClasses    = new AtomicLong(0L);
@@ -343,6 +364,41 @@ public final class EntryValidator
   public void setCheckMalformedDNs(final boolean checkMalformedDNs)
   {
     this.checkMalformedDNs = checkMalformedDNs;
+  }
+
+
+
+  /**
+   * Indicates whether the entry validator should consider entries invalid if
+   * they contain one or more attribute values in their RDN that are not present
+   * in the set of entry attributes.
+   *
+   * @return  {@code true} if entries missing one or more attribute values
+   *          included in their RDNs should be considered invalid, or
+   *          {@code false} if not.
+   */
+  public boolean checkEntryMissingRDNValues()
+  {
+    return checkEntryMissingRDNValues;
+  }
+
+
+
+  /**
+   * Specifies whether the entry validator should consider entries invalid if
+   * they contain one or more attribute values in their RDN that are not present
+   * in the set of entry attributes.
+   *
+   * @param  checkEntryMissingRDNValues  Indicates whether the entry validator
+   *                                     should consider entries invalid if they
+   *                                     contain one or more attribute values in
+   *                                     their RDN that are not present in the
+   *                                     set of entry attributes.
+   */
+  public void setCheckEntryMissingRDNValues(
+                   final boolean checkEntryMissingRDNValues)
+  {
+    this.checkEntryMissingRDNValues = checkEntryMissingRDNValues;
   }
 
 
@@ -546,6 +602,103 @@ public final class EntryValidator
 
 
   /**
+   * Retrieves the set of attribute types for which syntax violations should be
+   * ignored.  If {@link #checkAttributeSyntax()} returns {@code true}, then
+   * any attribute syntax violations will be flagged for all attributes except
+   * those attributes in this set.  If {@code checkAttributeSyntax()} returns
+   * {@code false}, then all syntax violations will be ignored.
+   *
+   * @return  The set of attribute types for which syntax violations should be
+   *          ignored.
+   */
+  public Set<AttributeTypeDefinition> getIgnoreSyntaxViolationsAttributeTypes()
+  {
+    return ignoreSyntaxViolationTypes;
+  }
+
+
+
+  /**
+   * Specifies the set of attribute types for which syntax violations should be
+   * ignored.  This method will only have any effect if
+   * {@link #checkAttributeSyntax()} returns {@code true}.
+   *
+   * @param  attributeTypes  The definitions for the attribute types for  which
+   *                         to ignore syntax violations.  It may be
+   *                         {@code null} or empty if no violations should be
+   *                         ignored.
+   */
+  public void setIgnoreSyntaxViolationAttributeTypes(
+                   final AttributeTypeDefinition... attributeTypes)
+  {
+    if (attributeTypes == null)
+    {
+      ignoreSyntaxViolationTypes = Collections.emptySet();
+    }
+    else
+    {
+      ignoreSyntaxViolationTypes = Collections.unmodifiableSet(
+           new HashSet<AttributeTypeDefinition>(toList(attributeTypes)));
+    }
+  }
+
+
+
+  /**
+   * Specifies the names or OIDs of the attribute types for which syntax
+   * violations should be ignored.  This method will only have any effect if
+   * {@link #checkAttributeSyntax()} returns {@code true}.
+   *
+   * @param  attributeTypes  The names or OIDs of the attribute types for  which
+   *                         to ignore syntax violations.  It may be
+   *                         {@code null} or empty if no violations should be
+   *                         ignored.
+   */
+  public void setIgnoreSyntaxViolationAttributeTypes(
+                   final String... attributeTypes)
+  {
+    setIgnoreSyntaxViolationAttributeTypes(toList(attributeTypes));
+  }
+
+
+
+  /**
+   * Specifies the names or OIDs of the attribute types for which syntax
+   * violations should be ignored.  This method will only have any effect if
+   * {@link #checkAttributeSyntax()} returns {@code true}.
+   *
+   * @param  attributeTypes  The names or OIDs of the attribute types for  which
+   *                         to ignore syntax violations.  It may be
+   *                         {@code null} or empty if no violations should be
+   *                         ignored.  Any attribute types not defined in the
+   *                         schema will be ignored.
+   */
+  public void setIgnoreSyntaxViolationAttributeTypes(
+                   final Collection<String> attributeTypes)
+  {
+    if (attributeTypes == null)
+    {
+      ignoreSyntaxViolationTypes = Collections.emptySet();
+      return;
+    }
+
+    final HashSet<AttributeTypeDefinition> atSet =
+         new HashSet<AttributeTypeDefinition>(attributeTypes.size());
+    for (final String s : attributeTypes)
+    {
+      final AttributeTypeDefinition d = schema.getAttributeType(s);
+      if (d != null)
+      {
+        atSet.add(d);
+      }
+    }
+
+    ignoreSyntaxViolationTypes = Collections.unmodifiableSet(atSet);
+  }
+
+
+
+  /**
    * Indicates whether the entry validator should consider entries invalid if
    * they contain attributes which are not defined in the schema.
    *
@@ -637,7 +790,7 @@ public final class EntryValidator
     {
       rdn = entry.getParsedDN().getRDN();
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       if (checkMalformedDNs)
@@ -721,7 +874,7 @@ public final class EntryValidator
     // schema, allowed to be present, and comply with the name form.
     if (rdn != null)
     {
-      entryValid &= checkRDN(rdn, requiredAttrs, optionalAttrs, nameForm,
+      entryValid &= checkRDN(rdn, entry, requiredAttrs, optionalAttrs, nameForm,
                              invalidReasons);
     }
 
@@ -1200,23 +1353,321 @@ public final class EntryValidator
 
     if (checkAttributeSyntax)
     {
-      final MatchingRule r =
-           MatchingRule.selectEqualityMatchingRule(d.getNameOrOID(), schema);
-      for (final ASN1OctetString v : rawValues)
+      if (! ignoreSyntaxViolationTypes.contains(d))
       {
-        try
+        final MatchingRule r =
+             MatchingRule.selectEqualityMatchingRule(d.getNameOrOID(), schema);
+        final Map<String, String[]> extensions = d.getExtensions();
+        for (final ASN1OctetString v : rawValues)
         {
-          r.normalize(v);
-        }
-        catch (LDAPException le)
-        {
-          debugException(le);
-          entryValid = false;
-          updateCount(d.getNameOrOID(), attributesViolatingSyntax);
-          if (invalidReasons != null)
+          try
           {
-            invalidReasons.add(ERR_ENTRY_ATTR_INVALID_SYNTAX.get(
-                 v.stringValue(), d.getNameOrOID(), getExceptionMessage(le)));
+            r.normalize(v);
+          }
+          catch (final LDAPException le)
+          {
+            debugException(le);
+            entryValid = false;
+            updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+            if (invalidReasons != null)
+            {
+              invalidReasons.add(ERR_ENTRY_ATTR_INVALID_SYNTAX.get(
+                   v.stringValue(), d.getNameOrOID(), getExceptionMessage(le)));
+            }
+          }
+
+
+          // If the attribute type definition includes an X-ALLOWED-VALUE
+          // extension, then make sure the value is in that set.
+          final String[] allowedValues = extensions.get("X-ALLOWED-VALUE");
+          if (allowedValues != null)
+          {
+            boolean isAllowed = false;
+            for (final String allowedValue : allowedValues)
+            {
+              try
+              {
+                if (r.valuesMatch(v, new ASN1OctetString(allowedValue)))
+                {
+                  isAllowed = true;
+                  break;
+                }
+              }
+              catch (final Exception e)
+              {
+                debugException(e);
+              }
+            }
+
+            if (! isAllowed)
+            {
+              entryValid = false;
+              updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+              if (invalidReasons != null)
+              {
+                invalidReasons.add(ERR_ENTRY_ATTR_VALUE_NOT_ALLOWED.get(
+                     v.stringValue(), d.getNameOrOID()));
+              }
+            }
+          }
+
+
+          // If the attribute type definition includes an X-VALUE-REGEX
+          // extension, then make sure the value matches one of those regexes.
+          final String[] valueRegexes = extensions.get("X-VALUE-REGEX");
+          if (valueRegexes != null)
+          {
+            boolean matchesRegex = false;
+            for (final String regex : valueRegexes)
+            {
+              try
+              {
+                final Pattern pattern = Pattern.compile(regex);
+                if (pattern.matcher(v.stringValue()).matches())
+                {
+                  matchesRegex = true;
+                  break;
+                }
+              }
+              catch (final Exception e)
+              {
+                debugException(e);
+              }
+            }
+
+            if (! matchesRegex)
+            {
+              entryValid = false;
+              updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+              if (invalidReasons != null)
+              {
+                invalidReasons.add(
+                     ERR_ENTRY_ATTR_VALUE_NOT_ALLOWED_BY_REGEX.get(
+                          v.stringValue(), d.getNameOrOID()));
+              }
+            }
+          }
+
+
+          // If the attribute type definition includes an X-MIN-VALUE-LENGTH
+          // extension, then make sure the value is long enough.
+          final String[] minValueLengths = extensions.get("X-MIN-VALUE-LENGTH");
+          if (minValueLengths != null)
+          {
+            int minLength = 0;
+            for (final String s : minValueLengths)
+            {
+              try
+              {
+                minLength = Math.max(minLength, Integer.parseInt(s));
+              }
+              catch (final Exception e)
+              {
+                debugException(e);
+              }
+            }
+
+            if (v.stringValue().length() < minLength)
+            {
+              entryValid = false;
+              updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+              if (invalidReasons != null)
+              {
+                invalidReasons.add(
+                     ERR_ENTRY_ATTR_VALUE_SHORTER_THAN_MIN_LENGTH.get(
+                          v.stringValue(), d.getNameOrOID(), minLength));
+              }
+            }
+          }
+
+
+          // If the attribute type definition includes an X-MAX-VALUE-LENGTH
+          // extension, then make sure the value is short enough.
+          final String[] maxValueLengths = extensions.get("X-MAX-VALUE-LENGTH");
+          if (maxValueLengths != null)
+          {
+            int maxLength = Integer.MAX_VALUE;
+            for (final String s : maxValueLengths)
+            {
+              try
+              {
+                maxLength = Math.min(maxLength, Integer.parseInt(s));
+              }
+              catch (final Exception e)
+              {
+                debugException(e);
+              }
+            }
+
+            if (v.stringValue().length() > maxLength)
+            {
+              entryValid = false;
+              updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+              if (invalidReasons != null)
+              {
+                invalidReasons.add(
+                     ERR_ENTRY_ATTR_VALUE_LONGER_THAN_MAX_LENGTH.get(
+                          v.stringValue(), d.getNameOrOID(), maxLength));
+              }
+            }
+          }
+
+
+          // If the attribute type definition includes an X-MIN-INT-VALUE
+          // extension, then make sure the value is large enough.
+          final String[] minIntValues = extensions.get("X-MIN-INT-VALUE");
+          if (minIntValues != null)
+          {
+            try
+            {
+              final long longValue = Long.parseLong(v.stringValue());
+
+              long minAllowedValue = 0L;
+              for (final String s : minIntValues)
+              {
+                try
+                {
+                  minAllowedValue =
+                       Math.max(minAllowedValue, Long.parseLong(s));
+                }
+                catch (final Exception e)
+                {
+                  debugException(e);
+                }
+              }
+
+              if (longValue < minAllowedValue)
+              {
+                entryValid = false;
+                updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+                if (invalidReasons != null)
+                {
+                  invalidReasons.add(ERR_ENTRY_ATTR_VALUE_INT_TOO_SMALL.get(
+                       longValue, d.getNameOrOID(), minAllowedValue));
+                }
+              }
+            }
+            catch (final Exception e)
+            {
+              debugException(e);
+              entryValid = false;
+              updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+              if (invalidReasons != null)
+              {
+                invalidReasons.add(ERR_ENTRY_ATTR_VALUE_NOT_INT.get(
+                     v.stringValue(), d.getNameOrOID(), "X-MIN-INT-VALUE"));
+              }
+            }
+          }
+
+
+          // If the attribute type definition includes an X-MAX-INT-VALUE
+          // extension, then make sure the value is large enough.
+          final String[] maxIntValues = extensions.get("X-MAX-INT-VALUE");
+          if (maxIntValues != null)
+          {
+            try
+            {
+              final long longValue = Long.parseLong(v.stringValue());
+
+              long maxAllowedValue = Long.MAX_VALUE;
+              for (final String s : maxIntValues)
+              {
+                try
+                {
+                  maxAllowedValue =
+                       Math.min(maxAllowedValue, Long.parseLong(s));
+                }
+                catch (final Exception e)
+                {
+                  debugException(e);
+                }
+              }
+
+              if (longValue > maxAllowedValue)
+              {
+                entryValid = false;
+                updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+                if (invalidReasons != null)
+                {
+                  invalidReasons.add(ERR_ENTRY_ATTR_VALUE_INT_TOO_LARGE.get(
+                       longValue, d.getNameOrOID(), maxAllowedValue));
+                }
+              }
+            }
+            catch (final Exception e)
+            {
+              debugException(e);
+              entryValid = false;
+              updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+              if (invalidReasons != null)
+              {
+                invalidReasons.add(ERR_ENTRY_ATTR_VALUE_NOT_INT.get(
+                     v.stringValue(), d.getNameOrOID(), "X-MAX-INT-VALUE"));
+              }
+            }
+          }
+        }
+
+
+        // If the attribute type definition includes an X-MIN-VALUE-COUNT
+        // extension, then make sure the value has enough values.
+        final String[] minValueCounts = extensions.get("X-MIN-VALUE-COUNT");
+        if (minValueCounts != null)
+        {
+          int minValueCount = 0;
+          for (final String s : minValueCounts)
+          {
+            try
+            {
+              minValueCount = Math.max(minValueCount, Integer.parseInt(s));
+            }
+            catch (final Exception e)
+            {
+              debugException(e);
+            }
+          }
+
+          if (rawValues.length < minValueCount)
+          {
+            entryValid = false;
+            updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+            if (invalidReasons != null)
+            {
+              invalidReasons.add(ERR_ENTRY_TOO_FEW_VALUES.get(rawValues.length,
+                   d.getNameOrOID(), minValueCount));
+            }
+          }
+        }
+
+
+        // If the attribute type definition includes an X-MAX-VALUE-COUNT
+        // extension, then make sure the value has enough values.
+        final String[] maxValueCounts = extensions.get("X-MAX-VALUE-COUNT");
+        if (maxValueCounts != null)
+        {
+          int maxValueCount = Integer.MAX_VALUE;
+          for (final String s : maxValueCounts)
+          {
+            try
+            {
+              maxValueCount = Math.min(maxValueCount, Integer.parseInt(s));
+            }
+            catch (final Exception e)
+            {
+              debugException(e);
+            }
+          }
+
+          if (rawValues.length > maxValueCount)
+          {
+            entryValid = false;
+            updateCount(d.getNameOrOID(), attributesViolatingSyntax);
+            if (invalidReasons != null)
+            {
+              invalidReasons.add(ERR_ENTRY_TOO_MANY_VALUES.get(rawValues.length,
+                   d.getNameOrOID(), maxValueCount));
+            }
           }
         }
       }
@@ -1284,6 +1735,7 @@ public final class EntryValidator
    * the entry optionally conforms to the associated name form.
    *
    * @param  rdn             The RDN to examine.
+   * @param  entry           The entry to examine.
    * @param  requiredAttrs   The set of attribute types which are required to be
    *                         included in the entry.
    * @param  optionalAttrs   The set of attribute types which may optionally be
@@ -1297,7 +1749,7 @@ public final class EntryValidator
    * @return  {@code true} if the entry passes all checks performed by this
    *          method, or {@code false} if not.
    */
-  private boolean checkRDN(final RDN rdn,
+  private boolean checkRDN(final RDN rdn, final Entry entry,
                            final HashSet<AttributeTypeDefinition> requiredAttrs,
                            final HashSet<AttributeTypeDefinition> optionalAttrs,
                            final NameFormDefinition nameForm,
@@ -1330,18 +1782,38 @@ public final class EntryValidator
     }
 
     boolean entryValid = true;
-    for (final String s : rdn.getAttributeNames())
+    final String[] attributeNames = rdn.getAttributeNames();
+    final byte[][] attributeValues = rdn.getByteArrayAttributeValues();
+    for (int i=0; i < attributeNames.length; i++)
     {
-      final AttributeTypeDefinition d = schema.getAttributeType(s);
+      final String name = attributeNames[i];
+      if (checkEntryMissingRDNValues)
+      {
+        final byte[] value = attributeValues[i];
+        final MatchingRule matchingRule =
+             MatchingRule.selectEqualityMatchingRule(name, schema);
+        if (! entry.hasAttributeValue(name, value, matchingRule))
+        {
+          entryValid = false;
+          entriesMissingRDNValues.incrementAndGet();
+          if (invalidReasons != null)
+          {
+            invalidReasons.add(ERR_ENTRY_MISSING_RDN_VALUE.get(
+                 rdn.getAttributeValues()[i], name));
+          }
+        }
+      }
+
+      final AttributeTypeDefinition d = schema.getAttributeType(name);
       if (d == null)
       {
         if (checkUndefinedAttributes)
         {
           entryValid = false;
-          updateCount(s, undefinedAttributes);
+          updateCount(name, undefinedAttributes);
           if (invalidReasons != null)
           {
-            invalidReasons.add(ERR_ENTRY_RDN_ATTR_NOT_DEFINED.get(s));
+            invalidReasons.add(ERR_ENTRY_RDN_ATTR_NOT_DEFINED.get(name));
           }
         }
       }
@@ -1373,7 +1845,8 @@ public final class EntryValidator
               }
               if (invalidReasons != null)
               {
-                invalidReasons.add(ERR_ENTRY_RDN_ATTR_NOT_ALLOWED_BY_NF.get(s));
+                invalidReasons.add(
+                     ERR_ENTRY_RDN_ATTR_NOT_ALLOWED_BY_NF.get(name));
               }
             }
           }
@@ -1435,6 +1908,7 @@ public final class EntryValidator
   public void resetCounts()
   {
     entriesExamined.set(0L);
+    entriesMissingRDNValues.set(0L);
     invalidEntries.set(0L);
     malformedDNs.set(0L);
     missingSuperiorClasses.set(0L);
@@ -1488,6 +1962,20 @@ public final class EntryValidator
   public long getMalformedDNs()
   {
     return malformedDNs.get();
+  }
+
+
+
+  /**
+   * Retrieves the total number of entries examined that included an attribute
+   * value in the RDN that was not present in the entry attributes.
+   *
+   * @return  The total number of entries examined that included an attribute
+   *          value in the RDN that was not present in the entry attributes.
+   */
+  public long getEntriesMissingRDNValues()
+  {
+    return entriesMissingRDNValues.get();
   }
 
 
@@ -1852,6 +2340,14 @@ public final class EntryValidator
       pct = 100 * numBadDNs / numEntries;
       messages.add(INFO_ENTRY_MALFORMED_DN_COUNT.get(
            numBadDNs, numEntries, pct));
+    }
+
+    final long numEntriesMissingRDNValues = entriesMissingRDNValues.get();
+    if (numEntriesMissingRDNValues > 0)
+    {
+      pct = 100* numEntriesMissingRDNValues / numEntries;
+      messages.add(INFO_ENTRY_MISSING_RDN_VALUE_COUNT.get(
+           numEntriesMissingRDNValues, numEntries, pct));
     }
 
     final long numNoOCs = noObjectClasses.get();

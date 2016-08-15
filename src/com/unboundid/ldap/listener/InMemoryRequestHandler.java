@@ -2633,7 +2633,7 @@ public final class InMemoryRequestHandler
       final RDN originalRDN = dn.getRDN();
       final Entry updatedEntry = originalEntry.duplicate();
       updatedEntry.setDN(newDN);
-      if (request.deleteOldRDN() && (! newRDN.equals(originalRDN)))
+      if (request.deleteOldRDN())
       {
         final String[] oldRDNNames  = originalRDN.getAttributeNames();
         final byte[][] oldRDNValues = originalRDN.getByteArrayAttributeValues();
@@ -2641,16 +2641,16 @@ public final class InMemoryRequestHandler
         {
           updatedEntry.removeAttributeValue(oldRDNNames[i], oldRDNValues[i]);
         }
+      }
 
-        final String[] newRDNNames  = newRDN.getAttributeNames();
-        final byte[][] newRDNValues = newRDN.getByteArrayAttributeValues();
-        for (int i=0; i < newRDNNames.length; i++)
-        {
-          final MatchingRule matchingRule =
-               MatchingRule.selectEqualityMatchingRule(newRDNNames[i], schema);
-          updatedEntry.addAttribute(new Attribute(newRDNNames[i], matchingRule,
-               newRDNValues[i]));
-        }
+      final String[] newRDNNames  = newRDN.getAttributeNames();
+      final byte[][] newRDNValues = newRDN.getByteArrayAttributeValues();
+      for (int i=0; i < newRDNNames.length; i++)
+      {
+        final MatchingRule matchingRule =
+             MatchingRule.selectEqualityMatchingRule(newRDNNames[i], schema);
+        updatedEntry.addAttribute(new Attribute(newRDNNames[i], matchingRule,
+             newRDNValues[i]));
       }
 
       // If a schema was provided, then make sure the updated entry conforms to
@@ -2687,7 +2687,6 @@ public final class InMemoryRequestHandler
           }
         }
 
-        final String[] newRDNNames = newRDN.getAttributeNames();
         for (int i=0; i < newRDNNames.length; i++)
         {
           final String name = newRDNNames[i];
