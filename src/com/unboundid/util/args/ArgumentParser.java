@@ -1905,13 +1905,13 @@ public final class ArgumentParser
          parser.dependentArgumentSets)
     {
       final Argument targetArg = p.getFirst();
-      if (targetArg.isPresent())
+      if (targetArg.getNumOccurrences() > 0)
       {
         final Set<Argument> argSet = p.getSecond();
         boolean found = false;
         for (final Argument a : argSet)
         {
-          if (a.isPresent())
+          if (a.getNumOccurrences() > 0)
           {
             found = true;
             break;
@@ -1958,7 +1958,7 @@ public final class ArgumentParser
       Argument setArg = null;
       for (final Argument a : argSet)
       {
-        if (a.isPresent())
+        if (a.getNumOccurrences() > 0)
         {
           if (setArg == null)
           {
@@ -1980,7 +1980,7 @@ public final class ArgumentParser
       boolean found = false;
       for (final Argument a : argSet)
       {
-        if (a.isPresent())
+        if (a.getNumOccurrences() > 0)
         {
           found = true;
           break;
