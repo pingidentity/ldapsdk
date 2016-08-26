@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,11 +35,16 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
+import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
+import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
+import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
@@ -55,7 +61,9 @@ import com.unboundid.util.WakeableSleeper;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.ControlArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
 
@@ -165,12 +173,38 @@ public final class ModRate
   // The argument used to indicate whether to generate output in CSV format.
   private BooleanArgument csvFormat;
 
+  // Indicates that the tool should use the increment modification type instead
+  // of replace.
+  private BooleanArgument increment;
+
+  // Indicates that modify requests should include the permissive modify request
+  // control.
+  private BooleanArgument permissiveModify;
+
   // The argument used to indicate whether to suppress information about error
   // result codes.
   private BooleanArgument suppressErrorsArgument;
 
+  // The argument used to indicate that a generic control should be included in
+  // the request.
+  private ControlArgument control;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument sampleRateFile;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument variableRateData;
+
+  // Indicates that modify requests should include the assertion request control
+  // with the specified filter.
+  private FilterArgument assertionFilter;
+
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
+
+  // The increment amount to use when performing an increment instead of a
+  // replace.
+  private IntegerArgument incrementAmount;
 
   // The argument used to specify the number of modify iterations on a
   // connection before it is closed and re-established.
@@ -189,11 +223,8 @@ public final class ModRate
   // The target rate of modifies per second.
   private IntegerArgument ratePerSecond;
 
-  // The argument used to specify a variable rate file.
-  private FileArgument sampleRateFile;
-
-  // The argument used to specify a variable rate file.
-  private FileArgument variableRateData;
+  // The number of values to include in the replace modification.
+  private IntegerArgument valueCount;
 
   // The argument used to specify the length of the values to generate.
   private IntegerArgument valueLength;
@@ -210,6 +241,14 @@ public final class ModRate
 
   // The argument used to specify the DNs of the entries to modify.
   private StringArgument entryDN;
+
+  // Indicates that modify requests should include the post-read request control
+  // to request the specified attribute.
+  private StringArgument postReadAttribute;
+
+  // Indicates that modify requests should include the pre-read request control
+  // to request the specified attribute.
+  private StringArgument preReadAttribute;
 
   // The argument used to specify the proxied authorization identity.
   private StringArgument proxyAs;
@@ -467,13 +506,44 @@ public final class ModRate
 
 
     description = "The length in bytes to use when generating values for the " +
-                  "modifications.  If this is not provided, then a default " +
-                  "length of ten bytes will be used.";
+                  "replace modifications.  If this is not provided, then a " +
+                  "default length of ten bytes will be used.";
     valueLength = new IntegerArgument('l', "valueLength", true, 1, "{num}",
                                       description, 1, Integer.MAX_VALUE, 10);
     valueLength.setArgumentGroupName("Modification Arguments");
     valueLength.addLongIdentifier("value-length");
     parser.addArgument(valueLength);
+
+
+    description = "The number of values to include in replace " +
+                  "modifications.  If this is not provided, then a default " +
+                  "of one value will be used.";
+    valueCount = new IntegerArgument(null, "valueCount", false, 1, "{num}",
+                                     description, 0, Integer.MAX_VALUE, 1);
+    valueCount.setArgumentGroupName("Modification Arguments");
+    valueCount.addLongIdentifier("value-count");
+    parser.addArgument(valueCount);
+
+
+    description = "Indicates that the tool should use the increment " +
+                  "modification type rather than the replace modification " +
+                  "type.";
+    increment = new BooleanArgument(null, "increment", 1, description);
+    increment.setArgumentGroupName("Modification Arguments");
+    parser.addArgument(increment);
+
+
+    description = "The amount by which to increment values when using the " +
+                  "increment modification type.  The amount may be negative " +
+                  "if values should be decremented rather than incremented.  " +
+                  "If this is not provided, then a default increment amount " +
+                  "of one will be used.";
+    incrementAmount = new IntegerArgument(null, "incrementAmount", false, 1,
+                                          null, description, Integer.MIN_VALUE,
+                                          Integer.MAX_VALUE, 1);
+    incrementAmount.setArgumentGroupName("Modification Arguments");
+    incrementAmount.addLongIdentifier("increment-amount");
+    parser.addArgument(incrementAmount);
 
 
     description = "The set of characters to use to generate the values for " +
@@ -486,6 +556,70 @@ public final class ModRate
     characterSet.setArgumentGroupName("Modification Arguments");
     characterSet.addLongIdentifier("character-set");
     parser.addArgument(characterSet);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "assertion request control with the specified filter.";
+    assertionFilter = new FilterArgument(null, "assertionFilter", false, 1,
+                                         "{filter}", description);
+    assertionFilter.setArgumentGroupName("Request Control Arguments");
+    assertionFilter.addLongIdentifier("assertion-filter");
+    parser.addArgument(assertionFilter);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "permissive modify request control.";
+    permissiveModify = new BooleanArgument(null, "permissiveModify", 1,
+                                           description);
+    permissiveModify.setArgumentGroupName("Request Control Arguments");
+    permissiveModify.addLongIdentifier("permissive-modify");
+    parser.addArgument(permissiveModify);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "pre-read request control with the specified requested " +
+                  "attribute.  This argument may be provided multiple times " +
+                  "to indicate that multiple requested attributes should be " +
+                  "included in the pre-read request control.";
+    preReadAttribute = new StringArgument(null, "preReadAttribute", false, 0,
+                                          "{attribute}", description);
+    preReadAttribute.setArgumentGroupName("Request Control Arguments");
+    preReadAttribute.addLongIdentifier("pre-read-attribute");
+    parser.addArgument(preReadAttribute);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "post-read request control with the specified requested " +
+                  "attribute.  This argument may be provided multiple times " +
+                  "to indicate that multiple requested attributes should be " +
+                  "included in the post-read request control.";
+    postReadAttribute = new StringArgument(null, "postReadAttribute", false, 0,
+                                           "{attribute}", description);
+    postReadAttribute.setArgumentGroupName("Request Control Arguments");
+    postReadAttribute.addLongIdentifier("post-read-attribute");
+    parser.addArgument(postReadAttribute);
+
+
+    description = "Indicates that the proxied authorization control (as " +
+                  "defined in RFC 4370) should be used to request that " +
+                  "operations be processed using an alternate authorization " +
+                  "identity.  This may be a simple authorization ID or it " +
+                  "may be a value pattern to specify a range of " +
+                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
+                  " for complete details about the value pattern syntax.";
+    proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
+                                 description);
+    proxyAs.setArgumentGroupName("Request Control Arguments");
+    proxyAs.addLongIdentifier("proxy-as");
+    parser.addArgument(proxyAs);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "specified request control.  This may be provided multiple " +
+                  "times to request multiple request controls.";
+    control = new ControlArgument('J', "control", false, 0, null, description);
+    control.setArgumentGroupName("Request Control Arguments");
+    parser.addArgument(control);
 
 
     description = "The number of threads to use to perform the " +
@@ -591,18 +725,6 @@ public final class ModRate
     timestampFormat.addLongIdentifier("timestamp-format");
     parser.addArgument(timestampFormat);
 
-    description = "Indicates that the proxied authorization control (as " +
-                  "defined in RFC 4370) should be used to request that " +
-                  "operations be processed using an alternate authorization " +
-                  "identity.  This may be a simple authorization ID or it " +
-                  "may be a value pattern to specify a range of " +
-                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
-                  " for complete details about the value pattern syntax.";
-    proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
-                                 description);
-    proxyAs.addLongIdentifier("proxy-as");
-    parser.addArgument(proxyAs);
-
     description = "Indicates that information about the result codes for " +
                   "failed operations should not be displayed.";
     suppressErrorsArgument = new BooleanArgument(null,
@@ -620,6 +742,17 @@ public final class ModRate
          description);
     randomSeed.addLongIdentifier("random-seed");
     parser.addArgument(randomSeed);
+
+
+    // The incrementAmount argument can only be used if the increment argument
+    // is provided.
+    parser.addDependentArgumentSet(incrementAmount, increment);
+
+
+    // Neither the valueLength nor valueCount arguments can be used if the
+    // increment argument is provided.
+    parser.addExclusiveArgumentSet(increment, valueLength);
+    parser.addExclusiveArgumentSet(increment, valueCount);
   }
 
 
@@ -756,6 +889,43 @@ public final class ModRate
     {
       authzIDPattern = null;
     }
+
+
+    // Get the set of controls to include in modify requests.
+    final ArrayList<Control> controlList = new ArrayList<Control>(5);
+    if (assertionFilter.isPresent())
+    {
+      controlList.add(new AssertionRequestControl(assertionFilter.getValue()));
+    }
+
+    if (permissiveModify.isPresent())
+    {
+      controlList.add(new PermissiveModifyRequestControl());
+    }
+
+    if (preReadAttribute.isPresent())
+    {
+      final List<String> attrList = preReadAttribute.getValues();
+      final String[] attrArray = new String[attrList.size()];
+      attrList.toArray(attrArray);
+      controlList.add(new PreReadRequestControl(attrArray));
+    }
+
+    if (postReadAttribute.isPresent())
+    {
+      final List<String> attrList = postReadAttribute.getValues();
+      final String[] attrArray = new String[attrList.size()];
+      attrList.toArray(attrArray);
+      controlList.add(new PostReadRequestControl(attrArray));
+    }
+
+    if (control.isPresent())
+    {
+      controlList.addAll(control.getValues());
+    }
+
+    final Control[] controlArray = new Control[controlList.size()];
+    controlList.toArray(controlArray);
 
 
     // Get the names of the attributes to modify.
@@ -906,7 +1076,9 @@ public final class ModRate
       }
 
       threads[i] = new ModRateThread(this, i, connection, dnPattern, attrs,
-           charSet, valueLength.getValue(), authzIDPattern, random.nextLong(),
+           charSet, valueLength.getValue(), valueCount.getValue(),
+           increment.isPresent(), incrementAmount.getValue(), controlArray,
+           authzIDPattern, random.nextLong(),
            iterationsBeforeReconnect.getValue(), barrier, modCounter,
            modDurations, errorCounter, rcCounter, fixedRateBarrier);
       threads[i].start();

@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
@@ -70,11 +71,24 @@ final class ModRateThread
   // The result code for this thread.
   private final AtomicReference<ResultCode> resultCode;
 
+  // Indicates whether to generate increment modifications instead of replace
+  // modifications.
+  private final boolean increment;
+
   // The set of characters to use for the generated values.
   private final byte[] charSet;
 
+  // The set of request controls to include in modify requests.
+  private final Control[] modifyControls;
+
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
+
+  // The amount by which to increment values.
+  private final int incrementAmount;
+
+  // The number of values to generate.
+  private final int valueCount;
 
   // The length in bytes of the values to generate.
   private final int valueLength;
@@ -129,6 +143,15 @@ final class ModRateThread
    *                                    generated values.
    * @param  valueLength                The length in bytes to use for the
    *                                    generated values.
+   * @param  valueCount                 The number of values to generate for
+   *                                    replace modifications.
+   * @param  increment                  Indicates whether to use the increment
+   *                                    modification type instead of the replace
+   *                                    modification type.
+   * @param  incrementAmount            The amount by which values should be
+   *                                    incremented.
+   * @param  modifyControls             The set of request controls that should
+   *                                    be included in modify requests.
    * @param  authzID                    The value pattern to use to generate
    *                                    authorization identities for use with
    *                                    the proxied authorization control.  It
@@ -161,11 +184,12 @@ final class ModRateThread
   ModRateThread(final ModRate modRate, final int threadNumber,
                 final LDAPConnection connection, final ValuePattern entryDN,
                 final String[] attributes, final byte[] charSet,
-                final int valueLength, final ValuePattern authzID,
-                final long randomSeed,  final long iterationsBeforeReconnect,
-                final CyclicBarrier startBarrier,
-                final AtomicLong modCounter, final AtomicLong modDurations,
-                final AtomicLong errorCounter,
+                final int valueLength, final int valueCount,
+                final boolean increment, final int incrementAmount,
+                final Control[] modifyControls, final ValuePattern authzID,
+                final long randomSeed, final long iterationsBeforeReconnect,
+                final CyclicBarrier startBarrier, final AtomicLong modCounter,
+                final AtomicLong modDurations, final AtomicLong errorCounter,
                 final ResultCodeCounter rcCounter,
                 final FixedRateBarrier rateBarrier)
   {
@@ -178,6 +202,10 @@ final class ModRateThread
     this.attributes                = attributes;
     this.charSet                   = charSet;
     this.valueLength               = valueLength;
+    this.valueCount                = valueCount;
+    this.increment                 = increment;
+    this.incrementAmount           = incrementAmount;
+    this.modifyControls            = modifyControls;
     this.authzID                   = authzID;
     this.iterationsBeforeReconnect = iterationsBeforeReconnect;
     this.modCounter                = modCounter;
@@ -216,8 +244,21 @@ final class ModRateThread
     modThread.set(currentThread());
 
     final Modification[] mods = new Modification[attributes.length];
-    final byte[] valueBytes = new byte[valueLength];
-    final ASN1OctetString[] values = new ASN1OctetString[1];
+    final byte[][] valueBytes = new byte[valueCount][valueLength];
+    final ASN1OctetString[] values = new ASN1OctetString[valueCount];
+
+    if (increment)
+    {
+      valueBytes[0] = String.valueOf(incrementAmount).getBytes();
+      values[0] = new ASN1OctetString(valueBytes[0]);
+
+      for (int i=0; i < attributes.length; i++)
+      {
+        mods[i] = new Modification(ModificationType.INCREMENT, attributes[i],
+             values);
+      }
+    }
+
     final ModifyRequest modifyRequest = new ModifyRequest("", mods);
 
     try
@@ -269,22 +310,30 @@ final class ModRateThread
 
       modifyRequest.setDN(entryDN.nextValue());
 
-      for (int i=0; i < valueLength; i++)
+      if (! increment)
       {
-        valueBytes[i] = charSet[random.nextInt(charSet.length)];
+        for (int i=0; i < valueCount; i++)
+        {
+          for (int j=0; j < valueLength; j++)
+          {
+            valueBytes[i][j] = charSet[random.nextInt(charSet.length)];
+          }
+
+          values[i] = new ASN1OctetString(valueBytes[i]);
+        }
+
+        for (int i=0; i < attributes.length; i++)
+        {
+          mods[i] = new Modification(ModificationType.REPLACE, attributes[i],
+               values);
+        }
+        modifyRequest.setModifications(mods);
       }
 
-      values[0] = new ASN1OctetString(valueBytes);
-      for (int i=0; i < attributes.length; i++)
-      {
-        mods[i] = new Modification(ModificationType.REPLACE, attributes[i],
-                                   values);
-      }
-      modifyRequest.setModifications(mods);
-
+      modifyRequest.setControls(modifyControls);
       if (authzID != null)
       {
-        modifyRequest.setControls(new ProxiedAuthorizationV2RequestControl(
+        modifyRequest.addControl(new ProxiedAuthorizationV2RequestControl(
              authzID.nextValue()));
       }
 
