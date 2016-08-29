@@ -131,6 +131,8 @@ public final class TransformLDIF
 
 
   // The arguments for use by this program.
+  private BooleanArgument flattenAddOmittedRDNAttributesToEntry = null;
+  private BooleanArgument flattenAddOmittedRDNAttributesToRDN = null;
   private BooleanArgument addToExistingValues = null;
   private BooleanArgument appendToTargetLDIF = null;
   private BooleanArgument compressTarget = null;
@@ -141,6 +143,7 @@ public final class TransformLDIF
   private BooleanArgument sourceContainsChangeRecords = null;
   private DNArgument addAttributeBaseDN = null;
   private DNArgument excludeEntryBaseDN = null;
+  private DNArgument flattenBaseDN = null;
   private DNArgument moveSubtreeFrom = null;
   private DNArgument moveSubtreeTo = null;
   private FileArgument schemaPath = null;
@@ -148,6 +151,7 @@ public final class TransformLDIF
   private FileArgument targetLDIF = null;
   private FilterArgument addAttributeFilter = null;
   private FilterArgument excludeEntryFilter = null;
+  private FilterArgument flattenExcludeFilter = null;
   private IntegerArgument initialSequentialValue = null;
   private IntegerArgument numThreads = null;
   private IntegerArgument randomSeed = null;
@@ -561,16 +565,58 @@ public final class TransformLDIF
     parser.addDependentArgumentSet(renameAttributeTo, renameAttributeFrom);
 
 
+    // Add arguments pertaining to flattening subtrees.
+    flattenBaseDN = new DNArgument(null, "flattenBaseDN", false, 1, null,
+         INFO_TRANSFORM_LDIF_ARG_DESC_FLATTEN_BASE_DN.get());
+    flattenBaseDN.addLongIdentifier("flatten-base-dn");
+    flattenBaseDN.setArgumentGroupName(
+         INFO_TRANSFORM_LDIF_ARG_GROUP_FLATTEN.get());
+    parser.addArgument(flattenBaseDN);
+    parser.addExclusiveArgumentSet(sourceContainsChangeRecords,
+         flattenBaseDN);
+
+    flattenAddOmittedRDNAttributesToEntry = new BooleanArgument(null,
+         "flattenAddOmittedRDNAttributesToEntry", 1,
+         INFO_TRANSFORM_LDIF_ARG_DESC_FLATTEN_ADD_OMITTED_TO_ENTRY.get());
+    flattenAddOmittedRDNAttributesToEntry.addLongIdentifier(
+         "flatten-add-omitted-rdn-attributes-to-entry");
+    flattenAddOmittedRDNAttributesToEntry.setArgumentGroupName(
+         INFO_TRANSFORM_LDIF_ARG_GROUP_FLATTEN.get());
+    parser.addArgument(flattenAddOmittedRDNAttributesToEntry);
+    parser.addDependentArgumentSet(flattenAddOmittedRDNAttributesToEntry,
+         flattenBaseDN);
+
+    flattenAddOmittedRDNAttributesToRDN = new BooleanArgument(null,
+         "flattenAddOmittedRDNAttributesToRDN", 1,
+         INFO_TRANSFORM_LDIF_ARG_DESC_FLATTEN_ADD_OMITTED_TO_RDN.get());
+    flattenAddOmittedRDNAttributesToRDN.addLongIdentifier(
+         "flatten-add-omitted-rdn-attributes-to-rdn");
+    flattenAddOmittedRDNAttributesToRDN.setArgumentGroupName(
+         INFO_TRANSFORM_LDIF_ARG_GROUP_FLATTEN.get());
+    parser.addArgument(flattenAddOmittedRDNAttributesToRDN);
+    parser.addDependentArgumentSet(flattenAddOmittedRDNAttributesToRDN,
+         flattenBaseDN);
+
+    flattenExcludeFilter = new FilterArgument(null, "flattenExcludeFilter",
+         false, 1, null,
+         INFO_TRANSFORM_LDIF_ARG_DESC_FLATTEN_EXCLUDE_FILTER.get());
+    flattenExcludeFilter.addLongIdentifier("flatten-exclude-filter");
+    flattenExcludeFilter.setArgumentGroupName(
+         INFO_TRANSFORM_LDIF_ARG_GROUP_FLATTEN.get());
+    parser.addArgument(flattenExcludeFilter);
+    parser.addDependentArgumentSet(flattenExcludeFilter, flattenBaseDN);
+
+
     // Add arguments pertaining to moving subtrees.
     moveSubtreeFrom = new DNArgument(null, "moveSubtreeFrom", false, 0, null,
-         INFO_TRANSFORM_ARG_DESC_MOVE_SUBTREE_FROM.get());
+         INFO_TRANSFORM_LDIF_ARG_DESC_MOVE_SUBTREE_FROM.get());
     moveSubtreeFrom.addLongIdentifier("move-subtree-from");
     moveSubtreeFrom.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_MOVE.get());
     parser.addArgument(moveSubtreeFrom);
 
     moveSubtreeTo = new DNArgument(null, "moveSubtreeTo", false, 0, null,
-         INFO_TRANSFORM_ARG_DESC_MOVE_SUBTREE_TO.get(
+         INFO_TRANSFORM_LDIF_ARG_DESC_MOVE_SUBTREE_TO.get(
               moveSubtreeFrom.getIdentifierString()));
     moveSubtreeTo.addLongIdentifier("move-subtree-to");
     moveSubtreeTo.setArgumentGroupName(
@@ -685,8 +731,8 @@ public final class TransformLDIF
     // Ensure that at least one kind of transformation was requested.
     parser.addRequiredArgumentSet(scrambleAttribute, sequentialAttribute,
          replaceValuesAttribute, addAttributeName, renameAttributeFrom,
-         moveSubtreeFrom, redactAttribute, excludeAttribute, excludeEntryBaseDN,
-         excludeEntryScope, excludeEntryFilter);
+         flattenBaseDN, moveSubtreeFrom, redactAttribute, excludeAttribute,
+         excludeEntryBaseDN, excludeEntryScope, excludeEntryFilter);
   }
 
 
@@ -1250,6 +1296,16 @@ processingBlock:
         entryTranslators.add(t);
         changeRecordTranslators.add(t);
       }
+    }
+
+    if (flattenBaseDN.isPresent())
+    {
+      final FlattenSubtreeTransformation t = new FlattenSubtreeTransformation(
+           schema, flattenBaseDN.getValue(),
+           flattenAddOmittedRDNAttributesToEntry.isPresent(),
+           flattenAddOmittedRDNAttributesToRDN.isPresent(),
+           flattenExcludeFilter.getValue());
+      entryTranslators.add(t);
     }
 
     if (moveSubtreeFrom.isPresent())
