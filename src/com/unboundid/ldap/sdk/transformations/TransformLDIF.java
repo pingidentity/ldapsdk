@@ -131,16 +131,18 @@ public final class TransformLDIF
 
 
   // The arguments for use by this program.
-  private BooleanArgument flattenAddOmittedRDNAttributesToEntry = null;
-  private BooleanArgument flattenAddOmittedRDNAttributesToRDN = null;
   private BooleanArgument addToExistingValues = null;
   private BooleanArgument appendToTargetLDIF = null;
   private BooleanArgument compressTarget = null;
   private BooleanArgument excludeNonMatchingEntries = null;
+  private BooleanArgument flattenAddOmittedRDNAttributesToEntry = null;
+  private BooleanArgument flattenAddOmittedRDNAttributesToRDN = null;
   private BooleanArgument hideRedactedValueCount = null;
   private BooleanArgument processDNs = null;
   private BooleanArgument sourceCompressed = null;
   private BooleanArgument sourceContainsChangeRecords = null;
+  private BooleanArgument sourceFromStandardInput = null;
+  private BooleanArgument targetToStandardOutput = null;
   private DNArgument addAttributeBaseDN = null;
   private DNArgument excludeEntryBaseDN = null;
   private DNArgument flattenBaseDN = null;
@@ -306,7 +308,7 @@ public final class TransformLDIF
          throws ArgumentException
   {
     // Add arguments pertaining to the source and target LDIF files.
-    sourceLDIF = new FileArgument('l', "sourceLDIF", true, 0, null,
+    sourceLDIF = new FileArgument('l', "sourceLDIF", false, 0, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_SOURCE_LDIF.get(), true, true, true,
          false);
     sourceLDIF.addLongIdentifier("inputLDIF");
@@ -314,6 +316,16 @@ public final class TransformLDIF
     sourceLDIF.addLongIdentifier("input-ldif");
     sourceLDIF.setArgumentGroupName(INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(sourceLDIF);
+
+    sourceFromStandardInput = new BooleanArgument(null,
+         "sourceFromStandardInput", 1,
+         INFO_TRANSFORM_LDIF_ARG_DESC_SOURCE_STD_IN.get());
+    sourceFromStandardInput.addLongIdentifier("source-from-standard-input");
+    sourceFromStandardInput.setArgumentGroupName(
+         INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
+    parser.addArgument(sourceFromStandardInput);
+    parser.addRequiredArgumentSet(sourceLDIF, sourceFromStandardInput);
+    parser.addExclusiveArgumentSet(sourceLDIF, sourceFromStandardInput);
 
     targetLDIF = new FileArgument('o', "targetLDIF", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_TARGET_LDIF.get(), false, true, true,
@@ -323,6 +335,14 @@ public final class TransformLDIF
     targetLDIF.addLongIdentifier("output-ldif");
     targetLDIF.setArgumentGroupName(INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(targetLDIF);
+
+    targetToStandardOutput = new BooleanArgument(null, "targetToStandardOutput",
+         1, INFO_TRANSFORM_LDIF_ARG_DESC_TARGET_STD_OUT.get());
+    targetToStandardOutput.addLongIdentifier("target-to-standard-output");
+    targetToStandardOutput.setArgumentGroupName(
+         INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
+    parser.addArgument(targetToStandardOutput);
+    parser.addExclusiveArgumentSet(targetLDIF, targetToStandardOutput);
 
     sourceContainsChangeRecords = new BooleanArgument(null,
          "sourceContainsChangeRecords",
@@ -339,6 +359,7 @@ public final class TransformLDIF
     appendToTargetLDIF.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(appendToTargetLDIF);
+    parser.addExclusiveArgumentSet(targetToStandardOutput, appendToTargetLDIF);
 
     wrapColumn = new IntegerArgument(null, "wrapColumn", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_WRAP_COLUMN.get(), 5, Integer.MAX_VALUE);
@@ -744,18 +765,19 @@ public final class TransformLDIF
   public void doExtendedArgumentValidation()
          throws ArgumentException
   {
-    // Ideally, the targetLDIF argument should always be provided.  But in order
-    // to preserve backward compatibility with a legacy scramble-ldif tool, we
-    // will allow it to be omitted if either --scrambleAttribute or
-    // --sequentialArgument is provided.  In that case, the path of the output
-    // file will be the path of the first input file with ".scrambled" appended
-    // to it.
-    if (! targetLDIF.isPresent())
+    // Ideally, exactly one of the targetLDIF and targetToStandardOutput
+    // arguments should always be provided.  But in order to preserve backward
+    // compatibility with a legacy scramble-ldif tool, we will allow both to be
+    // omitted if either --scrambleAttribute or --sequentialArgument is
+    // provided.  In that case, the path of the output file will be the path of
+    // the first input file with ".scrambled" appended to it.
+    if (! (targetLDIF.isPresent() || targetToStandardOutput.isPresent()))
     {
       if (! (scrambleAttribute.isPresent() || sequentialAttribute.isPresent()))
       {
-        throw new ArgumentException(ERR_TRANSFORM_LDIF_MISSING_REQUIRED_ARG.get(
-             targetLDIF.getIdentifierString()));
+        throw new ArgumentException(ERR_TRANSFORM_LDIF_MISSING_TARGET_ARG.get(
+             targetLDIF.getIdentifierString(),
+             targetToStandardOutput.getIdentifierString()));
       }
     }
 
@@ -828,6 +850,10 @@ public final class TransformLDIF
     {
       targetFile = targetLDIF.getValue();
     }
+    else if (targetToStandardOutput.isPresent())
+    {
+      targetFile = null;
+    }
     else
     {
       targetFile =
@@ -839,34 +865,41 @@ public final class TransformLDIF
     final LDIFReader ldifReader;
     try
     {
-      final List<File> sourceFiles = sourceLDIF.getValues();
-      final ArrayList<InputStream> fileInputStreams =
-           new ArrayList<InputStream>(2*sourceFiles.size());
-      for (final File f : sourceFiles)
-      {
-        if (! fileInputStreams.isEmpty())
-        {
-          // Go ahead and ensure that there are at least new end-of-line
-          // markers between each file.  Otherwise, it's possible for entries
-          // to run together.
-          final byte[] doubleEOL = new byte[StaticUtils.EOL_BYTES.length * 2];
-          System.arraycopy(StaticUtils.EOL_BYTES, 0, doubleEOL, 0,
-               StaticUtils.EOL_BYTES.length);
-          System.arraycopy(StaticUtils.EOL_BYTES, 0, doubleEOL,
-               StaticUtils.EOL_BYTES.length, StaticUtils.EOL_BYTES.length);
-          fileInputStreams.add(new ByteArrayInputStream(doubleEOL));
-        }
-        fileInputStreams.add(new FileInputStream(f));
-      }
-
       InputStream inputStream;
-      if (fileInputStreams.size() == 1)
+      if (sourceLDIF.isPresent())
       {
-        inputStream = fileInputStreams.get(0);
+        final List<File> sourceFiles = sourceLDIF.getValues();
+        final ArrayList<InputStream> fileInputStreams =
+             new ArrayList<InputStream>(2*sourceFiles.size());
+        for (final File f : sourceFiles)
+        {
+          if (! fileInputStreams.isEmpty())
+          {
+            // Go ahead and ensure that there are at least new end-of-line
+            // markers between each file.  Otherwise, it's possible for entries
+            // to run together.
+            final byte[] doubleEOL = new byte[StaticUtils.EOL_BYTES.length * 2];
+            System.arraycopy(StaticUtils.EOL_BYTES, 0, doubleEOL, 0,
+                 StaticUtils.EOL_BYTES.length);
+            System.arraycopy(StaticUtils.EOL_BYTES, 0, doubleEOL,
+                 StaticUtils.EOL_BYTES.length, StaticUtils.EOL_BYTES.length);
+            fileInputStreams.add(new ByteArrayInputStream(doubleEOL));
+          }
+          fileInputStreams.add(new FileInputStream(f));
+        }
+
+        if (fileInputStreams.size() == 1)
+        {
+          inputStream = fileInputStreams.get(0);
+        }
+        else
+        {
+          inputStream = new AggregateInputStream(fileInputStreams);
+        }
       }
       else
       {
-        inputStream = new AggregateInputStream(fileInputStreams);
+        inputStream = System.in;
       }
 
       if (sourceCompressed.isPresent())
@@ -899,8 +932,16 @@ processingBlock:
       // Create the output stream to use to write the transformed data.
       try
       {
-        outputStream =
-             new FileOutputStream(targetFile, appendToTargetLDIF.isPresent());
+        if (targetFile == null)
+        {
+          outputStream = getOut();
+        }
+        else
+        {
+          outputStream =
+               new FileOutputStream(targetFile, appendToTargetLDIF.isPresent());
+        }
+
         if (compressTarget.isPresent())
         {
           outputStream = new GZIPOutputStream(outputStream);
@@ -1012,7 +1053,8 @@ processingBlock:
         // If we've written a multiple of 1000 entries, print a progress
         // message.
         entriesWritten++;
-        if ((entriesWritten % 1000L) == 0)
+        if ((! targetToStandardOutput.isPresent()) &&
+            ((entriesWritten % 1000L) == 0))
         {
           final long numExcluded = excludedEntryCount.get();
           if (numExcluded > 0L)
@@ -1031,17 +1073,20 @@ processingBlock:
       }
 
 
-      final long numExcluded = excludedEntryCount.get();
-      if (numExcluded > 0L)
+      if (! targetToStandardOutput.isPresent())
       {
-        wrapOut(0, MAX_OUTPUT_LINE_LENGTH,
-             INFO_TRANSFORM_LDIF_COMPLETE_WITH_EXCLUDED.get(entriesWritten,
-                  numExcluded));
-      }
-      else
-      {
-        wrapOut(0, MAX_OUTPUT_LINE_LENGTH,
-             INFO_TRANSFORM_LDIF_COMPLETE_NONE_EXCLUDED.get(entriesWritten));
+        final long numExcluded = excludedEntryCount.get();
+        if (numExcluded > 0L)
+        {
+          wrapOut(0, MAX_OUTPUT_LINE_LENGTH,
+               INFO_TRANSFORM_LDIF_COMPLETE_WITH_EXCLUDED.get(entriesWritten,
+                    numExcluded));
+        }
+        else
+        {
+          wrapOut(0, MAX_OUTPUT_LINE_LENGTH,
+               INFO_TRANSFORM_LDIF_COMPLETE_NONE_EXCLUDED.get(entriesWritten));
+        }
       }
     }
     finally
