@@ -442,7 +442,8 @@ public final class PromptTrustManager
           // The input stream has been closed, so we can't prompt for trust,
           // and should assume it is not trusted.
           throw new CertificateException(
-               ERR_CERTIFICATE_REJECTED_BY_END_OF_STREAM.get());
+               ERR_CERTIFICATE_REJECTED_BY_END_OF_STREAM.get(
+                    SSLUtil.certificateToString(chain[0])));
         }
         else if (line.equalsIgnoreCase("y") || line.equalsIgnoreCase("yes"))
         {
@@ -453,7 +454,8 @@ public final class PromptTrustManager
         {
           // The certificate should not be trusted.
           throw new CertificateException(
-               ERR_CERTIFICATE_REJECTED_BY_USER.get());
+               ERR_CERTIFICATE_REJECTED_BY_USER.get(
+                    SSLUtil.certificateToString(chain[0])));
         }
       }
       catch (CertificateException ce)

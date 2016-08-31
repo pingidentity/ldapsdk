@@ -37,6 +37,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 import com.unboundid.util.Validator;
 
 import static com.unboundid.util.Debug.*;
+import static com.unboundid.util.ssl.SSLMessages.*;
 
 
 
@@ -197,8 +198,17 @@ public final class AggregateTrustManager
     // certificate.
     if ((exceptionMessages != null) && (! exceptionMessages.isEmpty()))
     {
-      throw new CertificateException(
-           StaticUtils.concatenateStrings(exceptionMessages));
+      if (exceptionMessages.size() == 1)
+      {
+        throw new CertificateException(exceptionMessages.get(0));
+      }
+      else
+      {
+        throw new CertificateException(
+             ERR_AGGREGATE_TRUST_MANAGER_NONE_TRUSTED.get(
+                  SSLUtil.certificateToString(chain[0]),
+                  StaticUtils.concatenateStrings(exceptionMessages)));
+      }
     }
   }
 
@@ -257,8 +267,17 @@ public final class AggregateTrustManager
     // certificate.
     if ((exceptionMessages != null) && (! exceptionMessages.isEmpty()))
     {
-      throw new CertificateException(
-           StaticUtils.concatenateStrings(exceptionMessages));
+      if (exceptionMessages.size() == 1)
+      {
+        throw new CertificateException(exceptionMessages.get(0));
+      }
+      else
+      {
+        throw new CertificateException(
+             ERR_AGGREGATE_TRUST_MANAGER_NONE_TRUSTED.get(
+                  SSLUtil.certificateToString(chain[0]),
+                  StaticUtils.concatenateStrings(exceptionMessages)));
+      }
     }
   }
 

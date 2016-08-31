@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.security.auth.x500.X500Principal;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -935,5 +937,55 @@ public final class SSLUtil
     }
 
     ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(enabledProtocols));
+  }
+
+
+
+  /**
+   * Creates a string representation of the provided certificate.
+   *
+   * @param  certificate  The certificate for which to generate the string
+   *                      representation.  It must not be {@code null}.
+   *
+   * @return  A string representation of the provided certificate.
+   */
+  public static String certificateToString(final X509Certificate certificate)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    certificateToString(certificate, buffer);
+    return buffer.toString();
+  }
+
+
+
+  /**
+   * Appends a string representation of the provided certificate to the given
+   * buffer.
+   *
+   * @param  certificate  The certificate for which to generate the string
+   *                      representation.  It must not be {@code null}.
+   * @param  buffer       The buffer to which to append the string
+   *                      representation.
+   */
+  public static void certificateToString(final X509Certificate certificate,
+                                         final StringBuilder buffer)
+  {
+    buffer.append("Certificate(subject='");
+    buffer.append(
+         certificate.getSubjectX500Principal().getName(X500Principal.RFC2253));
+    buffer.append("', serialNumber=");
+    buffer.append(certificate.getSerialNumber());
+    buffer.append(", notBefore=");
+    StaticUtils.encodeGeneralizedTime(certificate.getNotBefore());
+    buffer.append(", notAfter=");
+    StaticUtils.encodeGeneralizedTime(certificate.getNotAfter());
+    buffer.append(", signatureAlgorithm='");
+    buffer.append(certificate.getSigAlgName());
+    buffer.append("', signatureBytes='");
+    StaticUtils.toHex(certificate.getSignature(), buffer);
+    buffer.append("', issuerSubject='");
+    buffer.append(
+         certificate.getIssuerX500Principal().getName(X500Principal.RFC2253));
+    buffer.append("')");
   }
 }
