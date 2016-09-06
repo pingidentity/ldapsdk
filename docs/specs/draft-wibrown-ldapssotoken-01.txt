@@ -5,14 +5,14 @@
 Internet Engineering Task Force                                 W. Brown
 Internet-Draft                              Red Hat Asia-Pacific Pty Ltd
 Intended status: Standards Track                           S. Sorce, Ed.
-Expires: October 10, 2016                                  Red Hat, Inc.
+Expires: March 9, 2017                                     Red Hat, Inc.
                                                          K. Andrews, Ed.
                                               The University of Adelaide
-                                                          April 08, 2016
+                                                       September 5, 2016
 
 
                Draft LDAP Single Sign On Token Processing
-                     draft-wibrown-ldapssotoken-00
+                     draft-wibrown-ldapssotoken-01
 
 Abstract
 
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 10, 2016.
+   This Internet-Draft will expire on March 9, 2017.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Brown, et al.           Expires October 10, 2016                [Page 1]
+Brown, et al.             Expires March 9, 2017                 [Page 1]
 
-Internet-Draft               LDAP SSO Token                   April 2016
+Internet-Draft               LDAP SSO Token               September 2016
 
 
    carefully, as they describe your rights and restrictions with respect
@@ -80,11 +80,12 @@ Table of Contents
      5.2.  Token Revocation  . . . . . . . . . . . . . . . . . . . .   8
        5.2.1.  Token Revocation Extended Operation . . . . . . . . .   8
      5.3.  Binding . . . . . . . . . . . . . . . . . . . . . . . . .   9
-   6.  Requirements  . . . . . . . . . . . . . . . . . . . . . . . .   9
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
-     7.1.  Normative References  . . . . . . . . . . . . . . . . . .   9
-     7.2.  Informative References  . . . . . . . . . . . . . . . . .   9
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   9
+   7.  Requirements  . . . . . . . . . . . . . . . . . . . . . . . .   9
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .   9
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .   9
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
 
 1.  Introduction
 
@@ -100,25 +101,19 @@ Table of Contents
    Clients can then contact the middleware natively and the middleware
    can negotiate the client authentication with the LDAP server.
 
-
-
-
-
-
-
-
-
-
-Brown, et al.           Expires October 10, 2016                [Page 2]
-
-Internet-Draft               LDAP SSO Token                   April 2016
-
-
    This implementation will provide an LDAP extended operation to create
    tokens which a client may cache, or relay to a further client.  The
    token can then be sent in a SASL bind request to the LDAP server.
    The token remains valid over many binds.  Finally, Tokens for a
    client are always able to be revoked at the LDAP Server using an LDAP
+
+
+
+Brown, et al.             Expires March 9, 2017                 [Page 2]
+
+Internet-Draft               LDAP SSO Token               September 2016
+
+
    extended operation, allowing global logout by the user or
    administrator.
 
@@ -161,20 +156,19 @@ Internet-Draft               LDAP SSO Token                   April 2016
 
    o  User Unique Id
 
-
-
-
-
-Brown, et al.           Expires October 10, 2016                [Page 3]
-
-Internet-Draft               LDAP SSO Token                   April 2016
-
-
    As the client does not ever see the contents the User Unique Id can
    be anything within the database that uniquely identifies the user
    that is the holder of the token.
 
    The User Unique Id MUST be an UTF8 String.
+
+
+
+
+Brown, et al.             Expires March 9, 2017                 [Page 3]
+
+Internet-Draft               LDAP SSO Token               September 2016
+
 
    The token format MUST be encrypted.  The token format can be
    decrypted with either a asymmetric or symmetric keying system.
@@ -219,17 +213,18 @@ Internet-Draft               LDAP SSO Token                   April 2016
 
                                  Figure 3
 
-
-
-Brown, et al.           Expires October 10, 2016                [Page 4]
-
-Internet-Draft               LDAP SSO Token                   April 2016
-
-
    The Date Time Until is a 64-bit unsigned big-endian integer.  It is,
    like Date Time Issued, the number of seconds since January 1, 1970
    UTC, and the token creation time added to the number of seconds of
    the requested life time.
+
+
+
+
+Brown, et al.             Expires March 9, 2017                 [Page 4]
+
+Internet-Draft               LDAP SSO Token               September 2016
+
 
    This example format satisfies all of our data requirements for the
    sso token system.
@@ -274,18 +269,18 @@ Internet-Draft               LDAP SSO Token                   April 2016
    This example shows how a client is issued with a token when
    communicating with a web server via the HTTP intermediate.  The
    Client does not need to be aware of the SASL/LDAP system in the
-
-
-
-Brown, et al.           Expires October 10, 2016                [Page 5]
-
-Internet-Draft               LDAP SSO Token                   April 2016
-
-
    background, or the token's formatting rules.  Provided the HTTP
    server in proxy, if required to transform the token, is able to undo
    the transformations, this is a valid scenario.  For example, HTML
    escaping a base64 token.
+
+
+
+
+Brown, et al.             Expires March 9, 2017                 [Page 5]
+
+Internet-Draft               LDAP SSO Token               September 2016
+
 
 4.3.  SASL Authentication
 
@@ -329,21 +324,20 @@ Internet-Draft               LDAP SSO Token                   April 2016
 
 4.4.  Valid Not Before Attribute
 
-
-
-
-
-Brown, et al.           Expires October 10, 2016                [Page 6]
-
-Internet-Draft               LDAP SSO Token                   April 2016
-
-
    The management and details of the "Valid Not Before" attribute are
    left to the implementation to decide how to implement and manage.
    The implementation should consider how an administrator or
    responsible party could revoke tokens for users other than their own.
    The Valid Not Before SHOULD be replicated between LDAP servers to
    allow correct revocation across many LDAP servers.  For example,
+
+
+
+Brown, et al.             Expires March 9, 2017                 [Page 6]
+
+Internet-Draft               LDAP SSO Token               September 2016
+
+
    Valid Not Before MAY be an attribute on the User Unique Id object, or
    MAY be on another object with a unique relation to the User Unique
    Id.
@@ -364,7 +358,8 @@ Internet-Draft               LDAP SSO Token                   April 2016
    A User Unique Id is selected.  This may be the Bind DN, UUID or other
    utf8 identifier that uniquely determines an object.
 
-   The extended operation must fail if the connection SSF is 0.
+   The extended operation must fail if the LDAP connection security
+   stregth factors is 0.
 
    Tokens must not be generated for Anonymous binds.  This means, tokens
    may only be generated for connections with a valid bind dn set.
@@ -386,19 +381,18 @@ Internet-Draft               LDAP SSO Token                   April 2016
 
    The encrypted token is sent to the client in the LDAPSSOTokenResponse
    structure, along with the servers chosen valid life time as a guide
-
-
-
-Brown, et al.           Expires October 10, 2016                [Page 7]
-
-Internet-Draft               LDAP SSO Token                   April 2016
-
-
    for the client to approximate the expiry of the token.  This valid
    life time value is in seconds.
 
    If the token cannot be generated due to a server error,
    LDAP_OPERATION_ERROR MUST be returned.
+
+
+
+Brown, et al.             Expires March 9, 2017                 [Page 7]
+
+Internet-Draft               LDAP SSO Token               September 2016
+
 
 5.1.1.  Token Generation Extended Operation
 
@@ -422,7 +416,8 @@ Internet-Draft               LDAP SSO Token                   April 2016
 
    The extended operation MUST fail if the connection is anonymous.
 
-   The extended operation MUST fail if the connection SSF is 0.
+   The extended operation MUST fail if the LDAP connection security
+   strength factors is 0.
 
    The extended operation MUST only act upon the "Valid Not Before"
    attribute related to the bind DN of the connection.
@@ -445,37 +440,55 @@ Internet-Draft               LDAP SSO Token                   April 2016
 
 
 
-Brown, et al.           Expires October 10, 2016                [Page 8]
+
+
+
+
+
+Brown, et al.             Expires March 9, 2017                 [Page 8]
 
-Internet-Draft               LDAP SSO Token                   April 2016
+Internet-Draft               LDAP SSO Token               September 2016
 
 
 5.3.  Binding
 
-   This assumes the successful completion of the SASL Authentication
-   with a succesful result.
+   The SASL bind attempt MUST fail if the LDAP connection security
+   strength factors is 0.
 
-   The Object is retrived from the User Unique Id, and a Bind DN
-   Determined.
+   The SASL Authentication is attempted as per Section 4.3.  If this
+   does not succeed, the bind attempt MUST fail.
 
-   The current Bind DN MUST be set to the Bind DN of the object that is
-   determined, and the result ldap success is returned.
+   The LDAP Object is retrived from the User Unique Id, and a Bind DN
+   Determined.  If no Bind DN can be determined, the bind attempt MUST
+   fail.
 
-6.  Requirements
+   The current Bind DN MUST be set to the Bind DN of the LDAP object
+   that is determined, and the result ldap success is returned to the
+   LDAP client.
+
+6.  Security Considerations
+
+   Due to the design of this token, it is possible to use it in a replay
+   attack.  Notable threats are storage on the client and man in the
+   middle attacks.  To minimise the man in the middle attack thread,
+   LDAP security strength factor of greater than 0 is a requirement.
+   Client security is not covered by this document.
+
+7.  Requirements
 
    The SASL mechanism, LDAPSSOTOKEN, MUST be registered to IANA as per
    RFC 2222 [RFC2222] Section 6.4
 
-7.  References
+8.  References
 
-7.1.  Normative References
+8.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/
-              RFC2119, March 1997,
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
               <http://www.rfc-editor.org/info/rfc2119>.
 
-7.2.  Informative References
+8.2.  Informative References
 
    [FERNETSPEC]
               Maher, T. and K. Rarick, "Fernet Specification", 2013,
@@ -485,26 +498,20 @@ Internet-Draft               LDAP SSO Token                   April 2016
               (SASL)", RFC 2222, DOI 10.17487/RFC2222, October 1997,
               <http://www.rfc-editor.org/info/rfc2222>.
 
+
+
+
+Brown, et al.             Expires March 9, 2017                 [Page 9]
+
+Internet-Draft               LDAP SSO Token               September 2016
+
+
    [RFC4511]  Sermersheim, J., Ed., "Lightweight Directory Access
-              Protocol (LDAP): The Protocol", RFC 4511, DOI 10.17487/
-              RFC4511, June 2006,
+              Protocol (LDAP): The Protocol", RFC 4511,
+              DOI 10.17487/RFC4511, June 2006,
               <http://www.rfc-editor.org/info/rfc4511>.
 
 Authors' Addresses
-
-
-
-
-
-
-
-
-
-
-Brown, et al.           Expires October 10, 2016                [Page 9]
-
-Internet-Draft               LDAP SSO Token                   April 2016
-
 
    William Brown
    Red Hat Asia-Pacific Pty Ltd
@@ -550,11 +557,4 @@ Internet-Draft               LDAP SSO Token                   April 2016
 
 
 
-
-
-
-
-
-
-
-Brown, et al.           Expires October 10, 2016               [Page 10]
+Brown, et al.             Expires March 9, 2017                [Page 10]
