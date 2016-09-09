@@ -1380,6 +1380,10 @@ public final class ArgumentParser
   void setSelectedSubCommand(final SubCommand subcommand)
   {
     selectedSubCommand = subcommand;
+    if (subcommand != null)
+    {
+      subcommand.setPresent();
+    }
   }
 
 
@@ -1823,6 +1827,7 @@ public final class ArgumentParser
           }
           else
           {
+            selectedSubCommand.setPresent();
             subCommandParser = selectedSubCommand.getArgumentParser();
           }
         }
