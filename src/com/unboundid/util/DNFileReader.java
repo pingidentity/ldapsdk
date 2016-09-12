@@ -23,6 +23,7 @@ package com.unboundid.util;
 
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,6 +48,7 @@ import static com.unboundid.util.UtilityMessages.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class DNFileReader
+       implements Closeable
 {
   // A counter used to keep track of the line number for information read from
   // the file.

@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.io.Closeable;
 import java.util.Collection;
 import java.util.List;
 
@@ -56,7 +57,7 @@ import static com.unboundid.util.Validator.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class LDAPReadWriteConnectionPool
-       implements LDAPInterface
+       implements LDAPInterface, Closeable
 {
   // The connection pool used for read operations.
   private final LDAPConnectionPool readPool;

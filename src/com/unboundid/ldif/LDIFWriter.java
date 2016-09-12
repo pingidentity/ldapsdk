@@ -22,6 +22,7 @@ package com.unboundid.ldif;
 
 
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -86,6 +87,7 @@ import static com.unboundid.util.Validator.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDIFWriter
+       implements Closeable
 {
   /**
    * Indicates whether LDIF records should include a comment above each

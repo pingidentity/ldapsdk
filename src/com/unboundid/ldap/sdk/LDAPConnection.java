@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.io.Closeable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Collection;
@@ -196,7 +197,7 @@ import static com.unboundid.util.Validator.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.MOSTLY_THREADSAFE)
 public final class LDAPConnection
-       implements LDAPInterface, ReferralConnector
+       implements LDAPInterface, ReferralConnector, Closeable
 {
   /**
    * The counter that will be used when assigning connection IDs to connections.

@@ -24,6 +24,7 @@ package com.unboundid.ldif;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -149,6 +150,7 @@ import static com.unboundid.util.Validator.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDIFReader
+       implements Closeable
 {
   /**
    * The default buffer size (128KB) that will be used when reading from the

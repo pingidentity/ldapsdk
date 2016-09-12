@@ -22,6 +22,7 @@ package com.unboundid.util.ssl;
 
 
 
+import java.io.Closeable;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,6 +56,7 @@ import static com.unboundid.util.ssl.SSLMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 final class SetEnabledProtocolsSocket
       extends SSLSocket
+      implements Closeable
 {
   // The protocols to be enabled when this socket is connected.
   private final Set<String> protocols;

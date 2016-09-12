@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.io.Closeable;
+
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -99,6 +101,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)
 public abstract class EntrySource
+       implements Closeable
 {
   /**
    * Retrieves the next entry from the entry source, if there is at least one

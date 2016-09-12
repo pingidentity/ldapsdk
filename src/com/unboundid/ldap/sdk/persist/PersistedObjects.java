@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.persist;
 
 
 
+import java.io.Closeable;
 import java.io.Serializable;
 
 import com.unboundid.ldap.sdk.Entry;
@@ -60,7 +61,7 @@ import static com.unboundid.util.StaticUtils.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class PersistedObjects<T>
-       implements Serializable
+       implements Serializable, Closeable
 {
   /**
    * The serial version UID for this serializable class.

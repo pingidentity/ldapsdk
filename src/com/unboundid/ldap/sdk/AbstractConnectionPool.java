@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -52,7 +53,7 @@ import static com.unboundid.util.Validator.*;
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)
 public abstract class AbstractConnectionPool
-       implements LDAPInterface
+       implements LDAPInterface, Closeable
 {
   /**
    * Closes this connection pool.  All connections currently held in the pool

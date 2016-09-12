@@ -22,6 +22,7 @@ package com.unboundid.ldap.listener;
 
 
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -77,6 +78,7 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class LDAPListenerClientConnection
        extends Thread
+       implements Closeable
 {
   /**
    * A pre-allocated empty array of controls.

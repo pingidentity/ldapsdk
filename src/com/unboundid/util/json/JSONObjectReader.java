@@ -23,6 +23,7 @@ package com.unboundid.util.json;
 
 
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import static com.unboundid.util.json.JSONMessages.*;
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class JSONObjectReader
+       implements Closeable
 {
   // The buffer used to hold the bytes of the object currently being read.
   private final ByteStringBuffer currentObjectBytes;

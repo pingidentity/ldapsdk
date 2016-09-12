@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk.unboundidds.logs;
 
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,6 +48,7 @@ import com.unboundid.util.ThreadSafetyLevel;
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class ErrorLogReader
+       implements Closeable
 {
   // The reader used to read the contents of the log file.
   private final BufferedReader reader;

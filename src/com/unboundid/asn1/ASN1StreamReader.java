@@ -24,6 +24,7 @@ package com.unboundid.asn1;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -52,6 +53,7 @@ import static com.unboundid.util.StaticUtils.*;
 @Mutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class ASN1StreamReader
+       implements Closeable
 {
   // Indicates whether socket timeout exceptions should be ignored for the
   // initial read of an element.
