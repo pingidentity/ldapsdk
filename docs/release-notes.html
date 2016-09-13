@@ -10,6 +10,305 @@ ${TARGET="offline"}                    <br>
 
               <h2>Standard Edition Release Notes</h2>
 
+              <h3>Version 3.2.0</h3>
+
+              <p>
+                The following changes were made between the 3.1.1 and 3.2.0 releases of the
+                Standard Edition:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new <tt>transform-ldif</tt> tool that can be used to apply a number of
+                  transformations to data in an LDIF file, and to make these transformations
+                  available for programmatic use.  This includes:
+                  <ul>
+                    <li>
+                      The ability to scramble, replace, redact, or exclude a specified set of
+                      attributes.
+                    </li>
+                    <li>
+                      The ability to replace existing values with a specified attribute, or with a
+                      generated value that includes a sequential counter.
+                    </li>
+                    <li>
+                      The ability to add a given set of attribute values to entries matching a
+                      specified set of criteria.
+                    </li>
+                    <li>
+                      The ability to exclude entries matching a specified set of criteria.
+                    </li>
+                    <li>
+                      The ability to rename attributes.
+                    </li>
+                    <li>
+                      The ability to replace the base DN for entries in a specified subtree.
+                    </li>
+                    <li>
+                      The ability to flatten a DIT, to ensure that all entries more than one level
+                      below a specified base DN are moved so that they are directly below that
+                      base DN.
+                    </li>
+                  </ul>
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>EntryValidator</tt> class and the <tt>validate-ldif</tt> tool to
+                  provide additional options.  It can now check to see if all attribute values
+                  contained in an entry's RDN are also present in the entry attributes, can ignore
+                  attribute syntax violations on a per-attribute basis, and can check attribute
+                  values for compliance with a number of UnboundID-specific attribute type
+                  constraints, including X-ALLOWED-VALUE, X-VALUE-REGEX, X-MIN-VALUE-LENGTH,
+                  X-MAX-VALUE-LENGTH, X-MIN-VALUE-COUNT, X-MAX-VALUE-COUNT, X-MIN-INT-VALUE, and
+                  X-MAX-INT-VALUE.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated all classes that offer a <tt>public void close()</tt> method that
+                  doesn't throw any exceptions other than a possible <tt>IOException</tt> so that
+                  they implement the <tt>java.io.Closeable</tt> interface.  This includes classes
+                  like <tt>LDAPConnection</tt>, <tt>LDAPConnectionPool</tt>, <tt>LDIFReader</tt>,
+                  <tt>LDIFWriter</tt>, all <tt>EntrySource</tt> implementations, and others.  This
+                  allows code using these classes to take advantage of the try-with-resources
+                  facility introduced in Java SE 7.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for parsing entries that contain information about the operations
+                  processed in the server, using the syntax described in the
+                  draft-chu-ldap-logschema-00 draft.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>modrate</tt> tool to make a number of improvements, including:
+                  <ul>
+                    <li>
+                      The <tt>--valueCount</tt> argument can be used to specify the number of
+                      values to use for replace modifications.
+                    </li>
+                    <li>
+                      The <tt>--increment</tt> argument can be used to indicate that the tool
+                      should perform increment modifications rather than replace modifications.
+                      The <tt>--incrementAmount</tt> argument can specify the amount by which
+                      values should be incremented (or decremented, in the case of a negative
+                      value).
+                    </li>
+                    <li>
+                      The <tt>--assertionFilter</tt> argument can be used to include an LDAP
+                      assertion request control in modify requests so that the change will only be
+                      applied if the target entry matches the specified filter.
+                    </li>
+                    <li>
+                      The <tt>--permissiveModify</tt> argument can be used to include a permissive
+                      modify request control in modify requests.
+                    </li>
+                    <li>
+                      The <tt>--preReadAttribute</tt> and <tt>--postReadAttribute</tt> arguments
+                      can be used to include the pre-read or post-read request control in modify
+                      requests.
+                    </li>
+                    <li>
+                      The <tt>--control</tt> argument can be used to include arbitrary controls in
+                      modify requests.
+                    </li>
+                  </ul>
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>JSONBuffer</tt> class that can be used to efficiently construct
+                  the string representation of a JSON object, and a <tt>JSONObjectReader</tt>
+                  class that can be used to read JSON objects from an input stream.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added the ability to generate formatted, multi-line string representations of
+                  JSON objects with better human readability.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server to add support for the LDAP no-operation
+                  control as described in draft-zeilenga-ldap-noop-12.
+                  <br><br>
+                </li>
+
+                <li>
+                  Dramatically improved the robustness for both the
+                  <tt>identify-references-to-missing-entries</tt> and
+                  <tt>identify-unique-attribute-conflicts</tt> tools.  They now use connection
+                  pools with automatic retry in the event of an error that indicates the
+                  connection may no longer be valid.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>base64</tt> command-line tool that can be used to encode and
+                  decode data using the base64 format.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDIF reader to make it possible to specify the character set to use
+                  when reading LDIF data.  Previously, the character set was always assumed to be
+                  UTF-8.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDIF writer to make it possible to automatically include a comment
+                  below any base64-encoded values that provides a non-base64-encoded
+                  representation (with special characters escaped) of the preceding value.
+                  <br><br>
+                </li>
+
+                <li>
+                  Dramatically simplified the exception message used if it is not possible to
+                  establish a connection to the directory server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the command-line argument parser to provide support for subcommands
+                  with their own distinct sets of arguments.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the command-line argument parser to add support for timestamp arguments,
+                  whose values are either timestamps in generalized time format (which explicitly
+                  specifies the time zone), or timestamps in the form YYYYMMDDhhmm,YYYYMMDDhhmmss,
+                  or YYYYMMDDhhmmss.uuu (generalized time without a time zone specifier) that will
+                  be assumed to be in the local time zone.  A new timestamp range argument value
+                  validator can be used to ensure that timestamp values are only permitted to be
+                  within a specified range.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the command-line argument parsing framework to add support for an IP
+                  address argument value validator.  This can be used to configure an argument to
+                  only accept properly-formed IPv4 or IPv6 addresses.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the command-line tool API to provide the ability to default to
+                  interactively prompting for bind passwords when appropriate.  Tools would
+                  previously only prompt for a password if explicitly requested to do so using the
+                  <tt>--promptForBindPassword</tt> argument.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the command-line tool API to provide the ability for tools to
+                  offer an <tt>--outputFile</tt> argument that causes them to send their output
+                  to a specified file.  It can be paired with the <tt>--teeOutput</tt> argument to
+                  cause the output to be sent to both the specified file and to the console.  The
+                  <tt>--appendToOutputFile</tt> argument will cause the tool to append to an
+                  existing output file rather than overwriting it.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP command-line tool API to make the <tt>--bindDN</tt> and
+                  <tt>--saslOption</tt> arguments are mutually exclusive.  None of the supported
+                  SASL mechanisms make use of a bind DN, and combining these options is only
+                  likely to cause confusion.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>SSLUtil</tt> methods for creating SSL server sockets so that
+                  their enabled protocols will be set more intelligently.  This was already in
+                  place for SSL client sockets, but had been overlooked for server sockets.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the aggregate trust manager to provide a more useful error message when
+                  none of the nested trust managers accept a presented certificate.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the rate adjustor so that when using a rate tool to generate a sample
+                  rate data file, the resulting file will now include a number of additional
+                  examples of common rate patterns, including square, stairstep, sine, sawtooth,
+                  triangle, and hockey stick.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the command-line tool API so that if any tool registers a shutdown hook
+                  (to allow it to perform cleanup in the event of an unexpected graceful JVM
+                  termination), that shutdown hook will be de-registered if the tool completes its
+                  processing without an unexpected JVM shutdown.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a utility class for reading a file containing entry DNs.  Blank lines and
+                  lines containing comments will be ignored.  Each DN must be on a line by itself,
+                  and it may optionally be prefixed by "dn:".  It is also possible to include
+                  base64-encoded DNs prefixed by "dn::".
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a utility class for reading a file containing search filtersNs.  Blank
+                  lines and lines containing comments will be ignored.  Each filter must be on a
+                  line by itself.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the code used to parse a search filter from its string representation to
+                  support up to 100 levels of nesting rather than the previous maximum of 50
+                  levels.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added new convenience methods and constructors for use when programmatically
+                  creating schema elements.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the <tt>LDAPBindException.toLDAPResult</tt> and
+                  <tt>LDAPExtendedOperationException.toLDAPResult</tt> methods so that they return
+                  the underlying <tt>BindResult</tt> or <tt>ExtendedResult</tt> rather than
+                  creating a new generic <tt>LDAPResult</tt>
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the Netscape Directory API migration support to make it possible to
+                  abandon a search operation with an <tt>LDAPSearchResults</tt> object.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the JNDI migration support to make it possible to specify a context base
+                  DN when converting between an LDAP SDK entry and a JNDI search result.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK documentation to include the latest revisions of updated
+                  IETF drafts, including draft-seantek-ldap-pkcs9 and draft-wibrown-ldapssotoken.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
               <h3>Version 3.1.1</h3>
 
               <p>
