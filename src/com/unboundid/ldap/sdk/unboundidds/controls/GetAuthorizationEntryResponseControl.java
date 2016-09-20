@@ -48,15 +48,18 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides an implementation of an LDAP control that may be included
+ * in a bind response to provide information about the authenticated and/or
+ * authorized user.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an LDAP control that may be included
- * in a bind response to provide information about the authenticated and/or
- * authorized user.  The value of this control will be encoded as follows:
+ * <BR>
+ * The value of this control will be encoded as follows:
  * <PRE>
  *   GetAuthorizationEntryResponse ::= SEQUENCE {
  *     isAuthenticated     [0] BOOLEAN,

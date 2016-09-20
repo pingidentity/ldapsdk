@@ -33,15 +33,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class defines a data structure with information about a subtree with
+ * restricted access, as may be included in a
+ * {@link GetSubtreeAccessibilityExtendedResult}.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a data structure with information about a subtree with
- * restricted access, as may be included in a
- * {@link GetSubtreeAccessibilityExtendedResult}.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

@@ -50,19 +50,20 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation for a response control that can be
  * returned by the server in the response for add, modify, and password modify
  * requests that include the password validation details request control.  This
  * response control will provide details about the password quality requirements
  * that are in effect for the operation and whether the password included in the
  * request satisfies each of those requirements.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This response control has an OID of 1.3.6.1.4.1.30221.2.5.41, a criticality
  * of {@code false}, and a value with the provided encoding:
  * <PRE>

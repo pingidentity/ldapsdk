@@ -49,18 +49,19 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a response control that may be included in the response
+ * to a successful bind operation in order to provide information about custom
+ * resource limits for the user, including size limit, time limit, idle time
+ * limit, lookthrough limit, equivalent authorization user DN, and client
+ * connection policy name.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a response control that may be included in the response
- * to a successful bind operation in order to provide information about custom
- * resource limits for the user, including size limit, time limit, idle time
- * limit, lookthrough limit, equivalent authorization user DN, and client
- * connection policy name.
- * <BR><BR>
+ * <BR>
  * The criticality for this control should be {@code false}.  It must have a
  * value with the following encoding:
  * <PRE>

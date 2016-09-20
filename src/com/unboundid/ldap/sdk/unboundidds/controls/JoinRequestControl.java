@@ -38,17 +38,18 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides an implementation of an LDAP control which can be
+ * included in a search request to indicate that search result entries should be
+ * returned along with related entries based on a given set of criteria, much
+ * like an SQL join in a relational database.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an LDAP control which can be
- * included in a search request to indicate that search result entries should be
- * returned along with related entries based on a given set of criteria, much
- * like an SQL join in a relational database.
- * <BR><BR>
+ * <BR>
  * <H2>Example</H2>
  * Consider the case in which user entries include an account number, but
  * additional information about those accounts are available in separate

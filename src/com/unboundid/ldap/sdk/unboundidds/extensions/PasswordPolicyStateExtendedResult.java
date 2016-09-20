@@ -48,18 +48,20 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class implements a data structure for storing the information from an
+ * extended result for the password policy state extended request as used in the
+ * Ping Identity, UnboundID, or Alcatel-Lucent 8661 Directory Server.  It is
+ * able to decode a generic extended result to obtain the user DN and
+ * operations.  See the documentation in the
+ * {@link PasswordPolicyStateExtendedRequest} class for an example that
+ * demonstrates the use of the password policy state extended operation.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class implements a data structure for storing the information from an
- * extended result for the password policy state extended request as used in the
- * UnboundID Directory Server.  It is able to decode a generic extended result
- * to obtain the user DN and operations.  See the documentation in the
- * {@link PasswordPolicyStateExtendedRequest} class for an example that
- * demonstrates the use of the password policy state extended operation.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

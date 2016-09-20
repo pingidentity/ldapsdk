@@ -42,18 +42,19 @@ import static com.unboundid.ldap.sdk.unboundidds.jsonfilter.JFMessages.*;
 
 
 /**
+ * This class provides an implementation of a JSON object filter that can
+ * negate the result of a provided filter.  If the embedded filter matches a
+ * given JSON object, then this negate filter will not match that object.  If
+ * the embedded filter does not match a JSON object, then this negate filter
+ * will match that object.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a JSON object filter that can
- * negate the result of a provided filter.  If the embedded filter matches a
- * given JSON object, then this negate filter will not match that object.  If
- * the embedded filter does not match a JSON object, then this negate filter
- * will match that object.
- * <BR><BR>
+ * <BR>
  * The fields that are required to be included in a "negate" filter are:
  * <UL>
  *   <LI>

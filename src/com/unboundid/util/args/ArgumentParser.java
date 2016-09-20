@@ -2941,23 +2941,16 @@ public final class ArgumentParser
     lines.addAll(wrapLine(selectedSubCommand.getDescription(), maxWidth));
     lines.add("");
 
-    // Next comes the usage.  It may include neither, either, or both of the
-    // set of options and trailing arguments.
-    final ArgumentParser parser = selectedSubCommand.getArgumentParser();
-    if (parser.namedArgs.isEmpty())
-    {
-      lines.addAll(wrapLine(
-           INFO_SUBCOMMAND_USAGE_NOOPTIONS.get(commandName,
-                selectedSubCommand.getPrimaryName()),
-           maxWidth));
-    }
-    else
-    {
-      lines.addAll(wrapLine(
-           INFO_SUBCOMMAND_USAGE_OPTIONS.get(commandName,
-                selectedSubCommand.getPrimaryName()),
-           maxWidth));
+    // Next comes the usage.
+    lines.addAll(wrapLine(
+         INFO_SUBCOMMAND_USAGE_OPTIONS.get(commandName,
+              selectedSubCommand.getPrimaryName()),
+         maxWidth));
 
+
+    final ArgumentParser parser = selectedSubCommand.getArgumentParser();
+    if (! parser.namedArgs.isEmpty())
+    {
       lines.add("");
       lines.add(INFO_USAGE_OPTIONS_INCLUDE.get());
 

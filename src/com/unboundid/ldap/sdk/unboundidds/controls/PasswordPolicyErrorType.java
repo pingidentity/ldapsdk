@@ -28,14 +28,15 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This enum defines a set of error types that may be included in the password
+ * policy response control as defined in draft-behera-ldap-password-policy.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This enum defines a set of error types that may be included in the password
- * policy response control as defined in draft-behera-ldap-password-policy.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum PasswordPolicyErrorType

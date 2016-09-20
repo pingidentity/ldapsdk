@@ -37,21 +37,22 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class defines an intermediate client request control, which can be used
+ * to provide a server with information about the client and any downstream
+ * clients that it may have.  It can be used to help trace operations from the
+ * client to the directory server, potentially through any intermediate hops
+ * (like proxy servers) that may also support the intermediate client controls.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines an intermediate client request control, which can be used
- * to provide a server with information about the client and any downstream
- * clients that it may have.  It can be used to help trace operations from the
- * client to the directory server, potentially through any intermediate hops
- * (like proxy servers) that may also support the intermediate client controls.
- * <BR><BR>
+ * <BR>
  * This control is not based on any public standard.  It was originally
- * developed for use with the UnboundID Directory Server.  The value of this
- * control uses the following encoding:
+ * developed for use with the Ping Identity, UnboundID, and Alcatel-Lucent 8661
+ * Directory Server.  The value of this control uses the following encoding:
  * <BR><BR>
  * <PRE>
  * IntermediateClientRequest ::= SEQUENCE {

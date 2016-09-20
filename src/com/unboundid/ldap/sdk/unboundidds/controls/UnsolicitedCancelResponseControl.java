@@ -37,16 +37,17 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides an implementation of the unsolicited cancel response
+ * control, which may be returned by the Directory Server if an operation is
+ * canceled by the server without a cancel or abandon request from the client.
+ * This control does not have a value.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the unsolicited cancel response
- * control, which may be returned by the Directory Server if an operation is
- * canceled by the server without a cancel or abandon request from the client.
- * This control does not have a value.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

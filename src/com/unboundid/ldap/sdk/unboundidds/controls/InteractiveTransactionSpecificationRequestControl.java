@@ -46,12 +46,6 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the interactive transaction
  * specification request control, which may be used to indicate that the
  * associated operation is part of an interactive transaction.  It may be used
@@ -60,7 +54,14 @@ import static com.unboundid.util.Validator.*;
  * be created with the start interactive transaction extended request, and the
  * end interactive transaction extended request may be used to commit or abort
  * the associated transaction.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The elements of the interactive transaction specification request control may
  * include:
  * <UL>

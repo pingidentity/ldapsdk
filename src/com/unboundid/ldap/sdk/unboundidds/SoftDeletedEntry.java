@@ -39,20 +39,23 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 /**
+ * This class provides a data structure for representing information about a
+ * soft-deleted entry, which results from a soft delete operation that has
+ * caused the entry to be hidden so that it is not accessible to clients under
+ * normal circumstances, rather than causing the entry to be completely removed
+ * from the server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure for representing information about a
- * soft-deleted entry, which results from a soft delete operation that has
- * caused the entry to be hidden so that it is not accessible to clients under
- * normal circumstances, rather than causing the entry to be completely removed
- * from the server.  A soft-deleted entry will have its RDN altered to include
- * the entryUUID for the original entry, will be updated to include the
- * "ds-soft-delete-entry" auxiliary object class, and will have additional
- * metadata attributes added to it which may include:
+ * <BR>
+ * A soft-deleted entry will have its RDN altered to include the entryUUID for
+ * the original entry, will be updated to include the "ds-soft-delete-entry"
+ * auxiliary object class, and will have additional metadata attributes added to
+ * it which may include:
  * <UL>
  *   <LI>
  *     ds-soft-delete-from-dn -- This specifies the DN assigned to the entry

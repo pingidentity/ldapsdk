@@ -40,19 +40,20 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a response control that may be used to provide the server
  * ID of the Directory Server instance that processed the associated request.
  * For search operations, each entry and reference returned will include the
  * server ID of the server that provided that entry or reference.  For all other
  * types of operations, it will be in the {@code LDAPResult} (or appropriate
  * subclass) returned for that operation.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This control must have a value, which will simply be the string
  * representation of the server ID of the associated server.  The criticality
  * should be {@code false}.

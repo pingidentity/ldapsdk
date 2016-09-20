@@ -48,16 +48,19 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides an implementation of the stream directory values
+ * intermediate response, which may be used to provide a partial or complete
+ * list of the values for a specified attribute, or DNs of entries contained in
+ * a specified portion of the server DIT.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the stream directory values
- * intermediate response, which may be used to provide a partial or complete
- * list of the values for a specified attribute, or DNs of entries contained in
- * a specified portion of the server DIT.  This intermediate response has an OID
+ * <BR>
+ * This intermediate response has an OID
  * of "1.3.6.1.4.1.30221.2.6.7" and the value is encoded as follows:
  * <PRE>
  *   StreamDirectoryValuesIntermediateResponse ::= SEQUENCE {

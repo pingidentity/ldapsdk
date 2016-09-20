@@ -39,15 +39,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides a data structure that holds information about a log
+ * message that may appear in the Directory Server access log about the result
+ * of a delete operation processed by the Directory Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure that holds information about a log
- * message that may appear in the Directory Server access log about the result
- * of a delete operation processed by the Directory Server.
  */
 @NotExtensible()
 @NotMutable()
@@ -88,6 +89,14 @@ public class DeleteResultAccessLogMessage
 
   // The port of the backend server to which the request has been forwarded.
   private final Integer targetPort;
+
+  // The list of indexes for which keys near the index entry limit were accessed
+  // while processing the operation.
+  private final List<String> indexesWithKeysAccessedNearEntryLimit;
+
+  // The list of indexes for which keys over the index entry limit were accessed
+  // while processing the operation.
+  private final List<String> indexesWithKeysAccessedOverEntryLimit;
 
   // The list of privileges required for processing the operation that the
   // requester did not have.
@@ -344,6 +353,44 @@ public class DeleteResultAccessLogMessage
         privileges.add(tokenizer.nextToken());
       }
       missingPrivileges = Collections.unmodifiableList(privileges);
+    }
+
+    final String indexesNearLimitStr =
+         getNamedValue("indexesWithKeysAccessedNearEntryLimit");
+    if ((indexesNearLimitStr == null) || (indexesNearLimitStr.length() == 0))
+    {
+      indexesWithKeysAccessedNearEntryLimit = Collections.emptyList();
+    }
+    else
+    {
+      final LinkedList<String> indexes = new LinkedList<String>();
+      final StringTokenizer tokenizer =
+           new StringTokenizer(indexesNearLimitStr, ",");
+      while (tokenizer.hasMoreTokens())
+      {
+        indexes.add(tokenizer.nextToken());
+      }
+      indexesWithKeysAccessedNearEntryLimit =
+           Collections.unmodifiableList(indexes);
+    }
+
+    final String indexesOverLimitStr =
+         getNamedValue("indexesWithKeysAccessedExceedingEntryLimit");
+    if ((indexesOverLimitStr == null) || (indexesOverLimitStr.length() == 0))
+    {
+      indexesWithKeysAccessedOverEntryLimit = Collections.emptyList();
+    }
+    else
+    {
+      final LinkedList<String> indexes = new LinkedList<String>();
+      final StringTokenizer tokenizer =
+           new StringTokenizer(indexesOverLimitStr, ",");
+      while (tokenizer.hasMoreTokens())
+      {
+        indexes.add(tokenizer.nextToken());
+      }
+      indexesWithKeysAccessedOverEntryLimit =
+           Collections.unmodifiableList(indexes);
     }
   }
 
@@ -733,6 +780,39 @@ public class DeleteResultAccessLogMessage
   public List<String> getMissingPrivileges()
   {
     return missingPrivileges;
+  }
+
+
+
+  /**
+   * Retrieves the names of any indexes for which one or more keys near
+   * (typically, within 80% of) the index entry limit were accessed while
+   * processing the operation.
+   *
+   * @return  The names of any indexes for which one or more keys near the index
+   *          entry limit were accessed while processing the operation, or an
+   *          empty list if no such index keys were accessed, or if this is not
+   *          included in the log message.
+   */
+  public List<String> getIndexesWithKeysAccessedNearEntryLimit()
+  {
+    return indexesWithKeysAccessedNearEntryLimit;
+  }
+
+
+
+  /**
+   * Retrieves the names of any indexes for which one or more keys over the
+   * index entry limit were accessed while processing the operation.
+   *
+   * @return  The names of any indexes for which one or more keys over the index
+   *          entry limit were accessed while processing the operation, or an
+   *          empty list if no such index keys were accessed, or if this is not
+   *          included in the log message.
+   */
+  public List<String> getIndexesWithKeysAccessedOverEntryLimit()
+  {
+    return indexesWithKeysAccessedOverEntryLimit;
   }
 
 

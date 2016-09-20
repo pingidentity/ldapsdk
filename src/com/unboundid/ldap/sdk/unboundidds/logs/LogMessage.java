@@ -44,14 +44,15 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides a data structure that holds information about a log
+ * message contained in a Directory Server access or error log file.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure that holds information about a log
- * message contained in a Directory Server access or error log file.
  */
 @NotExtensible()
 @NotMutable()

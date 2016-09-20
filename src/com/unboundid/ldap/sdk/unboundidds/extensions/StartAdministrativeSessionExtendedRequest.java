@@ -43,19 +43,20 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the start administrative session
  * extended request, which clients may use to indicate that they are going to
  * perform a set of administrative operations in the server.  It may be used
  * to identify the client to the server and to indicate whether subsequent
  * requests received on the connection should be processed using worker threads
  * in a dedicated thread pool (subject to server configuration restrictions).
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This extended request has an OID of 1.3.6.1.4.1.30221.2.6.13, and it must
  * have a value with the following encoding:
  * <PRE>

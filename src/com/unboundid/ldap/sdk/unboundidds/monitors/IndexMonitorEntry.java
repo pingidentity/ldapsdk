@@ -36,12 +36,6 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class defines a monitor entry that provides general information about
  * the state of an index in a Directory Server backend.  Note that the term
  * "index" may refer to a number of different things, including attribute
@@ -50,7 +44,14 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
  * considered two separate indexes), VLV indexes, and system indexes (for
  * databases that are maintained internally, like id2entry, dn2id, id2children,
  * and id2subtree).
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The set of index monitor entries published by the directory server can be
  * obtained using the {@link MonitorManager#getIndexMonitorEntries} method.
  * Specific methods are available for accessing the associated monitor data
@@ -138,6 +139,48 @@ public final class IndexMonitorEntry
    */
   private static final String ATTR_EXCEEDED_COUNT =
        "ds-index-exceeded-entry-limit-count-since-db-open";
+
+
+
+  /**
+   * The name of the attribute that contains the number of unique index keys
+   * accessed by search operations that are near (typically, within 80% of) the
+   * index entry limit since the index DB was opened.
+   */
+  private static final String ATTR_SEARCH_KEYS_NEAR_LIMIT =
+       "ds-index-unique-keys-near-entry-limit-accessed-by-search-since-db-open";
+
+
+
+  /**
+   * The name of the attribute that contains the number of unique index keys
+   * accessed by search operations that are over the index entry limit since the
+   * index DB was opened.
+   */
+  private static final String ATTR_SEARCH_KEYS_OVER_LIMIT =
+       "ds-index-unique-keys-exceeding-entry-limit-accessed-by-search-since-" +
+            "db-open";
+
+
+
+  /**
+   * The name of the attribute that contains the number of unique index keys
+   * accessed by write operations that are near (typically, within 80% of) the
+   * index entry limit since the index DB was opened.
+   */
+  private static final String ATTR_WRITE_KEYS_NEAR_LIMIT =
+       "ds-index-unique-keys-near-entry-limit-accessed-by-write-since-db-open";
+
+
+
+  /**
+   * The name of the attribute that contains the number of unique index keys
+   * accessed by write operations that are over the index entry limit since the
+   * index DB was opened.
+   */
+  private static final String ATTR_WRITE_KEYS_OVER_LIMIT =
+       "ds-index-unique-keys-exceeding-entry-limit-accessed-by-write-since-" +
+            "db-open";
 
 
 
@@ -273,6 +316,22 @@ public final class IndexMonitorEntry
   // The number of keys that were primed when the backend came online.
   private final Long primedKeys;
 
+  // The number of keys near the index entry limit that have been accessed by
+  // search operations since the index came online.
+  private final Long searchKeysNearLimit;
+
+  // The number of keys over the index entry limit that have been accessed by
+  // search operations since the index came online.
+  private final Long searchKeysOverLimit;
+
+  // The number of keys near the index entry limit that have been accessed by
+  // write operations since the index came online.
+  private final Long writeKeysNearLimit;
+
+  // The number of keys over the index entry limit that have been accessed by
+  // write operations since the index came online.
+  private final Long writeKeysOverLimit;
+
   // The name of the associated attribute type.
   private final String attributeType;
 
@@ -320,6 +379,10 @@ public final class IndexMonitorEntry
     numReadsForSearch     = getLong(ATTR_READ_FOR_SEARCH_COUNT);
     numWrites             = getLong(ATTR_WRITE_COUNT);
     primedKeys            = getLong(ATTR_PRIMED_KEYS);
+    searchKeysNearLimit   = getLong(ATTR_SEARCH_KEYS_NEAR_LIMIT);
+    searchKeysOverLimit   = getLong(ATTR_SEARCH_KEYS_OVER_LIMIT);
+    writeKeysNearLimit    = getLong(ATTR_WRITE_KEYS_NEAR_LIMIT);
+    writeKeysOverLimit    = getLong(ATTR_WRITE_KEYS_OVER_LIMIT);
     attributeType         = getString(ATTR_INDEX_ATTR);
     backendID             = getString(ATTR_BACKEND_ID);
     baseDN                = getString(ATTR_BASE_DN);
@@ -455,6 +518,73 @@ public final class IndexMonitorEntry
   public Long getEntryLimitExceededCountSinceComingOnline()
   {
     return exceededCount;
+  }
+
+
+
+  /**
+   * Retrieves the number of unique index keys near (typically, within 80% of)
+   * the index entry limit that have been accessed by search operations since
+   * the index was brought online.
+   *
+   * @return  The number of unique index keys near the index entry limit that
+   *          have been accessed by search operations since the index was
+   *          brought online, or {@code null} if it was not included in the
+   *          entry.
+   */
+  public Long getUniqueKeysNearEntryLimitAccessedBySearchSinceComingOnline()
+  {
+    return searchKeysNearLimit;
+  }
+
+
+
+  /**
+   * Retrieves the number of unique index keys over the index entry limit that
+   * have been accessed by search operations since the index was brought online.
+   *
+   * @return  The number of unique index keys over the index entry limit that
+   *          have been accessed by search operations since the index was
+   *          brought online, or {@code null} if it was not included in the
+   *          entry.
+   */
+  public Long getUniqueKeysOverEntryLimitAccessedBySearchSinceComingOnline()
+  {
+    return searchKeysOverLimit;
+  }
+
+
+
+  /**
+   * Retrieves the number of unique index keys near (typically, within 80% of)
+   * the index entry limit that have been accessed by add, delete, modify, or
+   * modify DN operations since the index was brought online.
+   *
+   * @return  The number of unique index keys near the index entry limit that
+   *          have been accessed by write operations since the index was
+   *          brought online, or {@code null} if it was not included in the
+   *          entry.
+   */
+  public Long getUniqueKeysNearEntryLimitAccessedByWriteSinceComingOnline()
+  {
+    return writeKeysNearLimit;
+  }
+
+
+
+  /**
+   * Retrieves the number of unique index keys over the index entry limit that
+   * have been accessed by add, delete, modify, or modify DN operations since
+   * the index was brought online.
+   *
+   * @return  The number of unique index keys over the index entry limit that
+   *          have been accessed by write operations since the index was
+   *          brought online, or {@code null} if it was not included in the
+   *          entry.
+   */
+  public Long getUniqueKeysOverEntryLimitAccessedByWriteSinceComingOnline()
+  {
+    return writeKeysOverLimit;
   }
 
 
@@ -723,6 +853,42 @@ public final class IndexMonitorEntry
            INFO_INDEX_DISPNAME_EXCEEDED_COUNT.get(),
            INFO_INDEX_DESC_EXCEEDED_COUNT.get(),
            exceededCount);
+    }
+
+    if (searchKeysNearLimit != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_SEARCH_KEYS_NEAR_LIMIT,
+           INFO_INDEX_DISPNAME_SEARCH_KEYS_NEAR_LIMIT.get(),
+           INFO_INDEX_DESC_SEARCH_KEYS_NEAR_LIMIT.get(),
+           searchKeysNearLimit);
+    }
+
+    if (searchKeysOverLimit != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_SEARCH_KEYS_OVER_LIMIT,
+           INFO_INDEX_DISPNAME_SEARCH_KEYS_OVER_LIMIT.get(),
+           INFO_INDEX_DESC_SEARCH_KEYS_OVER_LIMIT.get(),
+           searchKeysOverLimit);
+    }
+
+    if (writeKeysNearLimit != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_WRITE_KEYS_NEAR_LIMIT,
+           INFO_INDEX_DISPNAME_WRITE_KEYS_NEAR_LIMIT.get(),
+           INFO_INDEX_DESC_WRITE_KEYS_NEAR_LIMIT.get(),
+           writeKeysNearLimit);
+    }
+
+    if (writeKeysOverLimit != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_WRITE_KEYS_OVER_LIMIT,
+           INFO_INDEX_DISPNAME_WRITE_KEYS_OVER_LIMIT.get(),
+           INFO_INDEX_DESC_WRITE_KEYS_OVER_LIMIT.get(),
+           writeKeysOverLimit);
     }
 
     if (maintainCount != null)

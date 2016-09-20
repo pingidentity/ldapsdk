@@ -22,20 +22,21 @@
 
 
 /**
+ * This package contains a number of helper classes for interacting with monitor
+ * entries ing Ping Identity, UnboundID, and Alcatel-Lucent 8661 server
+ * products.  It provides methods for parsing the monitor entries as specific
+ * subtypes and for extracting the information that they provide in useful ways.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This package is part of the Commercial Edition of the
  *   UnboundID LDAP SDK for Java.  It is not available for use in applications
  *   that include only the Standard Edition of the LDAP SDK, and is not
  *   supported for use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This package contains a number of helper classes for interacting with monitor
- * entries in the UnboundID Directory Server.  It provides methods for parsing
- * the monitor entries as specific subtypes and for extracting the information
- * that they provide in useful ways.
- * <BR><BR>
+ * <BR>
  * The {@code MonitorManager} class provides a number of utility methods for
- * retrieving server monitor entries from an UnboundID Directory Server.  The
- * {@code MonitorEntry} class and its subclasses provide access to the data in
- * those monitor entries.
+ * retrieving server monitor entries from a Ping identity/UnboundID Directory
+ * Server.  The {@code MonitorEntry} class and its subclasses provide access to
+ * the data in those monitor entries.
  */
 package com.unboundid.ldap.sdk.unboundidds.monitors;

@@ -41,15 +41,16 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides a data structure for holding a value included in the
+ * stream proxy values intermediate response.  It contains the value, and the ID
+ * of the backend set with which the value is associated.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure for holding a value included in the
- * stream proxy values intermediate response.  It contains the value, and the ID
- * of the backend set with which the value is associated.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

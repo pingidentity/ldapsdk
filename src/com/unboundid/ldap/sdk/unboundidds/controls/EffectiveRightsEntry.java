@@ -47,18 +47,19 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides a mechanism for extracting the effective rights
+ * information from an entry returned for a search request that included the
+ * get effective rights request control.  In particular, it provides the ability
+ * to parse the values of the aclRights attributes in order to determine what
+ * rights the specified user may have when interacting with the entry.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a mechanism for extracting the effective rights
- * information from an entry returned for a search request that included the
- * get effective rights request control.  In particular, it provides the ability
- * to parse the values of the aclRights attributes in order to determine what
- * rights the specified user may have when interacting with the entry.
- * <BR><BR>
+ * <BR>
  * See the {@link GetEffectiveRightsRequestControl} for an example that
  * demonstrates the use of the get effective rights request control and this
  * entry.

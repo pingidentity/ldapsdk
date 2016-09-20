@@ -43,15 +43,17 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class defines a Directory Server task that can be used to back up one or
+ * more Directory Server backends.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a Directory Server task that can be used to back up one or
- * more Directory Server backends.  The properties that are available for use
- * with this type of task include:
+ * <BR>
+ * The properties that are available for use with this type of task include:
  * <UL>
  *   <LI>The path to the directory in which the backup should be placed.  If
  *       multiple backends are to be backed up at once, then this should be the

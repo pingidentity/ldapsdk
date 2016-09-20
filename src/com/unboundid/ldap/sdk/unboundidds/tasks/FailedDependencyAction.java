@@ -30,14 +30,15 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class defines a failed dependency action, which controls how a task
+ * should behave if any of its dependencies fails.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a failed dependency action, which controls how a task
- * should behave if any of its dependencies fails.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum FailedDependencyAction

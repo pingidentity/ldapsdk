@@ -47,18 +47,19 @@ import static com.unboundid.ldap.sdk.unboundidds.jsonfilter.JFMessages.*;
 
 
 /**
+ * This class provides an implementation of a JSON object filter that can be
+ * used to identify JSON objects that have a field whose value is a JSON object
+ * that matches a provided JSON object filter, or a field whose value is an
+ * array that contains at least one JSON object that matches the provided
+ * filter.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a JSON object filter that can be
- * used to identify JSON objects that have a field whose value is a JSON object
- * that matches a provided JSON object filter, or a field whose value is an
- * array that contains at least one JSON object that matches the provided
- * filter.
- * <BR><BR>
+ * <BR>
  * The fields that are required to be included in an "object matches" filter
  * are:
  * <UL>

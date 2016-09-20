@@ -45,17 +45,18 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a request control which may be included in a search
+ * request to indicate that the server should provide the number of entries that
+ * match the search criteria.  The count will be included in the search result
+ * done message, and all search result entries will be suppressed.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a request control which may be included in a search
- * request to indicate that the server should provide the number of entries that
- * match the search criteria.  The count will be included in the search result
- * done message, and all search result entries will be suppressed.
- * <BR><BR>
+ * <BR>
  * Whenever possible, the server will use index information to quickly identify
  * entries matching the criteria of the associated search request.  However, if
  * the count is only determined using index information, then that count may

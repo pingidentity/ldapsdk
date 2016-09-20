@@ -34,12 +34,6 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a request control that can be included in a modify
  * request or a password modify extended request in order to indicate that if
  * the operation results in changing the password for a user, the user's former
@@ -47,7 +41,14 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * for a brief period of time (as configured in the password policy governing
  * that user) to allow for applications which may have been configured with that
  * password can be updated to use the new password.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This control has an OID of "1.3.6.1.4.1.30221.2.5.31" and does not have a
  * value.  The criticality may be either true (in which case the operation will
  * succeed only if the user's password policy allows passwords to be retired by

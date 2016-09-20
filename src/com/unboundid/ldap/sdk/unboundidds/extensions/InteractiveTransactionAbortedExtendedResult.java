@@ -34,16 +34,17 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of the interactive transaction aborted
+ * extended result, which is used as an unsolicited notification to indicate
+ * that the server has aborted an interactive transaction without the client's
+ * explicit request.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the interactive transaction aborted
- * extended result, which is used as an unsolicited notification to indicate
- * that the server has aborted an interactive transaction without the client's
- * explicit request.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

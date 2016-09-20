@@ -28,14 +28,15 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This enum defines the types of configurations that may be obtained using the
+ * get configuration extended operation.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This enum defines the types of configurations that may be obtained using the
- * get configuration extended operation.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum GetConfigurationType

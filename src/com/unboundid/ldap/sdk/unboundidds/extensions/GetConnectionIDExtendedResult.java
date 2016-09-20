@@ -39,15 +39,16 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class implements a data structure for storing the information from an
+ * extended result for the get connection ID extended request.  It is able to
+ * decode a generic extended result to obtain the associated connection ID.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class implements a data structure for storing the information from an
- * extended result for the get connection ID extended request.  It is able to
- * decode a generic extended result to obtain the associated connection ID.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

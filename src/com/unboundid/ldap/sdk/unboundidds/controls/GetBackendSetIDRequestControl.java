@@ -34,18 +34,19 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a request control which may be used to request that the
+ * Directory Proxy Server return the backend set IDs for the entry-balancing
+ * backend set(s) in which an operation was processed successfully.  It may be
+ * used in conjunction with the route to backend set request control in order
+ * to specify which backend set(s) should be used to process an operation.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a request control which may be used to request that the
- * Directory Proxy Server return the backend set IDs for the entry-balancing
- * backend set(s) in which an operation was processed successfully.  It may be
- * used in conjunction with the route to backend set request control in order
- * to specify which backend set(s) should be used to process an operation.
- * <BR><BR>
+ * <BR>
  * This control may be used for a number of different kinds of requests,
  * including:
  * <UL>

@@ -58,15 +58,16 @@ import com.unboundid.util.args.StringArgument;
 
 
 /**
+ * This class provides a utility that can be used to query and update the set of
+ * subtree accessibility restrictions defined in the Directory Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a utility that can be used to query and update the set of
- * subtree accessibility restrictions defined in the Directory Server.
- * <BR><BR>
+ * <BR>
  * The APIs demonstrated by this example include:
  * <UL>
  *   <LI>The use of the get/set subtree accessibility extended operations</LI>

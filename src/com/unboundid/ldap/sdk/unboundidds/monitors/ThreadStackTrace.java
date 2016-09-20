@@ -33,14 +33,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class defines a data structure that can hold information about a thread
+ * stack trace read from the Directory Server's stack trace monitor.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a data structure that can hold information about a thread
- * stack trace read from the UnboundID Directory Server's stack trace monitor.
+ * <BR>
  * The information available in a thread stack trace includes:
  * <UL>
  *   <LI>The name of the thread.  This is generally a user-friendly string that

@@ -40,17 +40,18 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides an implementation of the get effective rights request
+ * control, which may be included in a search request to indicate that matching
+ * entries should include information about the rights a given user may have
+ * when interacting with that entry.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the get effective rights request
- * control, which may be included in a search request to indicate that matching
- * entries should include information about the rights a given user may have
- * when interacting with that entry.
- * <BR><BR>
+ * <BR>
  * When the get effective rights control is included in a search request, then
  * each entry returned may include information about the rights that the
  * specified user has for that entry in the {@code aclRights} operational

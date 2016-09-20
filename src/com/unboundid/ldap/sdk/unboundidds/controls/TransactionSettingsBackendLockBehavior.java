@@ -28,15 +28,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This enum defines the options that may be specified to indicate whether and
+ * when to acquire an exclusive lock in the target backend when processing a
+ * transaction.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This enum defines the options that may be specified to indicate whether and
- * when to acquire an exclusive lock in the target backend when processing a
- * transaction.
  *
  * @see TransactionSettingsRequestControl
  */

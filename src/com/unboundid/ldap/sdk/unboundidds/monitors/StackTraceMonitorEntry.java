@@ -41,18 +41,19 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class defines a monitor entry that provides access to the Directory
+ * Server stack trace information.  The information that is available through
+ * this monitor is roughly the equivalent of what can be accessed using the
+ * {@link Thread#getAllStackTraces} method.  See the {@link ThreadStackTrace}
+ * class for more information about what is available in each stack trace.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides access to the Directory
- * Server stack trace information.  The information that is available through
- * this monitor is roughly the equivalent of what can be accessed using the
- * {@link Thread#getAllStackTraces} method.  See the {@link ThreadStackTrace}
- * class for more information about what is available in each stack trace.
- * <BR><BR>
+ * <BR>
  * The server should present at most one stack trace monitor entry.  It can be
  * retrieved using the {@link MonitorManager#getStackTraceMonitorEntry} method.
  * The {@link StackTraceMonitorEntry#getStackTraces} method can be used to

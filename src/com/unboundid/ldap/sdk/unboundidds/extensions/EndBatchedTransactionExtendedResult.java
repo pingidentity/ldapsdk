@@ -46,16 +46,17 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides an implementation of the end batched transaction extended
+ * result.  It is able to decode a generic extended result to extract the
+ * appropriate response information.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the end batched transaction extended
- * result.  It is able to decode a generic extended result to extract the
- * appropriate response information.
- * <BR><BR>
+ * <BR>
  * The end batched transaction result may include two elements:
  * <UL>
  *   <LI>{@code failedOpMessageID} -- The message ID associated with the LDAP

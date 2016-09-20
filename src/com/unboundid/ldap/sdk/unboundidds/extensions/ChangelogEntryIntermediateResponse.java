@@ -50,16 +50,18 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an intermediate response which
+ * provides information about a changelog entry returned from a Directory
+ * Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an intermediate response which
- * provides information about a changelog entry returned from a Directory
- * Server.  The changelog entry intermediate response value is encoded as
- * follows:
+ * <BR>
+ * The changelog entry intermediate response value is encoded as follows:
  * <PRE>
  *   ChangelogEntryIntermediateResponse ::= SEQUENCE {
  *        resumeToken                  OCTET STRING,

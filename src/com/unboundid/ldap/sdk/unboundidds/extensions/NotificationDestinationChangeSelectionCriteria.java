@@ -38,16 +38,17 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of a get changelog batch change
+ * selection criteria value that indicates that the server should only return
+ * changes that are associated with a specified notification destination, as
+ * specified by the entryUUID for the notification destination to target.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a get changelog batch change
- * selection criteria value that indicates that the server should only return
- * changes that are associated with a specified notification destination, as
- * specified by the entryUUID for the notification destination to target.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

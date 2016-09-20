@@ -37,16 +37,17 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
 
 
 /**
+ * This class defines a Directory Server task that can be used to synchronize
+ * the encryption settings definitions in one instance with one or more other
+ * servers in the topology.  This task does not have any task-specific
+ * properties.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a Directory Server task that can be used to synchronize
- * the encryption settings definitions in one instance with one or more other
- * servers in the topology.  This task does not have any task-specific
- * properties.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

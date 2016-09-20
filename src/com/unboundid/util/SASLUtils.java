@@ -598,9 +598,10 @@ public final class SASLUtils
              Class.forName("com.unboundid.ldap.sdk.unboundidds.SASLHelper");
         final Method createBindRequestMethod = c.getMethod("createBindRequest",
              String.class, StaticUtils.NO_BYTES.getClass(), String.class,
-             Map.class, StaticUtils.NO_CONTROLS.getClass());
+             CommandLineTool.class, Map.class,
+             StaticUtils.NO_CONTROLS.getClass());
         final Object bindRequestObject = createBindRequestMethod.invoke(null,
-             bindDN, password, mech, optionsMap, controls);
+             bindDN, password, mech, tool, optionsMap, controls);
         if (bindRequestObject != null)
         {
           return (SASLBindRequest) bindRequestObject;

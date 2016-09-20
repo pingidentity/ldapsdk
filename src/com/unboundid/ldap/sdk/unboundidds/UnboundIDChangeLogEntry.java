@@ -45,15 +45,16 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 /**
+ * This class provides an implementation of a changelog entry which provides
+ * support for all standard changelog entry attributes as well as those unique
+ * to the Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a changelog entry which provides
- * support for all standard changelog entry attributes as well as those unique
- * to the UnboundID Directory Server.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

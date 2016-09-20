@@ -48,16 +48,18 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class defines a data structure for holding information about scheduled
+ * tasks as used by the Ping Identity, UnboundID, or Alcatel-Lucent 8661
+ * Directory Server.  Subclasses be used to provide additional functionality
+ * when dealing with certain types of tasks.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a data structure for holding information about scheduled
- * tasks as used by the UnboundID Directory Server.  Subclasses be used to
- * provide additional functionality when dealing with certain types of tasks.
- * <BR><BR>
+ * <BR>
  * All types of tasks can include the following information:
  * <UL>
  *   <LI>Task ID -- Uniquely identifies the task in the server.  It may be
@@ -724,6 +726,7 @@ public class Task
          new RefreshEncryptionSettingsTask(),
          new ReloadGlobalIndexTask(),
          new RestoreTask(),
+         new RotateLogTask(),
          new SearchTask(),
          new ShutdownTask(),
          new SynchronizeEncryptionSettingsTask(),
@@ -1677,6 +1680,10 @@ public class Task
       else if (taskClass.equals(RestoreTask.RESTORE_TASK_CLASS))
       {
         return new RestoreTask(entry);
+      }
+      else if (taskClass.equals(RotateLogTask.ROTATE_LOG_TASK_CLASS))
+      {
+        return new RotateLogTask(entry);
       }
       else if (taskClass.equals(SearchTask.SEARCH_TASK_CLASS))
       {

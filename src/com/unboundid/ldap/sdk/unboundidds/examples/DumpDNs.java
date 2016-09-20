@@ -57,16 +57,17 @@ import com.unboundid.util.args.FileArgument;
 
 
 /**
+ * This class provides a utility that uses the stream directory values extended
+ * operation in order to obtain a listing of all entry DNs below a specified
+ * base DN in the Directory Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a utility that uses the stream directory values extended
- * operation in order to obtain a listing of all entry DNs below a specified
- * base DN in the Directory Server.
- * <BR><BR>
+ * <BR>
  * The APIs demonstrated by this example include:
  * <UL>
  *   <LI>The use of the stream directory values extended operation.</LI>

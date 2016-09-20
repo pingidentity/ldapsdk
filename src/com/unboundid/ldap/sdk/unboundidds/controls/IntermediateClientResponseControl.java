@@ -39,28 +39,29 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class defines an intermediate client response control, which can be used
+ * to provide a server with information about the client and any downstream
+ * clients that it may have.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines an intermediate client response control, which can be used
- * to provide a server with information about the client and any downstream
- * clients that it may have.
- * <BR><BR>
+ * <BR>
  * This control is not based on any public standard.  It was originally
- * developed for use with the UnboundID Directory Server.  The value of this
- * control uses the following encoding:
+ * developed for use with the Ping Identity, UnboundID, and Alcatel-Lucent 8661
+ * Directory Server.  The value of this control uses the following encoding:
  * <BR><BR>
  * <PRE>
  * IntermediateClientResponse ::= SEQUENCE {
  *      upstreamResponse       [0] IntermediateClientResponse OPTIONAL,
  *      upstreamServerAddress  [1] OCTET STRING OPTIONAL,
- *      upstreamServerSecure   [3] BOOLEAN DEFAULT FALSE,
- *      serverName             [4] OCTET STRING OPTIONAL,
- *      serverSessionID        [5] OCTET STRING OPTIONAL,
- *      serverResponseID       [6] OCTET STRING OPTIONAL,
+ *      upstreamServerSecure   [2] BOOLEAN DEFAULT FALSE,
+ *      serverName             [3] OCTET STRING OPTIONAL,
+ *      serverSessionID        [4] OCTET STRING OPTIONAL,
+ *      serverResponseID       [5] OCTET STRING OPTIONAL,
  *      ... }
  * </PRE>
  * See the documentation in the {@link IntermediateClientRequestControl} class

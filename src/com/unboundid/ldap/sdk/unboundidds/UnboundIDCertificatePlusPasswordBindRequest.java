@@ -41,16 +41,17 @@ import com.unboundid.util.Validator;
 
 
 /**
+ * This class provides support for an UnboundID-proprietary SASL mechanism that
+ * provides multifactor authentication using the combination of a client
+ * certificate (presented during SSL/TLS negotiation) and a static password.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides support for an UnboundID-proprietary SASL mechanism that
- * provides multifactor authentication using the combination of a client
- * certificate (presented during SSL/TLS negotiation) and a static password.
- * <BR><BR>
+ * <BR>
  * The name for this SASL mechanism is "UNBOUNDID-CERTIFICATE-PLUS-PASSWORD".
  * The SASL credentials consist simply of the static password for the user
  * identified by the certificate, to make the SASL mechanism as easy as possible

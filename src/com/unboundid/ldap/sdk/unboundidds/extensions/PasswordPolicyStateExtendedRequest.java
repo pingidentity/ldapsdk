@@ -41,18 +41,20 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class provides an implementation of the password policy state extended
+ * request as used in the Ping Identity, UnboundID, or Alcatel-Lucent 8661
+ * Directory Server.  It may be used to retrieve and/or alter password policy
+ * properties for a user account.  See the documentation in the
+ * {@link PasswordPolicyStateOperation} class for information about the types of
+ * operations that can be performed.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the password policy state extended
- * request as used in the UnboundID Directory Server.  It may be used to
- * retrieve and/or alter password policy properties for a user account.  See the
- * documentation in the {@link PasswordPolicyStateOperation} class for
- * information about the types of operations that can be performed.
- * <BR><BR>
+ * <BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the password policy state
  * extended operation to administratively disable a user's account:

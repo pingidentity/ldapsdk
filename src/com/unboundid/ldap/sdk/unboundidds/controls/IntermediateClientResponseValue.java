@@ -43,16 +43,17 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class implements a data structure which encapsulates the value of an
+ * intermediate client response value.  It may recursively embed intermediate
+ * client response values from upstream servers.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class implements a data structure which encapsulates the value of an
- * intermediate client response value.  It may recursively embed intermediate
- * client response values from upstream servers.
- * <BR><BR>
+ * <BR>
  * See the documentation in the {@link IntermediateClientRequestControl} class
  * for an example of using the intermediate client request and response
  * controls.

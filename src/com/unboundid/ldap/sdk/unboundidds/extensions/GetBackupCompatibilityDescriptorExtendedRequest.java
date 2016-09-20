@@ -42,12 +42,6 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of an extended request that can be used
  * to retrieve backup compatibility data for a Directory Server backend.  This
  * includes both a token that can be used to compare compatibility data with
@@ -55,7 +49,14 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * to check compatibility after upgrading to a new version), and a set of
  * capability strings that may provide additional context about how the backup
  * descriptor may be used.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The OID for this extended request is 1.3.6.1.4.1.30221.2.6.30.  It must have
  * a value with the following encoding:
  * <PRE>

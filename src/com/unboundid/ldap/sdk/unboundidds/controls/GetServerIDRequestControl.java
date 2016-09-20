@@ -34,12 +34,6 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a request control which may be used to request the server
  * ID of the server that actually processed the associated request.  It may be
  * used for requests sent directly to a Directory Server, but it is more useful
@@ -50,7 +44,14 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * subsequent operations be processed by the same server.  See the documentation
  * for the {@code RouteToServerRequestControl} for an example that demonstrates
  * this.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This control does not have a value.  The criticality may be either
  * {@code true} or {@code false}.
  */

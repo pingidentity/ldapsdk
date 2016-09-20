@@ -43,17 +43,18 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides an implementation of the end batched transaction extended
+ * request.  It may be used to either commit or abort a transaction that was
+ * created using the start batched transaction request.  See the documentation
+ * for the {@link StartBatchedTransactionExtendedRequest} for an example of
+ * processing a batched transaction.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the end batched transaction extended
- * request.  It may be used to either commit or abort a transaction that was
- * created using the start batched transaction request.  See the documentation
- * for the {@link StartBatchedTransactionExtendedRequest} for an example of
- * processing a batched transaction.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)

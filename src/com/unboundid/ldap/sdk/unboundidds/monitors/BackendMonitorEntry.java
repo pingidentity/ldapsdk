@@ -39,15 +39,17 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class defines a monitor entry that provides general information about a
+ * Directory Server backend.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides general information about a
- * Directory Server backend.  Information that may be available in a backend
- * monitor entry includes:
+ * <BR>
+ * Information that may be available in a backend monitor entry includes:
  * <UL>
  *   <LI>The backend ID for the backend.</LI>
  *   <LI>The set of base DNs for the backend.</LI>

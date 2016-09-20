@@ -42,16 +42,17 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class defines a data structure that provides information about the
+ * result of assured replication processing, either on a replication server (if
+ * that is all that is needed to satisfy the desired level of assurance) or
+ * on a directory server (if required by the desired level of assurance).
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a data structure that provides information about the
- * result of assured replication processing, either on a replication server (if
- * that is all that is needed to satisfy the desired level of assurance) or
- * on a directory server (if required by the desired level of assurance).
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

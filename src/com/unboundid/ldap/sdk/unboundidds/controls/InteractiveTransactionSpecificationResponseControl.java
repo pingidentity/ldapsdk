@@ -47,16 +47,19 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class defines an interactive transaction specification response control,
+ * which will be included in the server's response to an operation that included
+ * the {@link InteractiveTransactionSpecificationRequestControl}.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines an interactive transaction specification response control,
- * which will be included in the server's response to an operation that included
- * the {@link InteractiveTransactionSpecificationRequestControl}.  It provides
- * information about the state of the transaction, which may include:
+ * <BR>
+ * It provides information about the state of the transaction, which may
+ * include:
  * <UL>
  *   <LI><CODE>transactionValid</CODE> -- Indicates whether the transaction is
  *       still valid in the server.  This should be checked if the associated

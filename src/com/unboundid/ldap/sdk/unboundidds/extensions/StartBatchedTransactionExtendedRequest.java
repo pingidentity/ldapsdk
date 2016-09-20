@@ -44,12 +44,6 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the start batched transaction
  * extended request.  It may be used to begin a transaction that allows multiple
  * write operations to be processed as a single atomic unit.  The
@@ -61,7 +55,14 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * server, the {@link EndBatchedTransactionExtendedRequest} should be used to
  * commit that transaction, or it may also be used to abort the transaction if
  * it is decided that it is no longer needed.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * Transactions processed using this mechanism are called "batched transactions"
  * because the associated requests are collected in the server and are only
  * processed once the {@link EndBatchedTransactionExtendedRequest} has been
@@ -105,14 +106,6 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * be included in the transaction if desired.  If it is no longer desirable to
  * process the transaction, then the end batched transaction request should be
  * used to abort the transaction.
- * <BR><BR>
- * This implementation of batched transactions is based on the
- * specification defined in draft-zeilenga-ldap-txn, and in particular revision
- * 11 of that draft.  However, in order to ensure API stability in both the
- * UnboundID Directory Server and the LDAP SDK for Java, this implementation
- * will not be updated to reflect changes in the draft.  In the event that the
- * draft reaches sufficient maturity level to be published as an RFC, then a
- * separate implementation will be provided that matches that specification.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for using batched

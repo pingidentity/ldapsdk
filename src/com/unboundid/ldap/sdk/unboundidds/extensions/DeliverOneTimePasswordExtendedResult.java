@@ -43,18 +43,19 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an extended result that may be used
+ * to provide information about the result of processing for a deliver one-time
+ * password extended request.  If the one-time password was delivered
+ * successfully, then this result will include information about the mechanism
+ * through which that message was delivered.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an extended result that may be used
- * to provide information about the result of processing for a deliver one-time
- * password extended request.  If the one-time password was delivered
- * successfully, then this result will include information about the mechanism
- * through which that message was delivered.
- * <BR><BR>
+ * <BR>
  * If the request was processed successfully, then the extended result will have
  * an OID of 1.3.6.1.4.1.30221.2.6.25 and a value with the following encoding:
  * <BR><BR>

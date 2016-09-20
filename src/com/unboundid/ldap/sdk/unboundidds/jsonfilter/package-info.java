@@ -22,27 +22,30 @@
 
 
 /**
+ * This package provides a number of classes that implement support for
+ * interacting with JSON objects in the Ping Identity, UnboundID, or
+ * Alcatel-Lucent 8661 Directory Server.  This primarily includes JSON object
+ * filters (which are an UnboundID-proprietary mechanism for performing advanced
+ * matching on JSON object contents), but also contains other classes in support
+ * for interacting with JSON in the Ping Identity, UnboundID, or Alcatel-Lucent
+ * 8661 Directory Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This package is part of the Commercial Edition of the
  *   UnboundID LDAP SDK for Java.  It is not available for use in applications
  *   that include only the Standard Edition of the LDAP SDK, and is not
  *   supported for use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This package provides a number of classes that implement support for
- * interacting with JSON objects in the UnboundID Directory Server.  This
- * primarily includes JSON object filters (which are an UnboundID-proprietary
- * mechanism for performing advanced matching on JSON object contents), but also
- * contains other classes in support for interacting with JSON in the UnboundID
- * Directory Server.
- * <BR><BR>
- * The UnboundID Directory Server provides a "JSON Object" attribute syntax,
- * which has an OID of "1.3.6.1.4.1.30221.2.3.4", and can be used for attribute
- * types whose values are valid JSON objects.  This attribute type supports
- * equality matching (with the jsonObjectExactMatch matching rule as described
- * below, but does not support substring or ordering matching.  To create an
- * attribute type definition that uses the JSON object syntax, use a definition
- * like the following (but with the appropriate attribute type name and a
- * non-example OID):
+ * <BR>
+ * The Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server
+ * provides a "JSON Object" attribute syntax, which has an OID of
+ * "1.3.6.1.4.1.30221.2.3.4", and can be used for attribute types whose values
+ * are valid JSON objects.  This attribute type supports equality matching
+ * (with the jsonObjectExactMatch matching rule as described below, but does not
+ * support substring or ordering matching.  To create an attribute type
+ * definition that uses the JSON object syntax, use a definition like the
+ * following (but with the appropriate attribute type name and a non-example
+ * OID):
  * <PRE>
  *   attributeTypes: ( 2.999.1.2.3.4
  *     NAME 'example-json-attribute'

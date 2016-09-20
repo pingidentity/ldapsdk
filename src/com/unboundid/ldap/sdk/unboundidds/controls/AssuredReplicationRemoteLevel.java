@@ -28,14 +28,15 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This enum defines an assurance level that may be used for servers in
+ * different locations from the server receiving the change.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This enum defines an assurance level that may be used for servers in
- * different locations from the server receiving the change.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum AssuredReplicationRemoteLevel

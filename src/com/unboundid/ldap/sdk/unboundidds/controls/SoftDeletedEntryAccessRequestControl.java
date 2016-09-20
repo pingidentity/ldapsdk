@@ -42,18 +42,19 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a request control which may be included in a search
+ * request to indicate that soft-deleted entries may be included in the results,
+ * or it may be included in a compare or modify request to indicate that the
+ * operation should operate against the target entry even if it is a
+ * soft-deleted entry.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a request control which may be included in a search
- * request to indicate that soft-deleted entries may be included in the results,
- * or it may be included in a compare or modify request to indicate that the
- * operation should operate against the target entry even if it is a
- * soft-deleted entry.
- * <BR><BR>
+ * <BR>
  * The criticality for this control may be either {@code TRUE} or {@code FALSE},
  * but this will only impact how the delete request is to be handled by servers
  * which do not support this control.  A criticality of {@code TRUE} will cause

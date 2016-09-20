@@ -34,19 +34,20 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of an LDAP control that can be used to
  * request that the Directory Server ignore the NO-USER-MODIFICATION flag for
  * attribute types.  It may be included in an add request to allow the client to
  * include attributes which are not normally allowed to be externally specified
  * (e.g., entryUUID, creatorsName, modifiersName, etc.).  This control does not
  * have a value, and there is no corresponding response control.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for attempting to perform an
  * add operation including the ignore NO-USER-MODIFICATION control so that an

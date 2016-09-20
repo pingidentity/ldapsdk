@@ -34,12 +34,6 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the account usable request control.
  * It may be included in search requests, in which case each search result entry
  * matching that request should include the corresponding response control to
@@ -49,7 +43,14 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * usable, and if not the reason for the potential failure.  See the
  * {@link AccountUsableResponseControl} for information about the information
  * that is taken into account.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This control was designed by Sun Microsystems and is not based on any RFC or
  * Internet draft.  It does not include a value.
  * <BR><BR>

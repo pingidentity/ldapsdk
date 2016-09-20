@@ -46,18 +46,19 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a request control that can be used to specify a number of
+ * settings used for any database transaction that may be associated with the
+ * associated request.  It may be included in an end transaction extended
+ * request or an atomic multi-update extended request (it is not supported for
+ * use in non-atomic multi-update requests).
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a request control that can be used to specify a number of
- * settings used for any database transaction that may be associated with the
- * associated request.  It may be included in an end transaction extended
- * request or an atomic multi-update extended request (it is not supported for
- * use in non-atomic multi-update requests).
- * <BR><BR>
+ * <BR>
  * This control has an OID of 1.3.6.1.4.1.30221.2.5.38.  It may have a
  * criticality of either {@code true} (in which case the server will reject the
  * associated operation if this control is not recognized) or {@code false} (in

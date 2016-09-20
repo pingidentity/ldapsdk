@@ -32,15 +32,16 @@ import com.unboundid.util.Validator;
 
 
 /**
+ * This class provides a data structure with information about a one-time
+ * password delivery mechanism that is supported by the Directory Server and may
+ * or may not be supported for a particular user.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure with information about a one-time
- * password delivery mechanism that is supported by the Directory Server and may
- * or may not be supported for a particular user.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

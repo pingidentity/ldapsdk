@@ -42,19 +42,20 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a request control that can be used by the client to
  * identify the purpose of the associated operation.  It can be used in
  * conjunction with any kind of operation, and may be used to provide
  * information about the reason for that operation, as well as about the client
  * application used to generate the request.  This may be very useful for
  * debugging and auditing purposes.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The criticality for this control may be either {@code true} or {@code false}.
  * It must have a value with the following encoding:
  * <PRE>

@@ -43,18 +43,19 @@ import com.unboundid.util.json.JSONValue;
 
 
 /**
+ * This class provides an implementation of a JSON object filter that can
+ * perform a logical AND across the result obtained from a number of filters.
+ * The AND filter will match an object only if all of the filters contained in
+ * it match that object.  An AND filter with an empty set of embedded filters
+ * will match any object.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a JSON object filter that can
- * perform a logical AND across the result obtained from a number of filters.
- * The AND filter will match an object only if all of the filters contained in
- * it match that object.  An AND filter with an empty set of embedded filters
- * will match any object.
- * <BR><BR>
+ * <BR>
  * The fields that are required to be included in an "AND" filter are:
  * <UL>
  *   <LI>

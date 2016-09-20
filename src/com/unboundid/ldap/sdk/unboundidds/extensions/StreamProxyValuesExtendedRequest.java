@@ -50,17 +50,20 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides an implementation of the stream proxy values extended
+ * request as used in the Ping Identity, UnboundID, Alcatel-Lucent 8661
+ * Directory Proxy Server.  It may be used to obtain all entry DNs and/or all
+ * values for one or more attributes for a specified portion of the DIT.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the stream proxy values extended
- * request as used in the UnboundID Directory Proxy Server.  It may be used to
- * obtain all entry DNs and/or all values for one or more attributes for a
- * specified portion of the DIT.  This extended request has an OID of
- * "1.3.6.1.4.1.30221.2.6.8" and the value is encoded as follows:
+ * <BR>
+ * This extended request has an OID of "1.3.6.1.4.1.30221.2.6.8" and the value
+ * is encoded as follows:
  * <PRE>
  *   StreamProxyValuesRequest ::= SEQUENCE {
  *        baseDN                [0] LDAPDN,

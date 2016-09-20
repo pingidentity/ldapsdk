@@ -38,15 +38,16 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
+ * This class defines a monitor entry that provides summary information about
+ * a replicated data set within the Directory Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides summary information about
- * a replicated data set within the Directory Server.
- * <BR><BR>
+ * <BR>
  * The server will present a replication summary monitor entry for each base DN
  * for which replication is enabled, and it will include information about each
  * replica and replication server processing changes for that base DN.

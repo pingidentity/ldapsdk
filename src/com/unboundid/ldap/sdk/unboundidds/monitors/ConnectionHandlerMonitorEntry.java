@@ -37,15 +37,18 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
+ * This class defines a monitor entry that provides general information about a
+ * Directory Server connection handler.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides general information about a
- * Directory Server connection handler.  Information that may be available in
- * a connection handler monitor entry includes:
+ * <BR>
+ * Information that may be available in a connection handler monitor entry
+ * includes:
  * <UL>
  *   <LI>The total number of connections that are established.</LI>
  *   <LI>The protocol that the connection handler uses to communicate with

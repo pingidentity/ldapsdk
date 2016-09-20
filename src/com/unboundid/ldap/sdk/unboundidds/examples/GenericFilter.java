@@ -36,14 +36,17 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides a data structure for representing search filters in a
+ * generic way.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure for representing search filters in a
- * generic way.  This includes:
+ * <BR>
+ * This includes:
  * <UL>
  *   <LI>Using a consistent order for AND and OR components.</LI>
  *   <LI>Converting all attribute names to lowercase.</LI>

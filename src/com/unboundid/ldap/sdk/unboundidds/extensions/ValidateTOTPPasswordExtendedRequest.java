@@ -41,19 +41,20 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of an extended request which may be
  * used to validate a TOTP password for a user.  Note that this should not be
  * used as an alternative to authentication because it does not perform password
  * policy processing.  Rather, this extended operation should be used only to
  * obtain additional assurance about the identity of a user that has already
  * been authenticated through some other means.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The extended request has an OID of 1.3.6.1.4.1.30221.2.6.15 and a value with
  * the following encoding:
  * <PRE>

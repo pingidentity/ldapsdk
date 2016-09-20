@@ -41,18 +41,19 @@ import com.unboundid.util.Validator;
 
 
 /**
+ * This class provides support for an UnboundID-proprietary SASL mechanism that
+ * uses the time-based one-time password mechanism (TOTP) as described in
+ * <A HREF="http://www.ietf.org/rfc/rfc6238.txt">RFC 6238</A>, optionally (based
+ * on the server configuration) in conjunction with a static password for a form
+ * of multifactor authentication.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides support for an UnboundID-proprietary SASL mechanism that
- * uses the time-based one-time password mechanism (TOTP) as described in
- * <A HREF="http://www.ietf.org/rfc/rfc6238.txt">RFC 6238</A>, optionally (based
- * on the server configuration) in conjunction with a static password for a form
- * of multifactor authentication.
- * <BR><BR>
+ * <BR>
  * The name for this SASL mechanism is "UNBOUNDID-TOTP".  An UNBOUNDID-TOTP SASL
  * bind request MUST include SASL credentials with the following ASN.1 encoding:
  * <BR><BR>

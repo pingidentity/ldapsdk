@@ -185,8 +185,8 @@ import static com.unboundid.util.Validator.*;
  *     connection (unless you are certain that the bind will not impact the
  *     identity of the associated connection, for example by including the
  *     retain identity request control in the bind request if using the
- *     Commercial Edition of the LDAP SDK in conjunction with an UnboundID
- *     Directory Server).
+ *     Commercial Edition of the LDAP SDK in conjunction with a Ping Identity,
+ *     UnboundID, or Alcatel-Lucent 8661 Directory Server).
  *   </LI>
  *   <LI>
  *     Attempting to make a change to the way that the underlying communication
@@ -2066,9 +2066,10 @@ public final class LDAPConnection
    * request is one that will not cause the server to attempt to change the
    * identity of this connection, for example by including the retain identity
    * request control in the bind request if using the Commercial Edition of the
-   * LDAP SDK in conjunction with an UnboundID Directory Server).  It is
-   * recommended that all active operations be abandoned, canceled, or allowed
-   * to complete before attempting to perform a bind on an active connection.
+   * LDAP SDK in conjunction with a Ping Identity, UnboundID, or Alcatel-Lucent
+   * 8661 Directory Server).  It is recommended that all active operations be
+   * abandoned, canceled, or allowed to complete before attempting to perform a
+   * bind on an active connection.
    *
    * @param  bindDN    The bind DN for the bind operation.
    * @param  password  The password for the simple bind operation.
@@ -2100,9 +2101,10 @@ public final class LDAPConnection
    * request is one that will not cause the server to attempt to change the
    * identity of this connection, for example by including the retain identity
    * request control in the bind request if using the Commercial Edition of the
-   * LDAP SDK in conjunction with an UnboundID Directory Server).  It is
-   * recommended that all active operations be abandoned, canceled, or allowed
-   * to complete before attempting to perform a bind on an active connection.
+   * LDAP SDK in conjunction with a Ping Identity, UnboundID, or Alcatel-Lucent
+   * 8661 Directory Server).  It is recommended that all active operations be
+   * abandoned, canceled, or allowed to complete before attempting to perform a
+   * bind on an active connection.
    *
    * @param  bindRequest  The bind request to be processed.  It must not be
    *                      {@code null}.

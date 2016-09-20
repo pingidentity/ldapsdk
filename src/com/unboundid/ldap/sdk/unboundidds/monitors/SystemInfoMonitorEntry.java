@@ -38,15 +38,17 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
+ * This class defines a monitor entry that provides information about the system
+ * and JVM on which the Directory Server is running.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides information about the system
- * and JVM on which the Directory Server is running.  In particular, the
- * information that may be available includes:
+ * <BR>
+ * The information that may be available includes:
  * <UL>
  *   <LI>The name of the operating system on which the server is running.</LI>
  *   <LI>The number of CPUs available to the JVM.</LI>

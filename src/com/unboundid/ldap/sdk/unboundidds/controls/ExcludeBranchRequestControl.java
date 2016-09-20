@@ -47,18 +47,19 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a request control which may be used to request that
+ * entries below one or more base DNs be excluded from the results returned to
+ * a client while processing a search operation.  For example, this may be
+ * useful in cases where you want to perform a search below "dc=example,dc=com",
+ * but want to exclude all entries below "ou=private,dc=example,dc=com".
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a request control which may be used to request that
- * entries below one or more base DNs be excluded from the results returned to
- * a client while processing a search operation.  For example, this may be
- * useful in cases where you want to perform a search below "dc=example,dc=com",
- * but want to exclude all entries below "ou=private,dc=example,dc=com".
- * <BR><BR>
+ * <BR>
  * The criticality for this control may be either {@code true} or {@code false}.
  * It must have a value with the following encoding:
  * <PRE>

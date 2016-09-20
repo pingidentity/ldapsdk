@@ -37,16 +37,17 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides a data structure for providing information about the data
+ * presented in an attribute in a Directory Server monitor entry.  It includes
+ * a human-readable display name, a human-readable description, a class that
+ * represents the data type for the values, and the set of values.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure for providing information about the data
- * presented in an attribute in a Directory Server monitor entry.  It includes
- * a human-readable display name, a human-readable description, a class that
- * represents the data type for the values, and the set of values.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

@@ -36,18 +36,19 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an extended request that can be used
+ * to retrieve a list of all available versions of the configuration within a
+ * server.  This may include not only the currently-active configuration, but
+ * also former configurations that have been archived, and the baseline
+ * configuration for the current server version.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an extended request that can be used
- * to retrieve a list of all available versions of the configuration within a
- * server.  This may include not only the currently-active configuration, but
- * also former configurations that have been archived, and the baseline
- * configuration for the current server version.
- * <BR><BR>
+ * <BR>
  * The OID for this extended request is 1.3.6.1.4.1.30221.2.6.26.  It does not
  * have a value.
  * <BR><BR>

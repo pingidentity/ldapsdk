@@ -44,16 +44,17 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a data structure that holds information about the result
+ * of attempting validation with a proposed password against a password quality
+ * requirement.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure that holds information about the result
- * of attempting validation with a proposed password against a password quality
- * requirement.
- * <BR><BR>
+ * <BR>
  * If it appears in an LDAP protocol element (e.g., in a password validation
  * details response control), then the password quality validation result object
  * should have the following ASN.1 encoding:

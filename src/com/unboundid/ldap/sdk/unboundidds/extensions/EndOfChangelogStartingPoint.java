@@ -31,16 +31,17 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides an implementation of a changelog batch starting point
+ * which may be used to start a batch of changes at the end of the changelog.
+ * The first change of the batch will be the next change processed on any of the
+ * servers in the replication topology.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a changelog batch starting point
- * which may be used to start a batch of changes at the end of the changelog.
- * The first change of the batch will be the next change processed on any of the
- * servers in the replication topology.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

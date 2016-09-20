@@ -42,17 +42,18 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides an implementation of the end interactive transaction
+ * extended request.  It may be used to either commit or abort a transaction
+ * that was created using the start interactive transaction request.  See the
+ * documentation in the {@link StartInteractiveTransactionExtendedRequest} for
+ * an example of processing an interactive transaction.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the end interactive transaction
- * extended request.  It may be used to either commit or abort a transaction
- * that was created using the start interactive transaction request.  See the
- * documentation in the {@link StartInteractiveTransactionExtendedRequest} for
- * an example of processing an interactive transaction.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

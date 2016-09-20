@@ -43,17 +43,20 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class defines a monitor entry that provides information about the memory
+ * usage for the JVM in which the Directory Server is running.  In particular,
+ * it reports information about the memory pools and garbage collectors defined
+ * in the JVM.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides information about the memory
- * usage for the JVM in which the Directory Server is running.  In particular,
- * it reports information about the memory pools and garbage collectors defined
- * in the JVM.  The information that may be available in the memory usage
- * monitor entry includes:
+ * <BR>
+ * The information that may be available in the memory usage monitor entry
+ * includes:
  * <UL>
  *   <LI>The names of the memory pools that are in use within the JVM.</LI>
  *   <LI>The number of bytes currently used within each memory pool.</LI>

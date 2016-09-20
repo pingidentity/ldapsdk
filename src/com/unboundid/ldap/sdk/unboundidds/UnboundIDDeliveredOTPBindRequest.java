@@ -51,18 +51,19 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 /**
+ * This class provides support for an UnboundID-proprietary SASL mechanism that
+ * allows for multifactor authentication using a one-time password that has been
+ * delivered to the user via some out-of-band mechanism as triggered by the
+ * {@link DeliverOneTimePasswordExtendedRequest} (which requires the user to
+ * provide an authentication ID and a static password).
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides support for an UnboundID-proprietary SASL mechanism that
- * allows for multifactor authentication using a one-time password that has been
- * delivered to the user via some out-of-band mechanism as triggered by the
- * {@link DeliverOneTimePasswordExtendedRequest} (which requires the user to
- * provide an authentication ID and a static password).
- * <BR><BR>
+ * <BR>
  * The name for this SASL mechanism is "UNBOUNDID-DELIVERED-OTP".  An
  * UNBOUNDID-DELIVERED-OTP SASL bind request MUST include SASL credentials with
  * the following ASN.1 encoding:

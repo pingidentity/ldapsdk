@@ -22,18 +22,19 @@
 
 
 /**
+ * This package contains sample programs that demonstrate the use of the
+ * UnboundID LDAP SDK for Java, and in particular portions of the LDAP SDK which
+ * are only available in the Commercial Edition.  See the
+ * com.unboundid.ldap.sdk.examples package for a set of examples that use only
+ * features found in the Standard Edition.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This package is part of the Commercial Edition of the
  *   UnboundID LDAP SDK for Java.  It is not available for use in applications
  *   that include only the Standard Edition of the LDAP SDK, and is not
  *   supported for use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This package contains sample programs that demonstrate the use of the
- * UnboundID LDAP SDK for Java, and in particular portions of the LDAP SDK which
- * are only available in the Commercial Edition.  See the
- * com.unboundid.ldap.sdk.examples package for a set of examples that use only
- * features found in the Standard Edition.
- * <BR><BR>
+ * <BR>
  * Note that the scope of these programs has been intentionally kept small so
  * that they are easier to understand, even though this may limit the real-world
  * usefulness of these examples.  Further, these programs do not include

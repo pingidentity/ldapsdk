@@ -28,16 +28,17 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This enum specifies the modes in which the get password quality requirements
+ * extended operation may determine the type of password update operation that
+ * will be performed and the way in which the server should determine which
+ * password policy to use in order to obtain the password quality requirements.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This enum specifies the modes in which the get password quality requirements
- * extended operation may determine the type of password update operation that
- * will be performed and the way in which the server should determine which
- * password policy to use in order to obtain the password quality requirements.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum GetPasswordQualityRequirementsTargetType

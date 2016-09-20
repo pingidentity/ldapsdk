@@ -40,17 +40,18 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class defines a monitor entry that provides information about the state
+ * of a replication server, including the base DNs for replicated content, the
+ * generation ID for each of those base DNs, the replication server ID, and the
+ * port number on which the replication server is listening.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides information about the state
- * of a replication server, including the base DNs for replicated content, the
- * generation ID for each of those base DNs, the replication server ID, and the
- * port number on which the replication server is listening.
- * <BR><BR>
+ * <BR>
  * The server should present at most one replication server monitor entry.  It
  * can be retrieved using the
  * {@link MonitorManager#getReplicationServerMonitorEntry} method.  This entry

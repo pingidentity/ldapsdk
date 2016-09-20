@@ -29,17 +29,15 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * An enum that defines the possible values that may be used for the
+ * {@code expectedType} element of a {@link ContainsFieldJSONObjectFilter}.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * An enum that defines the possible values that may be used for the
- * {@code expectedType} element
- *
- * An enum defining the possible values for the expected data types for the
- * value of a given field.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum ExpectedValueType

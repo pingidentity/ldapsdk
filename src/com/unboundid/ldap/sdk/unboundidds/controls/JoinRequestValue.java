@@ -48,17 +48,18 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class contains a data structure which provides information about the
+ * value of an LDAP join request control, which may or may not include a nested
+ * join.  See the class-level documentation for the {@link JoinRequestControl}
+ * class for additional information and an example demonstrating its use.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class contains a data structure which provides information about the
- * value of an LDAP join request control, which may or may not include a nested
- * join.  See the class-level documentation for the {@link JoinRequestControl}
- * class for additional information and an example demonstrating its use.
- * <BR><BR>
+ * <BR>
  * The value of the join request control is encoded as follows:
  * <PRE>
  *   LDAPJoin ::= SEQUENCE {
@@ -167,7 +168,7 @@ public final class JoinRequestValue
   // The filter for this join request value.
   private final Filter filter;
 
-  // The size limit for this join request value.
+  // The client-requested size limit for this join request value.
   private final Integer sizeLimit;
 
   // The base DN to use for this join request value.
@@ -201,10 +202,13 @@ public final class JoinRequestValue
    *                       value.  It may be {@code null} if the dereference
    *                       policy from the associated search request should be
    *                       used.
-   * @param  sizeLimit     The maximum number of entries to allow when
-   *                       performing the join.  It may be {@code null} if the
-   *                       size limit from the associated search request should
-   *                       be used.
+   * @param  sizeLimit     The client-requested maximum number of entries to
+   *                       allow when performing the join.  It may be
+   *                       {@code null} if the size limit from the associated
+   *                       search request should be used.  Note that the server
+   *                       will impose a maximum size limit of 1000 entries, so
+   *                       size limit values greater than 1000 will be limited
+   *                       to 1000.
    * @param  filter        An additional filter which must match target entries
    *                       for them to be included in the join.  This may be
    *                       {@code null} if no additional filter is required and
@@ -309,7 +313,10 @@ public final class JoinRequestValue
 
 
   /**
-   * Retrieves the size limit for this join request value.
+   * Retrieves the client-requested size limit for this join request value.
+   * Note that the server will impose a maximum size limit of 1000 entries, so
+   * if the client-requested size limit is greater than 1000, the server will
+   * limit it to 1000 entries.
    *
    * @return  The size limit for this join request value, or {@code null} if the
    *          size limit from the associated search request should be used.

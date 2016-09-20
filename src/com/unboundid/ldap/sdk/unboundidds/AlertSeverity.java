@@ -29,14 +29,15 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides information about the types of alert severities that may
+ * be included in alert entries.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides information about the types of alert severities that may
- * be included in alert entries.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum AlertSeverity

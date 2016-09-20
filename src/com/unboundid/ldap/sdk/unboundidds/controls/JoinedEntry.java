@@ -47,18 +47,19 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides a joined entry, which is a read-only representation of an
+ * entry that has been joined with a search result entry using the LDAP join
+ * control.  See the class-level documentation for the
+ * {@link JoinRequestControl} class for additional information and an example
+ * demonstrating its use.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a joined entry, which is a read-only representation of an
- * entry that has been joined with a search result entry using the LDAP join
- * control.  See the class-level documentation for the
- * {@link JoinRequestControl} class for additional information and an example
- * demonstrating its use.
- * <BR><BR>
+ * <BR>
  * Joined entries are encoded as follows:
  * <PRE>
  *   JoinedEntry ::= SEQUENCE {

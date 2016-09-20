@@ -49,18 +49,19 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an extended result that can provide
+ * information about the requirements that the server will enforce for
+ * operations that change or replace a user's password, including adding a new
+ * user, a user changing his/her own password, and an administrator resetting
+ * another user's password.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an extended result that can provide
- * information about the requirements that the server will enforce for
- * operations that change or replace a user's password, including adding a new
- * user, a user changing his/her own password, and an administrator resetting
- * another user's password.
- * <BR><BR>
+ * <BR>
  * If the get password quality request was processed successfully, then the
  * result will include an OID of 1.3.6.1.4.1.30221.2.6.44 and a value with the
  * following encoding:

@@ -39,19 +39,20 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of the get connection ID extended
+ * operation as used in the Ping Identity, UnboundID, and Alcatel-Lucent 8661
+ * Directory Server.  It may be used to obtain the connection ID associated with
+ * the current connection.  This is primarily useful for debugging purposes, and
+ * the {@link IntermediateClientRequestControl} may also be used to obtain this
+ * (along with other information).
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the get connection ID extended
- * operation as used in the UnboundID Directory Server.  It may be used to
- * obtain the connection ID associated with the current connection.  This is
- * primarily useful for debugging purposes, and the
- * {@link IntermediateClientRequestControl} may also be used to obtain this
- * (along with other information).
- * <BR><BR>
+ * <BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for using the get connection
  * ID extended operation:

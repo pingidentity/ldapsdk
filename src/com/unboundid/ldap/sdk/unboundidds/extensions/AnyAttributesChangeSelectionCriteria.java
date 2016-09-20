@@ -45,17 +45,18 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of a get changelog batch change
+ * selection criteria value that indicates that the server should only return
+ * changes which target one or more of the specified attributes.  The changes
+ * may target other attributes as well, but at least one of the associated
+ * attributes must be included in the change.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a get changelog batch change
- * selection criteria value that indicates that the server should only return
- * changes which target one or more of the specified attributes.  The changes
- * may target other attributes as well, but at least one of the associated
- * attributes must be included in the change.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

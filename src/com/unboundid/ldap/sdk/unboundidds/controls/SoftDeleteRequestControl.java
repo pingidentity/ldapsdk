@@ -43,12 +43,6 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a request control which may be included in a delete
  * request to indicate that the server should perform a soft delete rather than
  * a hard delete.  A soft delete will leave the entry in the server, but will
@@ -58,7 +52,14 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * A soft-deleted entry may later be undeleted (using an add request containing
  * the {@link UndeleteRequestControl}) in order to restore them with the same or
  * a different DN.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The criticality for this control may be either {@code TRUE} or {@code FALSE},
  * but this will only impact how the delete request is to be handled by servers
  * which do not support this control.  A criticality of {@code TRUE} will cause

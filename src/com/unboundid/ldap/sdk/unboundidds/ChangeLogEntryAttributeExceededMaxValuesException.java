@@ -30,16 +30,17 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides an exception that may be thrown when attempting to obtain
+ * the value of an updated attribute as it appeared before or after a change
+ * was processed, but the number of values for that attribute exceeded the
+ * maximum number to include in a changelog entry.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an exception that may be thrown when attempting to obtain
- * the value of an updated attribute as it appeared before or after a change
- * was processed, but the number of values for that attribute exceeded the
- * maximum number to include in a changelog entry.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

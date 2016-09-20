@@ -45,16 +45,35 @@ import static com.unboundid.util.StaticUtils.*;
 
 /**
  * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
+ *   <B>NOTE:</B>  The use of interactive transactions is discouraged because it
+ *   can create conditions which are prone to deadlocks between operations that
+ *   may result in the cancellation of one or both operations.  It is strongly
+ *   recommended that standard LDAP transactions (which may be started using a
+ *   {@link com.unboundid.ldap.sdk.extensions.StartTransactionExtendedRequest})
+ *   or a multi-update extended operation be used instead.  Although they cannot
+ *   include arbitrary read operations, LDAP transactions and multi-update
+ *   operations may be used in conjunction with the
+ *   {@link com.unboundid.ldap.sdk.controls.AssertionRequestControl},
+ *   {@link com.unboundid.ldap.sdk.controls.PreReadRequestControl}, and
+ *   {@link com.unboundid.ldap.sdk.controls.PostReadRequestControl} to
+ *   incorporate some read capability into a transaction, and in conjunction
+ *   with the {@link com.unboundid.ldap.sdk.ModificationType#INCREMENT}
+ *   modification type to increment integer values without the need to know the
+ *   precise value before or after the operation (although the pre-read and/or
+ *   post-read controls may be used to determine that).
  * </BLOCKQUOTE>
  * This class implements a data structure for storing the information from an
  * extended result for the start interactive transaction extended request.  It
  * is able to decode a generic extended result to extract the transaction ID and
  * base DNs that it may contain, if the operation was successful.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * See the documentation for the
  * {@link StartInteractiveTransactionExtendedRequest} class for an example that
  * demonstrates the use of interactive transactions.

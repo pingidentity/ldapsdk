@@ -44,17 +44,18 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class provides a set of methods for retrieving Directory Server monitor
+ * entries.  In particular, it provides methods for retrieving all monitor
+ * entries from the server, as well as retrieving monitor entries of specific
+ * types.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a set of methods for retrieving Directory Server monitor
- * entries.  In particular, it provides methods for retrieving all monitor
- * entries from the server, as well as retrieving monitor entries of specific
- * types.
- * <BR><BR>
+ * <BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for retrieving all monitor
  * entries published by the directory server and printing the information

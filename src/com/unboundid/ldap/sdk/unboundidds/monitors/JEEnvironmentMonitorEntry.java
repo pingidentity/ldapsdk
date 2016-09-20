@@ -40,15 +40,17 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class defines a monitor entry that provides basic information about the
+ * Berkeley DB Java Edition environment in use for a backend.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides basic information about the
- * Berkeley DB Java Edition environment in use for a backend.  The information
- * that is provided includes:
+ * <BR>
+ * The information that is provided includes:
  * <UL>
  *   <LI>The backend ID for the associated backend.</LI>
  *   <LI>The version string for the Berkeley DB Java Edition library.</LI>

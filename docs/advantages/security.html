@@ -193,10 +193,11 @@ ${TARGET="offline"}                    <br>
 
               <p>
                 The UnboundID LDAP SDK for Java also provides enhanced password policy interaction
-                when it is used to communicate with an UnboundID Directory Server instance.  Note,
-                however, that these capabilities are not fully standardized and therefore they may
-                not work with other servers and are only supported when interacting with an
-                UnboundID server.  These additional capabilities include:
+                when it is used to communicate with a Ping Identity, UnboundID, or Alcatel-Lucent
+                8661 Directory Server instance.  Note, however, that these capabilities are not
+                fully standardized and therefore they may not work with other servers and are only
+                supported when interacting with Ping Identity, UnboundID, and Alcatel-Lucent 8661
+                servers.  These additional capabilities include:
               </p>
 
               <ul>
@@ -277,26 +278,11 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
-                  Batched Transactions (based on draft-zeilenga-ldap-txn) -- This specification
-                  defines a pair of extended operations and a control that may be used to allow
-                  multiple write operations to be processed using the same transaction and
-                  therefore applied atomically.  Neither JNDI nor the Netscape Directory SDK for
-                  Java include support for this capability.  Note, however, that because this
-                  specification has not yet been fully standardized, it is extremely unlike that
-                  the implementation included in the UnboundID LDAP SDK for Java will work with any
-                  server other than the UnboundID Directory Server.  As such, it is only available
-                  in the Commercial Edition of the LDAP SDK for Java.
-                  <br><br>
-                </li>
-
-                <li>
-                  Interactive Transactions (UnboundID-specific) -- This allows a client to request
-                  that multiple operations, including both write operations (like add, delete,
-                  modify, and modify DN) and read operations (like search and compare), be
-                  performed as a single atomic unit using a transaction.  Neither JNDI nor the
-                  Netscape Directory SDK for Java provide support for this capability.  This
-                  capability is only available in the Commercial Edition of the LDAP SDK for Java
-                  and may only be used with the UnboundID Directory Server.
+                  LDAP transactions (RFC 5805) -- This specification defines a pair of extended
+                  operations and a control that may be used to allow multiple write operations to
+                  be processed using the same transaction and therefore applied atomically.
+                  Neither JNDI nor the Netscape Directory SDK for Java include support for this
+                  capability.
                   <br><br>
                 </li>
               </ul>
@@ -391,5 +377,6 @@ Filter filter = Filter.createANDFilter(
 
               <p>
                 Note that the get effective rights control is only supported for use in conjunction
-                with the UnboundID Directory Server.
+                with the Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server
+                products.
               </p>

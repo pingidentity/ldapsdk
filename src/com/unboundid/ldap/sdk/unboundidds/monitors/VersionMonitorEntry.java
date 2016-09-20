@@ -36,15 +36,17 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
+ * This class defines a monitor entry that provides general information about
+ * the Directory Server version.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides general information about
- * the Directory Server version.  Information that it may make available
- * includes:
+ * <BR>
+ * Information that it may make available includes:
  * <UL>
  *   <LI>The full Directory Server version string, which may contain
  *       spaces.</LI>
@@ -493,7 +495,7 @@ public final class VersionMonitorEntry
 
 
   /**
-   * Retrieves the Directory Server product name (e.g., "UnboundID Directory
+   * Retrieves the Directory Server product name (e.g., "Ping Identity Directory
    * Server").
    *
    * @return  The Directory Server product name, or {@code null} if it was not
@@ -535,7 +537,8 @@ public final class VersionMonitorEntry
 
 
   /**
-   * Retrieves the Directory Server short product name (e.g., "UnboundID-DS").
+   * Retrieves the Directory Server short product name (e.g.,
+   * "Ping-Identity-DS").
    *
    * @return  The Directory Server short product name, or {@code null} if it was
    *          not included in the monitor entry.

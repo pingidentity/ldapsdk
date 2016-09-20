@@ -19,6 +19,93 @@ ${TARGET="offline"}                    <br>
                 <a href="../release-notes.html">Standard Edition Release Notes</a>.
               </p>
 
+              <h3>Version 3.2.0</h3>
+
+              <p>
+                The following changes were made between the 3.1.1 and 3.2.0 releases of the
+                Commercial Edition:
+              </p>
+
+              <ul>
+                <li>
+                  Added a version of the <tt>ldapmodify</tt> tool with support for a wide range of
+                  features, including a wide range of controls, LDAP transactions and multi-update
+                  operations, following referrals, bulk operation processing, rate limiting, and
+                  automatically retrying operations that fail in a manner that indicates the
+                  connection may no longer be usable.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>manage-account</tt> tool that can be used to perform a large
+                  number of password policy state operations on a specified user entries, or on
+                  sets of user entries.  This tool is completely backwards-compatible with the
+                  <tt>manage-account</tt> tool formerly provided with UnboundID server products
+                  (and in fact, that tool has now been replaced with the version included in the
+                  LDAP SDK), but the new tool provides support for many more operations, and much
+                  better support for bulk operations that target multiple users instead of just
+                  one.  The LDAP SDK's support for the password policy state extended operation
+                  has also been updated to make it possible to take advantage of a number of new
+                  operation types.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a new <tt>split-ldif</tt> tool that can be used to split a single LDIF
+                  file so that entries below a given base DN are split into multiple distinct
+                  sets.  This may be useful for preparing data for use with the Directory Proxy
+                  Server in an entry-balancing deployment.  The data may be split according to a
+                  number of types of criteria.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for a new task that can be used to trigger the rotation of one
+                  or more server log files.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for "generate TOTP shared secret" and "revoke TOTP shared secret"
+                  extended operations, which can be used to help automate the process of
+                  configuring a user account to support two-factor authentication with the
+                  UNBOUNDID-TOTP SASL mechanism.  A new <tt>generate-totp-secret</tt> command-line
+                  tool is also provided, which can be used to invoke these extended operations from
+                  the command line.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for the UNBOUNDID-EXTERNALLY-PROCESSED-AUTHENTICATION SASL
+                  mechanism, which can be used to indicate that a user has attempted to
+                  authenticate through some mechanism that is external to the Directory Server,
+                  but allows the server to override a successful authentication attempt to
+                  indicate a failure (e.g., if the user's account is in an unusable state, like
+                  being disabled or locked, or having an expired password), or to perform any
+                  appropriate state processing (e.g., to update the last login time and IP address
+                  for a successful authentication, or the failure count for a failed attempt).
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for parsing the new index monitor attributes used for counting
+                  keys near and over the index entry limit that have been accessed while
+                  processing search and update operations.  Also updated the log parsing API to
+                  support parsing the corresponding elements from access log messages.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the <tt>summarize-access-log</tt> tool that could cause it to
+                  take a very long time to process log messages for search operations with certain
+                  types of very deeply-nested filters.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 3.1.1</h3>
 
               <p>

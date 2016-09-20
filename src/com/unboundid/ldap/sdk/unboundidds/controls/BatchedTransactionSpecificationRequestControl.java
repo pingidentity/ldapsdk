@@ -45,12 +45,6 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the batched transaction
  * specification request control, which may be used to indicate that the
  * associated add, delete, modify, modify DN, or password modify operation is
@@ -58,7 +52,14 @@ import static com.unboundid.util.Validator.*;
  * start batched transaction extended operation, which will obtain a transaction
  * ID, and the transaction may be committed or aborted using the end batched
  * transaction extended operation.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * Note that directory servers may limit the set of controls that are available
  * for use in requests that are part of a transaction.  RFC 5805 section 4
  * indicates that the following controls may be used in conjunction with the
@@ -72,9 +73,9 @@ import static com.unboundid.util.Validator.*;
  * operations within the transaction should be processed with the specified
  * authorization identity.
  * <BR><BR>
- * The UnboundID Directory Server supports the following additional
- * UnboundID-specific controls in conjunction with operations included in a
- * transaction:  {@link AccountUsableRequestControl},
+ * The Ping Identity, UnboundID, and Alcatel-Lucent 8661 server products support
+ * the following additional UnboundID-specific controls in conjunction with
+ * operations included in a transaction:  {@link AccountUsableRequestControl},
  * {@link HardDeleteRequestControl}, {@link IntermediateClientRequestControl},
  * {@link PasswordPolicyRequestControl},
  * {@link ReplicationRepairRequestControl}, {@link SoftDeleteRequestControl},

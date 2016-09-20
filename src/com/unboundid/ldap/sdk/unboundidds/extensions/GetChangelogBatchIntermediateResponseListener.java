@@ -33,15 +33,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides an intermediate response listener that will be used to
+ * process entries and other types of intermediate responses returned during the
+ * course of processing a get changelog batch extended operation.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an intermediate response listener that will be used to
- * process entries and other types of intermediate responses returned during the
- * course of processing a get changelog batch extended operation.
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 final class GetChangelogBatchIntermediateResponseListener

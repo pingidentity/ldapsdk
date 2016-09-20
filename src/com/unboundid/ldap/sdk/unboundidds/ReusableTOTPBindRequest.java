@@ -38,12 +38,6 @@ import com.unboundid.util.Validator;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the UNBOUNDID-TOTP SASL bind request
  * that may be used to repeatedly generate one-time password values.  Because it
  * is configured with the shared secret rather than a point-in-time version of
@@ -53,7 +47,14 @@ import com.unboundid.util.Validator;
  * secret is not known and the one-time password will be provided from an
  * external source (e.g., entered by a user), then the
  * {@link SingleUseTOTPBindRequest} variant should be used instead.
-  */
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class ReusableTOTPBindRequest

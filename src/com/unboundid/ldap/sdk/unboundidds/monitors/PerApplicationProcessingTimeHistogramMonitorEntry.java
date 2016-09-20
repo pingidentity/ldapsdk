@@ -36,19 +36,20 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class defines a monitor entry that provides information about the
  * processing times of operations that are performed in the server in the
  * context of a single application.  It derives most of its functionality
  * from its parent class, {@link ProcessingTimeHistogramMonitorEntry}.  The
  * only additional information that is provided is the name of the application
  * to which the monitor entry applies.
- * <P>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The server can present zero or more per application processing time
  * histogram monitor entries.  They can be retrieved using the
  * {@link MonitorManager#getPerApplicationProcessingTimeHistogramMonitorEntries}

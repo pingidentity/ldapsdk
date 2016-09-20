@@ -40,16 +40,19 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an intermediate response which
+ * indicates that the Directory Server may have already purged information about
+ * one or more changes.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an intermediate response which
- * indicates that the Directory Server may have already purged information about
- * one or more changes.  The missing changelog entries intermediate response
- * value may be present, and if it is then it will have the following encoding:
+ * <BR>
+ * The missing changelog entries intermediate response value may be present, and
+ * if it is then it will have the following encoding:
  * <PRE>
  *   MissingEntriesIntermediateResponse ::= SEQUENCE {
  *        message     [0] OCTET STRING OPTIONAL,

@@ -51,12 +51,6 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of an extended request that can be used
  * to trigger the delivery of a temporary single-use token to a specified user
  * via some out-of-band mechanism.  It can be used for security purposes
@@ -65,7 +59,14 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * or SMS messages at a given phone number), or for other purposes in which it
  * could be useful to deliver and consume a token through some out-of-band
  * mechanism.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This extended request has an OID of "1.3.6.1.4.1.30221.2.6.49" and it must
  * have a value with the following encoding:
  * <PRE>

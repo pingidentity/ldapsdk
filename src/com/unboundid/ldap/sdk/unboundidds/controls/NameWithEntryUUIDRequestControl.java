@@ -34,12 +34,6 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the name with entryUUID request
  * control.  It may be included in an add request to indicate that the server
  * should replace the provided RDN with the server-generated entryUUID value.
@@ -52,7 +46,14 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * that request control.  Otherwise, the server will behave as if the request
  * had included a post-read request control requesting only the entryUUID
  * attribute.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This control has an OID of "1.3.6.1.4.1.30221.2.5.44".  It is recommended
  * that it be used with a criticality of {@code true}.  It does not take a
  * value.

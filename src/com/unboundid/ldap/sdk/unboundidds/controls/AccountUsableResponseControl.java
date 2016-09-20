@@ -47,16 +47,17 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides an implementation of the account usable response control,
+ * which may be returned with search result entries to provide information about
+ * the usability of the associated user accounts.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the account usable response control,
- * which may be returned with search result entries to provide information about
- * the usability of the associated user accounts.
- * <BR><BR>
+ * <BR>
  * Information that may be included in the account usable response control
  * includes:
  * <UL>

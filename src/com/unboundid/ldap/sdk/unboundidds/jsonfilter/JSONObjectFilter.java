@@ -49,21 +49,24 @@ import static com.unboundid.ldap.sdk.unboundidds.jsonfilter.JFMessages.*;
 
 
 /**
+ * This class defines the base class for all JSON object filter types, which are
+ * used to perform matching against JSON objects stored in a Ping Identity,
+ * UnboundID, or Alcatel-Lucent 8661 Directory Server via the
+ * jsonObjectFilterExtensibleMatch matching rule.  The
+ * {@link #toLDAPFilter(String)} method can be used to easily create an LDAP
+ * filter from a JSON object filter.  This filter will have an attribute type
+ * that is the name of an attribute with the JSON object syntax, a matching rule
+ * ID of "jsonObjectFilterExtensibleMatch", and an assertion value that is the
+ * string representation of the JSON object that comprises the filter.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines the base class for all JSON object filter types, which are
- * used to perform matching against JSON objects stored in an UnboundID
- * Directory Server via the jsonObjectFilterExtensibleMatch matching rule.  The
- * {@link #toLDAPFilter(String)} method can be used to easily create an LDAP
- * filter from a JSON object filter.  This filter will have an attribute type
- * that is the name of an attribute with the JSON object syntax, a matching rule
- * ID of "jsonObjectFilterExtensibleMatch", and an assertion value that is the
- * string representation of the JSON object that comprises the filter.  For
- * example, given the JSON object filter:
+ * <BR>
+ * For example, given the JSON object filter:
  * <PRE>
  *   { "filterType" : "equals", "field" : "firstName", "value" : "John" }
  * </PRE>

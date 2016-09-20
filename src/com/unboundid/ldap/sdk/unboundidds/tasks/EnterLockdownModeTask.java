@@ -41,12 +41,6 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class defines a Directory Server task that can be used to cause the
  * server to enter lockdown mode, in which case it will only allow requests
  * from users with the lockdown-mode privilege.  Lockdown mode is intended to
@@ -58,7 +52,14 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
  * startup, then it will place itself in lockdown mode rather than attempt to
  * run without that rule in effect since it could have been intended to prevent
  * unauthorized users from accessing certain data.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The enter lockdown mode task does not have any task-specific properties.  See
  * the {@link LeaveLockdownModeTask} class for the corresponding mechanism to
  * bring the server out of lockdown mode.

@@ -35,15 +35,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides a data structure that holds information about a log
+ * message that may appear in the Directory Server access log about the result
+ * of a search operation processed by the Directory Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure that holds information about a log
- * message that may appear in the Directory Server access log about the result
- * of a search operation processed by the Directory Server.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -70,6 +71,14 @@ public final class SearchResultAccessLogMessage
 
   // The queue time for the operation.
   private final Double queueTime;
+
+  // The list of indexes for which keys near the index entry limit were accessed
+  // while processing the operation.
+  private final List<String> indexesWithKeysAccessedNearEntryLimit;
+
+  // The list of indexes for which keys over the index entry limit were accessed
+  // while processing the operation.
+  private final List<String> indexesWithKeysAccessedOverEntryLimit;
 
   // The list of privileges required for processing the operation that the
   // requester did not have.
@@ -154,18 +163,18 @@ public final class SearchResultAccessLogMessage
   {
     super(m);
 
-    diagnosticMessage        = getNamedValue("message");
-    additionalInformation    = getNamedValue("additionalInfo");
-    matchedDN                = getNamedValue("matchedDN");
-    processingTime           = getNamedValueAsDouble("etime");
-    queueTime                = getNamedValueAsDouble("qtime");
+    diagnosticMessage = getNamedValue("message");
+    additionalInformation = getNamedValue("additionalInfo");
+    matchedDN = getNamedValue("matchedDN");
+    processingTime = getNamedValueAsDouble("etime");
+    queueTime = getNamedValueAsDouble("qtime");
     intermediateClientResult = getNamedValue("from");
-    entriesReturned          = getNamedValueAsLong("entriesReturned");
-    isUnindexed              = getNamedValueAsBoolean("unindexed");
-    authzDN                  = getNamedValue("authzDN");
-    targetHost               = getNamedValue("targetHost");
-    targetPort               = getNamedValueAsInteger("targetPort");
-    targetProtocol           = getNamedValue("targetProtocol");
+    entriesReturned = getNamedValueAsLong("entriesReturned");
+    isUnindexed = getNamedValueAsBoolean("unindexed");
+    authzDN = getNamedValue("authzDN");
+    targetHost = getNamedValue("targetHost");
+    targetPort = getNamedValueAsInteger("targetPort");
+    targetProtocol = getNamedValue("targetProtocol");
 
     intermediateResponsesReturned =
          getNamedValueAsLong("intermediateResponsesReturned");
@@ -200,7 +209,7 @@ public final class SearchResultAccessLogMessage
         else
         {
           refs.add(refStr.substring(startPos, commaPos));
-          startPos = commaPos+1;
+          startPos = commaPos + 1;
         }
       }
       referralURLs = Collections.unmodifiableList(refs);
@@ -261,7 +270,7 @@ public final class SearchResultAccessLogMessage
     final String preAuthZUsedPrivilegesStr =
          getNamedValue("preAuthZUsedPrivileges");
     if ((preAuthZUsedPrivilegesStr == null) ||
-        (preAuthZUsedPrivilegesStr.length() == 0))
+         (preAuthZUsedPrivilegesStr.length() == 0))
     {
       preAuthZUsedPrivileges = Collections.emptyList();
     }
@@ -292,6 +301,44 @@ public final class SearchResultAccessLogMessage
         privileges.add(tokenizer.nextToken());
       }
       missingPrivileges = Collections.unmodifiableList(privileges);
+    }
+
+    final String indexesNearLimitStr =
+         getNamedValue("indexesWithKeysAccessedNearEntryLimit");
+    if ((indexesNearLimitStr == null) || (indexesNearLimitStr.length() == 0))
+    {
+      indexesWithKeysAccessedNearEntryLimit = Collections.emptyList();
+    }
+    else
+    {
+      final LinkedList<String> indexes = new LinkedList<String>();
+      final StringTokenizer tokenizer =
+           new StringTokenizer(indexesNearLimitStr, ",");
+      while (tokenizer.hasMoreTokens())
+      {
+        indexes.add(tokenizer.nextToken());
+      }
+      indexesWithKeysAccessedNearEntryLimit =
+           Collections.unmodifiableList(indexes);
+    }
+
+    final String indexesOverLimitStr =
+         getNamedValue("indexesWithKeysAccessedExceedingEntryLimit");
+    if ((indexesOverLimitStr == null) || (indexesOverLimitStr.length() == 0))
+    {
+      indexesWithKeysAccessedOverEntryLimit = Collections.emptyList();
+    }
+    else
+    {
+      final LinkedList<String> indexes = new LinkedList<String>();
+      final StringTokenizer tokenizer =
+           new StringTokenizer(indexesOverLimitStr, ",");
+      while (tokenizer.hasMoreTokens())
+      {
+        indexes.add(tokenizer.nextToken());
+      }
+      indexesWithKeysAccessedOverEntryLimit =
+           Collections.unmodifiableList(indexes);
     }
   }
 
@@ -596,6 +643,39 @@ public final class SearchResultAccessLogMessage
   public List<String> getMissingPrivileges()
   {
     return missingPrivileges;
+  }
+
+
+
+  /**
+   * Retrieves the names of any indexes for which one or more keys near
+   * (typically, within 80% of) the index entry limit were accessed while
+   * processing the operation.
+   *
+   * @return  The names of any indexes for which one or more keys near the index
+   *          entry limit were accessed while processing the operation, or an
+   *          empty list if no such index keys were accessed, or if this is not
+   *          included in the log message.
+   */
+  public List<String> getIndexesWithKeysAccessedNearEntryLimit()
+  {
+    return indexesWithKeysAccessedNearEntryLimit;
+  }
+
+
+
+  /**
+   * Retrieves the names of any indexes for which one or more keys over the
+   * index entry limit were accessed while processing the operation.
+   *
+   * @return  The names of any indexes for which one or more keys over the index
+   *          entry limit were accessed while processing the operation, or an
+   *          empty list if no such index keys were accessed, or if this is not
+   *          included in the log message.
+   */
+  public List<String> getIndexesWithKeysAccessedOverEntryLimit()
+  {
+    return indexesWithKeysAccessedOverEntryLimit;
   }
 
 

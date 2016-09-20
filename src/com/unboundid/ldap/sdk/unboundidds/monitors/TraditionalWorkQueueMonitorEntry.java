@@ -36,20 +36,22 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
+ * This class defines a monitor entry that provides information about the state
+ * of the traditional work queue.  For all practical purposes, the traditional
+ * work queue has been replaced by the UnboundID Work Queue, which is the
+ * default work queue implementation (which exposes its own monitor information
+ * that can be accessed using the {@link UnboundIDWorkQueueMonitorEntry}).
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides information about the state
- * of the traditional work queue.  For all practical purposes, the traditional
- * work queue has been replaced by the UnboundID Work Queue, which is the new
- * default work queue implementation (which exposes its own monitor information
- * that can be accessed using the {@link UnboundIDWorkQueueMonitorEntry}).
- * However, in the event that the traditional work queue is configured for use
- * instead of the UnboundID work queue, then this monitor entry may be used to
- * access the information that it provides, which may include:
+ * <BR>
+ * In the event that the traditional work queue is configured for use instead of
+ * the UnboundID work queue, then this monitor entry may be used to access the
+ * information that it provides, which may include:
  * <UL>
  *   <LI>The total number of requests submitted to the work queue.</LI>
  *   <LI>The number of requests that were rejected because the work queue was

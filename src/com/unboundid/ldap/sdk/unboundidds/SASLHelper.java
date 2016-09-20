@@ -28,7 +28,9 @@ import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLBindRequest;
+import com.unboundid.util.CommandLineTool;
 import com.unboundid.util.InternalUseOnly;
+import com.unboundid.util.PasswordReader;
 import com.unboundid.util.SASLMechanismInfo;
 import com.unboundid.util.SASLOption;
 import com.unboundid.util.SASLUtils;
@@ -41,14 +43,15 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 /**
+ * This class will be used by the {@link SASLUtils} class to provide support for
+ * SASL mechanisms which only exist in the Commercial Edition of the LDAP SDK.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class will be used by the {@link SASLUtils} class to provide support for
- * SASL mechanisms which only exist in the Commercial Edition of the LDAP SDK.
  */
 @InternalUseOnly()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -56,9 +59,20 @@ public final class SASLHelper
 {
   /**
    * The name of the SASL option that specifies a one-time password.  It may be
-   * used in conjunction with the UNBOUNDID-DELIVERED-OTP mechanism.
+   * used in conjunction with the UNBOUNDID-DELIVERED-OTP and
+   * UNBOUNDID-YUBIKEY-OTP mechanisms.
    */
   public static final String SASL_OPTION_OTP = "otp";
+
+
+
+  /**
+   * The name of the SASL option that may be used to indicate whether to
+   * prompt for a static password.  It may be used in conjunction with the
+   * UNBOUNDID-TOTP and UNBOUNDID-YUBIKEY-OTP mechanisms.
+   */
+  public static final String SASL_OPTION_PROMPT_FOR_STATIC_PW =
+       "promptForStaticPassword";
 
 
 
@@ -118,6 +132,9 @@ public final class SASLHelper
               new SASLOption(SASLUtils.SASL_OPTION_AUTHZ_ID,
                    INFO_SASL_UNBOUNDID_TOTP_OPTION_AUTHZ_ID.get(), false,
                    false),
+              new SASLOption(SASL_OPTION_PROMPT_FOR_STATIC_PW,
+                   INFO_SASL_UNBOUNDID_TOTP_OPTION_PROMPT_FOR_PW.get(), false,
+                   false),
               new SASLOption(SASL_OPTION_TOTP_PASSWORD,
                    INFO_SASL_UNBOUNDID_TOTP_OPTION_TOTP_PASSWORD.get(), true,
                    false)));
@@ -138,7 +155,10 @@ public final class SASLHelper
                    false),
               new SASLOption(SASL_OPTION_OTP,
                    INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_OTP.get(), true,
-                   false)));
+                   false),
+              new SASLOption(SASL_OPTION_PROMPT_FOR_STATIC_PW,
+                   INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_PROMPT_FOR_PW.get(),
+                   false, false)));
   }
 
 
@@ -157,6 +177,10 @@ public final class SASLHelper
    *                    desired SASL mechanism.
    * @param  mechanism  The name of the SASL mechanism to use.  It must not be
    *                    {@code null}.
+   * @param  tool       The command-line tool whose input and output streams
+   *                    should be used when prompting for the bind password.  It
+   *                    may be {@code null} if {@code promptForPassword} is
+   *                    {@code false}.
    * @param  options    The set of SASL options to use when creating the bind
    *                    request, mapped from option name to option value.  It
    *                    must not be {@code null}, but may be empty if no options
@@ -174,6 +198,7 @@ public final class SASLHelper
   public static SASLBindRequest createBindRequest(final String bindDN,
                                      final byte[] password,
                                      final String mechanism,
+                                     final CommandLineTool tool,
                                      final Map<String,String> options,
                                      final Control... controls)
          throws LDAPException
@@ -187,12 +212,13 @@ public final class SASLHelper
     else if (mechanism.equalsIgnoreCase(
              UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME))
     {
-      return createUNBOUNDIDTOTPBindRequest(password, options, controls);
+      return createUNBOUNDIDTOTPBindRequest(password, tool, options, controls);
     }
     else if (mechanism.equalsIgnoreCase(
          UnboundIDYubiKeyOTPBindRequest.UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME))
     {
-      return createUNBOUNDIDYUBIKEYOTPBindRequest(password, options, controls);
+      return createUNBOUNDIDYUBIKEYOTPBindRequest(password, tool, options,
+           controls);
     }
     else
     {
@@ -270,6 +296,10 @@ public final class SASLHelper
    * set of options.
    *
    * @param  password  The password to use for the bind request.
+   * @param  tool      The command-line tool whose input and output streams
+   *                   should be used when prompting for the bind password.  It
+   *                   may be {@code null} if {@code promptForPassword} is
+   *                   {@code false}.
    * @param  options   The set of SASL options for the bind request.
    * @param  controls  The set of controls to include in the request.
    *
@@ -280,6 +310,7 @@ public final class SASLHelper
    */
   private static SingleUseTOTPBindRequest createUNBOUNDIDTOTPBindRequest(
                                                final byte[] password,
+                                               final CommandLineTool tool,
                                                final Map<String,String> options,
                                                final Control... controls)
           throws LDAPException
@@ -305,14 +336,43 @@ public final class SASLHelper
     }
 
     // The authzID option is optional.
+    byte[] pwBytes = password;
     final String authzID = options.remove(StaticUtils.toLowerCase(
          SASLUtils.SASL_OPTION_AUTHZ_ID));
+
+    // The promptForStaticPassword option is optional.
+    final String promptStr = options.remove(StaticUtils.toLowerCase(
+         SASL_OPTION_PROMPT_FOR_STATIC_PW));
+    if (promptStr != null)
+    {
+      if (promptStr.equalsIgnoreCase("true"))
+      {
+        if (pwBytes == null)
+        {
+          tool.getOriginalOut().print(INFO_SASL_ENTER_STATIC_PW.get());
+          pwBytes = PasswordReader.readPassword();
+          tool.getOriginalOut().println();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_SASL_PROMPT_FOR_PROVIDED_PW.get(
+                    SASL_OPTION_PROMPT_FOR_STATIC_PW));
+        }
+      }
+      else if (! promptStr.equalsIgnoreCase("false"))
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_PROMPT_FOR_STATIC_PW_BAD_VALUE.get(
+                  SASL_OPTION_PROMPT_FOR_STATIC_PW));
+      }
+    }
 
     // Ensure no unsupported options were provided.
     SASLUtils.ensureNoUnsupportedOptions(options,
          UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME);
 
-    return new SingleUseTOTPBindRequest(authID, authzID, totpPassword, password,
+    return new SingleUseTOTPBindRequest(authID, authzID, totpPassword, pwBytes,
          controls);
   }
 
@@ -323,6 +383,10 @@ public final class SASLHelper
    * password and set of options.
    *
    * @param  password  The password to use for the bind request.
+   * @param  tool      The command-line tool whose input and output streams
+   *                   should be used when prompting for the bind password.  It
+   *                   may be {@code null} if {@code promptForPassword} is
+   *                   {@code false}.
    * @param  options   The set of SASL options for the bind request.
    * @param  controls  The set of controls to include in the request.
    *
@@ -333,7 +397,7 @@ public final class SASLHelper
    */
   private static UnboundIDYubiKeyOTPBindRequest
                       createUNBOUNDIDYUBIKEYOTPBindRequest(
-                           final byte[] password,
+                           final byte[] password, final CommandLineTool tool,
                            final Map<String,String> options,
                            final Control... controls)
           throws LDAPException
@@ -363,11 +427,40 @@ public final class SASLHelper
     final String authzID = options.remove(StaticUtils.toLowerCase(
          SASLUtils.SASL_OPTION_AUTHZ_ID));
 
+    // The promptForStaticPassword option is optional.
+    byte[] pwBytes = password;
+    final String promptStr = options.remove(StaticUtils.toLowerCase(
+         SASL_OPTION_PROMPT_FOR_STATIC_PW));
+    if (promptStr != null)
+    {
+      if (promptStr.equalsIgnoreCase("true"))
+      {
+        if (pwBytes == null)
+        {
+          tool.getOriginalOut().print(INFO_SASL_ENTER_STATIC_PW.get());
+          pwBytes = PasswordReader.readPassword();
+          tool.getOriginalOut().println();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_SASL_PROMPT_FOR_PROVIDED_PW.get(
+                    SASL_OPTION_PROMPT_FOR_STATIC_PW));
+        }
+      }
+      else if (! promptStr.equalsIgnoreCase("false"))
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_PROMPT_FOR_STATIC_PW_BAD_VALUE.get(
+                  SASL_OPTION_PROMPT_FOR_STATIC_PW));
+      }
+    }
+
     // Ensure no unsupported options were provided.
     SASLUtils.ensureNoUnsupportedOptions(options,
          UnboundIDYubiKeyOTPBindRequest.UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME);
 
-    return new UnboundIDYubiKeyOTPBindRequest(authID, authzID, password, otp,
+    return new UnboundIDYubiKeyOTPBindRequest(authID, authzID, pwBytes, otp,
          controls);
   }
 }

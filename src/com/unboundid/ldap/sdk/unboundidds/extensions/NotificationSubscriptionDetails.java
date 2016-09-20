@@ -37,14 +37,16 @@ import com.unboundid.util.Validator;
 
 
 /**
+ * This class represents a data structure with information about a notification
+ * subscription defined in a Ping Identity, UnboundID, or Alcatel-Lucent 8661
+ * server instance.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class represents a data structure with information about a notification
- * subscription defined in an UnboundID server instance.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

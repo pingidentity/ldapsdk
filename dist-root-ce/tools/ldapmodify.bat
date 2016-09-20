@@ -11,5 +11,5 @@ rem Invoke a number of common script utility functions.
 call "%BATDIR%\.script-util.bat"
 
 rem Invoke the tool with the provided command-line arguments.
-"%JAVA_CMD%" %JAVA_ARGS% -cp "%BATDIR%\..\unboundid-ldapsdk-ce.jar;%CLASSPATH%" com.unboundid.ldap.sdk.examples.LDAPModify %*
+"%JAVA_CMD%" %JAVA_ARGS% -cp "%BATDIR%\..\unboundid-ldapsdk-ce.jar;%CLASSPATH%" com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify %*
 

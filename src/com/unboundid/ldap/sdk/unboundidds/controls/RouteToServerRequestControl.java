@@ -43,19 +43,20 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a request control which may be used to request that the
  * associated request be routed to a specific server.  It is primarily intended
  * for use when the request will pass through a Directory Proxy Server to
  * indicate that which backend server should be used to process the request.
  * The server ID for the server to use may be obtained using the
  * {@link GetServerIDRequestControl}.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * If the request is processed successfully, then the result should include a
  * {@link GetServerIDResponseControl} with the server ID of the server that was
  * used to process the request.  It may or may not be the same as the server ID

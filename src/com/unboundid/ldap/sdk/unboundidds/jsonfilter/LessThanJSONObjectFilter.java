@@ -47,16 +47,17 @@ import com.unboundid.util.json.JSONValue;
 
 
 /**
+ * This class provides an implementation of a JSON object filter that can be
+ * used to identify JSON objects that have at least one value for a specified
+ * field that is less than a given value.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a JSON object filter that can be
- * used to identify JSON objects that have at least one value for a specified
- * field that is less than a given value.
- * <BR><BR>
+ * <BR>
  * The fields that are required to be included in a "less than" filter are:
  * <UL>
  *   <LI>

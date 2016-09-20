@@ -39,17 +39,18 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a response control that holds information about the
+ * soft-deleted entry that results from a soft delete request, and may also be
+ * included in a search result entry which represents a soft-deleted entry.  The
+ * value of this control will be the DN of the soft-deleted entry.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a response control that holds information about the
- * soft-deleted entry that results from a soft delete request, and may also be
- * included in a search result entry which represents a soft-deleted entry.  The
- * value of this control will be the DN of the soft-deleted entry.
- * <BR><BR>
+ * <BR>
  * See the documentation for the {@link SoftDeleteRequestControl} class for an
  * example demonstrating the use of this control.
  *

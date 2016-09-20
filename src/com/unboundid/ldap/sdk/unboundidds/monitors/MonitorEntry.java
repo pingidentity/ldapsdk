@@ -47,17 +47,18 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class defines a generic monitor entry that provides access to monitor
+ * information provided by a Ping Identity, UnboundID, or Alcatel-Lucent 8661
+ * server instance.  Subclasses may provide specific methods for interpreting
+ * the information exposed by specific types of monitor entries.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a generic monitor entry that provides access to monitor
- * information provided by an UnboundID Directory Server instance.  Subclasses
- * may provide specific methods for interpreting the information exposed by
- * specific types of monitor entries.
- * <BR><BR>
+ * <BR>
  * See the {@link MonitorManager} class for an example that demonstrates the
  * process for retrieving all monitor entries available in the directory server
  * and retrieving the information they provide using the generic API.

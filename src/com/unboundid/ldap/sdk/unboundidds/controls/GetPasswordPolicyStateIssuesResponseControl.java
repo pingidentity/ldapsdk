@@ -53,16 +53,17 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides an implementation of a response control that can be
+ * included in a bind response with information about any password policy state
+ * notices, warnings, and/or errors for the user.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a response control that can be
- * included in a bind response with information about any password policy state
- * notices, warnings, and/or errors for the user.
- * <BR><BR>
+ * <BR>
  * This control has an OID of 1.3.6.1.4.1.30221.2.5.47, a criticality of
  * {@code false}, and a value with the following encoding:
  * <PRE>

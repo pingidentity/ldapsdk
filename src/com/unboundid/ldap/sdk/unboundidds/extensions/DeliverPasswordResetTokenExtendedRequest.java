@@ -49,12 +49,6 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of an extended request that can be used
  * to trigger the delivery of a temporary one-time password reset token to a
  * specified user.  This token can be provided to the password modify extended
@@ -67,7 +61,14 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * has been forgotten or the account is locked), a successful bind with the
  * current password will cause the server to invalidate any password reset token
  * for that user.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The server will use the same mechanisms for delivering password reset tokens
  * as it uses for delivering one-time passwords via the
  * {@link DeliverOneTimePasswordExtendedRequest}.  See the

@@ -46,12 +46,6 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the password policy response control
  * as described in draft-behera-ldap-password-policy.  It may be used to provide
  * information related to a user's password policy.  It may include at most one
@@ -61,6 +55,13 @@ import static com.unboundid.util.StaticUtils.*;
  * may be included.  See the {@link PasswordPolicyRequestControl} documentation
  * for an example that demonstrates the use of the password policy request and
  * response controls.
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

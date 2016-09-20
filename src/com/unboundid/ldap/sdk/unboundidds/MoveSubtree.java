@@ -106,14 +106,15 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 /**
+ * This class provides a utility that may be used to move a single entry or a
+ * small subtree of entries from one server to another.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a utility that may be used to move a single entry or a
- * small subtree of entries from one server to another.
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class MoveSubtree
@@ -121,9 +122,10 @@ public final class MoveSubtree
        implements UnsolicitedNotificationHandler, MoveSubtreeListener
 {
   /**
-   * The name of the attribute that appears in the root DSE of UnboundID
-   * Directory Server instances to provide a unique identifier that will be
-   * generated every time the server starts.
+   * The name of the attribute that appears in the root DSE of Ping
+   * Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server instances to
+   * provide a unique identifier that will be generated every time the server
+   * starts.
    */
   private static final String ATTR_STARTUP_UUID = "startupUUID";
 

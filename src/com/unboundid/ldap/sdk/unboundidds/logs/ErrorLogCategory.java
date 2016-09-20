@@ -28,14 +28,15 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This enum contains the set of error log categories defined in the Directory
+ * Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This enum contains the set of error log categories defined in the Directory
- * Server.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum ErrorLogCategory

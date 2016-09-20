@@ -41,18 +41,19 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an extended request that can be used
+ * to consume a single-use token that was generated and provided to the user
+ * through the deliver single-use token extended operation.  Once a token has
+ * been consumed, it cannot be used again, although a new token can be generated
+ * and delivered to the user if necessary.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an extended request that can be used
- * to consume a single-use token that was generated and provided to the user
- * through the deliver single-use token extended operation.  Once a token has
- * been consumed, it cannot be used again, although a new token can be generated
- * and delivered to the user if necessary.
- * <BR><BR>
+ * <BR>
  * This extended request has an OID of "1.3.6.1.4.1.30221.2.6.51" and it must
  * have a value with the following encoding:
  * <PRE>

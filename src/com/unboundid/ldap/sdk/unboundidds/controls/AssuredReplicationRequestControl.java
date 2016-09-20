@@ -44,16 +44,17 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides an implementation of an LDAP control that can be included
+ * in add, bind, modify, modify DN, and certain extended requests to indicate
+ * the level of replication assurance desired for the associated operation.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an LDAP control that can be included
- * in add, bind, modify, modify DN, and certain extended requests to indicate
- * the level of replication assurance desired for the associated operation.
- * <BR><BR>
+ * <BR>
  * The OID for this control is 1.3.6.1.4.1.30221.2.5.28, and it may have a
  * criticality of either TRUE or FALSE.  It must have a value with the following
  * encoding:

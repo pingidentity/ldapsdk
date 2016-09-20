@@ -54,12 +54,6 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a response control that may be used to provide the
  * backend set ID(s) for any relevant backend sets accessed during the course
  * of processing an operation.  It may be returned in response to a request
@@ -73,7 +67,14 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * while the search result done message will not contain any such control.  See
  * the {@link GetBackendSetIDRequestControl} class documentation for a more
  * complete description of the usage for these controls.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The get backend set ID response control has an OID of
  * "1.3.6.1.4.1.30221.2.5.34", a criticality of false, and a value with the
  * following encoding:

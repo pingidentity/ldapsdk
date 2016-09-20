@@ -30,17 +30,18 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This interface defines a set of methods that will be invoked when an
+ * intermediate response is returned in the course of processing a get changelog
+ * batch extended operation.  It may be used to process changelog entries as
+ * they are returned by the server rather than accessing them in a list when the
+ * extended result has been received.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This interface defines a set of methods that will be invoked when an
- * intermediate response is returned in the course of processing a get changelog
- * batch extended operation.  It may be used to process changelog entries as
- * they are returned by the server rather than accessing them in a list when the
- * extended result has been received.
  */
 @Extensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_NOT_THREADSAFE)

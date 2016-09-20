@@ -62,7 +62,8 @@ import static com.unboundid.ldap.sdk.experimental.ExperimentalMessages.*;
  * are made as a result of this control.  Until such time as these are defined,
  * this implementation uses the OID temporarily assigned for its use by the
  * OpenLDAP Foundation, which is used by at least the OpenLDAP, OpenDS, and the
- * UnboundID Directory Server implementations.
+ * Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server
+ * implementations.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for attempting to perform a

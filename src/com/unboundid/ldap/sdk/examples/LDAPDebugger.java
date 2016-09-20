@@ -58,7 +58,7 @@ import com.unboundid.util.args.StringArgument;
 /**
  * This class provides a tool that can be used to create a simple listener that
  * may be used to intercept and decode LDAP requests before forwarding them to
- * another Directory Server, and then intercept and decode responses before
+ * another directory server, and then intercept and decode responses before
  * returning them to the client.  Some of the APIs demonstrated by this example
  * include:
  * <UL>

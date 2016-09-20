@@ -55,15 +55,16 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 /**
+ * This class provides a utility that may be used to request that the Directory
+ * Server deliver a one-time password to a user through some out-of-band
+ * mechanism.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a utility that may be used to request that the Directory
- * Server deliver a one-time password to a user through some out-of-band
- * mechanism.
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class DeliverOneTimePassword

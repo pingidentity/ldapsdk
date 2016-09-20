@@ -44,15 +44,17 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class provides a number of utility methods for interacting with tasks in
+ * Ping Identity, UnboundID, or Alcatel-Lucent 8661 server instances.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a number of utility methods for interacting with tasks in
- * an UnboundID Directory Server instance.  It provides methods for the
- * following:
+ * <BR>
+ * It provides methods for the following:
  * <UL>
  *   <LI>Retrieving information about all scheduled, running, and
  *       recently-completed tasks in the server.</LI>
@@ -102,8 +104,9 @@ public final class TaskManager
   private static String getTaskDN(final String taskID)
   {
     // In general, constructing DNs is bad, but we'll do it here because we know
-    // we're dealing specifically with the UnboundID Directory Server and we can
-    // ensure that this location will not change without extremely good reasons.
+    // we're dealing specifically with the Ping Identity, UnboundID, or
+    // Alcatel-Lucent 8661 Directory Server and we can ensure that this
+    // location will not change without extremely good reasons.
     return Task.ATTR_TASK_ID + '=' + taskID + ',' +
            Task.SCHEDULED_TASKS_BASE_DN;
   }

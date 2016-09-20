@@ -45,13 +45,6 @@ import static com.unboundid.util.StaticUtils.*;
 
 /**
  * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
- * <BR><BR>
- * <BLOCKQUOTE>
  *   <B>NOTE:</B>  The use of interactive transactions is discouraged because it
  *   can create conditions which are prone to deadlocks between operations that
  *   may result in the cancellation of one or both operations.  It is strongly
@@ -83,7 +76,14 @@ import static com.unboundid.util.StaticUtils.*;
  * {@link EndInteractiveTransactionExtendedRequest} should be used to
  * commit that transaction, or it may also be used to abort the transaction if
  * it is decided that it is no longer needed.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The start transaction extended request may include an element which indicates
  * the base DN below which all operations will be attempted.  This may be used
  * to allow the Directory Server to tailor the transaction to the appropriate

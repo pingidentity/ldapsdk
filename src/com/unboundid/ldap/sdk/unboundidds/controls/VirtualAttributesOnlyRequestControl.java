@@ -34,20 +34,21 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides an implementation of the virtual attributes only request
+ * control, which may be included in a search request to indicate that only
+ * virtual attributes should be included in matching entries.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of the virtual attributes only request
- * control, which may be included in a search request to indicate that only
- * virtual attributes should be included in matching entries.
- * <BR><BR>
+ * <BR>
  * This control is not based on any public standard, but was first introduced in
  * the Netscape/iPlanet Directory Server.  It is also supported in the Sun Java
- * System Directory Server, OpenDS, and the UnboundID Directory Server.  It does
- * not have a value.
+ * System Directory Server, OpenDS, and the Ping Identity, UnboundID, and
+ * Alcatel-Lucent 8661 Directory Server.  It does not have a value.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the virtual attributes only

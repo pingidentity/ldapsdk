@@ -43,16 +43,17 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an extended request that may be used
+ * to register a YubiKey OTP device with the Directory Server so that it may be
+ * used to authenticate using the UNBOUNDID-YUBIKEY-OTP SASL mechanism.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an extended request that may be used
- * to register a YubiKey OTP device with the Directory Server so that it may be
- * used to authenticate using the UNBOUNDID-YUBIKEY-OTP SASL mechanism.
- * <BR><BR>
+ * <BR>
  * This extended request has an OID of 1.3.6.1.4.1.30221.2.6.54, and it must
  * include a request value with the following encoding:
  * <BR><BR>
@@ -400,7 +401,7 @@ public final class RegisterYubiKeyOTPDeviceExtendedRequest
 
 
   /**
-   * Retrieves the authentication ID that identifies the user from whom the
+   * Retrieves the authentication ID that identifies the user for whom the
    * YubiKey OTP device is to be registered, if provided.
    *
    * @return  The authentication ID that identifies the target user, or

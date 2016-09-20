@@ -41,15 +41,17 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
 
 
 /**
+ * This class defines a Directory Server task that can be used to shut down or
+ * restart the server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a Directory Server task that can be used to shut down or
- * restart the server.  The properties that are available for use with this type
- * of task include:
+ * <BR>
+ * The properties that are available for use with this type of task include:
  * <UL>
  *   <LI>A flag that indicates whether to shut down the server or to perform
  *       an in-core restart (in which the server shuts down and restarts itself

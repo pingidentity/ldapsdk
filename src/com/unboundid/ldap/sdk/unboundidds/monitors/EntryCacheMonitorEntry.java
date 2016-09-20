@@ -36,15 +36,18 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
+ * This class defines a monitor entry that provides general information about
+ * the state of the Directory Server entry cache.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides general information about
- * the state of the Directory Server entry cache.  The information that may be
- * available in the entry cache monitor entry includes:
+ * <BR>
+ * The information that may be available in the entry cache monitor entry
+ * includes:
  * <UL>
  *   <LI>The number of cache tries, which are attempts to retrieve entries from
  *       the cache.</LI>

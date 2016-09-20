@@ -61,9 +61,9 @@ import static com.unboundid.util.Validator.*;
  * within the transaction should be processed with the specified authorization
  * identity.
  * <BR><BR>
- * The UnboundID Directory Server supports the following additional
- * UnboundID-specific controls in conjunction with operations included in a
- * transaction:  account usable request control,
+ * The Ping Identity, UnboundID, and Alcatel-Lucent 8661 server products support
+ * the following additional UnboundID-specific controls in conjunction with
+ * operations included in a transaction:  account usable request control,
  * {@link DraftBeheraLDAPPasswordPolicy10RequestControl}, hard delete request
  * control, intermediate client request control, replication repair request
  * control, soft delete request control, soft deleted entry access request

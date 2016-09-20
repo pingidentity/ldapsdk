@@ -33,15 +33,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides an enhanced implementation of the {@link RootDSE} class
+ * that provides access to additional attributes that may be included in the
+ * root DSE of a Ping Identity, UnboundID, or Alcatel-Lucent 8661 server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an enhanced implementation of the {@link RootDSE} class
- * that provides access to additional attributes that may be included in the
- * root DSE of an UnboundID server.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

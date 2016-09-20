@@ -39,18 +39,20 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class defines a monitor entry that provides information about the
+ * processing times of operations that are performed in the server.  It includes
+ * the total counts of each type of operation, the average response time for
+ * each type of operation, and counts and percentages of operations whose
+ * server-side processing time fits in defined buckets.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides information about the
- * processing times of operations that are performed in the server.  It includes
- * the total counts of each type of operation, the average response time for
- * each type of operation, and counts and percentages of operations whose
- * server-side processing time fits in defined buckets.  The following buckets
- * are defined in the default configuration:
+ * <BR>
+ * The following buckets are defined in the default configuration:
  * <UL>
  *   <LI>Less than 1ms.</LI>
  *   <LI>Greater than or equal to 1ms and less than 2ms.</LI>

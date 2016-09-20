@@ -39,13 +39,15 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 /**
+ * This class provides support for a number of one-time password algorithms.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides support for a number of one-time password algorithms.
+ * <BR>
  * Supported algorithms include:
  * <UL>
  *   <LI>HOTP -- The HMAC-based one-time password algorithm described in

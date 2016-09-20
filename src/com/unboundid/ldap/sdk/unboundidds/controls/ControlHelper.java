@@ -30,16 +30,17 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides a helper class that may be used to ensure that all of the
+ * "out-of-the-box" UnboundID-specific response controls supported by this SDK
+ * are registered so that they can be properly instantiated when received in a
+ * response from the directory server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a helper class that may be used to ensure that all of the
- * "out-of-the-box" UnboundID-specific response controls supported by this SDK
- * are registered so that they can be properly instantiated when received in a
- * response from the directory server.
  */
 @InternalUseOnly()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

@@ -34,18 +34,19 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class defines a request control that may be used to indicate that the
+ * server should process all aspects of the associated bind request (including
+ * password policy processing) but should not actually change the identity for
+ * the client connection, regardless of whether the authentication is
+ * successful.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a request control that may be used to indicate that the
- * server should process all aspects of the associated bind request (including
- * password policy processing) but should not actually change the identity for
- * the client connection, regardless of whether the authentication is
- * successful.
- * <BR><BR>
+ * <BR>
  * This control can be very useful for applications that perform binds to
  * authenticate users but also use connection pooling to re-use connections
  * for multiple operations.  Bind operations are normally not well-suited for
@@ -60,8 +61,8 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * request control.
  * <BR><BR>
  * This control is not based on any public standard.  It was originally
- * developed for use with the UnboundID Directory Server.  It does not have a
- * value.
+ * developed for use with the Ping Identity, UnboundID, and Alcatel-Lucent 8661
+ * Directory Server.  It does not have a value.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the retain identity request

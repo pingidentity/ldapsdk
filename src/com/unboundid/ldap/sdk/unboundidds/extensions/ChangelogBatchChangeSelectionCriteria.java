@@ -37,16 +37,17 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class defines an API that should be implemented by classes which may
+ * represent a way to pare down the changelog entries that should be returned
+ * (e.g., so that they only include changes to a particular attribute or set of
+ * attributes) when using the {@link GetChangelogBatchExtendedRequest}.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines an API that should be implemented by classes which may
- * represent a way to pare down the changelog entries that should be returned
- * (e.g., so that they only include changes to a particular attribute or set of
- * attributes) when using the {@link GetChangelogBatchExtendedRequest}.
  */
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)

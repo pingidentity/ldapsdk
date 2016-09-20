@@ -49,19 +49,20 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a request control which may be used to request that the
  * Directory Proxy Server forward the associated operation to a specific backend
  * set associated with an entry-balancing request processor.  It may be either
  * an absolute routing request, indicating that the target backend set(s) are
  * the only ones that may be used to process the operation, or it may be used to
  * provide a routing hint in lieu of accessing the global index.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * This control may be used for a number of different kinds of requests, as
  * follows:
  * <UL>

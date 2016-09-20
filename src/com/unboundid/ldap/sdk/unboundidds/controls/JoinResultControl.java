@@ -48,18 +48,19 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides an implementation of a control that may be included in a
+ * search result entry in response to a join request control to provide a set of
+ * entries related to the search result entry.    See the class-level
+ * documentation for the {@link JoinRequestControl} class for additional
+ * information and an example demonstrating its use.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a control that may be included in a
- * search result entry in response to a join request control to provide a set of
- * entries related to the search result entry.    See the class-level
- * documentation for the {@link JoinRequestControl} class for additional
- * information and an example demonstrating its use.
- * <BR><BR>
+ * <BR>
  * The value of the join result control is encoded as follows:
  * <PRE>
  *   JoinResult ::= SEQUENCE {

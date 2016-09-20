@@ -51,18 +51,19 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a response control that may be used to provide
+ * information about the number of entries that match a given set of search
+ * criteria.  The control will be included in the search result done message
+ * for any successful search operation in which the request contained a matching
+ * entry count request control.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a response control that may be used to provide
- * information about the number of entries that match a given set of search
- * criteria.  The control will be included in the search result done message
- * for any successful search operation in which the request contained a matching
- * entry count request control.
- * <BR><BR>
+ * <BR>
  * The matching entry count response control has an OID of
  * "1.3.6.1.4.1.30221.2.5.37", a criticality of false, and a value with the
  * following encoding:

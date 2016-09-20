@@ -39,15 +39,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides a data structure that provides information about the
+ * result codes associated with a particular type of operation (or across all
+ * types of operations, if the associated operation type is {@code null}).
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure that provides information about the
- * result codes associated with a particular type of operation (or across all
- * types of operations, if the associated operation type is {@code null}).
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

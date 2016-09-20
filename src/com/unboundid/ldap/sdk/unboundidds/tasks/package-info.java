@@ -22,21 +22,24 @@
 
 
 /**
+ * This package contains a number of helper classes for invoking and interacting
+ * with scheduled tasks in Ping Identity, UnboundID, and Alcatel-Lucent 8661
+ * server products.  Tasks may be used to perform various kinds of
+ * administrative functions, like backing up and restoring backends, importing
+ * and exporting data, rebuilding indexes, and shutting down or restarting the
+ * server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This package is part of the Commercial Edition of the
  *   UnboundID LDAP SDK for Java.  It is not available for use in applications
  *   that include only the Standard Edition of the LDAP SDK, and is not
  *   supported for use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This package contains a number of helper classes for invoking and interacting
- * with scheduled tasks in the UnboundID Directory Server.  Tasks may be used to
- * perform various kinds of administrative functions, like backing up and
- * restoring backends, importing and exporting data, rebuilding indexes, and
- * shutting down or restarting the server.
- * <BR><BR>
+ * <BR>
  * The {@code TaskManager} class provides a number of utility methods for
- * interacting with tasks in an UnboundID Directory Server.  The {@code Task}
- * class and its subclasses provide a framework for accessing the generic and
- * task-specific information associated with tasks.
+ * interacting with tasks in a Ping Identity, UnboundID, or Alcatel-Lucent 8661
+ * Directory Server.  The {@code Task} class and its subclasses provide a
+ * framework for accessing the generic and task-specific information associated
+ * with tasks.
  */
 package com.unboundid.ldap.sdk.unboundidds.tasks;

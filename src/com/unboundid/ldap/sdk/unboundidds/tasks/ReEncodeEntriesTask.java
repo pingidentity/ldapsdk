@@ -42,18 +42,20 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class defines a Directory Server task that can be used to cause entries
+ * contained in a local DB backend to be re-encoded, which may be used to
+ * apply any configuration changes that affect the encoding of that entry (e.g.,
+ * if the entry should be encrypted, hashed, compressed, or fully or partially
+ * uncached; or if these settings should be reverted).
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a Directory Server task that can be used to cause entries
- * contained in a local DB backend to be re-encoded, which may be used to
- * apply any configuration changes that affect the encoding of that entry (e.g.,
- * if the entry should be encrypted, hashed, compressed, or fully or partially
- * uncached; or if these settings should be reverted).  The properties that are
- * available for use with this type of task include:
+ * <BR>
+ * The properties that are available for use with this type of task include:
  * <UL>
  *   <LI>The backend ID of the backend in which entries should be re-encoded.
  *       This must be provided.</LI>

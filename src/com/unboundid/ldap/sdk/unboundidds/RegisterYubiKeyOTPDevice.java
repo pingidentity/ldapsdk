@@ -54,16 +54,17 @@ import static com.unboundid.ldap.sdk.unboundidds.UnboundIDDSMessages.*;
 
 
 /**
+ * This class provides a utility that may be used to register a YubiKey OTP
+ * device for a specified user so that it may be used to authenticate that user.
+ * Alternately, it may be used to deregister one or all of the YubiKey OTP
+ * devices that have been registered for the user.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a utility that may be used to register a YubiKey OTP
- * device for a specified user so that it may be used to authenticate that user.
- * Alternately, it may be used to deregister one or all of the YubiKey OTP
- * devices that have been registered for the user.
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class RegisterYubiKeyOTPDevice
@@ -563,7 +564,7 @@ public final class RegisterYubiKeyOTPDevice
       "--authenticationID", "dn:uid=test.user,ou=People,dc=example,dc=com"
     };
     exampleMap.put(args,
-         INFO_REGISTER_YUBIKEY_OTP_DEVICE_EXAMPLE_REGISTER.get());
+         INFO_REGISTER_YUBIKEY_OTP_DEVICE_EXAMPLE_DEREGISTER.get());
 
     return exampleMap;
   }

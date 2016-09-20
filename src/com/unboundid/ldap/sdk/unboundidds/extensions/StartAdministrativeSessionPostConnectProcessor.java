@@ -36,12 +36,6 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of a post-connect processor that can be
  * used to start an administrative session on a connection that is meant to be
  * part of a connection pool.  If this is to be used in conjunction with other
@@ -53,6 +47,13 @@ import com.unboundid.util.ThreadSafetyLevel;
  * any interaction with the server will be able to make use of the dedicated
  * worker thread pool the server sets aside for operations using an
  * administrative session.
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class StartAdministrativeSessionPostConnectProcessor

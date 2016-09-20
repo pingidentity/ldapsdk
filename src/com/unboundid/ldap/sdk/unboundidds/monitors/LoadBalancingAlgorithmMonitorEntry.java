@@ -39,14 +39,16 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
+ * This class defines a monitor entry that provides information about a
+ * load-balancing algorithm used by the Directory Proxy Server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides information about a
- * load-balancing algorithm used by the UnboundID Directory Proxy Server.
+ * <BR>
  * Information that it may make available includes:
  * <UL>
  *   <LI>The aggregate health check state for servers associated with the

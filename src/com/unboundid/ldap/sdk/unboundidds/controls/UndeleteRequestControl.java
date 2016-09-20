@@ -47,18 +47,19 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a request control which may be included in an add request
+ * to indicate that the contents of the resulting entry should come not from the
+ * data of the add request itself but instead from a soft-deleted entry.  This
+ * can be used to recover an entry that was previously removed by a delete
+ * request containing the {@link SoftDeleteRequestControl}.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a request control which may be included in an add request
- * to indicate that the contents of the resulting entry should come not from the
- * data of the add request itself but instead from a soft-deleted entry.  This
- * can be used to recover an entry that was previously removed by a delete
- * request containing the {@link SoftDeleteRequestControl}.
- * <BR><BR>
+ * <BR>
  * The criticality for this control should always be {@code TRUE}.  The
  * criticality will have no effect on servers that do support this control, but
  * a criticality of {@code TRUE} will ensure that a server which does not

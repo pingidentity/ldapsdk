@@ -33,16 +33,17 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides the default changelog entry listener that will be used if
+ * none is explicitly provided for the associated get changelog batch extended
+ * operation.  It will collect the changelog entries in a list that will be made
+ * available as part of the extended result.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides the default changelog entry listener that will be used if
- * none is explicitly provided for the associated get changelog batch extended
- * operation.  It will collect the changelog entries in a list that will be made
- * available as part of the extended result.
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 final class DefaultChangelogEntryListener

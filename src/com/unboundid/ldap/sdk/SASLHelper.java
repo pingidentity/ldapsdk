@@ -47,7 +47,7 @@ final class SASLHelper
   // The message ID used when communicating with the directory server.
   private final int messageID;
 
-  // The connection to use to communicate with the Directory Server.
+  // The connection to use to communicate with the directory server.
   private final LDAPConnection connection;
 
   // A list that will be updated with messages about any unhandled callbacks

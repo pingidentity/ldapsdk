@@ -35,17 +35,18 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class implements a data structure for storing the information from an
+ * extended result for the start batched transaction extended request.  It is
+ * able to decode a generic extended result to extract the transaction ID that
+ * it contains, if the operation was successful.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class implements a data structure for storing the information from an
- * extended result for the start batched transaction extended request.  It is
- * able to decode a generic extended result to extract the transaction ID that
- * it contains, if the operation was successful.
- * <BR><BR>
+ * <BR>
  * See the documentation for the {@link StartBatchedTransactionExtendedRequest}
  * class for an example that demonstrates the use of batched transactions.
  */

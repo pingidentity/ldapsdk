@@ -47,15 +47,16 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides a data structure that describes a requirement that
+ * passwords must satisfy in order to be accepted by the server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure that describes a requirement that
- * passwords must satisfy in order to be accepted by the server.
- * <BR><BR>
+ * <BR>
  * A password quality requirement will always include a description, which
  * should be a string that provides a user-friendly description of the
  * constraints that a proposed password must satisfy in order to meet this

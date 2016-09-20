@@ -32,18 +32,13 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
+import com.unboundid.util.Validator;
 
 import static com.unboundid.util.StaticUtils.*;
 
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides a comparator that may be used to define a relative order
  * for search filters.  The filter order will be based first on the filter type
  * (in the following order:   AND, OR, NOT, equality, substring,
@@ -56,6 +51,13 @@ import static com.unboundid.util.StaticUtils.*;
  * elements will be ordered before one with more subAny elements.  For an
  * extensible match filter with all other things being equal, a filter without
  * an element will be ordered before one with that element.
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -102,7 +104,9 @@ public final class FilterComparator
    * Determines a relative order for the provided filter objects.
    *
    * @param  f1  The first filter for which to make the determination.
+   *             It must not be {@code null}
    * @param  f2  The second filter for which to make the determination.
+   *             It must not be {@code null}
    *
    * @return  A negative value if the first filter should be ordered before the
    *          second, a positive value if the first filter should be ordered
@@ -111,6 +115,13 @@ public final class FilterComparator
    */
   public int compare(final Filter f1, final Filter f2)
   {
+    if(f1 == f2)
+    {
+      return 0;
+    }
+
+    Validator.ensureNotNull(f1, f2);
+
     final byte type1 = f1.getFilterType();
     final byte type2 = f2.getFilterType();
 

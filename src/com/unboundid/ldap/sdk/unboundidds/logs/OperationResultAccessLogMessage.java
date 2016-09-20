@@ -31,14 +31,15 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This interface defines a number of methods common to all types of operation
+ * result access log messages.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This interface defines a number of methods common to all types of operation
- * result access log messages.
  */
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.INTERFACE_THREADSAFE)

@@ -30,15 +30,16 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides a data structure that holds information about a log
+ * message that may appear in the Directory Server access log about a the
+ * result of an entry rebalancing operation.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure that holds information about a log
- * message that may appear in the Directory Server access log about a the
- * result of an entry rebalancing operation.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

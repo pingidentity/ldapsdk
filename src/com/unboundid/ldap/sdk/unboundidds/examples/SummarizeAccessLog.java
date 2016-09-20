@@ -77,15 +77,17 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This class provides a tool that may be used to read and summarize the
+ * contents of one or more access log files from Ping Identity, UnboundID and
+ * Alcatel-Lucent 8661 server products.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a tool that may be used to read and summarize the
- * contents of one or more access log files from UnboundID or Alcatel-Lucent
- * 8661 server products.  Information that will be reported includes:
+ * Information that will be reported includes:
  * <UL>
  *   <LI>The total length of time covered by the log files.</LI>
  *   <LI>The number of connections established and disconnected, the addresses
@@ -369,9 +371,9 @@ public final class SummarizeAccessLog
   @Override()
   public String getToolDescription()
   {
-    return "Examine one or more access log files from UnboundID or " +
-           "Alcatel-Lucent 8661 server products to display a number of " +
-           "metrics about operations processed within the server.";
+    return "Examine one or more access log files from Ping Identity, " +
+         "UnboundID, or Alcatel-Lucent 8661 server products to display a " +
+         "number of metrics about operations processed within the server.";
   }
 
 

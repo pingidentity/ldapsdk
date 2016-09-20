@@ -22,15 +22,17 @@
 
 
 /**
+ * This package and its subordinate packages contain a set of classes which
+ * provide enhanced functionality for interacting with the Ping
+ * Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server products.
+ * These classes are not supported for use with any other type of directory
+ * server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This package is part of the Commercial Edition of the
  *   UnboundID LDAP SDK for Java.  It is not available for use in applications
  *   that include only the Standard Edition of the LDAP SDK, and is not
  *   supported for use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This package and its subordinate packages contain a set of classes which
- * provide enhanced functionality for interacting with the UnboundID Directory
- * Server.  These classes are not supported for use with any other type of
- * directory server.
  */
 package com.unboundid.ldap.sdk.unboundidds;

@@ -49,18 +49,19 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an extended request that may be used
+ * to set the accessibility of one or more subtrees in the Ping Identity,
+ * UnboundID, or Alcatel-Lucent 8661 Directory Server.  It may be used to
+ * indicate that a specified set of entries and all their subordinates should be
+ * invisible or read-only, or to restore it to full accessibility.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an extended request that may be used
- * to set the accessibility of one or more subtrees in the UnboundID Directory
- * Server.  It may be used to indicate that a specified set of entries and all
- * their subordinates should be invisible or read-only, or to restore it to full
- * accessibility.
- * <BR><BR>
+ * <BR>
  * The OID for this request is 1.3.6.1.4.1.30221.2.6.19, and the
  * value must have the encoding specified below.  Note that the initial
  * specification for this extended request only allowed for the specification of

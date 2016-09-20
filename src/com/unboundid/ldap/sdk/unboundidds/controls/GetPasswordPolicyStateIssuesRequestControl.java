@@ -34,17 +34,18 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides an implementation of a request control that can be
+ * included in a bind request to indicate that the server should include a
+ * control in the bind response with information about any password policy state
+ * notices, warnings, and/or errors for the user.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a request control that can be
- * included in a bind request to indicate that the server should include a
- * control in the bind response with information about any password policy state
- * notices, warnings, and/or errors for the user.
- * <BR><BR>
+ * <BR>
  * This control has an OID of 1.3.6.1.4.1.30221.2.5.46 and no value.  It must
  * only be used in a bind request that also includes the
  * {@link RetainIdentityRequestControl}, and the authentication identify of the

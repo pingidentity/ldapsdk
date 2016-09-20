@@ -34,17 +34,18 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides an implementation of a control which may be used to
+ * process an add, delete, modify, or modify DN operation in the Directory
+ * Server which will not be replicated to other servers.  This control is
+ * primarily intended for use in manually resolving replication conflicts.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a control which may be used to
- * process an add, delete, modify, or modify DN operation in the Directory
- * Server which will not be replicated to other servers.  This control is
- * primarily intended for use in manually resolving replication conflicts.
- * <BR><BR>
+ * <BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the replication repair request
  * control:

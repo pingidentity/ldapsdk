@@ -49,17 +49,18 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an implementation of an extended request that may be used
+ * to request that the Directory Server deliver a one-time password to an end
+ * user that they may use to authenticate via an
+ * {@link com.unboundid.ldap.sdk.unboundidds.UnboundIDDeliveredOTPBindRequest}.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of an extended request that may be used
- * to request that the Directory Server deliver a one-time password to an end
- * user that they may use to authenticate via an
- * {@link com.unboundid.ldap.sdk.unboundidds.UnboundIDDeliveredOTPBindRequest}.
- * <BR><BR>
+ * <BR>
  * Notes on the recommended use of this extended request:
  * <UL>
  *   <LI>Whenever possible, the user's static password should be provided.

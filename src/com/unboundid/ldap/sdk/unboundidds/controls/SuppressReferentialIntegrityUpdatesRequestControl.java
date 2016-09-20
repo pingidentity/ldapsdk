@@ -34,16 +34,17 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides a request control which may be included in a delete or
+ * modify DN request to indicate that the server should skip any referential
+ * integrity processing that would have otherwise been done for that operation.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a request control which may be included in a delete or
- * modify DN request to indicate that the server should skip any referential
- * integrity processing that would have otherwise been done for that operation.
- * <BR><BR>
+ * <BR>
  * The request control has an OID of "1.3.6.1.4.1.30221.2.5.30" and does not
  * have a value.  The criticality for this control may be either {@code TRUE}
  * or {@code FALSE}, which may impact whether a server will process the

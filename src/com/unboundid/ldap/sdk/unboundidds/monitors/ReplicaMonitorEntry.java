@@ -37,16 +37,17 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
+ * This class defines a monitor entry that provides information about the state
+ * of a replica, including the base DN, replica ID, and generation ID, as well
+ * as information about its communication with the replication server
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines a monitor entry that provides information about the state
- * of a replica, including the base DN, replica ID, and generation ID, as well
- * as information about its communication with the replication server
- * <BR><BR>
+ * <BR>
  * The server should present a replica monitor entry for each replicated base
  * DN.  They can be retrieved using the
  * {@link MonitorManager#getReplicaMonitorEntries} method.  These entries

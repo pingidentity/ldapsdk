@@ -34,12 +34,6 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an implementation of the LDAP no-op control as defined in
  * draft-zeilenga-ldap-noop.  This control may be included in an add, delete,
  * modify, or modify DN request to indicate that the server should validate the
@@ -47,7 +41,14 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * to verify that the operation would likely succeed (including schema
  * validation, access control checks, and other processing) without making any
  * changes to the server data.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * Note that an operation which includes the no-op control will never have a
  * {@link ResultCode#SUCCESS} result.  Instead, if the operation would likely
  * have completed successfully if the no-op control had not been included, then
@@ -68,7 +69,8 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * are made as a result of this control.  Until such time as these are defined,
  * this implementation uses the OID temporarily assigned for its use by the
  * OpenLDAP Foundation, which is used by at least the OpenLDAP, OpenDS, and the
- * UnboundID Directory Server implementations.
+ * Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server
+ * implementations.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for attempting to perform a

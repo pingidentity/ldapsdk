@@ -33,16 +33,17 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
+ * This class provides a data structure for representing an administrative entry
+ * as exposed by the alarms backend in the Directory Server.  Alarm entries
+ * provide information about potential ongoing or resolved conditions within the
+ * server.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides a data structure for representing an administrative entry
- * as exposed by the alarms backend in the UnboundID Directory Server.  Alarm
- * entries provide information about potential ongoing or resolved conditions
- * within the server.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

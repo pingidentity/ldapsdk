@@ -33,7 +33,6 @@ import com.unboundid.ldap.sdk.examples.IdentifyReferencesToMissingEntries;
 import com.unboundid.ldap.sdk.examples.IdentifyUniqueAttributeConflicts;
 import com.unboundid.ldap.sdk.examples.LDAPCompare;
 import com.unboundid.ldap.sdk.examples.LDAPDebugger;
-import com.unboundid.ldap.sdk.examples.LDAPModify;
 import com.unboundid.ldap.sdk.examples.LDAPSearch;
 import com.unboundid.ldap.sdk.examples.ModRate;
 import com.unboundid.ldap.sdk.examples.SearchRate;
@@ -44,6 +43,9 @@ import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
 import com.unboundid.ldap.sdk.unboundidds.examples.DumpDNs;
 import com.unboundid.ldap.sdk.unboundidds.examples.SubtreeAccessibility;
 import com.unboundid.ldap.sdk.unboundidds.examples.SummarizeAccessLog;
+import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
+import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
+import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -51,12 +53,6 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 
 /**
- * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
- * </BLOCKQUOTE>
  * This class provides an entry point that may be used to launch other tools
  * provided as part of the LDAP SDK.  This is primarily a convenience for
  * someone who just has the jar file and none of the scripts, since you can run
@@ -64,7 +60,14 @@ import com.unboundid.util.ThreadSafetyLevel;
  * in order to invoke any of the example tools.  Running just
  * "<CODE>java -jar unboundid-ldapsdk-se.jar</CODE>" will display version
  * information about the LDAP SDK.
- * <BR><BR>
+ * <BR>
+ * <BLOCKQUOTE>
+ *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
+ *   LDAP SDK for Java.  It is not available for use in applications that
+ *   include only the Standard Edition of the LDAP SDK, and is not supported for
+ *   use in conjunction with non-UnboundID products.
+ * </BLOCKQUOTE>
+ * <BR>
  * The tool names are case-insensitive.  Supported tool names include:
  * <UL>
  *   <LI>authrate -- Launch the {@link AuthRate} tool.</LI>
@@ -87,12 +90,14 @@ import com.unboundid.util.ThreadSafetyLevel;
  *   <LI>ldapmodify -- Launch the {@link LDAPModify} tool.</LI>
  *   <LI>ldapsearch -- Launch the {@link LDAPSearch} tool.</LI>
  *   <LI>ldap-debugger -- Launch the {@link LDAPDebugger} tool.</LI>
+ *   <LI>manage-account -- Launch the {@link ManageAccount} tool.</LI>
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>move-subtree -- Launch the {@link MoveSubtree} tool.</LI>
  *   <LI>register-yubikey-otp-device -- Launch the
  *       {@link RegisterYubiKeyOTPDevice} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
  *   <LI>search-and-mod-rate -- Launch the {@link SearchAndModRate} tool.</LI>
+ *   <LI>split-ldif -- Launch the {@link SplitLDIF} tool.</LI>
  *   <LI>subtree-accessibility -- Launch the {@link SubtreeAccessibility}
  *       tool.</LI>
  *   <LI>summarize-access-log -- Launch the {@link SummarizeAccessLog}
@@ -210,7 +215,7 @@ public final class Launcher
     }
     else if (firstArg.equals("ldapmodify"))
     {
-      return LDAPModify.main(remainingArgs, outStream, errStream);
+      return LDAPModify.main(System.in, outStream, errStream, remainingArgs);
     }
     else if (firstArg.equals("ldapsearch"))
     {
@@ -219,6 +224,10 @@ public final class Launcher
     else if (firstArg.equals("ldap-debugger"))
     {
       return LDAPDebugger.main(remainingArgs, outStream, errStream);
+    }
+    else if (firstArg.equals("manage-account"))
+    {
+      return ManageAccount.main(outStream, errStream, remainingArgs);
     }
     else if (firstArg.equals("modrate"))
     {
@@ -239,6 +248,10 @@ public final class Launcher
     else if (firstArg.equals("search-and-mod-rate"))
     {
       return SearchAndModRate.main(remainingArgs, outStream, errStream);
+    }
+    else if (firstArg.equals("split-ldif"))
+    {
+      return SplitLDIF.main(outStream, errStream, remainingArgs);
     }
     else if (firstArg.equals("subtree-accessibility"))
     {
@@ -272,11 +285,13 @@ public final class Launcher
         err.println("     ldapmodify");
         err.println("     ldapsearch");
         err.println("     ldap-debugger");
+        err.println("     manage-account");
         err.println("     modrate");
         err.println("     move-subtree");
         err.println("     register-yubikey-otp-device");
         err.println("     searchrate");
         err.println("     search-and-mod-rate");
+        err.println("     split-ldif");
         err.println("     subtree-accessibility");
         err.println("     summarize-access-log");
         err.println("     validate-ldif");

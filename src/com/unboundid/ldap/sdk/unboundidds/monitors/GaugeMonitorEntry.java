@@ -39,15 +39,16 @@ import static com.unboundid.ldap.sdk.unboundidds.monitors.MonitorMessages.*;
 
 
 /**
+ * This class defines the base class for gauge monitor entries, which provide
+ * information common to all types of gauges.  Subclasses may provide more
+ * specific information for that specific type of gauge.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines the base class for gauge monitor entries, which provide
- * information common to all types of gauges.  Subclasses may provide more
- * specific information for that specific type of gauge.
  */
 @NotExtensible()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

@@ -32,14 +32,15 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class defines an exception that may be thrown if a problem occurs while
+ * attempting to parse a log message.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class defines an exception that may be thrown if a problem occurs while
- * attempting to parse a log message.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

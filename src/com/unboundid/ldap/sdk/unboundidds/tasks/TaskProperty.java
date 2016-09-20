@@ -34,14 +34,17 @@ import static com.unboundid.util.Validator.*;
 
 
 /**
+ * This class provides information about a property that may be used to schedule
+ * a task.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides information about a property that may be used to schedule
- * a task.  Elements of a task property include:
+ * <BR>
+ * Elements of a task property include:
  * <UL>
  *   <LI>The name of the LDAP attribute used to store values for this
  *       property.</LI>

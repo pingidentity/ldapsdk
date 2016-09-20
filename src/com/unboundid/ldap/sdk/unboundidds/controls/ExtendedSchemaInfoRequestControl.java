@@ -34,27 +34,29 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
 
 
 /**
+ * This class provides an implementation of a control which can be used to
+ * request that the Directory Server include extended information when returning
+ * a subschema subentry.  In the Ping Identity, UnboundID, and Alcatel-Lucent
+ * 8661 Directory Server, this will cause the server to include the
+ * X-SCHEMA-FILE extension (which contains the path to the file in which that
+ * schema element is defined) and the X-READ-ONLY extension (which indicates
+ * whether that schema element is read-only and cannot be altered by external
+ * clients).
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an implementation of a control which can be used to
- * request that the Directory Server include extended information when returning
- * a subschema subentry.  In the UnboundID Directory Server, this will cause the
- * server to include the X-SCHEMA-FILE extension (which contains the path to the
- * file in which that schema element is defined) and the X-READ-ONLY extension
- * (which indicates whether that schema element is read-only and cannot be
- * altered by external clients).
- * <BR><BR>
+ * <BR>
  * This control is not based on any public specification, and has been defined
  * by UnboundID Corp.  It does not have a value, and may or may not be
  * critical.  It should only be included in search requests.
  * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the procedure to use for requesting the
- * UnboundID Directory Server schema with extended information.  Note that the
+ * Directory Server schema with extended information.  Note that the
  * {@code LDAPInterface.getSchema} and {@code Schema.getSchema} convenience
  * methods cannot be used because they do not allow you to include controls in
  * the request.

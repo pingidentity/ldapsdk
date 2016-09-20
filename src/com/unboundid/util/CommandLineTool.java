@@ -259,7 +259,7 @@ public abstract class CommandLineTool
 
           for (final String descriptionLine :
                wrapLine(sc.getDescription(),
-                    (StaticUtils.TERMINAL_WIDTH_COLUMNS - 1)))
+                    (StaticUtils.TERMINAL_WIDTH_COLUMNS - 3)))
           {
             out("  " + descriptionLine);
           }

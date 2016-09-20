@@ -32,14 +32,15 @@ import static com.unboundid.util.StaticUtils.*;
 
 
 /**
+ * This enum contains the set of possible entry-level rights that may be
+ * described in an entry retrieved with the get effective rights control.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This enum contains the set of possible entry-level rights that may be
- * described in an entry retrieved with the get effective rights control.
  */
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public enum EntryRight

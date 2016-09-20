@@ -48,14 +48,16 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
 
 
 /**
+ * This class provides an extended result that may be used to obtain information
+ * about the results of processing a get changelog batch extended request.
+ * <BR>
  * <BLOCKQUOTE>
  *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
  *   LDAP SDK for Java.  It is not available for use in applications that
  *   include only the Standard Edition of the LDAP SDK, and is not supported for
  *   use in conjunction with non-UnboundID products.
  * </BLOCKQUOTE>
- * This class provides an extended result that may be used to obtain information
- * about the results of processing a get changelog batch extended request.  The
+ * <BR>
  * The changelog batch result value is encoded as follows:
  * <PRE>
  *   ChangelogBatchResult ::= SEQUENCE {
