@@ -456,7 +456,13 @@ public final class JSONNumber
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a string representation of this number as it should appear in a
+   * JSON object.  If the object containing this number was decoded from a
+   * string, then this method will use the same string representation as in that
+   * original object.  Otherwise, the string representation will be constructed.
+   *
+   * @return  A string representation of this number as it should appear in a
+   *          JSON object.
    */
   @Override()
   public String toString()
@@ -467,7 +473,13 @@ public final class JSONNumber
 
 
   /**
-   * {@inheritDoc}
+   * Appends a string representation of this number as it should appear in a
+   * JSON object to the provided buffer.  If the object containing this number
+   * was decoded from a string, then this method will use the same string
+   * representation as in that original object.  Otherwise, the string
+   * representation will be constructed.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toString(final StringBuilder buffer)
@@ -478,7 +490,14 @@ public final class JSONNumber
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a single-line string representation of this number as it should
+   * appear in a JSON object.  If the object containing this number was decoded
+   * from a string, then this method will use the same string representation as
+   * in that original object.  Otherwise, the string representation will be
+   * constructed.
+   *
+   * @return  A single-line string representation of this number as it should
+   *          appear in a JSON object.
    */
   @Override()
   public String toSingleLineString()
@@ -489,7 +508,13 @@ public final class JSONNumber
 
 
   /**
-   * {@inheritDoc}
+   * Appends a single-line string representation of this number as it should
+   * appear in a JSON object to the provided buffer.  If the object containing
+   * this number was decoded from a string, then this method will use the same
+   * string representation as in that original object.  Otherwise, the string
+   * representation will be constructed.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toSingleLineString(final StringBuilder buffer)
@@ -500,7 +525,14 @@ public final class JSONNumber
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a normalized string representation of this number as it should
+   * appear in a JSON object.  The normalized representation will not use
+   * exponentiation, will not include a decimal point if the value can be
+   * represented as an integer, and will not include any unnecessary trailing
+   * zeroes if it can only be represented as a floating-point value.
+   *
+   * @return  A normalized string representation of this number as it should
+   *          appear in a JSON object.
    */
   @Override()
   public String toNormalizedString()
@@ -513,7 +545,14 @@ public final class JSONNumber
 
 
   /**
-   * {@inheritDoc}
+   * Appends a normalized string representation of this number as it should
+   * appear in a JSON object to the provided buffer.  The normalized
+   * representation will not use exponentiation, will not include a decimal
+   * point if the value can be represented as an integer, and will not include
+   * any unnecessary trailing zeroes if it can only be represented as a
+   * floating-point value.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toNormalizedString(final StringBuilder buffer)

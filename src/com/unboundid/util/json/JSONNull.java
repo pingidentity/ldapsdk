@@ -97,7 +97,12 @@ public final class JSONNull
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a string representation of this null value as it should appear
+   * in a JSON object.  Null values will always have a string representation of
+   * "{@code null}" (without the surrounding quotes).
+   *
+   * @return  A string representation of this null value as it should appear
+   *          in a JSON object.
    */
   @Override()
   public String toString()
@@ -108,7 +113,11 @@ public final class JSONNull
 
 
   /**
-   * {@inheritDoc}
+   * Appends a string representation of this null value as it should appear
+   * in a JSON object to the provided buffer.  Null values will always have a
+   * string representation of "{@code null}" (without the surrounding quotes).
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toString(final StringBuilder buffer)
@@ -119,7 +128,12 @@ public final class JSONNull
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a single-line string representation of this null value as it
+   * should appear in a JSON object.  Null values will always have a string
+   * representation of "{@code null}" (without the surrounding quotes).
+   *
+   * @return  A single-line string representation of this null value as it
+   *          should appear in a JSON object.
    */
   @Override()
   public String toSingleLineString()
@@ -130,7 +144,12 @@ public final class JSONNull
 
 
   /**
-   * {@inheritDoc}
+   * Appends a single-line string representation of this null value as it should
+   * appear in a JSON object to the provided buffer.  Null values will always
+   * have a string representation of "{@code null}" (without the surrounding
+   * quotes).
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toSingleLineString(final StringBuilder buffer)
@@ -141,7 +160,12 @@ public final class JSONNull
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a normalized string representation of this null value as it
+   * should appear in a JSON object.  Null values will always have a string
+   * representation of "{@code null}" (without the surrounding quotes).
+   *
+   * @return  A normalized string representation of this null value as it
+   *          should appear in a JSON object.
    */
   @Override()
   public String toNormalizedString()
@@ -152,7 +176,12 @@ public final class JSONNull
 
 
   /**
-   * {@inheritDoc}
+   * Appends a normalized string representation of this null value as it should
+   * appear in a JSON object to the provided buffer.  Null values will always
+   * have a string representation of "{@code null}" (without the surrounding
+   * quotes).
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toNormalizedString(final StringBuilder buffer)

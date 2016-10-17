@@ -118,9 +118,12 @@ public abstract class JSONValue
 
   /**
    * Retrieves a string representation of this value as it should appear in a
-   * JSON object, including any necessary quoting, escaping, etc.
+   * JSON object, including any necessary quoting, escaping, etc.  If the object
+   * containing this value was decoded from a string, then this method will use
+   * the same string representation as in that original object.  Otherwise, the
+   * string representation will be constructed.
    *
-   * @return A string representation of this value as it should appear in a
+   * @return  A string representation of this value as it should appear in a
    *          JSON object.
    */
   public abstract String toString();
@@ -130,7 +133,9 @@ public abstract class JSONValue
   /**
    * Appends a string representation of this value (as it should appear in a
    * JSON object, including any necessary quoting, escaping, etc.) to the
-   * provided buffer.
+   * provided buffer.  If the object containing this value was decoded from a
+   * string, then this method will use the same string representation as in that
+   * original object.  Otherwise, the string representation will be constructed.
    *
    * @param  buffer  The buffer to which the information should be appended.
    */

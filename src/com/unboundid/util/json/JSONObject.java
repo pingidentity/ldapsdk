@@ -1068,7 +1068,11 @@ public final class JSONObject
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a string representation of this JSON object.  If this object was
+   * decoded from a string, then the original string representation will be
+   * used.  Otherwise, a single-line string representation will be constructed.
+   *
+   * @return  A string representation of this JSON object.
    */
   @Override()
   public String toString()
@@ -1086,7 +1090,12 @@ public final class JSONObject
 
 
   /**
-   * {@inheritDoc}
+   * Appends a string representation of this JSON object to the provided buffer.
+   * If this object was decoded from a string, then the original string
+   * representation will be used.  Otherwise, a single-line string
+   * representation will be constructed.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toString(final StringBuilder buffer)
@@ -1121,13 +1130,12 @@ public final class JSONObject
 
 
   /**
-   * Retrieves a string representation of this value as it should appear in a
-   * JSON object formatted in a multi-line representation, including any
-   * necessary quoting, escaping, etc.  The last line will not include a
-   * trailing line break.
+   * Retrieves a user-friendly string representation of this JSON object that
+   * may be formatted across multiple lines for better readability.  The last
+   * line will not include a trailing line break.
    *
-   * @return A string representation of this value as it should appear in a
-   *          JSON object formatted in a multi-line representation.
+   * @return  A user-friendly string representation of this JSON object that may
+   *          be formatted across multiple lines for better readability.
    */
   public String toMultiLineString()
   {
@@ -1139,7 +1147,9 @@ public final class JSONObject
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a single-line string representation of this JSON object.
+   *
+   * @return  A single-line string representation of this JSON object.
    */
   @Override()
   public String toSingleLineString()
@@ -1152,7 +1162,10 @@ public final class JSONObject
 
 
   /**
-   * {@inheritDoc}
+   * Appends a single-line string representation of this JSON object to the
+   * provided buffer.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toSingleLineString(final StringBuilder buffer)
@@ -1181,7 +1194,21 @@ public final class JSONObject
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a normalized string representation of this JSON object.  The
+   * normalized representation of the JSON object will have the following
+   * characteristics:
+   * <UL>
+   *   <LI>It will not include any line breaks.</LI>
+   *   <LI>It will not include any spaces around the enclosing braces.</LI>
+   *   <LI>It will not include any spaces around the commas used to separate
+   *       fields.</LI>
+   *   <LI>Field names will be treated in a case-sensitive manner and will not
+   *       be altered.</LI>
+   *   <LI>Field values will be normalized.</LI>
+   *   <LI>Fields will be listed in lexicographic order by field name.</LI>
+   * </UL>
+   *
+   * @return  A normalized string representation of this JSON object.
    */
   @Override()
   public String toNormalizedString()
@@ -1194,7 +1221,21 @@ public final class JSONObject
 
 
   /**
-   * {@inheritDoc}
+   * Appends a normalized string representation of this JSON object to the
+   * provided buffer.  The normalized representation of the JSON object will
+   * have the following characteristics:
+   * <UL>
+   *   <LI>It will not include any line breaks.</LI>
+   *   <LI>It will not include any spaces around the enclosing braces.</LI>
+   *   <LI>It will not include any spaces around the commas used to separate
+   *       fields.</LI>
+   *   <LI>Field names will be treated in a case-sensitive manner and will not
+   *       be altered.</LI>
+   *   <LI>Field values will be normalized.</LI>
+   *   <LI>Fields will be listed in lexicographic order by field name.</LI>
+   * </UL>
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toNormalizedString(final StringBuilder buffer)

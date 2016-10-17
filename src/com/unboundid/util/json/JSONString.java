@@ -261,7 +261,18 @@ public final class JSONString
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a string representation of this JSON string as it should appear
+   * in a JSON object, including the surrounding quotation marks and any
+   * appropriate escaping  To obtain the string to which this value refers
+   * without the surrounding quotation marks or escaping, use the
+   * {@link #stringValue()} method.
+   * <BR><BR>
+   * If the object containing this string was decoded from a string, then this
+   * method will use the same string representation as in that original object.
+   * Otherwise, the string representation will be constructed.
+   *
+   * @return  A string representation of this value as it should appear in a
+   *          JSON object.
    */
   @Override()
   public String toString()
@@ -279,7 +290,17 @@ public final class JSONString
 
 
   /**
-   * {@inheritDoc}
+   * Appends a string representation of this JSON string as it should appear
+   * in a JSON object, including the surrounding quotation marks and any
+   * appropriate escaping, to the provided buffer.  To obtain the string to
+   * which this value refers without the surrounding quotation marks or
+   * escaping, use the {@link #stringValue()} method.
+   * <BR><BR>
+   * If the object containing this string was decoded from a string, then this
+   * method will use the same string representation as in that original object.
+   * Otherwise, the string representation will be constructed.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toString(final StringBuilder buffer)
@@ -303,7 +324,14 @@ public final class JSONString
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a single-line representation of this JSON string as it should
+   * appear in a JSON object, including the surrounding quotation marks and any
+   * appropriate escaping.  To obtain the string to which this value refers
+   * without the surrounding quotation marks or escaping, use the
+   * {@link #stringValue()} method.
+   *
+   * @return  A single-line representation of this value as it should appear in
+   *          a JSON object.
    */
   @Override()
   public String toSingleLineString()
@@ -314,7 +342,13 @@ public final class JSONString
 
 
   /**
-   * {@inheritDoc}
+   * Appends a single-line string representation of this JSON string as it
+   * should appear in a JSON object, including the surrounding quotation marks
+   * and any appropriate escaping, to the provided buffer.  To obtain the string
+   * to which this value refers without the surrounding quotation marks or
+   * escaping, use the {@link #stringValue()} method.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toSingleLineString(final StringBuilder buffer)
@@ -439,7 +473,33 @@ public final class JSONString
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a normalized representation of this JSON string as it should
+   * appear in a JSON object, including the surrounding quotes and any
+   * appropriate escaping.  The normalized representation will use the unescaped
+   * ASCII representation of all of the following characters:
+   * <UL>
+   *   <LI>The letters a through z (ASCII character codes 0x61 through
+   *       0x7A).</LI>
+   *   <LI>The digits 0 through 9 (ASCII character codes 0x30 through
+   *       0x39).</LI>
+   *   <LI>The space (ASCII character code 0x20).</LI>
+   *   <LI>The single quote (ASCII character code 0x27).</LI>
+   *   <LI>The left parenthesis (ASCII character code 0x28).</LI>
+   *   <LI>The right parenthesis (ASCII character code 0x29).</LI>
+   *   <LI>The plus sign (ASCII character code 0x2B).</LI>
+   *   <LI>The comma (ASCII character code 0x2C).</LI>
+   *   <LI>The hyphen (ASCII character code 0x2D).</LI>
+   *   <LI>The period (ASCII character code 0x2E).</LI>
+   *   <LI>The forward slash (ASCII character code 0x2F).</LI>
+   *   <LI>The colon (ASCII character code 0x3A).</LI>
+   *   <LI>The equal sign (ASCII character code 0x3D).</LI>
+   *   <LI>The question mark (ASCII character code 0x3F).</LI>
+   * </UL>
+   * All characters except those listed above will be escaped using their
+   * Unicode representation.
+   *
+   * @return  A normalized representation of this JSON string as it should
+   *          appear in a JSON object, including
    */
   @Override()
   public String toNormalizedString()
@@ -452,7 +512,33 @@ public final class JSONString
 
 
   /**
-   * {@inheritDoc}
+   * Appends a normalized representation of this JSON string as it should
+   * appear in a JSON object, including the surrounding quotes and any
+   * appropriate escaping, to the provided buffer.  The normalized
+   * representation will use the unescaped ASCII representation of all of the
+   * following characters:
+   * <UL>
+   *   <LI>The letters a through z (ASCII character codes 0x61 through
+   *       0x7A).</LI>
+   *   <LI>The digits 0 through 9 (ASCII character codes 0x30 through
+   *       0x39).</LI>
+   *   <LI>The space (ASCII character code 0x20).</LI>
+   *   <LI>The single quote (ASCII character code 0x27).</LI>
+   *   <LI>The left parenthesis (ASCII character code 0x28).</LI>
+   *   <LI>The right parenthesis (ASCII character code 0x29).</LI>
+   *   <LI>The plus sign (ASCII character code 0x2B).</LI>
+   *   <LI>The comma (ASCII character code 0x2C).</LI>
+   *   <LI>The hyphen (ASCII character code 0x2D).</LI>
+   *   <LI>The period (ASCII character code 0x2E).</LI>
+   *   <LI>The forward slash (ASCII character code 0x2F).</LI>
+   *   <LI>The colon (ASCII character code 0x3A).</LI>
+   *   <LI>The equal sign (ASCII character code 0x3D).</LI>
+   *   <LI>The question mark (ASCII character code 0x3F).</LI>
+   * </UL>
+   * All characters except those listed above will be escaped using their
+   * Unicode representation.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toNormalizedString(final StringBuilder buffer)

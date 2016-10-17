@@ -370,7 +370,15 @@ public final class JSONArray
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a string representation of this array as it should appear in a
+   * JSON object, including the surrounding square brackets.  Appropriate
+   * encoding will also be used for all elements in the array.    If the object
+   * containing this array was decoded from a string, then this method will use
+   * the same string representation as in that original object.  Otherwise, the
+   * string representation will be constructed.
+   *
+   * @return  A string representation of this array as it should appear in a
+   *          JSON object, including the surrounding square brackets.
    */
   @Override()
   public String toString()
@@ -388,7 +396,14 @@ public final class JSONArray
 
 
   /**
-   * {@inheritDoc}
+   * Appends a string representation of this value as it should appear in a
+   * JSON object, including the surrounding square brackets,. to the provided
+   * buffer.  Appropriate encoding will also be used for all elements in the
+   * array.    If the object containing this array was decoded from a string,
+   * then this method will use the same string representation as in that
+   * original object.  Otherwise, the string representation will be constructed.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toString(final StringBuilder buffer)
@@ -418,7 +433,12 @@ public final class JSONArray
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a single-line string representation of this array as it should
+   * appear in a JSON object, including the surrounding square brackets.
+   * Appropriate encoding will also be used for all elements in the array.
+   *
+   * @return  A string representation of this array as it should appear in a
+   *          JSON object, including the surrounding square brackets.
    */
   @Override()
   public String toSingleLineString()
@@ -431,7 +451,12 @@ public final class JSONArray
 
 
   /**
-   * {@inheritDoc}
+   * Appends a single-line string representation of this array as it should
+   * appear in a JSON object, including the surrounding square brackets, to the
+   * provided buffer.  Appropriate encoding will also be used for all elements
+   * in the array.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toSingleLineString(final StringBuilder buffer)
@@ -455,7 +480,14 @@ public final class JSONArray
 
 
   /**
-   * {@inheritDoc}
+   * Retrieves a normalized string representation of this array.  The normalized
+   * representation will not contain any line breaks, will not include any
+   * spaces around the enclosing brackets or around commas used to separate the
+   * elements, and it will use the normalized representations of those elements.
+   * The order of elements in an array is considered significant, and will not
+   * be affected by the normalization process.
+   *
+   * @return  A normalized string representation of this array.
    */
   @Override()
   public String toNormalizedString()
@@ -468,7 +500,15 @@ public final class JSONArray
 
 
   /**
-   * {@inheritDoc}
+   * Appends a normalized string representation of this array to the provided
+   * buffer.  The normalized representation will not contain any line breaks,
+   * will not include any spaces around the enclosing brackets or around commas
+   * used to separate the elements, and it will use the normalized
+   * representations of those elements. The order of elements in an array is
+   * considered significant, and will not be affected by the normalization
+   * process.
+   *
+   * @param  buffer  The buffer to which the information should be appended.
    */
   @Override()
   public void toNormalizedString(final StringBuilder buffer)
