@@ -1167,20 +1167,45 @@ public final class ArgumentParser
 
   /**
    * Adds the provided collection of arguments as dependent upon the given
-   * argument.
+   * argument.  All of the arguments must have already been registered with this
+   * argument parser using the {@link #addArgument} method.
    *
    * @param  targetArgument      The argument whose presence indicates that at
    *                             least one of the dependent arguments must also
-   *                             be present.  It must not be {@code null}.
+   *                             be present.  It must not be {@code null}, and
+   *                             it must have already been registered with this
+   *                             argument parser.
    * @param  dependentArguments  The set of arguments from which at least one
    *                             argument must be present if the target argument
    *                             is present.  It must not be {@code null} or
-   *                             empty.
+   *                             empty, and all arguments must have already been
+   *                             registered with this argument parser.
    */
   public void addDependentArgumentSet(final Argument targetArgument,
                    final Collection<Argument> dependentArguments)
   {
     ensureNotNull(targetArgument, dependentArguments);
+
+    ensureFalse(dependentArguments.isEmpty(),
+         "The ArgumentParser.addDependentArgumentSet method must not be " +
+              "called with an empty collection of dependentArguments");
+
+    ensureTrue(namedArgs.contains(targetArgument),
+         "The ArgumentParser.addDependentArgumentSet method may only be used " +
+              "if all of the provided arguments have already been registered " +
+              "with the argument parser via the ArgumentParser.addArgument " +
+              "method.  The " + targetArgument.getIdentifierString() +
+              " argument has not been registered with the argument parser.");
+    for (final Argument a : dependentArguments)
+    {
+      ensureTrue(namedArgs.contains(a),
+           "The ArgumentParser.addDependentArgumentSet method may only be " +
+                "used if all of the provided arguments have already been " +
+                "registered with the argument parser via the " +
+                "ArgumentParser.addArgument method.  The " +
+                a.getIdentifierString() + " argument has not been registered " +
+                "with the argument parser.");
+    }
 
     final LinkedHashSet<Argument> argSet =
          new LinkedHashSet<Argument>(dependentArguments);
@@ -1192,17 +1217,26 @@ public final class ArgumentParser
 
   /**
    * Adds the provided collection of arguments as dependent upon the given
-   * argument.
+   * argument.  All of the arguments must have already been registered with this
+   * argument parser using the {@link #addArgument} method.
    *
    * @param  targetArgument  The argument whose presence indicates that at least
    *                         one of the dependent arguments must also be
-   *                         present.  It must not be {@code null}.
+   *                         present.  It must not be {@code null}, and it must
+   *                         have already been registered with this argument
+   *                         parser.
    * @param  dependentArg1   The first argument in the set of arguments in which
    *                         at least one argument must be present if the target
-   *                         argument is present.  It must not be {@code null}.
+   *                         argument is present.  It must not be {@code null},
+   *                         and it must have already been registered with this
+   *                         argument parser.
    * @param  remaining       The remaining arguments in the set of arguments in
    *                         which at least one argument must be present if the
-   *                         target argument is present.
+   *                         target argument is present.  It may be {@code null}
+   *                         or empty if no additional dependent arguments are
+   *                         needed, but if it is non-empty then all arguments
+   *                         must have already been registered with this
+   *                         argument parser.
    */
   public void addDependentArgumentSet(final Argument targetArgument,
                                       final Argument dependentArg1,
@@ -1210,9 +1244,38 @@ public final class ArgumentParser
   {
     ensureNotNull(targetArgument, dependentArg1);
 
+    ensureTrue(namedArgs.contains(targetArgument),
+         "The ArgumentParser.addDependentArgumentSet method may only be used " +
+              "if all of the provided arguments have already been registered " +
+              "with the argument parser via the ArgumentParser.addArgument " +
+              "method.  The " + targetArgument.getIdentifierString() +
+              " argument has not been registered with the argument parser.");
+    ensureTrue(namedArgs.contains(dependentArg1),
+         "The ArgumentParser.addDependentArgumentSet method may only be used " +
+              "if all of the provided arguments have already been registered " +
+              "with the argument parser via the ArgumentParser.addArgument " +
+              "method.  The " + dependentArg1.getIdentifierString() +
+              " argument has not been registered with the argument parser.");
+    if (remaining != null)
+    {
+      for (final Argument a : remaining)
+      {
+        ensureTrue(namedArgs.contains(a),
+             "The ArgumentParser.addDependentArgumentSet method may only be " +
+                  "used if all of the provided arguments have already been " +
+                  "registered with the argument parser via the " +
+                  "ArgumentParser.addArgument method.  The " +
+                  a.getIdentifierString() + " argument has not been " +
+                  "registered with the argument parser.");
+      }
+    }
+
     final LinkedHashSet<Argument> argSet = new LinkedHashSet<Argument>();
     argSet.add(dependentArg1);
-    argSet.addAll(Arrays.asList(remaining));
+    if (remaining != null)
+    {
+      argSet.addAll(Arrays.asList(remaining));
+    }
 
     dependentArgumentSets.add(
          new ObjectPair<Argument,Set<Argument>>(targetArgument, argSet));
@@ -1238,16 +1301,32 @@ public final class ArgumentParser
 
   /**
    * Adds the provided collection of arguments as an exclusive argument set, in
-   * which at most one of the arguments may be provided.
+   * which at most one of the arguments may be provided.  All of the arguments
+   * must have already been registered with this argument parser using the
+   * {@link #addArgument} method.
    *
    * @param  exclusiveArguments  The collection of arguments to form an
    *                             exclusive argument set.  It must not be
-   *                             {@code null}.
+   *                             {@code null}, and all of the arguments must
+   *                             have already been registered with this argument
+   *                             parser.
    */
   public void addExclusiveArgumentSet(
                    final Collection<Argument> exclusiveArguments)
   {
     ensureNotNull(exclusiveArguments);
+
+    for (final Argument a : exclusiveArguments)
+    {
+      ensureTrue(namedArgs.contains(a),
+           "The ArgumentParser.addExclusiveArgumentSet method may only be " +
+                "used if all of the provided arguments have already been " +
+                "registered with the argument parser via the " +
+                "ArgumentParser.addArgument method.  The " +
+                a.getIdentifierString() + " argument has not been " +
+                "registered with the argument parser.");
+    }
+
     final LinkedHashSet<Argument> argSet =
          new LinkedHashSet<Argument>(exclusiveArguments);
     exclusiveArgumentSets.add(Collections.unmodifiableSet(argSet));
@@ -1257,19 +1336,55 @@ public final class ArgumentParser
 
   /**
    * Adds the provided set of arguments as an exclusive argument set, in
-   * which at most one of the arguments may be provided.
+   * which at most one of the arguments may be provided.  All of the arguments
+   * must have already been registered with this argument parser using the
+   * {@link #addArgument} method.
    *
    * @param  arg1       The first argument to include in the exclusive argument
-   *                    set.  It must not be {@code null}.
+   *                    set.  It must not be {@code null}, and it must have
+   *                    already been registered with this argument parser.
    * @param  arg2       The second argument to include in the exclusive argument
-   *                    set.  It must not be {@code null}.
+   *                    set.  It must not be {@code null}, and it must have
+   *                    already been registered with this argument parser.
    * @param  remaining  Any additional arguments to include in the exclusive
-   *                    argument set.
+   *                    argument set.  It may be {@code null} or empty if no
+   *                    additional exclusive arguments are needed, but if it is
+   *                    non-empty then all arguments must have already been
+   *                    registered with this argument parser.
    */
   public void addExclusiveArgumentSet(final Argument arg1, final Argument arg2,
                                       final Argument... remaining)
   {
     ensureNotNull(arg1, arg2);
+
+    ensureTrue(namedArgs.contains(arg1),
+         "The ArgumentParser.addExclusiveArgumentSet method may only be " +
+              "used if all of the provided arguments have already been " +
+              "registered with the argument parser via the " +
+              "ArgumentParser.addArgument method.  The " +
+              arg1.getIdentifierString() + " argument has not been " +
+              "registered with the argument parser.");
+    ensureTrue(namedArgs.contains(arg2),
+         "The ArgumentParser.addExclusiveArgumentSet method may only be " +
+              "used if all of the provided arguments have already been " +
+              "registered with the argument parser via the " +
+              "ArgumentParser.addArgument method.  The " +
+              arg2.getIdentifierString() + " argument has not been " +
+              "registered with the argument parser.");
+
+    if (remaining != null)
+    {
+      for (final Argument a : remaining)
+      {
+        ensureTrue(namedArgs.contains(a),
+             "The ArgumentParser.addExclusiveArgumentSet method may only be " +
+                  "used if all of the provided arguments have already been " +
+                  "registered with the argument parser via the " +
+                  "ArgumentParser.addArgument method.  The " +
+                  a.getIdentifierString() + " argument has not been " +
+                  "registered with the argument parser.");
+      }
+    }
 
     final LinkedHashSet<Argument> argSet = new LinkedHashSet<Argument>();
     argSet.add(arg1);
@@ -1298,16 +1413,32 @@ public final class ArgumentParser
 
   /**
    * Adds the provided collection of arguments as a required argument set, in
-   * which at least one of the arguments must be provided.
+   * which at least one of the arguments must be provided.  All of the arguments
+   * must have already been registered with this argument parser using the
+   * {@link #addArgument} method.
    *
    * @param  requiredArguments  The collection of arguments to form an
    *                            required argument set.  It must not be
-   *                            {@code null}.
+   *                            {@code null}, and all of the arguments must have
+   *                            already been registered with this argument
+   *                            parser.
    */
   public void addRequiredArgumentSet(
                    final Collection<Argument> requiredArguments)
   {
     ensureNotNull(requiredArguments);
+
+    for (final Argument a : requiredArguments)
+    {
+      ensureTrue(namedArgs.contains(a),
+           "The ArgumentParser.addRequiredArgumentSet method may only be " +
+                "used if all of the provided arguments have already been " +
+                "registered with the argument parser via the " +
+                "ArgumentParser.addArgument method.  The " +
+                a.getIdentifierString() + " argument has not been " +
+                "registered with the argument parser.");
+    }
+
     final LinkedHashSet<Argument> argSet =
          new LinkedHashSet<Argument>(requiredArguments);
     requiredArgumentSets.add(Collections.unmodifiableSet(argSet));
@@ -1317,19 +1448,55 @@ public final class ArgumentParser
 
   /**
    * Adds the provided set of arguments as a required argument set, in which
-   * at least one of the arguments must be provided.
+   * at least one of the arguments must be provided.  All of the arguments must
+   * have already been registered with this argument parser using the
+   * {@link #addArgument} method.
    *
    * @param  arg1       The first argument to include in the required argument
-   *                    set.  It must not be {@code null}.
+   *                    set.  It must not be {@code null}, and it must have
+   *                    already been registered with this argument parser.
    * @param  arg2       The second argument to include in the required argument
-   *                    set.  It must not be {@code null}.
+   *                    set.  It must not be {@code null}, and it must have
+   *                    already been registered with this argument parser.
    * @param  remaining  Any additional arguments to include in the required
-   *                    argument set.
+   *                    argument set.  It may be {@code null} or empty if no
+   *                    additional required arguments are needed, but if it is
+   *                    non-empty then all arguments must have already been
+   *                    registered with this argument parser.
    */
   public void addRequiredArgumentSet(final Argument arg1, final Argument arg2,
                                      final Argument... remaining)
   {
     ensureNotNull(arg1, arg2);
+
+    ensureTrue(namedArgs.contains(arg1),
+         "The ArgumentParser.addRequiredArgumentSet method may only be " +
+              "used if all of the provided arguments have already been " +
+              "registered with the argument parser via the " +
+              "ArgumentParser.addArgument method.  The " +
+              arg1.getIdentifierString() + " argument has not been " +
+              "registered with the argument parser.");
+    ensureTrue(namedArgs.contains(arg2),
+         "The ArgumentParser.addRequiredArgumentSet method may only be " +
+              "used if all of the provided arguments have already been " +
+              "registered with the argument parser via the " +
+              "ArgumentParser.addArgument method.  The " +
+              arg2.getIdentifierString() + " argument has not been " +
+              "registered with the argument parser.");
+
+    if (remaining != null)
+    {
+      for (final Argument a : remaining)
+      {
+        ensureTrue(namedArgs.contains(a),
+             "The ArgumentParser.addRequiredArgumentSet method may only be " +
+                  "used if all of the provided arguments have already been " +
+                  "registered with the argument parser via the " +
+                  "ArgumentParser.addArgument method.  The " +
+                  a.getIdentifierString() + " argument has not been " +
+                  "registered with the argument parser.");
+      }
+    }
 
     final LinkedHashSet<Argument> argSet = new LinkedHashSet<Argument>();
     argSet.add(arg1);
