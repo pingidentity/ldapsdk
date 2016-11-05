@@ -72,6 +72,16 @@ public abstract class MatchingRule
 
 
   /**
+   * A reference to the jsonObjectExactMatch matching rule, if it has been
+   * loaded.  This matching rule needs to be loaded via reflection because it's
+   * only included in the Commercial Edition and isn't part of the Standard
+   * Edition.
+   */
+  private static volatile MatchingRule jsonObjectExactMatchingRule = null;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 6050276733546358513L;
@@ -506,21 +516,7 @@ public abstract class MatchingRule
     else if (lowerName.equals("jsonobjectexactmatch") ||
              lowerName.equals("1.3.6.1.4.1.30221.2.4.12"))
     {
-      // This is the jsonObjectExactMatch matching rule.  That rule is only
-      // supported in the Commercial Edition of the LDAP SDK.  Use reflection to
-      // get it if it's available.
-      try
-      {
-        final Class<?> c = Class.forName("com.unboundid.ldap.sdk.unboundidds." +
-             "jsonfilter.JSONObjectExactMatchingRule");
-        final Method m = c.getMethod("getInstance");
-        return (MatchingRule) m.invoke(null);
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-        return CaseIgnoreStringMatchingRule.getInstance();
-      }
+      return getJSONObjectExactMatchingRule();
     }
     else
     {
@@ -916,24 +912,52 @@ public abstract class MatchingRule
     }
     else if (syntaxOID.equals("1.3.6.1.4.1.30221.2.3.4")) // JSON object
     {
-      // This is only supported in the Commercial Edition of the LDAP SDK.  Use
-      // reflection to get the appropriate matching rule if it's available.
-      try
-      {
-        final Class<?> c = Class.forName("com.unboundid.ldap.sdk.unboundidds." +
-             "jsonfilter.JSONObjectExactMatchingRule");
-        final Method m = c.getMethod("getInstance");
-        return (MatchingRule) m.invoke(null);
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-        return CaseIgnoreStringMatchingRule.getInstance();
-      }
+      return getJSONObjectExactMatchingRule();
     }
     else
     {
       return CaseIgnoreStringMatchingRule.getInstance();
     }
+  }
+
+
+
+  /**
+   * Retrieves the matching rule that should be used for JSON object exact
+   * matching.  Ideally, we will use the jsonObjectExactMatch matching rule,
+   * but that's only available in the Commercial Edition of the LDAP SDK, so
+   * it's not available in the Standard (or Minimal) Edition.  If we haven't
+   * loaded this matching rule yet, then try to use reflection to get the
+   * jsonObjectExactMatch instance if it's available, and otherwise fall back
+   * to using the caseIgnoreString matching rule.  Either way, cache the result
+   * so that we don't need to use reflection on subsequent calls.
+   *
+   * @return  The matching rule that should be used for JSON object exact
+   *          matching.
+   */
+  private static MatchingRule getJSONObjectExactMatchingRule()
+  {
+    if (jsonObjectExactMatchingRule == null)
+    {
+      try
+      {
+        final Class<?> c = Class.forName("com.unboundid.ldap.sdk.unboundidds." +
+             "jsonfilter.JSONObjectExactMatchingRule");
+        final Method m = c.getMethod("getInstance");
+        jsonObjectExactMatchingRule = (MatchingRule) m.invoke(null);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+
+        // We must be using the Standard Edition, which doesn't support the
+        // jsonObjectExactMatch matching rule.  Use the caseIgnoreString
+        // matching rule instead.
+        jsonObjectExactMatchingRule =
+             CaseIgnoreStringMatchingRule.getInstance();
+      }
+    }
+
+    return jsonObjectExactMatchingRule;
   }
 }
