@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -42,6 +44,7 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ResultCodeCounter;
@@ -93,8 +96,18 @@ final class SearchAndModRateThread
   // The length to use for modify values.
   private final int valueLength;
 
+  // The page size that should be used with the simple paged results request
+  // control.
+  private final Integer simplePageSize;
+
   // The connection to use for the searches.
   private LDAPConnection connection;
+
+  // The set of controls that should be included in modify requests.
+  private final List<Control> modifyControls;
+
+  // The set of controls that should be included in search requests.
+  private final List<Control> searchControls;
 
   // The number of iterations to request on a connection before closing and
   // re-establishing it.
@@ -152,6 +165,15 @@ final class SearchAndModRateThread
    *                                    the proxied authorization control.  It
    *                                    may be {@code null} if proxied
    *                                    authorization should not be used.
+   * @param  simplePageSize             The page size that should be used with
+   *                                    the simple paged results request
+   *                                    control.  It may be {@code null} if the
+   *                                    simple paged results control should not
+   *                                    be used.
+   * @param  searchControls             The set of controls to include in search
+   *                                    requests.
+   * @param  modifyControls             The set of controls to include in modify
+   *                                    requests.
    * @param  iterationsBeforeReconnect  The number of iterations that should be
    *                                    processed on a connection before it is
    *                                    closed and replaced with a
@@ -187,13 +209,15 @@ final class SearchAndModRateThread
        final ValuePattern filter, final String[] returnAttributes,
        final String[] modAttributes, final int valueLength,
        final byte[] charSet, final ValuePattern authzID,
-       final long iterationsBeforeReconnect, final long randomSeed,
-       final CyclicBarrier startBarrier, final AtomicLong searchCounter,
-       final AtomicLong modCounter, final AtomicLong searchDurations,
-       final AtomicLong modDurations, final AtomicLong errorCounter,
-       final ResultCodeCounter rcCounter, final FixedRateBarrier rateBarrier)
+       final Integer simplePageSize, final List<Control> searchControls,
+       final List<Control> modifyControls, final long iterationsBeforeReconnect,
+       final long randomSeed, final CyclicBarrier startBarrier,
+       final AtomicLong searchCounter, final AtomicLong modCounter,
+       final AtomicLong searchDurations, final AtomicLong modDurations,
+       final AtomicLong errorCounter, final ResultCodeCounter rcCounter,
+       final FixedRateBarrier rateBarrier)
   {
-    setName("SearchRate Thread " + threadNumber);
+    setName("SearchAndModRate Thread " + threadNumber);
     setDaemon(true);
 
     this.searchAndModRate           = searchAndModRate;
@@ -204,6 +228,9 @@ final class SearchAndModRateThread
     this.valueLength                = valueLength;
     this.charSet                    = charSet;
     this.authzID                    = authzID;
+    this.simplePageSize             = simplePageSize;
+    this.searchControls             = searchControls;
+    this.modifyControls             = modifyControls;
     this.iterationsBeforeReconnect = iterationsBeforeReconnect;
     this.searchCounter              = searchCounter;
     this.modCounter                 = modCounter;
@@ -258,6 +285,7 @@ final class SearchAndModRateThread
       Debug.debugException(e);
     }
 
+searchLoop:
     while (! stopRequested.get())
     {
       if ((iterationsBeforeReconnect > 0L) &&
@@ -303,15 +331,25 @@ final class SearchAndModRateThread
         fixedRateBarrier.await();
       }
 
+      ProxiedAuthorizationV2RequestControl proxyControl = null;
       try
       {
         searchRequest.setBaseDN(baseDN.nextValue());
         searchRequest.setFilter(filter.nextValue());
 
+        searchRequest.setControls(searchControls);
+
         if (authzID != null)
         {
-          searchRequest.setControls(new ProxiedAuthorizationV2RequestControl(
-               authzID.nextValue()));
+          proxyControl = new ProxiedAuthorizationV2RequestControl(
+               authzID.nextValue());
+          searchRequest.addControl(proxyControl);
+        }
+
+        if (simplePageSize != null)
+        {
+          searchRequest.addControl(
+               new SimplePagedResultsControl(simplePageSize));
         }
       }
       catch (LDAPException le)
@@ -325,92 +363,132 @@ final class SearchAndModRateThread
         continue;
       }
 
+      ASN1OctetString pagedResultCookie = null;
       final long searchStartTime = System.nanoTime();
 
-      final SearchResult r;
       try
       {
-        r = connection.search(searchRequest);
-      }
-      catch (LDAPSearchException lse)
-      {
-        Debug.debugException(lse);
-        errorCounter.incrementAndGet();
-
-        final ResultCode rc = lse.getResultCode();
-        rcCounter.increment(rc);
-        resultCode.compareAndSet(null, rc);
-
-        if (! lse.getResultCode().isConnectionUsable())
+        while (true)
         {
-          connection.close();
-          connection = null;
-        }
+          final SearchResult r;
+          try
+          {
+            r = connection.search(searchRequest);
+          }
+          catch (LDAPSearchException lse)
+          {
+            Debug.debugException(lse);
+            errorCounter.incrementAndGet();
 
-        continue;
+            final ResultCode rc = lse.getResultCode();
+            rcCounter.increment(rc);
+            resultCode.compareAndSet(null, rc);
+
+            if (! lse.getResultCode().isConnectionUsable())
+            {
+              connection.close();
+              connection = null;
+            }
+
+            continue searchLoop;
+          }
+
+          for (int i=0; i < valueLength; i++)
+          {
+            valueBytes[i] = charSet[random.nextInt(charSet.length)];
+          }
+
+          values[0] = new ASN1OctetString(valueBytes);
+          for (int i=0; i < modAttributes.length; i++)
+          {
+            mods[i] = new Modification(ModificationType.REPLACE,
+                 modAttributes[i], values);
+          }
+          modifyRequest.setModifications(mods);
+
+          modifyRequest.setControls(modifyControls);
+          if (proxyControl != null)
+          {
+            modifyRequest.addControl(proxyControl);
+          }
+
+          for (final SearchResultEntry e : r.getSearchEntries())
+          {
+            if (fixedRateBarrier != null)
+            {
+              fixedRateBarrier.await();
+            }
+
+            modifyRequest.setDN(e.getDN());
+
+            final long modStartTime = System.nanoTime();
+            try
+            {
+              if (connection != null)
+              {
+                connection.modify(modifyRequest);
+              }
+            }
+            catch (LDAPException le)
+            {
+              Debug.debugException(le);
+              errorCounter.incrementAndGet();
+
+              final ResultCode rc = le.getResultCode();
+              rcCounter.increment(rc);
+              resultCode.compareAndSet(null, rc);
+
+              if (! le.getResultCode().isConnectionUsable())
+              {
+                connection.close();
+                connection = null;
+              }
+            }
+            finally
+            {
+              modCounter.incrementAndGet();
+              modDurations.addAndGet(System.nanoTime() - modStartTime);
+            }
+          }
+
+          if (simplePageSize == null)
+          {
+            break;
+          }
+
+          try
+          {
+            final SimplePagedResultsControl sprResponse =
+                 SimplePagedResultsControl.get(r);
+            if ((sprResponse == null) || (! sprResponse.moreResultsToReturn()))
+            {
+              break;
+            }
+
+            searchRequest.setControls(searchControls);
+
+            if (proxyControl != null)
+            {
+              searchRequest.addControl(proxyControl);
+            }
+
+            if (simplePageSize != null)
+            {
+              searchRequest.addControl(new SimplePagedResultsControl(
+                   simplePageSize, sprResponse.getCookie()));
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            break;
+          }
+        }
       }
       finally
       {
         searchCounter.incrementAndGet();
         searchDurations.addAndGet(System.nanoTime() - searchStartTime);
-      }
-
-      for (int i=0; i < valueLength; i++)
-      {
-        valueBytes[i] = charSet[random.nextInt(charSet.length)];
-      }
-
-      values[0] = new ASN1OctetString(valueBytes);
-      for (int i=0; i < modAttributes.length; i++)
-      {
-        mods[i] = new Modification(ModificationType.REPLACE, modAttributes[i],
-                                   values);
-      }
-      modifyRequest.setModifications(mods);
-
-      if (authzID != null)
-      {
-        modifyRequest.setControls(new ProxiedAuthorizationV2RequestControl(
-             authzID.nextValue()));
-      }
-
-      for (final SearchResultEntry e : r.getSearchEntries())
-      {
-        if (fixedRateBarrier != null)
-        {
-          fixedRateBarrier.await();
-        }
-
-        modifyRequest.setDN(e.getDN());
-
-        final long modStartTime = System.nanoTime();
-        try
-        {
-          if (connection != null)
-          {
-            connection.modify(modifyRequest);
-          }
-        }
-        catch (LDAPException le)
-        {
-          Debug.debugException(le);
-          errorCounter.incrementAndGet();
-
-          final ResultCode rc = le.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
-          if (! le.getResultCode().isConnectionUsable())
-          {
-            connection.close();
-            connection = null;
-          }
-        }
-        finally
-        {
-          modCounter.incrementAndGet();
-          modDurations.addAndGet(System.nanoTime() - modStartTime);
-        }
       }
     }
 

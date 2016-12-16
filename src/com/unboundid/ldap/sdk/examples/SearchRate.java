@@ -576,6 +576,7 @@ public final class SearchRate
                   " for complete details about the value pattern syntax.";
     proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
                                  description);
+    proxyAs.setArgumentGroupName("Request Control Arguments");
     proxyAs.addLongIdentifier("proxy-as");
     parser.addArgument(proxyAs);
 
@@ -729,6 +730,8 @@ public final class SearchRate
     parser.addDependentArgumentSet(asynchronousMode, ratePerSecond,
          maxOutstandingRequests);
     parser.addDependentArgumentSet(maxOutstandingRequests, asynchronousMode);
+
+    parser.addExclusiveArgumentSet(asynchronousMode, simplePageSize);
   }
 
 

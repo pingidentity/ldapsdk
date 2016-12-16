@@ -317,6 +317,7 @@ final class SearchRateThread
         fixedRateBarrier.await();
       }
 
+      ProxiedAuthorizationV2RequestControl proxyControl = null;
       if (async)
       {
         if (asyncSemaphore != null)
@@ -343,8 +344,16 @@ final class SearchRateThread
 
         try
         {
-          connection.asyncSearch(new SearchRequest(listener, baseDN.nextValue(),
-               scope, filter.nextValue(), attributes));
+          final SearchRequest r = new SearchRequest(listener,
+               baseDN.nextValue(), scope, filter.nextValue(), attributes);
+          r.setControls(requestControls);
+          if (authzID != null)
+          {
+            r.addControl(new ProxiedAuthorizationV2RequestControl(
+                 authzID.nextValue()));
+          }
+
+          connection.asyncSearch(r);
         }
         catch (final LDAPException le)
         {
@@ -380,8 +389,9 @@ final class SearchRateThread
 
           if (authzID != null)
           {
-            searchRequest.addControl(new ProxiedAuthorizationV2RequestControl(
-                 authzID.nextValue()));
+            proxyControl = new ProxiedAuthorizationV2RequestControl(
+                 authzID.nextValue());
+            searchRequest.addControl(proxyControl);
           }
         }
         catch (LDAPException le)
@@ -450,10 +460,9 @@ final class SearchRateThread
                    simplePageSize, sprResponse.getCookie()));
             }
 
-            if (authzID != null)
+            if (proxyControl != null)
             {
-              searchRequest.addControl(new ProxiedAuthorizationV2RequestControl(
-                   authzID.nextValue()));
+              searchRequest.addControl(proxyControl);
             }
           }
           catch (final Exception e)

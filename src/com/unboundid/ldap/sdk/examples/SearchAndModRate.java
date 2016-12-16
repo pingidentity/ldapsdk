@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,12 +35,17 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
+import com.unboundid.ldap.sdk.controls.PermissiveModifyRequestControl;
+import com.unboundid.ldap.sdk.controls.PreReadRequestControl;
+import com.unboundid.ldap.sdk.controls.PostReadRequestControl;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
@@ -56,7 +62,9 @@ import com.unboundid.util.WakeableSleeper;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.ControlArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
@@ -188,9 +196,33 @@ public final class SearchAndModRate
   // The argument used to indicate whether to generate output in CSV format.
   private BooleanArgument csvFormat;
 
+  // Indicates that modify requests should include the permissive modify request
+  // control.
+  private BooleanArgument permissiveModify;
+
   // The argument used to indicate whether to suppress information about error
   // result codes.
   private BooleanArgument suppressErrors;
+
+  // The argument used to specify a set of generic controls to include in modify
+  // requests.
+  private ControlArgument modifyControl;
+
+  // The argument used to specify a set of generic controls to include in search
+  // requests.
+  private ControlArgument searchControl;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument sampleRateFile;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument variableRateData;
+
+  // The argument used to specify an LDAP assertion filter for modify requests.
+  private FilterArgument modifyAssertionFilter;
+
+  // The argument used to specify an LDAP assertion filter for search requests.
+  private FilterArgument searchAssertionFilter;
 
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
@@ -212,11 +244,9 @@ public final class SearchAndModRate
   // The target rate of operations per second.
   private IntegerArgument ratePerSecond;
 
-  // The argument used to specify a variable rate file.
-  private FileArgument sampleRateFile;
-
-  // The argument used to specify a variable rate file.
-  private FileArgument variableRateData;
+  // The argument used to indicate that the search should use the simple paged
+  // results control with the specified page size.
+  private IntegerArgument simplePageSize;
 
   // The argument used to specify the length of the values to generate.
   private IntegerArgument valueLength;
@@ -239,6 +269,14 @@ public final class SearchAndModRate
 
   // The argument used to specify the attributes to modify.
   private StringArgument modifyAttributes;
+
+  // Indicates that modify requests should include the post-read request control
+  // to request the specified attribute.
+  private StringArgument postReadAttribute;
+
+  // Indicates that modify requests should include the pre-read request control
+  // to request the specified attribute.
+  private StringArgument preReadAttribute;
 
   // The argument used to specify the proxied authorization identity.
   private StringArgument proxyAs;
@@ -554,6 +592,103 @@ public final class SearchAndModRate
     parser.addArgument(characterSet);
 
 
+    description = "Indicates that search requests should include the " +
+                  "assertion request control with the specified filter.";
+    searchAssertionFilter = new FilterArgument(null, "searchAssertionFilter",
+                                               false, 1, "{filter}",
+                                               description);
+    searchAssertionFilter.setArgumentGroupName("Request Control Arguments");
+    searchAssertionFilter.addLongIdentifier("search-assertion-filter");
+    parser.addArgument(searchAssertionFilter);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "assertion request control with the specified filter.";
+    modifyAssertionFilter = new FilterArgument(null, "modifyAssertionFilter",
+                                               false, 1, "{filter}",
+                                               description);
+    modifyAssertionFilter.setArgumentGroupName("Request Control Arguments");
+    modifyAssertionFilter.addLongIdentifier("modify-assertion-filter");
+    parser.addArgument(modifyAssertionFilter);
+
+
+    description = "Indicates that search requests should include the simple " +
+                  "paged results control with the specified page size.";
+    simplePageSize = new IntegerArgument(null, "simplePageSize", false, 1,
+                                         "{size}", description, 1,
+                                         Integer.MAX_VALUE);
+    simplePageSize.setArgumentGroupName("Request Control Arguments");
+    simplePageSize.addLongIdentifier("simple-page-size");
+    parser.addArgument(simplePageSize);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "permissive modify request control.";
+    permissiveModify = new BooleanArgument(null, "permissiveModify", 1,
+                                           description);
+    permissiveModify.setArgumentGroupName("Request Control Arguments");
+    permissiveModify.addLongIdentifier("permissive-modify");
+    parser.addArgument(permissiveModify);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "pre-read request control with the specified requested " +
+                  "attribute.  This argument may be provided multiple times " +
+                  "to indicate that multiple requested attributes should be " +
+                  "included in the pre-read request control.";
+    preReadAttribute = new StringArgument(null, "preReadAttribute", false, 0,
+                                          "{attribute}", description);
+    preReadAttribute.setArgumentGroupName("Request Control Arguments");
+    preReadAttribute.addLongIdentifier("pre-read-attribute");
+    parser.addArgument(preReadAttribute);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "post-read request control with the specified requested " +
+                  "attribute.  This argument may be provided multiple times " +
+                  "to indicate that multiple requested attributes should be " +
+                  "included in the post-read request control.";
+    postReadAttribute = new StringArgument(null, "postReadAttribute", false, 0,
+                                           "{attribute}", description);
+    postReadAttribute.setArgumentGroupName("Request Control Arguments");
+    postReadAttribute.addLongIdentifier("post-read-attribute");
+    parser.addArgument(postReadAttribute);
+
+
+    description = "Indicates that the proxied authorization control (as " +
+                  "defined in RFC 4370) should be used to request that " +
+                  "operations be processed using an alternate authorization " +
+                  "identity.  This may be a simple authorization ID or it " +
+                  "may be a value pattern to specify a range of " +
+                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
+                  " for complete details about the value pattern syntax.";
+    proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
+                                 description);
+    proxyAs.setArgumentGroupName("Request Control Arguments");
+    proxyAs.addLongIdentifier("proxy-as");
+    parser.addArgument(proxyAs);
+
+
+    description = "Indicates that search requests should include the " +
+                  "specified request control.  This may be provided multiple " +
+                  "times to include multiple search request controls.";
+    searchControl = new ControlArgument(null, "searchControl", false, 0, null,
+                                        description);
+    searchControl.setArgumentGroupName("Request Control Arguments");
+    searchControl.addLongIdentifier("search-control");
+    parser.addArgument(searchControl);
+
+
+    description = "Indicates that modify requests should include the " +
+                  "specified request control.  This may be provided multiple " +
+                  "times to include multiple modify request controls.";
+    modifyControl = new ControlArgument(null, "modifyControl", false, 0, null,
+                                        description);
+    modifyControl.setArgumentGroupName("Request Control Arguments");
+    modifyControl.addLongIdentifier("modify-control");
+    parser.addArgument(modifyControl);
+
+
     description = "The number of threads to use to perform the searches.  If " +
                   "this is not provided, then a default of one thread will " +
                   "be used.";
@@ -656,18 +791,6 @@ public final class SearchAndModRate
          "{format}", description, allowedFormats, "none");
     timestampFormat.addLongIdentifier("timestamp-format");
     parser.addArgument(timestampFormat);
-
-    description = "Indicates that the proxied authorization control (as " +
-                  "defined in RFC 4370) should be used to request that " +
-                  "operations be processed using an alternate authorization " +
-                  "identity.  This may be a simple authorization ID or it " +
-                  "may be a value pattern to specify a range of " +
-                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
-                  " for complete details about the value pattern syntax.";
-    proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
-                                 description);
-    proxyAs.addLongIdentifier("proxy-as");
-    parser.addArgument(proxyAs);
 
     description = "Indicates that information about the result codes for " +
                   "failed operations should not be displayed.";
@@ -833,6 +956,55 @@ public final class SearchAndModRate
     else
     {
       authzIDPattern = null;
+    }
+
+
+    // Get the set of controls to include in search requests.
+    final ArrayList<Control> searchControls = new ArrayList<Control>(5);
+    if (searchAssertionFilter.isPresent())
+    {
+      searchControls.add(new AssertionRequestControl(
+           searchAssertionFilter.getValue()));
+    }
+
+    if (searchControl.isPresent())
+    {
+      searchControls.addAll(searchControl.getValues());
+    }
+
+
+    // Get the set of controls to include in modify requests.
+    final ArrayList<Control> modifyControls = new ArrayList<Control>(5);
+    if (modifyAssertionFilter.isPresent())
+    {
+      modifyControls.add(new AssertionRequestControl(
+           modifyAssertionFilter.getValue()));
+    }
+
+    if (permissiveModify.isPresent())
+    {
+      modifyControls.add(new PermissiveModifyRequestControl());
+    }
+
+    if (preReadAttribute.isPresent())
+    {
+      final List<String> attrList = preReadAttribute.getValues();
+      final String[] attrArray = new String[attrList.size()];
+      attrList.toArray(attrArray);
+      modifyControls.add(new PreReadRequestControl(attrArray));
+    }
+
+    if (postReadAttribute.isPresent())
+    {
+      final List<String> attrList = postReadAttribute.getValues();
+      final String[] attrArray = new String[attrList.size()];
+      attrList.toArray(attrArray);
+      modifyControls.add(new PostReadRequestControl(attrArray));
+    }
+
+    if (modifyControl.isPresent())
+    {
+      modifyControls.addAll(modifyControl.getValues());
     }
 
 
@@ -1007,6 +1179,7 @@ public final class SearchAndModRate
       threads[i] = new SearchAndModRateThread(this, i, connection, dnPattern,
            scopeArg.getValue(), filterPattern, returnAttrs, modAttrs,
            valueLength.getValue(), charSet, authzIDPattern,
+           simplePageSize.getValue(), searchControls, modifyControls,
            iterationsBeforeReconnect.getValue(), random.nextLong(), barrier,
            searchCounter, modCounter, searchDurations, modDurations,
            errorCounter, rcCounter, fixedRateBarrier);
