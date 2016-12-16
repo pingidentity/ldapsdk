@@ -22,12 +22,14 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.BindRequest;
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.CRAMMD5BindRequest;
 import com.unboundid.ldap.sdk.DIGESTMD5BindRequest;
 import com.unboundid.ldap.sdk.Filter;
@@ -42,6 +44,7 @@ import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ResultCodeCounter;
+import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ValuePattern;
 
 
@@ -106,6 +109,13 @@ final class AuthRateThread
   // A reference to the associated authrate tool.
   private final AuthRate authRate;
 
+  // Indicates whether the authentication attempts should only include bind
+  // operations without the initial search.
+  private final boolean bindOnly;
+
+  // The set of controls to include in bind requests.
+  private final Control[] bindControls;
+
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
 
@@ -151,7 +161,13 @@ final class AuthRateThread
    * @param  filter            The value pattern for the filters.
    * @param  attributes        The set of attributes to return.
    * @param  userPassword      The password to use for the bind operations.
+   * @param  bindOnly          Indicates whether to only perform a bind without
+   *                           first performing the initial search to find the
+   *                           target user entry.
    * @param  authType          The type of authentication to perform.
+   * @param  searchControls    The set of controls to include in search
+   *                           requests.
+   * @param  bindControls      The set of controls to include in bind requests.
    * @param  startBarrier      A barrier used to coordinate starting between all
    *                           of the threads.
    * @param  authCounter       A value that will be used to keep track of the
@@ -171,7 +187,10 @@ final class AuthRateThread
                  final LDAPConnection bindConnection, final ValuePattern baseDN,
                  final SearchScope scope, final ValuePattern filter,
                  final String[] attributes, final String userPassword,
-                 final String authType, final CyclicBarrier startBarrier,
+                 final boolean bindOnly, final String authType,
+                 final List<Control> searchControls,
+                 final List<Control> bindControls,
+                 final CyclicBarrier startBarrier,
                  final AtomicLong authCounter, final AtomicLong authDurations,
                  final AtomicLong errorCounter,
                  final ResultCodeCounter rcCounter,
@@ -186,6 +205,7 @@ final class AuthRateThread
     this.baseDN           = baseDN;
     this.filter           = filter;
     this.userPassword     = userPassword;
+    this.bindOnly         = bindOnly;
     this.authCounter      = authCounter;
     this.authDurations    = authDurations;
     this.errorCounter     = errorCounter;
@@ -218,6 +238,17 @@ final class AuthRateThread
     stopRequested = new AtomicBoolean(false);
     searchRequest = new SearchRequest("", scope,
          Filter.createPresenceFilter("objectClass"), attributes);
+    searchRequest.setControls(searchControls);
+
+    if (bindControls.isEmpty())
+    {
+      this.bindControls = StaticUtils.NO_CONTROLS;
+    }
+    else
+    {
+      this.bindControls =
+           bindControls.toArray(new Control[bindControls.size()]);
+    }
   }
 
 
@@ -291,20 +322,23 @@ final class AuthRateThread
         }
       }
 
-      try
+      if (! bindOnly)
       {
-        searchRequest.setBaseDN(baseDN.nextValue());
-        searchRequest.setFilter(filter.nextValue());
-      }
-      catch (LDAPException le)
-      {
-        Debug.debugException(le);
-        errorCounter.incrementAndGet();
+        try
+        {
+          searchRequest.setBaseDN(baseDN.nextValue());
+          searchRequest.setFilter(filter.nextValue());
+        }
+        catch (LDAPException le)
+        {
+          Debug.debugException(le);
+          errorCounter.incrementAndGet();
 
-        final ResultCode rc = le.getResultCode();
-        rcCounter.increment(rc);
-        resultCode.compareAndSet(null, rc);
-        continue;
+          final ResultCode rc = le.getResultCode();
+          rcCounter.increment(rc);
+          resultCode.compareAndSet(null, rc);
+          continue;
+        }
       }
 
       // If we're trying for a specific target rate, then we might need to
@@ -318,44 +352,56 @@ final class AuthRateThread
 
       try
       {
-        final SearchResult r = searchConnection.search(searchRequest);
-        switch (r.getEntryCount())
+        final String bindDN;
+        if (bindOnly)
         {
-          case 0:
-            errorCounter.incrementAndGet();
-            rcCounter.increment(ResultCode.NO_RESULTS_RETURNED);
-            resultCode.compareAndSet(null, ResultCode.NO_RESULTS_RETURNED);
-            continue;
+          bindDN = baseDN.nextValue();
+        }
+        else
+        {
+          final SearchResult r = searchConnection.search(searchRequest);
+          switch (r.getEntryCount())
+          {
+            case 0:
+              errorCounter.incrementAndGet();
+              rcCounter.increment(ResultCode.NO_RESULTS_RETURNED);
+              resultCode.compareAndSet(null, ResultCode.NO_RESULTS_RETURNED);
+              continue;
 
-          case 1:
-            // This is acceptable, and we can continue processing.
-            break;
+            case 1:
+              // This is acceptable, and we can continue processing.
+              bindDN = r.getSearchEntries().get(0).getDN();
+              break;
 
-          default:
-            errorCounter.incrementAndGet();
-            rcCounter.increment(ResultCode.MORE_RESULTS_TO_RETURN);
-            resultCode.compareAndSet(null, ResultCode.MORE_RESULTS_TO_RETURN);
-            continue;
+            default:
+              errorCounter.incrementAndGet();
+              rcCounter.increment(ResultCode.MORE_RESULTS_TO_RETURN);
+              resultCode.compareAndSet(null, ResultCode.MORE_RESULTS_TO_RETURN);
+              continue;
+          }
         }
 
         BindRequest bindRequest = null;
-        final String dn = r.getSearchEntries().get(0).getDN();
         switch (authType)
         {
           case AUTH_TYPE_SIMPLE:
-            bindRequest = new SimpleBindRequest(dn, userPassword);
+            bindRequest =
+                 new SimpleBindRequest(bindDN, userPassword, bindControls);
             break;
 
           case AUTH_TYPE_CRAM_MD5:
-            bindRequest = new CRAMMD5BindRequest("dn:" + dn, userPassword);
+            bindRequest = new CRAMMD5BindRequest("dn:" + bindDN, userPassword,
+                 bindControls);
             break;
 
           case AUTH_TYPE_DIGEST_MD5:
-            bindRequest = new DIGESTMD5BindRequest("dn:" + dn, userPassword);
+            bindRequest = new DIGESTMD5BindRequest("dn:" + bindDN, null,
+                 userPassword, null, bindControls);
             break;
 
           case AUTH_TYPE_PLAIN:
-            bindRequest = new PLAINBindRequest("dn:" + dn, userPassword);
+            bindRequest = new PLAINBindRequest("dn:" + bindDN, userPassword,
+                 bindControls);
             break;
         }
 

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,12 +34,16 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.ldap.sdk.controls.AuthorizationIdentityRequestControl;
+import com.unboundid.ldap.sdk.experimental.
+            DraftBeheraLDAPPasswordPolicy10RequestControl;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
@@ -55,6 +60,7 @@ import com.unboundid.util.WakeableSleeper;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.ControlArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
@@ -168,12 +174,38 @@ public final class AuthRate
   // Indicates whether a request has been made to stop running.
   private final AtomicBoolean stopRequested;
 
+  // The argument used to indicate that bind requests should include the
+  // authorization identity request control.
+  private BooleanArgument authorizationIdentityRequestControl;
+
+  // The argument used to indicate whether the tool should only perform a bind
+  // without a search.
+  private BooleanArgument bindOnly;
+
   // The argument used to indicate whether to generate output in CSV format.
   private BooleanArgument csvFormat;
+
+  // The argument used to indicate that bind requests should include the
+  // password policy request control.
+  private BooleanArgument passwordPolicyRequestControl;
 
   // The argument used to indicate whether to suppress information about error
   // result codes.
   private BooleanArgument suppressErrorsArgument;
+
+  // The argument used to specify arbitrary controls to include in bind
+  // requests.
+  private ControlArgument bindControl;
+
+  // The argument used to specify arbitrary controls to include in search
+  // requests.
+  private ControlArgument searchControl;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument sampleRateFile;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument variableRateData;
 
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
@@ -188,14 +220,8 @@ public final class AuthRate
   // generator.
   private IntegerArgument randomSeed;
 
-  // The target rate of auths per second.
+  // The target rate of authentications per second.
   private IntegerArgument ratePerSecond;
-
-  // The argument used to specify a variable rate file.
-  private FileArgument sampleRateFile;
-
-  // The argument used to specify a variable rate file.
-  private FileArgument variableRateData;
 
   // The number of warm-up intervals to perform.
   private IntegerArgument warmUpIntervals;
@@ -503,6 +529,16 @@ public final class AuthRate
     parser.addArgument(userPassword);
 
 
+    description = "Indicates that the tool should only perform bind " +
+                  "operations without the initial search.  If this argument " +
+                  "is provided, then the base DN pattern will be used to " +
+                  "obtain the bind DNs.";
+    bindOnly = new BooleanArgument('B', "bindOnly", 1, description);
+    bindOnly.setArgumentGroupName("Search and Authentication Arguments");
+    bindOnly.addLongIdentifier("bind-only");
+    parser.addArgument(bindOnly);
+
+
     description = "The type of authentication to perform.  Allowed values " +
                   "are:  SIMPLE, CRAM-MD5, DIGEST-MD5, and PLAIN.  If no "+
                   "value is provided, then SIMPLE authentication will be " +
@@ -517,6 +553,50 @@ public final class AuthRate
     authType.setArgumentGroupName("Search and Authentication Arguments");
     authType.addLongIdentifier("auth-type");
     parser.addArgument(authType);
+
+
+    description = "Indicates that bind requests should include the " +
+                  "authorization identity request control as described in " +
+                  "RFC 3829.";
+    authorizationIdentityRequestControl = new BooleanArgument(null,
+         "authorizationIdentityRequestControl", 1, description);
+    authorizationIdentityRequestControl.setArgumentGroupName(
+         "Request Control Arguments");
+    authorizationIdentityRequestControl.addLongIdentifier(
+         "authorization-identity-request-control");
+    parser.addArgument(authorizationIdentityRequestControl);
+
+
+    description = "Indicates that bind requests should include the " +
+                  "password policy request control as described in " +
+                  "draft-behera-ldap-password-policy-10.";
+    passwordPolicyRequestControl = new BooleanArgument(null,
+         "passwordPolicyRequestControl", 1, description);
+    passwordPolicyRequestControl.setArgumentGroupName(
+         "Request Control Arguments");
+    passwordPolicyRequestControl.addLongIdentifier(
+         "password-policy-request-control");
+    parser.addArgument(passwordPolicyRequestControl);
+
+
+    description = "Indicates that search requests should include the " +
+                  "specified request control.  This may be provided multiple " +
+                  "times to include multiple search request controls.";
+    searchControl = new ControlArgument(null, "searchControl", false, 0, null,
+                                        description);
+    searchControl.setArgumentGroupName("Request Control Arguments");
+    searchControl.addLongIdentifier("search-control");
+    parser.addArgument(searchControl);
+
+
+    description = "Indicates that bind requests should include the " +
+                  "specified request control.  This may be provided multiple " +
+                  "times to include multiple modify request controls.";
+    bindControl = new ControlArgument(null, "bindControl", false, 0, null,
+                                      description);
+    bindControl.setArgumentGroupName("Request Control Arguments");
+    bindControl.addLongIdentifier("bind-control");
+    parser.addArgument(bindControl);
 
 
     description = "The number of threads to use to perform the " +
@@ -833,6 +913,21 @@ public final class AuthRate
     }
 
 
+    // Get the controls to include in bind requests.
+    final ArrayList<Control> bindControls = new ArrayList<Control>(5);
+    if (authorizationIdentityRequestControl.isPresent())
+    {
+      bindControls.add(new AuthorizationIdentityRequestControl());
+    }
+
+    if (passwordPolicyRequestControl.isPresent())
+    {
+      bindControls.add(new DraftBeheraLDAPPasswordPolicy10RequestControl());
+    }
+
+    bindControls.addAll(bindControl.getValues());
+
+
     // Determine whether any warm-up intervals should be run.
     final long totalIntervals;
     final boolean warmUp;
@@ -907,7 +1002,8 @@ public final class AuthRate
 
       threads[i] = new AuthRateThread(this, i, searchConnection, bindConnection,
            dnPattern, scopeArg.getValue(), filterPattern, attrs,
-           userPassword.getValue(), authType.getValue(), barrier, authCounter,
+           userPassword.getValue(), bindOnly.isPresent(), authType.getValue(),
+           searchControl.getValues(), bindControls, barrier, authCounter,
            authDurations, errorCounter, rcCounter, fixedRateBarrier);
       threads[i].start();
     }
