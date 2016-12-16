@@ -22,12 +22,14 @@ package com.unboundid.ldap.sdk.examples;
 
 
 
+import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -40,6 +42,7 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.controls.ProxiedAuthorizationV2RequestControl;
+import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.util.Debug;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.ResultCodeCounter;
@@ -94,6 +97,12 @@ final class SearchRateThread
 
   // The barrier that will be used to coordinate starting among all the threads.
   private final CyclicBarrier startBarrier;
+
+  // The page size to use for the simple paged results control, if any.
+  private final Integer simplePageSize;
+
+  // The list of controls that should be included in each request.
+  private final List<Control> requestControls;
 
   // The number of iterations to request on a connection before closing and
   // re-establishing it.
@@ -152,6 +161,13 @@ final class SearchRateThread
    *                                    the proxied authorization control.  It
    *                                    may be {@code null} if proxied
    *                                    authorization should not be used.
+   * @param  simplePageSize             The simple page size to use in
+   *                                    conjunction with the simple paged
+   *                                    results request control. It may be
+   *                                    {@code null} if the simple paged results
+   *                                    control should not be used.
+   * @param  requestControls            A list of controls that should be
+   *                                    included in every search request.
    * @param  iterationsBeforeReconnect  The number of iterations that should be
    *                                    processed on a connection before it is
    *                                    closed and replaced with a
@@ -183,6 +199,8 @@ final class SearchRateThread
                    final ValuePattern baseDN, final SearchScope scope,
                    final ValuePattern filter, final String[] attributes,
                    final ValuePattern authzID,
+                   final Integer simplePageSize,
+                   final List<Control> requestControls,
                    final long iterationsBeforeReconnect,
                    final CyclicBarrier startBarrier,
                    final AtomicLong searchCounter,
@@ -204,6 +222,8 @@ final class SearchRateThread
     this.filter                    = filter;
     this.attributes                = attributes;
     this.authzID                   = authzID;
+    this.simplePageSize            = simplePageSize;
+    this.requestControls           = requestControls;
     this.iterationsBeforeReconnect = iterationsBeforeReconnect;
     this.searchCounter             = searchCounter;
     this.entryCounter              = entryCounter;
@@ -350,9 +370,17 @@ final class SearchRateThread
           searchRequest.setBaseDN(baseDN.nextValue());
           searchRequest.setFilter(filter.nextValue());
 
+          searchRequest.setControls(requestControls);
+
+          if (simplePageSize != null)
+          {
+            searchRequest.addControl(
+                 new SimplePagedResultsControl(simplePageSize));
+          }
+
           if (authzID != null)
           {
-            searchRequest.setControls(new ProxiedAuthorizationV2RequestControl(
+            searchRequest.addControl(new ProxiedAuthorizationV2RequestControl(
                  authzID.nextValue()));
           }
         }
@@ -367,32 +395,77 @@ final class SearchRateThread
           continue;
         }
 
+        long entriesReturned = 0L;
         final long startTime = System.nanoTime();
 
-        try
+        while (true)
         {
-          final SearchResult r = connection.search(searchRequest);
-          entryCounter.addAndGet(r.getEntryCount());
-        }
-        catch (LDAPSearchException lse)
-        {
-          Debug.debugException(lse);
-          errorCounter.incrementAndGet();
-          entryCounter.addAndGet(lse.getEntryCount());
-
-          final ResultCode rc = lse.getResultCode();
-          rcCounter.increment(rc);
-          resultCode.compareAndSet(null, rc);
-
-          if (! lse.getResultCode().isConnectionUsable())
+          SearchResult r;
+          try
           {
-            connection.close();
-            connection = null;
+            r = connection.search(searchRequest);
+            entriesReturned += r.getEntryCount();
+          }
+          catch (LDAPSearchException lse)
+          {
+            Debug.debugException(lse);
+
+            r = lse.getSearchResult();
+
+            errorCounter.incrementAndGet();
+            entriesReturned += lse.getEntryCount();
+
+            final ResultCode rc = lse.getResultCode();
+            rcCounter.increment(rc);
+            resultCode.compareAndSet(null, rc);
+
+            if (! lse.getResultCode().isConnectionUsable())
+            {
+              connection.close();
+              connection = null;
+            }
+
+            break;
+          }
+
+          if (simplePageSize == null)
+          {
+            break;
+          }
+
+          try
+          {
+            final SimplePagedResultsControl sprResponse =
+                 SimplePagedResultsControl.get(r);
+            if ((sprResponse == null) || (! sprResponse.moreResultsToReturn()))
+            {
+              break;
+            }
+
+            searchRequest.setControls(requestControls);
+
+            if (simplePageSize != null)
+            {
+              searchRequest.addControl(new SimplePagedResultsControl(
+                   simplePageSize, sprResponse.getCookie()));
+            }
+
+            if (authzID != null)
+            {
+              searchRequest.addControl(new ProxiedAuthorizationV2RequestControl(
+                   authzID.nextValue()));
+            }
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            break;
           }
         }
 
         searchCounter.incrementAndGet();
         searchDurations.addAndGet(System.nanoTime() - startTime);
+        entryCounter.addAndGet(entriesReturned);
       }
     }
 

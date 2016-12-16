@@ -616,7 +616,7 @@ public final class ModRate
 
     description = "Indicates that modify requests should include the " +
                   "specified request control.  This may be provided multiple " +
-                  "times to request multiple request controls.";
+                  "times to include multiple request controls.";
     control = new ControlArgument('J', "control", false, 0, null, description);
     control.setArgumentGroupName("Request Control Arguments");
     parser.addArgument(control);

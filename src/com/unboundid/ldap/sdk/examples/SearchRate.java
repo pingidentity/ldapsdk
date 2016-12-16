@@ -26,20 +26,26 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.ldap.sdk.controls.AssertionRequestControl;
+import com.unboundid.ldap.sdk.controls.ServerSideSortRequestControl;
+import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.util.ColumnFormatter;
 import com.unboundid.util.FixedRateBarrier;
 import com.unboundid.util.FormattableColumn;
@@ -56,7 +62,9 @@ import com.unboundid.util.ValuePattern;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
+import com.unboundid.util.args.ControlArgument;
 import com.unboundid.util.args.FileArgument;
+import com.unboundid.util.args.FilterArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
@@ -185,6 +193,20 @@ public final class SearchRate
   // result codes.
   private BooleanArgument suppressErrors;
 
+  // The argument used to indicate that a generic control should be included in
+  // the request.
+  private ControlArgument control;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument sampleRateFile;
+
+  // The argument used to specify a variable rate file.
+  private FileArgument variableRateData;
+
+  // Indicates that search requests should include the assertion request control
+  // with the specified filter.
+  private FilterArgument assertionFilter;
+
   // The argument used to specify the collection interval.
   private IntegerArgument collectionInterval;
 
@@ -209,11 +231,9 @@ public final class SearchRate
   // The target rate of searches per second.
   private IntegerArgument ratePerSecond;
 
-  // The argument used to specify a variable rate file.
-  private FileArgument sampleRateFile;
-
-  // The argument used to specify a variable rate file.
-  private FileArgument variableRateData;
+  // The argument used to indicate that the search should use the simple paged
+  // results control with the specified page size.
+  private IntegerArgument simplePageSize;
 
   // The number of warm-up intervals to perform.
   private IntegerArgument warmUpIntervals;
@@ -232,6 +252,10 @@ public final class SearchRate
 
   // The argument used to specify the proxied authorization identity.
   private StringArgument proxyAs;
+
+  // The argument used to request that the server sort the results with the
+  // specified order.
+  private StringArgument sortOrder;
 
   // The argument used to specify the timestamp format.
   private StringArgument timestampFormat;
@@ -507,6 +531,63 @@ public final class SearchRate
     parser.addArgument(attributes);
 
 
+    description = "Indicates that search requests should include the " +
+                  "assertion request control with the specified filter.";
+    assertionFilter = new FilterArgument(null, "assertionFilter", false, 1,
+                                         "{filter}", description);
+    assertionFilter.setArgumentGroupName("Request Control Arguments");
+    assertionFilter.addLongIdentifier("assertion-filter");
+    parser.addArgument(assertionFilter);
+
+
+    description = "Indicates that search requests should include the simple " +
+                  "paged results control with the specified page size.";
+    simplePageSize = new IntegerArgument(null, "simplePageSize", false, 1,
+                                         "{size}", description, 1,
+                                         Integer.MAX_VALUE);
+    simplePageSize.setArgumentGroupName("Request Control Arguments");
+    simplePageSize.addLongIdentifier("simple-page-size");
+    parser.addArgument(simplePageSize);
+
+
+    description = "Indicates that search requests should include the " +
+                  "server-side sort request control with the specified sort " +
+                  "order. This should be a comma-delimited list in which " +
+                  "each item is an attribute name, optionally preceded by a " +
+                  "plus or minus sign (to indicate ascending or descending " +
+                  "order; where ascending order is the default), and " +
+                  "optionally followed by a colon and the name or OID of " +
+                  "the desired ordering matching rule (if this is not " +
+                  "provided, the the attribute type's default ordering " +
+                  "rule will be used).";
+    sortOrder = new StringArgument(null, "sortOrder", false, 1, "{sortOrder}",
+                                   description);
+    sortOrder.setArgumentGroupName("Request Control Arguments");
+    sortOrder.addLongIdentifier("sort-order");
+    parser.addArgument(sortOrder);
+
+
+    description = "Indicates that the proxied authorization control (as " +
+                  "defined in RFC 4370) should be used to request that " +
+                  "operations be processed using an alternate authorization " +
+                  "identity.  This may be a simple authorization ID or it " +
+                  "may be a value pattern to specify a range of " +
+                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
+                  " for complete details about the value pattern syntax.";
+    proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
+                                 description);
+    proxyAs.addLongIdentifier("proxy-as");
+    parser.addArgument(proxyAs);
+
+
+    description = "Indicates that search requests should include the " +
+                  "specified request control.  This may be provided multiple " +
+                  "times to include multiple request controls.";
+    control = new ControlArgument('J', "control", false, 0, null, description);
+    control.setArgumentGroupName("Request Control Arguments");
+    parser.addArgument(control);
+
+
     description = "The number of threads to use to perform the searches.  If " +
                   "this is not provided, then a default of one thread will " +
                   "be used.";
@@ -609,18 +690,6 @@ public final class SearchRate
          "{format}", description, allowedFormats, "none");
     timestampFormat.addLongIdentifier("timestamp-format");
     parser.addArgument(timestampFormat);
-
-    description = "Indicates that the proxied authorization control (as " +
-                  "defined in RFC 4370) should be used to request that " +
-                  "operations be processed using an alternate authorization " +
-                  "identity.  This may be a simple authorization ID or it " +
-                  "may be a value pattern to specify a range of " +
-                  "identities.  See " + ValuePattern.PUBLIC_JAVADOC_URL +
-                  " for complete details about the value pattern syntax.";
-    proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
-                                 description);
-    proxyAs.addLongIdentifier("proxy-as");
-    parser.addArgument(proxyAs);
 
     description = "Indicates that the client should operate in asynchronous " +
                   "mode, in which it will not be necessary to wait for a " +
@@ -809,6 +878,63 @@ public final class SearchRate
       authzIDPattern = null;
     }
 
+    // Get the set of controls to include in search requests.
+    final ArrayList<Control> controlList = new ArrayList<Control>(5);
+    if (assertionFilter.isPresent())
+    {
+      controlList.add(new AssertionRequestControl(assertionFilter.getValue()));
+    }
+
+    if (sortOrder.isPresent())
+    {
+      final ArrayList<SortKey> sortKeys = new ArrayList<SortKey>(5);
+      final StringTokenizer tokenizer =
+           new StringTokenizer(sortOrder.getValue(), ",");
+      while (tokenizer.hasMoreTokens())
+      {
+        String token = tokenizer.nextToken().trim();
+
+        final boolean ascending;
+        if (token.startsWith("+"))
+        {
+          ascending = true;
+          token = token.substring(1);
+        }
+        else if (token.startsWith("-"))
+        {
+          ascending = false;
+          token = token.substring(1);
+        }
+        else
+        {
+          ascending = true;
+        }
+
+        final String attributeName;
+        final String matchingRuleID;
+        final int colonPos = token.indexOf(':');
+        if (colonPos < 0)
+        {
+          attributeName = token;
+          matchingRuleID = null;
+        }
+        else
+        {
+          attributeName = token.substring(0, colonPos);
+          matchingRuleID = token.substring(colonPos+1);
+        }
+
+        sortKeys.add(new SortKey(attributeName, matchingRuleID, (! ascending)));
+      }
+
+      controlList.add(new ServerSideSortRequestControl(sortKeys));
+    }
+
+    if (control.isPresent())
+    {
+      controlList.addAll(control.getValues());
+    }
+
 
     // Get the attributes to return.
     final String[] attrs;
@@ -976,10 +1102,10 @@ public final class SearchRate
 
       threads[i] = new SearchRateThread(this, i, connection,
            asynchronousMode.isPresent(), dnPattern, scopeArg.getValue(),
-           filterPattern, attrs, authzIDPattern,
-           iterationsBeforeReconnect.getValue(), barrier, searchCounter,
-           entryCounter, searchDurations, errorCounter, rcCounter,
-           fixedRateBarrier, asyncSemaphore);
+           filterPattern, attrs, authzIDPattern, simplePageSize.getValue(),
+           controlList, iterationsBeforeReconnect.getValue(), barrier,
+           searchCounter, entryCounter, searchDurations, errorCounter,
+           rcCounter, fixedRateBarrier, asyncSemaphore);
       threads[i].start();
     }
 
