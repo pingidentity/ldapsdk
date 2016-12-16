@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.List;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
@@ -162,9 +164,22 @@ public final class ServerSideSortRequestControl
    */
   public ServerSideSortRequestControl(final SortKey... sortKeys)
   {
-    super(SERVER_SIDE_SORT_REQUEST_OID, false, encodeValue(sortKeys));
+    this(false, sortKeys);
+  }
 
-    this.sortKeys = sortKeys;
+
+
+  /**
+   * Creates a new server-side sort control that will sort the results based on
+   * the provided set of sort keys.
+   *
+   * @param  sortKeys  The set of sort keys to define the desired order in which
+   *                   the results should be returned.  It must not be
+   *                   {@code null} or empty.
+   */
+  public ServerSideSortRequestControl(final List<SortKey> sortKeys)
+  {
+    this(false, sortKeys);
   }
 
 
@@ -185,6 +200,24 @@ public final class ServerSideSortRequestControl
     super(SERVER_SIDE_SORT_REQUEST_OID, isCritical, encodeValue(sortKeys));
 
     this.sortKeys = sortKeys;
+  }
+
+
+
+  /**
+   * Creates a new server-side sort control that will sort the results based on
+   * the provided set of sort keys.
+   *
+   * @param  isCritical  Indicates whether this control should be marked
+   *                     critical.
+   * @param  sortKeys    The set of sort keys to define the desired order in
+   *                     which the results should be returned.  It must not be
+   *                     {@code null} or empty.
+   */
+  public ServerSideSortRequestControl(final boolean isCritical,
+                                      final List<SortKey> sortKeys)
+  {
+    this(isCritical, sortKeys.toArray(new SortKey[sortKeys.size()]));
   }
 
 
