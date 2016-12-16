@@ -22,6 +22,8 @@ package com.unboundid.ldap.sdk.controls;
 
 
 
+import java.util.List;
+
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
@@ -135,6 +137,20 @@ public final class MatchedValuesRequestControl
 
 
   /**
+   * Creates a new matched values request control with the provided set of
+   * filters.  It will not be be marked as critical.
+   *
+   * @param  filters  The set of filters to use for this control.  At least one
+   *                  filter must be provided.
+   */
+  public MatchedValuesRequestControl(final List<MatchedValuesFilter> filters)
+  {
+    this(false, filters);
+  }
+
+
+
+  /**
    * Creates a new matched values request control with the provided criticality
    * and set of filters.
    *
@@ -149,6 +165,23 @@ public final class MatchedValuesRequestControl
     super(MATCHED_VALUES_REQUEST_OID, isCritical,  encodeValue(filters));
 
     this.filters = filters;
+  }
+
+
+
+  /**
+   * Creates a new matched values request control with the provided criticality
+   * and set of filters.
+   *
+   * @param  isCritical  Indicates whether this control should be marked
+   *                     critical.
+   * @param  filters     The set of filters to use for this control.  At least
+   *                     one filter must be provided.
+   */
+  public MatchedValuesRequestControl(final boolean isCritical,
+                                     final List<MatchedValuesFilter> filters)
+  {
+    this(isCritical, filters.toArray(new MatchedValuesFilter[filters.size()]));
   }
 
 
