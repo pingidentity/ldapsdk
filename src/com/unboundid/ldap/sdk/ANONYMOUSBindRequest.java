@@ -187,7 +187,7 @@ public final class ANONYMOUSBindRequest
             throws LDAPException
   {
     ASN1OctetString credentials = null;
-    if ((traceString == null) || (traceString.length() == 0))
+    if ((traceString != null) && (traceString.length() > 0))
     {
       credentials = new ASN1OctetString(traceString);
     }
