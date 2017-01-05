@@ -1,5 +1,5 @@
 UnboundID LDAP SDK for Java (Commercial Edition)
-Copyright 2007-2016 UnboundID Corp.
+Copyright 2007-2017 UnboundID Corp.
 
 
 The Commercial Edition of the UnboundID LDAP SDK for Java is available under

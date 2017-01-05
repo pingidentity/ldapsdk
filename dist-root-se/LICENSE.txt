@@ -1,5 +1,5 @@
 UnboundID LDAP SDK for Java (Standard Edition)
-Copyright 2007-2016 UnboundID Corp.
+Copyright 2007-2017 UnboundID Corp.
 
 
 The Standard Edition of the UnboundID LDAP SDK for Java is available under

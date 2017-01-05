@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2007-2016 UnboundID Corp.
+# Copyright 2007-2017 UnboundID Corp.
 # All Rights Reserved.
 
 
