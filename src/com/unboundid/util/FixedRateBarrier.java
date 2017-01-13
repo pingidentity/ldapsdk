@@ -292,6 +292,8 @@ public final class FixedRateBarrier
           catch (InterruptedException e)
           {
             debugException(e);
+            Thread.currentThread().interrupt();
+            return shutdownRequested;
           }
         }
         else

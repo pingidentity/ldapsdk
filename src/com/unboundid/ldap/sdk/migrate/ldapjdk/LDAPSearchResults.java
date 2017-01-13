@@ -236,6 +236,11 @@ public class LDAPSearchResults
     {
       debugException(e);
 
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       o = new SearchResult(-1, ResultCode.USER_CANCELED, null, null, null, 0, 0,
            null);
       count.incrementAndGet();
@@ -405,6 +410,12 @@ public class LDAPSearchResults
     {
       // This should never happen.
       debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       searchDone.set(true);
     }
   }
@@ -432,6 +443,12 @@ public class LDAPSearchResults
     {
       // This should never happen.
       debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       searchDone.set(true);
     }
   }
@@ -469,6 +486,12 @@ public class LDAPSearchResults
     {
       // This should never happen.
       debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       searchDone.set(true);
     }
   }

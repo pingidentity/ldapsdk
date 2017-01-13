@@ -1550,6 +1550,7 @@ public final class LDIFReader
       catch (InterruptedException e)
       {
         debugException(e);
+        Thread.currentThread().interrupt();
         throw createIOExceptionWithCause(null, e);
       }
     }
@@ -1582,6 +1583,7 @@ public final class LDIFReader
         // Once we are done reading, this is the only item left in the queue,
         // so we should always be able to re-enqueue it.
         debugException(e);
+        Thread.currentThread().interrupt();
       }
       return null;
     }
@@ -4354,6 +4356,7 @@ public final class LDIFReader
             debugException(e);
             // If this thread is interrupted, then someone wants us to stop
             // processing, so that's what we'll do.
+            Thread.currentThread().interrupt();
             stopProcessing = true;
           }
 
@@ -4372,6 +4375,7 @@ public final class LDIFReader
         catch (InterruptedException e)
         {
           debugException(e);
+          Thread.currentThread().interrupt();
         }
         finally
         {

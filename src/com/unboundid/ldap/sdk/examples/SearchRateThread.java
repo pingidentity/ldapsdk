@@ -492,6 +492,12 @@ final class SearchRateThread
         catch (final Exception e)
         {
           Debug.debugException(e);
+
+          if (e instanceof InterruptedException)
+          {
+            Thread.currentThread().interrupt();
+            break;
+          }
         }
       }
     }
@@ -540,6 +546,11 @@ final class SearchRateThread
       catch (Exception e)
       {
         Debug.debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
       }
     }
 

@@ -183,6 +183,11 @@ final class ConnectThread
       catch (final InterruptedException ie)
       {
         debugException(ie);
+        Thread.currentThread().interrupt();
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_CONNECT_THREAD_INTERRUPTED.get(address.getHostAddress(), port,
+                  getExceptionMessage(ie)),
+             ie);
       }
     }
 
@@ -193,9 +198,14 @@ final class ConnectThread
       {
         t.join(connectTimeoutMillis);
       }
-      catch (Exception e)
+      catch (final InterruptedException ie)
       {
-        debugException(e);
+        debugException(ie);
+        Thread.currentThread().interrupt();
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_CONNECT_THREAD_INTERRUPTED.get(address.getHostAddress(), port,
+                  getExceptionMessage(ie)),
+             ie);
       }
     }
 

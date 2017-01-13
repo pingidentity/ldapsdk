@@ -279,6 +279,11 @@ final class ManageAccountProcessor
       catch (final Exception e)
       {
         Debug.debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
       }
     }
 
@@ -1241,6 +1246,11 @@ final class ManageAccountProcessor
           catch (final Exception e)
           {
             Debug.debugException(e);
+
+            if (e instanceof InterruptedException)
+            {
+              Thread.currentThread().interrupt();
+            }
           }
         }
 

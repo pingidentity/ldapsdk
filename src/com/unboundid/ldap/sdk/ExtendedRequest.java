@@ -356,6 +356,7 @@ public class ExtendedRequest
       catch (InterruptedException ie)
       {
         debugException(ie);
+        Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_EXTOP_INTERRUPTED.get(connection.getHostPort()), ie);
       }
@@ -519,6 +520,12 @@ public class ExtendedRequest
     catch (Exception e)
     {
       debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
     }

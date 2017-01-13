@@ -1428,6 +1428,11 @@ public final class SearchAndModRate
       catch (final Exception e)
       {
         debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
       }
     }
   }

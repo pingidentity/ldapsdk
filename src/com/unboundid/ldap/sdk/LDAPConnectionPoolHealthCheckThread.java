@@ -139,6 +139,11 @@ class LDAPConnectionPoolHealthCheckThread
       catch (Exception e)
       {
         debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
       }
     }
   }

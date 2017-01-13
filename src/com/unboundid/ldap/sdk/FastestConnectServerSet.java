@@ -393,6 +393,12 @@ public final class FastestConnectServerSet
     catch (final Exception e)
     {
       Debug.debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       throw new LDAPException(ResultCode.CONNECT_ERROR,
            ERR_FASTEST_CONNECT_SET_CONNECT_EXCEPTION.get(
                 StaticUtils.getExceptionMessage(e)),

@@ -390,6 +390,7 @@ public final class LDIFWriter
         catch (InterruptedException e)
         {
           debugException(e);
+          Thread.currentThread().interrupt();
         }
       }
     }

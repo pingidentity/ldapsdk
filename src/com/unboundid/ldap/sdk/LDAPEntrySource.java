@@ -256,7 +256,9 @@ public final class LDAPEntrySource
       catch (InterruptedException ie)
       {
         debugException(ie);
-        continue;
+        Thread.currentThread().interrupt();
+        throw new EntrySourceException(true,
+             ERR_LDAP_ENTRY_SOURCE_NEXT_ENTRY_INTERRUPTED.get(), ie);
       }
 
       if (o != null)

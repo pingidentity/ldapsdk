@@ -1748,6 +1748,9 @@ public final class LDAPConnectionPool
       catch (InterruptedException ie)
       {
         debugException(ie);
+        Thread.currentThread().interrupt();
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_POOL_CHECKOUT_INTERRUPTED.get(), ie);
       }
     }
 

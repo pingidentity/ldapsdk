@@ -187,6 +187,12 @@ public final class PasswordReader
     catch (final Exception e)
     {
       Debug.debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_PW_READER_FAILURE.get(StaticUtils.getExceptionMessage(e)),
            e);

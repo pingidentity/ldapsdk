@@ -424,6 +424,7 @@ public final class ParallelProcessor<I, O>
           // It's dangerous if this thread exits prematurely because it can
           // cause other dependent threads to block when there's no thread
           // left to do the work.
+          Thread.currentThread().interrupt();
         }
 
         if (shutdown.get())

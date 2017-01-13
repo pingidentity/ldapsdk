@@ -924,7 +924,18 @@ public final class LDAPConnection
     try
     {
       Thread.sleep(1000L);
-    } catch (final Exception e) {}
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+        throw new LDAPException(ResultCode.LOCAL_ERROR,
+             ERR_CONN_INTERRUPTED_DURINGR_RECONNECT.get(), e);
+      }
+    }
 
     connect(reconnectAddress, reconnectPort);
 

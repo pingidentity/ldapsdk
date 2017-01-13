@@ -3695,6 +3695,11 @@ findEntriesAndRefs:
       catch (final Exception e)
       {
         Debug.debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
       }
     }
   }

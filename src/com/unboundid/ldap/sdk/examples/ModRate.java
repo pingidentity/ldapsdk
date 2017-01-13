@@ -1283,6 +1283,11 @@ public final class ModRate
       catch (final Exception e)
       {
         debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
       }
     }
   }

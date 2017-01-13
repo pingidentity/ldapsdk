@@ -468,7 +468,16 @@ final class AuthRateThread
       try
       {
         t.join();
-      } catch (Exception e) {}
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
+      }
     }
 
     resultCode.compareAndSet(null, ResultCode.SUCCESS);

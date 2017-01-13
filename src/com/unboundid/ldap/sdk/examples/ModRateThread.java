@@ -405,6 +405,11 @@ final class ModRateThread
       catch (Exception e)
       {
         Debug.debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
       }
     }
 

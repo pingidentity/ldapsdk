@@ -363,6 +363,11 @@ public final class LDAPListener
         catch (final Exception e)
         {
           Debug.debugException(e);
+
+          if (e instanceof InterruptedException)
+          {
+            Thread.currentThread().interrupt();
+          }
         }
 
         if (t.isAlive())

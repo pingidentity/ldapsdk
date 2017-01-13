@@ -567,6 +567,7 @@ public final class SimpleBindRequest
       catch (InterruptedException ie)
       {
         debugException(ie);
+        Thread.currentThread().interrupt();
         throw new LDAPException(ResultCode.LOCAL_ERROR,
              ERR_BIND_INTERRUPTED.get(connection.getHostPort()), ie);
       }
@@ -803,6 +804,12 @@ public final class SimpleBindRequest
     catch (Exception e)
     {
       debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
     }

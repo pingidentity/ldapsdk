@@ -352,7 +352,7 @@ public final class TaskManager
       catch (InterruptedException ie)
       {
         debugException(ie);
-
+        Thread.currentThread().interrupt();
         throw new TaskException(ERR_TASK_MANAGER_WAIT_INTERRUPTED.get(taskID),
                                 ie);
       }

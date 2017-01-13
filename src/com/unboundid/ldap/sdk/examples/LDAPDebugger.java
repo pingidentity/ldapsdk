@@ -41,6 +41,7 @@ import com.unboundid.ldap.listener.ToCodeRequestHandler;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
+import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.MinimalLogFormatter;
 import com.unboundid.util.StaticUtils;
@@ -502,7 +503,16 @@ public final class LDAPDebugger
       try
       {
         Thread.sleep(1L);
-      } catch (final Exception e) {}
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
+      }
 
       port = listener.getListenPort();
     }

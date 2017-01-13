@@ -1172,6 +1172,7 @@ public final class SearchRequest
         catch (InterruptedException ie)
         {
           debugException(ie);
+          Thread.currentThread().interrupt();
           throw new LDAPException(ResultCode.LOCAL_ERROR,
                ERR_SEARCH_INTERRUPTED.get(connection.getHostPort()), ie);
         }
@@ -2022,6 +2023,12 @@ public final class SearchRequest
     catch (Exception e)
     {
       debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
+
       throw new LDAPException(ResultCode.LOCAL_ERROR,
            ERR_EXCEPTION_HANDLING_RESPONSE.get(getExceptionMessage(e)), e);
     }

@@ -1329,6 +1329,11 @@ public final class SearchRate
       catch (final Exception e)
       {
         debugException(e);
+
+        if (e instanceof InterruptedException)
+        {
+          Thread.currentThread().interrupt();
+        }
       }
     }
   }

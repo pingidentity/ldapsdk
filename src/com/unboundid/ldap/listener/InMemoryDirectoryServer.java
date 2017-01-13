@@ -571,6 +571,11 @@ public final class InMemoryDirectoryServer
     catch (final Exception e)
     {
       Debug.debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
     }
 
     startListening();
@@ -600,6 +605,11 @@ public final class InMemoryDirectoryServer
     catch (final Exception e)
     {
       Debug.debugException(e);
+
+      if (e instanceof InterruptedException)
+      {
+        Thread.currentThread().interrupt();
+      }
     }
 
     startListening(listenerName);

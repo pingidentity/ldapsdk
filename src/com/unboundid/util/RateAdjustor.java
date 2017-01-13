@@ -1337,6 +1337,7 @@ public final class RateAdjustor extends Thread
     catch (final InterruptedException e)
     {
       debugException(e);
+      Thread.currentThread().interrupt();
     }
   }
 
