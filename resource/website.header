@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- start coded_template: id:2099975582 path:generated_layouts/2099975562.html -->
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]--><!--[if IE 7]>    
-<html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]--><!--[if IE 8]>    
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]--><!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]--><!--[if IE 8]>
 <html class="no-js lt-ie9" lang="en"> <![endif]--><!--[if gt IE 8]><!-->
 <html class="no-js" lang="en"><!--<![endif]-->
   <head>
@@ -11,9 +11,9 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 <!-- UPDATE PAGE TITLE HERE -->
-    <title>UnboundID LDAP SDK for Java Documentation</title> 
+    <title>UnboundID LDAP SDK for Java Documentation</title>
     <link rel="shortcut icon" href="//cdn2.hubspot.net/hub/405650/file-1005453378-ico/images/favicon.ico?t=1416511326909">
-    
+
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <link href="${BASE}css/public_common.css" rel="stylesheet">
     <link href="${BASE}css/layout.css" rel="stylesheet">
@@ -38,7 +38,7 @@
           <div class="row-fluid-wrapper row-depth-1 row-number-2 ">
           <div class="row-fluid ">
             <div class="span12 widget-span widget-type-global_group " style="" data-widget-type="global_group" data-x="0" data-w="12">
-              <div class="header">        
+              <div class="header">
                 <div class="row-fluid-wrapper row-depth-1 row-number-1 ">
                   <div class="row-fluid ">
                     <div id="header" class="span12 widget-span widget-type-cell section" style="" data-widget-type="cell" data-x="0" data-w="12">
@@ -134,7 +134,7 @@
                       <div class="row-fluid ">
                         <div class="span12 widget-span widget-type-global_widget unboundid_logo" style="" data-widget-type="global_widget" data-x="0" data-w="12">
                           <div class="cell-wrapper layout-widget-wrapper">
-                            <span id="hs_cos_wrapper_unboundid_logo" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_linked_image" style="" data-hs-cos-general-type="widget" data-hs-cos-type="linked_image"><a href="https://www.unboundid.com/" id="hs-link-unboundid_logo" style="border-width:0px;border:0px;"><img src="${BASE}images/UNBOUNDID_sponsored_logo.jpg" class="hs-image-widget " style="width:279px;border-width:0px;border:0px;" width="279" alt="UNBOUNDID_sponsored_logo.jpg" title="UNBOUNDID_sponsored_logo.jpg"></a></span>
+                            <span id="hs_cos_wrapper_unboundid_logo" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_linked_image" style="" data-hs-cos-general-type="widget" data-hs-cos-type="linked_image"><a href="https://www.ldap.com/unboundid-ldap-sdk-for-java" id="hs-link-unboundid_logo" style="border-width:0px;border:0px;"><img src="${BASE}images/UNBOUNDID_sponsored_logo.jpg" class="hs-image-widget " style="width:279px;border-width:0px;border:0px;" width="279" alt="UNBOUNDID_sponsored_logo.jpg" title="UNBOUNDID_sponsored_logo.jpg"></a></span>
                           </div><!--end layout-widget-wrapper -->
                         </div><!--end widget-span -->
                       </div><!--end row-->
@@ -186,4 +186,4 @@
                         <div class="span12 widget-span widget-type-rich_text main" style="" data-widget-type="rich_text" data-x="0" data-w="12">
                           <div class="cell-wrapper layout-widget-wrapper">
                             <span id="hs_cos_wrapper_module_14159041873173857" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text">
-<!-- BODY CONTENT GOES HERE -->                            
+<!-- BODY CONTENT GOES HERE -->

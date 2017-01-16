@@ -7,7 +7,7 @@
                   <div class="span4 widget-span widget-type-rich_text aside" style="" data-widget-type="rich_text" data-x="8" data-w="4">
                     <div class="cell-wrapper layout-widget-wrapper">
                       <span id="hs_cos_wrapper_module_14159042281815177" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text">
-<!-- SIDEBAR for SUBNAV & JUMP LINKS -->  
+<!-- SIDEBAR for SUBNAV & JUMP LINKS -->
                       <ul>
                         <li>
                           <a href="${BASE}release-notes.html">Standard Edition Release Notes</a>
@@ -107,7 +107,7 @@
                   <div class="row-fluid ">
                     <div class="span12 widget-span widget-type-rich_text logo" style="" data-widget-type="rich_text" data-x="0" data-w="12">
                       <div class="cell-wrapper layout-widget-wrapper">
-                        <span id="hs_cos_wrapper_module_1416250269365496" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><a href="https://go.unboundid.com/"><img src="${BASE}images/footer-logo.png" alt="footer-logo"></a></span>
+                        <span id="hs_cos_wrapper_module_1416250269365496" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><a href="https://www.ldap.com/unboundid-ldap-sdk-for-java"><img src="${BASE}images/footer-logo.png" alt="footer-logo"></a></span>
                       </div><!--end layout-widget-wrapper -->
                     </div><!--end widget-span -->
                   </div><!--end row-->
@@ -149,7 +149,7 @@
                 <div class="row-fluid ">
                   <div class="span12 widget-span widget-type-rich_text email" style="" data-widget-type="rich_text" data-x="0" data-w="12">
                     <div class="cell-wrapper layout-widget-wrapper">
-                      <span id="hs_cos_wrapper_module_14162504125722657" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p><a href="mailto:info@unboundid.com">info@unboundid.com</a></p></span>
+                      <span id="hs_cos_wrapper_module_14162504125722657" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p><a href="mailto:ldapsdk-support@pingidentity.com">ldapsdk-support@pingidentity.com</a></p></span>
                     </div><!--end layout-widget-wrapper -->
                   </div><!--end widget-span -->
                 </div><!--end row-->
@@ -171,7 +171,7 @@
 
     </div><!--end footer -->
   </div><!--end footer wrapper -->
-  
+
 
   </body>
 </html>

@@ -47,14 +47,14 @@
 
     <organization>
       <name>UnboundID Corp.</name>
-      <url>http://www.unboundid.com</url>
+      <url>https://www.ldap.com/unboundid-ldap-sdk-for-java</url>
     </organization>
 
     <developers>
       <developer>
         <id>dirmgr</id>
         <name>Neil Wilson</name>
-        <email>neil.wilson@unboundid.com</email>
+        <email>neilwilson@pingidentity.com</email>
       </developer>
     </developers>
 

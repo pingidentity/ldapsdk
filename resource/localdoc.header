@@ -13,7 +13,7 @@
   <body>
     <div id="wrapper">
       <div id="headercontainer">
-        <a href="http://www.unboundid.com/" title="UnboundID LDAP SDK for Java" id="logo">
+        <a href="https://www.ldap.com/unboundid-ldap-sdk-for-java" title="UnboundID LDAP SDK for Java" id="logo">
           <img src="${BASE}images/+___.gif" width="274" height="99" alt="UnboundID" style="float: left;">
         </a>
         <div id="headertitle">

@@ -338,7 +338,7 @@
         <attribute name="Source-Revision" value="${svn.version}" />
         <attribute name="Implementation-Vendor" value="UnboundID Corp." />
         <attribute name="Implementation-URL"
-                   value="http://www.unboundid.com/" />
+                   value="https://www.ldap.com/unboundid-ldap-sdk-for-java" />
         <attribute name="Bundle-ManifestVersion" value="2" />
         <attribute name="Bundle-Copyright"
                    value="Copyright 2008-${year} UnboundID Corp." />

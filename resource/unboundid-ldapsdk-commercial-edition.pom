@@ -38,8 +38,8 @@
       using base64 and ASN.1 BER, and performing secure communication.  This
       package contains the Commercial Edition of the LDAP SDK, which includes
       all of the general-purpose functionality contained in the Standard
-      Edition, plus additional functionality specific to UnboundID server
-      products.
+      Edition, plus additional functionality specific to UnboundID/Ping
+      Identity server products.
     </description>
 
     <url>${LDAP_SDK_HOME_URL}</url>
@@ -48,14 +48,14 @@
 
     <organization>
       <name>UnboundID Corp.</name>
-      <url>http://www.unboundid.com</url>
+      <url>https://www.ldap.com/unboundid-ldap-sdk-for-java</url>
     </organization>
 
     <developers>
       <developer>
         <id>dirmgr</id>
         <name>Neil Wilson</name>
-        <email>neil.wilson@unboundid.com</email>
+        <email>neilwilson@pingidentity.com</email>
       </developer>
     </developers>
 

@@ -121,7 +121,7 @@ public class CopyDocs
   // The target that indicates the ultimate location for the generated
   // documentation.  The value may be either "offline" if the documentation
   // should be generated for offline use or "website" if the documentation will
-  // be placed on the www.unboundid.com website.
+  // be placed on the LDAP.com website.
   private String target;
 
   // The four-digit representation of the current year.
