@@ -209,6 +209,10 @@ public final class GSSAPIBindRequest
   // Indicates whether to enable JVM-level debugging for GSSAPI processing.
   private final boolean enableGSSAPIDebugging;
 
+  // Indicates whether the client should act as the GSSAPI initiator or the
+  // acceptor.
+  private final Boolean isInitiator;
+
   // Indicates whether to attempt to refresh the configuration before the JAAS
   // login method is called.
   private final boolean refreshKrb5Config;
@@ -561,6 +565,7 @@ public final class GSSAPIBindRequest
     renewTGT                   = gssapiProperties.renewTGT();
     keyTabPath                 = gssapiProperties.getKeyTabPath();
     ticketCachePath            = gssapiProperties.getTicketCachePath();
+    isInitiator                = gssapiProperties.getIsInitiator();
     suppressedSystemProperties =
          gssapiProperties.getSuppressedSystemProperties();
 
@@ -874,6 +879,25 @@ public final class GSSAPIBindRequest
 
 
   /**
+   * Indicates whether the client should be configured so that it explicitly
+   * indicates whether it is the initiator or the acceptor.
+   *
+   * @return  {@code Boolean.TRUE} if the client should explicitly indicate that
+   *          it is the GSSAPI initiator, {@code Boolean.FALSE} if the client
+   *          should explicitly indicate that it is the GSSAPI acceptor, or
+   *          {@code null} if the client should not explicitly indicate either
+   *          state (which is the default behavior unless the
+   *          {@link GSSAPIBindRequestProperties#setIsInitiator}  method has
+   *          been used to explicitly specify a value).
+   */
+  public Boolean getIsInitiator()
+  {
+    return isInitiator;
+  }
+
+
+
+  /**
    * Retrieves a set of system properties that will not be altered by GSSAPI
    * processing.
    *
@@ -1007,6 +1031,11 @@ public final class GSSAPIBindRequest
     w.println("  com.sun.security.auth.module.Krb5LoginModule required");
     w.println("  client=true");
 
+    if (p.getIsInitiator() != null)
+    {
+      w.println("  isInitiator=" + p.getIsInitiator());
+    }
+
     if (p.refreshKrb5Config())
     {
       w.println("  refreshKrb5Config=true");
@@ -1062,7 +1091,14 @@ public final class GSSAPIBindRequest
     // analog for the renewTGT property, so it will be ignored.
     w.println(p.getJAASClientName() + " {");
     w.println("  com.ibm.security.auth.module.Krb5LoginModule required");
-    w.println("  credsType=initiator");
+    if ((p.getIsInitiator() == null) || p.getIsInitiator().booleanValue())
+    {
+      w.println("  credsType=initiator");
+    }
+    else
+    {
+      w.println("  credsType=acceptor");
+    }
 
     if (p.refreshKrb5Config())
     {
@@ -1458,6 +1494,7 @@ public final class GSSAPIBindRequest
       gssapiProperties.setEnableGSSAPIDebugging(enableGSSAPIDebugging);
       gssapiProperties.setJAASClientName(jaasClientName);
       gssapiProperties.setSASLClientServerName(saslClientServerName);
+      gssapiProperties.setIsInitiator(isInitiator);
       gssapiProperties.setSuppressedSystemProperties(
            suppressedSystemProperties);
 
@@ -1542,6 +1579,12 @@ public final class GSSAPIBindRequest
       buffer.append(", kdcAddress='");
       buffer.append(kdcAddress);
       buffer.append('\'');
+    }
+
+    if (isInitiator != null)
+    {
+      buffer.append(", isInitiator=");
+      buffer.append(isInitiator);
     }
 
     buffer.append(", jaasClientName='");
@@ -1683,6 +1726,13 @@ public final class GSSAPIBindRequest
     ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
          requestID + "RequestProperties.setRenewTGT",
          ToCodeArgHelper.createBoolean(renewTGT, null));
+
+    if (isInitiator != null)
+    {
+      ToCodeHelper.generateMethodCall(lineList, indentSpaces, null, null,
+           requestID + "RequestProperties.setIsInitiator",
+           ToCodeArgHelper.createBoolean(isInitiator, null));
+    }
 
     if ((suppressedSystemProperties != null) &&
         (! suppressedSystemProperties.isEmpty()))

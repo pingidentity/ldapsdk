@@ -64,6 +64,10 @@ public final class GSSAPIBindRequestProperties
   // Indicates whether to enable JVM-level debugging for GSSAPI processing.
   private boolean enableGSSAPIDebugging;
 
+  // Indicates whether the client should be considered the GSSAPI initiator or
+  // the acceptor.
+  private Boolean isInitiator;
+
   // Indicates whether to attempt to refresh the configuration before the JAAS
   // login method is called.
   private boolean refreshKrb5Config;
@@ -212,6 +216,7 @@ public final class GSSAPIBindRequestProperties
     servicePrincipalProtocol   = "ldap";
     enableGSSAPIDebugging      = false;
     jaasClientName             = "GSSAPIBindRequest";
+    isInitiator                = null;
     refreshKrb5Config          = false;
     renewTGT                   = false;
     useKeyTab                  = false;
@@ -862,6 +867,48 @@ public final class GSSAPIBindRequestProperties
 
 
   /**
+   * Indicates whether the client should be configured so that it explicitly
+   * indicates whether it is the initiator or the acceptor.
+   *
+   * @return  {@code Boolean.TRUE} if the client should explicitly indicate that
+   *          it is the GSSAPI initiator, {@code Boolean.FALSE} if the client
+   *          should explicitly indicate that it is the GSSAPI acceptor, or
+   *          {@code null} if the client should not explicitly indicate either
+   *          state (which is the default if the {@link #setIsInitiator}  method
+   *          has not been called).
+   */
+  public Boolean getIsInitiator()
+  {
+    return isInitiator;
+  }
+
+
+
+  /**
+   * Specifies whether the client should explicitly indicate whether it is the
+   * GSSAPI initiator or acceptor.
+   *
+   * @param  isInitiator  Indicates whether the client should be considered the
+   *                      GSSAPI initiator.  A value of {@code Boolean.TRUE}
+   *                      means the client should explicitly indicate that it is
+   *                      the GSSAPI initiator.  A value of
+   *                      {@code Boolean.FALSE} means the client should
+   *                      explicitly indicate that it is the GSSAPI acceptor.  A
+   *                      value of  {@code null} means that the client will not
+   *                      explicitly indicate one way or the other (although
+   *                      this behavior will only apply to Sun/Oracle-based
+   *                      implementations; on the IBM implementation, the client
+   *                      will always be the initiator unless explicitly
+   *                      configured otherwise).
+   */
+  public void setIsInitiator(final Boolean isInitiator)
+  {
+    this.isInitiator = isInitiator;
+  }
+
+
+
+  /**
    * Retrieves a set of system properties that will not be altered by GSSAPI
    * processing.
    *
@@ -1024,6 +1071,13 @@ public final class GSSAPIBindRequestProperties
     else
     {
       buffer.append("useTicketCache=false, ");
+    }
+
+    if (isInitiator != null)
+    {
+      buffer.append("isInitiator=");
+      buffer.append(isInitiator);
+      buffer.append(", ");
     }
 
     buffer.append("jaasClientName='");
