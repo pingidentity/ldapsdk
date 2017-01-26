@@ -1419,7 +1419,7 @@ processingBlock:
            "--scrambleAttribute", "sn",
            "--scrambleAttribute", "cn",
            "--numThreads", "10",
-           "--schemaPath", "/ds/UnboundID-DS/config/schema",
+           "--schemaPath", "/ds/config/schema",
            "--processDNs"
          },
          INFO_TRANSFORM_LDIF_EXAMPLE_SCRAMBLE.get());
@@ -1434,7 +1434,7 @@ processingBlock:
            "--sequentialValueIncrement", "1",
            "--textBeforeSequentialValue", "user.",
            "--numThreads", "10",
-           "--schemaPath", "/ds/UnboundID-DS/config/schema",
+           "--schemaPath", "/ds/config/schema",
            "--processDNs"
          },
          INFO_TRANSFORM_LDIF_EXAMPLE_SEQUENTIAL.get());
@@ -1448,7 +1448,7 @@ processingBlock:
            "--addAttributeValue", "Example Corp.",
            "--addAttributeFilter", "(objectClass=person)",
            "--numThreads", "10",
-           "--schemaPath", "/ds/UnboundID-DS/config/schema"
+           "--schemaPath", "/ds/config/schema"
          },
          INFO_TRANSFORM_LDIF_EXAMPLE_ADD.get());
 
@@ -1460,7 +1460,7 @@ processingBlock:
            "--moveSubtreeFrom", "o=example.com",
            "--moveSubtreeTo", "dc=example,dc=com",
            "--numThreads", "10",
-           "--schemaPath", "/ds/UnboundID-DS/config/schema"
+           "--schemaPath", "/ds/config/schema"
          },
          INFO_TRANSFORM_LDIF_EXAMPLE_REBASE.get());
 

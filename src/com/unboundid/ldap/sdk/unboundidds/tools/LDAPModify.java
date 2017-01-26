@@ -33,9 +33,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.AddRequest;
@@ -298,20 +298,6 @@ public final class LDAPModify
   // Indicates whether we've written anything to the reject writer yet.
   private final AtomicBoolean rejectWritten;
 
-  // Counters to use to keep statistics.
-  private final AtomicLong addAssertionFailures;
-  private final AtomicLong addFailures;
-  private final AtomicLong addSuccesses;
-  private final AtomicLong deleteAssertionFailures;
-  private final AtomicLong deleteFailures;
-  private final AtomicLong deleteSuccesses;
-  private final AtomicLong modifyAssertionFailures;
-  private final AtomicLong modifyFailures;
-  private final AtomicLong modifySuccesses;
-  private final AtomicLong modifyDNAssertionFailures;
-  private final AtomicLong modifyDNFailures;
-  private final AtomicLong modifyDNSuccesses;
-
   // The input stream from to use for standard input.
   private final InputStream in;
 
@@ -383,19 +369,6 @@ public final class LDAPModify
 
 
     rejectWritten = new AtomicBoolean(false);
-
-    addSuccesses              = new AtomicLong(0L);
-    addFailures               = new AtomicLong(0L);
-    addAssertionFailures      = new AtomicLong(0L);
-    deleteSuccesses           = new AtomicLong(0L);
-    deleteFailures            = new AtomicLong(0L);
-    deleteAssertionFailures   = new AtomicLong(0L);
-    modifySuccesses           = new AtomicLong(0L);
-    modifyFailures            = new AtomicLong(0L);
-    modifyAssertionFailures   = new AtomicLong(0L);
-    modifyDNSuccesses         = new AtomicLong(0L);
-    modifyDNFailures          = new AtomicLong(0L);
-    modifyDNAssertionFailures = new AtomicLong(0L);
   }
 
 
@@ -754,7 +727,9 @@ public final class LDAPModify
     preReadAttribute = new StringArgument(null, "preReadAttribute", false, -1,
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PRE_READ_ATTRIBUTE.get());
+    preReadAttribute.addLongIdentifier("preReadAttributes");
     preReadAttribute.addLongIdentifier("pre-read-attribute");
+    preReadAttribute.addLongIdentifier("pre-read-attributes");
     preReadAttribute.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(preReadAttribute);
@@ -763,7 +738,9 @@ public final class LDAPModify
     postReadAttribute = new StringArgument(null, "postReadAttribute", false,
          -1, INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_POST_READ_ATTRIBUTE.get());
+    postReadAttribute.addLongIdentifier("postReadAttributes");
     postReadAttribute.addLongIdentifier("post-read-attribute");
+    postReadAttribute.addLongIdentifier("post-read-attributes");
     postReadAttribute.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(postReadAttribute);
@@ -1020,6 +997,8 @@ public final class LDAPModify
     parser.addArgument(ratePerSecond);
 
 
+    // The "--scriptFriendly" argument is provided for compatibility with legacy
+    // ldapmodify tools, but is not actually used by this tool.
     final BooleanArgument scriptFriendly = new BooleanArgument(null,
          "scriptFriendly", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_SCRIPT_FRIENDLY.get());
@@ -1028,6 +1007,15 @@ public final class LDAPModify
          INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     scriptFriendly.setHidden(true);
     parser.addArgument(scriptFriendly);
+
+
+    // The "-V" / "--ldapVersion" argument is provided for compatibility with
+    // legacy ldapmodify tools, but is not actually used by this tool.
+    final IntegerArgument ldapVersion = new IntegerArgument('V', "ldapVersion",
+         false, 1, null, INFO_LDAPMODIFY_ARG_DESCRIPTION_LDAP_VERSION.get());
+    ldapVersion.addLongIdentifier("ldap-version");
+    ldapVersion.setHidden(true);
+    parser.addArgument(ldapVersion);
 
 
     // A few assured replication arguments will only be allowed if assured
@@ -2617,8 +2605,17 @@ readChangeRecordLoop:
 
     if (preReadAttribute.isPresent())
     {
-      final String[] attrArray =
-           preReadAttribute.getValues().toArray(StaticUtils.NO_STRINGS);
+      final ArrayList<String> attrList = new ArrayList<String>(10);
+      for (final String value : preReadAttribute.getValues())
+      {
+        final StringTokenizer tokenizer = new StringTokenizer(value, ", ");
+        while (tokenizer.hasMoreTokens())
+        {
+          attrList.add(tokenizer.nextToken());
+        }
+      }
+
+      final String[] attrArray = attrList.toArray(StaticUtils.NO_STRINGS);
       final PreReadRequestControl c = new PreReadRequestControl(attrArray);
       deleteControls.add(c);
       modifyControls.add(c);
@@ -2627,8 +2624,17 @@ readChangeRecordLoop:
 
     if (postReadAttribute.isPresent())
     {
-      final String[] attrArray =
-           postReadAttribute.getValues().toArray(StaticUtils.NO_STRINGS);
+      final ArrayList<String> attrList = new ArrayList<String>(10);
+      for (final String value : postReadAttribute.getValues())
+      {
+        final StringTokenizer tokenizer = new StringTokenizer(value, ", ");
+        while (tokenizer.hasMoreTokens())
+        {
+          attrList.add(tokenizer.nextToken());
+        }
+      }
+
+      final String[] attrArray = attrList.toArray(StaticUtils.NO_STRINGS);
       final PostReadRequestControl c = new PostReadRequestControl(attrArray);
       addControls.add(c);
       modifyControls.add(c);
@@ -2776,15 +2782,10 @@ readChangeRecordLoop:
     switch (addResult.getResultCode().intValue())
     {
       case ResultCode.SUCCESS_INT_VALUE:
-        addSuccesses.incrementAndGet();
-        break;
-
       case ResultCode.NO_OPERATION_INT_VALUE:
-        addSuccesses.incrementAndGet();
         break;
 
       case ResultCode.ASSERTION_FAILED_INT_VALUE:
-        addAssertionFailures.incrementAndGet();
         writeRejectedChange(rejectWriter,
              INFO_LDAPMODIFY_ASSERTION_FAILED.get(addRequest.getDN(),
                   String.valueOf(assertionFilter.getValue())),
@@ -2792,7 +2793,6 @@ readChangeRecordLoop:
         throw new LDAPException(addResult);
 
       default:
-        addFailures.incrementAndGet();
         writeRejectedChange(rejectWriter, null, addRequest.toLDIFChangeRecord(),
              addResult);
         if (useTransaction.isPresent() || (! continueOnError.isPresent()))
@@ -2897,15 +2897,10 @@ readChangeRecordLoop:
     switch (deleteResult.getResultCode().intValue())
     {
       case ResultCode.SUCCESS_INT_VALUE:
-        deleteSuccesses.incrementAndGet();
-        break;
-
       case ResultCode.NO_OPERATION_INT_VALUE:
-        deleteSuccesses.incrementAndGet();
         break;
 
       case ResultCode.ASSERTION_FAILED_INT_VALUE:
-        deleteAssertionFailures.incrementAndGet();
         writeRejectedChange(rejectWriter,
              INFO_LDAPMODIFY_ASSERTION_FAILED.get(deleteRequest.getDN(),
                   String.valueOf(assertionFilter.getValue())),
@@ -2913,7 +2908,6 @@ readChangeRecordLoop:
         throw new LDAPException(deleteResult);
 
       default:
-        deleteFailures.incrementAndGet();
         writeRejectedChange(rejectWriter, null,
              deleteRequest.toLDIFChangeRecord(), deleteResult);
         if (useTransaction.isPresent() || (! continueOnError.isPresent()))
@@ -3050,15 +3044,10 @@ readChangeRecordLoop:
     switch (modifyResult.getResultCode().intValue())
     {
       case ResultCode.SUCCESS_INT_VALUE:
-        modifySuccesses.incrementAndGet();
-        break;
-
       case ResultCode.NO_OPERATION_INT_VALUE:
-        modifySuccesses.incrementAndGet();
         break;
 
       case ResultCode.ASSERTION_FAILED_INT_VALUE:
-        modifyAssertionFailures.incrementAndGet();
         writeRejectedChange(rejectWriter,
              INFO_LDAPMODIFY_ASSERTION_FAILED.get(modifyRequest.getDN(),
                   String.valueOf(assertionFilter.getValue())),
@@ -3066,7 +3055,6 @@ readChangeRecordLoop:
         throw new LDAPException(modifyResult);
 
       default:
-        modifyFailures.incrementAndGet();
         writeRejectedChange(rejectWriter, null,
              modifyRequest.toLDIFChangeRecord(), modifyResult);
         if (useTransaction.isPresent() || (! continueOnError.isPresent()))
@@ -3239,15 +3227,10 @@ readChangeRecordLoop:
     switch (modifyDNResult.getResultCode().intValue())
     {
       case ResultCode.SUCCESS_INT_VALUE:
-        modifyDNSuccesses.incrementAndGet();
-        break;
-
       case ResultCode.NO_OPERATION_INT_VALUE:
-        modifyDNSuccesses.incrementAndGet();
         break;
 
       case ResultCode.ASSERTION_FAILED_INT_VALUE:
-        modifyDNAssertionFailures.incrementAndGet();
         writeRejectedChange(rejectWriter,
              INFO_LDAPMODIFY_ASSERTION_FAILED.get(modifyDNRequest.getDN(),
                   String.valueOf(assertionFilter.getValue())),
@@ -3255,7 +3238,6 @@ readChangeRecordLoop:
         throw new LDAPException(modifyDNResult);
 
       default:
-        modifyDNFailures.incrementAndGet();
         writeRejectedChange(rejectWriter, null,
              modifyDNRequest.toLDIFChangeRecord(), modifyDNResult);
         if (useTransaction.isPresent() || (! continueOnError.isPresent()))

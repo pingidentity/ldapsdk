@@ -894,6 +894,30 @@ public final class GetUserResourceLimitsResponseControl
 
 
   /**
+   * Retrieves the "other" attribute with the specified name.
+   *
+   * @param  name  The name of the "other" attribute to retrieve.  It must not
+   *               be {@code null}.
+   *
+   * @return  The "other" attribute with the specified name, or {@code null} if
+   *          there is no such "other" attribute.
+   */
+  public Attribute getOtherAttribute(final String name)
+  {
+    for (final Attribute a : otherAttributes)
+    {
+      if (a.getName().equalsIgnoreCase(name))
+      {
+        return a;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()

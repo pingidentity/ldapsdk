@@ -2986,7 +2986,29 @@ public final class InMemoryRequestHandler
     synchronized (entryMap)
     {
       // Sleep before processing, if appropriate.
+      final long processingStartTime = System.currentTimeMillis();
       sleepBeforeProcessing();
+
+      // Look at the time limit for the search request and see if sleeping
+      // would have caused us to exceed that time limit.  It's extremely
+      // unlikely that any search in the in-memory directory server would take
+      // a second or more to complete, and that's the minimum time limit that
+      // can be requested, so there's no need to check the time limit in most
+      // cases.  However, someone may want to force a "time limit exceeded"
+      // response by configuring a delay that is greater than the requested time
+      // limit, so we should check now to see if that's been exceeded.
+      final long timeLimitMillis = 1000L * request.getTimeLimit();
+      if (timeLimitMillis > 0L)
+      {
+        final long timeLimitExpirationTime =
+             processingStartTime + timeLimitMillis;
+        if (System.currentTimeMillis() >= timeLimitExpirationTime)
+        {
+          return new LDAPMessage(messageID, new SearchResultDoneProtocolOp(
+               ResultCode.TIME_LIMIT_EXCEEDED_INT_VALUE, null,
+               ERR_MEM_HANDLER_TIME_LIMIT_EXCEEDED.get(), null));
+        }
+      }
 
       // Process the provided request controls.
       final Map<String,Control> controlMap;

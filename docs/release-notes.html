@@ -10,6 +10,116 @@ ${TARGET="offline"}                    <br>
 
               <h2>Standard Edition Release Notes</h2>
 
+              <h3>Version 3.2.1</h3>
+
+              <p>
+                The following changes were made between the 3.2.0 and 3.2.1 releases of the
+                Standard Edition:
+              </p>
+
+              <ul>
+                <li>
+                  Updated the documentation to indicate that non-public feedback, feature
+                  enhancements, support requests, and other kinds of communication should now be
+                  sent to ldapsdk-support@pingidentity.com instead of
+                  ldapsdk-support@unboundid.com. We also now recommend using the GitHub issue
+                  tracker over the SourceForge mailing lists and discussion forums for bug
+                  reports and feature requests.
+                  <br><br>
+                </li>
+
+                <li>
+                  Provided better handling for <tt>InterruptedException</tt> exceptions.  A
+                  thread's interrupted state will now be preserved for cases in which the LDAP SDK
+                  consumes an <tt>InterruptedException</tt> without doing something to handle it.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the support for the ANONYMOUS SASL mechanism that could cause the
+                  trace string to be omitted from the encoded bind request sent to the directory
+                  server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the searchrate tool to provide support for generic controls, as well as
+                  specific support for the assertion, simple paged results, and server-side sort
+                  request controls.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the authrate tool to add a new <tt>--bindOnly</tt> argument allows you
+                  to indicate that the tool should only perform bind operations, and should omit
+                  the initial search used to find the entry for the target user.  The base DN
+                  pattern will be used to construct the bind DN.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the authrate tool to provide support for generic search and bind
+                  controls, as well as specific support for the authorization identity and
+                  password policy request controls.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the search-and-mod-rate tool to provide support for generic search and
+                  modify controls, as well as specific support for the assertion, simple paged
+                  results, permissive modify, pre-read, and post-read request controls.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the support for the server-side sort request control to add constructors
+                  that allow the sort keys to be provided in a list as an alternative to the
+                  existing varargs version that allows them to be provided in an array.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the support for the matched values request control to add constructors
+                  that allow the matched values filters to be provided in a list as an alternative
+                  to the existing varargs version that allows them to be provided in an array.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server to respect the client-requested time
+                  limit if that limit is exceeded because of a processing delay that has been
+                  configured for the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the Javadoc documentation for the argument parser to indicate that
+                  arguments provided to the <tt>addDependentArgumentSet</tt>,
+                  <tt>addExclusiveArgumentSet</tt>, and <tt>addRequiredArgumentSet</tt> methods
+                  must have already been registered with the argument parser.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the Javadoc documentation for the JSON support to better describe the
+                  behavior of the <tt>toString</tt>, <tt>toSingleLineString</tt>, and
+                  <tt>toNormalizedString</tt> methods, and to make it clear that the
+                  <tt>JSONString.toString</tt>tt> method includes the surrounding quotation marks
+                  and may have special characters escaped, and the <tt>stringValue</tt>tt> method
+                  should be used to obtain the unquoted and unescaped value.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the set of LDAP-related specifications to include a reference to the
+                  draft-ietf-ldapext-ldap-c-api specification.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 3.2.0</h3>
 
               <p>

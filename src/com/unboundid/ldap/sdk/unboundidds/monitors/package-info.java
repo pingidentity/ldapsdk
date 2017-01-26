@@ -35,7 +35,7 @@
  * </BLOCKQUOTE>
  * <BR>
  * The {@code MonitorManager} class provides a number of utility methods for
- * retrieving server monitor entries from a Ping identity/UnboundID Directory
+ * retrieving server monitor entries from a Ping Identity/UnboundID Directory
  * Server.  The {@code MonitorEntry} class and its subclasses provide access to
  * the data in those monitor entries.
  */

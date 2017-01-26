@@ -37,6 +37,7 @@ import javax.net.ssl.TrustManager;
 import com.unboundid.ldap.sdk.AggregatePostConnectProcessor;
 import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.EXTERNALBindRequest;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
@@ -200,6 +201,7 @@ public abstract class LDAPCommandLineTool
   private BooleanArgument promptForKeyStorePassword   = null;
   private BooleanArgument promptForTrustStorePassword = null;
   private BooleanArgument trustAll                    = null;
+  private BooleanArgument useSASLExternal             = null;
   private BooleanArgument useSSL                      = null;
   private BooleanArgument useStartTLS                 = null;
   private DNArgument      bindDN                      = null;
@@ -298,6 +300,7 @@ public abstract class LDAPCommandLineTool
     if (tool.supportsAuthentication())
     {
       ids.add("saslOption");
+      ids.add("useSASLExternal");
       ids.add("helpSASL");
     }
 
@@ -540,6 +543,8 @@ public abstract class LDAPCommandLineTool
     certificateNickname.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
+      certificateNickname.addLongIdentifier("certificateNickname");
+      certificateNickname.addLongIdentifier("cert-nickname");
       certificateNickname.addLongIdentifier("certificate-nickname");
     }
     parser.addArgument(certificateNickname);
@@ -555,6 +560,15 @@ public abstract class LDAPCommandLineTool
         saslOption.addLongIdentifier("sasl-option");
       }
       parser.addArgument(saslOption);
+
+      useSASLExternal = new BooleanArgument(null, "useSASLExternal", 1,
+           INFO_LDAP_TOOL_DESCRIPTION_USE_SASL_EXTERNAL.get());
+      useSASLExternal.setArgumentGroupName(argumentGroup);
+      if (includeAlternateLongIdentifiers())
+      {
+        useSASLExternal.addLongIdentifier("use-sasl-external");
+      }
+      parser.addArgument(useSASLExternal);
 
       if (supportsSASLHelp())
       {
@@ -618,9 +632,9 @@ public abstract class LDAPCommandLineTool
              promptForBindPassword);
       }
 
-      // If a bind DN was provided, then no SASL options must have been
-      // provided.
-      parser.addExclusiveArgumentSet(bindDN, saslOption);
+      // The bindDN, saslOption, and useSASLExternal arguments are all mutually
+      // exclusive.
+      parser.addExclusiveArgumentSet(bindDN, saslOption, useSASLExternal);
 
       // Only one option may be used for specifying the bind password.
       parser.addExclusiveArgumentSet(bindPassword, bindPasswordFile,
@@ -1320,6 +1334,10 @@ public abstract class LDAPCommandLineTool
       return SASLUtils.createBindRequest(dnStr, pw,
            defaultToPromptForBindPassword(), this, null,
            saslOption.getValues(), bindControls);
+    }
+    else if (useSASLExternal.isPresent())
+    {
+      return new EXTERNALBindRequest(bindControls);
     }
     else if (bindDN.isPresent())
     {

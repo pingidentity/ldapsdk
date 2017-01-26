@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,9 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchResultReference;
 import com.unboundid.ldap.sdk.controls.AuthorizationIdentityResponseControl;
 import com.unboundid.ldap.sdk.controls.ContentSyncDoneControl;
 import com.unboundid.ldap.sdk.controls.ContentSyncStateControl;
@@ -265,7 +269,28 @@ public final class ResultUtils
     }
 
 
-    if (result instanceof StartTransactionExtendedResult)
+    if (result instanceof SearchResult)
+    {
+      final SearchResult searchResult = (SearchResult) result;
+
+      // We'll always display the search entry count if we know it.
+      final int numEntries = searchResult.getEntryCount();
+      if (numEntries >= 0)
+      {
+        wrap(lines, INFO_RESULT_UTILS_NUM_SEARCH_ENTRIES.get(numEntries),
+             prefix, maxWidth);
+      }
+
+      // We'll only display the search reference count if it's greater than
+      // zero.
+      final int numReferences = searchResult.getReferenceCount();
+      if (numReferences > 0)
+      {
+        wrap(lines, INFO_RESULT_UTILS_NUM_SEARCH_REFERENCES.get(numReferences),
+             prefix, maxWidth);
+      }
+    }
+    else if (result instanceof StartTransactionExtendedResult)
     {
       final StartTransactionExtendedResult startTxnResult =
            (StartTransactionExtendedResult) result;
@@ -398,6 +423,62 @@ public final class ResultUtils
       {
         formatResponseControl(lines, c, prefix, maxWidth);
       }
+    }
+  }
+
+
+
+  /**
+   * Updates the provided list with an LDIF representation of the provided
+   * search result entry to the given list, preceded by comments about any
+   * controls that may be included with the entry.
+   *
+   * @param  lines     The list to which the formatted representation will be
+   *                   added.
+   * @param  entry     The entry to be formatted.
+   * @param  maxWidth  The maximum length of each line in characters, including
+   *                   any comment prefix and indent.
+   */
+  public static void formatSearchResultEntry(final List<String> lines,
+                                             final SearchResultEntry entry,
+                                             final int maxWidth)
+  {
+    for (final Control c : entry.getControls())
+    {
+      formatResponseControl(lines, c, true, 0, maxWidth);
+    }
+
+    lines.addAll(Arrays.asList(entry.toLDIF(maxWidth)));
+  }
+
+
+
+  /**
+   * Updates the provided with with a string representation of the provided
+   * search result reference.  The information will be written as LDIF
+   * comments, and will include any referral URLs contained in the reference, as
+   * well as information about any associated controls.
+   *
+   * @param  lines      The list to which the formatted representation will be
+   *                    added.
+   * @param  reference  The search result reference to be formatted.
+   * @param  maxWidth   The maximum length of each line in characters, including
+   *                    any comment prefix and indent.
+   */
+  public static void formatSearchResultReference(final List<String> lines,
+                          final SearchResultReference reference,
+                          final int maxWidth)
+  {
+    wrap(lines, INFO_RESULT_UTILS_SEARCH_REFERENCE_HEADER.get(), "# ",
+         maxWidth);
+    for (final String url : reference.getReferralURLs())
+    {
+      wrap(lines, INFO_RESULT_UTILS_REFERRAL_URL.get(url), "#      ", maxWidth);
+    }
+
+    for (final Control c : reference.getControls())
+    {
+      formatResponseControl(lines, c, "#      ", maxWidth);
     }
   }
 

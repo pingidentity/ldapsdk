@@ -176,6 +176,50 @@ public final class SearchResult
 
 
   /**
+   * Creates a new search result object with the information from the provided
+   * LDAP result.
+   *
+   * @param  ldapResult  The LDAP result to use to create the contents of this
+   *                     search result.
+   */
+  public SearchResult(final LDAPResult ldapResult)
+  {
+    super(ldapResult);
+
+    if (ldapResult instanceof SearchResult)
+    {
+      final SearchResult searchResult = (SearchResult) ldapResult;
+      numEntries       = searchResult.numEntries;
+      numReferences    = searchResult.numReferences;
+      searchEntries    = searchResult.searchEntries;
+      searchReferences = searchResult.searchReferences;
+    }
+    else
+    {
+      numEntries       = -1;
+      numReferences    = -1;
+      searchEntries    = null;
+      searchReferences = null;
+    }
+  }
+
+
+
+  /**
+   * Creates a new search result object with the information from the provided
+   * LDAP exception.
+   *
+   * @param  ldapException  The LDAP exception to use to create the contents of
+   *                        this search result.
+   */
+  public SearchResult(final LDAPException ldapException)
+  {
+    this(ldapException.toLDAPResult());
+  }
+
+
+
+  /**
    * Creates a new search result object with the provided message ID and with
    * the protocol op and controls read from the given ASN.1 stream reader.
    *

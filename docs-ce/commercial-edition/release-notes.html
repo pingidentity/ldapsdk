@@ -19,6 +19,46 @@ ${TARGET="offline"}                    <br>
                 <a href="../release-notes.html">Standard Edition Release Notes</a>.
               </p>
 
+              <h3>Version 3.2.1</h3>
+
+              <p>
+                The following changes were made between the 3.2.0 and 3.2.1 releases of the
+                Standard Edition:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new version of the <tt>ldapsearch</tt> tool that provides a lot of
+                  additional functionality.  It includes much better output formatting
+                  (including support for alternate output formats, including JSON, CSV, and
+                  tab-delimited text), more robust connection handling, support for referrals,
+                  support for a large number of search and bind controls, support for
+                  administrative sessions, support for unsolicited notifications, the ability to
+                  process multiple searches with search criteria provided in filter files or LDAP
+                  URL files, rate limiting, and the ability to send results to a specified output
+                  file (or a separate output file per search).
+                  <br><br>
+                </li>
+
+                <li>
+                  Added a <tt>GetUserResourceLimitsResponseControl.getOtherAttribute</tt> method
+                  that makes it more convenient to get an "other" attribute by name.
+                  <br><br>
+                </li>
+
+                <li>
+                  Implemented caching for the matching rule instance used when the
+                  jsonObjectExactMatch matching rule is requested.  This matching rule only
+                  exists in the Commercial Edition and needs to be loaded via reflection, but that
+                  can be expensive if it's done a lot.  Caching the result means that we only need
+                  to pay that cost once.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 3.2.0</h3>
 
               <p>
