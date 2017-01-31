@@ -93,6 +93,16 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Updated the identify-unique-attribute-conflicts tool to include a time limit in
+                  search requests intended to determine whether a unique attribute value may also
+                  be in use in any other entries.  This can help limit the effect of running the
+                  tool against a server that is not configured with the appropriate indexes to
+                  ensure that equality searches targeting the unique attributes can be processed
+                  efficiently.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the in-memory directory server to respect the client-requested time
                   limit if that limit is exceeded because of a processing delay that has been
                   configured for the server.

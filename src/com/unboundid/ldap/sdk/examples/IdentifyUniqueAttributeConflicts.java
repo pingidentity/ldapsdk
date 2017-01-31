@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.unboundid.asn1.ASN1OctetString;
@@ -49,6 +50,7 @@ import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
+import com.unboundid.ldap.sdk.extensions.CancelExtendedRequest;
 import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPCommandLineTool;
 import com.unboundid.util.StaticUtils;
@@ -129,11 +131,22 @@ public final class IdentifyUniqueAttributeConflicts
 
 
   /**
+   * The default value for the timeLimit argument.
+   */
+  private static final int DEFAULT_TIME_LIMIT_SECONDS = 10;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -7506817625818259323L;
+  private static final long serialVersionUID = -8298131659655985916L;
 
 
+
+  // Indicates whether a TIME_LIMIT_EXCEEDED result has been encountered during
+  // processing.
+  private final AtomicBoolean timeLimitExceeded;
 
   // The number of entries examined so far.
   private final AtomicLong entriesExamined;
@@ -155,6 +168,10 @@ public final class IdentifyUniqueAttributeConflicts
   // The argument used to specify the search page size.
   private IntegerArgument pageSizeArgument;
 
+  // The argument used to specify the time limit for the searches used to find
+  // conflicting entries.
+  private IntegerArgument timeLimitArgument;
+
   // The connection to use for finding unique attribute conflicts.
   private LDAPConnectionPool findConflictsPool;
 
@@ -174,7 +191,6 @@ public final class IdentifyUniqueAttributeConflicts
   // The argument used to specify the behavior that should be exhibited if
   // multiple attributes are specified.
   private StringArgument multipleAttributeBehaviorArgument;
-
 
 
   /**
@@ -244,7 +260,9 @@ public final class IdentifyUniqueAttributeConflicts
     uniqueAcrossAttributes = false;
     attributes = null;
     baseDNs = null;
+    timeLimitArgument = null;
 
+    timeLimitExceeded = new AtomicBoolean(false);
     entriesExamined = new AtomicLong(0L);
     conflictCounts = new TreeMap<String, AtomicLong>();
   }
@@ -471,6 +489,25 @@ public final class IdentifyUniqueAttributeConflicts
               description, 1, Integer.MAX_VALUE);
     pageSizeArgument.addLongIdentifier("simple-page-size");
     parser.addArgument(pageSizeArgument);
+
+    description = "The time limit in seconds that will be used for search " +
+         "requests attempting to identify conflicts for each value of any of " +
+         "the unique attributes.  This time limit is used to avoid sending " +
+         "expensive unindexed search requests that can consume significant " +
+         "server resources.  If any of these search operations fails in a " +
+         "way that indicates the requested time limit was exceeded, the " +
+         "tool will abort its processing.  A value of zero indicates that no " +
+         "time limit will be enforced.  If this argument is not provided, a " +
+         "default time limit of " + DEFAULT_TIME_LIMIT_SECONDS +
+         " will be used.";
+    timeLimitArgument = new IntegerArgument('l', "timeLimitSeconds", false, 1,
+         "{num}", description, 0, Integer.MAX_VALUE,
+         DEFAULT_TIME_LIMIT_SECONDS);
+    timeLimitArgument.addLongIdentifier("timeLimit");
+    timeLimitArgument.addLongIdentifier("time-limit-seconds");
+    timeLimitArgument.addLongIdentifier("time-limit");
+
+    parser.addArgument(timeLimitArgument);
   }
 
 
@@ -606,7 +643,6 @@ public final class IdentifyUniqueAttributeConflicts
         filter = Filter.createANDFilter(filterArgument.getValue(), filter);
       }
 
-
       // Iterate across all of the search base DNs and perform searches to find
       // unique attributes.
       for (final String baseDN : baseDNs)
@@ -614,6 +650,11 @@ public final class IdentifyUniqueAttributeConflicts
         ASN1OctetString cookie = null;
         do
         {
+          if (timeLimitExceeded.get())
+          {
+            break;
+          }
+
           final SearchRequest searchRequest = new SearchRequest(this, baseDN,
                SearchScope.SUB, filter, attributes);
           if (pageSizeArgument.isPresent())
@@ -702,6 +743,10 @@ public final class IdentifyUniqueAttributeConflicts
       {
         return ResultCode.CONSTRAINT_VIOLATION;
       }
+      else if (timeLimitExceeded.get())
+      {
+        return ResultCode.TIME_LIMIT_EXCEEDED;
+      }
       else
       {
         out("No unique attribute conflicts were found.");
@@ -779,6 +824,13 @@ public final class IdentifyUniqueAttributeConflicts
    */
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
+    // If we have encountered a "time limit exceeded" error, then don't even
+    // bother processing any more entries.
+    if (timeLimitExceeded.get())
+    {
+      return;
+    }
+
     try
     {
       // If we need to check for conflicts in the same entry, then do that
@@ -867,8 +919,8 @@ baseDNLoop:
             {
               SearchResult searchResult;
               final SearchRequest searchRequest = new SearchRequest(baseDN,
-                   SearchScope.SUB, DereferencePolicy.NEVER, 2, 0, false,
-                   filter, "1.1");
+                   SearchScope.SUB, DereferencePolicy.NEVER, 2,
+                   timeLimitArgument.getValue(), false, filter, "1.1");
               try
               {
                 searchResult = findConflictsPool.search(searchRequest);
@@ -876,7 +928,36 @@ baseDNLoop:
               catch (final LDAPSearchException lse)
               {
                 Debug.debugException(lse);
-                if (lse.getResultCode().isConnectionUsable())
+                if (lse.getResultCode() == ResultCode.TIME_LIMIT_EXCEEDED)
+                {
+                  // The server spent more time than the configured time limit
+                  // to process the search.  This almost certainly means that
+                  // the search is unindexed, and we don't want to continue.
+                  // Indicate that the time limit has been exceeded, cancel the
+                  // outer search, and display an error message to the user.
+                  timeLimitExceeded.set(true);
+                  try
+                  {
+                    findConflictsPool.processExtendedOperation(
+                         new CancelExtendedRequest(searchEntry.getMessageID()));
+                  }
+                  catch (final Exception e)
+                  {
+                    Debug.debugException(e);
+                  }
+
+                  err("A server-side time limit was exceeded when searching " +
+                       "below base DN '" + baseDN + "' with filter '" +
+                       filter + "', which likely means that the search " +
+                       "request is not indexed in the server.  Check the " +
+                       "server configuration to ensure that any appropriate " +
+                       "indexes are in place.  To indicate that searches " +
+                       "should not request any time limit, use the " +
+                       timeLimitArgument.getIdentifierString() +
+                       " to indicate a time limit of zero seconds.");
+                  return;
+                }
+                else if (lse.getResultCode().isConnectionUsable())
                 {
                   searchResult = lse.getSearchResult();
                 }
