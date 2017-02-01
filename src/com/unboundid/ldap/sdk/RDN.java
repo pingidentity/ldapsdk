@@ -784,8 +784,7 @@ hexLoop:
                              final StringBuilder buffer)
           throws LDAPException
   {
-    final int bufferLength = buffer.length();
-    final int length       = rdnString.length();
+    final int length = rdnString.length();
     int pos = startPos;
 
     boolean inQuotes = false;
@@ -860,16 +859,6 @@ valueLoop:
               throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
                                       ERR_RDN_UNEXPECTED_DOUBLE_QUOTE.get(pos));
             }
-          }
-          break;
-
-        case ' ':
-          // We'll add this character if we're in quotes, or if the next
-          // character is not also a space.
-          if (inQuotes ||
-              (((pos+1) < length) && (rdnString.charAt(pos+1) != ' ')))
-          {
-            buffer.append(' ');
           }
           break;
 

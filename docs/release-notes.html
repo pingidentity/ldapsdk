@@ -29,6 +29,15 @@ ${TARGET="offline"}                    <br>
                 </li>
 
                 <li>
+                  Fixed a bug in the RDN parsing code that could cause multiple consecutive spaces
+                  in the middle of an attribute value to be condensed down to a single space.  The
+                  string representation of the RDN was preserved correctly, but the methods used
+                  to retrieve attribute values as strings or byte arrays returned the values
+                  without all of the spaces.
+                  <br><br>
+                </li>
+
+                <li>
                   Provided better handling for <tt>InterruptedException</tt> exceptions.  A
                   thread's interrupted state will now be preserved for cases in which the LDAP SDK
                   consumes an <tt>InterruptedException</tt> without doing something to handle it.
