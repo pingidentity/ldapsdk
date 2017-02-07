@@ -58,6 +58,13 @@ public abstract class OperationAccessLogMessage
   // The operation ID for this access log message.
   private final Long operationID;
 
+  // The connection ID for the operation that triggered the associated
+  // operation.
+  private final Long triggeredByConnectionID;
+
+  // The operation ID for the operation that triggered the associated operation.
+  private final Long triggeredByOperationID;
+
   // The message origin for this access log message.
   private final String origin;
 
@@ -72,9 +79,11 @@ public abstract class OperationAccessLogMessage
   {
     super(m);
 
-    messageID   = getNamedValueAsInteger("msgID");
-    operationID = getNamedValueAsLong("op");
-    origin      = getNamedValue("origin");
+    messageID               = getNamedValueAsInteger("msgID");
+    operationID             = getNamedValueAsLong("op");
+    triggeredByConnectionID = getNamedValueAsLong("triggeredByConn");
+    triggeredByOperationID  = getNamedValueAsLong("triggeredByOp");
+    origin                  = getNamedValue("origin");
   }
 
 
@@ -88,6 +97,38 @@ public abstract class OperationAccessLogMessage
   public final Long getOperationID()
   {
     return operationID;
+  }
+
+
+
+  /**
+   * Retrieves the connection ID for the connection that triggered the
+   * associated operation.  This is generally used for internal operations that
+   * are processed as a direct result of an externally-requested operation.
+   *
+   * @return  The connection ID for the connection that triggered the associated
+   *          operation, or {@code null} if it is not included in the log
+   *          message.
+   */
+  public final Long getTriggeredByConnectionID()
+  {
+    return triggeredByConnectionID;
+  }
+
+
+
+  /**
+   * Retrieves the operation ID for the operation that triggered the associated
+   * operation.  This is generally used for internal operations that are
+   * processed as a direct result of an externally-requested operation.
+   *
+   * @return  The operation ID for the operation that triggered the associated
+   *          operation, or {@code null} if it is not included in the log
+   *          message.
+   */
+  public final Long getTriggeredByOperationID()
+  {
+    return triggeredByOperationID;
   }
 
 

@@ -62,6 +62,14 @@ public final class ErrorLogMessage
   // The message ID for this error log message.
   private final Long messageID;
 
+  // The connection ID for the operation currently being processed by the thread
+  // that generated this error log message.
+  private final Long triggeredByConnectionID;
+
+  // The operation ID for the operation currently being processed by the thread
+  // that generated this error log message.
+  private final Long triggeredByOperationID;
+
   // The Directory Server instance name for this error log message.
   private final String instanceName;
 
@@ -101,11 +109,13 @@ public final class ErrorLogMessage
   {
     super(m);
 
-    productName  = getNamedValue("product");
-    instanceName = getNamedValue("instanceName");
-    startupID    = getNamedValue("startupID");
-    messageID    = getNamedValueAsLong("msgID");
-    message      = getNamedValue("msg");
+    productName             = getNamedValue("product");
+    instanceName            = getNamedValue("instanceName");
+    startupID               = getNamedValue("startupID");
+    messageID               = getNamedValueAsLong("msgID");
+    message                 = getNamedValue("msg");
+    triggeredByConnectionID = getNamedValueAsLong("triggeredByConn");
+    triggeredByOperationID  = getNamedValueAsLong("triggeredByOp");
 
     ErrorLogCategory cat = null;
     try
@@ -206,6 +216,36 @@ public final class ErrorLogMessage
   public Long getMessageID()
   {
     return messageID;
+  }
+
+
+
+  /**
+   * Retrieves the connection ID for the operation currently being processed by
+   * the thread that generated this error log message.
+   *
+   * @return  The connection ID for the operation currently being processed by
+   *          the thread that generated this error log message, or {@code null}
+   *          if it is not included in the log message.
+   */
+  public Long getTriggeredByConnectionID()
+  {
+    return triggeredByConnectionID;
+  }
+
+
+
+  /**
+   * Retrieves the operation ID for the operation currently being processed by
+   * the thread that generated this error log message.
+   *
+   * @return  The operation ID for the operation currently being processed by
+   *          the thread that generated this error log message, or {@code null}
+   *          if it is not included in the log message.
+   */
+  public Long getTriggeredByOperationID()
+  {
+    return triggeredByOperationID;
   }
 
 
