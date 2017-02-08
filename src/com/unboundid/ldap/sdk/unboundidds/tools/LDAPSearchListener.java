@@ -22,9 +22,13 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 
 
 
+import java.util.List;
+
+import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchResultReference;
+import com.unboundid.ldap.sdk.transformations.EntryTransformation;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -56,16 +60,25 @@ final class LDAPSearchListener
   // The output handler to use to display the results.
   private final LDAPSearchOutputHandler outputHandler;
 
+  // The entry transformations to apply.
+  private final List<EntryTransformation> entryTransformations;
+
 
 
   /**
    * Creates a new LDAP search listener with the provided output handler.
    *
-   * @param  outputHandler  The output handler to use to display the results.
+   * @param  outputHandler         The output handler to use to display the
+   *                               results.
+   * @param  entryTransformations  The entry transformations to apply.  It may
+   *                               be {@code null} or empty if no
+   *                               transformations are needed.
    */
-  LDAPSearchListener(final LDAPSearchOutputHandler outputHandler)
+  LDAPSearchListener(final LDAPSearchOutputHandler outputHandler,
+                     final List<EntryTransformation> entryTransformations)
   {
-    this.outputHandler = outputHandler;
+    this.outputHandler        = outputHandler;
+    this.entryTransformations = entryTransformations;
   }
 
 
@@ -75,7 +88,24 @@ final class LDAPSearchListener
    */
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
-    outputHandler.formatSearchResultEntry(searchEntry);
+    SearchResultEntry sre;
+    if (entryTransformations == null)
+    {
+      sre = searchEntry;
+    }
+    else
+    {
+      Entry e = searchEntry;
+      for (final EntryTransformation t : entryTransformations)
+      {
+        e = t.transformEntry(e);
+      }
+
+      sre = new SearchResultEntry(searchEntry.getMessageID(), e,
+           searchEntry.getControls());
+    }
+
+    outputHandler.formatSearchResultEntry(sre);
   }
 
 

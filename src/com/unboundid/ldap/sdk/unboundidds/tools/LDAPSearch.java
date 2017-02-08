@@ -72,6 +72,12 @@ import com.unboundid.ldap.sdk.controls.SortKey;
 import com.unboundid.ldap.sdk.controls.SubentriesRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.persist.PersistUtils;
+import com.unboundid.ldap.sdk.transformations.EntryTransformation;
+import com.unboundid.ldap.sdk.transformations.ExcludeAttributeTransformation;
+import com.unboundid.ldap.sdk.transformations.MoveSubtreeTransformation;
+import com.unboundid.ldap.sdk.transformations.RedactAttributeTransformation;
+import com.unboundid.ldap.sdk.transformations.RenameAttributeTransformation;
+import com.unboundid.ldap.sdk.transformations.ScrambleAttributeTransformation;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.ExcludeBranchRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -164,6 +170,7 @@ public final class LDAPSearch
   private BooleanArgument dontWrap = null;
   private BooleanArgument dryRun = null;
   private BooleanArgument followReferrals = null;
+  private BooleanArgument hideRedactedValueCount = null;
   private BooleanArgument getUserResourceLimits = null;
   private BooleanArgument includeReplicationConflictEntries = null;
   private BooleanArgument includeSubentries = null;
@@ -184,6 +191,8 @@ public final class LDAPSearch
   private ControlArgument searchControl = null;
   private DNArgument baseDN = null;
   private DNArgument excludeBranch = null;
+  private DNArgument moveSubtreeFrom = null;
+  private DNArgument moveSubtreeTo = null;
   private DNArgument proxyV1As = null;
   private FileArgument filterFile = null;
   private FileArgument ldapURLFile = null;
@@ -194,6 +203,7 @@ public final class LDAPSearch
   private FilterArgument matchedValuesFilter = null;
   private IntegerArgument joinSizeLimit = null;
   private IntegerArgument ratePerSecond = null;
+  private IntegerArgument scrambleRandomSeed = null;
   private IntegerArgument simplePageSize = null;
   private IntegerArgument sizeLimit = null;
   private IntegerArgument timeLimitSeconds = null;
@@ -201,6 +211,7 @@ public final class LDAPSearch
   private ScopeArgument joinScope = null;
   private ScopeArgument scope = null;
   private StringArgument dereferencePolicy = null;
+  private StringArgument excludeAttribute = null;
   private StringArgument getAuthorizationEntryAttribute = null;
   private StringArgument getEffectiveRightsAttribute = null;
   private StringArgument getEffectiveRightsAuthzID = null;
@@ -213,7 +224,12 @@ public final class LDAPSearch
   private StringArgument outputFormat = null;
   private StringArgument persistentSearch = null;
   private StringArgument proxyAs = null;
+  private StringArgument redactAttribute = null;
+  private StringArgument renameAttributeFrom = null;
+  private StringArgument renameAttributeTo = null;
   private StringArgument requestedAttribute = null;
+  private StringArgument scrambleAttribute = null;
+  private StringArgument scrambleJSONField = null;
   private StringArgument sortOrder = null;
   private StringArgument suppressOperationalAttributeUpdates = null;
   private StringArgument virtualListView = null;
@@ -243,6 +259,9 @@ public final class LDAPSearch
   // The output handler for this tool.
   private volatile LDAPSearchOutputHandler outputHandler =
        new LDIFLDAPSearchOutputHandler(this, WRAP_COLUMN);
+
+  // The list of entry transformations to apply.
+  private volatile List<EntryTransformation> entryTransformations = null;
 
 
 
@@ -921,6 +940,84 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(virtualListView);
 
+    excludeAttribute = new StringArgument(null, "excludeAttribute", false, 0,
+         INFO_PLACEHOLDER_ATTR.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_EXCLUDE_ATTRIBUTE.get());
+    excludeAttribute.addLongIdentifier("exclude-attribute");
+    excludeAttribute.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(excludeAttribute);
+
+    redactAttribute = new StringArgument(null, "redactAttribute", false, 0,
+         INFO_PLACEHOLDER_ATTR.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_REDACT_ATTRIBUTE.get());
+    redactAttribute.addLongIdentifier("redact-attribute");
+    redactAttribute.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(redactAttribute);
+
+    hideRedactedValueCount = new BooleanArgument(null, "hideRedactedValueCount",
+         1, INFO_LDAPSEARCH_ARG_DESCRIPTION_HIDE_REDACTED_VALUE_COUNT.get());
+    hideRedactedValueCount.addLongIdentifier("hide-redacted-value-count");
+    hideRedactedValueCount.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(hideRedactedValueCount);
+
+    scrambleAttribute = new StringArgument(null, "scrambleAttribute", false, 0,
+         INFO_PLACEHOLDER_ATTR.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_SCRAMBLE_ATTRIBUTE.get());
+    scrambleAttribute.addLongIdentifier("scramble-attribute");
+    scrambleAttribute.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(scrambleAttribute);
+
+    scrambleJSONField = new StringArgument(null, "scrambleJSONField", false, 0,
+         INFO_PLACEHOLDER_FIELD_NAME.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_SCRAMBLE_JSON_FIELD.get());
+    scrambleJSONField.addLongIdentifier("scramble-json-field");
+    scrambleJSONField.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(scrambleJSONField);
+
+    scrambleRandomSeed = new IntegerArgument(null, "scrambleRandomSeed", false,
+         1, null, INFO_LDAPSEARCH_ARG_DESCRIPTION_SCRAMBLE_RANDOM_SEED.get());
+    scrambleRandomSeed.addLongIdentifier("scramble-random-seed");
+    scrambleRandomSeed.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(scrambleRandomSeed);
+
+    renameAttributeFrom = new StringArgument(null, "renameAttributeFrom", false,
+         0, INFO_PLACEHOLDER_ATTR.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_RENAME_ATTRIBUTE_FROM.get());
+    renameAttributeFrom.addLongIdentifier("rename-attribute-from");
+    renameAttributeFrom.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(renameAttributeFrom);
+
+    renameAttributeTo = new StringArgument(null, "renameAttributeTo", false,
+         0, INFO_PLACEHOLDER_ATTR.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_RENAME_ATTRIBUTE_TO.get());
+    renameAttributeTo.addLongIdentifier("rename-attribute-to");
+    renameAttributeTo.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(renameAttributeTo);
+
+    moveSubtreeFrom = new DNArgument(null, "moveSubtreeFrom", false, 0,
+         INFO_PLACEHOLDER_ATTR.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_MOVE_SUBTREE_FROM.get());
+    moveSubtreeFrom.addLongIdentifier("move-subtree-from");
+    moveSubtreeFrom.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(moveSubtreeFrom);
+
+    moveSubtreeTo = new DNArgument(null, "moveSubtreeTo", false, 0,
+         INFO_PLACEHOLDER_ATTR.get(),
+         INFO_LDAPSEARCH_ARG_DESCRIPTION_MOVE_SUBTREE_TO.get());
+    moveSubtreeTo.addLongIdentifier("move-subtree-to");
+    moveSubtreeTo.setArgumentGroupName(
+         INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
+    parser.addArgument(moveSubtreeTo);
+
 
     // The "--scriptFriendly" argument is provided for compatibility with legacy
     // ldapsearch tools, but is not actually used by this tool.
@@ -1012,6 +1109,26 @@ public final class LDAPSearch
     parser.addExclusiveArgumentSet(countEntries, filterFile);
     parser.addExclusiveArgumentSet(countEntries, ldapURLFile);
     parser.addExclusiveArgumentSet(countEntries, persistentSearch);
+
+
+    // The hideRedactedValueCount argument requires the redactAttribute
+    // argument.
+    parser.addDependentArgumentSet(hideRedactedValueCount, redactAttribute);
+
+    // The scrambleJSONField and scrambleRandomSeed arguments require the
+    // scrambleAttribute argument.
+    parser.addDependentArgumentSet(scrambleJSONField, scrambleAttribute);
+    parser.addDependentArgumentSet(scrambleRandomSeed, scrambleAttribute);
+
+    // The renameAttributeFrom and renameAttributeTo arguments must be provided
+    // together.
+    parser.addDependentArgumentSet(renameAttributeFrom, renameAttributeTo);
+    parser.addDependentArgumentSet(renameAttributeTo, renameAttributeFrom);
+
+    // The moveSubtreeFrom and moveSubtreeTo arguments must be provided
+    // together.
+    parser.addDependentArgumentSet(moveSubtreeFrom, moveSubtreeTo);
+    parser.addDependentArgumentSet(moveSubtreeTo, moveSubtreeFrom);
   }
 
 
@@ -1648,6 +1765,82 @@ public final class LDAPSearch
     }
 
 
+    // See if any entry transformations need to be applied.
+    final ArrayList<EntryTransformation> transformations =
+         new ArrayList<EntryTransformation>(5);
+    if (excludeAttribute.isPresent())
+    {
+      transformations.add(new ExcludeAttributeTransformation(null,
+           excludeAttribute.getValues()));
+    }
+
+    if (redactAttribute.isPresent())
+    {
+      transformations.add(new RedactAttributeTransformation(null, true,
+           (! hideRedactedValueCount.isPresent()),
+           redactAttribute.getValues()));
+    }
+
+    if (scrambleAttribute.isPresent())
+    {
+      final Long randomSeed;
+      if (scrambleRandomSeed.isPresent())
+      {
+        randomSeed = scrambleRandomSeed.getValue().longValue();
+      }
+      else
+      {
+        randomSeed = null;
+      }
+
+      transformations.add(new ScrambleAttributeTransformation(null, randomSeed,
+           true, scrambleAttribute.getValues(), scrambleJSONField.getValues()));
+    }
+
+    if (renameAttributeFrom.isPresent())
+    {
+      if (renameAttributeFrom.getNumOccurrences() !=
+          renameAttributeTo.getNumOccurrences())
+      {
+        throw new ArgumentException(
+             ERR_LDAPSEARCH_RENAME_ATTRIBUTE_MISMATCH.get());
+      }
+
+      final Iterator<String> sourceIterator =
+           renameAttributeFrom.getValues().iterator();
+      final Iterator<String> targetIterator =
+           renameAttributeTo.getValues().iterator();
+      while (sourceIterator.hasNext())
+      {
+        transformations.add(new RenameAttributeTransformation(null,
+             sourceIterator.next(), targetIterator.next(), true));
+      }
+    }
+
+    if (moveSubtreeFrom.isPresent())
+    {
+      if (moveSubtreeFrom.getNumOccurrences() !=
+          moveSubtreeTo.getNumOccurrences())
+      {
+        throw new ArgumentException(ERR_LDAPSEARCH_MOVE_SUBTREE_MISMATCH.get());
+      }
+
+      final Iterator<DN> sourceIterator =
+           moveSubtreeFrom.getValues().iterator();
+      final Iterator<DN> targetIterator = moveSubtreeTo.getValues().iterator();
+      while (sourceIterator.hasNext())
+      {
+        transformations.add(new MoveSubtreeTransformation(sourceIterator.next(),
+             targetIterator.next()));
+      }
+    }
+
+    if (! transformations.isEmpty())
+    {
+      entryTransformations = transformations;
+    }
+
+
     // Create the output handler.
     final String outputFormatStr =
          StaticUtils.toLowerCase(outputFormat.getValue());
@@ -2060,7 +2253,7 @@ public final class LDAPSearch
           }
 
           final SearchRequest searchRequest = new SearchRequest(
-               new LDAPSearchListener(outputHandler),
+               new LDAPSearchListener(outputHandler, entryTransformations),
                url.getBaseDN().toString(), scope.getValue(), derefPolicy,
                sizeLimit.getValue(), timeLimitSeconds.getValue(),
                typesOnly.isPresent(), url.getFilter(), url.getAttributes());
@@ -2230,10 +2423,10 @@ public final class LDAPSearch
                                       final List<Control> searchControls)
   {
     final SearchRequest searchRequest = new SearchRequest(
-         new LDAPSearchListener(outputHandler), baseDN.getStringValue(),
-         scope.getValue(), derefPolicy, sizeLimit.getValue(),
-         timeLimitSeconds.getValue(), typesOnly.isPresent(), filter,
-         attributes);
+         new LDAPSearchListener(outputHandler, entryTransformations),
+         baseDN.getStringValue(), scope.getValue(), derefPolicy,
+         sizeLimit.getValue(), timeLimitSeconds.getValue(),
+         typesOnly.isPresent(), filter, attributes);
     return doSearch(pool, searchRequest, rateLimiter, searchControls);
   }
 
