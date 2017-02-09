@@ -880,6 +880,52 @@ public final class Schema
 
 
   /**
+   * Reads schema information from the provided input stream.  The information
+   * should be in LDIF form, with the definitions represented in the form
+   * described in section 4.1 of RFC 4512.  Only a single entry will be read
+   * from the input stream, and it will be closed at the end of this method.
+   *
+   * @param  inputStream  The input stream from which the schema entry will be
+   *                      read.  It must not be {@code null}, and it will be
+   *                      closed when this method returns.
+   *
+   * @return  The schema read from the provided input stream, or {@code null} if
+   *          the end of the input stream is reached without reading any data.
+   *
+   * @throws  IOException  If a problem is encountered while attempting to read
+   *                       from the provided input stream.
+   *
+   * @throws  LDIFException  If a problem occurs while attempting to parse the
+   *                         data read as LDIF.
+   */
+  public static Schema getSchema(final InputStream inputStream)
+         throws IOException, LDIFException
+  {
+    ensureNotNull(inputStream);
+
+    final LDIFReader ldifReader = new LDIFReader(inputStream);
+
+    try
+    {
+      final Entry e = ldifReader.readEntry();
+      if (e == null)
+      {
+        return null;
+      }
+      else
+      {
+        return new Schema(e);
+      }
+    }
+    finally
+    {
+      ldifReader.close();
+    }
+  }
+
+
+
+  /**
    * Retrieves a schema object that contains definitions for a number of
    * standard attribute types and object classes from LDAP-related RFCs and
    * Internet Drafts.
