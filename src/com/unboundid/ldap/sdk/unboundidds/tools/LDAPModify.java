@@ -1552,13 +1552,17 @@ readChangeRecordLoop:
             buffer.append(
                  ERR_LDAPMODIFY_RECOVERABLE_LDIF_ERROR_READING_CHANGE.get(
                       le.getLineNumber(), StaticUtils.getExceptionMessage(le)));
-
           }
           else
           {
             buffer.append(
                  ERR_LDAPMODIFY_UNRECOVERABLE_LDIF_ERROR_READING_CHANGE.get(
                       le.getLineNumber(), StaticUtils.getExceptionMessage(le)));
+          }
+
+          if (resultCode == ResultCode.SUCCESS)
+          {
+            resultCode = ResultCode.LOCAL_ERROR;
           }
 
           if ((le.getDataLines() != null) && (! le.getDataLines().isEmpty()))
