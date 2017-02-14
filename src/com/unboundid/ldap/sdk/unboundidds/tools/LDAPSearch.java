@@ -837,7 +837,10 @@ public final class LDAPSearch
 
     matchingEntryCountControl = new StringArgument(null,
          "matchingEntryCountControl", false, 1,
-         "{examineCount=NNN[:alwaysExamine][:allowUnindexed][:debug]}",
+         "{examineCount=NNN[:alwaysExamine][:allowUnindexed]" +
+              "[:skipResolvingExplodedIndexes]" +
+              "[:fastShortCircuitThreshold=NNN]" +
+              "[:slowShortCircuitThreshold=NNN][:debug]}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_MATCHING_ENTRY_COUNT_CONTROL.get());
     matchingEntryCountControl.addLongIdentifier("matchingEntryCount");
     matchingEntryCountControl.addLongIdentifier(
@@ -1352,10 +1355,13 @@ public final class LDAPSearch
     // the argument value and pre-create the control.
     if (matchingEntryCountControl.isPresent())
     {
-      boolean allowUnindexed = false;
-      boolean alwaysExamine  = false;
-      boolean debug          = false;
-      Integer examineCount   = null;
+      boolean allowUnindexed               = false;
+      boolean alwaysExamine                = false;
+      boolean debug                        = false;
+      boolean skipResolvingExplodedIndexes = false;
+      Integer examineCount                 = null;
+      Long    fastShortCircuitThreshold    = null;
+      Long    slowShortCircuitThreshold    = null;
 
       try
       {
@@ -1373,6 +1379,18 @@ public final class LDAPSearch
           else if (element.equals("alwaysexamine"))
           {
             alwaysExamine = true;
+          }
+          else if (element.equals("skipresolvingexplodedindexes"))
+          {
+            skipResolvingExplodedIndexes = true;
+          }
+          else if (element.startsWith("fastshortcircuitthreshold="))
+          {
+            fastShortCircuitThreshold = Long.parseLong(element.substring(26));
+          }
+          else if (element.startsWith("slowshortcircuitthreshold="))
+          {
+            slowShortCircuitThreshold = Long.parseLong(element.substring(26));
           }
           else if (element.equals("debug"))
           {
@@ -1408,7 +1426,9 @@ public final class LDAPSearch
       }
 
       matchingEntryCountRequestControl = new MatchingEntryCountRequestControl(
-           true, examineCount, alwaysExamine, allowUnindexed, debug);
+           true, examineCount, alwaysExamine, allowUnindexed,
+           skipResolvingExplodedIndexes, fastShortCircuitThreshold,
+           slowShortCircuitThreshold, debug);
     }
 
 
