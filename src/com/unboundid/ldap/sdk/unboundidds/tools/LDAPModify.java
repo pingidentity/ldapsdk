@@ -1560,7 +1560,7 @@ readChangeRecordLoop:
                       le.getLineNumber(), StaticUtils.getExceptionMessage(le)));
           }
 
-          if (resultCode == ResultCode.SUCCESS)
+          if ((resultCode == null) || (resultCode == ResultCode.SUCCESS))
           {
             resultCode = ResultCode.LOCAL_ERROR;
           }
