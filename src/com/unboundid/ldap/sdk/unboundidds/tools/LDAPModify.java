@@ -1911,7 +1911,7 @@ readChangeRecordLoop:
         }
 
         displayResult(endTxnResult, false);
-        if ((resultCode == ResultCode.SUCCESS) &&
+        if (((resultCode == null) || (resultCode == ResultCode.SUCCESS)) &&
             (endTxnResult.getResultCode() != ResultCode.SUCCESS))
         {
           resultCode = endTxnResult.getResultCode();
