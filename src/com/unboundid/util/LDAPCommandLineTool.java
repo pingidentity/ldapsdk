@@ -310,6 +310,47 @@ public abstract class LDAPCommandLineTool
 
 
   /**
+   * Retrieves a set containing any short identifiers that should be suppressed
+   * in the set of generic tool arguments so that they can be used by a
+   * tool-specific argument instead.
+   *
+   * @return  A set containing any short identifiers that should be suppressed
+   *          in the set of generic tool arguments so that they can be used by a
+   *          tool-specific argument instead.  It may be empty but must not be
+   *          {@code null}.
+   */
+  protected Set<Character> getSuppressedShortIdentifiers()
+  {
+    return Collections.emptySet();
+  }
+
+
+
+  /**
+   * Retrieves the provided character if it is not included in the set of
+   * suppressed short identifiers.
+   *
+   * @param  id  The character to return if it is not in the set of suppressed
+   *             short identifiers.  It must not be {@code null}.
+   *
+   * @return  The provided character, or {@code null} if it is in the set of
+   *          suppressed short identifiers.
+   */
+  private Character getShortIdentifierIfNotSuppressed(final Character id)
+  {
+    if (getSuppressedShortIdentifiers().contains(id))
+    {
+      return null;
+    }
+    else
+    {
+      return id;
+    }
+  }
+
+
+
+  /**
    * {@inheritDoc}
    */
   @Override()
@@ -328,15 +369,15 @@ public abstract class LDAPCommandLineTool
     }
 
 
-    host = new StringArgument('h', "hostname", true,
-         (supportsMultipleServers() ? 0 : 1),
+    host = new StringArgument(getShortIdentifierIfNotSuppressed('h'),
+         "hostname", true, (supportsMultipleServers() ? 0 : 1),
          INFO_LDAP_TOOL_PLACEHOLDER_HOST.get(),
          INFO_LDAP_TOOL_DESCRIPTION_HOST.get(), "localhost");
     host.setArgumentGroupName(argumentGroup);
     parser.addArgument(host);
 
-    port = new IntegerArgument('p', "port", true,
-         (supportsMultipleServers() ? 0 : 1),
+    port = new IntegerArgument(getShortIdentifierIfNotSuppressed('p'), "port",
+         true, (supportsMultipleServers() ? 0 : 1),
          INFO_LDAP_TOOL_PLACEHOLDER_PORT.get(),
          INFO_LDAP_TOOL_DESCRIPTION_PORT.get(), 1, 65535, 389);
     port.setArgumentGroupName(argumentGroup);
@@ -344,8 +385,8 @@ public abstract class LDAPCommandLineTool
 
     if (supportsAuthentication)
     {
-      bindDN = new DNArgument('D', "bindDN", false, 1,
-           INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
+      bindDN = new DNArgument(getShortIdentifierIfNotSuppressed('D'), "bindDN",
+           false, 1, INFO_LDAP_TOOL_PLACEHOLDER_DN.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_DN.get());
       bindDN.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
@@ -354,8 +395,8 @@ public abstract class LDAPCommandLineTool
       }
       parser.addArgument(bindDN);
 
-      bindPassword = new StringArgument('w', "bindPassword", false, 1,
-           INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
+      bindPassword = new StringArgument(getShortIdentifierIfNotSuppressed('w'),
+           "bindPassword", false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW.get());
       bindPassword.setSensitive(true);
       bindPassword.setArgumentGroupName(argumentGroup);
@@ -365,7 +406,8 @@ public abstract class LDAPCommandLineTool
       }
       parser.addArgument(bindPassword);
 
-      bindPasswordFile = new FileArgument('j', "bindPasswordFile", false, 1,
+      bindPasswordFile = new FileArgument(
+           getShortIdentifierIfNotSuppressed('j'), "bindPasswordFile", false, 1,
            INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
            INFO_LDAP_TOOL_DESCRIPTION_BIND_PW_FILE.get(), true, true, true,
            false);
@@ -386,8 +428,8 @@ public abstract class LDAPCommandLineTool
       parser.addArgument(promptForBindPassword);
     }
 
-    useSSL = new BooleanArgument('Z', "useSSL", 1,
-         INFO_LDAP_TOOL_DESCRIPTION_USE_SSL.get());
+    useSSL = new BooleanArgument(getShortIdentifierIfNotSuppressed('Z'),
+         "useSSL", 1, INFO_LDAP_TOOL_DESCRIPTION_USE_SSL.get());
     useSSL.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
@@ -395,8 +437,8 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(useSSL);
 
-    useStartTLS = new BooleanArgument('q', "useStartTLS", 1,
-         INFO_LDAP_TOOL_DESCRIPTION_USE_START_TLS.get());
+    useStartTLS = new BooleanArgument(getShortIdentifierIfNotSuppressed('q'),
+         "useStartTLS", 1, INFO_LDAP_TOOL_DESCRIPTION_USE_START_TLS.get());
     useStartTLS.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
@@ -405,8 +447,8 @@ public abstract class LDAPCommandLineTool
       }
     parser.addArgument(useStartTLS);
 
-    trustAll = new BooleanArgument('X', "trustAll", 1,
-         INFO_LDAP_TOOL_DESCRIPTION_TRUST_ALL.get());
+    trustAll = new BooleanArgument(getShortIdentifierIfNotSuppressed('X'),
+         "trustAll", 1, INFO_LDAP_TOOL_DESCRIPTION_TRUST_ALL.get());
     trustAll.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
@@ -416,8 +458,8 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(trustAll);
 
-    keyStorePath = new StringArgument('K', "keyStorePath", false, 1,
-         INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
+    keyStorePath = new StringArgument(getShortIdentifierIfNotSuppressed('K'),
+         "keyStorePath", false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PATH.get());
     keyStorePath.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
@@ -426,7 +468,8 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(keyStorePath);
 
-    keyStorePassword = new StringArgument('W', "keyStorePassword", false, 1,
+    keyStorePassword = new StringArgument(
+         getShortIdentifierIfNotSuppressed('W'), "keyStorePassword", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD.get());
     keyStorePassword.setSensitive(true);
@@ -439,7 +482,8 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(keyStorePassword);
 
-    keyStorePasswordFile = new FileArgument('u', "keyStorePasswordFile", false,
+    keyStorePasswordFile = new FileArgument(
+         getShortIdentifierIfNotSuppressed('u'), "keyStorePasswordFile", false,
          1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_KEY_STORE_PASSWORD_FILE.get());
     keyStorePasswordFile.setArgumentGroupName(argumentGroup);
@@ -476,8 +520,8 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(keyStoreFormat);
 
-    trustStorePath = new StringArgument('P', "trustStorePath", false, 1,
-         INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
+    trustStorePath = new StringArgument(getShortIdentifierIfNotSuppressed('P'),
+         "trustStorePath", false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PATH.get());
     trustStorePath.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
@@ -486,7 +530,8 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(trustStorePath);
 
-    trustStorePassword = new StringArgument('T', "trustStorePassword", false, 1,
+    trustStorePassword = new StringArgument(
+         getShortIdentifierIfNotSuppressed('T'), "trustStorePassword", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_PASSWORD.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD.get());
     trustStorePassword.setSensitive(true);
@@ -499,7 +544,8 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(trustStorePassword);
 
-    trustStorePasswordFile = new FileArgument('U', "trustStorePasswordFile",
+    trustStorePasswordFile = new FileArgument(
+         getShortIdentifierIfNotSuppressed('U'), "trustStorePasswordFile",
          false, 1, INFO_LDAP_TOOL_PLACEHOLDER_PATH.get(),
          INFO_LDAP_TOOL_DESCRIPTION_TRUST_STORE_PASSWORD_FILE.get());
     trustStorePasswordFile.setArgumentGroupName(argumentGroup);
@@ -537,7 +583,8 @@ public abstract class LDAPCommandLineTool
     }
     parser.addArgument(trustStoreFormat);
 
-    certificateNickname = new StringArgument('N', "certNickname", false, 1,
+    certificateNickname = new StringArgument(
+         getShortIdentifierIfNotSuppressed('N'), "certNickname", false, 1,
          INFO_LDAP_TOOL_PLACEHOLDER_CERT_NICKNAME.get(),
          INFO_LDAP_TOOL_DESCRIPTION_CERT_NICKNAME.get());
     certificateNickname.setArgumentGroupName(argumentGroup);
@@ -551,8 +598,8 @@ public abstract class LDAPCommandLineTool
 
     if (supportsAuthentication)
     {
-      saslOption = new StringArgument('o', "saslOption", false, 0,
-           INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
+      saslOption = new StringArgument(getShortIdentifierIfNotSuppressed('o'),
+           "saslOption", false, 0, INFO_LDAP_TOOL_PLACEHOLDER_SASL_OPTION.get(),
            INFO_LDAP_TOOL_DESCRIPTION_SASL_OPTION.get());
       saslOption.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())

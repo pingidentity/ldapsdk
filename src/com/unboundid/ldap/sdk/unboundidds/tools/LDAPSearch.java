@@ -30,11 +30,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -443,6 +445,17 @@ public final class LDAPSearch
    * {@inheritDoc}
    */
   @Override()
+  protected Set<Character> getSuppressedShortIdentifiers()
+  {
+    return Collections.singleton('T');
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void addNonLDAPArguments(final ArgumentParser parser)
          throws ArgumentException
   {
@@ -575,7 +588,7 @@ public final class LDAPSearch
     wrapColumn.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(wrapColumn);
 
-    dontWrap = new BooleanArgument(null, "dontWrap", 1,
+    dontWrap = new BooleanArgument('T', "dontWrap", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_DONT_WRAP.get());
     dontWrap.addLongIdentifier("doNotWrap");
     dontWrap.addLongIdentifier("dont-wrap");
