@@ -747,7 +747,10 @@ public final class LDAPModify
 
 
     assuredReplication = new BooleanArgument(null, "useAssuredReplication", 1,
-         INFO_LDAPMODIFY_ARG_DESCRIPTION_ASSURED_REPLICATION.get());
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_ASSURED_REPLICATION.get(
+              ARG_ASSURED_REPLICATION_LOCAL_LEVEL,
+              ARG_ASSURED_REPLICATION_REMOTE_LEVEL,
+              ARG_ASSURED_REPLICATION_TIMEOUT));
     assuredReplication.addLongIdentifier("assuredReplication");
     assuredReplication.addLongIdentifier("use-assured-replication");
     assuredReplication.addLongIdentifier("assured-replication");
