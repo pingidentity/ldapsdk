@@ -173,13 +173,17 @@ public final class ControlArgument
 
     // The account usable request control.
     oidsByName.put("accountusable", "1.3.6.1.4.1.42.2.27.9.5.8");
+    oidsByName.put("accountusability", "1.3.6.1.4.1.42.2.27.9.5.8");
     oidsByName.put("account-usable", "1.3.6.1.4.1.42.2.27.9.5.8");
+    oidsByName.put("account-usability", "1.3.6.1.4.1.42.2.27.9.5.8");
 
     // The get backend set ID request control.
     oidsByName.put("backendsetid", "1.3.6.1.4.1.30221.2.5.33");
     oidsByName.put("getbackendsetid", "1.3.6.1.4.1.30221.2.5.33");
     oidsByName.put("backendset-id", "1.3.6.1.4.1.30221.2.5.33");
+    oidsByName.put("backend-set-id", "1.3.6.1.4.1.30221.2.5.33");
     oidsByName.put("get-backendset-id", "1.3.6.1.4.1.30221.2.5.33");
+    oidsByName.put("get-backend-set-id", "1.3.6.1.4.1.30221.2.5.33");
 
     // The get effective rights request control.
     oidsByName.put("effectiverights", "1.3.6.1.4.1.42.2.27.9.5.2");
