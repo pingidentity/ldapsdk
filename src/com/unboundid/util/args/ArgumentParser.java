@@ -126,6 +126,15 @@ public final class ArgumentParser
 
 
   /**
+   * The name of the argument used to indicate that the tool should suppress the
+   * comment that lists the argument values obtained from a properties file.
+   */
+  private static final String ARG_NAME_SUPPRESS_PROPERTIES_FILE_COMMENT =
+       "suppressPropertiesFileComment";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = 3053102992180360269L;
@@ -651,6 +660,14 @@ public final class ArgumentParser
     noPropertiesFile.setUsageArgument(true);
     noPropertiesFile.addLongIdentifier("no-properties-file");
     addArgument(noPropertiesFile);
+
+    final BooleanArgument suppressPropertiesFileComment = new BooleanArgument(
+         null, ARG_NAME_SUPPRESS_PROPERTIES_FILE_COMMENT, 1,
+         INFO_ARG_DESCRIPTION_SUPPRESS_PROP_FILE_COMMENT.get());
+    suppressPropertiesFileComment.setUsageArgument(true);
+    suppressPropertiesFileComment.addLongIdentifier(
+         "suppress-properties-file-comment");
+    addArgument(suppressPropertiesFileComment);
 
 
     // The propertiesFilePath and noPropertiesFile arguments cannot be used
@@ -1754,6 +1771,22 @@ public final class ArgumentParser
 
 
   /**
+   * Indicates whether the comment listing arguments obtained from a properties
+   * file should be suppressed.
+   *
+   * @return  {@code true} if the comment listing arguments obtained from a
+   *          properties file should be suppressed, or {@code false} if not.
+   */
+  public boolean suppressPropertiesFileComment()
+  {
+    final BooleanArgument arg =
+         getBooleanArgument(ARG_NAME_SUPPRESS_PROPERTIES_FILE_COMMENT);
+    return ((arg != null) && arg.isPresent());
+  }
+
+
+
+  /**
    * Creates a copy of this argument parser that is "clean" and appears as if it
    * has not been used to parse an argument set.  The new parser will have all
    * of the same arguments and constraints as this parser.
@@ -2198,10 +2231,12 @@ public final class ArgumentParser
    */
   private static boolean skipFinalValidationBecauseOfArgument(final Argument a)
   {
-    // We will skip final validation for all usage arguments except the
-    // propertiesFilePath and noPropertiesFile arguments.
+    // We will skip final validation for all usage arguments except the ones
+    // used for interacting with properties and output files.
     if (ARG_NAME_PROPERTIES_FILE_PATH.equals(a.getLongIdentifier()) ||
         ARG_NAME_NO_PROPERTIES_FILE.equals(a.getLongIdentifier()) ||
+        ARG_NAME_SUPPRESS_PROPERTIES_FILE_COMMENT.equals(
+             a.getLongIdentifier()) ||
         ARG_NAME_OUTPUT_FILE.equals(a.getLongIdentifier()) ||
         ARG_NAME_TEE_OUTPUT.equals(a.getLongIdentifier()))
     {

@@ -355,7 +355,8 @@ public abstract class CommandLineTool
     // information about them.
     final List<String> argsSetFromPropertiesFiles =
          parser.getArgumentsSetFromPropertiesFile();
-    if (! argsSetFromPropertiesFiles.isEmpty())
+    if ((! argsSetFromPropertiesFiles.isEmpty()) &&
+        (! parser.suppressPropertiesFileComment()))
     {
       for (final String line :
            wrapLine(
@@ -842,6 +843,7 @@ public abstract class CommandLineTool
       ids.add("propertiesFilePath");
       ids.add("generatePropertiesFile");
       ids.add("noPropertiesFile");
+      ids.add("suppressPropertiesFileComment");
     }
 
     if (tool.supportsOutputFile())
