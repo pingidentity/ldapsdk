@@ -120,6 +120,9 @@ public final class ViewEntry
    * rather than a generic entry.
    *
    * @param  e  The entry for which to make the determination.
+   *
+   * @return  {@code true} if the provided entry has any contact attributes, or
+   *          {@code false} if not.
    */
   private boolean hasContactAttributes(final Entry e)
   {

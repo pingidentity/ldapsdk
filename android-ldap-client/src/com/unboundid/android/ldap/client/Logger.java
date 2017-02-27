@@ -2,6 +2,22 @@
  * Copyright 2009-2017 UnboundID Corp.
  * All Rights Reserved.
  */
+/*
+ * Copyright (C) 2009-2017 UnboundID Corp.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
 package com.unboundid.android.ldap.client;
 
 
@@ -313,6 +329,7 @@ public final class Logger
    * Write a debug message with information about a getter.  It will log both
    * the method name and the return value.
    *
+   * @param  <T>     The type for the value.
    * @param  tag     The tag for the message to be written.  It must not be
    *                 {@code null}.
    * @param  method  The name for the method being invoked.  It must not be
@@ -337,6 +354,7 @@ public final class Logger
   /**
    * Writes a debug message with information about a method returning a value.
    *
+   * @param  <T>     The type for the value.
    * @param  tag     The tag for the message to be written.  It must not be
    *                 {@code null}.
    * @param  method  The name for the method returning the value.  It must not

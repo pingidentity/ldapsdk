@@ -249,6 +249,8 @@ public final class ListSearchResults
    * @param  view      The list item that was clicked.
    * @param  position  The position of the item in the list that was clicked.
    * @param  id        The ID of the item that was clicked.
+   *
+   * @return  {@code true} to indicate that the click has been consumed.
    */
   public boolean onItemLongClick(final AdapterView<?> parent, final View view,
                                  final int position, final long id)

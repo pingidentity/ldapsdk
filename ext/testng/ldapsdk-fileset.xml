@@ -1,0 +1,16 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<!--
+ ! Copyright 2007-2017 UnboundID Corp.
+ ! All Rights Reserved.
+ !
+ -->
+
+<suite name="UnboundID Java LDAP SDK" verbose="1">
+  <test name="default">
+    <packages>
+      <package name="com.unboundid.*" />
+    </packages>
+  </test>
+</suite>
+

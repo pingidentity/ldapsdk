@@ -245,6 +245,8 @@
                 classpath="${classes.dir}" failOnViolation="true">
       <fileset dir="${src.dir}" includes="**/*.java"
                excludes="**/Version.java" />
+      <fileset dir="${buildsrc.dir}" includes="**/*.java" />
+      <fileset dir="android-ldap-client" includes="**/*.java" />
       <formatter type="plain" />
     </checkstyle>
   </target>

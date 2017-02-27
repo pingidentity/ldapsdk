@@ -1,0 +1,70 @@
+/*
+ * Copyright 2011-2017 UnboundID Corp.
+ * All Rights Reserved.
+ */
+/*
+ * Copyright (C) 2011-2017 UnboundID Corp.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+package com.unboundid.ldap.listener;
+
+
+
+import java.net.Socket;
+
+import com.unboundid.ldap.sdk.LDAPException;
+
+
+
+/**
+ * This class provides an LDAP listener exception handler that will print
+ * messages about any unexpected problems to standard error.
+ */
+public final class StandardErrorListenerExceptionHandler
+       implements LDAPListenerExceptionHandler
+{
+  /**
+   * Creates a new instance of this class.
+   */
+  public StandardErrorListenerExceptionHandler()
+  {
+    // No implementation required.
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void connectionCreationFailure(final Socket socket,
+                                        final Throwable cause)
+  {
+    System.err.println("Unable to establish a new connection:");
+    cause.printStackTrace();
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void connectionTerminated(
+                   final LDAPListenerClientConnection connection,
+                   final LDAPException cause)
+  {
+    System.err.println("Client connection unexpectedly terminated:");
+    cause.printStackTrace();
+  }
+}

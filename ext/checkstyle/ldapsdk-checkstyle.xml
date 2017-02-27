@@ -7,6 +7,19 @@
  ! Copyright 2007-2017 UnboundID Corp.
  ! All Rights Reserved.
  -->
+<!--
+ ! Copyright (C) 2007-2017 UnboundID Corp.
+ ! This program is free software; you can redistribute it and/or modify
+ ! it under the terms of the GNU General Public License (GPLv2 only)
+ ! as published by the Free Software Foundation.
+ !
+ ! This program is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ! GNU General Public License for more details.
+ !
+ ! You should have received a copy of the GNU General Public License
+ -->
 
 <module name="Checker">
 
@@ -47,8 +60,9 @@
     <!-- Ensure that all source files have the appropriate header. -->
     <module name="RegexpHeader">
       <property name="header"
-                value="/*\n * Copyright (\d\d\d\d-)?2017 UnboundID Corp.\n * All Rights Reserved.\n */" />
+                value="/*\n * Copyright (\d\d\d\d-)?2017 UnboundID Corp.\n * All Rights Reserved.\n */\n/*\n * Copyright \(C\) (\d\d\d\d-)?2017 UnboundID Corp.\n *\n * This program is free software; you can redistribute it and/or modify\n * it under the terms of the GNU General Public License \(GPLv2 only\)\n * or the terms of the GNU Lesser General Public License \(LGPLv2.1 only\)\n * as published by the Free Software Foundation.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n * GNU General Public License for more details.\n *\n * You should have received a copy of the GNU General Public License\n * along with this program; if not, see &lt;http://www.gnu.org/licenses&gt;.\n */\n" />
     </module>
+
 
 
     <!-- Ensure that there are no star imports. -->

@@ -1,0 +1,167 @@
+/*
+ * Copyright 2009-2017 UnboundID Corp.
+ * All Rights Reserved.
+ */
+/*
+ * Copyright (C) 2009-2017 UnboundID Corp.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+package com.unboundid.ldap.protocol;
+
+
+
+import java.io.ByteArrayInputStream;
+import java.util.LinkedList;
+
+import org.testng.annotations.Test;
+
+import com.unboundid.asn1.ASN1Buffer;
+import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1StreamReader;
+import com.unboundid.ldap.sdk.DN;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+
+
+
+/**
+ * This class provides a set of test cases for the
+ * {@code SearchResultDoneProtocolOp} class.
+ */
+public class SearchResultDoneProtocolOpTestCase
+       extends LDAPSDKTestCase
+{
+  /**
+   * Provides test coverage for the search result done protocol op for a success
+   * response.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSearchResultDoneProtocolOpSuccess()
+         throws Exception
+  {
+    SearchResultDoneProtocolOp op =
+         new SearchResultDoneProtocolOp(0, null, null, null);
+
+    ASN1Buffer buffer = new ASN1Buffer();
+    op.writeTo(buffer);
+
+    byte[] opBytes = buffer.toByteArray();
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(opBytes);
+    ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    op = new SearchResultDoneProtocolOp(reader);
+
+    op = SearchResultDoneProtocolOp.decodeProtocolOp(op.encodeProtocolOp());
+
+    op = new SearchResultDoneProtocolOp(op.toLDAPResult());
+
+    assertEquals(op.getResultCode(), 0);
+
+    assertNull(op.getMatchedDN());
+
+    assertNull(op.getDiagnosticMessage());
+
+    assertNotNull(op.getReferralURLs());
+    assertTrue(op.getReferralURLs().isEmpty());
+
+    assertEquals(op.getProtocolOpType(), (byte) 0x65);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Provides test coverage for the search result done protocol op for a failure
+   * response.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSearchResultDoneProtocolOpFailure()
+         throws Exception
+  {
+    LinkedList<String> refs = new LinkedList<String>();
+    refs.add("ldap://server1.example.com:389/dc=example,dc=com");
+    refs.add("ldap://server2.example.com:389/dc=example,dc=com");
+
+    SearchResultDoneProtocolOp op = new SearchResultDoneProtocolOp(32,
+         "dc=example,dc=com", "The parent entry did not exist", refs);
+
+    ASN1Buffer buffer = new ASN1Buffer();
+    op.writeTo(buffer);
+
+    byte[] opBytes = buffer.toByteArray();
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(opBytes);
+    ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    op = new SearchResultDoneProtocolOp(reader);
+
+    op = SearchResultDoneProtocolOp.decodeProtocolOp(op.encodeProtocolOp());
+
+    op = new SearchResultDoneProtocolOp(op.toLDAPResult());
+
+    assertEquals(op.getResultCode(), 32);
+
+    assertNotNull(op.getMatchedDN());
+    assertEquals(new DN(op.getMatchedDN()),
+                 new DN("dc=example,dc=com"));
+
+    assertNotNull(op.getDiagnosticMessage());
+    assertEquals(op.getDiagnosticMessage(), "The parent entry did not exist");
+
+    assertNotNull(op.getReferralURLs());
+    assertFalse(op.getReferralURLs().isEmpty());
+    assertEquals(op.getReferralURLs().size(), 2);
+
+    assertEquals(op.getProtocolOpType(), (byte) 0x65);
+
+    assertNotNull(op.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read a malformed search result done.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testReadMalformedSearchResultDone()
+         throws Exception
+  {
+    byte[] opBytes = { 0x65, 0x00 };
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(opBytes);
+    ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+    new SearchResultDoneProtocolOp(reader);
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a malformed search result done.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeMalformedSearchResultDone()
+         throws Exception
+  {
+    SearchResultDoneProtocolOp.decodeProtocolOp(
+         new ASN1Element(LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_DONE));
+  }
+}

@@ -1,0 +1,183 @@
+/*
+ * Copyright 2008-2017 UnboundID Corp.
+ * All Rights Reserved.
+ */
+/*
+ * Copyright (C) 2008-2017 UnboundID Corp.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+package com.unboundid.ldap.sdk.unboundidds.controls;
+
+
+
+import org.testng.annotations.Test;
+
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.DereferencePolicy;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
+
+
+
+/**
+ * This class provides a set of test cases for the
+ * VirtualAttributesOnlyRequestControl class.
+ */
+public class VirtualAttributesOnlyRequestControlTestCase
+       extends LDAPSDKTestCase
+{
+  /**
+   * Tests the first constructor.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructor1()
+         throws Exception
+  {
+    VirtualAttributesOnlyRequestControl c =
+         new VirtualAttributesOnlyRequestControl();
+    c = new VirtualAttributesOnlyRequestControl(c);
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getControlName());
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the second constructor with a criticality of TRUE.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructor2True()
+         throws Exception
+  {
+    VirtualAttributesOnlyRequestControl c =
+         new VirtualAttributesOnlyRequestControl(true);
+    c = new VirtualAttributesOnlyRequestControl(c);
+
+    assertTrue(c.isCritical());
+
+    assertNotNull(c.getControlName());
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the second constructor with a criticality of FALSE.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConstructor2False()
+         throws Exception
+  {
+    VirtualAttributesOnlyRequestControl c =
+         new VirtualAttributesOnlyRequestControl(false);
+    c = new VirtualAttributesOnlyRequestControl(c);
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getControlName());
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the third constructor with a generic control that contains a value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testConstructor3WithValue()
+         throws Exception
+  {
+    Control c = new Control(VirtualAttributesOnlyRequestControl.
+                                 VIRTUAL_ATTRIBUTES_ONLY_REQUEST_OID,
+                            true, new ASN1OctetString("foo"));
+    new VirtualAttributesOnlyRequestControl(c);
+  }
+
+
+
+  /**
+   * Sends a request to the server containing the virtual attributes only
+   * request control.
+   * <BR><BR>
+   * Access to a Directory Server instance is required for complete processing.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSendRequestWithVirtualAttributesOnlyRequestControl()
+         throws Exception
+  {
+    if (! isDirectoryInstanceAvailable())
+    {
+      return;
+    }
+
+    LDAPConnection conn = getAdminConnection();
+    conn.add(getTestBaseDN(), getBaseEntryAttributes());
+
+
+    // Perform a search to read the base entry without any controls.  Request
+    // both the "objectClass" attribute (which should be real) and the
+    // "ds-entry-checksum" attribute (which should be virtual), and verify that
+    // both are returned when no controls are included.
+    String[] attrs = { "objectClass", "ds-entry-checksum" };
+    SearchRequest searchRequest =
+         new SearchRequest(getTestBaseDN(), SearchScope.BASE,
+                           DereferencePolicy.NEVER, 0, 0, false,
+                           "(objectClass=*)", attrs);
+
+    SearchResult result = conn.search(searchRequest);
+    assertEquals(result.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(result.getEntryCount(), 1);
+
+    SearchResultEntry searchEntry = result.getSearchEntries().get(0);
+    assertTrue(searchEntry.hasAttribute("objectClass"));
+    assertTrue(searchEntry.hasAttribute("ds-entry-checksum"));
+
+
+    // Add the virtual attributes only control to the request and verify that
+    // the objectClass attribute is no longer returned but the ds-entry-checksum
+    // attribute still is.
+    searchRequest.addControl(new VirtualAttributesOnlyRequestControl(true));
+    result = conn.search(searchRequest);
+    assertEquals(result.getResultCode(), ResultCode.SUCCESS);
+    assertEquals(result.getEntryCount(), 1);
+
+    searchEntry = result.getSearchEntries().get(0);
+    assertFalse(searchEntry.hasAttribute("objectClass"));
+    assertTrue(searchEntry.hasAttribute("ds-entry-checksum"));
+
+    conn.delete(getTestBaseDN());
+    conn.close();
+  }
+}

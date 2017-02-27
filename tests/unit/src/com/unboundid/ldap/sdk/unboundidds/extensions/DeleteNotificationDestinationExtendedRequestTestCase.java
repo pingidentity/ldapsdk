@@ -1,0 +1,139 @@
+/*
+ * Copyright 2014-2017 UnboundID Corp.
+ * All Rights Reserved.
+ */
+/*
+ * Copyright (C) 2014-2017 UnboundID Corp.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+package com.unboundid.ldap.sdk.unboundidds.extensions;
+
+
+
+import org.testng.annotations.Test;
+
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.ExtendedRequest;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+
+
+
+/**
+ * This class provides a set of test cases for the delete notification
+ * destination extended request.
+ */
+public final class DeleteNotificationDestinationExtendedRequestTestCase
+       extends LDAPSDKTestCase
+{
+  /**
+   * Provides basic coverage for the extended request without any controls.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithoutControls()
+         throws Exception
+  {
+    DeleteNotificationDestinationExtendedRequest r =
+         new DeleteNotificationDestinationExtendedRequest("test-manager-id",
+              "test-dest-id");
+
+    r = new DeleteNotificationDestinationExtendedRequest(r);
+
+    r = r.duplicate();
+
+    assertNotNull(r.getManagerID());
+    assertEquals(r.getManagerID(), "test-manager-id");
+
+    assertNotNull(r.getDestinationID());
+    assertEquals(r.getDestinationID(), "test-dest-id");
+
+    assertNotNull(r.getControls());
+    assertEquals(r.getControls().length, 0);
+
+    assertNotNull(r.getExtendedRequestName());
+
+    assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Provides basic coverage for the extended request with controls.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithControls()
+         throws Exception
+  {
+    DeleteNotificationDestinationExtendedRequest r =
+         new DeleteNotificationDestinationExtendedRequest("test-manager-id",
+              "test-dest-id", new Control("1.2.3.4"),
+              new Control("1.2.3.5", true));
+
+    r = new DeleteNotificationDestinationExtendedRequest(r);
+
+    r = r.duplicate();
+
+    assertNotNull(r.getManagerID());
+    assertEquals(r.getManagerID(), "test-manager-id");
+
+    assertNotNull(r.getDestinationID());
+    assertEquals(r.getDestinationID(), "test-dest-id");
+
+    assertNotNull(r.getControls());
+    assertEquals(r.getControls().length, 2);
+
+    assertNotNull(r.getExtendedRequestName());
+
+    assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode an extended request that does not
+   * have a value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeNoValue()
+         throws Exception
+  {
+    new DeleteNotificationDestinationExtendedRequest(
+         new ExtendedRequest("1.3.6.1.4.1.30221.2.6.37"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode an extended request whose value
+   * is not properly formed.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeMalformedValue()
+         throws Exception
+  {
+    new DeleteNotificationDestinationExtendedRequest(
+         new ExtendedRequest("1.3.6.1.4.1.30221.2.6.37",
+              new ASN1OctetString("malformed")));
+  }
+}

@@ -2645,7 +2645,12 @@ public final class LDAPSearch
         }
       }
 
-      displayResult(searchResult);
+      if ((searchResult.getResultCode() != ResultCode.SUCCESS) ||
+          (searchResult.getDiagnosticMessage() != null) ||
+          (! terse.isPresent()))
+      {
+        displayResult(searchResult);
+      }
 
       if (multiplePages && (! terse.isPresent()))
       {

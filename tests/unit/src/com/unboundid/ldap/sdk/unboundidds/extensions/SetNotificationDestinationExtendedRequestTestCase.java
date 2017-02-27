@@ -1,0 +1,305 @@
+/*
+ * Copyright 2014-2017 UnboundID Corp.
+ * All Rights Reserved.
+ */
+/*
+ * Copyright (C) 2014-2017 UnboundID Corp.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License (GPLv2 only)
+ * or the terms of the GNU Lesser General Public License (LGPLv2.1 only)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ */
+package com.unboundid.ldap.sdk.unboundidds.extensions;
+
+
+
+import java.util.Arrays;
+
+import org.testng.annotations.Test;
+
+import com.unboundid.asn1.ASN1Enumerated;
+import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.asn1.ASN1Sequence;
+import com.unboundid.ldap.sdk.Control;
+import com.unboundid.ldap.sdk.ExtendedRequest;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+
+
+
+/**
+ * This class provides a set of test cases for the set notification destination
+ * extended request.
+ */
+public final class SetNotificationDestinationExtendedRequestTestCase
+       extends LDAPSDKTestCase
+{
+  /**
+   * Provides basic coverage for the extended request without any controls.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithoutControls()
+         throws Exception
+  {
+    SetNotificationDestinationExtendedRequest r =
+         new SetNotificationDestinationExtendedRequest("test-manager-id",
+              "test-dest-id", new ASN1OctetString("dest-detail-1"));
+
+    r = new SetNotificationDestinationExtendedRequest(r);
+
+    r = r.duplicate();
+
+    assertNotNull(r.getManagerID());
+    assertEquals(r.getManagerID(), "test-manager-id");
+
+    assertNotNull(r.getDestinationID());
+    assertEquals(r.getDestinationID(), "test-dest-id");
+
+    assertNotNull(r.getDestinationDetails());
+    assertFalse(r.getDestinationDetails().isEmpty());
+    assertEquals(r.getDestinationDetails().size(), 1);
+
+    assertNotNull(r.getChangeType());
+    assertEquals(r.getChangeType(),
+         SetNotificationDestinationChangeType.REPLACE);
+
+    assertNotNull(r.getControls());
+    assertEquals(r.getControls().length, 0);
+
+    assertNotNull(r.getExtendedRequestName());
+
+    assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Provides basic coverage for the extended request with controls.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithControls()
+         throws Exception
+  {
+    SetNotificationDestinationExtendedRequest r =
+         new SetNotificationDestinationExtendedRequest("test-manager-id",
+              "test-dest-id",
+              Arrays.asList(
+                   new ASN1OctetString("dest-detail-1"),
+                   new ASN1OctetString("dest-detail-2")),
+              new Control("1.2.3.4"), new Control("1.2.3.5", true));
+
+    r = new SetNotificationDestinationExtendedRequest(r);
+
+    r = r.duplicate();
+
+    assertNotNull(r.getManagerID());
+    assertEquals(r.getManagerID(), "test-manager-id");
+
+    assertNotNull(r.getDestinationID());
+    assertEquals(r.getDestinationID(), "test-dest-id");
+
+    assertNotNull(r.getDestinationDetails());
+    assertFalse(r.getDestinationDetails().isEmpty());
+    assertEquals(r.getDestinationDetails().size(), 2);
+
+    assertNotNull(r.getChangeType());
+    assertEquals(r.getChangeType(),
+         SetNotificationDestinationChangeType.REPLACE);
+
+    assertNotNull(r.getControls());
+    assertEquals(r.getControls().length, 2);
+
+    assertNotNull(r.getExtendedRequestName());
+
+    assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Provides basic coverage for the extended request with controls and a
+   * {@code null} change type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithControlsAndNullChangeType()
+         throws Exception
+  {
+    SetNotificationDestinationExtendedRequest r =
+         new SetNotificationDestinationExtendedRequest("test-manager-id",
+              "test-dest-id",
+              Arrays.asList(
+                   new ASN1OctetString("dest-detail-1"),
+                   new ASN1OctetString("dest-detail-2")),
+              (SetNotificationDestinationChangeType) null,
+              new Control("1.2.3.4"), new Control("1.2.3.5", true));
+
+    r = new SetNotificationDestinationExtendedRequest(r);
+
+    r = r.duplicate();
+
+    assertNotNull(r.getManagerID());
+    assertEquals(r.getManagerID(), "test-manager-id");
+
+    assertNotNull(r.getDestinationID());
+    assertEquals(r.getDestinationID(), "test-dest-id");
+
+    assertNotNull(r.getDestinationDetails());
+    assertFalse(r.getDestinationDetails().isEmpty());
+    assertEquals(r.getDestinationDetails().size(), 2);
+
+    assertNotNull(r.getChangeType());
+    assertEquals(r.getChangeType(),
+         SetNotificationDestinationChangeType.REPLACE);
+
+    assertNotNull(r.getControls());
+    assertEquals(r.getControls().length, 2);
+
+    assertNotNull(r.getExtendedRequestName());
+
+    assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Provides basic coverage for the extended request with controls and a
+   * non-{@code null}, non-default change type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testWithControlsAndNonNullChangeType()
+         throws Exception
+  {
+    SetNotificationDestinationExtendedRequest r =
+         new SetNotificationDestinationExtendedRequest("test-manager-id",
+              "test-dest-id",
+              Arrays.asList(
+                   new ASN1OctetString("dest-detail-1"),
+                   new ASN1OctetString("dest-detail-2")),
+              SetNotificationDestinationChangeType.ADD,
+              new Control("1.2.3.4"), new Control("1.2.3.5", true));
+
+    r = new SetNotificationDestinationExtendedRequest(r);
+
+    r = r.duplicate();
+
+    assertNotNull(r.getManagerID());
+    assertEquals(r.getManagerID(), "test-manager-id");
+
+    assertNotNull(r.getDestinationID());
+    assertEquals(r.getDestinationID(), "test-dest-id");
+
+    assertNotNull(r.getDestinationDetails());
+    assertFalse(r.getDestinationDetails().isEmpty());
+    assertEquals(r.getDestinationDetails().size(), 2);
+
+    assertNotNull(r.getChangeType());
+    assertEquals(r.getChangeType(), SetNotificationDestinationChangeType.ADD);
+
+    assertNotNull(r.getControls());
+    assertEquals(r.getControls().length, 2);
+
+    assertNotNull(r.getExtendedRequestName());
+
+    assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode an extended request that does not
+   * have a value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeNoValue()
+         throws Exception
+  {
+    new SetNotificationDestinationExtendedRequest(
+         new ExtendedRequest("1.3.6.1.4.1.30221.2.6.36"));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode an extended request whose value
+   * is not properly formed.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeMalformedValue()
+         throws Exception
+  {
+    new SetNotificationDestinationExtendedRequest(
+         new ExtendedRequest("1.3.6.1.4.1.30221.2.6.36",
+              new ASN1OctetString("malformed")));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode an extended request whose value
+   * contains an invalid change type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeInvalidChangeType()
+         throws Exception
+  {
+    final ASN1Sequence valueSequence = new ASN1Sequence(
+         new ASN1OctetString("manager-id"),
+         new ASN1OctetString("destination-id"),
+         new ASN1Sequence(
+              new ASN1OctetString("destination-details-1"),
+              new ASN1OctetString("destination-details-2")),
+         new ASN1Enumerated((byte) 0x80, 1234));
+
+    new SetNotificationDestinationExtendedRequest(
+         new ExtendedRequest("1.3.6.1.4.1.30221.2.6.36",
+              new ASN1OctetString(valueSequence.encode())));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode an extended request whose value
+   * sequence contains an element with an unrecognized BER type.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeUnrecognizedBERType()
+         throws Exception
+  {
+    final ASN1Sequence valueSequence = new ASN1Sequence(
+         new ASN1OctetString("manager-id"),
+         new ASN1OctetString("destination-id"),
+         new ASN1Sequence(
+              new ASN1OctetString("destination-details-1"),
+              new ASN1OctetString("destination-details-2")),
+         new ASN1Enumerated((byte) 0x8F, 0));
+
+    new SetNotificationDestinationExtendedRequest(
+         new ExtendedRequest("1.3.6.1.4.1.30221.2.6.36",
+              new ASN1OctetString(valueSequence.encode())));
+  }
+}
