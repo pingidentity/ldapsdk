@@ -2876,9 +2876,8 @@ public final class ArgumentParser
             if (bva.getValue())
             {
               a.incrementOccurrences();
+              argumentsSetFromPropertiesFile.add(a.getIdentifierString());
             }
-
-            argumentsSetFromPropertiesFile.add(a.getIdentifierString());
           }
           else
           {
