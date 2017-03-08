@@ -29,6 +29,7 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServerTool;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.examples.AuthRate;
+import com.unboundid.ldap.sdk.examples.Base64Tool;
 import com.unboundid.ldap.sdk.examples.IdentifyReferencesToMissingEntries;
 import com.unboundid.ldap.sdk.examples.IdentifyUniqueAttributeConflicts;
 import com.unboundid.ldap.sdk.examples.LDAPCompare;
@@ -41,6 +42,7 @@ import com.unboundid.ldap.sdk.examples.SearchAndModRate;
 import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
+import com.unboundid.ldap.sdk.transformations.TransformLDIF;
 
 
 
@@ -56,6 +58,7 @@ import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
  * The tool names are case-insensitive.  Supported tool names include:
  * <UL>
  *   <LI>authrate -- Launch the {@link AuthRate} tool.</LI>
+ *   <LI>base64 -- Launch the {@link Base64Tool} tool.</LI>
  *   <LI>in-memory-directory-server -- Launch the
  *       {@link InMemoryDirectoryServerTool} tool.</LI>
  *   <LI>generate-schema-from-source -- Launch the
@@ -75,6 +78,7 @@ import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
  *   <LI>modrate -- Launch the {@link ModRate} tool.</LI>
  *   <LI>searchrate -- Launch the {@link SearchRate} tool.</LI>
  *   <LI>search-and-mod-rate -- Launch the {@link SearchAndModRate} tool.</LI>
+ *   <LI>transform-ldif -- Launch the {@link TransformLDIF} tool.</LI>
  *   <LI>validate-ldif -- Launch the {@link ValidateLDIF} tool.</LI>
  *   <LI>version -- Display version information for the LDAP SDK.</LI>
  * </UL>
@@ -146,6 +150,10 @@ public final class Launcher
     {
       return AuthRate.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("base64"))
+    {
+      return Base64Tool.main(System.in, outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("identify-references-to-missing-entries"))
     {
       return IdentifyReferencesToMissingEntries.main(remainingArgs, outStream,
@@ -197,6 +205,10 @@ public final class Launcher
     {
       return SearchAndModRate.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("transform-ldif"))
+    {
+      return TransformLDIF.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("validate-ldif"))
     {
       return ValidateLDIF.main(remainingArgs, outStream, errStream);
@@ -209,6 +221,7 @@ public final class Launcher
         err.println("Unrecognized tool name '" + args[0] + '\'');
         err.println("Supported tool names include:");
         err.println("     authrate");
+        err.println("     base64");
         err.println("     identify-references-to-missing-entries");
         err.println("     identify-unique-attribute-conflicts");
         err.println("     in-memory-directory-server");
@@ -221,6 +234,7 @@ public final class Launcher
         err.println("     modrate");
         err.println("     searchrate");
         err.println("     search-and-mod-rate");
+        err.println("     transform-ldif");
         err.println("     validate-ldif");
         err.println("     version");
       }

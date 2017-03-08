@@ -129,6 +129,7 @@ public final class LauncherTestCase
     return new Object[][]
     {
       new Object[] { "authrate" },
+      new Object[] { "base64" },
       new Object[] { "identify-references-to-missing-entries" },
       new Object[] { "identify-unique-attribute-conflicts" },
       new Object[] { "generate-schema-from-source" },
@@ -141,6 +142,7 @@ public final class LauncherTestCase
       new Object[] { "modrate" },
       new Object[] { "searchrate" },
       new Object[] { "search-and-mod-rate" },
+      new Object[] { "transform-ldif" },
       new Object[] { "validate-ldif" },
       new Object[] { "version" }
     };
