@@ -29,6 +29,7 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServerTool;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.Version;
 import com.unboundid.ldap.sdk.examples.AuthRate;
+import com.unboundid.ldap.sdk.examples.Base64Tool;
 import com.unboundid.ldap.sdk.examples.IdentifyReferencesToMissingEntries;
 import com.unboundid.ldap.sdk.examples.IdentifyUniqueAttributeConflicts;
 import com.unboundid.ldap.sdk.examples.LDAPCompare;
@@ -39,9 +40,11 @@ import com.unboundid.ldap.sdk.examples.SearchAndModRate;
 import com.unboundid.ldap.sdk.examples.ValidateLDIF;
 import com.unboundid.ldap.sdk.persist.GenerateSchemaFromSource;
 import com.unboundid.ldap.sdk.persist.GenerateSourceFromSchema;
+import com.unboundid.ldap.sdk.transformations.TransformLDIF;
 import com.unboundid.ldap.sdk.unboundidds.examples.DumpDNs;
 import com.unboundid.ldap.sdk.unboundidds.examples.SubtreeAccessibility;
 import com.unboundid.ldap.sdk.unboundidds.examples.SummarizeAccessLog;
+import com.unboundid.ldap.sdk.unboundidds.tools.GenerateTOTPSharedSecret;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
@@ -71,6 +74,7 @@ import com.unboundid.util.ThreadSafetyLevel;
  * The tool names are case-insensitive.  Supported tool names include:
  * <UL>
  *   <LI>authrate -- Launch the {@link AuthRate} tool.</LI>
+ *   <LI>base64 -- Launch the {@link Base64Tool} tool.</LI>
  *   <LI>deliver-one-time-password -- Launch the
  *       {@link DeliverOneTimePassword} tool.</LI>
  *   <LI>deliver-password-reset-token -- Launch the
@@ -80,6 +84,8 @@ import com.unboundid.util.ThreadSafetyLevel;
  *       {@link GenerateSchemaFromSource} tool.</LI>
  *   <LI>generate-source-from-schema -- Launch the
  *       {@link GenerateSourceFromSchema} tool.</LI>
+ *   <LI>generate-totp-shared-secret -- Launch the
+ *       {@link GenerateTOTPSharedSecret} tool.</LI>
  *   <LI>identify-references-to-missing-entries -- Launch the
  *       {@link IdentifyReferencesToMissingEntries} tool.</LI>
  *   <LI>identify-unique-attribute-conflicts -- Launch the
@@ -102,6 +108,7 @@ import com.unboundid.util.ThreadSafetyLevel;
  *       tool.</LI>
  *   <LI>summarize-access-log -- Launch the {@link SummarizeAccessLog}
  *       tool.</LI>
+ *   <LI>transform-ldif -- Launch the {@link TransformLDIF} tool.</LI>
  *   <LI>validate-ldif -- Launch the {@link ValidateLDIF} tool.</LI>
  *   <LI>version -- Display version information for the LDAP SDK.</LI>
  * </UL>
@@ -173,6 +180,10 @@ public final class Launcher
     {
       return AuthRate.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("base64"))
+    {
+      return Base64Tool.main(System.in, outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("deliver-one-time-password"))
     {
       return DeliverOneTimePassword.main(remainingArgs, outStream, errStream);
@@ -208,6 +219,10 @@ public final class Launcher
     else if (firstArg.equals("generate-source-from-schema"))
     {
       return GenerateSourceFromSchema.main(remainingArgs, outStream, errStream);
+    }
+    else if (firstArg.equals("generate-totp-shared-secret"))
+    {
+      return GenerateTOTPSharedSecret.main(outStream, errStream, remainingArgs);
     }
     else if (firstArg.equals("ldapcompare"))
     {
@@ -261,6 +276,10 @@ public final class Launcher
     {
       return SummarizeAccessLog.main(remainingArgs, outStream, errStream);
     }
+    else if (firstArg.equals("transform-ldif"))
+    {
+      return TransformLDIF.main(outStream, errStream, remainingArgs);
+    }
     else if (firstArg.equals("validate-ldif"))
     {
       return ValidateLDIF.main(remainingArgs, outStream, errStream);
@@ -273,6 +292,7 @@ public final class Launcher
         err.println("Unrecognized tool name '" + args[0] + '\'');
         err.println("Supported tool names include:");
         err.println("     authrate");
+        err.println("     base64");
         err.println("     deliver-one-time-password");
         err.println("     deliver-password-reset-token");
         err.println("     dump-dns");
@@ -281,6 +301,7 @@ public final class Launcher
         err.println("     in-memory-directory-server");
         err.println("     generate-schema-from-source");
         err.println("     generate-source-from-schema");
+        err.println("     generate-totp-shared-secret");
         err.println("     ldapcompare");
         err.println("     ldapmodify");
         err.println("     ldapsearch");
@@ -294,6 +315,7 @@ public final class Launcher
         err.println("     split-ldif");
         err.println("     subtree-accessibility");
         err.println("     summarize-access-log");
+        err.println("     transform-ldif");
         err.println("     validate-ldif");
         err.println("     version");
       }

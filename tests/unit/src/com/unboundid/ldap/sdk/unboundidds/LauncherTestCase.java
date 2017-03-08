@@ -130,11 +130,13 @@ public final class LauncherTestCase
     return new Object[][]
     {
       new Object[] { "authrate" },
+      new Object[] { "base64" },
       new Object[] { "deliver-one-time-password" },
       new Object[] { "deliver-password-reset-token" },
       new Object[] { "dump-dns" },
       new Object[] { "generate-schema-from-source" },
       new Object[] { "generate-source-from-schema" },
+      new Object[] { "generate-totp-shared-secret" },
       new Object[] { "identify-references-to-missing-entries" },
       new Object[] { "identify-unique-attribute-conflicts" },
       new Object[] { "in-memory-directory-server" },
@@ -151,6 +153,7 @@ public final class LauncherTestCase
       new Object[] { "split-ldif" },
       new Object[] { "subtree-accessibility" },
       new Object[] { "summarize-access-log" },
+      new Object[] { "transform-ldif" },
       new Object[] { "validate-ldif" },
       new Object[] { "version" }
     };
