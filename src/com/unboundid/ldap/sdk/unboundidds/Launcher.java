@@ -33,7 +33,6 @@ import com.unboundid.ldap.sdk.examples.IdentifyReferencesToMissingEntries;
 import com.unboundid.ldap.sdk.examples.IdentifyUniqueAttributeConflicts;
 import com.unboundid.ldap.sdk.examples.LDAPCompare;
 import com.unboundid.ldap.sdk.examples.LDAPDebugger;
-import com.unboundid.ldap.sdk.examples.LDAPSearch;
 import com.unboundid.ldap.sdk.examples.ModRate;
 import com.unboundid.ldap.sdk.examples.SearchRate;
 import com.unboundid.ldap.sdk.examples.SearchAndModRate;
@@ -44,6 +43,7 @@ import com.unboundid.ldap.sdk.unboundidds.examples.DumpDNs;
 import com.unboundid.ldap.sdk.unboundidds.examples.SubtreeAccessibility;
 import com.unboundid.ldap.sdk.unboundidds.examples.SummarizeAccessLog;
 import com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify;
+import com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch;
 import com.unboundid.ldap.sdk.unboundidds.tools.ManageAccount;
 import com.unboundid.ldap.sdk.unboundidds.tools.SplitLDIF;
 import com.unboundid.util.StaticUtils;
@@ -219,7 +219,7 @@ public final class Launcher
     }
     else if (firstArg.equals("ldapsearch"))
     {
-      return LDAPSearch.main(remainingArgs, outStream, errStream);
+      return LDAPSearch.main(outStream, errStream, remainingArgs);
     }
     else if (firstArg.equals("ldap-debugger"))
     {
