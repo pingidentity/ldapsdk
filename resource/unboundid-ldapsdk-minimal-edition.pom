@@ -80,9 +80,9 @@
     </licenses>
 
     <scm>
-      <url>https://github.com/UnboundID/ldapsdk</url>
-      <connection>scm:git:https://github.com/UnboundID/ldapsdk.git</connection>
-      <developerConnection>scm:git:https://github.com/UnboundID/ldapsdk.git</developerConnection>
+      <url>https://github.com/pingidentity/ldapsdk</url>
+      <connection>scm:git:https://github.com/pingidentity/ldapsdk.git</connection>
+      <developerConnection>scm:git:https://github.com/pingidentity/ldapsdk.git</developerConnection>
     </scm>
 
 </project>

@@ -48,7 +48,7 @@ engage in any other discussion about the LDAP SDK, you may use one of the
 following options:
 
 - For bug reports and feature requests, use the GitHub issue tracker at
-  https://github.com/UnboundID/ldapsdk/issues
+  https://github.com/pingidentity/ldapsdk/issues
 
 - For questions, feedback, and other discussions, use the online discussion
   forum at http://sourceforge.net/p/ldap-sdk/discussion/ or the
