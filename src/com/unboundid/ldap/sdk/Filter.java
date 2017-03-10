@@ -4202,8 +4202,8 @@ attrNameLoop:
    * @param  value   The value to be encoded.
    * @param  buffer  The buffer to which the assertion value should be appended.
    */
-  private static void encodeValue(final ASN1OctetString value,
-                                  final StringBuilder buffer)
+  public static void encodeValue(final ASN1OctetString value,
+                                 final StringBuilder buffer)
   {
     final byte[] valueBytes = value.getValue();
     for (int i=0; i < valueBytes.length; i++)
