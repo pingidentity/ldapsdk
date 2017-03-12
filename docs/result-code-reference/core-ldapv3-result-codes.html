@@ -1,0 +1,732 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAP Result Code Reference</a></h2>
+              <a name="core-ldapv3-result-codes"></a>
+              <h3>Core LDAPv3 Result Codes</h3>
+
+              <p>The core LDAPv3 specification in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> defines a number of result codes that are intended to be used in LDAP responses. This chapter describes each of those result codes, the types of operations for which that result code may be returned, and some of the potential causes for it. However, it does not attempt to provide every possible cause for every result code, since different directory servers have different capabilities, and some servers use different result codes for the same purpose. Further, because LDAP is an extensible protocol, and especially because it provides support for controls and extended operations, there may be yet-to-be-created conditions that warrant the use of a particular result code for an unexpected type of operation.</p>
+
+              <p></p>
+              <a name="rc-success"></a>
+              <h3><tt>success</tt> (0)</h3>
+
+              <p>Applicable operation types: add, bind, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>success</tt> result code is used to indicate that the associated operation completed successfully. At least for some definition of success. It doesn’t necessarily mean that every single part of the operation completed exactly as intended. For example, if the request included a non-critical control that the server couldn’t honor for some reason, then it’s acceptable for the server to proceed as if the control hadn’t been included in the request and to return a response with the <tt>success</tt> result code if it completed all of the processing not related to that control.</p>
+
+              <p>For an add operation, the <tt>success</tt> result code indicates that the provided entry was created in the DIT.</p>
+
+              <p>For a bind operation, the <tt>success</tt> result code indicates that the provided credentials were valid, that the client connection was successfully authenticated as the target account, and that any requested authorization was applied.</p>
+
+              <p>For a delete operation, a <tt>success</tt> result code indicates that the targeted entry was removed.</p>
+
+              <p>For an extended operation, a <tt>success</tt> result code indicates that whatever processing is indicated for the associated request was completed without error. However, not all types of extended operations use the <tt>success</tt> result code for this purpose (for example, the cancel extended operation uses the <tt><a href="other-server-side-result-codes.${EXTENSION}#rc-canceled">canceled</a></tt> (118) result code to indicate that the target operation was successfully canceled). Just because an extended operation doesn’t return a result code of <tt>success</tt> doesn’t mean that an error occurred, so you should make sure that you understand the expected behavior for any extended operation that you expect to use.</p>
+
+              <p>For a modify operation, a <tt>success</tt> result code indicates that the request changes were applied to the targeted entry.</p>
+
+              <p>For a modify DN operation, a <tt>success</tt> result code indicates that the targeted entry was renamed or moved.</p>
+
+              <p>For a search operation, a <tt>success</tt> result code indicates that all appropriate search results were returned. There may have been matching entries (or attributes within matching entries) that weren’t returned because the client wasn’t permitted to access them or because they were otherwise outside the bounds of the search constraints.</p>
+
+              <p>Compare operations should never use the <tt>success</tt> result code. A compare operation that completes successfully should return either <tt><a href="#rc-compareTrue">compareTrue</a></tt> (6) if the assertion matched or <tt><a href="#rc-compareFalse">compareFalse</a></tt> (5) if it did not.</p>
+
+              <p></p>
+              <a name="rc-operationsError"></a>
+              <h3><tt>operationsError</tt> (1)</h3>
+
+              <p>Applicable operation types: add, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>operationsError</tt> result code indicates that the operation could not be processed because it wasn’t in the expected order relative to other operations on the same connection. Some of the reasons that the server might return a response with an <tt>operationsError</tt> result code include:</p>
+
+              <ul>
+                <li>
+                  If an unauthenticated client sends a request that is only allowed for authenticated clients. In that case, the client should perform a bind to authenticate and then re-try the original request.
+                </li>
+                <li>
+                  If a client sends any request on a connection that is actively processing a bind, or if a client sends a non-bind request in the middle of a multi-stage SASL bind operation. Clients should not send any other requests on a connection while a bind is in progress.
+                </li>
+                <li>
+                  If a client sends a StartTLS extended request on a connection that has already been secured.
+                </li>
+                <li>
+                  If a client sends a StartTLS extended request on a connection that has one or more outstanding requests already in progress. The client should wait for any outstanding requests to complete before sending a StartTLS request.
+                </li>
+              </ul>
+
+              <p>Some directory servers incorrectly use the <tt>operationsError</tt> result code as if it meant “server error”. This isn’t the intended use for the <tt>operationsError</tt> result code, and the <tt><a href="#rc-other">other</a></tt> (80) result code is the correct one to use for this purpose, but some servers do it nonetheless.</p>
+
+              <p></p>
+              <a name="rc-protocolError"></a>
+              <h3><tt>protocolError</tt> (2)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>protocolError</tt> result code indicates that there was a problem with the client’s use of the LDAP protocol. Some of the possible causes for the <tt>protocolError</tt> result code are:</p>
+
+              <ul>
+                <li>
+                  If the client sends a request that the server cannot parse. This may be a malformed LDAP message, an LDAP message with an unrecognized protocol operation type, or any other kind of improperly-formatted request. In some of these cases, it may be possible for the server to include the <tt>protocolError</tt> result code in a response to the requested operation, but this can only happen if the server can decode the request enough to determine the appropriate message ID and operation type for the response. But for many malformed requests, the server won’t be able to respond directly to that request, and will instead need to use the notice of disconnection unsolicited notification with a <tt>protocolError</tt> result code before terminating the connection.
+                </li>
+                <li>
+                  If the client sends a bind request with an unrecognized LDAP protocol version. At this point, clients should only ever use LDAPv3. Although some clients and servers still support LDAPv2, it was declared historic by <a href="../specs/rfc3494.txt" target="_blank">RFC 3494</a> in 2003, and should no longer be used. Similarly, because LDAPv3 is highly extensible, there will probably never be a need for an LDAPv4.
+                </li>
+                <li>
+                  If the client sends an extended request with an unrecognized request OID. Clients should generally look at the <tt>supportedExtension</tt> attribute of a server’s root DSE to determine what types of extended operations the server supports before sending any extended requests.
+                </li>
+                <li>
+                  If the client sends an LDAP request with an illegal combination of critical controls. Before using multiple controls in an LDAP request, you should make sure that they can all be used together.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-timeLimitExceeded"></a>
+              <h3><tt>timeLimitExceeded</tt> (3)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>timeLimitExceeded</tt> result code indicates that the associated operation failed because it hadn’t completed by the time a maximum processing time limit had been reached. This result code can technically be returned in response to any kind of operation, but it’s most commonly used for searches because they have the most potential to take a very long time to complete (especially if the search matches a large number of entries or if the server doesn’t have the indexes necessary to process the request efficiently) and because only search requests allow the client to specify an upper bound for how long it wants the server to spend processing the operation.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>
+                      Even though the client can specify the desired time limit in the search request, directory servers generally treat this as an upper bound. The server may impose its own time limit for the operation, and that time limit may be more restrictive than the one the client requested.
+                    </td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p>If a search operation fails with a <tt>timeLimitExceeded</tt> result code, then the server may have already returned a subset of the entries matching the search criteria. However, the client should not assume that this is the complete set of matching entries, and should not necessarily assume that they were returned in any particular order (unless the search request included a critical server-side sort request control).</p>
+
+              <p>The <tt>timeLimitExceeded</tt> result code may also be used in cases where the request is received by one LDAP server (or LDAP proxy server), and is then forwarded on to another server for processing. In the event the backend server takes too long to respond to this request, the intermediate server may give up and return a response with a <tt>timeLimitExceeded</tt> result code. If the requested operation is intended to alter the contents of the server, then the associated changes may or may not eventually be applied.</p>
+
+              <p></p>
+              <a name="rc-sizeLimitExceeded"></a>
+              <h3><tt>sizeLimitExceeded</tt> (4)</h3>
+
+              <p>Applicable operation types: search</p>
+
+              <p>The <tt>sizeLimitExceeded</tt> result code indicates that the associated search operation failed because the server has determined that the number of entries that would be returned in response to the search would exceed the upper bound for that operation.</p>
+
+              <p>As with the <tt><a href="#rc-timeLimitExceeded">timeLimitExceeded</a></tt> (3) result code, every search request includes an element that specifies the maximum size limit that the client wants to use, but the server may impose its own limit that is lower than the limit requested by the client. And the server may or may not have already returned some number of entries before encountering the size limit.</p>
+
+              <p></p>
+              <a name="rc-compareFalse"></a>
+              <h3><tt>compareFalse</tt> (5)</h3>
+
+              <p>Applicable operation types: compare</p>
+
+              <p>The <tt>compareFalse</tt> result code indicates that the associated compare request targeted an entry that exists and that contains the targeted attribute, but does not have any value that matches the provided assertion value.</p>
+
+              <p></p>
+              <a name="rc-compareTrue"></a>
+              <h3><tt>compareTrue</tt> (6)</h3>
+
+              <p>Applicable operation types: compare</p>
+
+              <p>The <tt>compareTrue</tt> result code indicates that the associated compare request targeted an entry that exists and that contains the targeted attribute with a value that matches the provided assertion value.</p>
+
+              <p></p>
+              <a name="rc-authMethodNotSupported"></a>
+              <h3><tt>authMethodNotSupported</tt> (7)</h3>
+
+              <p>Applicable operation types: bind</p>
+
+              <p>The <tt>authMethodNotSupported</tt> result code indicates that the associated bind operation failed because the client attempted to authenticate with a mechanism that the server does not support or that it does not allow the client to use. This result code can be returned in response to a simple bind request if the server does not permit simple authentication. It can be returned in response to a SASL bind request if the server does not support the requested SASL mechanism, or if the client is not allowed to authenticate with that SASL mechanism.</p>
+
+              <p></p>
+              <a name="rc-strongerAuthRequired"></a>
+              <h3><tt>strongerAuthRequried</tt> (8)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>strongerAuthRequired</tt> (formerly <tt>strongAuthRequired</tt>) result code indicates that the server requires the client to authenticate with a stronger form of authentication.</p>
+
+              <p>If the <tt>strongerAuthRequired</tt> result code is received in response to a bind request, it indicates that the server requires a stronger form of authentication for that client. The client should try authenticating with a stronger mechanism.</p>
+
+              <p>If the <tt>strongerAuthRequired</tt> result code is received in response to some other type of request, it indicates that the requested operation is only allowed for clients that have completed some stronger form of authentication. The client should try authenticating with a stronger mechanism, and then re-submit the request that triggered this result code.</p>
+
+              <p>If the <tt>strongerAuthRequired</tt> result code is received in a notice of disconnection unsolicited notification, it indicates that the server believes that the security of the communication channel between the client and the server has failed or become compromised, and is terminating the connection as a result. The client should establish a new connection and negotiate a new security layer for that connection.</p>
+
+              <p></p>
+              <a name="rc-referral"></a>
+              <h3><tt>referral</tt> (10)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>referral</tt> result code indicates that the request cannot be processed exactly as issued, but that it might succeed if re-issued to a different server, or is updated to target a different location in the DIT. If the client supports following referrals, then it shouldn’t treat this as an error, but rather as an indication that the request needs to be tried again based on the information contained in the referral.</p>
+
+              <p>Some of the reasons that the server might return a response with the <tt>referral</tt> result code are:</p>
+
+              <ul>
+                <li>
+                  If the server is operating in a mode in which it cannot process the request but is aware of other servers that may be able to process it. For example, if a request attempts to apply some change to the data in a read-only server, then that server might use a referral to redirect the client to a server that supports write operations.
+                </li>
+                <li>
+                  If the DIT is broken up across multiple servers and the client targets an entry in a portion of the DIT that is not contained locally. If the directory server is aware of the servers that are expected to contain the targeted entry, then it may use a referral to redirect the client to those servers.
+                </li>
+                <li>
+                  If the request targets an entry at or below a “smart referral” in the DIT. A smart referral is a special kind of entry with the <tt>referral</tt> structural object class and the <tt>ref</tt> operational attribute whose values are the URIs that should be included in the response.
+                </li>
+              </ul>
+
+              <p>When processing a search operation, the <tt>referral</tt> result code should only be used when locating the base entry for the search (for example, if the search base DN references an entry known to be in a portion of the DIT housed elsewhere, or if it resides at or below a smart referral entry). If the entry targeted by the search base DN is held locally but one or more portions of the search scope might require the client to issue the search elsewhere, then those referral URIs should be returned to the client in the form of search result reference messages.</p>
+
+              <p>It is also possible that the <tt>referral</tt> result code could be returned in response to a bind request. If the referral URIs indicate that the client should send the bind request to a different server, then it is generally recommended that the client send all subsequent operations to the same server targeted by the bind referral. If a client follows a bind referral to a different server, then the original server will not have any knowledge of that bind attempt, and its authentication state will not have been updated to reflect the success or failure of the bind in the other server.</p>
+
+              <p>Clients must be aware of the possibility that a request sent in response to a referral could itself yield another referral. This could happen, for example, if the server that returned the previous referral had outdated information about the location of the targeted entry, or if the referral targeted a server that was temporarily unable to process the request. Any client that supports following referrals should be prepared to receive nested referrals, and should also have some mechanism for detecting and avoiding referral loops (in which one referral contains a URI that indicates that the client should send a request that it has already sent). This could be accomplished by ensuring that the client remembers all of the request details for each attempt at processing a given operation, and having that client abort if it would send a request that it has already sent. Alternately, it could be accomplished by maintaining a counter that is to be incremented each time the client follows a referral and having the client abort if the counter reaches a specified value. <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.10 indicates that a client must be able to handle at least ten nested referrals (but honestly, that seems pretty excessive).</p>
+
+              <p>If the client detects a referral loop, then it should use the <tt><a href="client-side-result-codes.${EXTENSION}#rc-clientLoop">clientLoop</a></tt> (96) client-side result code. If the server detects a referral loop (for example, when attempting to automatically follow a referral on behalf of the client), then the <tt><a href="#rc-loopDetect">loopDetect</a></tt> (54) result code is more appropriate.</p>
+
+              <p>Referrals are described in detail in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.10, including the behavior that clients should exhibit when encountering referrals. The basic rules are:</p>
+
+              <ul>
+                <li>
+                  If the referral URI includes a base DN value, then the client should use that DN in its next request. If the referral URI does not include a base DN, then the client should use the same DN as it used for the request that triggered the referral.
+                </li>
+                <li>
+                  If a referral URI returned in response to a search request includes a search filter, then the client should use that filter in the request that it issues when following the referral. If the referral URI does not include a filter, then the client should use the same filter as it used for the request that triggered the referral.
+                </li>
+                <li>
+                  If a referral URI returned in response to a search request includes a search scope, then the client should use that scope in the request that it issues when following the referral. If the referral URI does not include a scope, then the client should use the same scope as it used for the request that triggered the referral.
+                </li>
+              </ul>
+
+              <p>Other considerations for following referrals include:</p>
+
+              <ul>
+                <li>
+                  If the referral URI does not specify the address of the server to which the request is to be sent, then it generally indicates that the request should be sent to the same server but with different parameters. This is especially true for a referral URI that has a different base, scope, or filter than the request that triggered the referral. However, <a href="../specs/rfc4516.txt" target="_blank">RFC 4516</a> does indicate that if a client encounters an LDAP URL without a host, then the client may be expected to have some <i>a priori</i> knowledge of the appropriate server to which the request should be sent.
+                </li>
+                <li>
+                  If a client needs to establish a new connection when following a referral, then the client should ensure that the new connection has at least the same level of security as the original connection. For example, if the original connection was protected with TLS, then the client should negotiate TLS security on any new connection that it establishes when following that referral.
+                </li>
+                <li>
+                  If a client needs to establish a new connection when following a referral for any type of operation other than a bind, the client should ensure that the new connection is authenticated before sending the referral request. Unless the client has specific knowledge that different credentials or a different authentication method are required when following the referral, it should use the same authentication method and credentials for any new connection that it establishes when following that referral.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-adminLimitExceeded"></a>
+              <h3><tt>adminLimitExceeded</tt> (11)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>adminLimitExceeded</tt> result code indicates that some administrative limit within the server was exceeded while processing the request. <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> does not provide any specific guidance on when this result code might be returned, but <a href="../specs/draft-just-ldapv3-rescodes-02.txt" target="_blank">draft-just-ldapv3-rescodes</a> suggests that a server might return it if there is some upper bound on the number of entries that it will examine in the course of processing a search. In fact, several directory servers do enforce such a limit, and that limit is often referred to as a lookthrough limit.</p>
+
+              <p>Another instance in which this result code might be returned would be in the case of a server that supports the subtree delete request control as described in <a href="../specs/draft-armijo-ldap-treedelete-02.txt" target="_blank">draft-armijo-ldap-treedelete</a>. If the server imposes an upper limit on the size of a subtree that may be deleted, then the server may return the <tt>adminLimitExceeded</tt> result code when trying to delete a subtree that contains more than that number of entries.</p>
+
+              <p></p>
+              <a name="rc-unavailableCriticalExtension"></a>
+              <h3><tt>unavailableCriticalExtension</tt> (12)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>unavailableCriticalExtension</tt> result code indicates that the request includes a control with a criticality of true, but that control could not be honored for some reason. Some of the potential causes for this result code include:</p>
+
+              <ul>
+                <li>
+                  The server does not support the requested control. It’s generally a good idea for clients to look at the <tt>supportedControl</tt> operational attribute in the server’s root DSE to determine which request controls the server supports before using any controls.
+                </li>
+                <li>
+                  The requested control is not applicable to the requested type of operation (for example, if a server-side sort request control is included in an add request).
+                </li>
+                <li>
+                  The requested control is only supported for the requested type of operation when the request matches certain criteria, but those criteria were not satisfied (for example, the virtual list view request control can only be used in a search request that also includes the server-side sort request control).
+                </li>
+                <li>
+                  The requested control is only supported for entries in some portion of the DIT, but the request targets content in a location where the control is not supported (for example, some controls may only be supported when targeting user entries, but not when targeting server-provided entries like the root DSE, schema subentry, or configuration entries).
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-confidentialityRequired"></a>
+              <h3><tt>confidentialityRequired</tt> (13)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>confidentialityRequired</tt> result code indicates that the server is only willing to process the requested operation if it is received over a secure connection that does not allow an eavesdropper to decipher or alter the contents of the request or response. For example, a server may only permit operations that involve clear-text passwords (like a simple bind request or a password modify extended request) to be requested over a secure connection and could return this result code in response to an attempt to send a clear-text password over an insecure connection.</p>
+
+              <p>If a client receives the <tt>confidentialityRequired</tt> result code, then it should take steps to secure the existing connection (for example, using the StartTLS extended operation, or by binding with a SASL mechanism that supports the auth-conf quality of protection), or to establish a new secure connection (for example, using a TLS-based connection) before re-sending the request.</p>
+
+              <p></p>
+              <a name="rc-saslBindInProgress"></a>
+              <h3><tt>saslBindInProgress</tt> (14)</h3>
+
+              <p>Applicable operation types: bind</p>
+
+              <p>The <tt>saslBindInProgress</tt> result code indicates that the server has completed a portion of the processing for the provided SASL bind request, but that it needs additional information from the client to complete the authentication. Certain SASL mechanisms, like CRAM-MD5, DIGEST-MD5, and GSSAPI, require multiple stages of processing and therefore require multiple request-response cycles with the server, and the <tt>saslBindInProgress</tt> result code is used in all bind responses except for the last one in the sequence (which will indicate whether the bind succeeded or failed).</p>
+
+              <p>This is not an error result, but it does mean that the client needs to send another bind request with the same SASL mechanism and additional credentials. The client must not send any other requests on the connection until it has sent a bind request and the server has returned a bind response with a non-<tt>saslBindInProgress</tt> result code. If a client sends any other kind of request in the middle of a multi-stage SASL bind, the server should reject that request with an <tt><a href="#rc-operationsError">operationsError</a></tt> (1) result code.</p>
+
+              <p></p>
+              <a name="rc-noSuchAttribute"></a>
+              <h3><tt>noSuchAttribute</tt> (16)</h3>
+
+              <p>Applicable operation types: compare, modify</p>
+
+              <p>The <tt>noSuchAttribute</tt> result code indicates that the request targeted an attribute that does not exist in the specified entry.</p>
+
+              <p>For a compare request, it indicates that the targeted entry exists, but does not have any values for the attribute used in the compare assertion.</p>
+
+              <p>For a modify request, it indicates that the request attempted to delete one or more attribute values that don’t exist in the targeted entry, that the request attempted to delete an entire attribute that does not have any values in the targeted entry, or that attempted to increment the value of an attribute that does not have any values in the targeted entry.</p>
+
+              <p></p>
+              <a name="rc-undefinedAttributeType"></a>
+              <h3><tt>undefinedAttributeType</tt> (17)</h3>
+
+              <p>Applicable operation types: add, modify</p>
+
+              <p>The <tt>undefinedAttributeType</tt> result code indicates that the request attempted to provide one or more values for an attribute type that is not defined in the server schema.</p>
+
+              <p>For an add request, it indicates that the provided entry included an attribute for which there is no corresponding attribute type definition in the schema.</p>
+
+              <p>For a modify request, it indicates that a modification attempted to add one or more values, or to replace the entire set of values, for an attribute type that is not defined in the server schema.</p>
+
+              <p></p>
+              <a name="rc-inappropriateMatching"></a>
+              <h3><tt>inappropriateMatching</tt> (18)</h3>
+
+              <p>Applicable operation types: search</p>
+
+              <p>The <tt>inappropriateMatching</tt> result code indicates that the search request tried to perform some type of matching that is not supported for the target attribute type. Some of the potential causes for this result code include:</p>
+
+              <ul>
+                <li>
+                  If the search filter contains an equality component that targets an attribute type without an equality matching rule.
+                </li>
+                <li>
+                  If the search filter contains a greater-or-equal or less-or-equal component that targets an attribute type without an ordering matching rule.
+                </li>
+                <li>
+                  If the search filter contains a substring component that targets an attribute type without a substring matching rule.
+                </li>
+                <li>
+                  If the search filter contains an approximate-match component that targets an attribute type for which approximate matching is not supported.
+                </li>
+                <li>
+                  If an extensible match filter attempts to use a matching rule in combination with an attribute type for which the requested matching rule is not supported.
+                </li>
+                <li>
+                  If a search request includes a server-side sort request control with a sort key that does not specify a matching rule and for which the attribute type does not have an ordering matching rule.
+                </li>
+                <li>
+                  If a search request includes a server-side sort request control with a sort key that specifies a matching rule that is not supported for the target attribute type.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-constraintViolation"></a>
+              <h3><tt>constraintViolation</tt> (19)</h3>
+
+              <p>Applicable operation types: add, modify, modify DN</p>
+
+              <p>The <tt>constraintViolation</tt> result code indicates that the requested operation would have resulted in an entry that violates some constraint defined within the server. Some of the potential causes for this result code are:</p>
+
+              <ul>
+                <li>
+                  If the requested operation would have resulted in a single-valued attribute having multiple values.
+                </li>
+                <li>
+                  If the server is configured to ensure that no two entries are allowed to have the same value for a particular attribute type, and the requested operation would have resulted in an entry with a value that is already in use in some other entry in the server.
+                </li>
+                <li>
+                  If the requested operation would have resulted in an attribute with at least one value that conforms to the syntax of the associated attribute type, but that violates some other constraint defined for that attribute (for example, if the server would have required a numeric value within a particular range, but the provided value was outside of that range).
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-attributeOrValueExists"></a>
+              <h3><tt>attributeOrValueExists</tt> (20)</h3>
+
+              <p>Applicable operation types: add, modify</p>
+
+              <p>The <tt>attributeOrValueExists</tt> result code indicates that the requested operation would have resulted in an attribute in which the same value appeared more than once.</p>
+
+              <p>For an add request, it indicates that at least one of the attributes in the provided entry had a duplicate value.</p>
+
+              <p>For a modify request, it indicates that either an add or replace modification included the same value multiple times, or that an add modification attempted to add a value that already exists in the entry.</p>
+
+              <p></p>
+              <a name="rc-invalidAttributeSyntax"></a>
+              <h3><tt>invalidAttributeSyntax</tt> (21)</h3>
+
+              <p>Applicable operation types: add, modify</p>
+
+              <p>The <tt>invalidAttributeSyntax</tt> result code indicates that the requested add or modify operation would have resulted in an entry that had at least one attribute value that does not conform to the constraints of the associated attribute syntax.</p>
+
+              <p></p>
+              <a name="rc-noSuchObject"></a>
+              <h3><tt>noSuchObject</tt> (32)</h3>
+
+              <p>Applicable operation types: add, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>noSuchObject</tt> result code indicates that the requested operation targeted an entry that does not exist within the DIT.</p>
+
+              <p>For an add request, it means that the immediate parent of the entry to be added does not exist and that the DN of the entry to be added does not match any of the configured naming contexts.</p>
+
+              <p>For a compare, delete, or modify request, it indicates that the targeted entry does not exist.</p>
+
+              <p>For a modify DN request, it indicates that either the targeted entry does not exist, or that the provided new superior DN references an entry that does not exist.</p>
+
+              <p>For a search request, it indicates that the entry targeted by the search base DN does not exist.</p>
+
+              <p>The <tt>noSuchObject</tt> result code is not supposed to be returned in response to a bind operation. The <tt><a href="#rc-invalidCredentials">invalidCredentials</a></tt> (49) result code should be used when the bind request targets an entry that does not exist, but some directory servers are known to incorrectly use the <tt>noSuchObject</tt> result code in this case.</p>
+
+              <p>A response that includes the <tt>noSuchObject</tt> result code may also include a matched DN to specify the DN of the nearest ancestor to the provided DN that does exist in the DIT. For example, if a modify request targets the nonexistent <tt>uid=missing,ou=People,dc=example,dc=com entry</tt>, but the <tt>ou=People,dc=example,dc=com</tt> entry does exist, then the modify response should have a result code of <tt>noSuchObject</tt> and a matched DN of <tt>ou=People,dc=example,dc=com</tt>. However, if none of the ancestors for the targeted entry exist in the DIT, or if the client does not have permission to access any of those ancestor entries, then the matched DN should be omitted from the response.</p>
+
+              <p></p>
+              <a name="rc-aliasProblem"></a>
+              <h3><tt>aliasProblem</tt> (33)</h3>
+
+              <p>Applicable operation types: search</p>
+
+              <p>The <tt>aliasProblem</tt> result code indicates that a problem occurred while attempting to dereference an alias during search processing. For example, it may be used if an alias is encountered that references an entry that does not exist. In such cases, the search result done response may also include a matched DN that specifies the nearest ancestor to the dereferenced entry that does exist in the DIT.</p>
+
+              <p>Aliases are only to be dereferenced in the course of processing a search operation, so this result code does not apply to any other type of operation. If an alias-related problem is encountered for any other type of operation (for example, if a non-search operation targets an entry that is an alias), then the <tt><a href="#rc-aliasDereferencingProblem">aliasDereferencingProblem</a></tt> (36) result code should be used.</p>
+
+              <p></p>
+              <a name="rc-invalidDNSyntax"></a>
+              <h3><tt>invalidDNSyntax</tt> (34)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>invalidDNSyntax</tt> result code indicates that the request included a malformed entry DN. It may indicate that the provided DN does not conform to the syntax specified in <a href="../specs/rfc4514.txt" target="_blank">RFC 4514</a>, or that one or more of the attribute values included in the DN does not conform to the associated attribute syntax.</p>
+
+              <p>For an add, compare, delete, or modify request, it indicates that the provided target entry DN is malformed.</p>
+
+              <p>For a simple bind request, it indicates that the provided target entry DN is malformed. For a SASL bind request, it indicates that the authentication or authorization identity was specified using a malformed DN.</p>
+
+              <p>For a modify DN request, this indicates that at least one of the target entry DN, the new RDN, or the new superior DN is malformed.</p>
+
+              <p>For a search request, it indicates that the search base DN is malformed.</p>
+
+              <p>In the event that the server is able to partially decode the provided DN, the response may also include a matched DN that specifies the nearest ancestor to the decodable portion of the DN that does exist within the server and that the requester has permission to access.</p>
+
+              <p></p>
+              <a name="rc-aliasDereferencingProblem"></a>
+              <h3><tt>aliasDereferencingProblem</tt> (36)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>aliasDereferencingProblem</tt> result code indicates that the server encountered an alias while processing the request and that there was some problem related to that alias.</p>
+
+              <p>The <a href="../specs/draft-just-ldapv3-rescodes-02.txt" target="_blank">draft-just-ldapv3-rescodes</a> draft suggests that this result code should only be returned for a search operation, especially if the client does not have permission to access the aliased entry, or if the client does not have permission to access the <tt>aliasedObjectName</tt> attribute in the alias entry. However, <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> also suggests that it may be returned in the event that an operation targets an alias entry in a manner that is not allowed. For example, aliases are not allowed to be dereferenced when processing non-search operations, so the <tt>aliasDereferencingProblem</tt> result code may be used to indicate that the targeted DN matched or was subordinate to the DN of an alias entry.</p>
+
+              <p></p>
+              <a name="rc-inappropriateAuthentication"></a>
+              <h3><tt>inappropriateAuthentication</tt> (48)</h3>
+
+              <p>Applicable operation types: bind</p>
+
+              <p>The <tt>inappropriateAuthentication</tt> result code indicates that the client attempted to bind in an inappropriate manner that is inappropriate for the target account. Some possible reasons for this result code include:</p>
+
+              <ul>
+                <li>
+                  The client attempted to perform anonymous authentication, but the server does not permit anonymous authentication.
+                </li>
+                <li>
+                  The client attempted to perform a type of authentication for which the target account does not have an appropriate set of credentials. For example, this result code may be returned if a client attempts to perform a password-based bind when the target user’s entry does not contain a password.
+                </li>
+                <li>
+                  The client attempted to perform a type of authentication that is not allowed for that client. For example, the client attempted to perform a lower-security type of authentication (like simple authentication or SASL PLAIN) when a stronger method (e.g., a client certificate or a two-factor mechanism) is required.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-invalidCredentials"></a>
+              <h3><tt>invalidCredentials</tt> (49)</h3>
+
+              <p>Applicable operation types: bind</p>
+
+              <p>The <tt>invalidCredentials</tt> result code indicates that the client attempted to bind with a set of credentials that cannot be used to authenticate. Some of the potential reasons that this result code might be returned are:</p>
+
+              <ul>
+                <li>
+                  The bind request targeted a user that does not exist.
+                </li>
+                <li>
+                  The client tried to authenticate with an incorrect password.
+                </li>
+                <li>
+                  The client tried to authenticate with a SASL bind request that included non-password credentials that could not be successfully verified.
+                </li>
+                <li>
+                  The bind request targeted a user that is not permitted to authenticate for some reason (for example, because the account has been locked, the user’s password has expired, etc.).
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-insufficientAccessRights"></a>
+              <h3><tt>insufficientAccessRights</tt> (50)</h3>
+
+              <p>Applicable operation types: add, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>insufficientAccessRights</tt> result code indicates that the client requested an operation for which it does not have the necessary access control permissions, with the following caveats:</p>
+
+              <ul>
+                <li>
+                  This result code should not be returned in response to a bind request. The <tt><a href="#rc-invalidCredentials">invalidCredentials</a></tt> (49) result code is the correct one to use for that.
+                </li>
+                <li>
+                  This result code should only be returned in response to a search request if there is a problem with the search request itself (for example, if the client isn’t able to access the entry specified as the search base DN, or if it isn’t able to search with the provided filter). If there are any search result entries that the client doesn’t have permission to access, those entries should simply be omitted from the results that are returned to the client with no impact on the result code.</p>
+                </li>
+                <li>
+                  This result code should not be returned in response to a search request if the base DN targets an alias entry that references an entry the client does not have permission to access. The <tt><a href="#rc-aliasDereferencingProblem">aliasDereferencingProblem</a></tt> (36) result code is the correct one to use for that.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-busy"></a>
+              <h3><tt>busy</tt> (51)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>busy</tt> result code indicates that the requested operation cannot be processed because the server is currently too busy. The client may wish to re-submit the request at a later time or send it to a different server.</p>
+
+              <p></p>
+              <a name="rc-unavailable"></a>
+              <h3><tt>unavailable</tt> (52)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>unavailable</tt> result code indicates that the server is currently not available to process the requested operation. Some of the uses for this result code include:</p>
+
+              <ul>
+                <li>
+                  If the server is in the process of shutting down and is no longer accepting requests.
+                </li>
+                <li>
+                  If the server is in the process of starting up but is not yet ready to accept requests.
+                </li>
+                <li>
+                  If a portion of the server is unavailable for some reason. For example, a directory server might return this result code if an administrative operation (e.g., importing data from LDIF, restoring a backup, rebuilding indexes, etc.) has made a portion of the DIT inaccessible.
+                </li>
+                <li>
+                  If the server depends on an external resource that is currently unavailable. For example, an LDAP proxy server might return this result code if all of the backend servers are unreachable.
+                </li>
+              </ul>
+
+              <p>If a client receives an <tt>unavailable</tt> result, it may wish to re-submit the request at a later time or send it to a different server.</p>
+
+              <p></p>
+              <a name="rc-unwillingToPerform"></a>
+              <h3><tt>unwillingToPerform</tt> (53)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>unwillingToPerform</tt> result code indicates that the server is not willing to process the requested operation for some reason. This is a fairly generic result code that may be used if the server refuses to process an operation for a reason that is not covered by a more specific result code. If there is a more specific result code, then that should be used instead. For example, if the client doesn’t have the necessary access control permissions that the operation requires, the server should return <tt><a href="#rc-insufficientAccessRights">insufficientAccessRights</a></tt> (50) instead of <tt>unwillingToPerform</tt>.</p>
+
+              <p>There are many potential causes for this result code. Some of them include:</p>
+
+    <ul>
+      <li>
+        If a simple bind request includes a DN but no password. This was allowed by the original LDAPv3 specification (<a href="../specs/rfc2251.txt" target="_blank">RFC 2251</a>), and the server was to treat it as an anonymous simple bind just like if both the bind DN and password elements of the bind request had been empty. However, this behavior was responsible for a number of security vulnerabilities in poorly-written applications (in which they didn’t bother to check whether the password was empty before using it to bind). The revised LDAPv3 specification (<a href="../specs/rfc4513.txt" target="_blank">RFC 4513</a> section 5.1.2) now recommends rejecting a simple bind request with a DN but no password with the <tt>unwillingToPerform</tt> result code.
+      </li>
+      <li>
+        If the server can determine that the requested operation would be too expensive to process. For example, the server may reject a search request if it can determine that it does not have an appropriate set of indexes in place that would be needed to process that search efficiently.
+      </li>
+      <li>
+        If an add or modify request attempts to write values for attributes that are declared as NO-USER-MODIFICATION in the server schema.
+      </li>
+    </ul>
+
+              <p></p>
+              <a name="rc-loopDetect"></a>
+              <h3><tt>loopDetect</tt> (54)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>loopDetect</tt> result code indicates that the server detected some kind of circular reference in the course of processing an operation. Some of the potential causes for this result code are:</p>
+
+              <ul>
+                <li>
+                  If the server supports aliases and the process of dereferencing an alias eventually leads the server back to an alias entry that it has already encountered.
+                </li>
+                <li>
+                  If the server supports following referrals on behalf of the client and it receives a referral that would require the server to issue a request to a server to which it has already issued that same request.
+                </li>
+                <li>
+                  If the server supports chaining and it detects a chaining loop between servers.
+                </li>
+              </ul>
+
+              <p>In some cases, the server may use the <tt>loopDetect</tt> result code even if it hasn’t actually detected a loop. For example, some servers use a counter to keep track of the number of hops they’ve had to make when following a reference, and may assume that there’s a loop if the number of hops would exceed some maximum.</p>
+
+              <p></p>
+              <a name="rc-namingViolation"></a>
+              <h3><tt>namingViolation</tt> (64)</h3>
+
+              <p>Applicable operation types: add, modify DN</p>
+
+              <p>The <tt>namingViolation</tt> result code indicates that the requested add or modify DN operation would have resulted in an entry that violates some naming constraint within the server. Some of the potential causes for this result code are:</p>
+
+              <ul>
+                <li>
+                  The operation would have resulted in an entry whose DN violates the constraints for a name form. Name forms may be used to restrict which attribute types can be used in an entry’s RDN based on the structural object class for that entry.
+                </li>
+                <li>
+                  The operation would have resulted in an entry that violates the constraints for a DIT structure rule. DIT structure rules may be used to ensure that entries with a specified structural object class can only have entries with one of a specified set of structural classes as their immediate subordinates.
+                </li>
+                <li>
+                  The request would have resulted in an entry that exists below an alias entry. All alias entries must be leaf entries.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-objectClassViolation"></a>
+              <h3><tt>objectClassViolation</tt> (65)</h3>
+
+              <p>Applicable operation types: add, modify, modify DN</p>
+
+              <p>The <tt>objectClassViolation</tt> result code indicates that the requested operation would have resulted in an entry that has an inappropriate set of object classes, or whose attributes violate the constraints associated with its set of object classes. Some of the possible reasons for this include:</p>
+
+              <ul>
+                <li>
+                  The entry would have included an object class that is not defined in the schema.
+                </li>
+                <li>
+                  The entry would not have included any structural object class.
+                </li>
+                <li>
+                  The entry would have included multiple structural object classes.
+                </li>
+                <li>
+                  The entry would have included an auxiliary object class that is not permitted to be used in conjunction with its structural object class.
+                </li>
+                <li>
+                  The entry would have included an abstract object class that is not a superclass for any of the structural or auxiliary object classes for that entry.
+                </li>
+                <li>
+                  The entry would have been missing an attribute that is required by one of its object classes or its DIT content rule.
+                </li>
+                <li>
+                  The entry would have included an object class that is not permitted by any of its object classes, or that is prohibited by its DIT content rule.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-notAllowedOnNonLeaf"></a>
+              <h3><tt>notAllowedOnNonLeaf</tt> (66)</h3>
+
+              <p>Applicable operation types: delete, modify DN</p>
+
+              <p>The <tt>notAllowedOnNonLeaf</tt> result code indicates that the requested operation is only supported for leaf entries, but the targeted entry has one or more subordinates.</p>
+
+              <p>For a delete request, this indicates that the targeted entry has one or more subordinate entries. Under normal circumstances, a delete request is only allowed to remove leaf entries, although some servers may provide support for a control (like the one described in <a href="../specs/draft-armijo-ldap-treedelete-02.txt" target="_blank">draft-armijo-ldap-treedelete</a>) that allow removing an entry and all of its subordinates in a single request.</p>
+
+              <p>For a modify DN request, this indicates that the targeted entry has one or more subordinate entries and that the server does not support moving or renaming entries with subordinates. Some servers do support this capability, but others do not.</p>
+
+              <p></p>
+              <a name="rc-notAllowedOnRDN"></a>
+              <h3><tt>notAllowedOnRDN</tt> (67)</h3>
+
+              <p>Applicable operation types: modify</p>
+
+              <p>The <tt>notAllowedOnNonRDN</tt> result code indicates that the requested modify operation would have resulted in an entry that does not include all of the attributes used in its RDN. The following modification types are not allowed:</p>
+
+              <ul>
+                <li>
+                  A delete modification without any values (indicating that the entire attribute should be removed from the entry) that targets an attribute type used in the entry’s RDN.
+                </li>
+                <li>
+                  A delete modification with one or more values, including an attribute value used in the entry’s RDN.
+                </li>
+                <li>
+                  A replace modification without any values (indicating that the entire attribute should be removed from the entry) that targets an attribute type used in the entry’s RDN.
+                </li>
+                <li>
+                  A replace modification with one or more values (indicating that only the provided values should be used for that attribute) that targets an attribute type used in the entry’s RDN, but that omits a value used in the entry’s RDN.
+                </li>
+              </ul>
+
+              <p>If you wish to remove an attribute value from an entry, but that value is used in the entry’s RDN, you should use a modify DN request that specifies a new RDN that does not use that value, and whose “delete old RDN” flag is set to true. Standard LDAP does not provide a single type of operation that allows altering both an entry’s DN and other attributes in the entry that are not included in its DN, although some types of directory servers may provide some way to accomplish this in an atomic manner. For example, if a server supports LDAP transactions as described in <a href="../specs/rfc5805.txt" target="_blank">RFC 5805</a>, then a transaction may include both a modify DN request to update the entry’s DN and a modify request to make other changes to the entry’s attribute values.</p>
+
+              <p></p>
+              <a name="rc-entryAlreadyExists"></a>
+              <h3><tt>entryAlreadyExists</tt> (68)</h3>
+
+              <p>Applicable operation types: add, modify DN</p>
+
+              <p>The <tt>entryAlreadyExists</tt> result code indicates that the requested operation would have resulted in an entry with the same DN as an entry that already exists in the server.</p>
+
+              <p>For an add request, it means that the server already contains an entry whose DN matches the DN contained in the request.</p>
+
+              <p>For a modify DN request without a new superior DN, it means that the server already contains an entry below the same parent of the targeted entry whose RDN matches the new RDN contained in the request.</p>
+
+              <p>For a modify DN request with a new superior DN, it means that the server already contains an entry below the specified new superior DN whose RDN matches the new RDN contained in the request.</p>
+
+              <p></p>
+              <a name="rc-objectClassModsProhibited"></a>
+              <h3><tt>objectClassModsProhibited</tt> (69)</h3>
+
+              <p>Applicable operation types: modify</p>
+
+              <p>The <tt>objectClassModsProhibited</tt> result code indicates that the requested modify operation would have altered the target entry’s set of object classes in a way that is not supported. This is typically returned in response to a modify request that would cause the target entry to have a different structural object class.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>
+                      Changing an entry’s structural object class is technically permitted by LDAP, but many servers do not support it because it can require a substantial amount of validation effort to ensure that the changes do not violate any constraints. In addition to all of the validation normally associated with a modify operation, changing an entry’s structural object class requires the following additional validation:
+
+                      <ul>
+                        <li>
+                          Identifying the new DIT content rule (if any) that applies to the entry and ensuring that all of its constraints are satisfied, including required attribute types, prohibited attribute types, and permitted auxiliary object classes.
+                        </li>
+                        <li>
+                          Identifying the new name form (if any) that applies to the entry and ensuring that the entry’s RDN satisfies all of its constraints, including ensuring that the RDN has all required attribute types and does not include any attribute types that are not permitted.
+                        </li>
+                        <li>
+                          Identifying the DIT structure rule (if any) that applies to the entry and ensuring that the entry is still permitted to exist beneath its parent.
+                        </li>
+                        <li>
+                          Identifying the DIT structure rules (if any) that apply to each of the entry’s subordinates and ensuring that they are still permitted to exist beneath the entry.
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p></p>
+              <a name="rc-affectsMultipleDSAs"></a>
+              <h3><tt>affectsMultipleDSAs</tt> (71)</h3>
+
+              <p>Applicable operation types: add, delete, extended, modify, modify DN</p>
+
+              <p>The <tt>affectsMultipleDSAs</tt> result code indicates that the requested operation would have required manipulating information in multiple servers in a way that is not supported. Some of the potential conditions in which you might see this result code are:</p>
+
+              <ul>
+                <li>
+                  If the directory environment is configured so that different portions of the DIT are held in different servers (or in different databases in the same server), and a modify DN operation would require moving an entry from one server (or database) to another.
+                </li>
+                <li>
+                  If the directory environment is configured with data split across multiple servers (or multiple databases in the same server), and a transaction targets entries in multiple servers (or databases).
+                </li>
+                <li>
+                  If the directory environment is configured with data in a given subtree split across multiple servers (or multiple databases within the same server), and a subtree delete request would require removing entries from multiple servers (or databases).
+                </li>
+                <li>
+                  If the directory environment is configured so that entries within the same portion of the DIT may be split up across multiple servers (a practice sometimes called “sharding” or “entry balancing”), and a modify or modify DN operation would require moving an entry from one server to another.
+                </li>
+                <li>
+                  If the directory environment is configured so that entries within the same portion of the DIT may be split up across multiple servers, and in which each of those servers has the same parent entry at the top of that split DIT, and an operation attempts to add, delete, or modify that parent entry in a manner that would require the operation to be processed across all servers.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-other"></a>
+              <h3><tt>other</tt> (80)</h3>
+
+              <p>Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>other</tt> result code is used when a problem occurs for which none of the other result codes is more appropriate. It is the correct result code to use in the event that an internal error occurs within the server (although some servers mistakenly use <tt><a href="#rc-operationsError">operationsError</a></tt> (1) for this purpose), but the <tt>other</tt> result code may be used for additional kinds of problems as well.</p>

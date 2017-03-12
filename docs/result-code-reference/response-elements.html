@@ -1,0 +1,101 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAP Result Code Reference</a></h2>
+              <a name="response-elements"></a>
+              <h3>The Elements of an LDAP Operation Response Message</h3>
+
+              <p>
+                The final response message for an operation will always include a result code to indicate whether the operation was successful or to indicate a general reason for the failure. However, there can also be a number of additional elements in the response message. They are described here.
+              </p>
+
+              <p></p>
+              <a name="response-elements-diagnostic-message"></a>
+              <h3>Diagnostic Message</h3>
+
+              <p>The diagnostic message is an optional string that can provide additional information about the processing that was performed. It’s often used to provide the reason that an operation failed, but it may also be present in successful responses if there’s information that would be useful to convey back to the client (for example, if a user’s password is about to expire, the response to a successful bind might have a diagnostic message with information about how long until the expiration).</p>
+
+              <p>The diagnostic message doesn’t have a set format. In most directory servers, it’s free-form text, so it’s generally not a good idea to try to parse it to see if you can glean any additional information from it. Unless you know that you’re dealing with a server that does have some structured information you can extract from this message, it’s best to just display the message to the end user or record it in the application’s log so that it’s readily available when troubleshooting problems.</p>
+
+              <p>You shouldn’t depend on the presence of a diagnostic message, even in a failure response. Some servers just don’t seem to think they’re very useful and may not include them in responses. In other cases, a diagnostic message may be intentionally omitted for security reasons (for example, a bind failure response may not want to provide a potential malicious client with information that could help improve the attack). In some directory servers, this kind of sensitive information is only recorded in a server-side log file so that it’s available to administrators but not to the end client.</p>
+
+              <p></p>
+              <a name="response-elements-matched-dn"></a>
+              <h3>Matched DN</h3>
+
+              <p>The matched DN is an optional distinguished name that may be included in the response to a request targeting an entry that does not exist. Most of the time, it will be included in a response with a <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-noSuchObject">noSuchObject</a></tt> (32) result code, but it can be used in conjunction with other result codes as well, like <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-aliasProblem">aliasProblem</a></tt> (33), <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-invalidDNSyntax">invalidDNSyntax</a></tt> (34), and <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-aliasDereferencingProblem">aliasDereferencingProblem</a></tt> (36).</p>
+
+              <p>Most of the time, the matched DN is used to specify the closest ancestor to the provided DN that does exist in the DIT. For example, consider a directory with the following contents:</p>
+
+              <ul>
+                <li>
+                  <tt>dc=example,dc=com</tt>
+                  <ul>
+                    <li>
+                      <tt>ou=People,dc=example,dc=com</tt>
+                      <ul>
+                        <li>
+                          <tt>uid=jdoe,ou=People,dc=example,dc=com</tt>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+
+              <p>If a modify request targets entry <tt>uid=missing,ou=People,dc=example,dc=com</tt>, which does not exist, the server would return a modify response with a <tt>noSuchObject</tt> result code and a matched DN of <tt>ou=People,dc=example,dc=com</tt> because that entry does exist. Similarly, if a delete request targets entry <tt>uid=missing,ou=also missing,dc=example,dc=com</tt>, the server would return a delete response with a <tt>noSuchObject</tt> result code and a matched DN of <tt>dc=example,dc=com</tt>.</p>
+
+              <p>In the event that the problem isn’t with a DN provided in the request, but rather with an alias encountered while processing the request (for example, if an alias references an entry that does not exist), then the aliased entry DN may be used to construct the matched DN rather than the DN included in the request.</p>
+
+              <p>The matched DN can also be used in the event that the client provides a DN that cannot be fully parsed, but nonetheless the server can decode a portion of it. For example, if a client sends a modify request with a DN of <tt>uidjdoe,ou=People,dc=example,dc=com</tt> (which isn’t valid because it’s missing the equal sign to separate the RDN attribute name, <tt>uid</tt>, from its value, <tt>jdoe</tt>), the server would return a modify response with a result code of <tt>invalidDNSyntax</tt> and may include a matched DN of <tt>ou=People,dc=example,dc=com</tt> because that portion of the DN is parseable and because the corresponding entry exists in the server.</p>
+
+              <p>The matched DN component of a response may be subject to access control restrictions. If a client doesn’t have permission to access the entry that would have been selected as the matched DN value, then the server may use the DN of the first ancestor that the client does have permission to access, or it may omit the matched DN from the response. This is important to ensure that the server does not leak information about the contents of the directory to unauthorized clients.</p>
+
+              <p></p>
+              <a name="response-elements-referral-uris"></a>
+              <h3>Referral URIs</h3>
+
+              <p>The referral URIs component of a response is an optional list of one or more URIs that the client may use to re-try the operation somewhere else. That “somewhere else” may be another directory server, or it may be another location in the DIT. For example, if a read-only server receives a request to update some of the information that it contains, it might use the referral URIs component of the response to point the client at the server(s) that accept write operations. Alternately, if the DIT contains a “smart referral” entry (that is, an entry with the <tt>referral</tt> object class), an operation targeting an entry at or below that smart referral entry would receive a referral response redirecting the client to whatever location is indicated by that entry’s <tt>ref</tt> attribute.</p>
+
+              <p>These URIs will generally be in the form of LDAP URLs (as described in <a href="../specs/rfc4516.txt" target="_blank">RFC 4516</a>), but <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.10 does indicate that the response may include other types of URIs and that clients may ignore URIs that they cannot interpret. In the event that a response includes multiple URIs, the client should assume that any of them can be used in the course of re-trying the operation.</p>
+
+              <p>The referral URIs element should only be present in an LDAP response that has a result code of <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-referral">referral</a></tt> (10). See the discussion of that result code for more information on how referrals should be handled.</p>
+
+              <p></p>
+              <a name="response-elements-server-sasl-credentials"></a>
+              <h3>Server SASL Credentials</h3>
+
+              <p>The server SASL credentials component will only be included in the response to a bind request that uses the Simple Authentication and Security Layer (SASL) as described in <a href="../specs/rfc4422.txt" target="_blank">RFC 4422</a>, and only in cases in which the server needs to return information to the client for use while performing the authentication.</p>
+
+              <p>For example, there are a number of challenge-response authentication mechanisms (CRAM-MD5, DIGEST-MD5, SCRAM-SHA-256, etc.) in which the server generates a random challenge string that it needs to send to the client for use in the authentication process. The server SASL credentials element of the bind response can be used to provide this. Similarly, some SASL mechanisms provide a quality of protection (QoP) capability that can be used to protect the subsequent communication between the client and the server after the authentication has completed. And in those cases, the client and server will likely need to perform some kind of negotiation to decide on the parameters for that protection, and whenever the server needs to return data to the client for use in that negotiation, it will go in the server SASL credentials element.</p>
+
+              <p>Not all SASL mechanisms make use of the server SASL credentials element of the bind response, and of the mechanisms that do, not all bind responses will include server SASL credentials.</p>
+
+              <p></p>
+              <a name="response-elements-extended-response-oid"></a>
+              <h3>Extended Response OID</h3>
+
+              <p>The extended response OID component will only be included in the response to an extended request. All extended requests must contain an OID to identify the type of operation that the client wants to process, and responses may optionally include an OID to help the client identify the type of response.</p>
+
+              <p>In some cases, a response OID may be used if a single type of request can yield multiple types of responses, because it allows the client to easily determine which type of response has been returned. If a single type of request can only return one type of response, then the response OID may be omitted, but it’s not prohibited, and it may be nice to include a response OID to make it easier to make sense of a response if the message is viewed in isolation. It is acceptable for the response OID to be the same as or different from a request OID.</p>
+
+              <p></p>
+              <a name="response-elements-extended-response-value"></a>
+              <h3>Extended Response Value</h3>
+
+              <p>The extended response value component will only be included in the response to an extended request. It is optional, and will generally only be present in cases where the server has information that it needs to return to the client that doesn’t fit in any of the other components of the response.</p>
+
+              <p>For example, the password modify extended request can be used to allow users to change their own passwords, or to allow administrators to reset the passwords for other users. The request can specify the new password that should be set for the user, and in that case, the extended response doesn’t need to have a value. But if the request omits the new password, the server can generate a new password for the target user, and in that case, the extended response will have a value that provides the generated password to the client.</p>
+
+              <p></p>
+              <a name="response-elements-response-controls"></a>
+              <h3>Response Controls</h3>
+
+              <p>Every LDAP message can optionally include one or more controls that provide additional information for use in conjunction with the rest of the message. If a request message includes a control, then it will generally be used to ask the server to do something special when processing the request. For example, if the client includes a server-side sort request control in a search request message, then it means that it wants the server to return the matching entries in some sorted order. And if a response message includes a control, then it is generally used to provide additional information to the client that doesn’t fit in any other component of the response. For example, if a user’s password is about to expire, then a bind response message might include a control that tells the client how much time is left before the password expires.</p>

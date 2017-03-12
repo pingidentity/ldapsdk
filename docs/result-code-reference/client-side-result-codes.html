@@ -1,0 +1,208 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAP Result Code Reference</a></h2>
+              <a name="client-side-result-codes"></a>
+              <h3>Client-Side Result Codes</h3>
+
+            <p>Most LDAP result codes are intended to be included in responses from the directory server to the client. However, there are also a number of possible client-side error conditions that may arise in the course of attempting to process operations, and it’s often convenient for LDAP APIs to allow developers to treat those client-side problems in the same way that they would treat an error response from the server.</p>
+
+            <p>There are a couple of specifications, <a href="../specs/draft-ietf-ldapext-ldap-c-api-05.txt" target="_blank">draft-ietf-ldapext-ldap-c-api</a> and <a href="../specs/draft-ietf-ldapext-ldap-java-api-19.txt" target="_blank">draft-ietf-ldapext-ldap-java-api</a>, that suggest APIs that C-based and Java-based libraries could expose to facilitate communication with an LDAP directory server. Although you can certainly debate how good the proposed APIs are (and there are many LDAP libraries that have chosen to expose different interfaces), they are at the very least useful because they define a number of result codes that can be used to represent client-side error conditions. This chapter explores these client-side result codes.</p>
+
+              <p></p>
+              <a name="rc-serverDown"></a>
+              <h3><tt>serverDown</tt> (81)</h3>
+
+              <p>The <tt>serverDown</tt> result code doesn’t necessarily mean that the directory server has gone down. It merely indicates that an existing connection to the server is no longer valid. Some of the possible reasons for this result code include:</p>
+
+              <ul>
+                <li>
+                  The directory server (or the system, virtual machine, or container on which it was running) crashed or was shut down.
+                </li>
+                <li>
+                  The server closed the connection (for example, because the connection remained idle for too long).
+                </li>
+                <li>
+                  An administrator caused the connection to be terminated.
+                </li>
+                <li>
+                  A networking problem interfered with the communication between the client and the server, or a piece of networking hardware is configured to drop connections after they are idle for too long.
+                </li>
+                <li>
+                  The client attempted to negotiate a security layer (for example, with a StartTLS extended request), but a problem was encountered.
+                </li>
+              </ul>
+
+              <p>Regardless of the cause of the connection closure, the client will need to re-establish the connection, or establish a connection to a different server, before it can submit additional requests.</p>
+
+              <p>In the event that the directory server software closed the connection to the client (whether because it was being shut down or for some other reason), it may send a notice of disconnection unsolicited notification with a reason for the closure. Clients should watch for unsolicited notifications because if the server does send a notice of disconnection, it can help the client detect and react to certain connection closures more quickly.</p>
+
+              <p></p>
+              <a name="rc-localError"></a>
+              <h3><tt>localError</tt> (82)</h3>
+
+              <p>The <tt>localError</tt> result code indicates that a problem occurred in the client for which none of the other client-side result codes is more appropriate. It’s the client-side equivalent of the <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-other">other</a></tt> (80) result code, and it often means that an unexpected error has occurred in the library that the client is using to perform LDAP communication.</p>
+
+              <p></p>
+              <a name="rc-encodingError"></a>
+              <h3><tt>encodingError</tt> (83)</h3>
+
+              <p>The <tt>encodingError</tt> result code indicates that a problem occurred while the client was attempting to encode a request to send to the directory server. This is not a commonly-used result code, since there are other result codes that are more appropriate for many of the conditions that can lead to encoding failures (for example, <tt><a href="#rc-paramError">paramError</a></tt> (89) if there is a problem with one of the request parameters, or <tt><a href="#rc-noMemory">noMemory</a></tt> (90) if a problem occurs while attempting to allocate memory to hold the request).</p>
+
+              <p></p>
+              <a name="rc-decodingError"></a>
+              <h3><tt>decodingError</tt> (84)</h3>
+
+              <p>The <tt>decodingError</tt> result code indicates that a problem occurred while the client was trying to decode a response received from the directory server. This generally means that either the server sent a malformed response or that the LDAP client library has a bug in it that prevents it from parsing a valid response.</p>
+
+              <p></p>
+              <a name="rc-timeout"></a>
+              <h3><tt>timeout</tt> (85)</h3>
+
+              <p>The <tt>timeout</tt> result code indicates that the client did not receive an expected response to a request after waiting for some maximum length of time. Clients often provide some mechanism for configuring the maximum request time limit (whether global, connection-wide, or operation-specific), and if that time limit is reached without receiving a response, then the client will stop waiting for the response and report an error with this result code.</p>
+
+              <p>Optionally, the client may also send an abandon or cancel request to the directory server to indicate that it should stop processing the operation, but the client should not assume that the server will not complete the associated processing. If the request was for a write operation, then the requested change may still eventually be applied.</p>
+
+              <p></p>
+              <a name="rc-authUnknown"></a>
+              <h3><tt>authUnknown</tt> (86)</h3>
+
+              <p>The <tt>authUnknown</tt> result code indicates that the client attempted to process some kind of authentication (presumably, a SASL mechanism) that the LDAP library does not recognize or support.</p>
+
+              <p></p>
+              <a name="rc-filterError"></a>
+              <h3><tt>filterError</tt> (87)</h3>
+
+              <p>The <tt>filterError</tt> result code indicates that the LDAP client encountered an error related to a search filter. This usually means that the client encountered a problem while trying to parse a string as a search filter, but there may be other cases in which it may be used. For example, the matched values request control (described in <a href="../specs/rfc3876.txt" target="_blank">RFC 3876</a>) may be used to indicate that the server should only return values for a specified attribute that match a given filter, but not all filter types may be used in conjunction with this filter, and an attempt to include an unsupported filter type may trigger the <tt>filterError</tt> result code.</p>
+
+              <p></p>
+              <a name="rc-userCanceled"></a>
+              <h3><tt>userCanceled</tt> (88)</h3>
+
+              <p>The <tt>userCanceled</tt> result code indicates that the operation was canceled by the client. It may have been interactively canceled (for example, by pressing Ctrl+C on a command-line tool, or clicking a cancel button in a graphical interface), or it may have been automatically generated by the client for some reason (for example, because another thread using the same connection sent an abandon request for the operation).</p>
+
+              <p></p>
+              <a name="rc-paramError"></a>
+              <h3><tt>paramError</tt> (89)</h3>
+
+              <p>The <tt>paramError</tt> result code indicates that the client application or end user provided an inappropriate value for some parameter. This may be an invalid argument for a function or method, an invalid value provided for a command-line argument, illegal input into some form field, or any other area in which the LDAP client API may encounter and reject invalid data.</p>
+
+              <p></p>
+              <a name="rc-noMemory"></a>
+              <h3><tt>noMemory</tt> (90)</h3>
+
+              <p>The <tt>noMemory</tt> result code indicates that the client encountered a memory-related problem during processing. It usually means that the client failed to allocate memory or its memory consumption would have exceeded some maximum allowed amount.</p>
+
+              <p></p>
+              <a name="rc-connectError"></a>
+              <h3><tt>connectError</tt> (91)</h3>
+
+              <p>The <tt>connectError</tt> result code indicates that the client encountered a problem while attempting to establish a connection to the directory server. There are a number of potential reasons for this result code, including:</p>
+
+              <ul>
+                <li>
+                  The directory server is currently down or not accepting new connections.
+                </li>
+                <li>
+                  A networking problem prevents the client from reaching the directory server.
+                </li>
+                <li>
+                  There was a problem negotiating a security layer between the client and the server (for example, the server’s certificate is expired of the client doesn’t trust it).
+                </li>
+                <li>
+                  The client encounters a connection timeout before the connection can be established.
+                </li>
+              </ul>
+
+              <p>The <tt>connectError</tt> result code is different from the <tt><a href="#rc-serverDown">serverDown</a></tt> (81) result code in that <tt>connectError</tt> applies when trying to establish a new connection, while <tt>serverDown</tt> applies when the client detects that an already-established connection is no longer valid.</p>
+
+              <p></p>
+              <a name="rc-notSupported"></a>
+              <h3><tt>notSupported</tt> (92)</h3>
+
+              <p>The <tt>notSupported</tt> result code indicates that the client attempted to perform some operation that is not supported by the LDAP client library. This result code should only be used if there isn’t another result code that is more specific to the condition at hand. For example, if the client is trying to use an unsupported SASL mechanism, then the <tt><a href="#rc-authUnknown">authUnknown</a></tt> (86) result code is more appropriate. Or if the client doesn’t support StartTLS, then the <tt><a href="#rc-tlsNotSupported">tlsNotSupported</a></tt> (112) result code is more appropriate.</p>
+
+              <p></p>
+              <a name="rc-controlNotFound"></a>
+              <h3><tt>controlNotFound</tt> (93)</h3>
+
+              <p>The <tt>controlNotFound</tt> result code indicates that a response received from the directory server did not include an expected response control. There are a number of request controls that, if successfully processed, should cause the result to include a corresponding response control. This result code may be used if the client expected a particular response control to be returned, but it wasn’t found in the response.</p>
+
+              <p></p>
+              <a name="rc-noResultsReturned"></a>
+              <h3><tt>noResultsReturned</tt> (94)</h3>
+
+              <p>The <tt>noResultsReturned</tt> result code indicates that the client didn’t receive any expected response messages (in addition to the final response indicating that the operation has completed). This usually means that the client expected the server to return one or more entries in response to a search operation, but it could also apply to search result references or intermediate responses.</p>
+
+              <p></p>
+              <a name="rc-moreResultsToReturn"></a>
+              <h3><tt>moreResultsToReturn</tt> (95)</h3>
+
+              <p>The <tt>moreResultsToReturn</tt> result code indicates that the client has received some of the responses for an operation, but that it also expects there are more responses available to be retrieved. The most likely use for this result code would be for the case in which the client attempts to retrieve only a portion of search results with the simple paged results control (<a href="../specs/rfc2696.txt" target="_blank">RFC 2696</a>) or the virtual list view request control (<a href="../specs/draft-ietf-ldapext-ldapv3-vlv-09.txt" target="_blank">draft-ietf-ldapext-ldapv3-vlv</a>). If the server returns all of the entries in the page of results, but the response indicates that there may be more pages that can be returned, the client may use this result code to indicate that. However, there may also be other uses for this result code involving a case in which the client expects that there may be search result entries, search result references, or intermediate responses.</p>
+
+              <p></p>
+              <a name="rc-clientLoop"></a>
+              <h3><tt>clientLoop</tt> (96)</h3>
+
+              <p>The <tt>clientLoop</tt> result code indicates that the client has detected some kind of loop while processing results from the server. It usually applies when the client is trying to follow a referral (or a search result reference) and encounters a referral URL that it has already tried to follow.</p>
+
+              <p></p>
+              <a name="rc-referralLimitExceeded"></a>
+              <h3><tt>referralLimitExceeded</tt> (97)</h3>
+
+              <p>The <tt>referralLimitExceeded</tt> result code indicates that the client has reached some limit when trying to follow referrals returned during processing. The two most likely reasons for this result code include:</p>
+
+              <ul>
+                <li>
+                  While trying to follow referral returned by the server, the client has encountered additional referrals. Most clients have a limit on the maximum number of hops they will make while trying to follow a referral, and this result code may be used if that hop limit would have been exceeded.
+                </li>
+                <li>
+                  The client may impose a limit on the maximum number of search result references it can handle when processing a search operation. The client may use this result code if that limit would have been exceeded.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-invalidResponse"></a>
+              <h3><tt>invalidResponse</tt> (100)</h3>
+
+              <p>The <tt>invalidResponse</tt> result code indicates that the client has received some kind of invalid response. It’s like a client-side version of the <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-protocolError">protocolError</a></tt> (2) result code, and can be used to indicate a couple of possible problems:</p>
+
+              <ul>
+                <li>
+                  The client received a malformed response from the server that can’t be parsed as a valid LDAP message.
+                </li>
+                <li>
+                  The client received a response message that isn’t appropriate for the request that it sent. For example, if it sent a search request but got back an add response.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-ambiguousResponse"></a>
+              <h3><tt>ambiguousResponse</tt> (101)</h3>
+
+              <p>The <tt>ambiguousResponse</tt> result code indicates that the client received more than one final response message for the same request. You will probably never encounter this result code because it depends on two highly unlikely events: the server would have to send multiple final responses for the same request, and the client would have to recognize that it received multiple final responses for the same request. Even if the server were to incorrectly return multiple final responses to the same request, the client would probably just take the first one and ignore any subsequent final responses for that request.</p>
+
+              <p></p>
+              <a name="rc-tlsNotSupported"></a>
+              <h3><tt>tlsNotSupported</tt> (112)</h3>
+
+              <p>The <tt>tlsNotSupported</tt> result code indicates that the client indicated a desire to begin TLS (Transport Layer Security, formerly known as the Secure Sockets Layer, or SSL) negotiation on a connection, but the client library does not support (or is not configured properly to handle) TLS encryption. This may be used when trying to establish a connection that is secured with TLS from the beginning, or when trying to use the StartTLS extended operation to add TLS security to an existing insecure connection.</p>
+
+              <p></p>
+              <a name="rc-intermediateResponse"></a>
+              <h3><tt>intermediateResponse</tt> (113)</h3>
+
+              <p>The <tt>intermediateResponse</tt> result code indicates that the client received an intermediate response message from the server. Intermediate response messages were introduced in <a href="../specs/rfc3771.txt" target="_blank">RFC 3771</a> and can be used to convey additional information in messages before the final response. This result code could be useful for client APIs that don’t provide some other means of handling intermediate responses (like an intermediate response listener) but still want to make them available to the client application.</p>
+
+              <p></p>
+              <a name="rc-unknownType"></a>
+              <h3><tt>unknownType</tt> (114)</h3>
+
+              <p>The <tt>unknownType</tt> result code indicates that the client received a response with an unrecognized BER type. Every LDAP message has a message ID, a protocol operation, and an optional set of controls. The protocol operation element contains the bulk of the response, but it also has a BER type, which indicates what kind of response it is. The <tt>unknownType</tt> result code may be used if the client receives a response message with a protocol operation that has an unknown BER type.</p>

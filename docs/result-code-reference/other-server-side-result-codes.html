@@ -1,0 +1,418 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAP Result Code Reference</a></h2>
+              <a name="other-server-side-result-codes"></a>
+              <h3>Other Server-Side Result Codes</h3>
+
+              <p>While most LDAP result codes are defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a>, there are a number of other LDAP specifications that define their own result codes. Some of these are RFCs, and therefore should be considered “officially official” result codes. Others are IETF drafts, and their officialness often falls on a sliding scale from “<i>de facto</i> official” to “deny their existence”. This chapter attempts to provide all of the result codes from LDAP-related RFCs (except for RFC 4511, which was covered in the last chapter) and as many of the result codes as possible from LDAP-related IETF drafts.</p>
+
+              <p></p>
+              <a name="rc-isLeaf"></a>
+              <h3><tt>isLeaf</tt> (35)</h3>
+
+              <p>
+                Defined in Specification: <a href="../specs/rfc1777.txt" target="_blank">RFC 1777</a>
+                <br>
+                Applicable operation types: none
+              </p>
+
+              <p>The <tt>isLeaf</tt> result code was defined for use in LDAPv2, but it has been removed from the LDAPv3 specification. None of the LDAPv2 standards documents provide any guidance on the conditions in which the <tt>isLeaf</tt> result code should be used, nor does it appear to have been inherited from any of the X.500 specifications from which LDAP is derived. However, it is likely the case that it was intended for use in the event that a requested operation was only allowed to target a non-leaf entry (that is, an entry that has one or more subordinate entries), but targeted a leaf entry.</p>
+
+              <p></p>
+              <a name="rc-resultsTooLarge"></a>
+              <h3><tt>resultsTooLarge</tt> (70)</h3>
+
+              <p>Defined in Specification: <a href="../specs/rfc1798.txt" target="_blank">RFC 1798</a></p>
+
+              <p>The <tt>resultsTooLarge</tt> result code is not actually used in LDAP. It is only intended for use in CLDAP, which encodes requests and responses in a manner similar to LDAP (albeit LDAPv2 at the time RFC 1798 was published) but uses UDP rather than TCP and only supports search and abandon requests. In CLDAP, the <tt>resultsTooLarge</tt> result code indicates that a search response message is too large to fit in a UDP packet.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>
+                      <a href="../specs/rfc3352.txt" target="_blank">RFC 3352</a>, released in March of 2003, declared CLDAP a historical protocol that should no longer be used. Nevertheless, it appears that a number of public Internet-facing servers still support this capability as recently as late 2016 because CLDAP was used as a means of launching distributed denial-of-service (DDoS) attacks because a very small request can be used to generate a substantially larger response and because UDP packets can be spoofed to appear as if they are coming from a different source address than they actually are. This allows for an attacker to use a small amount of traffic to send requests to one or more CLDAP servers, and then cause those servers to send large amounts of traffic to an unsuspecting victim.
+                      <br><br>
+                      If you’re running a directory server that supports CLDAP, you should either turn off that capability or ensure that it’s behind a firewall that will block incoming requests from malicious external clients, and that will block outbound responses to spoofed addresses.
+                    </td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p></p>
+              <a name="cancel-result-codes"></a>
+              <h3>Cancel Extended Operation Result Codes</h3>
+
+              <p>LDAP is an asynchronous protocol, which means that (with certain restrictions) there’s no need to wait for a response to one request before sending another request. So you can have multiple active operations for a connection at the same time, and the responses may be received from the server in any order and may be interleaved. To deal with this, the client assigns a different integer value, called the message ID, to each request. Most clients just keep a counter for each connection, so that the first request has a message ID of 1, the second request a message ID of 2, and so on. Whenever the server returns a response for a request, it includes the request’s message ID in the response, which allows the client to match up that response with the appropriate request.</p>
+
+              <p>There may be times when a client wants to tell the server to stop processing a request that is currently in progress on the connection. For example, this could happen if the server is taking longer than expected to process an operation and the client wants to send the request to a different server. The LDAP abandon request, in which the client provides the message ID for the operation it wants the server to stop processing, can be used to accomplish this. However, the abandon operation has a couple of undesirable qualities:</p>
+
+              <ul>
+                <li>
+                  The abandon request doesn’t have a response.
+                </li>
+                <li>
+                  If the target operation is successfully abandoned, the server will just stop processing it altogether and won’t send the final response message to the client.
+                </li>
+              </ul>
+
+              <p>This means that the abandon operation is a “fire and forget” operation, where it’s difficult for the client to know whether it was successful or not. And if a connection is shared across multiple application threads, one thread may be waiting for a response to the operation that won’t be coming because it has been abandoned.</p>
+
+              <p>To address these problems, <a href="../specs/rfc3909.txt" target="_blank">RFC 3909</a> defines a new type of extended operation called the cancel operation. It behaves like an abandon operation in that the client provides the message ID of an operation it wants the server to stop processing, but it also addresses the two problems listed above:</p>
+
+              <ul>
+                <li>
+                  The server will return a response to the cancel extended request, and that response will either indicate that the operation was successfully canceled, or it will provide a reason that it was not canceled.
+                </li>
+                <li>
+                  If the server did successfully cancel processing for the target operation, the server will send back a response to that operation that lets the client know that it’s finished processing.
+                </li>
+              </ul>
+
+              <p>As part of the specification for the cancel extended operation, RFC 3909 defines four new result codes, which are described below.</p>
+
+              <p></p>
+              <a name="rc-canceled"></a>
+              <h4><tt>canceled</tt> (118)</h4>
+
+              <p>Applicable operation types: add, compare, delete, extended, modify, modify DN, search</p>
+
+              <p>The <tt>canceled</tt> result code does double duty. When the server uses this result code in the response to a cancel extended request, it means that the target operation was successfully canceled. And when the server uses this result code in the response to any other kind of operation, it means that operation was canceled by a cancel request.</p>
+
+              <p>In addition, although the standard LDAP behavior is to never send a response to an operation that has been interrupted by an abandon request, some servers may have an option to send a <tt>canceled</tt> response to any operation that is successfully abandoned. This helps protect against the possibility of a client waiting forever (or at least for a long time) for a response that isn’t going to come.</p>
+
+              <p></p>
+              <a name="rc-noSuchOperation"></a>
+              <h4><tt>noSuchOperation</tt> (119)</h4>
+
+              <p>Applicable operation types: extended</p>
+
+              <p>The <tt>noSuchOperation</tt> result code may be included in a cancel extended response to indicate that the server couldn’t cancel the requested operation because it didn’t know anything about that operation. This probably means that the server has already completed processing for the operation (and possibly even that it completed that processing while the client was sending the cancel request) and has forgotten all about it. However, it could also mean that the client screwed up and included the wrong message ID in the cancel request.</p>
+
+              <p></p>
+              <a name="rc-tooLate"></a>
+              <h4><tt>tooLate</tt> (120)</h4>
+
+              <p>Applicable operation types: extended</p>
+
+              <p>The <tt>tooLate</tt> result code may be included in a cancel extended response to indicate that the server received the cancel request and identified the operation to be canceled, but determined that it was already too far into processing the operation to be able to honor the cancel request. Some of the conditions in which this result code might be used include:</p>
+
+              <ul>
+                <li>
+                  The target operation is a write operation, and the server had already applied some or all of its changes by the time it received the cancel request.
+                </li>
+                <li>
+                  The server sent the request somewhere else to be processed, and there’s no way to cancel that processing.
+                </li>
+                <li>
+                  The target operation has already completed, but the server still remembers it.
+                </li>
+              </ul>
+
+              <p></p>
+              <a name="rc-cannotCancel"></a>
+              <h4><tt>cannotCancel</tt> (121)</h4>
+
+              <p>Applicable operation types: extended</p>
+
+              <p>The <tt>cannotCancel</tt> result code may be included in a cancel extended response to indicate that the server received the cancel request and identified the operation to be canceled, but the target operation isn’t one that can ever be canceled. <a href="../specs/rfc3909.txt" target="_blank">RFC 3909</a> states that the following types of operations cannot be canceled:</p>
+
+              <ul>
+                <li>
+                  Abandon operations
+                </li>
+                <li>
+                  Bind operations
+                </li>
+                <li>
+                  Unbind operations
+                </li>
+                <li>
+                  StartTLS extended operations
+                </li>
+                <li>
+                  Cancel extended operations
+                </li>
+              </ul>
+
+              <p>In addition, some servers may define other types of operations that cannot be canceled.</p>
+
+              <p></p>
+              <a name="rc-assertionFailed"></a>
+              <h3><tt>assertionFailed</tt> (122)</h3>
+
+              <p>
+                Defined in Specification: <a href="../specs/rfc4528.txt" target="_blank">RFC 4528</a>
+                <br>
+                Applicable operation types: add, compare, delete, extended, modify, modify DN, search
+              </p>
+
+              <p>The <tt>assertionFailed</tt> result code is used to indicate that the associated request included an LDAP assertion request control with a filter that did not match the target entry. The assertion request control may be used to indicate that the associated operation should only be processed if the target entry matches a specified filter. This is particularly useful for write operations, as it allows for a kind of atomic “check and set” operation, but you can also use it for compare and search operations (and for a search operation, the target entry is the one indicated by the search base DN). Some directory servers may also support it for certain extended operations.</p>
+
+              <p>If the filter included in the assertion request control does not match the target entry, then the operation will fail, and the response will include the <tt>assertionFailed</tt> result code. If the filter does match the target entry, then the operation will be processed as normal, and may succeed, or may fail for some reason unrelated to the inclusion of the assertion request control.</p>
+
+              <p></p>
+              <a name="rc-authorizationDenied"></a>
+              <h3><tt>authorizationDenied</tt> (123)</h3>
+
+              <p>
+                Defined in Specification: <a href="../specs/rfc4370.txt" target="_blank">RFC 4370</a>
+                <br>
+                Applicable operation types: add, compare, delete, extended, modify, modify DN, search
+              </p>
+
+              <p>The <tt>authorizationDenied</tt> result code is used to indicate that the associated request included a proxied authorization request control, but that the client is not permitted to assign the requested authorization identity.</p>
+
+              <p>The proxied authorization request control allows a client authenticated as one account to request that an operation be processed under the authority of a different account. It’s kind of like the LDAP equivalent of the UNIX <tt>sudo</tt> command, and it allows you to have a pool of connections authenticated as an application-specific account that are used to request operations that are processed as if they had been requested by the end users accessing that application.</p>
+
+              <p>Since allowing one account to impersonate another is obviously a security risk, directory servers generally impose strict restrictions on which accounts can use the proxied authorization control, and on which accounts they’re allowed to impersonate. In the event that a client attempts to use the proxied authorization control when they aren’t allowed to use it, or when they aren’t allowed to impersonate the requested authorization identity, the server will reject that request with the <tt>authorizationDenied</tt> result code.</p>
+
+              <p></p>
+              <a name="rc-e-syncRefreshRequired"></a>
+              <h3><tt>e-syncRefreshRequired</tt> (4096)</h3>
+
+              <p>
+                Defined in Specification: <a href="../specs/rfc4533.txt" target="_blank">RFC 4533</a>
+                <br>
+                Applicable operation types: search
+              </p>
+
+              <p>The <tt>e-syncRefreshRequired</tt> result code is used to indicate that the associated request included a content synchronization request control with a cookie that is not recognized or cannot be used.</p>
+
+              <p>The content synchronization request control can be used to allow a client to maintain a partial or complete copy of the data in a directory server, and to be kept up to date with changes made to the data in that server. If it is a partial copy, then that may include a subset of the entries within the server (identified by the base DN, scope, and filter from the search request) and a subset of the attributes within each entry (identified by the requested attributes from the search request). The client first needs to retrieve a copy of all of the relevant data, and it includes a state cookie in the response indicating that all of those entries have been returned. The client can then send a second search request with a content synchronization request control that includes that cookie so that the server can provide the client with information from any entries that have changed since the last search. But if that cookie is no longer valid (for example, because it has been too long since it was generated and it is no longer valid), then the server will return a search result done message with the e-syncRefreshRequired result code to indicate that the client needs to retrieve a new complete copy of the relevant data.</p>
+
+              <p></p>
+              <a name="vlv-result-codes"></a>
+              <h3>Virtual List View Result Codes</h3>
+
+              <p>
+                Defined in Specification: <a href="../specs/draft-ietf-ldapext-ldapv3-vlv-09.txt" target="_blank">draft-ietf-ldapext-ldapv3-vlv</a>
+                <br>
+                Applicable operation types: search
+              </p>
+
+              <p>The virtual list view request control may be included in a search request to indicate that the server should return a specified portion of the entire set of search results. It is similar to the simple paged results control (as described in <a href="../specs/rfc2696.txt" target="_blank">RFC 2696</a>), but there are a couple of key differences. In particular, the virtual list view request control requires the results to be sorted (and therefore the request must also include the server-side sort request control as described in <a href="../specs/rfc2891.txt" target="_blank">RFC 2891</a>) whereas the simple paged results control does not, and the virtual list view request control allows the client to jump around in the result set whereas the simple paged results control only allows for iterating sequentially through the result set.</p>
+
+              <p>The virtual list view request control specifies four elements:</p>
+
+              <ul>
+                <li>
+                  A “target” element, which indicates where to start in the result set. This can be specified either as a numeric offset within the result set (in which the first entry has an offset of one) or as an attribute value. In the former case, the client should also specify a content count, which is an estimate of the total number of entries in the result set (which should be zero on the first request, and then set to whatever the server tells the client it is for all subsequent requests). In the latter case, the target entry will be the first entry with an attribute value (for the first attribute in the sort order) is greater than or equal to the provided value.
+                </li>
+                <li>
+                  A “before count” element, which indicates how many entries before the target entry should be returned.
+                </li>
+                <li>
+                  An “after count” element, which indicates how many entries after the target entry should be returned.
+                </li>
+                <li>
+                  A “context ID” element, which is an opaque cookie that the server can provide to the client to help make the process of retrieving the next page of results more efficient. The client should omit this element for the first request, but the server may return a value in the response that the client should include in the next request.
+                </li>
+              </ul>
+
+              <p>And the search result done message that the server returns after it’s completed processing for the search request should include a virtual list view response control with the following four elements:</p>
+
+              <ul>
+                <li>
+                  A “target position” element, which provides the offset for the target entry in the result set. This is especially useful when identifying the target entry by attribute value since it allows subsequent pages to be targeted by numeric offset, which is easier when you’re trying to get consistently-sized pages of results.
+                </li>
+                <li>
+                  A “content count” element, which is an estimate of the total number of entries that are in the result set, and that the client should provide back to the server on the next request if it identifies the desired target entry by offset.
+                </li>
+                <li>
+                  A “virtual list view result” element, which is a result code that indicates whether the virtual list view processing was successful, and, if not, what might have caused the failure.
+                </li>
+                <li>
+                  A “context ID” element, which is an opaque cookie that the client can provide back to the server on the next request to allow the server to retrieve the requested page more efficiently.
+                </li>
+              </ul>
+
+              <p>The <a href="../specs/draft-ietf-ldapext-ldapv3-vlv-09.txt" target="_blank">draft-ietf-ldapext-ldapv3-vlv</a> specification defines three new result codes: <tt><a href="#rc-sortControlMissing">sortControlMissing</a></tt> (60), <tt><a href="#rc-offsetRangeError">offsetRangeError</a></tt> (61), and <tt><a href="#rc-virtualListViewError">virtualListViewError</a></tt> (76). However, only the <tt>virtualListViewError</tt> result code is actually intended to be used as a result code in search result done messages. The other two result codes are intended to be used only in the “virtual list view result” element of the virtual list view response control, and only if the search result done message has a result code of <tt>virtualListViewError</tt>.</p>
+
+              <p></p>
+              <a name="rc-sortControlMissing"></a>
+              <h4><tt>sortControlMissing</tt> (60)</h4>
+
+              <p>The <tt>sortControlMissing</tt> result code should be used as the “virtual list view result” result code in the virtual list view response control if the search request included a virtual list view request control but did not also include the required server-side sort request control.</p>
+
+              <p></p>
+              <a name="rc-offsetRangeError"></a>
+              <h4><tt>offsetRangeError</tt> (61)</h4>
+
+              <p>The <tt>offsetRangeError</tt> result code should be used as the “virtual list view result” result code in the virtual list view response control if the search request included a virtual list view request control that identified the target entry by offset but had an inappropriate offset or content count value.</p>
+
+              <p></p>
+              <a name="rc-virtualListViewError"></a>
+              <h4><tt>virtualListViewError</tt> (76)</h4>
+
+              <p>The <tt>virtualListViewError</tt> result code indicates that the search operation failed because of a problem encountered while performing processing related to the virtual list view request control. The search result done response will also include a virtual list view response control, and that response control will itself include a result code that provides information about the nature of the problem. As per <a href="../specs/draft-ietf-ldapext-ldapv3-vlv-09.txt" target="_blank">draft-ietf-ldapext-ldapv3-vlv</a>, some of the values that may be used for that result code are:</p>
+
+              <ul>
+                <li>
+                  <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-operationsError">operationsError</a></tt> (1)
+                </li>
+                <li>
+                  <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-protocolError">protocolError</a></tt> (2)
+                </li>
+                <li>
+                  <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-timeLimitExceeded">timeLimitExceeded</a></tt> (3)
+                </li>
+                <li>
+                  <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-adminLimitExceeded">adminLimitExceeded</a></tt> (11)
+                </li>
+                <li>
+                  <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-inappropriateMatching">inappropriateMatching</a></tt> (18)
+                </li>
+                <li>
+                  <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-insufficientAccessRights">insufficientAccessRights</a></tt> (50)
+                </li>
+                <li>
+                  <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-unwillingToPerform">unwillingToPerform</a></tt> (53)
+                </li>
+                <li>
+                  <tt><a href="#rc-sortControlMissing">sortControlMissing</a></tt> (60)
+                </li>
+                <li>
+                  <tt><a href="#rc-offsetRangeError">offsetRangeError</a></tt> (61)
+                </li>
+                <li>
+                  <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-other">other</a></tt> (80)
+                </li>
+              </ul>
+
+              <p>The diagnostic message in the search result done message may also provide additional information about the problem that occurred.</p>
+
+              <p>Some of the most likely causes for a <tt>virtualListViewError</tt> result are:</p>
+
+              <ul>
+                <li>
+                  The search request included a virtual list view request control but did not include a server-side sort request control. In this case, the virtual list view response control should have a result code of <tt><a href="#rc-sortControlMissing">sortControlMissing</a></tt> (60).
+                </li>
+                <li>
+                  The search request included a virtual list view request control with a malformed value. In this case, the virtual list view response control should have a result code of <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-protocolError">protocolError</a></tt> (2).
+                </li>
+                <li>
+                  The search request included a virtual list view request control with an invalid value for the offset or content count elements. In this case, the virtual list view response control should have a result code of <tt><a href="#rc-offsetRangeError">offsetRangeError</a></tt> (61).
+                </li>
+                <li>
+                  The server was not configured in a manner that would allow the virtual list view processing to be performed efficiently. Some servers may require special indexing to be able to use the virtual list view request control. In this case, the virtual list view response control should have a result code of <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-unwillingToPerform">unwillingToPerform</a></tt> (53).
+                </li>
+                <li>
+                  The number of entries that match the search criteria was too large to allow the server to support it. Some servers may impose an upper bound on the size of a result set to be sorted, especially without special types of indexes in place to make virtual list view processing more efficient. In this case, the virtual list view response control should have a result code of <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-adminLimitExceeded">adminLimitExceeded</a></tt> (11).
+                </li>
+                <li>
+                  The server-side sort request control that accompanied the virtual list view request control included an attribute in a sort order element that did not have an ordering matching rule and that sort order element did not specify which matching rule to use. In this case, the virtual list view response control should have a result code of <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-inappropriateMatching">inappropriateMatching</a></tt> (18).
+                </li>
+                <li>
+                  The server-side sort request control that accompanied the virtual list view request control included a sort order element that specified a matching rule that was not appropriate for sorting, or that was not allowed for use with the associated attribute type. In this case, the virtual list view response control should have a result code of <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-inappropriateMatching">inappropriateMatching</a></tt> (18).
+                </li>
+                <li>
+                  The client is not permitted to issue requests that use at least one of the server-side sort request control and virtual list view request control. In this case, the virtual list view response control should have a result code of <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-insufficientAccessRights">insufficientAccessRights</a></tt> (50).
+                </li>
+              </ul>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>
+                      As described in the next section, the numeric value 76 was also proposed to mean <tt><a href="#rc-controlError">controlError</a></tt> in <a href="../specs/draft-armijo-ldap-control-error-03.txt" target="_blank">draft-armijo-ldap-control-error</a>. Neither the <a href="../specs/draft-ietf-ldapext-ldapv3-vlv-09.txt" target="_blank">draft-ietf-ldapext-ldapv3-vlv</a> nor the draft-armijo-ldap-control-error specification made it out of draft phase to become an official RFC, but draft-ietf-ldapext-ldapv3-vlv is supported by a number of directory servers and is sort of a <i>de facto</i> standard, so most of the time you see a result code with a numeric value of 76, it will mean <tt>virtualListViewError</tt>. However, the discussion on the <tt>controlError</tt> result code below provides a set of guidelines for determining which of these result codes is actually intended for a response whose result code has a numeric value of 76.
+                    </td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p></p>
+              <a name="rc-controlError"></a>
+              <h3><tt>controlError</tt> (76)</h3>
+
+              <p>
+                Defined in Specification: <a href="../specs/draft-armijo-ldap-control-error-03.txt" target="_blank">draft-armijo-ldap-control-error</a>
+                <br>
+                Applicable operation types: add, bind, compare, delete, extended, modify, modify DN, search
+              </p>
+
+              <p>The <tt>controlError</tt> result code was proposed in draft-armijo-ldap-control-error as a way to indicate that operation processing failed because of a problem encountered while processing one or more of the controls included in the request. This draft proposed a numeric value of 76 for this result code, which conflicts with the numeric value for the <tt><a href="#rc-virtualListViewError">virtualListViewError</a></tt> result code described in <a href="../specs/draft-ietf-ldapext-ldapv3-vlv-09.txt" target="_blank">draft-ietf-ldapext-ldapv3-vlv</a>.</p>
+
+              <p>The draft-armijo-ldap-control-error draft didn’t get as much traction as draft-ietf-ldapext-ldapv3-vlv did (a number of directory servers support the virtual list view request control, and therefore presumably assume that a result code with numeric value 76 means <tt>virtualListViewError</tt> instead of <tt>controlError</tt>), but these result codes are very similar and not really all that incompatible. In fact, <tt>controlError</tt> is a more general result code that encapsulates the meaning of <tt>virtualListViewError</tt>, but that could also be used to indicate a problem with other types of controls.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>
+                      If you receive a response with a numeric value of 76, you can use the following criteria to determine whether that result code indicates <tt>controlError</tt> or <tt>virtualListViewError</tt>:
+
+                    <ul>
+                      <li>
+                        If the response is not a search result done response, then it indicates <tt>controlError</tt>, since <tt>virtualListViewError</tt>is only applicable to search operations.
+                      </li>
+                      <li>
+                        If a search result done response does not include a virtual list view response control, then it indicates <tt>controlError</tt> since any search result done response that uses the <tt>virtualListViewError</tt> result code must also include a virtual list view response control.
+                      </li>
+                      <li>
+                        If a search result done response includes a virtual list view response control, but the result code contained inside that virtual list view response control is <tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-success">success</a></tt> (0), then it indicates <tt>controlError</tt>, since any search result done response that uses the <tt>virtualListViewError</tt> result code would have a non-success result code inside the virtual list view response control.
+                      </li>
+                      <li>
+                        If a search result done response includes a virtual list view response control and the result code contained inside that virtual list view response control is not <tt>success</tt>, then it indicates <tt>virtualListViewError</tt>.
+                      </li>
+                    </ul>
+                    </td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p></p>
+              <a name="rc-noOperation"></a>
+              <h3><tt>noOperation</tt> (16654)</h3>
+
+              <p>
+                Defined in Specification: <a href="../specs/draft-zeilenga-ldap-noop-12.txt" target="_blank">draft-zeilenga-ldap-noop</a>
+                <br>
+                Applicable operation types: add, delete, extended, modify, modify DN
+              </p>
+
+              <p>The LDAP no-operation request control may be included in a request that would create, remove, or alter information in the directory server. It requests that the server perform extended validation for the operation, but not actually make any changes to the data in the server. It can be used to determine whether an operation would have likely succeeded, but without applying the associated change.</p>
+
+              <p>In the event that a request including the no-operation request control succeeds up to the point at which the change would have been applied, the server should return a response with a result code of <tt>noOperation</tt>. If any problem is encountered before that point, the server should return whatever error response (including any appropriate result code, diagnostic message, matched DN, and referral URLs) would be appropriate for that problem.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>
+                      Although the draft-zeilenga-ldap-noop draft does not specify a numeric value for the <tt>noOperation</tt> result code, a number of servers that implement support for this capability use a numeric value of 16654. In the event that the specification is promoted to an official RFC, IANA may or may not assign a different numeric value, but since the latest revision of the draft was published in July 2008, this may not ever be a concern.
+                    </td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p></p>
+              <a name="incompletely-defined-result-codes"></a>
+              <h3>Incompletely Defined Result Codes</h3>
+
+              <p>There are a few LDAP result codes that have been proposed in draft specifications but that never made it to the big leagues of becoming an actual standard. Most of them were proposed without any numeric value, and therefore can’t be used unless a server implements the draft specification on its own and selects its own numeric values. But for completeness, these proposed result codes include:</p>
+
+              <ul>
+                <li>
+                  <tt>cannotChain</tt> (<a href="../specs/draft-sermersheim-ldap-chaining-03.txt" target="_blank">draft-sermersheim-ldap-chaining</a>)
+                </li>
+                <li>
+                  <tt>connectionRequired</tt> (<a href="../specs/draft-ietf-ldapext-ldapudp-00.txt" target="_blank">draft-ietf-ldapext-ldapudp</a>)
+                </li>
+                <li>
+                  <tt>excessiveCSNSkew</tt> (<a href="../specs/draft-ietf-ldup-protocol-05.txt" target="_blank">draft-ietf-ldup-protocol</a>)
+                </li>
+                <li>
+                  <tt>invalidReference</tt> (<a href="../specs/draft-sermersheim-ldap-distproc-02.txt" target="_blank">draft-sermersheim-ldap-distproc</a>)
+                </li>
+                <li>
+                  <tt>noReferralsFound</tt> (<a href="../specs/draft-sermersheim-ldap-chaining-03.txt" target="_blank">draft-sermersheim-ldap-chaining</a>)
+                </li>
+              </ul>
+
+              <p>The draft-ietf-ldapext-ldapudp specification does go as far as suggestion numeric value of 70 for the <tt>connectionRequired</tt> result code (albeit followed by a pair of question marks), but that value had already been taken by the <tt><a href="#rc-resultsTooLarge" target="_blank">resultsTooLarge</a></tt> result code from <a href="../specs/rfc1798.txt" target="_blank">RFC 1798</a>. This may have been intentional since the two specifications both describe an LDAP-like protocol using a UDP transport, and since RFC 1798 was obsoleted shortly thereafter by <a href="../specs/rfc3352.txt" target="_blank">RFC 3352</a>, but nonetheless, the reuse of a numeric value for a different purpose is a poor choice. After all, it’s not like numbers are exactly a scarce resource.</p>

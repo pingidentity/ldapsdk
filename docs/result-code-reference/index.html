@@ -1,0 +1,345 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>LDAP Result Code Reference</h2>
+
+              <p>
+                Whenever an LDAP directory server completes processing for an operation, it sends a response message back to the client with information about that operation. This response can help the client understand whether the operation succeeded or failed, but it may also provide additional information with more specific details about the nature of that success or failure. That response message includes a numeric result code, which is a basic indication of whether the operation succeeded, and to help categorize the reason for the failure.
+              </p>
+
+              <p>
+                Although each result code has a name in addition to its numeric value, it’s not always clear when a given result code might be used and what the potential causes might be. This reference tries to address that.  It presents information collected from a number of different specifications, especially <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> (the core LDAPv3 protocol reference) and <a href="../specs/draft-just-ldapv3-rescodes-02.txt" target="_blank">draft-just-ldapv3-rescodes</a> (an IETF draft that served as an earlier version of a result code reference), along with information gleaned from years of experience working with LDAP.
+              </p>
+
+              <ul>
+                <li>
+                  <a href="response-elements.${EXTENSION}">The Elements of an LDAP Operation Response Message</a>
+                </li>
+
+                <li>
+                  <a href="core-ldapv3-result-codes.${EXTENSION}">Core LDAPv3 Result Codes</a>
+                </li>
+
+                <li>
+                  <a href="other-server-side-result-codes.${EXTENSION}">Other Server-Side Result Codes</a>
+                </li>
+
+                <li>
+                  <a href="client-side-result-codes.${EXTENSION}">Client-Side Result Codes</a>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Table of LDAP Result Codes</h3>
+
+              <p>The links above provide information about LDAP responses and result codes organized into logical sections.  But if you’re looking for a specific result code, the following table can take you directly to the discussion of that code.</p>
+
+              <table border="1" cellpadding="5" cellspacing="0">
+                <tr>
+                  <th align="left">Result Code Name</th>
+                  <th align="center">Numeric Value</th>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-success">success</a></tt></td>
+                  <td align="center">0</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-operationsError">operationsError</a></tt></td>
+                  <td align="center">1</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-protocolError">protocolError</a></tt></td>
+                  <td align="center">2</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-timeLimitExceeded">timeLimitExceeded</a></tt></td>
+                  <td align="center">3</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-sizeLimitExceeded">sizeLimitExceeded</a></tt></td>
+                  <td align="center">4</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-compareFalse">compareFalse</a></tt></td>
+                  <td align="center">5</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-compareTrue">compareTrue</a></tt></td>
+                  <td align="center">6</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-authMethodNotSupported">authMethodNotSupported</a></tt></td>
+                  <td align="center">7</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-strongerAuthRequired">strongerAuthRequired</a></tt></td>
+                  <td align="center">8</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-referral">referral</a></tt></td>
+                  <td align="center">10</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-adminLimitExceeded">adminLimitExceeded</a></tt></td>
+                  <td align="center">11</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-unavailableCriticalExtension">unavailableCriticalExtension</a></tt></td>
+                  <td align="center">12</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-confidentialityRequired">confidentialityRequired</a></tt></td>
+                  <td align="center">13</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-saslBindInProgress">saslBindInProgress</a></tt></td>
+                  <td align="center">14</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-noSuchAttribute">noSuchAttribute</a></tt></td>
+                  <td align="center">16</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-undefinedAttributeType">undefinedAttributeType</a></tt></td>
+                  <td align="center">17</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-inappropriateMatching">inappropriateMatching</a></tt></td>
+                  <td align="center">18</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-constraintViolation">constraintViolation</a></tt></td>
+                  <td align="center">19</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-attributeOrValueExists">attributeOrValueExists</a></tt></td>
+                  <td align="center">20</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-invalidAttributeSyntax">invalidAttributeSyntax</a></tt></td>
+                  <td align="center">21</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-noSuchObject">noSuchObject</a></tt></td>
+                  <td align="center">32</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-aliasProblem">aliasProblem</a></tt></td>
+                  <td align="center">33</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-invalidDNSyntax">invalidDNSyntax</a></tt></td>
+                  <td align="center">34</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-isLeaf">isLeaf</a></tt></td>
+                  <td align="center">35</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-aliasDereferencingProblem">aliasDereferencingProblem</a></tt></td>
+                  <td align="center">36</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-inappropriateAuthentication">inappropriateAuthentication</a></tt></td>
+                  <td align="center">48</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-invalidCredentials">invalidCredentials</a></tt></td>
+                  <td align="center">49</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-insufficientAccessRights">insufficientAccessRights</a></tt></td>
+                  <td align="center">50</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-busy">busy</a></tt></td>
+                  <td align="center">51</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-unavailable">unavailable</a></tt></td>
+                  <td align="center">52</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-unwillingToPerform">unwillingToPerform</a></tt></td>
+                  <td align="center">53</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-loopDetect">loopDetect</a></tt></td>
+                  <td align="center">54</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-sortControlMissing">sortControlMissing</a></tt></td>
+                  <td align="center">60</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-offsetRangeError">offsetRangeError</a></tt></td>
+                  <td align="center">61</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-namingViolation">namingViolation</a></tt></td>
+                  <td align="center">64</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-objectClassViolation">objectClassViolation</a></tt></td>
+                  <td align="center">65</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-notAllowedOnNonLeaf">notAllowedOnNonLeaf</a></tt></td>
+                  <td align="center">66</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-notAllowedOnRDN">notAllowedOnRDN</a></tt></td>
+                  <td align="center">67</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-entryAlreadyExists">entryAlreadyExists</a></tt></td>
+                  <td align="center">68</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-objectClassModsProhibited">objectClassModsProhibited</a></tt></td>
+                  <td align="center">69</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-resultsTooLarge">resultsTooLarge</a></tt></td>
+                  <td align="center">70</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-affectsMultipleDSAs">affectsMultipleDSAs</a></tt></td>
+                  <td align="center">71</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-virtualListViewError">virtualListViewError</a></tt> or <tt><a href="other-server-side-result-codes.${EXTENSION}#rc-controlError">controlError</a></tt></td>
+                  <td align="center">76</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="core-ldapv3-result-codes.${EXTENSION}#rc-other">other</a></tt></td>
+                  <td align="center">80</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-serverDown">serverDown</a></tt></td>
+                  <td align="center">81</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-localError">localError</a></tt></td>
+                  <td align="center">82</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-encodingError">encodingError</a></tt></td>
+                  <td align="center">83</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-decodingError">decodingError</a></tt></td>
+                  <td align="center">84</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-timeout">timeout</a></tt></td>
+                  <td align="center">85</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-authUnknown">authUnknown</a></tt></td>
+                  <td align="center">86</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-filterError">filterError</a></tt></td>
+                  <td align="center">87</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-userCanceled">userCanceled</a></tt></td>
+                  <td align="center">88</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-paramError">paramError</a></tt></td>
+                  <td align="center">89</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-noMemory">noMemory</a></tt></td>
+                  <td align="center">90</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-connectError">connectError</a></tt></td>
+                  <td align="center">91</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-notSupported">notSupported</a></tt></td>
+                  <td align="center">92</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-controlNotFound">controlNotFound</a></tt></td>
+                  <td align="center">93</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-noResultsReturned">noResultsReturned</a></tt></td>
+                  <td align="center">94</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-moreResultsToReturn">moreResultsToReturn</a></tt></td>
+                  <td align="center">95</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-clientLoop">clientLoop</a></tt></td>
+                  <td align="center">96</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-referralLimitExceeded">referralLimitExceeded</a></tt></td>
+                  <td align="center">97</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-invalidResponse">invalidResponse</a></tt></td>
+                  <td align="center">100</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-ambiguousResponse">ambiguousResponse</a></tt></td>
+                  <td align="center">101</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-tlsNotSupported">tlsNotSupported</a></tt></td>
+                  <td align="center">112</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-intermediateResponse">intermediateResponse</a></tt></td>
+                  <td align="center">113</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="client-side-result-codes.${EXTENSION}#rc-unknownType">unknownType</a></tt></td>
+                  <td align="center">114</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-canceled">canceled</a></tt></td>
+                  <td align="center">118</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-noSuchOperation">noSuchOperation</a></tt></td>
+                  <td align="center">119</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-tooLate">tooLate</a></tt></td>
+                  <td align="center">120</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-cannotCancel">cannotCancel</a></tt></td>
+                  <td align="center">121</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-assertionFailed">assertionFailed</a></tt></td>
+                  <td align="center">122</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-authorizationDenied">authorizationDenied</a></tt></td>
+                  <td align="center">123</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-e-syncRefreshRequired">e-syncRefreshRequired</a></tt></td>
+                  <td align="center">4096</td>
+                </tr>
+                <tr>
+                  <td align="left"><tt><a href="other-server-side-result-codes.${EXTENSION}#rc-noOperation">noOperation</a></tt></td>
+                  <td align="center">16654</td>
+                </tr>
+              </table>
