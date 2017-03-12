@@ -85,7 +85,7 @@ public final class RetirePasswordRequestControl
        extends Control
 {
   /**
-   * The OID (1.3.6.1.4.1.4203.1.10.2) for the LDAP no-op request control.
+   * The OID (1.3.6.1.4.1.30221.2.5.31) for the retire password request control.
    */
   public static final  String RETIRE_PASSWORD_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.31";

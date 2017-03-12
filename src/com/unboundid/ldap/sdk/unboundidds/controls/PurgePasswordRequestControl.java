@@ -83,7 +83,7 @@ public final class PurgePasswordRequestControl
        extends Control
 {
   /**
-   * The OID (1.3.6.1.4.1.4203.1.10.2) for the purge password request control.
+   * The OID (1.3.6.1.4.1.30221.2.5.32) for the purge password request control.
    */
   public static final  String PURGE_PASSWORD_REQUEST_OID =
        "1.3.6.1.4.1.30221.2.5.32";
