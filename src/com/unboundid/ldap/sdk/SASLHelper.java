@@ -45,7 +45,7 @@ final class SASLHelper
   private final Control[] controls;
 
   // The message ID used when communicating with the directory server.
-  private final int messageID;
+  private volatile int messageID;
 
   // The connection to use to communicate with the directory server.
   private final LDAPConnection connection;
@@ -156,6 +156,7 @@ final class SASLHelper
 
       BindResult bindResult = bindRequest.sendBindRequest(connection, "",
            saslCredentials, controls, responseTimeoutMillis);
+      messageID = bindRequest.getLastMessageID();
 
       if (! bindResult.getResultCode().equals(ResultCode.SASL_BIND_IN_PROGRESS))
       {
@@ -210,6 +211,7 @@ final class SASLHelper
 
         bindResult = bindRequest.sendBindRequest(connection, "",
              saslCredentials, controls, responseTimeoutMillis);
+        messageID = bindRequest.getLastMessageID();
         if (! bindResult.getResultCode().equals(
                    ResultCode.SASL_BIND_IN_PROGRESS))
         {

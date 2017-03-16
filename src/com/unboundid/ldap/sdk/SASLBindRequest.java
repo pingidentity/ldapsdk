@@ -152,10 +152,7 @@ public abstract class SASLBindRequest
                                   final long timeoutMillis)
             throws LDAPException
   {
-    if (messageID == -1)
-    {
-      messageID = connection.nextMessageID();
-    }
+    messageID = connection.nextMessageID();
 
     final BindRequestProtocolOp protocolOp =
          new BindRequestProtocolOp(bindDN, getSASLMechanismName(),
