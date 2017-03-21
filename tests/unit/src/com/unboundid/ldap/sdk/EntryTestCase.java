@@ -39,6 +39,7 @@ import com.unboundid.ldap.matchingrules.CaseExactStringMatchingRule;
 import com.unboundid.ldap.matchingrules.CaseIgnoreStringMatchingRule;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFReader;
+import com.unboundid.util.ByteStringBuffer;
 import com.unboundid.util.LDAPSDKUsageException;
 
 import static com.unboundid.util.StaticUtils.*;
@@ -4373,5 +4374,41 @@ public class EntryTestCase
               "objectClass: ds-root-dse",
               "cn: foo",
               "description: bar"));
+  }
+
+
+
+  /**
+   * Tests the behavior of methods used to obtain the LDIF representation of an
+   * entry with attributes that don't have any values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testLDIFMethodsWithZeroValueAttributes()
+         throws Exception
+  {
+    final Entry e = new Entry("dc=example,dc=com", new Attribute("objectClass"),
+         new Attribute("dc"));
+
+    assertEquals(e.toLDIF(),
+         new String[]
+         {
+           "dn: dc=example,dc=com",
+           "objectClass: ",
+           "dc: ",
+         });
+
+    assertEquals(e.toLDIFString(),
+         "dn: dc=example,dc=com" + EOL +
+         "objectClass: " + EOL +
+         "dc: " + EOL);
+
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    e.toLDIF(buffer);
+    assertEquals(buffer.toString(),
+         "dn: dc=example,dc=com" + EOL +
+         "objectClass: " + EOL +
+         "dc: " + EOL);
   }
 }

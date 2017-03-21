@@ -92,6 +92,15 @@ public class Entry
        implements LDIFRecord
 {
   /**
+   * An empty octet string that will be used as the value for an attribute that
+   * doesn't have any values.
+   */
+  private static final ASN1OctetString EMPTY_OCTET_STRING =
+       new ASN1OctetString();
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -4438809025903729197L;
@@ -2718,9 +2727,16 @@ public class Entry
     for (final Attribute a : attributes.values())
     {
       final String name = a.getName();
-      for (final ASN1OctetString value : a.getRawValues())
+      if (a.hasValue())
       {
-        encodeNameAndValue(name, value, ldifLines);
+        for (final ASN1OctetString value : a.getRawValues())
+        {
+          encodeNameAndValue(name, value, ldifLines);
+        }
+      }
+      else
+      {
+        encodeNameAndValue(name, EMPTY_OCTET_STRING, ldifLines);
       }
     }
 
@@ -2800,9 +2816,18 @@ public class Entry
     for (final Attribute a : attributes.values())
     {
       final String name = a.getName();
-      for (final ASN1OctetString value : a.getRawValues())
+      if (a.hasValue())
       {
-        LDIFWriter.encodeNameAndValue(name, value, buffer, wrapColumn);
+        for (final ASN1OctetString value : a.getRawValues())
+        {
+          LDIFWriter.encodeNameAndValue(name, value, buffer, wrapColumn);
+          buffer.append(EOL_BYTES);
+        }
+      }
+      else
+      {
+        LDIFWriter.encodeNameAndValue(name, EMPTY_OCTET_STRING, buffer,
+             wrapColumn);
         buffer.append(EOL_BYTES);
       }
     }
@@ -2879,9 +2904,18 @@ public class Entry
     for (final Attribute a : attributes.values())
     {
       final String name = a.getName();
-      for (final ASN1OctetString value : a.getRawValues())
+      if (a.hasValue())
       {
-        LDIFWriter.encodeNameAndValue(name, value, buffer, wrapColumn);
+        for (final ASN1OctetString value : a.getRawValues())
+        {
+          LDIFWriter.encodeNameAndValue(name, value, buffer, wrapColumn);
+          buffer.append(EOL);
+        }
+      }
+      else
+      {
+        LDIFWriter.encodeNameAndValue(name, EMPTY_OCTET_STRING, buffer,
+             wrapColumn);
         buffer.append(EOL);
       }
     }
