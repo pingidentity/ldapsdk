@@ -1329,6 +1329,31 @@ rdnLoop:
 
 
   /**
+   * Indicates whether the two provided strings represent the same DN.
+   *
+   * @param  s1      The string representation of the first DN for which to make
+   *                 the determination.  It must not be {@code null}.
+   * @param  s2      The string representation of the second DN for which to
+   *                 make the determination.  It must not be {@code null}.
+   * @param  schema  The schema to use while making the determination.  It may
+   *                 be {@code null} if no schema is available.
+   *
+   * @return  {@code true} if the provided strings represent the same DN, or
+   *          {@code false} if not.
+   *
+   * @throws  LDAPException  If either of the provided strings cannot be parsed
+   *                         as a DN.
+   */
+  public static boolean equals(final String s1, final String s2,
+                               final Schema schema)
+         throws LDAPException
+  {
+    return new DN(s1, schema).equals(new DN(s2, schema));
+  }
+
+
+
+  /**
    * Retrieves a string representation of this DN.
    *
    * @return  A string representation of this DN.

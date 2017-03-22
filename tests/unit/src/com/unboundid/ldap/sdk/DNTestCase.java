@@ -1331,7 +1331,7 @@ public class DNTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testEqualsEquivalentStringss()
+  public void testEqualsEquivalentStrings()
          throws Exception
   {
     assertTrue(DN.equals("dc=example,dc=com", "dc=example,dc=com"));
@@ -1339,6 +1339,27 @@ public class DNTestCase
     assertTrue(DN.equals("dc=example,dc=com",
                          "  dc  =  example  ,  dc  =  com  "));
     assertTrue(DN.equals("dc=example,dc=com", "DC=EXAMPLE,DC=COM"));
+  }
+
+
+
+  /**
+   * Tests the {@code equals} method with a number of equivalent DNs.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testEqualsEquivalentStringsWithSchema()
+         throws Exception
+  {
+    assertTrue(DN.equals("dc=example,dc=com", "dc=example,dc=com", schema));
+    assertTrue(DN.equals("dc=example,dc=com", " dc = example , dc = com ",
+         schema));
+    assertTrue(DN.equals("dc=example,dc=com",
+                         "  dc  =  example  ,  dc  =  com  ", schema));
+    assertTrue(DN.equals("dc=example,dc=com", "DC=EXAMPLE,DC=COM", schema));
+    assertTrue(DN.equals("dc=example,dc=com",
+         "0.9.2342.19200300.100.1.25=EXAMPLE,DC=COM", schema));
   }
 
 
