@@ -1,0 +1,220 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Bind Operation</h3>
+
+              <p>The LDAP bind operation is used to authenticate a client to the directory server. LDAPv3 supports two basic types of authentication:</p>
+
+              <ul>
+                <li>Simple authentication, in which the client identifies itself with a DN and proves its identity with a password.</li>
+                <li>SASL (Simple Authentication and Security Layer) authentication, which is an extensible framework that allows for a broad range of authentication types.</li>
+              </ul>
+
+              <p>A client can send a bind request at any time on a connection. If the connection has already been authenticated with an earlier bind request, sending another bind request can be used to re-authenticate the connection as a different user (or the same user if you send the same credentials). If the bind attempt does not succeed, the connection will revert to an unauthenticated state. And any request sent on a connection before the client performs a bind will also be treated as unauthenticated.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>LDAP doesn’t do anything to protect bind credentials from anyone who can observe the communication between the client and the server. Certain SASL mechanisms do provide the ability to obscure sensitive information like passwords, but other SASL mechanisms do not, and there is also no protection for simple authentication. Unless you know that you’re using a SASL mechanism that does adequately protect the authentication credentials, and you also know that there won’t be any other sensitive information transferred over the connection, you are strongly encouraged to encrypt the communication between the client and the server (for example, using TLS).</td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <a name="bind-request"></a>
+              <h3>The Bind Request</h3>
+
+              <p>The bind request protocol operation is defined as follows in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.2:</p>
+
+              <pre>BindRequest ::= [APPLICATION 0] SEQUENCE {
+     version                 INTEGER (1 ..  127),
+     name                    LDAPDN,
+     authentication          AuthenticationChoice }
+
+AuthenticationChoice ::= CHOICE {
+     simple                  [0] OCTET STRING,
+                             -- 1 and 2 reserved
+     sasl                    [3] SaslCredentials,
+     ...  }
+
+SaslCredentials ::= SEQUENCE {
+     mechanism               LDAPString,
+     credentials             OCTET STRING OPTIONAL }</pre>
+
+              <p>The <tt>LDAPDN</tt> and <tt>LDAPString</tt> dependencies are defined as follows elsewhere in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a>:</p>
+
+              <pre>LDAPDN ::= LDAPString
+           -- Constrained to &lt;distinguishedName&gt; [RFC4514]
+
+LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters</pre>
+
+              <p>The elements of the bind request protocol op are as follows:</p>
+
+              <ul>
+                <li><tt>version</tt> — The LDAP protocol version. You should only ever use version 3. LDAPv2 was declared historic by <a href="../specs/rfc3494.txt" target="_blank">RFC 3494</a> in March of 2003 and should no longer be used. And because LDAPv3 is so extensible, it’s unlikely that there will ever be a need for an LDAPv4.</li>
+                <li><tt>name</tt> — The DN of the user that is trying to authenticate. This is typically only provided when performing a simple bind. When using SASL authentication, the user is generally identified by some other means (e.g., something inside the SASL credentials or some other information the server has about the client), and the <tt>name</tt> field is left blank. Note that the official LDAP specification states that this must be a DN, but some directory servers (like Active Directory) disregard this and allow certain kinds of non-DN values.</li>
+                <li><tt>authentication</tt> — The credentials for the bind request. For a simple bind, this is the password for the account authenticated by the <tt>name</tt> element. For a SASL bind, this is a sequence that contains at least the SASL mechanism name and optionally an octet string with SASL credentials.</li>
+              </ul>
+
+              <p>We’ll provide specific examples of simple and SASL bind requests later in this section.</p>
+
+              <a name="bind-response"></a>
+              <h3>The Bind Response</h3>
+
+              <p>The bind response protocol operation is defined as follows in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.2.2:</p>
+
+              <pre>BindResponse ::= [APPLICATION 1] SEQUENCE {
+     COMPONENTS OF LDAPResult,
+     serverSaslCreds    [7] OCTET STRING OPTIONAL }</pre>
+
+              <p>This means that the bind response has all of the elements of the <tt>LDAPResult</tt> protocol op (result code, matched DN, diagnostic message, and optional referral URLs), which we’ve already discussed in depth in an <a href="ldap-result.${EXTENSION}">earlier section</a>, plus an optional set of server SASL credentials. The server SASL credentials will only be included in the response to a SASL bind request, and only in response to certain kinds of SASL bind requests.</p>
+
+              <p>The bind response protocol operation has a BER type of <tt>0x61</tt> (application class, constructed, tag number one). We will provide examples of bind responses later in this section.</p>
+
+              <a name="simple-bind-operation"></a>
+              <h3>The Simple Bind Operation</h3>
+
+              <p>As described above, the simple bind operation is used to authenticate with a DN and password. There are actually two kinds of simple binds: anonymous and authenticated. The anonymous simple bind has empty strings for both the DN and the password, while an authenticated simple bind has non-empty values for both of those fields.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>The original LDAPv3 specification (<a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.2.2) stated that an anonymous simple bind only required that the password be empty, but allowed the DN to be non-empty. This led to security vulnerabilities in a number of applications that used an LDAP server to authenticate users but didn’t bother checking to see whether the user actually provided a password. The revised LDAPv3 specification (RFC 4513 section 5.1.2) now recommends that servers reject simple binds that include a non-empty DN but an empty password with an <tt>unwillingToPerform</tt> (53) result.</td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p>When a non-empty password is provided, it must be the clear-text representation of that password, without any encryption, hashing, or other kind of obfuscation. So a communication security layer like TLS is strongly recommended when using an authenticated simple bind to ensure that the credentials are protected.</p>
+
+              <p>The following example demonstrates the encoding for an anonymous simple bind request with a message ID of one and no request controls:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 01 --  The message ID (integer value 1)
+   60 07 -- Begin the bind request protocol op
+      02 01 03 -- The LDAP protocol version (integer value 3)
+      04 00 -- Empty bind DN (0-byte octet string)
+      80 00 -- Empty password (0-byte octet string with type context-specific
+            -- primitive zero)</pre>
+
+              <p>And the following example shows the encoding for an authenticated simple bind request for user <tt>uid=jdoe,ou=People,dc=example,dc=com</tt>t with password secret123, also with message ID one and no request controls:</p>
+
+              <pre>30 39 -- Begin the LDAPMessage sequence
+   02 01 01 -- The message ID (integer value 1)
+   60 34 -- Begin the bind request protocol op
+   02 01 03 -- The LDAP protocol version (integer value 3)
+   04 24 75 69 64 3d 6a 64 6f 65 -- The bind DN (36-byte octet string
+         2c 6f 75 3d 50 65 6f 70 -- "uid=jdoe,ou=People,dc=example,dc=com")
+         6c 65 2c 64 63 3d 65 78
+         61 6d 70 6c 65 2c 64 63
+         3d 63 6f 6d
+   80 09 73 65 63 72 65 74 31 32 -- The password (9-byte octet string "secret123"
+         33                      -- with type context-specific primitive zero)</pre>
+
+              <p>The bind response protocol operation for a simple bind request is merely an <tt>LDAPResult</tt> with type <tt>0x61</tt>. Assuming that the server returned a successful response to either of the above requests, with no matched DN, diagnostic message, referral URLs, or controls, it would be encoded as follows:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 01 -- The message ID (integer value 1)
+   61 07 -- Begin the bind response protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+
+              <a name="sasl-bind-operation"></a>
+              <h3>The SASL Bind Operation</h3>
+
+              <p>SASL is the Simple Authentication and Security Layer, and it’s based on the specification described in <a href="../specs/rfc4422.txt" target="_blank">RFC 4422</a>. SASL is an extensible framework that allows for a wide variety of authentication types, including the creation of custom types. Each flavor of SASL authentication is called a mechanism, and the SASL mechanism that the client wants to use is identified by name. There SASL bind request may also include additional information, called SASL credentials, to use in the authentication process.</p>
+
+              <p>Some common SASL mechanisms include:</p>
+
+              <ul>
+                <li><tt>PLAIN</tt> — Authenticates with an identifier and a password. This is very similar to LDAP simple authentication, although the identifier doesn’t have to be a DN. It could be a username, email address, telephone number, account number, or something else that uniquely identifies the target user and that the user is likely to know. It’s also possible to provide an alternate authorization identity to indicate that subsequent requests on the connection should be processed under the authority of some other user.</li>
+                <li><tt>EXTERNAL</tt> — Authenticates the client with information that the server already knows about the client from some means other than what it provides in the bind request. This is most commonly used to authenticate with a certificate that the client presented during TLS negotiation, but it’s conceivable that the client could be identified in some other way.</li>
+                <li><tt>GSSAPI</tt> — Authenticates the client with a Kerberos KDC.</li>
+                <li><tt>CRAM-MD5</tt>, <tt>DIGEST-MD5</tt>, <tt>SCRAM-SHA-1</tt>, and <tt>SCRAM-SHA-256</tt> — These are challenge-response authentication mechanisms that authenticate the user with an identifier and a password (much like the PLAIN mechanism), but that protect the password by constructing a digest through the use of a random challenge string provided by the server (and often combining it with additional information).</li>
+                <li><tt>OAUTHBEARER</tt> — Authenticates the client with an OAuth 2.0 bearer token.</li>
+              </ul>
+
+              <p>The Ping Identity Directory Server (formerly UnboundID Directory Server) also defines a number of additional SASL mechanisms for stronger authentication types, including:</p>
+
+              <ul>
+                <li><tt>UNBOUNDID-CERTIFICATE-PLUS-PASSWORD</tt> — Identifies the client with a certificate provided during TLS negotiation, but also uses a password as a second authentication factor.</li>
+                <li><tt>UNBOUNDID-TOTP</tt> — Authenticates the client with an identifier, a static password, and a time-based one-time password (like those generated by the Google Authenticator or Authy apps) as described in <a href="../specs/rfc6238.txt" target="_blank">RFC 6238</a>.</li>
+              </ul>
+
+              <p>Describing all of the ins and outs of all these SASL mechanisms is beyond the scope of this document. But to illustrate the encoding for SASL requests and responses, let’s look at an example using the <tt>CRAM-MD5</tt> mechanism. Although this mechanism is no longer considered secure, it is good for illustration purposes because it is fairly simple, because it involves a multi-stage bind process, and because it involves a response that includes server SASL credentials.</p>
+
+              <p>The <tt>CRAM-MD5</tt> authentication process operates as follows:</p>
+
+              <ol>
+                <li>
+                  The client sends a bind request with a <tt>version</tt> of 3, an empty <tt>name</tt>, a SASL mechanism name of <tt>CRAM-MD5</tt>, and no SASL credentials. If we assume a message ID of one and no request controls, that bind request would be encoded as:
+                  <br><br>
+                  <pre>30 16 -- Begin the LDAPMessage sequence
+   02 01 01 -- The message ID (integer value 1)
+   60 11 -- Begin the bind request protocol op
+      02 01 03 -- The LDAP protocol version (integer value 3)
+      04 00 -- Empty bind DN (0-byte octet string)
+      a3 0a -- Begin the SASL authentication sequence
+         04 08 43 52 41 4d 2d 4d 44 35 -- The SASL mechanism name
+                                       -- (the octet string "CRAM-MD5")</pre>
+                </li>
+                <li>
+                  The server returns a bind response with a result code of <tt>saslBindInProgress</tt> (14) and server SASL credentials that are a randomly-generated challenge string encapsulated in angle brackets. If we assume that the server generated a challenge string of <tt>&lt;10a13c7bf708ca0f399ca99e927da88b&gt;</tt>, the bind response would be encoded as:
+                  <br><br>
+                  <pre>30 30 -- Begin the LDAPMessage sequence
+   02 01 01 -- The message ID (integer value 1)
+   61 2b -- Begin the bind response protocol op
+   0a 01 0e -- saslBindInProgress result code (enumerated value 14)
+   04 00 -- No matched DN (0-byte octet string)
+   04 00 -- No diagnostic message (0-byte octet string)
+   87 22 3c 31 30 61 31 33 63 37 -- The server SASL credentials (the octet string
+         62 66 37 30 38 63 61 30 -- "&lt;10a13c7bf708ca0f399ca99e927da88b&gt;")
+         66 33 39 39 63 61 39 39
+         65 39 32 37 64 61 38 38
+         62 3e</pre>
+                </li>
+                <li>
+                  The client sends a second bind request with a <tt>version</tt> of 3, an empty <tt>name</tt>, a SASL mechanism name of <tt>CRAM-MD5</tt>, and SASL credentials that are comprised of the authentication ID followed by a space and a hexadecimal representation (with all letters in lowercase) of the HMAC-MD5 digest of the challenge string (returned in step 2) using the user’s password as the key. Let’s assume that the user wants to authenticate with a username of <tt>jdoe</tt> (which will be indicated by an authentication ID of <tt>u:jdoe</tt>) and a password of <tt>secret123</tt>. The hexadecimal representation of the HMAC-MD5 digest of the string <tt>&lt;10a13c7bf708ca0f399ca99e927da88b&gt;</tt> using a key of <tt>secret123</tt> is <tt>d52116c87c31d9cc747600f9486d2a1d</tt>, so the second bind request (this time, with message ID two) is:
+                  <br><br>
+                  <pre>30 3f -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   60 3a -- Begin the bind request protocol op
+      02 01 03 -- The LDAP protocol version (integer value 3)
+      04 00 -- Empty bind DN (0-byte octet string)
+      a3 33 -- Begin the SASL authentication sequence
+         04 08 43 52 41 4d 2d 4d 44 35 -- The SASL mechanism name
+                                       -- (the octet string "CRAM-MD5")
+         04 27 75 3a 6a 64 6f 65 20 64 -- The SASL credentials (the octet string
+               35 32 31 31 36 63 38 37 -- "u:jdoe d52116c87c31d9cc747600f9486d2a1d")
+               63 33 31 64 39 63 63 37
+               34 37 36 30 30 66 39 34
+               38 36 64 32 61 31 64</pre>
+                </li>
+                <li>
+                  Assuming that the credentials were correct and the account is usable, the server returns a bind response with a result code of <tt>success</tt> (0) and no server SASL credentials. This is encoded as:
+                  <br><br>
+                  <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   61 07 -- Begin the bind response protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+                </li>
+              </ol>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="add.${EXTENSION}">The LDAP Add Operation</a></td>
+                  <td align="right">Next: <a href="compare.${EXTENSION}">The LDAP Compare Operation</a></td>
+                </tr>
+              </table>

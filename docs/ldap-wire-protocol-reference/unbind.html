@@ -1,0 +1,45 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Unbind Operation</h3>
+
+              <p>The LDAP unbind operation is poorly named. It sounds as if it should undo the effects of a bind operation. For example, one might expect that an unbind operation reverts a connection to an unauthenticated state. It doesn’t (although you can cause a connection to become unauthenticated using an <a href="bind.${EXTENSION}#simple-bind-operation">anonymous simple bind request</a>).</p>
+
+              <p>Instead, the unbind operation is used to indicate that the client wants to close the connection to the directory server. There shouldn’t be any attempt to use a connection after an unbind request has been sent. Immediately after sending an unbind request on a connection, the client should close that connection. Likewise, immediately after receiving an unbind request from a client, the server should close that client connection.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>Even though it’s a good practice for clients to send an unbind request before closing a connection, directory servers must be able to handle clients that disconnect without an unbind request.</td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.3 defines an unbind request protocol operation as follows:</p>
+
+              <pre>UnbindRequest ::= [APPLICATION 2] NULL</pre>
+
+              <p>That is, an unbind request protocol op is simply a null element with BER type <tt>0x42</tt> (application class, primitive, tag number two). An unbind request with message ID three and no controls is encoded as:</p>
+
+              <pre>30 05 -- Begin the LDAPMessage sequence
+   02 01 03 -- The message ID (integer value 3)
+   42 00 -- The unbind request protocol op</pre>
+
+              <p>There is no response to an unbind request.</p>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="search.${EXTENSION}">The LDAP Search Operation</a></td>
+                  <td align="right">Next: <a href="intermediate-response.${EXTENSION}">The LDAP Intermediate Response</a></td>
+                </tr>
+              </table>

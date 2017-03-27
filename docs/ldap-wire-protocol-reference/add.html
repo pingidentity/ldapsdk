@@ -1,0 +1,123 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Add Operation</h3>
+
+              <p>The LDAP add operation may be used to create a new entry in the directory. Each add operation consists of one request message and one response message.</p>
+
+              <a name="add-request"></a>
+              <h3>The Add Request</h3>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.7 defines the add request protocol operation as:</p>
+
+              <pre>AddRequest ::= [APPLICATION 8] SEQUENCE {
+     entry           LDAPDN,
+     attributes      AttributeList }
+
+AttributeList ::= SEQUENCE OF attribute Attribute</pre>
+
+              <p>And its dependencies are also defined elsewhere in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> as follows:</p>
+
+              <pre>LDAPDN ::= LDAPString
+           -- Constrained to &lt;distinguishedName&gt; [RFC4514]
+
+LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters
+
+Attribute ::= PartialAttribute(WITH COMPONENTS {
+     ...,
+     vals (SIZE(1..MAX))})
+
+PartialAttribute ::= SEQUENCE {
+     type       AttributeDescription,
+     vals       SET OF value AttributeValue }
+
+AttributeDescription ::= LDAPString
+                        -- Constrained to &lt;attributedescription&gt;
+                        -- [RFC4512]
+
+AttributeValue ::= OCTET STRING</pre>
+
+              <p>This is a lot of dependencies, but basically it means that the add request protocol op is a sequence with BER type <tt>0x68</tt> that consists of two elements: one for the entry’s distinguished name and another for the set of attributes.</p>
+
+              <p>The entry’s DN is encoded as a simple octet string containing the string representation as described in <a href="../specs/rfc4514.txt" target="_blank">RFC 4514</a>. And the set of attributes is encoded as a sequence, in which each element represents a different attribute. Each of those attributes is itself a sequence of two elements: an octet string with the attribute description (the attribute type name or OID, plus zero or more attribute options, each of which is preceded by a semicolon), and a set of octet strings in which each octet string represents a value for the attribute.</p>
+
+              <p>For example, let’s say that we want to create an add request for the following entry:</p>
+
+              <pre>dn: dc=example,dc=com
+objectClass: top
+objectClass: domain
+dc: example</pre>
+
+              <p>The DN would be encoded as a simple octet string, so its encoded representation is:</p>
+
+              <pre>04 11 64 63 3d 65 78 61 6d 70
+      6c 65 2c 64 63 3d 63 6f
+      6d</pre>
+
+              <p>And the sequence of attributes would be encoded as:</p>
+
+              <pre>30 2f -- Begin the sequence of attributes
+   30 1c -- Begin the sequence for the objectClass attribute
+      04 0b 6f 62 6a 65 63 74 43 6c -- The attribute description
+            61 73 73                -- (octet string "objectClass")
+      31 0d -- Begin the set of objectClass values
+         04 03 74 6f 70 -- The first value (octet string "top")
+         04 06 64 6f 6d 61 69 6e -- The second value (octet string "domain")
+   30 0f -- Begin the sequence for the dc attribute
+      04 02 64 63 -- The attribute description (octet string "dc")
+      31 09 -- Begin the set of dc values
+         04 07 65 78 61 6d 70 6c 65 -- The first value (octet string "example")</pre>
+
+              <p>So a complete add request message for the above entry with message ID two and no controls would look like:</p>
+
+              <pre>30 49 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   68 44 -- Begin the add request protocol op
+      04 11 64 63 3d 65 78 61 6d 70 -- The DN of the entry to add
+            6c 65 2c 64 63 3d 63 6f -- (octet string "dc=example,dc=com")
+            6d
+      30 2f -- Begin the sequence of attributes
+         30 1c -- Begin the first attribute sequence
+            04 0b 6f 62 6a 65 63 74 43 6c -- The attribute description
+                  61 73 73                -- (octet string "objectClass")
+            31 0d -- Begin the set of values
+               04 03 74 6f 70 -- The first value (octet string "top")
+               04 06 64 6f 6d 61 69 6e -- The second value (octet string "domain")
+         30 0f -- Begin the second attribute sequence
+            04 02 64 63 -- The attribute description (octet string "dc")
+            31 09 -- Begin the set of values
+               04 07 65 78 61 6d 70 6c 65 -- The value (octet string "example")</pre>
+
+              <a name="add-response"></a>
+              <h3>The Add Response</h3>
+
+              <p>When the server completes processing for an add operation, it will send a single response message. The add response protocol operation is defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.7 as follows:</p>
+
+              <pre>AddResponse ::= [APPLICATION 9] LDAPResult</pre>
+
+              <p>We’ve already discussed the <tt>LDAPResult</tt> element in depth in an <a href="ldap-result.${EXTENSION}">earlier section</a>, so the only operation-specific thing we need to know is the BER type, and for an add response, it’s <tt>0x69</tt> (application class, constructed, tag number nine). So the complete LDAP message for an add response with a result code of success, empty matched DN, empty diagnostic message, no referral URLs, and no controls is:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   69 07 -- Begin the add response protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="abandon.${EXTENSION}">The LDAP Abandon Operation</a></td>
+                  <td align="right">Next: <a href="bind.${EXTENSION}">The LDAP Bind Operation</a></td>
+                </tr>
+              </table>

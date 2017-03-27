@@ -1,0 +1,56 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Delete Operation</h3>
+
+              <p>The LDAP delete operation may be used to remove an entry from the directory server. Both the delete request and the delete response are very simple.</p>
+
+              <a name="delete-request"></a>
+              <h3>The Delete Request</h3>
+
+              <p>The delete request protocol operation is defined as follows in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.8:</p>
+
+              <pre>DelRequest ::= [APPLICATION 10] LDAPDN</pre>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> also indicates that the <tt>LDAPDN</tt> element is a simple octet string with values constrained to be valid DNs as described in <a href="../specs/rfc4514.txt" target="_blank">RFC 4514</a>. So the delete request protocol op is merely an octet string with BER type <tt>0x4a</tt> (application class, primitive, tag number ten) whose value is the string representation of the DN of the entry to remove. For example, a request (with message ID two) to delete entry <tt>uid=jdoe,ou=People,dc=example,dc=com</tt> would be encoded as:</p>
+
+              <pre>30 29 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   4a 24 75 69 64 3d 6a 64 6f 65 -- The delete request protocol op (octet string
+         2c 6f 75 3d 50 65 6f 70 -- "uid=jdoe,ou=People,dc=example,dc=com"
+         6c 65 2c 64 63 3d 65 78 -- with type application class, primitive,
+         61 6d 70 6c 65 2c 64 63 -- tag number ten)
+         3d 63 6f 6d</pre>
+
+              <a name="delete-response"></a>
+              <h3>The Delete Response</h3>
+
+              <p>The delete response protocol op is also defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.8:</p>
+
+              <pre>DelResponse ::= [APPLICATION 11] LDAPResult</pre>
+
+              <p>We’ve already covered the <tt>LDAPResult</tt> in <a href="ldap-result.${EXTENSION}">another section</a>, so the only thing of note here is that when it’s used for the delete response protocol op, it has a BER type of <tt>0x6b</tt> (application class, constructed, tag number eleven). So if the above delete request is processed successfully, the corresponding delete response would be encoded as follows:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   6b 07 -- Begin the delete response protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="compare.${EXTENSION}">The LDAP Compare Operation</a></td>
+                  <td align="right">Next: <a href="extended.${EXTENSION}">The LDAP Extended Operation</a></td>
+                </tr>
+              </table>

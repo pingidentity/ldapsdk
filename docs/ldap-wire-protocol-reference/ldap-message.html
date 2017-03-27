@@ -1,0 +1,149 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The <tt>LDAPMessage</tt> Sequence</h3>
+
+              <p>All LDAPv3 requests and responses are encapsulated in a BER sequence called an LDAP message. This is defined as follows in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.1:</p>
+
+              <pre>LDAPMessage ::= SEQUENCE {
+     messageID       MessageID,
+     protocolOp      CHOICE {
+          bindRequest           BindRequest,
+          bindResponse          BindResponse,
+          unbindRequest         UnbindRequest,
+          searchRequest         SearchRequest,
+          searchResEntry        SearchResultEntry,
+          searchResDone         SearchResultDone,
+          searchResRef          SearchResultReference,
+          modifyRequest         ModifyRequest,
+          modifyResponse        ModifyResponse,
+          addRequest            AddRequest,
+          addResponse           AddResponse,
+          delRequest            DelRequest,
+          delResponse           DelResponse,
+          modDNRequest          ModifyDNRequest,
+          modDNResponse         ModifyDNResponse,
+          compareRequest        CompareRequest,
+          compareResponse       CompareResponse,
+          abandonRequest        AbandonRequest,
+          extendedReq           ExtendedRequest,
+          extendedResp          ExtendedResponse,
+          ...,
+          intermediateResponse  IntermediateResponse },
+     controls       [0] Controls OPTIONAL }</pre>
+
+              <p>As you can see, an LDAP message contains three components:  a message ID, a protocol operation, and an optional set of controls. We will look at each of these in more detail in the following sections.</p>
+
+              <a name="ldapmessage-message-id"></a>
+              <h3>The Message ID</h3>
+
+              <p>The <tt>messageID</tt> element of an <tt>LDAPMessage</tt> sequence is used to correlate requests and responses.</p>
+
+              <p>Whenever a client sends a request to the directory server, it chooses the message ID for that request. All of the messages that the server returns in response to that request will have the same message ID as the request. This allows LDAP to operate as an asynchronous protocol, where a single client connection can have multiple outstanding requests at a time. This can allow multiple application threads to share the same connection. It can also allow a single thread to submit multiple requests at the same time, as long as the content of one request doesn't depend on the response from another of the requests being submitted.</p>
+
+              <p>The <tt>messageID</tt> type is defined alongside the <tt>LDAPMessage</tt> sequence in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.1. That definition is:</p>
+
+              <pre>MessageID ::= INTEGER (0 ..  maxInt)
+
+maxInt INTEGER ::= 2147483647 -- (2^^31 - 1) --</pre>
+
+              <p>That is, the <tt>messageID</tt> component of an <tt>LDAPMessage</tt> sequence is an integer between 0 and 2,147,483,647 (although message ID zero is reserved for a special type of message called an unsolicited notification, which is a message that the server sends to the client without any corresponding request). When sending a request, the client must choose a message ID between 1 and 2,147,483,647 that is not already in use by any outstanding request on that connection (and ideally, that has not also been used by any recently-abandoned request). A client will typically maintain a counter that is incremented for each request so that there will be over two billion requests before a message ID needs to be reused.</p>
+
+              <a name="ldapmessage-protocol-operation"></a>
+              <h3>The Protocol Operation</h3>
+
+              <p>The <tt>protocolOp</tt> element of an <tt>LDAPMessage</tt> sequence provides the main content of the request or response. It encapsulates all of the details about the request or response, and therefore its format varies based on the content of that request or response. For example, a <tt>DeleteRequest</tt> protocol operation includes the DN of the entry to delete, while a <tt>SearchRequest</tt> protocol operation includes elements that specify the base DN, scope, filter, and other components of the search request.</p>
+
+              <p>We'll look at each type of protocolOp element in detail in subsequent sections.</p>
+
+              <a name="ldapmessage-controls"></a>
+              <h3>The Controls</h3>
+
+              <p>An <tt>LDAPMessage</tt> sequence may optionally include a set of controls that provide additional information about the operation.</p>
+
+              <p>If a control is included in a request, then it may provide additional information about how the server should process that request. For example, an LDAP message that contains a search request protocol operation may also include a server-side sort request control to indicate that the client wants the server to return the results to the client in a particular order.</p>
+
+              <p>If a control is included in a response, then it may provide additional information to the client about the way that the operation was processed. Response controls are often (but not always) triggered by a corresponding request control. For example, if a search request message includes a server-side sort request control, then the corresponding search result done message may include a server-side sort response control with information about whether it was able to successfully sort the results.</p>
+
+              <p>The <tt>Controls</tt> type is defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.11, as:</p>
+
+              <pre>Controls ::= SEQUENCE OF control Control
+
+Control ::= SEQUENCE {
+     controlType             LDAPOID,
+     criticality             BOOLEAN DEFAULT FALSE,
+     controlValue            OCTET STRING OPTIONAL }</pre>
+
+              <p>The <tt>LDAPOID</tt> type is defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.2 as:</p>
+
+              <pre>LDAPOID ::= OCTET STRING -- Constrained to &lt;numericoid&gt;
+                         -- [RFC4512]</pre>
+
+              <p>That is, if the optional <tt>controls</tt> element is present in an <tt>LDAPMessage</tt>, then it will be a sequence of sequences, each of which contains up to three elements. Those elements are:</p>
+
+              <ul>
+                <li><tt>controlType</tt> — An object identifier (OID) that identifies the type of control. An OID is formatted as groups of digits separated by periods such that the OID cannot start or end with a period and cannot contain consecutive periods. For example, the OID that identifies the server-side sort request control is “1.2.840.113556.1.4.473”.</li>
+                <li><tt>criticality</tt> — A Boolean value that indicates whether the control should be considered critical to the processing of the operation. The criticality is really only applicable to request messages, and it indicates how the server should behave if it can't perform the processing indicated by the control (for example, because the server doesn't recognize the control provided by the client, because the control isn't appropriate for the type of request, because the client doesn't have permission to use the requested control, or because the server just can't do what the client was asking). If the criticality is true and the server can't perform the processing indicated by the control, then the server should reject the operation with an <tt>UNAVAILABLE_CRITICAL_EXTENSION</tt> result. If the criticality is false and the server can't perform the processing indicated by the control, then the server should behave as if the request message simply did not include that request control.</li>
+                <li><tt>controlValue</tt> — An optional value that contains additional information for use in processing the control. In some cases, the OID is all that is needed to convey all of the meaning of the control, but it's often necessary to provide additional information, and in those cases that additional information is encoded in the <tt>controlValue</tt> element. For example, in the server-side sort request control, the OID is enough to indicate that the client wants the server to sort the results, but the value is needed to specify the sort order. If a control has a value, then the way that value is encoded varies from one control to another.</li>
+              </ul>
+
+              <a name="ldapmessage-example"></a>
+              <h3>An Example Encoded LDAP Message</h3>
+
+              <p>Even though we haven't yet gone into any detail on any of the different types of protocol operations or controls, it may still be helpful to provide an example of an encoded LDAP message. We'll provide many more examples in later sections, but we'll start here with a simple one: an LDAP message with a message ID of five that requests deleting the <tt>dc=example,dc=com</tt> entry and includes a subtree delete request control to indicate that the server should also remove any entries that exist below the target entry.</p>
+
+              <p>The delete request protocol operation is defined as follows in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.8:</p>
+
+              <pre>DelRequest ::= [APPLICATION 10] LDAPDN</pre>
+
+              <p>where <tt>LDAPDN</tt> is defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.3 as:</p>
+
+              <pre>LDAPDN ::= LDAPString
+           -- Constrained to &lt;distinguishedName&gt; [RFC4514]</pre>
+
+              <p>and <tt>LDAPString</tt> is defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.2 as:</p>
+
+              <pre>LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters</pre>
+
+              <p>So basically, a delete request protocol operation is simply encoded as an octet string with a BER type of application-specific ten (<tt>0x4a</tt>) whose value is the string representation of the DN of the entry to delete.</p>
+
+              <p>A subtree delete request control is defined in <a href="../specs/draft-armijo-ldap-treedelete-02.txt" target="_blank">draft-armijo-ldap-treedelete</a>. In this specification, the control has an OID of “1.2.840.113556.1.4.805” and no value. The draft states that the criticality may be either true or false, so in this case we'll make it true so that the operation will fail if the server can’t process the subtree delete, which will allow us to differentiate between a problem in the server's support for the subtree delete control and some other problem in processing.</p>
+
+              <p>With all of this in mind, the encoded representation of the LDAP message containing the delete request described above is:</p>
+
+              <pre>30 35 02 01 05 4a 11 64 63 3d 65 78 61 6d 70 6c
+65 2c 64 63 3d 63 6f 6d a0 1d 30 1b 04 16 31 2e
+32 2e 38 34 30 2e 31 31 33 35 35 36 2e 31 2e 34
+2e 38 30 35 01 01 ff</pre>
+
+              <p>And here's a formatted version with comments to make it easier to interpret. For subsequent sections, only the formatted representation will be provided.</p>
+
+              <pre>30 35 -- Begin the LDAPMessage sequence
+   02 01 05 -- The message ID (integer value 5)
+   4a 11 64 63 3d 65 78 61 6d 70 -- The delete request protocol op
+         6c 65 2c 64 63 3d 63 6f -- (octet string
+         6d                      -- dc=example,dc=com)
+   a0 1d -- Begin the sequence for the set of controls
+      30 1b -- Begin the sequence for the first control
+         04 16 31 2e 32 2e 38 34 30 2e -- The control OID
+               31 31 33 35 35 36 2e 31 -- (octet string
+               2e 34 2e 38 30 35       -- 1.2.840.113556.1.4.805)
+         01 01 ff -- The control criticality (Boolean true)</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="asn1-ber.${EXTENSION}">The ASN.1 Basic Encoding Rules</a></td>
+                  <td align="right">Next: <a href="ldap-result.${EXTENSION}">The <tt>LDAPResult</tt> Sequence</a></td>
+                </tr>
+              </table>

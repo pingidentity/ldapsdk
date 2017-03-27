@@ -1,0 +1,124 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Modify DN Operation</h3>
+
+              <p>The LDAP modify DN operation may be used to change an entry’s DN. It can be used to rename the entry (by changing its RDN), move it to a different location in the DIT (by specifying a new parent entry), or both. Although the correct name for this operation is “modify DN” in LDAPv3, it’s sometimes referred to as “modify RDN” because the LDAPv2 version of the operation only allowed you to alter the RDN but did not allow you to specify a new superior DN.</p>
+
+              <p>This operation can be requested against either a leaf entry (one that doesn’t have any subordinates) or a non-leaf entry (one that does have one or more subordinates). Since processing a modify DN operation against a non-leaf entry requires altering the DNs of all of its subordinates, some servers only support modify DN operations against leaf entries and would reject any attempt to alter the DN of a non-leaf entry with a <tt>notAllowedOnNonLeaf</tt> (66) result code. And in some environments, in which portions of the DIT are spread across multiple servers or database environments, changing an entry’s DN may require moving it to a different server or database environment. Many servers don’t support that, and those that don’t would reject such an attempt with an <tt>affectsMultipleDSAs</tt> (71) result code.</p>
+
+              <a name="modify-dn-request"></a>
+              <h3>The Modify DN Request</h3>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.9 defines the modify DN request protocol operation as follows:</p>
+
+              <pre>ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+     entry           LDAPDN,
+     newrdn          RelativeLDAPDN,
+     deleteoldrdn    BOOLEAN,
+     newSuperior     [0] LDAPDN OPTIONAL }</pre>
+
+              <p>The dependencies, defined elsewhere in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a>, are:</p>
+
+              <pre>LDAPDN ::= LDAPString
+           -- Constrained to &lt;distinguishedName&gt; [RFC4514]
+
+RelativeLDAPDN ::= LDAPString
+                   -- Constrained to &lt;name-component&gt; [RFC4514]
+
+LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters</pre>
+
+              <p>The BER type of the modify DN request protocol op is <tt>0x6c</tt> (application class, constructed, tag number twelve), and the elements of the request sequence are:</p>
+
+              <ul>
+                <li><tt>entry</tt> — The current DN for the target entry.</li>
+                <li><tt>newrdn</tt> — The new RDN to use assign to the entry. It may be the same as the current RDN if you only intend to move the entry beneath a new parent. If the new RDN includes any attribute values that aren’t already in the entry, the entry will be updated to include them.</li>
+                <li><tt>deleteoldrdn</tt> — Indicates whether to delete any attribute values from the entry that were in the original RDN but not in the new RDN.</li>
+                <li><tt>newSuperior</tt> — The DN of the entry that should become the new parent for the entry (and any of its subordinates). This is optional, and if it is omitted, then the entry will be left below the same parent and only the RDN will be altered.</li>
+              </ul>
+
+              <p>For example, the following request can be used to rename the entry <tt>uid=jdoe,ou=People,dc=example,dc=com</tt> to <tt>uid=john.doe,ou=People,dc=example,dc=com</tt>. The new <tt>uid</tt> value of <tt>john.doe</tt> will be added to the entry, and the old <tt>uid</tt> value of <tt>jdoe</tt> will be removed.</p>
+
+              <pre>30 3c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   6c 37 -- Begin the modify DN request protocol op
+      04 24 75 69 64 3d 6a 64 6f 65 -- The DN of the entry to rename (octet string
+            2c 6f 75 3d 50 65 6f 70 -- "uid=jdoe,ou=People,dc=example,dc=com")
+            6c 65 2c 64 63 3d 65 78
+            61 6d 70 6c 65 2c 64 63
+            3d 63 6f 6d
+      04 0c 75 69 64 3d 6a 6f 68 6e -- The new RDN (octet string "uid=john.doe")
+            2e 64 6f 65
+      01 01 ff -- Delete the old RDN value (boolean true)</pre>
+
+              <p>And the following request can be used to move entry <tt>uid=john.doe,ou=People,dc=example,dc=com</tt> to be immediately below the <tt>ou=People,dc=example,dc=com</tt> entry. The RDN will not be altered.</p>
+
+              <pre>30 5c -- Begin the LDAPMessage sequence
+   02 01 03 -- The message ID (integer value 3)
+   6c 57 -- Begin the modify DN request protocol op
+      04 28 75 69 64 3d 6a 6f 68 6e -- The DN of the entry to move (octet string
+            2e 64 6f 65 2c 6f 75 3d -- "uid=john.doe,ou=People,dc=example,dc=com")
+            50 65 6f 70 6c 65 2c 64
+            63 3d 65 78 61 6d 70 6c
+            65 2c 64 63 3d 63 6f 6d
+      04 0c 75 69 64 3d 6a 6f 68 6e -- The new RDN (octet string "uid=john.doe")
+            2e 64 6f 65
+      01 01 00 -- Don’t delete the old RDN value (boolean false)
+      80 1a 6f 75 3d 55 73 65 72 73 -- The new superior DN (octet string
+            2c 64 63 3d 65 78 61 6d -- "ou=Users,dc=example,dc=com" with type
+            70 6c 65 2c 64 63 3d 63 -- context-specific primitive zero)
+            6f 6d</pre>
+
+              <p>Both of the above changes (replacing the RDN and moving it beneath a new parent) could have been made in a single request. That would look like:</p>
+
+              <pre>30 58 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   6c 53 -- Begin the modify DN request protocol op
+      04 24 75 69 64 3d 6a 64 6f 65 -- The DN of the entry to move/rename (octet
+            2c 6f 75 3d 50 65 6f 70 -- string "uid=jdoe,ou=People,dc=example,dc=com")
+            6c 65 2c 64 63 3d 65 78
+            61 6d 70 6c 65 2c 64 63
+            3d 63 6f 6d
+      04 0c 75 69 64 3d 6a 6f 68 6e -- The new RDN (octet string "uid=john.doe")
+            2e 64 6f 65
+      01 01 ff -- Delete the old RDN value (boolean true)
+      80 1a 6f 75 3d 55 73 65 72 73 -- The new superior DN (octet string
+            2c 64 63 3d 65 78 61 6d -- "ou=Users,dc=example,dc=com" with type
+            70 6c 65 2c 64 63 3d 63 -- context-specific primitive zero)
+            6f 6d</pre>
+
+              <a name="modify-dn-response"></a>
+              <h3>The Modify DN Response</h3>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.9 also defines the modify response protocol operation. That definition is:</p>
+
+              <pre>ModifyDNResponse ::= [APPLICATION 13] LDAPResult</pre>
+
+              <p>That is, the modify DN response protocol op is simply an <tt>LDAPResult</tt> (which we already covered in an <a href="ldap-result.${EXTENSION}">earlier section</a>) with a BER type of <tt>0x6d</tt> (application class, constructed, tag number thirteen). The encoding of the modify DN response is the same regardless of whether the request included a new superior DN.</p>
+
+              <p>A successful modify DN response would be encoded as:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   6d 07 -- Begin the modify DN response protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="modify.${EXTENSION}">The LDAP Modify Operation</a></td>
+                  <td align="right">Next: <a href="search.${EXTENSION}">The LDAP Search Operation</a></td>
+                </tr>
+              </table>

@@ -1,0 +1,845 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The ASN.1 Basic Encoding Rules</h3>
+
+              <p>LDAP is a binary protocol, which helps make it compact and efficient to parse. The particular binary encoding that it uses is based on ASN.1 (Abstract Syntax Notation One), which is a framework for representing structured data. ASN.1 is actually a family of encodings that each have their own pros and cons for different situations. For example, you might use the Packed Encoding Rules (PER) if you want to make sure that the encoded representation is as small as possible, or you might use the Octet Encoding Rules (OER) if you favor encode/decode performance over size. LDAP uses the Basic Encoding Rules (BER), which finds a good middle ground between the two.</p>
+
+              <p>The complete BER specification has a lot of flexibility and ambiguity, and there are several special cases to consider. Covering all of it in depth would make for a somewhat daunting task, both for me trying to explain everything, and for someone trying to take it all in. If you’re interested in all the gory details, there are already some good books that tackle that much better than I can. I highly recommend Professor John Larmouth’s excellent book <i>ASN.1 Complete</i>, which you can get online as a <a href="http://www.oss.com/asn1/resources/books-whitepapers-pubs/asn1-books.html" target="_blank">free PDF download</a>, or you can buy an honest-to-goodness paper copy if you’d prefer a physical copy. And you can always look at the <a href="http://www.itu.int/en/ITU-T/asn1/Pages/introduction.aspx" target="_blank">official ASN.1 specifications</a> for the authoritative source, although they can be dense and they’re not always all that easy to interpret.</p>
+
+              <p>Fortunately, LDAP uses a pretty well-defined subset of BER that has less ambiguity and fewer special cases. We should be able to cover all the BER that you need to understand the LDAP wire protocol without too much difficulty.</p>
+
+              <p>In ASN.1 BER, each piece of data is called an element, and each BER element has three parts: a type, a length, and a value. Let’s take a closer look at each of these components.</p>
+
+              <a name="ber-types"></a>
+              <h3>BER Types</h3>
+
+              <p>A BER element’s type is used to indicate what kind of information that element can hold, not unlike declaring the data type (string, integer, boolean, etc.) for a variable in a computer program. There are a lot of different kinds of BER types, but if we’re just talking about LDAP’s use of BER, then there are really only seven basic data types that we need to know about:</p>
+
+              <ul>
+                <li>Null elements don’t have a value.</li>
+                <li>Boolean elements have a value that is either true or false.</li>
+                <li>Integer elements have a value that is a whole number, with no fractional component.</li>
+                <li>Octet string elements have a value that is a collection of zero or more bytes. An octet string’s value may represent a text string, but it could also just be a binary blob.</li>
+                <li>Enumerated elements have a predefined set of values in which each value has a particular meaning.</li>
+                <li>Sequence elements encapsulate a collection of zero or more other elements in which the order of those elements is considered significant.</li>
+                <li>Set elements encapsulate a collection of zero or more other elements in which the order of those elements is not considered significant.</li>
+              </ul>
+
+              <p>Using these seven types, we can construct any kind of LDAP request or response.</p>
+
+              <p>Because BER is a compact binary protocol, it uses a compact binary representation for an element’s type. Although general-purpose BER supports types that span multiple bytes, it is highly unlikely that you’ll ever encounter a BER element in an LDAP message that uses more than one byte for its type. And that byte is laid out as follows:</p>
+
+              <center>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <th align="left">Bits</th>
+                    <td align="center">8</td>
+                    <td align="center">7</td>
+                    <td align="center">6</td>
+                    <td align="center">5</td>
+                    <td align="center">4</td>
+                    <td align="center">3</td>
+                    <td align="center">2</td>
+                    <td align="center">1</td>
+                  </tr>
+                  <tr>
+                    <th align="left">Purpose</th>
+                    <td align="center" colspan="2">Class</td>
+                    <td align="center">Primitive or Constructed?</td>
+                    <td align="center" colspan="5">Tag Number</td>
+                  </tr>
+                </table>
+              </center>
+
+              <a name="ber-type-class"></a>
+              <h4>The BER Type Class</h4>
+
+              <p>The two most significant bits in this byte (i.e., the two leftmost bits in the big-endian representation of that byte) represent the class for the type. You can also think of this as the scope for the type, which lets you know how likely it is for the same BER type to have the same meaning in two different settings. Since the class is encoded as two bits, there are four possible values:</p>
+
+              <ul>
+                <li><tt>00</tt> — This is the universal class. BER types in the universal class always mean the same thing, regardless of where you see it. For example, if you see a BER element with a type of <tt>00000010</tt> binary (<tt>0x02</tt> hex, which means universal class, primitive, tag number two), then the value of that element will always be an integer.</li>
+                <li><tt>01</tt> — This is the application class. BER types in the application class always mean the same thing within one application but might mean something completely different in another application. And here “application” doesn’t necessarily mean a computer program; in the case of LDAP, it means the complete protocol specification. For example, if you see a BER element in an LDAP message with a type of <tt>01110011</tt> binary (<tt>0x63</tt> hex, which means application class, constructed, tag number three), then the value of that element will always be an LDAP search request protocol op.</li>
+                <li><tt>10</tt> — This is the context-specific class. BER types in the context-specific class can have different meanings from one element to another, and you need to have an understanding of how it’s being used to be able to determine what it means. For example, if you see a BER element in an LDAP message with a type of <tt>10100011</tt> binary (<tt>0xa3</tt> hex, which means context-specific class, constructed, tag number three), then it could represent a set of referral URLs if it appears in an <tt>LDAPResult</tt> sequence, or it could represent an equality filter component in a search request, or it could mean something completely different somewhere else in some other context.</li>
+                <li><tt>11</tt> — This is the private class. It’s intended to be something in between the universal and application classes, where an organization could define its own set of types that have the same meaning across all of their applications, but the use of the private class is discouraged, and it’s highly unlikely that you’ll ever encounter it in LDAP.</li>
+              </ul>
+
+              <a name="ber-type-primitive-constructed-bit"></a>
+              <h4>The BER Type Primitive/Constructed Bit</h4>
+
+              <p>The third most significant bit in a BER type is used to indicate whether the element is primitive or constructed. If this bit is set to one, then it means that the element is constructed and that its value is comprised of a concatenation of zero or more encoded BER elements. Sequences and sets, which encapsulate elements, are constructed. On the other hand, if this third bit is set to zero, then it means that the element is primitive and that its value should not be assumed to be comprised of encoded elements. Null, Boolean, integer, octet string, and enumerated elements are all primitive.</p>
+
+              <a name="ber-type-tag-number"></a>
+              <h4>The BER Type Tag Number</h4>
+
+              <p>The remaining five bits in a BER type are used to encode the tag number, which is used to differentiate between different kinds of elements within the same class. The tag number is encoded using the binary representation of that number, so <tt>00000</tt> represents a tag number of zero, <tt>00001</tt> is a tag number of one, <tt>00010</tt> a tag number of two, and so on. Since there are only five bits used for the tag number, you can only have tag numbers up to thirty encoded in a single byte. Fortunately, it’s extremely unlikely that you’ll ever encounter a tag number that is greater than thirty in LDAP (the highest tag number I’m aware of is twenty-five, used for the LDAP intermediate response protocol op), so you probably don’t need to worry about multi-byte types.</p>
+
+              <a name="ber-type-universal-ber-types"></a>
+              <h4>The Universal BER Types Used in LDAP</h4>
+
+              <p>The following are the BER types in the universal class that you’re likely to encounter in LDAP:</p>
+
+              <center>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <th align="left">Element Type</th>
+                    <th align="center">Binary Encoding</th>
+                    <th align="center">Hex Encoding</th>
+                  </tr>
+                  <tr>
+                    <td align="left">Boolean</td>
+                    <td align="center">00000001</td>
+                    <td align="center">0x01</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Integer</td>
+                    <td align="center">00000010</td>
+                    <td align="center">0x02</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Octet String</td>
+                    <td align="center">00000100</td>
+                    <td align="center">0x04</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Null</td>
+                    <td align="center">00000101</td>
+                    <td align="center">0x05</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Enumerated</td>
+                    <td align="center">00001010</td>
+                    <td align="center">0x0a</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Sequence</td>
+                    <td align="center">00110000</td>
+                    <td align="center">0x30</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Set</td>
+                    <td align="center">00110001</td>
+                    <td align="center">0x31</td>
+                  </tr>
+                </table>
+              </center>
+
+              <a name="ber-type-application-ber-types"></a>
+              <h4>The Application BER Types Used in LDAP</h4>
+
+                <p>The following are the BER types in the application class that are defined for LDAP:</p>
+
+              <center>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <th align="left">Element Type</th>
+                    <th align="center">Binary Encoding</th>
+                    <th align="center">Hex Encoding</th>
+                  </tr>
+                  <tr>
+                  </tr>
+                  <tr>
+                    <td align="left">Bind Request Protocol Op</td>
+                    <td align="center">01100000</td>
+                    <td align="center">0x60</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Bind Response Protocol Op</td>
+                    <td align="center">01100001</td>
+                    <td align="center">0x61</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Unbind Request Protocol Op</td>
+                    <td align="center">01000010</td>
+                    <td align="center">0x42</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Search Request Protocol Op</td>
+                    <td align="center">01100011</td>
+                    <td align="center">0x63</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Search Result Entry Protocol Op</td>
+                    <td align="center">01100100
+                    <td align="center">0x64
+                  </tr>
+                  <tr>
+                    <td align="left">Search Result Done Protocol Op</td>
+                    <td align="center">01100101</td>
+                    <td align="center">0x65
+                  </tr>
+                  <tr>
+                    <td align="left">Modify Request Protocol Op</td>
+                    <td align="center">01100110</td>
+                    <td align="center">0x66</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Modify Response Protocol Op</td>
+                    <td align="center">01100111</td>
+                    <td align="center">0x67</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Add Request Protocol Op</td>
+                    <td align="center">01101000</td>
+                    <td align="center">0x68</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Add Response Protocol Op</td>
+                    <td align="center">01101001</td>
+                    <td align="center">0x69</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Delete Request Protocol Op</td>
+                    <td align="center">01001010</td>
+                    <td align="center">0x4a</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Delete Response Protocol Op
+                    <td align="center">01101011</td>
+                    <td align="center">0x6b</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Modify DN Request Protocol Op
+                    <td align="center">01101100</td>
+                    <td align="center">0x6c
+                  </tr>
+                  <tr>
+                    <td align="left">Modify DN Response Protocol Op
+                    <td align="center">01101101</td>
+                    <td align="center">0x6d</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Compare Request Protocol Op
+                    <td align="center">01101110</td>
+                    <td align="center">0x6e</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Compare Response Protocol Op
+                    <td align="center">01101111</td>
+                    <td align="center">0x6f
+                  </tr>
+                  <tr>
+                    <td align="left">Abandon Request Protocol Op
+                    <td align="center">01010000</td>
+                    <td align="center">0x50</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Search Result Reference Protocol Op
+                    <td align="center">01110011</td>
+                    <td align="center">0x73</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Extended Request Protocol Op
+                    <td align="center">01110111</td>
+                    <td align="center">0x77</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Extended Response Protocol Op
+                    <td align="center">01111000</td>
+                    <td align="center">0x78</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Intermediate Response Protocol Op
+                    <td align="center">01111001</td>
+                    <td align="center">0x79</td>
+                  </tr>
+                </table>
+              </center>
+
+              <p>The unbind request, delete request, and abandon request protocol op types are primitive, while all the rest are constructed. This explains why their hexadecimal representations are so out-of-line with their neighboring values. The unbind request protocol op is a null element, the delete request protocol op is an octet string element, the abandon request protocol op is an integer element, and all other types are sequence elements.</p>
+
+              <a name="ber-lengths"></a>
+              <h3>BER Lengths</h3>
+
+              <p>A BER element’s length specifies the number of bytes in the value. There are two ways to encode the length: a single-byte representation for values of up to 127 bytes, and a multi-byte representation for values of any size.</p>
+
+              <p>In the single-byte representation, the length is just encoded using the binary representation of the number of bytes in the value. For example, if the value is zero bytes long (which will be the case for a null element, for a zero-byte octet string, or an empty sequence or set), then the length is encoded as <tt>00000000</tt> binary or <tt>0x00</tt> hex. If the value is five bytes long, then the length is encoded as <tt>00000101</tt> binary or <tt>0x05</tt> hex. And a value that is 123 bytes long would be encoded as <tt>01111011</tt> binary or <tt>0x7b</tt> hex.</p>
+
+              <p>In the multi-byte representation, the first byte has its most significant bit set to one, and the lower seven bits are used to indicate how many bytes are required to represent the length. For example, let’s say that you want to encode the length for a value that is 1234 bytes long. The binary representation of 1234 is <tt>10011010010</tt> (<tt>0x4d2</tt> hex), which is large enough that it will require two bytes. And then we’ll need to precede those two bytes with a third byte that has its leftmost bit set to one and the right seven bits used to hold the binary representation of the number two. So the full binary representation of a BER length for a 1234-byte-long value is <tt>100000100000010011010010</tt> (<tt>0x8204d2</tt> hex).</p>
+
+              <p>Although the above </p>
+
+              <a name="ber-lengths-note-1"></a>
+              <h4>Note 1: Encoding BER Lengths with More Bytes than Necessary</h4>
+
+              <p>BER doesn’t require you to encode the length in the smallest possible number of bytes. You can use a multi-byte representation for lengths that could be encoded in just a single byte, and you can use more bytes than necessary in a multi-byte representation. For example, all of the following hexadecimal encodings are valid ways to represent a BER length of ten bytes:</p>
+
+              <ul>
+                <li><tt>0a</tt></li>
+                <li><tt>81 0a</tt></li>
+                <li><tt>82 00 0a</tt></li>
+                <li><tt>84 00 00 00 0a</tt></li>
+                <li><tt>8a 00 00 00 00 00 00 00 00 00 0a</tt></li>
+              </ul>
+
+              <p>Some BER libraries choose to always use multi-byte encodings for certain types of elements (especially sequences and sets). When looking at encoded LDAP traffic, it’s relatively common to see encoded lengths that start with <tt>0x84</tt>, followed by four more bytes that actually hold the encoded length. This is usually done for efficiency, because it allows the library to just directly copy the bytes that make up the 32-bit integer representation of the length, and because it makes it possible for the library to go back and fill in the length for a sequence or set once it knows how many elements that sequence or set contains and how big those elements are.</p>
+
+              <p>Although it’s technically valid to use any number of bytes to encode a BER length, many libraries impose a limit on the number of bytes that they will support in multi-byte lengths. In most cases, that limit is four bytes, not counting the one extra byte used to indicate that it’s a multi-byte length, so it’s probably best to avoid generating multi-byte lengths that start with anything larger that <tt>0x84</tt>.</p>
+
+              <a name="ber-lengths-note-2"></a>
+              <h4>Note 2: Imposing Upper Bounds on BER Lengths for Safety</h4>
+
+              <p>Most BER libraries impose an upper limit on the size of the elements that they will accept. This is a safety feature that is intended to mitigate the risk of a malicious application claiming that it’s going to send a very large element in the hopes that it will cause the application to allocate enough memory to hold that element, which could cause the application to crash or the system to start swapping. If you’re thinking about writing a BER decoder, it’s a very good idea to ensure you have some way of rejecting elements that are unreasonably large.</p>
+
+              <a name="ber-lengths-note-3"></a>
+              <h4>Note 3: The Indefinite Length Form</h4>
+
+              <p>BER actually offers a third way to represent the length of an element. This is called the indefinite form, and it uses a special token at the beginning to indicate the start of a value that uses the indefinite form, and then another special token after the end of the value. This is potentially useful for cases in which the size of the element may not be known in advance (for example, when starting a sequence without knowing how many elements will be added to that sequence). However, you won’t encounter the indefinite length form in LDAP because <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 5.1 explicitly forbids its use, so I won’t go into any more detail about it here.</p>
+
+              <a name="ber-values"></a>
+              <h3>BER Values</h3>
+
+              <p>A BER element’s value holds an encoded representation of the data for that element. The way that the value is encoded depends on the type of element, so we’ll cover each kind of value separately.</p>
+
+              <a name="ber-values-null"></a>
+              <h3>Null Values</h3>
+
+              <p>A null element is one that doesn’t have a value. Or, more accurately, it always has a value with a length of zero bytes. Null elements are typically used in cases where an element is needed, but the value for that element isn’t important. For example, the LDAP unbind request protocol op is a null element because an unbind request doesn’t have any parameters.</p>
+
+              <p>Null elements are always primitive, and the value is always empty, so the length is always zero bytes. The universal BER type for a null element is <tt>0x05</tt>, so the full hexadecimal encoding for a universal null element is:</p>
+
+              <pre>05 00</pre>
+
+              <p>In LDAP, the unbind request protocol op is encoded as a null element in the application class with a tag number of two (as per <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.3). The hexadecimal representation of that element is:</p>
+
+              <pre>42 00</pre>
+
+              <a name="ber-values-boolean"></a>
+              <h3>Boolean Values</h3>
+
+              <p>A Boolean element is one whose value represents the Boolean condition of either true or false. The value of a Boolean element is always encoded as a single byte, with <tt>0xff</tt> representing true and <tt>0x00</tt> representing false.</p>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>LDAP is more restrictive than general-purpose BER is when it comes to encoding Boolean values of true. In general BER, a value of false is always as represented a single byte with all bits set to zero (hex <tt>0x00</tt>), while a value in which at least one bit is set to one represents true. But <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 5.1 states that LDAP messages should always encode true values with all bits set to one, which is <tt>0xff</tt> hex.</td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <p>Boolean elements are always primitive, and they always have a one-byte value. The universal BER type for a Boolean element is <tt>0x01</tt>, so the encoding for a universal Boolean element with a value of true is:</p>
+
+              <pre>01 01 ff</pre>
+
+              <p>And the encoding for a universal Boolean element with a value of false is:</p>
+
+              <pre>01 01 00</pre>
+
+              <a name="ber-values-octet-string"></a>
+              <h3>Octet String Values</h3>
+
+              <p>An octet is a byte, and an octet string is simply zero or more bytes strung together. Those bytes can represent text (in LDAP, it’s usually the bytes that comprise the UTF-8 representation of that text), or they can just make up some arbitrary blob of binary data. LDAP uses octet strings all over the place, including for DNs, attribute names and values, diagnostic messages, and to hold the encoded values of controls, extended requests and responses, and SASL credentials.</p>
+
+              <p>In LDAP, octet strings are always primitive (BER allows for the possibility of constructed octet strings, but <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 5.1 forbids that use in LDAP). The universal BER type for an octet string element is <tt>0x04</tt>, and the hexadecimal bytes that correspond to the UTF-8-encoded text string “Hello!” are: <tt>48 65 6c 6c 6f 21</tt>, so the encoding for a universal octet string element meant to hold the text string “Hello!” is:</p>
+
+              <pre>04 06 48 65 6c 6c 6f 21</pre>
+
+              <a name="ber-values-integer"></a>
+              <h3>Integer Values</h3>
+
+              <p>An integer is a whole number, without any decimal point or fractional portion. Integer values can be positive, negative, or zero.</p>
+
+              <p>In BER, integer values are encoded using the two’s complement representation of the desired numeric value, using the smallest number of bytes that can hold the specified value. The process for coming up with the two’s complement representation varies a little based on whether the value is negative or not.</p>
+
+              <p>An integer value of zero is always encoded as a single byte, and that byte is <tt>00000000</tt> binary or <tt>00</tt> hexadecimal. Integer elements are always primitive, and the BER type for universal integer elements is <tt>0x02</tt>, so the hexadecimal encoding for a universal integer element with a value of zero is:</p>
+
+              <pre>02 01 00</pre>
+
+              <p>Positive integer values are encoded in the smallest number of bytes needed to hold the big-endian binary representation of that number, with the caveat that the most significant bit of the first byte cannot be set to one. If the binary representation of the desired integer value requires a multiple of eight bits, then you should prepend an extra byte with all bits set to zero. For example, the binary representation of the integer value 50 is <tt>00110010</tt> (<tt>32</tt> hex), so the hex encoding for a universal integer element with a value of 50 is:</p>
+
+              <pre>02 01 32</pre>
+
+              <p>But the binary representation of the integer value 50,000 is <tt>11000011 01010000</tt> (<tt>c3 50</tt> hex), which does have its most significant bit set to one so we need to pad it with an extra byte of all zeros to get <tt>00000000 11000011 01010000</tt> binary (<tt>00 c3 50</tt> hex), and the hex encoding for a universal integer element with a value of 50,000 is:</p>
+
+              <pre>02 03 00 c3 50</pre>
+
+              <p>Negative integer values are more difficult to understand in the two’s complement notation. If the most significant bit of the first byte is a one, then it indicates that the value is negative, but it’s not sufficient to just flip that bit from zero to one in order to turn a positive value into its negative equivalent. To compute the two’s complement representation for a negative integer, you need to use the following process:</p>
+
+              <ol>
+                <li>Start with the big-endian binary representation of the absolute value for the desired negative number. For example, if you want to find the two’s complement representation for the number -12345, start by finding the big-endian binary representation of positive 12345, which is <tt>00110000 00111001</tt> (<tt>30 39</tt> hex).</li>
+                <li>Flip all of the bits in the value that you just computed so that all the ones become zeros, and the zeros become ones. So <tt>00110000 00111001</tt> would become <tt>11001111 11000110</tt>. (<tt>cf c6</tt> hex).</li>
+                <li>Add one to the resulting value, so <tt>11001111 11000110</tt> binary would become <tt>11001111 11000111</tt> (<tt>cf c7</tt> hex).</li>
+              </ol>
+
+              <p>So the hex encoding for a universal integer element with a value of -12,345 is:</p>
+
+              <pre>02 02 cf c7</pre>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>Technically, BER does not impose any limits on the magnitude of the positive or negative integer values that it can represent. However, many BER libraries do define their own bounds for the sizes of integer values that they can handle. It’s probably a safe assumption that a BER library can work with signed 32-bit integer values (that is, numbers between -2,147,483,648 and 2,147,483,647), which is the range that LDAP requires, but if you’re writing your own BER library, or are looking for a library to use with LDAP, then it’s probably better to ensure that it has support for at least signed 64-bit integer values (between -9,223,372,036,854,775,808 and 9,223,372,036,854,775,807).</td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <a name="ber-values-enumerated"></a>
+              <h3>Enumerated Values</h3>
+
+              <p>An enumerated element is like an integer in that its value is numeric, but each number is associated with a particular meaning. For example, LDAP result messages use an enumerated element to encode the result code (for example, a numeric value of 0 means that the operation completed successfully, 32 means that the operation targeted an entry that didn’t exist, 49 means that an authentication attempt failed because the user provided invalid credentials, etc.). LDAP also uses enumerated elements for things like modification types, search scopes, and alias dereferencing behaviors.</p>
+
+              <p>Enumerated elements are encoded in exactly the same way as integer elements. They’re always primitive, and the value is the two’s complement representation of the integer value that it holds. The universal BER type for an enumerated element is <tt>0x0a</tt>, so the hexadecimal encoding for a universal enumerated element that represents the LDAP “success” result code (integer value zero) is:</p>
+
+              <pre>0a 01 00</pre>
+
+              <blockquote>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <td>
+                      Although they often are, the allowed set of numeric values for an enumerated element do not have to fall in a contiguous range. For example, there are gaps in the defined set of values for LDAP result codes.
+                      <br><br>
+Enumerated elements should not have negative numeric values. However, values are still encoded using the two’s complement representation of the value, so that it may be necessary to add a leading byte in which all bits are set to zero if the binary representation of the numeric value would have otherwise caused the most significant bit in the first byte to be set to one.
+                    </td>
+                  </tr>
+                </table>
+              </blockquote>
+
+              <a name="ber-values-sequence"></a>
+              <h3>Sequence Values</h3>
+
+              <p>A sequence element is a container that holds a list of zero or more other elements. The order in which elements appear in a sequence is considered significant. The value of a sequence element is simply a concatenation of the encoded representations of all of the elements contained in the sequence.</p>
+
+              <p>Sequences are always constructed. The universal BER type for a sequence is <tt>0x30</tt>, so the encoded representation of a BER sequence that contains a universal octet string with a value of “Hello!”, a Boolean value of true, and an integer value of five would be encoded as follows:</p>
+
+              <pre>30 0e 04 06 48 65 6c 6c 6f 21 01 01 ff 02 01 05</pre>
+
+              <p>This encoding is easier to understand if you break it up into its components, like:</p>
+
+              <pre>30 0e -- The type and length of the sequence
+   04 06 48 65 6c 6c 6f 21 -- The encoded octet string "Hello!"
+   01 01 ff -- The encoded Boolean true
+   02 01 05 -- The encoded integer five</pre>
+
+              <p>LDAP makes heavy use of sequence elements. Every LDAP request and response is encapsulated in an element called an LDAP message, which is a sequence that contains a message ID (which is an integer), a protocol operation (which varies, but is often a sequence), and an optional list of controls (which, if present, is a sequence of sequences).</p>
+
+              <a name="ber-values-set"></a>
+              <h3>Set Values</h3>
+
+              <p>A set element is also a container that holds zero or more other elements, and it’s encoded in exactly the same way as a sequence. The only real differences between a sequence and a set are that the order of elements in a set is not considered significant and that the universal BER type for a set is <tt>0x31</tt> instead of the <tt>0x30</tt> type used for a universal sequence.</p>
+
+              <p>LDAP does not use sets nearly as much as it does for sequences. The only place that sets are used in the core LDAP protocol specification (<a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a>) are to hold a collection of values for an attribute, and to hold the components inside an AND or OR search filter.</p>
+
+              <a name="string-representation-of-asn1-elements"></a>
+              <h3>The String Representation of ASN.1 Elements</h3>
+
+              <p>The X.680 standard, titled “Information technology — Abstract Syntax Notation One (ASN.1): Specification of basic notation”, defines a syntax for representing ASN.1 elements as strings. As with many things related to the ASN.1, the complete syntax is long and complicated, but if you just constrain yourself to what you need to understand to get by in LDAP, it’s pretty manageable.</p>
+
+              <p>The string representation of an ASN.1 element is comprised of the following components:</p>
+
+              <ol>
+                <li>An optional set of whitespace characters and comments. What exactly constitutes whitespace and comments will be described below.</li>
+                <li>The name of the element. This is technically called a “type reference”. This must start with a letter, and it must consist of one or more letters, digits, and hyphens. It must not end with a hyphen, and it must not contain consecutive hyphens.</li>
+                <li>An optional set of whitespace characters and comments.</li>
+                <li>The assignment operator “<tt>::=</tt>”.</li>
+                <li>An optional set of whitespace characters and comments.</li>
+                <li>An indication of the type of the element. This can be as simple as the name of the value type (for example, <tt>BOOLEAN</tt> or <tt>OCTET STRING</tt>), but it can be substantially more involved. We’ll get into this in more detail below.</li>
+                <li>An optional set of whitespace characters and comments.</li>
+              </ol>
+
+              <p>For example, a simple ASN.1 element definition might look like:</p>
+
+              <pre>AttributeValue ::= OCTET STRING</pre>
+
+              <a name="string-representation-whitespace"></a>
+              <h4>Whitespace in the String Representation of ASN.1 Elements</h4>
+
+              <p>In the string representation of ASN.1 elements, whitespace consists of one or more of the following characters:</p>
+
+              <center>
+                <table border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                    <th align="left">Description</th>
+                    <th align="left">UTF-8 Encoding (hexadecimal)</th>
+                  </tr>
+                  <tr>
+                    <td align="left">Regular space</td>
+                    <td align="left">20</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Non-breaking space</td>
+                    <td align="left">c2 a0</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Horizontal tab</td>
+                    <td align="left">09</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Vertical tab</td>
+                    <td align="left">0b</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Line feed (aka newline)</td>
+                    <td align="left">0a</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Form feed</td>
+                    <td align="left">0c</td>
+                  </tr>
+                  <tr>
+                    <td align="left">Carriage return</td>
+                    <td align="left">0d</td>
+                  </tr>
+                </table>
+              </center>
+
+              <a name="string-representation-comments"></a>
+              <h4>Comments in the String Representation of ASN.1 Elements</h4>
+
+              <p>There are two ways to specify comments in the string representation of ASN.1 elements:</p>
+
+              <ul>
+                <li>A comment can start with two consecutive hyphen characters, “<tt>--</tt>”, and it will continue either until the next occurrence of “<tt>--</tt>”, or until the end of the line, whichever comes first.</li>
+                <li>Like in a number of programming languages like C and Java, a comment can start with “<tt>/*</tt>”, and it will continue until it is closed with “<tt>*/</tt>”. These comments can span multiple lines.</li>
+              </ul>
+
+              <a name="string-representation-ber-type"></a>
+              <h4>Specifying the BER Type in the String Representation of ASN.1 Elements</h4>
+
+              <p>You can specify the BER type for an ASN.1 element by enclosing it in square brackets in front of the name of the value type. The square brackets should include at least the tag number for the BER type, but may also contain a string that indicates the class for the type.</p>
+
+              <p>To indicate that an element should have a BER type in the universal class, you can use the string “<tt>UNIVERSAL</tt>” inside the square brackets, followed by whitespace and the tag number for that type of element. For example:</p>
+
+              <pre>AttributeValue ::= [UNIVERSAL 4] OCTET STRING</pre>
+
+              <p>But this is a rare occurrence because you can omit the type specification if the element is in the universal class. So the above is equivalent to:</p>
+
+              <pre>AttributeValue ::= OCTET STRING</pre>
+
+              <p>To indicate that an element should have a BER type in the application class, use the string “<tt>APPLICATION</tt>” inside the square brackets, followed by whitespace and the tag number. For example:</p>
+
+              <pre>UnbindRequest ::= [APPLICATION 2] NULL</pre>
+
+              <p>To indicate that an element should have a BER type in the context-specific class, simply place the tag number inside the square brackets without any other text. For example:</p>
+
+              <pre>HypotheticalContextSpecificElement ::= [0] INTEGER</pre>
+
+              <p>And although you’ll probably never encounter it in LDAP, if you want to indicate that an element should have a BER type in the private class, use the string “<tt>PRIVATE</tt>” inside the square brackets before the tag number, like:</p>
+
+              <pre>HypotheticalPrivateElement ::= [PRIVATE 5] BOOLEAN</pre>
+
+              <a name="string-representation-null-values"></a>
+              <h4>Specifying Null Values</h4>
+
+              <p>Since null elements don’t have values, there isn’t much variation in the string representation of null values. You just use the string “<tt>NULL</tt>”, optionally preceded by the type specification in square brackets. For example:</p>
+
+              <pre>UnbindRequest ::= [APPLICATION 2] NULL</pre>
+
+              <a name="string-representation-boolean-values"></a>
+              <h4>Specifying Boolean Values</h4>
+
+              <p>Unlike null elements, Boolean elements do have values. But since a Boolean value is so simple, there aren’t any constraints that you can impose, so the string representation of a Boolean value is just the string “<tt>BOOLEAN</tt>”, optionally including the type in square brackets. For example:</p>
+
+              <pre>HypotheticalBooleanElement ::= [1] BOOLEAN</pre>
+
+              <a name="string-representation-octet-string-values"></a>
+              <h4>Specifying Octet String Values</h4>
+
+              <p>The string representation of an octet string element uses the string “<tt>OCTET STRING</tt>”, optionally preceded by the BER type specification. For example:</p>
+
+              <pre>AttributeValue ::= OCTET STRING</pre>
+
+              <p>Octet string elements can have any kind of value since the value is just a collection of zero or more bytes. However, just because a general-purpose octet string can have any kind of value, that doesn’t mean that every octet string element should be treated as a free-for-all. A particular octet string element might be indented to hold a particular kind of value, and therefore you might want to indicate that there should be certain constraints on the value of that element.</p>
+
+              <p>If an octet string’s value should have a specific size, you can indicate that with the SIZE constraint with the allowed number of bytes specified in parentheses, like:</p>
+
+              <pre>FiveByteOctetString ::= OCTET STRING SIZE(5)</pre>
+
+              <p>And if the value’s size should be within a specified range, you can indicate that range by separating the upper and lower bounds with two periods, like:</p>
+
+              <pre>FiveToTenByteOctetString ::= OCTET STRING SIZE(5..10)</pre>
+
+              <p>If you need to specify a constraint that is more complex than just restricting the number of bytes that can be in the value, then you can just use a comment to specify what that constraint is. For example:</p>
+
+              <pre>LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters</pre>
+
+              <a name="string-representation-integer-values"></a>
+              <h4>Specifying Integer Values</h4>
+
+              <p>To indicate that an element has a value that is an integer, use the string “<tt>INTEGER</tt>”, like:</p>
+
+              <pre>SomeNumber ::= INTEGER</pre>
+
+              <p>You can specify a range of valid values by separating the upper and lower bounds with two periods and enclosing that range in parentheses, like:</p>
+
+              <pre>NumberBetweenOneAndTen ::= INTEGER (1..10)</pre>
+
+              <p>You can also define an integer constant, which is a named representation of a fixed value. For example, the LDAP specification defines a maxInt constant with a value of 2147483647, and it uses that constant in various places. For example:</p>
+
+              <pre>MessageID ::= INTEGER (0..maxInt)
+maxInt INTEGER ::= 2147483647 -- (2^^31 - 1) --</pre>
+
+              <a name="string-representation-enumerated-values"></a>
+              <h4>Specifying Enumerated Values</h4>
+
+              <p>An enumerated element has exactly the same encoded representation as an integer element, but they have very different string representations. That’s because each of the possible numeric values for an enumerated element has a specific name that indicates its meaning, and the string representation correlates the name with its numeric value.</p>
+
+              <p>The string representation of an enumerated element starts with the string “<tt>ENUMERATED</tt>” (optionally preceded by the type specification in square brackets), followed by an opening curly brace. It then includes a number of name-value pairs in which the name for each pair follows the same syntax as a type reference (it must start with a letter, must not contain consecutive hyphens, must not end with a hyphen, and must contain only letters, digits, and hyphens), and the numeric value follows that name in parentheses. Each name-value pair except for the last one is followed by a comma, and the last one is followed by a closing curly brace. For example:</p>
+
+              <pre>TrafficLightColor ::= ENUMERATED {
+     red        (0),
+     yellow     (1),
+     green      (2) }</pre>
+
+              <p>The string representation of an enumerated element typically lists the values in ascending order, but those values don’t have to represent a contiguous range, and there is no set minimum or maximum value. For example:</p>
+
+              <pre>SparseValues ::= ENUMERATED {
+     smallestValue     (5),
+     middleValue       (10),
+     largestValue      (17) }</pre>
+
+              <p>There may also be cases in which you want to define a given set of allowed values now, but also permit defining additional values that can be used in the future. For example, the LDAP protocol specification uses an enumerated element to define a number of possible result code values, but it also allows for other result codes to be defined in other specifications or by specific vendors. To indicate that this should be allowed, use three periods to create an ellipsis, typically at the end of the list of possible values, like:</p>
+
+              <pre>MayIncludeAdditionalValues ::= ENUMERATED {
+     first      (1),
+     second     (2),
+     third      (3),
+     ... }</pre>
+
+              <p>This indicates that the three specified values are known at the time the specification was created, but that an application should be prepared to encounter other values. The application may not necessarily be able to interpret those values correctly, and it may return an error if it encounters an unrecognized value, but at least that error shouldn’t result from an inability to decode the element.</p>
+
+              <p>For example, <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.5.1 specification defines three possible search scope values but uses an ellipsis to indicate that there may be additional scopes defined in the future. It does this like:</p>
+
+              <pre>scope ::= ENUMERATED {
+     baseObject       (0),
+     singleLevel      (1),
+     wholeSubtree     (2),
+     ... }</pre>
+
+              <p>And in fact the <a href="../specs/draft-sermersheim-ldap-subordinate-scope-02.txt" target="_blank">draft-sermersheim-ldap-subordinate-scope</a> specification does propose a fourth scope, <tt>subordinateSubtree</tt>, with a numeric value of 3.</p>
+
+              <a name="string-representation-sequence-values"></a>
+              <h4>Specifying Sequence Values</h4>
+
+              <p>There are two basic kinds of sequences: those that have a well-defined set of elements, and those that have an arbitrary number of elements that are all of the same type. The first is primarily used as a data structure to represent some entity with multiple components, while the second is primarily used to hold a bunch of the same kind of thing.</p>
+
+              <a name="string-representation-sequence-values-predefined"></a>
+              <h5>Specifying Sequences with Predefined Element Types</h5>
+
+              <p>The string representation of a sequence element with a specific number and type of elements is similar to that of an enumerated element. It starts with the “<tt>SEQUENCE</tt>” keyword (optionally preceded by the type specification in square brackets), followed by an opening curly brace, a comma-delimited list of the allowed elements, and a closing curly brace. Each item in the comma-delimited list of elements consists of a name, some whitespace, and the value specifier. For example:</p>
+
+              <pre>Date ::= SEQUENCE {
+     year           INTEGER,
+     month          ENUMERATED {
+          january       (1),
+          february      (2),
+          march         (3),
+          april         (4),
+          may           (5),
+          june          (6),
+          july          (7),
+          august        (8),
+          september     (9),
+          october       (10),
+          november      (11),
+          december      (12) },
+     dayOfMonth     INTEGER (1..31) }</pre>
+
+              <p>All of the constraints that you can define for the elements on their own are also available for those elements in a sequence (for example, the above constraint that only allows the <tt>dayOfMonth</tt> value to be between 1 and 31). But there are also additional constraints that you can define for elements in a sequence. These include the <tt>OPTIONAL</tt> and <tt>DEFAULT</tt> constraints.</p>
+
+              <p>The <tt>OPTIONAL</tt> constraint indicates that the specified element is optional and doesn’t have to be present. For example, the following sequence defines a data structure for specifying the time of the day in which the hour and minute are required, but the second is optional:</p>
+
+              <pre>TimeOfDay ::= SEQUENCE {
+     hour       INTEGER (0..23),
+     minute     INTEGER (0..59),
+     second     INTEGER (0..60) OPTIONAL }</pre>
+
+              <p>The <tt>DEFAULT</tt> constraint is like the <tt>OPTIONAL</tt> constraint in that it indicates that the specified element doesn’t have to be there, but the <tt>DEFAULT</tt> constraint also specifies what value should be assumed if that element isn’t present by following that keyword with whitespace and the default value that should be used. For example:</p>
+
+              <pre>Control ::= SEQUENCE {
+     controlType      LDAPOID,
+     criticality      BOOLEAN DEFAULT FALSE,
+     controlValue     OCTET STRING OPTIONAL }</pre>
+
+              <p>As with an enumerated element, you may want to define a sequence that has a defined set of elements right now, but that may also have additional elements in the future. In that case, you can use the ellipsis (<tt>...</tt>) at the end of the sequence before the closing curly brace, just like you can in an enumerated element. For example:</p>
+
+              <pre>ExtendableSequence ::= SEQUENCE {
+     element1     OCTET STRING,
+     element2     OCTET STRING,
+     element3     OCTET STRING,
+     ... }</pre>
+
+              <p>Because the order of elements in a sequence is significant, you can often use the positions of each element to determine what they represent. In the <tt>ExtendableSequence</tt> defined above, the first element in the sequence corresponds to <tt>element1</tt> in the definition, the second corresponds to <tt>element2</tt>, and the third corresponds to <tt>element3</tt>. However, this may not work if a sequence contains non-required elements. For example, consider the following:</p>
+
+              <pre>AnInvalidSequenceDefinition ::= SEQUENCE {
+     element1     OCTET STRING OPTIONAL,
+     element2     OCTET STRING OPTIONAL,
+     element3     OCTET STRING OPTIONAL }</pre>
+
+              <p>The above sequence is not valid because, if any of the elements is omitted, it’s not possible to determine which one it was. To deal with this, you need to ensure that all of the elements (or at least all of the elements starting with the first non-required element) have a unique BER type so that you can use the type to determine which elements are present and which are absent. For example, the following is valid because even if one or two elements are missing, you can use the BER types of the elements that are present to figure out which ones they are:</p>
+
+              <pre>AValidSequenceDefinition ::= SEQUENCE {
+     element1     OCTET STRING OPTIONAL,
+     element2     BOOLEAN DEFAULT TRUE,
+     element3     INTEGER DEFAULT 1234 }</pre>
+
+              <p>But what if you want a sequence to have multiple elements with the same data type? This is when you specify an explicit BER type (usually in the context-specific class) so that you can use it to tell the difference between them. So the following is valid:</p>
+
+              <pre>AnotherValidSequenceDefinition ::= SEQUENCE {
+     element1     [1] OCTET STRING OPTIONAL,
+     element2     [2] OCTET STRING OPTIONAL,
+     element3     [3] OCTET STRING OPTIONAL }</pre>
+
+              <a name="string-representation-sequence-values-arbitrary-number"></a>
+              <h5>Specifying Sequences with an Arbitrary Number of Elements of the Same Kind</h5>
+
+              <p>Sometimes you want to have a sequence that is just a list containing some number of elements of a given kind, and you may or may not know how many elements should be in that list. You can indicate this with “<tt>SEQUENCE OF</tt>” followed by the type of element that should be contained in the list. For example:</p>
+
+              <pre>ListOfIntegers ::= SEQUENCE OF listItem INTEGER</pre>
+
+              <p>If you want to restrict the number of elements in the sequence, you can use the <tt>SIZE</tt> constraint. In this case, the word <tt>SIZE</tt> comes immediately after the word <tt>SEQUENCE</tt> and is followed by either a single number in parentheses (to indicate exactly how many elements should be present) or a pair of numbers separated by two periods (to indicate that the number of elements should fall within a specified range). For example:</p>
+
+              <pre>ListOfThreeIntegers ::= SEQUENCE SIZE (3) OF listItem INTEGER
+
+ListOfFiveOrSixIntegers ::= SEQUENCE SIZE (5..6) OF listItem INTEGER</pre>
+
+              <p>If there is a lower bound on the number of items but no upper bound, you can use the word <tt>MAX</tt> in place of the upper bound in the range, like:</p>
+
+              <pre>NonEmptyListOfIntegers ::= SEQUENCE SIZE (1..MAX) OF listItem INTEGER</pre>
+
+              <a name="string-representation-sequence-values-inherited"></a>
+              <h5>Inheriting from an Existing Sequence</h5>
+
+              <p>Sometimes, you may want to create one sequence that contains all of the elements of another sequence, but that also allows additional elements not in the original sequence. For example, most response messages for LDAP operations allow for a result code, matched DN, diagnostic message, and a list of referral URLs, and these are all contained in an <tt>LDAPResult</tt> sequence, which is defined as follows:</p>
+
+              <pre>LDAPResult ::= SEQUENCE {
+     resultCode         ENUMERATED {
+          success                      (0),
+          operationsError              (1),
+          protocolError                (2),
+          timeLimitExceeded            (3),
+          sizeLimitExceeded            (4),
+          compareFalse                 (5),
+          compareTrue                  (6),
+          authMethodNotSupported       (7),
+          strongerAuthRequired         (8),
+               -- 9 reserved --
+          referral                     (10),
+          adminLimitExceeded           (11),
+          unavailableCriticalExtension (12),
+          confidentialityRequired      (13),
+          saslBindInProgress           (14),
+          noSuchAttribute              (16),
+          undefinedAttributeType       (17),
+          inappropriateMatching        (18),
+          constraintViolation          (19),
+          attributeOrValueExists       (20),
+          invalidAttributeSyntax       (21),
+               -- 22-31 unused --
+          noSuchObject                 (32),
+          aliasProblem                 (33),
+          invalidDNSyntax              (34),
+               -- 35 reserved for undefined isLeaf --
+          aliasDereferencingProblem    (36),
+               -- 37-47 unused --
+          inappropriateAuthentication  (48),
+          invalidCredentials           (49),
+          insufficientAccessRights     (50),
+          busy                         (51),
+          unavailable                  (52),
+          unwillingToPerform           (53),
+          loopDetect                   (54),
+               -- 55-63 unused --
+          namingViolation              (64),
+          objectClassViolation         (65),
+          notAllowedOnNonLeaf          (66),
+          notAllowedOnRDN              (67),
+          entryAlreadyExists           (68),
+          objectClassModsProhibited    (69),
+               -- 70 reserved for CLDAP --
+          affectsMultipleDSAs          (71),
+               -- 72-79 unused --
+          other                        (80),
+          ...  },
+     matchedDN          LDAPDN,
+     diagnosticMessage  LDAPString,
+     referral           [3] Referral OPTIONAL }
+
+Referral ::= SEQUENCE SIZE (1..MAX) OF uri URI
+
+URI ::= LDAPString     -- limited to characters permitted in
+                       -- URIs</pre>
+
+              <p>But an LDAP bind response can include all of these <tt>LDAPResult</tt> elements, plus an additional octet string element used to hold server SASL credentials. And an LDAP extended response can include all of the <tt>LDAPResult</tt> elements, plus an additional octet string for the response OID and an additional octet string for the response value.</p>
+
+              <p>Rather than duplicating the entire <tt>LDAPResult</tt> element and making the desired changes, you can use the “<tt>COMPONENTS OF</tt>” keyword followed by the name of the sequence whose elements you want to import. For example:</p>
+
+              <pre>BindResponse ::= [APPLICATION 1] SEQUENCE {
+     COMPONENTS OF LDAPResult,
+     serverSaslCreds    [7] OCTET STRING OPTIONAL }
+
+ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
+     COMPONENTS OF LDAPResult,
+     responseName     [10] LDAPOID OPTIONAL,
+     responseValue    [11] OCTET STRING OPTIONAL }</pre>
+
+              <a name="string-representation-set-values"></a>
+              <h4>Specifying Set Values</h4>
+
+              <p>The string representation of set elements is virtually identical to that of sequence elements. Just replace “<tt>SEQUENCE</tt>” with “<tt>SET</tt>”, and “<tt>SEQUENCE OF</tt>” with “<tt>SET OF</tt>”. However, given that the order of elements in a set is not considered significant, you are more likely to encounter the “<tt>SET OF</tt>” variant.</p>
+
+              <a name="string-representation-cohice-values"></a>
+              <h4>Specifying Choice Values</h4>
+
+              <p>There may be cases in which you want to allow for one of several elements in a given slot in a sequence or set. You can accomplish that with a choice. The string representation of a choice element is very much like a sequence or a set, except that the encoded element can only contain one of the elements. For example:</p>
+
+              <pre>NameValuePair ::= SEQUENCE {
+     name      OCTET STRING,
+     value     CHOICE {
+          booleanValue     BOOLEAN,
+          integerValue     INTEGER,
+          stringValue      OCTET STRING } }</pre>
+
+              <p>Most of the time, the encoded representation of the choice element is just the encoded representation of the element that is selected. For example, the encoded representation of the above sequence with a name of “age” and an integer value of 35 would be:</p>
+
+              <pre>30 08 -- Begin a universal sequence with a total value size of 8 bytes
+   04 03 61 67 65 -- The universal octet string age
+   02 01 23 -- The universal integer 35 (0x23)</pre>
+
+              <p>This even works for most choice elements with custom element types. For example:</p>
+
+              <pre>NameAndOctetStringValue ::= SEQUENCE {
+     name      OCTET STRING,
+     value     CHOICE {
+          stringValue     [0] OCTET STRING,
+          binaryValue     [1] OCTET STRING } }</pre>
+
+              <p>In this case, if you have  a name of “hello” and a string value of “there” then the encoded representation would be:</p>
+
+              <pre>30 0e -- Begin a universal sequence with a total value size of 14 bytes
+   04 05 68 65 6c 6c 6f -- The universal octet string hello
+   80 05 64 68 65 72 65 -- The context-specific primitive zero octet string there</pre>
+
+              <p>However, there is a case in which this doesn’t work, and that is the case in which the choice element itself is defined with a custom BER type.  For example:</p>
+
+              <pre>NameAndOptionalValue ::= SEQUENCE {
+     name      [0] OCTET STRING,
+     value     [1] CHOICE {
+          booleanValue     [2] BOOLEAN,
+          integerValue     [3] INTEGER,
+          stringValue      [4] OCTET STRING,
+          binaryValue      [5] OCTET STRING } OPTIONAL }</pre>
+
+              <p>In this case, the choice element is encoded as a constructed element, with a value that is the full encoding of the selected element inside that choice. For example, if you have a name of “state” and a string value of “Texas”, the encoding would be:</p>
+
+              <pre>30 10 -- Begin a universal sequence with a total value size of 16 bytes
+   80 05 73 74 61 74 65 -- The context-specific primitive zero octet string state
+   A1 07 -- Begin a context-specific constructed one value size of 7 bytes
+      84 05 54 65 78 61 73 -- The context-specific primitive four octet string Texas</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></td>
+                  <td align="right">Next: <a href="ldap-message.${EXTENSION}">The <tt>LDAPMessage</tt> Sequence</a></td>
+                </tr>
+              </table>

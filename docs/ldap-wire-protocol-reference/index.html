@@ -1,0 +1,41 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>LDAPv3 Wire Protocol Reference</h2>
+
+              <p>The LDAPv3 protocol specification was first released to the world as <a href="../specs/rfc2251.txt" target="_blank">RFC 2251</a> in December of 1997. That’s nearly twenty years ago, which makes it utterly ancient in terms of Internet Time, and it hasn’t really changed all that much since then. An updated version of this specification was released in June 2006 as <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a>, but aside from canonizing the intermediate response protocol op (first described in <a href="../specs/rfc3771.txt" target="_blank">RFC 3771</a>), the wire protocol remained the same. The update was mainly to provide clarification on the expected behavior that clients and servers should observe when encountering requests and responses.</p>
+
+              <p>You might expect that an Internet protocol that’s been around for a couple of decades would be old and crusty and showing its age. But if you take a close look at it, there’s a good chance that you’ll be impressed by how sleek and elegant LDAP is. And that’s just what we’re going to do in this document. So let’s dig in.</p>
+
+              <ol>
+                <li><a href="asn1-ber.${EXTENSION}">The ASN.1 Basic Encoding Rules</a></li>
+                <li><a href="ldap-message.${EXTENSION}">The <tt>LDAPMessage</tt> Sequence</a></li>
+                <li><a href="ldap-result.${EXTENSION}">The <tt>LDAPResult</tt> Sequence</a></li>
+                <li><a href="abandon.${EXTENSION}">The LDAP Abandon Operation</a></li>
+                <li><a href="add.${EXTENSION}">The LDAP Add Operation</a></li>
+                <li><a href="bind.${EXTENSION}">The LDAP Bind Operation</a></li>
+                <li><a href="compare.${EXTENSION}">The LDAP Compare Operation</a></li>
+                <li><a href="delete.${EXTENSION}">The LDAP Delete Operation</a></li>
+                <li><a href="extended.${EXTENSION}">The LDAP Extended Operation</a></li>
+                <li><a href="modify.${EXTENSION}">The LDAP Modify Operation</a></li>
+                <li><a href="modify-dn.${EXTENSION}">The LDAP Modify DN Operation</a></li>
+                <li><a href="search.${EXTENSION}">The LDAP Search Operation</a></li>
+                <li><a href="unbind.${EXTENSION}">The LDAP Unbind Operation</a></li>
+                <li><a href="intermediate-response.${EXTENSION}">The LDAP Intermediate Response</a></li>
+              </ol>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left"></td>
+                  <td align="right">Next: <a href="asn1-ber.${EXTENSION}">The ASN.1 Basic Encoding Rules</a></td>
+                </tr>
+              </table>

@@ -1,0 +1,47 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Abandon Operation</h3>
+
+              <p>As we’ve already covered, every LDAP message includes a message ID. The main purpose for this message ID is to allow the client to correlate response messages with the appropriate request: the client chooses a message ID for each request, and the server will use the same message ID for all response messages for that request. But the client can also use the message ID to tell the server that it no longer cares about getting a result for that operation. That’s the purpose of the abandon request.</p>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.11 defines the abandon request protocol operation as:</p>
+
+              <pre>AbandonRequest ::= [APPLICATION 16] MessageID</pre>
+
+              <p>and <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.1 defines MessageID as:</p>
+
+              <pre>MessageID ::= INTEGER (0 ..  maxInt)
+
+maxInt INTEGER ::= 2147483647 -- (2^^31 - 1) --</pre>
+
+              <p>This means that the abandon request protocol operation is just an integer with a BER type of <tt>0x50</tt> (application primitive 16), whose value is the message ID of the operation to abandon. For example, if you want to abandon the operation with message ID 5, the abandon request protocol operation would be hex-encoded as:</p>
+
+              <pre>50 01 05</pre>
+
+              <p>The abandon request message should have its own message ID that is different from that of the operation to abandon. For example, if we want to abandon the operation with message ID 5, then we might want to use message ID 6 for the LDAP message that contains the abandon request protocol op. The encoded representation of this LDAP message would be:</p>
+
+              <pre>30 06 -- Begin the LDAPMessage sequence
+   02 01 06 -- The message ID (integer value 6)
+   50 01 05 -- The abandon request protocol op (application primitive integer 5)</pre>
+
+              <p>Abandon requests do not have a response. Further, if an abandon is processed successfully, the server won’t send a final response message for the operation whose processing was interrupted. This means that it’s not always straightforward for the client to know whether the abandon was processed successfully. If the client receives a final response to the original request, then that indicates that the server did complete processing for that operation and therefore it wasn’t abandoned. But while the lack of a response might mean that the operation was successfully abandoned, it could also mean that the server is just taking a really long time to process that operation. The longer the client waits without a response, the more sure it can be that the operation was abandoned, but that’s really not a great option.</p>
+
+              <p>However, there is an alternative to the abandon request: the cancel extended operation as described in <a href="../specs/rfc3909.txt" target="_blank">RFC 3909</a>. The operation is similar in that it requests that the server stop processing for an operation, but with two additional benefits: the server will send a response to the cancel request, and if the operation is successfully canceled, the server will return a response to that operation as well with the <tt>canceled</tt> (118) result code. If the server supports this operation (which will be indicated by “1.3.6.1.1.8” in the set of values for the <tt>supportedExtension</tt> operational attribute in the server’s root DSE), then you may want to use that operation instead if you care about getting any feedback about the cancellation.</p>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="ldap-result.${EXTENSION}">The <tt>LDAPResult</tt> Sequence</a></td>
+                  <td align="right">Next: <a href="add.${EXTENSION}">The LDAP Add Operation</a></td>
+                </tr>
+              </table>

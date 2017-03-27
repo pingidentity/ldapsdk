@@ -1,0 +1,171 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The <tt>LDAPResult</tt> Sequence</h3>
+
+              <p>Every type of LDAP request looks a little different. Each request is encapsulated in an <tt>LDAPMessage</tt> sequence, but the <tt>protocolOp</tt> element within that <tt>LDAPMessage</tt> will have a different format each type of operation. For example, an add request protocol operation contains the DN and attributes of the entry to add, while a search request contains all of the criteria to use for that search (the base DN, scope, filter, requested attributes, and other elements).</p>
+
+              <p>But most types of LDAP responses look very similar. In fact, the structure of the add, compare, delete, modify, and modify DN response messages are identical, with the exception that the <tt>protocolOp</tt> element has a different BER type for each kind of operation. The same is true of the search result done protocol operation, although the server may also return zero or more search result entry and search result reference messages before the final search result done message. And the bind response and extended response protocol operations have the same core set of elements, but they may also have additional components not found in the other operation types.</p>
+
+              <p>In each of these cases, the basis of the response message is an <tt>LDAPResult</tt> sequence, which is defined as follows in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.9:</p>
+
+              <pre>LDAPResult ::= SEQUENCE {
+     resultCode         ENUMERATED {
+          success                      (0),
+          operationsError              (1),
+          protocolError                (2),
+          timeLimitExceeded            (3),
+          sizeLimitExceeded            (4),
+          compareFalse                 (5),
+          compareTrue                  (6),
+          authMethodNotSupported       (7),
+          strongerAuthRequired         (8),
+               -- 9 reserved --
+          referral                     (10),
+          adminLimitExceeded           (11),
+          unavailableCriticalExtension (12),
+          confidentialityRequired      (13),
+          saslBindInProgress           (14),
+          noSuchAttribute              (16),
+          undefinedAttributeType       (17),
+          inappropriateMatching        (18),
+          constraintViolation          (19),
+          attributeOrValueExists       (20),
+          invalidAttributeSyntax       (21),
+               -- 22-31 unused --
+          noSuchObject                 (32),
+          aliasProblem                 (33),
+          invalidDNSyntax              (34),
+               -- 35 reserved for undefined isLeaf --
+          aliasDereferencingProblem    (36),
+               -- 37-47 unused --
+          inappropriateAuthentication  (48),
+          invalidCredentials           (49),
+          insufficientAccessRights     (50),
+          busy                         (51),
+          unavailable                  (52),
+          unwillingToPerform           (53),
+          loopDetect                   (54),
+               -- 55-63 unused --
+          namingViolation              (64),
+          objectClassViolation         (65),
+          notAllowedOnNonLeaf          (66),
+          notAllowedOnRDN              (67),
+          entryAlreadyExists           (68),
+          objectClassModsProhibited    (69),
+               -- 70 reserved for CLDAP --
+          affectsMultipleDSAs          (71),
+               -- 72-79 unused --
+          other                        (80),
+          ...  },
+     matchedDN          LDAPDN,
+     diagnosticMessage  LDAPString,
+     referral           [3] Referral OPTIONAL }</pre>
+
+              <p>And the <tt>Referral</tt> type is defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.10 as:</p>
+
+              <pre>Referral ::= SEQUENCE SIZE (1..MAX) OF uri URI
+
+URI ::= LDAPString     -- limited to characters permitted in
+                       -- URIs</pre>
+
+              <p>The elements of the <tt>LDAPResult</tt> sequence are as follows:</p>
+
+              <ul>
+                <li><tt>resultCode</tt> — An enumerated element that provides a basic indication of whether the operation was processed successfully, and, if not, a hint about the reason for the failure. See the <a href="../result-code-reference/index.${EXTENSION}" target="_blank">LDAP Result Code Reference</a> for a detailed overview of result codes defined here and in other specifications.</li>
+                <li><tt>matchedDN</tt> — An octet string element that may be useful in cases where the request targeted an entry that doesn’t exist. The matched DN is usually an empty string, but if it is non-empty, then its value will be the distinguished name of the first ancestor of the target entry that does exist. For example, if the requested operation targeted the nonexistent <tt>uid=missing,ou=People,dc=example,dc=com</tt> entry, but the <tt>ou=People,dc=example,dc=com</tt> entry does exist, then the <tt>matchedDN</tt> octet string should have a value of <tt>ou=People,dc=example,dc=com</tt>.</li>
+                <li><tt>diagnosticMessage</tt> — An octet string element that may provide additional information about the processing that was performed by the server. If the operation failed, then the diagnostic message may provide information about the reason for the failure. And even if the operation succeeded, the diagnostic message may still be used to provide additional information. The diagnostic message is freeform text and doesn’t have a set format, so it’s generally not a good idea for the client to try to parse it to get a better understanding of the reason for the failure. It’s better to display the message to the end user or to record the message in the application’s log so that it’s available for troubleshooting purposes.</li>
+                <li><tt>referral</tt> — An optional sequence element that, if present, will contain one or more URIs that the client may use to re-try processing the operation somewhere else. That “somewhere else” may be another directory server (for example, if the client sent a write request to a read-only server, then the server may use the referral element to redirect the client to a writable server), or it may be a different location in the DIT. These URIs will generally be in the form of LDAP URLs as described in <a href="../specs/rfc4516.txt" target="_blank">RFC 4516</a>, but the LDAP specification does allow for other types of URIs (and the client can ignore any URIs that it doesn’t understand). If a response includes multiple referral URIs, then the client should be able to use any of them to re-try the operation. The <tt>referral</tt> element of the <tt>LDAPResult</tt> sequence will only be present if the <tt>resultCode</tt> element has a value of <tt>referral</tt> (10).</li>
+              </ul>
+
+              <a name="ldapresult-examples"></a>
+              <h3>Examples of Encoded LDAP Results</h3>
+
+              <p>To illustrate the encoded representation of an LDAP message, we’ll look at a couple of typical response types. The <tt>LDAPResult</tt> sequence itself is only used in the <tt>protocolOp</tt> element of an <tt>LDAPMessage</tt>, but it may have a different BER type for each kind of operation. For example, the <tt>AddResponse</tt> protocol operation is defined as follows in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.7:</p>
+
+              <pre>AddResponse ::= [APPLICATION 9] LDAPResult</pre>
+
+              <p>This indicates that the BER type for the <tt>LDAPResult</tt> protocol operation for an add operation is <tt>0x69</tt>. And the following is an example add response message with a message ID of three, a result code of success, and no matched DN, diagnostic message, referrals, or response controls:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 03 -- The message ID (integer value 3)
+   69 07 -- Begin the add response protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+
+              <p>For a second example, let’s change the add response protocol op so that it has a result code of <tt>noSuchObject</tt> (32), a matched DN of <tt>ou=People, dc=example, dc=com</tt>, a diagnostic message of “Entry uid=missing1, ou=missing2, ou=People, dc=example, dc=com cannot be created because its parent does not exist.”, and no referral URLs. The encoded representation of that message is:</p>
+
+              <pre>30 81 9d -- Begin the LDAPMessage sequence
+   02 01 03 -- The message ID (integer value 3)
+   69 81 97 -- Begin the add response protocol op
+      0a 01 20 -- noSuchObject result code (enumerated value 32)
+      04 1d 6f 75 3d 50 65 6f 70 6c -- Matched DN
+            65 2c 20 64 63 3d 65 78 -- (29-byte octet string)
+            61 6d 70 6c 65 2c 20 64
+            63 3d 63 6f 6d
+      04 73 45 6e 74 72 79 20 75 69 -- Diagnostic message
+            64 3d 6d 69 73 73 69 6e -- (115-byte octet string)
+            67 31 2c 20 6f 75 3d 6d
+            69 73 73 69 6e 67 32 2c
+            20 6f 75 3d 50 65 6f 70
+            6c 65 2c 20 64 63 3d 65
+            78 61 6d 70 6c 65 2c 20
+            64 63 3d 63 6f 6d 20 63
+            61 6e 6e 6f 74 20 62 65
+            20 63 72 65 61 74 65 64
+            20 62 65 63 61 75 73 65
+            20 69 74 73 20 70 61 72
+            65 6e 74 20 64 6f 65 73
+            20 6e 6f 74 20 65 78 69
+            73 74 2e</pre>
+
+              <p>This third example demonstrates the encoding for an add response message that includes a referral indicating that the add request should be sent to another directory server. It has a result code of <tt>referral</tt> (10), no matched DN, a diagnostic message of “This server is read-only.  Try a different one.”, and two referral URLs that differ only in the address of the server (the first one to alternate1.example.com and the second to alternate2.example.com):</p>
+
+              <pre>30 81 cf -- Begin the LDAPMessage sequence
+   02 01 03 -- The message ID (integer value 3)
+   69 81 c9 -- Begin the add response protocol op
+      0a 01 0a -- REFERRAL result code (enumerated value 10)
+      04 00 -- No matched DN (0-byte octet string)
+      04 2f 54 68 69 73 20 73 65 72 -- Diagnostic message
+            76 65 72 20 69 73 20 72 -- (47-byte octet string)
+            65 61 64 2d 6f 6e 6c 79
+            2e 20 20 54 72 79 20 61
+            20 64 69 66 66 65 72 65
+            6e 74 20 6f 6e 65 2e
+      a3 81 90 -- Begin the referrals sequence
+         04 46 6c 64 61 70 3a 2f 2f 61 -- First referral URL
+               6c 74 65 72 6e 61 74 65 -- (70-byte octet string)
+               31 2e 65 78 61 6d 70 6c
+               65 2e 63 6f 6d 3a 33 38
+               39 2f 75 69 64 3d 6a 64
+               6f 65 2c 6f 75 3d 52 65
+               6d 6f 74 65 2c 64 63 3d
+               65 78 61 6d 70 6c 65 2c
+               64 63 3d 63 6f 6d
+         04 46 6c 64 61 70 3a 2f 2f 61 -- Second referral URL
+               6c 74 65 72 6e 61 74 65 -- (70-byte octet string)
+               32 2e 65 78 61 6d 70 6c
+               65 2e 63 6f 6d 3a 33 38
+               39 2f 75 69 64 3d 6a 64
+               6f 65 2c 6f 75 3d 52 65
+               6d 6f 74 65 2c 64 63 3d
+               65 78 61 6d 70 6c 65 2c
+               64 63 3d 63 6f 6d</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="ldap-message.${EXTENSION}">The <tt>LDAPMessage</tt> Sequence</a></td>
+                  <td align="right">Next: <a href="abandon.${EXTENSION}">The LDAP Abandon Operation</a></td>
+                </tr>
+              </table>

@@ -1,0 +1,103 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Compare Operation</h3>
+
+              <p>The LDAP compare operation may be used to determine whether a given entry has a specified attribute value. Each compare operation consists of one request message and one response message.</p>
+
+              <p>Technically, you can accomplish this with a search (using a base DN of the target entry DN, a scope of baseObject, and an equality filter with the target attribute type and assertion value; if the server returns a search result entry, the entry has the specified value), but the compare operation does this more efficiently because the compare operation can do this without the need for the extra search result entry message.</p>
+
+              <p>Honestly, the compare operation isn’t used all that often in most deployments. Nevertheless, it is a core LDAPv3 operation type, so it is described here for completeness.</p>
+
+              <a name="compare-request"></a>
+              <h3>The Compare Request</h3>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.10 defines the compare request protocol operation as follows:</p>
+
+              <pre>CompareRequest ::= [APPLICATION 14] SEQUENCE {
+     entry           LDAPDN,
+     ava             AttributeValueAssertion }</pre>
+
+              <p>And its dependencies, described elsewhere in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a>, are:</p>
+
+              <pre>LDAPDN ::= LDAPString -- Constrained to &lt;distinguishedName&gt;
+                      -- [RFC4514]
+
+AttributeValueAssertion ::= SEQUENCE {
+     attributeDesc   AttributeDescription,
+     assertionValue  AssertionValue }
+
+LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters
+
+AttributeDescription ::= LDAPString
+                        -- Constrained to &lt;attributedescription&gt;
+                        -- [RFC4512]
+
+AttributeValue ::= OCTET STRING</pre>
+
+              <p>That is to say that the compare request protocol operation is a sequence with a BER type of <tt>0x6E</tt> (application class, constructed, tag number fourteen) and the following two elements:</p>
+
+              <ul>
+                <li><tt>entry</tt> — The DN of the target entry. This is an octet string containing the string representation of the entry DN.</li>
+                <li><tt>ava</tt> — The attribute-value assertion. This is a sequence containing two octet strings: the first for the attribute description, and the second for the assertion value. Most of the time, the attribute description is just the name or OID for the target attribute type, but it may also include one or more attribute options (each of which would be preceded by a semicolon).</li>
+              </ul>
+
+              <p>For example, let’s say that you want to determine whether the entry <tt>uid=jdoe,ou=People,dc=example,dc=com</tt> has an <tt>employeeType</tt> attribute with a value of <tt>salaried</tt>. If the compare request has message ID two and no request controls, it would be encoded as follows:</p>
+
+              <pre>30 45 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   6e 40 -- Begin the compare request protocol op
+   04 24 75 69 64 3d 6a 64 6f 65 -- The target entry DN (octet string
+         2c 6f 75 3d 50 65 6f 70 -- "uid=jdoe,ou=People,dc=example,dc=com")
+         6c 65 2c 64 63 3d 65 78
+         61 6d 70 6c 65 2c 64 63
+         3d 63 6f 6d
+   30 18 -- Begin the attribute value assertion sequence
+      04 0c 65 6d 70 6c 6f 79 65 65 -- The attribute description (octet string
+            54 79 70 65             -- "employeeType")
+      04 08 73 61 6c 61 72 69 65 64 -- The assertion value (octet string "salaried")</pre>
+
+              <a name="compare-response"></a>
+              <h3>The Compare Response</h3>
+
+              <p>The compare response protocol operation is also defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.10. That definition is:</p>
+
+              <pre>CompareResponse ::= [APPLICATION 15] LDAPResult</pre>
+
+              <p>We’ve already covered the <tt>LDAPResult</tt> element in an <a href="ldap-result.${EXTENSION}">earlier section</a>, so there’s no need to go into a lot of detail about it again here. But there is one unusual thing about the compare response: it won’t ever include a result code of <tt>success</tt> (0). Some of the result codes that may be used for the compare operation are:</p>
+
+              <ul>
+                <li><tt>compareTrue</tt> (6) — Indicates that the target entry exists and contains the specified attribute with the indicated value.</li>
+                <li><tt>compareFalse</tt> (5) — Indicates that the target entry exists and contains the specified attribute, but that the attribute does not have the indicated value.</li>
+                <li><tt>noSuchObject</tt> (32) — Indicates that the target entry does not exist.</li>
+                <li><tt>noSuchAttribute</tt> (16) — Indicates that the target entry exists but does not contain the specified attribute.</li>
+              </ul>
+
+              <p>There may, of course, be other result codes for other error conditions (e.g., if the requester doesn’t have permission to make the comparison, if the server is too busy, if the server encounters a referral while locating the target entry, if an internal server error occurs, etc.), but the above result codes are the most directly applicable.</p>
+
+              <p>If the server returns a compare response with a result code of <tt>compareTrue</tt>, then that would be encoded as:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   6f 07 -- Begin the compare response protocol op
+      0a 01 06 -- compareTrue result code (enumerated value 6)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="bind.${EXTENSION}">The LDAP Bind Operation</a></td>
+                  <td align="right">Next: <a href="delete.${EXTENSION}">The LDAP Delete Operation</a></td>
+                </tr>
+              </table>

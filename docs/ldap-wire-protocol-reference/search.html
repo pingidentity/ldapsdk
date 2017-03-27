@@ -1,0 +1,606 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Search Operation</h3>
+
+              <p>The LDAP search operation is used to retrieve all entries that match a given set of criteria (at least all entries that the requester has permission to see). It’s the only core LDAPv3 operation type that can have multiple response messages (although it is possible for an extended request or a request control to cause one or more <a href="intermediate-response.${EXTENSION}">intermediate response messages</a> to be returned, but that’s pretty rare). The types of search response messages are:</p>
+
+              <ul>
+                <li>Search result entries. Each entry that matches the search request criteria will be returned in a separate search result entry.</li>
+                <li>Search result references. If the server has information to suggest that other servers may also contain entries that match the search criteria, then it may return a separate search result reference for each additional search that should be issued.</li>
+                <li>Search result done. When all appropriate search result entries and search result references have been returned, a search result done will be returned to indicate that the server is done processing the search operation.</li>
+              </ul>
+
+              <a name="search-request"></a>
+              <h3>The Search Request</h3>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.5.1 defines the search request protocol operation as follows:</p>
+
+              <pre>SearchRequest ::= [APPLICATION 3] SEQUENCE {
+     baseObject      LDAPDN,
+     scope           ENUMERATED {
+          baseObject              (0),
+          singleLevel             (1),
+          wholeSubtree            (2),
+          ...  },
+     derefAliases    ENUMERATED {
+          neverDerefAliases       (0),
+          derefInSearching        (1),
+          derefFindingBaseObj     (2),
+          derefAlways             (3) },
+     sizeLimit       INTEGER (0 ..  maxInt),
+     timeLimit       INTEGER (0 ..  maxInt),
+     typesOnly       BOOLEAN,
+     filter          Filter,
+     attributes      AttributeSelection }
+
+AttributeSelection ::= SEQUENCE OF selector LDAPString
+                -- The LDAPString is constrained to
+                -- <attributeSelector> in Section 4.5.1.8
+
+Filter ::= CHOICE {
+     and             [0] SET SIZE (1..MAX) OF filter Filter,
+     or              [1] SET SIZE (1..MAX) OF filter Filter,
+     not             [2] Filter,
+     equalityMatch   [3] AttributeValueAssertion,
+     substrings      [4] SubstringFilter,
+     greaterOrEqual  [5] AttributeValueAssertion,
+     lessOrEqual     [6] AttributeValueAssertion,
+     present         [7] AttributeDescription,
+     approxMatch     [8] AttributeValueAssertion,
+     extensibleMatch [9] MatchingRuleAssertion,
+     ...  }
+
+SubstringFilter ::= SEQUENCE {
+     type           AttributeDescription,
+     substrings     SEQUENCE SIZE (1..MAX) OF substring CHOICE {
+          initial [0] AssertionValue,  -- can occur at most once
+          any     [1] AssertionValue,
+          final   [2] AssertionValue } -- can occur at most once
+     }
+
+MatchingRuleAssertion ::= SEQUENCE {
+     matchingRule    [1] MatchingRuleId OPTIONAL,
+     type            [2] AttributeDescription OPTIONAL,
+     matchValue      [3] AssertionValue,
+     dnAttributes    [4] BOOLEAN DEFAULT FALSE }</pre>
+
+              <p>And the dependencies are defined elsewhere in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> as:</p>
+
+              <pre>LDAPDN ::= LDAPString
+           -- Constrained to &lt;distinguishedName&gt; [RFC4514]
+
+LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters
+
+AttributeValueAssertion ::= SEQUENCE {
+     attributeDesc   AttributeDescription,
+     assertionValue  AssertionValue }
+
+AttributeDescription ::= LDAPString
+                        -- Constrained to &lt;attributedescription&gt;
+                        -- [RFC4512]
+
+AssertionValue ::= OCTET STRING
+
+MatchingRuleId ::= LDAPString</pre>
+
+              <p>So the search request protocol op is a sequence with BER type <tt>0x63</tt> (application class, constructed, tag number three). The elements of this sequence are rather involved, so we’ll look at each of them in detail below.</p>
+
+              <a name="search-request-baseObject"></a>
+              <h4>The <tt>baseObject</tt> Request Element</h4>
+
+              <p>This element is an octet string that specifies the DN of the base entry for the search request. Only this entry and its subordinates may be returned, with the scope request element further restricting the set of entries that may be considered.</p>
+
+              <p>A search request may only have a single search base DN. If you wish to search below multiple base DNs, you will need to use separate searches. However, some servers allow you to specify an empty DN as the search base, treating it as superior to all other entries within the server.</p>
+
+              <a name="search-request-scope"></a>
+              <h4>The <tt>scope</tt> Request Element</h4>
+
+              <p>This element specifies the set of entries, relative to the entry specified as the <tt>baseObject</tt>, that may be returned. It is an enumerated element, with the following possible values:</p>
+
+              <ul>
+                <li><tt>baseObject</tt> (0) — Indicates that only the entry whose DN is provided in the <tt>baseObject</tt> element of the request will be considered. None of its subordinates will be examined.</li>
+                <li><tt>singleLevel</tt> (1) — Indicates that only the entries that are immediate subordinates to the <tt>baseObject</tt> entry will be considered. The base entry itself will not be considered, nor will entries more than one level beneath the base entry.</li>
+                <li><tt>wholeSubtree</tt> (2) — Indicates that the <tt>baseObject</tt> entry will be considered, as well as all of its subordinates to any depth.</li>
+              </ul>
+
+              <p>The <tt>scope</tt> enumerated element is also defined with the “<tt>...</tt>” specifier to indicate that additional scope values may be defined. And the <a href="../specs/draft-sermersheim-ldap-subordinate-scope-02.txt" target="_blank">draft-sermersheim-ldap-subordinate-scope</a> draft does propose such an additional scope value:</p>
+
+              <ul>
+                <li><tt>subordinateSubtree</tt> (3) — Indicates that all subordinates to the <tt>baseObject</tt> entry will be considered, but the base entry itself will not be considered. Unfortunately, since this draft was never published as an RFC, there is no standard way to determine whether a directory server supports it. So it’s generally only recommended that you use this scope if you know for sure that the server you’re using does support it. Otherwise, it’s best to just use the <tt>wholeSubtree</tt> scope and ignore the base entry if it is included in the set of search result entries.</li>
+              </ul>
+
+              <p>There is also no standard way to exclude portions of the DIT from the search scope. Some servers may provide some way to accomplish this (for example, the Ping Identity Directory Server offers an exclude branch request control that can be used for this purpose), but, again, the best way to achieve this in the general case is to simply use the smallest scope that includes all of the entries you might want, and ignore any search result entries in a portion of the DIT that you don’t care about.</p>
+
+              <a name="search-request-derefAliases"></a>
+              <h4>The <tt>derefAliases</tt> Request Element</h4>
+
+              <p>This element specifies how the server should treat alias entries that it may encounter during processing. Alias entries are described in <a href="../specs/rfc4512.txt" target="_blank">RFC 4512</a> section 2.6, but they’re kind of like the LDAP equivalent of a UNIX symbolic link in that they can make it look like an entry exists in more than one location in the DIT. An alias entry has an object class of <tt>alias</tt>, and the <tt>aliasedObjectName</tt> attribute specifies the DN of the entry to which it refers.</p>
+
+              <p>The act of following an alias to the entry that it references is called dereferencing that alias. The <tt>derefAliases</tt> element is an enumerated element with the following possible values:</p>
+
+              <ul>
+                <li><tt>neverDerefAliases</tt> (0) — Indicates that the server should not dereference any aliases that it may encounter when processing the search operation.</li>
+                <li><tt>derefInSearching</tt> (1) — Indicates that the server should dereference any aliases that it encounters within the scope of the search, except for the base entry itself. If an entry referenced by an alias within the scope of the search matches the search filter, then that entry will be returned. If the scope is <tt>wholeSubtree</tt> or <tt>subordinateSubtree</tt>, then the server will also be evaluated against any subordinates of the referenced entry.</li>
+                <li><tt>derefFindingBaseObj</tt> (2) — Indicates that the server should only dereference the entry specified by the <tt>baseObject</tt> element of the request. If that base entry is an alias, then the search will be processed as if the referenced entry had been specified as the search base entry.</li>
+                <li><tt>derefAlways</tt> (3) — Indicates that the server should not dereference any aliases encountered within the scope of the search. If the base entry is an alias, then it will be treated in the same way as if <tt>derefFindingBaseObj</tt> had been used. And if there are any other alias entries within the scope of the search, they will be treated in the same way as if <tt>derefInSearching</tt> had been used.</li>
+              </ul>
+
+              <p>Alias entries can only be leaf entries, so it is not possible to have any kind of entry below an alias entry. However, an alias entry can reference either a leaf entry or a non-leaf entry, and it is possible to add subordinate entries below an entry referenced by one or more alias entries. It is also possible for an alias entry to reference another alias entry, so the act of dereferencing an alias may require multiple hops to reach the final entry. Further, servers that support aliases must also be able to detect circular references between alias entries.</p>
+
+              <p>Aliases will only be dereferenced when processing search requests, and only in accordance with the <tt>derefAliases</tt> element. Any other operation that targets an alias entry will operate on that entry directly rather than on the entry that it references.</p>
+
+              <p>Aliases are an optional element of the LDAPv3 specification, and not all LDAP servers support them.</p>
+
+              <a name="search-request-sizeLimit"></a>
+              <h4>The <tt>sizeLimit</tt> Request Element</h4>
+
+              <p>This element specifies the maximum number of entries that should be returned in response to the search request. It is an integer element, and its value must be greater than or equal to zero. A value of zero indicates that no size limit is requested, and a value greater than zero will be treated as the requested maximum size limit.</p>
+
+              <p>Note that directory servers often impose their own size limit for client requests. There may be a global limit in effect for all users, and it may be possible to define a custom size limit for individual users or for subsets of clients (e.g., based on the address of the client, the type of authentication the client performed, whether the client connection is secure, the set of groups in which the client is a member, etc.). In such cases, the server will generally use the smaller of its own size limit and the one included in the search request.</p>
+
+              <p>In the event that the search request criteria matches more entries than allowed by the enforced size limit, the server will return a search result done message with a result code of <tt>sizeLimitExceeded</tt> (4). It may optionally return a portion of the search result entries before sending that search result done message, but should never return more than the maximum allowed number of entries.</p>
+
+              <a name="search-request-timeLimit"></a>
+              <h4>The <tt>timeLimit</tt> Request Element</h4>
+
+              <p>This element specifies the maximum length of time, in seconds, that the server should spend processing the request. It is an integer element, and its value must be greater than or equal to zero. A value of zero indicates that no time limit is requested, and a value greater than zero will be treated as the requested maximum time limit.</p>
+
+              <p>As with the size limit, the requested time limit may be overridden by the server to impose a smaller limit than the one requested by the client. And also like the <tt>sizeLimit</tt> element, the server may or may not return a subset of the matching entries before the time limit is reached. The <tt>timeLimitExceeded</tt> (3) result code is used to indicate that a search ended prematurely because the time limit was reached before processing could complete.</p>
+
+              <p>Many LDAP clients also impose a client-side time limit, which represents the maximum amount of time they will spend waiting for a response from the server. That client-side time limit isn’t communicated to the server (although for a search operation, it’s often the same as the <tt>timeLimit</tt> value included in the search request), and if the server hasn’t sent a response by that time, the client will often give up, possibly abandon the request, and fail the operation with the client-side <tt>timeout</tt> (85) result code.</p>
+
+              <a name="search-request-typesOnly"></a>
+              <h4>The <tt>typesOnly</tt> Request Element</h4>
+
+              <p>This element indicates whether search result entries should only include attribute descriptions (attribute type names or OIDs, followed by zero or more attribute options), rather than both attribute descriptions and values. This is a Boolean element, and if it has a value of true, then search result entries will include the appropriate set of attributes, but all of them will have zero values. If it has a value of false, then attributes included in search result entries will include all of their values (or at least all of the values that the client has permission to access).</p>
+
+              <p>The <tt>typesOnly</tt> element must be included in the search request, but it is virtually always provided with a value of false. About the only case in which you would use with a value of true is if you want to see which attributes are present in the entry, but you don’t care about what their values are. And even then, the only case in which there’s any significant benefit to omitting the attribute values from the search result entry is if you think that one or more of those attributes might have a lot of values.</p>
+
+              <a name="search-request-filter"></a>
+              <h4>The <tt>baseObject</tt> Request Element</h4>
+
+              <p>This element provides the criteria that entries within the scope of the search must match in order to be returned to the client. There are ten types of search filters, each of which has a slightly different encoding (if for no other reason than the BER type used to indicate which type of filter it is). The <tt>filter</tt> element itself is a <tt>CHOICE</tt> between one of the following filter types.</p>
+
+              <a name="search-request-filter-present"></a>
+              <h5>The <tt>present</tt> Filter Type</h5>
+
+              <p>A <tt>present</tt> filter (also known as a presence filter) will match any entry that contains at least one value for a specified attribute. It is encoded as a simple octet string with type <tt>0x87</tt> (context-specific class, primitive, tag number seven) whose value is the target attribute description. For example, the encoding for the <tt>present</tt> filter with string representation <tt>(uid=*)</tt> is:</p>
+
+              <pre>87 03 75 69 64 -- The octet string "uid" with type context-specific primitive seven</pre>
+
+              <a name="search-request-filter-equalityMatch"></a>
+              <h5>The <tt>equalityMatch</tt> Filter Type</h5>
+
+              <p>An <tt>equalityMatch</tt> filter (also known as an equality filter) will match any entry that contains a given value for an attribute with a specified attribute description. It is encoded as an <tt>AttributeValueAssertion</tt>, which is a sequence (with type <tt>0xa3</tt>, context-specific class, constructed, tag number three) containing two octet strings: the first being the attribute description, and the second the assertion value. For example, the encoding for the <tt>equalityMatch</tt> filter with string representation <tt>(uid=jdoe)</tt> is:</p>
+
+              <pre>a3 0b -- Begin the AttributeValueAssertion sequence with type
+      -- context-specific constructed three
+   04 03 75 69 64 -- The attribute description (octet string "uid")
+   04 04 6a 64 6f 65 -- The assertion value (octet string "jdoe")</pre>
+
+              <a name="search-request-filter-greaterOrEqual"></a>
+              <h5>The <tt>greaterOrEqual</tt> Filter Type</h5>
+
+              <p>A <tt>greaterOrEqual</tt> filter will match any entry that contains at least one value for a specified attribute that is greater than or equal to a given value. Its encoding is very similar to that of the <tt>equalityMatch</tt> filter, except that it has a BER type of <tt>0xa5</tt> (context-specific class, constructed, tag number five). For example, the encoding for the <tt>greaterOrEqual</tt> filter with string representation <tt>(createTimestamp&gt;=20170102030405.678Z)</tt> is:</p>
+
+              <pre>a5 26 -- Begin the AttributeValueAssertion sequence with type
+      -- context-specific constructed five
+   04 0f 63 72 65 61 74 65 54 69 -- The attribute description
+         6d 65 73 74 61 6d 70    -- (octet string "createTimestamp")
+   04 13 32 30 31 37 30 31 30 32 -- The assertion value
+         30 33 30 34 30 35 2e 36 -- (octet string "20170102030405.678Z")
+         37 38 5a</pre>
+
+              <a name="search-request-filter-lessOrEqual"></a>
+              <h5>The <tt>lessOrEqual</tt> Filter Type</h5>
+
+              <p>A <tt>lessOrEqual</tt> filter is the same as a <tt>greaterOrEqual</tt> filter, except that it will match any entry that contains at least one value that is less than or equal to a given value rather than at least one value that is greater than or equal to a given value. Its encoding is also the same as the encoding for the <tt>greaterOrEqual</tt> filter type, except that it has a BER type of <tt>0xa6</tt> (context-specific class, constructed, tag number six) rather than <tt>0xa5</tt>. For example, the encoding for a <tt>lessOrEqual</tt> filter with string representation <tt>(accountBalance&lt;=1234)</tt> is:</p>
+
+              <pre>a6 16 -- Begin the AttributeValueAssertion sequence with type
+      -- context-specific constructed six
+   04 0e 61 63 63 6f 75 6e 74 42 -- The attribute description
+         61 6c 61 6e 63 65       -- (octet string "accountBalance")
+   04 04 31 32 33 34             -- The assertion value (octet string "1234")</pre>
+
+              <a name="search-request-filter-approximateMatch"></a>
+              <h5>The <tt>approximateMatch</tt> Filter Type</h5>
+
+              <p>An <tt>approximateMatch</tt> filter can be used to match any entry that has a specified attribute with at least one value that is approximately equal to a given value. Official LDAP specifications are vague as to what exactly “approximately equal to” means, and leave it up to the individual server implementations. Many servers use a “sounds like” algorithm (e.g., soundex or one of the metaphone variants), at least for attributes with a string syntax, but it’s possible for other logic to be used (for example, if an attribute’s numeric value is close to the provided value).</p>
+
+              <p>As with the <tt>equalityMatch</tt>, <tt>greaterOrEqual</tt>, and <tt>lessOrEqual</tt> filter types, the <tt>approximateMatch</tt> filter type is encoded as an <tt>AttributeValueAssertion</tt>. It has a BER type of <tt>0xa8</tt> (context-specific class, constructed, tag number eight).</p>
+
+              <p>For example, the encoding for the <tt>approximateMatch</tt> filter with string representation <tt>(givenName~=John)</tt> is:</p>
+
+              <pre>a8 11 -- Begin the AttributeValueAssertion sequence with type
+      -- context-specific constructed eight
+   04 09 67 69 76 65 6e 4e 61 6d -- The attribute description
+         65                      -- (octet string "givenName")
+   04 04 4a 6f 68 6e             -- The assertion value (octet string "John")</pre>
+
+              <a name="search-request-filter-substrings"></a>
+              <h5>The <tt>substrings</tt> Filter Type</h5>
+
+              <p>The <tt>substrings</tt> filter (also called a substring filter) can be used to match an that has a specified attribute with at least one value that matches a provided substring assertion. The substring assertion can contain one or more of the following components:</p>
+
+              <ul>
+                <li>An <tt>initial</tt> component (sometimes called <tt>subInitial</tt>), which will match a value that starts with a specified string.</li>
+                <li>An <tt>any</tt> component (sometimes called <tt>subAny</tt>), which will match a value that contains a specified string.</li>
+                <li>A <tt>final</tt> component (sometimes called <tt>subFinal</tt>), which will match a value that ends with a specified string.</li>
+              </ul>
+
+              <p>Since a string can only contain one beginning and one end, there can be at most one <tt>initial</tt> component and at most one <tt>final</tt> component, but there can be any number of <tt>any</tt> components.</p>
+
+              <p>The <tt>substrings</tt> filter type has a BER type of <tt>0xa4</tt> (context-specific class, constructed, tag number four) and the following encoding:</p>
+
+              <pre>SubstringFilter ::= SEQUENCE {
+     type           AttributeDescription,
+     substrings     SEQUENCE SIZE (1..MAX) OF substring CHOICE {
+          initial [0] AssertionValue,  -- can occur at most once
+          any     [1] AssertionValue,
+          final   [2] AssertionValue } -- can occur at most once
+     }</pre>
+
+              <p>For example, the <tt>substrings</tt> filter with string representation (cn=abc*) is encoded as:</p>
+
+              <pre>a4 0b -- Begin the SubstringFilter sequence with type
+      -- context-specific constructed four
+   04 02 63 6e -- The attribute description (octet string "cn")
+   30 05 -- Begin the substrings sequence
+      80 03 61 62 63 -- The initial element (octet string "abc") with type
+                     -- context-specific primitive zero</pre>
+
+              <p>The <tt>substrings</tt> filter with string representation <tt>(cn=*lmn*)</tt> is encoded as:</p>
+
+              <pre>a4 0b -- Begin the SubstringFilter sequence with type
+      -- context-specific constructed four
+   04 02 63 6e -- The attribute description (octet string "cn")
+   30 05 -- Begin the substrings sequence
+      81 03 6c 6d 6e -- The any element (octet string "lmn") with type
+                     -- context-specific primitive one</pre>
+
+              <p>The <tt>substrings</tt> filter with string representation <tt>(cn=*xyz)</tt> is encoded as:</p>
+
+              <pre>a4 0b -- Begin the SubstringFilter sequence with type
+      -- context-specific constructed four
+   04 02 63 6e -- The attribute description (octet string "cn")
+   30 05 -- Begin the substrings sequence
+      82 03 78 79 7a -- The final element (octet string "xyz") with type
+                     -- context-specific primitive two</pre>
+
+              <p>The <tt>substrings</tt> filter with string representation <tt>(cn=abc*def*lmn*uvw*xyz)</tt> is encoded as:</p>
+
+              <pre>a4 1f -- Begin the SubstringFilter sequence with type
+      -- context-specific constructed four
+   04 02 63 6e -- The attribute description (octet string "cn")
+   30 19 -- Begin the substrings sequence
+      80 03 61 62 63 -- The initial element (octet string "abc") with type
+                     -- context-specific primitive zero
+      81 03 64 65 66 -- The first any element (octet string "def") with type
+                     -- context-specific primitive one
+      81 03 6c 6d 6e -- The second any element (octet string "lmn") with type
+                     -- context-specific primitive one
+      81 03 75 76 77 -- The third any element (octet string "uvw") with type
+                     -- context-specific primitive one
+      82 03 78 79 7a -- The final element (octet string "xyz") with type
+                     -- context-specific primitive two</pre>
+
+              <a name="search-request-filter-extensibleMatch"></a>
+              <h5>The <tt>extensibleMatch</tt> Filter Type</h5>
+
+              <p>An <tt>extensibleMatch</tt> filter provides a substantial amount of flexibility when performing matching against an entry. The filter can contain the following four elements:</p>
+
+              <ul>
+                <li>A <tt>matchingRule</tt> element, which specifies the name or OID of the matching rule that should be used. This is an optional element, and if it is absent, then an attribute description must be specified, and the search will use the equality matching rule for that attribute.</li>
+                <li>A <tt>type</tt> element, which specifies the attribute description for the attribute to target. This is an optional element, and if it is absent, then a matching rule must be specified, and the search will be evaluated against any attribute in the entry for which that matching rule may be used.</li>
+                <li>A <tt>dnAttributes</tt> element, which indicates whether to perform matching against attribute-value pairs included in the entry’s DN. If this element is present with a value of true, then the filter will match an entry in which any of the attribute values matches the assertion, or in which any of the attribute values that make up any component of the DN matches the assertion. Otherwise, the filter will only be evaluated against the entry attributes but not those attribute values included in its DN (except for the attribute values in the RDN, which will also be in the entry attributes).</li>
+                <li>A <tt>matchValue</tt> element, which is the assertion value for the search. This must always be provided.</li>
+              </ul>
+
+              <p>The <tt>extensibleMatch</tt> filter type has a BER type of <tt>0xa9</tt> (context-specific class, constructed, tag number nine) and the following encoding:</p>
+
+              <pre>MatchingRuleAssertion ::= SEQUENCE {
+     matchingRule    [1] MatchingRuleId OPTIONAL,
+     type            [2] AttributeDescription OPTIONAL,
+     matchValue      [3] AssertionValue,
+     dnAttributes    [4] BOOLEAN DEFAULT FALSE }</pre>
+
+              <p>For example, the <tt>extensibleMatch</tt> filter with string representation <tt>(uid:=jdoe)</tt> is:</p>
+
+              <pre>a9 0b -- Begin the MatchingRuleAssertion sequence with type
+      -- context-specific constructed nine
+   82 03 75 69 64 -- The attribute description (octet string "uid" with type
+                  -- context-specific primitive two)
+   83 04 6a 64 6f 65 -- The assertion value (octet string "jdoe" with type
+                     -- context-specific primitive three</pre>
+
+              <p>The <tt>extensibleMatch</tt> filter with string representation <tt>(:caseIgnoreMatch:=foo)</tt> is:</p>
+
+              <pre>a9 16 -- Begin the MatchingRuleAssertion sequence with type
+      -- context-specific constructed nine
+   81 0f 63 61 73 65 49 67 6e 6f -- The matching rule ID (octet string
+         72 65 4d 61 74 63 68    -- "caseIgnoreMatch" with type
+                                 -- context-specific primitive one)
+   83 03 66 6f 6f -- The assertion value (octet string "foo" with type
+                  -- context-specific primitive three</pre>
+
+              <p>The <tt>extensibleMatch</tt> filter with string representation <tt>(uid:dn:caseIgnoreMatch:=jdoe)</tt> is:</p>
+
+              <pre>a9 1f -- Begin the MatchingRuleAssertion sequence with type
+      -- context-specific constructed nine
+   81 0f 63 61 73 65 49 67 6e 6f -- The matching rule ID (octet string
+         72 65 4d 61 74 63 68    -- "caseIgnoreMatch" with type
+   82 03 75 69 64 -- The attribute description (octet string "uid" with type
+                  -- context-specific primitive two)
+   83 04 6a 64 6f 65 -- The assertion value (octet string "jdoe" with type
+                     -- context-specific primitive three
+   84 01 ff -- The dnAttributes flag (boolean true)</pre>
+
+              <a name="search-request-filter-and"></a>
+              <h5>The <tt>and</tt> Filter Type</h5>
+
+              <p>An <tt>and</tt> filter encapsulates some number of other filters and will only match an entry if all of the encapsulated filters match that entry. It is encoded as a set with BER type <tt>0xa0</tt> (context-specific class, constructed, tag number zero) in which each of the elements is the encoded representation of an encapsulated filter.</p>
+
+              <p>For example, the encoded representation of the <tt>and</tt> filter with string representation <tt>(&amp;(givenName=John)(sn=Doe))</tt> is:</p>
+
+              <pre>a0 1e -- Begin the and set with type context-specific constructed zero
+   a3 11 -- Begin the AttributeValueAssertion sequence with type
+         -- context-specific constructed three
+      04 09 67 69 76 65 6e 4e 61 6d -- The attribute description
+            65                      -- (octet string "givenName")
+      04 04 4a 6f 68 6e -- The assertion value (octet string "John")
+   a3 09 -- Begin the AttributeValueAssertion sequence with type
+         -- context-specific constructed three
+      04 02 73 6e -- The attribute description (octet string "sn")
+      04 03 44 6f 65 -- The assertion value (octet string "Doe")</pre>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.5.1 defines the <tt>and</tt> filter type with a constraint of <tt>SIZE (1..MAX)</tt>, indicating that the <tt>and</tt> filter must encapsulate at least one filter component. However, <a href="../specs/rfc4526.txt" target="_blank">RFC 4526</a> defines an absolute true filter, which is an and filter that encapsulates zero components and will always match any entry. Servers that support absolute true filters will advertise that with a value of <tt>1.3.6.1.4.1.4203.1.5.3</tt> in the <tt>supportedFeatures</tt> attribute of their root DSE. An absolute true filter has a string representation of <tt>(&amp;)</tt> is encoded as:</p>
+
+              <pre>a0 00 -- An empty and set with type context-specific constructed zero</pre>
+
+              <a name="search-request-filter-or"></a>
+              <h5>The <tt>or</tt> Filter Type</h5>
+
+              <p>An <tt>or</tt> filter encapsulates some number of other filters and will only match an entry if at least one of the encapsulated filters matches that entry. It is encoded as a set with BER type <tt>0xa1</tt> (context-specific class, constructed, tag number one), in which each of the elements is the encoded representation of an encapsulated filter.</p>
+
+              <p>For example, the encoded representation <tt>of</tt> the or filter with string representation <tt>(|(givenName=John)(givenName=Jonathan))</tt> is:</p>
+
+              <pre>a1 2a -- Begin the or set with type context-specific constructed one
+   a3 11 -- Begin the AttributeValueAssertion sequence with type
+         -- context-specific constructed three
+      04 09 67 69 76 65 6e 4e 61 6d -- The attribute description
+            65                      -- (octet string "givenName")
+      04 04 4a 6f 68 6e -- The assertion value (octet string "John")
+   a3 15 -- Begin the AttributeValueAssertion sequence with type
+         -- context-specific constructed three
+      04 09 67 69 76 65 6e 4e 61 6d -- The attribute description
+            65                      -- (octet string "givenName")
+      04 08 4a 6f 6e 61 74 68 61 6e -- The assertion value (octet string "Jonathan")</pre>
+
+              <p>Just as <a href="../specs/rfc4526.txt" target="_blank">RFC 4526</a> defines an absolute true filter that is an <tt>and</tt> filter with zero elements that will always match any entry, it also defines an absolute false filter that is an <tt>or</tt> filter with zero elements that will never match any entry. An absolute false filter has a string representation of <tt>(|)</tt> and is encoded as:</p>
+
+              <pre>a1 00 -- An empty or set with type context-specific constructed one</pre>
+
+              <a name="search-request-filter-not"></a>
+              <h5>The <tt>not</tt> Filter Type</h5>
+
+              <p>A <tt>not</tt> filter encapsulates exactly one filter (which may be any kind of filter, including an <tt>and</tt> or <tt>or</tt> filter that combines multiple other filters) and inverts the result obtained from evaluating the encapsulated filter against an entry. So a <tt>not</tt> filter will only match an entry if the encapsulated filter does not match that entry.</p>
+
+              <p>A not filter has a BER type of <tt>0xa2</tt> (context-specific class, constructed, tag number two) and its value is the encoded representation of the filter that it encapsulates. For example, the not filter with string representation <tt>(!(givenName=John))</tt> would be encoded as:</p>
+
+              <pre>a2 13 -- Begin the not filter with type context-specific constructed two
+   a3 11 -- Begin the AttributeValueAssertion sequence with type
+         -- context-specific constructed three
+      04 09 67 69 76 65 6e 4e 61 6d -- The attribute description
+            65                      -- (octet string "givenName")
+      04 04 4a 6f 68 6e -- The assertion value (octet string "John")</pre>
+
+              <a name="search-request-attributes"></a>
+              <h4>The <tt>attributes</tt> Request Element</h4>
+
+              <p>This element specifies the set of attributes that the client wants to have included in search result entries. It is encoded as a sequence of zero or more octet string values. If the sequence is empty, then the server will assume that the client wants to retrieve all user attributes. If there are one or more octet strings in the sequence, then they may include any number of the following:</p>
+
+              <ul>
+                <li>An attribute description (the name or OID of an attribute, followed by zero or more attribute options) for an attribute that the client wants to be included. The attribute description may refer to a user attribute or an operational attribute. If the target attribute type has subordinate types, then this implicitly requests those subordinate types as well.</li>
+                <li>An asterisk (<tt>*</tt>), to indicate that the client wants to retrieve all user attributes. If the asterisk is the only element in the requested attribute sequence, then it’s equivalent to leaving the sequence empty, but it’s often combined with one or more other options that will cause operational attributes to be returned.</li>
+                <li>A plus sign (<tt>+</tt>), to indicate that the client wants to retrieve all operational attributes. This feature is described in <a href="../specs/rfc3673.txt" target="_blank">RFC 3673</a>, and not all servers support this ability. Servers that do support it will include OID <tt>1.3.6.1.4.1.4203.1.5.1</tt> as a value in the <tt>supportedFeatures</tt> attribute of the root DSE. For servers that do not, clients will need to explicitly name all of the operational attributes they want to retrieve.</li>
+                <li>An at sign (<tt>@</tt>) immediately followed by the name of an object class (for example, <tt>@inetOrgPerson</tt>) to indicate that the client wants to retrieve all attributes associated with the specified object class. This behavior is described in <a href="../specs/rfc4529.txt" target="_blank">RFC 4529</a>, and if a server supports it, then its root DSE will include a <tt>supportedFeatures</tt> value of <tt>1.3.6.1.4.1.4203.1.5.2</tt>.</li>
+              </ul>
+
+              <a name="search-request-example"></a>
+              <h4>Example Encoded Search Request Message</h4>
+
+              <p>As an example, consider a search request protocol operation with the following settings:</p>
+
+              <ul>
+                <li>A base DN of <tt>dc=example,dc=com</tt></li>
+                <li>A scope of <tt>wholeSubtree</tt></li>
+                <li>An alias dereferencing policy of <tt>neverDerefAliases</tt></li>
+                <li>A size limit of 1000 entries</li>
+                <li>A time limit of 30 seconds</li>
+                <li>A <tt>typesOnly</tt> value of false</li>
+                <li>A filter of <tt>(&amp;(objectClass=person)(uid=jdoe))</tt></li>
+                <li>A requested attribute set of <tt>*</tt> and <tt>+</tt> (to request all user and all operational attributes)</li>
+              </ul>
+
+              <p>A search request with message ID two, no controls, and the above search request protocol op would be encoded as follows:</p>
+
+              <pre>30 56 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   63 51 -- Begin the search request protocol op
+      04 11 64 63 3d 65 78 61 6d 70 -- The search base DN
+            6c 65 2c 64 63 3d 63 6f -- (octet string "dc=example,dc=com")
+            6d
+      0a 01 02 -- The wholeSubtree scope (enumerated value 2)
+      0a 01 00 -- The neverDerefAliases policy (enumerated value 0)
+      02 02 03 e8 -- The size limit (integer value 1000)
+      02 01 1e -- The time limit (integer value 30)
+      01 01 00 -- The typesOnly flag (boolean false)
+      a0 24 -- Begin an and filter
+         a3 15 -- Begin an equality filter
+            04 0b 6f 62 6a 65 63 74 43 6c -- The attribute description
+                  61 73 73                -- (octet string "objectClass")
+            04 06 70 65 72 73 6f 6e -- The assertion value (octet string "person")
+         a3 0b -- Begin an equality filter
+            04 03 75 69 64 -- The attribute description (octet string "uid")
+            04 04 6a 64 6f 65 -- The assertion value (octet string "jdoe")
+      30 06 -- Begin the set of requested attributes
+         04 01 2a -- Request all user attributes (octet string "*")
+         04 01 2b -- Request all operational attributes (octet string "+")</pre>
+
+              <a name="search-result-entry"></a>
+              <h3>The Search Result Entry Response</h3>
+
+              <p>The server will send a search result entry message for each entry that it wants to return to the client. <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.5.2 defines the search result entry protocol operation as:</p>
+
+              <pre>SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+     objectName      LDAPDN,
+     attributes      PartialAttributeList }
+
+PartialAttributeList ::= SEQUENCE OF
+                     partialAttribute PartialAttribute</pre>
+
+              <p>And its dependencies from elsewhere in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a>:</p>
+
+              <pre>LDAPDN ::= LDAPString
+           -- Constrained to &lt;distinguishedName&gt; [RFC4514]
+
+LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters
+
+PartialAttribute ::= SEQUENCE {
+     type       AttributeDescription,
+     vals       SET OF value AttributeValue }
+
+AttributeDescription ::= LDAPString
+                         -- Constrained to &lt;attributedescription&gt;
+                         -- [RFC4512]
+
+AttributeValue ::= OCTET STRING</pre>
+
+              <p>This means that a search result entry is basically encoded in the same way as an add request, but with two differences: the BER type for a search result entry is <tt>0x64</tt> (application class, constructed, tag number four), and a search result entry can have attributes with zero values (if the search request included a <tt>typesOnly</tt> value of true).</p>
+
+              <p>For example, consider the entry:</p>
+
+              <pre>dn: dc=example,dc=com
+objectClass: top
+objectClass: domain
+dc: example</pre>
+
+              <p>A search result entry message for that entry would be encoded as:</p>
+
+              <pre>30 49 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   64 44 -- Begin the search result entry protocol op
+      04 11 64 63 3d 65 78 61 6d 70 -- The entry DN
+            6c 65 2c 64 63 3d 63 6f -- (octet string "dc=example,dc=com")
+            6d
+      30 2f -- Begin the sequence of attributes
+         30 1c -- Begin the first attribute sequence
+            04 0b 6f 62 6a 65 63 74 43 6c -- The attribute description
+                  61 73 73                -- (octet string "objectClass")
+            31 0d -- Begin the set of objectClass values
+               04 03 74 6f 70 -- The first value (octet string "top")
+               04 06 64 6f 6d 61 69 6e -- The second value (octet string "domain")
+         30 0f -- Begin the second attribute sequence
+            04 02 64 63 -- The attribute description (octet string "dc")
+            31 09 -- Begin the set of dc values
+               04 07 65 78 61 6d 70 6c 65 -- The value (octet string "example")</pre>
+
+              <p>If the search request had included a <tt>typesOnly</tt> value of true to indicate that the attributes should be returned without values, then the entry would be encoded as follows:</p>
+
+              <pre>30 33 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   64 2e -- Begin the search result entry protocol op
+      04 11 64 63 3d 65 78 61 6d 70 -- The entry DN
+            6c 65 2c 64 63 3d 63 6f -- (octet string "dc=example,dc=com")
+            6d
+      30 19 -- Begin the sequence of attributes
+         30 0f -- Begin the first attribute sequence
+            04 0b 6f 62 6a 65 63 74 43 6c -- The attribute description
+                  61 73 73                -- (octet string "objectClass")
+            31 00 -- The empty value set
+         30 06 -- Begin the second attribute sequence
+            04 02 64 63 -- The attribute description (octet string "dc")
+            31 00 -- The empty value set</pre>
+
+              <a name="search-result-reference"></a>
+              <h3>The SearchResult Reference Response</h3>
+
+              <p>A search result reference can be used to indicate that the client should issue the search request elsewhere against other servers or another portion of the DIT. A single search request can return any number of search result references.</p>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.5.2 defines the search result reference protocol operation as:</p>
+
+              <pre>SearchResultReference ::= [APPLICATION 19] SEQUENCE
+                          SIZE (1..MAX) OF uri URI</pre>
+
+              <p>And its dependencies from elsewhere in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a>:</p>
+
+              <pre>URI ::= LDAPString     -- limited to characters permitted in
+                       -- URIs
+
+LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters</pre>
+
+              <p>That is, a search result reference is a sequence with BER type <tt>0x73</tt> (application class, constructed, tag number nineteen) with one or more octet string elements that represent the referral URIs (which are usually LDAP URLs, as described in <a href="../specs/rfc4516.txt" target="_blank">RFC 4516</a>).</p>
+
+              <p>For example, consider a search result reference with the following two LDAP URLs:</p>
+
+              <ul>
+                <li>ldap://ds1.example.com:389/dc=example,dc=com??sub?</li>
+                <li>ldap://ds2.example.com:389/dc=example,dc=com??sub?</li>
+              </ul>
+
+              <p>The encoded representation of that search result reference is:</p>
+
+              <pre>30 6d -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   73 68 -- Begin the search result reference protocol op
+      04 32 6c 64 61 70 3a 2f 2f 64 -- The first referral URI (octet string "ldap://
+            73 31 2e 65 78 61 6d 70 -- ds1.example.com:389/dc=example,dc=com??sub?")
+            6c 65 2e 63 6f 6d 3a 33
+            38 39 2f 64 63 3d 65 78
+            61 6d 70 6c 65 2c 64 63
+            3d 63 6f 6d 3f 3f 73 75
+            62 3f
+      04 32 6c 64 61 70 3a 2f 2f 64 -- The second referral URI (octet string "ldap://
+            73 32 2e 65 78 61 6d 70 -- ds2.example.com:389/dc=example,dc=com??sub?")
+            6c 65 2e 63 6f 6d 3a 33
+            38 39 2f 64 63 3d 65 78
+            61 6d 70 6c 65 2c 64 63
+            3d 63 6f 6d 3f 3f 73 75
+            62 3f</pre>
+
+              <a name="search-result-done"></a>
+              <h3>The Search Result Doen Response</h3>
+
+              <p>When the server has finished all processing for a search operation and has returned all appropriate entries and references, it will send a search result done message to indicates that the search is complete. <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.5.2 defines the search result done protocol operation as:</p>
+
+              <pre>SearchResultDone ::= [APPLICATION 5] LDAPResult</pre>
+
+              <p>That is, it’s an <tt>LDAPResult</tt> (which we’ve discussed in an earlier section) with a BER type of <tt>0x65</tt> (application class, constructed, tag number five). A successful search result done response is encoded as follows:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   65 07 -- Begin the search result done protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="modify-dn.${EXTENSION}">The LDAP Modify DN Operation</a></td>
+                  <td align="right">Next: <a href="unbind.${EXTENSION}">The LDAP Unbind Operation</a></td>
+                </tr>
+              </table>

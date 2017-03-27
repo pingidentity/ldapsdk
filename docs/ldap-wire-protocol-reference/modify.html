@@ -1,0 +1,207 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Modify Operation</h3>
+
+              <p>The LDAP modify operation can be used to make one or more changes to the set of attribute values in an entry. All of the changes in a modify request are processed atomically, so either all of the changes are applied to the entry, or none of them are, and clients will never see the entry in an intermediate state with only a portion of the changes applied. However, changes (whether to the same entry or different entries) spread across multiple modify requests are not atomic unless they’re part of an LDAP transaction.</p>
+
+              <a name="modify-request"></a>
+              <h3>The Modify Request</h3>
+
+              <p>The modify request protocol operation is defined as follows in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.6:</p>
+
+              <pre>ModifyRequest ::= [APPLICATION 6] SEQUENCE {
+     object          LDAPDN,
+     changes         SEQUENCE OF change SEQUENCE {
+          operation       ENUMERATED {
+               add     (0),
+               delete  (1),
+               replace (2),
+               ...  },
+          modification    PartialAttribute } }</pre>
+
+              <p>And its dependencies from elsewhere in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> are:</p>
+
+              <pre>LDAPDN ::= LDAPString -- Constrained to &lt;distinguishedName&gt;
+                      -- [RFC4514]
+
+PartialAttribute ::= SEQUENCE {
+     type       AttributeDescription,
+     vals       SET OF value AttributeValue }
+
+LDAPString ::= OCTET STRING -- UTF-8 encoded,
+                            -- [ISO10646] characters
+
+AttributeDescription ::= LDAPString
+                        -- Constrained to &lt;attributedescription&gt;
+                        -- [RFC4512]
+
+AttributeValue ::= OCTET STRING</pre>
+
+              <p>So a modify request protocol op is encoded as a sequence that contains a DN and a sequence of changes. And each of those changes contains a change type, an attribute description (an attribute name or OID and zero or more attribute options), and an optional set of values.</p>
+
+              <p>The change types defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> (in the operation enumerated element of a change sequence) are:</p>
+
+              <ul>
+                <li><tt>add</tt> — Adds one or more attribute values to an entry. An add modification must always include at least one value, and none of the values may already be present in the entry (unless the add request also includes the permissive modify request control).</li>
+                <li><tt>delete</tt> — Removes one or more attribute values from an entry. If the delete modification includes a specific set of values, then only those values will be removed, and any other values that attribute has will be left in the entry. If the delete modification does not include any values, then the entire attribute will be removed from the entry. Unless the modify request includes the permissive modify request control, the attribute and all specified values must exist in the entry.</li>
+                <li><tt>replace</tt> — Replaces the entire attribute in the entry. If the replace modification includes one or more values, then those will be the only values in the associated attribute after the modification is applied. If the replace modification doesn’t have any values, then the attribute will be removed if it exists, and no change will be applied if the attribute doesn’t exist. The permissive modify request control doesn’t have any effect for modifications with the replace modification type.</li>
+              </ul>
+
+              <p>For example, let’s say that we want to apply the following set of modifications to the <tt>uid=jdoe,ou=People,dc=example,dc=com</tt> entry:</p>
+
+              <pre>dn: uid=jdoe,ou=People,dc=example,dc=com
+changetype: modify
+delete: givenName
+givenName: John
+-
+add: givenName
+givenName: Jonathan
+-
+replace: cn
+cn: Jonathan Doe</pre>
+
+              <p>If the modify request has a message ID of two and no request controls, then it would be encoded as:</p>
+
+              <pre>30 81 80 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   66 7b -- Begin the modify request protocol op
+      04 24 75 69 64 3d 6a 64 6f 65 -- The DN of the entry to modify (octet string
+            2c 6f 75 3d 50 65 6f 70 -- "uid=jdoe,ou=People,dc=example,dc=com")
+            6c 65 2c 64 63 3d 65 78
+            61 6d 70 6c 65 2c 64 63
+            3d 63 6f 6d
+      30 53 -- Begin the sequence of modifications
+         30 18 -- Begin the sequence for the first modification
+            0a 01 01 -- The delete modification type (enumerated value 1)
+            30 13 -- Begin the attribute sequence
+               04 09 67 69 76 65 6e 4e 61 6d -- The attribute description
+                     65                      -- (octet string "givenName")
+               31 06 -- Begin the attribute value set
+                  04 04 4a 6f 68 6e -- The attribute value (octet string "John")
+         30 1c -- Begin the sequence for the second modification
+            0a 01 00 -- The add modification type (enumerated value 0)
+            30 17 -- Begin the attribute sequence
+               04 09 67 69 76 65 6e 4e 61 6d -- The attribute description
+                     65                      -- (octet string "givenName")
+               31 0a  -- Begin the attribute value set
+                  04 08 4a 6f 6e 61 74 68 61 6e -- The attribute value
+                                                -- (octet string "Jonathan")
+         30 19 -- Begin the sequence for the third modification
+            0a 01 02 -- The replace modification type (enumerated value 2)
+            30 14 -- Begin the attribute sequence
+               04 02 63 6e -- The attribute description (octet string "cn")
+               31 0e -- Begin the attribute value set
+                  04 0c 4a 6f 6e 61 74 68 61 6e -- The attribute value
+                        20 44 6f 65             -- (octet string "Jonathan Doe")</pre>
+
+              <a name="modify-response"></a>
+              <h3>The Modify Response</h3>
+
+              <p>The modify response protocol operation is also defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.6. That definition is:</p>
+
+              <pre>ModifyResponse ::= [APPLICATION 7] LDAPResult</pre>
+
+              <p>As with most response protocol ops, this is just an <tt>LDAPResult</tt> (which we’ve already covered in an <a href="ldap-result.${EXTENSION}">earlier section</a>), this time with BER type <tt>0x67</tt> (application class, constructed, tag number seven). So a successful response to the above modify request would look like:</p>
+
+              <pre>30 0c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   67 07 -- Begin the modify response protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)</pre>
+
+              <a name="modify-increment"></a>
+              <h3>The LDAP Modify-Increment Extension</h3>
+
+              <p>The core LDAPv3 specification in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> defines three modification types. But if you look closely at the ASN.1 definition for the <tt>operation</tt> enumerated element listed above in the modify request protocol operation, you’ll see that it uses “<tt>...</tt>” to indicate that additional modification types may be added in the future. And, in fact, <a href="../specs/rfc4525.txt" target="_blank">RFC 4525</a> does introduce a new modification type. That is the increment modification type, which has an enumerated value of 3.</p>
+
+              <p>The increment modification type may be used to request that the server atomically increase the integer value of a single-valued attribute by a specified amount (or atomically decrease the value of that attribute if the increment amount is negative). This modification type can only be used under the following circumstances:</p>
+
+              <ul>
+                <li>The directory server must support this modification type. Since it’s not part of the core LDAPv3 specification, not all of them do. But the servers that do support it should advertise that support by including the value <tt>1.3.6.1.1.14</tt> in the <tt>supportedFeatures</tt> attribute of their root DSE.</li>
+                <li>The specified attribute must exist in the target entry, and it must have exactly one value. That value must be an integer (a whole number with no fractional component).</li>
+                <li>The increment modification must have exactly one value, and that value must be an integer. That integer value represents the amount by which the target attribute value will be increased. If the the increment modification value is negative, then the attribute value will be decreased by the absolute value of that amount.</li>
+              </ul>
+
+              <p>The primary benefit of the increment modification type is that you can use it to increase or decrease an attribute value by a specified amount without needing to know the current value in advance, and without needing to worry about any other changes that might affect the same entry around the same time. It’s often used in conjunction with the LDAP pre-read or post-read control (<a href="../specs/rfc4527.txt" target="_blank">RFC 4527</a>) to have the server send the value of the specified attribute as it appeared either immediately before or immediately after the operation was processed, and potentially in conjunction with the LDAP assertion control (<a href="../specs/rfc4528.txt" target="_blank">RFC 4528</a>) to indicate that the operation should only be processed if the entry matches a provided filter.</p>
+
+              <p>For example, let’s say that you want to decrement the value of the <tt>accountBalance</tt> attribute by a value of 123 in user entry <tt>uid=jdoe,ou=People,dc=example,dc=com</tt>. We only want to do that if the <tt>accountBalance</tt> attribute currently has a value that is greater than or equal to 123 (because we don’t want the balance to become negative), so we’ll use an assertion request control to accomplish that. And we want to get the updated <tt>accountBalance</tt> value after the modification is processed, so we’ll use the post-read request control for that. The modify request we’d send to do that would be encoded as below. Note that for the sake of brevity, I won’t get into the specific encodings of the assertion and post-read controls here, but you can find them in the RFCs referenced above. For now, just assume that these controls are encoded correctly:</p>
+
+              <pre>30 81 a3 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   66 47 -- Begin the modify request protocol op
+      04 24 75 69 64 3d 6a 64 6f 65 -- The DN of the entry to modify (octet string
+            2c 6f 75 3d 50 65 6f 70 -- "uid=jdoe,ou=People,dc=example,dc=com")
+            6c 65 2c 64 63 3d 65 78
+            61 6d 70 6c 65 2c 64 63
+            3d 63 6f 6d
+      30 1f -- Begin the sequence of modifications
+         30 1d -- Begin the sequence for the first modification
+             0a 01 03 -- The increment modification type (enumerated value 3)
+             30 18 -- Begin the attribute sequence
+                04 0e 61 63 63 6f 75 6e 74 42 -- The attribute description
+                      61 6c 61 6e 63 65       -- (octet string "accountBalance")
+                31 06 -- Begin the attribute value set
+                   04 04 2d 31 32 33 -- The attribute value (octet string "-123")
+   a0 55 -- Begin the sequence of request controls
+      30 2a -- Begin the sequence for the first control (assertion request)
+         04 0c 31 2e 33 2e 36 2e 31 2e -- The control OID (octet string
+               31 2e 31 32             -- "1.3.6.1.1.12")
+         01 01 ff -- The control criticality (boolean value true)
+         04 17 -- Begin the control value
+            a5 15 -- Begin a greater-or-equal filter sequence
+               04 0e 61 63 63 6f 75 6e 74 42 -- The attribute description
+                     61 6c 61 6e 63 65       -- (octet string "accountBalance")
+               04 03 31 32 33 -- The assertion value (octet string "123")
+      30 27 -- Begin the sequence for the second control (post-read request)
+         04 0e 31 2e 33 2e 36 2e 31 2e -- The control OID (octet string
+               31 2e 31 33 2e 32       -- "1.3.6.1.1.13.2")
+         01 01 ff -- The control criticality (boolean value true)
+         04 12 -- Begin the control value
+            30 10 -- Begin the requested attributes sequence
+               04 0e 61 63 63 6f 75 6e 74 42 -- A requested attribute
+                     61 6c 61 6e 63 65       -- (octet string "accountBalance")</pre>
+
+              <p>Assuming that the above modify request is processed successfully, and that the <tt>accountBalance</tt> attribute had an initial value of 456 (meaning that the resulting value would be 456 − 123 = 333), the corresponding modify response (including a post-read response control) would be encoded as:</p>
+
+              <pre>30 65 -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   67 07 -- Begin the modify response protocol op
+      0a 01 00 -- success result code (enumerated value 0)
+      04 00 -- No matched DN (0-byte octet string)
+      04 00 -- No diagnostic message (0-byte octet string)
+   a0 57 -- Begin the sequence of response controls
+      30 55 -- Begin the sequence for the first control (post-read response)
+         04 0e 31 2e 33 2e 36 2e 31 2e -- The control OID (octet string
+            31 2e 31 33 2e 32          -- "1.3.6.1.1.13.2")
+         04 43 -- Begin the control value
+            64 41 -- Begin the search result entry protocol op
+               04 24 75 69 64 3d 6a 64 6f 65 -- The entry DN (octet string
+                     2c 6f 75 3d 50 65 6f 70 -- "uid=jdoe,ou=People,dc=example,
+                     6c 65 2c 64 63 3d 65 78 -- dc=com")
+                     61 6d 70 6c 65 2c 64 63
+                     3d 63 6f 6d
+               30 19 -- Begin the sequence of attributes
+                  30 17 -- Begin the sequence for the first attribute
+                     04 0e 61 63 63 6f 75 6e 74 42 -- The attribute description
+                           61 6c 61 6e 63 65       -- (octet string "accountBalance")
+                     31 05 -- Begin the attribute value set
+                        04 03 33 33 33 -- The attribute value (octet string "333")</pre>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="extended.${EXTENSION}">The LDAP Extended Operation</a></td>
+                  <td align="right">Next: <a href="modify-dn.${EXTENSION}">The LDAP Modify DN Operation</a></td>
+                </tr>
+              </table>

@@ -1,0 +1,71 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="middle">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2><a href="index.${EXTENSION}">LDAPv3 Wire Protocol Reference</a></h2>
+              <h3>The LDAP Intermediate Response</h3>
+
+              <p>Search requests can have multiple responses (zero or more search result entries, zero or more search result references, and the final search result done), but the add, bind, compare, delete, extended, modify, and modify DN operation types all have one response message.</p>
+
+              <p>Except that’s not entirely true. The server can also return any number of intermediate response messages in response to any of the above types of operations, although <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.13 states that intermediate responses should only be used in circumstances where the client explicitly indicates that they’re prepared to accept them. This is generally done by requesting a type of extended operation that may return them, or by including a request control that may cause intermediate response messages to be returned.</p>
+
+              <p><a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.13 defines the intermediate response protocol operation as follows:</p>
+
+              <pre>IntermediateResponse ::= [APPLICATION 25] SEQUENCE {
+        responseName     [0] LDAPOID OPTIONAL,
+        responseValue    [1] OCTET STRING OPTIONAL }</pre>
+
+              <p>And the <tt>LDAPOID</tt> type is defined in <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.1.2 as:</p>
+
+              <pre>LDAPOID ::= OCTET STRING -- Constrained to &lt;numericoid&gt;
+                         -- [RFC4512]</pre>
+
+              <p>That is, it’s a sequence with BER type <tt>0x78</tt> (application class, constructed, tag number twenty-five), that may include an OID that identifies the type of intermediate response, and it may contain a value that provides additional data for the response.</p>
+
+              <p>There aren’t many intermediate response types defined in official LDAP specifications (although some servers define their own proprietary intermediate responses for various purposes). But <a href="../specs/rfc4533.txt" target="_blank">RFC 4533</a>, which describes the LDAP content synchronization operation, does define a Sync Info intermediate response with an OID of <tt>1.3.6.1.4.1.4203.1.9.1.4</tt> and a value with the following encoding:</p>
+
+              <pre>syncInfoValue ::= CHOICE {
+    newcookie      [0] syncCookie,
+    refreshDelete  [1] SEQUENCE {
+        cookie         syncCookie OPTIONAL,
+        refreshDone    BOOLEAN DEFAULT TRUE
+    },
+    refreshPresent [2] SEQUENCE {
+        cookie         syncCookie OPTIONAL,
+        refreshDone    BOOLEAN DEFAULT TRUE
+    },
+    syncIdSet      [3] SEQUENCE {
+        cookie         syncCookie OPTIONAL,
+        refreshDeletes BOOLEAN DEFAULT FALSE,
+        syncUUIDs      SET OF syncUUID
+    }
+}</pre>
+
+              <p>A Sync Info intermediate response with message ID two that only provides a <tt>syncCookie</tt> with cookie value <tt>NomNomNom</tt> would be encoded as:</p>
+
+              <pre>30 2c -- Begin the LDAPMessage sequence
+   02 01 02 -- The message ID (integer value 2)
+   79 27 -- Begin the intermediate response protocol op
+      80 18 31 2e 33 2e 36 2e 31 2e -- The responseName (octet string
+            34 2e 31 2e 34 32 30 33 -- "1.3.6.1.4.1.4203.1.9.1.4")
+            2e 31 2e 39 2e 31 2e 34
+      81 0b -- Begin the responseValue element
+         80 09 4e 6f 6d 4e 6f 6d 4e 6f -- The syncCookie value
+               6d                      -- (octet string "NomNomNom")</pre>
+
+              <p>Intermediate response messages can only be sent after a request that indicates that the client is willing to accept intermediate responses, and before the final response to that request. The inclusion of intermediate response messages in response to a request does not affect the encoding of the final response to that request.</p>
+
+              <p></p>
+
+              <table border="0" width="100%">
+                <tr>
+                  <td align="left">Previous: <a href="unbind.${EXTENSION}">The LDAP Unbind Operation</a></td>
+                  <td align="right"></td>
+                </tr>
+              </table>
