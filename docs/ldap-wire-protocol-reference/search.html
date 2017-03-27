@@ -44,7 +44,7 @@ ${TARGET="offline"}                    <br>
 
 AttributeSelection ::= SEQUENCE OF selector LDAPString
                 -- The LDAPString is constrained to
-                -- <attributeSelector> in Section 4.5.1.8
+                -- &lt;attributeSelector&gt; in Section 4.5.1.8
 
 Filter ::= CHOICE {
      and             [0] SET SIZE (1..MAX) OF filter Filter,
@@ -581,13 +581,13 @@ LDAPString ::= OCTET STRING -- UTF-8 encoded,
             62 3f</pre>
 
               <a name="search-result-done"></a>
-              <h3>The Search Result Doen Response</h3>
+              <h3>The Search Result Done Response</h3>
 
               <p>When the server has finished all processing for a search operation and has returned all appropriate entries and references, it will send a search result done message to indicates that the search is complete. <a href="../specs/rfc4511.txt" target="_blank">RFC 4511</a> section 4.5.2 defines the search result done protocol operation as:</p>
 
               <pre>SearchResultDone ::= [APPLICATION 5] LDAPResult</pre>
 
-              <p>That is, it’s an <tt>LDAPResult</tt> (which we’ve discussed in an earlier section) with a BER type of <tt>0x65</tt> (application class, constructed, tag number five). A successful search result done response is encoded as follows:</p>
+              <p>That is, it’s an <tt>LDAPResult</tt> (which we’ve discussed in an <a href="ldap-result.${EXTENSION}">earlier section</a>) with a BER type of <tt>0x65</tt> (application class, constructed, tag number five). A successful search result done response is encoded as follows:</p>
 
               <pre>30 0c -- Begin the LDAPMessage sequence
    02 01 02 -- The message ID (integer value 2)

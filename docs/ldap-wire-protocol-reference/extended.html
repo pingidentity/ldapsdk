@@ -62,7 +62,7 @@ ${TARGET="offline"}                    <br>
      responseName     [10] LDAPOID OPTIONAL,
      responseValue    [11] OCTET STRING OPTIONAL }</pre>
 
-              <p>This means that it’s got all the components of the <tt>LDAPResult</tt> sequence (which we’ve already covered in a <a href="ldap-result.html">previous section</a>), plus an optional OID to identify the type of response, and an optional value to include additional information. The BER Type for the extended response is <tt>0x78</tt> (application class, constructed, tag number twenty-four).</p>
+              <p>This means that it’s got all the components of the <tt>LDAPResult</tt> sequence (which we’ve already covered in a <a href="ldap-result.${EXTENSION}">previous section</a>), plus an optional OID to identify the type of response, and an optional value to include additional information. The BER Type for the extended response is <tt>0x78</tt> (application class, constructed, tag number twenty-four).</p>
 
               <p>An OID is really only necessary if a single request can yield multiple types of responses, but some types of extended responses always include an OID even if they’re the only kind of response for the associated request. In cases where the response has an OID, that OID may be the same as or different from the request OID.</p>
 
