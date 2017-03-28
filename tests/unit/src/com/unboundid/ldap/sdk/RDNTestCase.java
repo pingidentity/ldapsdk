@@ -1450,8 +1450,8 @@ public class RDNTestCase
 
       new Object[]
       {
-        "uid=\\\\\\#\\=\\\"\\+\\,\\,\\;\\<\\>",
-        "uid=\\\\\\#\\=\\\"\\+\\,\\,\\;\\<\\>",
+        "uid=\\\\#\\=\\\"\\+\\,\\,\\;\\<\\>",
+        "uid=\\\\#\\=\\\"\\+\\,\\,\\;\\<\\>",
       },
 
       new Object[]
@@ -1502,7 +1502,7 @@ public class RDNTestCase
             "707172737475767778797a7b7c7d7e7f",
         "cn=\\00\\01\\02\\03\\04\\05\\06\\07\\08\\09\\0a\\0b\\0c\\0d\\0e\\0f" +
            "\\10\\11\\12\\13\\14\\15\\16\\17\\18\\19\\1a\\1b\\1c\\1d\\1e\\1f" +
-           " !\\\"\\#$%&'()*\\+\\,-./" +
+           " !\\\"#$%&'()*\\+\\,-./" +
            "0123456789:\\;\\<\\=\\>?" +
            "@abcdefghijklmno" +
            "pqrstuvwxyz[\\\\]^_" +
@@ -1522,7 +1522,7 @@ public class RDNTestCase
            "\\70\\71\\72\\73\\74\\75\\76\\77\\78\\79\\7a\\7b\\7c\\7d\\7e\\7f",
         "cn=\\00\\01\\02\\03\\04\\05\\06\\07\\08\\09\\0a\\0b\\0c\\0d\\0e\\0f" +
            "\\10\\11\\12\\13\\14\\15\\16\\17\\18\\19\\1a\\1b\\1c\\1d\\1e\\1f" +
-           " !\\\"\\#$%&'()*\\+\\,-./" +
+           " !\\\"#$%&'()*\\+\\,-./" +
            "0123456789:\\;\\<\\=\\>?" +
            "@abcdefghijklmno" +
            "pqrstuvwxyz[\\\\]^_" +
@@ -1661,8 +1661,8 @@ public class RDNTestCase
       {
         new String[] { "cn" },
         new String[] { "\\#=+, ; <\u0000>\"" },
-        "cn=\\\\\\#\\=\\+\\, \\; \\<\\00\\>\\\"",
-        "cn=\\\\\\#\\=\\+\\, \\; \\<\\00\\>\\\""
+        "cn=\\\\#\\=\\+\\, \\; \\<\\00\\>\\\"",
+        "cn=\\\\#\\=\\+\\, \\; \\<\\00\\>\\\""
       },
 
       new Object[]
@@ -1804,26 +1804,26 @@ public class RDNTestCase
 
     rdn = new RDN("case-exact-attr", " This  Is  A  Test ");
     assertEquals(rdn.toString(),
-         "case-exact-attr=\\ This\\  Is\\  A\\  Test\\ ");
+         "case-exact-attr=\\ This  Is  A  Test\\ ");
     assertEquals(rdn.toNormalizedString(),
          "case-exact-attr=this is a test");
 
     rdn = new RDN("case-exact-attr", " This  Is  A  Test ", testSchema);
     assertEquals(rdn.toString(),
-         "case-exact-attr=\\ This\\  Is\\  A\\  Test\\ ");
+         "case-exact-attr=\\ This  Is  A  Test\\ ");
     assertEquals(rdn.toNormalizedString(),
          "case-exact-attr=This Is A Test");
 
     rdn = new RDN("octet-string-attr", " This  Is  A  Test ");
     assertEquals(rdn.toString(),
-         "octet-string-attr=\\ This\\  Is\\  A\\  Test\\ ");
+         "octet-string-attr=\\ This  Is  A  Test\\ ");
     assertEquals(rdn.toNormalizedString(),
          "octet-string-attr=this is a test");
 
     rdn = new RDN("octet-string-attr", " This  Is  A  Test ", testSchema);
     assertEquals(rdn.toString(),
-         "octet-string-attr=\\ This\\  Is\\  A\\  Test\\ ");
+         "octet-string-attr=\\ This  Is  A  Test\\ ");
     assertEquals(rdn.toNormalizedString(),
-         "octet-string-attr=\\ This\\  Is\\  A\\  Test\\ ");
+         "octet-string-attr=\\ This  Is  A  Test\\ ");
   }
 }

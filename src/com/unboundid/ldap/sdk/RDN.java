@@ -1412,7 +1412,6 @@ valueLoop:
         switch (c)
         {
           case '\\':
-          case '#':
           case '=':
           case '"':
           case '+':
@@ -1424,11 +1423,21 @@ valueLoop:
             buffer.append(c);
             break;
 
+          case '#':
+            // Escape the octothorpe only if it's the first character.
+            if (j == 0)
+            {
+              buffer.append("\\#");
+            }
+            else
+            {
+              buffer.append('#');
+            }
+            break;
+
           case ' ':
-            // Escape this space only if it's the first character, the last
-            // character, or if the next character is also a space.
-            if ((j == 0) || ((j+1) == length) ||
-                (((j+1) < length) && (valueString.charAt(j+1) == ' ')))
+            // Escape this space only if it's the first or last character.
+            if ((j == 0) || ((j+1) == length))
             {
               buffer.append("\\ ");
             }
@@ -1631,7 +1640,6 @@ valueLoop:
       switch (c)
       {
         case '\\':
-        case '#':
         case '=':
         case '"':
         case '+':
@@ -1643,11 +1651,21 @@ valueLoop:
           buffer.append(c);
           break;
 
+        case '#':
+          // Escape the octothorpe only if it's the first character.
+          if (i == 0)
+          {
+            buffer.append("\\#");
+          }
+          else
+          {
+            buffer.append('#');
+          }
+          break;
+
         case ' ':
-          // Escape this space only if it's the first character, the last
-          // character, or if the next character is also a space.
-          if ((i == 0) || ((i+1) == length) ||
-              (((i+1) < length) && (valueString.charAt(i+1) == ' ')))
+          // Escape this space only if it's the first or last character.
+          if ((i == 0) || ((i+1) == length))
           {
             buffer.append("\\ ");
           }
