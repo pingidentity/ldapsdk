@@ -1185,6 +1185,12 @@ public final class InMemoryDirectoryServer
     try
     {
       reader = new LDIFReader(path);
+
+      final Schema schema = getSchema();
+      if (schema != null)
+      {
+        reader.setSchema(schema);
+      }
     }
     catch (final Exception e)
     {
@@ -1569,6 +1575,13 @@ public final class InMemoryDirectoryServer
 
     final ArrayList<Entry> entryList = new ArrayList<Entry>(10);
     final LDIFReader reader = new LDIFReader(buffer.asInputStream());
+
+    final Schema schema = getSchema();
+    if (schema != null)
+    {
+      reader.setSchema(schema);
+    }
+
     while (true)
     {
       try

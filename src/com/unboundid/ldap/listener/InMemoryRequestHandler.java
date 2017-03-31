@@ -3822,7 +3822,7 @@ findEntriesAndRefs:
    * @param  clear       Indicates whether to remove all existing entries prior
    *                     to adding entries read from LDIF.
    * @param  ldifReader  The LDIF reader to use to obtain the entries to be
-   *                     imported.
+   *                     imported.  It will be closed by this method.
    *
    * @return  The number of entries read from LDIF and added to the server.
    *
