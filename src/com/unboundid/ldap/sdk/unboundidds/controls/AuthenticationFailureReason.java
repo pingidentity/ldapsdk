@@ -57,22 +57,6 @@ public final class AuthenticationFailureReason
        implements Serializable
 {
   /**
-   * The numeric value for a failure type that does not fit into any other of
-   * the defined failure types.
-   */
-  public static final int FAILURE_TYPE_OTHER = 1;
-
-
-
-  /**
-   * The name for a failure type that does not fit into any other of the defined
-   * failure types.
-   */
-  public static final String FAILURE_NAME_OTHER = "other";
-
-
-
-  /**
    * The numeric value for the failure type that indicates the user's account
    * is not in a usable state.  Examining the set of account usability errors
    * should provide more specific information about the nature of the error.
@@ -305,9 +289,25 @@ public final class AuthenticationFailureReason
 
 
   /**
+   * The numeric value for a failure type that does not fit into any other of
+   * the defined failure types.
+   */
+  public static final int FAILURE_TYPE_OTHER = 15;
+
+
+
+  /**
+   * The name for a failure type that does not fit into any other of the defined
+   * failure types.
+   */
+  public static final String FAILURE_NAME_OTHER = "other";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 9029076035138398070L;
+  private static final long serialVersionUID = -5752716527356924347L;
 
 
 
