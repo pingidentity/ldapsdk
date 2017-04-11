@@ -69,6 +69,22 @@ attribute) the implicit fileset formed by this task.</p>
   to an <code>&lt;xsl:param&gt;</code> declaration.</p>
 <p>This task supports the use of a nested <a href="../Types/xmlcatalog.html">xmlcatalog</a>
 element which is used to perform Entity and URI resolution.</p>
+
+<p><b>Note on XSLT extension functions</b>: when using the default
+  TraX implementation of the Java class library and
+  a <code>SecurityManager</code> is active - e.g. when running from
+  within an IDE - XSLT extension functions cannot be used as "secure
+  processing" is active in Java 7 and above. Ant contains a special
+  "hack" that allows XSLT extensions to be used in Java 7 and 8, but
+  this hack fails for Java 9. If you want to use extensions like the
+  redirect extension that are provided by the Java class library
+  itself, you can allow them by enabling the
+  feature <code>http://www.oracle.com/xml/jaxp/properties/enableExtensionFunctions</code>
+  in Java 9 and above. If you need to use an extension function not
+  provided by Java itself you can set the
+  attribute <code>jdk.xml.transform.extensionClassLoader</code> to a
+  classloader (reference to an Ant PATH-like structure).</p>
+
 <h3>Parameters</h3>
 <table border="1" cellpadding="2" cellspacing="0">
   <tr>
@@ -92,7 +108,8 @@ element which is used to perform Entity and URI resolution.</p>
     <td valign="top">extension</td>
     <td valign="top">desired file extension to be used for the targets. If not
       specified, the default is &quot;.html&quot;.  Will be ignored if
-      a nested <code>&lt;mapper&gt;</code> has been specified.</td>
+      a nested <code>&lt;mapper&gt;</code> or both <code>in</code> and
+      <code>out</code> have been specified.</td>
     <td align="center" valign="top">No</td>
   </tr>
   <tr>
@@ -269,7 +286,7 @@ collection</a></h4>
 should be applied to.  Use a nested mapper and the task's destdir
 attribute to specify the output files.</p>
 
-<h4>classpath</h4>
+<h4><a name="classpath">classpath</a></h4>
 <p>The classpath to load the processor from can be specified via a
 nested <code>&lt;classpath&gt;</code>, as well - that is, a
 <a href="../using.html#path">path</a>-like structure.</p>
@@ -372,7 +389,7 @@ XSLT specifications</a>.
 </table>
 </blockquote>
 
-<h4>factory ('trax' processors only)</h4>
+<h4><a name="factory">factory ('trax' processors only)</a></h4>
 Used to specify factory settings.
 <blockquote>
 <h4>Parameters</h4>
@@ -394,7 +411,7 @@ Used to specify factory settings.
   </tr>
 </table>
 <h3>Parameters specified as nested elements</h3>
-<h4>attribute </h4>
+<h4>attribute</h4>
 <p>Used to specify settings of the processor factory.
 The attribute names and values are entirely processor specific
 so you must be aware of the implementation to figure them out.
@@ -430,7 +447,66 @@ And in Saxon 7.x:
   <tr>
     <td valign="top">value</td>
     <td valign="top">value of the attribute.</td>
+    <td align="center" valign="middle" rowspan="3">Exactly one of these</td>
+  </tr>
+  <tr>
+    <td valign="top">valueref</td>
+    <td valign="top">value of the attribute is the value of the
+      project reference with the given id. <em>since Ant 1.9.8</em></td>
+  </tr>
+  <tr>
+    <td valign="top">classloaderforpath</td>
+    <td valign="top">value of the attribute is a classloader that uses
+      the classpath specified by a path that is the project reference
+      with the given id. <em>since Ant 1.9.8</em></td>
+  </tr>
+</table>
+
+<h4>Examples</h4>
+
+<pre>
+  &lt;path id="extension-path"&gt;
+    ...
+  &lt;/path&gt;
+
+
+  &lt;xslt ...&gt;
+    &lt;factory&gt;
+      &lt;attribute name="jdk.xml.transform.extensionClassLoader"
+                 classloaderforpath="extension-path"/&gt;
+    &lt;/factory&gt;
+  &lt;/xslt ...&gt;
+</pre>
+<p>Sets the classloader to use when loading extension functions to a
+  classloader using the <code>path</code> with the
+  id <code>extension-path</code>.
+</blockquote>
+<h4>feature</h4>
+<p><em>since Ant 1.9.8</em></p>
+<p>Used to specify settings of the processor factory.  The feature
+names are mostly processor specific so you must be aware of the
+implementation to figure them out.  Read the documentation of your
+processor. The only feature all implementations are required to
+support
+is <code>http://javax.xml.XMLConstants/feature/secure-processing</code>.
+<blockquote>
+<h4>Parameters</h4>
+<table width="60%" border="1" cellpadding="2" cellspacing="0">
+  <tr>
+    <td valign="top"><b>Attribute</b></td>
+    <td valign="top"><b>Description</b></td>
+    <td align="center" valign="top"><b>Required</b></td>
+  </tr>
+  <tr>
+    <td valign="top">name</td>
+    <td valign="top">Name of the feature</td>
     <td align="center" valign="top">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">value</td>
+    <td valign="top">value of the feature. A boolean value
+    (i.e. permitted values are true,false,yes,no,on,off).</td>
+    <td align="center" valign="top">No, defaults to false</td>
   </tr>
 </table>
 </blockquote>

@@ -551,14 +551,14 @@ user defined values.
   <tr>
     <td vAlign=top>tokenchar</td>
     <td vAlign=top>begintoken</td>
-    <td vAlign=top>Character marking the
+    <td vAlign=top>String marking the
     beginning of a token.  Defaults to @</td>
     <td vAlign=top align="center">No</td>
   </tr>
   <tr>
     <td vAlign=top>tokenchar</td>
     <td vAlign=top>endtoken</td>
-    <td vAlign=top>Character marking the
+    <td vAlign=top>String marking the
     end of a token.  Defaults to @</td>
     <td vAlign=top align="center">No</td>
   </tr>
@@ -620,6 +620,31 @@ Convenience method:
 &lt;loadfile srcfile=&quot;${src.file}&quot; property=&quot;${src.file.replaced}&quot;&gt;
   &lt;filterchain&gt;
     &lt;replacetokens&gt;
+      &lt;token key=&quot;DATE&quot; value=&quot;${TODAY}&quot;/&gt;
+    &lt;/replacetokens&gt;
+  &lt;/filterchain&gt;
+&lt;/loadfile&gt;
+</pre></blockquote>
+
+This replaces occurrences of the string {{DATE}} in the data
+with today's date and stores it in the property ${src.file.replaced}.
+<blockquote><pre>
+&lt;loadfile srcfile=&quot;${src.file}&quot; property=&quot;${src.file.replaced}&quot;&gt;
+  &lt;filterchain&gt;
+    &lt;filterreader classname=&quot;org.apache.tools.ant.filters.ReplaceTokens&quot;&gt;
+      &lt;param type=&quot;tokenchar&quot; name=&quot;begintoken&quot; value=&quot;{{&quot;/&gt;
+      &lt;param type=&quot;tokenchar&quot; name=&quot;endtoken&quot; value=&quot;}}&quot;/&gt;
+    &lt;/filterreader&gt;
+  &lt;/filterchain&gt;
+&lt;/loadfile&gt;
+</pre></blockquote>
+
+Convenience method:
+<blockquote><pre>
+&lt;tstamp/&gt;
+&lt;loadfile srcfile=&quot;${src.file}&quot; property=&quot;${src.file.replaced}&quot;&gt;
+  &lt;filterchain&gt;
+    &lt;replacetokens begintoken=&quot;{{&quot; endtoken=&quot;}}&quot;&gt;
       &lt;token key=&quot;DATE&quot; value=&quot;${TODAY}&quot;/&gt;
     &lt;/replacetokens&gt;
   &lt;/filterchain&gt;
@@ -1118,6 +1143,7 @@ and \\.
         <a href="#ignoreblank">IgnoreBlank</a><br>
         <a href="#filterdeletecharacters">DeleteCharacters</a><br>
         <a href="#uniqfilter">UniqFilter</a><br>
+        <a href="#native2asciifilter">Native2AsciiFilter</a><br>
     </p>
 
     The following string filters are provided by the optional distribution.
@@ -1459,6 +1485,39 @@ This suppresses duplicate lines.
 <blockquote><pre>
 &lt;tokenfilter&gt;
   &lt;uniqfilter/&gt;
+&lt;/tokenfilter&gt;
+</pre></blockquote>
+
+<p><b><em><a name="native2asciifilter">Native2AsciiFilter</a></em></b></p>
+
+<p>Uses the "builtin" implementation of
+  the <a href="../Tasks/native2ascii.html">native2ascii</a> task.</p>
+
+<p>Replaces non-ascii characters by their Unicode-escapes or
+  vice-versa.  <em>Since Ant 1.9.8</em>.</p>
+
+<p>This filter may be used directly within a filterchain.</p>
+
+<table cellSpacing=0 cellPadding=2 border=1>
+  <tr>
+    <td vAlign=top><b>Attribute</b></td>
+    <td vAlign=top><b>Description</b></td>
+    <td vAlign=top align="center"><b>Required</b></td>
+  </tr>
+  <tr>
+    <td vAlign=top>reverse</td>
+    <td vAlign=top>Reverse the sense of the conversion,
+      i.e. convert from ASCII to native.</td>
+    <td vAlign=top align="center">No</td>
+  </tr>
+</table>
+
+<h4>Example:</h4>
+
+<p>This replaces all non-ASCII characters by their Unicode-escapes.</p>
+<blockquote><pre>
+&lt;tokenfilter&gt;
+  &lt;native2asciifilter/&gt;
 &lt;/tokenfilter&gt;
 </pre></blockquote>
 

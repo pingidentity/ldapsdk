@@ -25,7 +25,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.ant</groupId>
   <artifactId>ant-parent</artifactId>
-  <version>1.9.4</version>
+  <version>1.9.9</version>
   <packaging>pom</packaging>
   <description>master POM</description>
   <licenses>
@@ -51,9 +51,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
     </repository>
   </distributionManagement>
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/ant/core/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/ant/core/trunk</developerConnection>
-    <url>http://svn.apache.org/repos/asf/ant/core/trunk</url>
+    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/ant.git</connection>
+    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/ant.git</developerConnection>
+    <url>https://git-wip-us.apache.org/repos/asf/ant.git</url>
   </scm>
   <ciManagement>
     <system>hudson</system>

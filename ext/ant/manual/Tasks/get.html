@@ -107,7 +107,10 @@ plain text' authentication is used. This is only secure over an HTTPS link.
   </tr>  
   <tr>
     <td valign="top">retries</td>
-    <td valign="top">the per download number of retries on error<br/>
+    <td valign="top">The number of attempts to make for opening the URI.<br/>
+      The name of the attribute is misleading as a value of 1 means
+      "don't retry on error" and a value of 0 meant don't even try to
+      reach the URI at all.<br/>
       <em>since Ant 1.8.0</em></td>
     <td align="center" valign="top">No; default "3"</td>
   </tr>
@@ -134,6 +137,15 @@ plain text' authentication is used. This is only secure over an HTTPS link.
       <em>since Ant 1.9.3</em></td>
     <td align="center" valign="top">No</td>
   </tr>
+  <tr>
+    <td valign="top">tryGzipEncoding</td>
+    <td valign="top">When set to true Ant will tell the server it is
+      willing to accept gzip encoding to reduce the amount of data to
+      transfer and uncompress the content transparently.<br/>
+      Setting this to true also means Ant will uncompress
+      <code>.tar.gz</code> and similar files automatically.<br/>
+      <em>since Ant 1.9.5</em></td>
+    <td align="center" valign="top">No; default "false"</td>
 </table>
 <h3>Parameters specified as nested elements</h3>
 <h4>any resource collection</h4>
