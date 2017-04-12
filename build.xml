@@ -59,7 +59,7 @@
   <target name="svnversion" unless="svn.version">
     <mkdir dir="${svnversion.classes.dir}" />
     <javac srcdir="${svnversion.src.dir}" destdir="${svnversion.classes.dir}"
-           source="1.5" target="1.5" deprecation="true" fork="true"
+           source="1.7" target="1.7" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="true">
@@ -181,7 +181,7 @@
       </fileset>
     </copy>
 
-    <javadoc destdir="${package.dir}/www/javadoc" source="1.5"
+    <javadoc destdir="${package.dir}/www/javadoc" source="1.7"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
              windowtitle="UnboundID LDAP SDK for Java ${MMPQ}"
@@ -362,7 +362,7 @@
         <attribute name="Bundle-Vendor" value="UnboundID Corp." />
         <attribute name="Bundle-Version" value="${MMP}" />
         <attribute name="Bundle-RequiredExecutionEnvironment"
-                   value="J2SE-1.5" />
+                   value="J2SE-1.7" />
         <attribute name="Bundle-Category" value="communication,network" />
         <attribute name="Bundle-DocURL"
                    value="${LDAP_SDK_HOME_URL}" />
@@ -374,7 +374,7 @@
       </manifest>
     </jar>
 
-    <javadoc destdir="${ce.package.dir}/docs/javadoc" source="1.5"
+    <javadoc destdir="${ce.package.dir}/docs/javadoc" source="1.7"
              useexternalfile="true"
              additionalparam="-quiet" linksource="yes"
              windowtitle="UnboundID LDAP SDK for Java ${MMPQ} (Commercial Edition)"
@@ -534,7 +534,7 @@
     <!-- Compile the unit tests -->
     <mkdir dir="${unit.classes.dir}" />
     <javac srcdir="${unit.src.dir}" destdir="${unit.classes.dir}"
-           source="1.5" target="1.5" deprecation="true" fork="true"
+           source="1.7" target="1.7" deprecation="true" fork="true"
            memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
            optimize="true" debug="on" debuglevel="lines,source,vars"
            includeAntRuntime="false">
