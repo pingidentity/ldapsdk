@@ -4,7 +4,7 @@
       </div>
 
       <div id="footer">
-        Copyright &copy; ${YEAR} &ndash; UnboundID Corp. &ndash; All rights reserved.
+        Copyright &copy; ${YEAR} &ndash; Ping Identity Corporation. &ndash; All rights reserved.
       </div>
     </div>
   </body>

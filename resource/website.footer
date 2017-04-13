@@ -116,7 +116,7 @@
                   <div class="row-fluid ">
                     <div class="span12 widget-span widget-type-rich_text copyright" style="" data-widget-type="rich_text" data-x="0" data-w="12">
                       <div class="cell-wrapper layout-widget-wrapper">
-                        <span id="hs_cos_wrapper_module_1416250294473975" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p>©${YEAR} UnboundID. The LDAP SDK for Java is developed by UnboundID.</p></span>
+                        <span id="hs_cos_wrapper_module_1416250294473975" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p>©${YEAR} Ping Identity Corporation. The LDAP SDK for Java is developed by Ping Identity.</p></span>
                       </div><!--end layout-widget-wrapper -->
                     </div><!--end widget-span -->
                   </div><!--end row-->

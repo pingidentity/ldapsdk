@@ -1,0 +1,348 @@
+              <table border="0" width="100%">
+                <tr>
+                  <td align="right" valign="top">
+${TARGET="offline"}                    <a href="${LDAP_SDK_HOME_URL}" style="font-size: 85%">LDAP SDK Home Page</a>
+${TARGET="offline"}                    <br>
+                    <a href="../index.${EXTENSION}" style="font-size: 85%">Product Information</a>
+                  </td>
+                </tr>
+              </table>
+
+              <h2>Interacting with Ping Identity, UnboundID, or Alcatel-Lucent 8661 Directory
+                  Server Tasks using the Commercial Edition</h2>
+
+              <p>
+                The Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server products
+                include a tasks backend which can be used to invoke administrative operations in
+                the server.  The Commercial Edition of the UnboundID LDAP SDK for Java provides
+                support for the following tasks:
+              </p>
+
+              <ul>
+                <li>
+                  Import LDIF data into a backend.
+                </li>
+
+                <li>
+                  Export data from a backend to LDIF.
+                </li>
+
+                <li>
+                  Back up the contents of one or more backends.
+                </li>
+
+                <li>
+                  Restore a backup for a backend.
+                </li>
+
+                <li>
+                  Generate or rebuild database indexes.
+                </li>
+
+                <li>
+                  Enter lockdown mode, in which the server will allow only a very limited set of
+                  operations.
+                </li>
+
+                <li>
+                  Leave lockdown mode.
+                </li>
+
+                <li>
+                  Add the contents of one or more files to the server schema.
+                </li>
+
+                <li>
+                  Terminate a specified client connection.
+                </li>
+
+                <li>
+                  Shut down or restart the server.
+                </LI>
+              </ul>
+
+              <p>
+                The UnboundID LDAP SDK for Java provides a number of classes that can be used to
+                schedule new tasks or interact with existing tasks defined in the server.
+              </p>
+
+              <p></p>
+              <h3>Tasks</h3>
+
+              <p>
+                The base class for all administrative tasks in the LDAP SDK is the
+                <tt>com.unboundid.ldap.sdk.unboundidds.tasks.Task</tt> class.  This encapsulates a
+                set of common properties that can apply to all types of tasks.
+              </p>
+
+              <p>
+                When scheduling a task, the following common task properties are available:
+              </p>
+
+              <ul>
+                <li>
+                  Task ID -- Uniquely identifies the task in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  Scheduled start time -- The time that the task should be eligible to start
+                  running.  If this is not specified, then the task will be eligible to start
+                  running immediately.
+                  <br><br>
+                </li>
+
+                <li>
+                  Dependency IDs -- The task IDs for the tasks on which the new task is to be
+                  dependent.  If there are any dependency IDs, then the new task will not be
+                  eligible to start until all of the tasks on which it is dependent have completed.
+                  <br><br>
+                </li>
+
+                <li>
+                  Failed dependency action -- The action that the server should take if one of the
+                  tasks specified as a dependency for the new task do not complete successfully.
+                  In that case, the new task can be canceled, disabled, or the server can go ahead
+                  and process it anyway.
+                  <br><br>
+                </li>
+
+                <li>
+                  Notify on completion addresses -- A set of e-mail addresses of users that should
+                  be notified whenever the task completes running, regardless of whether it was
+                  successful or encountered a problem.
+                  <br><br>
+                </li>
+
+                <li>
+                  Notify on error addresses -- A set of e-mail addresses of users that should be
+                  notified if the task encounters an error.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                When a task has been scheduled, the following additional properties may be
+                available, depending on the current state of the task and the processing that it
+                has performed:
+              </p>
+
+              <ul>
+                <li>
+                  Task state -- Specifies the current state of the task (e.g., disabled, waiting on
+                  start time, waiting on dependency, running, completed successfully, stopped by
+                  error, etc.).
+                  <br><br>
+                </li>
+
+                <li>
+                  Actual start time -- The time that the task actually started running.
+                  <br><br>
+                </li>
+
+                <li>
+                  Completion time -- The time that the task completed.
+                  <br><br>
+                </li>
+
+                <li>
+                  A set of log messages generated by the task.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                Task subclasses which are intended for interacting with a specific type of task may
+                have other properties specific to that type of task.  For example, the shutdown
+                task can have two additional properties:
+              </p>
+
+              <ul>
+                <li>
+                  Shutdown message -- A message that can be included in the server log to indicate
+                  the reason for the shutdown.
+                </li>
+
+                <li>
+                  Restart -- A flag that indicates whether to restart the server instead of
+                  shutting it down.
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>Creating Tasks</h3>
+
+              <p>
+                There are two basic ways of creating tasks using the UnboundID LDAP SDK for Java.
+                The first is to simply create an object using one of the constructors that allows
+                you to specify the values of the specific information needed to schedule that type
+                of task.  For example, if you wish to create a task that can be used to export the
+                contents of the "userRoot" backend to a file named "ldif/userRoot.ldif" under the
+                server root directory, you could use the following code:
+              </p>
+
+              <pre>
+ExportTask exportTask = new ExportTask(null, "userRoot", "ldif/userRoot.ldif");
+</pre>
+
+              <p>
+                Most tasks have a few different constructors of this type, although the arguments
+                available vary based on the type of task.  This is the most convenient way to
+                schedule a task if you know exactly what kind of task you want to invoke, although
+                it is not well-suited for use in applications that may wish to discover the types
+                of tasks that are available and the types of properties that may be used to
+                schedule them.  To accomplish this, you can either create an instance of a task
+                with the default constructor (the one that doesn't take any arguments), or you can
+                use the static <tt>getAvailableTaskTypes</tt> method in the <tt>Task</tt> class to
+                obtain instances of all of the tasks that are available.  A task instance created
+                using this default constructor may only be used for calling the following methods:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>public String getTaskName()</tt> -- Retrieves a human-readable, localizeable
+                   name for the task type.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public String getTaskDescription()</tt> -- Retrieves a human-readable,
+                  localizeable description for the task.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public List&lt;TaskProperty&gt; getCommonTaskProperties()</tt> -- Retrieves a
+                  list of the common task properties that may be used to schedule any type of task.
+                  More information about task properties will be provided below.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public List&lt;TaskProperty&gt; getTaskSpecificProperties()</tt> -- Retrieves
+                  a list of the properties that are specific to the type of task you wish to
+                  schedule.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p>
+                Once you have a list of the task properties, you may use them to obtain the
+                appropriate information, and then you may use the constructor which takes a
+                <tt>Map&lt;TaskProperty,List&lt;Object&gt;&gt;</tt> argument.
+              </p>
+
+              <p>
+                Once you have an instance of a task (other than one created with the default
+                constructor), you may also use the <tt>getTaskPropertyValues</tt> method to get the
+                properties and their corresponding values for the task.
+              </p>
+
+              <p></p>
+              <h3>Task Properties</h3>
+
+              <p>
+                As noted above, it is possible to dynamically determine the types of properties
+                that may be provided when scheduling a task.  These properties are provided in the
+                form of <tt>TaskProperty</tt> objects.  <tt>TaskProperty</tt> objects include the
+                following information:
+              </p>
+
+              <ul>
+                <li>
+                  The name of the LDAP attribute with which the task property is associated.
+                  <br><br>
+                </li>
+
+                <li>
+                  A human-readable, localizeable display name for the task property.
+                  <br><br>
+                </li>
+
+                <li>
+                  A human-readable, localizeable description for the task property.
+                  <br><br>
+                </li>
+
+                <li>
+                  A <tt>Class</tt> that indicates the expected data type for the task property.
+                  Allowed data types include:  <tt>Boolean</tt>, <tt>Date</tt>, <tt>Long</tt>, and
+                  <tt>String</tt>.
+                  <br><br>
+                </li>
+
+                <li>
+                  A flag that indicates whether the task property is required to be provided when
+                  creating an instance of the task.
+                  <br><br>
+                </li>
+
+                <li>
+                  A flag that indicates whether the task property is allowed to have multiple
+                  values.
+                  <br><br>
+                </li>
+
+                <li>
+                  A flag that indicates whether the task property may be considered advanced.
+                  Advanced properties are those that may be hidden from the end user if you desire
+                  simplicity over customizability for the task.
+                  <br><br>
+                </li>
+
+                <li>
+                  An optional set of allowed values.  If this is present, then any attempt to
+                  create a task with a value not in this set will be rejected.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+              <h3>The Task Manager</h3>
+
+              <p>
+                The <tt>TaskManager</tt> class provides a set of methods that may be used to
+                actually schedule tasks in a Ping Identity, UnboundID, or Alcatel-Lucent 8661
+                Directory Server instance, or to interact with existing tasks that have already
+                been scheduled.  The task manager provides the following methods:
+              </p>
+
+              <ul>
+                <li>
+                  <tt>public List&lt;Task&gt; getTasks(LDAPConnection connection)</tt> -- May be
+                  used to get a list of all of the tasks in the server that are currently
+                  scheduled, running, or have recently completed.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public Task getTask(String taskID, LDAPConnection connection)</tt> -- May be
+                  used to retrieve the task with the specified task ID.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public Task scheduleTask(Task task, LDAPConnection connection)</tt> -- May be
+                  used to schedule the provided task in the server.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public Task waitForTask(String taskID, LDAPConnection connection, long
+                  pollFrequency, long maxWaitTime)</tt> -- May be used to wait until the specified
+                  task has completed.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public void cancelTask(String taskID, LDAPConnection connection)</tt> -- May
+                  be used in an attempt to cancel a pending or running task.
+                  <br><br>
+                </li>
+
+                <li>
+                  <tt>public void deleteTask(String taskID, LDAPConnection connection)</tt> -- May
+                  be used to delete a task entry for a completed task.
+                  <br><br>
+                </li>
+              </ul>
