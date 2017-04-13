@@ -59,16 +59,19 @@ import com.unboundid.util.ThreadSafetyLevel;
  * This class provides an entry point that may be used to launch other tools
  * provided as part of the LDAP SDK.  This is primarily a convenience for
  * someone who just has the jar file and none of the scripts, since you can run
- * "<CODE>java -jar unboundid-ldapsdk-se.jar {tool-name} {tool-args}</CODE>"
+ * "<CODE>java -jar unboundid-ldapsdk.jar {tool-name} {tool-args}</CODE>"
  * in order to invoke any of the example tools.  Running just
- * "<CODE>java -jar unboundid-ldapsdk-se.jar</CODE>" will display version
+ * "<CODE>java -jar unboundid-ldapsdk.jar</CODE>" will display version
  * information about the LDAP SDK.
  * <BR>
  * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
+ *   <B>NOTE:</B>  This class, and other classes within the
+ *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
+ *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
+ *   server products.  These classes provide support for proprietary
+ *   functionality or for external specifications that are not considered stable
+ *   or mature enough to be guaranteed to work in an interoperable way with
+ *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * The tool names are case-insensitive.  Supported tool names include:

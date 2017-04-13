@@ -50,9 +50,9 @@ import com.unboundid.ldap.sdk.transformations.TransformLDIF;
  * This class provides an entry point that may be used to launch other tools
  * provided as part of the LDAP SDK.  This is primarily a convenience for
  * someone who just has the jar file and none of the scripts, since you can run
- * "<CODE>java -jar unboundid-ldapsdk-se.jar {tool-name} {tool-args}</CODE>"
+ * "<CODE>java -jar unboundid-ldapsdk.jar {tool-name} {tool-args}</CODE>"
  * in order to invoke any of the example tools.  Running just
- * "<CODE>java -jar unboundid-ldapsdk-se.jar</CODE>" will display version
+ * "<CODE>java -jar unboundid-ldapsdk.jar</CODE>" will display version
  * information about the LDAP SDK.
  * <BR><BR>
  * The tool names are case-insensitive.  Supported tool names include:

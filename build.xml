@@ -433,8 +433,7 @@
 
 
 
-  <!-- Generate the appropriate structure for a Maven repository for the
-       Standard Edition. -->
+  <!-- Generate the appropriate structure for a Maven repository. -->
   <target name="create-maven-repository">
     <property name="maven.dir"
               location="${package.dir}/unboundid-ldapsdk-${MMPQ}-maven" />
@@ -502,7 +501,7 @@
 
 
 
-  <!-- Run sanity checks on the Standard Edition and Minimal Edition. -->
+  <!-- Run sanity checks on the LDAP SDK. -->
   <target name="sanity-check">
     <delete dir="${sc.classes.dir}" />
     <mkdir dir="${sc.classes.dir}" />

@@ -584,10 +584,10 @@ public final class LDAPReadWriteConnectionPool
    * read connection from this connection pool.  Note that this will impact the
    * state of the connection in the pool, and therefore this method should only
    * be used if this connection pool is used exclusively for processing bind
-   * operations, or if the retain identity request control (only available in
-   * the Commercial Edition of the LDAP SDK for use with the Ping Identity,
-   * UnboundID, or Alcatel-Lucent 8661 Directory Server) is included in the bind
-   * request to ensure that the authentication state is not impacted.
+   * operations, or if the retain identity request control (a proprietary
+   * control for use with the Ping Identity, UnboundID, or Alcatel-Lucent 8661
+   * Directory Server) is included in the bind request to ensure that the
+   * authentication state is not impacted.
    *
    * @param  bindDN    The bind DN for the bind operation.
    * @param  password  The password for the simple bind operation.
@@ -611,10 +611,10 @@ public final class LDAPReadWriteConnectionPool
    * connection pool.  Note that this will impact the state of the connection in
    * the pool, and therefore this method should only be used if this connection
    * pool is used exclusively for processing bind operations, or if the retain
-   * identity request control (only available in the Commercial Edition of the
-   * LDAP SDK for use with the Ping Identity, UnboundID, or Alcatel-Lucent 8661
-   * Directory Server) is included in the bind request to ensure that the
-   * authentication state is not impacted.
+   * identity request control (a proprietary control for use with the Ping
+   * Identity, UnboundID, or Alcatel-Lucent 8661 Directory Server) is included
+   * in the bind request to ensure that the authentication state is not
+   * impacted.
    *
    * @param  bindRequest  The bind request to be processed.  It must not be
    *                      {@code null}.

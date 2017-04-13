@@ -10,11 +10,7 @@
 <!-- SIDEBAR for SUBNAV & JUMP LINKS -->
                       <ul>
                         <li>
-                          <a href="${BASE}release-notes.html">Standard Edition Release Notes</a>
-                          <br><br>
-                        </li>
-                        <li>
-                          <a href="${BASE}commercial-edition/release-notes.html">Commercial Edition Release Notes</a>
+                          <a href="${BASE}release-notes.html">Release Notes</a>
                           <br><br>
                         </li>
                         <li>
@@ -39,10 +35,6 @@
                         </li>
                         <li>
                           <a href="${BASE}in-memory-directory-server.html">Using the In-Memory Directory Server</a>
-                          <br><br>
-                        </li>
-                        <li>
-                          <a href="${BASE}commercial-edition/index.html">Additional Functionality in the Commercial Edition</a>
                           <br><br>
                         </li>
                         <li>

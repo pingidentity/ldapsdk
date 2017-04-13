@@ -55,10 +55,13 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  * Server.
  * <BR>
  * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
+ *   <B>NOTE:</B>  This class, and other classes within the
+ *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
+ *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
+ *   server products.  These classes provide support for proprietary
+ *   functionality or for external specifications that are not considered stable
+ *   or mature enough to be guaranteed to work in an interoperable way with
+ *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
  * The changelog entry intermediate response value is encoded as follows:

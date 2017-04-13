@@ -47,6 +47,7 @@ import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.protocol.UnbindRequestProtocolOp;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.ldap.sdk.unboundidds.controls.RetainIdentityRequestControl;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.SynchronizedSocketFactory;
@@ -185,8 +186,8 @@ import static com.unboundid.util.Validator.*;
  *     connection (unless you are certain that the bind will not impact the
  *     identity of the associated connection, for example by including the
  *     retain identity request control in the bind request if using the
- *     Commercial Edition of the LDAP SDK in conjunction with a Ping Identity,
- *     UnboundID, or Alcatel-Lucent 8661 Directory Server).
+ *     LDAP SDK in conjunction with a Ping Identity, UnboundID, or
+ *     Alcatel-Lucent 8661 Directory Server).
  *   </LI>
  *   <LI>
  *     Attempting to make a change to the way that the underlying communication
@@ -2076,11 +2077,11 @@ public final class LDAPConnection
    * server has already gotten while processing that operation (unless the bind
    * request is one that will not cause the server to attempt to change the
    * identity of this connection, for example by including the retain identity
-   * request control in the bind request if using the Commercial Edition of the
-   * LDAP SDK in conjunction with a Ping Identity, UnboundID, or Alcatel-Lucent
-   * 8661 Directory Server).  It is recommended that all active operations be
-   * abandoned, canceled, or allowed to complete before attempting to perform a
-   * bind on an active connection.
+   * request control in the bind request if using the LDAP SDK in conjunction
+   * with a Ping Identity, UnboundID, or Alcatel-Lucent 8661 Directory Server).
+   * It is recommended that all active operations be abandoned, canceled, or
+   * allowed to complete before attempting to perform a bind on an active
+   * connection.
    *
    * @param  bindDN    The bind DN for the bind operation.
    * @param  password  The password for the simple bind operation.
@@ -2111,11 +2112,11 @@ public final class LDAPConnection
    * server has already gotten while processing that operation (unless the bind
    * request is one that will not cause the server to attempt to change the
    * identity of this connection, for example by including the retain identity
-   * request control in the bind request if using the Commercial Edition of the
-   * LDAP SDK in conjunction with a Ping Identity, UnboundID, or Alcatel-Lucent
-   * 8661 Directory Server).  It is recommended that all active operations be
-   * abandoned, canceled, or allowed to complete before attempting to perform a
-   * bind on an active connection.
+   * request control in the bind request if using the LDAP SDK in conjunction
+   * with a Ping Identity, UnboundID, or Alcatel-Lucent 8661 Directory Server).
+   * It is recommended that all active operations be abandoned, canceled, or
+   * allowed to complete before attempting to perform a bind on an active
+   * connection.
    *
    * @param  bindRequest  The bind request to be processed.  It must not be
    *                      {@code null}.
@@ -2134,12 +2135,11 @@ public final class LDAPConnection
 
     // We don't want to update the last bind request or update the cached
     // schema for this connection if it included the retain identity control.
-    // However, that's only available in the Commercial Edition, so just
-    // reference it by OID here.
     boolean hasRetainIdentityControl = false;
     for (final Control c : bindRequest.getControls())
     {
-      if (c.getOID().equals("1.3.6.1.4.1.30221.2.5.3"))
+      if (c.getOID().equals(
+               RetainIdentityRequestControl.RETAIN_IDENTITY_REQUEST_OID))
       {
         hasRetainIdentityControl = true;
         break;

@@ -18,7 +18,7 @@ under any patents that may be infringed by your modifications, derivative works
 or by other works in which the SDK may be incorporated (collectively, your
 "Applications").  You may reproduce and redistribute the SDK with your
 Applications provided that you (i) include this license file and an
-unmodified copy of the unboundid-ldapsdk-se.jar file; and (ii) such
+unmodified copy of the unboundid-ldapsdk.jar file; and (ii) such
 redistribution is subject to a license whose terms do not conflict with or
 contradict the terms of this Agreement. You may also reproduce and redistribute
 the SDK without your Applications provided that you redistribute the SDK

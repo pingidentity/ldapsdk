@@ -143,13 +143,17 @@ import static com.unboundid.ldap.sdk.unboundidds.tools.ToolMessages.*;
  * output in the LDAP data interchange format (LDIF), to standard output and/or
  * to a specified file.  This is a much more full-featured tool than the
  * {@link com.unboundid.ldap.sdk.examples.LDAPSearch} tool, and includes a
- * number of features only available in the Commercial Edition of the LDAP SDK.
+ * number of features only intended for use with Ping Identity, UnboundID, and
+ * Alcatel-Lucent 8661 server products.
  * <BR>
  * <BLOCKQUOTE>
- *   <B>NOTE:</B>  This class is part of the Commercial Edition of the UnboundID
- *   LDAP SDK for Java.  It is not available for use in applications that
- *   include only the Standard Edition of the LDAP SDK, and is not supported for
- *   use in conjunction with non-UnboundID products.
+ *   <B>NOTE:</B>  This class, and other classes within the
+ *   {@code com.unboundid.ldap.sdk.unboundidds} package structure, are only
+ *   supported for use against Ping Identity, UnboundID, and Alcatel-Lucent 8661
+ *   server products.  These classes provide support for proprietary
+ *   functionality or for external specifications that are not considered stable
+ *   or mature enough to be guaranteed to work in an interoperable way with
+ *   other types of LDAP servers.
  * </BLOCKQUOTE>
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
