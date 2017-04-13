@@ -169,7 +169,7 @@ final class LDAPConnectionInternals
     catch (final LDAPException le)
     {
       debugException(le);
-      throw createIOExceptionWithCause(null, le);
+      throw new IOException(le);
     }
 
     if (options.getReceiveBufferSize() > 0)

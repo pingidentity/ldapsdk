@@ -1551,7 +1551,7 @@ public final class LDIFReader
       {
         debugException(e);
         Thread.currentThread().interrupt();
-        throw createIOExceptionWithCause(null, e);
+        throw new IOException(e);
       }
     }
     if (result == null)
@@ -1644,7 +1644,7 @@ public final class LDIFReader
     }
     else
     {
-      throw createIOExceptionWithCause(null, t);
+      throw new IOException(t);
     }
   }
 

@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Constructor;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Iterator;
@@ -43,6 +42,8 @@ import com.unboundid.asn1.InternalASN1Helper;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.protocol.LDAPResponse;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
+import com.unboundid.ldap.sdk.unboundidds.extensions.
+            InteractiveTransactionAbortedExtendedResult;
 import com.unboundid.util.DebugType;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.WakeableSleeper;
@@ -515,25 +516,12 @@ final class LDAPConnectionReader
                    DisconnectType.SERVER_CLOSED_WITH_NOTICE,
                    extendedResult.getDiagnosticMessage(), null);
             }
-            else if ("1.3.6.1.4.1.30221.2.6.5".equals(oid))
+            else if (InteractiveTransactionAbortedExtendedResult.
+                          INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID.equals(
+                               oid))
             {
-              try
-              {
-                final Class<?> c = Class.forName("com.unboundid.ldap.sdk." +
-                     "unboundidds.extensions." +
-                     "InteractiveTransactionAbortedExtendedResult");
-                final Constructor<?> ctor =
-                     c.getConstructor(ExtendedResult.class);
-                extendedResult =
-                     (ExtendedResult) ctor.newInstance(extendedResult);
-              }
-              catch (Exception e)
-              {
-                // This is fine.  It can happen if the client is using the
-                // standard edition of the LDAP SDK which does not have
-                // support for UnboundID-specific content.
-                debugException(e);
-              }
+              extendedResult = new InteractiveTransactionAbortedExtendedResult(
+                                        extendedResult);
             }
 
             final UnsolicitedNotificationHandler handler =
@@ -708,25 +696,11 @@ final class LDAPConnectionReader
                  DisconnectType.SERVER_CLOSED_WITH_NOTICE,
                  extendedResult.getDiagnosticMessage(), null);
           }
-          else if ("1.3.6.1.4.1.30221.2.6.5".equals(oid))
+          else if (InteractiveTransactionAbortedExtendedResult.
+                        INTERACTIVE_TRANSACTION_ABORTED_RESULT_OID.equals(oid))
           {
-            try
-            {
-              final Class<?> c = Class.forName("com.unboundid.ldap.sdk." +
-                   "unboundidds.extensions." +
-                   "InteractiveTransactionAbortedExtendedResult");
-              final Constructor<?> ctor =
-                   c.getConstructor(ExtendedResult.class);
-              extendedResult =
-                   (ExtendedResult) ctor.newInstance(extendedResult);
-            }
-            catch (Exception e)
-            {
-              // This is fine.  It can happen if the client is using the
-              // standard edition of the LDAP SDK which does not have
-              // support for UnboundID-specific content.
-              debugException(e);
-            }
+            extendedResult = new InteractiveTransactionAbortedExtendedResult(
+                                      extendedResult);
           }
 
           final UnsolicitedNotificationHandler handler =

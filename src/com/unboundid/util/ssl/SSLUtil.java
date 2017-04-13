@@ -23,7 +23,6 @@ package com.unboundid.util.ssl;
 
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
@@ -851,31 +850,15 @@ public final class SSLUtil
     }
     else
     {
-      // Ideally, we should be able to discover the SSL protocol that offers the
-      // best mix of security and compatibility.  Unfortunately, Java SE 5
-      // doesn't expose the methods necessary to allow us to do that, but if the
-      // running JVM is Java SE 6 or later, then we can use reflection to invoke
-      // those methods and make the appropriate determination.  If we see that
-      // TLSv1.1 and/or TLSv1.2 are available, then we'll add those to the set
-      // of default enabled protocols.
+      // We should be able to discover the SSL protocol that offers the best mix
+      // of security and compatibility.  If we see that TLSv1.1 and/or TLSv1.2
+      // are available, then we'll add those to the set of default enabled
+      // protocols.
       try
       {
-        final Method getDefaultMethod =
-             SSLContext.class.getMethod("getDefault");
-        final SSLContext defaultContext =
-             (SSLContext) getDefaultMethod.invoke(null);
-
-        final Method getSupportedParamsMethod =
-             SSLContext.class.getMethod("getSupportedSSLParameters");
-        final Object paramsObj =
-             getSupportedParamsMethod.invoke(defaultContext);
-
-        final Class<?> sslParamsClass =
-             Class.forName("javax.net.ssl.SSLParameters");
-        final Method getProtocolsMethod =
-             sslParamsClass.getMethod("getProtocols");
+        final SSLContext defaultContext = SSLContext.getDefault();
         final String[] supportedProtocols =
-             (String[]) getProtocolsMethod.invoke(paramsObj);
+             defaultContext.getSupportedSSLParameters().getProtocols();
 
         final HashSet<String> protocolMap =
              new HashSet<String>(Arrays.asList(supportedProtocols));

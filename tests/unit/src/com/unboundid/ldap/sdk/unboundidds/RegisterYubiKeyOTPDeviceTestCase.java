@@ -22,9 +22,11 @@ package com.unboundid.ldap.sdk.unboundidds;
 
 
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,6 +42,7 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             RegisterYubiKeyOTPDeviceExtendedRequest;
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.PasswordReader;
 import com.unboundid.util.StaticUtils;
 
 
@@ -337,31 +340,35 @@ public final class RegisterYubiKeyOTPDeviceTestCase
   {
     final InputStream originalIn = System.in;
 
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.append("password");
+    buffer.append(StaticUtils.EOL_BYTES);
+
+    final ByteArrayInputStream byteArrayInputStream =
+         new ByteArrayInputStream(buffer.toByteArray());
+    final BufferedReader bufferedReader =
+         new BufferedReader(new InputStreamReader(byteArrayInputStream));
+
+    PasswordReader.setTestReader(bufferedReader);
     try
     {
-      final ByteStringBuffer buffer = new ByteStringBuffer();
-      buffer.append("password");
-      buffer.append(StaticUtils.EOL_BYTES);
-
-      System.setIn(new ByteArrayInputStream(buffer.toByteArray()));
-
       final String[] args =
-           {
-                "--hostname", "127.0.0.1",
-                "--port", String.valueOf(successDS.getListenPort()),
-                "--bindDN", "cn=Directory Manager",
-                "--bindPassword", "password",
-                "--authID", "u:test.user",
-                "--promptForUserPassword",
-                "--otp", "YubiKeyOTP"
-           };
+      {
+        "--hostname", "127.0.0.1",
+        "--port", String.valueOf(successDS.getListenPort()),
+        "--bindDN", "cn=Directory Manager",
+        "--bindPassword", "password",
+        "--authID", "u:test.user",
+        "--promptForUserPassword",
+        "--otp", "YubiKeyOTP"
+      };
 
       final ResultCode rc = RegisterYubiKeyOTPDevice.main(args, null, null);
       assertEquals(rc, ResultCode.SUCCESS);
     }
     finally
     {
-      System.setIn(originalIn);
+      PasswordReader.setTestReader(null);
     }
   }
 

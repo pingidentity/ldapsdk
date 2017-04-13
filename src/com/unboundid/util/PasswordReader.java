@@ -23,7 +23,6 @@ package com.unboundid.util;
 
 
 import java.io.BufferedReader;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -109,94 +108,16 @@ public final class PasswordReader
     }
 
 
-    // Try to use the Java SE 6 approach first.
-    try
-    {
-      final Method consoleMethod = System.class.getMethod("console");
-      final Object consoleObject = consoleMethod.invoke(null);
+    // If we're not in a test, then use the Java SE 6 password reader API to
+    // read the password.
+    final char[] pwChars = System.console().readPassword();
 
-      final Method readPasswordMethod =
-        consoleObject.getClass().getMethod("readPassword");
-      final char[] pwChars = (char[]) readPasswordMethod.invoke(consoleObject);
-
-      final ByteStringBuffer buffer = new ByteStringBuffer();
-      buffer.append(pwChars);
-      Arrays.fill(pwChars, '\u0000');
-      final byte[] pwBytes = buffer.toByteArray();
-      buffer.clear(true);
-      return pwBytes;
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-    // Fall back to the an approach that should work with Java SE 5.
-    try
-    {
-      final PasswordReader r = new PasswordReader();
-      try
-      {
-        synchronized (r.startMutex)
-        {
-          r.start();
-          r.startMutex.wait();
-        }
-
-        // NOTE:  0x0A is '\n' and 0x0D is '\r'.
-        final ByteStringBuffer buffer = new ByteStringBuffer();
-        while (true)
-        {
-          final int byteRead = System.in.read();
-          if ((byteRead < 0) || (byteRead == 0x0A))
-          {
-            // This is the end of the value, as indicated by a UNIX line
-            // terminator sequence.
-            break;
-          }
-          else if (byteRead == 0x0D)
-          {
-            final int nextCharacter = System.in.read();
-            if ((nextCharacter < 0) || (byteRead == 0x0A))
-            {
-              // This is the end of the value as indicated by a Windows line
-              // terminator sequence.
-              break;
-            }
-            else
-            {
-              buffer.append((byte) byteRead);
-              buffer.append((byte) nextCharacter);
-            }
-          }
-          else
-          {
-            buffer.append((byte) byteRead);
-          }
-        }
-
-        final byte[] pwBytes = buffer.toByteArray();
-        buffer.clear(true);
-        return pwBytes;
-      }
-      finally
-      {
-        r.stopRequested.set(true);
-      }
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-
-      if (e instanceof InterruptedException)
-      {
-        Thread.currentThread().interrupt();
-      }
-
-      throw new LDAPException(ResultCode.LOCAL_ERROR,
-           ERR_PW_READER_FAILURE.get(StaticUtils.getExceptionMessage(e)),
-           e);
-    }
+    final ByteStringBuffer buffer = new ByteStringBuffer();
+    buffer.append(pwChars);
+    Arrays.fill(pwChars, '\u0000');
+    final byte[] pwBytes = buffer.toByteArray();
+    buffer.clear(true);
+    return pwBytes;
   }
 
 
@@ -230,7 +151,8 @@ public final class PasswordReader
    *                 be {@code null} to obtain the password from the normal
    *                 means.
    */
-  static void setTestReader(final BufferedReader reader)
+  @InternalUseOnly()
+  public static void setTestReader(final BufferedReader reader)
   {
     TEST_READER = reader;
   }

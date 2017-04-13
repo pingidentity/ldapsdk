@@ -22,8 +22,6 @@ package com.unboundid.util;
 
 
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,6 +42,10 @@ import com.unboundid.ldap.sdk.PLAINBindRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SASLBindRequest;
 import com.unboundid.ldap.sdk.SASLQualityOfProtection;
+import com.unboundid.ldap.sdk.unboundidds.SingleUseTOTPBindRequest;
+import com.unboundid.ldap.sdk.unboundidds.UnboundIDDeliveredOTPBindRequest;
+import com.unboundid.ldap.sdk.unboundidds.UnboundIDTOTPBindRequest;
+import com.unboundid.ldap.sdk.unboundidds.UnboundIDYubiKeyOTPBindRequest;
 
 import static com.unboundid.util.StaticUtils.*;
 import static com.unboundid.util.UtilityMessages.*;
@@ -108,6 +110,25 @@ public final class SASLUtils
 
 
   /**
+   * The name of the SASL option that specifies a one-time password.  It may be
+   * used in conjunction with the UNBOUNDID-DELIVERED-OTP and
+   * UNBOUNDID-YUBIKEY-OTP mechanisms.
+   */
+  public static final String SASL_OPTION_OTP = "otp";
+
+
+
+  /**
+   * The name of the SASL option that may be used to indicate whether to
+   * prompt for a static password.  It may be used in conjunction with the
+   * UNBOUNDID-TOTP and UNBOUNDID-YUBIKEY-OTP mechanisms.
+   */
+  public static final String SASL_OPTION_PROMPT_FOR_STATIC_PW =
+       "promptForStaticPassword";
+
+
+
+  /**
    * The name of the SASL option that specifies the GSSAPI service principal
    * protocol.  It may be used in conjunction with the GSSAPI mechanism.
    */
@@ -155,6 +176,14 @@ public final class SASLUtils
    * cache to use.  It may be used in conjunction with the GSSAPI mechanism.
    */
   public static final String SASL_OPTION_TICKET_CACHE_PATH = "ticketCache";
+
+
+
+  /**
+   * The name of the SASL option that specifies the TOTP authentication code.
+   * It may be used in conjunction with the UNBOUNDID-TOTP mechanism.
+   */
+  public static final String SASL_OPTION_TOTP_PASSWORD = "totpPassword";
 
 
 
@@ -254,23 +283,61 @@ public final class SASLUtils
               new SASLOption(SASL_OPTION_AUTHZ_ID,
                    INFO_SASL_PLAIN_OPTION_AUTHZ_ID.get(), false, false)));
 
+    m.put(
+         StaticUtils.toLowerCase(
+              UnboundIDDeliveredOTPBindRequest.
+                   UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME),
+         new SASLMechanismInfo(
+              UnboundIDDeliveredOTPBindRequest.
+                   UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME,
+              INFO_SASL_UNBOUNDID_DELIVERED_OTP_DESCRIPTION.get(), false, false,
+              new SASLOption(SASL_OPTION_AUTH_ID,
+                   INFO_SASL_UNBOUNDID_TOTP_OPTION_AUTH_ID.get(), true, false),
+              new SASLOption(SASL_OPTION_AUTHZ_ID,
+                   INFO_SASL_UNBOUNDID_TOTP_OPTION_AUTHZ_ID.get(), false,
+                   false),
+              new SASLOption(SASL_OPTION_OTP,
+                   INFO_SASL_UNBOUNDID_DELIVERED_OTP_OPTION_OTP.get(), true,
+                   false)));
 
-    // If Commercial Edition classes are available, then register support for
-    // any additional SASL mechanisms that it provides.
-    try
-    {
-      final Class<?> c =
-           Class.forName("com.unboundid.ldap.sdk.unboundidds.SASLHelper");
-      final Method addCESASLInfoMethod =
-           c.getMethod("addCESASLInfo", Map.class);
-      addCESASLInfoMethod.invoke(null, m);
-    }
-    catch (final Exception e)
-    {
-        // This is fine.  It simply means that the Commercial Edition classes
-        // are not available.
-      Debug.debugException(e);
-    }
+    m.put(
+         StaticUtils.toLowerCase(
+              UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME),
+         new SASLMechanismInfo(
+              UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME,
+              INFO_SASL_UNBOUNDID_TOTP_DESCRIPTION.get(), true, false,
+              new SASLOption(SASL_OPTION_AUTH_ID,
+                   INFO_SASL_UNBOUNDID_TOTP_OPTION_AUTH_ID.get(), true, false),
+              new SASLOption(SASL_OPTION_AUTHZ_ID,
+                   INFO_SASL_UNBOUNDID_TOTP_OPTION_AUTHZ_ID.get(), false,
+                   false),
+              new SASLOption(SASL_OPTION_PROMPT_FOR_STATIC_PW,
+                   INFO_SASL_UNBOUNDID_TOTP_OPTION_PROMPT_FOR_PW.get(), false,
+                   false),
+              new SASLOption(SASL_OPTION_TOTP_PASSWORD,
+                   INFO_SASL_UNBOUNDID_TOTP_OPTION_TOTP_PASSWORD.get(), true,
+                   false)));
+
+    m.put(
+         StaticUtils.toLowerCase(
+              UnboundIDYubiKeyOTPBindRequest.
+                   UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME),
+         new SASLMechanismInfo(
+              UnboundIDYubiKeyOTPBindRequest.
+                   UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME,
+              INFO_SASL_UNBOUNDID_YUBIKEY_OTP_DESCRIPTION.get(), true, false,
+              new SASLOption(SASL_OPTION_AUTH_ID,
+                   INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_AUTH_ID.get(), true,
+                   false),
+              new SASLOption(SASL_OPTION_AUTHZ_ID,
+                   INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_AUTHZ_ID.get(), false,
+                   false),
+              new SASLOption(SASL_OPTION_OTP,
+                   INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_OTP.get(), true,
+                   false),
+              new SASLOption(SASL_OPTION_PROMPT_FOR_STATIC_PW,
+                   INFO_SASL_UNBOUNDID_YUBIKEY_OTP_OPTION_PROMPT_FOR_PW.get(),
+                   false, false)));
 
     SASL_MECHANISMS = Collections.unmodifiableMap(m);
   }
@@ -588,43 +655,26 @@ public final class SASLUtils
       return createPLAINBindRequest(password, promptForPassword, tool,
            optionsMap, controls);
     }
+    else if (mech.equalsIgnoreCase(UnboundIDDeliveredOTPBindRequest.
+             UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME))
+    {
+      return createUNBOUNDIDDeliveredOTPBindRequest(password, optionsMap,
+           controls);
+    }
+    else if (mech.equalsIgnoreCase(
+             UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME))
+    {
+      return createUNBOUNDIDTOTPBindRequest(password, tool, optionsMap,
+           controls);
+    }
+    else if (mech.equalsIgnoreCase(
+         UnboundIDYubiKeyOTPBindRequest.UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME))
+    {
+      return createUNBOUNDIDYUBIKEYOTPBindRequest(password, tool, optionsMap,
+           controls);
+    }
     else
     {
-      // If Commercial Edition classes are available, then see if the
-      // authentication attempt is for one of the Commercial Edition mechanisms.
-      try
-      {
-        final Class<?> c =
-             Class.forName("com.unboundid.ldap.sdk.unboundidds.SASLHelper");
-        final Method createBindRequestMethod = c.getMethod("createBindRequest",
-             String.class, StaticUtils.NO_BYTES.getClass(), String.class,
-             CommandLineTool.class, Map.class,
-             StaticUtils.NO_CONTROLS.getClass());
-        final Object bindRequestObject = createBindRequestMethod.invoke(null,
-             bindDN, password, mech, tool, optionsMap, controls);
-        if (bindRequestObject != null)
-        {
-          return (SASLBindRequest) bindRequestObject;
-        }
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-
-        // This may mean that there was a problem with the provided arguments.
-        // If it's an InvocationTargetException that wraps an LDAPException,
-        // then throw that LDAPException.
-        if (e instanceof InvocationTargetException)
-        {
-          final InvocationTargetException ite = (InvocationTargetException) e;
-          final Throwable t = ite.getTargetException();
-          if (t instanceof LDAPException)
-          {
-            throw (LDAPException) t;
-          }
-        }
-      }
-
       throw new LDAPException(ResultCode.PARAM_ERROR,
            ERR_SASL_OPTION_UNSUPPORTED_MECH.get(mech));
     }
@@ -1045,6 +1095,244 @@ public final class SASLUtils
          PLAINBindRequest.PLAIN_MECHANISM_NAME);
 
     return new PLAINBindRequest(authID, authzID, pw, controls);
+  }
+
+
+
+  /**
+   * Creates a SASL UNBOUNDID-DELIVERED-OTP bind request using the provided
+   * password and set of options.
+   *
+   * @param  password  The password to use for the bind request.
+   * @param  options   The set of SASL options for the bind request.
+   * @param  controls  The set of controls to include in the request.
+   *
+   * @return  The SASL UNBOUNDID-DELIVERED-OTP bind request that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  private static UnboundIDDeliveredOTPBindRequest
+                      createUNBOUNDIDDeliveredOTPBindRequest(
+                           final byte[] password,
+                           final Map<String,String> options,
+                           final Control... controls)
+          throws LDAPException
+  {
+    if (password != null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_OPTION_MECH_DOESNT_ACCEPT_PASSWORD.get(
+                UnboundIDDeliveredOTPBindRequest.
+                     UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME));
+    }
+
+    // The authID option is required.
+    final String authID =
+         options.remove(StaticUtils.toLowerCase(SASLUtils.SASL_OPTION_AUTH_ID));
+    if (authID == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASLUtils.SASL_OPTION_AUTH_ID,
+                UnboundIDDeliveredOTPBindRequest.
+                     UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME));
+    }
+
+    // The OTP option is required.
+    final String otp = options.remove(StaticUtils.toLowerCase(SASL_OPTION_OTP));
+    if (otp == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_OTP,
+                UnboundIDDeliveredOTPBindRequest.
+                     UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME));
+    }
+
+    // The authzID option is optional.
+    final String authzID = options.remove(StaticUtils.toLowerCase(
+         SASLUtils.SASL_OPTION_AUTHZ_ID));
+
+    // Ensure no unsupported options were provided.
+    SASLUtils.ensureNoUnsupportedOptions(options,
+         UnboundIDDeliveredOTPBindRequest.
+              UNBOUNDID_DELIVERED_OTP_MECHANISM_NAME);
+
+    return new UnboundIDDeliveredOTPBindRequest(authID, authzID, otp, controls);
+  }
+
+
+
+  /**
+   * Creates a SASL UNBOUNDID-TOTP bind request using the provided password and
+   * set of options.
+   *
+   * @param  password  The password to use for the bind request.
+   * @param  tool      The command-line tool whose input and output streams
+   *                   should be used when prompting for the bind password.  It
+   *                   may be {@code null} if {@code promptForPassword} is
+   *                   {@code false}.
+   * @param  options   The set of SASL options for the bind request.
+   * @param  controls  The set of controls to include in the request.
+   *
+   * @return  The SASL UNBOUNDID-TOTP bind request that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  private static SingleUseTOTPBindRequest createUNBOUNDIDTOTPBindRequest(
+                                               final byte[] password,
+                                               final CommandLineTool tool,
+                                               final Map<String,String> options,
+                                               final Control... controls)
+          throws LDAPException
+  {
+    // The authID option is required.
+    final String authID =
+         options.remove(StaticUtils.toLowerCase(SASLUtils.SASL_OPTION_AUTH_ID));
+    if (authID == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASLUtils.SASL_OPTION_AUTH_ID,
+                UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME));
+    }
+
+    // The TOTP password option is required.
+    final String totpPassword =
+         options.remove(StaticUtils.toLowerCase(SASL_OPTION_TOTP_PASSWORD));
+    if (totpPassword == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_TOTP_PASSWORD,
+                UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME));
+    }
+
+    // The authzID option is optional.
+    byte[] pwBytes = password;
+    final String authzID = options.remove(StaticUtils.toLowerCase(
+         SASLUtils.SASL_OPTION_AUTHZ_ID));
+
+    // The promptForStaticPassword option is optional.
+    final String promptStr = options.remove(StaticUtils.toLowerCase(
+         SASL_OPTION_PROMPT_FOR_STATIC_PW));
+    if (promptStr != null)
+    {
+      if (promptStr.equalsIgnoreCase("true"))
+      {
+        if (pwBytes == null)
+        {
+          tool.getOriginalOut().print(INFO_SASL_ENTER_STATIC_PW.get());
+          pwBytes = PasswordReader.readPassword();
+          tool.getOriginalOut().println();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_SASL_PROMPT_FOR_PROVIDED_PW.get(
+                    SASL_OPTION_PROMPT_FOR_STATIC_PW));
+        }
+      }
+      else if (! promptStr.equalsIgnoreCase("false"))
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_PROMPT_FOR_STATIC_PW_BAD_VALUE.get(
+                  SASL_OPTION_PROMPT_FOR_STATIC_PW));
+      }
+    }
+
+    // Ensure no unsupported options were provided.
+    SASLUtils.ensureNoUnsupportedOptions(options,
+         UnboundIDTOTPBindRequest.UNBOUNDID_TOTP_MECHANISM_NAME);
+
+    return new SingleUseTOTPBindRequest(authID, authzID, totpPassword, pwBytes,
+         controls);
+  }
+
+
+
+  /**
+   * Creates a SASL UNBOUNDID-YUBIKEY-OTP bind request using the provided
+   * password and set of options.
+   *
+   * @param  password  The password to use for the bind request.
+   * @param  tool      The command-line tool whose input and output streams
+   *                   should be used when prompting for the bind password.  It
+   *                   may be {@code null} if {@code promptForPassword} is
+   *                   {@code false}.
+   * @param  options   The set of SASL options for the bind request.
+   * @param  controls  The set of controls to include in the request.
+   *
+   * @return  The SASL UNBOUNDID-YUBIKEY-OTP bind request that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to create
+   *                         the SASL bind request.
+   */
+  private static UnboundIDYubiKeyOTPBindRequest
+                      createUNBOUNDIDYUBIKEYOTPBindRequest(
+                           final byte[] password, final CommandLineTool tool,
+                           final Map<String,String> options,
+                           final Control... controls)
+          throws LDAPException
+  {
+    // The authID option is required.
+    final String authID =
+         options.remove(StaticUtils.toLowerCase(SASLUtils.SASL_OPTION_AUTH_ID));
+    if (authID == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASLUtils.SASL_OPTION_AUTH_ID,
+                UnboundIDYubiKeyOTPBindRequest.
+                     UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME));
+    }
+
+    // The otp option is required.
+    final String otp = options.remove(StaticUtils.toLowerCase(SASL_OPTION_OTP));
+    if (otp == null)
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_SASL_MISSING_REQUIRED_OPTION.get(SASL_OPTION_OTP,
+                UnboundIDYubiKeyOTPBindRequest.
+                     UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME));
+    }
+
+    // The authzID option is optional.
+    final String authzID = options.remove(StaticUtils.toLowerCase(
+         SASLUtils.SASL_OPTION_AUTHZ_ID));
+
+    // The promptForStaticPassword option is optional.
+    byte[] pwBytes = password;
+    final String promptStr = options.remove(StaticUtils.toLowerCase(
+         SASL_OPTION_PROMPT_FOR_STATIC_PW));
+    if (promptStr != null)
+    {
+      if (promptStr.equalsIgnoreCase("true"))
+      {
+        if (pwBytes == null)
+        {
+          tool.getOriginalOut().print(INFO_SASL_ENTER_STATIC_PW.get());
+          pwBytes = PasswordReader.readPassword();
+          tool.getOriginalOut().println();
+        }
+        else
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_SASL_PROMPT_FOR_PROVIDED_PW.get(
+                    SASL_OPTION_PROMPT_FOR_STATIC_PW));
+        }
+      }
+      else if (! promptStr.equalsIgnoreCase("false"))
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_SASL_PROMPT_FOR_STATIC_PW_BAD_VALUE.get(
+                  SASL_OPTION_PROMPT_FOR_STATIC_PW));
+      }
+    }
+
+    // Ensure no unsupported options were provided.
+    SASLUtils.ensureNoUnsupportedOptions(options,
+         UnboundIDYubiKeyOTPBindRequest.UNBOUNDID_YUBIKEY_OTP_MECHANISM_NAME);
+
+    return new UnboundIDYubiKeyOTPBindRequest(authID, authzID, pwBytes, otp,
+         controls);
   }
 
 

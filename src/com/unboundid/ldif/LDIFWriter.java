@@ -1468,7 +1468,7 @@ public final class LDIFWriter
     }
     else
     {
-      throw createIOExceptionWithCause(null, t);
+      throw new IOException(t);
     }
   }
 }

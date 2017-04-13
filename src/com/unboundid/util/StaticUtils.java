@@ -22,7 +22,6 @@ package com.unboundid.util;
 
 
 
-import java.lang.reflect.Constructor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -2514,34 +2513,13 @@ public final class StaticUtils
     {
       return new IOException(message);
     }
-
-    try
+    else if (message == null)
     {
-      if (message == null)
-      {
-        final Constructor<IOException> constructor =
-             IOException.class.getConstructor(Throwable.class);
-        return constructor.newInstance(cause);
-      }
-      else
-      {
-        final Constructor<IOException> constructor =
-             IOException.class.getConstructor(String.class, Throwable.class);
-        return constructor.newInstance(message, cause);
-      }
+      return new IOException(cause);
     }
-    catch (final Exception e)
+    else
     {
-      debugException(e);
-      if (message == null)
-      {
-        return new IOException(getExceptionMessage(cause));
-      }
-      else
-      {
-        return new IOException(message + " (caused by " +
-             getExceptionMessage(cause) + ')');
-      }
+      return new IOException(message, cause);
     }
   }
 
