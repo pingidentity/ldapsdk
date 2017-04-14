@@ -130,7 +130,7 @@ public final class SetterInfo
     {
       encoder = a.encoderClass().newInstance();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(ERR_SETTER_INFO_CANNOT_GET_ENCODER.get(
@@ -324,7 +324,7 @@ public final class SetterInfo
     {
       encoder.invokeSetter(method, o, a);
     }
-    catch (LDAPPersistException lpe)
+    catch (final LDAPPersistException lpe)
     {
       debugException(lpe);
       if (failOnInvalidValue)

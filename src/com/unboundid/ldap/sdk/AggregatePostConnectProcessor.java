@@ -84,6 +84,7 @@ public final class AggregatePostConnectProcessor
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void processPreAuthenticatedConnection(final LDAPConnection connection)
          throws LDAPException
   {
@@ -98,6 +99,7 @@ public final class AggregatePostConnectProcessor
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void processPostAuthenticatedConnection(
                    final LDAPConnection connection)
          throws LDAPException

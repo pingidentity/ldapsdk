@@ -118,6 +118,7 @@ public final class DeleteResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);

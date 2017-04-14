@@ -225,7 +225,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
       final ASN1Element valueElement = ASN1Element.decode(value.getValue());
       valueSequence = ASN1Sequence.decodeAsSequence(valueElement);
     }
-    catch (ASN1Exception ae)
+    catch (final ASN1Exception ae)
     {
       debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -273,7 +273,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
                                       toHex(warningElement.getType())));
               }
             }
-            catch (ASN1Exception ae)
+            catch (final ASN1Exception ae)
             {
               debugException(ae);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -304,7 +304,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
                                       errorElement.intValue()));
               }
             }
-            catch (ASN1Exception ae)
+            catch (final ASN1Exception ae)
             {
               debugException(ae);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -335,6 +335,7 @@ public final class DraftBeheraLDAPPasswordPolicy10ResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public DraftBeheraLDAPPasswordPolicy10ResponseControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

@@ -80,6 +80,7 @@ final class InterceptedSimpleBindOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public SimpleBindRequest getRequest()
   {
     return bindRequest;
@@ -90,6 +91,7 @@ final class InterceptedSimpleBindOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setRequest(final SimpleBindRequest bindRequest)
   {
     this.bindRequest = bindRequest;
@@ -100,6 +102,7 @@ final class InterceptedSimpleBindOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public BindResult getResult()
   {
     return bindResult;
@@ -110,6 +113,7 @@ final class InterceptedSimpleBindOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setResult(final BindResult bindResult)
   {
     this.bindResult = bindResult;

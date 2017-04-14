@@ -57,7 +57,7 @@ public abstract class SSLSocketVerifier
    *                         provided {@code SSLSocket} from remaining
    *                         established.
    */
-  public abstract void verifySSLSocket(final String host, final int port,
-                                       final SSLSocket sslSocket)
+  public abstract void verifySSLSocket(String host, int port,
+                                       SSLSocket sslSocket)
          throws LDAPException;
 }

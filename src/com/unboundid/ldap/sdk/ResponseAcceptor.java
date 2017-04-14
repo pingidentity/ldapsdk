@@ -49,6 +49,6 @@ interface ResponseAcceptor
    *
    * @throws  LDAPException  If a problem occurs while handling the response.
    */
-  void responseReceived(final LDAPResponse response)
+  void responseReceived(LDAPResponse response)
        throws LDAPException;
 }

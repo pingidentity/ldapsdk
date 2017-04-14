@@ -46,6 +46,5 @@ public interface AsyncResultListener
    *                     response was received.
    * @param  ldapResult  The LDAP result that has been received.
    */
-  void ldapResultReceived(final AsyncRequestID requestID,
-                          final LDAPResult ldapResult);
+  void ldapResultReceived(AsyncRequestID requestID, LDAPResult ldapResult);
 }

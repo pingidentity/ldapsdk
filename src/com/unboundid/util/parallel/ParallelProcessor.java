@@ -347,7 +347,7 @@ public final class ParallelProcessor<I, O>
         outputs.set(next, process(input));
       }
     }
-    catch (Throwable e)
+    catch (final Throwable e)
     {
       Debug.debugException(e);
       // As with catching InterruptedException above, it's bad if this
@@ -376,7 +376,7 @@ public final class ParallelProcessor<I, O>
     {
       output = processor.process(input);
     }
-    catch (Throwable e)
+    catch (final Throwable e)
     {
       failureCause = e;
     }
@@ -416,7 +416,7 @@ public final class ParallelProcessor<I, O>
           //  2) it was released by shutdown
           workerSemaphore.acquire();
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
           Debug.debugException(e);
           // It's not good practice to eat an InterruptedException, but it's
@@ -489,6 +489,7 @@ public final class ParallelProcessor<I, O>
     /**
      * {@inheritDoc}
      */
+    @Override()
     public I getInput()
     {
       return inputItem;
@@ -499,6 +500,7 @@ public final class ParallelProcessor<I, O>
     /**
      * {@inheritDoc}
      */
+    @Override()
     public O getOutput()
     {
       return outputItem;
@@ -509,6 +511,7 @@ public final class ParallelProcessor<I, O>
     /**
      * {@inheritDoc}
      */
+    @Override()
     public Throwable getFailureCause()
     {
       return failureCause;

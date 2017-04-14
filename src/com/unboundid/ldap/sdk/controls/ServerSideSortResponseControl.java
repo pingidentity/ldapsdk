@@ -201,6 +201,7 @@ public final class ServerSideSortResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ServerSideSortResponseControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

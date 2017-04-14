@@ -355,7 +355,7 @@ public final class AccountUsableResponseControl
     {
       valueElement = ASN1Element.decode(value.getValue());
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -388,7 +388,7 @@ public final class AccountUsableResponseControl
           decodedSecondsUntilExpiration = -1;
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -404,7 +404,7 @@ public final class AccountUsableResponseControl
       {
         elements = ASN1Sequence.decodeAsSequence(valueElement).elements();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -423,7 +423,7 @@ public final class AccountUsableResponseControl
                    ASN1Boolean.decodeAsBoolean(element).booleanValue();
               decodedUnusableReasons.add(ERR_ACCT_UNUSABLE_INACTIVE.get());
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
               debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -439,7 +439,7 @@ public final class AccountUsableResponseControl
               decodedUnusableReasons.add(
                    ERR_ACCT_UNUSABLE_MUST_CHANGE_PW.get());
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
               debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -455,7 +455,7 @@ public final class AccountUsableResponseControl
                    ASN1Boolean.decodeAsBoolean(element).booleanValue();
               decodedUnusableReasons.add(ERR_ACCT_UNUSABLE_PW_EXPIRED.get());
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
               debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -492,7 +492,7 @@ public final class AccountUsableResponseControl
                 }
               }
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
               debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -516,7 +516,7 @@ public final class AccountUsableResponseControl
                           decodedSecondsUntilUnlock));
               }
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
               debugException(e);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -635,6 +635,7 @@ public final class AccountUsableResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public AccountUsableResponseControl decodeControl(final String oid,
                                                     final boolean isCritical,
                                                     final ASN1OctetString value)

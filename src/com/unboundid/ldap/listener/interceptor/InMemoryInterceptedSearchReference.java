@@ -69,5 +69,5 @@ public interface InMemoryInterceptedSearchReference
    *                    client.  It may be {@code null} if the reference should
    *                    be suppressed rather than being returned to the client.
    */
-  void setSearchReference(final SearchResultReference reference);
+  void setSearchReference(SearchResultReference reference);
 }

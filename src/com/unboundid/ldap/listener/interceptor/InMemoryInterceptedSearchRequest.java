@@ -58,7 +58,7 @@ public interface InMemoryInterceptedSearchRequest
    *                        instead of the one that was originally received
    *                        from the client.  It must not be {@code null}.
    */
-  void setRequest(final SearchRequest searchRequest);
+  void setRequest(SearchRequest searchRequest);
 
 
 
@@ -77,7 +77,7 @@ public interface InMemoryInterceptedSearchRequest
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the search result entry.
    */
-  void sendSearchEntry(final Entry entry)
+  void sendSearchEntry(Entry entry)
        throws LDAPException;
 
 
@@ -94,6 +94,6 @@ public interface InMemoryInterceptedSearchRequest
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the search result reference.
    */
-  void sendSearchReference(final SearchResultReference reference)
+  void sendSearchReference(SearchResultReference reference)
        throws LDAPException;
 }

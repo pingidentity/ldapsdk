@@ -267,7 +267,7 @@ final class SearchRateThread
     {
       startBarrier.await();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       Debug.debugException(e);
     }
@@ -394,7 +394,7 @@ final class SearchRateThread
             searchRequest.addControl(proxyControl);
           }
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           Debug.debugException(le);
           errorCounter.incrementAndGet();
@@ -416,7 +416,7 @@ final class SearchRateThread
             r = connection.search(searchRequest);
             entriesReturned += r.getEntryCount();
           }
-          catch (LDAPSearchException lse)
+          catch (final LDAPSearchException lse)
           {
             Debug.debugException(lse);
 
@@ -543,7 +543,7 @@ final class SearchRateThread
       {
         t.join();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         Debug.debugException(e);
 
@@ -563,6 +563,7 @@ final class SearchRateThread
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     // No implementation required.
@@ -573,6 +574,7 @@ final class SearchRateThread
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

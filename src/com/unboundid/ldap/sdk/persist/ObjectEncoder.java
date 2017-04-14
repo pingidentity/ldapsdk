@@ -65,7 +65,7 @@ public abstract class ObjectEncoder
    * @return  {@code true} if this object encoder may be used for objects of
    *          the specified type, or {@code false} if not.
    */
-  public abstract boolean supportsType(final Type t);
+  public abstract boolean supportsType(Type t);
 
 
 
@@ -110,8 +110,8 @@ public abstract class ObjectEncoder
    *                                encoding values for the associated field
    *                                type.
    */
-  public abstract AttributeTypeDefinition constructAttributeType(final Field f,
-                                               final OIDAllocator a)
+  public abstract AttributeTypeDefinition constructAttributeType(Field f,
+                                                                 OIDAllocator a)
          throws LDAPPersistException;
 
 
@@ -158,8 +158,8 @@ public abstract class ObjectEncoder
    *                                encoding values for the associated method
    *                                type.
    */
-  public abstract AttributeTypeDefinition constructAttributeType(final Method m,
-                                               final OIDAllocator a)
+  public abstract AttributeTypeDefinition constructAttributeType(Method m,
+                                                                 OIDAllocator a)
          throws LDAPPersistException;
 
 
@@ -173,7 +173,7 @@ public abstract class ObjectEncoder
    * @return  {@code true} if the provided field can hold multiple values, or
    *          {@code false} if not.
    */
-  public abstract boolean supportsMultipleValues(final Field field);
+  public abstract boolean supportsMultipleValues(Field field);
 
 
 
@@ -189,7 +189,7 @@ public abstract class ObjectEncoder
    * @return  {@code true} if the provided method takes an argument that can
    *          hold multiple values, or {@code false} if not.
    */
-  public abstract boolean supportsMultipleValues(final Method method);
+  public abstract boolean supportsMultipleValues(Method method);
 
 
 
@@ -206,9 +206,8 @@ public abstract class ObjectEncoder
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                construct an attribute for the field.
    */
-  public abstract Attribute encodeFieldValue(final Field field,
-                                             final Object value,
-                                             final String name)
+  public abstract Attribute encodeFieldValue(Field field, Object value,
+                                             String name)
          throws LDAPPersistException;
 
 
@@ -227,9 +226,8 @@ public abstract class ObjectEncoder
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                construct an attribute for the method.
    */
-  public abstract Attribute encodeMethodValue(final Method method,
-                                              final Object value,
-                                              final String name)
+  public abstract Attribute encodeMethodValue(Method method, Object value,
+                                              String name)
          throws LDAPPersistException;
 
 
@@ -246,8 +244,8 @@ public abstract class ObjectEncoder
    * @throws  LDAPPersistException  If a problem occurs while attempting to
    *                                assign a value to the specified field.
    */
-  public abstract void decodeField(final Field field, final Object object,
-                                   final Attribute attribute)
+  public abstract void decodeField(Field field, Object object,
+                                   Attribute attribute)
          throws LDAPPersistException;
 
 
@@ -314,7 +312,7 @@ public abstract class ObjectEncoder
         f.set(o, null);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(
@@ -387,7 +385,7 @@ public abstract class ObjectEncoder
         m.invoke(o, type.cast(null));
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(
@@ -411,7 +409,7 @@ public abstract class ObjectEncoder
    *                                determine the value or invoke the specified
    *                                method.
    */
-  public abstract void invokeSetter(final Method method, final Object object,
-                                    final Attribute attribute)
+  public abstract void invokeSetter(Method method, Object object,
+                                    Attribute attribute)
          throws LDAPPersistException;
 }

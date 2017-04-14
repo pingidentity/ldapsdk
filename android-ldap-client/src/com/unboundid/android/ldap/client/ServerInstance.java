@@ -339,7 +339,7 @@ public final class ServerInstance
       {
         new DN(bindDN);
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         logException(LOG_TAG, "isDefinitionValid", le);
 
@@ -354,7 +354,7 @@ public final class ServerInstance
     {
       new DN(baseDN);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       logException(LOG_TAG, "isDefinitionValid", le);
 
@@ -396,7 +396,7 @@ public final class ServerInstance
       {
         socketFactory = sslUtil.createSSLSocketFactory();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         logException(LOG_TAG, "getConnection", e);
 
@@ -430,14 +430,14 @@ public final class ServerInstance
           throw new LDAPException(r);
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         logException(LOG_TAG, "getConnection", le);
 
         conn.close();
         throw le;
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         logException(LOG_TAG, "getConnection", e);
 
@@ -454,7 +454,7 @@ public final class ServerInstance
       {
         conn.bind(bindDN, bindPW);
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         logException(LOG_TAG, "getConnection", le);
 

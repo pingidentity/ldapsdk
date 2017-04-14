@@ -540,7 +540,7 @@ public class Task
       {
         scheduledStartTime = decodeGeneralizedTime(timestamp);
       }
-      catch (ParseException pe)
+      catch (final ParseException pe)
       {
         debugException(pe);
         throw new TaskException(ERR_TASK_CANNOT_PARSE_SCHEDULED_START_TIME.get(
@@ -562,7 +562,7 @@ public class Task
       {
         actualStartTime = decodeGeneralizedTime(timestamp);
       }
-      catch (ParseException pe)
+      catch (final ParseException pe)
       {
         debugException(pe);
         throw new TaskException(ERR_TASK_CANNOT_PARSE_ACTUAL_START_TIME.get(
@@ -584,7 +584,7 @@ public class Task
       {
         completionTime = decodeGeneralizedTime(timestamp);
       }
-      catch (ParseException pe)
+      catch (final ParseException pe)
       {
         debugException(pe);
         throw new TaskException(ERR_TASK_CANNOT_PARSE_COMPLETION_TIME.get(
@@ -1246,7 +1246,7 @@ public class Task
       {
         dateValue = decodeGeneralizedTime((String) o);
       }
-      catch (ParseException pe)
+      catch (final ParseException pe)
       {
         throw new TaskException(ERR_TASK_PROPERTY_VALUE_NOT_DATE.get(
                                      p.getDisplayName()), pe);
@@ -1343,7 +1343,7 @@ public class Task
       {
         longValue = Long.parseLong((String) o);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         throw new TaskException(ERR_TASK_PROPERTY_VALUE_NOT_LONG.get(
                                      p.getDisplayName()), e);
@@ -1706,7 +1706,7 @@ public class Task
         return new ThirdPartyTask(entry);
       }
     }
-    catch (TaskException te)
+    catch (final TaskException te)
     {
       debugException(te);
     }

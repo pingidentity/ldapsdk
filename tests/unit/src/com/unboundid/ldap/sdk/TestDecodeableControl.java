@@ -61,6 +61,7 @@ public class TestDecodeableControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public TestDecodeableControl decodeControl(final String oid,
                                              final boolean isCritical,
                                              final ASN1OctetString value)

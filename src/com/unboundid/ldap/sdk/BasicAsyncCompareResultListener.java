@@ -73,6 +73,7 @@ public final class BasicAsyncCompareResultListener
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void compareResultReceived(final AsyncRequestID requestID,
                                     final CompareResult compareResult)
   {

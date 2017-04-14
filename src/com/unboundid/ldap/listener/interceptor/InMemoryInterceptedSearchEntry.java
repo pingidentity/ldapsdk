@@ -77,5 +77,5 @@ public interface InMemoryInterceptedSearchEntry
    *                other type of {@code Entry}, then it will not include any
    *                controls.
    */
-  void setSearchEntry(final Entry entry);
+  void setSearchEntry(Entry entry);
 }

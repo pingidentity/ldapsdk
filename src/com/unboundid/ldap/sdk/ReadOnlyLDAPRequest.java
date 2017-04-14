@@ -78,7 +78,7 @@ public interface ReadOnlyLDAPRequest
    * @return  {@code true} if this request contains at least one control with
    *          the specified OID, or {@code false} if not.
    */
-  boolean hasControl(final String oid);
+  boolean hasControl(String oid);
 
 
 
@@ -93,7 +93,7 @@ public interface ReadOnlyLDAPRequest
    * @return  The first control found with the specified OID, or {@code null} if
    *          no control with that OID is included in this request.
    */
-  Control getControl(final String oid);
+  Control getControl(String oid);
 
 
 
@@ -111,7 +111,7 @@ public interface ReadOnlyLDAPRequest
    *          operation should be allowed to block while waiting for a response
    *          from the server, or zero if no timeout should be enforced.
    */
-  long getResponseTimeoutMillis(final LDAPConnection connection);
+  long getResponseTimeoutMillis(LDAPConnection connection);
 
 
 
@@ -128,7 +128,7 @@ public interface ReadOnlyLDAPRequest
    * @return  {@code true} if any referrals encountered during processing should
    *          be automatically followed, or {@code false} if not.
    */
-  boolean followReferrals(final LDAPConnection connection);
+  boolean followReferrals(LDAPConnection connection);
 
 
 
@@ -153,7 +153,7 @@ public interface ReadOnlyLDAPRequest
    * @return  A new instance of this LDAP request that may be modified without
    *          impacting this request.
    */
-  LDAPRequest duplicate(final Control[] controls);
+  LDAPRequest duplicate(Control[] controls);
 
 
 
@@ -173,7 +173,7 @@ public interface ReadOnlyLDAPRequest
    * @param  buffer  The buffer to which to append a string representation of
    *                 this request.
    */
-  void toString(final StringBuilder buffer);
+  void toString(StringBuilder buffer);
 
 
 
@@ -195,6 +195,6 @@ public interface ReadOnlyLDAPRequest
    *                            or just to generate the request (if
    *                            {@code false}).
    */
-  void toCode(final List<String> lineList, final String requestID,
-              final int indentSpaces, final boolean includeProcessing);
+  void toCode(List<String> lineList, String requestID,
+              int indentSpaces, boolean includeProcessing);
 }

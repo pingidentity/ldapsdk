@@ -184,7 +184,7 @@ public final class DistinguishedNameMatchingRule
     {
       dn1 = new DN(value1.stringValue());
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
@@ -196,7 +196,7 @@ public final class DistinguishedNameMatchingRule
     {
       dn2 = new DN(value2.stringValue());
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
@@ -250,7 +250,7 @@ public final class DistinguishedNameMatchingRule
       final DN dn = new DN(value.stringValue());
       return new ASN1OctetString(dn.toNormalizedString());
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,

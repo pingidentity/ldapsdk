@@ -191,7 +191,7 @@ public final class PasswordPolicyStateExtendedRequest
       final ASN1Element valueElement = ASN1Element.decode(value.getValue());
       elements = ASN1Sequence.decodeAsSequence(valueElement).elements();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -224,7 +224,7 @@ public final class PasswordPolicyStateExtendedRequest
           operations[i] = PasswordPolicyStateOperation.decode(opElements[i]);
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,

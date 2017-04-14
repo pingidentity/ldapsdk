@@ -1844,7 +1844,7 @@ attrNameLoop:
                                           final ByteStringBuffer buffer)
           throws LDAPException
   {
-    byte b;
+    final byte b;
     switch (filterString.charAt(startPos))
     {
       case '0':
@@ -1910,58 +1910,58 @@ attrNameLoop:
     switch (filterString.charAt(startPos+1))
     {
       case '0':
-        // No action is required.
+        buffer.append(b);
         break;
       case '1':
-        b |= 0x01;
+        buffer.append((byte) (b | 0x01));
         break;
       case '2':
-        b |= 0x02;
+        buffer.append((byte) (b | 0x02));
         break;
       case '3':
-        b |= 0x03;
+        buffer.append((byte) (b | 0x03));
         break;
       case '4':
-        b |= 0x04;
+        buffer.append((byte) (b | 0x04));
         break;
       case '5':
-        b |= 0x05;
+        buffer.append((byte) (b | 0x05));
         break;
       case '6':
-        b |= 0x06;
+        buffer.append((byte) (b | 0x06));
         break;
       case '7':
-        b |= 0x07;
+        buffer.append((byte) (b | 0x07));
         break;
       case '8':
-        b |= 0x08;
+        buffer.append((byte) (b | 0x08));
         break;
       case '9':
-        b |= 0x09;
+        buffer.append((byte) (b | 0x09));
         break;
       case 'a':
       case 'A':
-        b |= 0x0A;
+        buffer.append((byte) (b | 0x0A));
         break;
       case 'b':
       case 'B':
-        b |= 0x0B;
+        buffer.append((byte) (b | 0x0B));
         break;
       case 'c':
       case 'C':
-        b |= 0x0C;
+        buffer.append((byte) (b | 0x0C));
         break;
       case 'd':
       case 'D':
-        b |= 0x0D;
+        buffer.append((byte) (b | 0x0D));
         break;
       case 'e':
       case 'E':
-        b |= 0x0E;
+        buffer.append((byte) (b | 0x0E));
         break;
       case 'f':
       case 'F':
-        b |= 0x0F;
+        buffer.append((byte) (b | 0x0F));
         break;
       default:
         throw new LDAPException(ResultCode.FILTER_ERROR,
@@ -1969,7 +1969,6 @@ attrNameLoop:
                   (startPos+1)));
     }
 
-    buffer.append(b);
     return startPos+2;
   }
 
@@ -2394,12 +2393,12 @@ attrNameLoop:
                         assertionValue, subInitial, subAny, subFinal,
                         matchingRuleID, dnAttributes);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -2569,7 +2568,7 @@ attrNameLoop:
         {
           subSequence = ASN1Sequence.decodeAsSequence(subFilterElements[1]);
         }
-        catch (ASN1Exception ae)
+        catch (final ASN1Exception ae)
         {
           debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -2655,7 +2654,7 @@ attrNameLoop:
         {
           emSequence = ASN1Sequence.decodeAsSequence(filterElement);
         }
-        catch (ASN1Exception ae)
+        catch (final ASN1Exception ae)
         {
           debugException(ae);
           throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -2723,7 +2722,7 @@ attrNameLoop:
                        ASN1Boolean.decodeAsBoolean(e).booleanValue();
                 }
               }
-              catch (ASN1Exception ae)
+              catch (final ASN1Exception ae)
               {
                 debugException(ae);
                 throw new LDAPException(ResultCode.DECODING_ERROR,

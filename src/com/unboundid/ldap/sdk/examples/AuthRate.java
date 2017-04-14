@@ -816,7 +816,7 @@ public final class AuthRate
     {
       dnPattern = new ValuePattern(baseDN.getValue(), seed);
     }
-    catch (ParseException pe)
+    catch (final ParseException pe)
     {
       debugException(pe);
       err("Unable to parse the base DN value pattern:  ", pe.getMessage());
@@ -828,7 +828,7 @@ public final class AuthRate
     {
       filterPattern = new ValuePattern(filter.getValue(), seed);
     }
-    catch (ParseException pe)
+    catch (final ParseException pe)
     {
       debugException(pe);
       err("Unable to parse the filter pattern:  ", pe.getMessage());
@@ -877,13 +877,13 @@ public final class AuthRate
         rateAdjustor = RateAdjustor.newInstance(fixedRateBarrier,
              ratePerSecond.getValue(), variableRateData.getValue());
       }
-      catch (IOException e)
+      catch (final IOException e)
       {
         debugException(e);
         err("Initializing the variable rates failed: " + e.getMessage());
         return ResultCode.PARAM_ERROR;
       }
-      catch (IllegalArgumentException e)
+      catch (final IllegalArgumentException e)
       {
         debugException(e);
         err("Initializing the variable rates failed: " + e.getMessage());
@@ -992,7 +992,7 @@ public final class AuthRate
         searchConnection = getConnection();
         bindConnection   = getConnection();
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         err("Unable to connect to the directory server:  ",

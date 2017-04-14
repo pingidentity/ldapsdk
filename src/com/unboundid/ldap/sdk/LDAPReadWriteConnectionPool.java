@@ -142,7 +142,7 @@ public final class LDAPReadWriteConnectionPool
       writePool = new LDAPConnectionPool(writeConnection,
            initialWriteConnections, maxWriteConnections);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       readPool.close();

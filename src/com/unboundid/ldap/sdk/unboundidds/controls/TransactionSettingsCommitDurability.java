@@ -97,7 +97,7 @@ public enum TransactionSettingsCommitDurability
    *
    * @param  intValue  The integer value for this commit durability.
    */
-  private TransactionSettingsCommitDurability(final int intValue)
+  TransactionSettingsCommitDurability(final int intValue)
   {
     this.intValue = intValue;
   }

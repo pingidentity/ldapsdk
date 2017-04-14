@@ -98,7 +98,7 @@ public final class LDAPClient
     {
       instances = ServerInstance.getInstances(this);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       logException(LOG_TAG, "onResume", e);
 

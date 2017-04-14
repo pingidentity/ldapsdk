@@ -279,6 +279,7 @@ public final class EntryChangeNotificationControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public EntryChangeNotificationControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

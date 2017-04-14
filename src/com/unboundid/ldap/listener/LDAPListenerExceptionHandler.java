@@ -52,7 +52,7 @@ public interface LDAPListenerExceptionHandler
    * @param  cause   An exception providing additional information about the
    *                 problem that occurred.  It will not be {@code null}.
    */
-  void connectionCreationFailure(final Socket socket, final Throwable cause);
+  void connectionCreationFailure(Socket socket, Throwable cause);
 
 
 
@@ -66,6 +66,6 @@ public interface LDAPListenerExceptionHandler
    *                     reason for the termination.  It will not be
    *                     {@code null}.
    */
-  void connectionTerminated(final LDAPListenerClientConnection connection,
-                            final LDAPException cause);
+  void connectionTerminated(LDAPListenerClientConnection connection,
+                            LDAPException cause);
 }

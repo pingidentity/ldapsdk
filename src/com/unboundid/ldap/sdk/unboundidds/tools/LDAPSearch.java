@@ -2983,6 +2983,7 @@ public final class LDAPSearch
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleUnsolicitedNotification(final LDAPConnection connection,
                                             final ExtendedResult notification)
   {

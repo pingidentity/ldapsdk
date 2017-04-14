@@ -118,10 +118,10 @@ public class SanityCheck
   private File baseDir;
 
   // The set of packages imported for OSGi.
-  private HashSet<String> osgiImportedPackages;
+  private final HashSet<String> osgiImportedPackages;
 
   // The set of packages imported from the source.
-  private HashSet<String> srcImportedPackages;
+  private final HashSet<String> srcImportedPackages;
 
   // The string representation of the test server port, if available.
   private String dsPort;
@@ -233,7 +233,7 @@ public class SanityCheck
 
 
       // Make sure that the README.txt file exists.
-      File readmeFile = new File(baseDir, "README.txt");
+      final File readmeFile = new File(baseDir, "README.txt");
       if (! readmeFile.exists())
       {
         throw new BuildException("ERROR:  Could not find readme file " +
@@ -245,8 +245,8 @@ public class SanityCheck
 
       // Make sure that the docs/javadoc directory exists and that it only
       // contains the appropriate content.
-      File docsDir = new File(baseDir, "docs");
-      File javadocDir = new File(docsDir, "javadoc");
+      final File docsDir = new File(baseDir, "docs");
+      final File javadocDir = new File(docsDir, "javadoc");
       if (! javadocDir.exists())
       {
         throw new BuildException("ERROR:  Could not find javadoc directory " +
@@ -258,14 +258,14 @@ public class SanityCheck
 
       // Make sure that the examples directory exists and that all files
       // contained it it have the GPLv2/LGPLv2.1license header.
-      File examplesDir = new File(docsDir, "examples");
+      final File examplesDir = new File(docsDir, "examples");
       if (! examplesDir.exists())
       {
         throw new BuildException("ERROR:  Could not find examples directory " +
                                  examplesDir.getAbsolutePath());
       }
 
-      for (File f : examplesDir.listFiles())
+      for (final File f : examplesDir.listFiles())
       {
         if (f.getName().endsWith(".java"))
         {
@@ -279,7 +279,7 @@ public class SanityCheck
       // Make sure that a src.zip file exists, that it only contains files which
       // are supposed to be part of the release, and that all of those files
       // contain the GPLv2/LGPLv2.1 license header.
-      File srcZipFile = new File(baseDir, "src.zip");
+      final File srcZipFile = new File(baseDir, "src.zip");
       if (! srcZipFile.exists())
       {
         throw new BuildException("ERROR:  Could not find src.zip file " +
@@ -291,7 +291,7 @@ public class SanityCheck
 
       // Ensure that the unboundid-ldapsdk.jar file exists and that
       // it only contains files which are supposed to be part of the release.
-      File sdkJarFile = new File(baseDir, "unboundid-ldapsdk.jar");
+      final File sdkJarFile = new File(baseDir, "unboundid-ldapsdk.jar");
       if (! sdkJarFile.exists())
       {
         throw new BuildException("ERROR:  Could not find SDK jar file:  " +
@@ -309,11 +309,11 @@ public class SanityCheck
       // appears to be functional.
       validateSDKIsUsable();
     }
-    catch (BuildException be)
+    catch (final BuildException be)
     {
       throw be;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       e.printStackTrace();
       throw new BuildException("Uncaught exception:  " + e, e);
@@ -354,7 +354,7 @@ public class SanityCheck
       throw new BuildException("File " + f.getAbsolutePath() +
                                " did not include expected string '" + s + '\'');
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       throw new BuildException("Unable to check whether file " +
                                f.getAbsolutePath() + " contains string '" + s +
@@ -368,7 +368,7 @@ public class SanityCheck
         {
           reader.close();
         }
-      } catch (Exception e) {}
+      } catch (final Exception e) {}
     }
   }
 
@@ -389,7 +389,7 @@ public class SanityCheck
     // Look at all of the directories below the javadocDir and ensure that they
     // only contain files that relate to the expected packages.  The only
     // exception to this should be the top-level resources directory.
-    for (File f : javadocDir.listFiles())
+    for (final File f : javadocDir.listFiles())
     {
       if (f.isDirectory())
       {
@@ -420,7 +420,7 @@ public class SanityCheck
           throws BuildException
   {
     boolean isSEPackage = false;
-    for (String pkg : PACKAGES)
+    for (final String pkg : PACKAGES)
     {
       if (packageName.equals(pkg))
       {
@@ -429,7 +429,7 @@ public class SanityCheck
       }
     }
 
-    for (File f : packageDir.listFiles())
+    for (final File f : packageDir.listFiles())
     {
       if (f.getAbsolutePath().contains("javadoc" + File.separator + "src-html" +
                                        File.separator))
@@ -475,20 +475,20 @@ public class SanityCheck
     {
       zipFile = new ZipFile(srcZipFile);
 
-      Enumeration<? extends ZipEntry> entries = zipFile.entries();
+      final Enumeration<? extends ZipEntry> entries = zipFile.entries();
       while (entries.hasMoreElements())
       {
-        ZipEntry zipEntry = entries.nextElement();
+        final ZipEntry zipEntry = entries.nextElement();
         if (! zipEntry.isDirectory())
         {
-          String name = zipEntry.getName().replace('\\', '/');
-          int lastSlashPos = name.lastIndexOf('/');
+          final String name = zipEntry.getName().replace('\\', '/');
+          final int lastSlashPos = name.lastIndexOf('/');
           if (lastSlashPos > 0)
           {
-            String packageName =
+            final String packageName =
                  name.substring(0, lastSlashPos).replace('/', '.');
             boolean acceptablePackage = false;
-            for (String pkg : PACKAGES)
+            for (final String pkg : PACKAGES)
             {
               if (packageName.equals(pkg))
               {
@@ -504,8 +504,8 @@ public class SanityCheck
                    " which is not one of the defined packages.");
             }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(
-                 zipFile.getInputStream(zipEntry)));
+            final BufferedReader reader = new BufferedReader(
+                 new InputStreamReader(zipFile.getInputStream(zipEntry)));
             try
             {
               boolean gplHeaderFound = false;
@@ -550,7 +550,7 @@ public class SanityCheck
         }
       }
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       throw new BuildException("ERROR:  I/O error encountered while reading " +
                                "src.zip file " + srcZipFile.getAbsolutePath() +
@@ -564,7 +564,7 @@ public class SanityCheck
         {
           zipFile.close();
         }
-      } catch (Exception e) {}
+      } catch (final Exception e) {}
     }
   }
 
@@ -587,13 +587,13 @@ public class SanityCheck
     // First, make sure that we have the complete import line.  It could be that
     // this is a long line that got wrapped, and in that case we'll just assume
     // that it's acceptable.
-    int semicolonPos = line.indexOf(';');
+    final int semicolonPos = line.indexOf(';');
     if (semicolonPos < 0)
     {
       return;
     }
 
-    StringTokenizer tokenizer = new StringTokenizer(line, " \t");
+    final StringTokenizer tokenizer = new StringTokenizer(line, " \t");
 
     String token = tokenizer.nextToken(); // This is the word "import".
     token = tokenizer.nextToken();
@@ -609,7 +609,7 @@ public class SanityCheck
         token = token.substring(0, token.indexOf(".*;"));
       }
 
-      int lastDotPos = token.lastIndexOf('.');
+      final int lastDotPos = token.lastIndexOf('.');
       if (lastDotPos < 0)
       {
         throw new BuildException("ERROR:  Unexpected token " + token +
@@ -628,7 +628,7 @@ public class SanityCheck
       }
       else
       {
-        int lastDotPos = token.lastIndexOf('.');
+        final int lastDotPos = token.lastIndexOf('.');
         if (lastDotPos < 0)
         {
           throw new BuildException("ERROR:  Unexpected token " + token +
@@ -644,7 +644,7 @@ public class SanityCheck
     if (token.startsWith("com.unboundid."))
     {
       boolean found = false;
-      for (String pkg : PACKAGES)
+      for (final String pkg : PACKAGES)
       {
         if (token.equals(pkg))
         {
@@ -685,18 +685,18 @@ public class SanityCheck
     {
       jar = new JarFile(jarFile);
 
-      HashSet<String> packageNames = new HashSet<String>();
+      final HashSet<String> packageNames = new HashSet<String>();
 
       // Look at the files contained in the jar to make sure they are correct.
-      Enumeration<? extends JarEntry> entries = jar.entries();
+      final Enumeration<? extends JarEntry> entries = jar.entries();
       while (entries.hasMoreElements())
       {
-        JarEntry jarEntry = entries.nextElement();
+        final JarEntry jarEntry = entries.nextElement();
         if ((! jarEntry.isDirectory()) &&
             (! jarEntry.getName().startsWith("META-INF")))
         {
-          String name = jarEntry.getName().replace('\\', '/');
-          int lastSlashPos = name.lastIndexOf('/');
+          final String name = jarEntry.getName().replace('\\', '/');
+          final int lastSlashPos = name.lastIndexOf('/');
           if (lastSlashPos > 0)
           {
             // Try to load the class.  If we can't do it, then it shouldn't be
@@ -704,20 +704,21 @@ public class SanityCheck
             // class from each package so that the class loader knows about all
             // of the packages so we can see what annotations might be defined
             // for them.
-            int classPos = name.lastIndexOf(".class");
+            final int classPos = name.lastIndexOf(".class");
             if (classPos >  0)
             {
-              String className = name.substring(0, classPos).replace('/', '.');
+              final String className =
+                   name.substring(0, classPos).replace('/', '.');
               try
               {
                 Class.forName(className);
-              } catch (Exception e) {}
+              } catch (final Exception e) {}
             }
 
-            String packageName =
+            final String packageName =
                  name.substring(0, lastSlashPos).replace('/', '.');
             boolean acceptablePackage = false;
-            for (String pkg : PACKAGES)
+            for (final String pkg : PACKAGES)
             {
               if (packageName.equals(pkg))
               {
@@ -741,41 +742,41 @@ public class SanityCheck
 
       // Look at the manifest to ensure that the list of exported packages is
       // correct.
-      Manifest manifest = jar.getManifest();
+      final Manifest manifest = jar.getManifest();
       if (manifest == null)
       {
         throw new BuildException("Unable to read the manifest from jar file " +
              jarFile.getAbsolutePath());
       }
 
-      Attributes attributes = manifest.getMainAttributes();
+      final Attributes attributes = manifest.getMainAttributes();
       if (attributes == null)
       {
         throw new BuildException("Could not find any main attributes in the " +
              jarFile.getAbsolutePath() + " manifest");
       }
 
-      String exportPackageStr = attributes.getValue("Export-Package");
+      final String exportPackageStr = attributes.getValue("Export-Package");
       if (exportPackageStr == null)
       {
         throw new BuildException("Could not find an Export-Package attribute " +
              "in the " + jarFile.getAbsolutePath() + " manifest");
       }
 
-      String versionStr = ";version=\"" + MAJOR_VERSION + '.' + MINOR_VERSION +
-           '.' + POINT_VERSION + '"';
+      final String versionStr = ";version=\"" + MAJOR_VERSION + '.' +
+           MINOR_VERSION + '.' + POINT_VERSION + '"';
 
       StringTokenizer tokenizer = new StringTokenizer(exportPackageStr, ", ");
       while (tokenizer.hasMoreTokens())
       {
-        String exportToken = tokenizer.nextToken();
+        final String exportToken = tokenizer.nextToken();
         if (! exportToken.endsWith(versionStr))
         {
           throw new BuildException("Export-Package value " + exportToken +
                " does not end with expected version component " + versionStr);
         }
 
-        String packageName =
+        final String packageName =
              exportToken.substring(0, exportToken.length()-versionStr.length());
         if (! packageNames.remove(packageName))
         {
@@ -785,7 +786,7 @@ public class SanityCheck
         }
       }
 
-      String importPackageStr = attributes.getValue("Import-Package");
+      final String importPackageStr = attributes.getValue("Import-Package");
       if (importPackageStr == null)
       {
         throw new BuildException("Could not find an Import-Package attribute " +
@@ -795,7 +796,7 @@ public class SanityCheck
       tokenizer = new StringTokenizer(importPackageStr, ", ");
       while (tokenizer.hasMoreTokens())
       {
-        String importToken = tokenizer.nextToken();
+        final String importToken = tokenizer.nextToken();
         if (osgiImportedPackages.contains(importToken))
         {
           throw new BuildException("Duplicate Import-Package value " +
@@ -810,14 +811,14 @@ public class SanityCheck
 
       // The only package names left in the set should be either the examples
       // package or be marked with an @InternalUseOnly annotation.
-      for (String packageName : packageNames)
+      for (final String packageName : packageNames)
       {
         if (packageName.endsWith(".examples"))
         {
           continue;
         }
 
-        Package p = Package.getPackage(packageName);
+        final Package p = Package.getPackage(packageName);
         if (p == null)
         {
           throw new BuildException("Unable to find any information about " +
@@ -835,7 +836,7 @@ public class SanityCheck
         }
       }
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       throw new BuildException("ERROR:  I/O error encountered while reading " +
                                "jar file " + jarFile.getAbsolutePath() +
@@ -849,7 +850,7 @@ public class SanityCheck
         {
           jar.close();
         }
-      } catch (Exception e) {}
+      } catch (final Exception e) {}
     }
   }
 
@@ -864,7 +865,7 @@ public class SanityCheck
   private void validateOSGiImports()
           throws BuildException
   {
-    for (String s : srcImportedPackages)
+    for (final String s : srcImportedPackages)
     {
       if (! osgiImportedPackages.remove(s))
       {
@@ -895,24 +896,24 @@ public class SanityCheck
     // First, try to instantiate common SDK data structures.
     try
     {
-      LDAPConnection connection = new LDAPConnection();
+      final LDAPConnection connection = new LDAPConnection();
 
-      Attribute attribute = new Attribute("name", "value");
+      final Attribute attribute = new Attribute("name", "value");
 
-      DN dn = new DN("dc=example,dc=com");
+      final DN dn = new DN("dc=example,dc=com");
 
-      Entry entry = new Entry(
+      final Entry entry = new Entry(
            "dn: dc=example,dc=com",
            "objectClass: top",
            "objectClass: domain",
            "dc: example");
 
-      Filter filter = Filter.create("(objectClass=*)");
+      final Filter filter = Filter.create("(objectClass=*)");
 
-      Modification mod = new Modification(ModificationType.REPLACE, "foo",
-                                          "bar");
+      final Modification mod =
+           new Modification(ModificationType.REPLACE, "foo", "bar");
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new BuildException("ERROR:  Unable to instantiate common SDK " +
                                "data structures:  " + e, e);
@@ -934,18 +935,18 @@ public class SanityCheck
       try
       {
         port = Integer.parseInt(dsPort);
-      } catch (Exception e) {}
+      } catch (final Exception e) {}
     }
 
     if ((port > 0) && (port < 65536))
     {
       try
       {
-        LDAPConnection conn = new LDAPConnection(address, port);
-        RootDSE rootDSE = conn.getRootDSE();
+        final LDAPConnection conn = new LDAPConnection(address, port);
+        final RootDSE rootDSE = conn.getRootDSE();
         conn.close();
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         throw new BuildException("ERROR:  Unable to retrieve root DSE from " +
              "directory server " + address + ':' + port + ":  " + le, le);

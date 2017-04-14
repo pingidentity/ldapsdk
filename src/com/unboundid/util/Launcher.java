@@ -89,7 +89,7 @@ public final class Launcher
   /**
    * Prevent this utility class from being externally instantiated.
    */
-  Launcher()
+  private Launcher()
   {
     // No implementation required.
   }

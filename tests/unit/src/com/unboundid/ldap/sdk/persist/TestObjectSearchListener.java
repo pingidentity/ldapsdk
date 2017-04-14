@@ -62,6 +62,7 @@ public class TestObjectSearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void objectReturned(final TestOrganizationalUnit o)
   {
     validCount.incrementAndGet();
@@ -72,6 +73,7 @@ public class TestObjectSearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void unparsableEntryReturned(final SearchResultEntry entry,
                                       final LDAPPersistException exception)
   {
@@ -83,6 +85,7 @@ public class TestObjectSearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

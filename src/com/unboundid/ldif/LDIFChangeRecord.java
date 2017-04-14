@@ -255,8 +255,8 @@ public abstract class LDIFChangeRecord
    * @throws  LDAPException  If an error occurs while processing this change
    *                         in the associated directory server.
    */
-  public abstract LDAPResult processChange(final LDAPInterface connection,
-                                           final boolean includeControls)
+  public abstract LDAPResult processChange(LDAPInterface connection,
+                                           boolean includeControls)
          throws LDAPException;
 
 
@@ -309,7 +309,7 @@ public abstract class LDIFChangeRecord
    * @return  A string array whose lines contain an LDIF representation of this
    *          change record.
    */
-  public abstract String[] toLDIF(final int wrapColumn);
+  public abstract String[] toLDIF(int wrapColumn);
 
 
 
@@ -368,8 +368,7 @@ public abstract class LDIFChangeRecord
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  public abstract void toLDIF(final ByteStringBuffer buffer,
-                              final int wrapColumn);
+  public abstract void toLDIF(ByteStringBuffer buffer, int wrapColumn);
 
 
 
@@ -429,8 +428,7 @@ public abstract class LDIFChangeRecord
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  public abstract void toLDIFString(final StringBuilder buffer,
-                                    final int wrapColumn);
+  public abstract void toLDIFString(StringBuilder buffer, int wrapColumn);
 
 
 
@@ -453,7 +451,7 @@ public abstract class LDIFChangeRecord
    *          record, or {@code false} if not.
    */
   @Override()
-  public abstract boolean equals(final Object o);
+  public abstract boolean equals(Object o);
 
 
 
@@ -511,5 +509,6 @@ public abstract class LDIFChangeRecord
    *
    * @param  buffer  The buffer to which the information should be written.
    */
-  public abstract void toString(final StringBuilder buffer);
+  @Override()
+  public abstract void toString(StringBuilder buffer);
 }

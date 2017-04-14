@@ -225,7 +225,7 @@ public final class KeyStoreKeyManager
       inputStream = new FileInputStream(f);
       ks.load(inputStream, keyStorePIN);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -241,7 +241,7 @@ public final class KeyStoreKeyManager
         {
           inputStream.close();
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
         }
@@ -255,7 +255,7 @@ public final class KeyStoreKeyManager
       factory.init(ks, keyStorePIN);
       return factory.getKeyManagers();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

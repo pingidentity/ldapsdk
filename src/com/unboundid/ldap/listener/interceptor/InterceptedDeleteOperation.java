@@ -82,6 +82,7 @@ final class InterceptedDeleteOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ReadOnlyDeleteRequest getRequest()
   {
     return deleteRequest;
@@ -92,6 +93,7 @@ final class InterceptedDeleteOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setRequest(final DeleteRequest deleteRequest)
   {
     this.deleteRequest = deleteRequest;
@@ -102,6 +104,7 @@ final class InterceptedDeleteOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPResult getResult()
   {
     return deleteResult;
@@ -112,6 +115,7 @@ final class InterceptedDeleteOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setResult(final LDAPResult deleteResult)
   {
     this.deleteResult = deleteResult;

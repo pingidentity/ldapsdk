@@ -369,14 +369,14 @@ public final class IntermediateClientResponseValue
             final ASN1Sequence s = ASN1Sequence.decodeAsSequence(element);
             upstreamResponse = decode(s);
           }
-          catch (LDAPException le)
+          catch (final LDAPException le)
           {
             debugException(le);
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_ICRESP_CANNOT_DECODE_UPSTREAM_RESPONSE.get(
                       le.getMessage()), le);
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -396,7 +396,7 @@ public final class IntermediateClientResponseValue
             upstreamServerSecure =
                  ASN1Boolean.decodeAsBoolean(element).booleanValue();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,

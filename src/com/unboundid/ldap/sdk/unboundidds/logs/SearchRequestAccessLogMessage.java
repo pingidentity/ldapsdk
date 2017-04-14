@@ -132,7 +132,7 @@ public class SearchRequestAccessLogMessage
     {
       ss = SearchScope.definedValueOf(getNamedValueAsInteger("scope"));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -235,7 +235,7 @@ public class SearchRequestAccessLogMessage
         return Filter.create(filter);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return null;

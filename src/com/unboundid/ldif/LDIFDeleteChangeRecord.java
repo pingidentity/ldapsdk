@@ -247,7 +247,7 @@ public final class LDIFDeleteChangeRecord
     {
       return getParsedDN().hashCode();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return toLowerCase(getDN()).hashCode();
@@ -290,7 +290,7 @@ public final class LDIFDeleteChangeRecord
     {
       return getParsedDN().equals(r.getParsedDN());
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return toLowerCase(getDN()).equals(toLowerCase(r.getDN()));

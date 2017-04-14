@@ -372,7 +372,7 @@ public final class GetEntryLDAPConnectionPoolHealthCheck
              ERR_GET_ENTRY_HEALTH_CHECK_NO_ENTRY_RETURNED.get());
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

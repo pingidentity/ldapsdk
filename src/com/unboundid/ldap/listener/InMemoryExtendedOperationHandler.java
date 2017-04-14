@@ -78,9 +78,9 @@ public abstract class InMemoryExtendedOperationHandler
    *          the provided request.
    */
   public abstract ExtendedResult processExtendedOperation(
-                                      final InMemoryRequestHandler handler,
-                                      final int messageID,
-                                      final ExtendedRequest request);
+                                      InMemoryRequestHandler handler,
+                                      int messageID,
+                                      ExtendedRequest request);
 
 
 

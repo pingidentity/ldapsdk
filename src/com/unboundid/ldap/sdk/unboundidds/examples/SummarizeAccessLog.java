@@ -594,7 +594,7 @@ public final class SummarizeAccessLog
           reader = new AccessLogReader(f);
         }
       }
-      catch (IOException ioe)
+      catch (final IOException ioe)
       {
         err("Unable to open access log file ", f.getAbsolutePath(), ":  ",
             getExceptionMessage(ioe));
@@ -611,13 +611,13 @@ public final class SummarizeAccessLog
         {
           msg = reader.read();
         }
-        catch (IOException ioe)
+        catch (final IOException ioe)
         {
           err("Error reading from access log file ", f.getAbsolutePath(),
               ":  ", getExceptionMessage(ioe));
           return ResultCode.LOCAL_ERROR;
         }
-        catch (LogException le)
+        catch (final LogException le)
         {
           err("Encountered an error while attempting to parse a line in" +
               "access log file ", f.getAbsolutePath(), ":  ",
@@ -708,7 +708,7 @@ public final class SummarizeAccessLog
       try
       {
         reader.close();
-      } catch (Exception e) {}
+      } catch (final Exception e) {}
       logDurationMillis += (stopTime - startTime);
     }
 

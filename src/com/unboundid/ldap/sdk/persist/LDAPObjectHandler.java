@@ -299,7 +299,7 @@ public final class LDAPObjectHandler<T>
         defaultParentDN = new DN(parentDNStr);
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       throw new LDAPPersistException(
            ERR_OBJECT_HANDLER_INVALID_DEFAULT_PARENT.get(type.getName(),
@@ -315,7 +315,7 @@ public final class LDAPObjectHandler<T>
         postDecodeMethod = type.getDeclaredMethod(postDecodeMethodName);
         postDecodeMethod.setAccessible(true);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPPersistException(
@@ -338,7 +338,7 @@ public final class LDAPObjectHandler<T>
              Entry.class);
         postEncodeMethod.setAccessible(true);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPPersistException(
@@ -357,7 +357,7 @@ public final class LDAPObjectHandler<T>
       constructor = type.getDeclaredConstructor();
       constructor.setAccessible(true);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(
@@ -953,7 +953,7 @@ public final class LDAPObjectHandler<T>
           return (ReadOnlyEntry) entryObject;
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPPersistException(
@@ -1225,18 +1225,24 @@ public final class LDAPObjectHandler<T>
     {
       o = constructor.newInstance();
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       debugException(t);
 
       if (t instanceof InvocationTargetException)
       {
-        t = ((InvocationTargetException) t).getTargetException();
+        final Throwable targetException =
+             ((InvocationTargetException) t).getTargetException();
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_ERROR_INVOKING_CONSTRUCTOR.get(type.getName(),
+                  getExceptionMessage(targetException)), targetException);
       }
-
-      throw new LDAPPersistException(
-           ERR_OBJECT_HANDLER_ERROR_INVOKING_CONSTRUCTOR.get(type.getName(),
-                getExceptionMessage(t)), t);
+      else
+      {
+        throw new LDAPPersistException(
+             ERR_OBJECT_HANDLER_ERROR_INVOKING_CONSTRUCTOR.get(type.getName(),
+                  getExceptionMessage(t)), t);
+      }
     }
 
     decode(o, e);
@@ -1386,19 +1392,26 @@ public final class LDAPObjectHandler<T>
       {
         postEncodeMethod.invoke(o, entry);
       }
-      catch (Throwable t)
+      catch (final Throwable t)
       {
         debugException(t);
 
         if (t instanceof InvocationTargetException)
         {
-          t = ((InvocationTargetException) t).getTargetException();
+          final Throwable targetException =
+               ((InvocationTargetException) t).getTargetException();
+          throw new LDAPPersistException(
+               ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_ENCODE_METHOD.get(
+                    postEncodeMethod.getName(), type.getName(),
+                    getExceptionMessage(targetException)), targetException);
         }
-
-        throw new LDAPPersistException(
-             ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_ENCODE_METHOD.get(
-                  postEncodeMethod.getName(), type.getName(),
-                  getExceptionMessage(t)), t);
+        else
+        {
+          throw new LDAPPersistException(
+               ERR_OBJECT_HANDLER_ERROR_INVOKING_POST_ENCODE_METHOD.get(
+                    postEncodeMethod.getName(), type.getName(),
+                    getExceptionMessage(t)), t);
+        }
       }
     }
 
@@ -1439,7 +1452,7 @@ public final class LDAPObjectHandler<T>
           dnField.set(o, e.getDN());
         }
       }
-      catch (Exception ex)
+      catch (final Exception ex)
       {
         debugException(ex);
         throw new LDAPPersistException(ERR_OBJECT_HANDLER_ERROR_SETTING_DN.get(
@@ -1457,7 +1470,7 @@ public final class LDAPObjectHandler<T>
           entryField.set(o, new ReadOnlyEntry(e));
         }
       }
-      catch (Exception ex)
+      catch (final Exception ex)
       {
         debugException(ex);
         throw new LDAPPersistException(
@@ -1642,7 +1655,7 @@ public final class LDAPObjectHandler<T>
         final DN parsedParentDN = new DN(parentDN);
         return new DN(rdn, parsedParentDN).toString();
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         throw new LDAPPersistException(ERR_OBJECT_HANDLER_INVALID_PARENT_DN.get(

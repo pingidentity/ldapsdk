@@ -136,6 +136,7 @@ public interface ReadOnlySearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   SearchRequest duplicate();
 
 
@@ -143,5 +144,6 @@ public interface ReadOnlySearchRequest
   /**
    * {@inheritDoc}
    */
-  SearchRequest duplicate(final Control[] controls);
+  @Override()
+  SearchRequest duplicate(Control[] controls);
 }

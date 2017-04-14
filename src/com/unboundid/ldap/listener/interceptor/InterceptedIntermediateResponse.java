@@ -73,6 +73,7 @@ final class InterceptedIntermediateResponse
   /**
    * {@inheritDoc}
    */
+  @Override()
   public InMemoryInterceptedRequest getRequest()
   {
     return op;
@@ -83,6 +84,7 @@ final class InterceptedIntermediateResponse
   /**
    * {@inheritDoc}
    */
+  @Override()
   public IntermediateResponse getIntermediateResponse()
   {
     return response;
@@ -93,6 +95,7 @@ final class InterceptedIntermediateResponse
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setIntermediateResponse(final IntermediateResponse response)
   {
     this.response = response;

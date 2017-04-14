@@ -3,3 +3,5 @@ gen-src
 src/com/unboundid/ldap/sdk/Version.java
 .idea
 *.iml
+.checkstyle-cache-main
+.checkstyle-cache-unit

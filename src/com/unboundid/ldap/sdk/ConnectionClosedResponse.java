@@ -79,6 +79,7 @@ final class ConnectionClosedResponse
   /**
    * {@inheritDoc}
    */
+  @Override()
   public int getMessageID()
   {
     return -1;
@@ -132,6 +133,7 @@ final class ConnectionClosedResponse
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("ConnectionClosedResponse(resultCode='");

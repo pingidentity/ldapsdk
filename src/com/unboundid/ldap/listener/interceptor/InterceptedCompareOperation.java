@@ -82,6 +82,7 @@ final class InterceptedCompareOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ReadOnlyCompareRequest getRequest()
   {
     return compareRequest;
@@ -92,6 +93,7 @@ final class InterceptedCompareOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setRequest(final CompareRequest compareRequest)
   {
     this.compareRequest = compareRequest;
@@ -102,6 +104,7 @@ final class InterceptedCompareOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPResult getResult()
   {
     return compareResult;
@@ -112,6 +115,7 @@ final class InterceptedCompareOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setResult(final LDAPResult compareResult)
   {
     this.compareResult = compareResult;

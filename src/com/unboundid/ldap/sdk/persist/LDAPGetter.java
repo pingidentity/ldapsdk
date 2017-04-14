@@ -52,6 +52,11 @@ public @interface LDAPGetter
    * associated object to the directory.  Note that any getter value which is
    * to be included in entry RDNs will always be included in add operations
    * regardless of the value of this element.
+   *
+   * @return  {@code true} if the value returned from this method should be
+   *          included in the LDAP entry that is generated when adding a new
+   *          instance of the associated object to the directory, or
+   *          {@code false} if not.
    */
   boolean inAdd() default true;
 
@@ -63,6 +68,11 @@ public @interface LDAPGetter
    * existing instance of the associated object in the directory.  Note that any
    * getter value which is to be included in entry RDNs will never be included
    * in modify operations regardless of the value of this element.
+   *
+   * @return  {@code true} if the value returned from this method should be
+   *          included in the set of LDAP modifications if it has been changed
+   *          when modifying an existing instance of the associated object in
+   *          the directory, or {@code false} if not.
    */
   boolean inModify() default true;
 
@@ -84,6 +94,10 @@ public @interface LDAPGetter
    * with {@code inRDN=true}, then only those fields/getters will be used to
    * construct the RDN, even if that class is a direct subclass of another class
    * marked with {@code LDAPObject}.
+   *
+   * @return  {@code true} if the value returned from this method should be
+   *          included in the RDN of entries created from the associated
+   *          object, or {@code false} if not.
    */
   boolean inRDN() default false;
 
@@ -92,6 +106,8 @@ public @interface LDAPGetter
   /**
    * The class that provides the logic for encoding the method return value to
    * an LDAP attribute.
+   *
+   * @return  The encoder class for this getter.
    */
   Class<? extends ObjectEncoder> encoderClass()
        default DefaultObjectEncoder.class;
@@ -102,6 +118,8 @@ public @interface LDAPGetter
    * Indicates whether and under what circumstances the value returned from this
    * method may be included in a search filter generated to search for entries
    * that match the object.
+   *
+   * @return  The filter usage value for this getter.
    */
   FilterUsage filterUsage() default FilterUsage.CONDITIONALLY_ALLOWED;
 
@@ -112,13 +130,18 @@ public @interface LDAPGetter
    * stored in LDAP entries.  If this is not provided, then the method name must
    * start with "get" and it will be assumed that the attribute name is the
    * remainder of the method name.
+   *
+   * @return  The name of the attribute type in which the associated getter
+   *          value will be stored in LDAP entries, or an empty string if it
+   *          will be assumed that the attribute name matches the getter method
+   *          name without the initial "get".
    */
   String attribute() default "";
 
 
 
   /**
-   * The name(s) of the object class(es) in which the associated attribute may
+   * The names of the object classes in which the associated attribute may
    * be used.  This is primarily intended for use in generating LDAP schema from
    * Java object types.
    * <BR><BR>
@@ -126,6 +149,10 @@ public @interface LDAPGetter
    * object classes named in the {@link LDAPObject} annotation type for the
    * associated class.  If no values are provided, then it will be assumed to
    * be only included in the structural object class.
+   *
+   * @return  The names of the object classes in which the associated attribute
+   *          may be used, or an empty array if it will be assumed to only be
+   *          included in the structural object class.
    */
   String[] objectClass() default {};
 }

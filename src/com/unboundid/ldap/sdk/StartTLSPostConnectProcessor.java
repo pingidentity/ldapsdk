@@ -120,6 +120,7 @@ public final class StartTLSPostConnectProcessor
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void processPreAuthenticatedConnection(final LDAPConnection connection)
          throws LDAPException
   {
@@ -153,6 +154,7 @@ public final class StartTLSPostConnectProcessor
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void processPostAuthenticatedConnection(
                    final LDAPConnection connection)
          throws LDAPException

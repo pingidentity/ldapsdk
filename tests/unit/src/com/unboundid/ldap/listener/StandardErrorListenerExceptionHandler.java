@@ -48,6 +48,7 @@ public final class StandardErrorListenerExceptionHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void connectionCreationFailure(final Socket socket,
                                         final Throwable cause)
   {
@@ -60,6 +61,7 @@ public final class StandardErrorListenerExceptionHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void connectionTerminated(
                    final LDAPListenerClientConnection connection,
                    final LDAPException cause)

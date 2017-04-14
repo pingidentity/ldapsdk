@@ -179,6 +179,7 @@ public final class JavaToLDAPSocketFactory
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Socket makeSocket(final String host, final int port)
          throws LDAPException
   {
@@ -189,7 +190,7 @@ public final class JavaToLDAPSocketFactory
         return f.createSocket(host, port);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(getExceptionMessage(e),

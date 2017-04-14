@@ -119,6 +119,7 @@ public final class ModifyDNResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(4);

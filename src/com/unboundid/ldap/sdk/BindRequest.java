@@ -96,8 +96,7 @@ public abstract class BindRequest
    *                         reading the response.
    */
   @Override()
-  protected abstract BindResult process(final LDAPConnection connection,
-                                        final int depth)
+  protected abstract BindResult process(LDAPConnection connection, int depth)
             throws LDAPException;
 
 
@@ -125,6 +124,7 @@ public abstract class BindRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public abstract BindRequest duplicate();
 
 
@@ -132,7 +132,8 @@ public abstract class BindRequest
   /**
    * {@inheritDoc}
    */
-  public abstract BindRequest duplicate(final Control[] controls);
+  @Override()
+  public abstract BindRequest duplicate(Control[] controls);
 
 
 

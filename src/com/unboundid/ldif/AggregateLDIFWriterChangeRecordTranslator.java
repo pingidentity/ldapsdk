@@ -89,6 +89,7 @@ public final class AggregateLDIFWriterChangeRecordTranslator
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord translateChangeRecordToWrite(
                                final LDIFChangeRecord original)
   {

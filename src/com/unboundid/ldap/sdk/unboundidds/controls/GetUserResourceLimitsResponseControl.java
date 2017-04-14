@@ -720,6 +720,7 @@ public final class GetUserResourceLimitsResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public GetUserResourceLimitsResponseControl decodeControl(final String oid,
                                                    final boolean isCritical,
                                                    final ASN1OctetString value)

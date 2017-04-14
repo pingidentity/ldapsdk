@@ -215,7 +215,7 @@ public enum DisconnectType
    * @param  resultCode   The result code most closely associated with this
    *                      disconnect type.
    */
-  private DisconnectType(final String description, final ResultCode resultCode)
+  DisconnectType(final String description, final ResultCode resultCode)
   {
     this.description = description;
     this.resultCode  = resultCode;

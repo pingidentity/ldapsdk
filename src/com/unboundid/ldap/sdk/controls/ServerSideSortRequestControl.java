@@ -255,7 +255,7 @@ public final class ServerSideSortRequestControl
         sortKeys[i] = SortKey.decode(elements[i]);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

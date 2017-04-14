@@ -88,6 +88,7 @@ final class InterceptedSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ReadOnlySearchRequest getRequest()
   {
     return searchRequest;
@@ -98,6 +99,7 @@ final class InterceptedSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setRequest(final SearchRequest searchRequest)
   {
     this.searchRequest = searchRequest;
@@ -108,6 +110,7 @@ final class InterceptedSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPResult getResult()
   {
     return searchResult;
@@ -118,6 +121,7 @@ final class InterceptedSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setResult(final LDAPResult searchResult)
   {
     this.searchResult = searchResult;
@@ -128,6 +132,7 @@ final class InterceptedSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void sendSearchEntry(final Entry entry)
          throws LDAPException
   {
@@ -150,6 +155,7 @@ final class InterceptedSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void sendSearchReference(final SearchResultReference reference)
          throws LDAPException
   {

@@ -219,7 +219,7 @@ public final class CancelExtendedRequest
            ASN1Sequence.decodeAsSequence(valueElement).elements();
       targetMessageID = ASN1Integer.decodeAsInteger(elements[0]).intValue();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

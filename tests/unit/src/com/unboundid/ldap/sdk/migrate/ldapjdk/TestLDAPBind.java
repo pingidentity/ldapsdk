@@ -54,6 +54,7 @@ public class TestLDAPBind
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void bind(final LDAPConnection conn)
          throws LDAPException
   {

@@ -107,7 +107,7 @@ public final class DeleteRequestProtocolOp
       dn = reader.readString();
       ensureNotNull(dn);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -133,6 +133,7 @@ public final class DeleteRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST;
@@ -143,6 +144,7 @@ public final class DeleteRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     return new ASN1OctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
@@ -183,6 +185,7 @@ public final class DeleteRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     buffer.addOctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
@@ -224,6 +227,7 @@ public final class DeleteRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("DeleteRequestProtocolOp(dn='");

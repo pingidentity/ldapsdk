@@ -183,7 +183,7 @@ public class LogMessage
     {
       timestamp = f.parse(timestampString);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LogException(s,
@@ -516,7 +516,7 @@ public class LogMessage
     {
       return Double.valueOf(s);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return null;
@@ -548,7 +548,7 @@ public class LogMessage
     {
       return Integer.valueOf(s);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return null;
@@ -578,7 +578,7 @@ public class LogMessage
     {
       return Long.valueOf(s);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return null;

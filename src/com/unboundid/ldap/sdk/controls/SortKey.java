@@ -239,7 +239,7 @@ public final class SortKey
     {
       elements = ASN1Sequence.decodeAsSequence(element).elements();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -272,7 +272,7 @@ public final class SortKey
             reverseOrder =
                  ASN1Boolean.decodeAsBoolean(elements[i]).booleanValue();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,

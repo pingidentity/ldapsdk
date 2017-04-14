@@ -125,7 +125,7 @@ public final class ErrorLogMessage
     {
       cat = ErrorLogCategory.valueOf(getNamedValue("category"));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -136,7 +136,7 @@ public final class ErrorLogMessage
     {
       sev = ErrorLogSeverity.valueOf(getNamedValue("severity"));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }

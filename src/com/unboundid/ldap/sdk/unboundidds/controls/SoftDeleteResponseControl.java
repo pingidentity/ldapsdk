@@ -150,6 +150,7 @@ public final class SoftDeleteResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public SoftDeleteResponseControl decodeControl(final String oid,
                                                  final boolean isCritical,
                                                  final ASN1OctetString value)

@@ -9321,6 +9321,7 @@ public class LDIFReaderAndWriterTestCase
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord translate(final LDIFChangeRecord original,
                                     final long firstLineNumber)
        throws LDIFException
@@ -9385,6 +9386,7 @@ public class LDIFReaderAndWriterTestCase
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translate(final Entry original, final long firstLineNumber)
          throws LDIFException
   {
@@ -9397,6 +9399,7 @@ public class LDIFReaderAndWriterTestCase
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord translateChangeRecordToWrite(
                                final LDIFChangeRecord original)
   {
@@ -9462,6 +9465,7 @@ public class LDIFReaderAndWriterTestCase
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translateEntryToWrite(final Entry original)
   {
     if (original.hasAttributeValue("description", "suppress"))

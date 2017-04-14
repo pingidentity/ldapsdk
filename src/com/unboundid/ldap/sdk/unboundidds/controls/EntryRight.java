@@ -98,7 +98,7 @@ public enum EntryRight
    *
    * @param  name  The name for this entry right.
    */
-  private EntryRight(final String name)
+  EntryRight(final String name)
   {
     this.name = name;
   }

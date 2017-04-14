@@ -140,7 +140,7 @@ public enum TaskState
    *
    * @param  name  The name of the task state to create.
    */
-  private TaskState(final String name)
+  TaskState(final String name)
   {
     this.name = name;
   }

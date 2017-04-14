@@ -97,7 +97,7 @@ final class TestServerThread
                instance.getBaseDN()));
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         logException(LOG_TAG, "run", e);
 

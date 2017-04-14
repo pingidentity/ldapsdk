@@ -109,7 +109,7 @@ public enum ExpectedValueType
    *
    * @param  name  The name for the type.
    */
-  private ExpectedValueType(final String name)
+  ExpectedValueType(final String name)
   {
     this.name = name;
   }

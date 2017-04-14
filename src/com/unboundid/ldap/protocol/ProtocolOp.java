@@ -70,7 +70,7 @@ public interface ProtocolOp
    * @param  buffer  The ASN.1 buffer to which the encoded representation should
    *                 be written.
    */
-  void writeTo(final ASN1Buffer buffer);
+  void writeTo(ASN1Buffer buffer);
 
 
 
@@ -81,5 +81,5 @@ public interface ProtocolOp
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  void toString(final StringBuilder buffer);
+  void toString(StringBuilder buffer);
 }

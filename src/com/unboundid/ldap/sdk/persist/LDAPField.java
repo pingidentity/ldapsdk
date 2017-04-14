@@ -52,6 +52,10 @@ public @interface LDAPField
    * If this is {@code false}, then the field will remain uninitialized, and
    * attempts to modify the corresponding entry in the directory may cause the
    * existing values to be lost.
+   *
+   * @return  {@code true} if attempts to initialize an object should fail if
+   *          the LDAP attribute has a value that cannot be stored in the
+   *          associated field, or {@code false} if not.
    */
   boolean failOnInvalidValue() default true;
 
@@ -64,6 +68,10 @@ public @interface LDAPField
    * such instances.  If this is {@code false}, then only the first value
    * returned will be used, and attempts to modify the corresponding entry in
    * the directory may cause those additional values to be lost.
+   *
+   * @return  {@code true} if attempts to initialize an object should fail if
+   *          the LDAP attribute has multiple values but the associated field
+   *          can only hold a single value, or {@code false} if not.
    */
   boolean failOnTooManyValues() default true;
 
@@ -75,6 +83,10 @@ public @interface LDAPField
    * directory.  Note that any field which is to be included in entry RDNs will
    * always be included in add operations regardless of the value of this
    * element.
+   *
+   * @return  {@code true} if this field should be included in the LDAP entry
+   *          that is generated when adding a new instance of the associated
+   *          object to the directory, or {@code false} if not.
    */
   boolean inAdd() default true;
 
@@ -86,6 +98,10 @@ public @interface LDAPField
    * instance of the associated object in the directory.  Note that any field
    * which is to be included in entry RDNs will never be included in modify
    * operations regardless of the value of this element.
+   *
+   * @return  {@code true} if this field should be examined and included in the
+   *          set of LDAP modifications if it has been changed, or {@code false}
+   *          if not.
    */
   boolean inModify() default true;
 
@@ -109,13 +125,17 @@ public @interface LDAPField
    * with {@code inRDN=true}, then only those fields/getters will be used to
    * construct the RDN, even if that class is a direct subclass of another class
    * marked with {@code LDAPObject}.
+   *
+   * @return  {@code true} if the value of this field should be included in the
+   *          RDN of entries created from the associated object, or
+   *          {@code false} if not.
    */
   boolean inRDN() default false;
 
 
 
   /**
-   * Indicates whether this field should be lazily-loaded, which means that the
+   * Indicates whether this field should be lazily loaded, which means that the
    * associated attribute will not be retrieved by default so this field will
    * be uninitialized.  This may be useful for attributes which are not always
    * needed and that may be expensive to retrieve or could require a lot of
@@ -123,6 +143,9 @@ public @interface LDAPField
    * their values are needed.  Fields marked for lazy loading will never be
    * considered required for decoding, and they must not be given default values
    * or marked for inclusion in entry RDNs.
+   *
+   * @return  {@code true} if this field should be lazily loaded, or
+   *          {@code false} if not.
    */
   boolean lazilyLoad() default false;
 
@@ -133,6 +156,9 @@ public @interface LDAPField
    * processing.  If this is {@code true}, then attempts to initialize a Java
    * object from an LDAP entry which does not contain a value for the associated
    * attribute will result in an exception.
+   *
+   * @return  {@code true} if this field is required to be assigned a value in
+   *          decode processing, or {@code false} if not.
    */
   boolean requiredForDecode() default false;
 
@@ -143,6 +169,9 @@ public @interface LDAPField
    * processing.  If this is {@code true}, then attempts to construct an entry
    * or set of modifications for an object that does not have a value for this
    * field will result in an exception.
+   *
+   * @return  {@code true} if this field is required to have a value for encode
+   *          processing, or {@code false} if not.
    */
   boolean requiredForEncode() default false;
 
@@ -151,6 +180,8 @@ public @interface LDAPField
   /**
    * The class that provides the logic for encoding a field to an LDAP
    * attribute, and for initializing a field from an LDAP attribute.
+   *
+   * @return  The encoder class for the field.
    */
   Class<? extends ObjectEncoder> encoderClass()
        default DefaultObjectEncoder.class;
@@ -161,6 +192,8 @@ public @interface LDAPField
    * Indicates whether and under what circumstances the value of this field may
    * be included in a search filter generated to search for entries that match
    * the object.
+   *
+   * @return  The filter usage value for this field.
    */
   FilterUsage filterUsage() default FilterUsage.CONDITIONALLY_ALLOWED;
 
@@ -170,40 +203,58 @@ public @interface LDAPField
    * The name of the attribute type in which the associated field will be stored
    * in LDAP entries.  If no value is provided, then it will be assumed that the
    * LDAP attribute name matches the name of the associated field.
+   *
+   * @return  The name of the attribute type in which the associated field will
+   *          be stored in LDAP entries, or an empty string if the attribute
+   *          name should match the name of the associated field.
    */
   String attribute() default "";
 
 
 
   /**
-   * The string representation(s) of the default value(s) to assign to this
+   * The string representations of the default values to assign to this
    * field if there are no values for the associated attribute in the
    * corresponding LDAP entry being used to initialize the object.  If no
    * default values are defined, then an exception will be thrown if the field
    * is {@link #requiredForEncode}, or the field will be set to {@code null} if
    * it is not required.
+   *
+   * @return  The string representations of the default values to assign to this
+   *          field if there are no values for the associated attribute in the
+   *          corresponding LDAP entry, or an empty array if there should not be
+   *          any default values.
    */
   String[] defaultDecodeValue() default {};
 
 
 
   /**
-   * The string representation(s) of the default value to use when adding an
+   * The string representations of the default values to use when adding an
    * entry to the directory if this field has a {@code null} value.
+   *
+   * @return  The string representations of the default values to use when
+   *          adding an entry to the directory if this field has a {@code null}
+   *          value, or an empty array if there should not be any default
+   *          values.
    */
   String[] defaultEncodeValue() default {};
 
 
 
   /**
-   * The name(s) of the object class(es) in which the associated attribute may
-   * be used.  This is primarily intended for use in generating LDAP schema from
+   * The names of the object classes in which the associated attribute may be
+   * used.  This is primarily intended for use in generating LDAP schema from
    * Java object types.
    * <BR><BR>
    * Values may include any combination of the structural and/or auxiliary
    * object classes named in the {@link LDAPObject} annotation type for the
    * associated class.  If no values are provided, then it will be assumed to
    * be only included in the structural object class.
+   *
+   * @return  The names of the object classes in which the associated attribute
+   *          may be used, or an empty array if it should be assumed to only be
+   *          included in the structural object class.
    */
   String[] objectClass() default {};
 }

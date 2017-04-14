@@ -189,6 +189,7 @@ final class MoveSubtreeAccessibilitySearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     // Increment the number of entries read from the source server and add its
@@ -317,6 +318,7 @@ final class MoveSubtreeAccessibilitySearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

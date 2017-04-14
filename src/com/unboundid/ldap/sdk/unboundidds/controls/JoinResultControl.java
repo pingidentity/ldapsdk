@@ -295,7 +295,7 @@ public final class JoinResultControl
       referralURLs = Collections.unmodifiableList(refs);
       joinResults  = Collections.unmodifiableList(entries);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -456,6 +456,7 @@ public final class JoinResultControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public JoinResultControl decodeControl(final String oid,
                                          final boolean isCritical,
                                          final ASN1OctetString value)

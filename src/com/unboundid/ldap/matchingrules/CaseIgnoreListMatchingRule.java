@@ -394,7 +394,7 @@ public final class CaseIgnoreListMatchingRule
           buffer.append(decodeHexChar(value, i+1));
           i += 2;
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
           throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,

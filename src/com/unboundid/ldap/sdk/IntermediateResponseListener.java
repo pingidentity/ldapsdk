@@ -52,6 +52,5 @@ public interface IntermediateResponseListener
    * @param  intermediateResponse  The intermediate response that has been
    *                               returned by the server.
    */
-  void intermediateResponseReturned(
-            final IntermediateResponse intermediateResponse);
+  void intermediateResponseReturned(IntermediateResponse intermediateResponse);
 }

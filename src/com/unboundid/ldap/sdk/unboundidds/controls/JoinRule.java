@@ -520,7 +520,7 @@ public final class JoinRule
 
           return new JoinRule(elementType, rules, null, null, false);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
 
@@ -556,7 +556,7 @@ public final class JoinRule
           return new JoinRule(elementType, NO_RULES, sourceAttribute,
                targetAttribute, matchAll);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
 

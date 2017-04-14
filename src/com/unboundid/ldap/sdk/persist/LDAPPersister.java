@@ -609,7 +609,7 @@ public final class LDAPPersister<T>
 
       return i.add(addRequest);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -656,7 +656,7 @@ public final class LDAPPersister<T>
 
       return i.delete(deleteRequest);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -828,7 +828,7 @@ public final class LDAPPersister<T>
 
       return i.modify(modifyRequest);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -947,7 +947,7 @@ public final class LDAPPersister<T>
         return null;
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -985,7 +985,7 @@ public final class LDAPPersister<T>
         return null;
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -1263,7 +1263,7 @@ public final class LDAPPersister<T>
     {
       entrySource = new LDAPEntrySource(c, searchRequest, false);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -1432,7 +1432,7 @@ public final class LDAPPersister<T>
     {
       return i.search(searchRequest);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -1510,7 +1510,7 @@ public final class LDAPPersister<T>
     {
       entrySource = new LDAPEntrySource(c, searchRequest, false);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -1595,7 +1595,7 @@ public final class LDAPPersister<T>
     {
       return i.search(searchRequest);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -1779,12 +1779,12 @@ public final class LDAPPersister<T>
         return decode(e);
       }
     }
-    catch (LDAPPersistException lpe)
+    catch (final LDAPPersistException lpe)
     {
       debugException(lpe);
       throw lpe;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);
@@ -1848,7 +1848,7 @@ public final class LDAPPersister<T>
     {
       return i.search(searchRequest);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPPersistException(le);

@@ -221,10 +221,8 @@ public class FixedRateBarrierTestCase
      * @param  perInterval         The per interval value to use when updating
      *                             the FixedRateBarrier.
      */
-    public UpdateRateInFuture(final FixedRateBarrier barrier,
-                              final long delayMillis,
-                              final long intervalDurationMS,
-                              final int perInterval)
+    UpdateRateInFuture(final FixedRateBarrier barrier, final long delayMillis,
+                       final long intervalDurationMS, final int perInterval)
     {
       this.barrier = barrier;
       this.afterMillis = delayMillis;

@@ -48,7 +48,7 @@ public interface ObjectSearchListener<T>
    * @param  o  The object that has been decoded from the entry that was
    *            returned.  It will never be {@code null}.
    */
-  void objectReturned(final T o);
+  void objectReturned(T o);
 
 
 
@@ -62,8 +62,8 @@ public interface ObjectSearchListener<T>
    * @param  exception  The exception that was encountered while trying to
    *                    create and initialize an object from the provided entry.
    */
-  void unparsableEntryReturned(final SearchResultEntry entry,
-                               final LDAPPersistException exception);
+  void unparsableEntryReturned(SearchResultEntry entry,
+                               LDAPPersistException exception);
 
 
 
@@ -74,5 +74,5 @@ public interface ObjectSearchListener<T>
    * @param  searchReference  The search result reference that has been
    *                          retrieved from the server.
    */
-  void searchReferenceReturned(final SearchResultReference searchReference);
+  void searchReferenceReturned(SearchResultReference searchReference);
 }

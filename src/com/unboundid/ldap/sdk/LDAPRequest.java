@@ -129,6 +129,7 @@ public abstract class LDAPRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final List<Control> getControlList()
   {
     return Collections.unmodifiableList(Arrays.asList(controls));
@@ -139,6 +140,7 @@ public abstract class LDAPRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final boolean hasControl()
   {
     return (controls.length > 0);
@@ -149,6 +151,7 @@ public abstract class LDAPRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final boolean hasControl(final String oid)
   {
     ensureNotNull(oid);
@@ -169,6 +172,7 @@ public abstract class LDAPRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final Control getControl(final String oid)
   {
     ensureNotNull(oid);
@@ -202,6 +206,7 @@ public abstract class LDAPRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final long getResponseTimeoutMillis(final LDAPConnection connection)
   {
     if ((responseTimeout < 0L) && (connection != null))
@@ -255,6 +260,7 @@ public abstract class LDAPRequest
    * @return  {@code true} if any referrals encountered during processing should
    *          be automatically followed, or {@code false} if not.
    */
+  @Override()
   public final boolean followReferrals(final LDAPConnection connection)
   {
     if (followReferrals == null)
@@ -344,8 +350,7 @@ public abstract class LDAPRequest
    * @throws  LDAPException  If a problem occurs while processing the request.
    */
   @InternalUseOnly()
-  protected abstract LDAPResult process(final LDAPConnection connection,
-                                        final int depth)
+  protected abstract LDAPResult process(LDAPConnection connection, int depth)
             throws LDAPException;
 
 
@@ -386,5 +391,6 @@ public abstract class LDAPRequest
   /**
    * {@inheritDoc}
    */
-  public abstract void toString(final StringBuilder buffer);
+  @Override()
+  public abstract void toString(StringBuilder buffer);
 }

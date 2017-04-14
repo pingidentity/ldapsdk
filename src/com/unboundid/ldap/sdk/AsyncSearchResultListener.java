@@ -47,6 +47,6 @@ public interface AsyncSearchResultListener
    *                       response was received.
    * @param  searchResult  The search result that has been received.
    */
-  void searchResultReceived(final AsyncRequestID requestID,
-                            final SearchResult searchResult);
+  void searchResultReceived(AsyncRequestID requestID,
+                            SearchResult searchResult);
 }

@@ -94,7 +94,7 @@ public final class PKCS11KeyManager
     {
       ks.load(null, keyStorePIN);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -109,7 +109,7 @@ public final class PKCS11KeyManager
       factory.init(ks, keyStorePIN);
       return factory.getKeyManagers();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

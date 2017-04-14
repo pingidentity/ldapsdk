@@ -234,6 +234,7 @@ public final class ContentSyncStateControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ContentSyncStateControl decodeControl(final String oid,
                                                final boolean isCritical,
                                                final ASN1OctetString value)

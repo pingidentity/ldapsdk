@@ -117,7 +117,7 @@ public abstract class SchemaElement
     final ByteBuffer byteBuffer = ByteBuffer.allocate(length - pos);
     while (pos < length)
     {
-      byte b;
+      final byte b;
       switch (s.charAt(pos++))
       {
         case '0':
@@ -189,58 +189,58 @@ public abstract class SchemaElement
       switch (s.charAt(pos++))
       {
         case '0':
-          // No action is required.
+          byteBuffer.put(b);
           break;
         case '1':
-          b |= 0x01;
+          byteBuffer.put((byte) (b | 0x01));
           break;
         case '2':
-          b |= 0x02;
+          byteBuffer.put((byte) (b | 0x02));
           break;
         case '3':
-          b |= 0x03;
+          byteBuffer.put((byte) (b | 0x03));
           break;
         case '4':
-          b |= 0x04;
+          byteBuffer.put((byte) (b | 0x04));
           break;
         case '5':
-          b |= 0x05;
+          byteBuffer.put((byte) (b | 0x05));
           break;
         case '6':
-          b |= 0x06;
+          byteBuffer.put((byte) (b | 0x06));
           break;
         case '7':
-          b |= 0x07;
+          byteBuffer.put((byte) (b | 0x07));
           break;
         case '8':
-          b |= 0x08;
+          byteBuffer.put((byte) (b | 0x08));
           break;
         case '9':
-          b |= 0x09;
+          byteBuffer.put((byte) (b | 0x09));
           break;
         case 'a':
         case 'A':
-          b |= 0x0A;
+          byteBuffer.put((byte) (b | 0x0A));
           break;
         case 'b':
         case 'B':
-          b |= 0x0B;
+          byteBuffer.put((byte) (b | 0x0B));
           break;
         case 'c':
         case 'C':
-          b |= 0x0C;
+          byteBuffer.put((byte) (b | 0x0C));
           break;
         case 'd':
         case 'D':
-          b |= 0x0D;
+          byteBuffer.put((byte) (b | 0x0D));
           break;
         case 'e':
         case 'E':
-          b |= 0x0E;
+          byteBuffer.put((byte) (b | 0x0E));
           break;
         case 'f':
         case 'F':
-          b |= 0x0F;
+          byteBuffer.put((byte) (b | 0x0F));
           break;
         default:
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
@@ -248,7 +248,6 @@ public abstract class SchemaElement
                                        s.charAt(pos-1), (pos-1)));
       }
 
-      byteBuffer.put(b);
       if (((pos+1) < length) && (s.charAt(pos) == '\\') &&
           isHex(s.charAt(pos+1)))
       {
@@ -651,7 +650,7 @@ public abstract class SchemaElement
    * @return  {@code true} if the provided object may be considered equal to
    *          this schema element, or {@code false} if not.
    */
-  public abstract boolean equals(final Object o);
+  public abstract boolean equals(Object o);
 
 
 

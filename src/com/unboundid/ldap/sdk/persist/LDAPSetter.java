@@ -56,6 +56,10 @@ public @interface LDAPSetter
    * associated method will not be invoked, and attempts to modify the
    * corresponding entry in the directory may cause the existing values to be
    * lost.
+   *
+   * @return  {@code true} if attempts to initialize an object should fail if
+   *          the LDAP attribute has a value that cannot be represented in the
+   *          required argument type, or {@code false} if not.
    */
   boolean failOnInvalidValue() default true;
 
@@ -69,6 +73,11 @@ public @interface LDAPSetter
    * only the first value returned will be used, and attempts to modify the
    * corresponding entry in the directory may cause those additional values to
    * be lost.
+   *
+   * @return  {@code true} if attempts to initialize an object should fail if
+   *          the LDAP attribute has multiple values but the argument for the
+   *          associated method only accepts a single value, or {@code false} if
+   *          not.
    */
   boolean failOnTooManyValues() default true;
 
@@ -77,6 +86,8 @@ public @interface LDAPSetter
   /**
    * The class that provides the logic for encoding the value of this method to
    * an LDAP attribute.
+   *
+   * @return  The encoder class for this method.
    */
   Class<? extends ObjectEncoder> encoderClass()
        default DefaultObjectEncoder.class;
@@ -88,6 +99,11 @@ public @interface LDAPSetter
    * will be stored.  If this is not provided, then the method name must start
    * with "set" and it will be assumed that the attribute name is the remainder
    * of the method name.
+   *
+   * @return  The name of the attribute type in which the value of the
+   *          associated method will be stored, or an empty string if the
+   *          attribute name will be assumed to match the method name minus the
+   *          initial "set".
    */
   String attribute() default "";
 }

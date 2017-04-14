@@ -342,8 +342,8 @@ rdnLoop:
 
       // Read the attribute name, until we find a space or equal sign.
       int rdnEndPos;
-      int rdnStartPos = pos;
       int attrStartPos = pos;
+      final int rdnStartPos = pos;
       while (pos < length)
       {
         final char c = dnString.charAt(pos);
@@ -686,7 +686,7 @@ rdnLoop:
       new DN(s);
       return true;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       return false;
     }

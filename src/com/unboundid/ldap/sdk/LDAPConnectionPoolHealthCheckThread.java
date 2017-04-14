@@ -93,7 +93,7 @@ class LDAPConnectionPoolHealthCheckThread
         {
           pool.doHealthCheck();
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
         }
@@ -108,7 +108,7 @@ class LDAPConnectionPoolHealthCheckThread
         {
           queue.poll(sleepTime, TimeUnit.MILLISECONDS);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
         }
@@ -136,7 +136,7 @@ class LDAPConnectionPoolHealthCheckThread
       {
         t.join();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 

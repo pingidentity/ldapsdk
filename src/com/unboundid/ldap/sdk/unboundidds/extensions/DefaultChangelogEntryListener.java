@@ -81,6 +81,7 @@ final class DefaultChangelogEntryListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleChangelogEntry(final ChangelogEntryIntermediateResponse ir)
   {
     entryList.add(ir);
@@ -91,6 +92,7 @@ final class DefaultChangelogEntryListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleMissingChangelogEntries(
                    final MissingChangelogEntriesIntermediateResponse ir)
   {
@@ -102,6 +104,7 @@ final class DefaultChangelogEntryListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleOtherIntermediateResponse(final IntermediateResponse ir)
   {
     // This response will be ignored.

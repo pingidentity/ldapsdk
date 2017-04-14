@@ -363,12 +363,12 @@ public class Control
 
       return decode(oid, isCritical, value);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -415,7 +415,7 @@ public class Control
             isCritical =
                  ASN1Boolean.decodeAsBoolean(elements[1]).booleanValue();
           }
-          catch (ASN1Exception ae)
+          catch (final ASN1Exception ae)
           {
             debugException(ae);
             throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -440,7 +440,7 @@ public class Control
       {
         isCritical = ASN1Boolean.decodeAsBoolean(elements[1]).booleanValue();
       }
-      catch (ASN1Exception ae)
+      catch (final ASN1Exception ae)
       {
         debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -543,7 +543,7 @@ public class Control
       {
         controls[i] = decode(ASN1Sequence.decodeAsSequence(controlElements[i]));
       }
-      catch (ASN1Exception ae)
+      catch (final ASN1Exception ae)
       {
         debugException(ae);
         throw new LDAPException(ResultCode.DECODING_ERROR,

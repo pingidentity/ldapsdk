@@ -75,6 +75,7 @@ final class ProxySearchResultListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     try
@@ -93,6 +94,7 @@ final class ProxySearchResultListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

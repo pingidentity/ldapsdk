@@ -176,7 +176,7 @@ public abstract class GenericResponseProtocolOp
         referralURLs = Collections.emptyList();
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -240,6 +240,7 @@ public abstract class GenericResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return type;
@@ -250,6 +251,7 @@ public abstract class GenericResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence = buffer.beginSequence(type);
@@ -318,6 +320,7 @@ public abstract class GenericResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final void toString(final StringBuilder buffer)
   {
     buffer.append("ResponseProtocolOp(type=");

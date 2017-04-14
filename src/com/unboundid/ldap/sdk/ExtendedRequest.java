@@ -239,6 +239,7 @@ public class ExtendedRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST;
@@ -249,6 +250,7 @@ public class ExtendedRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final void writeTo(final ASN1Buffer writer)
   {
     final ASN1BufferSequence requestSequence =
@@ -269,6 +271,7 @@ public class ExtendedRequest
    *
    * @return  The ASN.1 element with the encoded extended request protocol op.
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     // Create the extended request protocol op.
@@ -353,7 +356,7 @@ public class ExtendedRequest
           response = responseQueue.take();
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -399,7 +402,7 @@ public class ExtendedRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -510,6 +513,7 @@ public class ExtendedRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public final void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -517,7 +521,7 @@ public class ExtendedRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -559,6 +563,7 @@ public class ExtendedRequest
    * {@inheritDoc}.  Subclasses should override this method to return a
    * duplicate of the appropriate type.
    */
+  @Override()
   public ExtendedRequest duplicate()
   {
     return duplicate(getControls());
@@ -570,6 +575,7 @@ public class ExtendedRequest
    * {@inheritDoc}.  Subclasses should override this method to return a
    * duplicate of the appropriate type.
    */
+  @Override()
   public ExtendedRequest duplicate(final Control[] controls)
   {
     final ExtendedRequest r = new ExtendedRequest(oid, value, controls);
@@ -629,6 +635,7 @@ public class ExtendedRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {

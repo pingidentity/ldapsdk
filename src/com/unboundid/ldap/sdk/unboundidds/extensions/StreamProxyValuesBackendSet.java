@@ -201,7 +201,7 @@ public final class StreamProxyValuesBackendSet
 
       return new StreamProxyValuesBackendSet(backendSetID, hosts, ports);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

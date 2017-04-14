@@ -197,6 +197,7 @@ public final class PostReadResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public PostReadResponseControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

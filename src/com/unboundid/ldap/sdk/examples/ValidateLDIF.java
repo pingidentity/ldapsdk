@@ -630,7 +630,7 @@ public final class ValidateLDIF
         final ArrayList<File> fileList = new ArrayList<File>(fileMap.values());
         schema = Schema.getSchema(fileList);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         err("Unable to read schema from files in directory " +
             schemaDir.getAbsolutePath() + ":  " + getExceptionMessage(e));
@@ -645,7 +645,7 @@ public final class ValidateLDIF
         schema = connection.getSchema();
         connection.close();
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         err("Unable to connect to the directory server and read the schema:  ",
             le.getMessage());
@@ -697,7 +697,7 @@ public final class ValidateLDIF
       }
       ldifReader = new LDIFReader(inputStream, numThreads.getValue(), this);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       err("Unable to open the LDIF reader:  ", getExceptionMessage(e));
       return ResultCode.LOCAL_ERROR;
@@ -724,7 +724,7 @@ public final class ValidateLDIF
           rejectWriter = new LDIFWriter(rejectFile.getValue());
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         err("Unable to create the reject writer:  ", getExceptionMessage(e));
         return ResultCode.LOCAL_ERROR;
@@ -747,7 +747,7 @@ public final class ValidateLDIF
             break;
           }
         }
-        catch (LDIFException le)
+        catch (final LDIFException le)
         {
           malformedEntries.incrementAndGet();
 
@@ -776,7 +776,7 @@ public final class ValidateLDIF
                 return ResultCode.LOCAL_ERROR;
               }
             }
-            catch (IOException ioe)
+            catch (final IOException ioe)
             {
               err("Unable to write to the reject file:",
                   getExceptionMessage(ioe));
@@ -786,7 +786,7 @@ public final class ValidateLDIF
             }
           }
         }
-        catch (IOException ioe)
+        catch (final IOException ioe)
         {
 
           if (rejectWriter != null)
@@ -799,7 +799,7 @@ public final class ValidateLDIF
                                         true);
               return ResultCode.LOCAL_ERROR;
             }
-            catch (Exception ex)
+            catch (final Exception ex)
             {
               err("I/O error reading from LDIF:", getExceptionMessage(ioe));
               return ResultCode.LOCAL_ERROR;
@@ -842,7 +842,7 @@ public final class ValidateLDIF
       {
         ldifReader.close();
       }
-      catch (Exception e) {}
+      catch (final Exception e) {}
 
       try
       {
@@ -851,7 +851,7 @@ public final class ValidateLDIF
           rejectWriter.close();
         }
       }
-      catch (Exception e) {}
+      catch (final Exception e) {}
     }
   }
 
@@ -883,7 +883,7 @@ public final class ValidateLDIF
           {
             rejectWriter.writeEntry(entry, listToString(invalidReasons));
           }
-          catch (IOException ioe) {}
+          catch (final IOException ioe) {}
         }
       }
     }

@@ -561,7 +561,7 @@ public final class Attribute
             break;
           }
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
         }
@@ -1071,7 +1071,7 @@ public final class Attribute
     {
       return decodeGeneralizedTime(values[0].stringValue());
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return null;
@@ -1098,7 +1098,7 @@ public final class Attribute
     {
       return new DN(values[0].stringValue());
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return null;
@@ -1126,7 +1126,7 @@ public final class Attribute
     {
       return Integer.valueOf(values[0].stringValue());
     }
-    catch (NumberFormatException nfe)
+    catch (final NumberFormatException nfe)
     {
       debugException(nfe);
       return null;
@@ -1154,7 +1154,7 @@ public final class Attribute
     {
       return Long.valueOf(values[0].stringValue());
     }
-    catch (NumberFormatException nfe)
+    catch (final NumberFormatException nfe)
     {
       debugException(nfe);
       return null;
@@ -1484,7 +1484,7 @@ public final class Attribute
 
       return new Attribute(attrName, matchingRule, values);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -1525,7 +1525,7 @@ public final class Attribute
     {
       valueSet = ASN1Set.decodeAsSet(elements[1]);
     }
-    catch (ASN1Exception ae)
+    catch (final ASN1Exception ae)
     {
       debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -1656,7 +1656,7 @@ public final class Attribute
         {
           c += matchingRule.normalize(value).hashCode();
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
           c += value.hashCode();

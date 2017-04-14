@@ -444,7 +444,7 @@ public final class Modification
 
       return new Modification(modType, attrName, values);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

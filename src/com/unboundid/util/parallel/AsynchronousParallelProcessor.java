@@ -233,6 +233,7 @@ public final class AsynchronousParallelProcessor<I, O>
     /**
      * {@inheritDoc}
      */
+    @Override()
     public void processResult(final Result<I, O> ioResult)
          throws Exception
     {
@@ -288,7 +289,7 @@ public final class AsynchronousParallelProcessor<I, O>
             }
           }
         }
-        catch (Throwable e)
+        catch (final Throwable e)
         {
           Debug.debugException(e);
 

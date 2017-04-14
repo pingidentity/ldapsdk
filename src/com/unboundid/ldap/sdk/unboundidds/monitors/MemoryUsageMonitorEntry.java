@@ -383,7 +383,7 @@ public final class MemoryUsageMonitorEntry
                  Long.parseLong(timeStr.substring(0, timeStr.length()-2));
             pauses.put(millis, l);
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
           }
@@ -396,7 +396,7 @@ public final class MemoryUsageMonitorEntry
                  Long.parseLong(timeStr.substring(0, timeStr.length()-1));
             pauses.put(millis, l);
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
           }

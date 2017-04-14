@@ -66,7 +66,7 @@ public abstract class LDAPListenerRequestHandler
    * @throws  LDAPException  If the connection should not be accepted.
    */
   public abstract LDAPListenerRequestHandler newInstance(
-                       final LDAPListenerClientConnection connection)
+                       LDAPListenerClientConnection connection)
          throws LDAPException;
 
 
@@ -118,9 +118,9 @@ public abstract class LDAPListenerRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be an
    *          {@code AddResponseProtocolOp}.
    */
-  public abstract LDAPMessage processAddRequest(final int messageID,
-                                   final AddRequestProtocolOp request,
-                                   final List<Control> controls);
+  public abstract LDAPMessage processAddRequest(int messageID,
+                                   AddRequestProtocolOp request,
+                                   List<Control> controls);
 
 
 
@@ -139,9 +139,9 @@ public abstract class LDAPListenerRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be a
    *          {@code BindResponseProtocolOp}.
    */
-  public abstract LDAPMessage processBindRequest(final int messageID,
-                                   final BindRequestProtocolOp request,
-                                   final List<Control> controls);
+  public abstract LDAPMessage processBindRequest(int messageID,
+                                   BindRequestProtocolOp request,
+                                   List<Control> controls);
 
 
 
@@ -160,9 +160,9 @@ public abstract class LDAPListenerRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be a
    *          {@code CompareResponseProtocolOp}.
    */
-  public abstract LDAPMessage processCompareRequest(final int messageID,
-                                   final CompareRequestProtocolOp request,
-                                   final List<Control> controls);
+  public abstract LDAPMessage processCompareRequest(int messageID,
+                                   CompareRequestProtocolOp request,
+                                   List<Control> controls);
 
 
 
@@ -181,9 +181,9 @@ public abstract class LDAPListenerRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be a
    *          {@code DeleteResponseProtocolOp}.
    */
-  public abstract LDAPMessage processDeleteRequest(final int messageID,
-                                   final DeleteRequestProtocolOp request,
-                                   final List<Control> controls);
+  public abstract LDAPMessage processDeleteRequest(int messageID,
+                                   DeleteRequestProtocolOp request,
+                                   List<Control> controls);
 
 
 
@@ -202,9 +202,9 @@ public abstract class LDAPListenerRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be an
    *          {@code ExtendedResponseProtocolOp}.
    */
-  public abstract LDAPMessage processExtendedRequest(final int messageID,
-                                   final ExtendedRequestProtocolOp request,
-                                   final List<Control> controls);
+  public abstract LDAPMessage processExtendedRequest(int messageID,
+                                   ExtendedRequestProtocolOp request,
+                                   List<Control> controls);
 
 
 
@@ -223,9 +223,9 @@ public abstract class LDAPListenerRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be an
    *          {@code ModifyResponseProtocolOp}.
    */
-  public abstract LDAPMessage processModifyRequest(final int messageID,
-                                   final ModifyRequestProtocolOp request,
-                                   final List<Control> controls);
+  public abstract LDAPMessage processModifyRequest(int messageID,
+                                   ModifyRequestProtocolOp request,
+                                   List<Control> controls);
 
 
 
@@ -244,9 +244,9 @@ public abstract class LDAPListenerRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be an
    *          {@code ModifyDNResponseProtocolOp}.
    */
-  public abstract LDAPMessage processModifyDNRequest(final int messageID,
-                                   final ModifyDNRequestProtocolOp request,
-                                   final List<Control> controls);
+  public abstract LDAPMessage processModifyDNRequest(int messageID,
+                                   ModifyDNRequestProtocolOp request,
+                                   List<Control> controls);
 
 
 
@@ -265,9 +265,9 @@ public abstract class LDAPListenerRequestHandler
    *          client.  The protocol op in the {@code LDAPMessage} must be an
    *          {@code SearchResultDoneProtocolOp}.
    */
-  public abstract LDAPMessage processSearchRequest(final int messageID,
-                                   final SearchRequestProtocolOp request,
-                                   final List<Control> controls);
+  public abstract LDAPMessage processSearchRequest(int messageID,
+                                   SearchRequestProtocolOp request,
+                                   List<Control> controls);
 
 
 

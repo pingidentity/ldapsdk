@@ -116,8 +116,7 @@ public enum DraftBeheraLDAPPasswordPolicy10ErrorType
    * @param  name   The human-readable name for this error type.
    * @param  value  The numeric value associated with this error type.
    */
-  private DraftBeheraLDAPPasswordPolicy10ErrorType(final String name,
-                                                   final int value)
+  DraftBeheraLDAPPasswordPolicy10ErrorType(final String name, final int value)
   {
     this.name  = name;
     this.value = value;

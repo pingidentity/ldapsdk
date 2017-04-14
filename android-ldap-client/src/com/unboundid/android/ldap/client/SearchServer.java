@@ -246,7 +246,7 @@ public final class SearchServer
     {
       filter = Filter.create(filterString);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       logException(LOG_TAG, "onClick", le);
 

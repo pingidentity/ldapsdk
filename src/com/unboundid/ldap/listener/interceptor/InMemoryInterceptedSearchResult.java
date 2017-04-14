@@ -72,7 +72,7 @@ public interface InMemoryInterceptedSearchResult
    *                       the in-memory directory server.  It must not be
    *                       {@code null}.
    */
-  void setResult(final LDAPResult searchResult);
+  void setResult(LDAPResult searchResult);
 
 
 
@@ -91,7 +91,7 @@ public interface InMemoryInterceptedSearchResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the search result entry.
    */
-  void sendSearchEntry(final Entry entry)
+  void sendSearchEntry(Entry entry)
        throws LDAPException;
 
 
@@ -108,7 +108,7 @@ public interface InMemoryInterceptedSearchResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the search result reference.
    */
-  void sendSearchReference(final SearchResultReference reference)
+  void sendSearchReference(SearchResultReference reference)
        throws LDAPException;
 
 
@@ -125,6 +125,6 @@ public interface InMemoryInterceptedSearchResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the intermediate response.
    */
-  void sendIntermediateResponse(final IntermediateResponse intermediateResponse)
+  void sendIntermediateResponse(IntermediateResponse intermediateResponse)
          throws LDAPException;
 }

@@ -560,6 +560,7 @@ public final class GetPasswordPolicyStateIssuesResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public GetPasswordPolicyStateIssuesResponseControl decodeControl(
               final String oid, final boolean isCritical,
               final ASN1OctetString value)

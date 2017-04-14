@@ -2829,7 +2829,7 @@ public final class PasswordPolicyStateOperation
     {
       elements = ASN1Sequence.decodeAsSequence(element).elements();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -2848,7 +2848,7 @@ public final class PasswordPolicyStateOperation
     {
       opType = ASN1Enumerated.decodeAsEnumerated(elements[0]).intValue();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -2868,7 +2868,7 @@ public final class PasswordPolicyStateOperation
           values[i] = ASN1OctetString.decodeAsOctetString(valueElements[i]);
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,

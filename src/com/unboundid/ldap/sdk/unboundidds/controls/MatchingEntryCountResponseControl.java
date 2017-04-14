@@ -596,6 +596,7 @@ public final class MatchingEntryCountResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public MatchingEntryCountResponseControl decodeControl(final String oid,
                                                 final boolean isCritical,
                                                 final ASN1OctetString value)

@@ -77,7 +77,7 @@ public interface ReadOnlyAddRequest
    * @return  The requested attribute, or {@code null} if it does not exist in
    *          the add request.
    */
-  Attribute getAttribute(final String attributeName);
+  Attribute getAttribute(String attributeName);
 
 
 
@@ -90,7 +90,7 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains the specified attribute,
    *          or {@code false} if not.
    */
-  boolean hasAttribute(final String attributeName);
+  boolean hasAttribute(String attributeName);
 
 
 
@@ -105,7 +105,7 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains the specified attribute,
    *          or {@code false} if not.
    */
-  boolean hasAttribute(final Attribute attribute);
+  boolean hasAttribute(Attribute attribute);
 
 
 
@@ -121,8 +121,7 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  boolean hasAttributeValue(final String attributeName,
-                            final String attributeValue);
+  boolean hasAttributeValue(String attributeName, String attributeValue);
 
 
 
@@ -140,9 +139,8 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  boolean hasAttributeValue(final String attributeName,
-                            final String attributeValue,
-                            final MatchingRule matchingRule);
+  boolean hasAttributeValue(String attributeName, String attributeValue,
+                            MatchingRule matchingRule);
 
 
 
@@ -158,8 +156,7 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request  contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  boolean hasAttributeValue(final String attributeName,
-                            final byte[] attributeValue);
+  boolean hasAttributeValue(String attributeName, byte[] attributeValue);
 
 
 
@@ -177,9 +174,8 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request  contains an attribute with the
    *          specified name and value, or {@code false} if not.
    */
-  boolean hasAttributeValue(final String attributeName,
-                            final byte[] attributeValue,
-                            final MatchingRule matchingRule);
+  boolean hasAttributeValue(String attributeName, byte[] attributeValue,
+                            MatchingRule matchingRule);
 
 
 
@@ -192,7 +188,7 @@ public interface ReadOnlyAddRequest
    * @return  {@code true} if this add request contains the specified object
    *          class, or {@code false} if not.
    */
-  boolean hasObjectClass(final String objectClassName);
+  boolean hasObjectClass(String objectClassName);
 
 
 
@@ -210,6 +206,7 @@ public interface ReadOnlyAddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   AddRequest duplicate();
 
 
@@ -217,7 +214,8 @@ public interface ReadOnlyAddRequest
   /**
    * {@inheritDoc}
    */
-  AddRequest duplicate(final Control[] controls);
+  @Override()
+  AddRequest duplicate(Control[] controls);
 
 
 

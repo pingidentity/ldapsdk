@@ -147,7 +147,7 @@ public final class StartInteractiveTransactionExtendedResult
            ASN1Element.decode(extendedResult.getValue().getValue());
       valueSequence = ASN1Sequence.decodeAsSequence(valueElement);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -176,7 +176,7 @@ public final class StartInteractiveTransactionExtendedResult
             }
             baseDNList = Collections.unmodifiableList(dnList);
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
             throw new LDAPException(ResultCode.DECODING_ERROR,

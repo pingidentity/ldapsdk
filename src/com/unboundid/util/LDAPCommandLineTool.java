@@ -708,7 +708,7 @@ public abstract class LDAPCommandLineTool
    *
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
-  public abstract void addNonLDAPArguments(final ArgumentParser parser)
+  public abstract void addNonLDAPArguments(ArgumentParser parser)
          throws ArgumentException;
 
 
@@ -890,7 +890,7 @@ public abstract class LDAPCommandLineTool
         connection.bind(bindRequest);
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       connection.close();
@@ -941,7 +941,7 @@ public abstract class LDAPCommandLineTool
                     extendedResult.getDiagnosticMessage()));
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         connection.close();
@@ -1115,7 +1115,7 @@ public abstract class LDAPCommandLineTool
       {
         socketFactory = sslUtil.createSSLSocketFactory();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -1129,7 +1129,7 @@ public abstract class LDAPCommandLineTool
       {
         startTLSSocketFactory = sslUtil.createSSLSocketFactory();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -1217,7 +1217,7 @@ public abstract class LDAPCommandLineTool
             pw = keyStorePasswordFile.getNonBlankFileLines().get(0).
                       toCharArray();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
             throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -1238,7 +1238,7 @@ public abstract class LDAPCommandLineTool
           keyManager = new KeyStoreKeyManager(keyStorePath.getValue(), pw,
                keyStoreFormat.getValue(), certificateNickname.getValue());
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
           throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -1266,7 +1266,7 @@ public abstract class LDAPCommandLineTool
             pw = trustStorePasswordFile.getNonBlankFileLines().get(0).
                       toCharArray();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
             throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -1347,7 +1347,7 @@ public abstract class LDAPCommandLineTool
         pw = StaticUtils.getBytes(
              bindPasswordFile.getNonBlankFileLines().get(0));
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,

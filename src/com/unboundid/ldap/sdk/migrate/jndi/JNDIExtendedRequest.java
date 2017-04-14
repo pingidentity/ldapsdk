@@ -196,7 +196,7 @@ public final class JNDIExtendedRequest
       {
         value = ASN1OctetString.decodeAsOctetString(valueBytes);
       }
-      catch (ASN1Exception ae)
+      catch (final ASN1Exception ae)
       {
         throw new NamingException(StaticUtils.getExceptionMessage(ae));
       }

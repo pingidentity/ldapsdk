@@ -347,6 +347,7 @@ public final class SimplePagedResultsControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public SimplePagedResultsControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

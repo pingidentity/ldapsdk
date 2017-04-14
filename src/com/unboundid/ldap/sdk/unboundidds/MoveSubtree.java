@@ -382,7 +382,7 @@ public final class MoveSubtree
       {
         sourceConnection = getConnection(0);
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         Debug.debugException(le);
         err(ERR_MOVE_SUBTREE_CANNOT_CONNECT_TO_SOURCE.get(
@@ -394,7 +394,7 @@ public final class MoveSubtree
       {
         targetConnection = getConnection(1);
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         Debug.debugException(le);
         err(ERR_MOVE_SUBTREE_CANNOT_CONNECT_TO_TARGET.get(
@@ -2526,6 +2526,7 @@ processingBlock:
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleUnsolicitedNotification(final LDAPConnection connection,
                                             final ExtendedResult notification)
   {
@@ -2540,6 +2541,7 @@ processingBlock:
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ReadOnlyEntry doPreAddProcessing(final ReadOnlyEntry entry)
   {
     // No processing required.
@@ -2551,6 +2553,7 @@ processingBlock:
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void doPostAddProcessing(final ReadOnlyEntry entry)
   {
     wrapOut(0, 79, INFO_MOVE_SUBTREE_ADD_SUCCESSFUL.get(entry.getDN()));
@@ -2561,6 +2564,7 @@ processingBlock:
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void doPreDeleteProcessing(final DN entryDN)
   {
     // No processing required.
@@ -2571,6 +2575,7 @@ processingBlock:
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void doPostDeleteProcessing(final DN entryDN)
   {
     wrapOut(0, 79, INFO_MOVE_SUBTREE_DELETE_SUCCESSFUL.get(entryDN.toString()));

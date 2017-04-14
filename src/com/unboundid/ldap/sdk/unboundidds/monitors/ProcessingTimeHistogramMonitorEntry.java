@@ -768,7 +768,7 @@ public class ProcessingTimeHistogramMonitorEntry
 
       return Collections.unmodifiableMap(map);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return Collections.emptyMap();
@@ -854,7 +854,7 @@ public class ProcessingTimeHistogramMonitorEntry
 
       return Collections.unmodifiableMap(map);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return Collections.emptyMap();

@@ -101,6 +101,9 @@ public @interface ThreadSafety
   /**
    * The thread safety level for the associated class, interface, enum, or
    * method.
+   *
+   * @return  The thread safety level for the associated class, interface, enum,
+   *          or method.
    */
   ThreadSafetyLevel level();
 }

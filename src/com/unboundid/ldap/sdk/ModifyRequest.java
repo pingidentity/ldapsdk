@@ -428,6 +428,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return dn;
@@ -466,6 +467,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public List<Modification> getModifications()
   {
     return Collections.unmodifiableList(modifications);
@@ -564,6 +566,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST;
@@ -574,6 +577,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer writer)
   {
     final ASN1BufferSequence requestSequence =
@@ -596,6 +600,7 @@ public final class ModifyRequest
    *
    * @return  The ASN.1 element with the encoded modify request protocol op.
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ASN1Element[] modElements = new ASN1Element[modifications.size()];
@@ -665,7 +670,7 @@ public final class ModifyRequest
           response = responseQueue.take();
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -746,7 +751,7 @@ public final class ModifyRequest
       connection.sendMessage(message);
       return asyncRequestID;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -793,7 +798,7 @@ public final class ModifyRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -1072,7 +1077,7 @@ public final class ModifyRequest
           referralConn.close();
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
       }
@@ -1089,6 +1094,7 @@ public final class ModifyRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -1096,7 +1102,7 @@ public final class ModifyRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -1137,6 +1143,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ModifyRequest duplicate()
   {
     return duplicate(getControls());
@@ -1147,6 +1154,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ModifyRequest duplicate(final Control[] controls)
   {
     final ModifyRequest r = new ModifyRequest(dn,
@@ -1167,6 +1175,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFModifyChangeRecord toLDIFChangeRecord()
   {
     return new LDIFModifyChangeRecord(this);
@@ -1177,6 +1186,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String[] toLDIF()
   {
     return toLDIFChangeRecord().toLDIF();
@@ -1187,6 +1197,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String toLDIFString()
   {
     return toLDIFChangeRecord().toLDIFString();
@@ -1259,6 +1270,7 @@ public final class ModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {

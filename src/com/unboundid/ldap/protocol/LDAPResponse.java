@@ -63,5 +63,5 @@ public interface LDAPResponse
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  void toString(final StringBuilder buffer);
+  void toString(StringBuilder buffer);
 }

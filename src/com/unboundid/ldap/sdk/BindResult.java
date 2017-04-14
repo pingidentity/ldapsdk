@@ -254,12 +254,12 @@ public class BindResult
       return new BindResult(messageID, resultCode, diagnosticMessage, matchedDN,
                             referralURLs, controls, serverSASLCredentials);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

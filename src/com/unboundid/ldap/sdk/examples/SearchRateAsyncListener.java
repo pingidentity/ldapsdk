@@ -118,6 +118,7 @@ final class SearchRateAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     // No implementation required.
@@ -128,6 +129,7 @@ final class SearchRateAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {
@@ -139,6 +141,7 @@ final class SearchRateAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchResultReceived(final AsyncRequestID requestID,
                                    final SearchResult searchResult)
   {

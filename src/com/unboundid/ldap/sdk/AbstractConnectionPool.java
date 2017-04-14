@@ -60,6 +60,7 @@ public abstract class AbstractConnectionPool
    * that are not in use will be closed, and any outstanding connections will be
    * automatically closed when they are released back to the pool.
    */
+  @Override()
   public abstract void close();
 
 
@@ -73,7 +74,7 @@ public abstract class AbstractConnectionPool
    * @param  numThreads  The number of threads to use when closing the
    *                     connections.
    */
-  public abstract void close(final boolean unbind, final int numThreads);
+  public abstract void close(boolean unbind, int numThreads);
 
 
 
@@ -105,7 +106,7 @@ public abstract class AbstractConnectionPool
    *
    * @param  connection  The connection to be released back to the pool.
    */
-  public abstract void releaseConnection(final LDAPConnection connection);
+  public abstract void releaseConnection(LDAPConnection connection);
 
 
 
@@ -116,8 +117,7 @@ public abstract class AbstractConnectionPool
    *
    * @param  connection  The defunct connection being released.
    */
-  public abstract void releaseDefunctConnection(
-                            final LDAPConnection connection);
+  public abstract void releaseDefunctConnection(LDAPConnection connection);
 
 
 
@@ -146,7 +146,7 @@ public abstract class AbstractConnectionPool
       healthCheck.ensureConnectionValidAfterException(connection, exception);
       releaseConnection(connection);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       releaseDefunctConnection(connection);
@@ -172,7 +172,7 @@ public abstract class AbstractConnectionPool
    *                         been properly released as defunct.
    */
   public abstract LDAPConnection replaceDefunctConnection(
-                                      final LDAPConnection connection)
+                                      LDAPConnection connection)
          throws LDAPException;
 
 
@@ -329,7 +329,7 @@ public abstract class AbstractConnectionPool
    *                         types of operations should be retried.
    */
   public abstract void setRetryFailedOperationsDueToInvalidConnections(
-              final Set<OperationType> operationTypes);
+                            Set<OperationType> operationTypes);
 
 
 
@@ -387,7 +387,7 @@ public abstract class AbstractConnectionPool
    * @param  connectionPoolName  The user-friendly name that should be used for
    *                             this connection pool.
    */
-  public abstract void setConnectionPoolName(final String connectionPoolName);
+  public abstract void setConnectionPoolName(String connectionPoolName);
 
 
 
@@ -420,8 +420,7 @@ public abstract class AbstractConnectionPool
    *                              available connections in this pool.  The
    *                              provided value must be greater than zero.
    */
-  public abstract void setHealthCheckIntervalMillis(
-                            final long healthCheckInterval);
+  public abstract void setHealthCheckIntervalMillis(long healthCheckInterval);
 
 
 
@@ -444,6 +443,7 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server root DSE.
    */
+  @Override()
   public final RootDSE getRootDSE()
          throws LDAPException
   {
@@ -496,6 +496,7 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
+  @Override()
   public final Schema getSchema()
          throws LDAPException
   {
@@ -524,6 +525,7 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
+  @Override()
   public final Schema getSchema(final String entryDN)
          throws LDAPException
   {
@@ -535,7 +537,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return schema;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.SEARCH, conn);
 
@@ -575,6 +577,7 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final SearchResultEntry getEntry(final String dn)
          throws LDAPException
   {
@@ -600,6 +603,7 @@ public abstract class AbstractConnectionPool
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final SearchResultEntry getEntry(final String dn,
                                           final String... attributes)
          throws LDAPException
@@ -612,7 +616,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return entry;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.SEARCH, conn);
 
@@ -653,6 +657,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult add(final String dn, final Attribute... attributes)
          throws LDAPException
   {
@@ -676,6 +681,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult add(final String dn,
                               final Collection<Attribute> attributes)
          throws LDAPException
@@ -697,6 +703,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult add(final Entry entry)
          throws LDAPException
   {
@@ -721,6 +728,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult add(final String... ldifLines)
          throws LDIFException, LDAPException
   {
@@ -742,6 +750,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult add(final AddRequest addRequest)
          throws LDAPException
   {
@@ -753,7 +762,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return result;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.ADD, conn);
 
@@ -792,6 +801,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult add(final ReadOnlyAddRequest addRequest)
          throws LDAPException
   {
@@ -856,7 +866,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return result;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.BIND, conn);
 
@@ -899,6 +909,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final CompareResult compare(final String dn,
                                      final String attributeName,
                                      final String assertionValue)
@@ -922,6 +933,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final CompareResult compare(final CompareRequest compareRequest)
          throws LDAPException
   {
@@ -933,7 +945,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return result;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.COMPARE, conn);
 
@@ -972,6 +984,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final CompareResult compare(
                                   final ReadOnlyCompareRequest compareRequest)
          throws LDAPException
@@ -993,6 +1006,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult delete(final String dn)
          throws LDAPException
   {
@@ -1014,6 +1028,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult delete(final DeleteRequest deleteRequest)
          throws LDAPException
   {
@@ -1025,7 +1040,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return result;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.DELETE, conn);
 
@@ -1064,6 +1079,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
          throws LDAPException
   {
@@ -1162,7 +1178,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return result;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.EXTENDED, conn);
 
@@ -1203,6 +1219,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult modify(final String dn, final Modification mod)
          throws LDAPException
   {
@@ -1224,6 +1241,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult modify(final String dn, final Modification... mods)
          throws LDAPException
   {
@@ -1246,6 +1264,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult modify(final String dn, final List<Modification> mods)
          throws LDAPException
   {
@@ -1272,6 +1291,7 @@ public abstract class AbstractConnectionPool
    *                         reading the response.
    *
    */
+  @Override()
   public final LDAPResult modify(final String... ldifModificationLines)
          throws LDIFException, LDAPException
   {
@@ -1293,6 +1313,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult modify(final ModifyRequest modifyRequest)
          throws LDAPException
   {
@@ -1304,7 +1325,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return result;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.MODIFY, conn);
 
@@ -1343,6 +1364,7 @@ public abstract class AbstractConnectionPool
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
+  @Override()
   public final LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
          throws LDAPException
   {
@@ -1368,6 +1390,7 @@ public abstract class AbstractConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public final LDAPResult modifyDN(final String dn, final String newRDN,
                                    final boolean deleteOldRDN)
          throws LDAPException
@@ -1397,6 +1420,7 @@ public abstract class AbstractConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public final LDAPResult modifyDN(final String dn, final String newRDN,
                                    final boolean deleteOldRDN,
                                    final String newSuperiorDN)
@@ -1421,6 +1445,7 @@ public abstract class AbstractConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public final LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
          throws LDAPException
   {
@@ -1432,7 +1457,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return result;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPExceptionIfShouldNotRetry(t, OperationType.MODIFY_DN, conn);
 
@@ -1471,6 +1496,7 @@ public abstract class AbstractConnectionPool
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
+  @Override()
   public final LDAPResult modifyDN(
                                final ReadOnlyModifyDNRequest modifyDNRequest)
          throws LDAPException
@@ -1521,6 +1547,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult search(final String baseDN, final SearchScope scope,
                                    final String filter,
                                    final String... attributes)
@@ -1571,6 +1598,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult search(final String baseDN, final SearchScope scope,
                                    final Filter filter,
                                    final String... attributes)
@@ -1628,6 +1656,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult
        search(final SearchResultListener searchResultListener,
               final String baseDN, final SearchScope scope, final String filter,
@@ -1685,6 +1714,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult
        search(final SearchResultListener searchResultListener,
               final String baseDN, final SearchScope scope, final Filter filter,
@@ -1748,6 +1778,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult search(final String baseDN, final SearchScope scope,
                                    final DereferencePolicy derefPolicy,
                                    final int sizeLimit, final int timeLimit,
@@ -1810,6 +1841,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult search(final String baseDN, final SearchScope scope,
                                    final DereferencePolicy derefPolicy,
                                    final int sizeLimit, final int timeLimit,
@@ -1883,6 +1915,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult
        search(final SearchResultListener searchResultListener,
               final String baseDN, final SearchScope scope,
@@ -1956,6 +1989,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult
         search(final SearchResultListener searchResultListener,
                final String baseDN, final SearchScope scope,
@@ -2002,6 +2036,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult search(final SearchRequest searchRequest)
          throws LDAPSearchException
   {
@@ -2010,7 +2045,7 @@ public abstract class AbstractConnectionPool
     {
       conn = getConnection();
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -2022,7 +2057,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return result;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPSearchExceptionIfShouldNotRetry(t, conn);
 
@@ -2089,6 +2124,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResult search(final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
   {
@@ -2139,6 +2175,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResultEntry searchForEntry(final String baseDN,
                                                 final SearchScope scope,
                                                 final String filter,
@@ -2194,6 +2231,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResultEntry searchForEntry(final String baseDN,
                                                 final SearchScope scope,
                                                 final Filter filter,
@@ -2255,6 +2293,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResultEntry
        searchForEntry(final String baseDN, final SearchScope scope,
                       final DereferencePolicy derefPolicy, final int timeLimit,
@@ -2316,6 +2355,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResultEntry
        searchForEntry(final String baseDN, final SearchScope scope,
                       final DereferencePolicy derefPolicy, final int timeLimit,
@@ -2364,6 +2404,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResultEntry searchForEntry(
                                       final SearchRequest searchRequest)
          throws LDAPSearchException
@@ -2373,7 +2414,7 @@ public abstract class AbstractConnectionPool
     {
       conn = getConnection();
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -2385,7 +2426,7 @@ public abstract class AbstractConnectionPool
       releaseConnection(conn);
       return entry;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       throwLDAPSearchExceptionIfShouldNotRetry(t, conn);
 
@@ -2455,6 +2496,7 @@ public abstract class AbstractConnectionPool
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
+  @Override()
   public final SearchResultEntry searchForEntry(
                                       final ReadOnlySearchRequest searchRequest)
          throws LDAPSearchException
@@ -2526,7 +2568,7 @@ public abstract class AbstractConnectionPool
     {
       conn = getConnection();
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -2568,7 +2610,7 @@ requestLoop:
               break;
           }
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
           results.add(new LDAPResult(request.getLastMessageID(),
@@ -2696,7 +2738,7 @@ requestLoop:
     {
       conn = getConnection();
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -3024,5 +3066,5 @@ requestLoop:
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(StringBuilder buffer);
 }

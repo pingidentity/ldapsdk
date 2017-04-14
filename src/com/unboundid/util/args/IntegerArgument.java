@@ -476,7 +476,7 @@ public final class IntegerArgument
     {
       intValue = Integer.parseInt(valueString);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new ArgumentException(ERR_INTEGER_VALUE_NOT_INT.get(valueString,
                                        getIdentifierString()), e);

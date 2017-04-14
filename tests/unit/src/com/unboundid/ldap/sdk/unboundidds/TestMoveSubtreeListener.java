@@ -57,6 +57,7 @@ public final class TestMoveSubtreeListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ReadOnlyEntry doPreAddProcessing(final ReadOnlyEntry entry)
   {
     preAddCalled = true;
@@ -68,6 +69,7 @@ public final class TestMoveSubtreeListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void doPostAddProcessing(final ReadOnlyEntry entry)
   {
     postAddCalled = true;
@@ -78,6 +80,7 @@ public final class TestMoveSubtreeListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void doPreDeleteProcessing(final DN entryDN)
   {
     preDeleteCalled = true;
@@ -88,6 +91,7 @@ public final class TestMoveSubtreeListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void doPostDeleteProcessing(final DN entryDN)
   {
     postDeleteCalled = true;

@@ -90,6 +90,7 @@ public final class BasicAsyncSearchResultListener
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     entryList.add(searchEntry);
@@ -101,6 +102,7 @@ public final class BasicAsyncSearchResultListener
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {
@@ -114,6 +116,7 @@ public final class BasicAsyncSearchResultListener
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void searchResultReceived(final AsyncRequestID requestID,
                                     final SearchResult searchResult)
   {

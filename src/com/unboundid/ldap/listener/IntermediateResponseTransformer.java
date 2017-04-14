@@ -55,7 +55,7 @@ public interface IntermediateResponseTransformer
    *          response should not be returned to the client.
    */
   ObjectPair<IntermediateResponseProtocolOp,Control[]>
-       transformIntermediateResponse(final int messageID,
-            final IntermediateResponseProtocolOp response,
-            final Control[] controls);
+       transformIntermediateResponse(int messageID,
+                                     IntermediateResponseProtocolOp response,
+                                     Control[] controls);
 }

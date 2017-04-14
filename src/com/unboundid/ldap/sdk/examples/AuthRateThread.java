@@ -265,7 +265,7 @@ final class AuthRateThread
     {
       startBarrier.await();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       Debug.debugException(e);
     }
@@ -329,7 +329,7 @@ final class AuthRateThread
           searchRequest.setBaseDN(baseDN.nextValue());
           searchRequest.setFilter(filter.nextValue());
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           Debug.debugException(le);
           errorCounter.incrementAndGet();
@@ -407,7 +407,7 @@ final class AuthRateThread
 
         bindConnection.bind(bindRequest);
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         Debug.debugException(le);
         errorCounter.incrementAndGet();

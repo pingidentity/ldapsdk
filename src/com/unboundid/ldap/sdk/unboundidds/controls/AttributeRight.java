@@ -116,7 +116,7 @@ public enum AttributeRight
    *
    * @param  name  The name for this attribute right.
    */
-  private AttributeRight(final String name)
+  AttributeRight(final String name)
   {
     this.name = name;
   }

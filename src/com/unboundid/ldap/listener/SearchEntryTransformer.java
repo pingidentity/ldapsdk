@@ -57,6 +57,5 @@ public interface SearchEntryTransformer
    *          be returned to the client.
    */
   ObjectPair<SearchResultEntryProtocolOp,Control[]> transformEntry(
-       final int messageID, final SearchResultEntryProtocolOp entry,
-       final Control[] controls);
+       int messageID, SearchResultEntryProtocolOp entry, Control[] controls);
 }

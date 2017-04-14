@@ -193,7 +193,7 @@ public final class ListServerOptions
            getString(R.string.list_server_options_popup_text_removed, id));
       startActivity(i);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       logException(LOG_TAG, "removeServer", e);
 

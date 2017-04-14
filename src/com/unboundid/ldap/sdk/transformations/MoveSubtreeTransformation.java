@@ -81,6 +81,7 @@ public final class MoveSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry transformEntry(final Entry e)
   {
     if (e == null)
@@ -114,6 +115,7 @@ public final class MoveSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord transformChangeRecord(final LDIFChangeRecord r)
   {
     if (r == null)
@@ -230,6 +232,7 @@ public final class MoveSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translate(final Entry original, final long firstLineNumber)
   {
     return transformEntry(original);
@@ -240,6 +243,7 @@ public final class MoveSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord translate(final LDIFChangeRecord original,
                                     final long firstLineNumber)
   {
@@ -251,6 +255,7 @@ public final class MoveSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translateEntryToWrite(final Entry original)
   {
     return transformEntry(original);
@@ -261,6 +266,7 @@ public final class MoveSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord translateChangeRecordToWrite(
                                final LDIFChangeRecord original)
   {

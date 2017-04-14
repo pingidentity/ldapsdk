@@ -857,6 +857,7 @@ public final class InMemoryOperationInterceptorRequestHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ObjectPair<SearchResultEntryProtocolOp,Control[]> transformEntry(
               final int messageID, final SearchResultEntryProtocolOp entry,
               final Control[] controls)
@@ -898,6 +899,7 @@ public final class InMemoryOperationInterceptorRequestHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ObjectPair<SearchResultReferenceProtocolOp,Control[]>
               transformReference(final int messageID,
                    final SearchResultReferenceProtocolOp reference,
@@ -951,6 +953,7 @@ public final class InMemoryOperationInterceptorRequestHandler
    *          response and set of controls, or {@code null} to indicate that the
    *          response should not be returned to the client.
    */
+  @Override()
   public ObjectPair<IntermediateResponseProtocolOp,Control[]>
               transformIntermediateResponse(final int messageID,
                    final IntermediateResponseProtocolOp response,

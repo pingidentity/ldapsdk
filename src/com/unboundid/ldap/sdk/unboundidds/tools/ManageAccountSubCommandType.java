@@ -901,10 +901,9 @@ public enum ManageAccountSubCommandType
    *                         invoke this subcommand.  It may be empty but not
    *                         {@code null}.
    */
-  private ManageAccountSubCommandType(final String primaryName,
-                                      final String description,
-                                      final int operationType,
-                                      final String... alternateNames)
+  ManageAccountSubCommandType(final String primaryName,
+                              final String description, final int operationType,
+                              final String... alternateNames)
   {
     this.primaryName    = primaryName;
     this.description    = description;

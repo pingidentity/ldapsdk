@@ -172,7 +172,7 @@ public final class PasswordExpiredControl
     {
       Integer.parseInt(value.stringValue());
     }
-    catch (NumberFormatException nfe)
+    catch (final NumberFormatException nfe)
     {
       debugException(nfe);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -185,6 +185,7 @@ public final class PasswordExpiredControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public PasswordExpiredControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

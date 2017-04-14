@@ -55,5 +55,5 @@ public interface InMemoryInterceptedDeleteRequest
    *                        instead of the one that was originally received
    *                        from the client.  It must not be {@code null}.
    */
-  void setRequest(final DeleteRequest deleteRequest);
+  void setRequest(DeleteRequest deleteRequest);
 }

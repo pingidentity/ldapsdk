@@ -93,7 +93,7 @@ public enum PasswordValidationDetailsResponseType
    * @param  berType  The BER type that will be used for this response type in
    *                  an encoded password validation details response control.
    */
-  private PasswordValidationDetailsResponseType(final byte berType)
+  PasswordValidationDetailsResponseType(final byte berType)
   {
     this.berType = berType;
   }

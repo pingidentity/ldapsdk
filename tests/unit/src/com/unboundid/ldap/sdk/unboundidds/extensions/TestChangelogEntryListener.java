@@ -62,6 +62,7 @@ public final class TestChangelogEntryListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleChangelogEntry(final ChangelogEntryIntermediateResponse ir)
   {
     entryCount.incrementAndGet();
@@ -72,6 +73,7 @@ public final class TestChangelogEntryListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleMissingChangelogEntries(
                    final MissingChangelogEntriesIntermediateResponse ir)
   {
@@ -83,6 +85,7 @@ public final class TestChangelogEntryListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleOtherIntermediateResponse(final IntermediateResponse ir)
   {
     otherCount.incrementAndGet();

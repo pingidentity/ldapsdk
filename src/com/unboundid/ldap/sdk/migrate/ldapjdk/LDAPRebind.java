@@ -55,5 +55,5 @@ public interface LDAPRebind
    * @return  Information that should be used when authenticating to the
    *          specified server.
    */
-  LDAPRebindAuth getRebindAuthentication(final String host, final int port);
+  LDAPRebindAuth getRebindAuthentication(String host, int port);
 }

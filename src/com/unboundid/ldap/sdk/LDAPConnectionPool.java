@@ -713,7 +713,7 @@ public final class LDAPConnectionPool
         {
           connList.add(createConnection());
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
 
@@ -727,7 +727,7 @@ public final class LDAPConnectionPool
                      le);
                 c.terminate(null);
               }
-              catch (Exception e)
+              catch (final Exception e)
               {
                 debugException(e);
               }
@@ -1113,7 +1113,7 @@ public final class LDAPConnectionPool
         {
           connList.add(createConnection());
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
 
@@ -1126,7 +1126,7 @@ public final class LDAPConnectionPool
                 c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null,
                      le);
                 c.terminate(null);
-              } catch (Exception e)
+              } catch (final Exception e)
               {
                 debugException(e);
               }
@@ -1230,7 +1230,7 @@ public final class LDAPConnectionPool
       {
         postConnectProcessor.processPreAuthenticatedConnection(c);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 
@@ -1240,7 +1240,7 @@ public final class LDAPConnectionPool
           c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null, e);
           c.terminate(null);
         }
-        catch (Exception e2)
+        catch (final Exception e2)
         {
           debugException(e2);
         }
@@ -1315,7 +1315,7 @@ public final class LDAPConnectionPool
       {
         postConnectProcessor.processPostAuthenticatedConnection(c);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         try
@@ -1324,7 +1324,7 @@ public final class LDAPConnectionPool
           c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null, e);
           c.terminate(null);
         }
-        catch (Exception e2)
+        catch (final Exception e2)
         {
           debugException(e2);
         }
@@ -1657,7 +1657,7 @@ public final class LDAPConnectionPool
           poolStatistics.incrementNumSuccessfulCheckoutsWithoutWaiting();
           return conn;
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
         }
@@ -1680,7 +1680,7 @@ public final class LDAPConnectionPool
             poolStatistics.incrementNumSuccessfulCheckoutsWithoutWaiting();
             return conn;
           }
-          catch (LDAPException le)
+          catch (final LDAPException le)
           {
             debugException(le);
             poolStatistics.incrementNumConnectionsClosedDefunct();
@@ -1706,7 +1706,7 @@ public final class LDAPConnectionPool
           poolStatistics.incrementNumSuccessfulCheckoutsNewConnection();
           return conn;
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
           failedReplaceCount.incrementAndGet();
@@ -1736,7 +1736,7 @@ public final class LDAPConnectionPool
             poolStatistics.incrementNumSuccessfulCheckoutsAfterWaiting();
             return conn;
           }
-          catch (LDAPException le)
+          catch (final LDAPException le)
           {
             debugException(le);
             poolStatistics.incrementNumConnectionsClosedDefunct();
@@ -1744,7 +1744,7 @@ public final class LDAPConnectionPool
           }
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -1761,7 +1761,7 @@ public final class LDAPConnectionPool
         poolStatistics.incrementNumSuccessfulCheckoutsNewConnection();
         return conn;
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         poolStatistics.incrementNumFailedCheckouts();
@@ -1892,7 +1892,7 @@ public final class LDAPConnectionPool
     {
       healthCheck.ensureConnectionValidForRelease(connection);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       releaseDefunctConnection(connection);
       return;
@@ -2103,7 +2103,7 @@ public final class LDAPConnectionPool
 
       return conn;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       final int newReplaceCount = failedReplaceCount.incrementAndGet();
@@ -2936,7 +2936,7 @@ public final class LDAPConnectionPool
             conn.terminate(null);
           }
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
           numDefunct++;

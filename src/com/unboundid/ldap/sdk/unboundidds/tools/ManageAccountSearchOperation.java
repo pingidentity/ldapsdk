@@ -432,6 +432,7 @@ final class ManageAccountSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     entryCounter.incrementAndGet();
@@ -467,6 +468,7 @@ final class ManageAccountSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {
@@ -484,6 +486,7 @@ final class ManageAccountSearchOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchResultReceived(final AsyncRequestID requestID,
                                    final SearchResult searchResult)
   {

@@ -22,6 +22,7 @@
  -->
 
 <module name="Checker">
+  <property name="cacheFile" value=".checkstyle-cache-unit" />
 
 
   <!-- Ensure that there is always a newline at the end of each file. -->
@@ -57,15 +58,10 @@
     </module>
 
 
-    <!-- Ensure that all source files have the appropriate header. -->
-    <module name="RegexpHeader">
-      <property name="header"
-                value="/*\n * Copyright (\d\d\d\d-)?2017 UnboundID Corp.\n * All Rights Reserved.\n */\n/*\n * Copyright \(C\) (\d\d\d\d-)?2017 UnboundID Corp.\n *\n * This program is free software; you can redistribute it and/or modify\n * it under the terms of the GNU General Public License \(GPLv2 only\)\n * or the terms of the GNU Lesser General Public License \(LGPLv2.1 only\)\n * as published by the Free Software Foundation.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n * GNU General Public License for more details.\n *\n * You should have received a copy of the GNU General Public License\n * along with this program; if not, see &lt;http://www.gnu.org/licenses&gt;.\n */\n" />
-    </module>
-
-
     <!-- Ensure that there are no star imports. -->
-    <module name="AvoidStarImport" />
+    <module name="AvoidStarImport">
+      <property name="allowStaticMemberImports" value="true" />
+    </module>
 
 
     <!-- Ensure that there are no imports from a "sun.*" package. -->
@@ -103,10 +99,6 @@
     <!-- Ensure that any class containing an equals method includes an
          equals(Object) method. -->
     <module name="CovariantEquals" />
-
-
-    <!-- Ensure that there are no uses of double-checked locking. -->
-    <module name="DoubleCheckedLocking" />
 
 
     <!-- Ensure that there are no empty statements in the code.  -->
@@ -153,16 +145,17 @@
     <module name="FallThrough" />
 
 
-    <!-- Ensure that no line ends with whitespace. -->
-    <module name="GenericIllegalRegexp">
-      <property name="format"         value="\s$"                        />
-      <property name="ignoreComments" value="false"                      />
-      <property name="message"        value="Line ends with whitespace." />
-    </module>
-
-
     <!-- Ensure that all long constants are followed by a capital L. -->
     <module name="UpperEll" />
+
+
+    <!-- Ensure that the @Override annotation is used where appropriate. -->
+    <module name="MissingOverride" />
+
+
+    <!-- Ensure that the @Deprecated annotation and @deprecated javadoc tag are
+         always used together. -->
+    <module name="MissingDeprecated" />
   </module>
 </module>
 

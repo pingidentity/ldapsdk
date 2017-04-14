@@ -85,7 +85,7 @@ public class LDAPUrl
     {
       ldapURL = new LDAPURL(url);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new MalformedURLException(le.getMessage());
@@ -113,7 +113,7 @@ public class LDAPUrl
       final DN dnObject = (dn == null) ? null : new DN(dn);
       ldapURL = new LDAPURL("ldap", host, port, dnObject, null, null, null);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new RuntimeException(e);
@@ -149,7 +149,7 @@ public class LDAPUrl
       ldapURL = new LDAPURL("ldap", host, port, dnObject, attributes,
                             scopeObject, filterObject);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new RuntimeException(e);
@@ -202,7 +202,7 @@ public class LDAPUrl
       ldapURL = new LDAPURL("ldap", host, port, dnObject, attrs, scopeObject,
                             filterObject);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new RuntimeException(e);

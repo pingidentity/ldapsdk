@@ -232,7 +232,7 @@ public final class PasswordPolicyResponseControl
       final ASN1Element valueElement = ASN1Element.decode(value.getValue());
       valueSequence = ASN1Sequence.decodeAsSequence(valueElement);
     }
-    catch (ASN1Exception ae)
+    catch (final ASN1Exception ae)
     {
       debugException(ae);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -278,7 +278,7 @@ public final class PasswordPolicyResponseControl
                                       toHex(warningElement.getType())));
               }
             }
-            catch (ASN1Exception ae)
+            catch (final ASN1Exception ae)
             {
               debugException(ae);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -308,7 +308,7 @@ public final class PasswordPolicyResponseControl
                                       errorElement.intValue()));
               }
             }
-            catch (ASN1Exception ae)
+            catch (final ASN1Exception ae)
             {
               debugException(ae);
               throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -339,6 +339,7 @@ public final class PasswordPolicyResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public PasswordPolicyResponseControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

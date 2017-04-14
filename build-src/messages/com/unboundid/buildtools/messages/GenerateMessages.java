@@ -142,23 +142,23 @@ public class GenerateMessages
 
     // Iterate through the properties files in the properties directory and
     // generate the appropriate source files for them.
-    for (File propertiesFile : propertiesDir.listFiles())
+    for (final File propertiesFile : propertiesDir.listFiles())
     {
-      String propertiesFileName = propertiesFile.getName();
+      final String propertiesFileName = propertiesFile.getName();
       if (! propertiesFile.getName().endsWith(".properties"))
       {
         // It's not a properties file, so skip it.
         continue;
       }
 
-      String baseFileName = propertiesFileName.substring(0,
-                                 propertiesFileName.lastIndexOf(".properties"));
+      final String baseFileName = propertiesFileName.substring(0,
+           propertiesFileName.lastIndexOf(".properties"));
 
       try
       {
-        FileInputStream inputStream = new FileInputStream(propertiesFile);
+        final FileInputStream inputStream = new FileInputStream(propertiesFile);
 
-        Properties p = new Properties();
+        final Properties p = new Properties();
         p.load(inputStream);
         inputStream.close();
 
@@ -167,7 +167,7 @@ public class GenerateMessages
         // fully-qualified class name.  Read it and derive the corresponding
         // source file path.  Make the parent directory if necessary, and open
         // the source file for writing.
-        String className = p.getProperty(CLASS_NAME_PROPERTY);
+        final String className = p.getProperty(CLASS_NAME_PROPERTY);
         if ((className == null) || (className.length() == 0))
         {
           throw new BuildException("Properties file " +
@@ -176,15 +176,16 @@ public class GenerateMessages
                                    CLASS_NAME_PROPERTY + " property.");
         }
 
-        String baseName = className.substring(className.lastIndexOf('.') + 1);
-        String packageName = className.substring(0, className.lastIndexOf('.'));
-        String sourcePath = generatedSourceDir.getAbsolutePath() +
-                            File.separator +
-                            className.replace('.', File.separatorChar) +
-                            ".java";
+        final String baseName =
+             className.substring(className.lastIndexOf('.') + 1);
+        final String packageName =
+             className.substring(0, className.lastIndexOf('.'));
+        final String sourcePath = generatedSourceDir.getAbsolutePath() +
+             File.separator + className.replace('.', File.separatorChar) +
+             ".java";
 
-        File sourceFile = new File(sourcePath);
-        File sourceDir  = sourceFile.getParentFile();
+        final File sourceFile = new File(sourcePath);
+        final File sourceDir  = sourceFile.getParentFile();
         if (! sourceDir.exists())
         {
           sourceDir.mkdirs();
@@ -194,7 +195,7 @@ public class GenerateMessages
 
 
         // Add the header to the source file.
-        String year = new SimpleDateFormat("yyyy").format(new Date());
+        final String year = new SimpleDateFormat("yyyy").format(new Date());
         w("/*");
         w(" * Copyright ", year, " UnboundID Corp.");
         w(" * All Rights Reserved.");
@@ -243,15 +244,15 @@ public class GenerateMessages
 
 
         // Iterate through the properties and add them to the source file.
-        TreeSet<Object> nameSet = new TreeSet<Object>();
+        final TreeSet<Object> nameSet = new TreeSet<Object>();
         nameSet.addAll(p.keySet());
         nameSet.remove(CLASS_NAME_PROPERTY);
 
-        Iterator<?> propertyNames = nameSet.iterator();
+        final Iterator<?> propertyNames = nameSet.iterator();
         while (propertyNames.hasNext())
         {
-          String propertyName = String.valueOf(propertyNames.next());
-          String message      = p.getProperty(propertyName);
+          final String propertyName = String.valueOf(propertyNames.next());
+          final String message      = p.getProperty(propertyName);
 
           if (message.contains("%s"))
           {
@@ -271,10 +272,10 @@ public class GenerateMessages
           int pos = message.indexOf("'{");
           while (pos >= 0)
           {
-            int closePos = message.indexOf('}', pos);
+            final int closePos = message.indexOf('}', pos);
             if (closePos > 0)
             {
-              int value;
+              final int value;
               try
               {
                 value = Integer.parseInt(message.substring(pos+2, closePos));
@@ -288,7 +289,7 @@ public class GenerateMessages
                        "message rather than the expected replacement value.");
                 }
               }
-              catch (NumberFormatException nfe)
+              catch (final NumberFormatException nfe)
               {
                 // This is acceptable.
               }
@@ -301,7 +302,7 @@ public class GenerateMessages
           w("   * ", message);
           w("   */");
 
-          String quotedMessage = message.replace("\"", "\\\"");
+          final String quotedMessage = message.replace("\"", "\\\"");
           if (propertyNames.hasNext())
           {
             w("  ", propertyName, "(\"" + quotedMessage + "\"),");
@@ -328,7 +329,7 @@ public class GenerateMessages
         w("    try");
         w("    {");
         w("      rb = ResourceBundle.getBundle(\"", baseFileName, "\");");
-        w("    } catch (Exception e) {}");
+        w("    } catch (final Exception e) {}");
         w("    RESOURCE_BUNDLE = rb;");
         w("  }");
         w();
@@ -475,11 +476,11 @@ public class GenerateMessages
         w();
         writer.close();
       }
-      catch (BuildException be)
+      catch (final BuildException be)
       {
         throw be;
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         throw new BuildException("Error processing properties file " +
                                  propertiesFile.getName() + " -- " + e, e);
@@ -498,7 +499,7 @@ public class GenerateMessages
    */
   private void w(final Object... args)
   {
-    for (Object o : args)
+    for (final Object o : args)
     {
       writer.print(String.valueOf(o));
     }

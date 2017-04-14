@@ -112,7 +112,7 @@ public class BindRequestAccessLogMessage
       authType =
            BindRequestAuthenticationType.valueOf(getNamedValue("authType"));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }

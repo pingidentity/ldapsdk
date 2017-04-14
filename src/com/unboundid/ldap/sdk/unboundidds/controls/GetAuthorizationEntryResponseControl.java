@@ -305,7 +305,7 @@ public final class GetAuthorizationEntryResponseControl
       authZID         = zID;
       authZEntry      = zEntry;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -319,6 +319,7 @@ public final class GetAuthorizationEntryResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public GetAuthorizationEntryResponseControl decodeControl(final String oid,
                                                    final boolean isCritical,
                                                    final ASN1OctetString value)

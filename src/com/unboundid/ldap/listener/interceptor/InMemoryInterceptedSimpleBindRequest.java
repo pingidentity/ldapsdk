@@ -54,5 +54,5 @@ public interface InMemoryInterceptedSimpleBindRequest
    *                      the one that was originally received from the client.
    *                      It must not be {@code null}.
    */
-  void setRequest(final SimpleBindRequest bindRequest);
+  void setRequest(SimpleBindRequest bindRequest);
 }

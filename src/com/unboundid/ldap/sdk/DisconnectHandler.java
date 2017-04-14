@@ -72,7 +72,7 @@ public interface DisconnectHandler
    *                         disconnect was not triggered by a client-side
    *                         exception or error.
    */
-  void handleDisconnect(final LDAPConnection connection, final String host,
-                        final int port, final DisconnectType disconnectType,
-                        final String message, final Throwable cause);
+  void handleDisconnect(LDAPConnection connection, String host, int port,
+                        DisconnectType disconnectType, String message,
+                        Throwable cause);
 }

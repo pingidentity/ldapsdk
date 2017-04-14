@@ -827,6 +827,7 @@ public final class AccessLogRequestHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ObjectPair<SearchResultEntryProtocolOp,Control[]> transformEntry(
               final int messageID, final SearchResultEntryProtocolOp entry,
               final Control[] controls)

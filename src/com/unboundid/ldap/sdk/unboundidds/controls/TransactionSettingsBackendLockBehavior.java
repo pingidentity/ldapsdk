@@ -107,7 +107,7 @@ public enum TransactionSettingsBackendLockBehavior
    *
    * @param  intValue  The integer value for this backend lock behavior.
    */
-  private TransactionSettingsBackendLockBehavior(final int intValue)
+  TransactionSettingsBackendLockBehavior(final int intValue)
   {
     this.intValue = intValue;
   }

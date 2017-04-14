@@ -112,6 +112,7 @@ final class AsyncSearchHelper
   /**
    * {@inheritDoc}
    */
+  @Override()
   public AsyncRequestID getAsyncRequestID()
   {
     return asyncRequestID;
@@ -122,6 +123,7 @@ final class AsyncSearchHelper
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPConnection getConnection()
   {
     return connection;
@@ -132,6 +134,7 @@ final class AsyncSearchHelper
   /**
    * {@inheritDoc}
    */
+  @Override()
   public long getCreateTimeNanos()
   {
     return createTime;
@@ -142,6 +145,7 @@ final class AsyncSearchHelper
   /**
    * {@inheritDoc}
    */
+  @Override()
   public OperationType getOperationType()
   {
     return OperationType.SEARCH;
@@ -177,6 +181,7 @@ final class AsyncSearchHelper
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -248,6 +253,7 @@ final class AsyncSearchHelper
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void intermediateResponseReturned(
                    final IntermediateResponse intermediateResponse)
   {

@@ -251,12 +251,12 @@ public final class ExtendedResponseProtocolOp
       responseOID   = oid;
       responseValue = value;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -346,6 +346,7 @@ public final class ExtendedResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_RESPONSE;
@@ -356,6 +357,7 @@ public final class ExtendedResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(6);
@@ -514,6 +516,7 @@ public final class ExtendedResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -587,6 +590,7 @@ public final class ExtendedResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("ExtendedResponseProtocolOp(resultCode=");

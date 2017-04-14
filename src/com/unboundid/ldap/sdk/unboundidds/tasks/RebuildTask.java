@@ -298,7 +298,7 @@ public final class RebuildTask
       {
         maxThreads = Integer.parseInt(threadsStr);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new TaskException(ERR_REBUILD_TASK_INVALID_MAX_THREADS.get(

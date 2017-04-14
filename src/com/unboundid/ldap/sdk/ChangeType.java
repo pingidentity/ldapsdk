@@ -75,7 +75,7 @@ public enum ChangeType
    *
    * @param  name  The human-readable name for this change type.
    */
-  private ChangeType(final String name)
+  ChangeType(final String name)
   {
     this.name = name;
   }

@@ -97,7 +97,7 @@ public final class GetConnectionIDExtendedResult
       final ASN1Element e = ASN1Element.decode(value.getValue());
       connectionID = ASN1Long.decodeAsLong(e).longValue();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

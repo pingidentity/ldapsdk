@@ -216,7 +216,7 @@ public final class AssertionRequestControl
       final ASN1Element valueElement = ASN1Element.decode(value.getValue());
       filter = Filter.decode(valueElement);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

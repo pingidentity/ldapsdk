@@ -55,5 +55,5 @@ public interface InMemoryInterceptedModifyRequest
    *                        instead of the one that was originally received
    *                        from the client.  It must not be {@code null}.
    */
-  void setRequest(final ModifyRequest modifyRequest);
+  void setRequest(ModifyRequest modifyRequest);
 }

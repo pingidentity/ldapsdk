@@ -387,7 +387,7 @@ public final class LDIFWriter
         {
           toLdifBytesInvoker.shutdown();
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
           debugException(e);
           Thread.currentThread().interrupt();

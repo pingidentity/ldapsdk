@@ -65,7 +65,7 @@ abstract class LDAPSearchOutputHandler
    *
    * @param  entry  The search result entry to be processed.
    */
-  abstract void formatSearchResultEntry(final SearchResultEntry entry);
+  abstract void formatSearchResultEntry(SearchResultEntry entry);
 
 
 
@@ -75,7 +75,7 @@ abstract class LDAPSearchOutputHandler
    *
    * @param  ref  The search result reference to be processed.
    */
-  abstract void formatSearchResultReference(final SearchResultReference ref);
+  abstract void formatSearchResultReference(SearchResultReference ref);
 
 
 
@@ -86,7 +86,7 @@ abstract class LDAPSearchOutputHandler
    * @param  result  The LDAP result to be processed.  It may or may not be a
    *                 search result.
    */
-  abstract void formatResult(final LDAPResult result);
+  abstract void formatResult(LDAPResult result);
 
 
 
@@ -98,6 +98,6 @@ abstract class LDAPSearchOutputHandler
    *                       was received.
    * @param  notification  The unsolicited notification that was received.
    */
-  abstract void formatUnsolicitedNotification(final LDAPConnection connection,
-                     final ExtendedResult notification);
+  abstract void formatUnsolicitedNotification(LDAPConnection connection,
+                                              ExtendedResult notification);
 }

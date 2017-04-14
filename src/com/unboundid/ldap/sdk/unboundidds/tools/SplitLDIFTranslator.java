@@ -294,7 +294,8 @@ abstract class SplitLDIFTranslator
   /**
    * {@inheritDoc}
    */
-  public abstract SplitLDIFEntry translate(final Entry original,
-                                           final long firstLineNumber)
+  @Override()
+  public abstract SplitLDIFEntry translate(Entry original,
+                                           long firstLineNumber)
          throws LDIFException;
 }

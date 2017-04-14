@@ -70,7 +70,7 @@ public interface InMemoryInterceptedSimpleBindResult
    *                     in-memory directory server.  It must not be
    *                     {@code null}.
    */
-  void setResult(final BindResult bindResult);
+  void setResult(BindResult bindResult);
 
 
 
@@ -86,6 +86,6 @@ public interface InMemoryInterceptedSimpleBindResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the intermediate response.
    */
-  void sendIntermediateResponse(final IntermediateResponse intermediateResponse)
+  void sendIntermediateResponse(IntermediateResponse intermediateResponse)
          throws LDAPException;
 }

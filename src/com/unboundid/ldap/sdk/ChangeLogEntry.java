@@ -191,7 +191,7 @@ public class ChangeLogEntry
     {
       changeNumber = Long.parseLong(changeNumberAttr.getValue());
     }
-    catch (NumberFormatException nfe)
+    catch (final NumberFormatException nfe)
     {
       Debug.debugException(nfe);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -430,7 +430,7 @@ public class ChangeLogEntry
       return Collections.unmodifiableList(
                   new ArrayList<Attribute>(e.getAttributes()));
     }
-    catch (LDIFException le)
+    catch (final LDIFException le)
     {
       Debug.debugException(le);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -510,7 +510,7 @@ public class ChangeLogEntry
 
         return Collections.unmodifiableList(attrs);
       }
-      catch (LDIFException le)
+      catch (final LDIFException le)
       {
         Debug.debugException(le);
         throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -540,7 +540,7 @@ public class ChangeLogEntry
         return Collections.unmodifiableList(
                     new ArrayList<Attribute>(e.getAttributes()));
       }
-      catch (LDIFException le)
+      catch (final LDIFException le)
       {
         Debug.debugException(le);
         throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -617,7 +617,7 @@ public class ChangeLogEntry
       return Collections.unmodifiableList(
                   Arrays.asList(changeRecord.getModifications()));
     }
-    catch (LDIFException le)
+    catch (final LDIFException le)
     {
       Debug.debugException(le);
       throw new LDAPException(ResultCode.DECODING_ERROR,

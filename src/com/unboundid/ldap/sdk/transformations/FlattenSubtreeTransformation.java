@@ -200,6 +200,7 @@ public final class FlattenSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry transformEntry(final Entry e)
   {
     // If the provided entry was null, then just return null.
@@ -486,6 +487,7 @@ public final class FlattenSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translate(final Entry original, final long firstLineNumber)
   {
     return transformEntry(original);
@@ -496,6 +498,7 @@ public final class FlattenSubtreeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translateEntryToWrite(final Entry original)
   {
     return transformEntry(original);

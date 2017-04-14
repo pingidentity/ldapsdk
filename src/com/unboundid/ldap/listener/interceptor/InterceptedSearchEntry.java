@@ -75,6 +75,7 @@ final class InterceptedSearchEntry
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ReadOnlySearchRequest getRequest()
   {
     return searchRequest;
@@ -85,6 +86,7 @@ final class InterceptedSearchEntry
   /**
    * {@inheritDoc}
    */
+  @Override()
   public SearchResultEntry getSearchEntry()
   {
     return entry;
@@ -95,6 +97,7 @@ final class InterceptedSearchEntry
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setSearchEntry(final Entry entry)
   {
     if (entry == null)

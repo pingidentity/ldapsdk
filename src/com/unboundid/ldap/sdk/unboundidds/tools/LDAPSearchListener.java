@@ -89,9 +89,10 @@ final class LDAPSearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
-    SearchResultEntry sre;
+    final SearchResultEntry sre;
     if (entryTransformations == null)
     {
       sre = searchEntry;
@@ -116,6 +117,7 @@ final class LDAPSearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

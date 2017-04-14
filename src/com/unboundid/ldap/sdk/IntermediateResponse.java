@@ -274,12 +274,12 @@ public class IntermediateResponse
 
       return new IntermediateResponse(messageID, oid, value, controls);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -293,6 +293,7 @@ public class IntermediateResponse
   /**
    * {@inheritDoc}
    */
+  @Override()
   public int getMessageID()
   {
     return messageID;
@@ -423,6 +424,7 @@ public class IntermediateResponse
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("IntermediateResponse(");

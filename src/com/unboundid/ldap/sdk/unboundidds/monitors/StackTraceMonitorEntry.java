@@ -174,7 +174,7 @@ public final class StackTraceMonitorEntry
                 try
                 {
                   lineNumber = Integer.parseInt(lineNumberStr);
-                } catch (Exception e) {}
+                } catch (final Exception e) {}
               }
             }
 
@@ -194,7 +194,7 @@ public final class StackTraceMonitorEntry
                                           currentElements));
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }

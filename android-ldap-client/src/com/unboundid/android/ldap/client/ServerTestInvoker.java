@@ -39,6 +39,5 @@ interface ServerTestInvoker
    * @param  acceptable  Indicates that the instance appears to be acceptable.
    * @param  reasons     Reasons that the instance was not acceptable.
    */
-  void testCompleted(final boolean acceptable,
-                     final LinkedList<String> reasons);
+  void testCompleted(boolean acceptable, LinkedList<String> reasons);
 }

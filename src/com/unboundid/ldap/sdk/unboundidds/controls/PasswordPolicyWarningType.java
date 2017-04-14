@@ -71,7 +71,7 @@ public enum PasswordPolicyWarningType
    *
    * @param  name The human-readable name for this warning type.
    */
-  private PasswordPolicyWarningType(final String name)
+  PasswordPolicyWarningType(final String name)
   {
     this.name = name;
   }

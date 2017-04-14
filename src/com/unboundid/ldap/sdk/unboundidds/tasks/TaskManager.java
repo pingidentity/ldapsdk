@@ -148,7 +148,7 @@ public final class TaskManager
 
       return Task.decodeTask(taskEntry);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       if (le.getResultCode() == ResultCode.NO_SUCH_OBJECT)
@@ -190,7 +190,7 @@ public final class TaskManager
       {
         tasks.add(Task.decodeTask(e));
       }
-      catch (TaskException te)
+      catch (final TaskException te)
       {
         debugException(te);
 
@@ -352,7 +352,7 @@ public final class TaskManager
       {
         Thread.sleep(Math.min(pollFrequency, timeRemaining));
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();

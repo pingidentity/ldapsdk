@@ -85,7 +85,7 @@ public enum SASLQualityOfProtection
    *                    that should be used when interacting with the Java SASL
    *                    framework.
    */
-  private SASLQualityOfProtection(final String qopString)
+  SASLQualityOfProtection(final String qopString)
   {
     this.qopString = qopString;
   }

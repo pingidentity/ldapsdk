@@ -377,7 +377,7 @@ public class LDAPResult
       return new LDAPResult(protocolOpType, messageID, resultCode,
            diagnosticMessage, matchedDN, referralURLs, responseControls);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
@@ -388,7 +388,7 @@ public class LDAPResult
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_RESULT_CANNOT_DECODE.get(ae.getMessage()), ae);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

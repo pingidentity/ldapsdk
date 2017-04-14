@@ -127,7 +127,7 @@ public final class CompareRequestProtocolOp
       assertionValue = new ASN1OctetString(reader.readBytes());
       ensureNotNull(dn, attributeName, assertionValue);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -177,6 +177,7 @@ public final class CompareRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST;
@@ -187,6 +188,7 @@ public final class CompareRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     return new ASN1Sequence(LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST,
@@ -242,6 +244,7 @@ public final class CompareRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -292,6 +295,7 @@ public final class CompareRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("CompareRequestProtocolOp(dn='");

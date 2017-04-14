@@ -51,6 +51,9 @@ public @interface LDAPObject
    * only those attributes which are referenced by an {@link LDAPField} or
    * {@link LDAPSetter} annotation.  Note that if this is given a value of
    * {@code true}, then lazy loading will be disabled.
+   *
+   * @return  {@code true} if all attributes should be requested, or
+   *          {@code false} if only referenced attributes should be requested.
    */
   boolean requestAllAttributes() default false;
 
@@ -65,6 +68,10 @@ public @interface LDAPObject
    * specify a default parent DN but is a direct subclass of another class
    * marked with {@code LDAPObject}, then the subclass will inherit the default
    * parent DN from the superclass.
+   *
+   * @return  The DN of the entry below which objects of this type will be
+   *          created if no alternate parent DN is specified, or the empty
+   *          string if there should be no default parent DN.
    */
   String defaultParentDN() default "";
 
@@ -77,6 +84,10 @@ public @interface LDAPObject
    * persistence framework.  If a method name is provided, then that method must
    * exist in the associated class and it must not take any arguments.  It may
    * throw any kind of exception if the object is not valid.
+   *
+   * @return  The name of a method that should be invoked on an object after all
+   *          other decode processing has been performed for that object, or an
+   *          empty string if no post-decode method has been defined.
    */
   String postDecodeMethod() default "";
 
@@ -90,6 +101,10 @@ public @interface LDAPObject
    * associated class and it must take exactly one argument, with a type of
    * {@link com.unboundid.ldap.sdk.Entry}.  It may throw any kind of exception
    * if a problem is found with the entry and it should not be used.
+   *
+   * @return  The name of a method that should be invoked after an object has
+   *          been encoded to an LDAP entry, or an empty string if no
+   *          post-encode method has been defined.
    */
   String postEncodeMethod() default "";
 
@@ -100,22 +115,36 @@ public @interface LDAPObject
    * associated object type.  If no value is provided, then it will be assumed
    * that the object class name is equal to the unqualified name of the Java
    * class.
+   *
+   * @return  The name of the structural object class for LDAP entries created
+   *          from the associated object type, or an empty string if the object
+   *          class name will be assumed to be equal to the unqualified name of
+   *          the Java class.
    */
   String structuralClass() default "";
 
 
 
   /**
-   * The name(s) of any auxiliary object class(es) for LDAP entries created from
-   * the associated object type.
+   * The name) of any auxiliary object classes for LDAP entries created from the
+   * associated object type.
+   *
+   * @return  The names of any auxiliary object classes for LDAP entries created
+   *          from the associated object type, or an empty array if entries
+   *          should not include any auxiliary object classes.
    */
   String[] auxiliaryClass() default {};
 
 
 
   /**
-   * The name(s) of any superior object class(es) for the structural and/or
-   * auxiliary object classes that should be included in generated entries.
+   * The names of any superior object classes for the structural and auxiliary
+   * object classes that should be included in generated entries.
+   *
+   * @return  The names of any superior object classes for the structural and
+   *          auxiliary object classes that should be included in generated
+   *          entries, or an empty array if no superior classes should be
+   *          included.
    */
   String[] superiorClass() default {};
 }

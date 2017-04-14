@@ -36,7 +36,7 @@ interface StringProvider
    *
    * @return  The string for the given identifier.
    */
-  String getString(final int id);
+  String getString(int id);
 
 
 
@@ -49,5 +49,5 @@ interface StringProvider
    *
    * @return  The string for the given identifier.
    */
-  String getString(final int id, final Object... args);
+  String getString(int id, Object... args);
 }

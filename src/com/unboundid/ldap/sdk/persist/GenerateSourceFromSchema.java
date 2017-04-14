@@ -412,7 +412,7 @@ public final class GenerateSourceFromSchema
     {
       conn = getConnection();
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       err(ERR_GEN_SOURCE_CANNOT_CONNECT.get(getExceptionMessage(le)));
@@ -430,7 +430,7 @@ public final class GenerateSourceFromSchema
         return ResultCode.NO_RESULTS_RETURNED;
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       err(ERR_GEN_SOURCE_CANNOT_READ_SCHEMA.get(getExceptionMessage(le)));
@@ -657,7 +657,7 @@ public final class GenerateSourceFromSchema
     {
       writer = new PrintWriter(new FileWriter(sourceFile));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       err(ERR_GEN_SOURCE_CANNOT_CREATE_WRITER.get(sourceFile.getAbsolutePath(),

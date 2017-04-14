@@ -484,7 +484,7 @@ public final class LDAPCompare
       {
         assertionValueBytes = Base64.decode(avaString.substring(colonPos+2));
       }
-      catch (ParseException pe)
+      catch (final ParseException pe)
       {
         err("Unable to base64-decode the assertion value:  ",
                     pe.getMessage());
@@ -509,7 +509,7 @@ public final class LDAPCompare
       out("Connected to ", connection.getConnectedAddress(), ':',
           connection.getConnectedPort());
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       err("Error connecting to the directory server:  ", le.getMessage());
       return le.getResultCode();
@@ -546,7 +546,7 @@ public final class LDAPCompare
           out("The compare operation did not match.");
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         resultCode = le.getResultCode();
         err("An error occurred while processing the request:  ",

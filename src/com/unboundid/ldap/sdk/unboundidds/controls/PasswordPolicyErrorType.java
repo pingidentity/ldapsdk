@@ -126,7 +126,7 @@ public enum PasswordPolicyErrorType
    * @param  name   The human-readable name for this error type.
    * @param  value  The numeric value associated with this error type.
    */
-  private PasswordPolicyErrorType(final String name, final int value)
+  PasswordPolicyErrorType(final String name, final int value)
   {
     this.name  = name;
     this.value = value;

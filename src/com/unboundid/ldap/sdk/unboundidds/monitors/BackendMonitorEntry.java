@@ -215,7 +215,7 @@ public final class BackendMonitorEntry
         final String dn = s.substring(spacePos+1).trim();
         countMap.put(dn, l);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 

@@ -1258,7 +1258,7 @@ public final class GSSAPIBindRequest
         context = new LoginContext(jaasClientName, this);
         context.login();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 
@@ -1271,7 +1271,7 @@ public final class GSSAPIBindRequest
       {
         return (BindResult) Subject.doAs(context.getSubject(), this);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         if (e instanceof LDAPException)
@@ -1327,7 +1327,7 @@ public final class GSSAPIBindRequest
       saslClient = Sasl.createSaslClient(mechanisms, authorizationID,
            servicePrincipalProtocol, serverName, saslProperties, this);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -1376,7 +1376,7 @@ public final class GSSAPIBindRequest
 
       return new GSSAPIBindRequest(gssapiProperties, getControls());
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       // This should never happen.
       debugException(e);
@@ -1395,6 +1395,7 @@ public final class GSSAPIBindRequest
    *                                        was received.
    */
   @InternalUseOnly()
+  @Override()
   public void handle(final Callback[] callbacks)
          throws UnsupportedCallbackException
   {
@@ -1503,7 +1504,7 @@ public final class GSSAPIBindRequest
       bindRequest.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
       return bindRequest;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       // This should never happen.
       debugException(e);

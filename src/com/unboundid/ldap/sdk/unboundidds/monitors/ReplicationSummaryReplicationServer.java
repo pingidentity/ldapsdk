@@ -121,7 +121,7 @@ public final class ReplicationSummaryReplicationServer
         a = hostPort.substring(0, colonPos);
         p = Long.parseLong(hostPort.substring(colonPos+1));
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         a = null;

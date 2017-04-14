@@ -385,6 +385,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return dn;
@@ -425,6 +426,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getNewRDN()
   {
     return newRDN;
@@ -463,6 +465,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean deleteOldRDN()
   {
     return deleteOldRDN;
@@ -486,6 +489,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getNewSuperiorDN()
   {
     return newSuperiorDN;
@@ -531,6 +535,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST;
@@ -541,6 +546,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer writer)
   {
     final ASN1BufferSequence requestSequence =
@@ -563,6 +569,7 @@ public final class ModifyDNRequest
    *
    * @return  The ASN.1 element with the encoded modify DN request protocol op.
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ASN1Element[] protocolOpElements;
@@ -639,7 +646,7 @@ public final class ModifyDNRequest
           response = responseQueue.take();
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -720,7 +727,7 @@ public final class ModifyDNRequest
       connection.sendMessage(message);
       return asyncRequestID;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -768,7 +775,7 @@ public final class ModifyDNRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -1049,7 +1056,7 @@ public final class ModifyDNRequest
           referralConn.close();
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
       }
@@ -1066,6 +1073,7 @@ public final class ModifyDNRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -1073,7 +1081,7 @@ public final class ModifyDNRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -1114,6 +1122,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ModifyDNRequest duplicate()
   {
     return duplicate(getControls());
@@ -1124,6 +1133,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ModifyDNRequest duplicate(final Control[] controls)
   {
     final ModifyDNRequest r = new ModifyDNRequest(dn, newRDN, deleteOldRDN,
@@ -1144,6 +1154,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFModifyDNChangeRecord toLDIFChangeRecord()
   {
     return new LDIFModifyDNChangeRecord(this);
@@ -1154,6 +1165,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String[] toLDIF()
   {
     return toLDIFChangeRecord().toLDIF();
@@ -1164,6 +1176,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String toLDIFString()
   {
     return toLDIFChangeRecord().toLDIFString();
@@ -1215,6 +1228,7 @@ public final class ModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {

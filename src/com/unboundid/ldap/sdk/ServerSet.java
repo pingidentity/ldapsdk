@@ -103,7 +103,7 @@ public abstract class ServerSet
       {
         healthCheck.ensureNewConnectionValid(c);
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         c.close();

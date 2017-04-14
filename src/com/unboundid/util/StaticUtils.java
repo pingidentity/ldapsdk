@@ -189,7 +189,7 @@ public final class StaticUtils
         {
           return s.getBytes("UTF-8");
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           // This should never happen.
           debugException(e);
@@ -356,7 +356,7 @@ public final class StaticUtils
     {
       return new String(b, "UTF-8");
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       // This should never happen.
       debugException(e);
@@ -384,7 +384,7 @@ public final class StaticUtils
     {
       return new String(b, offset, length, "UTF-8");
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       // This should never happen.
       debugException(e);

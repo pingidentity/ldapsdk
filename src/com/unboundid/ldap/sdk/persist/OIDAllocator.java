@@ -60,7 +60,7 @@ public abstract class OIDAllocator
    *
    * @return  The OID to use for the attribute type definition.
    */
-  public abstract String allocateAttributeTypeOID(final String name);
+  public abstract String allocateAttributeTypeOID(String name);
 
 
 
@@ -72,5 +72,5 @@ public abstract class OIDAllocator
    *
    * @return  The OID to use for the object class definition.
    */
-  public abstract String allocateObjectClassOID(final String name);
+  public abstract String allocateObjectClassOID(String name);
 }

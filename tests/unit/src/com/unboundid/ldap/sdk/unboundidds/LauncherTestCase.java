@@ -40,17 +40,6 @@ public final class LauncherTestCase
        extends LDAPSDKTestCase
 {
   /**
-   * Provides test coverage for the constructor.
-   */
-  @Test()
-  public void testConstructor()
-  {
-    new Launcher();
-  }
-
-
-
-  /**
    * Provides a test case for launching the tool with a null set of arguments.
    */
   @Test()

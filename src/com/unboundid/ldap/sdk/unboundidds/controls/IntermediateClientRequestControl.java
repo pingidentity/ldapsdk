@@ -228,7 +228,7 @@ public final class IntermediateClientRequestControl
            ASN1Element.decode(controlValue.getValue());
       valueSequence = ASN1Sequence.decodeAsSequence(valueElement);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_ICREQ_CONTROL_VALUE_NOT_SEQUENCE.get(e), e);

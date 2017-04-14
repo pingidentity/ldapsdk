@@ -564,7 +564,7 @@ public final class LDAPSearch
     {
       filter = Filter.create(trailingArguments.get(0));
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       err("Invalid search filter:  ", le.getMessage());
       return le.getResultCode();
@@ -596,7 +596,7 @@ public final class LDAPSearch
              connection.getConnectedPort());
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       err("Error connecting to the directory server:  ", le.getMessage());
       return le.getResultCode();
@@ -671,7 +671,7 @@ public final class LDAPSearch
           out("# References returned:  ", searchResult.getReferenceCount());
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         err("An error occurred while processing the search:  ",
              le.getMessage());
@@ -721,6 +721,7 @@ public final class LDAPSearch
    *
    * @param  entry  The entry that was returned from the search.
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry entry)
   {
     if (repeat)
@@ -739,6 +740,7 @@ public final class LDAPSearch
    *
    * @param  reference  The reference that was returned from the search.
    */
+  @Override()
   public void searchReferenceReturned(final SearchResultReference reference)
   {
     if (repeat)

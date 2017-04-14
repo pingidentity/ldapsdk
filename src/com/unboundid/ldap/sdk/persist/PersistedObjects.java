@@ -117,7 +117,7 @@ public final class PersistedObjects<T>
     {
       entry = entrySource.nextEntry();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

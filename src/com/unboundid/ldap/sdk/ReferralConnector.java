@@ -58,7 +58,7 @@ public interface ReferralConnector
    *                         connection should be terminated before the
    *                         exception is thrown.
    */
-  LDAPConnection getReferralConnection(final LDAPURL referralURL,
-                                       final LDAPConnection connection)
+  LDAPConnection getReferralConnection(LDAPURL referralURL,
+                                       LDAPConnection connection)
                  throws LDAPException;
 }

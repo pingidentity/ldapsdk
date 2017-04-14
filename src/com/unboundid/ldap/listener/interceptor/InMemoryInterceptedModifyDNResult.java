@@ -70,7 +70,7 @@ public interface InMemoryInterceptedModifyDNResult
    *                         by the in-memory directory server.  It must not be
    *                         {@code null}.
    */
-  void setResult(final LDAPResult modifyDNResult);
+  void setResult(LDAPResult modifyDNResult);
 
 
 
@@ -86,6 +86,6 @@ public interface InMemoryInterceptedModifyDNResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the intermediate response.
    */
-  void sendIntermediateResponse(final IntermediateResponse intermediateResponse)
+  void sendIntermediateResponse(IntermediateResponse intermediateResponse)
          throws LDAPException;
 }

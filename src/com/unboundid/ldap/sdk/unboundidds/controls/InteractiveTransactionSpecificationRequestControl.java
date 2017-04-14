@@ -230,7 +230,7 @@ public final class InteractiveTransactionSpecificationRequestControl
       final ASN1Element e = ASN1Element.decode(control.getValue().getValue());
       elements = ASN1Sequence.decodeAsSequence(e).elements();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_INT_TXN_REQUEST_VALUE_NOT_SEQUENCE.get(e.getMessage()), e);
@@ -253,7 +253,7 @@ public final class InteractiveTransactionSpecificationRequestControl
             shouldAbortOnFailure =
                  ASN1Boolean.decodeAsBoolean(element).booleanValue();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_INT_TXN_REQUEST_ABORT_ON_FAILURE_NOT_BOOLEAN.get(
@@ -266,7 +266,7 @@ public final class InteractiveTransactionSpecificationRequestControl
             shouldWriteLock =
                  ASN1Boolean.decodeAsBoolean(element).booleanValue();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_INT_TXN_REQUEST_WRITE_LOCK_NOT_BOOLEAN.get(e.getMessage()),

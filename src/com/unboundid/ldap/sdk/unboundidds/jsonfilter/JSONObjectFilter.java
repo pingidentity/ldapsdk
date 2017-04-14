@@ -420,7 +420,7 @@ public abstract class JSONObjectFilter
    * @return  {@code true} if this JSON object filter matches the provided JSON
    *          object, or {@code false} if not.
    */
-  public abstract boolean matchesJSONObject(final JSONObject o);
+  public abstract boolean matchesJSONObject(JSONObject o);
 
 
 
@@ -884,7 +884,7 @@ public abstract class JSONObjectFilter
    * @throws  JSONException  If the provided JSON object cannot be decoded as a
    *                         valid filter of this type.
    */
-  protected abstract JSONObjectFilter decodeFilter(final JSONObject o)
+  protected abstract JSONObjectFilter decodeFilter(JSONObject o)
             throws JSONException;
 
 

@@ -72,6 +72,7 @@ final class DiscardAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void ldapResultReceived(final AsyncRequestID requestID,
                                  final LDAPResult ldapResult)
   {
@@ -83,6 +84,7 @@ final class DiscardAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void compareResultReceived(final AsyncRequestID requestID,
                                     final CompareResult compareResult)
   {

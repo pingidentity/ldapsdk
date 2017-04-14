@@ -137,14 +137,15 @@ public class SVNVersion
     {
       // Create the Subversion client and use it to invoke the equivalent of
       // "svn info".
-      SVNWCClient svn = new SVNWCClient((ISVNAuthenticationManager) null, null);
-      SVNInfo svnInfo = svn.doInfo(baseDir, SVNRevision.WORKING);
+      final SVNWCClient svn =
+           new SVNWCClient((ISVNAuthenticationManager) null, null);
+      final SVNInfo svnInfo = svn.doInfo(baseDir, SVNRevision.WORKING);
       getProject().setProperty(revisionPropertyName,
            String.valueOf(svnInfo.getRevision().getNumber()));
       getProject().setProperty(pathPropertyName,
            String.valueOf(svnInfo.getURL().getPath()));
     }
-    catch (SVNException svne)
+    catch (final  SVNException svne)
     {
       // This could happen if the Subversion repository version is incompatible
       // with the subversion client library, or if we have a workspace that
@@ -170,7 +171,7 @@ public class SVNVersion
            ".  Using a default revision number of -1 and a path that is the " +
            "workspace base path of " + projectBasePath);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       getProject().setProperty(revisionPropertyName, "-1");
       getProject().setProperty(pathPropertyName, baseDir.getAbsolutePath());

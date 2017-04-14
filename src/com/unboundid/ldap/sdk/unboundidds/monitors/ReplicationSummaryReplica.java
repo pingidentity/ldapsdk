@@ -126,7 +126,7 @@ public final class ReplicationSummaryReplica
         a = hostPort.substring(0, colonPos);
         p = Long.parseLong(hostPort.substring(colonPos+1));
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         a = null;
@@ -158,7 +158,7 @@ public final class ReplicationSummaryReplica
       {
         mc = Long.parseLong(replicationBacklogStr);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         mc = null;
@@ -180,7 +180,7 @@ public final class ReplicationSummaryReplica
         final int slashPos = rateStr.indexOf('/');
         r = Long.parseLong(rateStr.substring(0, slashPos));
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         r = null;
@@ -201,7 +201,7 @@ public final class ReplicationSummaryReplica
         final int slashPos = rateStr.indexOf('/');
         r = Long.parseLong(rateStr.substring(0, slashPos));
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         r = null;
@@ -232,7 +232,7 @@ public final class ReplicationSummaryReplica
         final int spacePos = dateStr.indexOf(' ');
         d = decodeGeneralizedTime(dateStr.substring(0, spacePos));
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         d = null;

@@ -185,7 +185,7 @@ public final class IntermediateClientResponseControl
       final ASN1Element valueElement = ASN1Element.decode(value.getValue());
       valueSequence = ASN1Sequence.decodeAsSequence(valueElement);
     }
-    catch(Exception e)
+    catch (final Exception e)
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_ICRESP_CONTROL_VALUE_NOT_SEQUENCE.get(
@@ -234,6 +234,7 @@ public final class IntermediateClientResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public IntermediateClientResponseControl decodeControl(final String oid,
               final boolean isCritical, final ASN1OctetString value)
           throws LDAPException

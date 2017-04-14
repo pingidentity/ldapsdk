@@ -234,6 +234,7 @@ public final class EntrySorter
    *          after the second, or zero if the entries should have an equivalent
    *          order.
    */
+  @Override()
   public int compare(final Entry e1, final Entry e2)
   {
     DN parsedDN1 = null;
@@ -255,7 +256,7 @@ public final class EntrySorter
           return 1;
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
       }
@@ -315,7 +316,7 @@ public final class EntrySorter
                 v1 = s;
               }
             }
-            catch (LDAPException le)
+            catch (final LDAPException le)
             {
               debugException(le);
             }
@@ -338,7 +339,7 @@ public final class EntrySorter
                 v2 = s;
               }
             }
-            catch (LDAPException le)
+            catch (final LDAPException le)
             {
               debugException(le);
             }
@@ -353,7 +354,7 @@ public final class EntrySorter
             return value;
           }
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
         }
@@ -378,7 +379,7 @@ public final class EntrySorter
                 v1 = s;
               }
             }
-            catch (LDAPException le)
+            catch (final LDAPException le)
             {
               debugException(le);
             }
@@ -401,7 +402,7 @@ public final class EntrySorter
                 v2 = s;
               }
             }
-            catch (LDAPException le)
+            catch (final LDAPException le)
             {
               debugException(le);
             }
@@ -416,7 +417,7 @@ public final class EntrySorter
             return value;
           }
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
         }
@@ -440,7 +441,7 @@ public final class EntrySorter
 
       return parsedDN1.compareTo(parsedDN2);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       final String lowerDN1 = toLowerCase(e1.getDN());

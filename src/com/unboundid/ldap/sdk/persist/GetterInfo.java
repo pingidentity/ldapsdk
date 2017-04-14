@@ -142,7 +142,7 @@ public final class GetterInfo
     {
       encoder = a.encoderClass().newInstance();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(ERR_GETTER_INFO_CANNOT_GET_ENCODER.get(
@@ -416,7 +416,7 @@ public final class GetterInfo
 
       return encoder.encodeMethodValue(method, methodValue, attributeName);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(ERR_GETTER_INFO_CANNOT_ENCODE.get(

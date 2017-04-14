@@ -449,7 +449,7 @@ public final class DIGESTMD5BindRequest
                                          connection.getConnectedAddress(),
                                          saslProperties, this);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -497,6 +497,7 @@ public final class DIGESTMD5BindRequest
    * @param  callbacks  The set of callbacks to be handled.
    */
   @InternalUseOnly()
+  @Override()
   public void handle(final Callback[] callbacks)
   {
     for (final Callback callback : callbacks)

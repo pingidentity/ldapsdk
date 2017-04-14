@@ -374,7 +374,7 @@ public final class LDAPThreadLocalConnectionPool
       {
         postConnectProcessor.processPreAuthenticatedConnection(c);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 
@@ -384,7 +384,7 @@ public final class LDAPThreadLocalConnectionPool
           c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null, e);
           c.terminate(null);
         }
-        catch (Exception e2)
+        catch (final Exception e2)
         {
           debugException(e2);
         }
@@ -459,7 +459,7 @@ public final class LDAPThreadLocalConnectionPool
       {
         postConnectProcessor.processPostAuthenticatedConnection(c);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         try
@@ -468,7 +468,7 @@ public final class LDAPThreadLocalConnectionPool
           c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null, e);
           c.terminate(null);
         }
-        catch (Exception e2)
+        catch (final Exception e2)
         {
           debugException(e2);
         }
@@ -822,7 +822,7 @@ public final class LDAPThreadLocalConnectionPool
       }
       return conn;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -844,7 +844,7 @@ public final class LDAPThreadLocalConnectionPool
       poolStatistics.incrementNumSuccessfulCheckoutsNewConnection();
       return conn;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -896,7 +896,7 @@ public final class LDAPThreadLocalConnectionPool
     {
       healthCheck.ensureConnectionValidForRelease(connection);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       releaseDefunctConnection(connection);
       return;
@@ -1033,7 +1033,7 @@ public final class LDAPThreadLocalConnectionPool
       final LDAPConnection conn = createConnection();
       connections.put(t, conn);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
     }

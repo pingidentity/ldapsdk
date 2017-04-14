@@ -1002,7 +1002,7 @@ public final class ASN1StreamReader
         return saslInputStream.read();
       }
     }
-    catch (SocketTimeoutException ste)
+    catch (final SocketTimeoutException ste)
     {
       debugException(Level.FINEST, ste);
 
@@ -1015,7 +1015,7 @@ public final class ASN1StreamReader
           {
             return inputStream.read();
           }
-          catch (SocketTimeoutException ste2)
+          catch (final SocketTimeoutException ste2)
           {
             debugException(Level.FINEST, ste2);
           }
@@ -1066,7 +1066,7 @@ public final class ASN1StreamReader
     {
       return inputStream.read(buffer, offset, length);
     }
-    catch (SocketTimeoutException ste)
+    catch (final SocketTimeoutException ste)
     {
       debugException(Level.FINEST, ste);
       if (ignoreSubsequentSocketTimeout)
@@ -1077,7 +1077,7 @@ public final class ASN1StreamReader
           {
             return inputStream.read(buffer, offset, length);
           }
-          catch (SocketTimeoutException ste2)
+          catch (final SocketTimeoutException ste2)
           {
             debugException(Level.FINEST, ste2);
           }

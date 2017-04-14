@@ -108,7 +108,7 @@ public enum DebugType
    * @param  name  The name for this debug type.  It should be in all lowercase
    *               characters.
    */
-  private DebugType(final String name)
+  DebugType(final String name)
   {
     this.name = name;
   }

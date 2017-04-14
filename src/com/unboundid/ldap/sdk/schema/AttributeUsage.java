@@ -77,7 +77,7 @@ public enum AttributeUsage
    * @param  isOperational  Indicates whether this is an operational attribute
    *                        usage.
    */
-  private AttributeUsage(final String name, final boolean isOperational)
+  AttributeUsage(final String name, final boolean isOperational)
   {
     this.name          = name;
     this.isOperational = isOperational;

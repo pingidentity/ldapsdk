@@ -87,7 +87,7 @@ public enum AlertSeverity
    *
    * @param  name  The name for this alert severity.
    */
-  private AlertSeverity(final String name)
+  AlertSeverity(final String name)
   {
     this.name = name;
   }

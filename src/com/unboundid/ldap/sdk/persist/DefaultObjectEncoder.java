@@ -1128,12 +1128,12 @@ public final class DefaultObjectEncoder
       throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
            baseClass.getName()));
     }
-    catch (LDAPPersistException lpe)
+    catch (final LDAPPersistException lpe)
     {
       debugException(lpe);
       throw lpe;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(getExceptionMessage(e), e);
@@ -1243,21 +1243,26 @@ public final class DefaultObjectEncoder
       throw new LDAPPersistException(ERR_DEFAULT_ENCODER_UNSUPPORTED_TYPE.get(
            baseClass.getName()));
     }
-    catch (LDAPPersistException lpe)
+    catch (final LDAPPersistException lpe)
     {
       debugException(lpe);
       throw lpe;
     }
-    catch (Throwable t)
+    catch (final Throwable t)
     {
       debugException(t);
 
       if (t instanceof InvocationTargetException)
       {
-        t = ((InvocationTargetException) t).getTargetException();
+        final Throwable targetException =
+             ((InvocationTargetException) t).getTargetException();
+        throw new LDAPPersistException(getExceptionMessage(targetException),
+             targetException);
       }
-
-      throw new LDAPPersistException(getExceptionMessage(t), t);
+      else
+      {
+        throw new LDAPPersistException(getExceptionMessage(t), t);
+      }
     }
   }
 
@@ -1365,7 +1370,7 @@ public final class DefaultObjectEncoder
       {
         return UUID.fromString(v.stringValue());
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPPersistException(
@@ -1379,7 +1384,7 @@ public final class DefaultObjectEncoder
       {
         return new DN(v.stringValue());
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         throw new LDAPPersistException(le.getMessage(), le);
@@ -1391,7 +1396,7 @@ public final class DefaultObjectEncoder
       {
         return Filter.create(v.stringValue());
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         throw new LDAPPersistException(le.getMessage(), le);
@@ -1403,7 +1408,7 @@ public final class DefaultObjectEncoder
       {
         return new LDAPURL(v.stringValue());
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         throw new LDAPPersistException(le.getMessage(), le);
@@ -1415,7 +1420,7 @@ public final class DefaultObjectEncoder
       {
         return new RDN(v.stringValue());
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         throw new LDAPPersistException(le.getMessage(), le);
@@ -1444,7 +1449,7 @@ public final class DefaultObjectEncoder
       {
         return decodeGeneralizedTime(v.stringValue());
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPPersistException(

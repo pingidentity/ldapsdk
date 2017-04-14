@@ -346,7 +346,7 @@ public class CopyDocs
   private void processDirectory(final File s, final File d, final String b)
           throws BuildException
   {
-    for (File file : s.listFiles())
+    for (final File file : s.listFiles())
     {
       if (file.isDirectory())
       {
@@ -355,7 +355,7 @@ public class CopyDocs
           continue;
         }
 
-        File targetDir = new File(d, file.getName());
+        final File targetDir = new File(d, file.getName());
         if (! targetDir.mkdirs())
         {
           throw new BuildException("Unable to create directory " +
@@ -366,9 +366,10 @@ public class CopyDocs
       }
       else if (file.getName().endsWith(".html"))
       {
-        int dotPos = file.getName().lastIndexOf('.');
-        String newName = file.getName().substring(0, dotPos) + '.' + extension;
-        File targetFile = new File(d, newName);
+        final int dotPos = file.getName().lastIndexOf('.');
+        final String newName =
+             file.getName().substring(0, dotPos) + '.' + extension;
+        final File targetFile = new File(d, newName);
 
         PrintWriter w = null;
 
@@ -376,34 +377,34 @@ public class CopyDocs
         {
           w = new PrintWriter(new FileWriter(targetFile));
 
-          for (String line : headerLines)
+          for (final String line : headerLines)
           {
-            String l = processLine(line, b);
+            final String l = processLine(line, b);
             if (l != null)
             {
               w.println(l);
             }
           }
 
-          for (String line : readFile(file))
+          for (final String line : readFile(file))
           {
-            String l = processLine(line, b);
+            final String l = processLine(line, b);
             if (l != null)
             {
               w.println(l);
             }
           }
 
-          for (String line : footerLines)
+          for (final String line : footerLines)
           {
-            String l = processLine(line, b);
+            final String l = processLine(line, b);
             if (l != null)
             {
               w.println(l);
             }
           }
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           throw new BuildException("Error processing doc file " +
                                    file.getAbsolutePath() + ":  " + e, e);
@@ -474,11 +475,11 @@ public class CopyDocs
     try
     {
       r = new BufferedReader(new FileReader(f));
-      LinkedList<String> lines = new LinkedList<String>();
+      final LinkedList<String> lines = new LinkedList<String>();
 
       while (true)
       {
-        String line = r.readLine();
+        final String line = r.readLine();
         if (line == null)
         {
           break;
@@ -489,7 +490,7 @@ public class CopyDocs
 
       return lines;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new BuildException("Error reading file " + f.getAbsolutePath() +
                                ":  " + e, e);
@@ -503,7 +504,7 @@ public class CopyDocs
           r.close();
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         System.err.println("Error closing file " + f.getAbsolutePath() +
                            ":  " + e);
@@ -527,8 +528,8 @@ public class CopyDocs
     FileInputStream  i = null;
     FileOutputStream o = null;
 
-    byte[] buffer = new byte[8192];
-    File t = new File(d, f.getName());
+    final byte[] buffer = new byte[8192];
+    final File t = new File(d, f.getName());
 
     try
     {
@@ -538,7 +539,7 @@ public class CopyDocs
 
       while (true)
       {
-        int bytesRead = i.read(buffer);
+        final int bytesRead = i.read(buffer);
         if (bytesRead < 0)
         {
           break;
@@ -547,7 +548,7 @@ public class CopyDocs
         o.write(buffer, 0, bytesRead);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new BuildException("Error processing file " + f.getAbsolutePath() +
                                ":  " + e, e);
@@ -560,7 +561,7 @@ public class CopyDocs
         {
           i.close();
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           System.err.println("Error closing file " + f.getAbsolutePath());
         }
@@ -572,7 +573,7 @@ public class CopyDocs
         {
           o.close();
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           System.err.println("Error closing file " + t.getAbsolutePath());
         }

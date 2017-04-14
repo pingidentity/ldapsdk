@@ -81,13 +81,14 @@ final class SearchListenerBridge<T>
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     try
     {
       listener.objectReturned(persister.decode(searchEntry));
     }
-    catch (LDAPPersistException lpe)
+    catch (final LDAPPersistException lpe)
     {
       debugException(lpe);
       listener.unparsableEntryReturned(searchEntry, lpe);
@@ -99,6 +100,7 @@ final class SearchListenerBridge<T>
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

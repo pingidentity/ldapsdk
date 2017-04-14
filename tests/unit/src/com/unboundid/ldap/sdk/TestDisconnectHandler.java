@@ -63,6 +63,7 @@ public class TestDisconnectHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void handleDisconnect(final LDAPConnection connection,
                                final String host, final int port,
                                final DisconnectType disconnectType,

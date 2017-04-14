@@ -83,7 +83,7 @@ public enum PersistentSearchChangeType
    * @param  name   The human-readable name for this change type.
    * @param  value  The numeric value associated with this change type.
    */
-  private PersistentSearchChangeType(final String name, final int value)
+  PersistentSearchChangeType(final String name, final int value)
   {
     this.name  = name;
     this.value = value;

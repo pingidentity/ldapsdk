@@ -322,7 +322,7 @@ public final class CRAMMD5BindRequest
                                          connection.getConnectedAddress(), null,
                                          this);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.LOCAL_ERROR,

@@ -294,6 +294,7 @@ public final class ActiveDirectoryDirSyncControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ActiveDirectoryDirSyncControl decodeControl(final String oid,
                                             final boolean isCritical,
                                             final ASN1OctetString value)

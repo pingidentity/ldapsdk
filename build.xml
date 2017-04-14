@@ -62,8 +62,7 @@
 
 
   <!-- Define properties used for checkstyle analysis. -->
-  <property name="checkstyle.dir"       location="ext/checkstyle" />
-  <property name="checkstyle.cache.dir" location=".checkstyle-cache" />
+  <property name="checkstyle.dir"        location="ext/checkstyle" />
 
 
   <!-- Define properties used for getting the Subversion revision number. -->
@@ -237,10 +236,8 @@
   </target>
 
   <target name="checkstyle-setup">
-    <mkdir dir="${checkstyle.cache.dir}" />
-
-    <taskdef resource="checkstyletask.properties"
-             classpath="${checkstyle.dir}/checkstyle-all-4.4.jar" />
+    <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+             classpath="${checkstyle.dir}/checkstyle-7.6.1-all.jar"/>
   </target>
 
   <target name="do-checkstyle" depends="checkstyle-setup">
@@ -325,7 +322,8 @@
          index="true">
       <fileset dir="${classes.dir}" />
       <manifest>
-        <attribute name="Main-Class" value="com.unboundid.util.Launcher" />
+        <attribute name="Main-Class"
+                   value="com.unboundid.ldap.sdk.unboundidds.Launcher" />
         <attribute name="Build-Time" value="${timestamp}" />
         <attribute name="Implementation-Title" value="${PRODUCT_NAME}" />
         <attribute name="Implementation-Version" value="${MMPQ}" />

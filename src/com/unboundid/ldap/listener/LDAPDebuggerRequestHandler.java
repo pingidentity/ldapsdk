@@ -813,6 +813,7 @@ public final class LDAPDebuggerRequestHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ObjectPair<IntermediateResponseProtocolOp,Control[]>
               transformIntermediateResponse(final int messageID,
                    final IntermediateResponseProtocolOp response,
@@ -849,6 +850,7 @@ public final class LDAPDebuggerRequestHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ObjectPair<SearchResultEntryProtocolOp,Control[]> transformEntry(
               final int messageID, final SearchResultEntryProtocolOp entry,
               final Control[] controls)
@@ -877,6 +879,7 @@ public final class LDAPDebuggerRequestHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ObjectPair<SearchResultReferenceProtocolOp,Control[]>
               transformReference(final int messageID,
                    final SearchResultReferenceProtocolOp reference,

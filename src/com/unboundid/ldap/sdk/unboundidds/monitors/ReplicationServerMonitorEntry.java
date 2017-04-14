@@ -171,7 +171,7 @@ public final class ReplicationServerMonitorEntry
         final DN dn = new DN(s.substring(0, lastSpacePos));
         idMap.put(dn, s.substring(lastSpacePos+1));
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -224,7 +224,7 @@ public final class ReplicationServerMonitorEntry
     {
       return getGenerationID(new DN(baseDN));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return null;

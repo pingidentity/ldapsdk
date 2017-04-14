@@ -551,7 +551,7 @@ public final class FailoverServerSet
           }
           return conn;
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           first = false;
           debugException(le);

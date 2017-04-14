@@ -311,7 +311,7 @@ public abstract class CommandLineTool
         doExtendedArgumentValidation();
       }
     }
-    catch (ArgumentException ae)
+    catch (final ArgumentException ae)
     {
       debugException(ae);
       err(ae.getMessage());
@@ -419,7 +419,7 @@ public abstract class CommandLineTool
     {
       exitCode.set(doToolProcessing());
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       err(getExceptionMessage(e));
@@ -511,7 +511,7 @@ public abstract class CommandLineTool
         {
           if ((i < (args.length - 1)) && (! args[i+1].startsWith("-")))
           {
-            ExampleCommandLineArgument cleanArg =
+            final ExampleCommandLineArgument cleanArg =
                 ExampleCommandLineArgument.getCleanArgument(args[i+1]);
             arg += ' ' + cleanArg.getLocalForm();
             i++;
@@ -519,7 +519,7 @@ public abstract class CommandLineTool
         }
         else
         {
-          ExampleCommandLineArgument cleanArg =
+          final ExampleCommandLineArgument cleanArg =
               ExampleCommandLineArgument.getCleanArgument(arg);
           arg = cleanArg.getLocalForm();
         }
@@ -870,7 +870,7 @@ public abstract class CommandLineTool
    *                             tool-specific arguments to the provided
    *                             argument parser.
    */
-  public abstract void addToolArguments(final ArgumentParser parser)
+  public abstract void addToolArguments(ArgumentParser parser)
          throws ArgumentException;
 
 

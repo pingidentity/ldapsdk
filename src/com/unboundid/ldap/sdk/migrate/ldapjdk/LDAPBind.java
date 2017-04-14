@@ -51,6 +51,6 @@ public interface LDAPBind
    *
    * @throws  LDAPException  If a problem occurs while processing the bind.
    */
-  void bind(final LDAPConnection conn)
+  void bind(LDAPConnection conn)
        throws LDAPException;
 }

@@ -309,7 +309,7 @@ public final class PersistentSearchRequestControl
       changesOnly = ASN1Boolean.decodeAsBoolean(elements[1]).booleanValue();
       returnECs   = ASN1Boolean.decodeAsBoolean(elements[2]).booleanValue();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

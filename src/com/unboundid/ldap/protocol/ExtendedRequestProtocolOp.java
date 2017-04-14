@@ -151,7 +151,7 @@ public final class ExtendedRequestProtocolOp
         value = null;
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -190,6 +190,7 @@ public final class ExtendedRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_EXTENDED_REQUEST;
@@ -200,6 +201,7 @@ public final class ExtendedRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     if (value ==  null)
@@ -264,6 +266,7 @@ public final class ExtendedRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -313,6 +316,7 @@ public final class ExtendedRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("ExtendedRequestProtocolOp(oid='");

@@ -253,7 +253,7 @@ public final class LDAPEntrySource
       {
         o = queue.poll(10L, TimeUnit.MILLISECONDS);
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -309,7 +309,7 @@ public final class LDAPEntrySource
         {
           connection.abandon(asyncRequestID);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
         }
@@ -344,6 +344,7 @@ public final class LDAPEntrySource
    * called by anything outside of the LDAP SDK itself.
    */
   @InternalUseOnly()
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     addToQueue(searchEntry);
@@ -356,6 +357,7 @@ public final class LDAPEntrySource
    * called by anything outside of the LDAP SDK itself.
    */
   @InternalUseOnly()
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {
@@ -369,6 +371,7 @@ public final class LDAPEntrySource
    * called by anything outside of the LDAP SDK itself.
    */
   @InternalUseOnly()
+  @Override()
   public void searchResultReceived(final AsyncRequestID requestID,
                                    final SearchResult searchResult)
   {
@@ -407,7 +410,7 @@ public final class LDAPEntrySource
           return;
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
       }

@@ -99,6 +99,7 @@ public interface ReadOnlyCompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   CompareRequest duplicate();
 
 
@@ -106,5 +107,6 @@ public interface ReadOnlyCompareRequest
   /**
    * {@inheritDoc}
    */
-  CompareRequest duplicate(final Control[] controls);
+  @Override()
+  CompareRequest duplicate(Control[] controls);
 }

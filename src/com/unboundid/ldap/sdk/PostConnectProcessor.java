@@ -55,7 +55,7 @@ public interface PostConnectProcessor
    *                         exception is thrown, then the connection will be
    *                         terminated and not used in the pool.
    */
-  void processPreAuthenticatedConnection(final LDAPConnection connection)
+  void processPreAuthenticatedConnection(LDAPConnection connection)
        throws LDAPException;
 
 
@@ -73,6 +73,6 @@ public interface PostConnectProcessor
    *                         exception is thrown, then the connection will be
    *                         terminated and not used in the pool.
    */
-  void processPostAuthenticatedConnection(final LDAPConnection connection)
+  void processPostAuthenticatedConnection(LDAPConnection connection)
        throws LDAPException;
 }

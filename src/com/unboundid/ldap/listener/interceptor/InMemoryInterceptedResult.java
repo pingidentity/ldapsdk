@@ -86,7 +86,7 @@ public interface InMemoryInterceptedResult
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the unsolicited notification.
    */
-  void sendUnsolicitedNotification(final ExtendedResult unsolicitedNotification)
+  void sendUnsolicitedNotification(ExtendedResult unsolicitedNotification)
          throws LDAPException;
 
 
@@ -102,5 +102,5 @@ public interface InMemoryInterceptedResult
    * @return  The value for the requested property, or {@code null} if there is
    *          no value for the specified property.
    */
-  Object getProperty(final String name);
+  Object getProperty(String name);
 }

@@ -295,6 +295,16 @@ final class AttributeMapper
 
 
   /**
+   * Ensure that this utility class can't be instantiated.
+   */
+  private AttributeMapper()
+  {
+    // No implementation required.
+  }
+
+
+
+  /**
    * Retrieves the display name for the provided attribute name.
    *
    * @param  invoker   The activity that invoked this class.

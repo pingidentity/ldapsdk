@@ -62,7 +62,7 @@ public interface ByteString
    *
    * @param  buffer  The buffer to which the value should be appended.
    */
-  void appendValueTo(final ByteStringBuffer buffer);
+  void appendValueTo(ByteStringBuffer buffer);
 
 
 

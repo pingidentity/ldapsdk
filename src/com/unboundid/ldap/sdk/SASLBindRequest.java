@@ -210,7 +210,7 @@ public abstract class SASLBindRequest
           response = responseQueue.take();
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -255,7 +255,7 @@ public abstract class SASLBindRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) timeoutMillis);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -343,6 +343,7 @@ public abstract class SASLBindRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public final void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -350,7 +351,7 @@ public abstract class SASLBindRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -369,6 +370,7 @@ public abstract class SASLBindRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {

@@ -208,7 +208,7 @@ public final class StartTLSExtendedRequest
         ctx.init(null, null, null);
         sslSocketFactory = ctx.getSocketFactory();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -250,7 +250,7 @@ public final class StartTLSExtendedRequest
         ctx.init(null, null, null);
         this.sslSocketFactory = ctx.getSocketFactory();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -355,7 +355,7 @@ public final class StartTLSExtendedRequest
       r.setResponseTimeoutMillis(getResponseTimeoutMillis(null));
       return r;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       // This should never happen, since an exception should only be thrown if
       // there is no SSL context, but this instance already has a context.

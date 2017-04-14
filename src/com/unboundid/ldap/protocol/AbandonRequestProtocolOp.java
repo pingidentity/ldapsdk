@@ -89,7 +89,7 @@ public final class AbandonRequestProtocolOp
     {
       idToAbandon = reader.readInteger();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -115,6 +115,7 @@ public final class AbandonRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST;
@@ -125,6 +126,7 @@ public final class AbandonRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     return new ASN1Integer(LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST,
@@ -166,6 +168,7 @@ public final class AbandonRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     buffer.addInteger(LDAPMessage.PROTOCOL_OP_TYPE_ABANDON_REQUEST,
@@ -192,6 +195,7 @@ public final class AbandonRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("AbandonRequestProtocolOp(idToAbandon=");

@@ -673,7 +673,7 @@ public final class ExportTask
       {
         wrapColumn = Integer.parseInt(wrapStr);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new TaskException(ERR_EXPORT_TASK_CANNOT_PARSE_WRAP_COLUMN.get(

@@ -89,6 +89,7 @@ public final class AggregateLDIFReaderChangeRecordTranslator
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord translate(final LDIFChangeRecord original,
                                     final long firstLineNumber)
          throws LDIFException

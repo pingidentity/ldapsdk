@@ -65,6 +65,16 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
 final class RequestControlPreProcessor
 {
   /**
+   * Prevent this utility class from being instantiated.
+   */
+  private RequestControlPreProcessor()
+  {
+    // No implementation required.
+  }
+
+
+
+  /**
    * Performs the appropriate processing for the given set of controls.
    *
    * @param  requestOpType  The protocol op type for the request in which the

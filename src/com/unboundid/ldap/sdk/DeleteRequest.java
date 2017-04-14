@@ -174,6 +174,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return dn;
@@ -212,6 +213,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST;
@@ -222,6 +224,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     buffer.addOctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
@@ -234,6 +237,7 @@ public final class DeleteRequest
    *
    * @return  The ASN.1 element with the encoded delete request protocol op.
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     return new ASN1OctetString(LDAPMessage.PROTOCOL_OP_TYPE_DELETE_REQUEST, dn);
@@ -288,7 +292,7 @@ public final class DeleteRequest
           response = responseQueue.take();
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -369,7 +373,7 @@ public final class DeleteRequest
       connection.sendMessage(message);
       return asyncRequestID;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -416,7 +420,7 @@ public final class DeleteRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -695,7 +699,7 @@ public final class DeleteRequest
           referralConn.close();
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
       }
@@ -712,6 +716,7 @@ public final class DeleteRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -719,7 +724,7 @@ public final class DeleteRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -760,6 +765,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public DeleteRequest duplicate()
   {
     return duplicate(getControls());
@@ -770,6 +776,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public DeleteRequest duplicate(final Control[] controls)
   {
     final DeleteRequest r = new DeleteRequest(dn, controls);
@@ -789,6 +796,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFDeleteChangeRecord toLDIFChangeRecord()
   {
     return new LDIFDeleteChangeRecord(this);
@@ -799,6 +807,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String[] toLDIF()
   {
     return toLDIFChangeRecord().toLDIF();
@@ -809,6 +818,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String toLDIFString()
   {
     return toLDIFChangeRecord().toLDIFString();
@@ -850,6 +860,7 @@ public final class DeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {

@@ -75,7 +75,7 @@ public abstract class AcceptAllSimpleMatchingRule
     {
       return super.matchesSubstring(value, subInitial, subAny, subFinal);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -99,7 +99,7 @@ public abstract class AcceptAllSimpleMatchingRule
     {
       return super.compareValues(value1, value2);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -117,7 +117,7 @@ public abstract class AcceptAllSimpleMatchingRule
    * to throw exceptions.
    */
   @Override()
-  public abstract ASN1OctetString normalize(final ASN1OctetString value);
+  public abstract ASN1OctetString normalize(ASN1OctetString value);
 
 
 
@@ -126,7 +126,6 @@ public abstract class AcceptAllSimpleMatchingRule
    * allowed to throw exceptions.
    */
   @Override()
-  public abstract ASN1OctetString normalizeSubstring(
-                                       final ASN1OctetString value,
-                                       final byte substringType);
+  public abstract ASN1OctetString normalizeSubstring(ASN1OctetString value,
+                                                     byte substringType);
 }

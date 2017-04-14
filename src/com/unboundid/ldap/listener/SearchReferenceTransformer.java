@@ -57,6 +57,6 @@ public interface SearchReferenceTransformer
    *          should not be returned to the client.
    */
   ObjectPair<SearchResultReferenceProtocolOp,Control[]> transformReference(
-       final int messageID, final SearchResultReferenceProtocolOp reference,
-       final Control[] controls);
+       int messageID, SearchResultReferenceProtocolOp reference,
+       Control[] controls);
 }

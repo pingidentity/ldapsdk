@@ -217,12 +217,12 @@ public final class SearchRequestProtocolOp
 
       attributes = Collections.unmodifiableList(attrs);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -338,6 +338,7 @@ public final class SearchRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST;
@@ -348,6 +349,7 @@ public final class SearchRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> attrElements =
@@ -426,6 +428,7 @@ public final class SearchRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -487,6 +490,7 @@ public final class SearchRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("SearchRequestProtocolOp(baseDN='");

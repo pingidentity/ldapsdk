@@ -62,7 +62,7 @@ public interface MoveSubtreeListener
    *          entry should not be added to the target server (but will still be
    *          removed from the source server).
    */
-  ReadOnlyEntry doPreAddProcessing(final ReadOnlyEntry entry);
+  ReadOnlyEntry doPreAddProcessing(ReadOnlyEntry entry);
 
 
 
@@ -77,7 +77,7 @@ public interface MoveSubtreeListener
    *                potentially be reverted if move processing encounters an
    *                error later in its processing.
    */
-  void doPostAddProcessing(final ReadOnlyEntry entry);
+  void doPostAddProcessing(ReadOnlyEntry entry);
 
 
 
@@ -90,7 +90,7 @@ public interface MoveSubtreeListener
    *                  to perform the move, the entry may already be inaccessible
    *                  in the source server.
    */
-  void doPreDeleteProcessing(final DN entryDN);
+  void doPreDeleteProcessing(DN entryDN);
 
 
 
@@ -103,5 +103,5 @@ public interface MoveSubtreeListener
    *                  if move processing encounters an error later in its
    *                  processing.
    */
-  void doPostDeleteProcessing(final DN entryDN);
+  void doPostDeleteProcessing(DN entryDN);
 }

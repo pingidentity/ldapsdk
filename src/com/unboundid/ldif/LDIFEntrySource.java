@@ -137,7 +137,7 @@ public final class LDIFEntrySource
 
       return e;
     }
-    catch (LDIFException le)
+    catch (final LDIFException le)
     {
       debugException(le);
       if (le.mayContinueReading())
@@ -150,7 +150,7 @@ public final class LDIFEntrySource
         throw new EntrySourceException(false, le);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       close();
@@ -172,7 +172,7 @@ public final class LDIFEntrySource
       {
         ldifReader.close();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }

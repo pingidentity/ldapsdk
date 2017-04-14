@@ -1472,6 +1472,7 @@ processingBlock:
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translate(final Entry original, final long firstLineNumber)
          throws LDIFException
   {

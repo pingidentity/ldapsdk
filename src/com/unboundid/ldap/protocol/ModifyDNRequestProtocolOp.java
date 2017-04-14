@@ -151,7 +151,7 @@ public final class ModifyDNRequestProtocolOp
         newSuperiorDN = null;
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -215,6 +215,7 @@ public final class ModifyDNRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_DN_REQUEST;
@@ -225,6 +226,7 @@ public final class ModifyDNRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     if (newSuperiorDN == null)
@@ -299,6 +301,7 @@ public final class ModifyDNRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -351,6 +354,7 @@ public final class ModifyDNRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("ModifyDNRequestProtocolOp(dn='");

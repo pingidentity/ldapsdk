@@ -322,11 +322,11 @@ public final class StreamDirectoryValuesExtendedRequest
         }
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

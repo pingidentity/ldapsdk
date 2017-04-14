@@ -104,6 +104,7 @@ final class AsyncCompareHelper
   /**
    * {@inheritDoc}
    */
+  @Override()
   public AsyncRequestID getAsyncRequestID()
   {
     return asyncRequestID;
@@ -114,6 +115,7 @@ final class AsyncCompareHelper
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPConnection getConnection()
   {
     return connection;
@@ -124,6 +126,7 @@ final class AsyncCompareHelper
   /**
    * {@inheritDoc}
    */
+  @Override()
   public long getCreateTimeNanos()
   {
     return createTime;
@@ -134,6 +137,7 @@ final class AsyncCompareHelper
   /**
    * {@inheritDoc}
    */
+  @Override()
   public OperationType getOperationType()
   {
     return OperationType.COMPARE;
@@ -145,6 +149,7 @@ final class AsyncCompareHelper
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -192,6 +197,7 @@ final class AsyncCompareHelper
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void intermediateResponseReturned(
                    final IntermediateResponse intermediateResponse)
   {

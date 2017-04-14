@@ -85,7 +85,7 @@ final class LDAPToJavaSocketFactory
         return f.makeSocket(host, port);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new IOException(null, e);

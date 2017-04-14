@@ -107,7 +107,7 @@ public enum GetConfigurationType
    *                   configuration type needs to be encoded as an enumerated
    *                   element in a get configuration result.
    */
-  private GetConfigurationType(final byte berType, final int intValue)
+  GetConfigurationType(final byte berType, final int intValue)
   {
     this.berType  = berType;
     this.intValue = intValue;

@@ -55,5 +55,5 @@ public interface InMemoryInterceptedAddRequest
    *                     one that was originally received from the client.  It
    *                     must not be {@code null}.
    */
-  void setRequest(final AddRequest addRequest);
+  void setRequest(AddRequest addRequest);
 }

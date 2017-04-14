@@ -167,7 +167,7 @@ public enum AccessLogMessageType
    * @param  logIdentifier  The string that will be used to identify this
    *                        message type in log files.
    */
-  private AccessLogMessageType(final String logIdentifier)
+  AccessLogMessageType(final String logIdentifier)
   {
     this.logIdentifier = logIdentifier;
   }

@@ -52,5 +52,5 @@ public interface LDIFChangeRecordTransformation
    *          necessary, or {@code null} if the change record should be
    *          suppressed.
    */
-  LDIFChangeRecord transformChangeRecord(final LDIFChangeRecord changeRecord);
+  LDIFChangeRecord transformChangeRecord(LDIFChangeRecord changeRecord);
 }

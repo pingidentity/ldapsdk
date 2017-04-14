@@ -134,7 +134,7 @@ public final class DITStructureRuleDefinition
     {
       ruleID = Integer.parseInt(ruleIDStr);
     }
-    catch (NumberFormatException nfe)
+    catch (final NumberFormatException nfe)
     {
       debugException(nfe);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -267,7 +267,7 @@ public final class DITStructureRuleDefinition
             {
               supList.add(Integer.parseInt(supStr));
             }
-            catch (NumberFormatException nfe)
+            catch (final NumberFormatException nfe)
             {
               debugException(nfe);
               throw new LDAPException(ResultCode.DECODING_ERROR,

@@ -147,7 +147,7 @@ public final class JoinRequestControl
     {
       valueElement = ASN1Element.decode(value.getValue());
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

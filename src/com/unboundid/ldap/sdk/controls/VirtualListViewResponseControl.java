@@ -237,6 +237,7 @@ public final class VirtualListViewResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public VirtualListViewResponseControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

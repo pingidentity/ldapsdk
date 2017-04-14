@@ -283,7 +283,7 @@ public final class DNArgument
     {
       parsedDN = new DN(valueString);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new ArgumentException(ERR_DN_VALUE_NOT_DN.get(valueString,

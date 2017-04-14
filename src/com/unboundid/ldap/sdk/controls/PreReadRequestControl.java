@@ -175,7 +175,7 @@ public final class PreReadRequestControl
              ASN1OctetString.decodeAsOctetString(attrElements[i]).stringValue();
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

@@ -223,7 +223,7 @@ public final class GetEffectiveRightsRequestControl
       final ASN1Element valueElement = ASN1Element.decode(value.getValue());
       elements = ASN1Sequence.decodeAsSequence(valueElement).elements();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -252,7 +252,7 @@ public final class GetEffectiveRightsRequestControl
                                attrElements[i]).stringValue();
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new LDAPException(ResultCode.DECODING_ERROR,

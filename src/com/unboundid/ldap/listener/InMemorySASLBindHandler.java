@@ -77,11 +77,10 @@ public abstract class InMemorySASLBindHandler
    * @return  The result that should be returned to the client in response to
    *          the provided request.
    */
-  public abstract BindResult processSASLBind(
-                                  final InMemoryRequestHandler handler,
-                                  final int messageID, final DN bindDN,
-                                  final ASN1OctetString credentials,
-                                  final List<Control> controls);
+  public abstract BindResult processSASLBind(InMemoryRequestHandler handler,
+                                             int messageID, DN bindDN,
+                                             ASN1OctetString credentials,
+                                             List<Control> controls);
 
 
 

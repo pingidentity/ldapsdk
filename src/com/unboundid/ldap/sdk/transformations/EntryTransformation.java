@@ -50,5 +50,5 @@ public interface EntryTransformation
    *          the original entry if no transformations were necessary, or
    *          {@code null} if the entry should be suppressed.
    */
-  Entry transformEntry(final Entry entry);
+  Entry transformEntry(Entry entry);
 }

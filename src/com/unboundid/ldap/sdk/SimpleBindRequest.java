@@ -430,6 +430,7 @@ public final class SimpleBindRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST;
@@ -440,6 +441,7 @@ public final class SimpleBindRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence requestSequence =
@@ -453,7 +455,7 @@ public final class SimpleBindRequest
     }
     else
     {
-      byte[] pwBytes;
+      final byte[] pwBytes;
       try
       {
         pwBytes = passwordProvider.getPasswordBytes();
@@ -485,6 +487,7 @@ public final class SimpleBindRequest
    *                                 password provider rather than a static
    *                                 password.
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
          throws LDAPSDKUsageException
   {
@@ -564,7 +567,7 @@ public final class SimpleBindRequest
           response = responseQueue.take();
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -615,7 +618,7 @@ public final class SimpleBindRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -794,6 +797,7 @@ public final class SimpleBindRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -801,7 +805,7 @@ public final class SimpleBindRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -898,6 +902,7 @@ public final class SimpleBindRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {

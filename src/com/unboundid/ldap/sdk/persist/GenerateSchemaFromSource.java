@@ -274,7 +274,7 @@ public final class GenerateSchemaFromSource
     {
       targetClass = Class.forName(className);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       err(ERR_GEN_SCHEMA_CANNOT_LOAD_CLASS.get(className));
@@ -289,7 +289,7 @@ public final class GenerateSchemaFromSource
     {
       persister = LDAPPersister.getInstance(targetClass);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       err(ERR_GEN_SCHEMA_INVALID_CLASS.get(className, getExceptionMessage(e)));
@@ -304,7 +304,7 @@ public final class GenerateSchemaFromSource
     {
       attrTypes = persister.constructAttributeTypes();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       err(ERR_GEN_SCHEMA_ERROR_CONSTRUCTING_ATTRS.get(className,
@@ -317,7 +317,7 @@ public final class GenerateSchemaFromSource
     {
       objectClasses = persister.constructObjectClasses();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       err(ERR_GEN_SCHEMA_ERROR_CONSTRUCTING_OCS.get(className,

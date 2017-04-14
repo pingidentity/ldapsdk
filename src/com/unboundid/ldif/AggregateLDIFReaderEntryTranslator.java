@@ -90,6 +90,7 @@ public final class AggregateLDIFReaderEntryTranslator
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translate(final Entry original, final long firstLineNumber)
          throws LDIFException
   {

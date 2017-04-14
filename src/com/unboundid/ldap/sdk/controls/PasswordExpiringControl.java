@@ -135,7 +135,7 @@ public final class PasswordExpiringControl
     {
       secondsUntilExpiration = Integer.parseInt(value.stringValue());
     }
-    catch (NumberFormatException nfe)
+    catch (final NumberFormatException nfe)
     {
       debugException(nfe);
       throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -148,6 +148,7 @@ public final class PasswordExpiringControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public PasswordExpiringControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

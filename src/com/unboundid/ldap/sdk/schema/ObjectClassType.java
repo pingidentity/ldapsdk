@@ -71,7 +71,7 @@ public enum ObjectClassType
    *
    * @param  name  The name for this object class type.
    */
-  private ObjectClassType(final String name)
+  ObjectClassType(final String name)
   {
     this.name = name;
   }

@@ -114,13 +114,13 @@ final class SearchThread
 
       result = conn.search(request);
     }
-    catch (LDAPSearchException lse)
+    catch (final LDAPSearchException lse)
     {
       logException(LOG_TAG, "run", lse);
 
       result = lse.getSearchResult();
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       logException(LOG_TAG, "run", le);
 

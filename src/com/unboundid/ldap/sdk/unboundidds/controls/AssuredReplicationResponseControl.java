@@ -538,6 +538,7 @@ public final class AssuredReplicationResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public AssuredReplicationResponseControl decodeControl(final String oid,
                                                 final boolean isCritical,
                                                 final ASN1OctetString value)

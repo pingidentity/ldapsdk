@@ -139,7 +139,7 @@ public class GenerateDigest
     {
       digest = MessageDigest.getInstance(algorithm);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new BuildException("Unable to create a message digest for the " +
            algorithm + " algorithm:  " + e, e);
@@ -163,7 +163,7 @@ public class GenerateDigest
 
       inputStream.close();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new BuildException("An error occurred while attempting to " +
            "generate the " + algorithm + " digest for file " +
@@ -285,7 +285,7 @@ public class GenerateDigest
       digestFileWriter.println();
       digestFileWriter.close();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       throw new BuildException("An error occurred while attempting to write " +
            "the digest to " + toFile.getAbsolutePath() + ":  " + e, e);

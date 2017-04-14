@@ -104,7 +104,7 @@ public interface LDAPInterface
    * @throws  LDAPException  If a problem occurs while attempting to retrieve
    *                         the server schema.
    */
-  Schema getSchema(final String entryDN)
+  Schema getSchema(String entryDN)
        throws LDAPException;
 
 
@@ -122,7 +122,7 @@ public interface LDAPInterface
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  SearchResultEntry getEntry(final String dn)
+  SearchResultEntry getEntry(String dn)
        throws LDAPException;
 
 
@@ -143,7 +143,7 @@ public interface LDAPInterface
    * @throws  LDAPException  If a problem occurs while sending the request or
    *                         reading the response.
    */
-  SearchResultEntry getEntry(final String dn, final String... attributes)
+  SearchResultEntry getEntry(String dn, String... attributes)
        throws LDAPException;
 
 
@@ -162,7 +162,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult add(final String dn, final Attribute... attributes)
+  LDAPResult add(String dn, Attribute... attributes)
        throws LDAPException;
 
 
@@ -181,7 +181,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult add(final String dn, final Collection<Attribute> attributes)
+  LDAPResult add(String dn, Collection<Attribute> attributes)
        throws LDAPException;
 
 
@@ -197,7 +197,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult add(final Entry entry)
+  LDAPResult add(Entry entry)
        throws LDAPException;
 
 
@@ -217,7 +217,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult add(final String... ldifLines)
+  LDAPResult add(String... ldifLines)
        throws LDIFException, LDAPException;
 
 
@@ -234,7 +234,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult add(final AddRequest addRequest)
+  LDAPResult add(AddRequest addRequest)
        throws LDAPException;
 
 
@@ -251,7 +251,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult add(final ReadOnlyAddRequest addRequest)
+  LDAPResult add(ReadOnlyAddRequest addRequest)
        throws LDAPException;
 
 
@@ -272,8 +272,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  CompareResult compare(final String dn, final String attributeName,
-                        final String assertionValue)
+  CompareResult compare(String dn, String attributeName, String assertionValue)
        throws LDAPException;
 
 
@@ -290,7 +289,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  CompareResult compare(final CompareRequest compareRequest)
+  CompareResult compare(CompareRequest compareRequest)
        throws LDAPException;
 
 
@@ -307,7 +306,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  CompareResult compare(final ReadOnlyCompareRequest compareRequest)
+  CompareResult compare(ReadOnlyCompareRequest compareRequest)
        throws LDAPException;
 
 
@@ -323,7 +322,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult delete(final String dn)
+  LDAPResult delete(String dn)
        throws LDAPException;
 
 
@@ -340,7 +339,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult delete(final DeleteRequest deleteRequest)
+  LDAPResult delete(DeleteRequest deleteRequest)
        throws LDAPException;
 
 
@@ -357,7 +356,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult delete(final ReadOnlyDeleteRequest deleteRequest)
+  LDAPResult delete(ReadOnlyDeleteRequest deleteRequest)
        throws LDAPException;
 
 
@@ -375,7 +374,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult modify(final String dn, final Modification mod)
+  LDAPResult modify(String dn, Modification mod)
        throws LDAPException;
 
 
@@ -392,7 +391,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult modify(final String dn, final Modification... mods)
+  LDAPResult modify(String dn, Modification... mods)
        throws LDAPException;
 
 
@@ -410,7 +409,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult modify(final String dn, final List<Modification> mods)
+  LDAPResult modify(String dn, List<Modification> mods)
        throws LDAPException;
 
 
@@ -433,7 +432,7 @@ public interface LDAPInterface
    *                         reading the response.
    *
    */
-  LDAPResult modify(final String... ldifModificationLines)
+  LDAPResult modify(String... ldifModificationLines)
        throws LDIFException, LDAPException;
 
 
@@ -450,7 +449,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult modify(final ModifyRequest modifyRequest)
+  LDAPResult modify(ModifyRequest modifyRequest)
        throws LDAPException;
 
 
@@ -467,7 +466,7 @@ public interface LDAPInterface
    *                         problem is encountered while sending the request or
    *                         reading the response.
    */
-  LDAPResult modify(final ReadOnlyModifyRequest modifyRequest)
+  LDAPResult modify(ReadOnlyModifyRequest modifyRequest)
        throws LDAPException;
 
 
@@ -488,8 +487,7 @@ public interface LDAPInterface
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
-  LDAPResult modifyDN(final String dn, final String newRDN,
-                      final boolean deleteOldRDN)
+  LDAPResult modifyDN(String dn, String newRDN, boolean deleteOldRDN)
        throws LDAPException;
 
 
@@ -513,8 +511,8 @@ public interface LDAPInterface
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
-  LDAPResult modifyDN(final String dn, final String newRDN,
-                      final boolean deleteOldRDN, final String newSuperiorDN)
+  LDAPResult modifyDN(String dn, String newRDN, boolean deleteOldRDN,
+                      String newSuperiorDN)
        throws LDAPException;
 
 
@@ -531,7 +529,7 @@ public interface LDAPInterface
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
-  LDAPResult modifyDN(final ModifyDNRequest modifyDNRequest)
+  LDAPResult modifyDN(ModifyDNRequest modifyDNRequest)
        throws LDAPException;
 
 
@@ -548,7 +546,7 @@ public interface LDAPInterface
    *                         a problem is encountered while sending the request
    *                         or reading the response.
    */
-  LDAPResult modifyDN(final ReadOnlyModifyDNRequest modifyDNRequest)
+  LDAPResult modifyDN(ReadOnlyModifyDNRequest modifyDNRequest)
        throws LDAPException;
 
 
@@ -593,8 +591,8 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final String baseDN, final SearchScope scope,
-                      final String filter, final String... attributes)
+  SearchResult search(String baseDN, SearchScope scope, String filter,
+                      String... attributes)
        throws LDAPSearchException;
 
 
@@ -637,8 +635,8 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final String baseDN, final SearchScope scope,
-                      final Filter filter, final String... attributes)
+  SearchResult search(String baseDN, SearchScope scope, Filter filter,
+                      String... attributes)
        throws LDAPSearchException;
 
 
@@ -689,9 +687,8 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final SearchResultListener searchResultListener,
-                      final String baseDN, final SearchScope scope,
-                      final String filter, final String... attributes)
+  SearchResult search(SearchResultListener searchResultListener, String baseDN,
+                      SearchScope scope, String filter, String... attributes)
        throws LDAPSearchException;
 
 
@@ -740,9 +737,8 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final SearchResultListener searchResultListener,
-                      final String baseDN, final SearchScope scope,
-                      final Filter filter, final String... attributes)
+  SearchResult search(SearchResultListener searchResultListener, String baseDN,
+                      SearchScope scope, Filter filter, String... attributes)
        throws LDAPSearchException;
 
 
@@ -797,10 +793,10 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final String baseDN, final SearchScope scope,
-                      final DereferencePolicy derefPolicy, final int sizeLimit,
-                      final int timeLimit, final boolean typesOnly,
-                      final String filter, final String... attributes)
+  SearchResult search(String baseDN, SearchScope scope,
+                      DereferencePolicy derefPolicy, int sizeLimit,
+                      int timeLimit, boolean typesOnly, String filter,
+                      String... attributes)
        throws LDAPSearchException;
 
 
@@ -853,10 +849,10 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final String baseDN, final SearchScope scope,
-                      final DereferencePolicy derefPolicy, final int sizeLimit,
-                      final int timeLimit, final boolean typesOnly,
-                      final Filter filter, final String... attributes)
+  SearchResult search(String baseDN, SearchScope scope,
+                      DereferencePolicy derefPolicy, int sizeLimit,
+                      int timeLimit, boolean typesOnly, Filter filter,
+                      String... attributes)
        throws LDAPSearchException;
 
 
@@ -920,11 +916,10 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final SearchResultListener searchResultListener,
-                      final String baseDN, final SearchScope scope,
-                      final DereferencePolicy derefPolicy, final int sizeLimit,
-                      final int timeLimit, final boolean typesOnly,
-                      final String filter, final String... attributes)
+  SearchResult search(SearchResultListener searchResultListener, String baseDN,
+                      SearchScope scope, DereferencePolicy derefPolicy,
+                      int sizeLimit, int timeLimit, boolean typesOnly,
+                      String filter, String... attributes)
        throws LDAPSearchException;
 
 
@@ -986,11 +981,10 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final SearchResultListener searchResultListener,
-                      final String baseDN, final SearchScope scope,
-                      final DereferencePolicy derefPolicy, final int sizeLimit,
-                      final int timeLimit, final boolean typesOnly,
-                      final Filter filter, final String... attributes)
+  SearchResult search(SearchResultListener searchResultListener, String baseDN,
+                      SearchScope scope, DereferencePolicy derefPolicy,
+                      int sizeLimit, int timeLimit, boolean typesOnly,
+                      Filter filter, String... attributes)
        throws LDAPSearchException;
 
 
@@ -1026,7 +1020,7 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final SearchRequest searchRequest)
+  SearchResult search(SearchRequest searchRequest)
        throws LDAPSearchException;
 
 
@@ -1062,7 +1056,7 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResult search(final ReadOnlySearchRequest searchRequest)
+  SearchResult search(ReadOnlySearchRequest searchRequest)
        throws LDAPSearchException;
 
 
@@ -1108,9 +1102,8 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResultEntry searchForEntry(final String baseDN, final SearchScope scope,
-                                   final String filter,
-                                   final String... attributes)
+  SearchResultEntry searchForEntry(String baseDN, SearchScope scope,
+                                   String filter, String... attributes)
        throws LDAPSearchException;
 
 
@@ -1156,9 +1149,8 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResultEntry searchForEntry(final String baseDN, final SearchScope scope,
-                                   final Filter filter,
-                                   final String... attributes)
+  SearchResultEntry searchForEntry(String baseDN, SearchScope scope,
+                                   Filter filter, String... attributes)
        throws LDAPSearchException;
 
 
@@ -1211,11 +1203,10 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResultEntry searchForEntry(final String baseDN, final SearchScope scope,
-                                   final DereferencePolicy derefPolicy,
-                                   final int timeLimit, final boolean typesOnly,
-                                   final String filter,
-                                   final String... attributes)
+  SearchResultEntry searchForEntry(String baseDN, SearchScope scope,
+                                   DereferencePolicy derefPolicy, int timeLimit,
+                                   boolean typesOnly, String filter,
+                                   String... attributes)
        throws LDAPSearchException;
 
 
@@ -1267,11 +1258,10 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResultEntry searchForEntry(final String baseDN, final SearchScope scope,
-                                   final DereferencePolicy derefPolicy,
-                                   final int timeLimit, final boolean typesOnly,
-                                   final Filter filter,
-                                   final String... attributes)
+  SearchResultEntry searchForEntry(String baseDN, SearchScope scope,
+                                   DereferencePolicy derefPolicy, int timeLimit,
+                                   boolean typesOnly, Filter filter,
+                                   String... attributes)
        throws LDAPSearchException;
 
 
@@ -1310,7 +1300,7 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResultEntry searchForEntry(final SearchRequest searchRequest)
+  SearchResultEntry searchForEntry(SearchRequest searchRequest)
        throws LDAPSearchException;
 
 
@@ -1349,6 +1339,6 @@ public interface LDAPInterface
    *                               examined to obtain information about those
    *                               entries and/or references.
    */
-  SearchResultEntry searchForEntry(final ReadOnlySearchRequest searchRequest)
+  SearchResultEntry searchForEntry(ReadOnlySearchRequest searchRequest)
        throws LDAPSearchException;
 }

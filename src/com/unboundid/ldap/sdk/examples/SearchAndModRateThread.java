@@ -280,7 +280,7 @@ final class SearchAndModRateThread
     {
       startBarrier.await();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       Debug.debugException(e);
     }
@@ -352,7 +352,7 @@ searchLoop:
                new SimplePagedResultsControl(simplePageSize));
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         Debug.debugException(le);
         errorCounter.incrementAndGet();
@@ -363,7 +363,7 @@ searchLoop:
         continue;
       }
 
-      ASN1OctetString pagedResultCookie = null;
+      final ASN1OctetString pagedResultCookie = null;
       final long searchStartTime = System.nanoTime();
 
       try
@@ -375,7 +375,7 @@ searchLoop:
           {
             r = connection.search(searchRequest);
           }
-          catch (LDAPSearchException lse)
+          catch (final LDAPSearchException lse)
           {
             Debug.debugException(lse);
             errorCounter.incrementAndGet();
@@ -429,7 +429,7 @@ searchLoop:
                 connection.modify(modifyRequest);
               }
             }
-            catch (LDAPException le)
+            catch (final LDAPException le)
             {
               Debug.debugException(le);
               errorCounter.incrementAndGet();
@@ -524,7 +524,7 @@ searchLoop:
       {
         t.join();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         Debug.debugException(e);
 

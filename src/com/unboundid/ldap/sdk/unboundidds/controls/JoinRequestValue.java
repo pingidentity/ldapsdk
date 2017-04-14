@@ -532,7 +532,7 @@ public final class JoinRequestValue
       return new JoinRequestValue(joinRule, baseDN, scope, derefPolicy,
            sizeLimit, filter, attributes, requireMatch, nestedJoin);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

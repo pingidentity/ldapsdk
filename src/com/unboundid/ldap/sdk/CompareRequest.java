@@ -362,6 +362,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return dn;
@@ -402,6 +403,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getAttributeName()
   {
     return attributeName;
@@ -428,6 +430,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getAssertionValue()
   {
     return assertionValue.stringValue();
@@ -438,6 +441,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte[] getAssertionValueBytes()
   {
     return assertionValue.getValue();
@@ -448,6 +452,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1OctetString getRawAssertionValue()
   {
     return assertionValue;
@@ -501,6 +506,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_COMPARE_REQUEST;
@@ -511,6 +517,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence requestSequence =
@@ -531,6 +538,7 @@ public final class CompareRequest
    *
    * @return  The ASN.1 element with the encoded compare request protocol op.
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     // Create the compare request protocol op.
@@ -600,7 +608,7 @@ public final class CompareRequest
           response = responseQueue.take();
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -681,7 +689,7 @@ public final class CompareRequest
       connection.sendMessage(message);
       return asyncRequestID;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -728,7 +736,7 @@ public final class CompareRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -1019,7 +1027,7 @@ public final class CompareRequest
           referralConn.close();
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
       }
@@ -1036,6 +1044,7 @@ public final class CompareRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -1043,7 +1052,7 @@ public final class CompareRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -1084,6 +1093,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public CompareRequest duplicate()
   {
     return duplicate(getControls());
@@ -1094,6 +1104,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public CompareRequest duplicate(final Control[] controls)
   {
     final CompareRequest r = new CompareRequest(dn, attributeName,
@@ -1149,6 +1160,7 @@ public final class CompareRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {

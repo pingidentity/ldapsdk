@@ -307,7 +307,7 @@ public final class JNDIConverter
       {
         value = ASN1OctetString.decodeAsOctetString(valueBytes);
       }
-      catch (ASN1Exception ae)
+      catch (final ASN1Exception ae)
       {
         throw new NamingException(getExceptionMessage(ae));
       }

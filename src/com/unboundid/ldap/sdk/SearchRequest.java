@@ -704,6 +704,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getBaseDN()
   {
     return baseDN;
@@ -744,6 +745,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public SearchScope getScope()
   {
     return scope;
@@ -766,6 +768,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public DereferencePolicy getDereferencePolicy()
   {
     return derefPolicy;
@@ -791,6 +794,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public int getSizeLimit()
   {
     return sizeLimit;
@@ -834,6 +838,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public int getTimeLimitSeconds()
   {
     return timeLimit;
@@ -877,6 +882,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean typesOnly()
   {
     return typesOnly;
@@ -902,6 +908,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Filter getFilter()
   {
     return filter;
@@ -962,6 +969,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public List<String> getAttributeList()
   {
     return Collections.unmodifiableList(Arrays.asList(attributes));
@@ -1033,6 +1041,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_REQUEST;
@@ -1043,6 +1052,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer writer)
   {
     final ASN1BufferSequence requestSequence =
@@ -1071,6 +1081,7 @@ public final class SearchRequest
    *
    * @return  The ASN.1 element with the encoded search request protocol op.
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     // Create the search request protocol op.
@@ -1169,7 +1180,7 @@ public final class SearchRequest
             response = responseQueue.take();
           }
         }
-        catch (InterruptedException ie)
+        catch (final InterruptedException ie)
         {
           debugException(ie);
           Thread.currentThread().interrupt();
@@ -1400,7 +1411,7 @@ public final class SearchRequest
       connection.sendMessage(message);
       return asyncRequestID;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -1448,7 +1459,7 @@ public final class SearchRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) responseTimeout);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -1888,7 +1899,7 @@ public final class SearchRequest
           referralConn.close();
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
 
@@ -1991,7 +2002,7 @@ public final class SearchRequest
           referralConn.close();
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
 
@@ -2013,6 +2024,7 @@ public final class SearchRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -2020,7 +2032,7 @@ public final class SearchRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -2061,6 +2073,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public SearchRequest duplicate()
   {
     return duplicate(getControls());
@@ -2071,6 +2084,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public SearchRequest duplicate(final Control[] controls)
   {
     final SearchRequest r = new SearchRequest(searchResultListener, controls,
@@ -2143,6 +2157,7 @@ public final class SearchRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {

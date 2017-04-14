@@ -235,7 +235,7 @@ public final class GetSubtreeAccessibilityExtendedResult
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

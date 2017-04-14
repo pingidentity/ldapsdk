@@ -58,7 +58,7 @@ public enum ContentSyncRequestMode
    *
    * @param  intValue  The integer value for this request mode.
    */
-  private ContentSyncRequestMode(final int intValue)
+  ContentSyncRequestMode(final int intValue)
   {
     this.intValue = intValue;
   }

@@ -202,7 +202,7 @@ public final class FieldInfo
     {
       encoder = a.encoderClass().newInstance();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(ERR_FIELD_INFO_CANNOT_GET_ENCODER.get(
@@ -640,12 +640,12 @@ public final class FieldInfo
 
       return encoder.encodeFieldValue(field, fieldValue, attributeName);
     }
-    catch (LDAPPersistException lpe)
+    catch (final LDAPPersistException lpe)
     {
       debugException(lpe);
       throw lpe;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPPersistException(ERR_FIELD_INFO_CANNOT_ENCODE.get(
@@ -717,7 +717,7 @@ public final class FieldInfo
     {
       encoder.decodeField(field, o, a);
     }
-    catch (LDAPPersistException lpe)
+    catch (final LDAPPersistException lpe)
     {
       debugException(lpe);
       if (failOnInvalidValue)

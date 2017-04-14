@@ -395,7 +395,7 @@ public final class LDAPModify
         ldifReader = new LDIFReader(System.in);
       }
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       err("I/O error creating the LDIF reader:  ", ioe.getMessage());
       return ResultCode.LOCAL_ERROR;
@@ -410,7 +410,7 @@ public final class LDAPModify
       out("Connected to ", connection.getConnectedAddress(), ':',
           connection.getConnectedPort());
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       err("Error connecting to the directory server:  ", le.getMessage());
       return le.getResultCode();
@@ -427,7 +427,7 @@ public final class LDAPModify
       {
         changeRecord = ldifReader.readChangeRecord(defaultAdd.isPresent());
       }
-      catch (LDIFException le)
+      catch (final LDIFException le)
       {
         err("Malformed change record:  ", le.getMessage());
         if (! le.mayContinueReading())
@@ -447,7 +447,7 @@ public final class LDAPModify
           continue;
         }
       }
-      catch (IOException ioe)
+      catch (final IOException ioe)
       {
         err("I/O error encountered while reading a change record:  ",
             ioe.getMessage());
@@ -473,7 +473,7 @@ public final class LDAPModify
         out("Success");
         out();
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         err("Error:  ", le.getMessage());
         err("Result Code:  ", le.getResultCode().intValue(), " (",

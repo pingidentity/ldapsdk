@@ -204,7 +204,7 @@ public final class ProxiedAuthorizationV1RequestControl
            ASN1Sequence.decodeAsSequence(valueElement).elements();
       proxyDN = ASN1OctetString.decodeAsOctetString(elements[0]).stringValue();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       throw new LDAPException(ResultCode.DECODING_ERROR,

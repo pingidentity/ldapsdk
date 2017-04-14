@@ -456,7 +456,7 @@ public abstract class Argument
    *          empty list if the argument does not have a value.
    */
   public abstract List<String> getValueStringRepresentations(
-                                    final boolean useDefault);
+                                    boolean useDefault);
 
 
 
@@ -623,7 +623,7 @@ public abstract class Argument
    *                             this argument already has the maximum allowed
    *                             number of values.
    */
-  protected abstract void addValue(final String valueString)
+  protected abstract void addValue(String valueString)
             throws ArgumentException;
 
 
@@ -761,7 +761,7 @@ public abstract class Argument
    * @param  argStrings  The list to update with the string representation of
    *                     the command-line arguments.
    */
-  protected abstract void addToCommandLine(final List<String> argStrings);
+  protected abstract void addToCommandLine(List<String> argStrings);
 
 
 
@@ -784,7 +784,7 @@ public abstract class Argument
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(StringBuilder buffer);
 
 
 

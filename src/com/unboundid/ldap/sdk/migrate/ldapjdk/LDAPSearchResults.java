@@ -232,7 +232,7 @@ public class LDAPSearchResults
         }
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -394,6 +394,7 @@ public class LDAPSearchResults
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     if (searchDone.get())
@@ -406,7 +407,7 @@ public class LDAPSearchResults
       resultQueue.put(searchEntry);
       count.incrementAndGet();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       // This should never happen.
       debugException(e);
@@ -426,6 +427,7 @@ public class LDAPSearchResults
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {
@@ -439,7 +441,7 @@ public class LDAPSearchResults
       resultQueue.put(searchReference);
       count.incrementAndGet();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       // This should never happen.
       debugException(e);
@@ -466,6 +468,7 @@ public class LDAPSearchResults
    * @param  searchResult  The search result that has been received.
    */
   @InternalUseOnly()
+  @Override()
   public void searchResultReceived(final AsyncRequestID requestID,
                                    final SearchResult searchResult)
   {
@@ -482,7 +485,7 @@ public class LDAPSearchResults
         count.incrementAndGet();
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       // This should never happen.
       debugException(e);

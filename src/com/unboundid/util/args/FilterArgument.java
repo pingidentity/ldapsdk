@@ -286,7 +286,7 @@ public final class FilterArgument
     {
       filter = Filter.create(valueString);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new ArgumentException(ERR_FILTER_VALUE_NOT_FILTER.get(valueString,

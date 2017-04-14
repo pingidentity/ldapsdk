@@ -125,7 +125,7 @@ final class SASLHelper
           credBytes = saslClient.evaluateChallenge(new byte[0]);
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         if (unhandledCallbackMessages.isEmpty())
@@ -180,7 +180,7 @@ final class SASLHelper
         {
           credBytes = saslClient.evaluateChallenge(serverCredBytes);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
           if (unhandledCallbackMessages.isEmpty())
@@ -274,7 +274,7 @@ final class SASLHelper
         {
           saslClient.dispose();
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
         }

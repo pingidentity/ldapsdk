@@ -186,6 +186,7 @@ public final class ReplaceAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry transformEntry(final Entry e)
   {
     if (e == null)
@@ -247,6 +248,7 @@ public final class ReplaceAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translate(final Entry original, final long firstLineNumber)
   {
     return transformEntry(original);
@@ -257,6 +259,7 @@ public final class ReplaceAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translateEntryToWrite(final Entry original)
   {
     return transformEntry(original);

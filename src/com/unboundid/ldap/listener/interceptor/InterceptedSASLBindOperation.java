@@ -81,6 +81,7 @@ final class InterceptedSASLBindOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public GenericSASLBindRequest getRequest()
   {
     return bindRequest;
@@ -91,6 +92,7 @@ final class InterceptedSASLBindOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setRequest(final GenericSASLBindRequest bindRequest)
   {
     this.bindRequest = bindRequest;
@@ -101,6 +103,7 @@ final class InterceptedSASLBindOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public BindResult getResult()
   {
     return bindResult;
@@ -111,6 +114,7 @@ final class InterceptedSASLBindOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setResult(final BindResult bindResult)
   {
     this.bindResult = bindResult;

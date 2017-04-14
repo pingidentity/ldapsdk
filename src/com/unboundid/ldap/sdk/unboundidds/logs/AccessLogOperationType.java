@@ -126,7 +126,7 @@ public enum AccessLogOperationType
    * @param  logIdentifier  The string that will be used to identify this
    *                        operation type in log files.
    */
-  private AccessLogOperationType(final String logIdentifier)
+  AccessLogOperationType(final String logIdentifier)
   {
     this.logIdentifier = logIdentifier;
   }

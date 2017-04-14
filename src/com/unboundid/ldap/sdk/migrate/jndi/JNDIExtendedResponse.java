@@ -128,7 +128,7 @@ public final class JNDIExtendedResponse
           value = ASN1OctetString.decodeAsOctetString(valueBytes);
         }
       }
-      catch (ASN1Exception ae)
+      catch (final ASN1Exception ae)
       {
         throw new NamingException(StaticUtils.getExceptionMessage(ae));
       }
@@ -146,6 +146,7 @@ public final class JNDIExtendedResponse
    * @return  The object identifier for this extended response, or {@code null}
    *          if there is no OID.
    */
+  @Override()
   public String getID()
   {
     return r.getOID();
@@ -160,6 +161,7 @@ public final class JNDIExtendedResponse
    * @return  The encoded value for this extended response, or {@code null} if
    *          there is no value.
    */
+  @Override()
   public byte[] getEncodedValue()
   {
     final ASN1OctetString value = r.getValue();

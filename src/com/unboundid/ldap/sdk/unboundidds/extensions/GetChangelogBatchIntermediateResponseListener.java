@@ -85,6 +85,7 @@ final class GetChangelogBatchIntermediateResponseListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void intermediateResponseReturned(
                    final IntermediateResponse intermediateResponse)
   {

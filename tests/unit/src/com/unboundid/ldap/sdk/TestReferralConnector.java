@@ -42,6 +42,7 @@ public class TestReferralConnector
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPConnection getReferralConnection(final LDAPURL referralURL,
                                               final LDAPConnection connection)
          throws LDAPException

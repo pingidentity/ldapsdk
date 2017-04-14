@@ -42,315 +42,313 @@ import static com.unboundid.ldap.sdk.LDAPMessages.*;
  *<BR><BR>
  * The result codes that are currently defined include:
  * <BR>
- * <CENTER>
- *   <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="50%"
- *          SUMMARY="Result Code Names and Numeric Values">
- *     <TR>
- *       <TH ALIGN="LEFT">Name</TH>
- *       <TH ALIGN="RIGHT">Integer Value</TH>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">SUCCESS</TD>
- *       <TD ALIGN="RIGHT">0</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">OPERATIONS_ERROR</TD>
- *       <TD ALIGN="RIGHT">1</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">PROTOCOL_ERROR</TD>
- *       <TD ALIGN="RIGHT">2</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">TIME_LIMIT_EXCEEDED</TD>
- *       <TD ALIGN="RIGHT">3</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">SIZE_LIMIT_EXCEEDED</TD>
- *       <TD ALIGN="RIGHT">4</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">COMPARE_FALSE</TD>
- *       <TD ALIGN="RIGHT">5</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">COMPARE_TRUE</TD>
- *       <TD ALIGN="RIGHT">6</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">AUTH_METHOD_NOT_SUPPORTED</TD>
- *       <TD ALIGN="RIGHT">7</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">STRONG_AUTH_REQUIRED</TD>
- *       <TD ALIGN="RIGHT">8</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">REFERRAL</TD>
- *       <TD ALIGN="RIGHT">10</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">ADMIN_LIMIT_EXCEEDED</TD>
- *       <TD ALIGN="RIGHT">11</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">UNAVAILABLE_CRITICAL_EXTENSION</TD>
- *       <TD ALIGN="RIGHT">12</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">CONFIDENTIALITY_REQUIRED</TD>
- *       <TD ALIGN="RIGHT">13</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">SASL_BIND_IN_PROGRESS</TD>
- *       <TD ALIGN="RIGHT">14</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NO_SUCH_ATTRIBUTE</TD>
- *       <TD ALIGN="RIGHT">16</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">UNDEFINED_ATTRIBUTE_TYPE</TD>
- *       <TD ALIGN="RIGHT">17</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">INAPPROPRIATE_MATCHING</TD>
- *       <TD ALIGN="RIGHT">18</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">CONSTRAINT_VIOLATION</TD>
- *       <TD ALIGN="RIGHT">19</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">ATTRIBUTE_OR_VALUE_EXISTS</TD>
- *       <TD ALIGN="RIGHT">20</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">INVALID_ATTRIBUTE_SYNTAX</TD>
- *       <TD ALIGN="RIGHT">21</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NO_SUCH_OBJECT</TD>
- *       <TD ALIGN="RIGHT">32</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">ALIAS_PROBLEM</TD>
- *       <TD ALIGN="RIGHT">33</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">INVALID_DN_SYNTAX</TD>
- *       <TD ALIGN="RIGHT">34</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">ALIAS_DEREFERENCING_PROBLEM</TD>
- *       <TD ALIGN="RIGHT">36</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">INAPPROPRIATE_AUTHENTICATION</TD>
- *       <TD ALIGN="RIGHT">48</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">INVALID_CREDENTIALS</TD>
- *       <TD ALIGN="RIGHT">49</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">INSUFFICIENT_ACCESS_RIGHTS</TD>
- *       <TD ALIGN="RIGHT">50</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">BUSY</TD>
- *       <TD ALIGN="RIGHT">51</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">UNAVAILABLE</TD>
- *       <TD ALIGN="RIGHT">52</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">UNWILLING_TO_PERFORM</TD>
- *       <TD ALIGN="RIGHT">53</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">LOOP_DETECT</TD>
- *       <TD ALIGN="RIGHT">54</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">SORT_CONTROL_MISSING</TD>
- *       <TD ALIGN="RIGHT">60</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">OFFSET_RANGE_ERROR</TD>
- *       <TD ALIGN="RIGHT">61</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NAMING_VIOLATION</TD>
- *       <TD ALIGN="RIGHT">64</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">OBJECT_CLASS_VIOLATION</TD>
- *       <TD ALIGN="RIGHT">65</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NOT_ALLOWED_ON_NONLEAF</TD>
- *       <TD ALIGN="RIGHT">66</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NOT_ALLOWED_ON_NONLEAF</TD>
- *       <TD ALIGN="RIGHT">66</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NOT_ALLOWED_ON_RDN</TD>
- *       <TD ALIGN="RIGHT">67</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">ENTRY_ALREADY_EXISTS</TD>
- *       <TD ALIGN="RIGHT">68</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">OBJECT_CLASS_MODS_PROHIBITED</TD>
- *       <TD ALIGN="RIGHT">69</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">AFFECTS_MULTIPLE_DSAS</TD>
- *       <TD ALIGN="RIGHT">71</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">VIRTUAL_LIST_VIEW_ERROR</TD>
- *       <TD ALIGN="RIGHT">76</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">OTHER</TD>
- *       <TD ALIGN="RIGHT">80</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">SERVER_DOWN</TD>
- *       <TD ALIGN="RIGHT">81</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">LOCAL_ERROR</TD>
- *       <TD ALIGN="RIGHT">82</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">ENCODING_ERROR</TD>
- *       <TD ALIGN="RIGHT">83</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">DECODING_ERROR</TD>
- *       <TD ALIGN="RIGHT">84</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">TIMEOUT</TD>
- *       <TD ALIGN="RIGHT">85</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">AUTH_UNKNOWN</TD>
- *       <TD ALIGN="RIGHT">86</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">FILTER_ERROR</TD>
- *       <TD ALIGN="RIGHT">87</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">USER_CANCELED</TD>
- *       <TD ALIGN="RIGHT">88</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">PARAM_ERROR</TD>
- *       <TD ALIGN="RIGHT">89</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NO_MEMORY</TD>
- *       <TD ALIGN="RIGHT">90</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">CONNECT_ERROR</TD>
- *       <TD ALIGN="RIGHT">91</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NOT_SUPPORTED</TD>
- *       <TD ALIGN="RIGHT">92</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">CONTROL_NOT_FOUND</TD>
- *       <TD ALIGN="RIGHT">93</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NO_RESULTS_RETURNED</TD>
- *       <TD ALIGN="RIGHT">94</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">MORE_RESULTS_TO_RETURN</TD>
- *       <TD ALIGN="RIGHT">95</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">CLIENT_LOOP</TD>
- *       <TD ALIGN="RIGHT">96</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">REFERRAL_LIMIT_EXCEEDED</TD>
- *       <TD ALIGN="RIGHT">97</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">CANCELED</TD>
- *       <TD ALIGN="RIGHT">118</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NO_SUCH_OPERATION</TD>
- *       <TD ALIGN="RIGHT">119</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">TOO_LATE</TD>
- *       <TD ALIGN="RIGHT">120</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">CANNOT_CANCEL</TD>
- *       <TD ALIGN="RIGHT">121</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">ASSERTION_FAILED</TD>
- *       <TD ALIGN="RIGHT">122</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">AUTHORIZATION_DENIED</TD>
- *       <TD ALIGN="RIGHT">123</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">E_SYNC_REFRESH_REQUIRED</TD>
- *       <TD ALIGN="RIGHT">4096</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">NO_OPERATION</TD>
- *       <TD ALIGN="RIGHT">16654</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">INTERACTIVE_TRANSACTION_ABORTED</TD>
- *       <TD ALIGN="RIGHT">30221001</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">DATABASE_LOCK_CONFLICT</TD>
- *       <TD ALIGN="RIGHT">30221002</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">MIRRORED_SUBTREE_DIGEST_MISMATCH</TD>
- *       <TD ALIGN="RIGHT">30221003</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">TOKEN_DELIVERY_MECHANISM_UNAVAILABLE</TD>
- *       <TD ALIGN="RIGHT">30221004</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">TOKEN_DELIVERY_ATTEMPT_FAILED</TD>
- *       <TD ALIGN="RIGHT">30221005</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">TOKEN_DELIVERY_INVALID_RECIPIENT_ID</TD>
- *       <TD ALIGN="RIGHT">30221006</TD>
- *     </TR>
- *     <TR>
- *       <TD ALIGN="LEFT">TOKEN_DELIVERY_INVALID_ACCOUNT_STATE</TD>
- *       <TD ALIGN="RIGHT">30221007</TD>
- *     </TR>
- *   </TABLE>
- * </CENTER>
+ * <TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="50%"
+ *        SUMMARY="Result Code Names and Numeric Values">
+ *   <TR>
+ *     <TH ALIGN="LEFT">Name</TH>
+ *     <TH ALIGN="RIGHT">Integer Value</TH>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">SUCCESS</TD>
+ *     <TD ALIGN="RIGHT">0</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">OPERATIONS_ERROR</TD>
+ *     <TD ALIGN="RIGHT">1</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">PROTOCOL_ERROR</TD>
+ *     <TD ALIGN="RIGHT">2</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">TIME_LIMIT_EXCEEDED</TD>
+ *     <TD ALIGN="RIGHT">3</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">SIZE_LIMIT_EXCEEDED</TD>
+ *     <TD ALIGN="RIGHT">4</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">COMPARE_FALSE</TD>
+ *     <TD ALIGN="RIGHT">5</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">COMPARE_TRUE</TD>
+ *     <TD ALIGN="RIGHT">6</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">AUTH_METHOD_NOT_SUPPORTED</TD>
+ *     <TD ALIGN="RIGHT">7</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">STRONG_AUTH_REQUIRED</TD>
+ *     <TD ALIGN="RIGHT">8</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">REFERRAL</TD>
+ *     <TD ALIGN="RIGHT">10</TD>
+ *   </TR>
+ *   <TR>
+ *    <TD ALIGN="LEFT">ADMIN_LIMIT_EXCEEDED</TD>
+ *     <TD ALIGN="RIGHT">11</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">UNAVAILABLE_CRITICAL_EXTENSION</TD>
+ *     <TD ALIGN="RIGHT">12</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">CONFIDENTIALITY_REQUIRED</TD>
+ *     <TD ALIGN="RIGHT">13</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">SASL_BIND_IN_PROGRESS</TD>
+ *     <TD ALIGN="RIGHT">14</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NO_SUCH_ATTRIBUTE</TD>
+ *     <TD ALIGN="RIGHT">16</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">UNDEFINED_ATTRIBUTE_TYPE</TD>
+ *     <TD ALIGN="RIGHT">17</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">INAPPROPRIATE_MATCHING</TD>
+ *     <TD ALIGN="RIGHT">18</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">CONSTRAINT_VIOLATION</TD>
+ *     <TD ALIGN="RIGHT">19</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">ATTRIBUTE_OR_VALUE_EXISTS</TD>
+ *     <TD ALIGN="RIGHT">20</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">INVALID_ATTRIBUTE_SYNTAX</TD>
+ *     <TD ALIGN="RIGHT">21</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NO_SUCH_OBJECT</TD>
+ *     <TD ALIGN="RIGHT">32</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">ALIAS_PROBLEM</TD>
+ *     <TD ALIGN="RIGHT">33</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">INVALID_DN_SYNTAX</TD>
+ *     <TD ALIGN="RIGHT">34</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">ALIAS_DEREFERENCING_PROBLEM</TD>
+ *     <TD ALIGN="RIGHT">36</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">INAPPROPRIATE_AUTHENTICATION</TD>
+ *     <TD ALIGN="RIGHT">48</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">INVALID_CREDENTIALS</TD>
+ *     <TD ALIGN="RIGHT">49</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">INSUFFICIENT_ACCESS_RIGHTS</TD>
+ *     <TD ALIGN="RIGHT">50</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">BUSY</TD>
+ *     <TD ALIGN="RIGHT">51</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">UNAVAILABLE</TD>
+ *     <TD ALIGN="RIGHT">52</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">UNWILLING_TO_PERFORM</TD>
+ *     <TD ALIGN="RIGHT">53</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">LOOP_DETECT</TD>
+ *     <TD ALIGN="RIGHT">54</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">SORT_CONTROL_MISSING</TD>
+ *     <TD ALIGN="RIGHT">60</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">OFFSET_RANGE_ERROR</TD>
+ *     <TD ALIGN="RIGHT">61</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NAMING_VIOLATION</TD>
+ *     <TD ALIGN="RIGHT">64</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">OBJECT_CLASS_VIOLATION</TD>
+ *     <TD ALIGN="RIGHT">65</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NOT_ALLOWED_ON_NONLEAF</TD>
+ *     <TD ALIGN="RIGHT">66</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NOT_ALLOWED_ON_NONLEAF</TD>
+ *     <TD ALIGN="RIGHT">66</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NOT_ALLOWED_ON_RDN</TD>
+ *     <TD ALIGN="RIGHT">67</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">ENTRY_ALREADY_EXISTS</TD>
+ *     <TD ALIGN="RIGHT">68</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">OBJECT_CLASS_MODS_PROHIBITED</TD>
+ *     <TD ALIGN="RIGHT">69</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">AFFECTS_MULTIPLE_DSAS</TD>
+ *     <TD ALIGN="RIGHT">71</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">VIRTUAL_LIST_VIEW_ERROR</TD>
+ *     <TD ALIGN="RIGHT">76</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">OTHER</TD>
+ *     <TD ALIGN="RIGHT">80</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">SERVER_DOWN</TD>
+ *     <TD ALIGN="RIGHT">81</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">LOCAL_ERROR</TD>
+ *     <TD ALIGN="RIGHT">82</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">ENCODING_ERROR</TD>
+ *     <TD ALIGN="RIGHT">83</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">DECODING_ERROR</TD>
+ *     <TD ALIGN="RIGHT">84</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">TIMEOUT</TD>
+ *     <TD ALIGN="RIGHT">85</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">AUTH_UNKNOWN</TD>
+ *     <TD ALIGN="RIGHT">86</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">FILTER_ERROR</TD>
+ *      <TD ALIGN="RIGHT">87</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">USER_CANCELED</TD>
+ *     <TD ALIGN="RIGHT">88</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">PARAM_ERROR</TD>
+ *     <TD ALIGN="RIGHT">89</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NO_MEMORY</TD>
+ *     <TD ALIGN="RIGHT">90</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">CONNECT_ERROR</TD>
+ *     <TD ALIGN="RIGHT">91</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NOT_SUPPORTED</TD>
+ *     <TD ALIGN="RIGHT">92</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">CONTROL_NOT_FOUND</TD>
+ *     <TD ALIGN="RIGHT">93</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NO_RESULTS_RETURNED</TD>
+ *     <TD ALIGN="RIGHT">94</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">MORE_RESULTS_TO_RETURN</TD>
+ *     <TD ALIGN="RIGHT">95</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">CLIENT_LOOP</TD>
+ *     <TD ALIGN="RIGHT">96</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">REFERRAL_LIMIT_EXCEEDED</TD>
+ *     <TD ALIGN="RIGHT">97</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">CANCELED</TD>
+ *     <TD ALIGN="RIGHT">118</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NO_SUCH_OPERATION</TD>
+ *     <TD ALIGN="RIGHT">119</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">TOO_LATE</TD>
+ *     <TD ALIGN="RIGHT">120</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">CANNOT_CANCEL</TD>
+ *     <TD ALIGN="RIGHT">121</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">ASSERTION_FAILED</TD>
+ *     <TD ALIGN="RIGHT">122</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">AUTHORIZATION_DENIED</TD>
+ *     <TD ALIGN="RIGHT">123</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">E_SYNC_REFRESH_REQUIRED</TD>
+ *     <TD ALIGN="RIGHT">4096</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">NO_OPERATION</TD>
+ *     <TD ALIGN="RIGHT">16654</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">INTERACTIVE_TRANSACTION_ABORTED</TD>
+ *     <TD ALIGN="RIGHT">30221001</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">DATABASE_LOCK_CONFLICT</TD>
+ *     <TD ALIGN="RIGHT">30221002</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">MIRRORED_SUBTREE_DIGEST_MISMATCH</TD>
+ *     <TD ALIGN="RIGHT">30221003</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">TOKEN_DELIVERY_MECHANISM_UNAVAILABLE</TD>
+ *     <TD ALIGN="RIGHT">30221004</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">TOKEN_DELIVERY_ATTEMPT_FAILED</TD>
+ *     <TD ALIGN="RIGHT">30221005</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">TOKEN_DELIVERY_INVALID_RECIPIENT_ID</TD>
+ *     <TD ALIGN="RIGHT">30221006</TD>
+ *   </TR>
+ *   <TR>
+ *     <TD ALIGN="LEFT">TOKEN_DELIVERY_INVALID_ACCOUNT_STATE</TD>
+ *     <TD ALIGN="RIGHT">30221007</TD>
+ *   </TR>
+ * </TABLE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

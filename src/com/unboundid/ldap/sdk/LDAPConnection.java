@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2007-2017 UnboundID Corp.
  * All Rights Reserved.
  */
@@ -670,7 +670,7 @@ public final class LDAPConnection
     {
       bind(new SimpleBindRequest(bindDN, bindPassword));
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
@@ -863,7 +863,7 @@ public final class LDAPConnection
       connectionInternals.startConnectionReader();
       lastCommunicationTime = System.currentTimeMillis();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       setDisconnectInfo(DisconnectType.LOCAL_ERROR, null, e);
@@ -878,7 +878,7 @@ public final class LDAPConnection
       {
         cachedSchema = getCachedSchema(this);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -1554,7 +1554,7 @@ public final class LDAPConnection
         sendMessage(new LDAPMessage(nextMessageID(),
              new UnbindRequestProtocolOp(), controls));
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -1723,7 +1723,7 @@ public final class LDAPConnection
                              0, false, filter, attributes);
       result = search(searchRequest);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       if (le.getResultCode().equals(ResultCode.NO_SUCH_OBJECT))
       {
@@ -2163,7 +2163,7 @@ public final class LDAPConnection
           {
             cachedSchema = getCachedSchema(this);
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
           }
@@ -3094,12 +3094,12 @@ public final class LDAPConnection
     {
       return search(new SearchRequest(baseDN, scope, filter, attributes));
     }
-    catch (LDAPSearchException lse)
+    catch (final LDAPSearchException lse)
     {
       debugException(lse);
       throw lse;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -3215,12 +3215,12 @@ public final class LDAPConnection
       return search(new SearchRequest(searchResultListener, baseDN, scope,
                                       filter, attributes));
     }
-    catch (LDAPSearchException lse)
+    catch (final LDAPSearchException lse)
     {
       debugException(lse);
       throw lse;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -3285,15 +3285,10 @@ public final class LDAPConnection
       return search(new SearchRequest(searchResultListener, baseDN, scope,
                                       filter, attributes));
     }
-    catch (LDAPSearchException lse)
+    catch (final LDAPSearchException lse)
     {
       debugException(lse);
       throw lse;
-    }
-    catch (LDAPException le)
-    {
-      debugException(le);
-      throw new LDAPSearchException(le);
     }
   }
 
@@ -3364,12 +3359,12 @@ public final class LDAPConnection
                                       timeLimit, typesOnly, filter,
                                       attributes));
     }
-    catch (LDAPSearchException lse)
+    catch (final LDAPSearchException lse)
     {
       debugException(lse);
       throw lse;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -3516,12 +3511,12 @@ public final class LDAPConnection
                                       derefPolicy, sizeLimit, timeLimit,
                                       typesOnly, filter, attributes));
     }
-    catch (LDAPSearchException lse)
+    catch (final LDAPSearchException lse)
     {
       debugException(lse);
       throw lse;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -3645,12 +3640,12 @@ public final class LDAPConnection
     {
       searchResult = searchRequest.process(this, 1);
     }
-    catch (LDAPSearchException lse)
+    catch (final LDAPSearchException lse)
     {
       debugException(lse);
       throw lse;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw new LDAPSearchException(le);
@@ -4532,6 +4527,7 @@ public final class LDAPConnection
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPConnection getReferralConnection(final LDAPURL referralURL,
                                               final LDAPConnection connection)
          throws LDAPException

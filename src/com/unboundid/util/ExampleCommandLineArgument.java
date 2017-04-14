@@ -283,12 +283,12 @@ public final class ExampleCommandLineArgument implements Serializable
     boolean inDoubleQuote = false;
     boolean inSingleQuote = false;
 
-    List<String> args = new ArrayList<String>();
+    final List<String> args = new ArrayList<String>();
 
     StringBuilder currentArg = new StringBuilder();
     boolean inArg = false;
     for (int i = 0; i < exampleCommandLine.length(); i++) {
-      Character c = exampleCommandLine.charAt(i);
+      final Character c = exampleCommandLine.charAt(i);
 
       Character nextChar = null;
       if (i < (exampleCommandLine.length() - 1))

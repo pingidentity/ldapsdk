@@ -123,7 +123,7 @@ public final class SearchResultReferenceProtocolOp
 
       referralURLs = Collections.unmodifiableList(refs);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -149,6 +149,7 @@ public final class SearchResultReferenceProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_SEARCH_RESULT_REFERENCE;
@@ -159,6 +160,7 @@ public final class SearchResultReferenceProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> urlElements =
@@ -217,6 +219,7 @@ public final class SearchResultReferenceProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence = buffer.beginSequence(
@@ -268,6 +271,7 @@ public final class SearchResultReferenceProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("SearchResultReferenceProtocolOp(referralURLs={");

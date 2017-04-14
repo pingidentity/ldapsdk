@@ -90,6 +90,7 @@ public final class AggregateLDIFWriterEntryTranslator
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translateEntryToWrite(final Entry original)
   {
     if (original == null)

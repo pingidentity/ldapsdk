@@ -290,7 +290,7 @@ public final class DisconnectClientTask
       {
         connectionID = Long.parseLong(idStr);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         throw new TaskException(ERR_DISCONNECT_TASK_CONN_ID_NOT_LONG.get(

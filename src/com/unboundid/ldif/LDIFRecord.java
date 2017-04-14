@@ -94,7 +94,7 @@ public interface LDIFRecord
    *
    * @return  An LDIF representation of this LDIF record.
    */
-  String[] toLDIF(final int wrapColumn);
+  String[] toLDIF(int wrapColumn);
 
 
 
@@ -106,7 +106,7 @@ public interface LDIFRecord
    * @param  buffer  The buffer to which to append the LDIF representation of
    *                 this LDIF record.
    */
-  void toLDIF(final ByteStringBuffer buffer);
+  void toLDIF(ByteStringBuffer buffer);
 
 
 
@@ -120,7 +120,7 @@ public interface LDIFRecord
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  void toLDIF(final ByteStringBuffer buffer, final int wrapColumn);
+  void toLDIF(ByteStringBuffer buffer, int wrapColumn);
 
 
 
@@ -144,7 +144,7 @@ public interface LDIFRecord
    *
    * @return  An LDIF-formatted string representation of this entry.
    */
-  String toLDIFString(final int wrapColumn);
+  String toLDIFString(int wrapColumn);
 
 
 
@@ -156,7 +156,7 @@ public interface LDIFRecord
    * @param  buffer  The buffer to which to append the LDIF representation of
    *                 this LDIF record.
    */
-  void toLDIFString(final StringBuilder buffer);
+  void toLDIFString(StringBuilder buffer);
 
 
 
@@ -170,7 +170,7 @@ public interface LDIFRecord
    *                     is less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
-  void toLDIFString(final StringBuilder buffer, final int wrapColumn);
+  void toLDIFString(StringBuilder buffer, int wrapColumn);
 
 
 
@@ -194,5 +194,5 @@ public interface LDIFRecord
    * @param  buffer  The buffer to which the string representation of this LDIF
    *                 record should be appended.
    */
-  void toString(final StringBuilder buffer);
+  void toString(StringBuilder buffer);
 }

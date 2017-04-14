@@ -591,7 +591,7 @@ public class LDAPConnection
         bind(version, dn, password, constraints);
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       conn.close();
       throw le;
@@ -668,7 +668,7 @@ public class LDAPConnection
       conn.abandon(InternalSDKHelper.createAsyncRequestID(id, conn),
                    getControls(null));
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       throw new LDAPException(le);
@@ -703,7 +703,7 @@ public class LDAPConnection
              LDAPException.PARAM_ERROR);
       }
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       throw new LDAPException(le);
@@ -746,7 +746,7 @@ public class LDAPConnection
       final LDAPResult result = conn.add(addRequest);
       setResponseControls(result);
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);
@@ -923,7 +923,7 @@ public class LDAPConnection
         authPW = password;
       }
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);
@@ -980,7 +980,7 @@ public class LDAPConnection
       setResponseControls(result);
       return result.compareMatched();
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);
@@ -1024,7 +1024,7 @@ public class LDAPConnection
       final LDAPResult result = conn.delete(deleteRequest);
       setResponseControls(result);
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);
@@ -1098,7 +1098,7 @@ public class LDAPConnection
 
       return new LDAPExtendedOperation(result.getOID(), valueBytes);
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);
@@ -1185,7 +1185,7 @@ public class LDAPConnection
       final LDAPResult result = conn.modify(modifyRequest);
       setResponseControls(result);
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);
@@ -1318,7 +1318,7 @@ public class LDAPConnection
 
       return new LDAPEntry(searchResult.getSearchEntries().get(0));
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);
@@ -1412,7 +1412,7 @@ public class LDAPConnection
       final LDAPResult result = conn.modifyDN(modifyDNRequest);
       setResponseControls(result);
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);
@@ -1487,7 +1487,7 @@ public class LDAPConnection
       results.setAsyncRequestID(conn.asyncSearch(searchRequest));
       return results;
     }
-    catch (com.unboundid.ldap.sdk.LDAPException le)
+    catch (final com.unboundid.ldap.sdk.LDAPException le)
     {
       debugException(le);
       setResponseControls(le);

@@ -97,7 +97,7 @@ public enum HealthCheckState
    *
    * @param  name  The name for this health check state.
    */
-  private HealthCheckState(final String name)
+  HealthCheckState(final String name)
   {
     this.name = name;
   }

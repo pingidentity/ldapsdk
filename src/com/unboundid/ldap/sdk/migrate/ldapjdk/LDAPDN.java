@@ -71,7 +71,7 @@ public final class LDAPDN
     {
       return DN.normalize(dn);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return toLowerCase(dn.trim());
@@ -120,7 +120,7 @@ public final class LDAPDN
       }
       return rdnStrings;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return new String[] { dn };
@@ -162,7 +162,7 @@ public final class LDAPDN
 
       return returnStrs;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return new String[] { rdn };
@@ -188,7 +188,7 @@ public final class LDAPDN
     {
       return DN.equals(dn1, dn2);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
       return false;

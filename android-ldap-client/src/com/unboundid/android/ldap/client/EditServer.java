@@ -398,6 +398,7 @@ public final class EditServer
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void testCompleted(final boolean acceptable,
                             final LinkedList<String> reasons)
   {

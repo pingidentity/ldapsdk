@@ -46,6 +46,6 @@ public interface AsyncCompareResultListener
    *                        response was received.
    * @param  compareResult  The compare result that has been received.
    */
-  void compareResultReceived(final AsyncRequestID requestID,
-                             final CompareResult compareResult);
+  void compareResultReceived(AsyncRequestID requestID,
+                             CompareResult compareResult);
 }

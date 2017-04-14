@@ -162,6 +162,7 @@ final class LDAPModifySearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     // Get the parsed DN of the search result entry to see if it has already
@@ -238,6 +239,7 @@ final class LDAPModifySearchListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

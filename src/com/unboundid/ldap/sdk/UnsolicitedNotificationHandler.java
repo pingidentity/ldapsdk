@@ -59,6 +59,6 @@ public interface UnsolicitedNotificationHandler
    * @param  notification  The unsolicited notification that has been received
    *                       from the server.
    */
-  void handleUnsolicitedNotification(final LDAPConnection connection,
-                                     final ExtendedResult notification);
+  void handleUnsolicitedNotification(LDAPConnection connection,
+                                     ExtendedResult notification);
 }

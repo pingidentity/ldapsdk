@@ -563,7 +563,7 @@ public class MonitorEntry
       {
         return decodeGeneralizedTime(valueStr);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 
@@ -608,7 +608,7 @@ public class MonitorEntry
       {
         return Double.parseDouble(valueStr);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 
@@ -654,7 +654,7 @@ public class MonitorEntry
       {
         return Integer.parseInt(valueStr);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 
@@ -699,7 +699,7 @@ public class MonitorEntry
       {
         return Long.parseLong(valueStr);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 

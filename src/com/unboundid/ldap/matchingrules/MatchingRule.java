@@ -243,8 +243,8 @@ public abstract class MatchingRule
    *                         or if this matching rule does not support equality
    *                         matching.
    */
-  public abstract boolean valuesMatch(final ASN1OctetString value1,
-                                      final ASN1OctetString value2)
+  public abstract boolean valuesMatch(ASN1OctetString value1,
+                                      ASN1OctetString value2)
          throws LDAPException;
 
 
@@ -268,10 +268,10 @@ public abstract class MatchingRule
    *                         or if this matching rule does not support substring
    *                         matching.
    */
-  public abstract boolean matchesSubstring(final ASN1OctetString value,
-                                           final ASN1OctetString subInitial,
-                                           final ASN1OctetString[] subAny,
-                                           final ASN1OctetString subFinal)
+  public abstract boolean matchesSubstring(ASN1OctetString value,
+                                           ASN1OctetString subInitial,
+                                           ASN1OctetString[] subAny,
+                                           ASN1OctetString subFinal)
          throws LDAPException;
 
 
@@ -293,8 +293,8 @@ public abstract class MatchingRule
    *                         or if this matching rule does not support ordering
    *                         matching.
    */
-  public abstract int compareValues(final ASN1OctetString value1,
-                                    final ASN1OctetString value2)
+  public abstract int compareValues(ASN1OctetString value1,
+                                    ASN1OctetString value2)
          throws LDAPException;
 
 
@@ -309,7 +309,7 @@ public abstract class MatchingRule
    * @throws  LDAPException  If a problem occurs while normalizing the provided
    *                         value.
    */
-  public abstract ASN1OctetString normalize(final ASN1OctetString value)
+  public abstract ASN1OctetString normalize(ASN1OctetString value)
          throws LDAPException;
 
 
@@ -330,9 +330,8 @@ public abstract class MatchingRule
    * @throws  LDAPException  If a problem occurs while normalizing the provided
    *                         value.
    */
-  public abstract ASN1OctetString normalizeSubstring(
-                                       final ASN1OctetString value,
-                                       final byte substringType)
+  public abstract ASN1OctetString normalizeSubstring(ASN1OctetString value,
+                                                     byte substringType)
          throws LDAPException;
 
 

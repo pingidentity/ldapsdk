@@ -217,6 +217,7 @@ public final class TransactionSettingsResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public TransactionSettingsResponseControl decodeControl(final String oid,
                                                  final boolean isCritical,
                                                  final ASN1OctetString value)

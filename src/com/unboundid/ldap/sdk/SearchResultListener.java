@@ -53,7 +53,7 @@ public interface SearchResultListener
    * @param  searchEntry  The search result entry that has been returned by the
    *                      server.
    */
-  void searchEntryReturned(final SearchResultEntry searchEntry);
+  void searchEntryReturned(SearchResultEntry searchEntry);
 
 
 
@@ -64,5 +64,5 @@ public interface SearchResultListener
    * @param  searchReference  The search result reference that has been returned
    *                          by the server.
    */
-  void searchReferenceReturned(final SearchResultReference searchReference);
+  void searchReferenceReturned(SearchResultReference searchReference);
 }

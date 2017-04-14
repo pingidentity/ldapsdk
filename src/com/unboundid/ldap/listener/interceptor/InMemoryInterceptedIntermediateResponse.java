@@ -68,5 +68,5 @@ public interface InMemoryInterceptedIntermediateResponse
    *                   It may be {@code null} if the response should be
    *                   suppressed rather than being returned to the client.
    */
-  void setIntermediateResponse(final IntermediateResponse response);
+  void setIntermediateResponse(IntermediateResponse response);
 }

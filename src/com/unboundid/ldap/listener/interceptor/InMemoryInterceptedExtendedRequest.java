@@ -54,5 +54,5 @@ public interface InMemoryInterceptedExtendedRequest
    *                          instead of the one that was originally received
    *                          from the client.  It must not be {@code null}.
    */
-  void setRequest(final ExtendedRequest extendedRequest);
+  void setRequest(ExtendedRequest extendedRequest);
 }

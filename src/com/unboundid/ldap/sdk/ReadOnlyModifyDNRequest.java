@@ -88,6 +88,7 @@ public interface ReadOnlyModifyDNRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   ModifyDNRequest duplicate();
 
 
@@ -95,7 +96,8 @@ public interface ReadOnlyModifyDNRequest
   /**
    * {@inheritDoc}
    */
-  ModifyDNRequest duplicate(final Control[] controls);
+  @Override()
+  ModifyDNRequest duplicate(Control[] controls);
 
 
 

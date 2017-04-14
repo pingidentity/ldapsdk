@@ -54,6 +54,7 @@ public class TestLDAPRebind
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPRebindAuth getRebindAuthentication(final String host,
                                                 final int port)
   {

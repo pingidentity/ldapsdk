@@ -102,7 +102,7 @@ public final class FixedRateBarrier
       {
         Thread.sleep(1);
       }
-      catch (InterruptedException e)
+      catch (final InterruptedException e)
       {
         debugException(e);
       }
@@ -289,7 +289,7 @@ public final class FixedRateBarrier
             // block setRate.
             this.wait(waitTime);
           }
-          catch (InterruptedException e)
+          catch (final InterruptedException e)
           {
             debugException(e);
             Thread.currentThread().interrupt();

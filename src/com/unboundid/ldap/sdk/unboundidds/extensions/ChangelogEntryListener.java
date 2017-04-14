@@ -57,7 +57,7 @@ public interface ChangelogEntryListener
    * @param  ir  The changelog entry intermediate response that was returned by
    *            the server.
    */
-  void handleChangelogEntry(final ChangelogEntryIntermediateResponse ir);
+  void handleChangelogEntry(ChangelogEntryIntermediateResponse ir);
 
 
 
@@ -69,7 +69,7 @@ public interface ChangelogEntryListener
    *             returned by the server.
    */
   void handleMissingChangelogEntries(
-            final MissingChangelogEntriesIntermediateResponse ir);
+            MissingChangelogEntriesIntermediateResponse ir);
 
 
 
@@ -82,5 +82,5 @@ public interface ChangelogEntryListener
    * @param  ir  The generic entry intermediate response that was returned by
    *             the server.
    */
-  void handleOtherIntermediateResponse(final IntermediateResponse ir);
+  void handleOtherIntermediateResponse(IntermediateResponse ir);
 }

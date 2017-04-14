@@ -520,6 +520,7 @@ public final class PasswordValidationDetailsResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public PasswordValidationDetailsResponseControl decodeControl(
               final String oid, final boolean isCritical,
               final ASN1OctetString value)

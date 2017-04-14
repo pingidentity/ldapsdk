@@ -59,6 +59,6 @@ public interface LDAPSocketFactory
    * @throws  LDAPException  If a problem occurs while establishing the
    *                         connection.
    */
-  Socket makeSocket(final String host, final int port)
+  Socket makeSocket(String host, int port)
          throws LDAPException;
 }

@@ -208,6 +208,7 @@ public class TestAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void ldapResultReceived(final AsyncRequestID requestID,
                                  final LDAPResult ldapResult)
   {
@@ -221,6 +222,7 @@ public class TestAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void compareResultReceived(final AsyncRequestID requestID,
                                     final CompareResult ldapResult)
   {
@@ -234,6 +236,7 @@ public class TestAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchResultReceived(final AsyncRequestID requestID,
                                    final SearchResult ldapResult)
   {
@@ -247,6 +250,7 @@ public class TestAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchEntryReturned(SearchResultEntry searchEntry)
   {
     searchEntries.incrementAndGet();
@@ -257,6 +261,7 @@ public class TestAsyncListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void searchReferenceReturned(SearchResultReference searchReference)
   {
     searchReferences.incrementAndGet();

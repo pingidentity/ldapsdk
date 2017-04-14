@@ -46,6 +46,7 @@ public class TestLDAPSocketFactory
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Socket makeSocket(final String host, final int port)
          throws LDAPException
   {

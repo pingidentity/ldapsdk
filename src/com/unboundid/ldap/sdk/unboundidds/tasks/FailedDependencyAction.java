@@ -80,7 +80,7 @@ public enum FailedDependencyAction
    *
    * @param  name  The name of the failed dependency action to create.
    */
-  private FailedDependencyAction(final String name)
+  FailedDependencyAction(final String name)
   {
     this.name = name;
   }

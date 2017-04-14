@@ -320,6 +320,7 @@ public class PersistentSearchRequestControlTestCase
    * {@inheritDoc}
    */
   @Test(enabled=false) // Tell TestNG that this isn't a test method.
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     persistentSearchEntries.add(searchEntry);
@@ -331,6 +332,7 @@ public class PersistentSearchRequestControlTestCase
    * {@inheritDoc}
    */
   @Test(enabled=false) // Tell TestNG that this isn't a test method.
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {
@@ -343,6 +345,7 @@ public class PersistentSearchRequestControlTestCase
    * {@inheritDoc}
    */
   @Test(enabled=false) // Tell TestNG that this isn't a test method.
+  @Override()
   public void searchResultReceived(final AsyncRequestID requestID,
                                    final SearchResult searchResult)
   {

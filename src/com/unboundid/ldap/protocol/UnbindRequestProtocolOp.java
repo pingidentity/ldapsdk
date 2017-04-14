@@ -82,7 +82,7 @@ public final class UnbindRequestProtocolOp
     {
       reader.readNull();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -96,6 +96,7 @@ public final class UnbindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_UNBIND_REQUEST;
@@ -106,6 +107,7 @@ public final class UnbindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     buffer.addNull(LDAPMessage.PROTOCOL_OP_TYPE_UNBIND_REQUEST);
@@ -116,6 +118,7 @@ public final class UnbindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     return new ASN1Null(LDAPMessage.PROTOCOL_OP_TYPE_UNBIND_REQUEST);
@@ -171,6 +174,7 @@ public final class UnbindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("UnbindRequestProtocolOp()");

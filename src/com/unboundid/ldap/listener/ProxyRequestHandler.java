@@ -530,6 +530,7 @@ public final class ProxyRequestHandler
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void intermediateResponseReturned(
                    final IntermediateResponse intermediateResponse)
   {

@@ -379,7 +379,11 @@ public final class JEEnvironmentMonitorEntry
   // The time the last checkpoint ended.
   private final Date lastCheckpointStopTime;
 
-  // The time the last checkpoint ended.
+  /**
+   * The time the last checkpoint ended.
+   *
+   * @deprecated  Use lastCheckpointStopTime instead.
+   */
   @Deprecated
   private final Date lastCheckpointTime;
 

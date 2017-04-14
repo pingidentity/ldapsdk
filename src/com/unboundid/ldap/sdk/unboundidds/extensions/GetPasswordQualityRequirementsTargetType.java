@@ -108,7 +108,7 @@ public enum GetPasswordQualityRequirementsTargetType
    *                  encoded get password quality requirements extended
    *                  request.
    */
-  private GetPasswordQualityRequirementsTargetType(final byte berType)
+  GetPasswordQualityRequirementsTargetType(final byte berType)
   {
     this.berType = berType;
   }

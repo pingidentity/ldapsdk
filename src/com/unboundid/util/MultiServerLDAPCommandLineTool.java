@@ -475,7 +475,7 @@ public abstract class MultiServerLDAPCommandLineTool
    *
    * @throws  ArgumentException  If a problem occurs while adding the arguments.
    */
-  public abstract void addNonLDAPArguments(final ArgumentParser parser)
+  public abstract void addNonLDAPArguments(ArgumentParser parser)
          throws ArgumentException;
 
 
@@ -554,7 +554,7 @@ public abstract class MultiServerLDAPCommandLineTool
         connection.bind(bindRequest[serverIndex]);
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       Debug.debugException(le);
       connection.close();
@@ -609,7 +609,7 @@ public abstract class MultiServerLDAPCommandLineTool
                     extendedResult.getDiagnosticMessage()));
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         Debug.debugException(le);
         connection.close();
@@ -694,7 +694,7 @@ public abstract class MultiServerLDAPCommandLineTool
       {
         socketFactory = sslUtil.createSSLSocketFactory();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -708,7 +708,7 @@ public abstract class MultiServerLDAPCommandLineTool
       {
         startTLSSocketFactory[serverIndex] = sslUtil.createSSLSocketFactory();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -755,7 +755,7 @@ public abstract class MultiServerLDAPCommandLineTool
             pw = keyStorePasswordFile[serverIndex].getNonBlankFileLines().
                  get(0).toCharArray();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             Debug.debugException(e);
             throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -771,7 +771,7 @@ public abstract class MultiServerLDAPCommandLineTool
                keyStoreFormat[serverIndex].getValue(),
                certificateNickname[serverIndex].getValue());
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           Debug.debugException(e);
           throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -799,7 +799,7 @@ public abstract class MultiServerLDAPCommandLineTool
             pw = trustStorePasswordFile[serverIndex].getNonBlankFileLines().
                  get(0).toCharArray();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             Debug.debugException(e);
             throw new LDAPException(ResultCode.LOCAL_ERROR,
@@ -859,7 +859,7 @@ public abstract class MultiServerLDAPCommandLineTool
       {
         pw = bindPasswordFile[serverIndex].getNonBlankFileLines().get(0);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         Debug.debugException(e);
         throw new LDAPException(ResultCode.LOCAL_ERROR,

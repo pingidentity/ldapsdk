@@ -1918,7 +1918,7 @@ public class Entry
       {
         sourceRDN = sourceEntry.getRDN();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -1927,7 +1927,7 @@ public class Entry
       {
         targetRDN = targetEntry.getRDN();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -2377,7 +2377,7 @@ public class Entry
           {
             currentValue = new BigInteger(a.getValue());
           }
-          catch (NumberFormatException nfe)
+          catch (final NumberFormatException nfe)
           {
             debugException(nfe);
             errors.add(
@@ -2404,7 +2404,7 @@ public class Entry
           {
             incrementValue = new BigInteger(incrementValueStr);
           }
-          catch (NumberFormatException nfe)
+          catch (final NumberFormatException nfe)
           {
             debugException(nfe);
             errors.add(ERR_ENTRY_APPLY_MODS_INCREMENT_MOD_VALUE_NOT_INTEGER.get(
@@ -2602,7 +2602,7 @@ public class Entry
     {
       hashCode += getParsedDN().hashCode();
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       hashCode += dn.hashCode();
@@ -2657,7 +2657,7 @@ public class Entry
         return false;
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       if (! dn.equals(e.dn))
@@ -2702,6 +2702,7 @@ public class Entry
    *
    * @return  An LDIF representation of this entry.
    */
+  @Override()
   public final String[] toLDIF()
   {
     return toLDIF(0);
@@ -2719,6 +2720,7 @@ public class Entry
    *
    * @return  An LDIF representation of this entry.
    */
+  @Override()
   public final String[] toLDIF(final int wrapColumn)
   {
     List<String> ldifLines = new ArrayList<String>(2*attributes.size());
@@ -2791,6 +2793,7 @@ public class Entry
    * @param  buffer The buffer to which the LDIF representation of this entry
    *                should be written.
    */
+  @Override()
   public final void toLDIF(final ByteStringBuffer buffer)
   {
     toLDIF(buffer, 0);
@@ -2807,6 +2810,7 @@ public class Entry
    *                     value less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
+  @Override()
   public final void toLDIF(final ByteStringBuffer buffer, final int wrapColumn)
   {
     LDIFWriter.encodeNameAndValue("dn", new ASN1OctetString(dn), buffer,
@@ -2841,6 +2845,7 @@ public class Entry
    *
    * @return  An LDIF-formatted string representation of this entry.
    */
+  @Override()
   public final String toLDIFString()
   {
     final StringBuilder buffer = new StringBuilder();
@@ -2860,6 +2865,7 @@ public class Entry
    *
    * @return  An LDIF-formatted string representation of this entry.
    */
+  @Override()
   public final String toLDIFString(final int wrapColumn)
   {
     final StringBuilder buffer = new StringBuilder();
@@ -2877,6 +2883,7 @@ public class Entry
    * @param  buffer  The buffer to which to append the LDIF representation of
    *                 this entry.
    */
+  @Override()
   public final void toLDIFString(final StringBuilder buffer)
   {
     toLDIFString(buffer, 0);
@@ -2894,6 +2901,7 @@ public class Entry
    *                     value less than or equal to two indicates that no
    *                     wrapping should be performed.
    */
+  @Override()
   public final void toLDIFString(final StringBuilder buffer,
                                  final int wrapColumn)
   {
@@ -2944,6 +2952,7 @@ public class Entry
    * @param  buffer  The buffer to which to append the string representation of
    *                 this entry.
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("Entry(dn='");

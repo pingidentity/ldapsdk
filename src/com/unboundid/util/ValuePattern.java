@@ -362,7 +362,7 @@ public final class ValuePattern
         {
           l.add(new FileValuePatternComponent(path, r.nextLong(), false));
         }
-        catch (IOException ioe)
+        catch (final IOException ioe)
         {
           debugException(ioe);
           throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
@@ -376,7 +376,7 @@ public final class ValuePattern
         {
           l.add(new FileValuePatternComponent(path, r.nextLong(), false));
         }
-        catch (IOException ioe)
+        catch (final IOException ioe)
         {
           debugException(ioe);
           throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
@@ -390,7 +390,7 @@ public final class ValuePattern
         {
           l.add(new FileValuePatternComponent(path, r.nextLong(), true));
         }
-        catch (IOException ioe)
+        catch (final IOException ioe)
         {
           debugException(ioe);
           throw new ParseException(ERR_FILE_VALUE_PATTERN_NOT_USABLE.get(
@@ -403,7 +403,7 @@ public final class ValuePattern
         {
           l.add(new HTTPValuePatternComponent(bracketedToken, r.nextLong()));
         }
-        catch (IOException ioe)
+        catch (final IOException ioe)
         {
           debugException(ioe);
           throw new ParseException(ERR_HTTP_VALUE_PATTERN_NOT_USABLE.get(
@@ -529,7 +529,7 @@ lowerBoundLoop:
             {
               lowerBound = Long.parseLong(s.substring(0, pos));
             }
-            catch (NumberFormatException nfe)
+            catch (final NumberFormatException nfe)
             {
               Debug.debugException(nfe);
               throw new ParseException(
@@ -556,7 +556,7 @@ lowerBoundLoop:
             {
               lowerBound = Long.parseLong(s.substring(0, pos));
             }
-            catch (NumberFormatException nfe)
+            catch (final NumberFormatException nfe)
             {
               Debug.debugException(nfe);
               throw new ParseException(
@@ -634,7 +634,7 @@ upperBoundLoop:
             {
               upperBound = Long.parseLong(s.substring(startPos, pos));
             }
-            catch (NumberFormatException nfe)
+            catch (final NumberFormatException nfe)
             {
               Debug.debugException(nfe);
               throw new ParseException(
@@ -661,7 +661,7 @@ upperBoundLoop:
             {
               upperBound = Long.parseLong(s.substring(startPos, pos));
             }
-            catch (NumberFormatException nfe)
+            catch (final NumberFormatException nfe)
             {
               Debug.debugException(nfe);
               throw new ParseException(
@@ -692,7 +692,7 @@ upperBoundLoop:
       {
         upperBound = Long.parseLong(s.substring(startPos, pos));
       }
-      catch (NumberFormatException nfe)
+      catch (final NumberFormatException nfe)
       {
         Debug.debugException(nfe);
         throw new ParseException(
@@ -767,7 +767,7 @@ incrementLoop:
               {
                 increment = Long.parseLong(s.substring(startPos, pos));
               }
-              catch (NumberFormatException nfe)
+              catch (final NumberFormatException nfe)
               {
                 Debug.debugException(nfe);
                 throw new ParseException(
@@ -800,7 +800,7 @@ incrementLoop:
         {
           increment = Long.parseLong(s.substring(startPos, pos));
         }
-        catch (NumberFormatException nfe)
+        catch (final NumberFormatException nfe)
         {
           Debug.debugException(nfe);
           throw new ParseException(

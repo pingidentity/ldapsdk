@@ -219,7 +219,7 @@ public final class PromptTrustManager
           }
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -231,7 +231,7 @@ public final class PromptTrustManager
           {
             r.close();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
           }
@@ -458,11 +458,11 @@ public final class PromptTrustManager
                     SSLUtil.certificateToString(chain[0])));
         }
       }
-      catch (CertificateException ce)
+      catch (final CertificateException ce)
       {
         throw ce;
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -477,7 +477,7 @@ public final class PromptTrustManager
       {
         writeCacheFile();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }

@@ -326,7 +326,7 @@ public final class RoundRobinServerSet
         {
           healthCheck.ensureNewConnectionValid(c);
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           c.close();
           throw le;
@@ -334,7 +334,7 @@ public final class RoundRobinServerSet
       }
       return c;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       LDAPException lastException = le;
@@ -357,7 +357,7 @@ public final class RoundRobinServerSet
             {
               healthCheck.ensureNewConnectionValid(c);
             }
-            catch (LDAPException le2)
+            catch (final LDAPException le2)
             {
               c.close();
               throw le2;
@@ -365,7 +365,7 @@ public final class RoundRobinServerSet
           }
           return c;
         }
-        catch (LDAPException le2)
+        catch (final LDAPException le2)
         {
           debugException(le2);
           lastException = le2;

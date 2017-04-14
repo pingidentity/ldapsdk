@@ -152,6 +152,7 @@ public final class AuthorizationIdentityResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public AuthorizationIdentityResponseControl
               decodeControl(final String oid, final boolean isCritical,
                             final ASN1OctetString value)

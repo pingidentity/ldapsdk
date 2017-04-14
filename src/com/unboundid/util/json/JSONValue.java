@@ -86,7 +86,7 @@ public abstract class JSONValue
    * @return  {@code true} if the provided object is considered equal to this
    *          JSON value, or {@code false} if not.
    */
-  public abstract boolean equals(final Object o);
+  public abstract boolean equals(Object o);
 
 
 
@@ -109,10 +109,9 @@ public abstract class JSONValue
    *          provided JSON value (subject to the specified constraints), or
    *          {@code false} if not.
    */
-  public abstract boolean equals(final JSONValue v,
-                                 final boolean ignoreFieldNameCase,
-                                 final boolean ignoreValueCase,
-                                 final boolean ignoreArrayOrder);
+  public abstract boolean equals(JSONValue v, boolean ignoreFieldNameCase,
+                                 boolean ignoreValueCase,
+                                 boolean ignoreArrayOrder);
 
 
 
@@ -139,7 +138,7 @@ public abstract class JSONValue
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(StringBuilder buffer);
 
 
 
@@ -161,7 +160,7 @@ public abstract class JSONValue
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toSingleLineString(final StringBuilder buffer);
+  public abstract void toSingleLineString(StringBuilder buffer);
 
 
 
@@ -184,7 +183,7 @@ public abstract class JSONValue
    *
    * @param  buffer  The buffer to which the information should be appended.
    */
-  public abstract void toNormalizedString(final StringBuilder buffer);
+  public abstract void toNormalizedString(StringBuilder buffer);
 
 
 
@@ -195,7 +194,7 @@ public abstract class JSONValue
    *
    * @param  buffer  The JSON buffer to which this value should be appended.
    */
-  public abstract void appendToJSONBuffer(final JSONBuffer buffer);
+  public abstract void appendToJSONBuffer(JSONBuffer buffer);
 
 
 
@@ -206,6 +205,5 @@ public abstract class JSONValue
    * @param  fieldName  The name to use for the field.
    * @param  buffer     The JSON buffer to which this value should be appended.
    */
-  public abstract void appendToJSONBuffer(final String fieldName,
-                                          final JSONBuffer buffer);
+  public abstract void appendToJSONBuffer(String fieldName, JSONBuffer buffer);
 }

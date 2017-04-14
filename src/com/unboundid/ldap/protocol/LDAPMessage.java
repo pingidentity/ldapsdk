@@ -938,7 +938,7 @@ public final class LDAPMessage
         return null;
       }
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       if (! ((ioe instanceof SocketTimeoutException) ||
              (ioe instanceof InterruptedIOException)))
@@ -949,7 +949,7 @@ public final class LDAPMessage
       throw new LDAPException(ResultCode.SERVER_DOWN,
            ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -1047,12 +1047,12 @@ public final class LDAPMessage
 
       return new LDAPMessage(messageID, protocolOp, controls);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       debugException(ioe);
 
@@ -1071,7 +1071,7 @@ public final class LDAPMessage
              ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -1149,7 +1149,7 @@ public final class LDAPMessage
         return null;
       }
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       if (! ((ioe instanceof SocketTimeoutException) ||
              (ioe instanceof InterruptedIOException)))
@@ -1160,7 +1160,7 @@ public final class LDAPMessage
       throw new LDAPException(ResultCode.SERVER_DOWN,
            ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -1230,12 +1230,12 @@ public final class LDAPMessage
                ERR_MESSAGE_INVALID_PROTOCOL_OP_TYPE.get(toHex(protocolOpType)));
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (IOException ioe)
+    catch (final IOException ioe)
     {
       debugException(ioe);
 
@@ -1254,7 +1254,7 @@ public final class LDAPMessage
              ERR_MESSAGE_IO_ERROR.get(getExceptionMessage(ioe)), ioe);
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

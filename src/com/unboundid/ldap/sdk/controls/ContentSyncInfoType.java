@@ -76,7 +76,7 @@ public enum ContentSyncInfoType
    * @param  type  The BER type used for this sync info type in the value of a
    *               content synchronization info message.
    */
-  private ContentSyncInfoType(final byte type)
+  ContentSyncInfoType(final byte type)
   {
     this.type = type;
   }

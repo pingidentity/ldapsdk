@@ -401,6 +401,7 @@ public final class AddServer
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void testCompleted(final boolean acceptable,
                             final LinkedList<String> reasons)
   {
@@ -481,7 +482,7 @@ public final class AddServer
           return;
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         logException(LOG_TAG, "saveSettings", e);
 

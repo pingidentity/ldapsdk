@@ -82,6 +82,7 @@ final class InterceptedModifyOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ReadOnlyModifyRequest getRequest()
   {
     return modifyRequest;
@@ -92,6 +93,7 @@ final class InterceptedModifyOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setRequest(final ModifyRequest modifyRequest)
   {
     this.modifyRequest = modifyRequest;
@@ -102,6 +104,7 @@ final class InterceptedModifyOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDAPResult getResult()
   {
     return modifyResult;
@@ -112,6 +115,7 @@ final class InterceptedModifyOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setResult(final LDAPResult modifyResult)
   {
     this.modifyResult = modifyResult;

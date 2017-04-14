@@ -81,6 +81,7 @@ final class InterceptedExtendedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ExtendedRequest getRequest()
   {
     return extendedRequest;
@@ -91,6 +92,7 @@ final class InterceptedExtendedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setRequest(final ExtendedRequest extendedRequest)
   {
     this.extendedRequest = extendedRequest;
@@ -101,6 +103,7 @@ final class InterceptedExtendedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ExtendedResult getResult()
   {
     return extendedResult;
@@ -111,6 +114,7 @@ final class InterceptedExtendedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setResult(final ExtendedResult extendedResult)
   {
     this.extendedResult = extendedResult;

@@ -72,7 +72,7 @@ public enum SetNotificationDestinationChangeType
    *
    * @param  intValue  The integer value for this change type.
    */
-  private SetNotificationDestinationChangeType(final int intValue)
+  SetNotificationDestinationChangeType(final int intValue)
   {
     this.intValue = intValue;
   }

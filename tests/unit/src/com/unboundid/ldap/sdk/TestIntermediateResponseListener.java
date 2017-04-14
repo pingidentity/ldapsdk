@@ -56,7 +56,7 @@ public class TestIntermediateResponseListener
 
 
   /**
-   * Retrieves the number of intermediate responses recieved.
+   * Retrieves the number of intermediate responses received.
    *
    * @return  The number of intermediate responses received.
    */
@@ -80,6 +80,7 @@ public class TestIntermediateResponseListener
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void intermediateResponseReturned(
                    final IntermediateResponse intermediateResponse)
   {

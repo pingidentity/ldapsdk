@@ -193,7 +193,7 @@ public final class LDIFReader
   static
   {
     final File currentDir;
-    String currentDirString = System.getProperty("user.dir");
+    final String currentDirString = System.getProperty("user.dir");
     if (currentDirString == null)
     {
       currentDir = new File(".");
@@ -1420,7 +1420,7 @@ public final class LDIFReader
         // an edge case though.
         return ((LDIFChangeRecord)record).toEntry();
       }
-      catch (LDIFException e)
+      catch (final LDIFException e)
       {
         debugException(e);
         final long firstLineNumber = result.getInput().getFirstLineNumber();
@@ -1547,7 +1547,7 @@ public final class LDIFReader
           result = asyncParsedRecords.poll();
         }
       }
-      catch (InterruptedException e)
+      catch (final InterruptedException e)
       {
         debugException(e);
         Thread.currentThread().interrupt();
@@ -1577,7 +1577,7 @@ public final class LDIFReader
       {
         asyncParsedRecords.put(result);
       }
-      catch (InterruptedException e)
+      catch (final InterruptedException e)
       {
         // We shouldn't ever get interrupted because the put won't ever block.
         // Once we are done reading, this is the only item left in the queue,
@@ -2481,7 +2481,7 @@ public final class LDIFReader
     }
 
     final String dn;
-    int length = line.length();
+    final int length = line.length();
     if (length == (colonPos+1))
     {
       // The colon was the last character on the line.  This is acceptable and
@@ -3152,7 +3152,7 @@ public final class LDIFReader
               }
             }
           }
-          catch (LDAPException le)
+          catch (final LDAPException le)
           {
             throw new LDIFException(ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn,
                  firstLineNumber, attributeName, getExceptionMessage(le)),
@@ -3193,7 +3193,7 @@ public final class LDIFReader
                 }
               }
             }
-            catch (LDAPException le)
+            catch (final LDAPException le)
             {
               throw new LDIFException(ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn,
                    firstLineNumber, attributeName, getExceptionMessage(le)),
@@ -3303,7 +3303,7 @@ public final class LDIFReader
               }
             }
           }
-          catch (LDAPException le)
+          catch (final LDAPException le)
           {
             throw new LDIFException(ERR_READ_VALUE_SYNTAX_VIOLATION.get(dn,
                  firstLineNumber, attributeName, getExceptionMessage(le)),
@@ -3355,7 +3355,7 @@ public final class LDIFReader
           throws LDIFException, IOException
   {
     int pos;
-    String path;
+    final String path;
     final String lowerURLString = toLowerCase(urlString);
     if (lowerURLString.startsWith("file:/"))
     {
@@ -4335,13 +4335,13 @@ public final class LDIFReader
           {
             unparsedRecord = readUnparsedRecord();
           }
-          catch (IOException e)
+          catch (final IOException e)
           {
             debugException(e);
             unparsedRecord = new UnparsedLDIFRecord(e);
             stopProcessing = true;
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             debugException(e);
             unparsedRecord = new UnparsedLDIFRecord(e);
@@ -4351,7 +4351,7 @@ public final class LDIFReader
           {
             asyncParser.submit(unparsedRecord);
           }
-          catch (InterruptedException e)
+          catch (final InterruptedException e)
           {
             debugException(e);
             // If this thread is interrupted, then someone wants us to stop
@@ -4372,7 +4372,7 @@ public final class LDIFReader
         {
           asyncParser.shutdown();
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
           debugException(e);
           Thread.currentThread().interrupt();
@@ -4396,6 +4396,7 @@ public final class LDIFReader
     /**
      * {@inheritDoc}
      */
+    @Override()
     public LDIFRecord process(final UnparsedLDIFRecord input)
            throws LDIFException
     {

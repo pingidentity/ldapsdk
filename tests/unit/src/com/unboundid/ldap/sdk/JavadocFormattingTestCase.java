@@ -184,7 +184,7 @@ public final class JavadocFormattingTestCase
                 // This is a known exception.
               }
               else if (filename.equals("ResultCode.java") &&
-                   (lineNumber == 47))
+                   (lineNumber == 46))
               {
                 // This is a known exception.
               }

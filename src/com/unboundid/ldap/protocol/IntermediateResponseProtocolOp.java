@@ -175,12 +175,12 @@ public final class IntermediateResponseProtocolOp
       oid = o;
       value = v;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -221,6 +221,7 @@ public final class IntermediateResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_INTERMEDIATE_RESPONSE;
@@ -231,6 +232,7 @@ public final class IntermediateResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> elements = new ArrayList<ASN1Element>(2);
@@ -308,6 +310,7 @@ public final class IntermediateResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence = buffer.beginSequence(
@@ -362,6 +365,7 @@ public final class IntermediateResponseProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("IntermediateResponseProtocolOp(");

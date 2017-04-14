@@ -335,7 +335,7 @@ public final class ReplicaMonitorEntry
           port = Long.parseLong(connectedTo.substring(colonPos+1));
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         addr = null;

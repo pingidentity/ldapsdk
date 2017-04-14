@@ -441,7 +441,7 @@ public final class DeliverOneTimePassword
       {
         pw = bindPasswordFile.getNonBlankFileLines().get(0);
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         Debug.debugException(e);
         err(ERR_DELIVER_OTP_CANNOT_READ_BIND_PW.get(

@@ -252,7 +252,7 @@ final class LDAPConnectionReader
           response = LDAPMessage.readLDAPResponseFrom(asn1StreamReader, true,
                connection.getCachedSchema());
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           final Throwable t = le.getCause();
           if ((t != null) && (t instanceof SocketTimeoutException))
@@ -314,7 +314,7 @@ final class LDAPConnectionReader
                 connection.getConnectionInternals(true).setSocket(sslSocket);
                 startTLSSleeper.wakeup();
               }
-              catch (Exception e)
+              catch (final Exception e)
               {
                 debugException(e);
                 connection.setDisconnectInfo(DisconnectType.SECURITY_PROBLEM,
@@ -484,7 +484,7 @@ final class LDAPConnectionReader
             {
               l.intermediateResponseReturned(ir);
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
               debugException(e);
             }
@@ -556,7 +556,7 @@ final class LDAPConnectionReader
         {
           responseAcceptor.responseReceived(response);
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
           debug(Level.WARNING, DebugType.LDAP,
@@ -564,7 +564,7 @@ final class LDAPConnectionReader
                      connection.getHostPort(), getExceptionMessage(le)), le);
         }
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 
@@ -630,7 +630,7 @@ final class LDAPConnectionReader
       {
         connection.setNeedsReconnect();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
       }
@@ -730,7 +730,7 @@ final class LDAPConnectionReader
                      messageID));
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
         final Throwable t = le.getCause();
@@ -791,7 +791,7 @@ final class LDAPConnectionReader
         closeInternal(true, message);
         throw le;
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
 
@@ -934,7 +934,7 @@ final class LDAPConnectionReader
         startTLSOutputStream = null;
         return outputStream;
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         debugException(e);
         connection.setDisconnectInfo(DisconnectType.SECURITY_PROBLEM,
@@ -1021,7 +1021,7 @@ final class LDAPConnectionReader
            t.join(100L);
          }
        }
-       catch (Exception e)
+       catch (final Exception e)
        {
          debugException(e);
 
@@ -1059,7 +1059,7 @@ final class LDAPConnectionReader
          is.close();
        }
      }
-     catch (Exception e)
+     catch (final Exception e)
      {
        debugException(e);
      }
@@ -1098,7 +1098,7 @@ final class LDAPConnectionReader
                 ResultCode.SERVER_DOWN, message));
          }
        }
-       catch (Exception e)
+       catch (final Exception e)
        {
          debugException(e);
        }

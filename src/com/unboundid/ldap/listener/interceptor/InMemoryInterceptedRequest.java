@@ -90,7 +90,7 @@ public interface InMemoryInterceptedRequest
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the intermediate response.
    */
-  void sendIntermediateResponse(final IntermediateResponse intermediateResponse)
+  void sendIntermediateResponse(IntermediateResponse intermediateResponse)
        throws LDAPException;
 
 
@@ -104,7 +104,7 @@ public interface InMemoryInterceptedRequest
    * @throws  LDAPException  If a problem is encountered while trying to send
    *                         the unsolicited notification.
    */
-  void sendUnsolicitedNotification(final ExtendedResult unsolicitedNotification)
+  void sendUnsolicitedNotification(ExtendedResult unsolicitedNotification)
        throws LDAPException;
 
 
@@ -120,7 +120,7 @@ public interface InMemoryInterceptedRequest
    * @return  The value for the requested property, or {@code null} if there is
    *          no value for the specified property.
    */
-  Object getProperty(final String name);
+  Object getProperty(String name);
 
 
 
@@ -136,5 +136,5 @@ public interface InMemoryInterceptedRequest
    * @return  The value held for the property before this method was invoked, or
    *          {@code null} if it did not previously have a value.
    */
-  Object setProperty(final String name, final Object value);
+  Object setProperty(String name, Object value);
 }

@@ -111,6 +111,7 @@ abstract class InterceptedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final long getConnectionID()
   {
     if (clientConnection == null)
@@ -128,6 +129,7 @@ abstract class InterceptedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getConnectedAddress()
   {
     if (clientConnection == null)
@@ -155,6 +157,7 @@ abstract class InterceptedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public int getConnectedPort()
   {
     if (clientConnection == null)
@@ -176,6 +179,7 @@ abstract class InterceptedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final int getMessageID()
   {
     return messageID;
@@ -186,6 +190,7 @@ abstract class InterceptedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final void sendIntermediateResponse(
                          final IntermediateResponse intermediateResponse)
          throws LDAPException
@@ -200,6 +205,7 @@ abstract class InterceptedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final void sendUnsolicitedNotification(
                          final ExtendedResult unsolicitedNotification)
          throws LDAPException
@@ -212,6 +218,7 @@ abstract class InterceptedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final Object getProperty(final String name)
   {
     return propertyMap.get(name);
@@ -222,6 +229,7 @@ abstract class InterceptedOperation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public final Object setProperty(final String name, final Object value)
   {
     if (value == null)
@@ -258,7 +266,7 @@ abstract class InterceptedOperation
    * @param  buffer  The buffer to which the string representation should be
    *                 appended.
    */
-  public abstract void toString(final StringBuilder buffer);
+  public abstract void toString(StringBuilder buffer);
 
 
 

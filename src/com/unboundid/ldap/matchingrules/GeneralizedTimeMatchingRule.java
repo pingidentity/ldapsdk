@@ -234,7 +234,7 @@ public final class GeneralizedTimeMatchingRule
     {
       d1 = decodeGeneralizedTime(value1.stringValue());
     }
-    catch (ParseException pe)
+    catch (final ParseException pe)
     {
       debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
@@ -246,7 +246,7 @@ public final class GeneralizedTimeMatchingRule
     {
       d2 = decodeGeneralizedTime(value2.stringValue());
     }
-    catch (ParseException pe)
+    catch (final ParseException pe)
     {
       debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
@@ -287,7 +287,7 @@ public final class GeneralizedTimeMatchingRule
     {
       d1 = decodeGeneralizedTime(value1.stringValue());
     }
-    catch (ParseException pe)
+    catch (final ParseException pe)
     {
       debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
@@ -299,7 +299,7 @@ public final class GeneralizedTimeMatchingRule
     {
       d2 = decodeGeneralizedTime(value2.stringValue());
     }
-    catch (ParseException pe)
+    catch (final ParseException pe)
     {
       debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,
@@ -323,7 +323,7 @@ public final class GeneralizedTimeMatchingRule
     {
       d = decodeGeneralizedTime(value.stringValue());
     }
-    catch (ParseException pe)
+    catch (final ParseException pe)
     {
       debugException(pe);
       throw new LDAPException(ResultCode.INVALID_ATTRIBUTE_SYNTAX,

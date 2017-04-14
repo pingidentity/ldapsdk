@@ -59,6 +59,7 @@ public interface ReadOnlyDeleteRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   DeleteRequest duplicate();
 
 
@@ -66,7 +67,8 @@ public interface ReadOnlyDeleteRequest
   /**
    * {@inheritDoc}
    */
-  DeleteRequest duplicate(final Control[] controls);
+  @Override()
+  DeleteRequest duplicate(Control[] controls);
 
 
 

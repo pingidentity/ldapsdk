@@ -211,7 +211,7 @@ public final class InteractiveTransactionSpecificationResponseControl
       final ASN1Element valueElement = ASN1Element.decode(value.getValue());
       elements = ASN1Sequence.decodeAsSequence(valueElement).elements();
     }
-    catch(Exception e)
+    catch (final Exception e)
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
                               ERR_INT_TXN_RESPONSE_VALUE_NOT_SEQUENCE.get(
@@ -230,7 +230,7 @@ public final class InteractiveTransactionSpecificationResponseControl
           {
             isValid = ASN1Boolean.decodeAsBoolean(element).booleanValue();
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_INT_TXN_RESPONSE_TXN_VALID_NOT_BOOLEAN.get(e.getMessage()),
@@ -248,7 +248,7 @@ public final class InteractiveTransactionSpecificationResponseControl
                    ASN1OctetString.decodeAsOctetString(e).stringValue());
             }
           }
-          catch (Exception e)
+          catch (final Exception e)
           {
             throw new LDAPException(ResultCode.DECODING_ERROR,
                  ERR_INT_TXN_RESPONSE_BASE_DNS_NOT_SEQUENCE.get(e.getMessage()),
@@ -330,6 +330,7 @@ public final class InteractiveTransactionSpecificationResponseControl
   /**
    * {@inheritDoc}
    */
+  @Override()
   public InteractiveTransactionSpecificationResponseControl decodeControl(
               final String oid, final boolean isCritical,
               final ASN1OctetString value)

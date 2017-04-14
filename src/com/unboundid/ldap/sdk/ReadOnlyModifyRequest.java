@@ -71,6 +71,7 @@ public interface ReadOnlyModifyRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   ModifyRequest duplicate();
 
 
@@ -78,7 +79,8 @@ public interface ReadOnlyModifyRequest
   /**
    * {@inheritDoc}
    */
-  ModifyRequest duplicate(final Control[] controls);
+  @Override()
+  ModifyRequest duplicate(Control[] controls);
 
 
 

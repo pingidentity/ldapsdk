@@ -253,7 +253,7 @@ public final class TrustStoreTrustManager
     {
       ks = KeyStore.getInstance(trustStoreFormat);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -267,7 +267,7 @@ public final class TrustStoreTrustManager
       inputStream = new FileInputStream(f);
       ks.load(inputStream, trustStorePIN);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -284,7 +284,7 @@ public final class TrustStoreTrustManager
         {
           inputStream.close();
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
         }
@@ -305,7 +305,7 @@ public final class TrustStoreTrustManager
       }
       return x509TrustManagers;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

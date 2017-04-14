@@ -265,7 +265,7 @@ final class ModRateThread
     {
       startBarrier.await();
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       Debug.debugException(e);
     }
@@ -350,7 +350,7 @@ final class ModRateThread
       {
         connection.modify(modifyRequest);
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         Debug.debugException(le);
         errorCounter.incrementAndGet();
@@ -402,7 +402,7 @@ final class ModRateThread
       {
         t.join();
       }
-      catch (Exception e)
+      catch (final Exception e)
       {
         Debug.debugException(e);
 

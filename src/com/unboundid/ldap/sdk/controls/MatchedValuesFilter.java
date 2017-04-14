@@ -1111,7 +1111,7 @@ public final class MatchedValuesFilter
           assertionValue =
                ASN1OctetString.decodeAsOctetString(elements[1]);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
           throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -1180,12 +1180,12 @@ public final class MatchedValuesFilter
                  subAnyList.toArray(new ASN1OctetString[subAnyList.size()]);
           }
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
           throw le;
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
           throw new LDAPException(ResultCode.DECODING_ERROR,
@@ -1261,12 +1261,12 @@ public final class MatchedValuesFilter
             }
           }
         }
-        catch (LDAPException le)
+        catch (final LDAPException le)
         {
           debugException(le);
           throw le;
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
           debugException(e);
           throw new LDAPException(ResultCode.DECODING_ERROR,

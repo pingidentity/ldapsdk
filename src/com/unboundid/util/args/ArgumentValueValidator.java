@@ -49,7 +49,7 @@ public abstract class ArgumentValueValidator
    * @throws  ArgumentException  If the provided value is determined to be
    *                             unacceptable.
    */
-  public abstract void validateArgumentValue(final Argument argument,
-                                             final String valueString)
+  public abstract void validateArgumentValue(Argument argument,
+                                             String valueString)
          throws ArgumentException;
 }

@@ -300,12 +300,12 @@ public final class BindRequestProtocolOp
                ERR_BIND_REQUEST_INVALID_CRED_TYPE.get(toHex(credentialsType)));
       }
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -425,6 +425,7 @@ public final class BindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_BIND_REQUEST;
@@ -435,6 +436,7 @@ public final class BindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ASN1Element credentials;
@@ -544,6 +546,7 @@ public final class BindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence opSequence =
@@ -615,6 +618,7 @@ public final class BindRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("BindRequestProtocolOp(version=");

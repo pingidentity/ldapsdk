@@ -218,7 +218,7 @@ public final class JoinedEntry
 
       return new JoinedEntry(dn, attrs, nestedJoinResults);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 

@@ -74,6 +74,7 @@ final class InterceptedSearchReference
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ReadOnlySearchRequest getRequest()
   {
     return searchRequest;
@@ -84,6 +85,7 @@ final class InterceptedSearchReference
   /**
    * {@inheritDoc}
    */
+  @Override()
   public SearchResultReference getSearchReference()
   {
     return reference;
@@ -94,6 +96,7 @@ final class InterceptedSearchReference
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void setSearchReference(final SearchResultReference reference)
   {
     this.reference = reference;

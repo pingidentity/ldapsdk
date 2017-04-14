@@ -61,7 +61,7 @@ public enum DraftBeheraLDAPPasswordPolicy10WarningType
    *
    * @param  name The human-readable name for this warning type.
    */
-  private DraftBeheraLDAPPasswordPolicy10WarningType(final String name)
+  DraftBeheraLDAPPasswordPolicy10WarningType(final String name)
   {
     this.name = name;
   }

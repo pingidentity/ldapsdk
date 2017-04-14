@@ -134,12 +134,12 @@ public final class ModifyRequestProtocolOp
 
       modifications = Collections.unmodifiableList(mods);
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
       throw le;
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -177,6 +177,7 @@ public final class ModifyRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_MODIFY_REQUEST;
@@ -187,6 +188,7 @@ public final class ModifyRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     final ArrayList<ASN1Element> modElements =
@@ -249,6 +251,7 @@ public final class ModifyRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer writer)
   {
     final ASN1BufferSequence opSequence =
@@ -300,6 +303,7 @@ public final class ModifyRequestProtocolOp
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append("ModifyRequestProtocolOp(dn='");

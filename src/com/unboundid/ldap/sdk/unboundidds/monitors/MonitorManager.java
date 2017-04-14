@@ -1269,17 +1269,15 @@ public final class MonitorManager
       return Collections.emptyList();
     }
 
-    List<PerApplicationProcessingTimeHistogramMonitorEntry> monitorEntries =
+    final List<PerApplicationProcessingTimeHistogramMonitorEntry> entries =
          new ArrayList<PerApplicationProcessingTimeHistogramMonitorEntry>();
 
-    for (Entry entry: searchResult.getSearchEntries())
+    for (final Entry entry: searchResult.getSearchEntries())
     {
-      monitorEntries.add(
-           new PerApplicationProcessingTimeHistogramMonitorEntry(entry));
+      entries.add(new PerApplicationProcessingTimeHistogramMonitorEntry(entry));
     }
 
-
-    return monitorEntries;
+    return entries;
   }
 
 

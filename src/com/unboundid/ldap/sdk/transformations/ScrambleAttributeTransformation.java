@@ -327,6 +327,7 @@ public final class ScrambleAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry transformEntry(final Entry e)
   {
     if (e == null)
@@ -361,6 +362,7 @@ public final class ScrambleAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord transformChangeRecord(final LDIFChangeRecord r)
   {
     if (r == null)
@@ -1037,7 +1039,7 @@ public final class ScrambleAttributeTransformation
     // Check to see if the value starts with a scheme name in curly braces and
     // has something after the closing curly brace.  If so, then preserve the
     // scheme and scramble the rest of the value.
-    int closeBracePos = s.indexOf('}');
+    final int closeBracePos = s.indexOf('}');
     if (s.startsWith("{") && (closeBracePos > 0) &&
         (closeBracePos < (s.length() - 1)))
     {
@@ -1404,6 +1406,7 @@ public final class ScrambleAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translate(final Entry original, final long firstLineNumber)
   {
     return transformEntry(original);
@@ -1414,6 +1417,7 @@ public final class ScrambleAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord translate(final LDIFChangeRecord original,
                                     final long firstLineNumber)
   {
@@ -1425,6 +1429,7 @@ public final class ScrambleAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry translateEntryToWrite(final Entry original)
   {
     return transformEntry(original);
@@ -1435,6 +1440,7 @@ public final class ScrambleAttributeTransformation
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFChangeRecord translateChangeRecordToWrite(
                                final LDIFChangeRecord original)
   {

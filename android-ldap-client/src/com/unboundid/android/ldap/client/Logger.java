@@ -47,6 +47,16 @@ public final class Logger
 
 
   /**
+   * Ensure that this utility class can't be instantiated.
+   */
+  private Logger()
+  {
+    // No implementation required.
+  }
+
+
+
+  /**
    * Writes an error message with the provided information.
    *
    * @param  tag     The tag for the message to be written.  It must not be

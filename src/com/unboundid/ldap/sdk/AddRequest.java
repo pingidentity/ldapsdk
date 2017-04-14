@@ -361,6 +361,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String getDN()
   {
     return dn;
@@ -399,6 +400,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public List<Attribute> getAttributes()
   {
     return Collections.unmodifiableList(attributes);
@@ -409,6 +411,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Attribute getAttribute(final String attributeName)
   {
     ensureNotNull(attributeName);
@@ -429,6 +432,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean hasAttribute(final String attributeName)
   {
     return (getAttribute(attributeName) != null);
@@ -439,6 +443,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean hasAttribute(final Attribute attribute)
   {
     ensureNotNull(attribute);
@@ -452,6 +457,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean hasAttributeValue(final String attributeName,
                                    final String attributeValue)
   {
@@ -466,6 +472,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean hasAttributeValue(final String attributeName,
                                    final String attributeValue,
                                    final MatchingRule matchingRule)
@@ -481,6 +488,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean hasAttributeValue(final String attributeName,
                                    final byte[] attributeValue)
   {
@@ -495,6 +503,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean hasAttributeValue(final String attributeName,
                                    final byte[] attributeValue,
                                    final MatchingRule matchingRule)
@@ -510,6 +519,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public boolean hasObjectClass(final String objectClassName)
   {
     return hasAttributeValue("objectClass", objectClassName);
@@ -520,6 +530,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public Entry toEntry()
   {
     return new Entry(dn, attributes);
@@ -924,6 +935,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public byte getProtocolOpType()
   {
     return LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST;
@@ -934,6 +946,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void writeTo(final ASN1Buffer buffer)
   {
     final ASN1BufferSequence requestSequence =
@@ -957,6 +970,7 @@ public final class AddRequest
    *
    * @return  The ASN.1 element with the encoded add request protocol op.
    */
+  @Override()
   public ASN1Element encodeProtocolOp()
   {
     // Create the add request protocol op.
@@ -1025,7 +1039,7 @@ public final class AddRequest
           response = responseQueue.take();
         }
       }
-      catch (InterruptedException ie)
+      catch (final InterruptedException ie)
       {
         debugException(ie);
         Thread.currentThread().interrupt();
@@ -1106,7 +1120,7 @@ public final class AddRequest
       connection.sendMessage(message);
       return asyncRequestID;
     }
-    catch (LDAPException le)
+    catch (final LDAPException le)
     {
       debugException(le);
 
@@ -1153,7 +1167,7 @@ public final class AddRequest
       connection.getConnectionInternals(true).getSocket().setSoTimeout(
            (int) getResponseTimeoutMillis(connection));
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
     }
@@ -1434,7 +1448,7 @@ public final class AddRequest
           referralConn.close();
         }
       }
-      catch (LDAPException le)
+      catch (final LDAPException le)
       {
         debugException(le);
       }
@@ -1472,6 +1486,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public AddRequest duplicate()
   {
     return duplicate(getControls());
@@ -1482,6 +1497,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public AddRequest duplicate(final Control[] controls)
   {
     final ArrayList<Attribute> attrs = new ArrayList<Attribute>(attributes);
@@ -1503,6 +1519,7 @@ public final class AddRequest
    * {@inheritDoc}
    */
   @InternalUseOnly()
+  @Override()
   public void responseReceived(final LDAPResponse response)
          throws LDAPException
   {
@@ -1510,7 +1527,7 @@ public final class AddRequest
     {
       responseQueue.put(response);
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       debugException(e);
 
@@ -1529,6 +1546,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public LDIFAddChangeRecord toLDIFChangeRecord()
   {
     return new LDIFAddChangeRecord(this);
@@ -1539,6 +1557,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String[] toLDIF()
   {
     return toLDIFChangeRecord().toLDIF();
@@ -1549,6 +1568,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public String toLDIFString()
   {
     return toLDIFChangeRecord().toLDIFString();
@@ -1601,6 +1621,7 @@ public final class AddRequest
   /**
    * {@inheritDoc}
    */
+  @Override()
   public void toCode(final List<String> lineList, final String requestID,
                      final int indentSpaces, final boolean includeProcessing)
   {
