@@ -9,6 +9,60 @@
               files="TokenTypes.java"
               lines="1"/>
 
+    <!-- There is no other way to deliver filename that was under processing.
+         See https://github.com/checkstyle/checkstyle/issues/2285-->
+    <suppress checks="IllegalCatch"
+              files="Checker.java"
+              lines="278"/>
+    <suppress checks="IllegalCatch"
+              files="Checker.java"
+              lines="388"/>
+    <!--Test to reproduce error catching in Checker and satisfy coverage rate. -->
+    <suppress checks="IllegalCatch"
+              files="CheckerTest.java"
+              lines="576"/>
+
+    <!-- we can not change it as, Check name is part of API (used in configurations) -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="JavaNCSSCheck.java"
+              lines="41"/>
+    <!-- test should be named as their main class -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="JavaNCSSCheckTest.java"
+              lines="42"/>
+
+    <!-- we can not change it as, Check name is part of API (used in configurations) -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="XMLLogger.java"
+              lines="44"/>
+    <!-- test should be named as their main class -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="XMLLoggerTest.java"
+              lines="48"/>
+
+    <!-- we can not change it as, Check property is part of API (used in configurations) -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="JavadocMethodCheck.java"
+              lines="146,252"/>
+    <!-- we can not change it as, Check property is part of API (used in configurations) -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="SuppressWithNearbyCommentFilter.java"
+              lines="97,183"/>
+    <!-- we can not change it as, Check property is part of API (used in configurations) -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="SuppressionCommentFilter.java"
+              lines="85,172"/>
+
+    <!-- should be removed at 7.0 version, we keep for some time to avoid braking compatibiilty -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="CheckstyleAntTask.java"
+              lines="230"/>
+
+    <!-- should be removed at 7.0 version, we keep for some time to avoid braking compatibiilty -->
+    <suppress checks="AbbreviationAsWordInName"
+              files="AbstractComplexityCheck.java"
+              lines="65"/>
+
     <!-- illegal words are part of Javadoc -->
     <suppress checks="TodoComment" files=".*TodoCommentCheck\.java"/>
 
@@ -28,21 +82,24 @@
               files="AbstractCheckTest.java|AbstractClassNameCheckTest.java|AbstractTypeAwareCheckTest.java|AbstractJavadocCheckTest.java|AbstractViolationReporterTest.java"/>
 
     <!-- Tone down the checking for test code -->
-    <suppress checks="CyclomaticComplexity" files="[\\/]XdocsPagesTest\.java"/>
+    <suppress checks="CyclomaticComplexity" files="[\\/]XDocsPagesTest\.java"/>
     <suppress checks="IllegalCatch" files="[\\/]internal[\\/]\w+Util\.java"/>
     <suppress checks="EmptyBlock" files=".*[\\/]src[\\/]test[\\/]"/>
     <suppress checks="ImportControl" files=".*[\\/]src[\\/](test|it)[\\/]"/>
     <suppress checks="Javadoc" files=".*[\\/]src[\\/](test|it)[\\/]"/>
     <suppress checks="MagicNumber" files=".*[\\/]src[\\/](test|it)[\\/]"/>
     <suppress checks="AvoidStaticImport" files=".*[\\/]src[\\/](test|it)[\\/]"/>
+    <suppress checks="MethodCount" files="[\\/]ImportOrderCheckTest.java$"/>
+    <suppress checks="MethodCount" files="[\\/]IndentationCheckTest.java$"/>
     <suppress checks="ClassDataAbstractionCoupling" files="[\\/]IndentationCheckTest.java$"/>
+    <suppress checks="MethodCount" files="[\\/]JavadocMethodCheckTest.java$"/>
+    <suppress checks="MethodCount" files="[\\/]MainTest.java$"/>
     <suppress checks="EqualsAvoidNull" files="[\\/]Int.*FilterTest.java$"/>
     <suppress checks="VisibilityModifier" files="[\\/]BaseCheckTestSupport.java$"/>
     <suppress checks="WriteTag" files=".*[\\/]src[\\/](test|it)[\\/]"/>
-    <suppress checks="MethodCount" files=".*[\\/]src[\\/](test|it)[\\/]"/>
 
     <!--The Check generates too many violations, fixing them will make code unmanageable.-->
-    <suppress checks="MagicNumber" files="(ParseTreeTablePresentation|MainFrame)\.java"/>
+    <suppress checks="MagicNumber" files="(ParseTreeTablePModel|MainFrame)\.java"/>
 
     <!-- Methods that build fake AST are very long-->
     <suppress checks="MethodLength" files="src[\\/]test[\\/]java[\\/]com[\\/]puppycrawl[\\/]tools[\\/]checkstyle[\\/]grammars[\\/]comments[\\/]CommentsTest\.java"/>
@@ -64,30 +121,55 @@
 
     <!-- There are a lot of setters/getters in the Check. A small number of methods is left for Check's logic -->
     <suppress checks="MethodCount" files="[\\/]JavadocMethodCheck.java$"/>
-    <!-- Apart from a complex logic there is a lot of small methods for a better readability.  -->
-    <suppress checks="MethodCount" files="[\\/]CommentsIndentationCheck.java$"/>
-    <!--VisibilityModifierCheck has 7 options which require 7 additional methods (setters)-->
-    <suppress checks="MethodCount" files="[\\/]VisibilityModifierCheck.java$"/>
-    <!--RequireThisCheck has a hierarchy of nested classes which contains a lot of methods. -->
-    <suppress checks="MethodCount" files="[\\/]RequireThisCheck.java$"/>
+
+    <!-- getDetails() method - huge Switch, it has to be monolithic -->
+    <suppress checks="ExecutableStatementCount" files="RightCurlyCheck\.java" lines="313"/>
+    <suppress checks="JavaNCSS" files="RightCurlyCheck\.java" lines="313"/>
+    <suppress checks="CyclomaticComplexity" files="RightCurlyCheck\.java" lines="313"/>
 
     <!-- we need that set of converters -->
     <suppress checks="ClassDataAbstractionCoupling" files="AutomaticBean\.java"/>
     <!-- they are aggregators of logic, usage a several of classes are ok -->
     <suppress checks="ClassDataAbstractionCoupling" files="(Checker|TreeWalker|Main|CheckstyleAntTask|JavadocDetailNodeParser)\.java"/>
-    <suppress checks="ClassDataAbstractionCoupling" files="(CheckerTest|TreeWalkerTest|BaseCheckTestSupport|XdocsPagesTest|CheckstyleAntTaskTest)\.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="(CheckerTest|TreeWalkerTest|BaseCheckTestSupport|XDocsPagesTest|CheckstyleAntTaskTest)\.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="PropertyCacheFile\.java"/>
-    <suppress checks="ClassFanOutComplexity" files="[\\/]Main\.java"/>
     <!-- a lot of GUI elements is OK -->
-    <suppress checks="ClassDataAbstractionCoupling" files="(TreeTable|MainFrame)\.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="(JTreeTable|MainFrame)\.java"/>
 
     <!-- Should be fixed after moving https://github.com/sevntu-checkstyle/sevntu.checkstyle/blob/master/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/ReturnCountExtendedCheck.java into the main repo -->
     <suppress checks="ReturnCount" files="(ClassResolver|ConfigurationLoader|IndentationCheckTest)\.java"/>
 
+    <!-- Just big switches. Cannot be split to several methods. Till https://github.com/checkstyle/checkstyle/issues/2029 -->
+    <suppress checks="CyclomaticComplexity" files="(AbstractDeclarationCollector|RequireThisCheck|SuppressWarningsHolder|LeftCurlyCheck|FallThroughCheck|FinalLocalVariableCheck|ModifiedControlVariableCheck)\.java"/>
+    <suppress checks="CyclomaticComplexity" files="(ParameterAssignmentCheck|VariableDeclarationUsageDistanceCheck|BooleanExpressionComplexityCheck|NPathComplexityCheck|CheckUtils)\.java"/>
+
     <!-- Suppressions from PMD configuration-->
+    <!-- validateCli is not reasonable to split as encapsulation of logic will be damaged -->
+    <suppress checks="CyclomaticComplexity" files="Main\.java"  lines="212"/>
     <!-- JavadocMethodCheck, JavadocStyleCheck, JavadocUtils.getJavadocTags() - deprecated -->
     <suppress checks="CyclomaticComplexity" files="JavadocMethodCheck\.java"/>
     <suppress checks="CyclomaticComplexity" files="JavadocStyleCheck\.java"/>
     <suppress checks="CyclomaticComplexity" files="CustomImportOrderCheck\.java"/>
 
+    <!-- equals() - a lot of fields to check -->
+    <suppress checks="CyclomaticComplexity" files="LocalizedMessage\.java" lines="210"/>
+    <!-- SWITCH was transformed into IF-ELSE -->
+    <suppress checks="CyclomaticComplexity" files="ImportOrderCheck\.java" lines="344"/>
+
+    <!-- Just big SWITCH block which contains IF blocks in 'visitToken'.
+     If we split the block to several methods it will demage readibility. -->
+    <suppress checks="CyclomaticComplexity" files="DeclarationOrderCheck\.java" lines="189"/>
+
+    <!-- LocalizedMessage class is immutable, we need that amount of arguments. -->
+    <suppress checks="ParameterNumber"
+              files="LocalizedMessage.java"
+              lines="105, 143, 174"/>
+
+    <!-- Not reasonable to split as encapsulation of logic will be damaged. -->
+    <suppress checks="ExecutableStatementCount" files="Main\.java" lines="128"/>
+    <suppress checks="JavaNCSS" files="Main\.java"  lines="128"/>
+
+    <!-- too complex to break apart -->
+    <suppress checks="CyclomaticComplexity" files="MissingOverrideCheck\.java"  lines="144"/>
+    <suppress checks="ReturnCount" files="JavadocStyleCheck\.java"  lines="342"/>
 </suppressions>

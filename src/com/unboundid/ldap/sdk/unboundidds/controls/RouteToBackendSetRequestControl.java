@@ -842,7 +842,7 @@ public final class RouteToBackendSetRequestControl
     buffer.append(entryBalancingRequestProcessorID);
     buffer.append("', routingType='");
 
-    Iterator<String> iterator;
+    Iterator<String> iterator = null;
     switch (routingType)
     {
       case ABSOLUTE_ROUTING:

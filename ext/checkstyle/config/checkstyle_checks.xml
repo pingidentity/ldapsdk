@@ -14,16 +14,9 @@
 
   <metadata name="com.atlas-sw.eclipse" value="I like Sydney"/>
 
-  <property name="cacheFile" value="${checkstyle.cache.file}"/>
-
   <property name="severity" value="error"/>
 
-  <property name="fileExtensions" value="java, properties, xml, vm, g, g4"/>
-
-  <!-- BeforeExecutionFileFilters is required for sources that are based on java9 -->
-  <module name="BeforeExecutionExclusionFileFilter">
-    <property name="fileNamePattern" value="module\-info\.java$" />
-  </module>
+  <property name="fileExtensions" value="java, properties, xml, g, g4"/>
 
   <!-- Filters -->
   <module name="SeverityMatchFilter">
@@ -45,9 +38,14 @@
   </module>
   <module name="SuppressWarningsFilter"/>
   <module name="SuppressWithNearbyCommentFilter">
-    <property name="commentFormat" value="-@cs\[(\w{8,})\] \w[\(\)\-\.\'\`\,\:\;\w ]{10,}"/>
-    <property name="checkFormat" value="$1"/>
-    <property name="influenceFormat" value="3"/>
+    <!--
+      Use suppressions.xml for suppressions, this is only example.
+      checkFormat will prevent suppression comments from being valid.
+    -->
+    <property name="checkFormat" value="IGNORETHIS"/>
+    <property name="commentFormat" value="SUPPRESS CHECKSTYLE, (\w+)"/>
+    <property name="messageFormat" value="$1"/>
+    <property name="influenceFormat" value="-1"/>
   </module>
 
   <!-- Headers -->
@@ -135,13 +133,7 @@
 
     <!-- Annotations -->
     <module name="AnnotationLocation">
-      <property name="tokens" value="ANNOTATION_DEF"/>
-      <property name="tokens" value="ANNOTATION_FIELD_DEF"/>
       <property name="allowSamelineSingleParameterlessAnnotation" value="false"/>
-    </module>
-    <module name="AnnotationLocation">
-      <property name="tokens" value="PARAMETER_DEF"/>
-      <property name="allowSamelineMultipleAnnotations" value="true"/>
     </module>
     <module name="AnnotationUseStyle"/>
     <module name="MissingDeprecated"/>
@@ -157,10 +149,6 @@
       <property name="allowInSwitchCase" value="true"/>
     </module>
     <module name="EmptyBlock">
-      <property name="tokens" value="LITERAL_CATCH"/>
-      <property name="tokens" value="ARRAY_INIT"/>
-      <property name="tokens" value="LITERAL_DEFAULT"/>
-      <property name="tokens" value="LITERAL_CASE"/>
       <property name="option" value="text"/>
     </module>
     <module name="EmptyCatchBlock"/>
@@ -168,28 +156,17 @@
       <property name="maxLineLength" value="100"/>
     </module>
     <module name="NeedBraces"/>
-    <module name="NeedBraces">
-      <property name="tokens" value="LAMBDA"/>
-      <property name="allowSingleLineStatement" value="true"/>
-    </module>
     <module name="RightCurly">
-      <property name="tokens" value="METHOD_DEF"/>
-      <property name="tokens" value="CTOR_DEF"/>
-      <property name="tokens" value="CLASS_DEF"/>
-      <property name="tokens" value="INSTANCE_INIT"/>
-      <property name="tokens" value="LITERAL_FOR"/>
-      <property name="tokens" value="STATIC_INIT"/>
-      <property name="tokens" value="LITERAL_WHILE"/>
       <property name="option" value="alone"/>
-    </module>
-    <module name="RightCurly">
-      <property name="tokens" value="LITERAL_DO"/>
-      <property name="option" value="same"/>
     </module>
 
     <!-- Class Design -->
     <module name="DesignForExtension">
-      <property name="ignoredAnnotations" value="Override, Test, Before, After, BeforeClass, AfterClass"/>
+      <!--
+        We should postpone DesignForExtension Check enforcement till next major release
+        as it will seriously brake backward compatibility with existing usage of our library
+      -->
+      <property name="severity" value="ignore"/>
     </module>
     <module name="FinalClass"/>
     <module name="HideUtilityClassConstructor"/>
@@ -222,17 +199,9 @@
     <module name="IllegalCatch">
         <property name="illegalClassNames" value="java.lang.Exception, java.lang.Throwable, java.lang.RuntimeException, java.lang.NullPointerException"/>
     </module>
-    <module name="IllegalInstantiation">
-        <property name="classes" value="org.xml.sax.SAXException, org.xml.sax.SAXParseException, org.apache.commons.beanutils.ConversionException,
-            org.antlr.v4.runtime.misc.ParseCancellationException, antlr.RecognitionException, antlr.TokenStreamException, antlr.TokenStreamRecognitionException, antlr.ANTLRException"/>
-    </module>
+    <module name="IllegalInstantiation"/>
     <module name="IllegalThrows"/>
-    <module name="IllegalToken">
-        <property name="tokens" value="LABELED_STAT"/>
-        <property name="tokens" value="LITERAL_NATIVE"/>
-        <property name="tokens" value="LITERAL_VOLATILE"/>
-        <property name="tokens" value="LITERAL_ASSERT"/>
-    </module>
+    <module name="IllegalToken"/>
     <module name="IllegalTokenText"/>
     <module name="IllegalType"/>
     <module name="InnerAssignment"/>
@@ -278,17 +247,16 @@
     <module name="AvoidStaticImport"/>
     <module name="CustomImportOrder">
       <property name="customImportOrderRules" value="STATIC###STANDARD_JAVA_PACKAGE###SPECIAL_IMPORTS"/>
-      <property name="specialImportsRegExp" value="^org\."/>
+      <property name="specialImportsRegExp" value="org"/>
       <property name="sortImportsInGroupAlphabetically" value="true"/>
       <property name="separateLineBetweenGroups" value="true"/>
     </module>
     <module name="IllegalImport"/>
     <module name="ImportControl">
       <property name="file" value="${checkstyle.importcontrol.file}"/>
-      <property name="path" value="^.*[\\/]src[\\/]main[\\/].*$"/>
     </module>
     <module name="ImportOrder">
-      <property name="groups" value="/^java\./,javax,org"/>
+      <property name="groups" value="/^javax?\./,org"/>
       <property name="ordered" value="true"/>
       <property name="separated" value="true"/>
       <property name="option" value="top"/>
@@ -334,9 +302,7 @@
         <!-- Default classes are also listed-->
         <property name="excludedClasses" value="boolean, byte, char, double, float, int, long, short,  void, Boolean, Byte, Character, Double, Float, Integer, Long, Short, Void, Object, Class, String, StringBuffer, StringBuilder, ArrayIndexOutOfBoundsException, Exception, RuntimeException, IllegalArgumentException, IllegalStateException, IndexOutOfBoundsException, NullPointerException, Throwable, SecurityException, UnsupportedOperationException, List, ArrayList, Deque, Queue, LinkedList, Set, HashSet, SortedSet, TreeSet, Map, HashMap, SortedMap, TreeMap, DetailsAST, CheckstyleException, UnsupportedEncodingException, BuildException, ConversionException, FileNotFoundException, TestException, Log, Sets, Multimap, TokenStreamRecognitionException, RecognitionException, TokenStreamException, IOException"/>
     </module>
-    <module name="CyclomaticComplexity">
-      <property name="switchBlockAsSingleDecisionPoint" value="true"/>
-    </module>
+    <module name="CyclomaticComplexity"/>
     <module name="JavaNCSS"/>
     <module name="NPathComplexity"/>
 
@@ -379,7 +345,7 @@
     <!-- Naming Conventions -->
     <module name="AbbreviationAsWordInName">
       <property name="ignoreFinal" value="false"/>
-      <property name="allowedAbbreviationLength" value="0"/>
+      <property name="allowedAbbreviationLength" value="1"/>
       <property name="allowedAbbreviations" value="AST"/>
     </module>
     <module name="AbstractClassName"/>
@@ -459,33 +425,7 @@
       <property name="tokens" value="DOT"/>
       <property name="allowLineBreaks" value="true"/>
     </module>
-    <module name="OperatorWrap">
-      <property name="tokens" value="QUESTION"/>
-      <property name="tokens" value="COLON"/>
-      <property name="tokens" value="EQUAL"/>
-      <property name="tokens" value="NOT_EQUAL"/>
-      <property name="tokens" value="DIV"/>
-      <property name="tokens" value="PLUS"/>
-      <property name="tokens" value="MINUS"/>
-      <property name="tokens" value="STAR"/>
-      <property name="tokens" value="MOD"/>
-      <property name="tokens" value="SR"/>
-      <property name="tokens" value="BSR"/>
-      <property name="tokens" value="GE"/>
-      <property name="tokens" value="GT"/>
-      <property name="tokens" value="SL"/>
-      <property name="tokens" value="LE"/>
-      <property name="tokens" value="LT"/>
-      <property name="tokens" value="BXOR"/>
-      <property name="tokens" value="BOR"/>
-      <property name="tokens" value="LOR"/>
-      <property name="tokens" value="BAND"/>
-      <property name="tokens" value="LAND"/>
-      <property name="tokens" value="TYPE_EXTENSION_AND"/>
-      <property name="tokens" value="LITERAL_INSTANCEOF"/>
-      <property name="tokens" value="METHOD_REF"/>
-      <property name="option" value="nl"/>
-    </module>
+    <module name="OperatorWrap"/>
     <module name="OperatorWrap">
       <property name="tokens" value="ASSIGN"/>
       <property name="tokens" value="DIV_ASSIGN"/>
@@ -504,15 +444,10 @@
     <module name="ParenPad"/>
     <module name="SeparatorWrap">
       <property name="tokens" value="DOT"/>
-      <property name="tokens" value="AT"/>
       <property name="option" value="nl"/>
     </module>
     <module name="SeparatorWrap">
       <property name="tokens" value="COMMA"/>
-      <property name="tokens" value="RBRACK"/>
-      <property name="tokens" value="ARRAY_DECLARATOR"/>
-      <property name="tokens" value="ELLIPSIS"/>
-      <property name="tokens" value="SEMI"/>
       <property name="option" value="EOL"/>
     </module>
     <module name="SingleSpaceSeparator">

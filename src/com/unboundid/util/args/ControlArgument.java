@@ -523,7 +523,7 @@ public final class ControlArgument
   protected void addValue(final String valueString)
             throws ArgumentException
   {
-    String oid;
+    String oid = null;
     boolean isCritical = false;
     ASN1OctetString value = null;
 
