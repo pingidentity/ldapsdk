@@ -321,6 +321,9 @@
          compress="true"
          index="true">
       <fileset dir="${classes.dir}" />
+      <fileset dir="${dist-root.dir}">
+        <include name="LICENSE*.txt" />
+      </fileset>
       <manifest>
         <attribute name="Main-Class"
                    value="com.unboundid.ldap.sdk.unboundidds.Launcher" />
