@@ -175,6 +175,7 @@ public final class PasswordPolicyResponseControl
    *                       control, or {@code null} if there should be no error
    *                       type.
    * @param  isCritical    Indicates whether this control should be marked
+   *                       critical.  Response controls should generally not be
    *                       critical.
    */
   public PasswordPolicyResponseControl(

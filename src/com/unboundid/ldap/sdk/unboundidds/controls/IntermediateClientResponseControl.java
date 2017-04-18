@@ -216,6 +216,7 @@ public final class IntermediateClientResponseControl
    * Creates a new intermediate client response control with the provided value.
    *
    * @param  isCritical  Indicates whether the control should be marked
+   *                     critical.  Response controls should generally not be
    *                     critical.
    * @param  value       The value to use for this intermediate client response
    *                     control.  It must not be {@code null}.

@@ -3252,7 +3252,7 @@ findEntriesAndRefs:
         fullEntryList.addAll(sortedEntrySet);
 
         responseControls.add(new ServerSideSortResponseControl(
-             ResultCode.SUCCESS, null, false));
+             ResultCode.SUCCESS, null));
       }
 
 

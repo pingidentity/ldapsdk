@@ -107,7 +107,25 @@ public final class ServerSideSortResponseControl
    * @param  attributeName  The name of the attribute associated with this
    *                        result.  It may be {@code null} if there is no
    *                        associated attribute name.
+   */
+  public ServerSideSortResponseControl(final ResultCode resultCode,
+                                       final String attributeName)
+  {
+    this(resultCode, attributeName, false);
+  }
+
+
+
+  /**
+   * Creates a new server-side sort response control with the provided
+   * information.
+   *
+   * @param  resultCode     The result code for this server-side sort response.
+   * @param  attributeName  The name of the attribute associated with this
+   *                        result.  It may be {@code null} if there is no
+   *                        associated attribute name.
    * @param  isCritical     Indicates whether this control should be marked
+   *                        critical.  Response controls should generally not be
    *                        critical.
    */
   public ServerSideSortResponseControl(final ResultCode resultCode,

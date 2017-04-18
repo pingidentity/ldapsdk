@@ -153,6 +153,7 @@ public final class EntryChangeNotificationControl
    * @param  changeNumber  The change number to include in this control, or
    *                       -1 if there should not be a change number.
    * @param  isCritical    Indicates whether this control should be marked
+   *                       critical.  Response controls should generally not be
    *                       critical.
    */
   public EntryChangeNotificationControl(

@@ -61,7 +61,7 @@ public class ServerSideSortResponseControlTestCase
   public void testConstructor2WithAttribute()
   {
     ServerSideSortResponseControl c =
-         new ServerSideSortResponseControl(ResultCode.SUCCESS, "cn", false);
+         new ServerSideSortResponseControl(ResultCode.SUCCESS, "cn");
     assertEquals(c.getResultCode(), ResultCode.SUCCESS);
     assertEquals(c.getAttributeName(), "cn");
     assertFalse(c.isCritical());
@@ -78,7 +78,7 @@ public class ServerSideSortResponseControlTestCase
   public void testConstructor2WithoutAttribute()
   {
     ServerSideSortResponseControl c =
-         new ServerSideSortResponseControl(ResultCode.SUCCESS, null, false);
+         new ServerSideSortResponseControl(ResultCode.SUCCESS, null);
     assertEquals(c.getResultCode(), ResultCode.SUCCESS);
     assertNull(c.getAttributeName());
     assertFalse(c.isCritical());
@@ -251,7 +251,7 @@ public class ServerSideSortResponseControlTestCase
   {
     final Control[] controls =
     {
-      new ServerSideSortResponseControl(ResultCode.SUCCESS, null, false)
+      new ServerSideSortResponseControl(ResultCode.SUCCESS, null)
     };
 
     final SearchResult r = new SearchResult(1, ResultCode.SUCCESS, null, null,
@@ -280,7 +280,7 @@ public class ServerSideSortResponseControlTestCase
          throws Exception
   {
     final Control tmp = new ServerSideSortResponseControl(ResultCode.SUCCESS,
-         null, false);
+         null);
 
     final Control[] controls =
     {
