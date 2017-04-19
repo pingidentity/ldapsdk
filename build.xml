@@ -404,6 +404,10 @@
       </zipfileset>
     </zip>
 
+    <!-- Sign the zip file.  This will only actually be done for
+          release builds (if the env.GPG_PASSPHRASE property is set). -->
+    <antcall target="sign-ldap-sdk-zip-file" />
+
     <antcall target="create-maven-repository" />
 
     <antcall target="generate-website-docs" />
@@ -497,6 +501,17 @@
     <exec dir="${maven.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
       <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}-javadoc.jar.asc unboundid-ldapsdk-${MMPQ}-javadoc.jar" />
+    </exec>
+  </target>
+
+
+
+  <!-- Sign the LDAP SDK zip file if the key is available. -->
+  <target name="sign-ldap-sdk-zip-file" if="env.GPG_PASSPHRASE">
+    <echo message="Signing LDAP SDK zip file" />
+    <exec dir="${package.dir}" executable="gpg"
+          inputString="${env.GPG_PASSPHRASE}" failOnError="true">
+      <arg line="-ab --no-tty --batch --passphrase-fd 0 --output ${base-name}.zip.asc ${base-name}.zip" />
     </exec>
   </target>
 
