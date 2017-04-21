@@ -1402,7 +1402,7 @@ public class AttributeTestCase
     Attribute b = new Attribute("test",
          DistinguishedNameMatchingRule.getInstance(), "invalid2");
 
-    Attribute c = Attribute.mergeAttributes(a, b);
+    Attribute c = Attribute.mergeAttributes(a, b, null);
     assertNotNull(c);
 
     assertNotNull(c.getName());

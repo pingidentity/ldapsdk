@@ -536,12 +536,46 @@ public final class Attribute
   public static Attribute mergeAttributes(final Attribute attr1,
                                           final Attribute attr2)
   {
+    return mergeAttributes(attr1, attr2, attr1.matchingRule);
+  }
+
+
+
+  /**
+   * Creates a new attribute containing the merged values of the provided
+   * attributes.  Any duplicate values will only be present once in the
+   * resulting attribute.  The names of the provided attributes must be the
+   * same.
+   *
+   * @param  attr1         The first attribute containing the values to merge.
+   *                       It must not be {@code null}.
+   * @param  attr2         The second attribute containing the values to merge.
+   *                       It must not be {@code null}.
+   * @param  matchingRule  The matching rule to use to locate matching values.
+   *                       It may be {@code null} if the matching rule
+   *                       associated with the first attribute should be used.
+   *
+   * @return  The new attribute containing the values of both of the
+   *          provided attributes.
+   */
+  public static Attribute mergeAttributes(final Attribute attr1,
+                                          final Attribute attr2,
+                                          final MatchingRule matchingRule)
+  {
     ensureNotNull(attr1, attr2);
 
     final String name = attr1.name;
     ensureTrue(name.equalsIgnoreCase(attr2.name));
 
-    final MatchingRule matchingRule = attr1.matchingRule;
+    final MatchingRule mr;
+    if (matchingRule == null)
+    {
+      mr = attr1.matchingRule;
+    }
+    else
+    {
+      mr = matchingRule;
+    }
 
     ASN1OctetString[] mergedValues =
          new ASN1OctetString[attr1.values.length + attr2.values.length];
@@ -555,7 +589,7 @@ public final class Attribute
       {
         try
         {
-          if (matchingRule.valuesMatch(s1, s2))
+          if (mr.valuesMatch(s1, s2))
           {
             found = true;
             break;
@@ -581,7 +615,7 @@ public final class Attribute
       mergedValues = newMergedValues;
     }
 
-    return new Attribute(name, matchingRule, mergedValues);
+    return new Attribute(name, mr, mergedValues);
   }
 
 
