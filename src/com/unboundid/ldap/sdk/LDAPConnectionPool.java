@@ -2135,7 +2135,16 @@ public final class LDAPConnectionPool
       throw new LDAPException(ResultCode.CONNECT_ERROR, ERR_POOL_CLOSED.get());
     }
 
-    return createConnection();
+    try
+    {
+      return createConnection();
+    }
+    catch (final LDAPException le)
+    {
+      debugException(le);
+      failedReplaceCount.incrementAndGet();
+      throw le;
+    }
   }
 
 

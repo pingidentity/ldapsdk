@@ -3154,4 +3154,112 @@ public class LDAPConnectionPoolTestCase
     pool.close();
     ds.shutDown(true);
   }
+
+
+
+  /**
+   * Tests the behavior when trying to replace a defunct connection in a
+   * connection pool when it's not possible to immediately replace the
+   * connection and {@code createIfNecessary} is false.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testReplaceDefunctConnectionWithCreateIfNecessaryFalse()
+         throws Exception
+  {
+    // Create an in-memory directory server to use for testing.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com");
+    cfg.addAdditionalBindCredentials("cn=Directory Manager", "password");
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+    // Create a connection pool to use for testing.  Make sure to set
+    // createIfNecessary to false.
+    final LDAPConnectionPool pool = new LDAPConnectionPool(
+         new SingleServerSet("localhost", ds.getListenPort()),
+         new SimpleBindRequest("cn=Directory Manager", "password"), 5, 5);
+    pool.setCreateIfNecessary(false);
+    pool.setMaxWaitTimeMillis(0L);
+
+    // Check out all five connections from the pool.
+    final ArrayList<LDAPConnection> checkedOutConnections =
+         new ArrayList<LDAPConnection>(5);
+    for (int i=0; i < 5; i++)
+    {
+      final LDAPConnection conn = pool.getConnection();
+      assertNotNull(conn);
+      assertNotNull(conn.getRootDSE());
+      checkedOutConnections.add(conn);
+    }
+
+    // Verify that it's not possible to check out any more connections.
+    try
+    {
+      pool.getConnection();
+      fail("Expected an exception when trying to check out another " +
+           "connection when all connections are currently checked out");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+    }
+
+    // Shut down the in-memory directory server so that it's not possible to
+    // replace defunct connections.
+    ds.shutDown(true);
+
+    // Replace all the defunct connections.  This should fail because the server
+    // is down.
+    for (final LDAPConnection conn : checkedOutConnections)
+    {
+      try
+      {
+        pool.replaceDefunctConnection(conn);
+        fail("Expected an exception when trying to replace a defunct " +
+             "connection with the server offline");
+      }
+      catch (final LDAPException le)
+      {
+        // This was expected.
+      }
+    }
+
+    // Start the server again.
+    ds.startListening();
+
+    // Verify that it is once again possible to retrieve and use connections
+    // from the pool.
+    checkedOutConnections.clear();
+    for (int i=0; i < 5; i++)
+    {
+      final LDAPConnection conn = pool.getConnection();
+      assertNotNull(conn);
+      assertNotNull(conn.getRootDSE());
+      checkedOutConnections.add(conn);
+    }
+
+    // Verify that we still can't check out a connection when all available
+    // connections are taken.
+    try
+    {
+      pool.getConnection();
+      fail("Expected an exception when trying to check out another " +
+           "connection when all connections are currently checked out");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+    }
+
+    // Release all of the connections, close the pool, and shut down the server.
+    for (final LDAPConnection conn : checkedOutConnections)
+    {
+      pool.releaseConnection(conn);
+    }
+
+    pool.close();
+    ds.shutDown(true);
+  }
 }
