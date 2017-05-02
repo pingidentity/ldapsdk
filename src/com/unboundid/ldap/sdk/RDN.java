@@ -404,8 +404,9 @@ public final class RDN
 
 
     // Look at the next character.  If it is an octothorpe (#), then the value
-    // must be hex-encoded.  Otherwise, it's a regular string (although possibly
-    // containing escaped or quoted characters).
+    // must be a hex-encoded BER element, which we'll need to parse and take the
+    // value of that element.  Otherwise, it's a regular string (although
+    // possibly containing escaped or quoted characters).
     ASN1OctetString value;
     if (pos >= length)
     {
@@ -417,7 +418,18 @@ public final class RDN
       // string or the first non-hex character, which must be either a space or
       // a plus sign.
       final byte[] valueArray = readHexString(rdnString, ++pos);
-      value = new ASN1OctetString(valueArray);
+
+      try
+      {
+        value = ASN1OctetString.decodeAsOctetString(valueArray);
+      }
+      catch (final Exception e)
+      {
+        debugException(e);
+        throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+             ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(attrName), e);
+      }
+
       pos += (valueArray.length * 2);
     }
     else
@@ -517,7 +529,8 @@ public final class RDN
       }
 
       // Look at the next character.  If it is an octothorpe (#), then the value
-      // must be hex-encoded.  Otherwise, it's a regular string (although
+      // must be a hex-encoded BER element, which we'll need to parse and take
+      // the value of that element.  Otherwise, it's a regular string (although
       // possibly containing escaped or quoted characters).
       if (pos >= length)
       {
@@ -529,7 +542,18 @@ public final class RDN
         // string or the first non-hex character, which must be either a space
         // or a plus sign.
         final byte[] valueArray = readHexString(rdnString, ++pos);
-        value = new ASN1OctetString(valueArray);
+
+        try
+        {
+          value = ASN1OctetString.decodeAsOctetString(valueArray);
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+          throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+               ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(attrName), e);
+        }
+
         pos += (valueArray.length * 2);
       }
       else

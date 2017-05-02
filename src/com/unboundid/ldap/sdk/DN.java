@@ -29,6 +29,7 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -401,9 +402,21 @@ rdnLoop:
       {
         // It is a hex-encoded value, so we'll read until we find the end of the
         // string or the first non-hex character, which must be a space, a
-        // comma, or a plus sign.
+        // comma, or a plus sign.  Then, parse the bytes of the hex-encoded
+        // value as a BER element, and take the value of that element.
         final byte[] valueArray = RDN.readHexString(dnString, ++pos);
-        value = new ASN1OctetString(valueArray);
+
+        try
+        {
+          value = ASN1OctetString.decodeAsOctetString(valueArray);
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+               ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(attrName), e);
+        }
+
         pos += (valueArray.length * 2);
         rdnEndPos = pos;
       }
@@ -546,9 +559,21 @@ rdnLoop:
         {
           // It is a hex-encoded value, so we'll read until we find the end of
           // the string or the first non-hex character, which must be a space, a
-          // comma, or a plus sign.
+          // comma, or a plus sign.  Then, parse the bytes of the hex-encoded
+          // value as a BER element, and take the value of that element.
           final byte[] valueArray = RDN.readHexString(dnString, ++pos);
-          value = new ASN1OctetString(valueArray);
+
+          try
+          {
+            value = ASN1OctetString.decodeAsOctetString(valueArray);
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
+                 ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(attrName), e);
+          }
+
           pos += (valueArray.length * 2);
           rdnEndPos = pos;
         }

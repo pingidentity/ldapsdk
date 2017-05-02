@@ -1384,43 +1384,43 @@ public class RDNTestCase
 
       new Object[]
       {
-        "uid=#746573742e75736572", // Lowercase hex "e"
+        "uid=#0409746573742e75736572", // Lowercase hex "e"
         "uid=test.user"
       },
 
       new Object[]
       {
-        "uid=#746573742E75736572",  // Uppercase hex "e"
+        "uid=#0409746573742E75736572",  // Uppercase hex "e"
         "uid=test.user"
       },
 
       new Object[]
       {
-        "UID=#544553542e55534552", // "UID=TEST.USER"
+        "UID=#0409544553542e55534552", // "UID=TEST.USER"
         "uid=test.user"
       },
 
       new Object[]
       {
-        "givenName=#74657374+sn=#75736572",
+        "givenName=#040474657374+sn=#040475736572",
         "givenname=test+sn=user"
       },
 
       new Object[]
       {
-        "  givenName  =  #74657374  +  sn  =  #75736572  ",
+        "  givenName  =  #040474657374  +  sn  =  #040475736572  ",
         "givenname=test+sn=user"
       },
 
       new Object[]
       {
-        "givenName=test+sn=#75736572",
+        "givenName=test+sn=#040475736572",
         "givenname=test+sn=user"
       },
 
       new Object[]
       {
-        "givenName=#74657374+sn=user",
+        "givenName=#040474657374+sn=user",
         "givenname=test+sn=user"
       },
 
@@ -1492,7 +1492,7 @@ public class RDNTestCase
 
       new Object[]
       {
-        "cn=#000102030405060708090a0b0c0d0e0f" +
+        "cn=#048180000102030405060708090a0b0c0d0e0f" +
             "101112131415161718191a1b1c1d1e1f" +
             "202122232425262728292a2b2c2d2e2f" +
             "303132333435363738393a3b3c3d3e3f" +
@@ -1612,6 +1612,7 @@ public class RDNTestCase
       new Object[] { "uid=test.user," },
       new Object[] { "uid=test.user;" },
       new Object[] { "uid=#746q" },
+      new Object[] { "uid=#00" },
       new Object[] { "uid=\\74\\6" },
       new Object[] { "uid=\\74\\6q" },
       new Object[] { "cn=\"unclosed quote" },
