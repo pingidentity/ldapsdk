@@ -1,12 +1,4 @@
-            </td>
-          </tr>
-        </table>
-      </div>
 
-      <div id="footer">
-        Copyright &copy; ${YEAR} &ndash; Ping Identity Corporation. &ndash; All rights reserved.
-      </div>
-    </div>
+    <div class="copyright-footer">Copyright &copy; 2010-${YEAR}&ndash; Ping Identity Corporation &ndash; All rights reserved.</div>
   </body>
 </html>
-

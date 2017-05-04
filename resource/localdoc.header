@@ -11,18 +11,13 @@
   </head>
 
   <body>
-    <div id="wrapper">
-      <div id="headercontainer">
-        <a href="https://www.ldap.com/unboundid-ldap-sdk-for-java" title="UnboundID LDAP SDK for Java" id="logo">
-          <img src="${BASE}images/+___.gif" width="274" height="99" alt="UnboundID" style="float: left;">
-        </a>
-        <div id="headertitle">
-          <br>
-          <h1>UnboundID LDAP SDK for Java</h1>
-        </div>
+    <div class="titletable" style="overflow:hidden" border="0"width="100%">
+      <div style="float:left" width="50%">
+        <h1 class="maintop"><a href="${BASE}index.${EXTENSION}">UnboundID LDAP SDK for Java</a></h1>
       </div>
-
-      <div id="content">
-        <table cellpadding="0" cellspacing="0" border="0">
-          <tr valign="top">
-            <td style="padding: 10px 30px 20px 40px;">
+      <div style="float:right" width="50%">
+        <a href="https://www.pingidentity.com/" target="_parent">
+          <img src="${BASE}images/vendor-name-on-white.png" border="0" alt="Ping Identity">
+        </a>
+      </div>
+    </div>
