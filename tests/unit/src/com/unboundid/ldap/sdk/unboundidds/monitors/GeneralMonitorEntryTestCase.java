@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2017 UnboundID Corp.
+ * Copyright 2008-2017 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2017 UnboundID Corp.
+ * Copyright (C) 2008-2017 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -65,7 +65,7 @@ public class GeneralMonitorEntryTestCase
          "currentConnections: 123",
          "maxConnections: 456",
          "totalConnections: 789",
-         "productVendor: UnboundID Corp.",
+         "productVendor: Ping Identity Corporation",
          "productVersion: UnboundID Directory Server 1.0.0",
          "degraded-alert-type: low-disk-space-warning",
          "unavailable-alert-type: deadlock-detected",
@@ -111,7 +111,7 @@ public class GeneralMonitorEntryTestCase
     assertEquals(me.getProductName(), "UnboundID Directory Server");
 
     assertNotNull(me.getVendorName());
-    assertEquals(me.getVendorName(), "UnboundID Corp.");
+    assertEquals(me.getVendorName(), "Ping Identity Corporation");
 
     assertNotNull(me.getVersionString());
     assertEquals(me.getVersionString(), "UnboundID Directory Server 1.0.0");
@@ -178,7 +178,7 @@ public class GeneralMonitorEntryTestCase
 
     assertNotNull(attrs.get("productvendor"));
     assertEquals(attrs.get("productvendor").getStringValue(),
-                 "UnboundID Corp.");
+                 "Ping Identity Corporation");
 
     assertNotNull(attrs.get("productversion"));
     assertEquals(attrs.get("productversion").getStringValue(),

@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2017 UnboundID Corp.
+ * Copyright 2008-2017 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2015-2017 UnboundID Corp.
+ * Copyright (C) 2015-2017 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -54,7 +54,7 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * </BLOCKQUOTE>
  * <BR>
  * This control is not based on any public specification, and has been defined
- * by UnboundID Corp.  It does not have a value, and may or may not be
+ * by Ping Identity Corporation  It does not have a value, and may or may not be
  * critical.  It should only be included in search requests.
  * <BR><BR>
  * <H2>Example</H2>

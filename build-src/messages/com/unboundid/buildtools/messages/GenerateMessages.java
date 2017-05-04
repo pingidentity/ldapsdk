@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2017 UnboundID Corp.
+ * Copyright 2008-2017 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2008-2017 UnboundID Corp.
+ * Copyright (C) 2008-2017 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -197,11 +197,11 @@ public class GenerateMessages
         // Add the header to the source file.
         final String year = new SimpleDateFormat("yyyy").format(new Date());
         w("/*");
-        w(" * Copyright ", year, " UnboundID Corp.");
+        w(" * Copyright ", year, " Ping Identity Corporation");
         w(" * All Rights Reserved.");
         w(" */");
         w("/*");
-        w(" * Copyright (C) ", year, " UnboundID Corp.");
+        w(" * Copyright (C) ", year, " Ping Identity Corporation");
         w(" *");
         w(" * This program is free software; you can redistribute it and/or " +
                "modify");

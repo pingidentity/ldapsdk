@@ -1,9 +1,9 @@
 <!--
- ! Copyright 2007-2017 UnboundID Corp.
+ ! Copyright 2007-2017 Ping Identity Corporation
  ! All Rights Reserved.
  -->
 <!--
- ! Copyright (C) 2008-2017 UnboundID Corp.
+ ! Copyright (C) 2008-2017 Ping Identity Corporation
  !
  ! This program is free software; you can redistribute it and/or modify
  ! it under the terms of the GNU General Public License (GPLv2 only)
@@ -46,7 +46,7 @@
     <inceptionYear>2009</inceptionYear>
 
     <organization>
-      <name>UnboundID Corp.</name>
+      <name>Ping Identity Corporation</name>
       <url>https://www.ldap.com/unboundid-ldap-sdk-for-java</url>
     </organization>
 

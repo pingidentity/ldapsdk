@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2017 UnboundID Corp.
+ * Copyright 2011-2017 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2017 UnboundID Corp.
+ * Copyright (C) 2011-2017 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -126,7 +126,7 @@ public final class InMemoryDirectoryServerConfigTestCase
     assertTrue(cfg.getReferentialIntegrityAttributes().isEmpty());
 
     assertNotNull(cfg.getVendorName());
-    assertEquals(cfg.getVendorName(), "UnboundID Corp.");
+    assertEquals(cfg.getVendorName(), "Ping Identity Corporation");
 
     assertNotNull(cfg.getVendorVersion());
     assertEquals(cfg.getVendorVersion(), Version.FULL_VERSION_STRING);
@@ -1141,7 +1141,7 @@ public final class InMemoryDirectoryServerConfigTestCase
          new InMemoryDirectoryServerConfig("dc=example,dc=com");
 
     assertNotNull(cfg.getVendorName());
-    assertEquals(cfg.getVendorName(), "UnboundID Corp.");
+    assertEquals(cfg.getVendorName(), "Ping Identity Corporation");
 
     cfg.setVendorName(null);
     assertNull(cfg.getVendorName());

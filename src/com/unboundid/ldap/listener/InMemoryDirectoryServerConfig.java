@@ -1,9 +1,9 @@
 /*
- * Copyright 2011-2017 UnboundID Corp.
+ * Copyright 2011-2017 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2011-2017 UnboundID Corp.
+ * Copyright (C) 2011-2017 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -246,7 +246,7 @@ public class InMemoryDirectoryServerConfig
     allowedOperationTypes                = EnumSet.allOf(OperationType.class);
     authenticationRequiredOperationTypes = EnumSet.noneOf(OperationType.class);
     referentialIntegrityAttributes       = new HashSet<String>(0);
-    vendorName                           = "UnboundID Corp.";
+    vendorName                           = "Ping Identity Corporation";
     vendorVersion                        = Version.FULL_VERSION_STRING;
     codeLogPath                          = null;
     includeRequestProcessingInCodeLog    = false;

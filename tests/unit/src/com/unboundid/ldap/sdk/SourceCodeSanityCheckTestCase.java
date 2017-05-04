@@ -1,9 +1,9 @@
 /*
- * Copyright 2017 UnboundID Corp.
+ * Copyright 2017 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2017 UnboundID Corp.
+ * Copyright (C) 2017 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -202,13 +202,13 @@ public final class SourceCodeSanityCheckTestCase
     final boolean hasHeader =
          hasHeaderLine(f, fileLines, errorMessages, 0, "/*") ||
          hasHeaderLine(f, fileLines, errorMessages, 1, " * Copyright ",
-              YEAR + " UnboundID Corp.") ||
+              YEAR + " Ping Identity Corporation") ||
          hasHeaderLine(f, fileLines, errorMessages, 2,
               " * All Rights Reserved.") ||
          hasHeaderLine(f, fileLines, errorMessages, 3, " */") ||
          hasHeaderLine(f, fileLines, errorMessages, 4, "/*") ||
          hasHeaderLine(f, fileLines, errorMessages, 5, " * Copyright (C) ",
-              YEAR + " UnboundID Corp.") ||
+              YEAR + " Ping Identity Corporation") ||
          hasHeaderLine(f, fileLines, errorMessages, 6, " *") ||
          hasHeaderLine(f, fileLines, errorMessages, 7,
               " * This program is free software; you can redistribute it " +

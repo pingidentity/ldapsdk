@@ -1,9 +1,9 @@
 /*
- * Copyright 2009-2017 UnboundID Corp.
+ * Copyright 2009-2017 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2009-2017 UnboundID Corp.
+ * Copyright (C) 2009-2017 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -44,9 +44,9 @@
  * This implementation was constructed solely from the public API documentation
  * available online at http://www.mozilla.org/directory/javasdk.html.  The
  * source code used to generate that API was not used in any way when creating
- * this implementation, but was developed solely by UnboundID Corp.
+ * this implementation, but was developed solely by Ping Identity Corporation
  * <BR><BR>
- * UnboundID is a registered trademark of UnboundID Corp.  Netscape and Novell
- * are registered trademarks of their respective holders.
+ * UnboundID is a registered trademark of Ping Identity Corporation.  Netscape
+ * and Novell are registered trademarks of their respective holders.
  */
 package com.unboundid.ldap.sdk.migrate.ldapjdk;

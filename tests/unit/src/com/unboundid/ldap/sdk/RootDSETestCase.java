@@ -1,9 +1,9 @@
 /*
- * Copyright 2007-2017 UnboundID Corp.
+ * Copyright 2007-2017 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright (C) 2007-2017 UnboundID Corp.
+ * Copyright (C) 2007-2017 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -64,7 +64,7 @@ public class RootDSETestCase
          "supportedSASLMechanisms: DIGEST-MD5",
          "supportedSASLMechanisms: EXTERNAL",
          "supportedSASLMechanisms: PLAIN",
-         "vendorName: UnboundID Corp.",
+         "vendorName: Ping Identity Corporation",
          "vendorVersion: UnboundID Directory Server 1.2.3");
 
     RootDSE rootDSE = new RootDSE(e);
@@ -125,7 +125,7 @@ public class RootDSETestCase
     assertFalse(rootDSE.supportsSASLMechanism("GSSAPI"));
 
     assertNotNull(rootDSE.getVendorName());
-    assertEquals(rootDSE.getVendorName(), "UnboundID Corp.");
+    assertEquals(rootDSE.getVendorName(), "Ping Identity Corporation");
 
     assertNotNull(rootDSE.getVendorVersion());
     assertEquals(rootDSE.getVendorVersion(),
