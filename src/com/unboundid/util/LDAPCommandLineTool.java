@@ -52,6 +52,7 @@ import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.SingleServerSet;
 import com.unboundid.ldap.sdk.StartTLSPostConnectProcessor;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
+import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
@@ -1402,5 +1403,50 @@ public abstract class LDAPCommandLineTool
     {
       return null;
     }
+  }
+
+
+
+  /**
+   * Indicates whether any of the LDAP-related arguments maintained by the
+   * {@code LDAPCommandLineTool} class were provided on the command line.
+   *
+   * @return  {@code true} if any of the LDAP-related arguments maintained by
+   *          the {@code LDAPCommandLineTool} were provided on the command line,
+   *          or {@code false} if not.
+   */
+  public final boolean anyLDAPArgumentsProvided()
+  {
+    return isAnyPresent(host, port, bindDN, bindPassword, bindPasswordFile,
+         promptForBindPassword, useSSL, useStartTLS, trustAll, keyStorePath,
+         keyStorePassword, keyStorePasswordFile, promptForKeyStorePassword,
+         keyStoreFormat, trustStorePath, trustStorePassword,
+         trustStorePasswordFile, trustStoreFormat, certificateNickname,
+         saslOption, useSASLExternal);
+  }
+
+
+
+  /**
+   * Indicates whether at least one of the provided arguments was provided on
+   * the command line.
+   *
+   * @param  args  The set of command-line arguments for which to make the
+   *               determination.
+   *
+   * @return  {@code true} if at least one of the provided arguments was
+   *          provided on the command line, or {@code false} if not.
+   */
+  private static boolean isAnyPresent(final Argument... args)
+  {
+    for (final Argument a : args)
+    {
+      if ((a != null) && (a.getNumOccurrences() > 0))
+      {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

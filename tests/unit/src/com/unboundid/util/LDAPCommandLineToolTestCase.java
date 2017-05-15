@@ -76,6 +76,8 @@ public class LDAPCommandLineToolTestCase
     assertFalse(
          LDAPCommandLineTool.getLongLDAPArgumentIdentifiers(ldapSearch).
               isEmpty());
+
+    assertFalse(ldapSearch.anyLDAPArgumentsProvided());
   }
 
 
@@ -127,6 +129,8 @@ public class LDAPCommandLineToolTestCase
     pool.releaseConnection(conn2);
 
     pool.close();
+
+    assertTrue(ldapSearch.anyLDAPArgumentsProvided());
   }
 
 
@@ -183,6 +187,8 @@ public class LDAPCommandLineToolTestCase
     pool.releaseConnection(conn2);
 
     pool.close();
+
+    assertTrue(ldapSearch.anyLDAPArgumentsProvided());
   }
 
 
@@ -217,6 +223,8 @@ public class LDAPCommandLineToolTestCase
          "-s", "base",
          "(objectClass=*)");
     assertEquals(rc, ResultCode.SUCCESS);
+
+    assertTrue(ldapSearch.anyLDAPArgumentsProvided());
   }
 
 
@@ -251,6 +259,8 @@ public class LDAPCommandLineToolTestCase
          "-s", "base",
          "(objectClass=*)");
     assertEquals(rc, ResultCode.SUCCESS);
+
+    assertTrue(ldapSearch.anyLDAPArgumentsProvided());
   }
 
 
@@ -288,6 +298,8 @@ public class LDAPCommandLineToolTestCase
     assertEquals(rc, ResultCode.SUCCESS);
 
     f.delete();
+
+    assertTrue(ldapSearch.anyLDAPArgumentsProvided());
   }
 
 
@@ -468,6 +480,8 @@ public class LDAPCommandLineToolTestCase
     assertFileHasLine(propertiesFile, "# ldapsearch.port={port}");
     assertFileHasLine(propertiesFile, "# ldapsearch.bindDN={dn}");
     assertFileHasLine(propertiesFile, "# ldapsearch.bindPassword={password}");
+
+    assertFalse(ldapSearch.anyLDAPArgumentsProvided());
   }
 
 
@@ -525,6 +539,8 @@ public class LDAPCommandLineToolTestCase
          "--scope", "base",
          "(objectClass=*)");
     assertEquals(rc, ResultCode.SUCCESS);
+
+    assertTrue(ldapSearch.anyLDAPArgumentsProvided());
   }
 
 
