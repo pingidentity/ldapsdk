@@ -206,9 +206,19 @@ public abstract class CommandLineTool
       if (supportsInteractiveMode() && defaultsToInteractiveMode() &&
           ((args == null) || (args.length == 0)))
       {
-        // We'll skip argument parsing in this case because no arguments were
-        // provided, and the tool may not allow no arguments to be provided in
-        // non-interactive mode.
+        // We'll go ahead and perform argument parsing even though no arguments
+        // were provided because there might be a properties file that should
+        // prevent running in interactive mode.  But we'll ignore any exception
+        // thrown during argument parsing because the tool might require
+        // arguments when run non-interactively.
+        try
+        {
+          parser.parse(args);
+        }
+        catch (final Exception e)
+        {
+          debugException(e);
+        }
       }
       else
       {
@@ -282,7 +292,8 @@ public abstract class CommandLineTool
       {
         if (interactiveArgument.isPresent() ||
             (defaultsToInteractiveMode() &&
-             ((args == null) || (args.length == 0))))
+             ((args == null) || (args.length == 0)) &&
+             parser.getArgumentsSetFromPropertiesFile().isEmpty()))
         {
           final CommandLineToolInteractiveModeProcessor interactiveProcessor =
                new CommandLineToolInteractiveModeProcessor(this, parser);
