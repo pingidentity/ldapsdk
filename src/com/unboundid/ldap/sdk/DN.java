@@ -337,7 +337,7 @@ rdnLoop:
         else
         {
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_DN_ENDS_WITH_COMMA.get());
+               ERR_DN_ENDS_WITH_COMMA.get(dnString));
         }
       }
 
@@ -355,7 +355,7 @@ rdnLoop:
         else if ((c == ',') || (c == ';'))
         {
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_DN_UNEXPECTED_COMMA.get(pos));
+               ERR_DN_UNEXPECTED_COMMA.get(dnString, pos));
         }
 
         pos++;
@@ -365,7 +365,7 @@ rdnLoop:
       if (attrName.length() == 0)
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_DN_NO_ATTR_IN_RDN.get());
+             ERR_DN_NO_ATTR_IN_RDN.get(dnString));
       }
 
 
@@ -379,7 +379,7 @@ rdnLoop:
       {
         // We didn't find an equal sign.
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_DN_NO_EQUAL_SIGN.get(attrName));
+             ERR_DN_NO_EQUAL_SIGN.get(dnString, attrName));
       }
 
       // Skip over the equal sign, and then any spaces leading up to the
@@ -414,7 +414,7 @@ rdnLoop:
         {
           Debug.debugException(e);
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-               ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(attrName), e);
+               ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(dnString, attrName), e);
         }
 
         pos += (valueArray.length * 2);
@@ -467,14 +467,13 @@ rdnLoop:
         default:
           // It's an illegal character.  This should never happen.
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_DN_UNEXPECTED_CHAR.get(
-                                       dnString.charAt(pos), pos));
+               ERR_DN_UNEXPECTED_CHAR.get(dnString, dnString.charAt(pos), pos));
       }
 
       if (pos >= length)
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_DN_ENDS_WITH_PLUS.get());
+             ERR_DN_ENDS_WITH_PLUS.get(dnString));
       }
 
 
@@ -498,7 +497,7 @@ rdnLoop:
         if (pos >= length)
         {
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_DN_ENDS_WITH_PLUS.get());
+               ERR_DN_ENDS_WITH_PLUS.get(dnString));
         }
 
         // Read the attribute name, until we find a space or equal sign.
@@ -513,7 +512,7 @@ rdnLoop:
           else if ((c == ',') || (c == ';'))
           {
             throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                    ERR_DN_UNEXPECTED_COMMA.get(pos));
+                 ERR_DN_UNEXPECTED_COMMA.get(dnString, pos));
           }
 
           pos++;
@@ -523,7 +522,7 @@ rdnLoop:
         if (attrName.length() == 0)
         {
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_DN_NO_ATTR_IN_RDN.get());
+               ERR_DN_NO_ATTR_IN_RDN.get(dnString));
         }
 
 
@@ -537,7 +536,7 @@ rdnLoop:
         {
           // We didn't find an equal sign.
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_DN_NO_EQUAL_SIGN.get(attrName));
+               ERR_DN_NO_EQUAL_SIGN.get(dnString, attrName));
         }
 
         // Skip over the equal sign, and then any spaces leading up to the
@@ -571,7 +570,7 @@ rdnLoop:
           {
             Debug.debugException(e);
             throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                 ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(attrName), e);
+                 ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(dnString, attrName), e);
           }
 
           pos += (valueArray.length * 2);
@@ -620,7 +619,7 @@ rdnLoop:
             if (pos >= length)
             {
               throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                      ERR_DN_ENDS_WITH_PLUS.get());
+                   ERR_DN_ENDS_WITH_PLUS.get(dnString));
             }
             break;
 
@@ -641,8 +640,8 @@ rdnLoop:
           default:
             // It's an illegal character.  This should never happen.
             throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                    ERR_DN_UNEXPECTED_CHAR.get(
-                                         dnString.charAt(pos), pos));
+                 ERR_DN_UNEXPECTED_CHAR.get(dnString, dnString.charAt(pos),
+                      pos));
         }
       }
     }
@@ -652,7 +651,7 @@ rdnLoop:
     if (expectMore)
     {
       throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                              ERR_DN_ENDS_WITH_COMMA.get());
+                              ERR_DN_ENDS_WITH_COMMA.get(dnString));
     }
 
     // At this point, we should have all of the RDNs to use to create this DN.

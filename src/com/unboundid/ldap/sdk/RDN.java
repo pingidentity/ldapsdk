@@ -378,7 +378,7 @@ public final class RDN
     if (attrName.length() == 0)
     {
       throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                              ERR_RDN_NO_ATTR_NAME.get());
+           ERR_RDN_NO_ATTR_NAME.get(rdnString));
     }
 
     while ((pos < length) && (rdnString.charAt(pos) == ' '))
@@ -390,7 +390,7 @@ public final class RDN
     {
       // We didn't find an equal sign.
       throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                              ERR_RDN_NO_EQUAL_SIGN.get(attrName));
+           ERR_RDN_NO_EQUAL_SIGN.get(rdnString, attrName));
     }
 
 
@@ -427,7 +427,7 @@ public final class RDN
       {
         debugException(e);
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-             ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(attrName), e);
+             ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(rdnString, attrName), e);
       }
 
       pos += (valueArray.length * 2);
@@ -470,13 +470,13 @@ public final class RDN
     else
     {
       throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                              ERR_RDN_VALUE_NOT_FOLLOWED_BY_PLUS.get());
+           ERR_RDN_VALUE_NOT_FOLLOWED_BY_PLUS.get(rdnString));
     }
 
     if (pos >= length)
     {
       throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                              ERR_RDN_PLUS_NOT_FOLLOWED_BY_AVP.get());
+           ERR_RDN_PLUS_NOT_FOLLOWED_BY_AVP.get(rdnString));
     }
 
     int numValues = 1;
@@ -505,7 +505,7 @@ public final class RDN
       if (attrName.length() == 0)
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_RDN_NO_ATTR_NAME.get());
+             ERR_RDN_NO_ATTR_NAME.get(rdnString));
       }
 
       while ((pos < length) && (rdnString.charAt(pos) == ' '))
@@ -517,7 +517,7 @@ public final class RDN
       {
         // We didn't find an equal sign.
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_RDN_NO_EQUAL_SIGN.get(attrName));
+             ERR_RDN_NO_EQUAL_SIGN.get(rdnString, attrName));
       }
 
       // The next character is the equal sign.  Skip it, and then skip over any
@@ -551,7 +551,7 @@ public final class RDN
         {
           debugException(e);
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-               ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(attrName), e);
+               ERR_RDN_HEX_STRING_NOT_BER_ENCODED.get(rdnString, attrName), e);
         }
 
         pos += (valueArray.length * 2);
@@ -591,14 +591,14 @@ public final class RDN
         else
         {
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_RDN_VALUE_NOT_FOLLOWED_BY_PLUS.get());
+               ERR_RDN_VALUE_NOT_FOLLOWED_BY_PLUS.get(rdnString));
         }
       }
 
       if (pos >= length)
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_RDN_PLUS_NOT_FOLLOWED_BY_AVP.get());
+             ERR_RDN_PLUS_NOT_FOLLOWED_BY_AVP.get(rdnString));
       }
     }
 
@@ -705,14 +705,14 @@ hexLoop:
           break hexLoop;
         default:
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_RDN_INVALID_HEX_CHAR.get(
-                                       rdnString.charAt(pos-1), (pos-1)));
+               ERR_RDN_INVALID_HEX_CHAR.get(rdnString, rdnString.charAt(pos-1),
+                    (pos-1)));
       }
 
       if (pos >= length)
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_RDN_MISSING_HEX_CHAR.get());
+             ERR_RDN_MISSING_HEX_CHAR.get(rdnString));
       }
 
       switch (rdnString.charAt(pos++))
@@ -773,8 +773,8 @@ hexLoop:
           break;
         default:
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_RDN_INVALID_HEX_CHAR.get(
-                                       rdnString.charAt(pos-1), (pos-1)));
+               ERR_RDN_INVALID_HEX_CHAR.get(rdnString, rdnString.charAt(pos-1),
+                    (pos-1)));
       }
     }
 
@@ -825,7 +825,7 @@ valueLoop:
           if ((pos+1) >= length)
           {
             throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                    ERR_RDN_ENDS_WITH_BACKSLASH.get());
+                 ERR_RDN_ENDS_WITH_BACKSLASH.get(rdnString));
           }
           else
           {
@@ -859,8 +859,7 @@ valueLoop:
               else if (c != ' ')
               {
                 throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                        ERR_RDN_CHAR_OUTSIDE_QUOTES.get(c,
-                                             (pos-1)));
+                     ERR_RDN_CHAR_OUTSIDE_QUOTES.get(rdnString, c, (pos-1)));
               }
 
               pos++;
@@ -879,7 +878,7 @@ valueLoop:
             else
             {
               throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                      ERR_RDN_UNEXPECTED_DOUBLE_QUOTE.get(pos));
+                   ERR_RDN_UNEXPECTED_DOUBLE_QUOTE.get(rdnString, pos));
             }
           }
           break;
@@ -912,7 +911,7 @@ valueLoop:
     if (inQuotes)
     {
       throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                              ERR_RDN_UNCLOSED_DOUBLE_QUOTE.get());
+           ERR_RDN_UNCLOSED_DOUBLE_QUOTE.get(rdnString));
     }
 
 
@@ -1023,14 +1022,14 @@ valueLoop:
           break;
         default:
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_RDN_INVALID_HEX_CHAR.get(
-                                       rdnString.charAt(pos-1), (pos-1)));
+               ERR_RDN_INVALID_HEX_CHAR.get(rdnString, rdnString.charAt(pos-1),
+                    (pos-1)));
       }
 
       if (pos >= length)
       {
         throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                ERR_RDN_MISSING_HEX_CHAR.get());
+             ERR_RDN_MISSING_HEX_CHAR.get(rdnString));
       }
 
       switch (rdnString.charAt(pos++))
@@ -1091,8 +1090,8 @@ valueLoop:
           break;
         default:
           throw new LDAPException(ResultCode.INVALID_DN_SYNTAX,
-                                  ERR_RDN_INVALID_HEX_CHAR.get(
-                                       rdnString.charAt(pos-1), (pos-1)));
+               ERR_RDN_INVALID_HEX_CHAR.get(rdnString, rdnString.charAt(pos-1),
+                    (pos-1)));
       }
 
       if (((pos+1) < length) && (rdnString.charAt(pos) == '\\') &&

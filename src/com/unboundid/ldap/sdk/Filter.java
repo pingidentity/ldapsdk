@@ -1139,7 +1139,7 @@ public final class Filter
     if (depth > 100)
     {
       throw new LDAPException(ResultCode.FILTER_ERROR,
-                              ERR_FILTER_TOO_DEEP.get());
+           ERR_FILTER_TOO_DEEP.get(filterString));
     }
 
     final byte              filterType;
@@ -1156,7 +1156,7 @@ public final class Filter
     if (startPos >= endPos)
     {
       throw new LDAPException(ResultCode.FILTER_ERROR,
-                              ERR_FILTER_TOO_SHORT.get());
+           ERR_FILTER_TOO_SHORT.get(filterString));
     }
 
     int l = startPos;
@@ -1174,7 +1174,7 @@ public final class Filter
       else
       {
         throw new LDAPException(ResultCode.FILTER_ERROR,
-                                ERR_FILTER_OPEN_WITHOUT_CLOSE.get(l, r));
+             ERR_FILTER_OPEN_WITHOUT_CLOSE.get(filterString, l, r));
       }
     }
     else
@@ -1185,8 +1185,8 @@ public final class Filter
       if (l != 0)
       {
         throw new LDAPException(ResultCode.FILTER_ERROR,
-                                ERR_FILTER_MISSING_PARENTHESES.get(
-                                    filterString.substring(l, r+1)));
+             ERR_FILTER_MISSING_PARENTHESES.get(filterString,
+                  filterString.substring(l, r+1)));
       }
     }
 
@@ -1236,7 +1236,7 @@ public final class Filter
 
       case '(':
         throw new LDAPException(ResultCode.FILTER_ERROR,
-                                ERR_FILTER_UNEXPECTED_OPEN_PAREN.get(l));
+             ERR_FILTER_UNEXPECTED_OPEN_PAREN.get(filterString, l));
 
       case ':':
         // This must be an extensible matching filter that starts with a
@@ -1261,13 +1261,12 @@ public final class Filter
         if (l > r)
         {
           throw new LDAPException(ResultCode.FILTER_ERROR,
-                                  ERR_FILTER_NO_COLON_AFTER_MRID.get(
-                                       startPos));
+               ERR_FILTER_NO_COLON_AFTER_MRID.get(filterString, startPos));
         }
         else if (l == dnMRIDStart)
         {
           throw new LDAPException(ResultCode.FILTER_ERROR,
-                                  ERR_FILTER_EMPTY_MRID.get(startPos));
+               ERR_FILTER_EMPTY_MRID.get(filterString, startPos));
         }
         final String s = filterString.substring(dnMRIDStart, l++);
         if (s.equalsIgnoreCase("dn"))
@@ -1285,22 +1284,21 @@ public final class Filter
           if (l >= r)
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                                    ERR_FILTER_NO_COLON_AFTER_MRID.get(
-                                         startPos));
+                 ERR_FILTER_NO_COLON_AFTER_MRID.get(filterString, startPos));
           }
 
           matchingRuleID = filterString.substring(mrIDStart, l);
           if (matchingRuleID.length() == 0)
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                                    ERR_FILTER_EMPTY_MRID.get(startPos));
+                 ERR_FILTER_EMPTY_MRID.get(filterString, startPos));
           }
 
           if ((++l > r) || (filterString.charAt(l) != '='))
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                                    ERR_FILTER_UNEXPECTED_CHAR_AFTER_MRID.get(
-                                         filterString.charAt(l), startPos));
+                 ERR_FILTER_UNEXPECTED_CHAR_AFTER_MRID.get(filterString,
+                      startPos, filterString.charAt(l)));
           }
         }
         else
@@ -1312,8 +1310,7 @@ public final class Filter
           if ((l > r) || (filterString.charAt(l) != '='))
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                                    ERR_FILTER_NO_EQUAL_AFTER_MRID.get(
-                                         startPos));
+                 ERR_FILTER_NO_EQUAL_AFTER_MRID.get(filterString, startPos));
           }
         }
 
@@ -1331,12 +1328,12 @@ public final class Filter
           else if (c == '(')
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                                    ERR_FILTER_UNEXPECTED_OPEN_PAREN.get(l));
+                 ERR_FILTER_UNEXPECTED_OPEN_PAREN.get(filterString, l));
           }
           else if (c == ')')
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                                    ERR_FILTER_UNEXPECTED_CLOSE_PAREN.get(l));
+                 ERR_FILTER_UNEXPECTED_CLOSE_PAREN.get(filterString, l));
           }
           else
           {
@@ -1383,14 +1380,14 @@ attrNameLoop:
                 if (filterString.charAt(l++) != '=')
                 {
                   throw new LDAPException(ResultCode.FILTER_ERROR,
-                                 ERR_FILTER_UNEXPECTED_CHAR_AFTER_GT.get(
-                                      startPos, filterString.charAt(l-1)));
+                       ERR_FILTER_UNEXPECTED_CHAR_AFTER_GT.get(filterString,
+                            startPos, filterString.charAt(l-1)));
                 }
               }
               else
               {
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_END_AFTER_GT.get(startPos));
+                     ERR_FILTER_END_AFTER_GT.get(filterString, startPos));
               }
               break attrNameLoop;
 
@@ -1404,14 +1401,14 @@ attrNameLoop:
                 if (filterString.charAt(l++) != '=')
                 {
                   throw new LDAPException(ResultCode.FILTER_ERROR,
-                                 ERR_FILTER_UNEXPECTED_CHAR_AFTER_LT.get(
-                                      startPos, filterString.charAt(l-1)));
+                       ERR_FILTER_UNEXPECTED_CHAR_AFTER_LT.get(filterString,
+                            startPos, filterString.charAt(l-1)));
                 }
               }
               else
               {
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_END_AFTER_LT.get(startPos));
+                     ERR_FILTER_END_AFTER_LT.get(filterString, startPos));
               }
               break attrNameLoop;
 
@@ -1425,15 +1422,14 @@ attrNameLoop:
                 if (filterString.charAt(l++) != '=')
                 {
                   throw new LDAPException(ResultCode.FILTER_ERROR,
-                                 ERR_FILTER_UNEXPECTED_CHAR_AFTER_TILDE.get(
-                                      startPos, filterString.charAt(l-1)));
+                       ERR_FILTER_UNEXPECTED_CHAR_AFTER_TILDE.get(filterString,
+                            startPos, filterString.charAt(l-1)));
                 }
               }
               else
               {
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_END_AFTER_TILDE.get(
-                                             startPos));
+                     ERR_FILTER_END_AFTER_TILDE.get(filterString, startPos));
               }
               break attrNameLoop;
 
@@ -1451,12 +1447,12 @@ attrNameLoop:
           if (equalFound)
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                 ERR_FILTER_EMPTY_ATTR_NAME.get(startPos));
+                 ERR_FILTER_EMPTY_ATTR_NAME.get(filterString, startPos));
           }
           else
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                 ERR_FILTER_NO_EQUAL_SIGN.get(startPos));
+                 ERR_FILTER_NO_EQUAL_SIGN.get(filterString, startPos));
           }
         }
         attrName = filterString.substring(attrStartPos, attrEndPos);
@@ -1471,7 +1467,7 @@ attrNameLoop:
           if (l > r)
           {
             throw new LDAPException(ResultCode.FILTER_ERROR,
-                                    ERR_FILTER_NO_EQUALS.get(startPos));
+                 ERR_FILTER_NO_EQUAL_SIGN.get(filterString, startPos));
           }
 
           final char c = filterString.charAt(l++);
@@ -1499,7 +1495,7 @@ attrNameLoop:
             if (! equalFound)
             {
               throw new LDAPException(ResultCode.FILTER_ERROR,
-                                      ERR_FILTER_NO_EQUALS.get(startPos));
+                   ERR_FILTER_NO_EQUAL_SIGN.get(filterString, startPos));
             }
 
             final String substr = filterString.substring(substrStartPos, l-1);
@@ -1507,8 +1503,7 @@ attrNameLoop:
             if (! substr.endsWith(":"))
             {
               throw new LDAPException(ResultCode.FILTER_ERROR,
-                                      ERR_FILTER_CANNOT_PARSE_MRID.get(
-                                           startPos));
+                   ERR_FILTER_CANNOT_PARSE_MRID.get(filterString, startPos));
             }
 
             if (lowerSubstr.equals("dn:"))
@@ -1522,7 +1517,7 @@ attrNameLoop:
               if (matchingRuleID.length() == 0)
               {
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_EMPTY_MRID.get(startPos));
+                     ERR_FILTER_EMPTY_MRID.get(filterString, startPos));
               }
 
               dnAttributes   = true;
@@ -1535,7 +1530,7 @@ attrNameLoop:
               if (matchingRuleID.length() == 0)
               {
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_EMPTY_MRID.get(startPos));
+                     ERR_FILTER_EMPTY_MRID.get(filterString, startPos));
               }
             }
           }
@@ -1573,8 +1568,8 @@ attrNameLoop:
               case ')':
               case '\\':
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_UNEXPECTED_CHAR_IN_AV.get(
-                                             filterString.charAt(l), startPos));
+                     ERR_FILTER_UNEXPECTED_CHAR_IN_AV.get(filterString,
+                          startPos, filterString.charAt(l)));
             }
 
             assertionValue =
@@ -1594,8 +1589,8 @@ attrNameLoop:
               case '(':
               case ')':
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_UNEXPECTED_CHAR_IN_AV.get(
-                                             filterString.charAt(l), startPos));
+                     ERR_FILTER_UNEXPECTED_CHAR_IN_AV.get(filterString,
+                          startPos, filterString.charAt(l)));
 
               default:
                 tempFilterType = FILTER_TYPE_EQUALITY;
@@ -1631,8 +1626,8 @@ attrNameLoop:
                 if (filterTypeKnown)
                 {
                   throw new LDAPException(ResultCode.FILTER_ERROR,
-                                          ERR_FILTER_UNEXPECTED_ASTERISK.get(
-                                               startPos));
+                       ERR_FILTER_UNEXPECTED_ASTERISK.get(filterString,
+                            startPos));
                 }
                 else
                 {
@@ -1653,7 +1648,7 @@ attrNameLoop:
                       {
                         throw new LDAPException(ResultCode.FILTER_ERROR,
                              ERR_FILTER_UNEXPECTED_DOUBLE_ASTERISK.get(
-                                  startPos));
+                                  filterString, startPos));
                       }
                       else
                       {
@@ -1683,13 +1678,11 @@ attrNameLoop:
 
               case '(':
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_UNEXPECTED_OPEN_PAREN.get(
-                                             l));
+                     ERR_FILTER_UNEXPECTED_OPEN_PAREN.get(filterString, l));
 
               case ')':
                 throw new LDAPException(ResultCode.FILTER_ERROR,
-                                        ERR_FILTER_UNEXPECTED_CLOSE_PAREN.get(
-                                             l));
+                     ERR_FILTER_UNEXPECTED_CLOSE_PAREN.get(filterString, l));
 
               default:
                 buffer.append(c);
@@ -1777,12 +1770,12 @@ attrNameLoop:
     if (filterString.charAt(startPos) != '(')
     {
       throw new LDAPException(ResultCode.FILTER_ERROR,
-                              ERR_FILTER_EXPECTED_OPEN_PAREN.get(startPos));
+           ERR_FILTER_EXPECTED_OPEN_PAREN.get(filterString, startPos));
     }
     if (filterString.charAt(endPos) != ')')
     {
       throw new LDAPException(ResultCode.FILTER_ERROR,
-                              ERR_FILTER_EXPECTED_CLOSE_PAREN.get(startPos));
+           ERR_FILTER_EXPECTED_CLOSE_PAREN.get(filterString, startPos));
     }
 
 
@@ -1814,8 +1807,7 @@ attrNameLoop:
     if (numOpen != 0)
     {
       throw new LDAPException(ResultCode.FILTER_ERROR,
-                              ERR_FILTER_MISMATCHED_PARENS.get(startPos,
-                                                               endPos));
+           ERR_FILTER_MISMATCHED_PARENS.get(filterString, startPos, endPos));
     }
 
     return filterList.toArray(new Filter[filterList.size()]);
@@ -1903,8 +1895,8 @@ attrNameLoop:
         break;
       default:
         throw new LDAPException(ResultCode.FILTER_ERROR,
-             ERR_FILTER_INVALID_HEX_CHAR.get(filterString.charAt(startPos),
-                  startPos));
+             ERR_FILTER_INVALID_HEX_CHAR.get(filterString,
+                  filterString.charAt(startPos), startPos));
     }
 
     switch (filterString.charAt(startPos+1))
@@ -1965,8 +1957,8 @@ attrNameLoop:
         break;
       default:
         throw new LDAPException(ResultCode.FILTER_ERROR,
-             ERR_FILTER_INVALID_HEX_CHAR.get(filterString.charAt(startPos+1),
-                  (startPos+1)));
+             ERR_FILTER_INVALID_HEX_CHAR.get(filterString,
+                  filterString.charAt(startPos+1), (startPos+1)));
     }
 
     return startPos+2;
