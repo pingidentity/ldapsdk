@@ -5,3 +5,4 @@ src/com/unboundid/ldap/sdk/Version.java
 *.iml
 .checkstyle-cache-main
 .checkstyle-cache-unit
+.*.swp
