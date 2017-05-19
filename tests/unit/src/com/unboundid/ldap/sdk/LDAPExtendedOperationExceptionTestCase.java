@@ -25,6 +25,7 @@ package com.unboundid.ldap.sdk;
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1OctetString;
+import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedResult;
 
 
 
@@ -74,6 +75,8 @@ public final class LDAPExtendedOperationExceptionTestCase
 
     assertNotNull(e.toLDAPResult());
     assertTrue(e.toLDAPResult() instanceof ExtendedResult);
+
+    assertNotNull(e.toString());
   }
 
 
@@ -131,5 +134,52 @@ public final class LDAPExtendedOperationExceptionTestCase
 
     assertNotNull(e.toLDAPResult());
     assertTrue(e.toLDAPResult() instanceof ExtendedResult);
+
+    assertNotNull(e.toString());
+  }
+
+
+
+  /**
+   * Tests an exception created from a non-generic extended result.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNonGenericResult()
+         throws Exception
+  {
+    final ExtendedResult r = new WhoAmIExtendedResult(2, ResultCode.SUCCESS,
+         null, null, null, "u:john.doe", null);
+
+    final LDAPExtendedOperationException e =
+         new LDAPExtendedOperationException(r);
+
+    assertNotNull(e.getExtendedResult());
+
+    assertNotNull(e.getResultCode());
+    assertEquals(e.getResultCode(), ResultCode.SUCCESS);
+
+    assertNull(e.getDiagnosticMessage());
+
+    assertNull(e.getMatchedDN());
+
+    assertNotNull(e.getReferralURLs());
+    assertEquals(e.getReferralURLs().length, 0);
+
+    assertNotNull(e.getResponseControls());
+    assertEquals(e.getResponseControls().length, 0);
+
+    assertNull(e.getResponseOID());
+
+    assertNotNull(e.getResponseValue());
+
+    assertNotNull(e.toLDAPResult());
+    assertTrue(e.toLDAPResult() instanceof ExtendedResult);
+
+    assertNotNull(e.getExtendedResult());
+    assertTrue(e.getExtendedResult() instanceof WhoAmIExtendedResult);
+
+    assertNotNull(e.toString());
   }
 }

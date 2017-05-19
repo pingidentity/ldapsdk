@@ -116,4 +116,100 @@ public class LDAPExtendedOperationException
   {
     return extendedResult.getValue();
   }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
+  public void toString(final StringBuilder buffer)
+  {
+    buffer.append("LDAPException(resultCode=");
+    buffer.append(getResultCode());
+
+    final String errorMessage = getMessage();
+    if (errorMessage != null)
+    {
+      buffer.append(", errorMessage='");
+      buffer.append(errorMessage);
+      buffer.append('\'');
+    }
+
+    final String responseOID = getResponseOID();
+    if (responseOID != null)
+    {
+      buffer.append(", responseOID='");
+      buffer.append(responseOID);
+      buffer.append('\'');
+    }
+
+    final String responseName = getExtendedResult().getExtendedResultName();
+    if ((responseName != null) && (! responseName.equals(responseOID)))
+    {
+      buffer.append(", responseName='");
+      buffer.append(responseName);
+      buffer.append('\'');
+    }
+
+    final String matchedDN = getMatchedDN();
+    if (matchedDN != null)
+    {
+      buffer.append(", matchedDN='");
+      buffer.append(matchedDN);
+      buffer.append('\'');
+    }
+
+    final String diagnosticMessage = getDiagnosticMessage();
+    if (diagnosticMessage != null)
+    {
+      buffer.append(", diagnosticMessage='");
+      buffer.append(diagnosticMessage);
+      buffer.append('\'');
+    }
+
+    final String[] referralURLs = getReferralURLs();
+    if (referralURLs.length > 0)
+    {
+      buffer.append(", referralURLs={");
+
+      for (int i=0; i < referralURLs.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append('\'');
+        buffer.append(referralURLs[i]);
+        buffer.append('\'');
+      }
+
+      buffer.append('}');
+    }
+
+    final Control[] responseControls = getResponseControls();
+    if (responseControls.length > 0)
+    {
+      buffer.append(", responseControls={");
+
+      for (int i=0; i < responseControls.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append(responseControls[i]);
+      }
+
+      buffer.append('}');
+    }
+
+    buffer.append(", ldapSDKVersion=");
+    buffer.append(Version.NUMERIC_VERSION_STRING);
+    buffer.append(", revision=");
+    buffer.append(Version.REVISION_NUMBER);
+    buffer.append(')');
+  }
 }
