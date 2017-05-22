@@ -65,11 +65,14 @@
   <property name="checkstyle.dir"        location="ext/checkstyle" />
 
 
-  <!-- Define properties used for getting the Subversion revision number. -->
-  <property name="svn-version.src.dir"
-            location="${build-src.dir}/svnversion" />
-  <property name="svn-version.classes.dir" location="${build.dir}/svnversion" />
-  <property name="svnkit.dir"              location="ext/svnkit" />
+  <!-- Define properties used for getting source repository information. -->
+  <property name="repository-info.src.dir"
+            location="${build-src.dir}/repositoryinfo" />
+  <property name="repository-info.classes.dir"
+            location="${build.dir}/repositoryinfo" />
+  <property name="svnkit.dir" location="ext/svnkit" />
+  <property name="jgit.dir" location="ext/jgit" />
+  <property name="slf4j.dir" location="ext/slf4j" />
 
 
   <!-- Define properties used for unit testing. -->
@@ -143,7 +146,7 @@
 
 
   <!-- Generate a Version source file. -->
-  <target name="generate-version" depends="svn-version"
+  <target name="generate-version" depends="repository-info"
           description="Generate a Version.java source file">
     <tstamp>
       <format property="timestamp" pattern="yyyyMMddHHmmss'Z'" timezone="UTC" />
@@ -155,15 +158,15 @@
 
     <loadproperties srcFile="version.properties" />
 
-    <condition property="svn.path" value="{not-applicable}">
+    <condition property="repository-info.path" value="{unknown}">
       <not>
-        <isset property="svn.path" />
+        <isset property="repository-info.path" />
       </not>
     </condition>
 
-    <condition property="svn.version" value="-1">
+    <condition property="repository-info.revision" value="{unknown}">
       <not>
-        <isset property="svn.version" />
+        <isset property="repository-info.revision" />
       </not>
     </condition>
 
@@ -280,6 +283,7 @@
       <fileset dir="${dist-root.dir}">
         <include name="**/*" />
         <exclude name="**/.svn" />
+        <exclude name="**/.git" />
       </fileset>
     </copy>
 
@@ -312,6 +316,7 @@
     <copy todir="${sdk.package.dir}/android-ldap-client">
       <fileset dir="android-ldap-client">
         <exclude name="**/.svn" />
+        <exclude name="**/.git" />
       </fileset>
     </copy>
 
@@ -330,8 +335,8 @@
         <attribute name="Build-Time" value="${timestamp}" />
         <attribute name="Implementation-Title" value="${PRODUCT_NAME}" />
         <attribute name="Implementation-Version" value="${MMPQ}" />
-        <attribute name="Source-Path" value="${svn.path}" />
-        <attribute name="Source-Revision" value="${svn.version}" />
+        <attribute name="Source-Path" value="${repository-info.path}" />
+        <attribute name="Source-Revision" value="${repository-info.revision}" />
         <attribute name="Implementation-Vendor" value="Ping Identity" />
         <attribute name="Implementation-URL"
                    value="https://www.ldap.com/unboundid-ldap-sdk-for-java" />
@@ -557,32 +562,48 @@
 
 
   <!-- Get the Subversion revision number for the current source. -->
-  <target name="svn-version" unless="svn.version">
-    <mkdir dir="${svn-version.classes.dir}" />
-    <javac srcdir="${svn-version.src.dir}" destdir="${svn-version.classes.dir}"
-           source="1.7" target="1.7" deprecation="true" fork="true"
-           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
-           optimize="true" debug="on" debuglevel="lines,source,vars"
-           includeAntRuntime="true">
+  <target name="repository-info" unless="repository-info.revision">
+    <mkdir dir="${repository-info.classes.dir}" />
+    <javac srcdir="${repository-info.src.dir}"
+           destdir="${repository-info.classes.dir}" source="1.7" target="1.7"
+           deprecation="true" fork="true" memoryInitialSize="${MEM}"
+           memoryMaximumSize="${MEM}" optimize="true" debug="on"
+           debuglevel="lines,source,vars" includeAntRuntime="true">
       <compilerarg value="-Xlint:all" />
       <classpath>
         <fileset dir="${svnkit.dir}">
           <include name="*.jar" />
         </fileset>
+        <fileset dir="${jgit.dir}">
+          <include name="*.jar" />
+        </fileset>
+        <fileset dir="${slf4j.dir}">
+          <include name="*.jar" />
+        </fileset>
       </classpath>
     </javac>
 
-    <taskdef name="svnVersionTask"
-             classname="com.unboundid.buildtools.svnversion.SVNVersion">
+    <taskdef name="repositoryInfoTask"
+             classname="com.unboundid.buildtools.repositoryinfo.RepositoryInfo">
       <classpath>
-        <pathelement location="${svn-version.classes.dir}" />
+        <pathelement location="${repository-info.classes.dir}" />
         <fileset dir="${svnkit.dir}">
+          <include name="*.jar" />
+        </fileset>
+        <fileset dir="${jgit.dir}">
+          <include name="*.jar" />
+        </fileset>
+        <fileset dir="${slf4j.dir}">
           <include name="*.jar" />
         </fileset>
       </classpath>
     </taskdef>
-    <svnVersionTask baseDir="${basedir}" pathPropertyName="svn.path"
-                    revisionPropertyName="svn.version" />
+    <repositoryInfoTask baseDir="${basedir}"
+         repositoryTypePropertyName="repository-info.type"
+         repositoryURLPropertyName="repository-info.url"
+         repositoryPathPropertyName="repository-info.path"
+         repositoryRevisionPropertyName="repository-info.revision"
+         repositoryRevisionNumberPropertyName="repository-info.revision-number" />
   </target>
 
 

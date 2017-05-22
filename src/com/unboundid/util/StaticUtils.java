@@ -1026,7 +1026,7 @@ public final class StaticUtils
     buffer.append(", ldapSDKVersion=");
     buffer.append(Version.NUMERIC_VERSION_STRING);
     buffer.append(", revision=");
-    buffer.append(Version.REVISION_NUMBER);
+    buffer.append(Version.REVISION_ID);
     buffer.append(')');
   }
 

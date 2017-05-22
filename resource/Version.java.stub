@@ -108,22 +108,65 @@ public final class Version
 
 
   /**
-   * The Subversion path associated with the build root directory from which
-   * this build of the LDAP SDK was generated.  It may be an absolute local
-   * filesystem path if the Subversion path isn't available at build time.
-   * For this build, the value is "${svn.path}".
+   * The type of repository from which the source code used to build the LDAP
+   * SDK was retrieved.  It will be one of "subversion", "git", or "{unknown}".
+   * For this build, the value is "${repository-info.type}".
    */
-  public static final String REPOSITORY_PATH =
-       "${svn.path}";
+  public static final String REPOSITORY_TYPE = "${repository-info.type}";
 
 
 
   /**
-   * The source revision number from which this build of the LDAP SDK was
-   * generated.  It may be -1 if the Subversion revision isn't available at
-   * build time.  For this build, the value is ${svn.version}.
+   * The URL for the repository from which the source code used to build the
+   * LDAP SDK was retrieved.  If repository information could not be determined
+   * at build time, then this will be a file URL that references the path to the
+   * source code on the system used to build the LDAP SDK library.  For this
+   * build, the value is
+   * "${repository-info.url}".
    */
-  public static final long REVISION_NUMBER = ${svn.version};
+  public static final String REPOSITORY_URL =
+       "${repository-info.url}";
+
+
+
+  /**
+   * The path to the LDAP SDK source code in the repository.  If repository
+   * information could not be determined at build time, then this will be "/".
+   * For this build, the value is
+   * "${repository-info.path}".
+   */
+  public static final String REPOSITORY_PATH =
+       "${repository-info.path}";
+
+
+
+  /**
+   * The string representation of the source revision from which this build of
+   * the LDAP SDK was generated.  For a subversion repository, this will be the
+   * string representation of the revision number.  For a git repository, this
+   * will be the hexadecimal representation of the digest for the most recent
+   * commit.  If repository information could not be determined at build time,
+   * the value will be "{unknown}".  For this build, the value is
+   * "${repository-info.revision}".
+   */
+  public static final String REVISION_ID =
+       "${repository-info.revision}";
+
+
+
+  /**
+   * The revision number for the source revision from which this build of the
+   * LDAP SDK was generated.  For a subversion repository, this will be the
+   * revision number.  For a git repository (which uses a hexadecimal digest to
+   * indicate revisions), or if repository information could not be determined
+   * at build time, the value will be -1.  For this build, the value is
+   * ${repository-info.revision-number}.
+   *
+   * @deprecated  Use the {@link #REVISION_ID} property instead, since it can
+   *              handle non-numeric revision identifiers.
+   */
+  @Deprecated()
+  public static final long REVISION_NUMBER = ${repository-info.revision-number};
 
 
 
@@ -205,8 +248,10 @@ public final class Version
     versionLines.add("Point Version:         " + POINT_VERSION);
     versionLines.add("Version Qualifier:     " + VERSION_QUALIFIER);
     versionLines.add("Build Timestamp:       " + BUILD_TIMESTAMP);
+    versionLines.add("Repository Type:       " + REPOSITORY_TYPE);
+    versionLines.add("Repository URL:        " + REPOSITORY_URL);
     versionLines.add("Repository Path:       " + REPOSITORY_PATH);
-    versionLines.add("Revision Number:       " + REVISION_NUMBER);
+    versionLines.add("Revision:              " + REVISION_ID);
 
     return Collections.unmodifiableList(versionLines);
   }
