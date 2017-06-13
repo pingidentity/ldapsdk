@@ -2301,8 +2301,8 @@ public final class InMemoryDirectoryControlsTestCase
          "cn=subentry test,dc=example,dc=com"));
 
 
-    // Ensure that the entry is also returned for a base-level if the control is
-    // provided.
+    // Ensure that the entry is also returned for a base-level search if the
+    // control is provided.
     searchRequest.setControls(c);
 
     searchResult = conn.search(searchRequest);
@@ -2328,35 +2328,31 @@ public final class InMemoryDirectoryControlsTestCase
          "cn=subentry test,dc=example,dc=com"));
 
 
-    // Ensure that the subentry is returned for the same non-base search if
+    // Ensure that only the subentry is returned for the same non-base search if
     // the subentries control is provided.
     searchRequest.setControls(c);
 
     searchResult = conn.search(searchRequest);
     assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
-    assertEquals(searchResult.getEntryCount(), 4);
-    assertNotNull(searchResult.getSearchEntry("dc=example,dc=com"));
-    assertNotNull(searchResult.getSearchEntry("ou=People,dc=example,dc=com"));
-    assertNotNull(searchResult.getSearchEntry(
-         "uid=test.user,ou=People,dc=example,dc=com"));
+    assertEquals(searchResult.getEntryCount(), 1);
     assertNotNull(searchResult.getSearchEntry(
          "cn=subentry test,dc=example,dc=com"));
 
 
-    // Ensure that the subentry is not returned for a non-base search even if
-    // the base DN is that of the subentry.
+    // Ensure that the subentry is returned for a non-base search without the
+    // control if the base entry is a subentry.
     searchRequest = new SearchRequest("cn=subentry test,dc=example,dc=com",
          SearchScope.SUB, "(objectClass=*)");
 
     searchResult = conn.search(searchRequest);
     assertEquals(searchResult.getResultCode(), ResultCode.SUCCESS);
-    assertEquals(searchResult.getEntryCount(), 0);
-    assertNull(searchResult.getSearchEntry(
+    assertEquals(searchResult.getEntryCount(), 1);
+    assertNotNull(searchResult.getSearchEntry(
          "cn=subentry test,dc=example,dc=com"));
 
 
-    // Ensure that the subentry is returned for the same non-base search if
-    // the subentries control is provided.
+    // Ensure that the subentry is still returned for the same non-base search
+    // if the subentries control is provided.
     searchRequest.setControls(c);
 
     searchResult = conn.search(searchRequest);

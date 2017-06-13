@@ -3123,6 +3123,33 @@ public final class InMemoryRequestHandler
              le.getResultCode().intValue(), null, le.getMessage(), null));
       }
 
+      // Determine whether to include subentries in search results.
+      final boolean includeSubEntries;
+      final boolean includeNonSubEntries;
+      final SearchScope scope = request.getScope();
+      if (scope == SearchScope.BASE)
+      {
+        includeSubEntries = true;
+        includeNonSubEntries = true;
+      }
+      else if (controlMap.containsKey(
+           SubentriesRequestControl.SUBENTRIES_REQUEST_OID))
+      {
+        includeSubEntries = true;
+        includeNonSubEntries = false;
+      }
+      else if (baseEntry.hasObjectClass("ldapSubEntry") ||
+               baseEntry.hasObjectClass("inheritableLDAPSubEntry"))
+      {
+        includeSubEntries = true;
+        includeNonSubEntries = true;
+      }
+      else
+      {
+        includeSubEntries = false;
+        includeNonSubEntries = true;
+      }
+
       // Create a temporary list to hold all of the entries to be returned.
       // These entries will not have been pared down based on the requested
       // attributes.
@@ -3134,18 +3161,15 @@ findEntriesAndRefs:
         // examine the base entry.  Otherwise, we'll have to scan the entire
         // entry map.
         final Filter filter = request.getFilter();
-        final SearchScope scope = request.getScope();
-        final boolean includeSubEntries = ((scope == SearchScope.BASE) ||
-             controlMap.containsKey(
-                  SubentriesRequestControl.SUBENTRIES_REQUEST_OID));
         if (scope == SearchScope.BASE)
         {
           try
           {
             if (filter.matchesEntry(baseEntry, schema))
             {
-              processSearchEntry(baseEntry, includeSubEntries, includeChangeLog,
-                   hasManageDsaIT, fullEntryList, referenceList);
+              processSearchEntry(baseEntry, includeSubEntries,
+                   includeNonSubEntries, includeChangeLog, hasManageDsaIT,
+                   fullEntryList, referenceList);
             }
           }
           catch (final Exception e)
@@ -3170,8 +3194,9 @@ findEntriesAndRefs:
               {
                 if (filter.matchesEntry(e, schema))
                 {
-                  processSearchEntry(e, includeSubEntries, includeChangeLog,
-                       hasManageDsaIT, fullEntryList, referenceList);
+                  processSearchEntry(e, includeSubEntries, includeNonSubEntries,
+                       includeChangeLog, hasManageDsaIT, fullEntryList,
+                       referenceList);
                 }
               }
               catch (final Exception ex)
@@ -3201,8 +3226,9 @@ findEntriesAndRefs:
               if (dn.matchesBaseAndScope(baseDN, scope) &&
                    filter.matchesEntry(entry, schema))
               {
-                processSearchEntry(entry, includeSubEntries, includeChangeLog,
-                     hasManageDsaIT, fullEntryList, referenceList);
+                processSearchEntry(entry, includeSubEntries,
+                     includeNonSubEntries, includeChangeLog, hasManageDsaIT,
+                     fullEntryList, referenceList);
               }
             }
             catch (final Exception e)
@@ -3225,8 +3251,9 @@ findEntriesAndRefs:
               final Entry entry = entryMap.get(dn);
               if (filter.matchesEntry(entry, schema))
               {
-                processSearchEntry(entry, includeSubEntries, includeChangeLog,
-                     hasManageDsaIT, fullEntryList, referenceList);
+                processSearchEntry(entry, includeSubEntries,
+                     includeNonSubEntries, includeChangeLog, hasManageDsaIT,
+                     fullEntryList, referenceList);
               }
             }
             catch (final Exception e)
@@ -4769,32 +4796,43 @@ findEntriesAndRefs:
    * should be returned as a search result entry or reference, or if it should
    * not be returned at all.
    *
-   * @param  entry              The entry to be processed.
-   * @param  includeSubEntries  Indicates whether LDAP subentries should be
-   *                            returned to the client.
-   * @param  includeChangeLog   Indicates whether entries within the changelog
-   *                            should be returned to the client.
-   * @param  hasManageDsaIT     Indicates whether the request includes the
-   *                            ManageDsaIT control, which can change how smart
-   *                            referrals should be handled.
-   * @param  entryList          The list to which the entry should be added if
-   *                            it should be returned to the client as a search
-   *                            result entry.
-   * @param  referenceList      The list that should be updated if the provided
-   *                            entry represents a smart referral that should be
-   *                            returned as a search result reference.
+   * @param  entry                 The entry to be processed.
+   * @param  includeSubEntries     Indicates whether LDAP subentries should be
+   *                               returned to the client.
+   * @param  includeNonSubEntries  Indicates whether non-LDAP subentries should
+   *                               be returned to the client.
+   * @param  includeChangeLog      Indicates whether entries within the
+   *                               changelog should be returned to the client.
+   * @param  hasManageDsaIT        Indicates whether the request includes the
+   *                               ManageDsaIT control, which can change how
+   *                               smart referrals should be handled.
+   * @param  entryList             The list to which the entry should be added
+   *                               if it should be returned to the client as a
+   *                               search result entry.
+   * @param  referenceList         The list that should be updated if the
+   *                               provided entry represents a smart referral
+   *                               that should be returned as a search result
+   *                               reference.
    */
   private void processSearchEntry(final Entry entry,
                     final boolean includeSubEntries,
+                    final boolean includeNonSubEntries,
                     final boolean includeChangeLog,
                     final boolean hasManageDsaIT,
                     final List<Entry> entryList,
                     final List<SearchResultReference> referenceList)
   {
-    // See if the entry should be suppressed as an LDAP subentry.
-    if ((! includeSubEntries) &&
-        (entry.hasObjectClass("ldapSubEntry") ||
-         entry.hasObjectClass("inheritableLDAPSubEntry")))
+    // Check to see if the entry should be suppressed based on whether it's an
+    // LDAP subentry.
+    if (entry.hasObjectClass("ldapSubEntry") ||
+        entry.hasObjectClass("inheritableLDAPSubEntry"))
+    {
+      if (! includeSubEntries)
+      {
+        return;
+      }
+    }
+    else if (! includeNonSubEntries)
     {
       return;
     }
