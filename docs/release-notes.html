@@ -6,6 +6,205 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.0</h3>
+
+              <p>
+                The following changes were made between the 3.2.1 and 4.0.0 releases:
+              </p>
+
+              <ul>
+                <li>
+                  The LDAP SDK now requires Java SE 7 or later.  It was previously possible to
+                  build and run the LDAP SDK with Java SE 1.5 or later, but now neither Java SE
+                  1.5 nor Java SE 1.6 are supported.  We officially support Java SE 7 and 8.
+                  There are known issues with building the LDAP SDK in early access versions of
+                  Java SE 9, but a version of the LDAP SDK built on Java SE 7 or 8 should run
+                  without problems under Java SE 9.
+                  <br><br>
+                </li>
+
+                <li>
+                  We no longer maintain separate editions of the LDAP SDK.  Previously, we had
+                  three different editions:  Standard Edition, Commercial Edition, and Minimal
+                  Edition.  While there were valid reasons for them in the past, those reasons no
+                  longer apply, and it is simpler to maintain just a single edition.  The new
+                  edition is simply called "UnboundID LDAP SDK for Java", and it contains all of
+                  the content that had previously been in the Commercial Edition (which was itself
+                  a superset of the Standard Edition, which was a superset of the Minimal Edition).
+                  <br><br>
+                </li>
+
+                <li>
+                  The GitHub repository for the UnboundID LDAP SDK for Java has been moved into
+                  the Ping Identity organization.  The URL to the repository has changed from
+                  <a href="https://github.com/unboundid/ldapsdk">https://github.com/unboundid/ldapsdk</a>
+                  to <a href="https://github.com/pingidentity/ldapsdk">https://github.com/pingidentity/ldapsdk</a>,
+                  but a redirect is in place to ensure that clients using the old URL are
+                  automatically transferred to the new location.
+                  <br><br>
+                </li>
+
+                <li>
+                  The content in the open source repositories for the LDAP SDK (on GitHub at
+                  <a href="https://github.com/pingidentity/ldapsdk">https://github.com/pingidentity/ldapsdk</a>
+                  and on SourceForge at
+                  <a href="https://sourceforge.net/p/ldap-sdk/code/HEAD/tree/">https://sourceforge.net/p/ldap-sdk/code/HEAD/tree/</a>)
+                  now matches the content in the internal repository.  The full source code for
+                  all LDAP SDK unit tests is now available, along with some supporting build
+                  components.
+                   <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the logic for parsing DNs with RDN values that used a raw BER
+                  encoding, which is indicated in the string representation by starting an
+                  attribute value with the octothorpe (#) character.  The LDAP SDK would
+                  incorrectly use the entire set of bytes (representing the BER type, length, and
+                  value of the BER element) following the octothorpe character as the attribute
+                  value instead of just the BER value.
+                   <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the LDAP connection pool that could cause the pool to lose a
+                  connection if createIfNecessary is false and if the replaceDefunctConnection
+                  method was called but could not successfully create a new connection.  If this
+                  happened enough times, the pool could run out of connections, and it would
+                  refuse to create new ones.
+                   <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug that could cause the LDAP SDK to use the same message ID for all
+                  stages of a multi-stage SASL bind instead of using a different message ID for
+                  each stage.
+                   <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the in-memory directory server LDIF import code that prevented
+                  imported entries from being subjected to the configured schema.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the in-memory directory server's handling of LDAP subentries.
+                  The server could incorrectly return entries that are not LDAP subentries in
+                  response to a search request that included the LDAP subentries request control.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug that could cause tools to incorrectly launch in interactive mode
+                  even if default values for some tool arguments were provided through a
+                  properties file.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the ldapmodify tool to fix a bug that could cause it to use an exit code
+                  of zero even if an error was encountered while reading LDIF data.  It would have
+                  always used a nonzero exit code for unrecoverable LDIF parsing errors, but the
+                  exit code may not have indicated a problem if the error was recoverable and the
+                  tool was able to continue parsing subsequent LDIF records.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the ldapmodify tool to fix a bug that could cause it to incorrectly use
+                  an exit code of zero when processing operations as part of a transaction but the
+                  attempt to commit the transaction was unsuccessful.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the ldapsearch tool so that the -T argument is associated with the
+                  tool-specific --dontWrap argument rather than the generic --trustStorePassword
+                  argument that is normally the case for other LDAP tools.  This provides better
+                  backward compatibility with other versions of the ldapsearch tool.
+                   <br><br>
+                </li>
+
+                <li>
+                  Updated the ldapsearch tool to add support for the --skipResolvingExplodedIndexes,
+                  --fastShortCircuitThreshold, and --slowShortCircuitThreshold options for the
+                  matching entry count request control.  These options had previously been
+                  overlooked.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the ldapsearch tool that caused it to omit all attributes when
+                  run with the --typesOnly argument, indicating that attributes should be returned
+                  without any values.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a bug in the LDAP SDK argument parser that involved reading Boolean
+                  arguments from a properties file.  If a Boolean argument were assigned a value
+                  of false in a properties file, that argument would incorrectly be listed among
+                  the command-line arguments obtained from the properties file.
+                   <br><br>
+                </li>
+
+                <li>
+                  Updated all copyright notices to reference Ping Identity rather than UnboundID.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK documentation to use Ping Identity branding.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK documentation to include an LDAPv3 wire protocol reference
+                  document that provides in-depth coverage of the ASN.1 Basic Encoding Rules (BER)
+                  and all kinds of LDAP request and response messages with annotated examples.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK documentation to include a new LDAP result code reference
+                  document.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the LDAP SDK documentation to include a new LDAP OID reference document.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the set of LDAP-related specifications to include RFC 2926 (Conversion
+                  of LDAP Schemas to and from SLP Templates), RFC 2985 (PKCS #9: Selected Object
+                  Classes and Attribute Types Version 2.0), RFC 4226 (HOTP: An HMAC-Based One-Time
+                  Password Algorithm), and RFC 6238 (TOTP: Time-Based One-Time Password
+                  Algorithm).
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the set of LDAP-related specifications to include the latest revisions
+                  of the draft-kille-ldap-xmpp-schema, draft-seantek-ldap-pkcs9, and
+                  draft-wibrown-ldapssotoken drafts.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the build-time collection of information about the source repository to
+                  include support for git in addition to the existing support for subversion.  If
+                  the LDAP SDK is checked out from a git repository, the generated
+                  com.unboundid.ldap.sdk.Version class will now include the repository URL and
+                  revision ID associated with that git repository.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
               <h3>Version 3.2.1</h3>
 
               <p>
