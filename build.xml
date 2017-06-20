@@ -348,7 +348,7 @@
         <attribute name="Bundle-Vendor" value="Ping Identity" />
         <attribute name="Bundle-Version" value="${MMP}" />
         <attribute name="Bundle-RequiredExecutionEnvironment"
-                   value="J2SE-1.7" />
+                   value="JavaSE-1.7" />
         <attribute name="Bundle-Category" value="communication,network" />
         <attribute name="Bundle-DocURL"
                    value="${LDAP_SDK_HOME_URL}" />
