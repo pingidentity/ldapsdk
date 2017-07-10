@@ -25,10 +25,12 @@ package com.unboundid.ldap.listener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,6 +93,10 @@ import static com.unboundid.ldap.listener.ListenerMessages.*;
  *       exception handler.</LI>
  *   <LI>Maximum Size Limit:  The server will not enforce a maximum search size
  *       limit.</LI>
+ *   <LI>Password Attributes:  The server will use userPassword as the only
+ *       password attribute.</LI>
+ *   <LI>Password Encoders:  The server will not use any password encoders by
+ *       default, so passwords will remain in clear text.</LI>
  * </UL>
  */
 @NotExtensible()
@@ -124,6 +130,9 @@ public class InMemoryDirectoryServerConfig
   // messages about LDAP operations processed by the server.
   private Handler ldapDebugLogHandler;
 
+  // The password encoder that will be used to encode new clear-text passwords.
+  private InMemoryPasswordEncoder primaryPasswordEncoder;
+
   // The maximum number of entries to retain in a generated changelog.
   private int maxChangeLogEntries;
 
@@ -150,6 +159,11 @@ public class InMemoryDirectoryServerConfig
   // server.
   private final List<InMemoryOperationInterceptor> operationInterceptors;
 
+  // A list of secondary password encoders that will be used to interact with
+  // existing pre-encoded passwords, but will not be used to encode new
+  // passwords.
+  private final List<InMemoryPasswordEncoder> secondaryPasswordEncoders;
+
   // The SASL bind handlers that may be used to process SASL bind requests in
   // the server.
   private final List<InMemorySASLBindHandler> saslBindHandlers;
@@ -175,6 +189,9 @@ public class InMemoryDirectoryServerConfig
 
   // The set of attributes for which referential integrity should be maintained.
   private final Set<String> referentialIntegrityAttributes;
+
+  // The set of attributes that will hold user passwords.
+  private final Set<String> passwordAttributes;
 
   // The path to a file that should be written with code that may be used to
   // issue the requests received by the server.
@@ -261,6 +278,13 @@ public class InMemoryDirectoryServerConfig
 
     saslBindHandlers = new ArrayList<InMemorySASLBindHandler>(1);
     saslBindHandlers.add(new PLAINBindHandler());
+
+    passwordAttributes = new LinkedHashSet<>(5);
+    passwordAttributes.add("userPassword");
+
+    primaryPasswordEncoder = null;
+
+    secondaryPasswordEncoders = new ArrayList<>(5);
   }
 
 
@@ -321,6 +345,11 @@ public class InMemoryDirectoryServerConfig
     vendorVersion                      = cfg.vendorVersion;
     codeLogPath                        = cfg.codeLogPath;
     includeRequestProcessingInCodeLog  = cfg.includeRequestProcessingInCodeLog;
+    primaryPasswordEncoder             = cfg.primaryPasswordEncoder;
+
+    passwordAttributes = new LinkedHashSet<>(cfg.passwordAttributes);
+
+    secondaryPasswordEncoders = new ArrayList<>(cfg.secondaryPasswordEncoders);
   }
 
 
@@ -1386,6 +1415,224 @@ public class InMemoryDirectoryServerConfig
 
 
   /**
+   * Retrieves an unmodifiable set containing the names or OIDs of the
+   * attributes that may hold passwords.  These are the attributes whose values
+   * will be used in bind processing, and clear-text values stored in these
+   * attributes may be encoded using an {@link InMemoryPasswordEncoder}.
+   *
+   * @return  An unmodifiable set containing the names or OIDs of the attributes
+   *          that may hold passwords, or an empty set if no password attributes
+   *          have been defined.
+   */
+  public Set<String> getPasswordAttributes()
+  {
+    return Collections.unmodifiableSet(passwordAttributes);
+  }
+
+
+
+  /**
+   * Specifies the names or OIDs of the attributes that may hold passwords.
+   * These are the attributes whose values will be used in bind processing, and
+   * clear-text values stored in these attributes may be encoded using an
+   * {@link InMemoryPasswordEncoder}.
+   *
+   * @param  passwordAttributes  The names or OIDs of the attributes that may
+   *                             hold passwords.  It may be {@code null} or
+   *                             empty if there should not be any password
+   *                             attributes, but that will prevent user
+   *                             authentication from succeeding.
+   */
+  public void setPasswordAttributes(final String... passwordAttributes)
+  {
+    setPasswordAttributes(StaticUtils.toList(passwordAttributes));
+  }
+
+
+
+  /**
+   * Specifies the names or OIDs of the attributes that may hold passwords.
+   * These are the attributes whose values will be used in bind processing, and
+   * clear-text values stored in these attributes may be encoded using an
+   * {@link InMemoryPasswordEncoder}.
+   *
+   * @param  passwordAttributes  The names or OIDs of the attributes that may
+   *                             hold passwords.  It may be {@code null} or
+   *                             empty if there should not be any password
+   *                             attributes, but that will prevent user
+   *                             authentication from succeeding.
+   */
+  public void setPasswordAttributes(final Collection<String> passwordAttributes)
+  {
+    this.passwordAttributes.clear();
+
+    if (passwordAttributes != null)
+    {
+      this.passwordAttributes.addAll(passwordAttributes);
+    }
+  }
+
+
+
+  /**
+   * Retrieves the primary password encoder for the in-memory directory server,
+   * if any.  The primary password encoder will be used to encode the values of
+   * any clear-text passwords provided in add or modify operations and in LDIF
+   * imports, and will also be used during authentication processing for any
+   * encoded passwords that start with the same prefix as this password encoder.
+   *
+   * @return  The primary password encoder for the in-memory directory server,
+   *          or {@code null} if clear-text passwords should be left in the
+   *          clear without any encoding.
+   */
+  public InMemoryPasswordEncoder getPrimaryPasswordEncoder()
+  {
+    return primaryPasswordEncoder;
+  }
+
+
+
+  /**
+   * Retrieves an unmodifiable map of the secondary password encoders for the
+   * in-memory directory server, indexed by prefix.  The secondary password
+   * encoders will be used to interact with pre-encoded passwords, but will not
+   * be used to encode new clear-text passwords.
+   *
+   * @return  An unmodifiable map of the secondary password encoders for the
+   *          in-memory directory server, or an empty map if no secondary
+   *          encoders are defined.
+   */
+  public List<InMemoryPasswordEncoder> getSecondaryPasswordEncoders()
+  {
+    return Collections.unmodifiableList(secondaryPasswordEncoders);
+  }
+
+
+
+  /**
+   * Specifies the set of password encoders to use for the in-memory directory
+   * server.  There must not be any conflicts between the prefixes used for any
+   * of the password encoders (that is, none of the secondary password encoders
+   * may use the same prefix as the primary password encoder or the same prefix
+   * as any other secondary password encoder).
+   * <BR><BR>
+   * Either or both the primary and secondary encoders may be left undefined.
+   * If both primary and secondary encoders are left undefined, then the server
+   * will assume that all passwords are in the clear.  If only a primary encoder
+   * is configured without any secondary encoders, then the server will encode
+   * all new passwords that don't start with its prefix.  If only secondary
+   * encoders are configured without a primary encoder, then all new passwords
+   * will be left in the clear, but any existing pre-encoded passwords using
+   * those mechanisms will be handled properly.
+   *
+   * @param  primaryEncoder     The primary password encoder to use for the
+   *                            in-memory directory server.  This encoder will
+   *                            be used to encode any new clear-text passwords
+   *                            that are provided to the server in add or modify
+   *                            operations or in LDIF imports.  It will also be
+   *                            used to interact with pre-encoded passwords
+   *                            for any encoded passwords that start with the
+   *                            same prefix as this password encoder.  It may be
+   *                            {@code null} if no password encoder is desired
+   *                            and clear-text passwords should remain in the
+   *                            clear.
+   * @param  secondaryEncoders  The secondary password encoders to use when
+   *                            interacting with pre-encoded passwords, but that
+   *                            will not be used to encode new clear-text
+   *                            passwords.  This may be {@code null} or empty if
+   *                            no secondary password encoders are needed.
+   *
+   * @throws  LDAPException  If there is a conflict between the prefixes used by
+   *                         two or more of the provided encoders.
+   */
+  public void setPasswordEncoders(final InMemoryPasswordEncoder primaryEncoder,
+                   final InMemoryPasswordEncoder... secondaryEncoders)
+         throws LDAPException
+  {
+    setPasswordEncoders(primaryEncoder, StaticUtils.toList(secondaryEncoders));
+  }
+
+
+
+  /**
+   * Specifies the set of password encoders to use for the in-memory directory
+   * server.  There must not be any conflicts between the prefixes used for any
+   * of the password encoders (that is, none of the secondary password encoders
+   * may use the same prefix as the primary password encoder or the same prefix
+   * as any other secondary password encoder).
+   * <BR><BR>
+   * Either or both the primary and secondary encoders may be left undefined.
+   * If both primary and secondary encoders are left undefined, then the server
+   * will assume that all passwords are in the clear.  If only a primary encoder
+   * is configured without any secondary encoders, then the server will encode
+   * all new passwords that don't start with its prefix.  If only secondary
+   * encoders are configured without a primary encoder, then all new passwords
+   * will be left in the clear, but any existing pre-encoded passwords using
+   * those mechanisms will be handled properly.
+   *
+   * @param  primaryEncoder     The primary password encoder to use for the
+   *                            in-memory directory server.  This encoder will
+   *                            be used to encode any new clear-text passwords
+   *                            that are provided to the server in add or modify
+   *                            operations or in LDIF imports.  It will also be
+   *                            used to interact with pre-encoded passwords
+   *                            for any encoded passwords that start with the
+   *                            same prefix as this password encoder.  It may be
+   *                            {@code null} if no password encoder is desired
+   *                            and clear-text passwords should remain in the
+   *                            clear.
+   * @param  secondaryEncoders  The secondary password encoders to use when
+   *                            interacting with pre-encoded passwords, but that
+   *                            will not be used to encode new clear-text
+   *                            passwords.  This may be {@code null} or empty if
+   *                            no secondary password encoders are needed.
+   *
+   * @throws  LDAPException  If there is a conflict between the prefixes used by
+   *                         two or more of the provided encoders.
+   */
+  public void setPasswordEncoders(final InMemoryPasswordEncoder primaryEncoder,
+                   final Collection<InMemoryPasswordEncoder> secondaryEncoders)
+         throws LDAPException
+  {
+    // Before applying the change, make sure that there aren't any conflicts in
+    // their prefixes.
+    final LinkedHashMap<String,InMemoryPasswordEncoder> newEncoderMap =
+         new LinkedHashMap<>(10);
+    if (primaryEncoder != null)
+    {
+      newEncoderMap.put(primaryEncoder.getPrefix(), primaryEncoder);
+    }
+
+    if (secondaryEncoders != null)
+    {
+      for (final InMemoryPasswordEncoder encoder : secondaryEncoders)
+      {
+        if (newEncoderMap.containsKey(encoder.getPrefix()))
+        {
+          throw new LDAPException(ResultCode.PARAM_ERROR,
+               ERR_MEM_DS_CFG_PW_ENCODER_CONFLICT.get(encoder.getPrefix()));
+        }
+        else
+        {
+          newEncoderMap.put(encoder.getPrefix(), encoder);
+        }
+      }
+    }
+
+    primaryPasswordEncoder = primaryEncoder;
+
+    if (primaryEncoder != null)
+    {
+      newEncoderMap.remove(primaryEncoder.getPrefix());
+    }
+
+    secondaryPasswordEncoders.clear();
+    secondaryPasswordEncoders.addAll(newEncoderMap.values());
+  }
+
+
+
+  /**
    * Parses the provided set of strings as DNs.
    *
    * @param  dnStrings  The array of strings to be parsed as DNs.
@@ -1580,6 +1827,48 @@ public class InMemoryDirectoryServerConfig
       }
       buffer.append('}');
     }
+
+    buffer.append(", passwordAttributes={");
+    final Iterator<String> pwAttrIterator = passwordAttributes.iterator();
+    while (pwAttrIterator.hasNext())
+    {
+      buffer.append('\'');
+      buffer.append(pwAttrIterator.next());
+      buffer.append('\'');
+
+      if (pwAttrIterator.hasNext())
+      {
+        buffer.append(", ");
+      }
+    }
+    buffer.append('}');
+
+    if (primaryPasswordEncoder == null)
+    {
+      buffer.append(", primaryPasswordEncoder=null");
+    }
+    else
+    {
+      buffer.append(", primaryPasswordEncoderPrefix='");
+      buffer.append(primaryPasswordEncoder.getPrefix());
+      buffer.append('\'');
+    }
+
+    buffer.append(", secondaryPasswordEncoderPrefixes={");
+    final Iterator<InMemoryPasswordEncoder> encoderIterator =
+         secondaryPasswordEncoders.iterator();
+    while (encoderIterator.hasNext())
+    {
+      buffer.append('\'');
+      buffer.append(encoderIterator.next().getPrefix());
+      buffer.append('\'');
+
+      if (encoderIterator.hasNext())
+      {
+        buffer.append(", ");
+      }
+    }
+    buffer.append('}');
 
     if (accessLogHandler != null)
     {

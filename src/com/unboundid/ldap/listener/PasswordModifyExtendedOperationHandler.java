@@ -23,11 +23,12 @@ package com.unboundid.ldap.listener;
 
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import com.unboundid.asn1.ASN1OctetString;
-import com.unboundid.ldap.matchingrules.OctetStringMatchingRule;
 import com.unboundid.ldap.sdk.Control;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
@@ -146,28 +147,37 @@ public final class PasswordModifyExtendedOperationHandler
     {
       // The user identity should generally be a DN, but we'll also allow an
       // authorization ID.
-      DN authDN;
-      try
+      final String lowerUserIdentity = StaticUtils.toLowerCase(userIdentity);
+      if (lowerUserIdentity.startsWith("dn:") ||
+           lowerUserIdentity.startsWith("u:"))
       {
-        authDN = new DN(userIdentity, handler.getSchema());
-      }
-      catch (final LDAPException le)
-      {
-        Debug.debugException(le);
         try
         {
-          authDN = handler.getDNForAuthzID(userIdentity);
+          targetDN = handler.getDNForAuthzID(userIdentity);
         }
-        catch (final LDAPException le2)
+        catch (final LDAPException le)
         {
-          Debug.debugException(le2);
+          Debug.debugException(le);
+          return new PasswordModifyExtendedResult(messageID,
+               le.getResultCode(), le.getMessage(), le.getMatchedDN(),
+               le.getReferralURLs(), null, le.getResponseControls());
+        }
+      }
+      else
+      {
+        try
+        {
+          targetDN = new DN(userIdentity);
+        }
+        catch (final LDAPException le)
+        {
+          Debug.debugException(le);
           return new PasswordModifyExtendedResult(messageID,
                ResultCode.INVALID_DN_SYNTAX,
                ERR_PW_MOD_EXTOP_CANNOT_PARSE_USER_IDENTITY.get(userIdentity),
                null, null, null, null);
         }
       }
-      targetDN = authDN;
     }
 
     if ((targetDN == null) || targetDN.isNullDN())
@@ -187,6 +197,17 @@ public final class PasswordModifyExtendedOperationHandler
     }
 
 
+    // Make sure that the server is configured with at least one password
+    // attribute.
+    final List<String> passwordAttributes = handler.getPasswordAttributes();
+    if (passwordAttributes.isEmpty())
+    {
+      return new PasswordModifyExtendedResult(messageID,
+           ResultCode.UNWILLING_TO_PERFORM, ERR_PW_MOD_EXTOP_NO_PW_ATTRS.get(),
+           null, null, null, null);
+    }
+
+
     // If an old password was provided, then validate it.  If not, then
     // determine whether it is acceptable for no password to have been given.
     if (oldPWBytes == null)
@@ -200,8 +221,10 @@ public final class PasswordModifyExtendedOperationHandler
     }
     else
     {
-      if (! userEntry.hasAttributeValue("userPassword", oldPWBytes,
-           OctetStringMatchingRule.getInstance()))
+      final List<InMemoryDirectoryServerPassword> passwordList =
+           handler.getPasswordsInEntry(userEntry,
+                pwModRequest.getRawOldPassword());
+      if (passwordList.isEmpty())
       {
         return new PasswordModifyExtendedResult(messageID,
              ResultCode.INVALID_CREDENTIALS, null, null, null, null, null);
@@ -231,11 +254,45 @@ public final class PasswordModifyExtendedOperationHandler
     }
 
 
+    // Construct the set of modifications to apply to the user entry.  Iterate
+    // through the passwords
+
+    final List<InMemoryDirectoryServerPassword> existingPasswords =
+         handler.getPasswordsInEntry(userEntry, null);
+    final ArrayList<Modification> mods =
+         new ArrayList<>(existingPasswords.size()+1);
+    if (existingPasswords.isEmpty())
+    {
+      mods.add(new Modification(ModificationType.REPLACE,
+           passwordAttributes.get(0), pwBytes));
+    }
+    else
+    {
+      final HashSet<String> usedPWAttrs =
+           new HashSet<>(existingPasswords.size());
+      for (final InMemoryDirectoryServerPassword p : existingPasswords)
+      {
+        final String attr = StaticUtils.toLowerCase(p.getAttributeName());
+        if (usedPWAttrs.isEmpty())
+        {
+          usedPWAttrs.add(attr);
+          mods.add(new Modification(ModificationType.REPLACE,
+               p.getAttributeName(), pwBytes));
+        }
+        else if (! usedPWAttrs.contains(attr))
+        {
+          usedPWAttrs.add(attr);
+          mods.add(new Modification(ModificationType.REPLACE,
+               p.getAttributeName()));
+        }
+      }
+    }
+
+
     // Attempt to modify the user password.
     try
     {
-      handler.modifyEntry(userEntry.getDN(), Arrays.asList(new Modification(
-           ModificationType.REPLACE, "userPassword", pwBytes)));
+      handler.modifyEntry(userEntry.getDN(), mods);
       return new PasswordModifyExtendedResult(messageID, ResultCode.SUCCESS,
            null, null, null, genPW, null);
     }

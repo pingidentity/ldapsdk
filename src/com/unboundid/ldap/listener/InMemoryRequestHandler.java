@@ -66,7 +66,6 @@ import com.unboundid.ldap.matchingrules.DistinguishedNameMatchingRule;
 import com.unboundid.ldap.matchingrules.GeneralizedTimeMatchingRule;
 import com.unboundid.ldap.matchingrules.IntegerMatchingRule;
 import com.unboundid.ldap.matchingrules.MatchingRule;
-import com.unboundid.ldap.matchingrules.OctetStringMatchingRule;
 import com.unboundid.ldap.protocol.SearchResultReferenceProtocolOp;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.BindResult;
@@ -210,6 +209,9 @@ public final class InMemoryRequestHandler
   // will not contain any user data, but may contain a changelog base entry.
   private final InMemoryDirectoryServerSnapshot initialSnapshot;
 
+  // The primary password encoder for the server.
+  private final InMemoryPasswordEncoder primaryPasswordEncoder;
+
   // The maximum number of changelog entries to maintain.
   private final int maxChangelogEntries;
 
@@ -218,6 +220,18 @@ public final class InMemoryRequestHandler
 
   // The client connection for this request handler instance.
   private final LDAPListenerClientConnection connection;
+
+  // The list of all password encoders (primary and secondary) configured for
+  // the in-memory directory server.
+  private final List<InMemoryPasswordEncoder> passwordEncoders;
+
+  // The list of password attributes as requested by the user.  This will be a
+  // minimal list, without multiple forms for each attribute type.
+  private final List<String> configuredPasswordAttributes;
+
+  // The list of extended password attributes, including alternate names and
+  // OIDs for each attribute type, when available.
+  private final List<String> extendedPasswordAttributes;
 
   // The set of equality indexes defined for the server.
   private final Map<AttributeTypeDefinition,
@@ -363,8 +377,47 @@ public final class InMemoryRequestHandler
       equalityIndexes.put(i.getAttributeType(), i);
     }
 
+    final Set<String> pwAttrSet = config.getPasswordAttributes();
+    final LinkedHashSet<String> basePWAttrSet =
+         new LinkedHashSet<>(pwAttrSet.size());
+    final LinkedHashSet<String> extendedPWAttrSet =
+         new LinkedHashSet<>(pwAttrSet.size()*2);
+    for (final String attr : pwAttrSet)
+    {
+      basePWAttrSet.add(attr);
+      extendedPWAttrSet.add(StaticUtils.toLowerCase(attr));
+
+      if (schema != null)
+      {
+        final AttributeTypeDefinition attrType = schema.getAttributeType(attr);
+        if (attrType != null)
+        {
+          for (final String name : attrType.getNames())
+          {
+            extendedPWAttrSet.add(StaticUtils.toLowerCase(name));
+          }
+          extendedPWAttrSet.add(StaticUtils.toLowerCase(attrType.getOID()));
+        }
+      }
+    }
+
+    configuredPasswordAttributes =
+         Collections.unmodifiableList(new ArrayList<>(basePWAttrSet));
+    extendedPasswordAttributes =
+         Collections.unmodifiableList(new ArrayList<>(extendedPWAttrSet));
+
     referentialIntegrityAttributes = Collections.unmodifiableSet(
          config.getReferentialIntegrityAttributes());
+
+    primaryPasswordEncoder = config.getPrimaryPasswordEncoder();
+
+    final ArrayList<InMemoryPasswordEncoder> encoderList = new ArrayList<>(10);
+    if (primaryPasswordEncoder != null)
+    {
+      encoderList.add(primaryPasswordEncoder);
+    }
+    encoderList.addAll(config.getSecondaryPasswordEncoders());
+    passwordEncoders = Collections.unmodifiableList(encoderList);
 
     baseDNs = Collections.unmodifiableSet(baseDNSet);
     generateOperationalAttributes = config.generateOperationalAttributes();
@@ -457,6 +510,10 @@ public final class InMemoryRequestHandler
     subschemaSubentryRef           = parent.subschemaSubentryRef;
     subschemaSubentryDN            = parent.subschemaSubentryDN;
     initialSnapshot                = parent.initialSnapshot;
+    configuredPasswordAttributes   = parent.configuredPasswordAttributes;
+    extendedPasswordAttributes     = parent.extendedPasswordAttributes;
+    primaryPasswordEncoder         = parent.primaryPasswordEncoder;
+    passwordEncoders               = parent.passwordEncoders;
   }
 
 
@@ -1052,6 +1109,43 @@ public final class InMemoryRequestHandler
              le.getResultCode().intValue(), null, le.getMessage(), null));
       }
 
+      // See if the entry contains any passwords.  If so, then make sure their
+      // values are properly encoded.
+      if ((! passwordEncoders.isEmpty()) &&
+          (! configuredPasswordAttributes.isEmpty()))
+      {
+        final ReadOnlyEntry readOnlyEntry =
+             new ReadOnlyEntry(entry.duplicate());
+        for (final String passwordAttribute : configuredPasswordAttributes)
+        {
+          for (final Attribute attr :
+               readOnlyEntry.getAttributesWithOptions(passwordAttribute, null))
+          {
+            final ArrayList<byte[]> newValues = new ArrayList<>(attr.size());
+            for (final ASN1OctetString value : attr.getRawValues())
+            {
+              try
+              {
+                newValues.add(encodeAddPassword(value, readOnlyEntry,
+                     Collections.<Modification>emptyList()).getValue());
+              }
+              catch (final LDAPException le)
+              {
+                Debug.debugException(le);
+                return new LDAPMessage(messageID, new AddResponseProtocolOp(
+                     ResultCode.UNWILLING_TO_PERFORM_INT_VALUE,
+                     le.getMatchedDN(), le.getMessage(), null));
+              }
+            }
+
+            final byte[][] newValuesArray = new byte[newValues.size()][];
+            newValues.toArray(newValuesArray);
+            entry.setAttribute(new Attribute(attr.getName(), schema,
+                 newValuesArray));
+          }
+        }
+      }
+
       // If the request includes the post-read request control, then create the
       // appropriate response control.
       final PostReadResponseControl postReadResponse =
@@ -1099,16 +1193,56 @@ public final class InMemoryRequestHandler
 
 
   /**
+   * Encodes the provided password as appropriate.
+   *
+   * @param  password  The password to be encoded.
+   * @param  entry     The entry in which the password occurs.
+   * @param  mods      A list of modifications being applied to the entry, or
+   *                   an empty list if there are no modifications.
+   *
+   * @return  The encoded password.
+   *
+   * @throws  LDAPException  If a problem is encountered while encoding the
+   *                         password.
+   */
+  private ASN1OctetString encodeAddPassword(final ASN1OctetString password,
+                                            final ReadOnlyEntry entry,
+                                            final List<Modification> mods)
+          throws LDAPException
+  {
+    for (final InMemoryPasswordEncoder encoder : passwordEncoders)
+    {
+      if (encoder.passwordStartsWithPrefix(password))
+      {
+        encoder.ensurePreEncodedPasswordAppearsValid(password, entry, mods);
+        return password;
+      }
+    }
+
+    if (primaryPasswordEncoder != null)
+    {
+      return primaryPasswordEncoder.encodePassword(password, entry, mods);
+    }
+    else
+    {
+      return password;
+    }
+  }
+
+
+
+  /**
    * Attempts to process the provided bind request.  The attempt will fail if
    * any of the following conditions is true:
    * <UL>
    *   <LI>There is a problem with any of the request controls.</LI>
-   *   <LI>The bind request is not a simple bind request.</LI>
+   *   <LI>The bind request is for a SASL bind for which no SASL mechanism
+   *       handler is defined.</LI>
    *   <LI>The bind request contains a malformed bind DN.</LI>
    *   <LI>The bind DN is not the null DN and is not the DN of any entry in the
    *       data set.</LI>
    *   <LI>The bind password is empty and the bind DN is not the null DN.</LI>
-   *   <LI>The target user does not have a userPassword value that matches the
+   *   <LI>The target user does not have any password value that matches the
    *       provided bind password.</LI>
    * </UL>
    *
@@ -1147,7 +1281,7 @@ public final class InMemoryRequestHandler
 
 
       // If this operation type requires authentication and it is a simple bind
-      // request , then ensure that the request includes credentials.
+      // request, then ensure that the request includes credentials.
       if ((authenticatedDN.isNullDN() &&
            config.getAuthenticationRequiredOperationTypes().contains(
                 OperationType.BIND)))
@@ -1312,7 +1446,7 @@ public final class InMemoryRequestHandler
       }
 
       // If the target user doesn't exist, then reject the request.
-      final Entry userEntry = entryMap.get(bindDN);
+      final ReadOnlyEntry userEntry = entryMap.get(bindDN);
       if (userEntry == null)
       {
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
@@ -1322,24 +1456,13 @@ public final class InMemoryRequestHandler
              null));
       }
 
-      // If the user entry has a userPassword value that matches the provided
-      // password, then the bind will be successful.  Otherwise, it will fail.
-      if (userEntry.hasAttributeValue("userPassword", bindPassword.getValue(),
-           OctetStringMatchingRule.getInstance()))
-      {
-        authenticatedDN = bindDN;
-        if (controlMap.containsKey(AuthorizationIdentityRequestControl.
-             AUTHORIZATION_IDENTITY_REQUEST_OID))
-        {
-          responseControls.add(new AuthorizationIdentityResponseControl(
-               "dn:" + bindDN.toString()));
-        }
-        return new LDAPMessage(messageID,
-             new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
-                  null, null, null),
-             responseControls);
-      }
-      else
+
+      // Get a list of the user's passwords, restricted to those that match the
+      // provided clear-text password.  If the list is empty, then the
+      // authentication failed.
+      final List<InMemoryDirectoryServerPassword> matchingPasswords =
+           getPasswordsInEntry(userEntry, bindPassword);
+      if (matchingPasswords.isEmpty())
       {
         return new LDAPMessage(messageID, new BindResponseProtocolOp(
              ResultCode.INVALID_CREDENTIALS_INT_VALUE,
@@ -1347,6 +1470,20 @@ public final class InMemoryRequestHandler
              ERR_MEM_HANDLER_BIND_WRONG_PASSWORD.get(request.getBindDN()), null,
              null));
       }
+
+
+      // If we've gotten here, then authentication was successful.
+      authenticatedDN = bindDN;
+      if (controlMap.containsKey(AuthorizationIdentityRequestControl.
+           AUTHORIZATION_IDENTITY_REQUEST_OID))
+      {
+        responseControls.add(new AuthorizationIdentityResponseControl(
+             "dn:" + bindDN.toString()));
+      }
+      return new LDAPMessage(messageID,
+           new BindResponseProtocolOp(ResultCode.SUCCESS_INT_VALUE, null,
+                null, null, null),
+           responseControls);
     }
   }
 
@@ -2074,15 +2211,47 @@ public final class InMemoryRequestHandler
       }
 
 
+      // If any of the modifications target password attributes, then make sure
+      // they are properly encoded.
+      final ReadOnlyEntry readOnlyEntry = new ReadOnlyEntry(entry);
+      final List<Modification> unencodedMods = request.getModifications();
+      final ArrayList<Modification> modifications =
+           new ArrayList<>(unencodedMods.size());
+      for (final Modification m : unencodedMods)
+      {
+        try
+        {
+          modifications.add(encodeModificationPasswords(m, readOnlyEntry,
+               unencodedMods));
+        }
+        catch (final LDAPException le)
+        {
+          Debug.debugException(le);
+          if (le.getResultCode().isClientSideResultCode())
+          {
+            return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+                 ResultCode.UNWILLING_TO_PERFORM_INT_VALUE, le.getMatchedDN(),
+                 le.getMessage(), null));
+          }
+          else
+          {
+            return new LDAPMessage(messageID, new ModifyResponseProtocolOp(
+                 le.getResultCode().intValue(), le.getMatchedDN(),
+                 le.getMessage(), null));
+          }
+        }
+      }
+
+
       // Attempt to apply the modifications to the entry.  If successful, then a
       // copy of the entry will be returned with the modifications applied.
       final Entry modifiedEntry;
       try
       {
         modifiedEntry = Entry.applyModifications(entry,
-             controlMap.containsKey(PermissiveModifyRequestControl.
-                  PERMISSIVE_MODIFY_REQUEST_OID),
-             request.getModifications());
+             controlMap.containsKey(
+                  PermissiveModifyRequestControl.PERMISSIVE_MODIFY_REQUEST_OID),
+             modifications);
       }
       catch (final LDAPException le)
       {
@@ -2108,7 +2277,7 @@ public final class InMemoryRequestHandler
                null));
         }
 
-        for (final Modification m : request.getModifications())
+        for (final Modification m : modifications)
         {
           final Attribute a = m.getAttribute();
           final String baseName = a.getBaseName();
@@ -2190,6 +2359,170 @@ public final class InMemoryRequestHandler
                 null, null),
            responseControls);
     }
+  }
+
+
+
+  /**
+   * Checks to see if the provided modification targets a password attribute.
+   * If so, then it makes sure that the modification is properly encoded.
+   *
+   * @param  mod    The modification being processed.
+   * @param  entry  The entry being modified.
+   * @param  mods   The full set of modifications.
+   *
+   * @return  The encoded form of the provided modification if appropriate, or
+   *          the original modification if no encoding is needed.
+   *
+   * @throws  LDAPException  If a problem is encountered during processing.
+   */
+  private Modification encodeModificationPasswords(final Modification mod,
+                            final ReadOnlyEntry entry,
+                            final List<Modification> mods)
+          throws LDAPException
+  {
+    // If the modification doesn't have any values, then we don't need to do
+    // anything.
+    final ASN1OctetString[] originalValues = mod.getRawValues();
+    if (originalValues.length == 0)
+    {
+      return mod;
+    }
+
+
+    // If no password attributes are defined, or if no password encoders are
+    // defined, then we don't need to do anything.
+    // If no password attributes are defined, then we don't need to do anything.
+    if (extendedPasswordAttributes.isEmpty() || passwordEncoders.isEmpty())
+    {
+      return mod;
+    }
+
+
+    // If the modification doesn't target a password attribute, then we don't
+    // need to do anything.
+    boolean isPasswordAttribute = false;
+    for (final String passwordAttribute : extendedPasswordAttributes)
+    {
+      if (mod.getAttribute().getBaseName().equalsIgnoreCase(passwordAttribute))
+      {
+        isPasswordAttribute = true;
+        break;
+      }
+    }
+
+    if (! isPasswordAttribute)
+    {
+      return mod;
+    }
+
+
+    // Process the modification based on its modification type.
+    final ASN1OctetString[] newValues =
+         new ASN1OctetString[originalValues.length];
+    for (int i=0; i < originalValues.length; i++)
+    {
+      newValues[i] = encodeModValue(originalValues[i], mod, entry, mods);
+    }
+
+    return new Modification(mod.getModificationType(), mod.getAttributeName(),
+         newValues);
+  }
+
+
+
+  /**
+   * Encodes the provided modification value, if necessary.
+   *
+   * @param  value  The modification value being processed.
+   * @param  mod    The modification being processed.
+   * @param  entry  The unaltered form of the entry being modified.
+   * @param  mods   The full set of modifications being processed.
+   *
+   * @return  The encoded modification value, or the original value if no
+   *          encoding is necessary.
+   *
+   * @throws  LDAPException  If a problem is encountered during processing.
+   */
+  private ASN1OctetString encodeModValue(final ASN1OctetString value,
+                                         final Modification mod,
+                                         final ReadOnlyEntry entry,
+                                         final List<Modification> mods)
+          throws LDAPException
+  {
+    // First, see if the password is already encoded.  If so, then just return
+    // it if that encoded representation looks valid.
+    for (final InMemoryPasswordEncoder encoder : passwordEncoders)
+    {
+      if (encoder.passwordStartsWithPrefix(value))
+      {
+        encoder.ensurePreEncodedPasswordAppearsValid(value, entry, mods);
+        return value;
+      }
+    }
+
+
+    // If the modification type is add or replace, then we should just encode
+    // the password in accordance with the primary encoder.
+    final ModificationType modificationType = mod.getModificationType();
+    if ((modificationType == ModificationType.ADD) ||
+        (modificationType == ModificationType.REPLACE))
+    {
+      // If there is no primary password encoder, then just leave the value in
+      // the clear.  Otherwise, encode it with the primary encoder.
+      if (primaryPasswordEncoder == null)
+      {
+        return value;
+      }
+      else
+      {
+        return primaryPasswordEncoder.encodePassword(value, entry, mods);
+      }
+    }
+
+
+    // If the modification type is a delete, then we should see if the
+    // clear-text value matches any of the values stored in the entry, whether
+    // encoded or not.  If the provided clear-text password matches an existing
+    // encoded value, then we'll return the encoded value.  If the clear-text
+    // password matches an existing clear-text password, then we'll return that
+    // clear-text password.  But even if it doesn't match anything, then we'll
+    // still return the clear-text password.
+    if (modificationType == ModificationType.DELETE)
+    {
+      final Attribute existingAttribute =
+           entry.getAttribute(mod.getAttributeName());
+      if (existingAttribute == null)
+      {
+        return value;
+      }
+
+      for (final ASN1OctetString existingValue :
+           existingAttribute.getRawValues())
+      {
+        if (value.equalsIgnoreType(existingValue))
+        {
+          return value;
+        }
+
+        for (final InMemoryPasswordEncoder encoder : passwordEncoders)
+        {
+          if (encoder.clearPasswordMatchesEncodedPassword(value, existingValue,
+                   entry))
+          {
+            return existingValue;
+          }
+        }
+      }
+
+      return value;
+    }
+
+
+    // The only way we should be able to get here is for an increment
+    // modification type, which is just stupid.  But in that case, we'll just
+    // return the value as-is.
+    return value;
   }
 
 
@@ -3751,6 +4084,109 @@ findEntriesAndRefs:
         }
       }
     }
+  }
+
+
+
+  /**
+   * Retrieves the configured list of password attributes.
+   *
+   * @return  The configured list of password attributes.
+   */
+  public List<String> getPasswordAttributes()
+  {
+    return configuredPasswordAttributes;
+  }
+
+
+
+  /**
+   * Retrieves the primary password encoder that has been configured for the
+   * server.
+   *
+   * @return  The primary password encoder that has been configured for the
+   *          server.
+   */
+  public InMemoryPasswordEncoder getPrimaryPasswordEncoder()
+  {
+    return primaryPasswordEncoder;
+  }
+
+
+
+  /**
+   * Retrieves a list of all password encoders configured for the server.
+   *
+   * @return  A list of all password encoders configured for the server.
+   */
+  public List<InMemoryPasswordEncoder> getAllPasswordEncoders()
+  {
+    return passwordEncoders;
+  }
+
+
+
+  /**
+   * Retrieves a list of the passwords contained in the provided entry.
+   *
+   * @param  entry                 The entry from which to obtain the list of
+   *                               passwords.  It must not be {@code null}.
+   * @param  clearPasswordToMatch  An optional clear-text password that should
+   *                               match the values that are returned.  If this
+   *                               is {@code null}, then all passwords contained
+   *                               in the provided entry will be returned.  If
+   *                               this is non-{@code null}, then only passwords
+   *                               matching the clear-text password will be
+   *                               returned.
+   *
+   * @return  A list of the passwords contained in the provided entry,
+   *          optionally restricted to those matching the provided clear-text
+   *          password, or an empty list if the entry does not contain any
+   *          passwords.
+   */
+  public List<InMemoryDirectoryServerPassword> getPasswordsInEntry(
+              final Entry entry, final ASN1OctetString clearPasswordToMatch)
+  {
+    final ArrayList<InMemoryDirectoryServerPassword> passwordList =
+         new ArrayList<>(5);
+    final ReadOnlyEntry readOnlyEntry = new ReadOnlyEntry(entry);
+
+    for (final String passwordAttributeName : configuredPasswordAttributes)
+    {
+      final List<Attribute> passwordAttributeList =
+           entry.getAttributesWithOptions(passwordAttributeName, null);
+
+      for (final Attribute passwordAttribute : passwordAttributeList)
+      {
+        for (final ASN1OctetString value : passwordAttribute.getRawValues())
+        {
+          final InMemoryDirectoryServerPassword password =
+               new InMemoryDirectoryServerPassword(value, readOnlyEntry,
+                    passwordAttribute.getName(), passwordEncoders);
+
+          if (clearPasswordToMatch != null)
+          {
+            try
+            {
+              if (! password.matchesClearPassword(clearPasswordToMatch))
+              {
+                continue;
+              }
+            }
+            catch (final Exception e)
+            {
+              Debug.debugException(e);
+              continue;
+            }
+          }
+
+          passwordList.add(new InMemoryDirectoryServerPassword(value,
+               readOnlyEntry, passwordAttribute.getName(), passwordEncoders));
+        }
+      }
+    }
+
+    return passwordList;
   }
 
 

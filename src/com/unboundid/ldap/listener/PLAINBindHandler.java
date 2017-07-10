@@ -180,18 +180,19 @@ public final class PLAINBindHandler
     {
       // Determine the password for the target user, which may be an actual
       // entry or be included in the additional bind credentials.
-      final byte[] userPWBytes;
       final Entry authEntry = handler.getEntry(authDN);
       if (authEntry == null)
       {
-        userPWBytes = handler.getAdditionalBindCredentials(authDN);
+        final byte[] userPWBytes = handler.getAdditionalBindCredentials(authDN);
+        passwordValid =  Arrays.equals(bindPWBytes, userPWBytes);
       }
       else
       {
-        userPWBytes = authEntry.getAttributeValueBytes("userPassword");
+        final List<InMemoryDirectoryServerPassword> passwordList =
+             handler.getPasswordsInEntry(authEntry,
+                  new ASN1OctetString(bindPWBytes));
+        passwordValid = (! passwordList.isEmpty());
       }
-
-      passwordValid =  Arrays.equals(bindPWBytes, userPWBytes);
     }
 
     if (! passwordValid)
@@ -204,12 +205,10 @@ public final class PLAINBindHandler
     // The server doesn't really distinguish between authID and authzID, so
     // if an authzID was provided then we'll just behave as if the user
     // specified as the authzID had bound.
-    String authID = authcID;
     if (authzID != null)
     {
       try
       {
-        authID = authzID;
         authDN = handler.getDNForAuthzID(authzID);
       }
       catch (final LDAPException le)

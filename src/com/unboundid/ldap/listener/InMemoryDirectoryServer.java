@@ -2743,6 +2743,70 @@ public final class InMemoryDirectoryServer
 
 
   /**
+   * Retrieves the configured list of password attributes.
+   *
+   * @return  The configured list of password attributes.
+   */
+  public List<String> getPasswordAttributes()
+  {
+    return inMemoryHandler.getPasswordAttributes();
+  }
+
+
+
+  /**
+   * Retrieves the primary password encoder that has been configured for the
+   * server.
+   *
+   * @return  The primary password encoder that has been configured for the
+   *          server.
+   */
+  public InMemoryPasswordEncoder getPrimaryPasswordEncoder()
+  {
+    return inMemoryHandler.getPrimaryPasswordEncoder();
+  }
+
+
+
+  /**
+   * Retrieves a list of all password encoders configured for the server.
+   *
+   * @return  A list of all password encoders configured for the server.
+   */
+  public List<InMemoryPasswordEncoder> getAllPasswordEncoders()
+  {
+    return inMemoryHandler.getAllPasswordEncoders();
+  }
+
+
+
+  /**
+   * Retrieves a list of the passwords contained in the provided entry.
+   *
+   * @param  entry                 The entry from which to obtain the list of
+   *                               passwords.  It must not be {@code null}.
+   * @param  clearPasswordToMatch  An optional clear-text password that should
+   *                               match the values that are returned.  If this
+   *                               is {@code null}, then all passwords contained
+   *                               in the provided entry will be returned.  If
+   *                               this is non-{@code null}, then only passwords
+   *                               matching the clear-text password will be
+   *                               returned.
+   *
+   * @return  A list of the passwords contained in the provided entry,
+   *          optionally restricted to those matching the provided clear-text
+   *          password, or an empty list if the entry does not contain any
+   *          passwords.
+   */
+  public List<InMemoryDirectoryServerPassword> getPasswordsInEntry(
+              final Entry entry, final ASN1OctetString clearPasswordToMatch)
+  {
+    return inMemoryHandler.getPasswordsInEntry(entry, clearPasswordToMatch);
+  }
+
+
+
+  /**
    * Parses the provided string as a search filter.
    *
    * @param  s  The string to be parsed.

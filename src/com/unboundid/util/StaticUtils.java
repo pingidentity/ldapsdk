@@ -911,6 +911,159 @@ public final class StaticUtils
 
 
   /**
+   * Retrieves the bytes that correspond to the provided hexadecimal string.
+   *
+   * @param  hexString  The hexadecimal string for which to retrieve the bytes.
+   *                    It must not be {@code null}, and there must not be any
+   *                    delimiter between bytes.
+   *
+   * @return  The bytes that correspond to the provided hexadecimal string.
+   *
+   * @throws  ParseException  If the provided string does not represent valid
+   *                          hexadecimal data, or if the provided string does
+   *                          not contain an even number of characters.
+   */
+  public static byte[] fromHex(final String hexString)
+         throws ParseException
+  {
+    if ((hexString.length() % 2) != 0)
+    {
+      throw new ParseException(
+           ERR_FROM_HEX_ODD_NUMBER_OF_CHARACTERS.get(hexString.length()),
+           hexString.length());
+    }
+
+    final byte[] decodedBytes = new byte[hexString.length() / 2];
+    for (int i=0, j=0; i < decodedBytes.length; i++, j+= 2)
+    {
+      switch (hexString.charAt(j))
+      {
+        case '0':
+          // No action is required.
+          break;
+        case '1':
+          decodedBytes[i] = 0x10;
+          break;
+        case '2':
+          decodedBytes[i] = 0x20;
+          break;
+        case '3':
+          decodedBytes[i] = 0x30;
+          break;
+        case '4':
+          decodedBytes[i] = 0x40;
+          break;
+        case '5':
+          decodedBytes[i] = 0x50;
+          break;
+        case '6':
+          decodedBytes[i] = 0x60;
+          break;
+        case '7':
+          decodedBytes[i] = 0x70;
+          break;
+        case '8':
+          decodedBytes[i] = (byte) 0x80;
+          break;
+        case '9':
+          decodedBytes[i] = (byte) 0x90;
+          break;
+        case 'a':
+        case 'A':
+          decodedBytes[i] = (byte) 0xA0;
+          break;
+        case 'b':
+        case 'B':
+          decodedBytes[i] = (byte) 0xB0;
+          break;
+        case 'c':
+        case 'C':
+          decodedBytes[i] = (byte) 0xC0;
+          break;
+        case 'd':
+        case 'D':
+          decodedBytes[i] = (byte) 0xD0;
+          break;
+        case 'e':
+        case 'E':
+          decodedBytes[i] = (byte) 0xE0;
+          break;
+        case 'f':
+        case 'F':
+          decodedBytes[i] = (byte) 0xF0;
+          break;
+        default:
+          throw new ParseException(ERR_FROM_HEX_NON_HEX_CHARACTER.get(j), j);
+      }
+
+      switch (hexString.charAt(j+1))
+      {
+        case '0':
+          // No action is required.
+          break;
+        case '1':
+          decodedBytes[i] |= 0x01;
+          break;
+        case '2':
+          decodedBytes[i] |= 0x02;
+          break;
+        case '3':
+          decodedBytes[i] |= 0x03;
+          break;
+        case '4':
+          decodedBytes[i] |= 0x04;
+          break;
+        case '5':
+          decodedBytes[i] |= 0x05;
+          break;
+        case '6':
+          decodedBytes[i] |= 0x06;
+          break;
+        case '7':
+          decodedBytes[i] |= 0x07;
+          break;
+        case '8':
+          decodedBytes[i] |= 0x08;
+          break;
+        case '9':
+          decodedBytes[i] |= 0x09;
+          break;
+        case 'a':
+        case 'A':
+          decodedBytes[i] |= 0x0A;
+          break;
+        case 'b':
+        case 'B':
+          decodedBytes[i] |= 0x0B;
+          break;
+        case 'c':
+        case 'C':
+          decodedBytes[i] |= 0x0C;
+          break;
+        case 'd':
+        case 'D':
+          decodedBytes[i] |= 0x0D;
+          break;
+        case 'e':
+        case 'E':
+          decodedBytes[i] |= 0x0E;
+          break;
+        case 'f':
+        case 'F':
+          decodedBytes[i] |= 0x0F;
+          break;
+        default:
+          throw new ParseException(ERR_FROM_HEX_NON_HEX_CHARACTER.get(j+1),
+               j+1);
+      }
+    }
+
+    return decodedBytes;
+  }
+
+
+
+  /**
    * Appends a hex-encoded representation of the provided character to the given
    * buffer.  Each byte of the hex-encoded representation will be prefixed with
    * a backslash.

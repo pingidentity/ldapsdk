@@ -57,7 +57,7 @@ public abstract class AcceptAllSimpleMatchingRule
   public boolean valuesMatch(final ASN1OctetString value1,
                              final ASN1OctetString value2)
   {
-    return normalize(value1).equals(normalize(value2));
+    return normalize(value1).equalsIgnoreType(normalize(value2));
   }
 
 
