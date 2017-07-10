@@ -1412,7 +1412,7 @@ argsLoop:
           {
             final String line = systemInReader.readLine().trim();
             if (line.equalsIgnoreCase("t") &&
-                (tool.getMaxTrailingArguments() > 0))
+                (tool.getMaxTrailingArguments() != 0))
             {
               promptForTrailingArguments();
               continue argsLoop;
