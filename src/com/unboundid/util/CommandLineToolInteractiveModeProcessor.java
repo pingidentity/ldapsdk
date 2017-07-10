@@ -1441,6 +1441,7 @@ argsLoop:
             {
               try
               {
+                validateRequiredAndExclusiveArgumentSets();
                 tool.doExtendedArgumentValidation();
 
                 final ArrayList<String> argStrings =
@@ -1499,6 +1500,7 @@ argsLoop:
             {
               try
               {
+                validateRequiredAndExclusiveArgumentSets();
                 tool.doExtendedArgumentValidation();
                 break argsLoop;
               }
@@ -3623,6 +3625,88 @@ argsLoop:
       buffer.append(' ');
     }
     return buffer.toString();
+  }
+
+
+
+  /**
+   * Examines the arguments provided to the tool to ensure that all required and
+   * exclusive argument set constraints have been satisfied.
+   *
+   * @throws  ArgumentException  If any required or exclusive argument
+   *                             constraints are not satisfied.
+   */
+  private void validateRequiredAndExclusiveArgumentSets()
+          throws ArgumentException
+  {
+    // Iterate through the required argument sets and make sure that at least
+    // one argument from each set is present.
+    for (final Set<Argument> requiredArgumentsSet :
+         parser.getRequiredArgumentSets())
+    {
+      boolean found = false;
+      for (final Argument a : requiredArgumentsSet)
+      {
+        if (a.isPresent())
+        {
+          found = true;
+          break;
+        }
+      }
+
+      if (! found)
+      {
+        final StringBuilder buffer = new StringBuilder();
+        for (final Argument a : requiredArgumentsSet)
+        {
+          if (buffer.length() > 0)
+          {
+            buffer.append(", ");
+          }
+
+          buffer.append(a.getIdentifierString());
+        }
+
+        throw new ArgumentException(
+             ERR_INTERACTIVE_REQUIRED_ARG_SET_CONFLICT.get(buffer.toString()));
+      }
+    }
+
+
+    // Iterate through the exclusive argument sets and make sure that none of
+    // them has multiple arguments that are present.
+    for (final Set<Argument> exclusiveArgumentsSet :
+         parser.getExclusiveArgumentSets())
+    {
+      boolean found = false;
+      for (final Argument a : exclusiveArgumentsSet)
+      {
+        if (a.isPresent())
+        {
+          if (found)
+          {
+            final StringBuilder buffer = new StringBuilder();
+            for (final Argument exclusiveArg : exclusiveArgumentsSet)
+            {
+              if (buffer.length() > 0)
+              {
+                buffer.append(", ");
+              }
+
+              buffer.append(exclusiveArg.getIdentifierString());
+            }
+
+            throw new ArgumentException(
+                 ERR_INTERACTIVE_EXCLUSIVE_ARG_SET_CONFLICT.get(
+                      buffer.toString()));
+          }
+          else
+          {
+            found = true;
+          }
+        }
+      }
+    }
   }
 
 
