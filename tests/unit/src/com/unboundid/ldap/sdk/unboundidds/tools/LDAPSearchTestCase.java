@@ -241,7 +241,6 @@ public final class LDAPSearchTestCase
     LDAPSearch.main(NULL_OUTPUT_STREAM, NULL_OUTPUT_STREAM,
          "--hostname", "localhost",
          "--port", String.valueOf(ds.getListenPort()),
-         "--baseDN", "",
          "--scope", "base",
          "--bindControl", "1.2.3.4",
          "--authorizationIdentity",

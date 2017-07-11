@@ -1058,10 +1058,8 @@ public final class LDAPSearch
     parser.addArgument(ldapVersion);
 
 
-    // The baseDN and ldapURLFile arguments can't be used together, but one of
-    // them must be present.
+    // The baseDN and ldapURLFile arguments can't be used together.
     parser.addExclusiveArgumentSet(baseDN, ldapURLFile);
-    parser.addRequiredArgumentSet(baseDN, ldapURLFile);
 
     // The scope and ldapURLFile arguments can't be used together.
     parser.addExclusiveArgumentSet(scope, ldapURLFile);
@@ -2459,11 +2457,21 @@ public final class LDAPSearch
                                       final FixedRateBarrier rateLimiter,
                                       final List<Control> searchControls)
   {
+    final String baseDNString;
+    if (baseDN.isPresent())
+    {
+      baseDNString = baseDN.getStringValue();
+    }
+    else
+    {
+      baseDNString = "";
+    }
+
     final SearchRequest searchRequest = new SearchRequest(
          new LDAPSearchListener(outputHandler, entryTransformations),
-         baseDN.getStringValue(), scope.getValue(), derefPolicy,
-         sizeLimit.getValue(), timeLimitSeconds.getValue(),
-         typesOnly.isPresent(), filter, attributes);
+         baseDNString, scope.getValue(), derefPolicy, sizeLimit.getValue(),
+         timeLimitSeconds.getValue(), typesOnly.isPresent(), filter,
+         attributes);
     return doSearch(pool, searchRequest, rateLimiter, searchControls);
   }
 
