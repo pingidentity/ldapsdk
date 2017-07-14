@@ -1739,6 +1739,42 @@ public final class ResultCode
    */
   public static ResultCode valueOf(final int intValue, final String name)
   {
+    return valueOf(intValue, name, true);
+  }
+
+
+
+  /**
+   * Retrieves the result code with the specified integer value.  If the
+   * provided integer value does not correspond to an already-defined
+   * {@code ResultCode} object, then this method may optionally create and
+   * return a new {@code ResultCode}.  Any new result codes created will also be
+   * cached and returned for any subsequent requests with that integer value so
+   * the same object will always be returned for a given integer value.
+   *
+   * @param  intValue             The integer value for which to retrieve the
+   *                              corresponding result code.
+   * @param  name                 The user-friendly name to use for the result
+   *                              code if no result code has been previously
+   *                              accessed with the same integer value.  It may
+   *                              be {@code null} if this is not known or a
+   *                              string representation of the integer value
+   *                              should be used.
+   * @param  createNewResultCode  Indicates whether to create a new result code
+   *                              object with the specified integer value and
+   *                              name if that value does not correspond to
+   *                              any already-defined result code.
+   *
+   * @return  The existing result code with the specified integer value if one
+   *          already existed, a newly-created result code with the specified
+   *          name and integer value if none already existed but
+   *          {@code createNewResultCode} is {@code true}, or {@code null} if no
+   *          result code already existed with the specified integer value and
+   *          {@code createNewResultCode} is {@code false}.
+   */
+  public static ResultCode valueOf(final int intValue, final String name,
+                                   final boolean createNewResultCode)
+  {
     switch (intValue)
     {
       case SUCCESS_INT_VALUE:
@@ -1894,6 +1930,11 @@ public final class ResultCode
     ResultCode rc = UNDEFINED_RESULT_CODES.get(intValue);
     if (rc == null)
     {
+      if (! createNewResultCode)
+      {
+        return null;
+      }
+
       if (name == null)
       {
         rc = new ResultCode(intValue);

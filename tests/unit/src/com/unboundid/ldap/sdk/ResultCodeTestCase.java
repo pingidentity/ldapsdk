@@ -134,6 +134,9 @@ public class ResultCodeTestCase
 
     assertEquals(rc3, rc4);
     assertSame(rc3, rc4);
+
+    ResultCode rc5 = ResultCode.valueOf(12347, null, false);
+    assertNull(rc5);
   }
 
 
