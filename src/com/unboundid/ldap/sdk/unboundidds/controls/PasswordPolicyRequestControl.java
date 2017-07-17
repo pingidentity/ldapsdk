@@ -50,6 +50,9 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
+ * This request control has an OID of 1.3.6.1.4.1.42.2.27.8.5.1.  The
+ * criticality may be either true or false.  It does not have a value.
+ * <BR><BR>
  * The corresponding {@link PasswordPolicyResponseControl} may include at most
  * one warning from the set of {@link PasswordPolicyWarningType} values and at
  * most one error from the set of {@link PasswordPolicyErrorType} values.  See

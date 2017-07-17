@@ -52,6 +52,10 @@ import static com.unboundid.util.Debug.*;
  *   or mature enough to be guaranteed to work in an interoperable way with
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
+ * <BR>
+ * This extended result does not have an OID.  If the request was processed
+ * successfully by the server, then the response should have a value that is the
+ * BER-encoded integer representation of the connection ID.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

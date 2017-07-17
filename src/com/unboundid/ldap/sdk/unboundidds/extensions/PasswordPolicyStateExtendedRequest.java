@@ -58,6 +58,100 @@ import static com.unboundid.util.Debug.*;
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
+ * The extended request has an OID of 1.3.6.1.4.1.30221.1.6.1 and a value with
+ * the following encoding:
+ * <PRE>
+ *   PasswordPolicyStateValue ::= SEQUENCE {
+ *        targetUser     LDAPDN
+ *        operations     SEQUENCE OF PasswordPolicyStateOperation OPTIONAL }
+ *
+ *   PasswordPolicyStateOperation ::= SEQUENCE {
+ *        opType       ENUMERATED {
+ *             getPasswordPolicyDN                          (0),
+ *             getAccountDisabledState                      (1),
+ *             setAccountDisabledState                      (2),
+ *             clearAccountDisabledState                    (3),
+ *             getAccountExpirationTime                     (4),
+ *             setAccountExpirationTime                     (5),
+ *             clearAccountExpirationTime                   (6),
+ *             getSecondsUntilAccountExpiration             (7),
+ *             getPasswordChangedTime                       (8),
+ *             setPasswordChangedTime                       (9),
+ *             clearPasswordChangedTime                     (10),
+ *             getPasswordExpirationWarnedTime              (11),
+ *             setPasswordExpirationWarnedTime              (12),
+ *             clearPasswordExpirationWarnedTime            (13),
+ *             getSecondsUntilPasswordExpiration            (14),
+ *             getSecondsUntilPasswordExpirationWarning     (15),
+ *             getAuthenticationFailureTimes                (16),
+ *             addAuthenticationFailureTime                 (17),
+ *             setAuthenticationFailureTimes                (18),
+ *             clearAuthenticationFailureTimes              (19),
+ *             getSecondsUntilAuthenticationFailureUnlock   (20),
+ *             getRemainingAuthenticationFailureCount       (21),
+ *             getLastLoginTime                             (22),
+ *             setLastLoginTime                             (23),
+ *             clearLastLoginTime                           (24),
+ *             getSecondsUntilIdleLockout                   (25),
+ *             getPasswordResetState                        (26),
+ *             setPasswordResetState                        (27),
+ *             clearPasswordResetState                      (28),
+ *             getSecondsUntilPasswordResetLockout          (29),
+ *             getGraceLoginUseTimes                        (30),
+ *             addGraceLoginUseTime                         (31),
+ *             setGraceLoginUseTimes                        (32),
+ *             clearGraceLoginUseTimes                      (33),
+ *             getRemainingGraceLoginCount                  (34),
+ *             getPasswordChangedByRequiredTime             (35),
+ *             setPasswordChangedByRequiredTime             (36),
+ *             clearPasswordChangedByRequiredTime           (37),
+ *             getSecondsUntilRequiredChangeTime            (38),
+ *             getPasswordHistory                           (39), -- Deprecated
+ *             clearPasswordHistory                         (40),
+ *             hasRetiredPassword                           (41),
+ *             getPasswordRetiredTime                       (42),
+ *             getRetiredPasswordExpirationTime             (43),
+ *             purgeRetiredPassword                         (44),
+ *             getAccountActivationTime                     (45),
+ *             setAccountActivationTime                     (46),
+ *             clearAccountActivationTime                   (47),
+ *             getSecondsUntilAccountActivation             (48),
+ *             getLastLoginIPAddress                        (49),
+ *             setLastLoginIPAddress                        (50),
+ *             clearLastLoginIPAddress                      (51),
+ *             getAccountUsabilityNotices                   (52),
+ *             getAccountUsabilityWarnings                  (53),
+ *             getAccountUsabilityErrors                    (54),
+ *             getAccountIsUsable                           (55),
+ *             getAccountIsNotYetActive                     (56),
+ *             getAccountIsExpired                          (57),
+ *             getPasswordExpirationTime                    (58),
+ *             getAccountIsFailureLocked                    (59),
+ *             setAccountIsFailureLocked                    (60),
+ *             getFailureLockoutTime                        (61),
+ *             getAccountIsIdleLocked                       (62),
+ *             getIdleLockoutTime                           (63),
+ *             getAccountIsResetLocked                      (64),
+ *             getResetLockoutTime                          (65),
+ *             getPasswordHistoryCount                      (66),
+ *             getPasswordIsExpired                         (67),
+ *             getAvailableSASLMechanisms                   (68),
+ *             getAvailableOTPDeliveryMechanisms            (69),
+ *             getHasTOTPSharedSecret                       (70),
+ *             getRegisteredYubiKeyPublicIDs                (71),
+ *             addRegisteredYubiKeyPublicID                 (72),
+ *             removeRegisteredYubiKeyPublicID              (73),
+ *             setRegisteredYubiKeyPublicIDs                (74),
+ *             clearRegisteredYubiKeyPublicIDs              (75),
+ *             addTOTPSharedSecret                          (76),
+ *             removeTOTPSharedSecret                       (77),
+ *             setTOTPSharedSecrets                         (78),
+ *             clearTOTPSharedSecrets                       (79),
+ *             hasRegisteredYubiKeyPublicID                 (80),
+ *             ... },
+ *      opValues     SEQUENCE OF OCTET STRING OPTIONAL }
+ * </PRE>
+ * <BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the password policy state
  * extended operation to administratively disable a user's account:

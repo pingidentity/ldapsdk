@@ -65,6 +65,25 @@ import static com.unboundid.util.StaticUtils.*;
  *   or mature enough to be guaranteed to work in an interoperable way with
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
+ * <BR>
+ * The control has an OID of x and a criticality of false.  It must have a value
+ * with the following encoding:
+ * <PRE>
+ *   PasswordPolicyResponseValue ::= SEQUENCE {
+ *      warning [0] CHOICE {
+ *         timeBeforeExpiration [0] INTEGER (0 .. maxInt),
+ *         graceAuthNsRemaining [1] INTEGER (0 .. maxInt) } OPTIONAL,
+ *      error   [1] ENUMERATED {
+ *         passwordExpired             (0),
+ *         accountLocked               (1),
+ *         changeAfterReset            (2),
+ *         passwordModNotAllowed       (3),
+ *         mustSupplyOldPassword       (4),
+ *         insufficientPasswordQuality (5),
+ *         passwordTooShort            (6),
+ *         passwordTooYoung            (7),
+ *         passwordInHistory           (8) } OPTIONAL }
+ * </PRE>
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

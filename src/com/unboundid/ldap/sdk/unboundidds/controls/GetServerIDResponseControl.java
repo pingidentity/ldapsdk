@@ -57,9 +57,9 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
- * This control must have a value, which will simply be the string
- * representation of the server ID of the associated server.  The criticality
- * should be {@code false}.
+ * This control has an OID of 1.3.6.1.4.1.30221.2.5.15 and a criticality of
+ * false.  This control must have a value, which will simply be the string
+ * representation of the server ID of the associated server.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

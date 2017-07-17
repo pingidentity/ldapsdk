@@ -75,6 +75,9 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  * Ping Identity, UnboundID, and Alcatel-Lucent 8661 Directory Server
  * implementations.
  * <BR><BR>
+ * This control has an OID of 1.3.6.1.4.1.4203.1.10.2 and a criticality of true.
+ * It does not have a value.
+ * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for attempting to perform a
  * modify operation including the LDAP no-op control so that the change is not

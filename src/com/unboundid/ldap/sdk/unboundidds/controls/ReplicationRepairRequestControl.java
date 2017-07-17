@@ -49,6 +49,9 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
+ * This request control has an OID of 1.3.6.1.4.1.30221.1.5.2 and a criticality
+ * of true.  It does not have a value.
+ * <BR><BR>
  * <H2>Example</H2>
  * The following example demonstrates the use of the replication repair request
  * control:

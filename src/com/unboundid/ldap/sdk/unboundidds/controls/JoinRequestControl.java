@@ -53,6 +53,11 @@ import static com.unboundid.util.StaticUtils.*;
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
+ * This request control has an OID of 1.3.6.1.4.1.30221.2.5.9, and the
+ * criticality is generally true.  It must have a value, and the format of that
+ * value is described in the class-level documentation for the
+ * {@link JoinRequestValue} class.
+ * <BR>
  * <H2>Example</H2>
  * Consider the case in which user entries include an account number, but
  * additional information about those accounts are available in separate

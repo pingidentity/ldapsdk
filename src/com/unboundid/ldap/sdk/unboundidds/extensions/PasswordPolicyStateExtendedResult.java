@@ -65,6 +65,11 @@ import static com.unboundid.util.Debug.*;
  *   or mature enough to be guaranteed to work in an interoperable way with
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
+ * <BR>
+ * This extended result does not have an OID.  If the request was processed
+ * successfully, then the result will have a value that has the same encoding as
+ * the request, which was described in the class-level documentation for the
+ * {@link PasswordPolicyStateExtendedRequest} class.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

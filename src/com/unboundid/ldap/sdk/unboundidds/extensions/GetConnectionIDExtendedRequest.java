@@ -56,6 +56,9 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
+ * This extended request has an OID of 1.3.6.1.4.1.30221.1.6.2.  It does not
+ * have a value.
+ * <BR>
  * <H2>Example</H2>
  * The following example demonstrates the process for using the get connection
  * ID extended operation:
