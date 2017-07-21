@@ -67,6 +67,8 @@ import com.unboundid.util.args.ScopeArgument;
 import com.unboundid.util.args.StringArgument;
 import com.unboundid.util.args.SubCommand;
 import com.unboundid.util.args.TimestampArgument;
+import com.unboundid.util.ssl.AggregateTrustManager;
+import com.unboundid.util.ssl.JVMDefaultTrustManager;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.PromptTrustManager;
 import com.unboundid.util.ssl.SSLUtil;
@@ -960,7 +962,9 @@ final class CommandLineToolInteractiveModeProcessor
         }
         else if (trustStorePath == null)
         {
-          trustManager = new PromptTrustManager();
+          trustManager = new AggregateTrustManager(false,
+               JVMDefaultTrustManager.getInstance(),
+               new PromptTrustManager());
         }
         else
         {

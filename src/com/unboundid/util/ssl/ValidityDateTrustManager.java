@@ -81,6 +81,7 @@ public final class ValidityDateTrustManager
    * @throws  CertificateException  If the provided client certificate chain
    *                                should not be trusted.
    */
+  @Override()
   public void checkClientTrusted(final X509Certificate[] chain,
                                  final String authType)
          throws CertificateException
@@ -101,6 +102,7 @@ public final class ValidityDateTrustManager
    * @throws  CertificateException  If the provided server certificate chain
    *                                should not be trusted.
    */
+  @Override()
   public void checkServerTrusted(final X509Certificate[] chain,
                                  final String authType)
          throws CertificateException
@@ -149,6 +151,7 @@ public final class ValidityDateTrustManager
    *
    * @return  The accepted issuer certificates for this trust manager.
    */
+  @Override()
   public X509Certificate[] getAcceptedIssuers()
   {
     return NO_CERTIFICATES;

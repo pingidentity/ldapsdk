@@ -56,6 +56,14 @@ public final class TrustStoreTrustManager
        implements X509TrustManager, Serializable
 {
   /**
+   * A pre-allocated empty certificate array.
+   */
+  private static final X509Certificate[] NO_CERTIFICATES =
+       new X509Certificate[0];
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -4093869102727719415L;
@@ -329,6 +337,7 @@ public final class TrustStoreTrustManager
    * @throws  CertificateException  If the provided client certificate chain
    *                                should not be trusted.
    */
+  @Override()
   public synchronized void checkClientTrusted(final X509Certificate[] chain,
                                 final String authType)
          throws CertificateException
@@ -352,6 +361,7 @@ public final class TrustStoreTrustManager
    * @throws  CertificateException  If the provided server certificate chain
    *                                should not be trusted.
    */
+  @Override()
   public synchronized void checkServerTrusted(final X509Certificate[] chain,
                                 final String authType)
          throws CertificateException
@@ -370,8 +380,9 @@ public final class TrustStoreTrustManager
    *
    * @return  The accepted issuer certificates for this trust manager.
    */
+  @Override()
   public synchronized X509Certificate[] getAcceptedIssuers()
   {
-    return new X509Certificate[0];
+    return NO_CERTIFICATES;
   }
 }

@@ -49,6 +49,8 @@ import com.unboundid.util.args.DNArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.IntegerArgument;
 import com.unboundid.util.args.StringArgument;
+import com.unboundid.util.ssl.AggregateTrustManager;
+import com.unboundid.util.ssl.JVMDefaultTrustManager;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.PromptTrustManager;
 import com.unboundid.util.ssl.SSLUtil;
@@ -148,10 +150,12 @@ public abstract class MultiServerLDAPCommandLineTool
   private final ServerSet[]        serverSet;
   private final SSLSocketFactory[] startTLSSocketFactory;
 
-  // The prompt trust manager that will be shared by all connections created for
-  // which it is appropriate.  This will allow them to benefit from the common
-  // cache.
-  private final AtomicReference<PromptTrustManager> promptTrustManager;
+  // An atomic reference to an aggregate trust manager that will check a
+  // JVM-default set of trusted issuers, and then its own cache, before
+  // prompting the user about whether to trust the presented certificate chain.
+  // Re-using this trust manager will allow the tool to benefit from a common
+  // cache if multiple connections are needed.
+  private final AtomicReference<AggregateTrustManager> promptTrustManager;
 
 
 
@@ -195,7 +199,7 @@ public abstract class MultiServerLDAPCommandLineTool
   {
     super(outStream, errStream);
 
-    promptTrustManager = new AtomicReference<PromptTrustManager>();
+    promptTrustManager = new AtomicReference<>();
 
     this.serverNamePrefixes = serverNamePrefixes;
     this.serverNameSuffixes = serverNameSuffixes;
@@ -780,10 +784,10 @@ public abstract class MultiServerLDAPCommandLineTool
         }
       }
 
-      TrustManager trustManager;
+      TrustManager tm;
       if (trustAll[serverIndex].isPresent())
       {
-        trustManager = new TrustAllTrustManager(false);
+        tm = new TrustAllTrustManager(false);
       }
       else if (trustStorePath[serverIndex].isPresent())
       {
@@ -808,22 +812,30 @@ public abstract class MultiServerLDAPCommandLineTool
           }
         }
 
-        trustManager = new TrustStoreTrustManager(
+        tm = new TrustStoreTrustManager(
              trustStorePath[serverIndex].getValue(), pw,
              trustStoreFormat[serverIndex].getValue(), true);
       }
       else
       {
-        trustManager = promptTrustManager.get();
-        if (trustManager == null)
+        tm = promptTrustManager.get();
+        if (tm == null)
         {
-          final PromptTrustManager m = new PromptTrustManager();
-          promptTrustManager.compareAndSet(null, m);
-          trustManager = promptTrustManager.get();
+          final AggregateTrustManager atm = new AggregateTrustManager(false,
+               JVMDefaultTrustManager.getInstance(),
+               new PromptTrustManager());
+          if (promptTrustManager.compareAndSet(null, atm))
+          {
+            tm = atm;
+          }
+          else
+          {
+            tm = promptTrustManager.get();
+          }
         }
       }
 
-      return new SSLUtil(keyManager, trustManager);
+      return new SSLUtil(keyManager, tm);
     }
     else
     {

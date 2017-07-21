@@ -75,6 +75,21 @@ public final class PromptTrustManager
 
 
 
+  /**
+   * The message digest that will be used for 256-bit SHA-2 hashes.
+   */
+  private static final MessageDigest SHA256;
+
+
+
+  /**
+   * A pre-allocated empty certificate array.
+   */
+  private static final X509Certificate[] NO_CERTIFICATES =
+       new X509Certificate[0];
+
+
+
   static
   {
     MessageDigest d = null;
@@ -100,6 +115,18 @@ public final class PromptTrustManager
       throw new RuntimeException(e);
     }
     SHA1 = d;
+
+    d = null;
+    try
+    {
+      d = MessageDigest.getInstance("SHA-256");
+    }
+    catch (final Exception e)
+    {
+      debugException(e);
+      throw new RuntimeException(e);
+    }
+    SHA256 = d;
   }
 
 
@@ -401,6 +428,8 @@ public final class PromptTrustManager
          getFingerprint(c, MD5)));
     out.println("\t\t" + INFO_PROMPT_SHA1_FINGERPRINT.get(
          getFingerprint(c, SHA1)));
+    out.println("\t\t" + INFO_PROMPT_SHA256_FINGERPRINT.get(
+         getFingerprint(c, SHA256)));
 
     for (int i=1; i < chain.length; i++)
     {
@@ -545,6 +574,7 @@ public final class PromptTrustManager
    * @throws  CertificateException  If the provided client certificate chain
    *                                should not be trusted.
    */
+  @Override()
   public void checkClientTrusted(final X509Certificate[] chain,
                                  final String authType)
          throws CertificateException
@@ -565,6 +595,7 @@ public final class PromptTrustManager
    * @throws  CertificateException  If the provided server certificate chain
    *                                should not be trusted.
    */
+  @Override()
   public void checkServerTrusted(final X509Certificate[] chain,
                                  final String authType)
          throws CertificateException
@@ -580,8 +611,9 @@ public final class PromptTrustManager
    *
    * @return  The accepted issuer certificates for this trust manager.
    */
+  @Override()
   public X509Certificate[] getAcceptedIssuers()
   {
-    return new X509Certificate[0];
+    return NO_CERTIFICATES;
   }
 }

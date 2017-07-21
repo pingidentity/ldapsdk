@@ -127,6 +127,7 @@ public abstract class WrapperKeyManager
    * @return  The nicknames of the client certificates, or {@code null} if none
    *          were found in the key store.
    */
+  @Override()
   public final synchronized String[] getClientAliases(final String keyType,
                                           final Principal[] issuers)
   {
@@ -167,6 +168,7 @@ public abstract class WrapperKeyManager
    * @return  The nickname of the certificate to use, or {@code null} if no
    *          appropriate certificate is found.
    */
+  @Override()
   public final synchronized String chooseClientAlias(final String[] keyType,
                                         final Principal[] issuers,
                                         final Socket socket)
@@ -293,6 +295,7 @@ public abstract class WrapperKeyManager
    * @return  The nicknames of the server certificates, or {@code null} if none
    *          were found in the key store.
    */
+  @Override()
   public final synchronized String[] getServerAliases(final String keyType,
                                           final Principal[] issuers)
   {
@@ -333,6 +336,7 @@ public abstract class WrapperKeyManager
    * @return  The nickname of the certificate to use, or {@code null} if no
    *          appropriate certificate is found.
    */
+  @Override()
   public final synchronized String chooseServerAlias(final String keyType,
                                         final Principal[] issuers,
                                         final Socket socket)
@@ -450,6 +454,7 @@ public abstract class WrapperKeyManager
    * @return  The certificate chain for the certificate with the given nickname,
    *          or {@code null} if the requested certificate cannot be found.
    */
+  @Override()
   public final synchronized X509Certificate[] getCertificateChain(
                                                    final String alias)
   {
@@ -476,6 +481,7 @@ public abstract class WrapperKeyManager
    * @return  The private key for the requested certificate, or {@code null} if
    *          the requested certificate cannot be found.
    */
+  @Override()
   public final synchronized PrivateKey getPrivateKey(final String alias)
   {
     for (final X509KeyManager m : keyManagers)

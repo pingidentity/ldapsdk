@@ -23,6 +23,7 @@ package com.unboundid.util;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.DecimalFormat;
@@ -2741,5 +2742,41 @@ public final class StaticUtils
         // it does.
       }
     }
+  }
+
+
+
+  /**
+   * Constructs a {@code File} object from the provided path.
+   *
+   * @param  baseDirectory  The base directory to use as the starting point.
+   *                        It must not be {@code null} and is expected to
+   *                        represent a directory.
+   * @param  pathElements   An array of the elements that make up the remainder
+   *                        of the path to the specified file, in order from
+   *                        paths closest to the root of the filesystem to
+   *                        furthest away (that is, the first element should
+   *                        represent a file or directory immediately below the
+   *                        base directory, the second is one level below that,
+   *                        and so on).  It may be {@code null} or empty if the
+   *                        base directory should be used.
+   *
+   * @return  The constructed {@code File} object.
+   */
+  public static File constructPath(final File baseDirectory,
+                                   final String... pathElements)
+  {
+    Validator.ensureNotNull(baseDirectory);
+
+    File f = baseDirectory;
+    if (pathElements != null)
+    {
+      for (final String pathElement : pathElements)
+      {
+        f = new File(f, pathElement);
+      }
+    }
+
+    return f;
   }
 }
