@@ -1445,7 +1445,7 @@ argsLoop:
             {
               try
               {
-                validateRequiredAndExclusiveArgumentSets();
+                validateRequiredExclusiveAndDependentArgumentSets();
                 tool.doExtendedArgumentValidation();
 
                 final ArrayList<String> argStrings =
@@ -1504,7 +1504,7 @@ argsLoop:
             {
               try
               {
-                validateRequiredAndExclusiveArgumentSets();
+                validateRequiredExclusiveAndDependentArgumentSets();
                 tool.doExtendedArgumentValidation();
                 break argsLoop;
               }
@@ -3350,7 +3350,7 @@ argsLoop:
         }
       }
 
-      final File f = new File(line);
+      final File f = new File(line).getAbsoluteFile();
       if (! f.exists())
       {
         if (fileMustExist)
@@ -3634,13 +3634,13 @@ argsLoop:
 
 
   /**
-   * Examines the arguments provided to the tool to ensure that all required and
-   * exclusive argument set constraints have been satisfied.
+   * Examines the arguments provided to the tool to ensure that all required,
+   * exclusive, and dependent argument set constraints have been satisfied.
    *
    * @throws  ArgumentException  If any required or exclusive argument
    *                             constraints are not satisfied.
    */
-  private void validateRequiredAndExclusiveArgumentSets()
+  private void validateRequiredExclusiveAndDependentArgumentSets()
           throws ArgumentException
   {
     // Iterate through the required argument sets and make sure that at least
@@ -3708,6 +3708,45 @@ argsLoop:
           {
             found = true;
           }
+        }
+      }
+    }
+
+
+    // Iterate through the dependent argument sets and make sure that all of
+    // those constraints are satisfied.
+    for (final ObjectPair<Argument,Set<Argument>> p :
+         parser.getDependentArgumentSets())
+    {
+      if (p.getFirst().isPresent())
+      {
+        boolean found = false;
+        for (final Argument a : p.getSecond())
+        {
+          if (a.isPresent())
+          {
+            found = true;
+            break;
+          }
+        }
+
+        if (! found)
+        {
+          final StringBuilder buffer = new StringBuilder();
+          for (final Argument arg : p.getSecond())
+          {
+            if (buffer.length() > 0)
+            {
+              buffer.append(", ");
+            }
+
+            buffer.append(arg.getIdentifierString());
+          }
+
+          throw new ArgumentException(
+               ERR_INTERACTIVE_DEPENDENT_ARG_SET_CONFLICT.get(
+                    p.getFirst().getIdentifierString(),
+                    buffer.toString()));
         }
       }
     }

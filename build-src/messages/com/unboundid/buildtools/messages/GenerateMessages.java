@@ -184,7 +184,7 @@ public class GenerateMessages
              File.separator + className.replace('.', File.separatorChar) +
              ".java";
 
-        final File sourceFile = new File(sourcePath);
+        final File sourceFile = new File(sourcePath).getAbsoluteFile();
         final File sourceDir  = sourceFile.getParentFile();
         if (! sourceDir.exists())
         {

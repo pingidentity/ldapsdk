@@ -466,7 +466,7 @@ public final class FileArgument
       }
       else if (parentMustExist)
       {
-        final File parentFile = f.getParentFile();
+        final File parentFile = f.getAbsoluteFile().getParentFile();
         if ((parentFile == null) ||
             (! parentFile.exists()) ||
             (! parentFile.isDirectory()))

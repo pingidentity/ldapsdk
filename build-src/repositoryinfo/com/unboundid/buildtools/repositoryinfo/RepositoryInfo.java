@@ -269,7 +269,7 @@ public class RepositoryInfo
         }
       }
 
-      f = f.getParentFile();
+      f = f.getAbsoluteFile().getParentFile();
     }
 
 
