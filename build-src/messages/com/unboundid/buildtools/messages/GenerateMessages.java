@@ -275,10 +275,10 @@ public class GenerateMessages
             final int closePos = message.indexOf('}', pos);
             if (closePos > 0)
             {
-              final int value;
               try
               {
-                value = Integer.parseInt(message.substring(pos+2, closePos));
+                final int value =
+                     Integer.parseInt(message.substring(pos+2, closePos));
                 if ((pos == 0) || (message.charAt(pos-1) != '\''))
                 {
                   throw new BuildException("The message string for property " +
@@ -296,6 +296,38 @@ public class GenerateMessages
             }
 
             pos = message.indexOf("'{", pos+1);
+          }
+
+          pos = message.indexOf('{');
+          while (pos >= 0)
+          {
+            final int closePos = message.indexOf('}', pos);
+            if (closePos > 0)
+            {
+              try
+              {
+                final int value =
+                     Integer.parseInt(message.substring(pos+1, closePos));
+                for (int i=0; i < value; i++)
+                {
+                  if (! (message.contains("{" + i + '}') ||
+                         message.contains("{" + i + ",number,0}")))
+                  {
+                    throw new BuildException("The message string for " +
+                         "property " + propertyName + " in file " +
+                         propertiesFileName + " appears to contain {" + value +
+                         "} but not {" + i + "}.  The message string is " +
+                         message);
+                  }
+                }
+              }
+              catch (final NumberFormatException nfe)
+              {
+                // This is acceptable.
+              }
+            }
+
+            pos = message.indexOf('{', pos+1);
           }
 
           w("  /**");
