@@ -507,6 +507,17 @@ public final class SearchAndModRate
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected boolean logToolInvocationByDefault()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments used by this program that aren't already provided by the
    * generic {@code LDAPCommandLineTool} framework.
    *

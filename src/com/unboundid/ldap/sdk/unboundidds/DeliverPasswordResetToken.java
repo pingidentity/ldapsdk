@@ -352,6 +352,17 @@ public final class DeliverPasswordResetToken
    * {@inheritDoc}
    */
   @Override()
+  protected boolean logToolInvocationByDefault()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ResultCode doToolProcessing()
   {
     // Get the set of preferred delivery mechanisms.

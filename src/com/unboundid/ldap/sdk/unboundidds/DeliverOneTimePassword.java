@@ -415,6 +415,17 @@ public final class DeliverOneTimePassword
    * {@inheritDoc}
    */
   @Override()
+  protected boolean logToolInvocationByDefault()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ResultCode doToolProcessing()
   {
     // Construct the authentication identity.

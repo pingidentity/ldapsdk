@@ -508,6 +508,17 @@ public final class ManageAccount
    * {@inheritDoc}
    */
   @Override()
+  protected boolean logToolInvocationByDefault()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public void addNonLDAPArguments(final ArgumentParser parser)
        throws ArgumentException
   {

@@ -337,6 +337,17 @@ public final class MoveSubtree
    * {@inheritDoc}
    */
   @Override()
+  protected boolean logToolInvocationByDefault()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ResultCode doToolProcessing()
   {
     final List<String> baseDNs;

@@ -373,6 +373,17 @@ public final class RegisterYubiKeyOTPDevice
    * {@inheritDoc}
    */
   @Override()
+  protected boolean logToolInvocationByDefault()
+  {
+    return true;
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   public ResultCode doToolProcessing()
   {
     // Establish a connection to the Directory Server.

@@ -343,6 +343,17 @@ public final class SubtreeAccessibility
 
 
   /**
+   * {@inheritDoc}
+   */
+  @Override()
+  protected boolean logToolInvocationByDefault()
+  {
+    return true;
+  }
+
+
+
+  /**
    * Adds the arguments needed by this command-line tool to the provided
    * argument parser which are not related to connecting or authenticating to
    * the directory server.

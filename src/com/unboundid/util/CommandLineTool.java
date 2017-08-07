@@ -26,7 +26,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -38,11 +40,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.util.args.Argument;
 import com.unboundid.util.args.ArgumentException;
 import com.unboundid.util.args.ArgumentParser;
 import com.unboundid.util.args.BooleanArgument;
 import com.unboundid.util.args.FileArgument;
 import com.unboundid.util.args.SubCommand;
+import com.unboundid.ldap.sdk.unboundidds.tools.ToolInvocationLogger;
+import com.unboundid.ldap.sdk.unboundidds.tools.ToolInvocationLogDetails;
+import com.unboundid.ldap.sdk.unboundidds.tools.ToolInvocationLogShutdownHook;
 
 import static com.unboundid.util.Debug.*;
 import static com.unboundid.util.StaticUtils.*;
@@ -426,6 +432,50 @@ public abstract class CommandLineTool
       Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
+    final ToolInvocationLogDetails logDetails =
+            ToolInvocationLogger.getLogMessageDetails(
+                    getToolName(), logToolInvocationByDefault(), getErr());
+    ToolInvocationLogShutdownHook logShutdownHook = null;
+
+    if(logDetails.logInvocation())
+    {
+      final HashSet<Argument> argumentsSetFromPropertiesFile =
+           new HashSet<>(10);
+      final ArrayList<ObjectPair<String,String>> propertiesFileArgList =
+           new ArrayList<>(10);
+      getToolInvocationPropertiesFileArguments(parser,
+           argumentsSetFromPropertiesFile, propertiesFileArgList);
+
+      final ArrayList<ObjectPair<String,String>> providedArgList =
+           new ArrayList<>(10);
+      getToolInvocationProvidedArguments(parser,
+           argumentsSetFromPropertiesFile, providedArgList);
+
+      logShutdownHook = new ToolInvocationLogShutdownHook(logDetails);
+      Runtime.getRuntime().addShutdownHook(logShutdownHook);
+
+      final String propertiesFilePath;
+      if (propertiesFileArgList.isEmpty())
+      {
+        propertiesFilePath = "";
+      }
+      else
+      {
+        final File propertiesFile = parser.getPropertiesFileUsed();
+        if (propertiesFile == null)
+        {
+          propertiesFilePath = "";
+        }
+        else
+        {
+          propertiesFilePath = propertiesFile.getAbsolutePath();
+        }
+      }
+
+      ToolInvocationLogger.logLaunchMessage(logDetails, providedArgList,
+              propertiesFileArgList, propertiesFilePath);
+    }
+
     try
     {
       exitCode.set(doToolProcessing());
@@ -438,6 +488,19 @@ public abstract class CommandLineTool
     }
     finally
     {
+      if (logShutdownHook != null)
+      {
+        Runtime.getRuntime().removeShutdownHook(logShutdownHook);
+
+        String completionMessage = getToolCompletionMessage();
+        if (completionMessage == null)
+        {
+          completionMessage = exitCode.get().getName();
+        }
+
+        ToolInvocationLogger.logCompletionMessage(
+                logDetails, exitCode.get().intValue(), completionMessage);
+      }
       if (shutdownHook != null)
       {
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
@@ -445,6 +508,186 @@ public abstract class CommandLineTool
     }
 
     return exitCode.get();
+  }
+
+
+
+  /**
+   * Updates the provided argument list with object pairs that comprise the
+   * set of arguments actually provided to this tool on the command line.
+   *
+   * @param  parser                          The argument parser for this tool.
+   *                                         It must not be {@code null}.
+   * @param  argumentsSetFromPropertiesFile  A set that includes all arguments
+   *                                         set from the properties file.
+   * @param  argList                         The list to which the argument
+   *                                         information should be added.  It
+   *                                         must not be {@code null}.  The
+   *                                         first element of each object pair
+   *                                         that is added must be
+   *                                         non-{@code null}.  The second
+   *                                         element in any given pair may be
+   *                                         {@code null} if the first element
+   *                                         represents the name of an argument
+   *                                         that doesn't take any values, the
+   *                                         name of the selected subcommand, or
+   *                                         an unnamed trailing argument.
+   */
+  private static void getToolInvocationProvidedArguments(
+                           final ArgumentParser parser,
+                           final Set<Argument> argumentsSetFromPropertiesFile,
+                           final List<ObjectPair<String,String>> argList)
+  {
+    final String noValue = null;
+    final SubCommand subCommand = parser.getSelectedSubCommand();
+    if (subCommand != null)
+    {
+      argList.add(new ObjectPair<>(subCommand.getPrimaryName(), noValue));
+    }
+
+    for (final Argument arg : parser.getNamedArguments())
+    {
+      // Exclude arguments that weren't provided.
+      if (! arg.isPresent())
+      {
+        continue;
+      }
+
+      // Exclude arguments that were set from the properties file.
+      if (argumentsSetFromPropertiesFile.contains(arg))
+      {
+        continue;
+      }
+
+      if (arg.takesValue())
+      {
+        for (final String value : arg.getValueStringRepresentations(false))
+        {
+          if (arg.isSensitive())
+          {
+            argList.add(new ObjectPair<>(arg.getIdentifierString(),
+                 "*****REDACTED*****"));
+          }
+          else
+          {
+            argList.add(new ObjectPair<>(arg.getIdentifierString(), value));
+          }
+        }
+      }
+      else
+      {
+        argList.add(new ObjectPair<>(arg.getIdentifierString(), noValue));
+      }
+    }
+
+    if (subCommand != null)
+    {
+      getToolInvocationProvidedArguments(subCommand.getArgumentParser(),
+           argumentsSetFromPropertiesFile, argList);
+    }
+
+    for (final String trailingArgument : parser.getTrailingArguments())
+    {
+      argList.add(new ObjectPair<>(trailingArgument, noValue));
+    }
+  }
+
+
+
+  /**
+   * Updates the provided argument list with object pairs that comprise the
+   * set of tool arguments set from a properties file.
+   *
+   * @param  parser                          The argument parser for this tool.
+   *                                         It must not be {@code null}.
+   * @param  argumentsSetFromPropertiesFile  A set that should be updated with
+   *                                         each argument set from the
+   *                                         properties file.
+   * @param  argList                         The list to which the argument
+   *                                         information should be added.  It
+   *                                         must not be {@code null}.  The
+   *                                         first element of each object pair
+   *                                         that is added must be
+   *                                         non-{@code null}.  The second
+   *                                         element in any given pair may be
+   *                                         {@code null} if the first element
+   *                                         represents the name of an argument
+   *                                         that doesn't take any values, the
+   *                                         name of the selected subcommand, or
+   *                                         an unnamed trailing argument.
+   */
+  private static void getToolInvocationPropertiesFileArguments(
+                          final ArgumentParser parser,
+                          final Set<Argument> argumentsSetFromPropertiesFile,
+                          final List<ObjectPair<String,String>> argList)
+  {
+    final ArgumentParser subCommandParser;
+    final SubCommand subCommand = parser.getSelectedSubCommand();
+    if (subCommand == null)
+    {
+      subCommandParser = null;
+    }
+    else
+    {
+      subCommandParser = subCommand.getArgumentParser();
+    }
+
+    final String noValue = null;
+
+    final Iterator<String> iterator =
+            parser.getArgumentsSetFromPropertiesFile().iterator();
+    while (iterator.hasNext())
+    {
+      final String arg = iterator.next();
+      if (arg.startsWith("-"))
+      {
+        Argument a;
+        if (arg.startsWith("--"))
+        {
+          final String longIdentifier = arg.substring(2);
+          a = parser.getNamedArgument(longIdentifier);
+          if ((a == null) && (subCommandParser != null))
+          {
+            a = subCommandParser.getNamedArgument(longIdentifier);
+          }
+        }
+        else
+        {
+          final char shortIdentifier = arg.charAt(1);
+          a = parser.getNamedArgument(shortIdentifier);
+          if ((a == null) && (subCommandParser != null))
+          {
+            a = subCommandParser.getNamedArgument(shortIdentifier);
+          }
+        }
+
+        if (a != null)
+        {
+          argumentsSetFromPropertiesFile.add(a);
+
+          if (a.takesValue())
+          {
+            final String value = iterator.next();
+            if (a.isSensitive())
+            {
+              argList.add(new ObjectPair<>(a.getIdentifierString(), noValue));
+            }
+            else
+            {
+              argList.add(new ObjectPair<>(a.getIdentifierString(), value));
+            }
+          }
+          else
+          {
+            argList.add(new ObjectPair<>(a.getIdentifierString(), noValue));
+          }
+        }
+      }
+      else
+      {
+        argList.add(new ObjectPair<>(arg, noValue));
+      }
+    }
   }
 
 
@@ -707,6 +950,49 @@ public abstract class CommandLineTool
   protected boolean supportsOutputFile()
   {
     return false;
+  }
+
+
+
+  /**
+   * Indicates whether to log messages about the launch and completion of this
+   * tool into the invocation log of Ping Identity server products that may
+   * include it.  This method is not needed for tools that are not expected to
+   * be part of the Ping Identity server products suite.  Further, this value
+   * may be overridden by settings in the server's
+   * tool-invocation-logging.properties file.
+   * <BR><BR>
+   * This method should generally return {@code true} for tools that may alter
+   * the server configuration, data, or other state information, and
+   * {@code false} for tools that do not make any changes.
+   *
+   * @return  {@code true} if Ping Identity server products should include
+   *          messages about the launch and completion of this tool in tool
+   *          invocation log files by default, or {@code false} if not.
+   */
+  protected boolean logToolInvocationByDefault()
+  {
+    return false;
+  }
+
+
+
+  /**
+   * Retrieves an optional message that may provide additional information about
+   * the way that the tool completed its processing.  For example if the tool
+   * exited with an error message, it may be useful for this method to return
+   * that error message.
+   * <BR><BR>
+   * The message returned by this method is intended for purposes and is not
+   * meant to be parsed or programmatically interpreted.
+   *
+   * @return  An optional message that may provide additional information about
+   *          the completion state for this tool, or {@code null} if no
+   *          completion message is available.
+   */
+  protected String getToolCompletionMessage()
+  {
+    return null;
   }
 
 
