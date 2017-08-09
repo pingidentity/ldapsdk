@@ -1176,6 +1176,32 @@ public class ByteStringBufferTestCase
 
 
   /**
+   * Provides test coverage for the {@code append} method variant that takes a
+   * character sequence with a non-empty string.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAppendCharSequencePortionNonEmpty()
+         throws Exception
+  {
+    ByteStringBuffer buffer = new ByteStringBuffer();
+    assertEquals(buffer.length(), 0);
+
+    buffer.append("foobar", 0, 3);
+    assertEquals(buffer.length(), 3);
+    assertEquals(buffer.toString(), "foo");
+
+    buffer.append(new StringBuilder("foobar"), 3, 3);
+    assertEquals(buffer.length(), 6);
+    assertEquals(buffer.toString(), "foobar");
+
+    buffer.hashCode();
+  }
+
+
+
+  /**
    * Provides test coverage for the {@code append} method variant that takes an
    * integer value.
    *

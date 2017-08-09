@@ -301,6 +301,7 @@ public final class ByteStringBuffer
    *
    * @return  A reference to this buffer.
    */
+  @Override()
   public ByteStringBuffer append(final char c)
   {
     final byte b = (byte) (c & 0x7F);
@@ -408,8 +409,10 @@ public final class ByteStringBuffer
         }
         else
         {
-          append(String.valueOf(c, pos, (off + len - pos)));
-          break;
+          final String remainingString =
+               String.valueOf(c, pos, (off + len - pos));
+          final byte[] remainingBytes = StaticUtils.getBytes(remainingString);
+          return append(remainingBytes);
         }
       }
     }
@@ -429,6 +432,7 @@ public final class ByteStringBuffer
    * @throws  NullPointerException  If the provided character sequence is
    *                                {@code null}.
    */
+  @Override()
   public ByteStringBuffer append(final CharSequence s)
          throws NullPointerException
   {
@@ -455,6 +459,7 @@ public final class ByteStringBuffer
    *                                     are outside the bounds of the given
    *                                     character sequence.
    */
+  @Override()
   public ByteStringBuffer append(final CharSequence s, final int start,
                                  final int end)
          throws NullPointerException, IndexOutOfBoundsException
@@ -467,24 +472,17 @@ public final class ByteStringBuffer
       throw e;
     }
 
-    final int length = end - start;
-    ensureCapacity(endPos + length);
-    for (int i=start; i < end; i++)
+    final char[] chars;
+    if (s instanceof String)
     {
-      final char c = s.charAt(i);
-      final byte b = (byte) (c & 0x7F);
-      if (b == c)
-      {
-        array[endPos++] = b;
-      }
-      else
-      {
-        append(StaticUtils.getBytes(s.subSequence(i, length).toString()));
-        break;
-      }
+      chars = ((String) s).toCharArray();
+    }
+    else
+    {
+      chars = s.toString().toCharArray();
     }
 
-    return this;
+    return append(chars, start, end);
   }
 
 
