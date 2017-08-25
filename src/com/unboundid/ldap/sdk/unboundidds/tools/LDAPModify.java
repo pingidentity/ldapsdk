@@ -94,6 +94,10 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             OperationPurposeRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.PasswordPolicyRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
+            PasswordUpdateBehaviorRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            PasswordUpdateBehaviorRequestControlProperties;
+import com.unboundid.ldap.sdk.unboundidds.controls.
             PasswordValidationDetailsRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.PurgePasswordRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
@@ -293,6 +297,7 @@ public final class LDAPModify
   private StringArgument getAuthorizationEntryAttribute = null;
   private StringArgument multiUpdateErrorBehavior = null;
   private StringArgument operationPurpose = null;
+  private StringArgument passwordUpdateBehavior = null;
   private StringArgument postReadAttribute = null;
   private StringArgument preReadAttribute = null;
   private StringArgument proxyAs = null;
@@ -848,6 +853,15 @@ public final class LDAPModify
     parser.addArgument(noOperation);
 
 
+    passwordUpdateBehavior = new StringArgument(null,
+         "passwordUpdateBehavior", false, 0,
+         INFO_LDAPMODIFY_PLACEHOLDER_NAME_EQUALS_VALUE.get(),
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_PW_UPDATE_BEHAVIOR.get());
+    passwordUpdateBehavior.addLongIdentifier("password-update-behavior");
+    passwordUpdateBehavior.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(passwordUpdateBehavior);
+
     passwordValidationDetails = new BooleanArgument(null,
          "getPasswordValidationDetails", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PASSWORD_VALIDATION_DETAILS.get(
@@ -1296,8 +1310,21 @@ public final class LDAPModify
     final ArrayList<Control> modifyControls = new ArrayList<Control>(10);
     final ArrayList<Control> modifyDNControls = new ArrayList<Control>(10);
     final ArrayList<Control> searchControls = new ArrayList<Control>(10);
-    createRequestControls(addControls, deleteControls, modifyControls,
-         modifyDNControls, searchControls);
+    try
+    {
+      createRequestControls(addControls, deleteControls, modifyControls,
+           modifyDNControls, searchControls);
+    }
+    catch (final LDAPException le)
+    {
+      Debug.debugException(le);
+      for (final String line :
+           ResultUtils.formatResult(le, true, 0, WRAP_COLUMN))
+      {
+        err(line);
+      }
+      return le.getResultCode();
+    }
 
 
     LDAPConnectionPool connectionPool = null;
@@ -2400,12 +2427,16 @@ readChangeRecordLoop:
    *                           requests.
    * @param  searchControls    The list of controls to include in search
    *                           requests.
+   *
+   * @throws  LDAPException  If a problem is encountered while creating any of
+   *                         the requested controls.
    */
   private void createRequestControls(final List<Control> addControls,
                                      final List<Control> deleteControls,
                                      final List<Control> modifyControls,
                                      final List<Control> modifyDNControls,
                                      final List<Control> searchControls)
+          throws LDAPException
   {
     if (addControl.isPresent())
     {
@@ -2624,6 +2655,16 @@ readChangeRecordLoop:
       modifyDNControls.add(c);
     }
 
+    if (passwordUpdateBehavior.isPresent())
+    {
+      final PasswordUpdateBehaviorRequestControl c =
+           createPasswordUpdateBehaviorRequestControl(
+                passwordUpdateBehavior.getIdentifierString(),
+                passwordUpdateBehavior.getValues());
+      addControls.add(c);
+      modifyControls.add(c);
+    }
+
     if (preReadAttribute.isPresent())
     {
       final ArrayList<String> attrList = new ArrayList<String>(10);
@@ -2684,6 +2725,163 @@ readChangeRecordLoop:
       modifyControls.add(c);
       modifyDNControls.add(c);
       searchControls.add(c);
+    }
+  }
+
+
+
+  /**
+   * Creates the password update behavior request control that should be
+   * included in add and modify requests.
+   *
+   * @param  argIdentifier  The identifier string for the argument used to
+   *                        configure the password update behavior request
+   *                        control.
+   * @param  argValues      The set of values for the password update behavior
+   *                        request control.
+   *
+   * @return  The password update behavior request control that was created.
+   *
+   * @throws  LDAPException  If a problem is encountered while creating the
+   *                         control.
+   */
+  static PasswordUpdateBehaviorRequestControl
+              createPasswordUpdateBehaviorRequestControl(
+                   final String argIdentifier, final List<String> argValues)
+       throws LDAPException
+  {
+    final PasswordUpdateBehaviorRequestControlProperties properties =
+         new PasswordUpdateBehaviorRequestControlProperties();
+
+    for (final String argValue : argValues)
+    {
+      int delimiterPos = argValue.indexOf('=');
+      if (delimiterPos < 0)
+      {
+        delimiterPos = argValue.indexOf(':');
+      }
+
+      if ((delimiterPos <= 0) || (delimiterPos >= (argValue.length() - 1)))
+      {
+        throw new LDAPException(ResultCode.PARAM_ERROR,
+             ERR_LDAPMODIFY_MALFORMED_PW_UPDATE_BEHAVIOR.get(argValue,
+                  argIdentifier));
+      }
+
+      final String name = argValue.substring(0, delimiterPos).trim();
+      final String value = argValue.substring(delimiterPos+1).trim();
+      if (name.equalsIgnoreCase("is-self-change") ||
+           name.equalsIgnoreCase("self-change") ||
+           name.equalsIgnoreCase("isSelfChange") ||
+           name.equalsIgnoreCase("selfChange"))
+      {
+        properties.setIsSelfChange(parseBooleanValue(name, value));
+      }
+      else if (name.equalsIgnoreCase("allow-pre-encoded-password") ||
+           name.equalsIgnoreCase("allow-pre-encoded-passwords") ||
+           name.equalsIgnoreCase("allow-pre-encoded") ||
+           name.equalsIgnoreCase("allowPreEncodedPassword") ||
+           name.equalsIgnoreCase("allowPreEncodedPasswords") ||
+           name.equalsIgnoreCase("allowPreEncoded"))
+      {
+        properties.setAllowPreEncodedPassword(parseBooleanValue(name, value));
+      }
+      else if (name.equalsIgnoreCase("skip-password-validation") ||
+           name.equalsIgnoreCase("skip-password-validators") ||
+           name.equalsIgnoreCase("skip-validation") ||
+           name.equalsIgnoreCase("skip-validators") ||
+           name.equalsIgnoreCase("skipPasswordValidation") ||
+           name.equalsIgnoreCase("skipPasswordValidators") ||
+           name.equalsIgnoreCase("skipValidation") ||
+           name.equalsIgnoreCase("skipValidators"))
+      {
+        properties.setSkipPasswordValidation(parseBooleanValue(name, value));
+      }
+      else if (name.equalsIgnoreCase("ignore-password-history") ||
+           name.equalsIgnoreCase("skip-password-history") ||
+           name.equalsIgnoreCase("ignore-history") ||
+           name.equalsIgnoreCase("skip-history") ||
+           name.equalsIgnoreCase("ignorePasswordHistory") ||
+           name.equalsIgnoreCase("skipPasswordHistory") ||
+           name.equalsIgnoreCase("ignoreHistory") ||
+           name.equalsIgnoreCase("skipHistory"))
+      {
+        properties.setIgnorePasswordHistory(parseBooleanValue(name, value));
+      }
+      else if (name.equalsIgnoreCase("ignore-minimum-password-age") ||
+           name.equalsIgnoreCase("ignore-min-password-age") ||
+           name.equalsIgnoreCase("ignore-password-age") ||
+           name.equalsIgnoreCase("skip-minimum-password-age") ||
+           name.equalsIgnoreCase("skip-min-password-age") ||
+           name.equalsIgnoreCase("skip-password-age") ||
+           name.equalsIgnoreCase("ignoreMinimumPasswordAge") ||
+           name.equalsIgnoreCase("ignoreMinPasswordAge") ||
+           name.equalsIgnoreCase("ignorePasswordAge") ||
+           name.equalsIgnoreCase("skipMinimumPasswordAge") ||
+           name.equalsIgnoreCase("skipMinPasswordAge") ||
+           name.equalsIgnoreCase("skipPasswordAge"))
+      {
+        properties.setIgnoreMinimumPasswordAge(parseBooleanValue(name, value));
+      }
+      else if (name.equalsIgnoreCase("password-storage-scheme") ||
+           name.equalsIgnoreCase("password-scheme") ||
+           name.equalsIgnoreCase("storage-scheme") ||
+           name.equalsIgnoreCase("scheme") ||
+           name.equalsIgnoreCase("passwordStorageScheme") ||
+           name.equalsIgnoreCase("passwordScheme") ||
+           name.equalsIgnoreCase("storageScheme"))
+      {
+        properties.setPasswordStorageScheme(value);
+      }
+      else if (name.equalsIgnoreCase("must-change-password") ||
+         name.equalsIgnoreCase("mustChangePassword"))
+      {
+        properties.setMustChangePassword(parseBooleanValue(name, value));
+      }
+    }
+
+    return new PasswordUpdateBehaviorRequestControl(properties, true);
+  }
+
+
+
+  /**
+   * Parses the provided value as the Boolean value for a password update
+   * behavior property.
+   *
+   * @param  name   The name of the password update behavior property being
+   *                parsed.
+   * @param  value  The value to be parsed.
+   *
+   * @return  The Boolean value that was parsed.
+   *
+   * @throws  LDAPException  If the provided value cannot be parsed as a
+   *                         Boolean value.
+   */
+  private static boolean parseBooleanValue(final String name,
+                                           final String value)
+          throws LDAPException
+  {
+    if (value.equalsIgnoreCase("true") ||
+         value.equalsIgnoreCase("t") ||
+         value.equalsIgnoreCase("yes") ||
+         value.equalsIgnoreCase("y") ||
+         value.equalsIgnoreCase("1"))
+    {
+      return true;
+    }
+    else if (value.equalsIgnoreCase("false") ||
+         value.equalsIgnoreCase("f") ||
+         value.equalsIgnoreCase("no") ||
+         value.equalsIgnoreCase("n") ||
+         value.equalsIgnoreCase("0"))
+    {
+      return false;
+    }
+    else
+    {
+      throw new LDAPException(ResultCode.PARAM_ERROR,
+           ERR_LDAPMODIFY_INVALID_PW_UPDATE_BOOLEAN_VALUE.get(value, name));
     }
   }
 

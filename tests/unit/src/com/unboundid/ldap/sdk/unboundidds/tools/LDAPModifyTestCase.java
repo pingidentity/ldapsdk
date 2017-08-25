@@ -25,6 +25,8 @@ package com.unboundid.ldap.sdk.unboundidds.tools;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.testng.annotations.Test;
 
@@ -32,9 +34,11 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.NoticeOfDisconnectionExtendedResult;
+import com.unboundid.ldap.sdk.unboundidds.controls.PasswordUpdateBehaviorRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionInMemoryExtendedOperationHandler;
 import com.unboundid.util.Base64;
@@ -368,7 +372,8 @@ public final class LDAPModifyTestCase
          "--hostname", "localhost",
          "--port", String.valueOf(listenPort),
          "--bindDN", "cn=Directory Manager",
-         "--bindPassword", "password");
+         "--bindPassword", "password",
+         "--passwordUpdateBehavior", "is-self-change=true");
     assertFalse((resultCode == ResultCode.SUCCESS),
          new String(out.toByteArray(), "UTF-8"));
 
@@ -2253,5 +2258,444 @@ public final class LDAPModifyTestCase
     }
 
     return new ByteArrayInputStream(buffer.toByteArray());
+  }
+
+
+
+  /**
+   * Provides test coverage for the behavior exhibited when a malformed control
+   * value (and in particular, a malformed password update behavior control
+   * specification) is given.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMalformedControl()
+         throws Exception
+  {
+    // The in-memory directory server supports the read entry controls.
+    final InMemoryDirectoryServer ds = getTestDS(true, false);
+
+
+    final ByteArrayInputStream in = getInputStream(
+         "dn: dc=example,dc=com",
+         "changeType: modify",
+         "replace: description",
+         "description: foo");
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    final ResultCode resultCode = LDAPModify.main(in, out, out,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--bindDN", "cn=Directory Manager",
+         "--bindPassword", "password",
+         "--passwordUpdateBehavior", "this-is-not-valid");
+    assertFalse(resultCode == ResultCode.SUCCESS);
+  }
+
+
+
+  /**
+   * Provides test coverage for the ability to request the password update
+   * behavior request control.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testPasswordUpdateBehavior()
+         throws Exception
+  {
+    for (final String value :
+         Arrays.asList("is-self-change",
+              "self-change",
+              "isSelfChange",
+              "selfChange"))
+    {
+      final String trueValueEquals = value + "=true";
+      PasswordUpdateBehaviorRequestControl c =
+           LDAPModify.createPasswordUpdateBehaviorRequestControl(
+                "--passwordUpdateBehavior",
+                Collections.singletonList(trueValueEquals));
+      assertNotNull(c);
+
+      assertNotNull(c.getIsSelfChange());
+      assertEquals(c.getIsSelfChange(), Boolean.TRUE);
+
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+
+      final String trueValueColon = "  " + value + " : true ";
+      c = LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList(trueValueColon));
+      assertNotNull(c);
+
+      assertNotNull(c.getIsSelfChange());
+      assertEquals(c.getIsSelfChange(), Boolean.TRUE);
+
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+
+      final String falseValueColon = value + ":false";
+      c = LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList(falseValueColon));
+      assertNotNull(c);
+
+      assertNotNull(c.getIsSelfChange());
+      assertEquals(c.getIsSelfChange(), Boolean.FALSE);
+
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+    }
+
+
+    for (final String value :
+         Arrays.asList("allow-pre-encoded-password",
+              "allow-pre-encoded-passwords",
+              "allow-pre-encoded",
+              "allowPreEncodedPassword",
+              "allowPreEncodedPasswords",
+              "allowPreEncoded"))
+    {
+      final String trueValue = value + "=t";
+      PasswordUpdateBehaviorRequestControl c =
+           LDAPModify.createPasswordUpdateBehaviorRequestControl(
+                "--passwordUpdateBehavior",
+                Collections.singletonList(trueValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+
+      assertNotNull(c.getAllowPreEncodedPassword());
+      assertEquals(c.getAllowPreEncodedPassword(), Boolean.TRUE);
+
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+
+      final String falseValue = value + "=f";
+      c = LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList(falseValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+
+      assertNotNull(c.getAllowPreEncodedPassword());
+      assertEquals(c.getAllowPreEncodedPassword(), Boolean.FALSE);
+
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+    }
+
+
+    for (final String value :
+         Arrays.asList("skip-password-validation",
+              "skip-password-validators",
+              "skip-validation",
+              "skip-validators",
+              "skipPasswordValidation",
+              "skipPasswordValidators",
+              "skipValidation",
+              "skipValidators"))
+    {
+      final String trueValue = value + "=yes";
+      PasswordUpdateBehaviorRequestControl c =
+           LDAPModify.createPasswordUpdateBehaviorRequestControl(
+                "--passwordUpdateBehavior",
+                Collections.singletonList(trueValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+
+      assertNotNull(c.getSkipPasswordValidation());
+      assertEquals(c.getSkipPasswordValidation(), Boolean.TRUE);
+
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+
+      final String falseValue = value + "=no";
+      c = LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList(falseValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+
+      assertNotNull(c.getSkipPasswordValidation());
+      assertEquals(c.getSkipPasswordValidation(), Boolean.FALSE);
+
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+    }
+
+
+    for (final String value :
+         Arrays.asList("ignore-password-history",
+              "skip-password-history",
+              "ignore-history",
+              "skip-history",
+              "ignorePasswordHistory",
+              "skipPasswordHistory",
+              "ignoreHistory",
+              "skipHistory"))
+    {
+      final String trueValue = value + "=y";
+      PasswordUpdateBehaviorRequestControl c =
+           LDAPModify.createPasswordUpdateBehaviorRequestControl(
+                "--passwordUpdateBehavior",
+                Collections.singletonList(trueValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+
+      assertNotNull(c.getIgnorePasswordHistory());
+      assertEquals(c.getIgnorePasswordHistory(), Boolean.TRUE);
+
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+
+      final String falseValue = value + "=n";
+      c = LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList(falseValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+
+      assertNotNull(c.getIgnorePasswordHistory());
+      assertEquals(c.getIgnorePasswordHistory(), Boolean.FALSE);
+
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+    }
+
+
+    for (final String value :
+         Arrays.asList("ignore-minimum-password-age",
+              "ignore-min-password-age",
+              "ignore-password-age",
+              "skip-minimum-password-age",
+              "skip-min-password-age",
+              "skip-password-age",
+              "ignoreMinimumPasswordAge",
+              "ignoreMinPasswordAge",
+              "ignorePasswordAge",
+              "skipMinimumPasswordAge",
+              "skipMinPasswordAge",
+              "skipPasswordAge"))
+    {
+      final String trueValue = value + "=1";
+      PasswordUpdateBehaviorRequestControl c =
+           LDAPModify.createPasswordUpdateBehaviorRequestControl(
+                "--passwordUpdateBehavior",
+                Collections.singletonList(trueValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+
+      assertNotNull(c.getIgnoreMinimumPasswordAge());
+      assertEquals(c.getIgnoreMinimumPasswordAge(), Boolean.TRUE);
+
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+
+      final String falseValue = value + "=0";
+      c = LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList(falseValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+
+      assertNotNull(c.getIgnoreMinimumPasswordAge());
+      assertEquals(c.getIgnoreMinimumPasswordAge(), Boolean.FALSE);
+
+      assertNull(c.getPasswordStorageScheme());
+      assertNull(c.getMustChangePassword());
+    }
+
+
+    for (final String value :
+         Arrays.asList("password-storage-scheme",
+              "password-scheme",
+              "storage-scheme",
+              "scheme",
+              "passwordStorageScheme",
+              "passwordScheme",
+              "storageScheme"))
+    {
+      final String ssha512Value = value + "=SSHA512";
+      final PasswordUpdateBehaviorRequestControl c =
+           LDAPModify.createPasswordUpdateBehaviorRequestControl(
+                "--passwordUpdateBehavior",
+                Collections.singletonList(ssha512Value));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+
+      assertNotNull(c.getPasswordStorageScheme());
+      assertEquals(c.getPasswordStorageScheme(), "SSHA512");
+
+      assertNull(c.getMustChangePassword());
+    }
+
+
+    for (final String value :
+         Arrays.asList("must-change-password",
+              "mustChangePassword"))
+    {
+      final String trueValue = value + "=true";
+      PasswordUpdateBehaviorRequestControl c =
+           LDAPModify.createPasswordUpdateBehaviorRequestControl(
+                "--passwordUpdateBehavior",
+                Collections.singletonList(trueValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+
+      assertNotNull(c.getMustChangePassword());
+      assertEquals(c.getMustChangePassword(), Boolean.TRUE);
+
+      final String falseValue = value + "=false";
+      c = LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList(falseValue));
+      assertNotNull(c);
+
+      assertNull(c.getIsSelfChange());
+      assertNull(c.getAllowPreEncodedPassword());
+      assertNull(c.getSkipPasswordValidation());
+      assertNull(c.getIgnorePasswordHistory());
+      assertNull(c.getIgnoreMinimumPasswordAge());
+      assertNull(c.getPasswordStorageScheme());
+
+      assertNotNull(c.getMustChangePassword());
+      assertEquals(c.getMustChangePassword(), Boolean.FALSE);
+    }
+
+
+    try
+    {
+      LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList("malformed-value"));
+      fail("Expected an exception from a malformed value");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+      assertResultCodeEquals(le, ResultCode.PARAM_ERROR);
+    }
+
+    try
+    {
+      LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList("equal-at-end="));
+      fail("Expected an exception from value ending with an equal sign");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+      assertResultCodeEquals(le, ResultCode.PARAM_ERROR);
+    }
+
+    try
+    {
+      LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList("colon-at-end:"));
+      fail("Expected an exception from value ending with a colon");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+      assertResultCodeEquals(le, ResultCode.PARAM_ERROR);
+    }
+
+    try
+    {
+      LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList("=true"));
+      fail("Expected an exception from value beginning with an equal sign");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+      assertResultCodeEquals(le, ResultCode.PARAM_ERROR);
+    }
+
+    try
+    {
+      LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList(":false"));
+      fail("Expected an exception from value beginning with a colon");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+      assertResultCodeEquals(le, ResultCode.PARAM_ERROR);
+    }
+
+    try
+    {
+      LDAPModify.createPasswordUpdateBehaviorRequestControl(
+           "--passwordUpdateBehavior",
+           Collections.singletonList("must-change-password=malformed"));
+      fail("Expected an exception from a malformed Boolean value");
+    }
+    catch (final LDAPException le)
+    {
+      // This was expected.
+      assertResultCodeEquals(le, ResultCode.PARAM_ERROR);
+    }
   }
 }
