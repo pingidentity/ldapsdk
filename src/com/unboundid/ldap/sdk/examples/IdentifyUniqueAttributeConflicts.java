@@ -23,6 +23,7 @@ package com.unboundid.ldap.sdk.examples;
 
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -87,8 +88,9 @@ import com.unboundid.util.args.StringArgument;
  *       specifies the behavior that the tool should exhibit if multiple
  *       unique attributes are provided.  Allowed values include
  *       unique-within-each-attribute,
- *       unique-across-all-attributes-including-in-same-entry, and
- *       unique-across-all-attributes-except-in-same-entry.</LI>
+ *       unique-across-all-attributes-including-in-same-entry,
+ *       unique-across-all-attributes-except-in-same-entry, and
+ *       unique-in-combination.</LI>
  *   <LI>"-z {size}" or "--simplePageSize {size}" -- indicates that the search
  *       to find entries with unique attributes should use the simple paged
  *       results control to iterate across entries in fixed-size pages rather
@@ -131,6 +133,15 @@ public final class IdentifyUniqueAttributeConflicts
 
 
   /**
+   * The unique attribute behavior value that indicates uniqueness should be
+   * ensured for the combination of attribute values.
+   */
+  private static final String BEHAVIOR_UNIQUE_IN_COMBINATION =
+       "unique-in-combination";
+
+
+
+  /**
    * The default value for the timeLimit argument.
    */
   private static final int DEFAULT_TIME_LIMIT_SECONDS = 10;
@@ -140,7 +151,7 @@ public final class IdentifyUniqueAttributeConflicts
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -8298131659655985916L;
+  private static final long serialVersionUID = 4216291898088659008L;
 
 
 
@@ -151,6 +162,9 @@ public final class IdentifyUniqueAttributeConflicts
   // The number of entries examined so far.
   private final AtomicLong entriesExamined;
 
+  // The number of conflicts found from a combination of attributes.
+  private final AtomicLong combinationConflictCounts;
+
   // Indicates whether cross-attribute uniqueness conflicts should be allowed
   // in the same entry.
   private boolean allowConflictsInSameEntry;
@@ -158,6 +172,10 @@ public final class IdentifyUniqueAttributeConflicts
   // Indicates whether uniqueness should be enforced across all attributes
   // rather than within each attribute.
   private boolean uniqueAcrossAttributes;
+
+  // Indicates whether uniqueness should be enforced for the combination
+  // of attribute values.
+  private boolean uniqueInCombination;
 
   // The argument used to specify the base DNs to use for searches.
   private DNArgument baseDNArgument;
@@ -258,13 +276,15 @@ public final class IdentifyUniqueAttributeConflicts
     findConflictsPool = null;
     allowConflictsInSameEntry = false;
     uniqueAcrossAttributes = false;
+    uniqueInCombination = false;
     attributes = null;
     baseDNs = null;
     timeLimitArgument = null;
 
     timeLimitExceeded = new AtomicBoolean(false);
     entriesExamined = new AtomicLong(0L);
-    conflictCounts = new TreeMap<String, AtomicLong>();
+    combinationConflictCounts = new AtomicLong(0L);
+    conflictCounts = new TreeMap<>();
   }
 
 
@@ -463,14 +483,18 @@ public final class IdentifyUniqueAttributeConflicts
          "needs to be unique within its own attribute type), '" +
          BEHAVIOR_UNIQUE_ACROSS_ATTRS_INCLUDING_SAME + "' (indicates that " +
          "each value needs to be unique across all of the specified " +
-         "attributes), and '" + BEHAVIOR_UNIQUE_ACROSS_ATTRS_EXCEPT_SAME +
+         "attributes), '" + BEHAVIOR_UNIQUE_ACROSS_ATTRS_EXCEPT_SAME +
          "' (indicates each value needs to be unique across all of the " +
          "specified attributes, except that multiple attributes in the same " +
-         "entry are allowed to share the same value).";
-    final LinkedHashSet<String> allowedValues = new LinkedHashSet<String>(3);
+         "entry are allowed to share the same value), and '" +
+         BEHAVIOR_UNIQUE_IN_COMBINATION + "' (indicates that every " +
+         "combination of the values of the specified attributes must be " +
+         "unique across each entry).";
+    final LinkedHashSet<String> allowedValues = new LinkedHashSet<>(4);
     allowedValues.add(BEHAVIOR_UNIQUE_WITHIN_ATTR);
     allowedValues.add(BEHAVIOR_UNIQUE_ACROSS_ATTRS_INCLUDING_SAME);
     allowedValues.add(BEHAVIOR_UNIQUE_ACROSS_ATTRS_EXCEPT_SAME);
+    allowedValues.add(BEHAVIOR_UNIQUE_IN_COMBINATION);
     multipleAttributeBehaviorArgument = new StringArgument('m',
          "multipleAttributeBehavior", false, 1, "{behavior}", description,
          allowedValues, BEHAVIOR_UNIQUE_WITHIN_ATTR);
@@ -552,23 +576,34 @@ public final class IdentifyUniqueAttributeConflicts
            BEHAVIOR_UNIQUE_ACROSS_ATTRS_INCLUDING_SAME))
       {
         uniqueAcrossAttributes = true;
+        uniqueInCombination = false;
         allowConflictsInSameEntry = false;
       }
       else if (multiAttrBehavior.equalsIgnoreCase(
            BEHAVIOR_UNIQUE_ACROSS_ATTRS_EXCEPT_SAME))
       {
         uniqueAcrossAttributes = true;
+        uniqueInCombination = false;
+        allowConflictsInSameEntry = true;
+      }
+      else if (multiAttrBehavior.equalsIgnoreCase(
+           BEHAVIOR_UNIQUE_IN_COMBINATION))
+      {
+        uniqueAcrossAttributes = false;
+        uniqueInCombination = true;
         allowConflictsInSameEntry = true;
       }
       else
       {
         uniqueAcrossAttributes = false;
+        uniqueInCombination = false;
         allowConflictsInSameEntry = true;
       }
     }
     else
     {
       uniqueAcrossAttributes = false;
+      uniqueInCombination = false;
       allowConflictsInSameEntry = true;
     }
 
@@ -626,6 +661,16 @@ public final class IdentifyUniqueAttributeConflicts
       {
         filter = Filter.createPresenceFilter(attributes[0]);
         conflictCounts.put(attributes[0], new AtomicLong(0L));
+      }
+      else if (uniqueInCombination)
+      {
+        final Filter[] andComps = new Filter[attributes.length];
+        for (int i=0; i < attributes.length; i++)
+        {
+          andComps[i] = Filter.createPresenceFilter(attributes[i]);
+          conflictCounts.put(attributes[i], new AtomicLong(0L));
+        }
+        filter = Filter.createANDFilter(andComps);
       }
       else
       {
@@ -723,19 +768,31 @@ public final class IdentifyUniqueAttributeConflicts
 
       // See if there were any uniqueness conflicts found.
       boolean conflictFound = false;
-      for (final Map.Entry<String,AtomicLong> e : conflictCounts.entrySet())
+      if (uniqueInCombination)
       {
-        final long numConflicts = e.getValue().get();
-        if (numConflicts > 0L)
+        final long count = combinationConflictCounts.get();
+        if (count > 0L)
         {
-          if (! conflictFound)
+          conflictFound = true;
+          err("Found " + count + " total conflicts.");
+        }
+      }
+      else
+      {
+        for (final Map.Entry<String,AtomicLong> e : conflictCounts.entrySet())
+        {
+          final long numConflicts = e.getValue().get();
+          if (numConflicts > 0L)
           {
-            err();
-            conflictFound = true;
-          }
+            if (! conflictFound)
+            {
+              err();
+              conflictFound = true;
+            }
 
-          err("Found " + numConflicts +
-               " unique value conflicts in attribute " + e.getKey());
+            err("Found " + numConflicts +
+                 " unique value conflicts in attribute " + e.getKey());
+          }
         }
       }
 
@@ -767,6 +824,20 @@ public final class IdentifyUniqueAttributeConflicts
 
 
   /**
+   * Retrieves the number of conflicts identified across multiple attributes in
+   * combination.
+   *
+   * @return  The number of conflicts identified across multiple attributes in
+   *          combination.
+   */
+  public long getCombinationConflictCounts()
+  {
+    return combinationConflictCounts.get();
+  }
+
+
+
+  /**
    * Retrieves a map that correlates the number of uniqueness conflicts found by
    * attribute type.
    *
@@ -793,8 +864,7 @@ public final class IdentifyUniqueAttributeConflicts
   @Override()
   public LinkedHashMap<String[],String> getExampleUsages()
   {
-    final LinkedHashMap<String[],String> exampleMap =
-         new LinkedHashMap<String[],String>(1);
+    final LinkedHashMap<String[],String> exampleMap = new LinkedHashMap<>(1);
 
     final String[] args =
     {
@@ -822,12 +892,19 @@ public final class IdentifyUniqueAttributeConflicts
    * @param  searchEntry  The search result entry that has been returned by the
    *                      server.
    */
+  @Override()
   public void searchEntryReturned(final SearchResultEntry searchEntry)
   {
     // If we have encountered a "time limit exceeded" error, then don't even
     // bother processing any more entries.
     if (timeLimitExceeded.get())
     {
+      return;
+    }
+
+    if (uniqueInCombination)
+    {
+      checkForConflictsInCombination(searchEntry);
       return;
     }
 
@@ -1024,12 +1101,162 @@ baseDNLoop:
 
 
   /**
+   * Performs the processing necessary to check for conflicts between a
+   * combination of attribute values obtained from the provided entry.
+   *
+   * @param  entry  The entry to examine.
+   */
+  private void checkForConflictsInCombination(final SearchResultEntry entry)
+  {
+    // Construct a filter used to identify conflicting entries as an AND for
+    // each attribute.  Handle the possibility of multivalued attributes by
+    // creating an OR of all values for each attribute.  And if an additional
+    // filter was also specified, include it in the AND as well.
+    final ArrayList<Filter> andComponents =
+         new ArrayList<>(attributes.length + 1);
+    for (final String attrName : attributes)
+    {
+      final LinkedHashSet<Filter> values = new LinkedHashSet<>(5);
+      for (final Attribute a : entry.getAttributesWithOptions(attrName, null))
+      {
+        for (final byte[] value : a.getValueByteArrays())
+        {
+          final Filter equalityFilter =
+               Filter.createEqualityFilter(attrName, value);
+          values.add(Filter.createEqualityFilter(attrName, value));
+        }
+      }
+
+      switch (values.size())
+      {
+        case 0:
+          // This means that the returned entry didn't include any values for
+          // the target attribute.  This should only happen if the user doesn't
+          // have permission to see those values.  At any rate, we can't check
+          // this entry for conflicts, so just assume there aren't any.
+          return;
+
+        case 1:
+          andComponents.add(values.iterator().next());
+          break;
+
+        default:
+          andComponents.add(Filter.createORFilter(values));
+          break;
+      }
+    }
+
+    if (filterArgument.isPresent())
+    {
+      andComponents.add(filterArgument.getValue());
+    }
+
+    final Filter filter = Filter.createANDFilter(andComponents);
+
+
+    // Search below each of the configured base DNs.
+baseDNLoop:
+    for (final DN baseDN : baseDNArgument.getValues())
+    {
+      SearchResult searchResult;
+      final SearchRequest searchRequest = new SearchRequest(baseDN.toString(),
+           SearchScope.SUB, DereferencePolicy.NEVER, 2,
+           timeLimitArgument.getValue(), false, filter, "1.1");
+
+      try
+      {
+        searchResult = findConflictsPool.search(searchRequest);
+      }
+      catch (final LDAPSearchException lse)
+      {
+        Debug.debugException(lse);
+        if (lse.getResultCode() == ResultCode.TIME_LIMIT_EXCEEDED)
+        {
+          // The server spent more time than the configured time limit to
+          // process the search.  This almost certainly means that the search is
+          // unindexed, and we don't want to continue. Indicate that the time
+          // limit has been exceeded, cancel the outer search, and display an
+          // error message to the user.
+          timeLimitExceeded.set(true);
+          try
+          {
+            findConflictsPool.processExtendedOperation(
+                 new CancelExtendedRequest(entry.getMessageID()));
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+          }
+
+          err("A server-side time limit was exceeded when searching below " +
+               "base DN '" + baseDN + "' with filter '" + filter +
+               "', which likely means that the search request is not indexed " +
+               "in the server.  Check the server configuration to ensure " +
+               "that any appropriate indexes are in place.  To indicate that " +
+               "searches should not request any time limit, use the " +
+               timeLimitArgument.getIdentifierString() +
+               " to indicate a time limit of zero seconds.");
+          return;
+        }
+        else if (lse.getResultCode().isConnectionUsable())
+        {
+          searchResult = lse.getSearchResult();
+        }
+        else
+        {
+          try
+          {
+            searchResult = findConflictsPool.search(searchRequest);
+          }
+          catch (final LDAPSearchException lse2)
+          {
+            Debug.debugException(lse2);
+            searchResult = lse2.getSearchResult();
+          }
+        }
+      }
+
+      for (final SearchResultEntry e : searchResult.getSearchEntries())
+      {
+        try
+        {
+          if (DN.equals(entry.getDN(), e.getDN()))
+          {
+            continue;
+          }
+        }
+        catch (final Exception ex)
+        {
+          Debug.debugException(ex);
+        }
+
+        err("Entry '" + entry.getDN() + " has a combination of values that " +
+             "are also present in entry '" + e.getDN() + "'.");
+        combinationConflictCounts.incrementAndGet();
+        break baseDNLoop;
+      }
+
+      if (searchResult.getResultCode() != ResultCode.SUCCESS)
+      {
+        err("An error occurred while attempting to search for conflicts " +
+             " with entry '" + entry.getDN() + "' below '" + baseDN + "':  " +
+             searchResult.getDiagnosticMessage());
+        combinationConflictCounts.incrementAndGet();
+        break baseDNLoop;
+      }
+    }
+  }
+
+
+
+  /**
    * Indicates that the provided search result reference has been returned by
    * the server and may be processed by this search result listener.
    *
    * @param  searchReference  The search result reference that has been returned
    *                          by the server.
    */
+  @Override()
   public void searchReferenceReturned(
                    final SearchResultReference searchReference)
   {

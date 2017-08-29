@@ -544,4 +544,153 @@ public final class IdentifyUniqueAttributeConflictsTestCase
       ds.shutDown(true);
     }
   }
+
+
+
+  /**
+   * Tests for a case in which we check for multiple attributes in combination.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testMultipleAttributesInCombination()
+         throws Exception
+  {
+    // Create a directory instance with an initial set of data that doesn't have
+    // any unique attribute conflicts.
+    final InMemoryDirectoryServerConfig cfg =
+         new InMemoryDirectoryServerConfig("dc=example,dc=com",
+              "o=example.com");
+    final InMemoryDirectoryServer ds = new InMemoryDirectoryServer(cfg);
+    ds.startListening();
+
+    final LDAPConnection conn = ds.getConnection();
+
+    conn.add(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example");
+
+    conn.add(
+         "dn: ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People");
+
+    conn.add(
+         "dn: o=example.com",
+         "objectClass: top",
+         "objectClass: organization",
+         "o: example.com");
+
+    conn.add(
+         "dn: ou=People,o=example.com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: People");
+
+    for (int i=0; i < 5; i++)
+    {
+      conn.add(
+           "dn: uid=user." + i + ",ou=People,dc=example,dc=com",
+           "objectClass: top",
+           "objectClass: person",
+           "objectClass: organizationalPerson",
+           "objectClass: inetOrgPerson",
+           "uid: user." + i,
+           "givenName: User",
+           "sn: " + i,
+           "cn: User " + i);
+    }
+
+
+    // Invoke the identify-unique-attribute-conflicts tool to verify that
+    // there are no conflicts.
+    IdentifyUniqueAttributeConflicts tool =
+         new IdentifyUniqueAttributeConflicts(null, null);
+    ResultCode resultCode = tool.runTool(
+         "--port", String.valueOf(ds.getListenPort()),
+         "--baseDN", "dc=example,dc=com",
+         "--attribute", "givenName",
+         "--attribute", "sn",
+         "--multipleAttributeBehavior", "unique-in-combination");
+    assertEquals(resultCode, ResultCode.SUCCESS);
+
+    assertEquals(tool.getCombinationConflictCounts(), 0L);
+
+
+    // Add a new entry that introduces a conflict.
+    conn.add(
+         "dn: cn=User 0,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.0",
+         "givenName: User",
+         "sn: 0",
+         "cn: User 0");
+
+
+    // Invoke the tool again and verify that we identify the conflict.  There
+    // will be two conflicts reported because each entry conflicts with the
+    // other.
+    tool = new IdentifyUniqueAttributeConflicts(null, null);
+    resultCode = tool.runTool(
+         "--port", String.valueOf(ds.getListenPort()),
+         "--baseDN", "dc=example,dc=com",
+         "--attribute", "givenName",
+         "--attribute", "sn",
+         "--multipleAttributeBehavior", "unique-in-combination");
+    assertEquals(resultCode, ResultCode.CONSTRAINT_VIOLATION);
+
+    assertEquals(tool.getCombinationConflictCounts(), 2L);
+
+
+    // Add another conflict, this time with multiple values for each of the
+    // target attributes.
+    conn.add(
+         "dn: cn=User 1,ou=People,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: person",
+         "objectClass: organizationalPerson",
+         "objectClass: inetOrgPerson",
+         "uid: user.1",
+         "givenName: User",
+         "givenName: Person",
+         "sn: 1",
+         "sn: One",
+         "cn: User 1",
+         "cn: Person One");
+
+
+    // Invoke the tool again and verify that we identify the new conflict.
+    tool = new IdentifyUniqueAttributeConflicts(null, null);
+    resultCode = tool.runTool(
+         "--port", String.valueOf(ds.getListenPort()),
+         "--baseDN", "dc=example,dc=com",
+         "--attribute", "givenName",
+         "--attribute", "sn",
+         "--multipleAttributeBehavior", "unique-in-combination");
+    assertEquals(resultCode, ResultCode.CONSTRAINT_VIOLATION);
+
+    assertEquals(tool.getCombinationConflictCounts(), 4L);
+
+
+    // Invoke the tool again, this time with a nonexistent base DN.
+    tool = new IdentifyUniqueAttributeConflicts(null, null);
+    resultCode = tool.runTool(
+         "--port", String.valueOf(ds.getListenPort()),
+         "--baseDN", "dc=example,dc=com",
+         "--baseDN", "dc=missing,dc=com",
+         "--attribute", "givenName",
+         "--attribute", "sn",
+         "--multipleAttributeBehavior", "unique-in-combination",
+         "--filter", "(objectClass=person)");
+    assertFalse(resultCode == ResultCode.SUCCESS);
+
+    conn.close();
+    ds.shutDown(true);
+  }
 }
