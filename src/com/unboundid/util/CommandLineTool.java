@@ -209,6 +209,7 @@ public abstract class CommandLineTool
     try
     {
       parser = createArgumentParser();
+      boolean exceptionFromParsingWithNoArgumentsExplicitlyProvided = false;
       if (supportsInteractiveMode() && defaultsToInteractiveMode() &&
           ((args == null) || (args.length == 0)))
       {
@@ -224,6 +225,7 @@ public abstract class CommandLineTool
         catch (final Exception e)
         {
           debugException(e);
+          exceptionFromParsingWithNoArgumentsExplicitlyProvided = true;
         }
       }
       else
@@ -299,7 +301,8 @@ public abstract class CommandLineTool
         if (interactiveArgument.isPresent() ||
             (defaultsToInteractiveMode() &&
              ((args == null) || (args.length == 0)) &&
-             parser.getArgumentsSetFromPropertiesFile().isEmpty()))
+             (parser.getArgumentsSetFromPropertiesFile().isEmpty() ||
+                  exceptionFromParsingWithNoArgumentsExplicitlyProvided)))
         {
           final CommandLineToolInteractiveModeProcessor interactiveProcessor =
                new CommandLineToolInteractiveModeProcessor(this, parser);

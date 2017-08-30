@@ -99,6 +99,18 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed an issue with command-line tools that default to interactive mode that
+                  could arise if the tool is invoked without any arguments, but if it tries to use
+                  a properties file referenced by an environment variable or JVM property.  If the
+                  properties file contained some but not all of the arguments needed to invoke the
+                  tool, the command-line tool framework would still try to invoke the tool with
+                  just the arguments from the properties file, which could result in erratic
+                  behavior, unexpected errors, or uncaught exceptions.  The tool will now launch
+                  in interactive mode to allow the missing arguments to be specified.
+                  <br><br>
+                </li>
+
+                <li>
                   The ldpasearch tool has been updated so that the base DN argument is now
                   optional in all circumstances.  Previously, you had to explicitly provide either
                   a base DN or an LDAP URL file, but this created a usability problem if you ran
