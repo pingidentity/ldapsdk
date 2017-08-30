@@ -6,6 +6,138 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 4.0.1</h3>
+
+              <p>
+                The following changes were made between the 4.0.0 and 4.0.1 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new <tt>JVMDefaultTrustManager</tt> class that can be used to
+                  automatically trust any certificate signed by an authority that the JVM
+                  considers trusted by default.  The command-line tool framework has been
+                  updated so that if you don't explicitly specify a trust behavior, it will now
+                  check the JVM-default trust manager before prompting about whether to trust
+                  the server certificate.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server to add support for encoding clear-text
+                  passwords using a pluggable mechanism.  For example, you can automatically have
+                  clear-text passwords transformed so that they are stored as the base64-encoded
+                  representation of a salted message digest.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the in-memory directory server to indicate which attributes will be
+                  treated as password attributes.  Any password attribute can be used to provide
+                  credentials for a bind operation, and the values of password attributes will be
+                  encoded with the configured password encoder (if any).  The server was formerly
+                  hard-coded to use userPassword as the password attribute, and this is still the
+                  default configuration, but it is now possible to configure the server to use one
+                  or more other attributes instead of or in addition to userPassword.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added support for a new password update behavior request control.  This control
+                  can be used in an upcoming release of the Ping Identity Directory Server to
+                  override the behavior the server would otherwise have used for a number of
+                  password-related properties (e.g., whether the password update is a self change
+                  or an administrative reset, whether to allow a pre-encoded password, which
+                  password storage scheme to use, etc.).  The ldapmodify tool has been updated to
+                  make it easy to include this control in add and modify requests.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the identify-unique-attribute-conflicts example tool to provide support
+                  for identifying conflicts between combinations of attributes.  For example, you
+                  can use this feature to identify cases in which there may be duplicate uid
+                  values within the same organization, but ignore duplicate uid values for users
+                  in different organizations.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed an OSGi problem in the jar file manifest.  When the LDAP SDK supported
+                  Java 1.5 or later, the correct value for the Bundle-RequiredExecutionEnvironment
+                  property was "J2SE-1.5".  When we updated the LDAP SDK to require Java 7 or
+                  later, the value of this property was updated to be "J2SE-1.7" instead of the
+                  correct new value of "JavaSE-1.7".
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a problem that prevented the complete set of argument validation from
+                  being performed when running a tool in interactive mode.  In particular, the
+                  interactive mode framework did not perform validation related to required,
+                  exclusive, and dependent argument sets.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed an issue with the way that command-line tools handled trailing arguments
+                  in interactive mode.  If the tool didn't require any trailing arguments but
+                  allowed any number of them to be provided, then interactive mode did not allow
+                  trailing argument values to be provided.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed an issue with the way that relative paths were handled in command-line
+                  tools run in interactive mode.  When a Java <tt>File</tt> object is created from
+                  a relative path rather than an absolute path, the <tt>getParentFile()</tt>
+                  method may return <tt>null</tt>, and this could cause the LDAP SDK to
+                  incorrectly believe that the file's parent didn't exist.  To avoid this, the
+                  LDAP SDK now uses <tt>getAbsoluteFile().getParentFile()</tt> in order to get the
+                  parent for any <tt>File</tt> that may have been created from a relative path.
+                  <br><br>
+                </li>
+
+                <li>
+                  The ldpasearch tool has been updated so that the base DN argument is now
+                  optional in all circumstances.  Previously, you had to explicitly provide either
+                  a base DN or an LDAP URL file, but this created a usability problem if you ran
+                  ldapsearch in interactive mode and wanted to search with a null base DN (that
+                  is, the DN with the empty string representation).  Now, if you don't provide
+                  either a base DN or an LDAP URL file, then ldapsearch will assume a null base
+                  DN.
+                  <br><br>
+                </li>
+
+                <li>
+                  Updated the class-level Javadoc documentation for a number of classes that
+                  implement controls and extended requests and responses.  If it takes an
+                  encoded value, the Javadoc documentation now describes the encoding for that
+                  value.
+                  <br><br>
+                </li>
+
+                <li>
+                  Fixed a couple of problems with message format strings that had incorrect
+                  property references (for example, they referenced "{1}" when they should have
+                  referenced "{0}" as the first argument).  The LDAP SDK build process has been
+                  updated to better catch these kinds of problems.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved the <tt>ByteStringBuffer.append(CharSequence)</tt> method so that it
+                  will be much more efficient for <tt>CharSequence</tt> implementations in which
+                  iterating through the characters using the <tt>charAt(int)</tt> method is
+                  expensive.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 4.0.0</h3>
 
               <p>
