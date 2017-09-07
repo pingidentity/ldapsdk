@@ -132,9 +132,26 @@ public final class PasswordPolicyStateAccountUsabilityNotice
 
 
   /**
+   * The numeric value for the notice type that indicates that the user does not
+   * have a static password.
+   */
+  public static final int NOTICE_TYPE_NO_STATIC_PASSWORD = 5;
+
+
+
+  /**
+   * The name for the notice type that indicates that the user does not have a
+   * static password.
+   */
+  public static final  String NOTICE_NAME_NO_STATIC_PASSWORD =
+       "no-static-password";
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 3676573634197714542L;
+  private static final long serialVersionUID = 6147730018701385799L;
 
 
 

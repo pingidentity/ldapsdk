@@ -148,6 +148,7 @@ import static com.unboundid.util.Debug.*;
  *             setTOTPSharedSecrets                         (78),
  *             clearTOTPSharedSecrets                       (79),
  *             hasRegisteredYubiKeyPublicID                 (80),
+ *             hasStaticPassword                            (81),
  *             ... },
  *      opValues     SEQUENCE OF OCTET STRING OPTIONAL }
  * </PRE>

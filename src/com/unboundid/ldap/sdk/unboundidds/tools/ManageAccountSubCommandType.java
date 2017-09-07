@@ -848,7 +848,17 @@ public enum ManageAccountSubCommandType
   CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS("clear-registered-yubikey-public-ids",
        INFO_MANAGE_ACCT_SC_DESC_CLEAR_YUBIKEY_IDS.get(),
        PasswordPolicyStateOperation.
-            OP_TYPE_CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS);
+            OP_TYPE_CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS),
+
+
+
+  /**
+   * The subcommand used to determine whether a user account has at least one
+   * static password.
+   */
+  GET_HAS_STATIC_PASSWORD("get-has-static-password",
+       INFO_MANAGE_ACCT_SC_DESC_GET_HAS_STATIC_PW.get(),
+       PasswordPolicyStateOperation.OP_TYPE_HAS_STATIC_PASSWORD);
 
 
 

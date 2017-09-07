@@ -1510,6 +1510,13 @@ public final class ManageAccount
     createSubCommand(CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS,
          INFO_MANAGE_ACCT_SC_CLEAR_YUBIKEY_IDS_EXAMPLE.get(
               EXAMPLE_TARGET_USER_DN));
+
+
+    // Define the subcommand to determine whether a user has at least one static
+    // password.
+    createSubCommand(GET_HAS_STATIC_PASSWORD,
+         INFO_MANAGE_ACCT_SC_GET_HAS_STATIC_PW_EXAMPLE.get(
+              EXAMPLE_TARGET_USER_DN));
   }
 
 

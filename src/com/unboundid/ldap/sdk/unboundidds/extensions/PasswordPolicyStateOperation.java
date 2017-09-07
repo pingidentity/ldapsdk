@@ -125,6 +125,7 @@ import static com.unboundid.util.StaticUtils.*;
  *       registered secrets.</LI>
  *   <LI>Get, set, and clear the public IDs of any YubiKey OTP devices
  *       registered for a user.</LI>
+ *   <LI>Determine whether the user has a static password.</LI>
  * </UL>
  * Note that many of these methods are dependent upon the password policy
  * configuration for the target user and therefore some of them may not be
@@ -800,6 +801,14 @@ public final class PasswordPolicyStateOperation
 
 
   /**
+   * The operation type that may be used to determine whether a user has a
+   * static password.
+   */
+  public static final int OP_TYPE_HAS_STATIC_PASSWORD = 81;
+
+
+
+  /**
    * The set of values that will be used if there are no values.
    */
   private static final ASN1OctetString[] NO_VALUES = new ASN1OctetString[0];
@@ -809,7 +818,7 @@ public final class PasswordPolicyStateOperation
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 5266077746088110528L;
+  private static final long serialVersionUID = -7004621958353828598L;
 
 
 
@@ -2564,6 +2573,22 @@ public final class PasswordPolicyStateOperation
   {
     return new PasswordPolicyStateOperation(
          OP_TYPE_CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS);
+  }
+
+
+
+  /**
+   * Creates a new password policy state operation that may be used to determine
+   * whether the user has a static password.  The result should include an
+   * operation of type {@link #OP_TYPE_HAS_STATIC_PASSWORD} with a single
+   * boolean value of {@code true} if the user has a static password, or
+   * {@code false} if not.
+   *
+   * @return  The created password policy state operation.
+   */
+  public static PasswordPolicyStateOperation createHasStaticPasswordOperation()
+  {
+    return new PasswordPolicyStateOperation(OP_TYPE_HAS_STATIC_PASSWORD);
   }
 
 

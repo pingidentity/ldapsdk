@@ -1038,6 +1038,9 @@ final class ManageAccountProcessor
       case CLEAR_REGISTERED_YUBIKEY_PUBLIC_IDS:
         return createClearRegisteredYubiKeyPublicIDsOperation();
 
+      case GET_HAS_STATIC_PASSWORD:
+        return createHasStaticPasswordOperation();
+
       default:
         // This should never happen.
         throw new LDAPException(ResultCode.LOCAL_ERROR,
