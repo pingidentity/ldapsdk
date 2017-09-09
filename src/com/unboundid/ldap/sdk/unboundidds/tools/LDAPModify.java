@@ -501,8 +501,9 @@ public final class LDAPModify
     ldifFile = new FileArgument('f', ARG_LDIF_FILE, false, -1, null,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_LDIF_FILE.get(), true, true, true,
          false);
-    ldifFile.addLongIdentifier("filename");
-    ldifFile.addLongIdentifier("ldif-file");
+    ldifFile.addLongIdentifier("filename", true);
+    ldifFile.addLongIdentifier("ldif-file", true);
+    ldifFile.addLongIdentifier("file-name", true);
     ldifFile.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(ldifFile);
 
@@ -510,8 +511,8 @@ public final class LDAPModify
     characterSet = new StringArgument('i', "characterSet", false, 1,
          INFO_LDAPMODIFY_PLACEHOLDER_CHARSET.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_CHARACTER_SET.get(), "UTF-8");
-    characterSet.addLongIdentifier("encoding");
-    characterSet.addLongIdentifier("character-set");
+    characterSet.addLongIdentifier("encoding", true);
+    characterSet.addLongIdentifier("character-set", true);
     characterSet.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(characterSet);
 
@@ -519,7 +520,7 @@ public final class LDAPModify
     rejectFile = new FileArgument('R', "rejectFile", false, 1, null,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_REJECT_FILE.get(), false, true, true,
          false);
-    rejectFile.addLongIdentifier("reject-file");
+    rejectFile.addLongIdentifier("reject-file", true);
     rejectFile.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(rejectFile);
 
@@ -535,7 +536,7 @@ public final class LDAPModify
          INFO_LDAPMODIFY_ARG_DESCRIPTION_MODIFY_ENTRIES_MATCHING_FILTER.get(
               ARG_SEARCH_PAGE_SIZE));
     modifyEntriesMatchingFilter.addLongIdentifier(
-         "modify-entries-matching-filter");
+         "modify-entries-matching-filter", true);
     modifyEntriesMatchingFilter.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(modifyEntriesMatchingFilter);
@@ -546,7 +547,7 @@ public final class LDAPModify
          INFO_LDAPMODIFY_ARG_DESCRIPTION_MODIFY_FILTER_FILE.get(
               ARG_SEARCH_PAGE_SIZE), true, false, true, false);
     modifyEntriesMatchingFiltersFromFile.addLongIdentifier(
-         "modify-entries-matching-filters-from-file");
+         "modify-entries-matching-filters-from-file", true);
     modifyEntriesMatchingFiltersFromFile.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(modifyEntriesMatchingFiltersFromFile);
@@ -554,7 +555,7 @@ public final class LDAPModify
 
     modifyEntryWithDN = new DNArgument(null, "modifyEntryWithDN", false, 0,
          null, INFO_LDAPMODIFY_ARG_DESCRIPTION_MODIFY_ENTRY_DN.get());
-    modifyEntryWithDN.addLongIdentifier("modify-entry-with-dn");
+    modifyEntryWithDN.addLongIdentifier("modify-entry-with-dn", true);
     modifyEntryWithDN.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(modifyEntryWithDN);
@@ -565,7 +566,7 @@ public final class LDAPModify
          null, INFO_LDAPMODIFY_ARG_DESCRIPTION_MODIFY_DN_FILE.get(), true,
          false, true, false);
     modifyEntriesWithDNsFromFile.addLongIdentifier(
-         "modify-entries-with-dns-from-file");
+         "modify-entries-with-dns-from-file", true);
     modifyEntriesWithDNsFromFile.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(modifyEntriesWithDNsFromFile);
@@ -577,14 +578,14 @@ public final class LDAPModify
               modifyEntriesMatchingFilter.getIdentifierString(),
               modifyEntriesMatchingFiltersFromFile.getIdentifierString()),
          1, Integer.MAX_VALUE);
-    searchPageSize.addLongIdentifier("search-page-size");
+    searchPageSize.addLongIdentifier("search-page-size", true);
     searchPageSize.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(searchPageSize);
 
 
     retryFailedOperations = new BooleanArgument(null, "retryFailedOperations",
          1, INFO_LDAPMODIFY_ARG_DESCRIPTION_RETRY_FAILED_OPERATIONS.get());
-    retryFailedOperations.addLongIdentifier("retry-failed-operations");
+    retryFailedOperations.addLongIdentifier("retry-failed-operations", true);
     retryFailedOperations.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(retryFailedOperations);
@@ -592,28 +593,28 @@ public final class LDAPModify
 
     dryRun = new BooleanArgument('n', "dryRun", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_DRY_RUN.get());
-    dryRun.addLongIdentifier("dry-run");
+    dryRun.addLongIdentifier("dry-run", true);
     dryRun.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(dryRun);
 
 
     defaultAdd = new BooleanArgument('a', "defaultAdd", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_DEFAULT_ADD.get());
-    defaultAdd.addLongIdentifier("default-add");
+    defaultAdd.addLongIdentifier("default-add", true);
     defaultAdd.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(defaultAdd);
 
 
     continueOnError = new BooleanArgument('c', "continueOnError", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_CONTINUE_ON_ERROR.get());
-    continueOnError.addLongIdentifier("continue-on-error");
+    continueOnError.addLongIdentifier("continue-on-error", true);
     continueOnError.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(continueOnError);
 
 
     stripTrailingSpaces = new BooleanArgument(null, "stripTrailingSpaces", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_STRIP_TRAILING_SPACES.get());
-    stripTrailingSpaces.addLongIdentifier("strip-trailing-spaces");
+    stripTrailingSpaces.addLongIdentifier("strip-trailing-spaces", true);
     stripTrailingSpaces.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     parser.addArgument(stripTrailingSpaces);
@@ -622,7 +623,7 @@ public final class LDAPModify
 
     followReferrals = new BooleanArgument(null, "followReferrals", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_FOLLOW_REFERRALS.get());
-    followReferrals.addLongIdentifier("follow-referrals");
+    followReferrals.addLongIdentifier("follow-referrals", true);
     followReferrals.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(followReferrals);
 
@@ -630,15 +631,15 @@ public final class LDAPModify
     proxyAs = new StringArgument('Y', "proxyAs", false, 1,
          INFO_PLACEHOLDER_AUTHZID.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PROXY_AS.get());
-    proxyAs.addLongIdentifier("proxyV2As");
-    proxyAs.addLongIdentifier("proxy-as");
-    proxyAs.addLongIdentifier("proxy-v2-as");
+    proxyAs.addLongIdentifier("proxyV2As", true);
+    proxyAs.addLongIdentifier("proxy-as", true);
+    proxyAs.addLongIdentifier("proxy-v2-as", true);
     proxyAs.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(proxyAs);
 
     proxyV1As = new DNArgument(null, "proxyV1As", false, 1, null,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PROXY_V1_AS.get());
-    proxyV1As.addLongIdentifier("proxy-v1-as");
+    proxyV1As.addLongIdentifier("proxy-v1-as", true);
     proxyV1As.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(proxyV1As);
 
@@ -646,7 +647,8 @@ public final class LDAPModify
     useAdministrativeSession = new BooleanArgument(null,
          "useAdministrativeSession", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_USE_ADMIN_SESSION.get());
-    useAdministrativeSession.addLongIdentifier("use-administrative-session");
+    useAdministrativeSession.addLongIdentifier("use-administrative-session",
+         true);
     useAdministrativeSession.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(useAdministrativeSession);
@@ -655,7 +657,7 @@ public final class LDAPModify
     operationPurpose = new StringArgument(null, "operationPurpose", false, 1,
          INFO_PLACEHOLDER_PURPOSE.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_OPERATION_PURPOSE.get());
-    operationPurpose.addLongIdentifier("operation-purpose");
+    operationPurpose.addLongIdentifier("operation-purpose", true);
     operationPurpose.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(operationPurpose);
@@ -663,9 +665,9 @@ public final class LDAPModify
 
     manageDsaIT = new BooleanArgument(null, "useManageDsaIT", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_MANAGE_DSA_IT.get());
-    manageDsaIT.addLongIdentifier("manageDsaIT");
-    manageDsaIT.addLongIdentifier("use-manage-dsa-it");
-    manageDsaIT.addLongIdentifier("manage-dsa-it");
+    manageDsaIT.addLongIdentifier("manageDsaIT", true);
+    manageDsaIT.addLongIdentifier("use-manage-dsa-it", true);
+    manageDsaIT.addLongIdentifier("manage-dsa-it", true);
     manageDsaIT.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(manageDsaIT);
@@ -673,7 +675,7 @@ public final class LDAPModify
 
     useTransaction = new BooleanArgument(null, "useTransaction", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_USE_TRANSACTION.get());
-    useTransaction.addLongIdentifier("use-transaction");
+    useTransaction.addLongIdentifier("use-transaction", true);
     useTransaction.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(useTransaction);
 
@@ -688,7 +690,8 @@ public final class LDAPModify
          "{atomic|abort-on-error|continue-on-error}",
          INFO_LDAPMODIFY_ARG_DESCRIPTION_MULTI_UPDATE_ERROR_BEHAVIOR.get(),
          multiUpdateErrorBehaviorAllowedValues);
-    multiUpdateErrorBehavior.addLongIdentifier("multi-update-error-behavior");
+    multiUpdateErrorBehavior.addLongIdentifier("multi-update-error-behavior",
+         true);
     multiUpdateErrorBehavior.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(multiUpdateErrorBehavior);
@@ -697,7 +700,7 @@ public final class LDAPModify
     assertionFilter = new FilterArgument(null, "assertionFilter", false, 1,
          INFO_PLACEHOLDER_FILTER.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_ASSERTION_FILTER.get());
-    assertionFilter.addLongIdentifier("assertion-filter");
+    assertionFilter.addLongIdentifier("assertion-filter", true);
     assertionFilter.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(assertionFilter);
@@ -706,10 +709,10 @@ public final class LDAPModify
     authorizationIdentity = new BooleanArgument('E',
          "authorizationIdentity", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_AUTHZ_IDENTITY.get());
-    authorizationIdentity.addLongIdentifier("reportAuthzID");
-    authorizationIdentity.addLongIdentifier("authorization-identity");
-    authorizationIdentity.addLongIdentifier("report-authzID");
-    authorizationIdentity.addLongIdentifier("report-authz-id");
+    authorizationIdentity.addLongIdentifier("reportAuthzID", true);
+    authorizationIdentity.addLongIdentifier("authorization-identity", true);
+    authorizationIdentity.addLongIdentifier("report-authzID", true);
+    authorizationIdentity.addLongIdentifier("report-authz-id", true);
     authorizationIdentity.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(authorizationIdentity);
@@ -720,7 +723,7 @@ public final class LDAPModify
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_GET_AUTHZ_ENTRY_ATTR.get());
     getAuthorizationEntryAttribute.addLongIdentifier(
-         "get-authorization-entry-attribute");
+         "get-authorization-entry-attribute", true);
     getAuthorizationEntryAttribute.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getAuthorizationEntryAttribute);
@@ -728,7 +731,7 @@ public final class LDAPModify
 
     getUserResourceLimits = new BooleanArgument(null, "getUserResourceLimits",
          1, INFO_LDAPMODIFY_ARG_DESCRIPTION_GET_USER_RESOURCE_LIMITS.get());
-    getUserResourceLimits.addLongIdentifier("get-user-resource-limits");
+    getUserResourceLimits.addLongIdentifier("get-user-resource-limits", true);
     getUserResourceLimits.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getUserResourceLimits);
@@ -737,7 +740,8 @@ public final class LDAPModify
     ignoreNoUserModification = new BooleanArgument(null,
          "ignoreNoUserModification", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_IGNORE_NO_USER_MOD.get());
-    ignoreNoUserModification.addLongIdentifier("ignore-no-user-modification");
+    ignoreNoUserModification.addLongIdentifier("ignore-no-user-modification",
+         true);
     ignoreNoUserModification.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(ignoreNoUserModification);
@@ -746,9 +750,9 @@ public final class LDAPModify
     preReadAttribute = new StringArgument(null, "preReadAttribute", false, -1,
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PRE_READ_ATTRIBUTE.get());
-    preReadAttribute.addLongIdentifier("preReadAttributes");
-    preReadAttribute.addLongIdentifier("pre-read-attribute");
-    preReadAttribute.addLongIdentifier("pre-read-attributes");
+    preReadAttribute.addLongIdentifier("preReadAttributes", true);
+    preReadAttribute.addLongIdentifier("pre-read-attribute", true);
+    preReadAttribute.addLongIdentifier("pre-read-attributes", true);
     preReadAttribute.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(preReadAttribute);
@@ -757,9 +761,9 @@ public final class LDAPModify
     postReadAttribute = new StringArgument(null, "postReadAttribute", false,
          -1, INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_POST_READ_ATTRIBUTE.get());
-    postReadAttribute.addLongIdentifier("postReadAttributes");
-    postReadAttribute.addLongIdentifier("post-read-attribute");
-    postReadAttribute.addLongIdentifier("post-read-attributes");
+    postReadAttribute.addLongIdentifier("postReadAttributes", true);
+    postReadAttribute.addLongIdentifier("post-read-attribute", true);
+    postReadAttribute.addLongIdentifier("post-read-attributes", true);
     postReadAttribute.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(postReadAttribute);
@@ -770,9 +774,9 @@ public final class LDAPModify
               ARG_ASSURED_REPLICATION_LOCAL_LEVEL,
               ARG_ASSURED_REPLICATION_REMOTE_LEVEL,
               ARG_ASSURED_REPLICATION_TIMEOUT));
-    assuredReplication.addLongIdentifier("assuredReplication");
-    assuredReplication.addLongIdentifier("use-assured-replication");
-    assuredReplication.addLongIdentifier("assured-replication");
+    assuredReplication.addLongIdentifier("assuredReplication", true);
+    assuredReplication.addLongIdentifier("use-assured-replication", true);
+    assuredReplication.addLongIdentifier("assured-replication", true);
     assuredReplication.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(assuredReplication);
@@ -790,7 +794,7 @@ public final class LDAPModify
               assuredReplication.getIdentifierString()),
          assuredReplicationLocalLevelAllowedValues);
     assuredReplicationLocalLevel.addLongIdentifier(
-         "assured-replication-local-level");
+         "assured-replication-local-level", true);
     assuredReplicationLocalLevel.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(assuredReplicationLocalLevel);
@@ -812,7 +816,7 @@ public final class LDAPModify
               assuredReplication.getIdentifierString()),
          assuredReplicationRemoteLevelAllowedValues);
     assuredReplicationRemoteLevel.addLongIdentifier(
-         "assured-replication-remote-level");
+         "assured-replication-remote-level", true);
     assuredReplicationRemoteLevel.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(assuredReplicationRemoteLevel);
@@ -829,7 +833,7 @@ public final class LDAPModify
 
     replicationRepair = new BooleanArgument(null, "replicationRepair",
          1, INFO_LDAPMODIFY_ARG_DESCRIPTION_REPLICATION_REPAIR.get());
-    replicationRepair.addLongIdentifier("replication-repair");
+    replicationRepair.addLongIdentifier("replication-repair", true);
     replicationRepair.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(replicationRepair);
@@ -837,8 +841,8 @@ public final class LDAPModify
 
     nameWithEntryUUID = new BooleanArgument(null, "nameWithEntryUUID", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_NAME_WITH_ENTRY_UUID.get());
-    nameWithEntryUUID.addLongIdentifier("name-with-entryUUID");
-    nameWithEntryUUID.addLongIdentifier("name-with-entry-uuid");
+    nameWithEntryUUID.addLongIdentifier("name-with-entryUUID", true);
+    nameWithEntryUUID.addLongIdentifier("name-with-entry-uuid", true);
     nameWithEntryUUID.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(nameWithEntryUUID);
@@ -846,9 +850,9 @@ public final class LDAPModify
 
     noOperation = new BooleanArgument(null, "noOperation", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_NO_OPERATION.get());
-    noOperation.addLongIdentifier("noOp");
-    noOperation.addLongIdentifier("no-operation");
-    noOperation.addLongIdentifier("no-op");
+    noOperation.addLongIdentifier("noOp", true);
+    noOperation.addLongIdentifier("no-operation", true);
+    noOperation.addLongIdentifier("no-op", true);
     noOperation.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(noOperation);
 
@@ -857,7 +861,7 @@ public final class LDAPModify
          "passwordUpdateBehavior", false, 0,
          INFO_LDAPMODIFY_PLACEHOLDER_NAME_EQUALS_VALUE.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PW_UPDATE_BEHAVIOR.get());
-    passwordUpdateBehavior.addLongIdentifier("password-update-behavior");
+    passwordUpdateBehavior.addLongIdentifier("password-update-behavior", true);
     passwordUpdateBehavior.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(passwordUpdateBehavior);
@@ -866,10 +870,12 @@ public final class LDAPModify
          "getPasswordValidationDetails", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PASSWORD_VALIDATION_DETAILS.get(
               ATTR_USER_PASSWORD, ATTR_AUTH_PASSWORD));
-    passwordValidationDetails.addLongIdentifier("passwordValidationDetails");
+    passwordValidationDetails.addLongIdentifier("passwordValidationDetails",
+         true);
     passwordValidationDetails.addLongIdentifier(
-         "get-password-validation-details");
-    passwordValidationDetails.addLongIdentifier("password-validation-details");
+         "get-password-validation-details", true);
+    passwordValidationDetails.addLongIdentifier("password-validation-details",
+         true);
     passwordValidationDetails.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(passwordValidationDetails);
@@ -877,7 +883,7 @@ public final class LDAPModify
 
     permissiveModify = new BooleanArgument(null, "permissiveModify",
          1, INFO_LDAPMODIFY_ARG_DESCRIPTION_PERMISSIVE_MODIFY.get());
-    permissiveModify.addLongIdentifier("permissive-modify");
+    permissiveModify.addLongIdentifier("permissive-modify", true);
     permissiveModify.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(permissiveModify);
@@ -885,7 +891,7 @@ public final class LDAPModify
 
     subtreeDelete = new BooleanArgument(null, "subtreeDelete", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_SUBTREE_DELETE.get());
-    subtreeDelete.addLongIdentifier("subtree-delete");
+    subtreeDelete.addLongIdentifier("subtree-delete", true);
     subtreeDelete.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(subtreeDelete);
@@ -893,16 +899,16 @@ public final class LDAPModify
 
     softDelete = new BooleanArgument('s', "softDelete", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_SOFT_DELETE.get());
-    softDelete.addLongIdentifier("useSoftDelete");
-    softDelete.addLongIdentifier("soft-delete");
-    softDelete.addLongIdentifier("use-soft-delete");
+    softDelete.addLongIdentifier("useSoftDelete", true);
+    softDelete.addLongIdentifier("soft-delete", true);
+    softDelete.addLongIdentifier("use-soft-delete", true);
     softDelete.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(softDelete);
 
 
     hardDelete = new BooleanArgument(null, "hardDelete", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_HARD_DELETE.get());
-    hardDelete.addLongIdentifier("hard-delete");
+    hardDelete.addLongIdentifier("hard-delete", true);
     hardDelete.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(hardDelete);
 
@@ -910,7 +916,7 @@ public final class LDAPModify
     allowUndelete = new BooleanArgument(null, "allowUndelete", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_ALLOW_UNDELETE.get(
               ATTR_UNDELETE_FROM_DN));
-    allowUndelete.addLongIdentifier("allow-undelete");
+    allowUndelete.addLongIdentifier("allow-undelete", true);
     allowUndelete.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(allowUndelete);
@@ -920,7 +926,7 @@ public final class LDAPModify
          1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_RETIRE_CURRENT_PASSWORD.get(
               ATTR_USER_PASSWORD, ATTR_AUTH_PASSWORD));
-    retireCurrentPassword.addLongIdentifier("retire-current-password");
+    retireCurrentPassword.addLongIdentifier("retire-current-password", true);
     retireCurrentPassword.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(retireCurrentPassword);
@@ -929,7 +935,7 @@ public final class LDAPModify
     purgeCurrentPassword = new BooleanArgument(null, "purgeCurrentPassword", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PURGE_CURRENT_PASSWORD.get(
               ATTR_USER_PASSWORD, ATTR_AUTH_PASSWORD));
-    purgeCurrentPassword.addLongIdentifier("purge-current-password");
+    purgeCurrentPassword.addLongIdentifier("purge-current-password", true);
     purgeCurrentPassword.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(purgeCurrentPassword);
@@ -948,7 +954,7 @@ public final class LDAPModify
          INFO_LDAPMODIFY_ARG_DESCRIPTION_SUPPRESS_OP_ATTR_UPDATES.get(),
          suppressOperationalAttributeUpdatesAllowedValues);
     suppressOperationalAttributeUpdates.addLongIdentifier(
-         "suppress-operational-attribute-updates");
+         "suppress-operational-attribute-updates", true);
     suppressOperationalAttributeUpdates.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(suppressOperationalAttributeUpdates);
@@ -958,7 +964,7 @@ public final class LDAPModify
          "suppressReferentialIntegrityUpdates", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_SUPPRESS_REFERINT_UPDATES.get());
     suppressReferentialIntegrityUpdates.addLongIdentifier(
-         "suppress-referential-integrity-updates");
+         "suppress-referential-integrity-updates", true);
     suppressReferentialIntegrityUpdates.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(suppressReferentialIntegrityUpdates);
@@ -967,7 +973,8 @@ public final class LDAPModify
     usePasswordPolicyControl = new BooleanArgument(null,
          "usePasswordPolicyControl", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_PASSWORD_POLICY.get());
-    usePasswordPolicyControl.addLongIdentifier("use-password-policy-control");
+    usePasswordPolicyControl.addLongIdentifier("use-password-policy-control",
+         true);
     usePasswordPolicyControl.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(usePasswordPolicyControl);
@@ -982,14 +989,14 @@ public final class LDAPModify
 
     addControl = new ControlArgument(null, "addControl", false, 0, null,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_ADD_CONTROL.get());
-    addControl.addLongIdentifier("add-control");
+    addControl.addLongIdentifier("add-control", true);
     addControl.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(addControl);
 
 
     bindControl = new ControlArgument(null, "bindControl", false, 0, null,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_BIND_CONTROL.get());
-    bindControl.addLongIdentifier("bind-control");
+    bindControl.addLongIdentifier("bind-control", true);
     bindControl.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(bindControl);
@@ -997,7 +1004,7 @@ public final class LDAPModify
 
     deleteControl = new ControlArgument(null, "deleteControl", false, 0, null,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_DELETE_CONTROL.get());
-    deleteControl.addLongIdentifier("delete-control");
+    deleteControl.addLongIdentifier("delete-control", true);
     deleteControl.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(deleteControl);
@@ -1005,7 +1012,7 @@ public final class LDAPModify
 
     modifyControl = new ControlArgument(null, "modifyControl", false, 0, null,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_MODIFY_CONTROL.get());
-    modifyControl.addLongIdentifier("modify-control");
+    modifyControl.addLongIdentifier("modify-control", true);
     modifyControl.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(modifyControl);
@@ -1013,7 +1020,7 @@ public final class LDAPModify
 
     modifyDNControl = new ControlArgument(null, "modifyDNControl", false, 0,
          null, INFO_LDAPMODIFY_ARG_DESCRIPTION_MODIFY_DN_CONTROL.get());
-    modifyDNControl.addLongIdentifier("modify-dn-control");
+    modifyDNControl.addLongIdentifier("modify-dn-control", true);
     modifyDNControl.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(modifyDNControl);
@@ -1023,7 +1030,7 @@ public final class LDAPModify
          INFO_PLACEHOLDER_NUM.get(),
          INFO_LDAPMODIFY_ARG_DESCRIPTION_RATE_PER_SECOND.get(), 1,
          Integer.MAX_VALUE);
-    ratePerSecond.addLongIdentifier("rate-per-second");
+    ratePerSecond.addLongIdentifier("rate-per-second", true);
     ratePerSecond.setArgumentGroupName(INFO_LDAPMODIFY_ARG_GROUP_OPS.get());
     parser.addArgument(ratePerSecond);
 
@@ -1033,7 +1040,7 @@ public final class LDAPModify
     final BooleanArgument scriptFriendly = new BooleanArgument(null,
          "scriptFriendly", 1,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_SCRIPT_FRIENDLY.get());
-    scriptFriendly.addLongIdentifier("script-friendly");
+    scriptFriendly.addLongIdentifier("script-friendly", true);
     scriptFriendly.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_DATA.get());
     scriptFriendly.setHidden(true);
@@ -1044,7 +1051,7 @@ public final class LDAPModify
     // legacy ldapmodify tools, but is not actually used by this tool.
     final IntegerArgument ldapVersion = new IntegerArgument('V', "ldapVersion",
          false, 1, null, INFO_LDAPMODIFY_ARG_DESCRIPTION_LDAP_VERSION.get());
-    ldapVersion.addLongIdentifier("ldap-version");
+    ldapVersion.addLongIdentifier("ldap-version", true);
     ldapVersion.setHidden(true);
     parser.addArgument(ldapVersion);
 

@@ -311,16 +311,17 @@ public final class TransformLDIF
     sourceLDIF = new FileArgument('l', "sourceLDIF", false, 0, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_SOURCE_LDIF.get(), true, true, true,
          false);
-    sourceLDIF.addLongIdentifier("inputLDIF");
-    sourceLDIF.addLongIdentifier("source-ldif");
-    sourceLDIF.addLongIdentifier("input-ldif");
+    sourceLDIF.addLongIdentifier("inputLDIF", true);
+    sourceLDIF.addLongIdentifier("source-ldif", true);
+    sourceLDIF.addLongIdentifier("input-ldif", true);
     sourceLDIF.setArgumentGroupName(INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(sourceLDIF);
 
     sourceFromStandardInput = new BooleanArgument(null,
          "sourceFromStandardInput", 1,
          INFO_TRANSFORM_LDIF_ARG_DESC_SOURCE_STD_IN.get());
-    sourceFromStandardInput.addLongIdentifier("source-from-standard-input");
+    sourceFromStandardInput.addLongIdentifier("source-from-standard-input",
+         true);
     sourceFromStandardInput.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(sourceFromStandardInput);
@@ -330,15 +331,15 @@ public final class TransformLDIF
     targetLDIF = new FileArgument('o', "targetLDIF", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_TARGET_LDIF.get(), false, true, true,
          false);
-    targetLDIF.addLongIdentifier("outputLDIF");
-    targetLDIF.addLongIdentifier("target-ldif");
-    targetLDIF.addLongIdentifier("output-ldif");
+    targetLDIF.addLongIdentifier("outputLDIF", true);
+    targetLDIF.addLongIdentifier("target-ldif", true);
+    targetLDIF.addLongIdentifier("output-ldif", true);
     targetLDIF.setArgumentGroupName(INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(targetLDIF);
 
     targetToStandardOutput = new BooleanArgument(null, "targetToStandardOutput",
          1, INFO_TRANSFORM_LDIF_ARG_DESC_TARGET_STD_OUT.get());
-    targetToStandardOutput.addLongIdentifier("target-to-standard-output");
+    targetToStandardOutput.addLongIdentifier("target-to-standard-output", true);
     targetToStandardOutput.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(targetToStandardOutput);
@@ -348,14 +349,14 @@ public final class TransformLDIF
          "sourceContainsChangeRecords",
          INFO_TRANSFORM_LDIF_ARG_DESC_SOURCE_CONTAINS_CHANGE_RECORDS.get());
     sourceContainsChangeRecords.addLongIdentifier(
-         "source-contains-change-records");
+         "source-contains-change-records", true);
     sourceContainsChangeRecords.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(sourceContainsChangeRecords);
 
     appendToTargetLDIF = new BooleanArgument(null, "appendToTargetLDIF",
          INFO_TRANSFORM_LDIF_ARG_DESC_APPEND_TO_TARGET.get());
-    appendToTargetLDIF.addLongIdentifier("append-to-target-ldif");
+    appendToTargetLDIF.addLongIdentifier("append-to-target-ldif", true);
     appendToTargetLDIF.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(appendToTargetLDIF);
@@ -363,25 +364,25 @@ public final class TransformLDIF
 
     wrapColumn = new IntegerArgument(null, "wrapColumn", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_WRAP_COLUMN.get(), 5, Integer.MAX_VALUE);
-    wrapColumn.addLongIdentifier("wrap-column");
+    wrapColumn.addLongIdentifier("wrap-column", true);
     wrapColumn.setArgumentGroupName(INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(wrapColumn);
 
     sourceCompressed = new BooleanArgument('C', "sourceCompressed",
          INFO_TRANSFORM_LDIF_ARG_DESC_SOURCE_COMPRESSED.get());
-    sourceCompressed.addLongIdentifier("inputCompressed");
-    sourceCompressed.addLongIdentifier("source-compressed");
-    sourceCompressed.addLongIdentifier("input-compressed");
+    sourceCompressed.addLongIdentifier("inputCompressed", true);
+    sourceCompressed.addLongIdentifier("source-compressed", true);
+    sourceCompressed.addLongIdentifier("input-compressed", true);
     sourceCompressed.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(sourceCompressed);
 
     compressTarget = new BooleanArgument('c', "compressTarget",
          INFO_TRANSFORM_LDIF_ARG_DESC_COMPRESS_TARGET.get());
-    compressTarget.addLongIdentifier("compressOutput");
-    compressTarget.addLongIdentifier("compress");
-    compressTarget.addLongIdentifier("compress-target");
-    compressTarget.addLongIdentifier("compress-output");
+    compressTarget.addLongIdentifier("compressOutput", true);
+    compressTarget.addLongIdentifier("compress", true);
+    compressTarget.addLongIdentifier("compress-target", true);
+    compressTarget.addLongIdentifier("compress-output", true);
     compressTarget.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_LDIF.get());
     parser.addArgument(compressTarget);
@@ -391,9 +392,9 @@ public final class TransformLDIF
     scrambleAttribute = new StringArgument('a', "scrambleAttribute", false, 0,
          INFO_TRANSFORM_LDIF_PLACEHOLDER_ATTR_NAME.get(),
          INFO_TRANSFORM_LDIF_ARG_DESC_SCRAMBLE_ATTR.get());
-    scrambleAttribute.addLongIdentifier("attributeName");
-    scrambleAttribute.addLongIdentifier("scramble-attribute");
-    scrambleAttribute.addLongIdentifier("attribute-name");
+    scrambleAttribute.addLongIdentifier("attributeName", true);
+    scrambleAttribute.addLongIdentifier("scramble-attribute", true);
+    scrambleAttribute.addLongIdentifier("attribute-name", true);
     scrambleAttribute.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_SCRAMBLE.get());
     parser.addArgument(scrambleAttribute);
@@ -402,7 +403,7 @@ public final class TransformLDIF
          INFO_TRANSFORM_LDIF_PLACEHOLDER_FIELD_NAME.get(),
          INFO_TRANSFORM_LDIF_ARG_DESC_SCRAMBLE_JSON_FIELD.get(
               scrambleAttribute.getIdentifierString()));
-    scrambleJSONField.addLongIdentifier("scramble-json-field");
+    scrambleJSONField.addLongIdentifier("scramble-json-field", true);
     scrambleJSONField.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_SCRAMBLE.get());
     parser.addArgument(scrambleJSONField);
@@ -410,7 +411,7 @@ public final class TransformLDIF
 
     randomSeed = new IntegerArgument('s', "randomSeed", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_RANDOM_SEED.get());
-    randomSeed.addLongIdentifier("random-seed");
+    randomSeed.addLongIdentifier("random-seed", true);
     randomSeed.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_SCRAMBLE.get());
     parser.addArgument(randomSeed);
@@ -422,9 +423,9 @@ public final class TransformLDIF
          false, 0, INFO_TRANSFORM_LDIF_PLACEHOLDER_ATTR_NAME.get(),
          INFO_TRANSFORM_LDIF_ARG_DESC_SEQUENTIAL_ATTR.get(
               sourceContainsChangeRecords.getIdentifierString()));
-    sequentialAttribute.addLongIdentifier("sequentialAttributeName");
-    sequentialAttribute.addLongIdentifier("sequential-attribute");
-    sequentialAttribute.addLongIdentifier("sequential-attribute-name");
+    sequentialAttribute.addLongIdentifier("sequentialAttributeName", true);
+    sequentialAttribute.addLongIdentifier("sequential-attribute", true);
+    sequentialAttribute.addLongIdentifier("sequential-attribute-name", true);
     sequentialAttribute.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_SEQUENTIAL.get());
     parser.addArgument(sequentialAttribute);
@@ -435,7 +436,7 @@ public final class TransformLDIF
          false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_INITIAL_SEQUENTIAL_VALUE.get(
               sequentialAttribute.getIdentifierString()));
-    initialSequentialValue.addLongIdentifier("initial-sequential-value");
+    initialSequentialValue.addLongIdentifier("initial-sequential-value", true);
     initialSequentialValue.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_SEQUENTIAL.get());
     parser.addArgument(initialSequentialValue);
@@ -445,7 +446,8 @@ public final class TransformLDIF
          "sequentialValueIncrement", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_SEQUENTIAL_INCREMENT.get(
               sequentialAttribute.getIdentifierString()));
-    sequentialValueIncrement.addLongIdentifier("sequential-value-increment");
+    sequentialValueIncrement.addLongIdentifier("sequential-value-increment",
+         true);
     sequentialValueIncrement.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_SEQUENTIAL.get());
     parser.addArgument(sequentialValueIncrement);
@@ -456,7 +458,8 @@ public final class TransformLDIF
          "textBeforeSequentialValue", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_SEQUENTIAL_TEXT_BEFORE.get(
               sequentialAttribute.getIdentifierString()));
-    textBeforeSequentialValue.addLongIdentifier("text-before-sequential-value");
+    textBeforeSequentialValue.addLongIdentifier("text-before-sequential-value",
+         true);
     textBeforeSequentialValue.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_SEQUENTIAL.get());
     parser.addArgument(textBeforeSequentialValue);
@@ -467,7 +470,8 @@ public final class TransformLDIF
          "textAfterSequentialValue", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_SEQUENTIAL_TEXT_AFTER.get(
               sequentialAttribute.getIdentifierString()));
-    textAfterSequentialValue.addLongIdentifier("text-after-sequential-value");
+    textAfterSequentialValue.addLongIdentifier("text-after-sequential-value",
+         true);
     textAfterSequentialValue.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_SEQUENTIAL.get());
     parser.addArgument(textAfterSequentialValue);
@@ -480,7 +484,7 @@ public final class TransformLDIF
          false, 1, INFO_TRANSFORM_LDIF_PLACEHOLDER_ATTR_NAME.get(),
          INFO_TRANSFORM_LDIF_ARG_DESC_REPLACE_VALUES_ATTR.get(
               sourceContainsChangeRecords.getIdentifierString()));
-    replaceValuesAttribute.addLongIdentifier("replace-values-attribute");
+    replaceValuesAttribute.addLongIdentifier("replace-values-attribute", true);
     replaceValuesAttribute.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_REPLACE_VALUES.get());
     parser.addArgument(replaceValuesAttribute);
@@ -491,7 +495,7 @@ public final class TransformLDIF
          null,
          INFO_TRANSFORM_LDIF_ARG_DESC_REPLACEMENT_VALUE.get(
               replaceValuesAttribute.getIdentifierString()));
-    replacementValue.addLongIdentifier("replacement-value");
+    replacementValue.addLongIdentifier("replacement-value", true);
     replacementValue.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_REPLACE_VALUES.get());
     parser.addArgument(replacementValue);
@@ -505,7 +509,7 @@ public final class TransformLDIF
          INFO_TRANSFORM_LDIF_ARG_DESC_ADD_ATTR.get(
               "--addAttributeValue",
               sourceContainsChangeRecords.getIdentifierString()));
-    addAttributeName.addLongIdentifier("add-attribute-name");
+    addAttributeName.addLongIdentifier("add-attribute-name", true);
     addAttributeName.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_ADD_ATTR.get());
     parser.addArgument(addAttributeName);
@@ -516,7 +520,7 @@ public final class TransformLDIF
          null,
          INFO_TRANSFORM_LDIF_ARG_DESC_ADD_VALUE.get(
               addAttributeName.getIdentifierString()));
-    addAttributeValue.addLongIdentifier("add-attribute-value");
+    addAttributeValue.addLongIdentifier("add-attribute-value", true);
     addAttributeValue.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_ADD_ATTR.get());
     parser.addArgument(addAttributeValue);
@@ -527,7 +531,7 @@ public final class TransformLDIF
          INFO_TRANSFORM_LDIF_ARG_DESC_ADD_MERGE_VALUES.get(
               addAttributeName.getIdentifierString(),
               addAttributeValue.getIdentifierString()));
-    addToExistingValues.addLongIdentifier("add-to-existing-values");
+    addToExistingValues.addLongIdentifier("add-to-existing-values", true);
     addToExistingValues.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_ADD_ATTR.get());
     parser.addArgument(addToExistingValues);
@@ -537,7 +541,7 @@ public final class TransformLDIF
          null,
          INFO_TRANSFORM_LDIF_ARG_DESC_ADD_BASE_DN.get(
               addAttributeName.getIdentifierString()));
-    addAttributeBaseDN.addLongIdentifier("add-attribute-base-dn");
+    addAttributeBaseDN.addLongIdentifier("add-attribute-base-dn", true);
     addAttributeBaseDN.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_ADD_ATTR.get());
     parser.addArgument(addAttributeBaseDN);
@@ -548,7 +552,7 @@ public final class TransformLDIF
          INFO_TRANSFORM_LDIF_ARG_DESC_ADD_SCOPE.get(
               addAttributeBaseDN.getIdentifierString(),
               addAttributeName.getIdentifierString()));
-    addAttributeScope.addLongIdentifier("add-attribute-scope");
+    addAttributeScope.addLongIdentifier("add-attribute-scope", true);
     addAttributeScope.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_ADD_ATTR.get());
     parser.addArgument(addAttributeScope);
@@ -558,7 +562,7 @@ public final class TransformLDIF
          1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_ADD_FILTER.get(
               addAttributeName.getIdentifierString()));
-    addAttributeFilter.addLongIdentifier("add-attribute-filter");
+    addAttributeFilter.addLongIdentifier("add-attribute-filter", true);
     addAttributeFilter.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_ADD_ATTR.get());
     parser.addArgument(addAttributeFilter);
@@ -569,7 +573,7 @@ public final class TransformLDIF
     renameAttributeFrom = new StringArgument(null, "renameAttributeFrom",
          false, 0, INFO_TRANSFORM_LDIF_PLACEHOLDER_ATTR_NAME.get(),
          INFO_TRANSFORM_LDIF_ARG_DESC_RENAME_FROM.get());
-    renameAttributeFrom.addLongIdentifier("rename-attribute-from");
+    renameAttributeFrom.addLongIdentifier("rename-attribute-from", true);
     renameAttributeFrom.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_RENAME.get());
     parser.addArgument(renameAttributeFrom);
@@ -578,7 +582,7 @@ public final class TransformLDIF
          false, 0, INFO_TRANSFORM_LDIF_PLACEHOLDER_ATTR_NAME.get(),
          INFO_TRANSFORM_LDIF_ARG_DESC_RENAME_TO.get(
               renameAttributeFrom.getIdentifierString()));
-    renameAttributeTo.addLongIdentifier("rename-attribute-to");
+    renameAttributeTo.addLongIdentifier("rename-attribute-to", true);
     renameAttributeTo.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_RENAME.get());
     parser.addArgument(renameAttributeTo);
@@ -589,7 +593,7 @@ public final class TransformLDIF
     // Add arguments pertaining to flattening subtrees.
     flattenBaseDN = new DNArgument(null, "flattenBaseDN", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_FLATTEN_BASE_DN.get());
-    flattenBaseDN.addLongIdentifier("flatten-base-dn");
+    flattenBaseDN.addLongIdentifier("flatten-base-dn", true);
     flattenBaseDN.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_FLATTEN.get());
     parser.addArgument(flattenBaseDN);
@@ -600,7 +604,7 @@ public final class TransformLDIF
          "flattenAddOmittedRDNAttributesToEntry", 1,
          INFO_TRANSFORM_LDIF_ARG_DESC_FLATTEN_ADD_OMITTED_TO_ENTRY.get());
     flattenAddOmittedRDNAttributesToEntry.addLongIdentifier(
-         "flatten-add-omitted-rdn-attributes-to-entry");
+         "flatten-add-omitted-rdn-attributes-to-entry", true);
     flattenAddOmittedRDNAttributesToEntry.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_FLATTEN.get());
     parser.addArgument(flattenAddOmittedRDNAttributesToEntry);
@@ -611,7 +615,7 @@ public final class TransformLDIF
          "flattenAddOmittedRDNAttributesToRDN", 1,
          INFO_TRANSFORM_LDIF_ARG_DESC_FLATTEN_ADD_OMITTED_TO_RDN.get());
     flattenAddOmittedRDNAttributesToRDN.addLongIdentifier(
-         "flatten-add-omitted-rdn-attributes-to-rdn");
+         "flatten-add-omitted-rdn-attributes-to-rdn", true);
     flattenAddOmittedRDNAttributesToRDN.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_FLATTEN.get());
     parser.addArgument(flattenAddOmittedRDNAttributesToRDN);
@@ -621,7 +625,7 @@ public final class TransformLDIF
     flattenExcludeFilter = new FilterArgument(null, "flattenExcludeFilter",
          false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_FLATTEN_EXCLUDE_FILTER.get());
-    flattenExcludeFilter.addLongIdentifier("flatten-exclude-filter");
+    flattenExcludeFilter.addLongIdentifier("flatten-exclude-filter", true);
     flattenExcludeFilter.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_FLATTEN.get());
     parser.addArgument(flattenExcludeFilter);
@@ -631,7 +635,7 @@ public final class TransformLDIF
     // Add arguments pertaining to moving subtrees.
     moveSubtreeFrom = new DNArgument(null, "moveSubtreeFrom", false, 0, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_MOVE_SUBTREE_FROM.get());
-    moveSubtreeFrom.addLongIdentifier("move-subtree-from");
+    moveSubtreeFrom.addLongIdentifier("move-subtree-from", true);
     moveSubtreeFrom.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_MOVE.get());
     parser.addArgument(moveSubtreeFrom);
@@ -639,7 +643,7 @@ public final class TransformLDIF
     moveSubtreeTo = new DNArgument(null, "moveSubtreeTo", false, 0, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_MOVE_SUBTREE_TO.get(
               moveSubtreeFrom.getIdentifierString()));
-    moveSubtreeTo.addLongIdentifier("move-subtree-to");
+    moveSubtreeTo.addLongIdentifier("move-subtree-to", true);
     moveSubtreeTo.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_MOVE.get());
     parser.addArgument(moveSubtreeTo);
@@ -651,14 +655,15 @@ public final class TransformLDIF
     redactAttribute = new StringArgument(null, "redactAttribute", false, 0,
          INFO_TRANSFORM_LDIF_PLACEHOLDER_ATTR_NAME.get(),
          INFO_TRANSFORM_LDIF_ARG_DESC_REDACT_ATTR.get());
-    redactAttribute.addLongIdentifier("redact-attribute");
+    redactAttribute.addLongIdentifier("redact-attribute", true);
     redactAttribute.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_REDACT.get());
     parser.addArgument(redactAttribute);
 
     hideRedactedValueCount = new BooleanArgument(null, "hideRedactedValueCount",
          INFO_TRANSFORM_LDIF_ARG_DESC_HIDE_REDACTED_COUNT.get());
-    hideRedactedValueCount.addLongIdentifier("hide-redacted-value-count");
+    hideRedactedValueCount.addLongIdentifier("hide-redacted-value-count",
+         true);
     hideRedactedValueCount.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_REDACT.get());
     parser.addArgument(hideRedactedValueCount);
@@ -669,9 +674,9 @@ public final class TransformLDIF
     excludeAttribute = new StringArgument(null, "excludeAttribute", false, 0,
          INFO_TRANSFORM_LDIF_PLACEHOLDER_ATTR_NAME.get(),
          INFO_TRANSFORM_LDIF_ARG_DESC_EXCLUDE_ATTR.get());
-    excludeAttribute.addLongIdentifier("suppressAttribute");
-    excludeAttribute.addLongIdentifier("exclude-attribute");
-    excludeAttribute.addLongIdentifier("suppress-attribute");
+    excludeAttribute.addLongIdentifier("suppressAttribute", true);
+    excludeAttribute.addLongIdentifier("exclude-attribute", true);
+    excludeAttribute.addLongIdentifier("suppress-attribute", true);
     excludeAttribute.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_EXCLUDE.get());
     parser.addArgument(excludeAttribute);
@@ -680,9 +685,9 @@ public final class TransformLDIF
          null,
          INFO_TRANSFORM_LDIF_ARG_DESC_EXCLUDE_ENTRY_BASE_DN.get(
               sourceContainsChangeRecords.getIdentifierString()));
-    excludeEntryBaseDN.addLongIdentifier("suppressEntryBaseDN");
-    excludeEntryBaseDN.addLongIdentifier("exclude-entry-base-dn");
-    excludeEntryBaseDN.addLongIdentifier("suppress-entry-base-dn");
+    excludeEntryBaseDN.addLongIdentifier("suppressEntryBaseDN", true);
+    excludeEntryBaseDN.addLongIdentifier("exclude-entry-base-dn", true);
+    excludeEntryBaseDN.addLongIdentifier("suppress-entry-base-dn", true);
     excludeEntryBaseDN.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_EXCLUDE.get());
     parser.addArgument(excludeEntryBaseDN);
@@ -693,9 +698,9 @@ public final class TransformLDIF
          null,
          INFO_TRANSFORM_LDIF_ARG_DESC_EXCLUDE_ENTRY_SCOPE.get(
               sourceContainsChangeRecords.getIdentifierString()));
-    excludeEntryScope.addLongIdentifier("suppressEntryScope");
-    excludeEntryScope.addLongIdentifier("exclude-entry-scope");
-    excludeEntryScope.addLongIdentifier("suppress-entry-scope");
+    excludeEntryScope.addLongIdentifier("suppressEntryScope", true);
+    excludeEntryScope.addLongIdentifier("exclude-entry-scope", true);
+    excludeEntryScope.addLongIdentifier("suppress-entry-scope", true);
     excludeEntryScope.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_EXCLUDE.get());
     parser.addArgument(excludeEntryScope);
@@ -706,9 +711,9 @@ public final class TransformLDIF
          1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_EXCLUDE_ENTRY_FILTER.get(
               sourceContainsChangeRecords.getIdentifierString()));
-    excludeEntryFilter.addLongIdentifier("suppressEntryFilter");
-    excludeEntryFilter.addLongIdentifier("exclude-entry-filter");
-    excludeEntryFilter.addLongIdentifier("suppress-entry-filter");
+    excludeEntryFilter.addLongIdentifier("suppressEntryFilter", true);
+    excludeEntryFilter.addLongIdentifier("exclude-entry-filter", true);
+    excludeEntryFilter.addLongIdentifier("suppress-entry-filter", true);
     excludeEntryFilter.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_EXCLUDE.get());
     parser.addArgument(excludeEntryFilter);
@@ -718,7 +723,8 @@ public final class TransformLDIF
     excludeNonMatchingEntries = new BooleanArgument(null,
          "excludeNonMatchingEntries",
          INFO_TRANSFORM_LDIF_ARG_DESC_EXCLUDE_NON_MATCHING.get());
-    excludeNonMatchingEntries.addLongIdentifier("exclude-non-matching-entries");
+    excludeNonMatchingEntries.addLongIdentifier("exclude-non-matching-entries",
+         true);
     excludeNonMatchingEntries.setArgumentGroupName(
          INFO_TRANSFORM_LDIF_ARG_GROUP_EXCLUDE.get());
     parser.addArgument(excludeNonMatchingEntries);
@@ -730,22 +736,22 @@ public final class TransformLDIF
     schemaPath = new FileArgument(null, "schemaPath", false, 0, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_SCHEMA_PATH.get(),
          true, true, false, false);
-    schemaPath.addLongIdentifier("schemaFile");
-    schemaPath.addLongIdentifier("schemaDirectory");
-    schemaPath.addLongIdentifier("schema-path");
-    schemaPath.addLongIdentifier("schema-file");
-    schemaPath.addLongIdentifier("schema-directory");
+    schemaPath.addLongIdentifier("schemaFile", true);
+    schemaPath.addLongIdentifier("schemaDirectory", true);
+    schemaPath.addLongIdentifier("schema-path", true);
+    schemaPath.addLongIdentifier("schema-file", true);
+    schemaPath.addLongIdentifier("schema-directory", true);
     parser.addArgument(schemaPath);
 
     numThreads = new IntegerArgument('t', "numThreads", false, 1, null,
          INFO_TRANSFORM_LDIF_ARG_DESC_NUM_THREADS.get(), 1, Integer.MAX_VALUE,
          1);
-    numThreads.addLongIdentifier("num-threads");
+    numThreads.addLongIdentifier("num-threads", true);
     parser.addArgument(numThreads);
 
     processDNs = new BooleanArgument('d', "processDNs",
          INFO_TRANSFORM_LDIF_ARG_DESC_PROCESS_DNS.get());
-    processDNs.addLongIdentifier("process-dns");
+    processDNs.addLongIdentifier("process-dns", true);
     parser.addArgument(processDNs);
 
 

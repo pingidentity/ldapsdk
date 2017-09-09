@@ -341,55 +341,55 @@ public final class GenerateSourceFromSchema
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_PATH.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_OUTPUT_DIRECTORY.get(), true, true,
          false, true);
-    outputDirectoryArg.addLongIdentifier("output-directory");
+    outputDirectoryArg.addLongIdentifier("output-directory", true);
     parser.addArgument(outputDirectoryArg);
 
     structuralClassArg = new StringArgument('s', "structuralClass", true, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_STRUCTURAL_CLASS.get());
-    structuralClassArg.addLongIdentifier("structural-class");
+    structuralClassArg.addLongIdentifier("structural-class", true);
     parser.addArgument(structuralClassArg);
 
     auxiliaryClassArg = new StringArgument('a', "auxiliaryClass", false, 0,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_AUXILIARY_CLASS.get());
-    auxiliaryClassArg.addLongIdentifier("auxiliary-class");
+    auxiliaryClassArg.addLongIdentifier("auxiliary-class", true);
     parser.addArgument(auxiliaryClassArg);
 
     rdnAttributeArg = new StringArgument('r', "rdnAttribute", true, 0,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_RDN_ATTRIBUTE.get());
-    rdnAttributeArg.addLongIdentifier("rdn-attribute");
+    rdnAttributeArg.addLongIdentifier("rdn-attribute", true);
     parser.addArgument(rdnAttributeArg);
 
     lazyAttributeArg = new StringArgument('l', "lazyAttribute", false, 0,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_LAZY_ATTRIBUTE.get());
-    lazyAttributeArg.addLongIdentifier("lazy-attribute");
+    lazyAttributeArg.addLongIdentifier("lazy-attribute", true);
     parser.addArgument(lazyAttributeArg);
 
     operationalAttributeArg = new StringArgument('O', "operationalAttribute",
          false, 0, INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_OPERATIONAL_ATTRIBUTE.get());
-    operationalAttributeArg.addLongIdentifier("operational-attribute");
+    operationalAttributeArg.addLongIdentifier("operational-attribute", true);
     parser.addArgument(operationalAttributeArg);
 
     defaultParentDNArg = new DNArgument('b', "defaultParentDN", false, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_DN.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_DEFAULT_PARENT_DN.get());
-    defaultParentDNArg.addLongIdentifier("default-parent-dn");
+    defaultParentDNArg.addLongIdentifier("default-parent-dn", true);
     parser.addArgument(defaultParentDNArg);
 
     packageNameArg = new StringArgument('n', "packageName", false, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_PACKAGE_NAME.get());
-    packageNameArg.addLongIdentifier("package-name");
+    packageNameArg.addLongIdentifier("package-name", true);
     parser.addArgument(packageNameArg);
 
     classNameArg = new StringArgument('c', "className", false, 1,
          INFO_GEN_SOURCE_VALUE_PLACEHOLDER_NAME.get(),
          INFO_GEN_SOURCE_ARG_DESCRIPTION_CLASS_NAME.get());
-    classNameArg.addLongIdentifier("class-name");
+    classNameArg.addLongIdentifier("class-name", true);
     parser.addArgument(classNameArg);
 
     terseArg = new BooleanArgument('t', "terse", 1,

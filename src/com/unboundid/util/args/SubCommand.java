@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.unboundid.util.Mutable;
+import com.unboundid.util.ObjectPair;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -90,8 +91,10 @@ public final class SubCommand
   // The set of example usages for this subcommand.
   private final LinkedHashMap<String[],String> exampleUsages;
 
-  // The names for this subcommand, mapped from an all-lowercase
-  private final Map<String,String> names;
+  // The names for this subcommand, mapped from an all-lowercase representation
+  // to an object pair that has the name in the desired case and an indicate
+  // as to whether the name is hidden.
+  private final Map<String,ObjectPair<String,Boolean>> names;
 
   // The description for this subcommand.
   private final String description;
@@ -127,7 +130,7 @@ public final class SubCommand
                     final LinkedHashMap<String[],String> exampleUsages)
          throws ArgumentException
   {
-    names = new LinkedHashMap<String,String>(5);
+    names = new LinkedHashMap<>(5);
     addName(name);
 
     this.description = description;
@@ -154,11 +157,11 @@ public final class SubCommand
 
     if (exampleUsages == null)
     {
-      this.exampleUsages = new LinkedHashMap<String[],String>();
+      this.exampleUsages = new LinkedHashMap<>();
     }
     else
     {
-      this.exampleUsages = new LinkedHashMap<String[],String>(exampleUsages);
+      this.exampleUsages = new LinkedHashMap<>(exampleUsages);
     }
 
     isPresent = false;
@@ -175,11 +178,11 @@ public final class SubCommand
    */
   private SubCommand(final SubCommand source)
   {
-    names = new LinkedHashMap<String,String>(source.names);
+    names = new LinkedHashMap<>(source.names);
     description = source.description;
     subcommandArgumentParser =
          new ArgumentParser(source.subcommandArgumentParser, this);
-    exampleUsages = new LinkedHashMap<String[],String>(source.exampleUsages);
+    exampleUsages = new LinkedHashMap<>(source.exampleUsages);
     isPresent = false;
     globalArgumentParser = null;
   }
@@ -194,19 +197,45 @@ public final class SubCommand
    */
   public String getPrimaryName()
   {
-    return names.values().iterator().next();
+    return names.values().iterator().next().getFirst();
   }
 
 
 
   /**
-   * Retrieves the list of names for this subcommand.
+   * Retrieves the list of all names, including hidden names, for this
+   * subcommand.
    *
-   * @return  The list of names for this subcommand.
+   * @return  The list of all names for this subcommand.
    */
   public List<String> getNames()
   {
-    return Collections.unmodifiableList(new ArrayList<String>(names.values()));
+    return getNames(true);
+  }
+
+
+
+  /**
+   * Retrieves a list of the non-hidden names for this subcommand.
+   *
+   *
+   * @param  includeHidden  Indicates whether to include hidden names in the
+   *                        list that is returned.
+   *
+   * @return  A list of the non-hidden names for this subcommand.
+   */
+  public List<String> getNames(final boolean includeHidden)
+  {
+    final ArrayList<String> nameList = new ArrayList<>(names.size());
+    for (final ObjectPair<String,Boolean> p : names.values())
+    {
+      if (includeHidden || (! p.getSecond()))
+      {
+        nameList.add(p.getFirst());
+      }
+    }
+
+    return Collections.unmodifiableList(nameList);
   }
 
 
@@ -228,7 +257,8 @@ public final class SubCommand
 
 
   /**
-   * Adds the provided name that may be used to reference this subcommand.
+   * Adds the provided name that may be used to reference this subcommand.  It
+   * will not be hidden.
    *
    * @param  name  A name that may be used to reference this subcommand in the
    *               argument list.  It must not be {@code null} or empty, and it
@@ -240,6 +270,29 @@ public final class SubCommand
    *                             parser.
    */
   public void addName(final String name)
+         throws ArgumentException
+  {
+    addName(name, false);
+  }
+
+
+
+  /**
+   * Adds the provided name that may be used to reference this subcommand.
+   *
+   * @param  name      A name that may be used to reference this subcommand in
+   *                   the argument list.  It must not be {@code null} or empty,
+   *                   and it will be treated in a case-insensitive manner.
+   * @param  isHidden  Indicates whether the provided name should be hidden.  A
+   *                   hidden name may be used to invoke this subcommand but
+   *                   will not be displayed in usage information.
+   *
+   * @throws  ArgumentException  If the provided name is already registered with
+   *                             this subcommand, or with another subcommand
+   *                             also registered with the global argument
+   *                             parser.
+   */
+  public void addName(final String name, final boolean isHidden)
          throws ArgumentException
   {
     if ((name == null) || (name.length() == 0))
@@ -258,7 +311,7 @@ public final class SubCommand
       globalArgumentParser.addSubCommand(name, this);
     }
 
-    names.put(lowerName, name);
+    names.put(lowerName, new ObjectPair<>(name, isHidden));
   }
 
 
@@ -406,11 +459,12 @@ public final class SubCommand
     {
       buffer.append("names={");
 
-      final Iterator<String> iterator = names.values().iterator();
+      final Iterator<ObjectPair<String,Boolean>> iterator =
+           names.values().iterator();
       while (iterator.hasNext())
       {
         buffer.append('\'');
-        buffer.append(iterator.next());
+        buffer.append(iterator.next().getFirst());
         buffer.append('\'');
 
         if (iterator.hasNext())

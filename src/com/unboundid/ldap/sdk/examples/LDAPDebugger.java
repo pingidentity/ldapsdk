@@ -332,7 +332,7 @@ public final class LDAPDebugger
          "all interfaces.";
     listenAddress = new StringArgument('a', "listenAddress", false, 1,
          "{address}", description);
-    listenAddress.addLongIdentifier("listen-address");
+    listenAddress.addLongIdentifier("listen-address", true);
     parser.addArgument(listenAddress);
 
 
@@ -341,7 +341,7 @@ public final class LDAPDebugger
          "selected.";
     listenPort = new IntegerArgument('L', "listenPort", true, 1, "{port}",
          description, 0, 65535, 0);
-    listenPort.addLongIdentifier("listen-port");
+    listenPort.addLongIdentifier("listen-port", true);
     parser.addArgument(listenPort);
 
 
@@ -350,7 +350,7 @@ public final class LDAPDebugger
          "communication between the LDAP debugger and the backend server.";
     listenUsingSSL = new BooleanArgument('S', "listenUsingSSL", 1,
          description);
-    listenUsingSSL.addLongIdentifier("listen-using-ssl");
+    listenUsingSSL.addLongIdentifier("listen-using-ssl", true);
     parser.addArgument(listenUsingSSL);
 
 
@@ -358,7 +358,7 @@ public final class LDAPDebugger
          "is provided, then the output will be written to standard output.";
     outputFile = new FileArgument('f', "outputFile", false, 1, "{path}",
          description, false, true, true, false);
-    outputFile.addLongIdentifier("output-file");
+    outputFile.addLongIdentifier("output-file", true);
     parser.addArgument(outputFile);
 
 
@@ -368,7 +368,7 @@ public final class LDAPDebugger
          "provided, then no code log will be generated.";
     codeLogFile = new FileArgument('c', "codeLogFile", false, 1, "{path}",
          description, false, true, true, false);
-    codeLogFile.addLongIdentifier("code-log-file");
+    codeLogFile.addLongIdentifier("code-log-file", true);
     parser.addArgument(codeLogFile);
   }
 

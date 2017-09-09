@@ -264,7 +264,7 @@ public abstract class CommandLineTool
         {
           final StringBuilder nameBuffer = new StringBuilder();
 
-          final Iterator<String> nameIterator = sc.getNames().iterator();
+          final Iterator<String> nameIterator = sc.getNames(false).iterator();
           while (nameIterator.hasNext())
           {
             nameBuffer.append(nameIterator.next());
@@ -1032,7 +1032,7 @@ public abstract class CommandLineTool
       outputFileArgument = new FileArgument(null, "outputFile", false, 1, null,
            INFO_CL_TOOL_DESCRIPTION_OUTPUT_FILE.get(), false, true, true,
            false);
-      outputFileArgument.addLongIdentifier("output-file");
+      outputFileArgument.addLongIdentifier("output-file", true);
       outputFileArgument.setUsageArgument(true);
       parser.addArgument(outputFileArgument);
 
@@ -1040,14 +1040,15 @@ public abstract class CommandLineTool
            "appendToOutputFile", 1,
            INFO_CL_TOOL_DESCRIPTION_APPEND_TO_OUTPUT_FILE.get(
                 outputFileArgument.getIdentifierString()));
-      appendToOutputFileArgument.addLongIdentifier("append-to-output-file");
+      appendToOutputFileArgument.addLongIdentifier("append-to-output-file",
+           true);
       appendToOutputFileArgument.setUsageArgument(true);
       parser.addArgument(appendToOutputFileArgument);
 
       teeOutputArgument = new BooleanArgument(null, "teeOutput", 1,
            INFO_CL_TOOL_DESCRIPTION_TEE_OUTPUT.get(
                 outputFileArgument.getIdentifierString()));
-      teeOutputArgument.addLongIdentifier("tee-output");
+      teeOutputArgument.addLongIdentifier("tee-output", true);
       teeOutputArgument.setUsageArgument(true);
       parser.addArgument(teeOutputArgument);
 
@@ -1059,7 +1060,7 @@ public abstract class CommandLineTool
 
     helpArgument = new BooleanArgument('H', "help",
          INFO_CL_TOOL_DESCRIPTION_HELP.get());
-    helpArgument.addShortIdentifier('?');
+    helpArgument.addShortIdentifier('?', true);
     helpArgument.setUsageArgument(true);
     parser.addArgument(helpArgument);
 
@@ -1067,7 +1068,9 @@ public abstract class CommandLineTool
     {
       helpSubcommandsArgument = new BooleanArgument(null, "helpSubcommands", 1,
            INFO_CL_TOOL_DESCRIPTION_HELP_SUBCOMMANDS.get());
-      helpSubcommandsArgument.addLongIdentifier("help-subcommands");
+      helpSubcommandsArgument.addLongIdentifier("helpSubcommand", true);
+      helpSubcommandsArgument.addLongIdentifier("help-subcommands", true);
+      helpSubcommandsArgument.addLongIdentifier("help-subcommand", true);
       helpSubcommandsArgument.setUsageArgument(true);
       parser.addArgument(helpSubcommandsArgument);
     }

@@ -110,6 +110,8 @@ import com.unboundid.util.args.ScopeArgument;
  * will be notified whenever a search result entry or reference is returned from
  * the server.  Whenever an entry is received, it will simply be printed
  * displayed in LDIF.
+ *
+ * @see  com.unboundid.ldap.sdk.unboundidds.tools.LDAPSearch
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDAPSearch
@@ -430,7 +432,7 @@ public final class LDAPSearch
     String description = "The base DN to use for the search.  This must be " +
                          "provided.";
     baseDN = new DNArgument('b', "baseDN", true, 1, "{dn}", description);
-    baseDN.addLongIdentifier("base-dn");
+    baseDN.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDN);
 
 
@@ -444,14 +446,14 @@ public final class LDAPSearch
 
     description = "Follow any referrals encountered during processing.";
     followReferrals = new BooleanArgument('R', "followReferrals", description);
-    followReferrals.addLongIdentifier("follow-referrals");
+    followReferrals.addLongIdentifier("follow-referrals", true);
     parser.addArgument(followReferrals);
 
 
     description = "Information about a control to include in the bind request.";
     bindControls = new ControlArgument(null, "bindControl", false, 0, null,
          description);
-    bindControls.addLongIdentifier("bind-control");
+    bindControls.addLongIdentifier("bind-control", true);
     parser.addArgument(bindControls);
 
 
@@ -473,7 +475,7 @@ public final class LDAPSearch
                                                false, 1, "{millis}",
                                                description, 0,
                                                Integer.MAX_VALUE);
-    repeatIntervalMillis.addLongIdentifier("repeat-interval-millis");
+    repeatIntervalMillis.addLongIdentifier("repeat-interval-millis", true);
     parser.addArgument(repeatIntervalMillis);
 
 
@@ -486,7 +488,7 @@ public final class LDAPSearch
                   "interrupted.";
     numSearches = new IntegerArgument('n', "numSearches", false, 1, "{count}",
                                       description, 1, Integer.MAX_VALUE);
-    numSearches.addLongIdentifier("num-searches");
+    numSearches.addLongIdentifier("num-searches", true);
     parser.addArgument(numSearches);
     parser.addDependentArgumentSet(numSearches, repeatIntervalMillis);
   }

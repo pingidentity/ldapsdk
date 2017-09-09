@@ -485,7 +485,7 @@ public final class AuthRate
          "value pattern syntax.  This must be provided.";
     baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
     baseDN.setArgumentGroupName("Search and Authentication Arguments");
-    baseDN.addLongIdentifier("base-dn");
+    baseDN.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDN);
 
 
@@ -535,7 +535,7 @@ public final class AuthRate
                   "obtain the bind DNs.";
     bindOnly = new BooleanArgument('B', "bindOnly", 1, description);
     bindOnly.setArgumentGroupName("Search and Authentication Arguments");
-    bindOnly.addLongIdentifier("bind-only");
+    bindOnly.addLongIdentifier("bind-only", true);
     parser.addArgument(bindOnly);
 
 
@@ -551,7 +551,7 @@ public final class AuthRate
     authType = new StringArgument('a', "authType", true, 1, "{authType}",
                                   description, allowedAuthTypes, "simple");
     authType.setArgumentGroupName("Search and Authentication Arguments");
-    authType.addLongIdentifier("auth-type");
+    authType.addLongIdentifier("auth-type", true);
     parser.addArgument(authType);
 
 
@@ -563,7 +563,7 @@ public final class AuthRate
     authorizationIdentityRequestControl.setArgumentGroupName(
          "Request Control Arguments");
     authorizationIdentityRequestControl.addLongIdentifier(
-         "authorization-identity-request-control");
+         "authorization-identity-request-control", true);
     parser.addArgument(authorizationIdentityRequestControl);
 
 
@@ -575,7 +575,7 @@ public final class AuthRate
     passwordPolicyRequestControl.setArgumentGroupName(
          "Request Control Arguments");
     passwordPolicyRequestControl.addLongIdentifier(
-         "password-policy-request-control");
+         "password-policy-request-control", true);
     parser.addArgument(passwordPolicyRequestControl);
 
 
@@ -585,7 +585,7 @@ public final class AuthRate
     searchControl = new ControlArgument(null, "searchControl", false, 0, null,
                                         description);
     searchControl.setArgumentGroupName("Request Control Arguments");
-    searchControl.addLongIdentifier("search-control");
+    searchControl.addLongIdentifier("search-control", true);
     parser.addArgument(searchControl);
 
 
@@ -595,7 +595,7 @@ public final class AuthRate
     bindControl = new ControlArgument(null, "bindControl", false, 0, null,
                                       description);
     bindControl.setArgumentGroupName("Request Control Arguments");
-    bindControl.addLongIdentifier("bind-control");
+    bindControl.addLongIdentifier("bind-control", true);
     parser.addArgument(bindControl);
 
 
@@ -605,7 +605,7 @@ public final class AuthRate
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
     numThreads.setArgumentGroupName("Rate Management Arguments");
-    numThreads.addLongIdentifier("num-threads");
+    numThreads.addLongIdentifier("num-threads", true);
     parser.addArgument(numThreads);
 
 
@@ -616,7 +616,7 @@ public final class AuthRate
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
     collectionInterval.setArgumentGroupName("Rate Management Arguments");
-    collectionInterval.addLongIdentifier("interval-duration");
+    collectionInterval.addLongIdentifier("interval-duration", true);
     parser.addArgument(collectionInterval);
 
 
@@ -627,7 +627,7 @@ public final class AuthRate
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
     numIntervals.setArgumentGroupName("Rate Management Arguments");
-    numIntervals.addLongIdentifier("num-intervals");
+    numIntervals.addLongIdentifier("num-intervals", true);
     parser.addArgument(numIntervals);
 
     description = "The target number of authorizations to perform per " +
@@ -640,7 +640,7 @@ public final class AuthRate
                                         "{auths-per-second}", description,
                                         1, Integer.MAX_VALUE);
     ratePerSecond.setArgumentGroupName("Rate Management Arguments");
-    ratePerSecond.addLongIdentifier("rate-per-second");
+    ratePerSecond.addLongIdentifier("rate-per-second", true);
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -651,7 +651,7 @@ public final class AuthRate
                                         "{path}", description, true, true, true,
                                         false);
     variableRateData.setArgumentGroupName("Rate Management Arguments");
-    variableRateData.addLongIdentifier("variable-rate-data");
+    variableRateData.addLongIdentifier("variable-rate-data", true);
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -660,7 +660,7 @@ public final class AuthRate
                                       false, 1, "{path}", description, false,
                                       true, true, false);
     sampleRateFile.setArgumentGroupName("Rate Management Arguments");
-    sampleRateFile.addLongIdentifier("generate-sample-rate-file");
+    sampleRateFile.addLongIdentifier("generate-sample-rate-file", true);
     sampleRateFile.setUsageArgument(true);
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
@@ -672,7 +672,7 @@ public final class AuthRate
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
     warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
-    warmUpIntervals.addLongIdentifier("warm-up-intervals");
+    warmUpIntervals.addLongIdentifier("warm-up-intervals", true);
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +
@@ -687,14 +687,15 @@ public final class AuthRate
     allowedFormats.add("without-date");
     timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
          "{format}", description, allowedFormats, "none");
-    timestampFormat.addLongIdentifier("timestamp-format");
+    timestampFormat.addLongIdentifier("timestamp-format", true);
     parser.addArgument(timestampFormat);
 
     description = "Indicates that information about the result codes for " +
                   "failed operations should not be displayed.";
     suppressErrorsArgument = new BooleanArgument(null,
          "suppressErrorResultCodes", 1, description);
-    suppressErrorsArgument.addLongIdentifier("suppress-error-result-codes");
+    suppressErrorsArgument.addLongIdentifier("suppress-error-result-codes",
+         true);
     parser.addArgument(suppressErrorsArgument);
 
     description = "Generate output in CSV format rather than a " +
@@ -705,7 +706,7 @@ public final class AuthRate
     description = "Specifies the seed to use for the random number generator.";
     randomSeed = new IntegerArgument('R', "randomSeed", false, 1, "{value}",
          description);
-    randomSeed.addLongIdentifier("random-seed");
+    randomSeed.addLongIdentifier("random-seed", true);
     parser.addArgument(randomSeed);
   }
 

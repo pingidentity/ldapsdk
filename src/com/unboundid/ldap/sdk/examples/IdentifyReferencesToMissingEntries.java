@@ -356,7 +356,7 @@ public final class IdentifyReferencesToMissingEntries
          "specified.";
     baseDNArgument = new DNArgument('b', "baseDN", true, 0, "{dn}",
          description);
-    baseDNArgument.addLongIdentifier("base-dn");
+    baseDNArgument.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDNArgument);
 
     description = "The attribute(s) for which to find missing references.  " +
@@ -375,7 +375,7 @@ public final class IdentifyReferencesToMissingEntries
     pageSizeArgument =
          new IntegerArgument('z', "simplePageSize", false, 1, "{num}",
               description, 1, Integer.MAX_VALUE);
-    pageSizeArgument.addLongIdentifier("simple-page-size");
+    pageSizeArgument.addLongIdentifier("simple-page-size", true);
     parser.addArgument(pageSizeArgument);
   }
 

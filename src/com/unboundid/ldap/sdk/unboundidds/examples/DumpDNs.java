@@ -314,14 +314,14 @@ public final class DumpDNs
     baseDN = new DNArgument('b', "baseDN", true, 1, "{dn}",
          "The base DN below which to dump the DNs of all entries in the " +
               "Directory Server.");
-    baseDN.addLongIdentifier("base-dn");
+    baseDN.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDN);
 
     outputFile = new FileArgument('f', "outputFile", false, 1, "{path}",
          "The path of the output file to which the entry DNs will be " +
               "written.  If this is not provided, then entry DNs will be " +
               "written to standard output.", false, true, true, false);
-    outputFile.addLongIdentifier("output-file");
+    outputFile.addLongIdentifier("output-file", true);
     parser.addArgument(outputFile);
   }
 

@@ -252,14 +252,14 @@ public final class MoveSubtree
     baseDN = new DNArgument('b', "baseDN", false, 0,
          INFO_MOVE_SUBTREE_ARG_BASE_DN_PLACEHOLDER.get(),
          INFO_MOVE_SUBTREE_ARG_BASE_DN_DESCRIPTION.get());
-    baseDN.addLongIdentifier("entryDN");
+    baseDN.addLongIdentifier("entryDN", true);
     parser.addArgument(baseDN);
 
     baseDNFile = new FileArgument('f', "baseDNFile", false, 1,
          INFO_MOVE_SUBTREE_ARG_BASE_DN_FILE_PLACEHOLDER.get(),
          INFO_MOVE_SUBTREE_ARG_BASE_DN_FILE_DESCRIPTION.get(), true, true,
          true, false);
-    baseDNFile.addLongIdentifier("entryDNFile");
+    baseDNFile.addLongIdentifier("entryDNFile", true);
     parser.addArgument(baseDNFile);
 
     sizeLimit = new IntegerArgument('z', "sizeLimit", false, 1,

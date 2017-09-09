@@ -433,15 +433,15 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_USE_SSL.get());
     useSSLArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
-    useSSLArgument.addLongIdentifier("use-ssl");
+    useSSLArgument.addLongIdentifier("use-ssl", true);
     parser.addArgument(useSSLArgument);
 
     useStartTLSArgument = new BooleanArgument('q', "useStartTLS",
          INFO_MEM_DS_TOOL_ARG_DESC_USE_START_TLS.get());
     useStartTLSArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
-    useStartTLSArgument.addLongIdentifier("use-starttls");
-    useStartTLSArgument.addLongIdentifier("use-start-tls");
+    useStartTLSArgument.addLongIdentifier("use-starttls", true);
+    useStartTLSArgument.addLongIdentifier("use-start-tls", true);
     parser.addArgument(useStartTLSArgument);
 
     keyStorePathArgument = new FileArgument('K', "keyStorePath", false, 1,
@@ -450,7 +450,7 @@ public final class InMemoryDirectoryServerTool
          false);
     keyStorePathArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
-    keyStorePathArgument.addLongIdentifier("key-store-path");
+    keyStorePathArgument.addLongIdentifier("key-store-path", true);
     parser.addArgument(keyStorePathArgument);
 
     keyStorePasswordArgument = new StringArgument('W', "keyStorePassword",
@@ -459,18 +459,18 @@ public final class InMemoryDirectoryServerTool
     keyStorePasswordArgument.setSensitive(true);
     keyStorePasswordArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
-    keyStorePasswordArgument.addLongIdentifier("keyStorePIN");
-    keyStorePasswordArgument.addLongIdentifier("key-store-password");
-    keyStorePasswordArgument.addLongIdentifier("key-store-pin");
+    keyStorePasswordArgument.addLongIdentifier("keyStorePIN", true);
+    keyStorePasswordArgument.addLongIdentifier("key-store-password", true);
+    keyStorePasswordArgument.addLongIdentifier("key-store-pin", true);
     parser.addArgument(keyStorePasswordArgument);
 
     keyStoreTypeArgument = new StringArgument(null, "keyStoreType",
          false, 1, "{type}", "The keystore type.", "JKS");
     keyStoreTypeArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
-    keyStoreTypeArgument.addLongIdentifier("keyStoreFormat");
-    keyStoreTypeArgument.addLongIdentifier("key-store-type");
-    keyStoreTypeArgument.addLongIdentifier("key-store-format");
+    keyStoreTypeArgument.addLongIdentifier("keyStoreFormat", true);
+    keyStoreTypeArgument.addLongIdentifier("key-store-type", true);
+    keyStoreTypeArgument.addLongIdentifier("key-store-format", true);
     parser.addArgument(keyStoreTypeArgument);
 
     trustStorePathArgument = new FileArgument('P', "trustStorePath", false, 1,
@@ -479,7 +479,7 @@ public final class InMemoryDirectoryServerTool
          false);
     trustStorePathArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
-    trustStorePathArgument.addLongIdentifier("trust-store-path");
+    trustStorePathArgument.addLongIdentifier("trust-store-path", true);
     parser.addArgument(trustStorePathArgument);
 
     trustStorePasswordArgument = new StringArgument('T', "trustStorePassword",
@@ -488,18 +488,18 @@ public final class InMemoryDirectoryServerTool
     trustStorePasswordArgument.setSensitive(true);
     trustStorePasswordArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
-    trustStorePasswordArgument.addLongIdentifier("trustStorePIN");
-    trustStorePasswordArgument.addLongIdentifier("trust-store-password");
-    trustStorePasswordArgument.addLongIdentifier("trust-store-pin");
+    trustStorePasswordArgument.addLongIdentifier("trustStorePIN", true);
+    trustStorePasswordArgument.addLongIdentifier("trust-store-password", true);
+    trustStorePasswordArgument.addLongIdentifier("trust-store-pin", true);
     parser.addArgument(trustStorePasswordArgument);
 
     trustStoreTypeArgument = new StringArgument(null, "trustStoreType",
          false, 1, "{type}", "The trust store type.", "JKS");
     trustStoreTypeArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
-    trustStoreTypeArgument.addLongIdentifier("trustStoreFormat");
-    trustStoreTypeArgument.addLongIdentifier("trust-store-type");
-    trustStoreTypeArgument.addLongIdentifier("trust-store-format");
+    trustStoreTypeArgument.addLongIdentifier("trustStoreFormat", true);
+    trustStoreTypeArgument.addLongIdentifier("trust-store-type", true);
+    trustStoreTypeArgument.addLongIdentifier("trust-store-format", true);
     parser.addArgument(trustStoreTypeArgument);
 
     dontStartArgument = new BooleanArgument(null, "dontStart",
@@ -507,23 +507,23 @@ public final class InMemoryDirectoryServerTool
     dontStartArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_CONNECTIVITY.get());
     dontStartArgument.setHidden(true);
-    dontStartArgument.addLongIdentifier("doNotStart");
-    dontStartArgument.addLongIdentifier("dont-start");
-    dontStartArgument.addLongIdentifier("do-not-start");
+    dontStartArgument.addLongIdentifier("doNotStart", true);
+    dontStartArgument.addLongIdentifier("dont-start", true);
+    dontStartArgument.addLongIdentifier("do-not-start", true);
     parser.addArgument(dontStartArgument);
 
     baseDNArgument = new DNArgument('b', "baseDN", true, 0,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_BASE_DN.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_BASE_DN.get());
     baseDNArgument.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    baseDNArgument.addLongIdentifier("base-dn");
+    baseDNArgument.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDNArgument);
 
     ldifFileArgument = new FileArgument('l', "ldifFile", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_PATH.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_LDIF_FILE.get(), true, true, true, false);
     ldifFileArgument.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    ldifFileArgument.addLongIdentifier("ldif-file");
+    ldifFileArgument.addLongIdentifier("ldif-file", true);
     parser.addArgument(ldifFileArgument);
 
     additionalBindDNArgument = new DNArgument('D', "additionalBindDN", false, 1,
@@ -531,7 +531,7 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_ADDITIONAL_BIND_DN.get());
     additionalBindDNArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    additionalBindDNArgument.addLongIdentifier("additional-bind-dn");
+    additionalBindDNArgument.addLongIdentifier("additional-bind-dn", true);
     parser.addArgument(additionalBindDNArgument);
 
     additionalBindPasswordArgument = new StringArgument('w',
@@ -542,14 +542,14 @@ public final class InMemoryDirectoryServerTool
     additionalBindPasswordArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
     additionalBindPasswordArgument.addLongIdentifier(
-         "additional-bind-password");
+         "additional-bind-password", true);
     parser.addArgument(additionalBindPasswordArgument);
 
     useDefaultSchemaArgument = new BooleanArgument('s', "useDefaultSchema",
          INFO_MEM_DS_TOOL_ARG_DESC_USE_DEFAULT_SCHEMA.get());
     useDefaultSchemaArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    useDefaultSchemaArgument.addLongIdentifier("use-default-schema");
+    useDefaultSchemaArgument.addLongIdentifier("use-default-schema", true);
     parser.addArgument(useDefaultSchemaArgument);
 
     useSchemaFileArgument = new FileArgument('S', "useSchemaFile", false, 0,
@@ -558,7 +558,7 @@ public final class InMemoryDirectoryServerTool
          false);
     useSchemaFileArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    useSchemaFileArgument.addLongIdentifier("use-schema-file");
+    useSchemaFileArgument.addLongIdentifier("use-schema-file", true);
     parser.addArgument(useSchemaFileArgument);
 
     equalityIndexArgument = new StringArgument('I', "equalityIndex", false, 0,
@@ -566,7 +566,7 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_EQ_INDEX.get());
     equalityIndexArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    equalityIndexArgument.addLongIdentifier("equality-index");
+    equalityIndexArgument.addLongIdentifier("equality-index", true);
     parser.addArgument(equalityIndexArgument);
 
     maxChangeLogEntriesArgument = new IntegerArgument('c',
@@ -576,15 +576,17 @@ public final class InMemoryDirectoryServerTool
          Integer.MAX_VALUE, 0);
     maxChangeLogEntriesArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    maxChangeLogEntriesArgument.addLongIdentifier("max-changelog-entries");
-    maxChangeLogEntriesArgument.addLongIdentifier("max-change-log-entries");
+    maxChangeLogEntriesArgument.addLongIdentifier("max-changelog-entries",
+         true);
+    maxChangeLogEntriesArgument.addLongIdentifier("max-change-log-entries",
+         true);
     parser.addArgument(maxChangeLogEntriesArgument);
 
     vendorNameArgument = new StringArgument(null, "vendorName", false, 1,
          INFO_MEM_DS_TOOL_ARG_PLACEHOLDER_VALUE.get(),
          INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_NAME.get());
     vendorNameArgument.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    vendorNameArgument.addLongIdentifier("vendor-name");
+    vendorNameArgument.addLongIdentifier("vendor-name", true);
     parser.addArgument(vendorNameArgument);
 
     vendorVersionArgument = new StringArgument(null, "vendorVersion", false, 1,
@@ -592,7 +594,7 @@ public final class InMemoryDirectoryServerTool
          INFO_MEM_DS_TOOL_ARG_DESC_VENDOR_VERSION.get());
     vendorVersionArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_DATA.get());
-    vendorVersionArgument.addLongIdentifier("vendor-version");
+    vendorVersionArgument.addLongIdentifier("vendor-version", true);
     parser.addArgument(vendorVersionArgument);
 
     accessLogToStandardOutArgument = new BooleanArgument('A',
@@ -601,7 +603,7 @@ public final class InMemoryDirectoryServerTool
     accessLogToStandardOutArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
     accessLogToStandardOutArgument.addLongIdentifier(
-         "access-log-to-standard-out");
+         "access-log-to-standard-out", true);
     parser.addArgument(accessLogToStandardOutArgument);
 
     accessLogFileArgument = new FileArgument('a', "accessLogFile", false, 1,
@@ -610,7 +612,7 @@ public final class InMemoryDirectoryServerTool
          false);
     accessLogFileArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
-    accessLogFileArgument.addLongIdentifier("access-log-format");
+    accessLogFileArgument.addLongIdentifier("access-log-format", true);
     parser.addArgument(accessLogFileArgument);
 
     ldapDebugLogToStandardOutArgument = new BooleanArgument(null,
@@ -619,7 +621,7 @@ public final class InMemoryDirectoryServerTool
     ldapDebugLogToStandardOutArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
     ldapDebugLogToStandardOutArgument.addLongIdentifier(
-         "ldap-debug-log-to-standard-out");
+         "ldap-debug-log-to-standard-out", true);
     parser.addArgument(ldapDebugLogToStandardOutArgument);
 
     ldapDebugLogFileArgument = new FileArgument('d', "ldapDebugLogFile", false,
@@ -628,14 +630,14 @@ public final class InMemoryDirectoryServerTool
          false);
     ldapDebugLogFileArgument.setArgumentGroupName(
          INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
-    ldapDebugLogFileArgument.addLongIdentifier("ldap-debug-log-file");
+    ldapDebugLogFileArgument.addLongIdentifier("ldap-debug-log-file", true);
     parser.addArgument(ldapDebugLogFileArgument);
 
     codeLogFile = new FileArgument('C', "codeLogFile", false, 1, "{path}",
          INFO_MEM_DS_TOOL_ARG_DESC_CODE_LOG_FILE.get(), false, true, true,
          false);
     codeLogFile.setArgumentGroupName(INFO_MEM_DS_TOOL_GROUP_LOGGING.get());
-    codeLogFile.addLongIdentifier("code-log-file");
+    codeLogFile.addLongIdentifier("code-log-file", true);
     parser.addArgument(codeLogFile);
 
     parser.addExclusiveArgumentSet(useDefaultSchemaArgument,

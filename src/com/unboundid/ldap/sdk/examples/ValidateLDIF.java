@@ -412,20 +412,20 @@ public final class ValidateLDIF
     String description = "The path to the LDIF file to process.";
     ldifFile = new FileArgument('f', "ldifFile", true, 1, "{path}", description,
                                 true, true, true, false);
-    ldifFile.addLongIdentifier("ldif-file");
+    ldifFile.addLongIdentifier("ldif-file", true);
     parser.addArgument(ldifFile);
 
     description = "Indicates that the specified LDIF file is compressed " +
                   "using gzip compression.";
     isCompressed = new BooleanArgument('c', "isCompressed", description);
-    isCompressed.addLongIdentifier("is-compressed");
+    isCompressed.addLongIdentifier("is-compressed", true);
     parser.addArgument(isCompressed);
 
     description = "The path to the file to which rejected entries should be " +
                   "written.";
     rejectFile = new FileArgument('R', "rejectFile", false, 1, "{path}",
                                   description, false, true, true, false);
-    rejectFile.addLongIdentifier("reject-file");
+    rejectFile.addLongIdentifier("reject-file", true);
     parser.addArgument(rejectFile);
 
     description = "The path to a directory containing one or more LDIF files " +
@@ -433,13 +433,13 @@ public final class ValidateLDIF
                   "then no LDAP communication will be performed.";
     schemaDirectory = new FileArgument(null, "schemaDirectory", false, 1,
          "{path}", description, true, true, false, true);
-    schemaDirectory.addLongIdentifier("schema-directory");
+    schemaDirectory.addLongIdentifier("schema-directory", true);
     parser.addArgument(schemaDirectory);
 
     description = "The number of threads to use when processing the LDIF file.";
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
          description, 1, Integer.MAX_VALUE, 1);
-    numThreads.addLongIdentifier("num-threads");
+    numThreads.addLongIdentifier("num-threads", true);
     parser.addArgument(numThreads);
 
     description = "Ignore validation failures due to entries containing " +
@@ -448,7 +448,7 @@ public final class ValidateLDIF
          new BooleanArgument(null, "ignoreDuplicateValues", description);
     ignoreDuplicateValues.setArgumentGroupName(
          "Validation Strictness Arguments");
-    ignoreDuplicateValues.addLongIdentifier("ignore-duplicate-values");
+    ignoreDuplicateValues.addLongIdentifier("ignore-duplicate-values", true);
     parser.addArgument(ignoreDuplicateValues);
 
     description = "Ignore validation failures due to object classes not " +
@@ -458,7 +458,7 @@ public final class ValidateLDIF
     ignoreUndefinedObjectClasses.setArgumentGroupName(
          "Validation Strictness Arguments");
     ignoreUndefinedObjectClasses.addLongIdentifier(
-         "ignore-undefined-object-classes");
+         "ignore-undefined-object-classes", true);
     parser.addArgument(ignoreUndefinedObjectClasses);
 
     description = "Ignore validation failures due to attributes not defined " +
@@ -467,7 +467,8 @@ public final class ValidateLDIF
          new BooleanArgument(null, "ignoreUndefinedAttributes", description);
     ignoreUndefinedAttributes.setArgumentGroupName(
          "Validation Strictness Arguments");
-    ignoreUndefinedAttributes.addLongIdentifier("ignore-undefined-attributes");
+    ignoreUndefinedAttributes.addLongIdentifier("ignore-undefined-attributes",
+         true);
     parser.addArgument(ignoreUndefinedAttributes);
 
     description = "Ignore validation failures due to entries with malformed " +
@@ -475,7 +476,7 @@ public final class ValidateLDIF
     ignoreMalformedDNs =
          new BooleanArgument(null, "ignoreMalformedDNs", description);
     ignoreMalformedDNs.setArgumentGroupName("Validation Strictness Arguments");
-    ignoreMalformedDNs.addLongIdentifier("ignore-malformed-dns");
+    ignoreMalformedDNs.addLongIdentifier("ignore-malformed-dns", true);
     parser.addArgument(ignoreMalformedDNs);
 
     description = "Ignore validation failures due to entries with RDN " +
@@ -485,7 +486,7 @@ public final class ValidateLDIF
          new BooleanArgument(null, "ignoreMissingRDNValues", description);
     ignoreMissingRDNValues.setArgumentGroupName(
          "Validation Strictness Arguments");
-    ignoreMissingRDNValues.addLongIdentifier("ignore-missing-rdn-values");
+    ignoreMissingRDNValues.addLongIdentifier("ignore-missing-rdn-values", true);
     parser.addArgument(ignoreMissingRDNValues);
 
     description = "Ignore validation failures due to entries without exactly " +
@@ -496,7 +497,7 @@ public final class ValidateLDIF
     ignoreStructuralObjectClasses.setArgumentGroupName(
          "Validation Strictness Arguments");
     ignoreStructuralObjectClasses.addLongIdentifier(
-         "ignore-structural-object-classes");
+         "ignore-structural-object-classes", true);
     parser.addArgument(ignoreStructuralObjectClasses);
 
     description = "Ignore validation failures due to entries with object " +
@@ -507,7 +508,7 @@ public final class ValidateLDIF
     ignoreProhibitedObjectClasses.setArgumentGroupName(
          "Validation Strictness Arguments");
     ignoreProhibitedObjectClasses.addLongIdentifier(
-         "ignore-prohibited-object-classes");
+         "ignore-prohibited-object-classes", true);
     parser.addArgument(ignoreProhibitedObjectClasses);
 
     description = "Ignore validation failures due to entries that are " +
@@ -518,7 +519,7 @@ public final class ValidateLDIF
     ignoreMissingSuperiorObjectClasses.setArgumentGroupName(
          "Validation Strictness Arguments");
     ignoreMissingSuperiorObjectClasses.addLongIdentifier(
-         "ignore-missing-superior-object-classes");
+         "ignore-missing-superior-object-classes", true);
     parser.addArgument(ignoreMissingSuperiorObjectClasses);
 
     description = "Ignore validation failures due to entries with attributes " +
@@ -528,7 +529,7 @@ public final class ValidateLDIF
     ignoreProhibitedAttributes.setArgumentGroupName(
          "Validation Strictness Arguments");
     ignoreProhibitedAttributes.addLongIdentifier(
-         "ignore-prohibited-attributes");
+         "ignore-prohibited-attributes", true);
     parser.addArgument(ignoreProhibitedAttributes);
 
     description = "Ignore validation failures due to entries missing " +
@@ -537,7 +538,8 @@ public final class ValidateLDIF
          new BooleanArgument(null, "ignoreMissingAttributes", description);
     ignoreMissingAttributes.setArgumentGroupName(
          "Validation Strictness Arguments");
-    ignoreMissingAttributes.addLongIdentifier("ignore-missing-attributes");
+    ignoreMissingAttributes.addLongIdentifier("ignore-missing-attributes",
+         true);
     parser.addArgument(ignoreMissingAttributes);
 
     description = "Ignore validation failures due to entries with multiple " +
@@ -547,7 +549,7 @@ public final class ValidateLDIF
     ignoreSingleValuedAttributes.setArgumentGroupName(
          "Validation Strictness Arguments");
     ignoreSingleValuedAttributes.addLongIdentifier(
-         "ignore-single-valued-attributes");
+         "ignore-single-valued-attributes", true);
     parser.addArgument(ignoreSingleValuedAttributes);
 
     description = "Ignore validation failures due to entries with attribute " +
@@ -561,7 +563,7 @@ public final class ValidateLDIF
          new BooleanArgument(null, "ignoreAttributeSyntax", description);
     ignoreAttributeSyntax.setArgumentGroupName(
          "Validation Strictness Arguments");
-    ignoreAttributeSyntax.addLongIdentifier("ignore-attribute-syntax");
+    ignoreAttributeSyntax.addLongIdentifier("ignore-attribute-syntax", true);
     parser.addArgument(ignoreAttributeSyntax);
 
     description = "The name or OID of an attribute for which to ignore " +
@@ -573,14 +575,14 @@ public final class ValidateLDIF
     ignoreSyntaxViolationsForAttribute.setArgumentGroupName(
          "Validation Strictness Arguments");
     ignoreSyntaxViolationsForAttribute.addLongIdentifier(
-         "ignore-syntax-violations-for-attribute");
+         "ignore-syntax-violations-for-attribute", true);
     parser.addArgument(ignoreSyntaxViolationsForAttribute);
 
     description = "Ignore validation failures due to entries with RDNs " +
                   "that violate the associated name form definition.";
     ignoreNameForms = new BooleanArgument(null, "ignoreNameForms", description);
     ignoreNameForms.setArgumentGroupName("Validation Strictness Arguments");
-    ignoreNameForms.addLongIdentifier("ignore-name-forms");
+    ignoreNameForms.addLongIdentifier("ignore-name-forms", true);
     parser.addArgument(ignoreNameForms);
 
 

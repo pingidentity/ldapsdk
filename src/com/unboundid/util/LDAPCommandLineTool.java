@@ -396,7 +396,7 @@ public abstract class LDAPCommandLineTool
       bindDN.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
-        bindDN.addLongIdentifier("bind-dn");
+        bindDN.addLongIdentifier("bind-dn", true);
       }
       parser.addArgument(bindDN);
 
@@ -407,7 +407,7 @@ public abstract class LDAPCommandLineTool
       bindPassword.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
-        bindPassword.addLongIdentifier("bind-password");
+        bindPassword.addLongIdentifier("bind-password", true);
       }
       parser.addArgument(bindPassword);
 
@@ -419,7 +419,7 @@ public abstract class LDAPCommandLineTool
       bindPasswordFile.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
-        bindPasswordFile.addLongIdentifier("bind-password-file");
+        bindPasswordFile.addLongIdentifier("bind-password-file", true);
       }
       parser.addArgument(bindPasswordFile);
 
@@ -428,7 +428,8 @@ public abstract class LDAPCommandLineTool
       promptForBindPassword.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
-        promptForBindPassword.addLongIdentifier("prompt-for-bind-password");
+        promptForBindPassword.addLongIdentifier("prompt-for-bind-password",
+             true);
       }
       parser.addArgument(promptForBindPassword);
     }
@@ -438,7 +439,7 @@ public abstract class LDAPCommandLineTool
     useSSL.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      useSSL.addLongIdentifier("use-ssl");
+      useSSL.addLongIdentifier("use-ssl", true);
     }
     parser.addArgument(useSSL);
 
@@ -447,8 +448,8 @@ public abstract class LDAPCommandLineTool
     useStartTLS.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
-        useStartTLS.addLongIdentifier("use-starttls");
-        useStartTLS.addLongIdentifier("use-start-tls");
+        useStartTLS.addLongIdentifier("use-starttls", true);
+        useStartTLS.addLongIdentifier("use-start-tls", true);
       }
     parser.addArgument(useStartTLS);
 
@@ -457,9 +458,9 @@ public abstract class LDAPCommandLineTool
     trustAll.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      trustAll.addLongIdentifier("trustAllCertificates");
-      trustAll.addLongIdentifier("trust-all");
-      trustAll.addLongIdentifier("trust-all-certificates");
+      trustAll.addLongIdentifier("trustAllCertificates", true);
+      trustAll.addLongIdentifier("trust-all", true);
+      trustAll.addLongIdentifier("trust-all-certificates", true);
     }
     parser.addArgument(trustAll);
 
@@ -469,7 +470,7 @@ public abstract class LDAPCommandLineTool
     keyStorePath.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      keyStorePath.addLongIdentifier("key-store-path");
+      keyStorePath.addLongIdentifier("key-store-path", true);
     }
     parser.addArgument(keyStorePath);
 
@@ -481,9 +482,9 @@ public abstract class LDAPCommandLineTool
     keyStorePassword.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      keyStorePassword.addLongIdentifier("keyStorePIN");
-      keyStorePassword.addLongIdentifier("key-store-password");
-      keyStorePassword.addLongIdentifier("key-store-pin");
+      keyStorePassword.addLongIdentifier("keyStorePIN", true);
+      keyStorePassword.addLongIdentifier("key-store-password", true);
+      keyStorePassword.addLongIdentifier("key-store-pin", true);
     }
     parser.addArgument(keyStorePassword);
 
@@ -494,9 +495,9 @@ public abstract class LDAPCommandLineTool
     keyStorePasswordFile.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      keyStorePasswordFile.addLongIdentifier("keyStorePINFile");
-      keyStorePasswordFile.addLongIdentifier("key-store-password-file");
-      keyStorePasswordFile.addLongIdentifier("key-store-pin-file");
+      keyStorePasswordFile.addLongIdentifier("keyStorePINFile", true);
+      keyStorePasswordFile.addLongIdentifier("key-store-password-file", true);
+      keyStorePasswordFile.addLongIdentifier("key-store-pin-file", true);
     }
     parser.addArgument(keyStorePasswordFile);
 
@@ -506,10 +507,11 @@ public abstract class LDAPCommandLineTool
     promptForKeyStorePassword.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      promptForKeyStorePassword.addLongIdentifier("promptForKeyStorePIN");
+      promptForKeyStorePassword.addLongIdentifier("promptForKeyStorePIN", true);
       promptForKeyStorePassword.addLongIdentifier(
-           "prompt-for-key-store-password");
-      promptForKeyStorePassword.addLongIdentifier("prompt-for-key-store-pin");
+           "prompt-for-key-store-password", true);
+      promptForKeyStorePassword.addLongIdentifier("prompt-for-key-store-pin",
+           true);
     }
     parser.addArgument(promptForKeyStorePassword);
 
@@ -519,9 +521,9 @@ public abstract class LDAPCommandLineTool
     keyStoreFormat.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      keyStoreFormat.addLongIdentifier("keyStoreType");
-      keyStoreFormat.addLongIdentifier("key-store-format");
-      keyStoreFormat.addLongIdentifier("key-store-type");
+      keyStoreFormat.addLongIdentifier("keyStoreType", true);
+      keyStoreFormat.addLongIdentifier("key-store-format", true);
+      keyStoreFormat.addLongIdentifier("key-store-type", true);
     }
     parser.addArgument(keyStoreFormat);
 
@@ -531,7 +533,7 @@ public abstract class LDAPCommandLineTool
     trustStorePath.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      trustStorePath.addLongIdentifier("trust-store-path");
+      trustStorePath.addLongIdentifier("trust-store-path", true);
     }
     parser.addArgument(trustStorePath);
 
@@ -543,9 +545,9 @@ public abstract class LDAPCommandLineTool
     trustStorePassword.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      trustStorePassword.addLongIdentifier("trustStorePIN");
-      trustStorePassword.addLongIdentifier("trust-store-password");
-      trustStorePassword.addLongIdentifier("trust-store-pin");
+      trustStorePassword.addLongIdentifier("trustStorePIN", true);
+      trustStorePassword.addLongIdentifier("trust-store-password", true);
+      trustStorePassword.addLongIdentifier("trust-store-pin", true);
     }
     parser.addArgument(trustStorePassword);
 
@@ -556,9 +558,10 @@ public abstract class LDAPCommandLineTool
     trustStorePasswordFile.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      trustStorePasswordFile.addLongIdentifier("trustStorePINFile");
-      trustStorePasswordFile.addLongIdentifier("trust-store-password-file");
-      trustStorePasswordFile.addLongIdentifier("trust-store-pin-file");
+      trustStorePasswordFile.addLongIdentifier("trustStorePINFile", true);
+      trustStorePasswordFile.addLongIdentifier("trust-store-password-file",
+           true);
+      trustStorePasswordFile.addLongIdentifier("trust-store-pin-file", true);
     }
     parser.addArgument(trustStorePasswordFile);
 
@@ -568,11 +571,12 @@ public abstract class LDAPCommandLineTool
     promptForTrustStorePassword.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      promptForTrustStorePassword.addLongIdentifier("promptForTrustStorePIN");
+      promptForTrustStorePassword.addLongIdentifier("promptForTrustStorePIN",
+           true);
       promptForTrustStorePassword.addLongIdentifier(
-           "prompt-for-trust-store-password");
+           "prompt-for-trust-store-password", true);
       promptForTrustStorePassword.addLongIdentifier(
-           "prompt-for-trust-store-pin");
+           "prompt-for-trust-store-pin", true);
     }
     parser.addArgument(promptForTrustStorePassword);
 
@@ -582,9 +586,9 @@ public abstract class LDAPCommandLineTool
     trustStoreFormat.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      trustStoreFormat.addLongIdentifier("trustStoreType");
-      trustStoreFormat.addLongIdentifier("trust-store-format");
-      trustStoreFormat.addLongIdentifier("trust-store-type");
+      trustStoreFormat.addLongIdentifier("trustStoreType", true);
+      trustStoreFormat.addLongIdentifier("trust-store-format", true);
+      trustStoreFormat.addLongIdentifier("trust-store-type", true);
     }
     parser.addArgument(trustStoreFormat);
 
@@ -595,9 +599,9 @@ public abstract class LDAPCommandLineTool
     certificateNickname.setArgumentGroupName(argumentGroup);
     if (includeAlternateLongIdentifiers())
     {
-      certificateNickname.addLongIdentifier("certificateNickname");
-      certificateNickname.addLongIdentifier("cert-nickname");
-      certificateNickname.addLongIdentifier("certificate-nickname");
+      certificateNickname.addLongIdentifier("certificateNickname", true);
+      certificateNickname.addLongIdentifier("cert-nickname", true);
+      certificateNickname.addLongIdentifier("certificate-nickname", true);
     }
     parser.addArgument(certificateNickname);
 
@@ -609,7 +613,7 @@ public abstract class LDAPCommandLineTool
       saslOption.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
-        saslOption.addLongIdentifier("sasl-option");
+        saslOption.addLongIdentifier("sasl-option", true);
       }
       parser.addArgument(saslOption);
 
@@ -618,7 +622,7 @@ public abstract class LDAPCommandLineTool
       useSASLExternal.setArgumentGroupName(argumentGroup);
       if (includeAlternateLongIdentifiers())
       {
-        useSASLExternal.addLongIdentifier("use-sasl-external");
+        useSASLExternal.addLongIdentifier("use-sasl-external", true);
       }
       parser.addArgument(useSASLExternal);
 
@@ -629,7 +633,7 @@ public abstract class LDAPCommandLineTool
         helpSASL.setArgumentGroupName(argumentGroup);
         if (includeAlternateLongIdentifiers())
         {
-          helpSASL.addLongIdentifier("help-sasl");
+          helpSASL.addLongIdentifier("help-sasl", true);
         }
         helpSASL.setUsageArgument(true);
         parser.addArgument(helpSASL);

@@ -537,7 +537,7 @@ public final class SummarizeAccessLog
     // Add an argument that makes it possible to read a compressed log file.
     final String description = "Indicates that the log file is compressed..";
     isCompressed = new BooleanArgument('c', "isCompressed", description);
-    isCompressed.addLongIdentifier("is-compressed");
+    isCompressed.addLongIdentifier("is-compressed", true);
     parser.addArgument(isCompressed);
   }
 

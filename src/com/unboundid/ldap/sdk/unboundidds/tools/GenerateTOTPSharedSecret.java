@@ -299,9 +299,9 @@ public final class GenerateTOTPSharedSecret
     authenticationID = new StringArgument(null, "authID", true, 1,
          INFO_GEN_TOTP_SECRET_PLACEHOLDER_AUTH_ID.get(),
          INFO_GEN_TOTP_SECRET_DESCRIPTION_AUTH_ID.get());
-    authenticationID.addLongIdentifier("authenticationID");
-    authenticationID.addLongIdentifier("auth-id");
-    authenticationID.addLongIdentifier("authentication-id");
+    authenticationID.addLongIdentifier("authenticationID", true);
+    authenticationID.addLongIdentifier("auth-id", true);
+    authenticationID.addLongIdentifier("authentication-id", true);
     parser.addArgument(authenticationID);
 
 
@@ -312,7 +312,7 @@ public final class GenerateTOTPSharedSecret
          INFO_GEN_TOTP_SECRET_DESCRIPTION_USER_PW.get(
               authenticationID.getIdentifierString()));
     userPassword.setSensitive(true);
-    userPassword.addLongIdentifier("user-password");
+    userPassword.addLongIdentifier("user-password", true);
     parser.addArgument(userPassword);
 
     userPasswordFile = new FileArgument(null, "userPasswordFile", false, 1,
@@ -320,13 +320,13 @@ public final class GenerateTOTPSharedSecret
          INFO_GEN_TOTP_SECRET_DESCRIPTION_USER_PW_FILE.get(
               authenticationID.getIdentifierString()),
          true, true, true, false);
-    userPasswordFile.addLongIdentifier("user-password-file");
+    userPasswordFile.addLongIdentifier("user-password-file", true);
     parser.addArgument(userPasswordFile);
 
     promptForUserPassword = new BooleanArgument(null, "promptForUserPassword",
          INFO_GEN_TOTP_SECRET_DESCRIPTION_PROMPT_FOR_USER_PW.get(
               authenticationID.getIdentifierString()));
-    promptForUserPassword.addLongIdentifier("prompt-for-user-password");
+    promptForUserPassword.addLongIdentifier("prompt-for-user-password", true);
     parser.addArgument(promptForUserPassword);
 
 
@@ -339,7 +339,7 @@ public final class GenerateTOTPSharedSecret
 
     revokeAll = new BooleanArgument(null, "revokeAll", 1,
          INFO_GEN_TOTP_SECRET_DESCRIPTION_REVOKE_ALL.get());
-    revokeAll.addLongIdentifier("revoke-all");
+    revokeAll.addLongIdentifier("revoke-all", true);
     parser.addArgument(revokeAll);
 
 

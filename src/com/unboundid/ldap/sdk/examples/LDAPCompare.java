@@ -365,7 +365,7 @@ public final class LDAPCompare
          "Information about a control to include in the bind request.";
     bindControls = new ControlArgument(null, "bindControl", false, 0, null,
          description);
-    bindControls.addLongIdentifier("bind-control");
+    bindControls.addLongIdentifier("bind-control", true);
     parser.addArgument(bindControls);
 
 

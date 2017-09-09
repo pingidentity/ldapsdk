@@ -536,9 +536,9 @@ public final class ManageAccount
     // Define the global arguments used to indicate which users to target.
     final DNArgument targetDN = new DNArgument('b', ARG_TARGET_DN, false, 0,
          null, INFO_MANAGE_ACCT_ARG_DESC_TARGET_DN.get());
-    targetDN.addLongIdentifier("userDN");
-    targetDN.addLongIdentifier("target-dn");
-    targetDN.addLongIdentifier("user-dn");
+    targetDN.addLongIdentifier("userDN", true);
+    targetDN.addLongIdentifier("target-dn", true);
+    targetDN.addLongIdentifier("user-dn", true);
     targetDN.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get());
     parser.addArgument(targetDN);
@@ -546,11 +546,11 @@ public final class ManageAccount
     final FileArgument dnInputFile = new FileArgument(null, ARG_DN_INPUT_FILE,
          false, 0, null, INFO_MANAGE_ACCT_ARG_DESC_DN_FILE.get(), true,
          true, true, false);
-    dnInputFile.addLongIdentifier("targetDNFile");
-    dnInputFile.addLongIdentifier("userDNFile");
-    dnInputFile.addLongIdentifier("dn-input-file");
-    dnInputFile.addLongIdentifier("target-dn-file");
-    dnInputFile.addLongIdentifier("user-dn-file");
+    dnInputFile.addLongIdentifier("targetDNFile", true);
+    dnInputFile.addLongIdentifier("userDNFile", true);
+    dnInputFile.addLongIdentifier("dn-input-file", true);
+    dnInputFile.addLongIdentifier("target-dn-file", true);
+    dnInputFile.addLongIdentifier("user-dn-file", true);
     dnInputFile.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get());
     parser.addArgument(dnInputFile);
@@ -558,7 +558,7 @@ public final class ManageAccount
     final FilterArgument targetFilter = new FilterArgument(null,
          ARG_TARGET_FILTER, false, 0, null,
          INFO_MANAGE_ACCT_ARG_DESC_TARGET_FILTER.get(ARG_BASE_DN));
-    targetFilter.addLongIdentifier("target-filter");
+    targetFilter.addLongIdentifier("target-filter", true);
     targetFilter.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get());
     parser.addArgument(targetFilter);
@@ -567,9 +567,9 @@ public final class ManageAccount
          ARG_FILTER_INPUT_FILE, false, 0, null,
          INFO_MANAGE_ACCT_ARG_DESC_FILTER_INPUT_FILE.get(ARG_BASE_DN),
          true, true, true, false);
-    filterInputFile.addLongIdentifier("targetFilterFile");
-    filterInputFile.addLongIdentifier("filter-input-file");
-    filterInputFile.addLongIdentifier("target-filter-file");
+    filterInputFile.addLongIdentifier("targetFilterFile", true);
+    filterInputFile.addLongIdentifier("filter-input-file", true);
+    filterInputFile.addLongIdentifier("target-filter-file", true);
     filterInputFile.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get());
     parser.addArgument(filterInputFile);
@@ -578,9 +578,9 @@ public final class ManageAccount
          ARG_TARGET_USER_ID, false, 0, null,
          INFO_MANAGE_ACCT_ARG_DESC_TARGET_USER_ID.get(ARG_BASE_DN,
               ARG_USER_ID_ATTRIBUTE));
-    targetUserID.addLongIdentifier("userID");
-    targetUserID.addLongIdentifier("target-user-id");
-    targetUserID.addLongIdentifier("user-id");
+    targetUserID.addLongIdentifier("userID", true);
+    targetUserID.addLongIdentifier("target-user-id", true);
+    targetUserID.addLongIdentifier("user-id", true);
     targetUserID.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get());
     parser.addArgument(targetUserID);
@@ -590,9 +590,9 @@ public final class ManageAccount
          INFO_MANAGE_ACCT_ARG_DESC_USER_ID_INPUT_FILE.get(ARG_BASE_DN,
               ARG_USER_ID_ATTRIBUTE),
          true, true, true, false);
-    userIDInputFile.addLongIdentifier("targetUserIDFile");
-    userIDInputFile.addLongIdentifier("user-id-input-file");
-    userIDInputFile.addLongIdentifier("target-user-id-file");
+    userIDInputFile.addLongIdentifier("targetUserIDFile", true);
+    userIDInputFile.addLongIdentifier("user-id-input-file", true);
+    userIDInputFile.addLongIdentifier("target-user-id-file", true);
     userIDInputFile.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get());
     parser.addArgument(userIDInputFile);
@@ -603,7 +603,7 @@ public final class ManageAccount
               ARG_TARGET_USER_ID, ARG_USER_ID_INPUT_FILE,
               DEFAULT_USER_ID_ATTRIBUTE),
          DEFAULT_USER_ID_ATTRIBUTE);
-    userIDAttribute.addLongIdentifier("user-id-attribute");
+    userIDAttribute.addLongIdentifier("user-id-attribute", true);
     userIDAttribute.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get());
     parser.addArgument(userIDAttribute);
@@ -613,7 +613,7 @@ public final class ManageAccount
               ARG_FILTER_INPUT_FILE, ARG_TARGET_USER_ID,
               ARG_USER_ID_INPUT_FILE),
          DEFAULT_BASE_DN);
-    baseDN.addLongIdentifier("base-dn");
+    baseDN.addLongIdentifier("base-dn", true);
     baseDN.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get());
     parser.addArgument(baseDN);
@@ -622,7 +622,7 @@ public final class ManageAccount
          ARG_SIMPLE_PAGE_SIZE, false, 1, null,
          INFO_MANAGE_ACCT_ARG_DESC_SIMPLE_PAGE_SIZE.get(getToolName()), 1,
          Integer.MAX_VALUE);
-    simplePageSize.addLongIdentifier("simple-page-size");
+    simplePageSize.addLongIdentifier("simple-page-size", true);
     simplePageSize.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_TARGET_USER_ARGS.get(getToolName()));
     parser.addArgument(simplePageSize);
@@ -640,7 +640,7 @@ public final class ManageAccount
          false, 1, null,
          INFO_MANAGE_ACCT_ARG_DESC_NUM_THREADS.get(getToolName()), 1,
          Integer.MAX_VALUE, 1);
-    numThreads.addLongIdentifier("num-threads");
+    numThreads.addLongIdentifier("num-threads", true);
     numThreads.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_PERFORMANCE.get());
     parser.addArgument(numThreads);
@@ -649,7 +649,7 @@ public final class ManageAccount
          ARG_NUM_SEARCH_THREADS, false, 1, null,
          INFO_MANAGE_ACCT_ARG_DESC_NUM_SEARCH_THREADS.get(getToolName()), 1,
          Integer.MAX_VALUE, 1);
-    numSearchThreads.addLongIdentifier("num-search-threads");
+    numSearchThreads.addLongIdentifier("num-search-threads", true);
     numSearchThreads.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_PERFORMANCE.get());
     parser.addArgument(numSearchThreads);
@@ -659,7 +659,7 @@ public final class ManageAccount
          INFO_MANAGE_ACCT_ARG_DESC_RATE_PER_SECOND.get(
               ARG_VARIABLE_RATE_DATA),
          1, Integer.MAX_VALUE);
-    ratePerSecond.addLongIdentifier("rate-per-second");
+    ratePerSecond.addLongIdentifier("rate-per-second", true);
     ratePerSecond.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_PERFORMANCE.get());
     parser.addArgument(ratePerSecond);
@@ -669,7 +669,7 @@ public final class ManageAccount
          INFO_MANAGE_ACCT_ARG_DESC_VARIABLE_RATE_DATA.get(
               ARG_RATE_PER_SECOND),
          true, true, true, false);
-    variableRateData.addLongIdentifier("variable-rate-data");
+    variableRateData.addLongIdentifier("variable-rate-data", true);
     variableRateData.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_PERFORMANCE.get());
     parser.addArgument(variableRateData);
@@ -679,7 +679,7 @@ public final class ManageAccount
          INFO_MANAGE_ACCT_ARG_DESC_GENERATE_SAMPLE_RATE_FILE.get(
               ARG_VARIABLE_RATE_DATA),
          false, true, true, false);
-    generateSampleRateFile.addLongIdentifier("generate-sample-rate-file");
+    generateSampleRateFile.addLongIdentifier("generate-sample-rate-file", true);
     generateSampleRateFile.setArgumentGroupName(
          INFO_MANAGE_ACCT_ARG_GROUP_PERFORMANCE.get());
     generateSampleRateFile.setUsageArgument(true);
@@ -690,14 +690,14 @@ public final class ManageAccount
     final FileArgument rejectFile = new FileArgument('R', ARG_REJECT_FILE,
          false, 1, null, INFO_MANAGE_ACCT_ARG_DESC_REJECT_FILE.get(),
          false, true, true, false);
-    rejectFile.addLongIdentifier("reject-file");
+    rejectFile.addLongIdentifier("reject-file", true);
     parser.addArgument(rejectFile);
 
     final BooleanArgument appendToRejectFile = new BooleanArgument(null,
          ARG_APPEND_TO_REJECT_FILE, 1,
          INFO_MANAGE_ACCT_ARG_DESC_APPEND_TO_REJECT_FILE.get(
               rejectFile.getIdentifierString()));
-    appendToRejectFile.addLongIdentifier("append-to-reject-file");
+    appendToRejectFile.addLongIdentifier("append-to-reject-file", true);
     parser.addArgument(appendToRejectFile);
 
     parser.addDependentArgumentSet(appendToRejectFile, rejectFile);
@@ -761,9 +761,9 @@ public final class ManageAccount
     final TimestampArgument setPWChangedTimeValueArg = new TimestampArgument(
          'O', "passwordChangedTime", false, 1, null,
          INFO_MANAGE_ACCT_SC_SET_PW_CHANGED_TIME_ARG_VALUE.get());
-    setPWChangedTimeValueArg.addLongIdentifier("operationValue");
-    setPWChangedTimeValueArg.addLongIdentifier("password-changed-time");
-    setPWChangedTimeValueArg.addLongIdentifier("operation-value");
+    setPWChangedTimeValueArg.addLongIdentifier("operationValue", true);
+    setPWChangedTimeValueArg.addLongIdentifier("password-changed-time", true);
+    setPWChangedTimeValueArg.addLongIdentifier("operation-value", true);
     setPWChangedTimeParser.addArgument(setPWChangedTimeValueArg);
 
     createSubCommand(SET_PASSWORD_CHANGED_TIME, setPWChangedTimeParser,
@@ -792,9 +792,9 @@ public final class ManageAccount
     final BooleanValueArgument setAcctDisabledValueArg =
          new BooleanValueArgument('O', "accountIsDisabled", true, null,
               INFO_MANAGE_ACCT_SC_SET_IS_DISABLED_ARG_VALUE.get());
-    setAcctDisabledValueArg.addLongIdentifier("operationValue");
-    setAcctDisabledValueArg.addLongIdentifier("account-is-disabled");
-    setAcctDisabledValueArg.addLongIdentifier("operation-value");
+    setAcctDisabledValueArg.addLongIdentifier("operationValue", true);
+    setAcctDisabledValueArg.addLongIdentifier("account-is-disabled", true);
+    setAcctDisabledValueArg.addLongIdentifier("operation-value", true);
     setAcctDisabledParser.addArgument(setAcctDisabledValueArg);
 
     createSubCommand(SET_ACCOUNT_IS_DISABLED, setAcctDisabledParser,
@@ -823,9 +823,10 @@ public final class ManageAccount
     final TimestampArgument setAcctActivationTimeValueArg =
          new TimestampArgument('O', "accountActivationTime", false, 1, null,
               INFO_MANAGE_ACCT_SC_SET_ACCT_ACT_TIME_ARG_VALUE.get());
-    setAcctActivationTimeValueArg.addLongIdentifier("operationValue");
-    setAcctActivationTimeValueArg.addLongIdentifier("account-activation-time");
-    setAcctActivationTimeValueArg.addLongIdentifier("operation-value");
+    setAcctActivationTimeValueArg.addLongIdentifier("operationValue", true);
+    setAcctActivationTimeValueArg.addLongIdentifier("account-activation-time",
+         true);
+    setAcctActivationTimeValueArg.addLongIdentifier("operation-value", true);
     setAcctActivationTimeParser.addArgument(setAcctActivationTimeValueArg);
 
     createSubCommand(SET_ACCOUNT_ACTIVATION_TIME, setAcctActivationTimeParser,
@@ -868,9 +869,10 @@ public final class ManageAccount
     final TimestampArgument setAcctExpirationTimeValueArg =
          new TimestampArgument('O', "accountExpirationTime", false, 1, null,
               INFO_MANAGE_ACCT_SC_SET_ACCT_EXP_TIME_ARG_VALUE.get());
-    setAcctExpirationTimeValueArg.addLongIdentifier("operationValue");
-    setAcctExpirationTimeValueArg.addLongIdentifier("account-expiration-time");
-    setAcctExpirationTimeValueArg.addLongIdentifier("operation-value");
+    setAcctExpirationTimeValueArg.addLongIdentifier("operationValue", true);
+    setAcctExpirationTimeValueArg.addLongIdentifier("account-expiration-time",
+         true);
+    setAcctExpirationTimeValueArg.addLongIdentifier("operation-value", true);
     setAcctExpirationTimeParser.addArgument(setAcctExpirationTimeValueArg);
 
     createSubCommand(SET_ACCOUNT_EXPIRATION_TIME, setAcctExpirationTimeParser,
@@ -913,10 +915,10 @@ public final class ManageAccount
     final TimestampArgument setPWExpWarnedTimeValueArg =
          new TimestampArgument('O', "passwordExpirationWarnedTime", false, 1,
               null, INFO_MANAGE_ACCT_SC_SET_PW_EXP_WARNED_TIME_ARG_VALUE.get());
-    setPWExpWarnedTimeValueArg.addLongIdentifier("operationValue");
+    setPWExpWarnedTimeValueArg.addLongIdentifier("operationValue", true);
     setPWExpWarnedTimeValueArg.addLongIdentifier(
-         "password-expiration-warned-time");
-    setPWExpWarnedTimeValueArg.addLongIdentifier("operation-value");
+         "password-expiration-warned-time", true);
+    setPWExpWarnedTimeValueArg.addLongIdentifier("operation-value", true);
     setPWExpWarnedTimeParser.addArgument(setPWExpWarnedTimeValueArg);
 
     createSubCommand(SET_PASSWORD_EXPIRATION_WARNED_TIME,
@@ -972,9 +974,10 @@ public final class ManageAccount
     final BooleanValueArgument setIsFailureLockedValueArg =
          new BooleanValueArgument('O', "accountIsFailureLocked", true, null,
               INFO_MANAGE_ACCT_SC_SET_ACCT_FAILURE_LOCKED_ARG_VALUE.get());
-    setIsFailureLockedValueArg.addLongIdentifier("operationValue");
-    setIsFailureLockedValueArg.addLongIdentifier("account-is-failure-locked");
-    setIsFailureLockedValueArg.addLongIdentifier("operation-value");
+    setIsFailureLockedValueArg.addLongIdentifier("operationValue", true);
+    setIsFailureLockedValueArg.addLongIdentifier("account-is-failure-locked",
+         true);
+    setIsFailureLockedValueArg.addLongIdentifier("operation-value", true);
     setIsFailureLockedParser.addArgument(setIsFailureLockedValueArg);
 
     createSubCommand(SET_ACCOUNT_IS_FAILURE_LOCKED, setIsFailureLockedParser,
@@ -1011,10 +1014,10 @@ public final class ManageAccount
     final TimestampArgument addAuthFailureTimeValueArg =
          new TimestampArgument('O', "authenticationFailureTime", false, 0, null,
               INFO_MANAGE_ACCT_SC_ADD_AUTH_FAILURE_TIME_ARG_VALUE.get());
-    addAuthFailureTimeValueArg.addLongIdentifier("operationValue");
+    addAuthFailureTimeValueArg.addLongIdentifier("operationValue", true);
     addAuthFailureTimeValueArg.addLongIdentifier(
-         "authentication-failure-time");
-    addAuthFailureTimeValueArg.addLongIdentifier("operation-value");
+         "authentication-failure-time", true);
+    addAuthFailureTimeValueArg.addLongIdentifier("operation-value", true);
     addAuthFailureTimeParser.addArgument(addAuthFailureTimeValueArg);
 
     createSubCommand(ADD_AUTHENTICATION_FAILURE_TIME, addAuthFailureTimeParser,
@@ -1030,10 +1033,10 @@ public final class ManageAccount
     final TimestampArgument setAuthFailureTimesValueArg =
          new TimestampArgument('O', "authenticationFailureTime", false, 0, null,
               INFO_MANAGE_ACCT_SC_SET_AUTH_FAILURE_TIMES_ARG_VALUE.get());
-    setAuthFailureTimesValueArg.addLongIdentifier("operationValue");
+    setAuthFailureTimesValueArg.addLongIdentifier("operationValue", true);
     setAuthFailureTimesValueArg.addLongIdentifier(
-         "authentication-failure-time");
-    setAuthFailureTimesValueArg.addLongIdentifier("operation-value");
+         "authentication-failure-time", true);
+    setAuthFailureTimesValueArg.addLongIdentifier("operation-value", true);
     setAuthFailureTimesParser.addArgument(setAuthFailureTimesValueArg);
 
     createSubCommand(SET_AUTHENTICATION_FAILURE_TIMES,
@@ -1092,11 +1095,11 @@ public final class ManageAccount
     final BooleanValueArgument setPWIsResetValueArg =
          new BooleanValueArgument('O', "mustChangePassword", true, null,
               INFO_MANAGE_ACCT_SC_SET_MUST_CHANGE_PW_ARG_VALUE.get());
-    setPWIsResetValueArg.addLongIdentifier("passwordIsReset");
-    setPWIsResetValueArg.addLongIdentifier("operationValue");
-    setPWIsResetValueArg.addLongIdentifier("must-change-password");
-    setPWIsResetValueArg.addLongIdentifier("password-is-reset");
-    setPWIsResetValueArg.addLongIdentifier("operation-value");
+    setPWIsResetValueArg.addLongIdentifier("passwordIsReset", true);
+    setPWIsResetValueArg.addLongIdentifier("operationValue", true);
+    setPWIsResetValueArg.addLongIdentifier("must-change-password", true);
+    setPWIsResetValueArg.addLongIdentifier("password-is-reset", true);
+    setPWIsResetValueArg.addLongIdentifier("operation-value", true);
     setPWIsResetParser.addArgument(setPWIsResetValueArg);
 
     createSubCommand(SET_MUST_CHANGE_PASSWORD, setPWIsResetParser,
@@ -1144,9 +1147,9 @@ public final class ManageAccount
     final TimestampArgument setLastLoginTimeValueArg = new TimestampArgument(
          'O', "lastLoginTime", false, 1, null,
          INFO_MANAGE_ACCT_SC_SET_LAST_LOGIN_TIME_ARG_VALUE.get());
-    setLastLoginTimeValueArg.addLongIdentifier("operationValue");
-    setLastLoginTimeValueArg.addLongIdentifier("last-login-time");
-    setLastLoginTimeValueArg.addLongIdentifier("operation-value");
+    setLastLoginTimeValueArg.addLongIdentifier("operationValue", true);
+    setLastLoginTimeValueArg.addLongIdentifier("last-login-time", true);
+    setLastLoginTimeValueArg.addLongIdentifier("operation-value", true);
     setLastLoginTimeParser.addArgument(setLastLoginTimeValueArg);
 
     createSubCommand(SET_LAST_LOGIN_TIME, setLastLoginTimeParser,
@@ -1175,9 +1178,9 @@ public final class ManageAccount
     final StringArgument setLastLoginIPValueArg = new StringArgument('O',
          "lastLoginIPAddress", true, 1, null,
          INFO_MANAGE_ACCT_SC_SET_LAST_LOGIN_IP_ARG_VALUE.get());
-    setLastLoginIPValueArg.addLongIdentifier("operationValue");
-    setLastLoginIPValueArg.addLongIdentifier("last-login-ip-address");
-    setLastLoginIPValueArg.addLongIdentifier("operation-value");
+    setLastLoginIPValueArg.addLongIdentifier("operationValue", true);
+    setLastLoginIPValueArg.addLongIdentifier("last-login-ip-address", true);
+    setLastLoginIPValueArg.addLongIdentifier("operation-value", true);
     setLastLoginIPValueArg.addValueValidator(
          new IPAddressArgumentValueValidator());
     setLastLoginIPParser.addArgument(setLastLoginIPValueArg);
@@ -1209,9 +1212,9 @@ public final class ManageAccount
     final TimestampArgument addGraceLoginTimeValueArg =
          new TimestampArgument('O', "graceLoginUseTime", false, 0, null,
               INFO_MANAGE_ACCT_SC_ADD_GRACE_LOGIN_TIME_ARG_VALUE.get());
-    addGraceLoginTimeValueArg.addLongIdentifier("operationValue");
-    addGraceLoginTimeValueArg.addLongIdentifier("grace-login-use-time");
-    addGraceLoginTimeValueArg.addLongIdentifier("operation-value");
+    addGraceLoginTimeValueArg.addLongIdentifier("operationValue", true);
+    addGraceLoginTimeValueArg.addLongIdentifier("grace-login-use-time", true);
+    addGraceLoginTimeValueArg.addLongIdentifier("operation-value", true);
     addGraceLoginTimeParser.addArgument(addGraceLoginTimeValueArg);
 
     createSubCommand(ADD_GRACE_LOGIN_USE_TIME, addGraceLoginTimeParser,
@@ -1227,9 +1230,9 @@ public final class ManageAccount
     final TimestampArgument setGraceLoginTimesValueArg =
          new TimestampArgument('O', "graceLoginUseTime", false, 0, null,
               INFO_MANAGE_ACCT_SC_SET_GRACE_LOGIN_TIMES_ARG_VALUE.get());
-    setGraceLoginTimesValueArg.addLongIdentifier("operationValue");
-    setGraceLoginTimesValueArg.addLongIdentifier("grace-login-use-time");
-    setGraceLoginTimesValueArg.addLongIdentifier("operation-value");
+    setGraceLoginTimesValueArg.addLongIdentifier("operationValue", true);
+    setGraceLoginTimesValueArg.addLongIdentifier("grace-login-use-time", true);
+    setGraceLoginTimesValueArg.addLongIdentifier("operation-value", true);
     setGraceLoginTimesParser.addArgument(setGraceLoginTimesValueArg);
 
     createSubCommand(SET_GRACE_LOGIN_USE_TIMES, setGraceLoginTimesParser,
@@ -1267,10 +1270,10 @@ public final class ManageAccount
          new TimestampArgument('O', "passwordChangedByRequiredTime", false, 1,
               null,
               INFO_MANAGE_ACCT_SC_SET_PW_CHANGED_BY_REQ_TIME_ARG_VALUE.get());
-    setPWChangedByReqTimeValueArg.addLongIdentifier("operationValue");
+    setPWChangedByReqTimeValueArg.addLongIdentifier("operationValue", true);
     setPWChangedByReqTimeValueArg.addLongIdentifier(
-         "password-changed-by-required-time");
-    setPWChangedByReqTimeValueArg.addLongIdentifier("operation-value");
+         "password-changed-by-required-time", true);
+    setPWChangedByReqTimeValueArg.addLongIdentifier("operation-value", true);
     setPWChangedByReqTimeParser.addArgument(
          setPWChangedByReqTimeValueArg);
 
@@ -1360,9 +1363,9 @@ public final class ManageAccount
     final StringArgument addTOTPSharedSecretValueArg =
          new StringArgument('O', "totpSharedSecret", true, 0, null,
               INFO_MANAGE_ACCT_SC_ADD_YUBIKEY_ID_ARG_VALUE.get());
-    addTOTPSharedSecretValueArg.addLongIdentifier("operationValue");
-    addTOTPSharedSecretValueArg.addLongIdentifier("totp-shared-secret");
-    addTOTPSharedSecretValueArg.addLongIdentifier("operation-value");
+    addTOTPSharedSecretValueArg.addLongIdentifier("operationValue", true);
+    addTOTPSharedSecretValueArg.addLongIdentifier("totp-shared-secret", true);
+    addTOTPSharedSecretValueArg.addLongIdentifier("operation-value", true);
     addTOTPSharedSecretParser.addArgument(
          addTOTPSharedSecretValueArg);
 
@@ -1381,10 +1384,10 @@ public final class ManageAccount
     final StringArgument removeTOTPSharedSecretValueArg =
          new StringArgument('O', "totpSharedSecret", true, 0, null,
               INFO_MANAGE_ACCT_SC_REMOVE_YUBIKEY_ID_ARG_VALUE.get());
-    removeTOTPSharedSecretValueArg.addLongIdentifier("operationValue");
-    removeTOTPSharedSecretValueArg.addLongIdentifier("totp-shared-secret");
-    removeTOTPSharedSecretValueArg.addLongIdentifier(
-         "operation-value");
+    removeTOTPSharedSecretValueArg.addLongIdentifier("operationValue", true);
+    removeTOTPSharedSecretValueArg.addLongIdentifier("totp-shared-secret",
+         true);
+    removeTOTPSharedSecretValueArg.addLongIdentifier("operation-value", true);
     removeTOTPSharedSecretParser.addArgument(
          removeTOTPSharedSecretValueArg);
 
@@ -1402,10 +1405,9 @@ public final class ManageAccount
     final StringArgument setTOTPSharedSecretsValueArg =
          new StringArgument('O', "totpSharedSecret", true, 0, null,
               INFO_MANAGE_ACCT_SC_SET_TOTP_SHARED_SECRETS_ARG_VALUE.get());
-    setTOTPSharedSecretsValueArg.addLongIdentifier("operationValue");
-    setTOTPSharedSecretsValueArg.addLongIdentifier("totp-shared-secret");
-    setTOTPSharedSecretsValueArg.addLongIdentifier(
-         "operation-value");
+    setTOTPSharedSecretsValueArg.addLongIdentifier("operationValue", true);
+    setTOTPSharedSecretsValueArg.addLongIdentifier("totp-shared-secret", true);
+    setTOTPSharedSecretsValueArg.addLongIdentifier("operation-value", true);
     setTOTPSharedSecretsParser.addArgument(
          setTOTPSharedSecretsValueArg);
 
@@ -1445,9 +1447,11 @@ public final class ManageAccount
     final StringArgument addRegisteredYubiKeyPublicIDValueArg =
          new StringArgument('O', "publicID", true, 0, null,
               INFO_MANAGE_ACCT_SC_ADD_YUBIKEY_ID_ARG_VALUE.get());
-    addRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operationValue");
-    addRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("public-id");
-    addRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operation-value");
+    addRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operationValue",
+         true);
+    addRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("public-id", true);
+    addRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operation-value",
+         true);
     addRegisteredYubiKeyPublicIDParser.addArgument(
          addRegisteredYubiKeyPublicIDValueArg);
 
@@ -1467,10 +1471,12 @@ public final class ManageAccount
     final StringArgument removeRegisteredYubiKeyPublicIDValueArg =
          new StringArgument('O', "publicID", true, 0, null,
               INFO_MANAGE_ACCT_SC_REMOVE_YUBIKEY_ID_ARG_VALUE.get());
-    removeRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operationValue");
-    removeRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("public-id");
-    removeRegisteredYubiKeyPublicIDValueArg.addLongIdentifier(
-         "operation-value");
+    removeRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operationValue",
+         true);
+    removeRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("public-id",
+         true);
+    removeRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operation-value",
+         true);
     removeRegisteredYubiKeyPublicIDParser.addArgument(
          removeRegisteredYubiKeyPublicIDValueArg);
 
@@ -1490,10 +1496,11 @@ public final class ManageAccount
     final StringArgument setRegisteredYubiKeyPublicIDValueArg =
          new StringArgument('O', "publicID", true, 0, null,
               INFO_MANAGE_ACCT_SC_SET_YUBIKEY_IDS_ARG_VALUE.get());
-    setRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operationValue");
-    setRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("public-id");
-    setRegisteredYubiKeyPublicIDValueArg.addLongIdentifier(
-         "operation-value");
+    setRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operationValue",
+         true);
+    setRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("public-id", true);
+    setRegisteredYubiKeyPublicIDValueArg.addLongIdentifier("operation-value",
+         true);
     setRegisteredYubiKeyPublicIDParser.addArgument(
          setRegisteredYubiKeyPublicIDValueArg);
 
@@ -1655,7 +1662,7 @@ public final class ManageAccount
 
     for (final String alternateName : subcommandType.getAlternateNames())
     {
-      subCommand.addName(alternateName);
+      subCommand.addName(alternateName, true);
     }
 
     parser.addSubCommand(subCommand);

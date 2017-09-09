@@ -80,6 +80,8 @@ import com.unboundid.util.args.FileArgument;
  *       included in the bind request sent by this tool before performing any
  *       update operations.</LI>
  * </UL>
+ *
+ * @see  com.unboundid.ldap.sdk.unboundidds.tools.LDAPModify
  */
 @ThreadSafety(level=ThreadSafetyLevel.NOT_THREADSAFE)
 public final class LDAPModify
@@ -340,7 +342,7 @@ public final class LDAPModify
     String description = "Treat LDIF records that do not contain a " +
                          "changetype as add records.";
     defaultAdd = new BooleanArgument('a', "defaultAdd", description);
-    defaultAdd.addLongIdentifier("default-add");
+    defaultAdd.addLongIdentifier("default-add", true);
     parser.addArgument(defaultAdd);
 
 
@@ -348,7 +350,7 @@ public final class LDAPModify
                   "an error occurs.";
     continueOnError = new BooleanArgument('c', "continueOnError",
                                           description);
-    continueOnError.addLongIdentifier("continue-on-error");
+    continueOnError.addLongIdentifier("continue-on-error", true);
     parser.addArgument(continueOnError);
 
 
@@ -357,14 +359,14 @@ public final class LDAPModify
                   "standard input.";
     ldifFile = new FileArgument('f', "ldifFile", false, 1, "{path}",
                                 description, true, false, true, false);
-    ldifFile.addLongIdentifier("ldif-file");
+    ldifFile.addLongIdentifier("ldif-file", true);
     parser.addArgument(ldifFile);
 
 
     description = "Information about a control to include in the bind request.";
     bindControls = new ControlArgument(null, "bindControl", false, 0, null,
          description);
-    bindControls.addLongIdentifier("bind-control");
+    bindControls.addLongIdentifier("bind-control", true);
     parser.addArgument(bindControls);
   }
 

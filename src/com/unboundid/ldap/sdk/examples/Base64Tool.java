@@ -371,8 +371,8 @@ public final class Base64Tool
          "The raw data to be encoded.  If neither the --" + ARG_NAME_DATA +
               " nor the --" + ARG_NAME_INPUT_FILE + " argument is provided, " +
               "then the data will be read from standard input.");
-    encodeDataArgument.addLongIdentifier("rawData");
-    encodeDataArgument.addLongIdentifier("raw-data");
+    encodeDataArgument.addLongIdentifier("rawData", true);
+    encodeDataArgument.addLongIdentifier("raw-data", true);
     encodeParser.addArgument(encodeDataArgument);
 
     final FileArgument encodeDataFileArgument = new FileArgument('f',
@@ -382,9 +382,9 @@ public final class Base64Tool
               ARG_NAME_INPUT_FILE + " argument is provided, then the data " +
               "will be read from standard input.",
          true, true, true, false);
-    encodeDataFileArgument.addLongIdentifier("rawDataFile");
-    encodeDataFileArgument.addLongIdentifier("input-file");
-    encodeDataFileArgument.addLongIdentifier("raw-data-file");
+    encodeDataFileArgument.addLongIdentifier("rawDataFile", true);
+    encodeDataFileArgument.addLongIdentifier("input-file", true);
+    encodeDataFileArgument.addLongIdentifier("raw-data-file", true);
     encodeParser.addArgument(encodeDataFileArgument);
 
     final FileArgument encodeOutputFileArgument = new FileArgument('o',
@@ -393,9 +393,9 @@ public final class Base64Tool
               "If this is not provided, the encoded data will be written to " +
               "standard output.",
          false, true, true, false);
-    encodeOutputFileArgument.addLongIdentifier("toEncodedFile");
-    encodeOutputFileArgument.addLongIdentifier("output-file");
-    encodeOutputFileArgument.addLongIdentifier("to-encoded-file");
+    encodeOutputFileArgument.addLongIdentifier("toEncodedFile", true);
+    encodeOutputFileArgument.addLongIdentifier("output-file", true);
+    encodeOutputFileArgument.addLongIdentifier("to-encoded-file", true);
     encodeParser.addArgument(encodeOutputFileArgument);
 
     final BooleanArgument encodeURLArgument = new BooleanArgument(null,
@@ -409,7 +409,7 @@ public final class Base64Tool
          "Ignore any end-of-line marker that may be present at the end of " +
               "the data to encode.");
     encodeIgnoreTrailingEOLArgument.addLongIdentifier(
-         "ignore-trailing-line-break");
+         "ignore-trailing-line-break", true);
     encodeParser.addArgument(encodeIgnoreTrailingEOLArgument);
 
     encodeParser.addExclusiveArgumentSet(encodeDataArgument,
@@ -457,8 +457,8 @@ public final class Base64Tool
               ARG_NAME_DATA + " nor the --" + ARG_NAME_INPUT_FILE +
               " argument is provided, then the data will be read from " +
               "standard input.");
-    decodeDataArgument.addLongIdentifier("encodedData");
-    decodeDataArgument.addLongIdentifier("encoded-data");
+    decodeDataArgument.addLongIdentifier("encodedData", true);
+    decodeDataArgument.addLongIdentifier("encoded-data", true);
     decodeParser.addArgument(decodeDataArgument);
 
     final FileArgument decodeDataFileArgument = new FileArgument('f',
@@ -468,9 +468,9 @@ public final class Base64Tool
               ARG_NAME_INPUT_FILE + " argument is provided, then the data " +
               "will be read from standard input.",
          true, true, true, false);
-    decodeDataFileArgument.addLongIdentifier("encodedDataFile");
-    decodeDataFileArgument.addLongIdentifier("input-file");
-    decodeDataFileArgument.addLongIdentifier("encoded-data-file");
+    decodeDataFileArgument.addLongIdentifier("encodedDataFile", true);
+    decodeDataFileArgument.addLongIdentifier("input-file", true);
+    decodeDataFileArgument.addLongIdentifier("encoded-data-file", true);
     decodeParser.addArgument(decodeDataFileArgument);
 
     final FileArgument decodeOutputFileArgument = new FileArgument('o',
@@ -479,9 +479,9 @@ public final class Base64Tool
               "If this is not provided, the decoded data will be written to " +
               "standard output.",
          false, true, true, false);
-    decodeOutputFileArgument.addLongIdentifier("toRawFile");
-    decodeOutputFileArgument.addLongIdentifier("output-file");
-    decodeOutputFileArgument.addLongIdentifier("to-raw-file");
+    decodeOutputFileArgument.addLongIdentifier("toRawFile", true);
+    decodeOutputFileArgument.addLongIdentifier("output-file", true);
+    decodeOutputFileArgument.addLongIdentifier("to-raw-file", true);
     decodeParser.addArgument(decodeOutputFileArgument);
 
     final BooleanArgument decodeURLArgument = new BooleanArgument(null,
@@ -493,7 +493,8 @@ public final class Base64Tool
     final BooleanArgument decodeAddTrailingLineBreak = new BooleanArgument(
          null, ARG_NAME_ADD_TRAILING_LINE_BREAK,
          "Add a line break to the end of the decoded data.");
-    decodeAddTrailingLineBreak.addLongIdentifier("add-trailing-line-break");
+    decodeAddTrailingLineBreak.addLongIdentifier("add-trailing-line-break",
+         true);
     decodeParser.addArgument(decodeAddTrailingLineBreak);
 
     decodeParser.addExclusiveArgumentSet(decodeDataArgument,

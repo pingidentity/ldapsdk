@@ -218,7 +218,7 @@ public final class RegisterYubiKeyOTPDevice
   {
     deregister = new BooleanArgument(null, "deregister", 1,
          INFO_REGISTER_YUBIKEY_OTP_DEVICE_DESCRIPTION_DEREGISTER.get("--otp"));
-    deregister.addLongIdentifier("de-register");
+    deregister.addLongIdentifier("de-register", true);
     parser.addArgument(deregister);
 
     otp = new StringArgument(null, "otp", false, 1,
@@ -229,9 +229,9 @@ public final class RegisterYubiKeyOTPDevice
     authenticationID = new StringArgument(null, "authID", false, 1,
          INFO_REGISTER_YUBIKEY_OTP_DEVICE_PLACEHOLDER_AUTHID.get(),
          INFO_REGISTER_YUBIKEY_OTP_DEVICE_DESCRIPTION_AUTHID.get());
-    authenticationID.addLongIdentifier("authenticationID");
-    authenticationID.addLongIdentifier("auth-id");
-    authenticationID.addLongIdentifier("authentication-id");
+    authenticationID.addLongIdentifier("authenticationID", true);
+    authenticationID.addLongIdentifier("auth-id", true);
+    authenticationID.addLongIdentifier("authentication-id", true);
     parser.addArgument(authenticationID);
 
     userPassword = new StringArgument(null, "userPassword", false, 1,
@@ -239,7 +239,7 @@ public final class RegisterYubiKeyOTPDevice
          INFO_REGISTER_YUBIKEY_OTP_DEVICE_DESCRIPTION_USER_PW.get(
               authenticationID.getIdentifierString()));
     userPassword.setSensitive(true);
-    userPassword.addLongIdentifier("user-password");
+    userPassword.addLongIdentifier("user-password", true);
     parser.addArgument(userPassword);
 
     userPasswordFile = new FileArgument(null, "userPasswordFile", false, 1,
@@ -247,13 +247,13 @@ public final class RegisterYubiKeyOTPDevice
          INFO_REGISTER_YUBIKEY_OTP_DEVICE_DESCRIPTION_USER_PW_FILE.get(
               authenticationID.getIdentifierString()),
          true, true, true, false);
-    userPasswordFile.addLongIdentifier("user-password-file");
+    userPasswordFile.addLongIdentifier("user-password-file", true);
     parser.addArgument(userPasswordFile);
 
     promptForUserPassword = new BooleanArgument(null, "promptForUserPassword",
          INFO_REGISTER_YUBIKEY_OTP_DEVICE_DESCRIPTION_PROMPT_FOR_USER_PW.get(
               authenticationID.getIdentifierString()));
-    promptForUserPassword.addLongIdentifier("prompt-for-user-password");
+    promptForUserPassword.addLongIdentifier("prompt-for-user-password", true);
     parser.addArgument(promptForUserPassword);
 
 

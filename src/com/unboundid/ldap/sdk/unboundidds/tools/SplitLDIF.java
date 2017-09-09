@@ -302,69 +302,69 @@ public final class SplitLDIF
     sourceLDIF = new FileArgument('l', "sourceLDIF", true, 0, null,
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_SOURCE_LDIF.get(), true, false, true,
          false);
-    sourceLDIF.addLongIdentifier("inputLDIF");
-    sourceLDIF.addLongIdentifier("source-ldif");
-    sourceLDIF.addLongIdentifier("input-ldif");
+    sourceLDIF.addLongIdentifier("inputLDIF", true);
+    sourceLDIF.addLongIdentifier("source-ldif", true);
+    sourceLDIF.addLongIdentifier("input-ldif", true);
     parser.addArgument(sourceLDIF);
 
     sourceCompressed = new BooleanArgument('C', "sourceCompressed",
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_SOURCE_COMPRESSED.get());
-    sourceCompressed.addLongIdentifier("inputCompressed");
-    sourceCompressed.addLongIdentifier("source-compressed");
-    sourceCompressed.addLongIdentifier("input-compressed");
+    sourceCompressed.addLongIdentifier("inputCompressed", true);
+    sourceCompressed.addLongIdentifier("source-compressed", true);
+    sourceCompressed.addLongIdentifier("input-compressed", true);
     parser.addArgument(sourceCompressed);
 
     targetLDIFBasePath = new FileArgument('o', "targetLDIFBasePath", false, 1,
          null, INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_TARGET_LDIF_BASE.get(), false,
          true, true, false);
-    targetLDIFBasePath.addLongIdentifier("outputLDIFBasePath");
-    targetLDIFBasePath.addLongIdentifier("target-ldif-base-path");
-    targetLDIFBasePath.addLongIdentifier("output-ldif-base-path");
+    targetLDIFBasePath.addLongIdentifier("outputLDIFBasePath", true);
+    targetLDIFBasePath.addLongIdentifier("target-ldif-base-path", true);
+    targetLDIFBasePath.addLongIdentifier("output-ldif-base-path", true);
     parser.addArgument(targetLDIFBasePath);
 
     compressTarget = new BooleanArgument('c', "compressTarget",
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_COMPRESS_TARGET.get());
-    compressTarget.addLongIdentifier("compressOutput");
-    compressTarget.addLongIdentifier("compress");
-    compressTarget.addLongIdentifier("compress-target");
-    compressTarget.addLongIdentifier("compress-output");
+    compressTarget.addLongIdentifier("compressOutput", true);
+    compressTarget.addLongIdentifier("compress", true);
+    compressTarget.addLongIdentifier("compress-target", true);
+    compressTarget.addLongIdentifier("compress-output", true);
     parser.addArgument(compressTarget);
 
     splitBaseDN = new DNArgument('b', "splitBaseDN", true, 1, null,
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_SPLIT_BASE_DN.get());
-    splitBaseDN.addLongIdentifier("baseDN");
-    splitBaseDN.addLongIdentifier("split-base-dn");
-    splitBaseDN.addLongIdentifier("base-dn");
+    splitBaseDN.addLongIdentifier("baseDN", true);
+    splitBaseDN.addLongIdentifier("split-base-dn", true);
+    splitBaseDN.addLongIdentifier("base-dn", true);
     parser.addArgument(splitBaseDN);
 
     addEntriesOutsideSplitBaseDNToAllSets = new BooleanArgument(null,
          "addEntriesOutsideSplitBaseDNToAllSets", 1,
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_OUTSIDE_TO_ALL_SETS.get());
     addEntriesOutsideSplitBaseDNToAllSets.addLongIdentifier(
-         "add-entries-outside-split-base-dn-to-all-sets");
+         "add-entries-outside-split-base-dn-to-all-sets", true);
     parser.addArgument(addEntriesOutsideSplitBaseDNToAllSets);
 
     addEntriesOutsideSplitBaseDNToDedicatedSet = new BooleanArgument(null,
          "addEntriesOutsideSplitBaseDNToDedicatedSet", 1,
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_OUTSIDE_TO_DEDICATED_SET.get());
     addEntriesOutsideSplitBaseDNToDedicatedSet.addLongIdentifier(
-         "add-entries-outside-split-base-dn-to-dedicated-set");
+         "add-entries-outside-split-base-dn-to-dedicated-set", true);
     parser.addArgument(addEntriesOutsideSplitBaseDNToDedicatedSet);
 
     schemaPath = new FileArgument(null, "schemaPath", false, 0, null,
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_SCHEMA_PATH.get(), true, false, false,
          false);
-    schemaPath.addLongIdentifier("schemaFile");
-    schemaPath.addLongIdentifier("schemaDirectory");
-    schemaPath.addLongIdentifier("schema-path");
-    schemaPath.addLongIdentifier("schema-file");
-    schemaPath.addLongIdentifier("schema-directory");
+    schemaPath.addLongIdentifier("schemaFile", true);
+    schemaPath.addLongIdentifier("schemaDirectory", true);
+    schemaPath.addLongIdentifier("schema-path", true);
+    schemaPath.addLongIdentifier("schema-file", true);
+    schemaPath.addLongIdentifier("schema-directory", true);
     parser.addArgument(schemaPath);
 
     numThreads = new IntegerArgument('t', "numThreads", false, 1, null,
          INFO_SPLIT_LDIF_GLOBAL_ARG_DESC_NUM_THREADS.get(), 1,
          Integer.MAX_VALUE, 1);
-    numThreads.addLongIdentifier("num-threads");
+    numThreads.addLongIdentifier("num-threads", true);
     parser.addArgument(numThreads);
 
 
@@ -375,7 +375,7 @@ public final class SplitLDIF
     splitUsingHashOnRDNNumSets = new IntegerArgument(null, "numSets", true, 1,
          null, INFO_SPLIT_LDIF_SC_HASH_ON_RDN_ARG_DESC_NUM_SETS.get(), 2,
          Integer.MAX_VALUE);
-    splitUsingHashOnRDNNumSets.addLongIdentifier("num-sets");
+    splitUsingHashOnRDNNumSets.addLongIdentifier("num-sets", true);
     splitUsingHashOnRDNParser.addArgument(splitUsingHashOnRDNNumSets);
 
     final LinkedHashMap<String[],String> splitUsingHashOnRDNExamples =
@@ -410,28 +410,31 @@ public final class SplitLDIF
     splitUsingHashOnAttributeAttributeName = new StringArgument(null,
          "attributeName", true, 1, "{attr}",
          INFO_SPLIT_LDIF_SC_HASH_ON_ATTR_ARG_DESC_ATTR_NAME.get());
-    splitUsingHashOnAttributeAttributeName.addLongIdentifier("attribute-name");
+    splitUsingHashOnAttributeAttributeName.addLongIdentifier("attribute-name",
+         true);
     splitUsingHashOnAttributeParser.addArgument(
          splitUsingHashOnAttributeAttributeName);
 
     splitUsingHashOnAttributeNumSets = new IntegerArgument(null, "numSets",
          true, 1, null, INFO_SPLIT_LDIF_SC_HASH_ON_ATTR_ARG_DESC_NUM_SETS.get(),
          2, Integer.MAX_VALUE);
-    splitUsingHashOnAttributeNumSets.addLongIdentifier("num-sets");
+    splitUsingHashOnAttributeNumSets.addLongIdentifier("num-sets", true);
     splitUsingHashOnAttributeParser.addArgument(
          splitUsingHashOnAttributeNumSets);
 
     splitUsingHashOnAttributeUseAllValues = new BooleanArgument(null,
          "useAllValues", 1,
          INFO_SPLIT_LDIF_SC_HASH_ON_ATTR_ARG_DESC_ALL_VALUES.get());
-    splitUsingHashOnAttributeUseAllValues.addLongIdentifier("use-all-values");
+    splitUsingHashOnAttributeUseAllValues.addLongIdentifier("use-all-values",
+         true);
     splitUsingHashOnAttributeParser.addArgument(
          splitUsingHashOnAttributeUseAllValues);
 
     splitUsingHashOnAttributeAssumeFlatDIT = new BooleanArgument(null,
          "assumeFlatDIT", 1,
          INFO_SPLIT_LDIF_SC_HASH_ON_ATTR_ARG_DESC_ASSUME_FLAT_DIT.get());
-    splitUsingHashOnAttributeAssumeFlatDIT.addLongIdentifier("assume-flat-dit");
+    splitUsingHashOnAttributeAssumeFlatDIT.addLongIdentifier("assume-flat-dit",
+         true);
     splitUsingHashOnAttributeParser.addArgument(
          splitUsingHashOnAttributeAssumeFlatDIT);
 
@@ -469,13 +472,14 @@ public final class SplitLDIF
          true, 1, null,
          INFO_SPLIT_LDIF_SC_FEWEST_ENTRIES_ARG_DESC_NUM_SETS.get(),
          2, Integer.MAX_VALUE);
-    splitUsingFewestEntriesNumSets.addLongIdentifier("num-sets");
+    splitUsingFewestEntriesNumSets.addLongIdentifier("num-sets", true);
     splitUsingFewestEntriesParser.addArgument(splitUsingFewestEntriesNumSets);
 
     splitUsingFewestEntriesAssumeFlatDIT = new BooleanArgument(null,
          "assumeFlatDIT", 1,
          INFO_SPLIT_LDIF_SC_FEWEST_ENTRIES_ARG_DESC_ASSUME_FLAT_DIT.get());
-    splitUsingFewestEntriesAssumeFlatDIT.addLongIdentifier("assume-flat-dit");
+    splitUsingFewestEntriesAssumeFlatDIT.addLongIdentifier("assume-flat-dit",
+         true);
     splitUsingFewestEntriesParser.addArgument(
          splitUsingFewestEntriesAssumeFlatDIT);
 
@@ -513,7 +517,7 @@ public final class SplitLDIF
 
     splitUsingFilterAssumeFlatDIT = new BooleanArgument(null, "assumeFlatDIT",
          1, INFO_SPLIT_LDIF_SC_FILTER_ARG_DESC_ASSUME_FLAT_DIT.get());
-    splitUsingFilterAssumeFlatDIT.addLongIdentifier("assume-flat-dit");
+    splitUsingFilterAssumeFlatDIT.addLongIdentifier("assume-flat-dit", true);
     splitUsingFilterParser.addArgument(splitUsingFilterAssumeFlatDIT);
 
     final LinkedHashMap<String[],String> splitUsingFilterExamples =

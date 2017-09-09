@@ -467,30 +467,30 @@ public final class LDAPSearch
 
     baseDN = new DNArgument('b', "baseDN", false, 1, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_BASE_DN.get());
-    baseDN.addLongIdentifier("base-dn");
+    baseDN.addLongIdentifier("base-dn", true);
     baseDN.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(baseDN);
 
     scope = new ScopeArgument('s', "scope", false, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SCOPE.get(), SearchScope.SUB);
-    scope.addLongIdentifier("searchScope");
-    scope.addLongIdentifier("search-scope");
+    scope.addLongIdentifier("searchScope", true);
+    scope.addLongIdentifier("search-scope", true);
     scope.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(scope);
 
     sizeLimit = new IntegerArgument('z', "sizeLimit", false, 1, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SIZE_LIMIT.get(), 0,
          Integer.MAX_VALUE, 0);
-    sizeLimit.addLongIdentifier("size-limit");
+    sizeLimit.addLongIdentifier("size-limit", true);
     sizeLimit.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(sizeLimit);
 
     timeLimitSeconds = new IntegerArgument('l', "timeLimitSeconds", false, 1,
          null, INFO_LDAPSEARCH_ARG_DESCRIPTION_TIME_LIMIT.get(), 0,
          Integer.MAX_VALUE, 0);
-    timeLimitSeconds.addLongIdentifier("timeLimit");
-    timeLimitSeconds.addLongIdentifier("time-limit-seconds");
-    timeLimitSeconds.addLongIdentifier("time-limit");
+    timeLimitSeconds.addLongIdentifier("timeLimit", true);
+    timeLimitSeconds.addLongIdentifier("time-limit-seconds", true);
+    timeLimitSeconds.addLongIdentifier("time-limit", true);
     timeLimitSeconds.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(timeLimitSeconds);
 
@@ -504,21 +504,21 @@ public final class LDAPSearch
          "{never|always|search|find}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_DEREFERENCE_POLICY.get(),
          derefAllowedValues, "never");
-    dereferencePolicy.addLongIdentifier("dereference-policy");
+    dereferencePolicy.addLongIdentifier("dereference-policy", true);
     dereferencePolicy.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(dereferencePolicy);
 
     typesOnly = new BooleanArgument('A', "typesOnly", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_TYPES_ONLY.get());
-    typesOnly.addLongIdentifier("types-only");
+    typesOnly.addLongIdentifier("types-only", true);
     typesOnly.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(typesOnly);
 
     requestedAttribute = new StringArgument(null, "requestedAttribute", false,
          0, INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_REQUESTED_ATTR.get());
-    requestedAttribute.addLongIdentifier("requested-attribute");
+    requestedAttribute.addLongIdentifier("requested-attribute", true);
     requestedAttribute.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(requestedAttribute);
@@ -532,34 +532,34 @@ public final class LDAPSearch
     filterFile = new FileArgument('f', "filterFile", false, 0, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_FILTER_FILE.get(), true, true,
          true, false);
-    filterFile.addLongIdentifier("filename");
-    filterFile.addLongIdentifier("filter-file");
+    filterFile.addLongIdentifier("filename", true);
+    filterFile.addLongIdentifier("filter-file", true);
     filterFile.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(filterFile);
 
     ldapURLFile = new FileArgument(null, "ldapURLFile", false, 0, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_LDAP_URL_FILE.get(), true, true,
          true, false);
-    ldapURLFile.addLongIdentifier("ldap-url-file");
+    ldapURLFile.addLongIdentifier("ldap-url-file", true);
     ldapURLFile.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(ldapURLFile);
 
     followReferrals = new BooleanArgument(null, "followReferrals", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_FOLLOW_REFERRALS.get());
-    followReferrals.addLongIdentifier("follow-referrals");
+    followReferrals.addLongIdentifier("follow-referrals", true);
     followReferrals.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(followReferrals);
 
     retryFailedOperations = new BooleanArgument(null, "retryFailedOperations",
          1, INFO_LDAPSEARCH_ARG_DESCRIPTION_RETRY_FAILED_OPERATIONS.get());
-    retryFailedOperations.addLongIdentifier("retry-failed-operations");
+    retryFailedOperations.addLongIdentifier("retry-failed-operations", true);
     retryFailedOperations.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(retryFailedOperations);
 
     continueOnError = new BooleanArgument('c', "continueOnError", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_CONTINUE_ON_ERROR.get());
-    continueOnError.addLongIdentifier("continue-on-error");
+    continueOnError.addLongIdentifier("continue-on-error", true);
     continueOnError.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(continueOnError);
 
@@ -567,36 +567,37 @@ public final class LDAPSearch
          INFO_PLACEHOLDER_NUM.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_RATE_PER_SECOND.get(), 1,
          Integer.MAX_VALUE);
-    ratePerSecond.addLongIdentifier("rate-per-second");
+    ratePerSecond.addLongIdentifier("rate-per-second", true);
     ratePerSecond.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(ratePerSecond);
 
     useAdministrativeSession = new BooleanArgument(null,
          "useAdministrativeSession", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_USE_ADMIN_SESSION.get());
-    useAdministrativeSession.addLongIdentifier("use-administrative-session");
+    useAdministrativeSession.addLongIdentifier("use-administrative-session",
+         true);
     useAdministrativeSession.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(useAdministrativeSession);
 
     dryRun = new BooleanArgument('n', "dryRun", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_DRY_RUN.get());
-    dryRun.addLongIdentifier("dry-run");
+    dryRun.addLongIdentifier("dry-run", true);
     dryRun.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     parser.addArgument(dryRun);
 
     wrapColumn = new IntegerArgument(null, "wrapColumn", false, 1, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_WRAP_COLUMN.get(), 0,
          Integer.MAX_VALUE);
-    wrapColumn.addLongIdentifier("wrap-column");
+    wrapColumn.addLongIdentifier("wrap-column", true);
     wrapColumn.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(wrapColumn);
 
     dontWrap = new BooleanArgument('T', "dontWrap", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_DONT_WRAP.get());
-    dontWrap.addLongIdentifier("doNotWrap");
-    dontWrap.addLongIdentifier("dont-wrap");
-    dontWrap.addLongIdentifier("do-not-wrap");
+    dontWrap.addLongIdentifier("doNotWrap", true);
+    dontWrap.addLongIdentifier("dont-wrap", true);
+    dontWrap.addLongIdentifier("do-not-wrap", true);
     dontWrap.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(dontWrap);
 
@@ -604,14 +605,14 @@ public final class LDAPSearch
          "suppressBase64EncodedValueComments", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SUPPRESS_BASE64_COMMENTS.get());
     suppressBase64EncodedValueComments.addLongIdentifier(
-         "suppress-base64-encoded-value-comments");
+         "suppress-base64-encoded-value-comments", true);
     suppressBase64EncodedValueComments.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(suppressBase64EncodedValueComments);
 
     countEntries = new BooleanArgument(null, "countEntries", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_COUNT_ENTRIES.get());
-    countEntries.addLongIdentifier("count-entries");
+    countEntries.addLongIdentifier("count-entries", true);
     countEntries.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_OPS.get());
     countEntries.setHidden(true);
     parser.addArgument(countEntries);
@@ -619,7 +620,7 @@ public final class LDAPSearch
     outputFile = new FileArgument(null, "outputFile", false, 1, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_OUTPUT_FILE.get(), false, true, true,
          false);
-    outputFile.addLongIdentifier("output-file");
+    outputFile.addLongIdentifier("output-file", true);
     outputFile.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(outputFile);
 
@@ -627,7 +628,7 @@ public final class LDAPSearch
          "separateOutputFilePerSearch", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SEPARATE_OUTPUT_FILES.get());
     separateOutputFilePerSearch.addLongIdentifier(
-         "separate-output-file-per-search");
+         "separate-output-file-per-search", true);
     separateOutputFilePerSearch.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(separateOutputFilePerSearch);
@@ -636,7 +637,7 @@ public final class LDAPSearch
          "teeResultsToStandardOut", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_TEE.get("outputFile"));
     teeResultsToStandardOut.addLongIdentifier(
-         "tee-results-to-standard-out");
+         "tee-results-to-standard-out", true);
     teeResultsToStandardOut.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(teeResultsToStandardOut);
@@ -653,7 +654,7 @@ public final class LDAPSearch
               requestedAttribute.getIdentifierString(),
               ldapURLFile.getIdentifierString()),
          outputFormatAllowedValues, "ldif");
-    outputFormat.addLongIdentifier("output-format");
+    outputFormat.addLongIdentifier("output-format", true);
     outputFormat.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_DATA.get());
     parser.addArgument(outputFormat);
 
@@ -669,24 +670,24 @@ public final class LDAPSearch
 
     bindControl = new ControlArgument(null, "bindControl", false, 0, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_BIND_CONTROL.get());
-    bindControl.addLongIdentifier("bind-control");
+    bindControl.addLongIdentifier("bind-control", true);
     bindControl.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(bindControl);
 
     searchControl = new ControlArgument('J', "control", false, 0, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SEARCH_CONTROL.get());
-    searchControl.addLongIdentifier("searchControl");
-    searchControl.addLongIdentifier("search-control");
+    searchControl.addLongIdentifier("searchControl", true);
+    searchControl.addLongIdentifier("search-control", true);
     searchControl.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(searchControl);
 
     authorizationIdentity = new BooleanArgument('E', "authorizationIdentity",
          1, INFO_LDAPSEARCH_ARG_DESCRIPTION_AUTHZ_IDENTITY.get());
-    authorizationIdentity.addLongIdentifier("reportAuthzID");
-    authorizationIdentity.addLongIdentifier("authorization-identity");
-    authorizationIdentity.addLongIdentifier("report-authzid");
+    authorizationIdentity.addLongIdentifier("reportAuthzID", true);
+    authorizationIdentity.addLongIdentifier("authorization-identity", true);
+    authorizationIdentity.addLongIdentifier("report-authzid", true);
     authorizationIdentity.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(authorizationIdentity);
@@ -694,7 +695,7 @@ public final class LDAPSearch
     assertionFilter = new FilterArgument(null, "assertionFilter", false, 1,
          INFO_PLACEHOLDER_FILTER.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_ASSERTION_FILTER.get());
-    assertionFilter.addLongIdentifier("assertion-filter");
+    assertionFilter.addLongIdentifier("assertion-filter", true);
     assertionFilter.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(assertionFilter);
@@ -704,28 +705,28 @@ public final class LDAPSearch
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_AUTHZ_ENTRY_ATTR.get());
     getAuthorizationEntryAttribute.addLongIdentifier(
-         "get-authorization-entry-attribute");
+         "get-authorization-entry-attribute", true);
     getAuthorizationEntryAttribute.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getAuthorizationEntryAttribute);
 
     getUserResourceLimits = new BooleanArgument(null, "getUserResourceLimits",
          1, INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_USER_RESOURCE_LIMITS.get());
-    getUserResourceLimits.addLongIdentifier("get-user-resource-limits");
+    getUserResourceLimits.addLongIdentifier("get-user-resource-limits", true);
     getUserResourceLimits.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getUserResourceLimits);
 
     accountUsable = new BooleanArgument(null, "accountUsable", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_ACCOUNT_USABLE.get());
-    accountUsable.addLongIdentifier("account-usable");
+    accountUsable.addLongIdentifier("account-usable", true);
     accountUsable.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(accountUsable);
 
     excludeBranch = new DNArgument(null, "excludeBranch", false, 0, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_EXCLUDE_BRANCH.get());
-    excludeBranch.addLongIdentifier("exclude-branch");
+    excludeBranch.addLongIdentifier("exclude-branch", true);
     excludeBranch.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(excludeBranch);
@@ -736,7 +737,7 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_EFFECTIVE_RIGHTS_AUTHZID.get(
               "getEffectiveRightsAttribute"));
     getEffectiveRightsAuthzID.addLongIdentifier(
-         "get-effective-rights-authzid");
+         "get-effective-rights-authzid", true);
     getEffectiveRightsAuthzID.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getEffectiveRightsAuthzID);
@@ -746,7 +747,7 @@ public final class LDAPSearch
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_GET_EFFECTIVE_RIGHTS_ATTR.get());
     getEffectiveRightsAttribute.addLongIdentifier(
-         "get-effective-rights-attribute");
+         "get-effective-rights-attribute", true);
     getEffectiveRightsAttribute.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(getEffectiveRightsAttribute);
@@ -755,7 +756,7 @@ public final class LDAPSearch
          "includeReplicationConflictEntries", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_INCLUDE_REPL_CONFLICTS.get());
     includeReplicationConflictEntries.addLongIdentifier(
-         "include-replication-conflict-entries");
+         "include-replication-conflict-entries", true);
     includeReplicationConflictEntries.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(includeReplicationConflictEntries);
@@ -772,16 +773,16 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_DESCRIPTION_INCLUDE_SOFT_DELETED.get(),
          softDeleteAllowedValues);
     includeSoftDeletedEntries.addLongIdentifier(
-         "include-soft-deleted-entries");
+         "include-soft-deleted-entries", true);
     includeSoftDeletedEntries.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(includeSoftDeletedEntries);
 
     includeSubentries = new BooleanArgument(null, "includeSubentries", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_INCLUDE_SUBENTRIES.get());
-    includeSubentries.addLongIdentifier("includeLDAPSubentries");
-    includeSubentries.addLongIdentifier("include-subentries");
-    includeSubentries.addLongIdentifier("include-ldap-subentries");
+    includeSubentries.addLongIdentifier("includeLDAPSubentries", true);
+    includeSubentries.addLongIdentifier("include-subentries", true);
+    includeSubentries.addLongIdentifier("include-ldap-subentries", true);
     includeSubentries.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(includeSubentries);
@@ -790,20 +791,20 @@ public final class LDAPSearch
          "{dn:sourceAttr|reverse-dn:targetAttr|equals:sourceAttr:targetAttr|" +
               "contains:sourceAttr:targetAttr }",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_JOIN_RULE.get());
-    joinRule.addLongIdentifier("join-rule");
+    joinRule.addLongIdentifier("join-rule", true);
     joinRule.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(joinRule);
 
     joinBaseDN = new StringArgument(null, "joinBaseDN", false, 1,
          "{search-base|source-entry-dn|{dn}}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_JOIN_BASE_DN.get());
-    joinBaseDN.addLongIdentifier("join-base-dn");
+    joinBaseDN.addLongIdentifier("join-base-dn", true);
     joinBaseDN.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(joinBaseDN);
 
     joinScope = new ScopeArgument(null, "joinScope", false, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_JOIN_SCOPE.get());
-    joinScope.addLongIdentifier("join-scope");
+    joinScope.addLongIdentifier("join-scope", true);
     joinScope.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(joinScope);
 
@@ -811,35 +812,35 @@ public final class LDAPSearch
          INFO_PLACEHOLDER_NUM.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_JOIN_SIZE_LIMIT.get(), 0,
          Integer.MAX_VALUE);
-    joinSizeLimit.addLongIdentifier("join-size-limit");
+    joinSizeLimit.addLongIdentifier("join-size-limit", true);
     joinSizeLimit.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(joinSizeLimit);
 
     joinFilter = new FilterArgument(null, "joinFilter", false, 1, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_JOIN_FILTER.get());
-    joinFilter.addLongIdentifier("join-filter");
+    joinFilter.addLongIdentifier("join-filter", true);
     joinFilter.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(joinFilter);
 
     joinRequestedAttribute = new StringArgument(null, "joinRequestedAttribute",
          false, 0, INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_JOIN_ATTR.get());
-    joinRequestedAttribute.addLongIdentifier("join-requested-attribute");
+    joinRequestedAttribute.addLongIdentifier("join-requested-attribute", true);
     joinRequestedAttribute.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(joinRequestedAttribute);
 
     joinRequireMatch = new BooleanArgument(null, "joinRequireMatch", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_JOIN_REQUIRE_MATCH.get());
-    joinRequireMatch.addLongIdentifier("join-require-match");
+    joinRequireMatch.addLongIdentifier("join-require-match", true);
     joinRequireMatch.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(joinRequireMatch);
 
     manageDsaIT = new BooleanArgument(null, "manageDsaIT", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_MANAGE_DSA_IT.get());
-    manageDsaIT.addLongIdentifier("manage-dsa-it");
+    manageDsaIT.addLongIdentifier("manage-dsa-it", true);
     manageDsaIT.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(manageDsaIT);
@@ -847,7 +848,7 @@ public final class LDAPSearch
     matchedValuesFilter = new FilterArgument(null, "matchedValuesFilter",
          false, 0, INFO_PLACEHOLDER_FILTER.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_MATCHED_VALUES_FILTER.get());
-    matchedValuesFilter.addLongIdentifier("matched-values-filter");
+    matchedValuesFilter.addLongIdentifier("matched-values-filter", true);
     matchedValuesFilter.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(matchedValuesFilter);
@@ -859,10 +860,10 @@ public final class LDAPSearch
               "[:fastShortCircuitThreshold=NNN]" +
               "[:slowShortCircuitThreshold=NNN][:debug]}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_MATCHING_ENTRY_COUNT_CONTROL.get());
-    matchingEntryCountControl.addLongIdentifier("matchingEntryCount");
+    matchingEntryCountControl.addLongIdentifier("matchingEntryCount", true);
     matchingEntryCountControl.addLongIdentifier(
-         "matching-entry-count-control");
-    matchingEntryCountControl.addLongIdentifier("matching-entry-count");
+         "matching-entry-count-control", true);
+    matchingEntryCountControl.addLongIdentifier("matching-entry-count", true);
     matchingEntryCountControl.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(matchingEntryCountControl);
@@ -870,7 +871,7 @@ public final class LDAPSearch
     operationPurpose = new StringArgument(null, "operationPurpose", false, 1,
          INFO_PLACEHOLDER_PURPOSE.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_OPERATION_PURPOSE.get());
-    operationPurpose.addLongIdentifier("operation-purpose");
+    operationPurpose.addLongIdentifier("operation-purpose", true);
     operationPurpose.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(operationPurpose);
@@ -878,7 +879,7 @@ public final class LDAPSearch
     persistentSearch = new StringArgument('C', "persistentSearch", false, 1,
          "ps[:changetype[:changesonly[:entrychgcontrols]]]",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_PERSISTENT_SEARCH.get());
-    persistentSearch.addLongIdentifier("persistent-search");
+    persistentSearch.addLongIdentifier("persistent-search", true);
     persistentSearch.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(persistentSearch);
@@ -886,13 +887,13 @@ public final class LDAPSearch
     proxyAs = new StringArgument('Y', "proxyAs", false, 1,
          INFO_PLACEHOLDER_AUTHZID.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_PROXY_AS.get());
-    proxyAs.addLongIdentifier("proxy-as");
+    proxyAs.addLongIdentifier("proxy-as", true);
     proxyAs.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(proxyAs);
 
     proxyV1As = new DNArgument(null, "proxyV1As", false, 1, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_PROXY_V1_AS.get());
-    proxyV1As.addLongIdentifier("proxy-v1-as");
+    proxyV1As.addLongIdentifier("proxy-v1-as", true);
     proxyV1As.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(proxyV1As);
 
@@ -909,7 +910,7 @@ public final class LDAPSearch
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SUPPRESS_OP_ATTR_UPDATES.get(),
          suppressOperationalAttributeUpdatesAllowedValues);
     suppressOperationalAttributeUpdates.addLongIdentifier(
-         "suppress-operational-attribute-updates");
+         "suppress-operational-attribute-updates", true);
     suppressOperationalAttributeUpdates.setArgumentGroupName(
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(suppressOperationalAttributeUpdates);
@@ -917,28 +918,29 @@ public final class LDAPSearch
     usePasswordPolicyControl = new BooleanArgument(null,
          "usePasswordPolicyControl", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_PASSWORD_POLICY.get());
-    usePasswordPolicyControl.addLongIdentifier("use-password-policy-control");
+    usePasswordPolicyControl.addLongIdentifier("use-password-policy-control",
+         true);
     usePasswordPolicyControl.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(usePasswordPolicyControl);
 
     realAttributesOnly = new BooleanArgument(null, "realAttributesOnly", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_REAL_ATTRS_ONLY.get());
-    realAttributesOnly.addLongIdentifier("real-attributes-only");
+    realAttributesOnly.addLongIdentifier("real-attributes-only", true);
     realAttributesOnly.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(realAttributesOnly);
 
     sortOrder = new StringArgument('S', "sortOrder", false, 1, null,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SORT_ORDER.get());
-    sortOrder.addLongIdentifier("sort-order");
+    sortOrder.addLongIdentifier("sort-order", true);
     sortOrder.setArgumentGroupName(INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(sortOrder);
 
     simplePageSize = new IntegerArgument(null, "simplePageSize", false, 1,
          null, INFO_LDAPSEARCH_ARG_DESCRIPTION_PAGE_SIZE.get(), 1,
          Integer.MAX_VALUE);
-    simplePageSize.addLongIdentifier("simple-page-size");
+    simplePageSize.addLongIdentifier("simple-page-size", true);
     simplePageSize.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(simplePageSize);
@@ -946,7 +948,7 @@ public final class LDAPSearch
     virtualAttributesOnly = new BooleanArgument(null,
          "virtualAttributesOnly", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_VIRTUAL_ATTRS_ONLY.get());
-    virtualAttributesOnly.addLongIdentifier("virtual-attributes-only");
+    virtualAttributesOnly.addLongIdentifier("virtual-attributes-only", true);
     virtualAttributesOnly.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(virtualAttributesOnly);
@@ -954,8 +956,8 @@ public final class LDAPSearch
     virtualListView = new StringArgument('G', "virtualListView", false, 1,
          "{before:after:index:count | before:after:value}",
          INFO_LDAPSEARCH_ARG_DESCRIPTION_VLV.get("sortOrder"));
-    virtualListView.addLongIdentifier("vlv");
-    virtualListView.addLongIdentifier("virtual-list-view");
+    virtualListView.addLongIdentifier("vlv", true);
+    virtualListView.addLongIdentifier("virtual-list-view", true);
     virtualListView.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_CONTROLS.get());
     parser.addArgument(virtualListView);
@@ -963,7 +965,7 @@ public final class LDAPSearch
     excludeAttribute = new StringArgument(null, "excludeAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_EXCLUDE_ATTRIBUTE.get());
-    excludeAttribute.addLongIdentifier("exclude-attribute");
+    excludeAttribute.addLongIdentifier("exclude-attribute", true);
     excludeAttribute.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(excludeAttribute);
@@ -971,14 +973,14 @@ public final class LDAPSearch
     redactAttribute = new StringArgument(null, "redactAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_REDACT_ATTRIBUTE.get());
-    redactAttribute.addLongIdentifier("redact-attribute");
+    redactAttribute.addLongIdentifier("redact-attribute", true);
     redactAttribute.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(redactAttribute);
 
     hideRedactedValueCount = new BooleanArgument(null, "hideRedactedValueCount",
          1, INFO_LDAPSEARCH_ARG_DESCRIPTION_HIDE_REDACTED_VALUE_COUNT.get());
-    hideRedactedValueCount.addLongIdentifier("hide-redacted-value-count");
+    hideRedactedValueCount.addLongIdentifier("hide-redacted-value-count", true);
     hideRedactedValueCount.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(hideRedactedValueCount);
@@ -986,7 +988,7 @@ public final class LDAPSearch
     scrambleAttribute = new StringArgument(null, "scrambleAttribute", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SCRAMBLE_ATTRIBUTE.get());
-    scrambleAttribute.addLongIdentifier("scramble-attribute");
+    scrambleAttribute.addLongIdentifier("scramble-attribute", true);
     scrambleAttribute.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(scrambleAttribute);
@@ -994,14 +996,14 @@ public final class LDAPSearch
     scrambleJSONField = new StringArgument(null, "scrambleJSONField", false, 0,
          INFO_PLACEHOLDER_FIELD_NAME.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SCRAMBLE_JSON_FIELD.get());
-    scrambleJSONField.addLongIdentifier("scramble-json-field");
+    scrambleJSONField.addLongIdentifier("scramble-json-field", true);
     scrambleJSONField.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(scrambleJSONField);
 
     scrambleRandomSeed = new IntegerArgument(null, "scrambleRandomSeed", false,
          1, null, INFO_LDAPSEARCH_ARG_DESCRIPTION_SCRAMBLE_RANDOM_SEED.get());
-    scrambleRandomSeed.addLongIdentifier("scramble-random-seed");
+    scrambleRandomSeed.addLongIdentifier("scramble-random-seed", true);
     scrambleRandomSeed.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(scrambleRandomSeed);
@@ -1009,7 +1011,7 @@ public final class LDAPSearch
     renameAttributeFrom = new StringArgument(null, "renameAttributeFrom", false,
          0, INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_RENAME_ATTRIBUTE_FROM.get());
-    renameAttributeFrom.addLongIdentifier("rename-attribute-from");
+    renameAttributeFrom.addLongIdentifier("rename-attribute-from", true);
     renameAttributeFrom.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(renameAttributeFrom);
@@ -1017,7 +1019,7 @@ public final class LDAPSearch
     renameAttributeTo = new StringArgument(null, "renameAttributeTo", false,
          0, INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_RENAME_ATTRIBUTE_TO.get());
-    renameAttributeTo.addLongIdentifier("rename-attribute-to");
+    renameAttributeTo.addLongIdentifier("rename-attribute-to", true);
     renameAttributeTo.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(renameAttributeTo);
@@ -1025,7 +1027,7 @@ public final class LDAPSearch
     moveSubtreeFrom = new DNArgument(null, "moveSubtreeFrom", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_MOVE_SUBTREE_FROM.get());
-    moveSubtreeFrom.addLongIdentifier("move-subtree-from");
+    moveSubtreeFrom.addLongIdentifier("move-subtree-from", true);
     moveSubtreeFrom.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(moveSubtreeFrom);
@@ -1033,7 +1035,7 @@ public final class LDAPSearch
     moveSubtreeTo = new DNArgument(null, "moveSubtreeTo", false, 0,
          INFO_PLACEHOLDER_ATTR.get(),
          INFO_LDAPSEARCH_ARG_DESCRIPTION_MOVE_SUBTREE_TO.get());
-    moveSubtreeTo.addLongIdentifier("move-subtree-to");
+    moveSubtreeTo.addLongIdentifier("move-subtree-to", true);
     moveSubtreeTo.setArgumentGroupName(
          INFO_LDAPSEARCH_ARG_GROUP_TRANSFORMATIONS.get());
     parser.addArgument(moveSubtreeTo);
@@ -1044,7 +1046,7 @@ public final class LDAPSearch
     final BooleanArgument scriptFriendly = new BooleanArgument(null,
          "scriptFriendly", 1,
          INFO_LDAPSEARCH_ARG_DESCRIPTION_SCRIPT_FRIENDLY.get());
-    scriptFriendly.addLongIdentifier("script-friendly");
+    scriptFriendly.addLongIdentifier("script-friendly", true);
     scriptFriendly.setHidden(true);
     parser.addArgument(scriptFriendly);
 
@@ -1053,7 +1055,7 @@ public final class LDAPSearch
     // legacy ldapsearch tools, but is not actually used by this tool.
     final IntegerArgument ldapVersion = new IntegerArgument('V', "ldapVersion",
          false, 1, null, INFO_LDAPSEARCH_ARG_DESCRIPTION_LDAP_VERSION.get());
-    ldapVersion.addLongIdentifier("ldap-version");
+    ldapVersion.addLongIdentifier("ldap-version", true);
     ldapVersion.setHidden(true);
     parser.addArgument(ldapVersion);
 

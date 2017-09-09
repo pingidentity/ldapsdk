@@ -503,7 +503,7 @@ public final class ModRate
          "value pattern syntax.  This must be provided.";
     entryDN = new StringArgument('b', "entryDN", true, 1, "{dn}", description);
     entryDN.setArgumentGroupName("Modification Arguments");
-    entryDN.addLongIdentifier("entry-dn");
+    entryDN.addLongIdentifier("entry-dn", true);
     parser.addArgument(entryDN);
 
 
@@ -522,7 +522,7 @@ public final class ModRate
     valueLength = new IntegerArgument('l', "valueLength", true, 1, "{num}",
                                       description, 1, Integer.MAX_VALUE, 10);
     valueLength.setArgumentGroupName("Modification Arguments");
-    valueLength.addLongIdentifier("value-length");
+    valueLength.addLongIdentifier("value-length", true);
     parser.addArgument(valueLength);
 
 
@@ -532,7 +532,7 @@ public final class ModRate
     valueCount = new IntegerArgument(null, "valueCount", false, 1, "{num}",
                                      description, 0, Integer.MAX_VALUE, 1);
     valueCount.setArgumentGroupName("Modification Arguments");
-    valueCount.addLongIdentifier("value-count");
+    valueCount.addLongIdentifier("value-count", true);
     parser.addArgument(valueCount);
 
 
@@ -553,7 +553,7 @@ public final class ModRate
                                           null, description, Integer.MIN_VALUE,
                                           Integer.MAX_VALUE, 1);
     incrementAmount.setArgumentGroupName("Modification Arguments");
-    incrementAmount.addLongIdentifier("increment-amount");
+    incrementAmount.addLongIdentifier("increment-amount", true);
     parser.addArgument(incrementAmount);
 
 
@@ -565,7 +565,7 @@ public final class ModRate
                                       description,
                                       "abcdefghijklmnopqrstuvwxyz");
     characterSet.setArgumentGroupName("Modification Arguments");
-    characterSet.addLongIdentifier("character-set");
+    characterSet.addLongIdentifier("character-set", true);
     parser.addArgument(characterSet);
 
 
@@ -574,7 +574,7 @@ public final class ModRate
     assertionFilter = new FilterArgument(null, "assertionFilter", false, 1,
                                          "{filter}", description);
     assertionFilter.setArgumentGroupName("Request Control Arguments");
-    assertionFilter.addLongIdentifier("assertion-filter");
+    assertionFilter.addLongIdentifier("assertion-filter", true);
     parser.addArgument(assertionFilter);
 
 
@@ -583,7 +583,7 @@ public final class ModRate
     permissiveModify = new BooleanArgument(null, "permissiveModify", 1,
                                            description);
     permissiveModify.setArgumentGroupName("Request Control Arguments");
-    permissiveModify.addLongIdentifier("permissive-modify");
+    permissiveModify.addLongIdentifier("permissive-modify", true);
     parser.addArgument(permissiveModify);
 
 
@@ -595,7 +595,7 @@ public final class ModRate
     preReadAttribute = new StringArgument(null, "preReadAttribute", false, 0,
                                           "{attribute}", description);
     preReadAttribute.setArgumentGroupName("Request Control Arguments");
-    preReadAttribute.addLongIdentifier("pre-read-attribute");
+    preReadAttribute.addLongIdentifier("pre-read-attribute", true);
     parser.addArgument(preReadAttribute);
 
 
@@ -607,7 +607,7 @@ public final class ModRate
     postReadAttribute = new StringArgument(null, "postReadAttribute", false, 0,
                                            "{attribute}", description);
     postReadAttribute.setArgumentGroupName("Request Control Arguments");
-    postReadAttribute.addLongIdentifier("post-read-attribute");
+    postReadAttribute.addLongIdentifier("post-read-attribute", true);
     parser.addArgument(postReadAttribute);
 
 
@@ -621,7 +621,7 @@ public final class ModRate
     proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
                                  description);
     proxyAs.setArgumentGroupName("Request Control Arguments");
-    proxyAs.addLongIdentifier("proxy-as");
+    proxyAs.addLongIdentifier("proxy-as", true);
     parser.addArgument(proxyAs);
 
 
@@ -639,7 +639,7 @@ public final class ModRate
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
     numThreads.setArgumentGroupName("Rate Management Arguments");
-    numThreads.addLongIdentifier("num-threads");
+    numThreads.addLongIdentifier("num-threads", true);
     parser.addArgument(numThreads);
 
 
@@ -650,7 +650,7 @@ public final class ModRate
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
     collectionInterval.setArgumentGroupName("Rate Management Arguments");
-    collectionInterval.addLongIdentifier("interval-duration");
+    collectionInterval.addLongIdentifier("interval-duration", true);
     parser.addArgument(collectionInterval);
 
 
@@ -661,7 +661,7 @@ public final class ModRate
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
     numIntervals.setArgumentGroupName("Rate Management Arguments");
-    numIntervals.addLongIdentifier("num-intervals");
+    numIntervals.addLongIdentifier("num-intervals", true);
     parser.addArgument(numIntervals);
 
     description = "The number of modify iterations that should be processed " +
@@ -673,7 +673,8 @@ public final class ModRate
     iterationsBeforeReconnect = new IntegerArgument(null,
          "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
     iterationsBeforeReconnect.setArgumentGroupName("Rate Management Arguments");
-    iterationsBeforeReconnect.addLongIdentifier("iterations-before-reconnect");
+    iterationsBeforeReconnect.addLongIdentifier("iterations-before-reconnect",
+         true);
     parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of modifies to perform per second.  It " +
@@ -686,7 +687,7 @@ public final class ModRate
                                         "{modifies-per-second}", description,
                                         1, Integer.MAX_VALUE);
     ratePerSecond.setArgumentGroupName("Rate Management Arguments");
-    ratePerSecond.addLongIdentifier("rate-per-second");
+    ratePerSecond.addLongIdentifier("rate-per-second", true);
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -697,7 +698,7 @@ public final class ModRate
                                         "{path}", description, true, true, true,
                                         false);
     variableRateData.setArgumentGroupName("Rate Management Arguments");
-    variableRateData.addLongIdentifier("variable-rate-data");
+    variableRateData.addLongIdentifier("variable-rate-data", true);
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -706,7 +707,7 @@ public final class ModRate
                                       false, 1, "{path}", description, false,
                                       true, true, false);
     sampleRateFile.setArgumentGroupName("Rate Management Arguments");
-    sampleRateFile.addLongIdentifier("generate-sample-rate-file");
+    sampleRateFile.addLongIdentifier("generate-sample-rate-file", true);
     sampleRateFile.setUsageArgument(true);
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
@@ -718,7 +719,7 @@ public final class ModRate
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
     warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
-    warmUpIntervals.addLongIdentifier("warm-up-intervals");
+    warmUpIntervals.addLongIdentifier("warm-up-intervals", true);
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +
@@ -733,14 +734,15 @@ public final class ModRate
     allowedFormats.add("without-date");
     timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
          "{format}", description, allowedFormats, "none");
-    timestampFormat.addLongIdentifier("timestamp-format");
+    timestampFormat.addLongIdentifier("timestamp-format", true);
     parser.addArgument(timestampFormat);
 
     description = "Indicates that information about the result codes for " +
                   "failed operations should not be displayed.";
     suppressErrorsArgument = new BooleanArgument(null,
          "suppressErrorResultCodes", 1, description);
-    suppressErrorsArgument.addLongIdentifier("suppress-error-result-codes");
+    suppressErrorsArgument.addLongIdentifier("suppress-error-result-codes",
+         true);
     parser.addArgument(suppressErrorsArgument);
 
     description = "Generate output in CSV format rather than a " +
@@ -751,7 +753,7 @@ public final class ModRate
     description = "Specifies the seed to use for the random number generator.";
     randomSeed = new IntegerArgument('R', "randomSeed", false, 1, "{value}",
          description);
-    randomSeed.addLongIdentifier("random-seed");
+    randomSeed.addLongIdentifier("random-seed", true);
     parser.addArgument(randomSeed);
 
 

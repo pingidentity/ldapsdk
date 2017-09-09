@@ -459,7 +459,7 @@ public final class IdentifyUniqueAttributeConflicts
          "base DN must be specified.";
     baseDNArgument = new DNArgument('b', "baseDN", true, 0, "{dn}",
          description);
-    baseDNArgument.addLongIdentifier("base-dn");
+    baseDNArgument.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDNArgument);
 
     description = "A filter that will be used to identify the set of " +
@@ -499,7 +499,7 @@ public final class IdentifyUniqueAttributeConflicts
          "multipleAttributeBehavior", false, 1, "{behavior}", description,
          allowedValues, BEHAVIOR_UNIQUE_WITHIN_ATTR);
     multipleAttributeBehaviorArgument.addLongIdentifier(
-         "multiple-attribute-behavior");
+         "multiple-attribute-behavior", true);
     parser.addArgument(multipleAttributeBehaviorArgument);
 
     description = "The maximum number of entries to retrieve at a time when " +
@@ -511,7 +511,7 @@ public final class IdentifyUniqueAttributeConflicts
     pageSizeArgument =
          new IntegerArgument('z', "simplePageSize", false, 1, "{num}",
               description, 1, Integer.MAX_VALUE);
-    pageSizeArgument.addLongIdentifier("simple-page-size");
+    pageSizeArgument.addLongIdentifier("simple-page-size", true);
     parser.addArgument(pageSizeArgument);
 
     description = "The time limit in seconds that will be used for search " +
@@ -527,9 +527,9 @@ public final class IdentifyUniqueAttributeConflicts
     timeLimitArgument = new IntegerArgument('l', "timeLimitSeconds", false, 1,
          "{num}", description, 0, Integer.MAX_VALUE,
          DEFAULT_TIME_LIMIT_SECONDS);
-    timeLimitArgument.addLongIdentifier("timeLimit");
-    timeLimitArgument.addLongIdentifier("time-limit-seconds");
-    timeLimitArgument.addLongIdentifier("time-limit");
+    timeLimitArgument.addLongIdentifier("timeLimit", true);
+    timeLimitArgument.addLongIdentifier("time-limit-seconds", true);
+    timeLimitArgument.addLongIdentifier("time-limit", true);
 
     parser.addArgument(timeLimitArgument);
   }

@@ -375,7 +375,7 @@ public final class SubtreeAccessibility
     baseDN = new DNArgument('b', "baseDN", false, 1, "{dn}",
          "The base DN of the subtree for which an accessibility restriction " +
               "is to be updated.");
-    baseDN.addLongIdentifier("base-dn");
+    baseDN.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDN);
 
 
@@ -394,7 +394,7 @@ public final class SubtreeAccessibility
     bypassUserDN = new DNArgument('B', "bypassUserDN", false, 1, "{dn}",
          "The DN of a user who is allowed to bypass restrictions on the " +
               "target subtree.");
-    bypassUserDN.addLongIdentifier("bypass-user-dn");
+    bypassUserDN.addLongIdentifier("bypass-user-dn", true);
     parser.addArgument(bypassUserDN);
 
 

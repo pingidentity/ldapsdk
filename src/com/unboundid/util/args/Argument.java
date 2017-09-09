@@ -27,8 +27,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotExtensible;
 import com.unboundid.util.ThreadSafety;
@@ -79,12 +82,13 @@ public abstract class Argument
   // arguments.
   private int numOccurrences;
 
-  // The short identifier for this argument, or an empty list if there are none.
-  private final List<Character> shortIdentifiers;
+  // The set of short identifiers for this argument, associated with an
+  // indication as to whether the identifier should be hidden.
+  private final Map<Character,Boolean> shortIdentifiers;
 
-  // The long identifier(s) for this argument, or an empty list if there are
-  // none.
-  private final List<String> longIdentifiers;
+  // The set of long identifiers for this argument, associated with an
+  // indication as to whether the identifier should be hidden.
+  private final Map<String,Boolean> longIdentifiers;
 
   // The argument group name for this argument, if any.
   private String argumentGroupName;
@@ -141,16 +145,16 @@ public abstract class Argument
       throw new ArgumentException(ERR_ARG_NO_IDENTIFIERS.get());
     }
 
-    shortIdentifiers = new ArrayList<Character>(1);
+    shortIdentifiers = new LinkedHashMap<>(5);
     if (shortIdentifier != null)
     {
-      shortIdentifiers.add(shortIdentifier);
+      shortIdentifiers.put(shortIdentifier, false);
     }
 
-    longIdentifiers = new ArrayList<String>(1);
+    longIdentifiers = new LinkedHashMap<>(5);
     if (longIdentifier != null)
     {
-      longIdentifiers.add(longIdentifier);
+      longIdentifiers.put(longIdentifier, false);
     }
 
     this.isRequired       = isRequired;
@@ -196,8 +200,8 @@ public abstract class Argument
     isRegistered   = false;
     numOccurrences = 0;
 
-    shortIdentifiers = new ArrayList<Character>(source.shortIdentifiers);
-    longIdentifiers  = new ArrayList<String>(source.longIdentifiers);
+    shortIdentifiers = new LinkedHashMap<>(source.shortIdentifiers);
+    longIdentifiers  = new LinkedHashMap<>(source.longIdentifiers);
   }
 
 
@@ -224,14 +228,31 @@ public abstract class Argument
    */
   public final Character getShortIdentifier()
   {
-    if (shortIdentifiers.isEmpty())
+    for (final Map.Entry<Character,Boolean> e : shortIdentifiers.entrySet())
     {
-      return null;
+      if (e.getValue())
+      {
+        continue;
+      }
+
+      return e.getKey();
     }
-    else
-    {
-      return shortIdentifiers.get(0);
-    }
+
+    return null;
+  }
+
+
+
+  /**
+   * Retrieves the list of all short identifiers, including hidden identifiers,
+   * for this argument.
+   *
+   * @return  The list of all short identifiers for this argument, or an empty
+   *          list if there are no short identifiers.
+   */
+  public final List<Character> getShortIdentifiers()
+  {
+    return getShortIdentifiers(true);
   }
 
 
@@ -239,20 +260,33 @@ public abstract class Argument
   /**
    * Retrieves the list of short identifiers for this argument.
    *
+   * @param  includeHidden  Indicates whether to include hidden identifiers in
+   *                        the list that is returned.
+   *
    * @return  The list of short identifiers for this argument, or an empty list
    *          if there are none.
    */
-  public final List<Character> getShortIdentifiers()
+  public final List<Character> getShortIdentifiers(final boolean includeHidden)
   {
-    return Collections.unmodifiableList(shortIdentifiers);
+    final ArrayList<Character> identifierList =
+         new ArrayList<>(shortIdentifiers.size());
+    for (final Map.Entry<Character,Boolean> e : shortIdentifiers.entrySet())
+    {
+      if (includeHidden || (! e.getValue()))
+      {
+        identifierList.add(e.getKey());
+      }
+    }
+
+    return Collections.unmodifiableList(identifierList);
   }
 
 
 
   /**
    * Adds the provided character to the set of short identifiers for this
-   * argument.  Note that this must be called before this argument is registered
-   * with the argument parser.
+   * argument.  It will not be hidden.  Note that this must be called before
+   * this argument is registered with the argument parser.
    *
    * @param  c  The character to add to the set of short identifiers for this
    *            argument.  It must not be {@code null}.
@@ -263,13 +297,37 @@ public abstract class Argument
   public final void addShortIdentifier(final Character c)
          throws ArgumentException
   {
+    addShortIdentifier(c, false);
+  }
+
+
+
+  /**
+   * Adds the provided character to the set of short identifiers for this
+   * argument.  Note that this must be called before this argument is registered
+   * with the argument parser.
+   *
+   * @param  c         The character to add to the set of short identifiers for
+   *                   this argument.  It must not be {@code null}.
+   * @param  isHidden  Indicates whether the provided identifier should be
+   *                   hidden.  If this is {@code true}, then the identifier can
+   *                   be used to target this argument on the command line, but
+   *                   it will not be included in usage information.
+   *
+   * @throws  ArgumentException  If this argument is already registered with the
+   *                             argument parser.
+   */
+  public final void addShortIdentifier(final Character c,
+                                       final boolean isHidden)
+         throws ArgumentException
+  {
     if (isRegistered)
     {
       throw new ArgumentException(ERR_ARG_ID_CHANGE_AFTER_REGISTERED.get(
                                        getIdentifierString()));
     }
 
-    shortIdentifiers.add(c);
+    shortIdentifiers.put(c, isHidden);
   }
 
 
@@ -296,14 +354,31 @@ public abstract class Argument
    */
   public final String getLongIdentifier()
   {
-    if (longIdentifiers.isEmpty())
+    for (final Map.Entry<String,Boolean> e : longIdentifiers.entrySet())
     {
-      return null;
+      if (e.getValue())
+      {
+        continue;
+      }
+
+      return e.getKey();
     }
-    else
-    {
-      return longIdentifiers.get(0);
-    }
+
+    return null;
+  }
+
+
+
+  /**
+   * Retrieves the list of all long identifiers, including hidden identifiers,
+   * for this argument.
+   *
+   * @return  The list of all long identifiers for this argument, or an empty
+   *          list if there are no long identifiers.
+   */
+  public final List<String> getLongIdentifiers()
+  {
+    return getLongIdentifiers(true);
   }
 
 
@@ -311,20 +386,33 @@ public abstract class Argument
   /**
    * Retrieves the list of long identifiers for this argument.
    *
+   * @param  includeHidden  Indicates whether to include hidden identifiers in
+   *                        the list that is returned.
+   *
    * @return  The long identifier for this argument, or an empty list if there
    *          are none.
    */
-  public final List<String> getLongIdentifiers()
+  public final List<String> getLongIdentifiers(final boolean includeHidden)
   {
-    return Collections.unmodifiableList(longIdentifiers);
+    final ArrayList<String> identifierList =
+         new ArrayList<>(longIdentifiers.size());
+    for (final Map.Entry<String,Boolean> e : longIdentifiers.entrySet())
+    {
+      if (includeHidden || (! e.getValue()))
+      {
+        identifierList.add(e.getKey());
+      }
+    }
+
+    return Collections.unmodifiableList(identifierList);
   }
 
 
 
   /**
    * Adds the provided string to the set of short identifiers for this argument.
-   * Note that this must be called before this argument is registered with the
-   * argument parser.
+   * It will not be hidden.  Note that this must be called before this argument
+   * is registered with the argument parser.
    *
    * @param  s  The string to add to the set of short identifiers for this
    *            argument.  It must not be {@code null}.
@@ -335,13 +423,36 @@ public abstract class Argument
   public final void addLongIdentifier(final String s)
          throws ArgumentException
   {
+    addLongIdentifier(s, false);
+  }
+
+
+
+  /**
+   * Adds the provided string to the set of short identifiers for this argument.
+   * Note that this must be called before this argument is registered with the
+   * argument parser.
+   *
+   * @param  s         The string to add to the set of short identifiers for
+   *                   this argument.  It must not be {@code null}.
+   * @param  isHidden  Indicates whether the provided identifier should be
+   *                   hidden.  If this is {@code true}, then the identifier can
+   *                   be used to target this argument on the command line, but
+   *                   it will not be included in usage information.
+   *
+   * @throws  ArgumentException  If this argument is already registered with the
+   *                             argument parser.
+   */
+  public final void addLongIdentifier(final String s, final boolean isHidden)
+         throws ArgumentException
+  {
     if (isRegistered)
     {
       throw new ArgumentException(ERR_ARG_ID_CHANGE_AFTER_REGISTERED.get(
                                        getIdentifierString()));
     }
 
-    longIdentifiers.add(s);
+    longIdentifiers.put(s, isHidden);
   }
 
 
@@ -356,14 +467,25 @@ public abstract class Argument
    */
   public final String getIdentifierString()
   {
-    if (longIdentifiers.isEmpty())
+    for (final Map.Entry<String,Boolean> e : longIdentifiers.entrySet())
     {
-      return "-" + shortIdentifiers.get(0);
+      if (! e.getValue())
+      {
+        return "--" + e.getKey();
+      }
     }
-    else
+
+    for (final Map.Entry<Character,Boolean> e : shortIdentifiers.entrySet())
     {
-      return "--" + longIdentifiers.get(0);
+      if (! e.getValue())
+      {
+        return "-" + e.getKey();
+      }
     }
+
+    // This should never happen.
+    throw new LDAPSDKUsageException(
+         ERR_ARG_NO_NON_HIDDEN_IDENTIFIER.get(toString()));
   }
 
 
@@ -804,14 +926,15 @@ public abstract class Argument
 
       case 1:
         buffer.append("shortIdentifier='-");
-        buffer.append(shortIdentifiers.get(0));
+        buffer.append(shortIdentifiers.keySet().iterator().next());
         buffer.append('\'');
         break;
 
       default:
         buffer.append("shortIdentifiers={");
 
-        final Iterator<Character> iterator = shortIdentifiers.iterator();
+        final Iterator<Character> iterator =
+             shortIdentifiers.keySet().iterator();
         while (iterator.hasNext())
         {
           buffer.append("'-");
@@ -840,14 +963,14 @@ public abstract class Argument
 
       case 1:
         buffer.append("longIdentifier='--");
-        buffer.append(longIdentifiers.get(0));
+        buffer.append(longIdentifiers.keySet().iterator().next());
         buffer.append('\'');
         break;
 
       default:
         buffer.append("longIdentifiers={");
 
-        final Iterator<String> iterator = longIdentifiers.iterator();
+        final Iterator<String> iterator = longIdentifiers.keySet().iterator();
         while (iterator.hasNext())
         {
           buffer.append("'--");

@@ -536,7 +536,7 @@ public final class SearchAndModRate
          "value pattern syntax.  This must be provided.";
     baseDN = new StringArgument('b', "baseDN", true, 1, "{dn}", description);
     baseDN.setArgumentGroupName("Search And Modification Arguments");
-    baseDN.addLongIdentifier("base-dn");
+    baseDN.addLongIdentifier("base-dn", true);
     parser.addArgument(baseDN);
 
 
@@ -577,7 +577,7 @@ public final class SearchAndModRate
     modifyAttributes = new StringArgument('m', "modifyAttribute", true, 0,
                                           "{name}", description);
     modifyAttributes.setArgumentGroupName("Search And Modification Arguments");
-    modifyAttributes.addLongIdentifier("modify-attribute");
+    modifyAttributes.addLongIdentifier("modify-attribute", true);
     parser.addArgument(modifyAttributes);
 
 
@@ -587,7 +587,7 @@ public final class SearchAndModRate
     valueLength = new IntegerArgument('l', "valueLength", true, 1, "{num}",
                                       description, 1, Integer.MAX_VALUE, 10);
     valueLength.setArgumentGroupName("Search And Modification Arguments");
-    valueLength.addLongIdentifier("value-length");
+    valueLength.addLongIdentifier("value-length", true);
     parser.addArgument(valueLength);
 
 
@@ -599,7 +599,7 @@ public final class SearchAndModRate
                                       description,
                                       "abcdefghijklmnopqrstuvwxyz");
     characterSet.setArgumentGroupName("Search And Modification Arguments");
-    characterSet.addLongIdentifier("character-set");
+    characterSet.addLongIdentifier("character-set", true);
     parser.addArgument(characterSet);
 
 
@@ -609,7 +609,7 @@ public final class SearchAndModRate
                                                false, 1, "{filter}",
                                                description);
     searchAssertionFilter.setArgumentGroupName("Request Control Arguments");
-    searchAssertionFilter.addLongIdentifier("search-assertion-filter");
+    searchAssertionFilter.addLongIdentifier("search-assertion-filter", true);
     parser.addArgument(searchAssertionFilter);
 
 
@@ -619,7 +619,7 @@ public final class SearchAndModRate
                                                false, 1, "{filter}",
                                                description);
     modifyAssertionFilter.setArgumentGroupName("Request Control Arguments");
-    modifyAssertionFilter.addLongIdentifier("modify-assertion-filter");
+    modifyAssertionFilter.addLongIdentifier("modify-assertion-filter", true);
     parser.addArgument(modifyAssertionFilter);
 
 
@@ -629,7 +629,7 @@ public final class SearchAndModRate
                                          "{size}", description, 1,
                                          Integer.MAX_VALUE);
     simplePageSize.setArgumentGroupName("Request Control Arguments");
-    simplePageSize.addLongIdentifier("simple-page-size");
+    simplePageSize.addLongIdentifier("simple-page-size", true);
     parser.addArgument(simplePageSize);
 
 
@@ -638,7 +638,7 @@ public final class SearchAndModRate
     permissiveModify = new BooleanArgument(null, "permissiveModify", 1,
                                            description);
     permissiveModify.setArgumentGroupName("Request Control Arguments");
-    permissiveModify.addLongIdentifier("permissive-modify");
+    permissiveModify.addLongIdentifier("permissive-modify", true);
     parser.addArgument(permissiveModify);
 
 
@@ -650,7 +650,7 @@ public final class SearchAndModRate
     preReadAttribute = new StringArgument(null, "preReadAttribute", false, 0,
                                           "{attribute}", description);
     preReadAttribute.setArgumentGroupName("Request Control Arguments");
-    preReadAttribute.addLongIdentifier("pre-read-attribute");
+    preReadAttribute.addLongIdentifier("pre-read-attribute", true);
     parser.addArgument(preReadAttribute);
 
 
@@ -662,7 +662,7 @@ public final class SearchAndModRate
     postReadAttribute = new StringArgument(null, "postReadAttribute", false, 0,
                                            "{attribute}", description);
     postReadAttribute.setArgumentGroupName("Request Control Arguments");
-    postReadAttribute.addLongIdentifier("post-read-attribute");
+    postReadAttribute.addLongIdentifier("post-read-attribute", true);
     parser.addArgument(postReadAttribute);
 
 
@@ -676,7 +676,7 @@ public final class SearchAndModRate
     proxyAs = new StringArgument('Y', "proxyAs", false, 1, "{authzID}",
                                  description);
     proxyAs.setArgumentGroupName("Request Control Arguments");
-    proxyAs.addLongIdentifier("proxy-as");
+    proxyAs.addLongIdentifier("proxy-as", true);
     parser.addArgument(proxyAs);
 
 
@@ -686,7 +686,7 @@ public final class SearchAndModRate
     searchControl = new ControlArgument(null, "searchControl", false, 0, null,
                                         description);
     searchControl.setArgumentGroupName("Request Control Arguments");
-    searchControl.addLongIdentifier("search-control");
+    searchControl.addLongIdentifier("search-control", true);
     parser.addArgument(searchControl);
 
 
@@ -696,7 +696,7 @@ public final class SearchAndModRate
     modifyControl = new ControlArgument(null, "modifyControl", false, 0, null,
                                         description);
     modifyControl.setArgumentGroupName("Request Control Arguments");
-    modifyControl.addLongIdentifier("modify-control");
+    modifyControl.addLongIdentifier("modify-control", true);
     parser.addArgument(modifyControl);
 
 
@@ -706,7 +706,7 @@ public final class SearchAndModRate
     numThreads = new IntegerArgument('t', "numThreads", true, 1, "{num}",
                                      description, 1, Integer.MAX_VALUE, 1);
     numThreads.setArgumentGroupName("Rate Management Arguments");
-    numThreads.addLongIdentifier("num-threads");
+    numThreads.addLongIdentifier("num-threads", true);
     parser.addArgument(numThreads);
 
 
@@ -717,7 +717,7 @@ public final class SearchAndModRate
                                              "{num}", description, 1,
                                              Integer.MAX_VALUE, 5);
     collectionInterval.setArgumentGroupName("Rate Management Arguments");
-    collectionInterval.addLongIdentifier("interval-duration");
+    collectionInterval.addLongIdentifier("interval-duration", true);
     parser.addArgument(collectionInterval);
 
 
@@ -728,7 +728,7 @@ public final class SearchAndModRate
                                        description, 1, Integer.MAX_VALUE,
                                        Integer.MAX_VALUE);
     numIntervals.setArgumentGroupName("Rate Management Arguments");
-    numIntervals.addLongIdentifier("num-intervals");
+    numIntervals.addLongIdentifier("num-intervals", true);
     parser.addArgument(numIntervals);
 
     description = "The number of search and modify iterations that should be " +
@@ -740,7 +740,8 @@ public final class SearchAndModRate
     iterationsBeforeReconnect = new IntegerArgument(null,
          "iterationsBeforeReconnect", false, 1, "{num}", description, 0);
     iterationsBeforeReconnect.setArgumentGroupName("Rate Management Arguments");
-    iterationsBeforeReconnect.addLongIdentifier("iterations-before-reconnect");
+    iterationsBeforeReconnect.addLongIdentifier("iterations-before-reconnect",
+         true);
     parser.addArgument(iterationsBeforeReconnect);
 
     description = "The target number of searches to perform per second.  It " +
@@ -753,7 +754,7 @@ public final class SearchAndModRate
                                         "{searches-per-second}", description,
                                         1, Integer.MAX_VALUE);
     ratePerSecond.setArgumentGroupName("Rate Management Arguments");
-    ratePerSecond.addLongIdentifier("rate-per-second");
+    ratePerSecond.addLongIdentifier("rate-per-second", true);
     parser.addArgument(ratePerSecond);
 
     final String variableRateDataArgName = "variableRateData";
@@ -764,7 +765,7 @@ public final class SearchAndModRate
                                         "{path}", description, true, true, true,
                                         false);
     variableRateData.setArgumentGroupName("Rate Management Arguments");
-    variableRateData.addLongIdentifier("variable-rate-data");
+    variableRateData.addLongIdentifier("variable-rate-data", true);
     parser.addArgument(variableRateData);
 
     description = RateAdjustor.getGenerateSampleVariableRateFileDescription(
@@ -773,7 +774,7 @@ public final class SearchAndModRate
                                       false, 1, "{path}", description, false,
                                       true, true, false);
     sampleRateFile.setArgumentGroupName("Rate Management Arguments");
-    sampleRateFile.addLongIdentifier("generate-sample-rate-file");
+    sampleRateFile.addLongIdentifier("generate-sample-rate-file", true);
     sampleRateFile.setUsageArgument(true);
     parser.addArgument(sampleRateFile);
     parser.addExclusiveArgumentSet(variableRateData, sampleRateFile);
@@ -785,7 +786,7 @@ public final class SearchAndModRate
     warmUpIntervals = new IntegerArgument(null, "warmUpIntervals", true, 1,
          "{num}", description, 0, Integer.MAX_VALUE, 0);
     warmUpIntervals.setArgumentGroupName("Rate Management Arguments");
-    warmUpIntervals.addLongIdentifier("warm-up-intervals");
+    warmUpIntervals.addLongIdentifier("warm-up-intervals", true);
     parser.addArgument(warmUpIntervals);
 
     description = "Indicates the format to use for timestamps included in " +
@@ -800,14 +801,14 @@ public final class SearchAndModRate
     allowedFormats.add("without-date");
     timestampFormat = new StringArgument(null, "timestampFormat", true, 1,
          "{format}", description, allowedFormats, "none");
-    timestampFormat.addLongIdentifier("timestamp-format");
+    timestampFormat.addLongIdentifier("timestamp-format", true);
     parser.addArgument(timestampFormat);
 
     description = "Indicates that information about the result codes for " +
                   "failed operations should not be displayed.";
     suppressErrors = new BooleanArgument(null,
          "suppressErrorResultCodes", 1, description);
-    suppressErrors.addLongIdentifier("suppress-error-result-codes");
+    suppressErrors.addLongIdentifier("suppress-error-result-codes", true);
     parser.addArgument(suppressErrors);
 
     description = "Generate output in CSV format rather than a " +
@@ -818,7 +819,7 @@ public final class SearchAndModRate
     description = "Specifies the seed to use for the random number generator.";
     randomSeed = new IntegerArgument('R', "randomSeed", false, 1, "{value}",
          description);
-    randomSeed.addLongIdentifier("random-seed");
+    randomSeed.addLongIdentifier("random-seed", true);
     parser.addArgument(randomSeed);
   }
 

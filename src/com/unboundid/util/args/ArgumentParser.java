@@ -420,12 +420,12 @@ public final class ArgumentParser
       namedArgs.add(a);
       argsByID.put(a.getIdentifierString(), a);
 
-      for (final Character c : a.getShortIdentifiers())
+      for (final Character c : a.getShortIdentifiers(true))
       {
         namedArgsByShortID.put(c, a);
       }
 
-      for (final String s : a.getLongIdentifiers())
+      for (final String s : a.getLongIdentifiers(true))
       {
         namedArgsByLongID.put(toLowerCase(s), a);
       }
@@ -485,7 +485,7 @@ public final class ArgumentParser
     for (final SubCommand sc : source.subCommands)
     {
       subCommands.add(sc.getCleanCopy());
-      for (final String name : sc.getNames())
+      for (final String name : sc.getNames(true))
       {
         subCommandsByName.put(toLowerCase(name), sc);
       }
@@ -645,20 +645,20 @@ public final class ArgumentParser
          ARG_NAME_PROPERTIES_FILE_PATH, false, 1, null,
          INFO_ARG_DESCRIPTION_PROP_FILE_PATH.get(), true, true, true, false);
     propertiesFilePath.setUsageArgument(true);
-    propertiesFilePath.addLongIdentifier("properties-file-path");
+    propertiesFilePath.addLongIdentifier("properties-file-path", true);
     addArgument(propertiesFilePath);
 
     final FileArgument generatePropertiesFile = new FileArgument(null,
          ARG_NAME_GENERATE_PROPERTIES_FILE, false, 1, null,
          INFO_ARG_DESCRIPTION_GEN_PROP_FILE.get(), false, true, true, false);
     generatePropertiesFile.setUsageArgument(true);
-    generatePropertiesFile.addLongIdentifier("generate-properties-file");
+    generatePropertiesFile.addLongIdentifier("generate-properties-file", true);
     addArgument(generatePropertiesFile);
 
     final BooleanArgument noPropertiesFile = new BooleanArgument(null,
          ARG_NAME_NO_PROPERTIES_FILE, INFO_ARG_DESCRIPTION_NO_PROP_FILE.get());
     noPropertiesFile.setUsageArgument(true);
-    noPropertiesFile.addLongIdentifier("no-properties-file");
+    noPropertiesFile.addLongIdentifier("no-properties-file", true);
     addArgument(noPropertiesFile);
 
     final BooleanArgument suppressPropertiesFileComment = new BooleanArgument(
@@ -666,7 +666,7 @@ public final class ArgumentParser
          INFO_ARG_DESCRIPTION_SUPPRESS_PROP_FILE_COMMENT.get());
     suppressPropertiesFileComment.setUsageArgument(true);
     suppressPropertiesFileComment.addLongIdentifier(
-         "suppress-properties-file-comment");
+         "suppress-properties-file-comment", true);
     addArgument(suppressPropertiesFileComment);
 
 
@@ -1098,7 +1098,7 @@ public final class ArgumentParser
          throws ArgumentException
   {
     argument.setRegistered();
-    for (final Character c : argument.getShortIdentifiers())
+    for (final Character c : argument.getShortIdentifiers(true))
     {
       if (namedArgsByShortID.containsKey(c))
       {
@@ -1113,7 +1113,7 @@ public final class ArgumentParser
       }
     }
 
-    for (final String s : argument.getLongIdentifiers())
+    for (final String s : argument.getLongIdentifiers(true))
     {
       if (namedArgsByLongID.containsKey(toLowerCase(s)))
       {
@@ -1131,7 +1131,7 @@ public final class ArgumentParser
     for (final SubCommand sc : subCommands)
     {
       final ArgumentParser parser = sc.getArgumentParser();
-      for (final Character c : argument.getShortIdentifiers())
+      for (final Character c : argument.getShortIdentifiers(true))
       {
         if (parser.namedArgsByShortID.containsKey(c))
         {
@@ -1141,7 +1141,7 @@ public final class ArgumentParser
         }
       }
 
-      for (final String s : argument.getLongIdentifiers())
+      for (final String s : argument.getLongIdentifiers(true))
       {
         if (parser.namedArgsByLongID.containsKey(toLowerCase(s)))
         {
@@ -1152,12 +1152,12 @@ public final class ArgumentParser
       }
     }
 
-    for (final Character c : argument.getShortIdentifiers())
+    for (final Character c : argument.getShortIdentifiers(true))
     {
       namedArgsByShortID.put(c, argument);
     }
 
-    for (final String s : argument.getLongIdentifiers())
+    for (final String s : argument.getLongIdentifiers(true))
     {
       namedArgsByLongID.put(toLowerCase(s), argument);
     }
@@ -1646,7 +1646,7 @@ public final class ArgumentParser
 
     // Ensure that the subcommand doesn't have any names that conflict with an
     // existing subcommand.
-    for (final String name : subCommand.getNames())
+    for (final String name : subCommand.getNames(true))
     {
       if (subCommandsByName.containsKey(toLowerCase(name)))
       {
@@ -1656,7 +1656,7 @@ public final class ArgumentParser
     }
 
     // Register the subcommand.
-    for (final String name : subCommand.getNames())
+    for (final String name : subCommand.getNames(true))
     {
       subCommandsByName.put(toLowerCase(name), subCommand);
     }
@@ -2938,7 +2938,7 @@ public final class ArgumentParser
         final StringBuilder nameBuffer = new StringBuilder();
         nameBuffer.append("  ");
 
-        final Iterator<String> nameIterator = sc.getNames().iterator();
+        final Iterator<String> nameIterator = sc.getNames(false).iterator();
         while (nameIterator.hasNext())
         {
           nameBuffer.append(nameIterator.next());
@@ -3308,7 +3308,7 @@ public final class ArgumentParser
     }
 
     boolean first = true;
-    for (final Character c : a.getShortIdentifiers())
+    for (final Character c : a.getShortIdentifiers(false))
     {
       if (first)
       {
@@ -3322,7 +3322,7 @@ public final class ArgumentParser
       argLine.append(c);
     }
 
-    for (final String s : a.getLongIdentifiers())
+    for (final String s : a.getLongIdentifiers(false))
     {
       if (first)
       {
