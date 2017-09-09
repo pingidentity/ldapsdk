@@ -396,7 +396,7 @@ public final class SplitLDIF
     splitUsingHashOnRDN = new SubCommand("split-using-hash-on-rdn",
          INFO_SPLIT_LDIF_SC_HASH_ON_RDN_DESC.get(), splitUsingHashOnRDNParser,
          splitUsingHashOnRDNExamples);
-    splitUsingHashOnRDN.addName("hash-on-rdn");
+    splitUsingHashOnRDN.addName("hash-on-rdn", true);
 
     parser.addSubCommand(splitUsingHashOnRDN);
 
@@ -457,7 +457,7 @@ public final class SplitLDIF
     splitUsingHashOnAttribute = new SubCommand("split-using-hash-on-attribute",
          INFO_SPLIT_LDIF_SC_HASH_ON_ATTR_DESC.get(),
          splitUsingHashOnAttributeParser, splitUsingHashOnAttributeExamples);
-    splitUsingHashOnAttribute.addName("hash-on-attribute");
+    splitUsingHashOnAttribute.addName("hash-on-attribute", true);
 
     parser.addSubCommand(splitUsingHashOnAttribute);
 
@@ -501,7 +501,7 @@ public final class SplitLDIF
     splitUsingFewestEntries = new SubCommand("split-using-fewest-entries",
          INFO_SPLIT_LDIF_SC_FEWEST_ENTRIES_DESC.get(),
          splitUsingFewestEntriesParser, splitUsingFewestEntriesExamples);
-    splitUsingFewestEntries.addName("fewest-entries");
+    splitUsingFewestEntries.addName("fewest-entries", true);
 
     parser.addSubCommand(splitUsingFewestEntries);
 
@@ -541,7 +541,7 @@ public final class SplitLDIF
     splitUsingFilter = new SubCommand("split-using-filter",
          INFO_SPLIT_LDIF_SC_FILTER_DESC.get(),
          splitUsingFilterParser, splitUsingFilterExamples);
-    splitUsingFilter.addName("filter");
+    splitUsingFilter.addName("filter", true);
 
     parser.addSubCommand(splitUsingFilter);
   }
