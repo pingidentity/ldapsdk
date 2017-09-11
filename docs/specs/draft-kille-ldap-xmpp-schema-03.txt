@@ -4,12 +4,12 @@
 
 Network Working Group                                           S. Kille
 Internet-Draft                                                 Isode Ltd
-Intended status: Informational                         September 3, 2017
-Expires: March 7, 2018
+Intended status: Informational                        September 10, 2017
+Expires: March 14, 2018
 
 
              LDAP Schema for supporting XMPP in White Pages
-                    draft-kille-ldap-xmpp-schema-02
+                    draft-kille-ldap-xmpp-schema-03
 
 Abstract
 
@@ -29,14 +29,14 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 7, 2018.
+   This Internet-Draft will expire on March 14, 2018.
 
 Copyright Notice
 
@@ -45,7 +45,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Kille                     Expires March 7, 2018                 [Page 1]
+Kille                    Expires March 14, 2018                 [Page 1]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
@@ -102,17 +102,20 @@ Table of Contents
 3.1.  Object Class
 
    This section defines a new Auxiliary Object Class (JIDObject) which
-   may be associated with any primary Object Class.
+   may be associated with any structural Object Class.  This Object
+   Class is used to augment entries for objects that act or may act as
+   an XMPP client.  The JID attribute is optional, to enable configuring
 
 
 
 
-
-
-Kille                     Expires March 7, 2018                 [Page 2]
+Kille                    Expires March 14, 2018                 [Page 2]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
+
+   an object that is allowed to have an associated JID but does not
+   currently have one.
 
        ( TBA.1 NAME 'JIDObject'
         AUXILIARY
@@ -122,10 +125,16 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
    This section defines the JID attribute referenced by the JIDObject
    Auxiliary Object Class.  The syntax of the JID attribute MUST follow
-   the rules of [RFC7622].  The JID stored MUST be a bare JID and not a
-   full JID.  Note that the LDAP directory server is NOT expected to
-   enforce this syntax.  The syntax rules are for LDAP clients setting
-   this attribute.
+   the rules of [RFC7622].  The JID stored MUST be a bare JID (e.g., a
+   JID such as romeo@shakespeare.lit representing a user) and not a full
+   JID (e.g. a JID such as romeo@shakespare.lit/AABBCC representing a
+   specific client).  Note that the LDAP directory server is NOT
+   expected to enforce this syntax.  The syntax rules are for LDAP
+   clients setting this attribute, noting that human usage is a key
+   target.  Applications using this attribute should apply stringprep
+   rules appropriate to the application.  The directory service doesn't
+   enforce the JID syntax and values are compared according to the
+   matching rules specified in the attribute definition.
 
          ( TBA.2 NAME 'jid'
             EQUALITY caseIgnoreMatch
@@ -139,7 +148,7 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
    The following registrations are requested in the LDAP Registry
    <https://www.iana.org/assignments/ldap-parameters/ldap-
-   parameters.xhtml> in line with BP 64 RFC 4520.  This will lead to
+   parameters.xhtml> in line with BP 64 [RFC4520].  This will lead to
    assignment of the two Object Identifiers, referenced as TBA.1 and
    TBA.2 in this draft.
 
@@ -153,22 +162,18 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
                Author/Change Controller: IESG
                Comments: Identifies the XMPP schema elements assigned
 
+
+
+
+Kille                    Expires March 14, 2018                 [Page 3]
+
+Internet-Draft            LDAP Schema for XMPP            September 2017
+
+
    In the following two registrations, TBD is replaced with the OID
    assigned in the preceding registration.
 
    'JIDObject' Descriptor Registration
-
-
-
-
-
-
-
-
-Kille                     Expires March 7, 2018                 [Page 3]
-
-Internet-Draft            LDAP Schema for XMPP            September 2017
-
 
                Subject: Request for LDAP Descriptor Registration (Object
                  Identifier Descriptors)
@@ -194,42 +199,47 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
 5.  Security Considerations
 
-   This schema enables publishing for XMPP JIDs, and care should be
-   taken to ensure that this information is not accessed
-   inappropriately.
+   XMPP JIDs are often personal identifiers enabling electronic
+   communication, with similar considerations to email addresses.  This
+   schema enables publishing of this information in LDAP directories
+   which may be corporate or public services.  Care should be taken to
+   only publish JID information which is acceptable to be linked to the
+   LDAP object and be made accessible to all LDAP users.  The general
+   LDAP Security Considerations specified in [RFC4510] also apply.
 
 6.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC4510]  Zeilenga, K., Ed., "Lightweight Directory Access Protocol
               (LDAP): Technical Specification Road Map", RFC 4510,
-              DOI 10.17487/RFC4510, June 2006, <https://www.rfc-
-              editor.org/info/rfc4510>.
-
-   [RFC4517]  Legg, S., Ed., "Lightweight Directory Access Protocol
-              (LDAP): Syntaxes and Matching Rules", RFC 4517,
-              DOI 10.17487/RFC4517, June 2006, <https://www.rfc-
-              editor.org/info/rfc4517>.
+              DOI 10.17487/RFC4510, June 2006,
+              <https://www.rfc-editor.org/info/rfc4510>.
 
 
 
-
-
-
-
-Kille                     Expires March 7, 2018                 [Page 4]
+Kille                    Expires March 14, 2018                 [Page 4]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
 
+   [RFC4517]  Legg, S., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Syntaxes and Matching Rules", RFC 4517,
+              DOI 10.17487/RFC4517, June 2006,
+              <https://www.rfc-editor.org/info/rfc4517>.
+
    [RFC4519]  Sciberras, A., Ed., "Lightweight Directory Access Protocol
               (LDAP): Schema for User Applications", RFC 4519,
-              DOI 10.17487/RFC4519, June 2006, <https://www.rfc-
-              editor.org/info/rfc4519>.
+              DOI 10.17487/RFC4519, June 2006,
+              <https://www.rfc-editor.org/info/rfc4519>.
+
+   [RFC4520]  Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
+              Considerations for the Lightweight Directory Access
+              Protocol (LDAP)", BCP 64, RFC 4520, DOI 10.17487/RFC4520,
+              June 2006, <https://www.rfc-editor.org/info/rfc4520>.
 
    [RFC6120]  Saint-Andre, P., "Extensible Messaging and Presence
               Protocol (XMPP): Core", RFC 6120, DOI 10.17487/RFC6120,
@@ -237,8 +247,8 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
    [RFC7622]  Saint-Andre, P., "Extensible Messaging and Presence
               Protocol (XMPP): Address Format", RFC 7622,
-              DOI 10.17487/RFC7622, September 2015, <https://www.rfc-
-              editor.org/info/rfc7622>.
+              DOI 10.17487/RFC7622, September 2015,
+              <https://www.rfc-editor.org/info/rfc7622>.
 
 
 
@@ -267,17 +277,7 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
 
 
-
-
-
-
-
-
-
-
-
-
-Kille                     Expires March 7, 2018                 [Page 5]
+Kille                    Expires March 14, 2018                 [Page 5]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
@@ -285,7 +285,8 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 Appendix A.  Acknowledgements
 
    Thanks to Alexey Melnikov for suggestions on preparing this draft.
-   Thanks to Peter Saint-Andre and Kurt Zeilenga for review comments.
+   Thanks to Alan Murdock, Yoav Nir, Peter Saint-Andre and Kurt Zeilenga
+   for review comments.
 
 Author's Address
 
@@ -332,5 +333,4 @@ Author's Address
 
 
 
-
-Kille                     Expires March 7, 2018                 [Page 6]
+Kille                    Expires March 14, 2018                 [Page 6]
