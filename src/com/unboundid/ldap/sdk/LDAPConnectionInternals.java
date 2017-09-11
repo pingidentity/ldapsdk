@@ -152,6 +152,7 @@ final class LDAPConnectionInternals
     nextMessageID   = new AtomicInteger(0);
     synchronousMode = options.useSynchronousMode();
     saslClient      = null;
+    socket          = null;
 
     try
     {
@@ -169,22 +170,28 @@ final class LDAPConnectionInternals
     catch (final LDAPException le)
     {
       debugException(le);
+
+      if (socket != null)
+      {
+        socket.close();
+      }
+
       throw new IOException(le);
     }
-
-    if (options.getReceiveBufferSize() > 0)
-    {
-      socket.setReceiveBufferSize(options.getReceiveBufferSize());
-    }
-
-    if (options.getSendBufferSize() > 0)
-    {
-      socket.setSendBufferSize(options.getSendBufferSize());
-    }
-
     try
     {
       debugConnect(host, port, connection);
+
+      if (options.getReceiveBufferSize() > 0)
+      {
+        socket.setReceiveBufferSize(options.getReceiveBufferSize());
+      }
+
+      if (options.getSendBufferSize() > 0)
+      {
+        socket.setSendBufferSize(options.getSendBufferSize());
+      }
+
       socket.setKeepAlive(options.useKeepAlive());
       socket.setReuseAddress(options.useReuseAddress());
       socket.setSoLinger(options.useLinger(),
