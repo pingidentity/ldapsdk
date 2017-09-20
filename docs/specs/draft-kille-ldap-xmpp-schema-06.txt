@@ -4,12 +4,12 @@
 
 Network Working Group                                           S. Kille
 Internet-Draft                                                 Isode Ltd
-Intended status: Informational                        September 11, 2017
-Expires: March 15, 2018
+Intended status: Informational                        September 19, 2017
+Expires: March 23, 2018
 
 
              LDAP Schema for supporting XMPP in White Pages
-                    draft-kille-ldap-xmpp-schema-05
+                    draft-kille-ldap-xmpp-schema-06
 
 Abstract
 
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 15, 2018.
+   This Internet-Draft will expire on March 23, 2018.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Kille                    Expires March 15, 2018                 [Page 1]
+Kille                    Expires March 23, 2018                 [Page 1]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Kille                    Expires March 15, 2018                 [Page 2]
+Kille                    Expires March 23, 2018                 [Page 2]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
@@ -126,16 +126,17 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
    This section defines the JID attribute referenced by the JIDObject
    Auxiliary Object Class.  The syntax of the JID attribute MUST follow
    the rules of [RFC7622].  The JID stored MUST be a bare JID (e.g., a
-   JID such as romeo@shakespeare.lit representing a user) and not a full
-   JID (e.g. a JID such as romeo@shakespare.lit/AABBCC representing a
-   specific client).  Note that the LDAP directory server is NOT
-   expected to enforce this syntax.  The syntax rules are for LDAP
-   clients setting this attribute, noting that human usage is a key
-   target.  Applications using this attribute should format that string
-   in a manner appropriate to the application and XMPP applications
-   SHOULD apply [RFC7622] to the attribute.  The directory service
-   doesn't enforce the JID syntax and values are compared according to
-   the matching rules specified in the attribute definition.
+   JID such as romeo@shakespeare.example.com representing a user) and
+   not a full JID (e.g. a JID such as romeo@shakespare.example.com/
+   AABBCC representing a specific client).  Note that the LDAP directory
+   server is NOT expected to enforce this syntax.  The syntax rules are
+   for LDAP clients setting this attribute, noting that human usage is a
+   key target.  Applications using this attribute should format that
+   string in a manner appropriate to the application and XMPP
+   applications SHOULD apply [RFC7622] to the attribute.  The directory
+   service doesn't enforce the JID syntax and values are compared
+   according to the matching rules specified in the attribute
+   definition.
 
    NOTE: The directory string syntax and the caseIgnoreMatch matching
    rule are chosen to allow entry and matching of values according to
@@ -164,8 +165,7 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
 
 
-
-Kille                    Expires March 15, 2018                 [Page 3]
+Kille                    Expires March 23, 2018                 [Page 3]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
@@ -221,7 +221,7 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
 
 
-Kille                    Expires March 15, 2018                 [Page 4]
+Kille                    Expires March 23, 2018                 [Page 4]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
@@ -277,7 +277,7 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
 
 
-Kille                    Expires March 15, 2018                 [Page 5]
+Kille                    Expires March 23, 2018                 [Page 5]
 
 Internet-Draft            LDAP Schema for XMPP            September 2017
 
@@ -333,4 +333,4 @@ Author's Address
 
 
 
-Kille                    Expires March 15, 2018                 [Page 6]
+Kille                    Expires March 23, 2018                 [Page 6]
