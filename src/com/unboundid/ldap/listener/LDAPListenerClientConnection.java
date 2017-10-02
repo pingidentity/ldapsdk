@@ -171,6 +171,9 @@ public final class LDAPListenerClientConnection
     this.socket           = socket;
     this.exceptionHandler = exceptionHandler;
 
+    asn1Buffer           = new ASN1Buffer();
+    suppressNextResponse = new AtomicBoolean(false);
+
     intermediateResponseTransformers =
          new CopyOnWriteArrayList<IntermediateResponseTransformer>();
     searchEntryTransformers =
@@ -300,9 +303,6 @@ public final class LDAPListenerClientConnection
 
       throw le;
     }
-
-    asn1Buffer           = new ASN1Buffer();
-    suppressNextResponse = new AtomicBoolean(false);
   }
 
 
@@ -312,6 +312,7 @@ public final class LDAPListenerClientConnection
    *
    * @throws  IOException  If a problem occurs while closing the socket.
    */
+  @Override()
   public synchronized void close()
          throws IOException
   {
