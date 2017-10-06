@@ -66,8 +66,8 @@ import static com.unboundid.util.StaticUtils.*;
  *   other types of LDAP servers.
  * </BLOCKQUOTE>
  * <BR>
- * The control has an OID of x and a criticality of false.  It must have a value
- * with the following encoding:
+ * The control has an OID of 1.3.6.1.4.1.42.2.27.8.5.1 and a criticality of
+ * false.  It must have a value with the following encoding:
  * <PRE>
  *   PasswordPolicyResponseValue ::= SEQUENCE {
  *      warning [0] CHOICE {

@@ -136,5 +136,9 @@ public final class ControlHelper
     Control.registerDecodeableControl(
          UnsolicitedCancelResponseControl.UNSOLICITED_CANCEL_RESPONSE_OID,
          new UnsolicitedCancelResponseControl());
+
+    Control.registerDecodeableControl(
+         UniquenessResponseControl.UNIQUENESS_RESPONSE_OID,
+         new UniquenessResponseControl());
   }
 }
