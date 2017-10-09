@@ -4,12 +4,12 @@
 
 Network Working Group                                           S. Kille
 Internet-Draft                                                 Isode Ltd
-Intended status: Informational                        September 24, 2017
-Expires: March 28, 2018
+Intended status: Informational                           October 8, 2017
+Expires: April 11, 2018
 
 
              LDAP Schema for supporting XMPP in White Pages
-                    draft-kille-ldap-xmpp-schema-08
+                    draft-kille-ldap-xmpp-schema-09
 
 Abstract
 
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 28, 2018.
+   This Internet-Draft will expire on April 11, 2018.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Kille                    Expires March 28, 2018                 [Page 1]
+Kille                    Expires April 11, 2018                 [Page 1]
 
-Internet-Draft            LDAP Schema for XMPP            September 2017
+Internet-Draft            LDAP Schema for XMPP              October 2017
 
 
    the Trust Legal Provisions and are provided without warranty as
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Kille                    Expires March 28, 2018                 [Page 2]
+Kille                    Expires April 11, 2018                 [Page 2]
 
-Internet-Draft            LDAP Schema for XMPP            September 2017
+Internet-Draft            LDAP Schema for XMPP              October 2017
 
 
    an object that is allowed to have an associated JID but does not
@@ -160,14 +160,14 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
    The following registrations are requested in the LDAP Registry
    <https://www.iana.org/assignments/ldap-parameters/ldap-
-   parameters.xhtml> in line with BP 64 [RFC4520].  This will lead to
+   parameters.xhtml> in line with BCP 64 [RFC4520].  This will lead to
 
 
 
 
-Kille                    Expires March 28, 2018                 [Page 3]
+Kille                    Expires April 11, 2018                 [Page 3]
 
-Internet-Draft            LDAP Schema for XMPP            September 2017
+Internet-Draft            LDAP Schema for XMPP              October 2017
 
 
    assignment of the two Object Identifiers, referenced as TBA.1 and
@@ -221,9 +221,9 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
 
 
-Kille                    Expires March 28, 2018                 [Page 4]
+Kille                    Expires April 11, 2018                 [Page 4]
 
-Internet-Draft            LDAP Schema for XMPP            September 2017
+Internet-Draft            LDAP Schema for XMPP              October 2017
 
 
    which may be corporate or public services.  Care should be taken to
@@ -277,9 +277,9 @@ Internet-Draft            LDAP Schema for XMPP            September 2017
 
 
 
-Kille                    Expires March 28, 2018                 [Page 5]
+Kille                    Expires April 11, 2018                 [Page 5]
 
-Internet-Draft            LDAP Schema for XMPP            September 2017
+Internet-Draft            LDAP Schema for XMPP              October 2017
 
 
 Appendix A.  Acknowledgements
@@ -333,4 +333,4 @@ Author's Address
 
 
 
-Kille                    Expires March 28, 2018                 [Page 6]
+Kille                    Expires April 11, 2018                 [Page 6]
