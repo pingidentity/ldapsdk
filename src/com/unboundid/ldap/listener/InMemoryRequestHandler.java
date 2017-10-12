@@ -121,6 +121,8 @@ import com.unboundid.ldap.sdk.experimental.
             DraftZeilengaLDAPNoOp12RequestControl;
 import com.unboundid.ldap.sdk.extensions.AbortedTransactionExtendedResult;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            IgnoreNoUserModificationRequestControl;
 import com.unboundid.ldif.LDIFAddChangeRecord;
 import com.unboundid.ldif.LDIFDeleteChangeRecord;
 import com.unboundid.ldif.LDIFException;
@@ -1019,7 +1021,9 @@ public final class InMemoryRequestHandler
                     StaticUtils.concatenateStrings(invalidReasons)), null));
         }
 
-        if ((! isInternalOp) && (schema != null))
+        if ((! isInternalOp) && (schema != null) &&
+            (! controlMap.containsKey(IgnoreNoUserModificationRequestControl.
+                    IGNORE_NO_USER_MODIFICATION_REQUEST_OID)))
         {
           for (final Attribute a : entry.getAttributes())
           {
@@ -4906,6 +4910,8 @@ findEntriesAndRefs:
     ctlSet.add(TransactionSpecificationRequestControl.
          TRANSACTION_SPECIFICATION_REQUEST_OID);
     ctlSet.add(VirtualListViewRequestControl.VIRTUAL_LIST_VIEW_REQUEST_OID);
+    ctlSet.add(IgnoreNoUserModificationRequestControl.
+         IGNORE_NO_USER_MODIFICATION_REQUEST_OID);
 
     final String[] controlOIDs = new String[ctlSet.size()];
     rootDSEEntry.addAttribute("supportedControl", ctlSet.toArray(controlOIDs));

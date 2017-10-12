@@ -47,6 +47,8 @@ import com.unboundid.ldap.sdk.controls.TransactionSpecificationRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.experimental.
             DraftZeilengaLDAPNoOp12RequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            IgnoreNoUserModificationRequestControl;
 
 import static com.unboundid.ldap.listener.ListenerMessages.*;
 
@@ -547,6 +549,26 @@ final class RequestControlPreProcessor
                    ERR_CONTROL_PROCESSOR_UNSUPPORTED_FOR_OP.get(oid));
             }
             break;
+        }
+      }
+      else if (oid.equals(IgnoreNoUserModificationRequestControl.
+           IGNORE_NO_USER_MODIFICATION_REQUEST_OID))
+      {
+        if (requestOpType == LDAPMessage.PROTOCOL_OP_TYPE_ADD_REQUEST)
+        {
+          m.put(oid, new IgnoreNoUserModificationRequestControl(control));
+        }
+        else
+        {
+          if (control.isCritical())
+          {
+            throw new LDAPException(ResultCode.UNAVAILABLE_CRITICAL_EXTENSION,
+                 ERR_CONTROL_PROCESSOR_UNSUPPORTED_FOR_OP.get(oid));
+          }
+          else
+          {
+            continue;
+          }
         }
       }
       else if (oid.equals(InMemoryRequestHandler.

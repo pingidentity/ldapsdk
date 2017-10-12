@@ -72,6 +72,8 @@ import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.ldap.sdk.extensions.WhoAmIExtendedRequest;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            IgnoreNoUserModificationRequestControl;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.util.MemoryBasedLogHandler;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
@@ -3700,6 +3702,20 @@ public final class InMemoryDirectoryServerTestCase
     }
 
 
+    // Ensure that the add is allowed if the ignore NO-USER-MODIFICATION request
+    // control is included in the request.
+    final AddRequest addRequest = new AddRequest(
+         "dn: ou=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: organizationalUnit",
+         "ou: test",
+         "entryUUID: " + UUID.randomUUID().toString());
+    addRequest.addControl(new IgnoreNoUserModificationRequestControl());
+    assertResultCodeEquals(conn, addRequest, ResultCode.SUCCESS);
+    assertResultCodeEquals(conn,
+         new DeleteRequest("ou=test,dc=example,dc=com"), ResultCode.SUCCESS);
+
+
     // Ensure that a modification is properly rejected.
     try
     {
@@ -3715,6 +3731,28 @@ public final class InMemoryDirectoryServerTestCase
     {
       assertEquals(le.getResultCode(), ResultCode.CONSTRAINT_VIOLATION);
     }
+
+
+    // Ensure that modify requests can't have the ignore NO-USER-MODIFICATION
+    // request control, whether it is critical or non-critical.
+    final ModifyRequest modifyRequest = new ModifyRequest(
+         "dn: ou=People,dc=example,dc=com",
+         "changetype: modify",
+         "replace: entryUUID",
+         "entryUUID: " + UUID.randomUUID().toString());
+    modifyRequest.addControl(new Control(
+         IgnoreNoUserModificationRequestControl.
+              IGNORE_NO_USER_MODIFICATION_REQUEST_OID,
+         true));
+    assertResultCodeEquals(conn, modifyRequest,
+         ResultCode.UNAVAILABLE_CRITICAL_EXTENSION);
+
+    modifyRequest.setControls(new Control(
+         IgnoreNoUserModificationRequestControl.
+              IGNORE_NO_USER_MODIFICATION_REQUEST_OID,
+         false));
+    assertResultCodeEquals(conn, modifyRequest,
+         ResultCode.CONSTRAINT_VIOLATION);
 
 
     // It should be possible to rename an entry to use its existing entryUUID.
