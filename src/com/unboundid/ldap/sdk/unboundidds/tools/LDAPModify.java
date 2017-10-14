@@ -2970,7 +2970,8 @@ readChangeRecordLoop:
     // If the --dryRun argument was provided, then we'll stop here.
     if (dryRun.isPresent())
     {
-      commentToOut(INFO_LDAPMODIFY_DRY_RUN_ADD.get(addRequest.getDN()));
+      commentToOut(INFO_LDAPMODIFY_DRY_RUN_ADD.get(addRequest.getDN(),
+           dryRun.getIdentifierString()));
       return ResultCode.SUCCESS;
     }
 
@@ -3084,7 +3085,8 @@ readChangeRecordLoop:
     // If the --dryRun argument was provided, then we'll stop here.
     if (dryRun.isPresent())
     {
-      commentToOut(INFO_LDAPMODIFY_DRY_RUN_DELETE.get(deleteRequest.getDN()));
+      commentToOut(INFO_LDAPMODIFY_DRY_RUN_DELETE.get(deleteRequest.getDN(),
+           dryRun.getIdentifierString()));
       return ResultCode.SUCCESS;
     }
 
@@ -3231,7 +3233,8 @@ readChangeRecordLoop:
     // If the --dryRun argument was provided, then we'll stop here.
     if (dryRun.isPresent())
     {
-      commentToOut(INFO_LDAPMODIFY_DRY_RUN_MODIFY.get(modifyRequest.getDN()));
+      commentToOut(INFO_LDAPMODIFY_DRY_RUN_MODIFY.get(modifyRequest.getDN(),
+           dryRun.getIdentifierString()));
       return ResultCode.SUCCESS;
     }
 
@@ -3369,12 +3372,13 @@ readChangeRecordLoop:
         if (newDN == null)
         {
           commentToOut(INFO_LDAPMODIFY_DRY_RUN_RENAME.get(
-               modifyDNRequest.getDN()));
+               modifyDNRequest.getDN(), dryRun.getIdentifierString()));
         }
         else
         {
           commentToOut(INFO_LDAPMODIFY_DRY_RUN_RENAME_TO.get(
-               modifyDNRequest.getDN(), newDN.toString()));
+               modifyDNRequest.getDN(), newDN.toString(),
+               dryRun.getIdentifierString()));
         }
       }
       else
@@ -3382,12 +3386,13 @@ readChangeRecordLoop:
         if (newDN == null)
         {
           commentToOut(INFO_LDAPMODIFY_DRY_RUN_MOVE.get(
-               modifyDNRequest.getDN()));
+               modifyDNRequest.getDN(), dryRun.getIdentifierString()));
         }
         else
         {
           commentToOut(INFO_LDAPMODIFY_DRY_RUN_MOVE_TO.get(
-               modifyDNRequest.getDN(), newDN.toString()));
+               modifyDNRequest.getDN(), newDN.toString(),
+               dryRun.getIdentifierString()));
         }
       }
       return ResultCode.SUCCESS;
