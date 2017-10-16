@@ -95,6 +95,7 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.SoftDeleteResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             TransactionSettingsResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.extensions.MultiUpdateChangesApplied;
 import com.unboundid.ldap.sdk.unboundidds.extensions.MultiUpdateExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
@@ -795,6 +796,10 @@ public final class ResultUtils
          TRANSACTION_SETTINGS_RESPONSE_OID))
     {
       addTransactionSettingsResponseControl(lines, c, prefix, maxWidth);
+    }
+    else if (oid.equals(UniquenessResponseControl.UNIQUENESS_RESPONSE_OID))
+    {
+      addUniquenessResponseControl(lines, c, prefix, maxWidth);
     }
     else
     {
@@ -2683,6 +2688,87 @@ public final class ResultUtils
          INFO_RESULT_UTILS_TXN_SETTINGS_BACKEND_LOCK_ACQUIRED.get(
               decoded.backendLockAcquired()),
          indentPrefix, maxWidth);
+  }
+
+
+
+  /**
+   * Adds a multi-line string representation of the provided control, which is
+   * expected to be a uniqueness response control, to the given list.
+   *
+   * @param  lines     The list to which the lines should be added.
+   * @param  c         The control to be formatted.
+   * @param  prefix    The prefix to use for each line.
+   * @param  maxWidth  The maximum length of each line in characters, including
+   *                   the comment prefix and indent.
+   */
+  private static void addUniquenessResponseControl(
+                           final List<String> lines, final Control c,
+                           final String prefix, final int maxWidth)
+  {
+    final UniquenessResponseControl decoded;
+    try
+    {
+      decoded = new UniquenessResponseControl(c.getOID(), c.isCritical(),
+           c.getValue());
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      addGenericResponseControl(lines, c, prefix, maxWidth);
+      return;
+    }
+
+    wrap(lines, INFO_RESULT_UTILS_UNIQUENESS_HEADER.get(), prefix, maxWidth);
+
+    final String indentPrefix = prefix + "     ";
+    wrap(lines, INFO_RESULT_UTILS_RESPONSE_CONTROL_OID.get(c.getOID()),
+         indentPrefix, maxWidth);
+    wrap(lines, INFO_RESULT_UTILS_UNIQUENESS_ID.get(decoded.getUniquenessID()),
+         indentPrefix, maxWidth);
+
+    final String preCommitStatus;
+    if (decoded.getPreCommitValidationPassed() == null)
+    {
+      preCommitStatus =
+           INFO_RESULT_UTILS_UNIQUENESS_STATUS_VALUE_NOT_ATTEMPTED.get();
+    }
+    else if (decoded.getPreCommitValidationPassed() == Boolean.TRUE)
+    {
+      preCommitStatus = INFO_RESULT_UTILS_UNIQUENESS_STATUS_VALUE_PASSED.get();
+    }
+    else
+    {
+      preCommitStatus = INFO_RESULT_UTILS_UNIQUENESS_STATUS_VALUE_FAILED.get();
+    }
+    wrap(lines,
+         INFO_RESULT_UTILS_UNIQUENESS_PRE_COMMIT_STATUS.get(preCommitStatus),
+         indentPrefix, maxWidth);
+
+    final String postCommitStatus;
+    if (decoded.getPostCommitValidationPassed() == null)
+    {
+      postCommitStatus =
+           INFO_RESULT_UTILS_UNIQUENESS_STATUS_VALUE_NOT_ATTEMPTED.get();
+    }
+    else if (decoded.getPostCommitValidationPassed() == Boolean.TRUE)
+    {
+      postCommitStatus = INFO_RESULT_UTILS_UNIQUENESS_STATUS_VALUE_PASSED.get();
+    }
+    else
+    {
+      postCommitStatus = INFO_RESULT_UTILS_UNIQUENESS_STATUS_VALUE_FAILED.get();
+    }
+    wrap(lines,
+         INFO_RESULT_UTILS_UNIQUENESS_POST_COMMIT_STATUS.get(postCommitStatus),
+         indentPrefix, maxWidth);
+
+    final String message = decoded.getValidationMessage();
+    if (message != null)
+    {
+      wrap(lines, INFO_RESULT_UTILS_UNIQUENESS_MESSAGE.get(message),
+           indentPrefix, maxWidth);
+    }
   }
 
 

@@ -1489,6 +1489,117 @@ public final class LDAPModifyTestCase
 
 
   /**
+   * Provides test coverage for the uniqueness control arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testUniquenessControl()
+         throws Exception
+  {
+    // The in-memory directory server doesn't have support for the uniqueness
+    // request control, but we can still use it to get coverage.
+    final InMemoryDirectoryServer ds = getTestDS(true, true);
+
+
+    // The lines that we'll use as test input.
+    final String[] inputLDIF =
+    {
+      "dn: uid=test.user,ou=People,dc=example,dc=com",
+      "changetype: add",
+      "objectClass: top",
+      "objectClass: person",
+      "objectClass: organizationalPerson",
+      "objectClass: inetOrgPerson",
+      "uid: test.user",
+      "givenName: Test",
+      "sn: User",
+      "cn: Test User"
+    };
+
+    // Test with a single uniqueness attribute type.
+    LDAPModify.main(getInputStream(inputLDIF), null, null,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--bindDN", "cn=Directory Manager",
+         "--bindPassword", "password",
+         "--uniquenessAttribute", "uid");
+
+    // Test with just a uniqueness filter.
+    LDAPModify.main(getInputStream(inputLDIF), null, null,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--bindDN", "cn=Directory Manager",
+         "--bindPassword", "password",
+         "--uniquenessFilter", "(uid=test.user)");
+
+    // Test with values for all arguments.
+    LDAPModify.main(getInputStream(inputLDIF), null, null,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--bindDN", "cn=Directory Manager",
+         "--bindPassword", "password",
+         "--uniquenessAttribute", "givenName",
+         "--uniquenessAttribute", "sn",
+         "--uniquenessBaseDN", "ou=People,dc=example,dc=com",
+         "--uniquenessFilter", "(objectClass=person)",
+         "--uniquenessMultipleAttributeBehavior",
+              "unique-within-each-attribute",
+         "--uniquenessPreCommitValidationLevel", "none",
+         "--uniquenessPostCommitValidationLevel",
+              "all-available-backend-servers");
+
+    // Test with alternate values for the multiple attribute behavior and
+    // validation level.
+    LDAPModify.main(getInputStream(inputLDIF), null, null,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--bindDN", "cn=Directory Manager",
+         "--bindPassword", "password",
+         "--uniquenessAttribute", "givenName",
+         "--uniquenessAttribute", "sn",
+         "--uniquenessBaseDN", "ou=People,dc=example,dc=com",
+         "--uniquenessFilter", "(objectClass=person)",
+         "--uniquenessMultipleAttributeBehavior",
+              "unique-across-all-attributes-including-in-same-entry",
+         "--uniquenessPreCommitValidationLevel", "all-subtree-views",
+         "--uniquenessPostCommitValidationLevel", "all-backend-sets");
+
+    // Test with still alternate values for the multiple attribute behavior and
+    // validation level.
+    LDAPModify.main(getInputStream(inputLDIF), null, null,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--bindDN", "cn=Directory Manager",
+         "--bindPassword", "password",
+         "--uniquenessAttribute", "givenName",
+         "--uniquenessAttribute", "sn",
+         "--uniquenessBaseDN", "ou=People,dc=example,dc=com",
+         "--uniquenessFilter", "(objectClass=person)",
+         "--uniquenessMultipleAttributeBehavior",
+              "unique-across-all-attributes-except-in-same-entry",
+         "--uniquenessPreCommitValidationLevel", "all-backend-sets",
+         "--uniquenessPostCommitValidationLevel", "all-subtree-views");
+
+    // Test with the final alternate value for the multiple attribute behavior.
+    LDAPModify.main(getInputStream(inputLDIF), null, null,
+         "--hostname", "localhost",
+         "--port", String.valueOf(ds.getListenPort()),
+         "--bindDN", "cn=Directory Manager",
+         "--bindPassword", "password",
+         "--uniquenessAttribute", "givenName",
+         "--uniquenessAttribute", "sn",
+         "--uniquenessBaseDN", "ou=People,dc=example,dc=com",
+         "--uniquenessFilter", "(objectClass=person)",
+         "--uniquenessMultipleAttributeBehavior", "unique-in-combination",
+         "--uniquenessPreCommitValidationLevel",
+              "all-available-backend-servers",
+         "--uniquenessPostCommitValidationLevel", "none");
+  }
+
+
+
+  /**
    * Provides test coverage for a number of bind request controls.
    *
    * @throws  Exception  If an unexpected problem occurs.

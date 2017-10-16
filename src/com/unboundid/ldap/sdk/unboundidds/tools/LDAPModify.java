@@ -108,8 +108,13 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
             SuppressOperationalAttributeUpdateRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             SuppressReferentialIntegrityUpdatesRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessMultipleAttributeBehavior;
+import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.
+            UniquenessRequestControlProperties;
 import com.unboundid.ldap.sdk.unboundidds.controls.SuppressType;
 import com.unboundid.ldap.sdk.unboundidds.controls.UndeleteRequestControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessValidationLevel;
 import com.unboundid.ldap.sdk.unboundidds.extensions.MultiUpdateErrorBehavior;
 import com.unboundid.ldap.sdk.unboundidds.extensions.MultiUpdateExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
@@ -282,6 +287,7 @@ public final class LDAPModify
   private ControlArgument operationControl = null;
   private DNArgument modifyEntryWithDN = null;
   private DNArgument proxyV1As = null;
+  private DNArgument uniquenessBaseDN = null;
   private DurationArgument assuredReplicationTimeout = null;
   private FileArgument ldifFile = null;
   private FileArgument modifyEntriesMatchingFiltersFromFile = null;
@@ -289,6 +295,7 @@ public final class LDAPModify
   private FileArgument rejectFile = null;
   private FilterArgument assertionFilter = null;
   private FilterArgument modifyEntriesMatchingFilter = null;
+  private FilterArgument uniquenessFilter = null;
   private IntegerArgument ratePerSecond = null;
   private IntegerArgument searchPageSize = null;
   private StringArgument assuredReplicationLocalLevel = null;
@@ -302,6 +309,10 @@ public final class LDAPModify
   private StringArgument preReadAttribute = null;
   private StringArgument proxyAs = null;
   private StringArgument suppressOperationalAttributeUpdates = null;
+  private StringArgument uniquenessAttribute = null;
+  private StringArgument uniquenessMultipleAttributeBehavior = null;
+  private StringArgument uniquenessPostCommitValidationLevel = null;
+  private StringArgument uniquenessPreCommitValidationLevel = null;
 
   // Indicates whether we've written anything to the reject writer yet.
   private final AtomicBoolean rejectWritten;
@@ -979,6 +990,91 @@ public final class LDAPModify
          INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
     parser.addArgument(usePasswordPolicyControl);
 
+
+    uniquenessAttribute = new StringArgument(null, "uniquenessAttribute", false,
+         0, INFO_PLACEHOLDER_ATTR.get(),
+        INFO_LDAPMODIFY_ARG_DESCRIPTION_UNIQUE_ATTR.get());
+    uniquenessAttribute.addLongIdentifier("uniquenessAttributeType", true);
+    uniquenessAttribute.addLongIdentifier("uniqueAttribute", true);
+    uniquenessAttribute.addLongIdentifier("uniqueAttributeType", true);
+    uniquenessAttribute.addLongIdentifier("uniqueness-attribute", true);
+    uniquenessAttribute.addLongIdentifier("uniqueness-attribute-type", true);
+    uniquenessAttribute.addLongIdentifier("unique-attribute", true);
+    uniquenessAttribute.addLongIdentifier("unique-attribute-type", true);
+    uniquenessAttribute.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(uniquenessAttribute);
+
+
+    uniquenessFilter = new FilterArgument(null, "uniquenessFilter", false, 1,
+         null, INFO_LDAPMODIFY_ARG_DESCRIPTION_UNIQUE_FILTER.get());
+    uniquenessFilter.addLongIdentifier("uniqueness-filter", true);
+    uniquenessFilter.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(uniquenessFilter);
+
+
+    uniquenessBaseDN = new DNArgument(null, "uniquenessBaseDN", false, 1, null,
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_UNIQUE_BASE_DN.get());
+    uniquenessBaseDN.addLongIdentifier("uniqueness-base-dn", true);
+    uniquenessBaseDN.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(uniquenessBaseDN);
+    parser.addDependentArgumentSet(uniquenessBaseDN, uniquenessAttribute,
+         uniquenessFilter);
+
+
+    final LinkedHashSet<String> mabValues = new LinkedHashSet<>(4);
+    mabValues.add("unique-within-each-attribute");
+    mabValues.add("unique-across-all-attributes-including-in-same-entry");
+    mabValues.add("unique-across-all-attributes-except-in-same-entry");
+    mabValues.add("unique-in-combination");
+    uniquenessMultipleAttributeBehavior = new StringArgument(null,
+         "uniquenessMultipleAttributeBehavior", false, 1,
+         INFO_LDAPMODIFY_PLACEHOLDER_BEHAVIOR.get(),
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_UNIQUE_MULTIPLE_ATTRIBUTE_BEHAVIOR.
+              get(),
+         mabValues);
+    uniquenessMultipleAttributeBehavior.addLongIdentifier(
+         "uniqueness-multiple-attribute-behavior", true);
+    uniquenessMultipleAttributeBehavior.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(uniquenessMultipleAttributeBehavior);
+    parser.addDependentArgumentSet(uniquenessMultipleAttributeBehavior,
+         uniquenessAttribute);
+
+
+    final LinkedHashSet<String> vlValues = new LinkedHashSet<>(4);
+    vlValues.add("none");
+    vlValues.add("all-subtree-views");
+    vlValues.add("all-backend-sets");
+    vlValues.add("all-available-backend-servers");
+    uniquenessPreCommitValidationLevel = new StringArgument(null,
+         "uniquenessPreCommitValidationLevel", false, 1,
+         INFO_LDAPMODIFY_PLACEHOLDER_LEVEL.get(),
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_UNIQUE_PRE_COMMIT_LEVEL.get(),
+         vlValues);
+    uniquenessPreCommitValidationLevel.addLongIdentifier(
+         "uniqueness-pre-commit-validation-level", true);
+    uniquenessPreCommitValidationLevel.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(uniquenessPreCommitValidationLevel);
+    parser.addDependentArgumentSet(uniquenessPreCommitValidationLevel,
+         uniquenessAttribute, uniquenessFilter);
+
+
+    uniquenessPostCommitValidationLevel = new StringArgument(null,
+         "uniquenessPostCommitValidationLevel", false, 1,
+         INFO_LDAPMODIFY_PLACEHOLDER_LEVEL.get(),
+         INFO_LDAPMODIFY_ARG_DESCRIPTION_UNIQUE_POST_COMMIT_LEVEL.get(),
+         vlValues);
+    uniquenessPostCommitValidationLevel.addLongIdentifier(
+         "uniqueness-post-commit-validation-level", true);
+    uniquenessPostCommitValidationLevel.setArgumentGroupName(
+         INFO_LDAPMODIFY_ARG_GROUP_CONTROLS.get());
+    parser.addArgument(uniquenessPostCommitValidationLevel);
+    parser.addDependentArgumentSet(uniquenessPostCommitValidationLevel,
+         uniquenessAttribute, uniquenessFilter);
 
     operationControl = new ControlArgument('J', "control", false, 0, null,
          INFO_LDAPMODIFY_ARG_DESCRIPTION_OP_CONTROL.get());
@@ -2732,6 +2828,114 @@ readChangeRecordLoop:
       modifyControls.add(c);
       modifyDNControls.add(c);
       searchControls.add(c);
+    }
+
+    if (uniquenessAttribute.isPresent() || uniquenessFilter.isPresent())
+    {
+      final UniquenessRequestControlProperties uniquenessProperties;
+      if (uniquenessAttribute.isPresent())
+      {
+        uniquenessProperties = new UniquenessRequestControlProperties(
+             uniquenessAttribute.getValues());
+        if (uniquenessFilter.isPresent())
+        {
+          uniquenessProperties.setFilter(uniquenessFilter.getValue());
+        }
+      }
+      else
+      {
+        uniquenessProperties = new UniquenessRequestControlProperties(
+             uniquenessFilter.getValue());
+      }
+
+      if (uniquenessBaseDN.isPresent())
+      {
+        uniquenessProperties.setBaseDN(uniquenessBaseDN.getStringValue());
+      }
+
+      if (uniquenessMultipleAttributeBehavior.isPresent())
+      {
+        final String value =
+             uniquenessMultipleAttributeBehavior.getValue().toLowerCase();
+        switch (value)
+        {
+          case "unique-within-each-attribute":
+            uniquenessProperties.setMultipleAttributeBehavior(
+                 UniquenessMultipleAttributeBehavior.
+                      UNIQUE_WITHIN_EACH_ATTRIBUTE);
+            break;
+          case "unique-across-all-attributes-including-in-same-entry":
+            uniquenessProperties.setMultipleAttributeBehavior(
+                 UniquenessMultipleAttributeBehavior.
+                      UNIQUE_ACROSS_ALL_ATTRIBUTES_INCLUDING_IN_SAME_ENTRY);
+            break;
+          case "unique-across-all-attributes-except-in-same-entry":
+            uniquenessProperties.setMultipleAttributeBehavior(
+                 UniquenessMultipleAttributeBehavior.
+                      UNIQUE_ACROSS_ALL_ATTRIBUTES_EXCEPT_IN_SAME_ENTRY);
+            break;
+          case "unique-in-combination":
+            uniquenessProperties.setMultipleAttributeBehavior(
+                 UniquenessMultipleAttributeBehavior.UNIQUE_IN_COMBINATION);
+            break;
+        }
+      }
+
+      if (uniquenessPreCommitValidationLevel.isPresent())
+      {
+        final String value =
+             uniquenessPreCommitValidationLevel.getValue().toLowerCase();
+        switch (value)
+        {
+          case "none":
+            uniquenessProperties.setPreCommitValidationLevel(
+                 UniquenessValidationLevel.NONE);
+            break;
+          case "all-subtree-views":
+            uniquenessProperties.setPreCommitValidationLevel(
+                 UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
+            break;
+          case "all-backend-sets":
+            uniquenessProperties.setPreCommitValidationLevel(
+                 UniquenessValidationLevel.ALL_BACKEND_SETS);
+            break;
+          case "all-available-backend-servers":
+            uniquenessProperties.setPreCommitValidationLevel(
+                 UniquenessValidationLevel.ALL_AVAILABLE_BACKEND_SERVERS);
+            break;
+        }
+      }
+
+      if (uniquenessPostCommitValidationLevel.isPresent())
+      {
+        final String value =
+             uniquenessPostCommitValidationLevel.getValue().toLowerCase();
+        switch (value)
+        {
+          case "none":
+            uniquenessProperties.setPostCommitValidationLevel(
+                 UniquenessValidationLevel.NONE);
+            break;
+          case "all-subtree-views":
+            uniquenessProperties.setPostCommitValidationLevel(
+                 UniquenessValidationLevel.ALL_SUBTREE_VIEWS);
+            break;
+          case "all-backend-sets":
+            uniquenessProperties.setPostCommitValidationLevel(
+                 UniquenessValidationLevel.ALL_BACKEND_SETS);
+            break;
+          case "all-available-backend-servers":
+            uniquenessProperties.setPostCommitValidationLevel(
+                 UniquenessValidationLevel.ALL_AVAILABLE_BACKEND_SERVERS);
+            break;
+        }
+      }
+
+      final UniquenessRequestControl c =
+           new UniquenessRequestControl(true, null, uniquenessProperties);
+      addControls.add(c);
+      modifyControls.add(c);
+      modifyDNControls.add(c);
     }
   }
 

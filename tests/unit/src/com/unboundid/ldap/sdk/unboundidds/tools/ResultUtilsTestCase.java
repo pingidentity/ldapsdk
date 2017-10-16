@@ -102,6 +102,7 @@ import com.unboundid.ldap.sdk.unboundidds.controls.
 import com.unboundid.ldap.sdk.unboundidds.controls.SoftDeleteResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.
             TransactionSettingsResponseControl;
+import com.unboundid.ldap.sdk.unboundidds.controls.UniquenessResponseControl;
 import com.unboundid.ldap.sdk.unboundidds.extensions.MultiUpdateChangesApplied;
 import com.unboundid.ldap.sdk.unboundidds.extensions.MultiUpdateExtendedResult;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
@@ -1939,6 +1940,87 @@ public final class ResultUtilsTestCase
                 "#      Response Control:",
                 "#           OID:  " + TransactionSettingsResponseControl.
                      TRANSACTION_SETTINGS_RESPONSE_OID,
+                "#           Is Critical:  false")
+         });
+
+
+    // A valid uniqueness response control in which all of the tests passed.
+    resultList.add(
+         new Object[]
+         {
+           new UniquenessResponseControl("all-passed", true, true, null),
+           Arrays.asList(
+                "#      Uniqueness Response Control:",
+                "#           OID:  " + UniquenessResponseControl.
+                     UNIQUENESS_RESPONSE_OID,
+                "#           Uniqueness ID:  all-passed",
+                "#           Pre-Commit Validation Status:  Passed",
+                "#           Post-Commit Validation Status:  Passed")
+         });
+
+
+    // A valid uniqueness response control in which the pre-commit attempt
+    // failed.
+    resultList.add(
+         new Object[]
+         {
+           new UniquenessResponseControl("pre-commit-failed", false, null,
+                "The pre-commit attempt failed"),
+           Arrays.asList(
+                "#      Uniqueness Response Control:",
+                "#           OID:  " + UniquenessResponseControl.
+                     UNIQUENESS_RESPONSE_OID,
+                "#           Uniqueness ID:  pre-commit-failed",
+                "#           Pre-Commit Validation Status:  Failed",
+                "#           Post-Commit Validation Status:  Not Attempted",
+                "#           Message:  The pre-commit attempt failed")
+         });
+
+
+    // A valid uniqueness response control in which the pre-commit attempt
+    // passed but the post-commit attempt failed.
+    resultList.add(
+         new Object[]
+         {
+           new UniquenessResponseControl("post-commit-failed", true, false,
+                "The post-commit attempt failed"),
+           Arrays.asList(
+                "#      Uniqueness Response Control:",
+                "#           OID:  " + UniquenessResponseControl.
+                     UNIQUENESS_RESPONSE_OID,
+                "#           Uniqueness ID:  post-commit-failed",
+                "#           Pre-Commit Validation Status:  Passed",
+                "#           Post-Commit Validation Status:  Failed",
+                "#           Message:  The post-commit attempt failed")
+         });
+
+
+    // A valid uniqueness response control in which no validation was attempted.
+    resultList.add(
+         new Object[]
+         {
+           new UniquenessResponseControl("not-attempted", null, null,
+                "No validation was attempted"),
+           Arrays.asList(
+                "#      Uniqueness Response Control:",
+                "#           OID:  " + UniquenessResponseControl.
+                     UNIQUENESS_RESPONSE_OID,
+                "#           Uniqueness ID:  not-attempted",
+                "#           Pre-Commit Validation Status:  Not Attempted",
+                "#           Post-Commit Validation Status:  Not Attempted",
+                "#           Message:  No validation was attempted")
+         });
+
+
+    // An invalid uniqueness response control.
+    resultList.add(
+         new Object[]
+         {
+           new Control(UniquenessResponseControl.UNIQUENESS_RESPONSE_OID),
+           Arrays.asList(
+                "#      Response Control:",
+                "#           OID:  " + UniquenessResponseControl.
+                     UNIQUENESS_RESPONSE_OID,
                 "#           Is Critical:  false")
          });
 
