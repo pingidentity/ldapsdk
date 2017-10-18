@@ -22,6 +22,7 @@ package com.unboundid.ldap.sdk;
 
 
 
+import java.util.logging.Level;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.asn1.ASN1StreamReader;
@@ -29,6 +30,7 @@ import com.unboundid.asn1.ASN1StreamReaderSequence;
 import com.unboundid.ldap.protocol.LDAPMessage;
 import com.unboundid.ldap.sdk.extensions.CancelExtendedRequest;
 import com.unboundid.ldap.sdk.schema.Schema;
+import com.unboundid.util.Debug;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -149,9 +151,11 @@ public final class InternalSDKHelper
                             final Control... controls)
          throws LDAPException
   {
+    final int messageID = connection.nextMessageID();
     final CancelExtendedRequest cancelRequest =
          new CancelExtendedRequest(targetMessageID);
-    connection.sendMessage(new LDAPMessage(connection.nextMessageID(),
+    Debug.debugLDAPRequest(Level.INFO, cancelRequest, messageID, connection);
+    connection.sendMessage(new LDAPMessage(messageID,
          new ExtendedRequest(cancelRequest), controls));
   }
 

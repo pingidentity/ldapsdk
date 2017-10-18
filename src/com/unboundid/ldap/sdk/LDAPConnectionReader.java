@@ -192,10 +192,13 @@ final class LDAPConnectionReader
                                 final ResponseAcceptor acceptor)
        throws LDAPException
   {
-    if (acceptorMap.putIfAbsent(messageID, acceptor) != null)
+    final ResponseAcceptor existingAcceptor =
+         acceptorMap.putIfAbsent(messageID, acceptor);
+    if (existingAcceptor != null)
     {
       throw new LDAPException(ResultCode.LOCAL_ERROR,
-                              ERR_CONNREADER_MSGID_IN_USE.get());
+           ERR_CONNREADER_MSGID_IN_USE.get(String.valueOf(acceptor), messageID,
+                String.valueOf(connection), String.valueOf(existingAcceptor)));
     }
   }
 

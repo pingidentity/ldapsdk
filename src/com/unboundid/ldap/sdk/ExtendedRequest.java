@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1BufferSequence;
@@ -337,7 +338,7 @@ public class ExtendedRequest
     try
     {
       // Send the request to the server.
-      debugLDAPRequest(this);
+      debugLDAPRequest(Level.INFO, this, messageID, connection);
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumExtendedRequests();
       connection.sendMessage(message);
@@ -410,7 +411,7 @@ public class ExtendedRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(this);
+    debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumExtendedRequests();
     connection.sendMessage(message);
 

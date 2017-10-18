@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import com.unboundid.asn1.ASN1Buffer;
 import com.unboundid.asn1.ASN1Element;
@@ -368,7 +369,7 @@ public final class DeleteRequest
     // Send the request to the server.
     try
     {
-      debugLDAPRequest(this);
+      debugLDAPRequest(Level.INFO, this, messageID, connection);
       connection.getConnectionStatistics().incrementNumDeleteRequests();
       connection.sendMessage(message);
       return asyncRequestID;
@@ -428,7 +429,7 @@ public final class DeleteRequest
 
     // Send the request to the server.
     final long requestTime = System.nanoTime();
-    debugLDAPRequest(this);
+    debugLDAPRequest(Level.INFO, this, messageID, connection);
     connection.getConnectionStatistics().incrementNumDeleteRequests();
     try
     {

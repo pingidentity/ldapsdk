@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.protocol.BindRequestProtocolOp;
@@ -193,6 +194,7 @@ public abstract class SASLBindRequest
     connection.registerResponseAcceptor(msgID, this);
     try
     {
+      debugLDAPRequest(Level.INFO, this, msgID, connection);
       final long requestTime = System.nanoTime();
       connection.getConnectionStatistics().incrementNumBindRequests();
       connection.sendMessage(requestMessage);
@@ -262,6 +264,7 @@ public abstract class SASLBindRequest
 
 
     final int msgID = requestMessage.getMessageID();
+    debugLDAPRequest(Level.INFO, this, msgID, connection);
     final long requestTime = System.nanoTime();
     connection.getConnectionStatistics().incrementNumBindRequests();
     connection.sendMessage(requestMessage);

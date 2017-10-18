@@ -788,6 +788,29 @@ public final class Debug
   {
     if (debugEnabled && debugTypes.contains(DebugType.LDAP))
     {
+      debugLDAPRequest(Level.INFO, String.valueOf(r), i, c);
+    }
+  }
+
+
+
+  /**
+   * Writes debug information about the provided request, if appropriate.
+   *
+   * @param  l  The log level that should be used for the debug information.
+   * @param  s  A string representation of the LDAP request for which debug
+   *            information should be written.
+   * @param  i  The message ID for the request that will be sent.  It may be
+   *            negative if no message ID is available.
+   * @param  c  The connection on which the request will be sent.  It may be
+   *            {@code null} for historic reasons, but should be
+   *            non-{@code null} in new uses.
+   */
+  public static void debugLDAPRequest(final Level l, final String s,
+                                      final int i, final LDAPConnection c)
+  {
+    if (debugEnabled && debugTypes.contains(DebugType.LDAP))
+    {
       final StringBuilder buffer = new StringBuilder();
       addCommonHeader(buffer, l);
 
@@ -827,7 +850,7 @@ public final class Debug
       }
 
       buffer.append("sendingLDAPRequest=\"");
-      r.toString(buffer);
+      buffer.append(s);
       buffer.append('"');
 
       logger.log(l,  buffer.toString());

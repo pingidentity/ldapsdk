@@ -1545,13 +1545,16 @@ public final class LDAPConnection
       {
         unbindRequestSent = true;
         setDisconnectInfo(DisconnectType.UNBIND, null, null);
+
+        final int messageID = nextMessageID();
         if (debugEnabled(DebugType.LDAP))
         {
-          debug(Level.INFO, DebugType.LDAP, "Sending LDAP unbind request.");
+          debugLDAPRequest(Level.INFO, createUnbindRequestString(controls),
+               messageID, this);
         }
 
         connectionStatistics.incrementNumUnbindRequests();
-        sendMessage(new LDAPMessage(nextMessageID(),
+        sendMessage(new LDAPMessage(messageID,
              new UnbindRequestProtocolOp(), controls));
       }
       catch (final Exception e)
@@ -1561,6 +1564,41 @@ public final class LDAPConnection
     }
 
     setClosed();
+  }
+
+
+
+  /**
+   * Creates a string representation of an unbind request with the provided
+   * information.
+   *
+   * @param  controls  The set of controls included in the unbind request, if
+   *                   any.
+   *
+   * @return  The string representation of the unbind request.
+   */
+  private static String createUnbindRequestString(final Control... controls)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append("UnbindRequest(");
+
+    if ((controls != null) && (controls.length > 0))
+    {
+      buffer.append("controls={");
+      for (int i=0; i < controls.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append(controls[i]);
+      }
+      buffer.append('}');
+    }
+
+    buffer.append(')');
+    return buffer.toString();
   }
 
 
@@ -1783,12 +1821,6 @@ public final class LDAPConnection
   public void abandon(final AsyncRequestID requestID, final Control[] controls)
          throws LDAPException
   {
-    if (debugEnabled(DebugType.LDAP))
-    {
-      debug(Level.INFO, DebugType.LDAP,
-            "Sending LDAP abandon request for message ID " + requestID);
-    }
-
     if (synchronousMode())
     {
       throw new LDAPException(ResultCode.NOT_SUPPORTED,
@@ -1807,7 +1839,14 @@ public final class LDAPConnection
     }
 
     connectionStatistics.incrementNumAbandonRequests();
-    sendMessage(new LDAPMessage(nextMessageID(),
+    final int abandonMessageID = nextMessageID();
+    if (debugEnabled(DebugType.LDAP))
+    {
+      debugLDAPRequest(Level.INFO,
+           createAbandonRequestString(messageID, controls), abandonMessageID,
+           this);
+    }
+    sendMessage(new LDAPMessage(abandonMessageID,
          new AbandonRequestProtocolOp(messageID), controls));
   }
 
@@ -1827,12 +1866,6 @@ public final class LDAPConnection
   void abandon(final int messageID, final Control... controls)
        throws LDAPException
   {
-    if (debugEnabled(DebugType.LDAP))
-    {
-      debug(Level.INFO, DebugType.LDAP,
-            "Sending LDAP abandon request for message ID " + messageID);
-    }
-
     try
     {
       connectionInternals.getConnectionReader().deregisterResponseAcceptor(
@@ -1844,8 +1877,53 @@ public final class LDAPConnection
     }
 
     connectionStatistics.incrementNumAbandonRequests();
-    sendMessage(new LDAPMessage(nextMessageID(),
+    final int abandonMessageID = nextMessageID();
+    if (debugEnabled(DebugType.LDAP))
+    {
+      debugLDAPRequest(Level.INFO,
+           createAbandonRequestString(messageID, controls), abandonMessageID,
+           this);
+    }
+    sendMessage(new LDAPMessage(abandonMessageID,
          new AbandonRequestProtocolOp(messageID), controls));
+  }
+
+
+
+  /**
+   * Creates a string representation of an abandon request with the provided
+   * information.
+   *
+   * @param  idToAbandon  The message ID of the operation to abandon.
+   * @param  controls     The set of controls included in the abandon request,
+   *                      if any.
+   *
+   * @return  The string representation of the abandon request.
+   */
+  private static String createAbandonRequestString(final int idToAbandon,
+                                                   final Control... controls)
+  {
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append("AbandonRequest(idToAbandon=");
+    buffer.append(idToAbandon);
+
+    if ((controls != null) && (controls.length > 0))
+    {
+      buffer.append(", controls={");
+      for (int i=0; i < controls.length; i++)
+      {
+        if (i > 0)
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append(controls[i]);
+      }
+      buffer.append('}');
+    }
+
+    buffer.append(')');
+    return buffer.toString();
   }
 
 
