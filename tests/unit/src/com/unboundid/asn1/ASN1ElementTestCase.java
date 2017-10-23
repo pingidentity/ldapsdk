@@ -672,6 +672,23 @@ public class ASN1ElementTestCase
 
 
   /**
+   * Tests the {@code decodeAsBigInteger} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeAsBigInteger()
+         throws Exception
+  {
+    final ASN1BigInteger i = new ASN1BigInteger(8765L);
+    final ASN1Element e = ASN1Element.decode(i.encode());
+    assertEquals(e.decodeAsBigInteger().getBigIntegerValue().longValue(),
+         8765L);
+  }
+
+
+
+  /**
    * Tests the {@code decodeAsNull} method.
    *
    * @throws  Exception  If an unexpected problem occurs.

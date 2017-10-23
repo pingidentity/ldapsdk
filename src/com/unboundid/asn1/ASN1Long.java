@@ -33,9 +33,11 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
- * This class provides an ASN.1 long element.  It is exactly the same as an
- * ASN.1 integer, but it uses a 64-bit representation for the decoded value
- * rather than a 32-bit representation.
+ * This class provides an ASN.1 integer element that is backed by a Java
+ * {@code long}, which is a signed 64-bit value and can represent any integer
+ * between -9223372036854775808 and 9223372036854775807.  If you need support
+ * for integer values of arbitrary size, see the {@link ASN1BigInteger} class as
+ * an alternative.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

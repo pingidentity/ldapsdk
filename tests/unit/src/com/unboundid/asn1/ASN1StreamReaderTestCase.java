@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -259,6 +260,13 @@ public class ASN1StreamReaderTestCase
       new Object[] { new ASN1Long(1L) },
       new Object[] { new ASN1Long(123456789L) },
       new Object[] { new ASN1Long(1234567890123456789L) },
+      new Object[] { new ASN1BigInteger(-1234567890123456789L) },
+      new Object[] { new ASN1BigInteger(-123456789L) },
+      new Object[] { new ASN1BigInteger(-1L) },
+      new Object[] { new ASN1BigInteger(0L) },
+      new Object[] { new ASN1BigInteger(1L) },
+      new Object[] { new ASN1BigInteger(123456789L) },
+      new Object[] { new ASN1BigInteger(1234567890123456789L) },
       new Object[] { new ASN1Null() },
       new Object[] { new ASN1OctetString() },
       new Object[] { new ASN1OctetString(new byte[0]) },
@@ -743,6 +751,97 @@ public class ASN1StreamReaderTestCase
     }
 
     return longArray;
+  }
+
+
+
+  /**
+   * Tests the ability to read valid big integer elements.
+   *
+   * @param  longValue  The value to use for the long element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="longValues")
+  public void readValidBigIntegerElements(final long longValue)
+         throws Exception
+  {
+    final BigInteger bigIntegerValue = BigInteger.valueOf(longValue);
+
+    final ASN1Buffer b = new ASN1Buffer();
+    b.addInteger(bigIntegerValue);
+    b.addInteger((byte) 0x80, bigIntegerValue);
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(b.toByteArray());
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    assertEquals(reader.readBigInteger(), bigIntegerValue);
+    assertEquals(reader.readBigInteger(), bigIntegerValue);
+    assertNull(reader.readBigInteger());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read a big integer element that does not
+   * have enough bytes for the full length.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { IOException.class })
+  public void testReadBigIntegerNotEnoughBytesForValue()
+         throws Exception
+  {
+    final byte[] elementBytes = { (byte) 0x02, (byte) 0x02, (byte) 0x00 };
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(elementBytes);
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    reader.readBigInteger();
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read a big integer element with a length
+   * that is too short.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ASN1Exception.class })
+  public void testReadBigIntegerLengthTooShort()
+         throws Exception
+  {
+    final byte[] elementBytes = { (byte) 0x02, (byte) 0x00 };
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(elementBytes);
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    reader.readBigInteger();
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read a big integer element with a length
+   * that is too long and not enough bytes for the full length.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { IOException.class })
+  public void testReadBigIntegerLengthTooLongNotEnoughBytesForValue()
+         throws Exception
+  {
+    final byte[] elementBytes = { (byte) 0x02, (byte) 0x09, (byte) 0x00 };
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(elementBytes);
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    reader.readBigInteger();
   }
 
 
@@ -1263,6 +1362,7 @@ public class ASN1StreamReaderTestCase
     new ASN1Enumerated(0).writeTo(os);
     new ASN1Integer(0).writeTo(os);
     new ASN1Long(0L).writeTo(os);
+    new ASN1BigInteger(0L).writeTo(os);
     new ASN1Null().writeTo(os);
     new ASN1OctetString().writeTo(os);
     new ASN1Sequence().writeTo(os);

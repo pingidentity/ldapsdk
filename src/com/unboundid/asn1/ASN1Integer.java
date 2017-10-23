@@ -33,8 +33,12 @@ import static com.unboundid.util.Debug.*;
 
 
 /**
- * This class provides an ASN.1 integer element, whose value may be represented
- * as an integer with up to a 32-bit representation.
+ * This class provides an ASN.1 integer element that is backed by a Java
+ * {@code int}, which is a signed 32-bit value and can represent any integer
+ * between -2147483648 and 2147483647.  If you need support for integer values
+ * in the signed 64-bit range, see the {@link ASN1Long} class as an alternative.
+ * If you need support for integer values of arbitrary size, see
+ * {@link ASN1BigInteger}.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)

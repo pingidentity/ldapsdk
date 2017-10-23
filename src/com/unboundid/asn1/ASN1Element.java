@@ -611,6 +611,22 @@ public class ASN1Element
 
 
   /**
+   * Decodes this ASN.1 element as a big integer element.
+   *
+   * @return  The decoded big integer element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as a big integer
+   *                         element.
+   */
+  public final ASN1BigInteger decodeAsBigInteger()
+         throws ASN1Exception
+  {
+    return ASN1BigInteger.decodeAsBigInteger(this);
+  }
+
+
+
+  /**
    * Decodes this ASN.1 element as a null element.
    *
    * @return  The decoded null element.

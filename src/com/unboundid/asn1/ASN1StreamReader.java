@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 import javax.security.sasl.SaslClient;
@@ -751,6 +752,60 @@ public final class ASN1StreamReader
     totalBytesRead += length;
     debugASN1Read(Level.INFO, "Long", type, length, longValue);
     return longValue;
+  }
+
+
+
+  /**
+   * Reads an ASN.1 integer element from the input stream and returns the value
+   * as a {@code BigInteger}.
+   *
+   * @return  The {@code BigInteger} value of the ASN.1 integer element read, or
+   *          {@code null} if the end of the input stream was reached before any
+   *          data could be read.  If {@code null} is returned, then the input
+   *          stream will have been closed.
+   *
+   * @throws  IOException  If a problem occurs while reading from the input
+   *                       stream, if the end of the input stream is reached in
+   *                       the middle of the element, or or if an attempt is
+   *                       made to read an element larger than the maximum
+   *                       allowed size.
+   *
+   * @throws  ASN1Exception  If the data read cannot be parsed as an ASN.1
+   *                         integer element.
+   */
+  public BigInteger readBigInteger()
+         throws IOException, ASN1Exception
+  {
+    final int type = readType();
+    if (type < 0)
+    {
+      return null;
+    }
+
+    final int length = readLength();
+    if (length == 0)
+    {
+      throw new ASN1Exception(ERR_BIG_INTEGER_DECODE_EMPTY_VALUE.get());
+    }
+
+    final byte[] valueBytes = new byte[length];
+    for (int i=0; i < length; i++)
+    {
+      final int byteRead = read(false);
+      if (byteRead < 0)
+      {
+        throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
+      }
+
+      valueBytes[i] = (byte) byteRead;
+    }
+
+    final BigInteger bigIntegerValue = new BigInteger(valueBytes);
+
+    totalBytesRead += length;
+    debugASN1Read(Level.INFO, "BigInteger", type, length, bigIntegerValue);
+    return bigIntegerValue;
   }
 
 

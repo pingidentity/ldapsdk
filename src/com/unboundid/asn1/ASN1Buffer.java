@@ -25,6 +25,7 @@ package com.unboundid.asn1;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -523,6 +524,37 @@ public final class ASN1Buffer
         buffer.append((byte) (longValue & 0xFFL));
       }
     }
+  }
+
+
+
+  /**
+   * Adds an integer element to this ASN.1 buffer using the default BER type.
+   *
+   * @param  value  The value to use for the integer element.  It must not be
+   *                {@code null}.
+   */
+  public void addInteger(final BigInteger value)
+  {
+    addInteger(ASN1Constants.UNIVERSAL_INTEGER_TYPE, value);
+  }
+
+
+
+  /**
+   * Adds an integer element to this ASN.1 buffer using the provided BER type.
+   *
+   * @param  type   The BER type to use for the integer element.
+   * @param  value  The value to use for the integer element.  It must not be
+   *                {@code null}.
+   */
+  public void addInteger(final byte type, final BigInteger value)
+  {
+    buffer.append(type);
+
+    final byte[] valueBytes = value.toByteArray();
+    ASN1Element.encodeLengthTo(valueBytes.length, buffer);
+    buffer.append(valueBytes);
   }
 
 

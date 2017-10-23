@@ -23,6 +23,7 @@ package com.unboundid.asn1;
 
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,6 +134,13 @@ public class ASN1BufferTestCase
       new Object[] { new ASN1Long(1L) },
       new Object[] { new ASN1Long(123456789L) },
       new Object[] { new ASN1Long(1234567890123456789L) },
+      new Object[] { new ASN1BigInteger(-1234567890123456789L) },
+      new Object[] { new ASN1BigInteger(-123456789L) },
+      new Object[] { new ASN1BigInteger(-1L) },
+      new Object[] { new ASN1BigInteger(0L) },
+      new Object[] { new ASN1BigInteger(1L) },
+      new Object[] { new ASN1BigInteger(123456789L) },
+      new Object[] { new ASN1BigInteger(1234567890123456789L) },
       new Object[] { new ASN1Null() },
       new Object[] { new ASN1OctetString() },
       new Object[] { new ASN1OctetString(new byte[0]) },
@@ -409,6 +417,39 @@ public class ASN1BufferTestCase
     }
 
     return longArray;
+  }
+
+
+
+  /**
+   * Performs a set of tests with big integer elements.
+   *
+   * @param  longValue  The long value to use for the element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider="longValues")
+  public void testBigIntegerElement(final long longValue)
+         throws Exception
+  {
+    final ASN1Buffer b = new ASN1Buffer();
+    assertEquals(b.length(), 0);
+
+    ASN1BigInteger bigIntegerElement = new ASN1BigInteger(longValue);
+    byte[] elementBytes = bigIntegerElement.encode();
+
+    b.addInteger(BigInteger.valueOf(longValue));
+    assertEquals(b.length(), elementBytes.length);
+    assertTrue(Arrays.equals(b.toByteArray(), elementBytes));
+
+
+    bigIntegerElement = new ASN1BigInteger((byte) 0x80, longValue);
+    elementBytes = bigIntegerElement.encode();
+
+    b.clear();
+    b.addInteger((byte) 0x80, BigInteger.valueOf(longValue));
+    assertEquals(b.length(), elementBytes.length);
+    assertTrue(Arrays.equals(b.toByteArray(), elementBytes));
   }
 
 
