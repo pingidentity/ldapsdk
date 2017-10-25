@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.unboundid.util.ByteStringBuffer;
@@ -272,6 +273,72 @@ public final class ASN1Buffer
   public void addEnumerated(final byte type, final int intValue)
   {
     addInteger(type, intValue);
+  }
+
+
+
+  /**
+   * Adds a generalized time element to this ASN.1 buffer using the default BER
+   * type.
+   *
+   * @param  date  The date value that specifies the time to represent.  This
+   *               must not be {@code null}.
+   */
+  public void addGeneralizedTime(final Date date)
+  {
+    addGeneralizedTime(date.getTime());
+  }
+
+
+
+  /**
+   * Adds a generalized time element to this ASN.1 buffer using the provided BER
+   * type.
+   *
+   * @param  type  The BER type to use for the generalized time element.
+   * @param  date  The date value that specifies the time to represent.  This
+   *               must not be {@code null}.
+   */
+  public void addGeneralizedTime(final byte type, final Date date)
+  {
+    addGeneralizedTime(type, date.getTime());
+  }
+
+
+
+  /**
+   * Adds a generalized time element to this ASN.1 buffer using the default BER
+   * type.
+   *
+   * @param  time  The time to represent.  This must be expressed in
+   *               milliseconds since the epoch (the same format used by
+   *               {@code System.currentTimeMillis()} and
+   *               {@code Date.getTime()}).
+   */
+  public void addGeneralizedTime(final long time)
+  {
+    addGeneralizedTime(ASN1Constants.UNIVERSAL_GENERALIZED_TIME_TYPE, time);
+  }
+
+
+
+  /**
+   * Adds a generalized time element to this ASN.1 buffer using the provided BER
+   * type.
+   *
+   * @param  type  The BER type to use for the generalized time element.
+   * @param  time  The time to represent.  This must be expressed in
+   *               milliseconds since the epoch (the same format used by
+   *               {@code System.currentTimeMillis()} and
+   *               {@code Date.getTime()}).
+   */
+  public void addGeneralizedTime(final byte type, final long time)
+  {
+    buffer.append(type);
+
+    final String timestamp = ASN1GeneralizedTime.encodeTimestamp(time, true);
+    ASN1Element.encodeLengthTo(timestamp.length(), buffer);
+    buffer.append(timestamp);
   }
 
 
@@ -736,6 +803,68 @@ public final class ASN1Buffer
         buffer.append(valueBytes);
       }
     }
+  }
+
+
+
+  /**
+   * Adds a UTC time element to this ASN.1 buffer using the default BER type.
+   *
+   * @param  date  The date value that specifies the time to represent.  This
+   *               must not be {@code null}.
+   */
+  public void addUTCTime(final Date date)
+  {
+    addUTCTime(date.getTime());
+  }
+
+
+
+  /**
+   * Adds a UTC time element to this ASN.1 buffer using the provided BER type.
+   *
+   * @param  type  The BER type to use for the UTC time element.
+   * @param  date  The date value that specifies the time to represent.  This
+   *               must not be {@code null}.
+   */
+  public void addUTCTime(final byte type, final Date date)
+  {
+    addUTCTime(type, date.getTime());
+  }
+
+
+
+  /**
+   * Adds a UTC time element to this ASN.1 buffer using the default BER type.
+   *
+   * @param  time  The time to represent.  This must be expressed in
+   *               milliseconds since the epoch (the same format used by
+   *               {@code System.currentTimeMillis()} and
+   *               {@code Date.getTime()}).
+   */
+  public void addUTCTime(final long time)
+  {
+    addUTCTime(ASN1Constants.UNIVERSAL_UTC_TIME_TYPE, time);
+  }
+
+
+
+  /**
+   * Adds a UTC time element to this ASN.1 buffer using the provided BER type.
+   *
+   * @param  type  The BER type to use for the UTC time element.
+   * @param  time  The time to represent.  This must be expressed in
+   *               milliseconds since the epoch (the same format used by
+   *               {@code System.currentTimeMillis()} and
+   *               {@code Date.getTime()}).
+   */
+  public void addUTCTime(final byte type, final long time)
+  {
+    buffer.append(type);
+
+    final String timestamp = ASN1UTCTime.encodeTimestamp(time);
+    ASN1Element.encodeLengthTo(timestamp.length(), buffer);
+    buffer.append(timestamp);
   }
 
 

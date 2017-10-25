@@ -1003,6 +1003,20 @@ public final class ASN1Constants
 
 
   /**
+   * The BER type for the universal UTC time element.
+   */
+  public static final byte UNIVERSAL_UTC_TIME_TYPE = 0x19;
+
+
+
+  /**
+   * The BER type for the universal generalized time element.
+   */
+  public static final byte UNIVERSAL_GENERALIZED_TIME_TYPE = 0x18;
+
+
+
+  /**
    * The BER type for the universal sequence element.
    */
   public static final byte UNIVERSAL_SEQUENCE_TYPE = 0x30;

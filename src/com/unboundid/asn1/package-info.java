@@ -29,6 +29,8 @@
  * mechanism used to represent LDAP messages.  It does not provide all standard
  * types of ASN.1 elements, but includes those needed for LDAP processing,
  * including Boolean, enumerated, integer, null, octet string, sequence, and set
- * elements, as well as support for generic element types.
+ * elements, as well as support for generic element types.  It also supports
+ * element types that aren't used in LDAP directly, but may be used in related
+ * areas, like generalized time and UTC time values.
  */
 package com.unboundid.asn1;

@@ -30,11 +30,14 @@ import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -248,6 +251,7 @@ public class ASN1StreamReaderTestCase
       new Object[] { new ASN1Enumerated(0) },
       new Object[] { new ASN1Enumerated(1) },
       new Object[] { new ASN1Enumerated(123456789) },
+      new Object[] { new ASN1GeneralizedTime() },
       new Object[] { new ASN1Integer(-123456789) },
       new Object[] { new ASN1Integer(-1) },
       new Object[] { new ASN1Integer(0) },
@@ -278,6 +282,7 @@ public class ASN1StreamReaderTestCase
       new Object[] { new ASN1Set() },
       new Object[] { new ASN1Set(new ASN1OctetString()) },
       new Object[] { new ASN1Set(new ASN1OctetString(new byte[65535])) },
+      new Object[] { new ASN1UTCTime() }
     };
   }
 
@@ -418,6 +423,79 @@ public class ASN1StreamReaderTestCase
     assertEquals(reader.readEnumerated(), Integer.valueOf(intValue));
     assertEquals(reader.readEnumerated(), Integer.valueOf(intValue));
     assertNull(reader.readEnumerated());
+  }
+
+
+
+  /**
+   * Tests the ability to read generalized time elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void readValidGeneralizedTimeElement()
+         throws Exception
+  {
+    final Date d = new Date();
+    final long t = d.getTime();
+
+    final ASN1Buffer b = new ASN1Buffer();
+    b.addGeneralizedTime(d);
+    b.addGeneralizedTime((byte) 0x80, d);
+    b.addGeneralizedTime(t);
+    b.addGeneralizedTime((byte) 0x80, t);
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(b.toByteArray());
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    assertEquals(reader.readGeneralizedTime(), d);
+    assertEquals(reader.readGeneralizedTime(), d);
+    assertEquals(reader.readGeneralizedTime(), d);
+    assertEquals(reader.readGeneralizedTime(), d);
+    assertNull(reader.readGeneralizedTime());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read a generalized time value when the
+   * input stream doesn't have enough data for the complete element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { IOException.class })
+  public void readGeneralizedTimeElementNotEnoughBytesForValue()
+         throws Exception
+  {
+    final byte[] elementBytes = { (byte) 0x18, (byte) 0x02, (byte) 0x00 };
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(elementBytes);
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    reader.readGeneralizedTime();
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read a generalized time value when the
+   * element read is too short to be a valid generalized time.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ASN1Exception.class })
+  public void readGeneralizedTimeElementValueTooShort()
+         throws Exception
+  {
+    final byte[] elementBytes = { (byte) 0x18, (byte) 0x01, (byte) 0x00 };
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(elementBytes);
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    reader.readGeneralizedTime();
   }
 
 
@@ -1429,5 +1507,82 @@ public class ASN1StreamReaderTestCase
     assertFalse(reader.ignoreSocketTimeoutException());
     assertFalse(reader.ignoreInitialSocketTimeoutException());
     assertFalse(reader.ignoreSubsequentSocketTimeoutException());
+  }
+
+
+
+  /**
+   * Tests the ability to read UTC time elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void readValidUTCTimeElement()
+         throws Exception
+  {
+    final GregorianCalendar calendar =
+         new GregorianCalendar(StaticUtils.getUTCTimeZone());
+    calendar.set(GregorianCalendar.MILLISECOND, 0);
+
+    final long t = calendar.getTimeInMillis();
+    final Date d = new Date(t);
+
+    final ASN1Buffer b = new ASN1Buffer();
+    b.addUTCTime(t);
+    b.addUTCTime((byte) 0x80, t);
+    b.addUTCTime(d);
+    b.addUTCTime((byte) 0x80, d);
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(b.toByteArray());
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    assertEquals(reader.readUTCTime(), d);
+    assertEquals(reader.readUTCTime(), d);
+    assertEquals(reader.readUTCTime(), d);
+    assertEquals(reader.readUTCTime(), d);
+    assertNull(reader.readUTCTime());
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read a UTC time value when the input
+   * stream doesn't have enough data for the complete element.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { IOException.class })
+  public void readUTCTimeElementNotEnoughBytesForValue()
+         throws Exception
+  {
+    final byte[] elementBytes = { (byte) 0x19, (byte) 0x02, (byte) 0x00 };
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(elementBytes);
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    reader.readUTCTime();
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to read a UTC time value when the element
+   * read is too short to be a valid UTC time.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { ASN1Exception.class })
+  public void readUTCTimeElementValueTooShort()
+         throws Exception
+  {
+    final byte[] elementBytes = { (byte) 0x19, (byte) 0x01, (byte) 0x00 };
+
+    final ByteArrayInputStream inputStream =
+         new ByteArrayInputStream(elementBytes);
+    final ASN1StreamReader reader = new ASN1StreamReader(inputStream);
+
+    reader.readUTCTime();
   }
 }

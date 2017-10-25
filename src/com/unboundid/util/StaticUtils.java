@@ -130,6 +130,14 @@ public final class StaticUtils
 
 
   /**
+   * The {@code TimeZone} object that represents the UTC (universal coordinated
+   * time) time zone.
+   */
+  private static TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+
+
+
+  /**
    * A set containing the names of attributes that will be considered sensitive
    * by the {@code toCode} methods of various request and data structure types.
    */
@@ -1322,6 +1330,19 @@ public final class StaticUtils
 
 
   /**
+   * Retrieves a {@code TimeZone} object that represents the UTC (universal
+   * coordinated time) time zone.
+   *
+   * @return  A {@code TimeZone} object that represents the UTC time zone.
+   */
+  public static TimeZone getUTCTimeZone()
+  {
+    return UTC_TIME_ZONE;
+  }
+
+
+
+  /**
    * Encodes the provided timestamp in generalized time format.
    *
    * @param  timestamp  The timestamp to be encoded in generalized time format.
@@ -1352,7 +1373,7 @@ public final class StaticUtils
     if (dateFormat == null)
     {
       dateFormat = new SimpleDateFormat("yyyyMMddHHmmss.SSS'Z'");
-      dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+      dateFormat.setTimeZone(UTC_TIME_ZONE);
       DATE_FORMATTERS.set(dateFormat);
     }
 

@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -239,6 +240,35 @@ public class ASN1BufferTestCase
 
     b.clear();
     b.addEnumerated((byte) 0x80, intValue);
+    assertEquals(b.length(), elementBytes.length);
+    assertTrue(Arrays.equals(b.toByteArray(), elementBytes));
+  }
+
+
+
+  /**
+   * Performs a set of tests with generalized time elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGeneralizedTimeElement()
+         throws Exception
+  {
+    final ASN1Buffer b = new ASN1Buffer();
+    assertEquals(b.length(), 0);
+
+    final Date d = new Date();
+    final ASN1GeneralizedTime generalizedTimeElement =
+         new ASN1GeneralizedTime(d);
+    final byte[] elementBytes = generalizedTimeElement.encode();
+
+    b.addGeneralizedTime(d);
+    assertEquals(b.length(), elementBytes.length);
+    assertTrue(Arrays.equals(b.toByteArray(), elementBytes));
+
+    b.clear();
+    b.addGeneralizedTime(d.getTime());
     assertEquals(b.length(), elementBytes.length);
     assertTrue(Arrays.equals(b.toByteArray(), elementBytes));
   }
@@ -952,5 +982,33 @@ public class ASN1BufferTestCase
       assertEquals(b.length(), elementBytes.length);
       assertTrue(Arrays.equals(b.toByteArray(), elementBytes));
     }
+  }
+
+
+
+  /**
+   * Performs a set of tests with UTC time elements.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testUTCTimeElement()
+         throws Exception
+  {
+    final ASN1Buffer b = new ASN1Buffer();
+    assertEquals(b.length(), 0);
+
+    final Date d = new Date();
+    final ASN1UTCTime utcTimeElement = new ASN1UTCTime(d);
+    final byte[] elementBytes = utcTimeElement.encode();
+
+    b.addUTCTime(d);
+    assertEquals(b.length(), elementBytes.length);
+    assertTrue(Arrays.equals(b.toByteArray(), elementBytes));
+
+    b.clear();
+    b.addUTCTime(d.getTime());
+    assertEquals(b.length(), elementBytes.length);
+    assertTrue(Arrays.equals(b.toByteArray(), elementBytes));
   }
 }

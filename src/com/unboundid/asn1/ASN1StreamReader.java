@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.SocketTimeoutException;
+import java.util.Date;
 import java.util.logging.Level;
 import javax.security.sasl.SaslClient;
 
@@ -593,6 +594,61 @@ public final class ASN1StreamReader
 
 
   /**
+   * Reads an ASN.1 generalized time element from the input stream and returns
+   * the value as a {@code Date}.
+   *
+   * @return  The {@code Date} value of the ASN.1 generalized time element read,
+   *          or {@code null} if the end of the input stream was reached before
+   *          any data could be read.  If {@code null} is returned, then the
+   *          input stream will have been closed.
+   *
+   * @throws  IOException  If a problem occurs while reading from the input
+   *                       stream, if the end of the input stream is reached in
+   *                       the middle of the element, or or if an attempt is
+   *                       made to read an element larger than the maximum
+   *                       allowed size.
+   *
+   * @throws  ASN1Exception  If the data read cannot be parsed as an ASN.1
+   *                         generalized time element.
+   */
+  public Date readGeneralizedTime()
+         throws IOException, ASN1Exception
+  {
+    final int type = readType();
+    if (type < 0)
+    {
+      return null;
+    }
+
+    final int length = readLength();
+
+    int valueBytesRead = 0;
+    int bytesRemaining = length;
+    final byte[] value = new byte[length];
+    while (valueBytesRead < length)
+    {
+      final int bytesRead = read(value, valueBytesRead, bytesRemaining);
+      if (bytesRead < 0)
+      {
+        throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
+      }
+
+      valueBytesRead += bytesRead;
+      bytesRemaining -= bytesRead;
+    }
+
+    totalBytesRead += length;
+
+    final String timestamp = toUTF8String(value);
+    final Date date =
+         new Date(ASN1GeneralizedTime.decodeTimestamp(timestamp));
+    debugASN1Read(Level.INFO, "GeneralizedTime", type, length, timestamp);
+    return date;
+  }
+
+
+
+  /**
    * Reads an ASN.1 integer element from the input stream and returns the value
    * as an {@code Integer}.
    *
@@ -938,6 +994,60 @@ public final class ASN1StreamReader
     final String s = toUTF8String(value);
     debugASN1Read(Level.INFO, "String", type, length, s);
     return s;
+  }
+
+
+
+  /**
+   * Reads an ASN.1 UTC time element from the input stream and returns the value
+   * as a {@code Date}.
+   *
+   * @return  The {@code Date} value of the ASN.1 UTC time element read, or
+   *          {@code null} if the end of the input stream was reached before any
+   *          data could be read.  If {@code null} is returned, then the input
+   *          stream will have been closed.
+   *
+   * @throws  IOException  If a problem occurs while reading from the input
+   *                       stream, if the end of the input stream is reached in
+   *                       the middle of the element, or or if an attempt is
+   *                       made to read an element larger than the maximum
+   *                       allowed size.
+   *
+   * @throws  ASN1Exception  If the data read cannot be parsed as an ASN.1 UTC
+   *                         time element.
+   */
+  public Date readUTCTime()
+         throws IOException, ASN1Exception
+  {
+    final int type = readType();
+    if (type < 0)
+    {
+      return null;
+    }
+
+    final int length = readLength();
+
+    int valueBytesRead = 0;
+    int bytesRemaining = length;
+    final byte[] value = new byte[length];
+    while (valueBytesRead < length)
+    {
+      final int bytesRead = read(value, valueBytesRead, bytesRemaining);
+      if (bytesRead < 0)
+      {
+        throw new IOException(ERR_READ_END_BEFORE_VALUE_END.get());
+      }
+
+      valueBytesRead += bytesRead;
+      bytesRemaining -= bytesRead;
+    }
+
+    totalBytesRead += length;
+
+    final String timestamp = toUTF8String(value);
+    final Date date = new Date(ASN1UTCTime.decodeTimestamp(timestamp));
+    debugASN1Read(Level.INFO, "UTCTime", type, length, timestamp);
+    return date;
   }
 
 

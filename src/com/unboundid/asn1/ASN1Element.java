@@ -579,6 +579,22 @@ public class ASN1Element
 
 
   /**
+   * Decodes this ASN.1 element as a generalized time element.
+   *
+   * @return  The decoded generalized time element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as a generalized
+   *                         time element.
+   */
+  public final ASN1GeneralizedTime decodeAsGeneralizedTime()
+         throws ASN1Exception
+  {
+    return ASN1GeneralizedTime.decodeAsGeneralizedTime(this);
+  }
+
+
+
+  /**
    * Decodes this ASN.1 element as an integer element.
    *
    * @return  The decoded integer element.
@@ -682,6 +698,22 @@ public class ASN1Element
          throws ASN1Exception
   {
     return ASN1Set.decodeAsSet(this);
+  }
+
+
+
+  /**
+   * Decodes this ASN.1 element as a UTC time element.
+   *
+   * @return  The decoded UTC time element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as a UTC time
+   *                         element.
+   */
+  public final ASN1UTCTime decodeAsUTCTime()
+         throws ASN1Exception
+  {
+    return ASN1UTCTime.decodeAsUTCTime(this);
   }
 
 

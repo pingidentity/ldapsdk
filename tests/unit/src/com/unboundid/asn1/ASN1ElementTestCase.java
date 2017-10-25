@@ -27,10 +27,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 
 import org.testng.annotations.Test;
 
 import com.unboundid.util.ByteStringBuffer;
+import com.unboundid.util.StaticUtils;
 
 
 
@@ -640,6 +642,24 @@ public class ASN1ElementTestCase
 
 
   /**
+   * Tests the {@code decodeAsGeneralizedTime} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeAsGeneralizedTime()
+         throws Exception
+  {
+    final long time = System.currentTimeMillis();
+
+    final ASN1GeneralizedTime generalizedTime = new ASN1GeneralizedTime(time);
+    final ASN1Element element = ASN1Element.decode(generalizedTime.encode());
+    assertEquals(element.decodeAsGeneralizedTime().getTime(), time);
+  }
+
+
+
+  /**
    * Tests the {@code decodeAsInteger} method.
    *
    * @throws  Exception  If an unexpected problem occurs.
@@ -760,5 +780,27 @@ public class ASN1ElementTestCase
     ASN1Set s = new ASN1Set(elements);
     ASN1Element e = ASN1Element.decode(s.encode());
     assertEquals(e.decodeAsSet().elements().length, 2);
+  }
+
+
+
+  /**
+   * Tests the {@code decodeAsUTCTime} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeAsUTCTime()
+         throws Exception
+  {
+    final GregorianCalendar calendar =
+         new GregorianCalendar(StaticUtils.getUTCTimeZone());
+    calendar.set(GregorianCalendar.MILLISECOND, 0);
+
+    final long time = calendar.getTimeInMillis();
+
+    final ASN1UTCTime utcTime = new ASN1UTCTime(time);
+    final ASN1Element element = ASN1Element.decode(utcTime.encode());
+    assertEquals(element.decodeAsUTCTime().getTime(), time);
   }
 }
