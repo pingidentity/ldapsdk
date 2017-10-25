@@ -803,4 +803,68 @@ public class ASN1ElementTestCase
     final ASN1Element element = ASN1Element.decode(utcTime.encode());
     assertEquals(element.decodeAsUTCTime().getTime(), time);
   }
+
+
+
+  /**
+   * Tests the {@code getTypeClass} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetTypeClass()
+         throws Exception
+  {
+    final ASN1OctetString universalElement =
+         new ASN1OctetString((byte) 0x04, "univesral");
+    assertEquals(universalElement.getTypeClass(),
+         ASN1Constants.TYPE_MASK_UNIVERSAL_CLASS);
+
+    final ASN1OctetString applicationElement =
+         new ASN1OctetString((byte) 0x44, "application");
+    assertEquals(applicationElement.getTypeClass(),
+         ASN1Constants.TYPE_MASK_APPLICATION_CLASS);
+
+    final ASN1OctetString contextSpecificElement =
+         new ASN1OctetString((byte) 0x84, "context-specific");
+    assertEquals(contextSpecificElement.getTypeClass(),
+         ASN1Constants.TYPE_MASK_CONTEXT_SPECIFIC_CLASS);
+
+    final ASN1OctetString privateElement =
+         new ASN1OctetString((byte) 0xC4, "private");
+    assertEquals(privateElement.getTypeClass(),
+         ASN1Constants.TYPE_MASK_PRIVATE_CLASS);
+  }
+
+
+
+  /**
+   * Tests the {@code isConstructed} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsConstructed()
+         throws Exception
+  {
+    assertFalse(new ASN1Boolean(false).isConstructed());
+    assertFalse(new ASN1Enumerated(0).isConstructed());
+    assertFalse(new ASN1GeneralizedTime().isConstructed());
+    assertFalse(new ASN1Integer(0).isConstructed());
+    assertFalse(new ASN1Long(0L).isConstructed());
+    assertFalse(new ASN1BigInteger(0L).isConstructed());
+    assertFalse(new ASN1Null().isConstructed());
+    assertFalse(new ASN1OctetString("foo").isConstructed());
+    assertFalse(new ASN1UTCTime().isConstructed());
+
+    assertTrue(new ASN1Sequence().isConstructed());
+    assertTrue(new ASN1Sequence(new ASN1OctetString("foo")).isConstructed());
+    assertTrue(new ASN1Sequence(new ASN1OctetString("foo"),
+         new ASN1OctetString("bar")).isConstructed());
+
+    assertTrue(new ASN1Set().isConstructed());
+    assertTrue(new ASN1Set(new ASN1OctetString("foo")).isConstructed());
+    assertTrue(new ASN1Set(new ASN1OctetString("foo"),
+         new ASN1OctetString("bar")).isConstructed());
+  }
 }

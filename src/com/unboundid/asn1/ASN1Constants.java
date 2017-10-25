@@ -1049,7 +1049,25 @@ public final class ASN1Constants
    * greater than twenty-five, so it is highly unlikely that you will ever
    * encounter the need for a multi-byte type in LDAP.
    */
-  public static final byte TYE_MASK_UNIVERSAL_CLASS = 0x00;
+  public static final byte TYPE_MASK_UNIVERSAL_CLASS = 0x00;
+
+
+
+  /**
+   * A mask that may be used when building a BER type in the universal class.
+   * To build the type, perform a bitwise OR with one of the
+   * {@code TYPE_MASK_*_CLASS} constants, one of the
+   * {@code TYPE_MASK_PC_*} constants, and a byte that represents the desired
+   * tag number.  Note that this method only works for tag numbers between zero
+   * and thirty, since tag numbers greater than thirty require a multi-byte
+   * type, but none of the LDAP specifications attempt to use a tag number
+   * greater than twenty-five, so it is highly unlikely that you will ever
+   * encounter the need for a multi-byte type in LDAP.
+   *
+   * @deprecated  Use {@link #TYPE_MASK_UNIVERSAL_CLASS} instead.
+   */
+  @Deprecated()
+  public static final byte TYE_MASK_UNIVERSAL_CLASS = TYPE_MASK_UNIVERSAL_CLASS;
 
 
 
@@ -1064,7 +1082,26 @@ public final class ASN1Constants
    * greater than twenty-five, so it is highly unlikely that you will ever
    * encounter the need for a multi-byte type in LDAP.
    */
-  public static final byte TYE_MASK_APPLICATION_CLASS = 0x04;
+  public static final byte TYPE_MASK_APPLICATION_CLASS = 0x40;
+
+
+
+  /**
+   * A mask that may be used when building a BER type in the application class.
+   * To build the type, perform a bitwise OR with one of the
+   * {@code TYPE_MASK_*_CLASS} constants, one of the
+   * {@code TYPE_MASK_PC_*} constants, and a byte that represents the desired
+   * tag number.  Note that this method only works for tag numbers between zero
+   * and thirty, since tag numbers greater than thirty require a multi-byte
+   * type, but none of the LDAP specifications attempt to use a tag number
+   * greater than twenty-five, so it is highly unlikely that you will ever
+   * encounter the need for a multi-byte type in LDAP.
+   *
+   * @deprecated  Use {@link #TYPE_MASK_APPLICATION_CLASS} instead.
+   */
+  @Deprecated()
+  public static final byte TYE_MASK_APPLICATION_CLASS =
+       TYPE_MASK_APPLICATION_CLASS;
 
 
 
@@ -1079,7 +1116,26 @@ public final class ASN1Constants
    * greater than twenty-five, so it is highly unlikely that you will ever
    * encounter the need for a multi-byte type in LDAP.
    */
-  public static final byte TYE_MASK_CONTEXT_SPECIFIC_CLASS = (byte) 0x80;
+  public static final byte TYPE_MASK_CONTEXT_SPECIFIC_CLASS = (byte) 0x80;
+
+
+
+  /**
+   * A mask that may be used when building a BER type in the context-specific
+   * class.  To build the type, perform a bitwise OR with one of the
+   * {@code TYPE_MASK_*_CLASS} constants, one of the
+   * {@code TYPE_MASK_PC_*} constants, and a byte that represents the desired
+   * tag number.  Note that this method only works for tag numbers between zero
+   * and thirty, since tag numbers greater than thirty require a multi-byte
+   * type, but none of the LDAP specifications attempt to use a tag number
+   * greater than twenty-five, so it is highly unlikely that you will ever
+   * encounter the need for a multi-byte type in LDAP.
+   *
+   * @deprecated  Use {@link #TYPE_MASK_CONTEXT_SPECIFIC_CLASS} instead.
+   */
+  @Deprecated()
+  public static final byte TYE_MASK_CONTEXT_SPECIFIC_CLASS =
+       TYPE_MASK_CONTEXT_SPECIFIC_CLASS;
 
 
 
@@ -1094,7 +1150,25 @@ public final class ASN1Constants
    * greater than twenty-five, so it is highly unlikely that you will ever
    * encounter the need for a multi-byte type in LDAP.
    */
-  public static final byte TYE_MASK_PRIVATE_CLASS = (byte) 0xC0;
+  public static final byte TYPE_MASK_PRIVATE_CLASS = (byte) 0xC0;
+
+
+
+  /**
+   * A mask that may be used when building a BER type in the private class.  To
+   * build the type, perform a bitwise OR with one of the
+   * {@code TYPE_MASK_*_CLASS} constants, one of the
+   * {@code TYPE_MASK_PC_*} constants, and a byte that represents the desired
+   * tag number.  Note that this method only works for tag numbers between zero
+   * and thirty, since tag numbers greater than thirty require a multi-byte
+   * type, but none of the LDAP specifications attempt to use a tag number
+   * greater than twenty-five, so it is highly unlikely that you will ever
+   * encounter the need for a multi-byte type in LDAP.
+   *
+   * @deprecated  Use {@link #TYPE_MASK_PRIVATE_CLASS} instead.
+   */
+  @Deprecated()
+  public static final byte TYE_MASK_PRIVATE_CLASS = TYPE_MASK_PRIVATE_CLASS;
 
 
 
@@ -1110,7 +1184,26 @@ public final class ASN1Constants
    * number greater than twenty-five, so it is highly unlikely that you will
    * ever encounter the need for a multi-byte type in LDAP.
    */
-  public static final byte TYE_MASK_PC_PRIMITIVE = 0x00;
+  public static final byte TYPE_MASK_PC_PRIMITIVE = 0x00;
+
+
+
+  /**
+   * A mask that may be used when building a BER type with a primitive value
+   * (i.e., a value that is not known to be comprised of a concatenation of the
+   * encoded representations of zero or more BER elements).  To build the type,
+   * perform a bitwise OR with one of the {@code TYPE_MASK_*_CLASS} constants,
+   * one of the {@code TYPE_MASK_PC_*} constants, and a byte that represents the
+   * desired tag number.  Note that this method only works for tag numbers
+   * between zero and thirty, since tag numbers greater than thirty require a
+   * multi-byte type, but none of the LDAP specifications attempt to use a tag
+   * number greater than twenty-five, so it is highly unlikely that you will
+   * ever encounter the need for a multi-byte type in LDAP.
+   *
+   * @deprecated  Use {@link #TYPE_MASK_PC_PRIMITIVE} instead.
+   */
+  @Deprecated()
+  public static final byte TYE_MASK_PC_PRIMITIVE = TYPE_MASK_PC_PRIMITIVE;
 
 
 
@@ -1126,5 +1219,24 @@ public final class ASN1Constants
    * number greater than twenty-five, so it is highly unlikely that you will
    * ever encounter the need for a multi-byte type in LDAP.
    */
-  public static final byte TYE_MASK_PC_CONSTRUCTED = 0x20;
+  public static final byte TYPE_MASK_PC_CONSTRUCTED = 0x20;
+
+
+
+  /**
+   * A mask that may be used when building a BER type with a constructed value
+   * (i.e., a value that is comprised of a concatenation of the encoded
+   * representations of zero or more BER elements).  To build the type, perform
+   * a bitwise OR with one of the {@code TYPE_MASK_*_CLASS} constants, one of
+   * the {@code TYPE_MASK_PC_*} constants, and a byte that represents the
+   * desired tag number.  Note that this method only works for tag numbers
+   * between zero and thirty, since tag numbers greater than thirty require a
+   * multi-byte type, but none of the LDAP specifications attempt to use a tag
+   * number greater than twenty-five, so it is highly unlikely that you will
+   * ever encounter the need for a multi-byte type in LDAP.
+   *
+   * @deprecated  Use {@link #TYPE_MASK_PC_CONSTRUCTED} instead.
+   */
+  @Deprecated()
+  public static final byte TYE_MASK_PC_CONSTRUCTED = TYPE_MASK_PC_CONSTRUCTED;
 }

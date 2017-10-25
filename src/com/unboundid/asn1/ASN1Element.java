@@ -150,6 +150,41 @@ public class ASN1Element
 
 
   /**
+   * Retrieves a value that corresponds to the type class for this element.  The
+   * value returned will be one of
+   * {@link ASN1Constants#TYPE_MASK_UNIVERSAL_CLASS},
+   * {@link ASN1Constants#TYPE_MASK_APPLICATION_CLASS},
+   * {@link ASN1Constants#TYPE_MASK_CONTEXT_SPECIFIC_CLASS}, or
+   * {@link ASN1Constants#TYPE_MASK_PRIVATE_CLASS}.
+   *
+   * @return  A value that corresponds to the type class for this element.
+   */
+  public byte getTypeClass()
+  {
+    return (byte) (type & 0xC0);
+  }
+
+
+
+  /**
+   * Indicates whether the type indicates that this element is constructed.  A
+   * constructed element is one whose value is comprised of the encoded
+   * representation of zero or more ASN.1 elements.  If the type does not
+   * indicate that the element is constructed, then the element is considered
+   * primitive.
+   *
+   * @return  {@code true} if the type indicates that the element is
+   *          constructed, or {@code false} if the type indicates that the
+   *          element is primitive.
+   */
+  public boolean isConstructed()
+  {
+    return ((type & ASN1Constants.TYPE_MASK_PC_CONSTRUCTED) != 0x00);
+  }
+
+
+
+  /**
    * Retrieves the array containing the value.  The returned array may be
    * larger than the actual value, so it must be used in conjunction with the
    * values returned by the {@link #getValueOffset} and {@link #getValueLength}
