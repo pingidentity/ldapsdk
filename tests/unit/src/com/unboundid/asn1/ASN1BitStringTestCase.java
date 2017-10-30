@@ -52,6 +52,9 @@ public class ASN1BitStringTestCase
     assertNotNull(e.getBits());
     assertEquals(e.getBits().length, 0);
 
+    assertNotNull(e.getBytes());
+    assertEquals(e.getBytes(), StaticUtils.NO_BYTES);
+
     assertNotNull(e.toString());
     assertEquals(e.toString(), "");
 
@@ -62,6 +65,9 @@ public class ASN1BitStringTestCase
 
     assertNotNull(e.getBits());
     assertEquals(e.getBits().length, 0);
+
+    assertNotNull(e.getBytes());
+    assertEquals(e.getBytes(), StaticUtils.NO_BYTES);
 
     assertNotNull(e.toString());
     assertEquals(e.toString(), "");
@@ -74,16 +80,8 @@ public class ASN1BitStringTestCase
     assertNotNull(e.getBits());
     assertEquals(e.getBits().length, 0);
 
-    assertNotNull(e.toString());
-    assertEquals(e.toString(), "");
-
-
-    e = ASN1BitString.decodeAsBitString(e);
-
-    assertEquals(e.getType(), ASN1Constants.UNIVERSAL_BIT_STRING_TYPE);
-
-    assertNotNull(e.getBits());
-    assertEquals(e.getBits().length, 0);
+    assertNotNull(e.getBytes());
+    assertEquals(e.getBytes(), StaticUtils.NO_BYTES);
 
     assertNotNull(e.toString());
     assertEquals(e.toString(), "");
@@ -95,6 +93,23 @@ public class ASN1BitStringTestCase
 
     assertNotNull(e.getBits());
     assertEquals(e.getBits().length, 0);
+
+    assertNotNull(e.getBytes());
+    assertEquals(e.getBytes(), StaticUtils.NO_BYTES);
+
+    assertNotNull(e.toString());
+    assertEquals(e.toString(), "");
+
+
+    e = ASN1BitString.decodeAsBitString(e);
+
+    assertEquals(e.getType(), ASN1Constants.UNIVERSAL_BIT_STRING_TYPE);
+
+    assertNotNull(e.getBits());
+    assertEquals(e.getBits().length, 0);
+
+    assertNotNull(e.getBytes());
+    assertEquals(e.getBytes(), StaticUtils.NO_BYTES);
 
     assertNotNull(e.toString());
     assertEquals(e.toString(), "");
@@ -106,6 +121,9 @@ public class ASN1BitStringTestCase
 
     assertNotNull(e.getBits());
     assertEquals(e.getBits().length, 0);
+
+    assertNotNull(e.getBytes());
+    assertEquals(e.getBytes(), StaticUtils.NO_BYTES);
 
     assertNotNull(e.toString());
     assertEquals(e.toString(), "");
@@ -151,6 +169,25 @@ public class ASN1BitStringTestCase
       assertEquals(e.getBits().length, i);
       assertEquals(e.getBits(), bits);
 
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
+
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
 
@@ -162,6 +199,25 @@ public class ASN1BitStringTestCase
       assertNotNull(e.getBits());
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
+
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
 
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
@@ -175,6 +231,25 @@ public class ASN1BitStringTestCase
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
 
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
+
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
 
@@ -187,6 +262,25 @@ public class ASN1BitStringTestCase
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
 
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
+
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
 
@@ -198,6 +292,25 @@ public class ASN1BitStringTestCase
       assertNotNull(e.getBits());
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
+
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
 
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
@@ -210,6 +323,25 @@ public class ASN1BitStringTestCase
       assertNotNull(e.getBits());
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
+
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
 
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
@@ -256,6 +388,25 @@ public class ASN1BitStringTestCase
       assertEquals(e.getBits().length, i);
       assertEquals(e.getBits(), bits);
 
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
+
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
 
@@ -267,6 +418,25 @@ public class ASN1BitStringTestCase
       assertNotNull(e.getBits());
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
+
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
 
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
@@ -280,6 +450,25 @@ public class ASN1BitStringTestCase
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
 
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
+
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
 
@@ -292,6 +481,25 @@ public class ASN1BitStringTestCase
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
 
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
+
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
 
@@ -303,6 +511,25 @@ public class ASN1BitStringTestCase
       assertNotNull(e.getBits());
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
+
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
 
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);
@@ -315,6 +542,25 @@ public class ASN1BitStringTestCase
       assertNotNull(e.getBits());
       assertEquals(e.getBits().length, i);
       assertTrue(Arrays.equals(e.getBits(), bits));
+
+      if ((i % 8) == 0)
+      {
+        assertNotNull(e.getBytes());
+        assertEquals(e.getBytes().length, (i / 8));
+      }
+      else
+      {
+        try
+        {
+          e.getBytes();
+          fail("Expected an exception when trying to get the bytes for bit " +
+               "string " + bitString);
+        }
+        catch (final ASN1Exception ae)
+        {
+          // This was expected.
+        }
+      }
 
       assertNotNull(e.toString());
       assertEquals(e.toString(), bitString);

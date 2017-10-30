@@ -51,6 +51,9 @@ public final class ASN1BitString
   // An array of the bits in this bit string, where true is 1 and false is 0.
   private final boolean[] bits;
 
+  // The bytes represented by the bits that comprise this bit string.
+  private final byte[] bytes;
+
 
 
   /**
@@ -81,7 +84,7 @@ public final class ASN1BitString
    */
   public ASN1BitString(final byte type, final boolean... bits)
   {
-    this(type, bits, encodeValue(bits));
+    this(type, bits, null, encodeValue(bits));
   }
 
 
@@ -95,14 +98,51 @@ public final class ASN1BitString
    *                       bit of one, and each {@code boolean} value of
    *                       {@code false} represents a bit of zero.  It must not
    *                       be {@code null} but may be empty.
+   * @param  bytes         The bytes represented by the bits that comprise this
+   *                       bit string.  This may be {@code null} if it has not
+   *                       yet been determined, or if the number of bits is not
+   *                       an even multiple of eight.
    * @param  encodedValue  The encoded value for this element.
    */
   private ASN1BitString(final byte type, final boolean[] bits,
-                        final byte[] encodedValue)
+                        final byte[] bytes, final byte[] encodedValue)
   {
     super(type, encodedValue);
 
     this.bits = bits;
+
+    if (bytes == null)
+    {
+      if ((bits.length % 8) == 0)
+      {
+        this.bytes = new byte[bits.length / 8];
+
+        byte currentByte = 0x00;
+        int byteIndex = 0;
+        for (int i=0; i < bits.length; i++)
+        {
+          currentByte <<= 1;
+          if (bits[i])
+          {
+            currentByte |= 0x01;
+          }
+
+          if (((i + 1) % 8) == 0)
+          {
+            this.bytes[byteIndex++] = currentByte;
+            currentByte = 0x00;
+          }
+        }
+      }
+      else
+      {
+        this.bytes = null;
+      }
+    }
+    else
+    {
+      this.bytes = bytes;
+    }
   }
 
 
@@ -271,6 +311,32 @@ public final class ASN1BitString
 
 
   /**
+   * Retrieves the bytes represented by the bits that comprise this bit string,
+   * if the number of bits is a multiple of eight.
+   *
+   * @return  The bytes represented by the bits that comprise this bit string.
+   *
+   * @throws  ASN1Exception  If the number of bits in this bit string is not a
+   *                         multiple of eight.
+   */
+  public byte[] getBytes()
+         throws ASN1Exception
+  {
+    if (bytes == null)
+    {
+      throw new ASN1Exception(
+           ERR_BIT_STRING_GET_BYTES_NOT_MULTIPLE_OF_EIGHT_BITS.get(
+                bits.length));
+    }
+    else
+    {
+      return bytes;
+    }
+  }
+
+
+
+  /**
    * Decodes the contents of the provided byte array as a bit string element.
    *
    * @param  elementBytes  The byte array to decode as an ASN.1 bit string
@@ -309,7 +375,19 @@ public final class ASN1BitString
       final byte[] elementValue = new byte[length];
       System.arraycopy(elementBytes, valueStartPos, elementValue, 0, length);
       final boolean[] bits = decodeValue(elementValue);
-      return new ASN1BitString(elementBytes[0], bits, elementValue);
+
+      final byte[] bytes;
+      if ((bits.length % 8) == 0)
+      {
+        bytes = new byte[elementValue.length - 1];
+        System.arraycopy(elementValue, 1, bytes, 0, bytes.length);
+      }
+      else
+      {
+        bytes = null;
+      }
+
+      return new ASN1BitString(elementBytes[0], bits, bytes, elementValue);
     }
     catch (final ASN1Exception ae)
     {
@@ -338,8 +416,22 @@ public final class ASN1BitString
   public static ASN1BitString decodeAsBitString(final ASN1Element element)
          throws ASN1Exception
   {
-    final boolean[] bits = decodeValue(element.getValue());
-    return new ASN1BitString(element.getType(), bits, element.getValue());
+    final byte[] elementValue = element.getValue();
+    final boolean[] bits = decodeValue(elementValue);
+
+      final byte[] bytes;
+      if ((bits.length % 8) == 0)
+      {
+        bytes = new byte[elementValue.length - 1];
+        System.arraycopy(elementValue, 1, bytes, 0, bytes.length);
+      }
+      else
+      {
+        bytes = null;
+      }
+
+    return new ASN1BitString(element.getType(), bits, bytes,
+         element.getValue());
   }
 
 
