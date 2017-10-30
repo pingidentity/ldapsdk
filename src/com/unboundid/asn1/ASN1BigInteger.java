@@ -155,8 +155,8 @@ public final class ASN1BigInteger
    *
    * @return  The decoded ASN.1 big integer element.
    *
-   * @throws  ASN1Exception  If the provided array cannot be decoded as a
-   *                         big integer element.
+   * @throws  ASN1Exception  If the provided array cannot be decoded as a big
+   *                         integer element.
    */
   public static ASN1BigInteger decodeAsBigInteger(final byte[] elementBytes)
          throws ASN1Exception
@@ -233,10 +233,7 @@ public final class ASN1BigInteger
 
 
   /**
-   * Appends a string representation of this ASN.1 element to the provided
-   * buffer.
-   *
-   * @param  buffer  The buffer to which to append the information.
+   * {@inheritDoc}
    */
   @Override()
   public void toString(final StringBuilder buffer)

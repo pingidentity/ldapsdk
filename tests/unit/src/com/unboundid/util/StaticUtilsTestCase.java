@@ -2401,4 +2401,38 @@ public class StaticUtilsTestCase
          "\r\ntest1\ntest2\r\ntest3\n\ntest4\r\n\r\n"),
          Arrays.asList("", "test1", "test2", "test3", "", "test4", ""));
   }
+
+
+
+  /**
+   * Provides coverage for the {@code byteArray} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testByteArray()
+         throws Exception
+  {
+    assertEquals(StaticUtils.byteArray((int[]) null), StaticUtils.NO_BYTES);
+
+    assertEquals(StaticUtils.byteArray(), StaticUtils.NO_BYTES);
+
+    assertEquals(StaticUtils.byteArray(new int[0]), StaticUtils.NO_BYTES);
+
+    assertEquals(StaticUtils.byteArray(0), new byte[] { 0x00 });
+
+    assertEquals(StaticUtils.byteArray(1), new byte[] { 0x01 });
+    assertEquals(StaticUtils.byteArray(127), new byte[] { 0x7F });
+    assertEquals(StaticUtils.byteArray(128), new byte[] { (byte) 0x80 });
+    assertEquals(StaticUtils.byteArray(255), new byte[] { (byte) 0xFF });
+
+    final int[] intArray = new int[256];
+    final byte[] byteArray = new byte[256];
+    for (int i=0; i < 256; i++)
+    {
+      intArray[i] = i;
+      byteArray[i] = (byte) (i & 0xFF);
+    }
+    assertEquals(StaticUtils.byteArray(intArray), byteArray);
+  }
 }

@@ -351,6 +351,138 @@ public final class StaticUtils
 
 
   /**
+   * Indicates whether the contents of the provided array are valid UTF-8.
+   *
+   * @param  b  The byte array to examine.  It must not be {@code null}.
+   *
+   * @return  {@code true} if the byte array can be parsed as a valid UTF-8
+   *          string, or {@code false} if not.
+   */
+  public static boolean isValidUTF8(final byte[] b)
+  {
+    int i = 0;
+    while (i < b.length)
+    {
+      final byte currentByte = b[i++];
+
+      // If the most significant bit is not set, then this represents a valid
+      // single-byte character.
+      if ((currentByte & 0b1000_0000) == 0b0000_0000)
+      {
+        continue;
+      }
+
+      // If the first byte starts with 0b110, then it must be followed by
+      // another byte that starts with 0b10.
+      if ((currentByte & 0b1110_0000) == 0b1100_0000)
+      {
+        if (! hasExpectedSubsequentUTF8Bytes(b, i, 1))
+        {
+          return false;
+        }
+
+        i++;
+        continue;
+      }
+
+      // If the first byte starts with 0b1110, then it must be followed by two
+      // more bytes that start with 0b10.
+      if ((currentByte & 0b1111_0000) == 0b1110_0000)
+      {
+        if (! hasExpectedSubsequentUTF8Bytes(b, i, 2))
+        {
+          return false;
+        }
+
+        i += 2;
+        continue;
+      }
+
+      // If the first byte starts with 0b11110, then it must be followed by
+      // three more bytes that start with 0b10.
+      if ((currentByte & 0b1111_1000) == 0b1111_0000)
+      {
+        if (! hasExpectedSubsequentUTF8Bytes(b, i, 3))
+        {
+          return false;
+        }
+
+        i += 3;
+        continue;
+      }
+
+      // If the first byte starts with 0b111110, then it must be followed by
+      // four more bytes that start with 0b10.
+      if ((currentByte & 0b1111_1100) == 0b1111_1000)
+      {
+        if (! hasExpectedSubsequentUTF8Bytes(b, i, 4))
+        {
+          return false;
+        }
+
+        i += 4;
+        continue;
+      }
+
+      // If the first byte starts with 0b1111110, then it must be followed by
+      // five more bytes that start with 0b10.
+      if ((currentByte & 0b1111_1110) == 0b1111_1100)
+      {
+        if (! hasExpectedSubsequentUTF8Bytes(b, i, 5))
+        {
+          return false;
+        }
+
+        i += 5;
+        continue;
+      }
+
+      // This is not a valid first byte for a UTF-8 character.
+      return false;
+    }
+
+
+    // If we've gotten here, then the provided array represents a valid UTF-8
+    // string.
+    return true;
+  }
+
+
+
+  /**
+   * Ensures that the provided array has the expected number of bytes that start
+   * with 0b10 starting at the specified position in the array.
+   *
+   * @param  b  The byte array to examine.
+   * @param  p  The position in the byte array at which to start looking.
+   * @param  n  The number of bytes to examine.
+   *
+   * @return  {@code true} if the provided byte array has the expected number of
+   *          bytes that start with 0b10, or {@code false} if not.
+   */
+  private static boolean hasExpectedSubsequentUTF8Bytes(final byte[] b,
+                                                        final int p,
+                                                        final int n)
+  {
+    if (b.length < (p + n))
+    {
+      return false;
+    }
+
+    for (int i=0; i < n; i++)
+    {
+      if ((b[p+i] & 0b1100_0000) != 0b1000_0000)
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+  /**
    * Retrieves a string generated from the provided byte array using the UTF-8
    * encoding.
    *
@@ -2799,5 +2931,32 @@ public final class StaticUtils
     }
 
     return f;
+  }
+
+
+
+  /**
+   * Creates a byte array from the provided integer values.  All of the integer
+   * values must be between 0x00 and 0xFF (0 and 255), inclusive.  Any bits
+   * set outside of that range will be ignored.
+   *
+   * @param  bytes  The values to include in the byte array.
+   *
+   * @return  A byte array with the provided set of values.
+   */
+  public static byte[] byteArray(final int... bytes)
+  {
+    if ((bytes == null) || (bytes.length == 0))
+    {
+      return NO_BYTES;
+    }
+
+    final byte[] byteArray = new byte[bytes.length];
+    for (int i=0; i < bytes.length; i++)
+    {
+      byteArray[i] = (byte) (bytes[i] & 0xFF);
+    }
+
+    return byteArray;
   }
 }

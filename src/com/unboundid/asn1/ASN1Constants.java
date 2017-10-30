@@ -982,6 +982,13 @@ public final class ASN1Constants
 
 
   /**
+   * The BER type for the universal bit string element.
+   */
+  public static final byte UNIVERSAL_BIT_STRING_TYPE = 0x03;
+
+
+
+  /**
    * The BER type for the universal octet string element.
    */
   public static final byte UNIVERSAL_OCTET_STRING_TYPE = 0x04;
@@ -996,9 +1003,44 @@ public final class ASN1Constants
 
 
   /**
+   * The BER type for the universal object identifier element.
+   */
+  public static final byte UNIVERSAL_OBJECT_IDENTIFIER_TYPE = 0x06;
+
+
+
+  /**
    * The BER type for the universal enumerated element.
    */
   public static final byte UNIVERSAL_ENUMERATED_TYPE = 0x0A;
+
+
+
+  /**
+   * The BER type for the universal UTF-8 string element.
+   */
+  public static final byte UNIVERSAL_UTF_8_STRING_TYPE = 0x0C;
+
+
+
+  /**
+   * The BER type for the universal numeric string element.
+   */
+  public static final byte UNIVERSAL_NUMERIC_STRING_TYPE = 0x12;
+
+
+
+  /**
+   * The BER type for the universal printable string element.
+   */
+  public static final byte UNIVERSAL_PRINTABLE_STRING_TYPE = 0x13;
+
+
+
+  /**
+   * The BER type for the universal IA5 string element.
+   */
+  public static final byte UNIVERSAL_IA5_STRING_TYPE = 0x16;
 
 
 

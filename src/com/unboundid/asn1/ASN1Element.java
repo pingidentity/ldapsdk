@@ -582,6 +582,22 @@ public class ASN1Element
 
 
   /**
+   * Decodes this ASN.1 element as a bit string element.
+   *
+   * @return  The decoded bit string element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as a bit string
+   *                         element.
+   */
+  public final ASN1BitString decodeAsBitString()
+         throws ASN1Exception
+  {
+    return ASN1BitString.decodeAsBitString(this);
+  }
+
+
+
+  /**
    * Decodes this ASN.1 element as a Boolean element.
    *
    * @return  The decoded Boolean element.
@@ -625,6 +641,22 @@ public class ASN1Element
          throws ASN1Exception
   {
     return ASN1GeneralizedTime.decodeAsGeneralizedTime(this);
+  }
+
+
+
+  /**
+   * Decodes this ASN.1 element as an IA5 string element.
+   *
+   * @return  The decoded IA5 string element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as a IA5 string
+   *                         element.
+   */
+  public final ASN1IA5String decodeAsIA5String()
+         throws ASN1Exception
+  {
+    return ASN1IA5String.decodeAsIA5String(this);
   }
 
 
@@ -694,6 +726,38 @@ public class ASN1Element
 
 
   /**
+   * Decodes this ASN.1 element as a numeric string element.
+   *
+   * @return  The decoded numeric string element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as a numeric
+   *                         string element.
+   */
+  public final ASN1NumericString decodeAsNumericString()
+         throws ASN1Exception
+  {
+    return ASN1NumericString.decodeAsNumericString(this);
+  }
+
+
+
+  /**
+   * Decodes this ASN.1 element as an object identifier element.
+   *
+   * @return  The decoded object identifier element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as an object
+   *                         identifier element.
+   */
+  public final ASN1ObjectIdentifier decodeAsObjectIdentifier()
+         throws ASN1Exception
+  {
+    return ASN1ObjectIdentifier.decodeAsObjectIdentifier(this);
+  }
+
+
+
+  /**
    * Decodes this ASN.1 element as an octet string element.
    *
    * @return  The decoded octet string element.
@@ -701,6 +765,22 @@ public class ASN1Element
   public final ASN1OctetString decodeAsOctetString()
   {
     return ASN1OctetString.decodeAsOctetString(this);
+  }
+
+
+
+  /**
+   * Decodes this ASN.1 element as a printable string element.
+   *
+   * @return  The decoded printable string element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as a printable
+   *                         string element.
+   */
+  public final ASN1PrintableString decodeAsPrintableString()
+         throws ASN1Exception
+  {
+    return ASN1PrintableString.decodeAsPrintableString(this);
   }
 
 
@@ -749,6 +829,22 @@ public class ASN1Element
          throws ASN1Exception
   {
     return ASN1UTCTime.decodeAsUTCTime(this);
+  }
+
+
+
+  /**
+   * Decodes this ASN.1 element as a UTF-8 string element.
+   *
+   * @return  The decoded UTF_8 string element.
+   *
+   * @throws  ASN1Exception  If this element cannot be decoded as a UTF-8
+   *                         string element.
+   */
+  public final ASN1UTF8String decodeAsUTF8String()
+         throws ASN1Exception
+  {
+    return ASN1UTF8String.decodeAsUTF8String(this);
   }
 
 

@@ -224,12 +224,9 @@ public final class ASN1Boolean
 
 
   /**
-   * Appends a string representation of this ASN.1 element to the provided
-   * buffer.
-   *
-   * @param  buffer  The buffer to which to append the information.
+   * {@inheritDoc}
    */
-  @Override
+  @Override()
   public void toString(final StringBuilder buffer)
   {
     buffer.append(booleanValue);

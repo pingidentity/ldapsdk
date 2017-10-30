@@ -159,10 +159,7 @@ public final class ASN1Null
 
 
   /**
-   * Appends a string representation of this ASN.1 element to the provided
-   * buffer.
-   *
-   * @param  buffer  The buffer to which to append the information.
+   * {@inheritDoc}
    */
   @Override()
   public void toString(final StringBuilder buffer)
