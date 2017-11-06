@@ -337,6 +337,36 @@ public final class ASN1BitString
 
 
   /**
+   * Retrieves an array of booleans that represent the bits in the provided
+   * array of bytes.
+   *
+   * @param  bytes  The bytes for which to retrieve the corresponding bits.  It
+   *                must not be {@code null}.
+   *
+   * @return  An array of the bits that make up the provided bytes.
+   */
+  public static boolean[] getBitsForBytes(final byte... bytes)
+  {
+    final boolean[] bits = new boolean[bytes.length * 8];
+    for (int i=0; i < bytes.length; i++)
+    {
+      final byte b = bytes[i];
+      bits[i * 8] = ((b & 0x80) == 0x80);
+      bits[(i * 8) + 1] = ((b & 0x40) == 0x40);
+      bits[(i * 8) + 2] = ((b & 0x20) == 0x20);
+      bits[(i * 8) + 3] = ((b & 0x10) == 0x10);
+      bits[(i * 8) + 4] = ((b & 0x08) == 0x08);
+      bits[(i * 8) + 5] = ((b & 0x04) == 0x04);
+      bits[(i * 8) + 6] = ((b & 0x02) == 0x02);
+      bits[(i * 8) + 7] = ((b & 0x01) == 0x01);
+    }
+
+    return bits;
+  }
+
+
+
+  /**
    * Decodes the contents of the provided byte array as a bit string element.
    *
    * @param  elementBytes  The byte array to decode as an ASN.1 bit string

@@ -109,7 +109,8 @@ public class SanityCheck
     "com.unboundid.util.args",
     "com.unboundid.util.json",
     "com.unboundid.util.parallel",
-    "com.unboundid.util.ssl"
+    "com.unboundid.util.ssl",
+    "com.unboundid.util.ssl.cert"
   };
 
 

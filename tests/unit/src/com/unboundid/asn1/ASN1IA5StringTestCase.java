@@ -31,7 +31,7 @@ import com.unboundid.util.StaticUtils;
 /**
  * This class provides test coverage for the ASN1IA5String class.
  */
-public class ASN1IA5TestCase
+public class ASN1IA5StringTestCase
        extends ASN1TestCase
 {
   /**

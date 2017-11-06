@@ -658,4 +658,52 @@ public class ASN1BitStringTestCase
     ASN1BitString.decodeAsBitString(new ASN1Element(
          ASN1Constants.UNIVERSAL_BIT_STRING_TYPE, new byte[] { 0x09, 0x00 }));
   }
+
+
+
+  /**
+   * Tests the {@code getBitsForBytes} method with an empty byte array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetBitsForBytesEmpty()
+         throws Exception
+  {
+    final boolean[] bits = ASN1BitString.getBitsForBytes(StaticUtils.NO_BYTES);
+    assertNotNull(bits);
+    assertEquals(bits.length, 0);
+  }
+
+
+
+  /**
+   * Tests the {@code getBitsForBytes} method with a non-empty byte array.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetBitsForBytesNonEmpty()
+         throws Exception
+  {
+    final byte[] bytes =
+    {
+      (byte) 0b0101_0101,
+      (byte) 0b1010_1010,
+      (byte) 0b1111_1111,
+      (byte) 0b0000_0000
+    };
+
+    final boolean[] expectedBits =
+    {
+      false, true, false, true, false, true, false, true,
+      true, false, true, false, true, false, true, false,
+      true, true, true, true, true, true, true, true,
+      false, false, false, false, false, false, false, false
+    };
+
+    final boolean[] bits = ASN1BitString.getBitsForBytes(bytes);
+    assertNotNull(bits);
+    assertTrue(Arrays.equals(bits, expectedBits));
+  }
 }
