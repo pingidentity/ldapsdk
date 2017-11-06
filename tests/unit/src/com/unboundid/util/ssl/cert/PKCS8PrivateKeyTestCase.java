@@ -85,6 +85,8 @@ public final class PKCS8PrivateKeyTestCase
          PKCS8PrivateKeyVersion.V1, PublicKeyAlgorithmIdentifier.RSA.getOID(),
          new ASN1Null(), rsaPrivateKey.encode(),  null, null, null);
 
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
+
     privateKey = new PKCS8PrivateKey(privateKey.encode().encode());
 
     assertNotNull(privateKey.getVersion());
@@ -127,6 +129,8 @@ public final class PKCS8PrivateKeyTestCase
     assertNull(privateKey.getPublicKey());
 
     assertNotNull(privateKey.toString());
+
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }
 
 
@@ -150,6 +154,8 @@ public final class PKCS8PrivateKeyTestCase
          new ASN1ObjectIdentifier(NamedCurve.SECP256R1.getOID()),
          ecPrivateKey.encode(), ecPrivateKey, new ASN1OctetString("attributes"),
          new ASN1BitString(new boolean[256]));
+
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
 
     privateKey = new PKCS8PrivateKey(privateKey.encode().encode());
 
@@ -198,6 +204,8 @@ public final class PKCS8PrivateKeyTestCase
          new ASN1BitString(new boolean[256]).getBytes());
 
     assertNotNull(privateKey.toString());
+
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }
 
 
@@ -215,6 +223,8 @@ public final class PKCS8PrivateKeyTestCase
     PKCS8PrivateKey privateKey = new PKCS8PrivateKey(
          PKCS8PrivateKeyVersion.V2, new OID("1.2.3.4"), new ASN1Null(),
          new ASN1OctetString("encoded-private-key"), null, null, null);
+
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
 
     privateKey = new PKCS8PrivateKey(privateKey.encode().encode());
 
@@ -238,6 +248,8 @@ public final class PKCS8PrivateKeyTestCase
     assertNull(privateKey.getDecodedPrivateKey());
 
     assertNotNull(privateKey.toString());
+
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }
 
 
@@ -441,6 +453,8 @@ public final class PKCS8PrivateKeyTestCase
          new ASN1ObjectIdentifier(NamedCurve.SECP256R1.getOID()),
          new ASN1OctetString("malformed-ec-private-key"), null, null, null);
 
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
+
     privateKey = new PKCS8PrivateKey(privateKey.encode().encode());
 
     assertNotNull(privateKey.getVersion());
@@ -469,6 +483,8 @@ public final class PKCS8PrivateKeyTestCase
     assertNull(privateKey.getPublicKey());
 
     assertNotNull(privateKey.toString());
+
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }
 
 
@@ -492,6 +508,8 @@ public final class PKCS8PrivateKeyTestCase
          new ASN1Null(), ecPrivateKey.encode(), ecPrivateKey, null, null);
 
     assertNotNull(privateKey.toString());
+
+    assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
   }
 
 
@@ -538,6 +556,8 @@ public final class PKCS8PrivateKeyTestCase
 
     assertNotNull(pkcs8PrivateKey.getDecodedPrivateKey());
     assertTrue(pkcs8PrivateKey.getDecodedPrivateKey() instanceof RSAPrivateKey);
+
+    assertNotNull(pkcs8PrivateKey.getPKCS8PrivateKeyBytes());
   }
 
 
@@ -585,5 +605,7 @@ public final class PKCS8PrivateKeyTestCase
     assertNotNull(pkcs8PrivateKey.getDecodedPrivateKey());
     assertTrue(pkcs8PrivateKey.getDecodedPrivateKey() instanceof
          EllipticCurvePrivateKey);
+
+    assertNotNull(pkcs8PrivateKey.getPKCS8PrivateKeyBytes());
   }
 }

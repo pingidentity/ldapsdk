@@ -91,6 +91,8 @@ public final class X509CertificateTestCase
          PublicKeyAlgorithmIdentifier.RSA.getOID(), new ASN1Null(),
          publicKey.encode(), publicKey, null, null);
 
+    assertNotNull(c.getX509CertificateBytes());
+
     c = new X509Certificate(c.encode().encode());
 
     assertNotNull(c.getVersion());
@@ -162,6 +164,12 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.getX509CertificateBytes());
+
+    assertNotNull(c.getSHA1Fingerprint());
+
+    assertNotNull(c.getSHA256Fingerprint());
   }
 
 
@@ -221,6 +229,8 @@ public final class X509CertificateTestCase
                    "ldap.example.com").build()),
          new SubjectKeyIdentifierExtension(false,
               new ASN1OctetString("subject-key-identifier")));
+
+    assertNotNull(c.getX509CertificateBytes());
 
     c = new X509Certificate(c.encode().encode());
 
@@ -313,6 +323,12 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.getX509CertificateBytes());
+
+    assertNotNull(c.getSHA1Fingerprint());
+
+    assertNotNull(c.getSHA256Fingerprint());
   }
 
 
@@ -336,6 +352,8 @@ public final class X509CertificateTestCase
          new DN("CN=Issuer,O=Example Corp,C=US"), notBefore, notAfter,
          new DN("CN=ldap.example.com,O=Example Corp,C=US"), new OID("1.2.3.5"),
          new ASN1Null(), new ASN1BitString(new boolean[123]), null, null, null);
+
+    assertNotNull(c.getX509CertificateBytes());
 
     c = new X509Certificate(c.encode().encode());
 
@@ -403,6 +421,12 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.getX509CertificateBytes());
+
+    assertNotNull(c.getSHA1Fingerprint());
+
+    assertNotNull(c.getSHA256Fingerprint());
   }
 
 
@@ -428,6 +452,8 @@ public final class X509CertificateTestCase
          new DN("CN=ldap.example.com,O=Example Corp,C=US"),
          PublicKeyAlgorithmIdentifier.RSA.getOID(), new ASN1Null(),
          new ASN1BitString(new boolean[123]), null, null, null);
+
+    assertNotNull(c.getX509CertificateBytes());
 
     c = new X509Certificate(c.encode().encode());
 
@@ -497,6 +523,12 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.getX509CertificateBytes());
+
+    assertNotNull(c.getSHA1Fingerprint());
+
+    assertNotNull(c.getSHA256Fingerprint());
   }
 
 
@@ -523,6 +555,8 @@ public final class X509CertificateTestCase
          new DN("CN=ldap.example.com,O=Example Corp,C=US"),
          PublicKeyAlgorithmIdentifier.EC.getOID(), new ASN1Null(),
          new ASN1BitString(new boolean[123]), null, null, null);
+
+    assertNotNull(c.getX509CertificateBytes());
 
     c = new X509Certificate(c.encode().encode());
 
@@ -592,6 +626,12 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.getX509CertificateBytes());
+
+    assertNotNull(c.getSHA1Fingerprint());
+
+    assertNotNull(c.getSHA256Fingerprint());
   }
 
 
@@ -638,6 +678,8 @@ public final class X509CertificateTestCase
          new X509CertificateExtension(
               SubjectKeyIdentifierExtension.SUBJECT_KEY_IDENTIFIER_OID,
               true, StaticUtils.NO_BYTES));
+
+    assertNotNull(c.getX509CertificateBytes());
 
     c = new X509Certificate(c.encode().encode());
 
@@ -708,6 +750,12 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureValue());
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.getX509CertificateBytes());
+
+    assertNotNull(c.getSHA1Fingerprint());
+
+    assertNotNull(c.getSHA256Fingerprint());
   }
 
 
@@ -1505,6 +1553,12 @@ public final class X509CertificateTestCase
          new ASN1BitString(new boolean[256]), null, null, null);
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.getX509CertificateBytes());
+
+    assertNotNull(c.getSHA1Fingerprint());
+
+    assertNotNull(c.getSHA256Fingerprint());
   }
 
 
@@ -1536,6 +1590,12 @@ public final class X509CertificateTestCase
          publicKey.encode(), publicKey, null, null);
 
     assertNotNull(c.toString());
+
+    assertNotNull(c.getX509CertificateBytes());
+
+    assertNotNull(c.getSHA1Fingerprint());
+
+    assertNotNull(c.getSHA256Fingerprint());
   }
 
 
@@ -1638,6 +1698,12 @@ public final class X509CertificateTestCase
          InetAddress.getByName("::1")));
 
     assertNotNull(x509Certificate.getSignatureValue());
+
+    assertNotNull(x509Certificate.getX509CertificateBytes());
+
+    assertNotNull(x509Certificate.getSHA1Fingerprint());
+
+    assertNotNull(x509Certificate.getSHA256Fingerprint());
   }
 
 
@@ -1742,5 +1808,11 @@ public final class X509CertificateTestCase
          InetAddress.getByName("::1")));
 
     assertNotNull(x509Certificate.getSignatureValue());
+
+    assertNotNull(x509Certificate.getX509CertificateBytes());
+
+    assertNotNull(x509Certificate.getSHA1Fingerprint());
+
+    assertNotNull(x509Certificate.getSHA256Fingerprint());
   }
 }

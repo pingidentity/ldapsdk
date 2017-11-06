@@ -127,6 +127,10 @@ public final class PKCS8PrivateKey
   // The encoded representation of the private key.
   private final ASN1OctetString encodedPrivateKey;
 
+  // The bytes that comprise the encoded representation of the PKCS#8 private
+  // key.
+  private final byte[] pkcs8PrivateKeyBytes;
+
   // The decoded representation of the private key, if available.
   private final DecodedPrivateKey decodedPrivateKey;
 
@@ -168,6 +172,9 @@ public final class PKCS8PrivateKey
    *                                        private key.  This may be
    *                                        {@code null} if no public key should
    *                                        be included.
+   *
+   * @throws  CertException  If a problem is encountered while creating the
+   *                         private key.
    */
   PKCS8PrivateKey(final PKCS8PrivateKeyVersion version,
                   final OID privateKeyAlgorithmOID,
@@ -176,6 +183,7 @@ public final class PKCS8PrivateKey
                   final DecodedPrivateKey decodedPrivateKey,
                   final ASN1Element attributesElement,
                   final ASN1BitString publicKey)
+       throws CertException
   {
     this.version = version;
     this.privateKeyAlgorithmOID = privateKeyAlgorithmOID;
@@ -195,6 +203,8 @@ public final class PKCS8PrivateKey
     {
       privateKeyAlgorithmName = identifier.getName();
     }
+
+    pkcs8PrivateKeyBytes = encode().encode();
   }
 
 
@@ -211,6 +221,8 @@ public final class PKCS8PrivateKey
   public PKCS8PrivateKey(final byte[] privateKeyBytes)
          throws CertException
   {
+    pkcs8PrivateKeyBytes = privateKeyBytes;
+
     final ASN1Element[] privateKeyElements;
     try
     {
@@ -391,6 +403,20 @@ public final class PKCS8PrivateKey
                 StaticUtils.getExceptionMessage(e)),
            e);
     }
+  }
+
+
+
+  /**
+   * Retrieves the bytes that comprise the encoded representation of this PKCS#8
+   * private key.
+   *
+   * @return  The bytes that comprise the encoded representation of this PKCS#8
+   *          private key.
+   */
+  public byte[] getPKCS8PrivateKeyBytes()
+  {
+    return pkcs8PrivateKeyBytes;
   }
 
 

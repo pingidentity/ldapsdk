@@ -24,6 +24,7 @@ package com.unboundid.util.ssl.cert;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -169,7 +170,7 @@ public final class X509Certificate
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -6426295254061399756L;
+  private static final long serialVersionUID = 8167230740443252L;
 
 
 
@@ -193,6 +194,10 @@ public final class X509Certificate
 
   // The certificate serial number.
   private final BigInteger serialNumber;
+
+  // The bytes that comprise the encoded representation of the X.509
+  // certificate.
+  private final byte[] x509CertificateBytes;
 
   // The decoded public key for this certificate, if available.
   private final DecodedPublicKey decodedPublicKey;
@@ -280,6 +285,9 @@ public final class X509Certificate
    * @param  extensions                    The set of extensions to include in
    *                                       the certificate.  This must not be
    *                                       {@code null} but may be empty.
+   *
+   * @throws  CertException  If a problem is encountered while creating the
+   *                         certificate.
    */
   X509Certificate(final X509CertificateVersion version,
                   final BigInteger serialNumber,
@@ -294,6 +302,7 @@ public final class X509Certificate
                   final ASN1BitString issuerUniqueID,
                   final ASN1BitString subjectUniqueID,
                   final X509CertificateExtension... extensions)
+       throws CertException
   {
     this.version = version;
     this.serialNumber = serialNumber;
@@ -333,6 +342,8 @@ public final class X509Certificate
     {
       publicKeyAlgorithmName = publicKeyAlgorithmIdentifier.getName();
     }
+
+    x509CertificateBytes = encode().encode();
   }
 
 
@@ -349,6 +360,8 @@ public final class X509Certificate
   public X509Certificate(final byte[] encodedCertificate)
          throws CertException
   {
+    x509CertificateBytes = encodedCertificate;
+
     final ASN1Element[] certificateElements;
     try
     {
@@ -1055,6 +1068,20 @@ public final class X509Certificate
 
 
   /**
+   * Retrieves the bytes that comprise the encoded representation of this X.509
+   * certificate.
+   *
+   * @return  The bytes that comprise the encoded representation of this X.509
+   *          certificate.
+   */
+  public byte[] getX509CertificateBytes()
+  {
+    return x509CertificateBytes;
+  }
+
+
+
+  /**
    * Retrieves the certificate version.
    *
    * @return  The certificate version.
@@ -1341,6 +1368,72 @@ public final class X509Certificate
   public ASN1BitString getSignatureValue()
   {
     return signatureValue;
+  }
+
+
+
+  /**
+   * Retrieves the bytes that comprise a SHA-1 fingerprint of this certificate.
+   *
+   * @return  The bytes that comprise a SHA-1 fingerprint of this certificate.
+   *
+   * @throws  CertException  If a problem is encountered while computing the
+   *                         fingerprint.
+   */
+  public byte[] getSHA1Fingerprint()
+         throws CertException
+  {
+    return getFingerprint("SHA-1");
+  }
+
+
+
+  /**
+   * Retrieves the bytes that comprise a 256-bit SHA-2 fingerprint of this
+   * certificate.
+   *
+   * @return  The bytes that comprise a 256-bit SHA-2 fingerprint of this
+   *          certificate.
+   *
+   * @throws  CertException  If a problem is encountered while computing the
+   *                         fingerprint.
+   */
+  public byte[] getSHA256Fingerprint()
+         throws CertException
+  {
+    return getFingerprint("SHA-256");
+  }
+
+
+
+  /**
+   * Retrieves the bytes that comprise a fingerprint of this certificate.
+   *
+   * @param  digestAlgorithm  The digest algorithm to use to generate the
+   *                          fingerprint.
+   *
+   * @return  The bytes that comprise a fingerprint of this certificate.
+   *
+   * @throws  CertException  If a problem is encountered while computing the
+   *                         fingerprint.
+   */
+  private byte[] getFingerprint(final String digestAlgorithm)
+          throws CertException
+  {
+    try
+    {
+      final MessageDigest digest = MessageDigest.getInstance(digestAlgorithm);
+      return digest.digest(x509CertificateBytes);
+    }
+    catch (final Exception e)
+    {
+      // This should never happen.
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_CERT_CANNOT_COMPUTE_FINGERPRINT.get(digestAlgorithm,
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
   }
 
 
