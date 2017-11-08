@@ -250,7 +250,8 @@ public final class X509Certificate
    *                                       {@code null}.
    * @param  signatureAlgorithmParameters  The encoded signature algorithm
    *                                       parameters for the certificate.  This
-   *                                       must not be {@code null}.
+   *                                       may be {@code null} if there are no
+   *                                       parameters.
    * @param  signatureValue                The encoded signature for the
    *                                       certificate.  This must not be
    *                                       {@code null}.
@@ -267,7 +268,8 @@ public final class X509Certificate
    *                                       be {@code null}.
    * @param  publicKeyAlgorithmParameters  The encoded public key algorithm
    *                                       parameters for the certificate.  This
-   *                                       must not be {@code null}.
+   *                                       may be {@code null} if there are no
+   *                                       parameters.
    * @param  encodedPublicKey              The encoded public key for the
    *                                       certificate.  This must not be
    *                                       {@code null}.
@@ -398,19 +400,30 @@ public final class X509Certificate
            e);
     }
 
+    int tbsCertificateElementIndex;
     try
     {
-      // The version is explicitly tagged, which means that it's a constructed
-      // element with the DER-encoded integer inside it.  Also, the version
-      // number is actually one larger than the value of the integer element,
-      // since 0 means v1, 1 means v2, and 2 means v3.
-      final int versionIntValue = ASN1Integer.decodeAsInteger(
-           tbsCertificateElements[0].getValue()).intValue();
-      version = X509CertificateVersion.valueOf(versionIntValue);
-      if (version == null)
+      // The version element may or may not be present in a certificate.  If it
+      // is present, then it will be explicitly tagged, which means that it's a
+      // constructed element with the DER-encoded integer inside it.  If it is
+      // absent, then a default version of v1 will be used.
+      if ((tbsCertificateElements[0].getType() & 0xFF) == 0xA0)
       {
-        throw new CertException(
-             ERR_CERT_DECODE_UNSUPPORTED_VERSION.get(version));
+        final int versionIntValue = ASN1Integer.decodeAsInteger(
+             tbsCertificateElements[0].getValue()).intValue();
+        version = X509CertificateVersion.valueOf(versionIntValue);
+        if (version == null)
+        {
+          throw new CertException(
+               ERR_CERT_DECODE_UNSUPPORTED_VERSION.get(version));
+        }
+
+        tbsCertificateElementIndex = 1;
+      }
+      else
+      {
+        version = X509CertificateVersion.V1;
+        tbsCertificateElementIndex = 0;
       }
     }
     catch (final CertException e)
@@ -429,8 +442,8 @@ public final class X509Certificate
 
     try
     {
-      serialNumber =
-           tbsCertificateElements[1].decodeAsBigInteger().getBigIntegerValue();
+      serialNumber = tbsCertificateElements[tbsCertificateElementIndex++].
+           decodeAsBigInteger().getBigIntegerValue();
     }
     catch (final Exception e)
     {
@@ -444,10 +457,18 @@ public final class X509Certificate
     try
     {
       final ASN1Element[] signatureAlgorithmElements =
-           tbsCertificateElements[2].decodeAsSequence().elements();
+           tbsCertificateElements[tbsCertificateElementIndex++].
+                decodeAsSequence().elements();
       signatureAlgorithmOID =
            signatureAlgorithmElements[0].decodeAsObjectIdentifier().getOID();
-      signatureAlgorithmParameters = signatureAlgorithmElements[1];
+      if (signatureAlgorithmElements.length > 1)
+      {
+        signatureAlgorithmParameters = signatureAlgorithmElements[1];
+      }
+      else
+      {
+        signatureAlgorithmParameters = null;
+      }
     }
     catch (final Exception e)
     {
@@ -471,7 +492,8 @@ public final class X509Certificate
 
     try
     {
-      issuerDN = decodeName(tbsCertificateElements[3]);
+      issuerDN =
+           decodeName(tbsCertificateElements[tbsCertificateElementIndex++]);
     }
     catch (final Exception e)
     {
@@ -485,7 +507,8 @@ public final class X509Certificate
     try
     {
       final ASN1Element[] validityElements =
-           tbsCertificateElements[4].decodeAsSequence().elements();
+           tbsCertificateElements[tbsCertificateElementIndex++].
+                decodeAsSequence().elements();
       switch (validityElements[0].getType())
       {
         case ASN1Constants.UNIVERSAL_UTC_TIME_TYPE:
@@ -536,7 +559,8 @@ public final class X509Certificate
 
     try
     {
-      subjectDN = decodeName(tbsCertificateElements[5]);
+      subjectDN =
+           decodeName(tbsCertificateElements[tbsCertificateElementIndex++]);
     }
     catch (final Exception e)
     {
@@ -550,12 +574,21 @@ public final class X509Certificate
     try
     {
       final ASN1Element[] subjectPublicKeyInfoElements =
-           tbsCertificateElements[6].decodeAsSequence().elements();
+           tbsCertificateElements[tbsCertificateElementIndex++].
+                decodeAsSequence().elements();
       final ASN1Element[] publicKeyAlgorithmElements =
            subjectPublicKeyInfoElements[0].decodeAsSequence().elements();
       publicKeyAlgorithmOID =
            publicKeyAlgorithmElements[0].decodeAsObjectIdentifier().getOID();
-      publicKeyAlgorithmParameters = publicKeyAlgorithmElements[1];
+      if (publicKeyAlgorithmElements.length > 1)
+      {
+        publicKeyAlgorithmParameters = publicKeyAlgorithmElements[1];
+      }
+      else
+      {
+        publicKeyAlgorithmParameters = null;
+      }
+
       encodedPublicKey = subjectPublicKeyInfoElements[1].decodeAsBitString();
     }
     catch (final Exception e)
@@ -610,14 +643,17 @@ public final class X509Certificate
     ASN1BitString issuerID = null;
     ASN1BitString subjectID = null;
     final ArrayList<X509CertificateExtension> extList = new ArrayList<>(10);
-    for (int i=7; i < tbsCertificateElements.length; i++)
+    for (;
+         tbsCertificateElementIndex < tbsCertificateElements.length;
+         tbsCertificateElementIndex++)
     {
-      switch (tbsCertificateElements[i].getType())
+      switch (tbsCertificateElements[tbsCertificateElementIndex].getType())
       {
         case (byte) 0x81:
           try
           {
-            issuerID = tbsCertificateElements[i].decodeAsBitString();
+            issuerID = tbsCertificateElements[tbsCertificateElementIndex].
+                 decodeAsBitString();
           }
           catch (final Exception e)
           {
@@ -631,7 +667,8 @@ public final class X509Certificate
         case (byte) 0x82:
           try
           {
-            subjectID = tbsCertificateElements[i].decodeAsBitString();
+            subjectID = tbsCertificateElements[tbsCertificateElementIndex].
+                 decodeAsBitString();
           }
           catch (final Exception e)
           {
@@ -647,8 +684,8 @@ public final class X509Certificate
           {
             // This element is explicitly tagged.
             final ASN1Element[] extensionElements = ASN1Sequence.
-                 decodeAsSequence(tbsCertificateElements[i].getValue()).
-                 elements();
+                 decodeAsSequence(tbsCertificateElements[
+                      tbsCertificateElementIndex].getValue()).elements();
             for (final ASN1Element extensionElement : extensionElements)
             {
               final ASN1Element[] extElements =
@@ -934,22 +971,48 @@ public final class X509Certificate
     {
       final ArrayList<ASN1Element> tbsCertificateElements =
            new ArrayList<ASN1Element>(10);
-      tbsCertificateElements.add(new ASN1Element(TYPE_EXPLICIT_VERSION,
-           new ASN1Integer(version.getIntValue()).encode()));
+
+      if (version != X509CertificateVersion.V1)
+      {
+        tbsCertificateElements.add(new ASN1Element(TYPE_EXPLICIT_VERSION,
+             new ASN1Integer(version.getIntValue()).encode()));
+      }
+
       tbsCertificateElements.add(new ASN1BigInteger(serialNumber));
-      tbsCertificateElements.add(new ASN1Sequence(
-           new ASN1ObjectIdentifier(signatureAlgorithmOID),
-           signatureAlgorithmParameters));
+
+      if (signatureAlgorithmParameters == null)
+      {
+        tbsCertificateElements.add(new ASN1Sequence(
+             new ASN1ObjectIdentifier(signatureAlgorithmOID)));
+      }
+      else
+      {
+        tbsCertificateElements.add(new ASN1Sequence(
+             new ASN1ObjectIdentifier(signatureAlgorithmOID),
+             signatureAlgorithmParameters));
+      }
+
       tbsCertificateElements.add(encodeName(issuerDN));
       tbsCertificateElements.add(new ASN1Sequence(
            new ASN1UTCTime(notBefore),
            new ASN1UTCTime(notAfter)));
       tbsCertificateElements.add(encodeName(subjectDN));
-      tbsCertificateElements.add(new ASN1Sequence(
-           new ASN1Sequence(
-                new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
-                publicKeyAlgorithmParameters),
-           encodedPublicKey));
+
+      if (publicKeyAlgorithmParameters == null)
+      {
+        tbsCertificateElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID)),
+             encodedPublicKey));
+      }
+      else
+      {
+        tbsCertificateElements.add(new ASN1Sequence(
+             new ASN1Sequence(
+                  new ASN1ObjectIdentifier(publicKeyAlgorithmOID),
+                  publicKeyAlgorithmParameters),
+             encodedPublicKey));
+      }
 
       if (issuerUniqueID != null)
       {
@@ -977,9 +1040,19 @@ public final class X509Certificate
 
       final ArrayList<ASN1Element> certificateElements = new ArrayList<>(3);
       certificateElements.add(new ASN1Sequence(tbsCertificateElements));
-      certificateElements.add(new ASN1Sequence(
-           new ASN1ObjectIdentifier(signatureAlgorithmOID),
-           signatureAlgorithmParameters));
+
+      if (signatureAlgorithmParameters == null)
+      {
+        certificateElements.add(new ASN1Sequence(
+             new ASN1ObjectIdentifier(signatureAlgorithmOID)));
+      }
+      else
+      {
+        certificateElements.add(new ASN1Sequence(
+             new ASN1ObjectIdentifier(signatureAlgorithmOID),
+             signatureAlgorithmParameters));
+      }
+
       certificateElements.add(signatureValue);
 
       return new ASN1Sequence(certificateElements);
@@ -1152,9 +1225,10 @@ public final class X509Certificate
 
 
   /**
-   * Retrieves the encoded signature algorithm parameters.
+   * Retrieves the encoded signature algorithm parameters, if present.
    *
-   * @return  The encoded signature algorithm parameters.
+   * @return  The encoded signature algorithm parameters, or {@code null} if
+   *          there are no signature algorithm parameters.
    */
   public ASN1Element getSignatureAlgorithmParameters()
   {
@@ -1286,9 +1360,10 @@ public final class X509Certificate
 
 
   /**
-   * Retrieves the encoded public key algorithm parameters.
+   * Retrieves the encoded public key algorithm parameters, if present.
    *
-   * @return  The encoded public key algorithm parameters.
+   * @return  The encoded public key algorithm parameters, or {@code null} if
+   *          there are no public key algorithm parameters.
    */
   public ASN1Element getPublicKeyAlgorithmParameters()
   {

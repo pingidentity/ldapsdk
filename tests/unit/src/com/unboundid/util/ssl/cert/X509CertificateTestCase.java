@@ -31,6 +31,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -51,6 +52,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
+import com.unboundid.util.ssl.JVMDefaultTrustManager;
 
 
 
@@ -82,13 +84,13 @@ public final class X509CertificateTestCase
 
     final RSAPublicKey publicKey = new RSAPublicKey(modulus, exponent);
 
-    X509Certificate c = new X509Certificate(X509CertificateVersion.V2,
+    X509Certificate c = new X509Certificate(X509CertificateVersion.V1,
          BigInteger.valueOf(123456789L),
-         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(), new ASN1Null(),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(), null,
          new ASN1BitString(new boolean[1024]),
          new DN("CN=Issuer,O=Example Corp,C=US"), notBefore, notAfter,
          new DN("CN=ldap.example.com,O=Example Corp,C=US"),
-         PublicKeyAlgorithmIdentifier.RSA.getOID(), new ASN1Null(),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(), null,
          publicKey.encode(), publicKey, null, null);
 
     assertNotNull(c.getX509CertificateBytes());
@@ -96,7 +98,7 @@ public final class X509CertificateTestCase
     c = new X509Certificate(c.encode().encode());
 
     assertNotNull(c.getVersion());
-    assertEquals(c.getVersion(), X509CertificateVersion.V2);
+    assertEquals(c.getVersion(), X509CertificateVersion.V1);
 
     assertNotNull(c.getSerialNumber());
     assertEquals(c.getSerialNumber(), BigInteger.valueOf(123456789L));
@@ -111,7 +113,7 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSignatureAlgorithmNameOrOID());
     assertEquals(c.getSignatureAlgorithmNameOrOID(), "SHA256withRSA");
 
-    assertNotNull(c.getSignatureAlgorithmParameters());
+    assertNull(c.getSignatureAlgorithmParameters());
 
     assertNotNull(c.getIssuerDN());
     assertEquals(c.getIssuerDN(), new DN("CN=Issuer,O=Example Corp,C=US"));
@@ -147,7 +149,7 @@ public final class X509CertificateTestCase
     assertNotNull(c.getPublicKeyAlgorithmNameOrOID());
     assertEquals(c.getPublicKeyAlgorithmNameOrOID(), "RSA");
 
-    assertNotNull(c.getPublicKeyAlgorithmParameters());
+    assertNull(c.getPublicKeyAlgorithmParameters());
 
     assertNotNull(c.getEncodedPublicKey());
 
@@ -1814,5 +1816,41 @@ public final class X509CertificateTestCase
     assertNotNull(x509Certificate.getSHA1Fingerprint());
 
     assertNotNull(x509Certificate.getSHA256Fingerprint());
+  }
+
+
+
+  /**
+   * Tests the ability to decode all of the certificates contained in the
+   * JVM-default trust store.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeAllCertificatesInJVMDefaultTrustStore()
+         throws Exception
+  {
+    final File caCertsFile =
+         JVMDefaultTrustManager.getInstance().getCACertsFile();
+    assertNotNull(caCertsFile);
+
+    final KeyStore keyStore = KeyStore.getInstance("JKS");
+    try (FileInputStream inputStream = new FileInputStream(caCertsFile))
+    {
+      keyStore.load(inputStream, null);
+    }
+
+    final Enumeration<String> aliases = keyStore.aliases();
+    while (aliases.hasMoreElements())
+    {
+      final String alias = aliases.nextElement();
+      final Certificate cert = keyStore.getCertificate(alias);
+      if (cert == null)
+      {
+        continue;
+      }
+
+      new X509Certificate(cert.getEncoded());
+    }
   }
 }

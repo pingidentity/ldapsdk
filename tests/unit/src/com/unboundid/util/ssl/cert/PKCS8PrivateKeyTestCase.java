@@ -83,7 +83,7 @@ public final class PKCS8PrivateKeyTestCase
 
     PKCS8PrivateKey privateKey = new PKCS8PrivateKey(
          PKCS8PrivateKeyVersion.V1, PublicKeyAlgorithmIdentifier.RSA.getOID(),
-         new ASN1Null(), rsaPrivateKey.encode(),  null, null, null);
+         null, rsaPrivateKey.encode(),  null, null, null);
 
     assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
 
@@ -102,7 +102,7 @@ public final class PKCS8PrivateKeyTestCase
     assertNotNull(privateKey.getPrivateKeyAlgorithmNameOrOID());
     assertEquals(privateKey.getPrivateKeyAlgorithmNameOrOID(), "RSA");
 
-    assertNotNull(privateKey.getPrivateKeyAlgorithmParameters());
+    assertNull(privateKey.getPrivateKeyAlgorithmParameters());
 
     assertNotNull(privateKey.getEncodedPrivateKey());
     assertEquals(privateKey.getEncodedPrivateKey().getValue(),

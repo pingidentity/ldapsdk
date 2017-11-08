@@ -156,7 +156,8 @@ public final class PKCS8PrivateKey
    *                                        {@code null}.
    * @param  privateKeyAlgorithmParameters  The ASN.1 element with the encoded
    *                                        private key algorithm parameters.
-   *                                        This must not be {@code null}.
+   *                                        This may be {@code null} if there
+   *                                        are no parameters.
    * @param  encodedPrivateKey              The encoded representation of the
    *                                        private key.  This must not be
    *                                        {@code null}.
@@ -276,7 +277,14 @@ public final class PKCS8PrivateKey
            privateKeyElements[1].decodeAsSequence().elements();
       privateKeyAlgorithmOID =
            privateKeyAlgorithmElements[0].decodeAsObjectIdentifier().getOID();
-      privateKeyAlgorithmParameters = privateKeyAlgorithmElements[1];
+      if (privateKeyAlgorithmElements.length > 1)
+      {
+        privateKeyAlgorithmParameters = privateKeyAlgorithmElements[1];
+      }
+      else
+      {
+        privateKeyAlgorithmParameters = null;
+      }
 
       encodedPrivateKey = privateKeyElements[2].decodeAsOctetString();
     }
@@ -377,9 +385,19 @@ public final class PKCS8PrivateKey
     {
       final ArrayList<ASN1Element> elements = new ArrayList<>(5);
       elements.add(new ASN1Integer(version.getIntValue()));
-      elements.add(new ASN1Sequence(
-           new ASN1ObjectIdentifier(privateKeyAlgorithmOID),
-           privateKeyAlgorithmParameters));
+
+      if (privateKeyAlgorithmParameters == null)
+      {
+        elements.add(new ASN1Sequence(
+             new ASN1ObjectIdentifier(privateKeyAlgorithmOID)));
+      }
+      else
+      {
+        elements.add(new ASN1Sequence(
+             new ASN1ObjectIdentifier(privateKeyAlgorithmOID),
+             privateKeyAlgorithmParameters));
+      }
+
       elements.add(encodedPrivateKey);
 
       if (attributesElement != null)
@@ -480,9 +498,10 @@ public final class PKCS8PrivateKey
 
 
   /**
-   * Retrieves the encoded private key algorithm parameters.
+   * Retrieves the encoded private key algorithm parameters, if present.
    *
-   * @return  The encoded private key algorithm parameters.
+   * @return  The encoded private key algorithm parameters, or {@code null} if
+   *          there are no private key algorithm parameters.
    */
   public ASN1Element getPrivateKeyAlgorithmParameters()
   {
