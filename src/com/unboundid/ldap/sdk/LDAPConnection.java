@@ -1528,6 +1528,37 @@ public final class LDAPConnection
 
 
   /**
+   * Closes the connection without first sending an unbind request.  Using this
+   * method is generally discouraged, although it may be useful under certain
+   * circumstances, like when it is known or suspected that an attempt to write
+   * data over the connection will fail or block for some period of time.
+   * <BR><BR>
+   * If this method is invoked while any operations are in progress on this
+   * connection, then the directory server may or may not abort processing for
+   * those operations, depending on the type of operation and how far along the
+   * server has already gotten while processing that operation.  It is
+   * recommended that all active operations be abandoned, canceled, or allowed
+   * to complete before attempting to close an active connection.
+   */
+  @ThreadSafety(level=ThreadSafetyLevel.METHOD_NOT_THREADSAFE)
+  public void closeWithoutUnbind()
+  {
+    closeRequested = true;
+    setDisconnectInfo(DisconnectType.CLOSED_WITHOUT_UNBIND, null, null);
+
+    if (connectionPool == null)
+    {
+      setClosed();
+    }
+    else
+    {
+      connectionPool.releaseDefunctConnection(this);
+    }
+  }
+
+
+
+  /**
    * Unbinds from the server and closes the connection, optionally including the
    * provided set of controls in the unbind request.  This method is only
    * intended for internal use, since it does not make any attempt to release

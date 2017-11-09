@@ -725,7 +725,7 @@ public final class LDAPConnectionPool
               {
                 c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null,
                      le);
-                c.terminate(null);
+                c.setClosed();
               }
               catch (final Exception e)
               {
@@ -1125,7 +1125,7 @@ public final class LDAPConnectionPool
               {
                 c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null,
                      le);
-                c.terminate(null);
+                c.setClosed();
               } catch (final Exception e)
               {
                 debugException(e);
@@ -1238,7 +1238,7 @@ public final class LDAPConnectionPool
         {
           poolStatistics.incrementNumFailedConnectionAttempts();
           c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null, e);
-          c.terminate(null);
+          c.setClosed();
         }
         catch (final Exception e2)
         {
@@ -1296,7 +1296,7 @@ public final class LDAPConnectionPool
         {
           poolStatistics.incrementNumFailedConnectionAttempts();
           c.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
-          c.terminate(null);
+          c.setClosed();
         }
         catch (final Exception e)
         {
@@ -1322,7 +1322,7 @@ public final class LDAPConnectionPool
         {
           poolStatistics.incrementNumFailedConnectionAttempts();
           c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null, e);
-          c.terminate(null);
+          c.setClosed();
         }
         catch (final Exception e2)
         {
@@ -2010,7 +2010,7 @@ public final class LDAPConnectionPool
         try
         {
           connection.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
-          connection.terminate(null);
+          connection.setClosed();
           releaseDefunctConnection(connection);
         }
         catch (final Exception e)
@@ -2067,7 +2067,7 @@ public final class LDAPConnectionPool
   {
     connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, null,
                                  null);
-    connection.terminate(null);
+    connection.setClosed();
 
     if (closed)
     {
@@ -2128,7 +2128,7 @@ public final class LDAPConnectionPool
     poolStatistics.incrementNumConnectionsClosedDefunct();
     connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, null,
                                  null);
-    connection.terminate(null);
+    connection.setClosed();
 
     if (closed)
     {

@@ -382,7 +382,7 @@ public final class LDAPThreadLocalConnectionPool
         {
           poolStatistics.incrementNumFailedConnectionAttempts();
           c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null, e);
-          c.terminate(null);
+          c.setClosed();
         }
         catch (final Exception e2)
         {
@@ -440,7 +440,7 @@ public final class LDAPThreadLocalConnectionPool
         {
           poolStatistics.incrementNumFailedConnectionAttempts();
           c.setDisconnectInfo(DisconnectType.BIND_FAILED, null, le);
-          c.terminate(null);
+          c.setClosed();
         }
         catch (final Exception e)
         {
@@ -466,7 +466,7 @@ public final class LDAPThreadLocalConnectionPool
         {
           poolStatistics.incrementNumFailedConnectionAttempts();
           c.setDisconnectInfo(DisconnectType.POOL_CREATION_FAILURE, null, e);
-          c.terminate(null);
+          c.setClosed();
         }
         catch (final Exception e2)
         {
@@ -826,7 +826,7 @@ public final class LDAPThreadLocalConnectionPool
     {
       debugException(le);
 
-      conn.terminate(null);
+      conn.setClosed();
       connections.remove(t);
 
       if (created)
@@ -852,7 +852,7 @@ public final class LDAPThreadLocalConnectionPool
 
       if (conn != null)
       {
-        conn.terminate(null);
+        conn.setClosed();
       }
 
       throw le;
@@ -1020,7 +1020,7 @@ public final class LDAPThreadLocalConnectionPool
 
     connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, null,
                                  null);
-    connection.terminate(null);
+    connection.setClosed();
     connections.remove(t);
 
     if (closed)
@@ -1052,7 +1052,7 @@ public final class LDAPThreadLocalConnectionPool
     poolStatistics.incrementNumConnectionsClosedDefunct();
     connection.setDisconnectInfo(DisconnectType.POOLED_CONNECTION_DEFUNCT, null,
                                  null);
-    connection.terminate(null);
+    connection.setClosed();
     connections.remove(Thread.currentThread(), connection);
 
     if (closed)

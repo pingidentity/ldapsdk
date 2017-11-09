@@ -857,6 +857,32 @@ public class LDAPConnectionTestCase
 
 
   /**
+   * Ensures that no unbind request is sent when the {@code closeWithoutUnbind}
+   * method is called.
+   * <BR><BR>
+   * Access to a Directory Server instance is required for complete processing.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testUnbindRequestNotSentForCloseWithoutUnbind()
+         throws Exception
+  {
+    if (! isDirectoryInstanceAvailable())
+    {
+      return;
+    }
+
+    LDAPConnection conn = getAdminConnection();
+    assertFalse(conn.unbindRequestSent());
+
+    conn.closeWithoutUnbind();
+    assertFalse(conn.unbindRequestSent());
+  }
+
+
+
+  /**
    * Provides test coverage for the methods making it possible to get and set
    * the connection name.
    * <BR><BR>

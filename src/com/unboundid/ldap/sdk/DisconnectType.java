@@ -49,6 +49,15 @@ public enum DisconnectType
 
 
   /**
+   * The connection was closed at the request of the client, but without first
+   * sending an unbind request.
+   */
+  CLOSED_WITHOUT_UNBIND(INFO_DISCONNECT_TYPE_CLOSED_WITHOUT_UNBIND.get(),
+       ResultCode.LOCAL_ERROR),
+
+
+
+  /**
    * The connection was closed because a bind performed as part of the
    * creation did not complete successfully.
    */
@@ -263,6 +272,10 @@ public enum DisconnectType
     {
       return UNBIND;
     }
+    if (lowerName.equals("closed_without_unbind"))
+    {
+      return CLOSED_WITHOUT_UNBIND;
+    }
     else if (lowerName.equals("bind_failed"))
     {
       return BIND_FAILED;
@@ -362,6 +375,7 @@ public enum DisconnectType
     switch (disconnectType)
     {
       case UNBIND:
+      case CLOSED_WITHOUT_UNBIND:
       case RECONNECT:
       case REFERRAL:
       case POOL_CLOSED:
