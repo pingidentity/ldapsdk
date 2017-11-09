@@ -646,6 +646,8 @@ public final class SimpleBindRequest
           return bindResult;
         }
       }
+
+      throw le;
     }
 
     while (true)
