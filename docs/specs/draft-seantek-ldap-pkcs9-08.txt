@@ -4,13 +4,13 @@
 
 Network Working Group                                         S. Leonard
 Internet-Draft                                             Penango, Inc.
-Intended Status: Informational                            March 13, 2017
-Expires: September 14, 2017                                             
+Intended Status: Informational                         November 14, 2017
+Expires: May 18, 2018                                                   
 
 
               Lightweight Directory Access Protocol (LDAP)
                        Registrations for PKCS #9
-                      draft-seantek-ldap-pkcs9-07
+                      draft-seantek-ldap-pkcs9-08
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time. It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 14, 2017.
+   This Internet-Draft will expire on May 18, 2018.
 
 Copyright Notice
 
@@ -55,7 +55,7 @@ Copyright Notice
 
 Leonard                      Informational                      [Page 1]
 
-Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
+Internet-Draft         LDAP PKCS #9 Registrations      November 14, 2017
 
 
 1.  Introduction
@@ -64,6 +64,24 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
    [LDAPDIM] for a subset of elements specified in PKCS #9 [PKCS#9],
    including attribute types; matching rules and syntaxes to be used
    with these attribute types; and related object classes.
+
+   The Public Key Cryptography Standard (PKCS) series is a group of
+   documents originally published by RSA Security, Inc. in the early
+   1990s. These de-facto industry standards specify cryptographic
+   formats and associated operations, such as the mathematical
+   properties of the RSA algorithm and of cryptographic software and
+   hardware modules. Since initial publication, change control of many
+   PKCS documents was transferred to the IETF.
+
+   [PKCS#9] "Selected Object Classes and Attribute Types" "provides a
+   selection of object classes and attribute types for use in
+   conjunction with public-key cryptography and Lightweight Directory
+   Access Protocol (LDAP) accessible directories." Many of these ASN.1
+   data items are used throughout cryptographic implementations, but
+   standardized names were never put into the IANA LDAP Parameters
+   registry. LDAP parameters are frequently user-visible (for better or
+   for worse) so registering these parameters will improve both
+   interoperability and usability.
 
    As the elements and their semantics are defined in [PKCS#9], this
    document needs to be read in conjunction with [PKCS#9] to make use of
@@ -88,10 +106,17 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
 4.  Attribute Types
 
    Appendix B.3 of [PKCS#9] details attribute types for use in LDAP,
-   including (by its own admission) attributes that are highly unlikely
-   to be stored in a Directory. The attributes in Appendix B.3 that are
-   not highly unlikely to be stored in a Directory are registered via
-   this document.
+ 
+
+
+Leonard                      Informational                      [Page 2]
+
+Internet-Draft         LDAP PKCS #9 Registrations      November 14, 2017
+
+
+   including (by its own admission) attributes that are "highly
+   unlikely" to be stored in a Directory. This document registers all
+   such attributes en masse.
 
    [PKCS#9] includes certain attribute types that have found meaningful
    use outside of the PKCS series. Specifically:
@@ -105,14 +130,6 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
          gender, countryOfCitizenship, and countryOfResidence.
       o  "DESC" is sometimes emitted for the description (2.5.4.13)
          attribute.
-
- 
-
-
-Leonard                      Informational                      [Page 2]
-
-Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
-
 
    As a result, certain applications not only encounter and generate
    these attributes in practice, but also use short descriptors that
@@ -136,8 +153,7 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
    misinterpret this value by one day for timezones significantly ahead
    of UTC.
 
-   Since all specifications are under the change control of the IETF,
-   the semantics of dateOfBirth are hereby defined: in dateOfBirth, only
+   The semantics of dateOfBirth are hereby defined: in dateOfBirth, only
    the date is meaningful. Parsers that need to convert the
    GeneralizedTime value to a specific point in time MUST decode the
    date in the UTC timezone to avoid shifting of the date due to
@@ -146,6 +162,14 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
    day ahead (2am), when interpreted literally.
 
    When stored in LDAP, a conformant implementation MAY record this
+ 
+
+
+Leonard                      Informational                      [Page 3]
+
+Internet-Draft         LDAP PKCS #9 Registrations      November 14, 2017
+
+
    value in UTC or in local time, but MUST NOT record this value with a
    timezone offset. I.e., [X.680] subclauses 46.2 a) and b) and 46.3 a)
    and b) are acceptable; subclauses 46.2 c) and 46.3 c) are not
@@ -162,14 +186,6 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
 
    As permitted by Section 3.4 of [LDAPIANA], the short descriptors in
    Table 1 are registered along with their more verbose counterparts
- 
-
-
-Leonard                      Informational                      [Page 3]
-
-Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
-
-
    reflected in [PKCS#9]:
 
                Short Descriptor     Regular Descriptor
@@ -202,15 +218,23 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
    LDAP.
 
 6.  Security Considerations
+ 
+
+
+Leonard                      Informational                      [Page 4]
+
+Internet-Draft         LDAP PKCS #9 Registrations      November 14, 2017
+
 
    PKCS #9 security considerations (written for the RFC edition)
    [PKCS#9] apply to the definitions in this document. LDAP security and
    privacy considerations in [LDAPMAP] and [LDAPDIM] apply as well.
 
-   Some attributes such as dateOfBirth and placeOfBirth may be subject
-   to privacy laws in certain jurisdictions. If conveyed with LDAP,
-   these attributes ought to be returned over a protected channel, such
-   as TLS.
+   Some attributes such as those in [QCPROF], namely dateOfBirth,
+   placeOfBirth, gender, countryOfCitizenship, and countryOfResidence
+   are sensitive and may be subject to privacy laws in certain
+   jurisdictions. If conveyed with LDAP, these attributes ought to be
+   returned over a protected channel, such as TLS.
 
 7.  IANA Considerations
 
@@ -218,13 +242,6 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
    in this technical specification. The IANA shall update the LDAP
    Descriptor registry [LDAPIANA] with definitions from [PKCS#9] as
    indicated below.
- 
-
-
-Leonard                      Informational                      [Page 4]
-
-Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
-
 
 7.1.  Object Identifier Registration
 
@@ -257,6 +274,14 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
       pKCS15Token                   A  1.2.840.113549.1.9.25.1
       encryptedPrivateKeyInfo       A  1.2.840.113549.1.9.25.2
 
+ 
+
+
+Leonard                      Informational                      [Page 5]
+
+Internet-Draft         LDAP PKCS #9 Registrations      November 14, 2017
+
+
       e                             A  1.2.840.113549.1.9.1
 
       unstructuredName              A  1.2.840.113549.1.9.2
@@ -274,13 +299,6 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
       countryOfResidence            A  1.3.6.1.5.5.7.9.5
 
       pnym                          A  2.5.4.65
- 
-
-
-Leonard                      Informational                      [Page 5]
-
-Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
-
 
       desc                          A  2.5.4.13
 
@@ -304,6 +322,21 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
 
       pkcs9CaseIgnoreMatch          M  1.2.840.113549.1.9.27.1
       signingTimeMatch              M  1.2.840.113549.1.9.27.3
+
+
+
+
+
+
+
+
+ 
+
+
+Leonard                      Informational                      [Page 6]
+
+Internet-Draft         LDAP PKCS #9 Registrations      November 14, 2017
+
 
 7.3.  PKCS9String Syntax Registration
 
@@ -330,13 +363,6 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
       Comments:
            Identifies the SigningTime syntax, which is Time,
            which is a CHOICE of UTCTime and GeneralizedTime.
- 
-
-
-Leonard                      Informational                      [Page 6]
-
-Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
-
 
 8.  Acknowledgements
 
@@ -360,6 +386,13 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
    [LDAPDIM]    Zeilenga, K., "Lightweight Directory Access Protocol
                 (LDAP): Directory Information Models", RFC 4512, June
                 2006.
+ 
+
+
+Leonard                      Informational                      [Page 7]
+
+Internet-Draft         LDAP PKCS #9 Registrations      November 14, 2017
+
 
    [LDAPIANA]   Zeilenga, K., "Internet Assigned Numbers Authority
                 (IANA) Considerations for the Lightweight Directory
@@ -386,50 +419,17 @@ Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
                 Certificate Handling", RFC 5750, January 2010.
 
 
- 
-
-
-Leonard                      Informational                      [Page 7]
-
-Internet-Draft         LDAP PKCS #9 Registrations         March 13, 2017
-
-
 Author's Address
 
    Sean Leonard
    Penango, Inc.
-   5900 Wilshire Boulevard
-   21st Floor
+   5900 Wilshire Blvd
+   Ste 2600
    Los Angeles, CA  90036
    USA
 
    EMail: dev+ietf@seantek.com
    URI:   http://www.penango.com/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
