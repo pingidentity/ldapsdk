@@ -80,14 +80,14 @@ public final class PasswordReader
 
 
   /**
-   * Reads a password from the console.
+   * Reads a password from the console as a character array.
    *
    * @return  The characters that comprise the password that was read.
    *
    * @throws  LDAPException  If a problem is encountered while trying to read
    *                         the password.
    */
-  public static byte[] readPassword()
+  public static char[] readPasswordChars()
          throws LDAPException
   {
     // If an input stream is available, then read the password from it.
@@ -96,7 +96,7 @@ public final class PasswordReader
     {
       try
       {
-        return StaticUtils.getBytes(testReader.readLine());
+        return testReader.readLine().toCharArray();
       }
       catch (final Exception e)
       {
@@ -107,11 +107,26 @@ public final class PasswordReader
       }
     }
 
+    return System.console().readPassword();
+  }
 
-    // If we're not in a test, then use the Java SE 6 password reader API to
-    // read the password.
-    final char[] pwChars = System.console().readPassword();
 
+
+  /**
+   * Reads a password from the console as a byte array.
+   *
+   * @return  The characters that comprise the password that was read.
+   *
+   * @throws  LDAPException  If a problem is encountered while trying to read
+   *                         the password.
+   */
+  public static byte[] readPassword()
+         throws LDAPException
+  {
+    // Get the characters that make up the password.
+    final char[] pwChars = readPasswordChars();
+
+    // Convert the password to bytes.
     final ByteStringBuffer buffer = new ByteStringBuffer();
     buffer.append(pwChars);
     Arrays.fill(pwChars, '\u0000');
