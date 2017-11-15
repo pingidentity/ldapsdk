@@ -22,12 +22,19 @@ package com.unboundid.util.ssl.cert;
 
 
 
+import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,6 +42,8 @@ import com.unboundid.asn1.ASN1BigInteger;
 import com.unboundid.asn1.ASN1BitString;
 import com.unboundid.asn1.ASN1Constants;
 import com.unboundid.asn1.ASN1Element;
+import com.unboundid.asn1.ASN1Exception;
+import com.unboundid.asn1.ASN1GeneralizedTime;
 import com.unboundid.asn1.ASN1Integer;
 import com.unboundid.asn1.ASN1ObjectIdentifier;
 import com.unboundid.asn1.ASN1Sequence;
@@ -170,7 +179,7 @@ public final class X509Certificate
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 8167230740443252L;
+  private static final long serialVersionUID = -4680448103099282243L;
 
 
 
@@ -512,7 +521,7 @@ public final class X509Certificate
       switch (validityElements[0].getType())
       {
         case ASN1Constants.UNIVERSAL_UTC_TIME_TYPE:
-          notBefore = validityElements[0].decodeAsUTCTime().getTime();
+          notBefore = decodeUTCTime(validityElements[0]);
           break;
         case ASN1Constants.UNIVERSAL_GENERALIZED_TIME_TYPE:
           notBefore = validityElements[0].decodeAsGeneralizedTime().getTime();
@@ -529,7 +538,7 @@ public final class X509Certificate
       switch (validityElements[1].getType())
       {
         case ASN1Constants.UNIVERSAL_UTC_TIME_TYPE:
-          notAfter = validityElements[1].decodeAsUTCTime().getTime();
+          notAfter = decodeUTCTime(validityElements[1]);
           break;
         case ASN1Constants.UNIVERSAL_GENERALIZED_TIME_TYPE:
           notAfter = validityElements[1].decodeAsGeneralizedTime().getTime();
@@ -688,124 +697,7 @@ public final class X509Certificate
                       tbsCertificateElementIndex].getValue()).elements();
             for (final ASN1Element extensionElement : extensionElements)
             {
-              final ASN1Element[] extElements =
-                   extensionElement.decodeAsSequence().elements();
-              final OID oid =
-                   extElements[0].decodeAsObjectIdentifier().getOID();
-
-              final boolean isCritical;
-              final byte[] value;
-              if (extElements[1].getType() ==
-                   ASN1Constants.UNIVERSAL_BOOLEAN_TYPE)
-              {
-                isCritical = extElements[1].decodeAsBoolean().booleanValue();
-                value = extElements[2].decodeAsOctetString().getValue();
-              }
-              else
-              {
-                isCritical = false;
-                value = extElements[1].decodeAsOctetString().getValue();
-              }
-
-              X509CertificateExtension extension =
-                   new X509CertificateExtension(oid, isCritical, value);
-              if (oid.equals(AuthorityKeyIdentifierExtension.
-                   AUTHORITY_KEY_IDENTIFIER_OID))
-              {
-                try
-                {
-                  extension = new AuthorityKeyIdentifierExtension(extension);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                }
-              }
-              else if (oid.equals(SubjectKeyIdentifierExtension.
-                   SUBJECT_KEY_IDENTIFIER_OID))
-              {
-                try
-                {
-                  extension = new SubjectKeyIdentifierExtension(extension);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                }
-              }
-              else if (oid.equals(KeyUsageExtension.KEY_USAGE_OID))
-              {
-                try
-                {
-                  extension = new KeyUsageExtension(extension);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                }
-              }
-              else if (oid.equals(SubjectAlternativeNameExtension.
-                   SUBJECT_ALTERNATIVE_NAME_OID))
-              {
-                try
-                {
-                  extension = new SubjectAlternativeNameExtension(extension);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                }
-              }
-              else if (oid.equals(IssuerAlternativeNameExtension.
-                   ISSUER_ALTERNATIVE_NAME_OID))
-              {
-                try
-                {
-                  extension = new IssuerAlternativeNameExtension(extension);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                }
-              }
-              else if (oid.equals(BasicConstraintsExtension.
-                   BASIC_CONSTRAINTS_OID))
-              {
-                try
-                {
-                  extension = new BasicConstraintsExtension(extension);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                }
-              }
-              else if (oid.equals(ExtendedKeyUsageExtension.
-                   EXTENDED_KEY_USAGE_OID))
-              {
-                try
-                {
-                  extension = new ExtendedKeyUsageExtension(extension);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                }
-              }
-              else if (oid.equals(CRLDistributionPointsExtension.
-                   CRL_DISTRIBUTION_POINTS_OID))
-              {
-                try
-                {
-                  extension = new CRLDistributionPointsExtension(extension);
-                }
-                catch (final Exception e)
-                {
-                  Debug.debugException(e);
-                }
-              }
-
-              extList.add(extension);
+              extList.add(X509CertificateExtension.decode(extensionElement));
             }
           }
           catch (final Exception e)
@@ -957,6 +849,41 @@ public final class X509Certificate
 
 
   /**
+   * Decodes the provided ASN.1 element as a UTC time element and retrieves the
+   * corresponding time.  As per the X.509 specification, the resulting value
+   * will be guaranteed to fall between the years 1950 and 2049.
+   *
+   * @param  element  The ASN.1 element to decode as a UTC time value.
+   *
+   * @return  The decoded time value.
+   *
+   * @throws  ASN1Exception  If the provided element cannot be decoded as a UTC
+   *                         time element.
+   */
+  private static long decodeUTCTime(final ASN1Element element)
+          throws ASN1Exception
+  {
+    final long timeValue = ASN1UTCTime.decodeAsUTCTime(element).getTime();
+
+    final GregorianCalendar calendar = new GregorianCalendar();
+    calendar.setTimeInMillis(timeValue);
+
+    final int year = calendar.get(Calendar.YEAR);
+    if (year < 1949)
+    {
+      calendar.set(Calendar.YEAR, (year + 100));
+    }
+    else if (year > 2050)
+    {
+      calendar.set(Calendar.YEAR, (year - 100));
+    }
+
+    return calendar.getTimeInMillis();
+  }
+
+
+
+  /**
    * Encodes this X.509 certificate to an ASN.1 element.
    *
    * @return  The encoded X.509 certificate.
@@ -969,8 +896,7 @@ public final class X509Certificate
   {
     try
     {
-      final ArrayList<ASN1Element> tbsCertificateElements =
-           new ArrayList<ASN1Element>(10);
+      final ArrayList<ASN1Element> tbsCertificateElements = new ArrayList<>(10);
 
       if (version != X509CertificateVersion.V1)
       {
@@ -992,10 +918,9 @@ public final class X509Certificate
              signatureAlgorithmParameters));
       }
 
+
       tbsCertificateElements.add(encodeName(issuerDN));
-      tbsCertificateElements.add(new ASN1Sequence(
-           new ASN1UTCTime(notBefore),
-           new ASN1UTCTime(notAfter)));
+      tbsCertificateElements.add(encodeValiditySequence(notBefore, notAfter));
       tbsCertificateElements.add(encodeName(subjectDN));
 
       if (publicKeyAlgorithmParameters == null)
@@ -1136,6 +1061,44 @@ public final class X509Certificate
     }
 
     return new ASN1Sequence(rdnSequenceElements);
+  }
+
+
+
+  /**
+   * Encodes the certificate validity sequence, using a UTC time encoding if
+   * both notBefore and notAfter values fall within the range 1950-2049, and
+   * using generalized time if either value falls outside that range.
+   *
+   * @param  notBefore  The notBefore value to include in the sequence.
+   * @param  notAfter   The notAfter value to include in the sequence.
+   *
+   * @return  The encoded validity sequence.
+   */
+  static ASN1Sequence encodeValiditySequence(final long notBefore,
+                                             final long notAfter)
+  {
+    final GregorianCalendar notBeforeCalendar = new GregorianCalendar();
+    notBeforeCalendar.setTimeInMillis(notBefore);
+    final int notBeforeYear = notBeforeCalendar.get(Calendar.YEAR);
+
+    final GregorianCalendar notAfterCalendar = new GregorianCalendar();
+    notAfterCalendar.setTimeInMillis(notAfter);
+    final int notAfterYear = notAfterCalendar.get(Calendar.YEAR);
+
+    if ((notBeforeYear >= 1950) && (notBeforeYear <= 2049) &&
+        (notAfterYear >= 1950) && (notAfterYear <= 2049))
+    {
+      return new ASN1Sequence(
+           new ASN1UTCTime(notBefore),
+           new ASN1UTCTime(notAfter));
+    }
+    else
+    {
+      return new ASN1Sequence(
+           new ASN1GeneralizedTime(notBefore),
+           new ASN1GeneralizedTime(notAfter));
+    }
   }
 
 
@@ -1509,6 +1472,194 @@ public final class X509Certificate
                 StaticUtils.getExceptionMessage(e)),
            e);
     }
+  }
+
+
+
+  /**
+   * Indicates whether this certificate is self-signed.  The following criteria
+   * will be used to make the determination:
+   * <OL>
+   *   <LI>
+   *     If the certificate has both subject key identifier and authority
+   *     key identifier extensions, then it will be considered self-signed if
+   *     and only if the subject key identifier matches the authority key
+   *     identifier.
+   *   </LI>
+   *   <LI>
+   *     If the certificate does not have both a subject key identifier and an
+   *     authority key identifier, then it will be considered self-signed if and
+   *     only if its subject DN matches its issuer DN.
+   *   </LI>
+   * </OL>
+   *
+   * @return  {@code true} if this certificate is self-signed, or {@code false}
+   *          if it is not.
+   */
+  public boolean isSelfSigned()
+  {
+    AuthorityKeyIdentifierExtension akie = null;
+    SubjectKeyIdentifierExtension skie = null;
+    for (final X509CertificateExtension e : extensions)
+    {
+      if (e instanceof AuthorityKeyIdentifierExtension)
+      {
+        akie = (AuthorityKeyIdentifierExtension) e;
+      }
+      else if (e instanceof SubjectKeyIdentifierExtension)
+      {
+        skie = (SubjectKeyIdentifierExtension) e;
+      }
+    }
+
+    if ((akie != null) && (skie != null))
+    {
+      return ((akie.getKeyIdentifier() != null) &&
+           Arrays.equals(akie.getKeyIdentifier().getValue(),
+                skie.getKeyIdentifier().getValue()));
+    }
+    else
+    {
+      return subjectDN.equals(issuerDN);
+    }
+  }
+
+
+
+  /**
+   * Indicates whether this certificate is the issuer for the provided
+   * certificate.  In order for this to be true, the following conditions must
+   * be met:
+   * <OL>
+   *   <LI>
+   *     The subject DN of this certificate must match the issuer DN for the
+   *     provided certificate.
+   *   </LI>
+   *   <LI>
+   *     If the provided certificate has an authority key identifier extension,
+   *     then this certificate must have a subject key identifier extension with
+   *     a matching identifier value.
+   *   </LI>
+   * </OL>
+   *
+   * @param  c  The certificate for which to make the determination.  This must
+   *            not be {@code null}.
+   *
+   * @return  {@code true} if this certificate is considered the issuer for the
+   *          provided certificate, or {@code } false if not.
+   */
+  public boolean isIssuerFor(final X509Certificate c)
+  {
+    return isIssuerFor(c, null);
+  }
+
+
+
+  /**
+   * Indicates whether this certificate is the issuer for the provided
+   * certificate.  In order for this to be true, the following conditions must
+   * be met:
+   * <OL>
+   *   <LI>
+   *     The subject DN of this certificate must match the issuer DN for the
+   *     provided certificate.
+   *   </LI>
+   *   <LI>
+   *     If the provided certificate has an authority key identifier extension,
+   *     then this certificate must have a subject key identifier extension with
+   *     a matching identifier value.
+   *   </LI>
+   * </OL>
+   *
+   * @param  c               The certificate for which to make the
+   *                         determination.  This must not be {@code null}.
+   * @param  nonMatchReason  An optional buffer that may be updated with the
+   *                         reason that this certificate is not considered the
+   *                         issuer for the provided certificate.  This may be
+   *                         {@code null} if the caller does not require a
+   *                         reason.
+   *
+   * @return  {@code true} if this certificate is considered the issuer for the
+   *          provided certificate, or {@code } false if not.
+   */
+  public boolean isIssuerFor(final X509Certificate c,
+                             final StringBuilder nonMatchReason)
+  {
+    if (! c.issuerDN.equals(subjectDN))
+    {
+      if (nonMatchReason != null)
+      {
+        nonMatchReason.append(INFO_CERT_IS_ISSUER_FOR_DN_MISMATCH.get(
+             subjectDN, c.subjectDN, issuerDN));
+      }
+
+      return false;
+    }
+
+
+    byte[] authorityKeyIdentifier = null;
+    for (final X509CertificateExtension extension : c.extensions)
+    {
+      if (extension instanceof AuthorityKeyIdentifierExtension)
+      {
+        final AuthorityKeyIdentifierExtension akie =
+             (AuthorityKeyIdentifierExtension) extension;
+        if (akie.getKeyIdentifier() != null)
+        {
+          authorityKeyIdentifier = akie.getKeyIdentifier().getValue();
+          break;
+        }
+      }
+    }
+
+    if (authorityKeyIdentifier != null)
+    {
+      boolean matchFound = false;
+      for (final X509CertificateExtension extension : extensions)
+      {
+        if (extension instanceof SubjectKeyIdentifierExtension)
+        {
+          final SubjectKeyIdentifierExtension skie =
+               (SubjectKeyIdentifierExtension) extension;
+          matchFound = Arrays.equals(authorityKeyIdentifier,
+               skie.getKeyIdentifier().getValue());
+          break;
+        }
+      }
+
+      if (! matchFound)
+      {
+        if (nonMatchReason != null)
+        {
+          nonMatchReason.append(INFO_CERT_IS_ISSUER_FOR_KEY_ID_MISMATCH.get(
+               subjectDN, c.subjectDN));
+        }
+
+        return false;
+      }
+    }
+
+
+    return true;
+  }
+
+
+
+  /**
+   * Converts this X.509 certificate object to a Java {@code Certificate}
+   * object.
+   *
+   * @return  The Java {@code Certificate} object that corresponds to this
+   *          X.509 certificate.
+   *
+   * @throws  CertificateException  If a problem is encountered while performing
+   *                                the conversion.
+   */
+  public Certificate toCertificate()
+         throws CertificateException
+  {
+    return CertificateFactory.getInstance("X.509").generateCertificate(
+         new ByteArrayInputStream(x509CertificateBytes));
   }
 
 

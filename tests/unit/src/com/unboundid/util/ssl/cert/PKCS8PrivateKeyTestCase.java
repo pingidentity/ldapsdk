@@ -131,6 +131,8 @@ public final class PKCS8PrivateKeyTestCase
     assertNotNull(privateKey.toString());
 
     assertNotNull(privateKey.getPKCS8PrivateKeyBytes());
+
+    assertNotNull(privateKey.toPrivateKey());
   }
 
 

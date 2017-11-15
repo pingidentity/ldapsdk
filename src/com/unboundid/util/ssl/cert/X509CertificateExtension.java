@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.unboundid.asn1.ASN1Boolean;
+import com.unboundid.asn1.ASN1Constants;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1ObjectIdentifier;
 import com.unboundid.asn1.ASN1OctetString;
@@ -55,7 +56,7 @@ public class X509CertificateExtension
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 7869863894132271667L;
+  private static final long serialVersionUID = -4044598072050168580L;
 
 
 
@@ -99,6 +100,153 @@ public class X509CertificateExtension
     this.oid = oid;
     this.isCritical = isCritical;
     this.value = value;
+  }
+
+
+
+  /**
+   * Decodes the provided ASN.1 element as an X.509 certificate extension.
+   *
+   * @param  extensionElement  The ASN.1 element containing the encoded
+   *                           extension.
+   *
+   * @return  The decoded extension.
+   *
+   * @throws  CertException  If a problem is encountered while attempting to
+   *                         decode the extension.
+   */
+  static X509CertificateExtension decode(final ASN1Element extensionElement)
+         throws CertException
+  {
+    final OID oid;
+    final X509CertificateExtension extension;
+    try
+    {
+      final ASN1Element[] elements =
+           extensionElement.decodeAsSequence().elements();
+      oid = elements[0].decodeAsObjectIdentifier().getOID();
+
+      final boolean isCritical;
+      final byte[] value;
+      if (elements[1].getType() == ASN1Constants.UNIVERSAL_BOOLEAN_TYPE)
+      {
+        isCritical = elements[1].decodeAsBoolean().booleanValue();
+        value = elements[2].decodeAsOctetString().getValue();
+      }
+      else
+      {
+        isCritical = false;
+        value = elements[1].decodeAsOctetString().getValue();
+      }
+
+      extension = new X509CertificateExtension(oid, isCritical, value);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+      throw new CertException(
+           ERR_EXTENSION_DECODE_ERROR.get(
+                StaticUtils.getExceptionMessage(e)),
+           e);
+    }
+
+    if (oid.equals(AuthorityKeyIdentifierExtension.
+         AUTHORITY_KEY_IDENTIFIER_OID))
+    {
+      try
+      {
+        return new AuthorityKeyIdentifierExtension(extension);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+    else if (oid.equals(SubjectKeyIdentifierExtension.
+         SUBJECT_KEY_IDENTIFIER_OID))
+    {
+      try
+      {
+        return new SubjectKeyIdentifierExtension(extension);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+    else if (oid.equals(KeyUsageExtension.KEY_USAGE_OID))
+    {
+      try
+      {
+        return new KeyUsageExtension(extension);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+    else if (oid.equals(SubjectAlternativeNameExtension.
+         SUBJECT_ALTERNATIVE_NAME_OID))
+    {
+      try
+      {
+        return new SubjectAlternativeNameExtension(extension);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+    else if (oid.equals(IssuerAlternativeNameExtension.
+         ISSUER_ALTERNATIVE_NAME_OID))
+    {
+      try
+      {
+        return new IssuerAlternativeNameExtension(extension);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+    else if (oid.equals(BasicConstraintsExtension.
+         BASIC_CONSTRAINTS_OID))
+    {
+      try
+      {
+        return new BasicConstraintsExtension(extension);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+    else if (oid.equals(ExtendedKeyUsageExtension.
+         EXTENDED_KEY_USAGE_OID))
+    {
+      try
+      {
+        return new ExtendedKeyUsageExtension(extension);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+    else if (oid.equals(CRLDistributionPointsExtension.
+         CRL_DISTRIBUTION_POINTS_OID))
+    {
+      try
+      {
+        return new CRLDistributionPointsExtension(extension);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    return extension;
   }
 
 

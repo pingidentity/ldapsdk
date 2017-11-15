@@ -23,6 +23,10 @@ package com.unboundid.util.ssl.cert;
 
 
 import java.io.Serializable;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 
 import com.unboundid.asn1.ASN1BitString;
@@ -559,6 +563,27 @@ public final class PKCS8PrivateKey
   public ASN1BitString getPublicKey()
   {
     return publicKey;
+  }
+
+
+
+  /**
+   * Converts this PKCS#8 private key object to a Java {@code PrivateKey}
+   * object.
+   *
+   * @return  The Java {@code PrivateKey} object that corresponds to this PKCS#8
+   *          private key.
+   *
+   * @throws  GeneralSecurityException  If a problem is encountered while
+   *                                    performing the conversion.
+   */
+  public PrivateKey toPrivateKey()
+         throws GeneralSecurityException
+  {
+    final KeyFactory keyFactory =
+         KeyFactory.getInstance(getPrivateKeyAlgorithmNameOrOID());
+    return keyFactory.generatePrivate(
+         new PKCS8EncodedKeySpec(pkcs8PrivateKeyBytes));
   }
 
 

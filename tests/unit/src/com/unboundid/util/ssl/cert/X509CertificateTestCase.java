@@ -34,10 +34,12 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.unboundid.asn1.ASN1BigInteger;
 import com.unboundid.asn1.ASN1BitString;
+import com.unboundid.asn1.ASN1Constants;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1GeneralizedTime;
 import com.unboundid.asn1.ASN1Integer;
@@ -172,6 +174,8 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSHA1Fingerprint());
 
     assertNotNull(c.getSHA256Fingerprint());
+
+    assertNotNull(c.toCertificate());
   }
 
 
@@ -331,6 +335,8 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSHA1Fingerprint());
 
     assertNotNull(c.getSHA256Fingerprint());
+
+    assertNotNull(c.toCertificate());
   }
 
 
@@ -429,6 +435,8 @@ public final class X509CertificateTestCase
     assertNotNull(c.getSHA1Fingerprint());
 
     assertNotNull(c.getSHA256Fingerprint());
+
+    assertNotNull(c.toCertificate());
   }
 
 
@@ -1852,5 +1860,597 @@ public final class X509CertificateTestCase
 
       new X509Certificate(cert.getEncoded());
     }
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code encodeValiditySequence} method.
+   *
+   * @param  notBeforeTime  The generalized time representation of the notBefore
+   *                        value to use for testing.
+   * @param  notAfterTime   The generalized time representation of the notAfter
+   *                        value to use for testing.
+   * @param  expectUTC      Indicates whether to expect the time values to be
+   *                        encoded as UTC time elements (if {@code true}) or
+   *                        generalized time elements (if {@code false}).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(dataProvider = "encodeValiditySequenceTestValues")
+  public void testEncodeValiditySequence(final String notBeforeTime,
+                                         final String notAfterTime,
+                                         final boolean expectUTC)
+         throws Exception
+  {
+    final long notBefore =
+         StaticUtils.decodeGeneralizedTime(notBeforeTime).getTime();
+    final long notAfter =
+         StaticUtils.decodeGeneralizedTime(notAfterTime).getTime();
+
+    final ASN1Sequence validitySequence =
+         X509Certificate.encodeValiditySequence(notBefore, notAfter);
+
+    assertTrue(validitySequence.elements().length == 2);
+    if (expectUTC)
+    {
+      assertTrue(validitySequence.elements()[0].getType() ==
+           ASN1Constants.UNIVERSAL_UTC_TIME_TYPE);
+      assertTrue(validitySequence.elements()[1].getType() ==
+           ASN1Constants.UNIVERSAL_UTC_TIME_TYPE);
+    }
+    else
+    {
+      assertTrue(validitySequence.elements()[0].getType() ==
+           ASN1Constants.UNIVERSAL_GENERALIZED_TIME_TYPE);
+      assertTrue(validitySequence.elements()[1].getType() ==
+           ASN1Constants.UNIVERSAL_GENERALIZED_TIME_TYPE);
+    }
+  }
+
+
+
+  /**
+   * Retrieves a set of values that can be used for testing the
+   * {@code encodeValiditySequence} method.
+   *
+   * @return  A set of values that can be used for testing the
+   *         {@code encodeValiditySequence} method.
+   */
+  @DataProvider(name = "encodeValiditySequenceTestValues")
+  public Object[][] getEncodeValiditySequenceTestValues()
+  {
+    return new Object[][]
+    {
+      new Object[]
+      {
+        "19000102123456.789Z",
+        "19010102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19090102123456.789Z",
+        "19100102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19100102123456.789Z",
+        "19110102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19190102123456.789Z",
+        "19200102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19200102123456.789Z",
+        "19210102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19290102123456.789Z",
+        "19300102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19300102123456.789Z",
+        "19310102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19390102123456.789Z",
+        "19400102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19400102123456.789Z",
+        "19410102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19490102123456.789Z",
+        "19500102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "19500102123456.789Z",
+        "19510102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19590102123456.789Z",
+        "19600102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19600102123456.789Z",
+        "19610102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19690102123456.789Z",
+        "19700102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19700102123456.789Z",
+        "19710102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19790102123456.789Z",
+        "19800102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19800102123456.789Z",
+        "19810102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19890102123456.789Z",
+        "19900102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19900102123456.789Z",
+        "19910102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "19990102123456.789Z",
+        "20000102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20000102123456.789Z",
+        "20010102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20090102123456.789Z",
+        "20100102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20100102123456.789Z",
+        "20110102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20190102123456.789Z",
+        "20200102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20200102123456.789Z",
+        "20210102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20290102123456.789Z",
+        "20300102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20300102123456.789Z",
+        "20310102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20390102123456.789Z",
+        "20400102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20400102123456.789Z",
+        "20410102123456.789Z",
+        true
+      },
+
+      new Object[]
+      {
+        "20490102123456.789Z",
+        "20500102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20500102123456.789Z",
+        "20510102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20590102123456.789Z",
+        "20600102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20600102123456.789Z",
+        "20610102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20690102123456.789Z",
+        "20700102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20700102123456.789Z",
+        "20710102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20790102123456.789Z",
+        "20800102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20800102123456.789Z",
+        "20810102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20890102123456.789Z",
+        "20900102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20900102123456.789Z",
+        "20910102123456.789Z",
+        false
+      },
+
+      new Object[]
+      {
+        "20990102123456.789Z",
+        "21000102123456.789Z",
+        false
+      },
+    };
+  }
+
+
+
+  /**
+   * Tests the {@code isSelfSigned} method for a certificate that has both
+   * subject key identifier and authority key identifier extensions with the
+   * same value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsSelfSignedWithSameAuthorityAndSubjectKeyIdentifiers()
+         throws Exception
+  {
+    final X509Certificate c = new X509Certificate(X509CertificateVersion.V3,
+         BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Test,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + (365L * 86_400_000L),
+         new DN("CN=Test,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(false, true, false, true, false),
+         null, null, null,
+         new SubjectKeyIdentifierExtension(false,
+              new ASN1OctetString("keyIdentifier")),
+         new AuthorityKeyIdentifierExtension(false,
+              new ASN1OctetString("keyIdentifier"), null, null));
+
+    assertTrue(c.isSelfSigned());
+  }
+
+
+
+  /**
+   * Tests the {@code isSelfSigned} method for a certificate that has both
+   * subject key identifier and authority key identifier extensions with
+   * different values.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsSelfSignedWithDifferentAuthorityAndSubjectKeyIdentifiers()
+         throws Exception
+  {
+    final X509Certificate c = new X509Certificate(X509CertificateVersion.V3,
+         BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Test,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + (365L * 86_400_000L),
+         new DN("CN=Test,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(false, true, false, true, false),
+         null, null, null,
+         new SubjectKeyIdentifierExtension(false,
+              new ASN1OctetString("keyIdentifier")),
+         new AuthorityKeyIdentifierExtension(false,
+              new ASN1OctetString("differentKeyIdentifier"), null, null));
+
+    assertFalse(c.isSelfSigned());
+  }
+
+
+
+  /**
+   * Tests the {@code isSelfSigned} method for a certificate that doesn't have
+   * an authority key identifier and for which the subject DN matches the
+   * issuer DN.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsSelfSignedWithoutAuthorityKeyIdentifierSameDN()
+         throws Exception
+  {
+    final X509Certificate c = new X509Certificate(X509CertificateVersion.V3,
+         BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Test,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + (365L * 86_400_000L),
+         new DN("CN=Test,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(false, true, false, true, false),
+         null, null, null,
+         new SubjectKeyIdentifierExtension(false,
+              new ASN1OctetString("keyIdentifier")));
+
+    assertTrue(c.isSelfSigned());
+  }
+
+
+
+  /**
+   * Tests the {@code isSelfSigned} method for a certificate that doesn't have
+   * an authority key identifier and for which the subject DN does not match the
+   * issuer DN.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsSelfSignedWithoutAuthorityKeyIdentifierDifferentDNs()
+         throws Exception
+  {
+    final X509Certificate c = new X509Certificate(X509CertificateVersion.V3,
+         BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Test,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + (365L * 86_400_000L),
+         new DN("CN=Different Test,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(false, true, false, true, false),
+         null, null, null,
+         new SubjectKeyIdentifierExtension(false,
+              new ASN1OctetString("keyIdentifier")));
+
+    assertFalse(c.isSelfSigned());
+  }
+
+
+
+  /**
+   * Tests the {@code isIssuerFor} methods for a case in which the relationship
+   * can be established by key identifiers.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsIssuerForVerifiedUsingKeyIDs()
+         throws Exception
+  {
+    final X509Certificate serverCert = new X509Certificate(
+         X509CertificateVersion.V3,
+         BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + (365L * 86_400_000L),
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(false, true, false, true, false),
+         null, null, null,
+         new SubjectKeyIdentifierExtension(false,
+              new ASN1OctetString("serverCertKeyIdentifier")),
+         new AuthorityKeyIdentifierExtension(false,
+              new ASN1OctetString("issuerCertKeyIdentifier"), null, null));
+
+    final X509Certificate issuerCert = new X509Certificate(
+         X509CertificateVersion.V3,
+         BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + (365L * 86_400_000L),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(false, true, false, true, false),
+         null, null, null,
+         new SubjectAlternativeNameExtension(false,
+              new GeneralNamesBuilder().addRFC822Name(
+                   "ca@example.com").build()),
+         new SubjectKeyIdentifierExtension(false,
+              new ASN1OctetString("issuerCertKeyIdentifier")),
+         new AuthorityKeyIdentifierExtension(false,
+              new ASN1OctetString("issuerCertKeyIdentifier"), null, null));
+
+    assertTrue(issuerCert.isIssuerFor(serverCert));
+    assertTrue(issuerCert.isIssuerFor(serverCert, new StringBuilder()));
+
+    assertFalse(serverCert.isIssuerFor(serverCert));
+    assertFalse(serverCert.isIssuerFor(serverCert, new StringBuilder()));
+  }
+
+
+
+  /**
+   * Tests the {@code isIssuerFor} methods for a case in which the relationship
+   * can be disproved by key identifiers.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsIssuerForDisprovedByUsingKeyIDs()
+         throws Exception
+  {
+    final X509Certificate serverCert = new X509Certificate(
+         X509CertificateVersion.V3,
+         BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + (365L * 86_400_000L),
+         new DN("CN=ldap.example.com,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(false, true, false, true, false),
+         null, null, null,
+         new SubjectKeyIdentifierExtension(false,
+              new ASN1OctetString("serverCertKeyIdentifier")),
+         new AuthorityKeyIdentifierExtension(false,
+              new ASN1OctetString("issuerCertKeyIdentifier"), null, null));
+
+    final X509Certificate issuerCert = new X509Certificate(
+         X509CertificateVersion.V3,
+         BigInteger.valueOf(12345L),
+         SignatureAlgorithmIdentifier.SHA_256_WITH_RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(true, false, true, false, true),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         System.currentTimeMillis(),
+         System.currentTimeMillis() + (365L * 86_400_000L),
+         new DN("CN=Example Issuer,O=Example Corporation,C=US"),
+         PublicKeyAlgorithmIdentifier.RSA.getOID(),
+         new ASN1Null(),
+         new ASN1BitString(false, true, false, true, false),
+         null, null, null,
+         new SubjectKeyIdentifierExtension(false,
+              new ASN1OctetString("differentIssuerCertKeyIdentifier")),
+         new AuthorityKeyIdentifierExtension(false,
+              new ASN1OctetString("differentIssuerCertKeyIdentifier"), null,
+              null));
+
+    assertFalse(issuerCert.isIssuerFor(serverCert));
+    assertFalse(issuerCert.isIssuerFor(serverCert, new StringBuilder()));
+
+    assertFalse(serverCert.isIssuerFor(serverCert));
+    assertFalse(serverCert.isIssuerFor(serverCert, new StringBuilder()));
   }
 }

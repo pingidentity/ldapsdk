@@ -24,6 +24,7 @@ package com.unboundid.util.ssl.cert;
 
 import org.testng.annotations.Test;
 
+import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.util.OID;
 
@@ -112,5 +113,21 @@ public final class X509CertificateExtensionTestCase
     final X509CertificateExtension extension = new X509CertificateExtension(
          new OID("1234.56789"), false, new byte[100]);
     extension.encode();
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code decode} method when provided with an
+   * element that is not a valid ASN.1 sequence.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { CertException.class })
+  public void testDecodeElementNotSequence()
+         throws Exception
+  {
+    X509CertificateExtension.decode(
+         new ASN1OctetString("not a valid sequence"));
   }
 }
