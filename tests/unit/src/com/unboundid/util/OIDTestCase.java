@@ -49,6 +49,8 @@ public final class OIDTestCase
 
     assertFalse(oid.isValidNumericOID());
 
+    assertFalse(oid.isStrictlyValidNumericOID());
+
     assertNull(oid.getComponents());
 
     assertNotNull(oid.toString());
@@ -79,6 +81,9 @@ public final class OIDTestCase
       assertEquals(new OID(c).toString(), "");
 
       assertFalse(oid.isValidNumericOID());
+      assertFalse(OID.isValidNumericOID(s));
+      assertFalse(oid.isStrictlyValidNumericOID());
+      assertFalse(OID.isStrictlyValidNumericOID(s));
       assertNull(oid.getComponents());
     }
     else
@@ -86,6 +91,7 @@ public final class OIDTestCase
       oid = new OID(c);
 
       assertTrue(oid.isValidNumericOID());
+      assertTrue(OID.isValidNumericOID(s));
       assertNotNull(oid.getComponents());
       assertEquals(oid.getComponents().size(), c.length);
       for (int i=0; i < c.length; i++)
@@ -242,5 +248,54 @@ public final class OIDTestCase
         new int[] { 9999, 9999, 9999, 9998, 9999 }
       },
     };
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code isStrictlyValidNumericOID} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsStrictlyValidNumericOID()
+         throws Exception
+  {
+    // This is valid.
+    assertTrue(OID.isStrictlyValidNumericOID("1.2.3.4"));
+
+    // This is also valid.
+    assertTrue(OID.isStrictlyValidNumericOID("1.2"));
+
+    // This is not valid because it is not numeric.
+    assertFalse(OID.isStrictlyValidNumericOID("not.numeric"));
+
+    // This is not valid because it starts with a period.
+    assertFalse(OID.isStrictlyValidNumericOID(".1.2.3.4"));
+
+    // This is not valid because it ends with a period.
+    assertFalse(OID.isStrictlyValidNumericOID("1.2.3.4."));
+
+    // This is not valid because it has two consecutive periods.
+    assertFalse(OID.isStrictlyValidNumericOID("1.2..3.4."));
+
+    // This is not valid because it only has one component.
+    assertFalse(OID.isStrictlyValidNumericOID("1"));
+
+    // This is not valid because the first component has a value that is not
+    // 0, 1, or 2.
+    assertFalse(OID.isStrictlyValidNumericOID("9.9"));
+
+    // This is not valid because the first component has a value of 0 and the
+    // second component has a value greater than 39.
+    assertFalse(OID.isStrictlyValidNumericOID("0.40"));
+
+    // This is not valid because the first component has a value of 1 and the
+    // second component has a value greater than 39.
+    assertFalse(OID.isStrictlyValidNumericOID("1.40"));
+
+    // This is valid because the first component has a value of 2 and the
+    // second component can be anything.
+    assertTrue(OID.isStrictlyValidNumericOID("2.40"));
   }
 }

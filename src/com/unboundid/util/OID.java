@@ -190,7 +190,36 @@ public final class OID
 
 
   /**
-   * Indicates whether this object represents a valid numeric OID.
+   * Indicates whether the provided string represents a valid numeric OID.  Note
+   * this this method only ensures that the value is made up of a dotted list of
+   * numbers that does not start or end with a period and does not contain two
+   * consecutive periods.  The {@link #isStrictlyValidNumericOID(String)} method
+   * performs additional validation, including ensuring that the OID contains
+   * at least two components, that the value of the first component is not
+   * greater than two, and that the value of the second component is not greater
+   * than 39 if the value of the first component is zero or one.
+   *
+   * @param  s  The string for which to make the determination.
+   *
+   * @return  {@code true} if the provided string represents a valid numeric
+   *          OID, or {@code false} if not.
+   */
+  public static boolean isValidNumericOID(final String s)
+  {
+    return new OID(s).isValidNumericOID();
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid numeric OID.  Note
+   * this this method only ensures that the value is made up of a dotted list of
+   * numbers that does not start or end with a period and does not contain two
+   * consecutive periods.  The {@link #isStrictlyValidNumericOID()} method
+   * performs additional validation, including ensuring that the OID contains
+   * at least two components, that the value of the first component is not
+   * greater than two, and that the value of the second component is not greater
+   * than 39 if the value of the first component is zero or one.
    *
    * @return  {@code true} if this object represents a valid numeric OID, or
    *          {@code false} if not.
@@ -198,6 +227,67 @@ public final class OID
   public boolean isValidNumericOID()
   {
     return (components != null);
+  }
+
+
+
+  /**
+   * Indicates whether this object represents a strictly valid numeric OID.
+   * In addition to ensuring that the value is made up of a dotted list of
+   * numbers that does not start or end with a period or contain two consecutive
+   * periods, this method also ensures that the OID contains at least two
+   * components, that the value of the first component is not greater than two,
+   * and that the value of the second component is not greater than 39 if the
+   * value of the first component is zero or one.
+   *
+   * @param  s  The string for which to make the determination.
+   *
+   * @return  {@code true} if this object represents a strictly valid numeric
+   *          OID, or {@code false} if not.
+   */
+  public static boolean isStrictlyValidNumericOID(final String s)
+  {
+    return new OID(s).isStrictlyValidNumericOID();
+  }
+
+
+
+  /**
+   * Indicates whether this object represents a strictly valid numeric OID.
+   * In addition to ensuring that the value is made up of a dotted list of
+   * numbers that does not start or end with a period or contain two consecutive
+   * periods, this method also ensures that the OID contains at least two
+   * components, that the value of the first component is not greater than two,
+   * and that the value of the second component is not greater than 39 if the
+   * value of the first component is zero or one.
+   *
+   * @return  {@code true} if this object represents a strictly valid numeric
+   *          OID, or {@code false} if not.
+   */
+  public boolean isStrictlyValidNumericOID()
+  {
+    if ((components == null) || (components.size() < 2))
+    {
+      return false;
+    }
+
+    final int firstComponent = components.get(0);
+    final int secondComponent = components.get(1);
+    switch (firstComponent)
+    {
+      case 0:
+      case 1:
+        // The value of the second component must not be greater than 39.
+        return (secondComponent <= 39);
+
+      case 2:
+        // We don't need to do any more validation.
+        return true;
+
+      default:
+        // Invalid value for the first component.
+        return false;
+    }
   }
 
 

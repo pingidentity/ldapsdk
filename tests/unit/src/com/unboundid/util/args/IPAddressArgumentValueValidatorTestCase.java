@@ -31,7 +31,7 @@ import com.unboundid.util.LDAPSDKUsageException;
 
 
 /**
- * This class provides a set of test cases for the IPv6 argument value
+ * This class provides a set of test cases for the IP address argument value
  * validator.
  */
 public final class IPAddressArgumentValueValidatorTestCase
@@ -60,7 +60,7 @@ public final class IPAddressArgumentValueValidatorTestCase
 
   /**
    * Tests the behavior of the full constructor when only IPv4 addresses will
-   * be accepted..
+   * be accepted.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -82,7 +82,7 @@ public final class IPAddressArgumentValueValidatorTestCase
 
   /**
    * Tests the behavior of the full constructor when only IPv6 addresses will
-   * be accepted..
+   * be accepted.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
