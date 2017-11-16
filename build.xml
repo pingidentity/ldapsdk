@@ -666,7 +666,7 @@
 
   <!-- Run the TestNG unit tests. -->
   <target name="test" description="Run the TestNG unit tests"
-          depends="compile">
+          depends="compile,coverage-setup">
     <!-- Enable code coverage if appropriate -->
     <condition property="coverage.enabled" value="false">
       <not>
