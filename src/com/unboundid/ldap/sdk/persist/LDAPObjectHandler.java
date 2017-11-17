@@ -1681,6 +1681,15 @@ public final class LDAPObjectHandler<T>
    *                           may completely remove an attribute from the
    *                           entry if the corresponding field or getter method
    *                           has a value of {@code null}.
+   * @param  byteForByte       Indicates whether to use a byte-for-byte
+   *                           comparison to identify which attribute values
+   *                           have changed.  Using byte-for-byte comparison
+   *                           requires additional processing over using each
+   *                           attribute's associated matching rule, but it can
+   *                           detect changes that would otherwise be considered
+   *                           logically equivalent (e.g., changing the
+   *                           capitalization of a value that uses a
+   *                           case-insensitive matching rule).
    * @param  attributes        The set of LDAP attributes for which to include
    *                           modifications.  If this is empty or {@code null},
    *                           then all attributes marked for inclusion in the
@@ -1695,6 +1704,7 @@ public final class LDAPObjectHandler<T>
    *                                of modifications.
    */
   List<Modification> getModifications(final T o, final boolean deleteNullValues,
+                                      final boolean byteForByte,
                                       final String... attributes)
          throws LDAPPersistException
   {
@@ -1720,7 +1730,7 @@ public final class LDAPObjectHandler<T>
 
         final Entry newEntry = encode(o, originalEntry.getParentDNString());
         final List<Modification> mods = Entry.diff(reEncodedOriginal, newEntry,
-             true, false, attributes);
+             true, false, byteForByte, attributes);
         if (! deleteNullValues)
         {
           final Iterator<Modification> iterator = mods.iterator();
@@ -1895,7 +1905,8 @@ public final class LDAPObjectHandler<T>
     if (superclassHandler != null)
     {
       final List<Modification> superMods =
-           superclassHandler.getModifications(o, deleteNullValues, attributes);
+           superclassHandler.getModifications(o, deleteNullValues, byteForByte,
+                attributes);
       final ArrayList<Modification> modsToAdd =
            new ArrayList<Modification>(superMods.size());
       for (final Modification sm : superMods)

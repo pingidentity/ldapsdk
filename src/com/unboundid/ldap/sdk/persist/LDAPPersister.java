@@ -699,8 +699,58 @@ public final class LDAPPersister<T>
                                              final String... attributes)
          throws LDAPPersistException
   {
+    return getModifications(o, deleteNullValues, false, attributes);
+  }
+
+
+
+  /**
+   * Retrieves a list of modifications that can be used to update the stored
+   * representation of the provided object in the directory.  If the provided
+   * object was retrieved from the directory using the persistence framework and
+   * includes a field with the {@link LDAPEntryField} annotation, then that
+   * entry will be used to make the returned set of modifications as efficient
+   * as possible.  Otherwise, the resulting modifications will include attempts
+   * to replace every attribute which are associated with fields or getters
+   * that should be used in modify operations.
+   *
+   * @param  o                 The object for which to generate the list of
+   *                           modifications.  It must not be {@code null}.
+   * @param  deleteNullValues  Indicates whether to include modifications that
+   *                           may completely remove an attribute from the
+   *                           entry if the corresponding field or getter method
+   *                           has a value of {@code null}.
+   * @param  byteForByte       Indicates whether to use a byte-for-byte
+   *                           comparison to identify which attribute values
+   *                           have changed.  Using byte-for-byte comparison
+   *                           requires additional processing over using each
+   *                           attribute's associated matching rule, but it can
+   *                           detect changes that would otherwise be considered
+   *                           logically equivalent (e.g., changing the
+   *                           capitalization of a value that uses a
+   *                           case-insensitive matching rule).
+   * @param  attributes        The set of LDAP attributes for which to include
+   *                           modifications.  If this is empty or {@code null},
+   *                           then all attributes marked for inclusion in the
+   *                           modification will be examined.
+   *
+   * @return  An unmodifiable list of modifications that can be used to update
+   *          the stored representation of the provided object in the directory.
+   *          It may be empty if there are no differences identified in the
+   *          attributes to be evaluated.
+   *
+   * @throws  LDAPPersistException  If a problem occurs while computing the set
+   *                                of modifications.
+   */
+  public List<Modification> getModifications(final T o,
+                                             final boolean deleteNullValues,
+                                             final boolean byteForByte,
+                                             final String... attributes)
+         throws LDAPPersistException
+  {
     ensureNotNull(o);
-    return handler.getModifications(o, deleteNullValues, attributes);
+    return handler.getModifications(o, deleteNullValues, byteForByte,
+         attributes);
   }
 
 
@@ -796,9 +846,68 @@ public final class LDAPPersister<T>
                            final String[] attributes, final Control... controls)
          throws LDAPPersistException
   {
+    return modify(o, i, dn, deleteNullValues, false, attributes, controls);
+  }
+
+
+
+  /**
+   * Updates the stored representation of the provided object in the directory.
+   * If the provided object was retrieved from the directory using the
+   * persistence framework and includes a field with the {@link LDAPEntryField}
+   * annotation, then that entry will be used to make the returned set of
+   * modifications as efficient as possible.  Otherwise, the resulting
+   * modifications will include attempts to replace every attribute which are
+   * associated with fields or getters that should be used in modify operations.
+   * If there are no modifications, then no modification will be attempted, and
+   * this method will return {@code null} rather than an {@code LDAPResult}.
+   *
+   * @param  o                 The object for which to generate the list of
+   *                           modifications.  It must not be {@code null}.
+   * @param  i                 The interface to use to communicate with the
+   *                           directory server.  It must not be {@code null}.
+   * @param  dn                The DN to use for the entry.  It must not be
+   *                           {@code null} if the object was not retrieved from
+   *                           the directory using the persistence framework or
+   *                           does not have a field marked with the
+   *                           {@link LDAPDNField} or {@link LDAPEntryField}
+   *                           annotation.
+   * @param  deleteNullValues  Indicates whether to include modifications that
+   *                           may completely remove an attribute from the
+   *                           entry if the corresponding field or getter method
+   *                           has a value of {@code null}.
+   * @param  byteForByte       Indicates whether to use a byte-for-byte
+   *                           comparison to identify which attribute values
+   *                           have changed.  Using byte-for-byte comparison
+   *                           requires additional processing over using each
+   *                           attribute's associated matching rule, but it can
+   *                           detect changes that would otherwise be considered
+   *                           logically equivalent (e.g., changing the
+   *                           capitalization of a value that uses a
+   *                           case-insensitive matching rule).
+   * @param  attributes        The set of LDAP attributes for which to include
+   *                           modifications.  If this is empty or {@code null},
+   *                           then all attributes marked for inclusion in the
+   *                           modification will be examined.
+   * @param  controls          The optional set of controls to include in the
+   *                           modify request.
+   *
+   * @return  The result of processing the modify operation, or {@code null} if
+   *          there were no changes to apply (and therefore no modification was
+   *          performed).
+   *
+   * @throws  LDAPPersistException  If a problem occurs while computing the set
+   *                                of modifications.
+   */
+  public LDAPResult modify(final T o, final LDAPInterface i, final String dn,
+                           final boolean deleteNullValues,
+                           final boolean byteForByte, final String[] attributes,
+                           final Control... controls)
+         throws LDAPPersistException
+  {
     ensureNotNull(o, i);
     final List<Modification> mods =
-         handler.getModifications(o, deleteNullValues, attributes);
+         handler.getModifications(o, deleteNullValues, byteForByte, attributes);
     if (mods.isEmpty())
     {
       return null;

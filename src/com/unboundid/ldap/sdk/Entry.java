@@ -38,6 +38,7 @@ import java.util.StringTokenizer;
 
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.ldap.matchingrules.MatchingRule;
+import com.unboundid.ldap.matchingrules.OctetStringMatchingRule;
 import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
 import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldif.LDIFException;
@@ -1855,6 +1856,61 @@ public class Entry
                                         final boolean reversible,
                                         final String... attributes)
   {
+    return diff(sourceEntry, targetEntry, ignoreRDN, reversible, false,
+         attributes);
+  }
+
+
+
+  /**
+   * Retrieves a set of modifications that can be applied to the source entry in
+   * order to make it match the target entry.
+   *
+   * @param  sourceEntry  The source entry for which the set of modifications
+   *                      should be generated.
+   * @param  targetEntry  The target entry, which is what the source entry
+   *                      should look like if the returned modifications are
+   *                      applied.
+   * @param  ignoreRDN    Indicates whether to ignore differences in the RDNs
+   *                      of the provided entries.  If this is {@code false},
+   *                      then the resulting set of modifications may include
+   *                      changes to the RDN attribute.  If it is {@code true},
+   *                      then differences in the entry DNs will be ignored.
+   * @param  reversible   Indicates whether to generate the diff in reversible
+   *                      form.  In reversible form, only the ADD or DELETE
+   *                      modification types will be used so that source entry
+   *                      could be reconstructed from the target and the
+   *                      resulting modifications.  In non-reversible form, only
+   *                      the REPLACE modification type will be used.  Attempts
+   *                      to apply the modifications obtained when using
+   *                      reversible form are more likely to fail if the entry
+   *                      has been modified since the source and target forms
+   *                      were obtained.
+   * @param  byteForByte  Indicates whether to use a byte-for-byte comparison to
+   *                      identify which attribute values have changed.  Using
+   *                      byte-for-byte comparison requires additional
+   *                      processing over using each attribute's associated
+   *                      matching rule, but it can detect changes that would
+   *                      otherwise be considered logically equivalent (e.g.,
+   *                      changing the capitalization of a value that uses a
+   *                      case-insensitive matching rule).
+   * @param  attributes   The set of attributes to be compared.  If this is
+   *                      {@code null} or empty, then all attributes will be
+   *                      compared.  Note that if a list of attributes is
+   *                      specified, then matching will be performed only
+   *                      against the attribute base name and any differences in
+   *                      attribute options will be ignored.
+   *
+   * @return  A set of modifications that can be applied to the source entry in
+   *          order to make it match the target entry.
+   */
+  public static List<Modification> diff(final Entry sourceEntry,
+                                        final Entry targetEntry,
+                                        final boolean ignoreRDN,
+                                        final boolean reversible,
+                                        final boolean byteForByte,
+                                        final String... attributes)
+  {
     HashSet<String> compareAttrs = null;
     if ((attributes != null) && (attributes.length > 0))
     {
@@ -1882,8 +1938,20 @@ public class Entry
         continue;
       }
 
-      sourceOnlyAttrs.put(lowerName, e.getValue());
-      commonAttrs.put(lowerName, e.getValue());
+      final Attribute attr;
+      if (byteForByte)
+      {
+        final Attribute a = e.getValue();
+        attr = new Attribute(a.getName(),
+             OctetStringMatchingRule.getInstance(), a.getRawValues());
+      }
+      else
+      {
+        attr = e.getValue();
+      }
+
+      sourceOnlyAttrs.put(lowerName, attr);
+      commonAttrs.put(lowerName, attr);
     }
 
     for (final Map.Entry<String,Attribute> e :
@@ -1901,7 +1969,19 @@ public class Entry
       {
         // It wasn't in the set of source attributes, so it must be a
         // target-only attribute.
-        targetOnlyAttrs.put(lowerName,e.getValue());
+        final Attribute attr;
+        if (byteForByte)
+        {
+          final Attribute a = e.getValue();
+          attr = new Attribute(a.getName(),
+               OctetStringMatchingRule.getInstance(), a.getRawValues());
+        }
+        else
+        {
+          attr = e.getValue();
+        }
+
+        targetOnlyAttrs.put(lowerName, attr);
       }
     }
 
@@ -2011,8 +2091,13 @@ public class Entry
 
     for (final Attribute sourceAttr : commonAttrs.values())
     {
-      final Attribute targetAttr =
-           targetEntry.getAttribute(sourceAttr.getName());
+      Attribute targetAttr = targetEntry.getAttribute(sourceAttr.getName());
+      if ((byteForByte) && (targetAttr != null))
+      {
+        targetAttr = new Attribute(targetAttr.getName(),
+             OctetStringMatchingRule.getInstance(), targetAttr.getRawValues());
+      }
+
       if (sourceAttr.equals(targetAttr))
       {
         continue;

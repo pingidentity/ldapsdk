@@ -1543,11 +1543,11 @@ public class LDAPObjectHandlerTestCase
          new LDAPObjectHandler<TestBasicObject>(TestBasicObject.class);
     TestBasicObject o = handler.decode(e);
 
-    List<Modification> mods = handler.getModifications(o, true);
+    List<Modification> mods = handler.getModifications(o, true, false);
     assertTrue(mods.isEmpty());
 
     o.setEntry(null);
-    mods = handler.getModifications(o, true);
+    mods = handler.getModifications(o, true, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 8);
     assertEquals(mods.get(0),
@@ -1568,7 +1568,7 @@ public class LDAPObjectHandlerTestCase
          new Modification(ModificationType.REPLACE, "rs"));
 
     o.setEntry(null);
-    mods = handler.getModifications(o, false);
+    mods = handler.getModifications(o, false, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 5);
     assertEquals(mods.get(0),
@@ -1582,7 +1582,7 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(4),
          new Modification(ModificationType.REPLACE, "n", "14"));
 
-    mods = handler.getModifications(o, true, "a");
+    mods = handler.getModifications(o, true, false, "a");
     assertTrue(mods.isEmpty());
   }
 
@@ -1618,7 +1618,7 @@ public class LDAPObjectHandlerTestCase
     o.setB("foo");
     o.setM("bar");
 
-    List<Modification> mods = handler.getModifications(o, true);
+    List<Modification> mods = handler.getModifications(o, true, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 2);
     assertEquals(mods.get(0),
@@ -1626,14 +1626,14 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(1),
          new Modification(ModificationType.REPLACE, "m", "bar"));
 
-    mods = handler.getModifications(o, true, "b");
+    mods = handler.getModifications(o, true, false, "b");
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 1);
     assertEquals(mods.get(0),
          new Modification(ModificationType.REPLACE, "b", "foo"));
 
     o.setEntry(null);
-    mods = handler.getModifications(o, true);
+    mods = handler.getModifications(o, true, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 8);
     assertEquals(mods.get(0),
@@ -1653,7 +1653,7 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(7),
          new Modification(ModificationType.REPLACE, "rs"));
 
-    mods = handler.getModifications(o, true, "b");
+    mods = handler.getModifications(o, true, false, "b");
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 1);
     assertEquals(mods.get(0),
@@ -1692,7 +1692,7 @@ public class LDAPObjectHandlerTestCase
     o.setB(null);
     o.setM(null);
 
-    List<Modification> mods = handler.getModifications(o, true);
+    List<Modification> mods = handler.getModifications(o, true, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 2);
     assertEquals(mods.get(0),
@@ -1700,20 +1700,20 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(1),
          new Modification(ModificationType.REPLACE, "m"));
 
-    mods = handler.getModifications(o, true, "b");
+    mods = handler.getModifications(o, true, false, "b");
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 1);
     assertEquals(mods.get(0),
          new Modification(ModificationType.REPLACE, "b"));
 
-    mods = handler.getModifications(o, false);
+    mods = handler.getModifications(o, false, false);
     assertTrue(mods.isEmpty());
 
-    mods = handler.getModifications(o, false, "b");
+    mods = handler.getModifications(o, false, false, "b");
     assertTrue(mods.isEmpty());
 
     o.setEntry(null);
-    mods = handler.getModifications(o, true);
+    mods = handler.getModifications(o, true, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 8);
     assertEquals(mods.get(0),
@@ -1733,13 +1733,13 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(7),
          new Modification(ModificationType.REPLACE, "rs"));
 
-    mods = handler.getModifications(o, true, "b");
+    mods = handler.getModifications(o, true, false, "b");
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 1);
     assertEquals(mods.get(0),
          new Modification(ModificationType.REPLACE, "b"));
 
-    mods = handler.getModifications(o, false);
+    mods = handler.getModifications(o, false, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 3);
     assertEquals(mods.get(0),
@@ -1749,7 +1749,7 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(2),
          new Modification(ModificationType.REPLACE, "n", "14"));
 
-    mods = handler.getModifications(o, false, "b");
+    mods = handler.getModifications(o, false, false, "b");
     assertTrue(mods.isEmpty());
   }
 
@@ -1785,7 +1785,7 @@ public class LDAPObjectHandlerTestCase
     o.setM(null);
     o.setP("foo");
 
-    List<Modification> mods = handler.getModifications(o, true);
+    List<Modification> mods = handler.getModifications(o, true, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 3);
     assertEquals(mods.get(0),
@@ -1795,7 +1795,7 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(2),
          new Modification(ModificationType.REPLACE, "p", "foo"));
 
-    mods = handler.getModifications(o, true, "b", "e", "n", "p");
+    mods = handler.getModifications(o, true, false, "b", "e", "n", "p");
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 2);
     assertEquals(mods.get(0),
@@ -1803,14 +1803,14 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(1),
          new Modification(ModificationType.REPLACE, "p", "foo"));
 
-    mods = handler.getModifications(o, false);
+    mods = handler.getModifications(o, false, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 1);
     assertEquals(mods.get(0),
          new Modification(ModificationType.REPLACE, "p", "foo"));
 
     o.setEntry(null);
-    mods = handler.getModifications(o, true);
+    mods = handler.getModifications(o, true, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 8);
     assertEquals(mods.get(0),
@@ -1830,7 +1830,7 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(7),
          new Modification(ModificationType.REPLACE, "rs"));
 
-    mods = handler.getModifications(o, false);
+    mods = handler.getModifications(o, false, false);
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 2);
     assertEquals(mods.get(0),
@@ -1838,13 +1838,13 @@ public class LDAPObjectHandlerTestCase
     assertEquals(mods.get(1),
          new Modification(ModificationType.REPLACE, "p", "foo"));
 
-    mods = handler.getModifications(o, true, "b");
+    mods = handler.getModifications(o, true, false, "b");
     assertFalse(mods.isEmpty());
     assertEquals(mods.size(), 1);
     assertEquals(mods.get(0),
          new Modification(ModificationType.REPLACE, "b"));
 
-    mods = handler.getModifications(o, false, "b");
+    mods = handler.getModifications(o, false, false, "b");
     assertTrue(mods.isEmpty());
   }
 
@@ -1874,7 +1874,7 @@ public class LDAPObjectHandlerTestCase
               TestMinimalObjectMultipleRDNs.class);
     TestMinimalObjectMultipleRDNs o = handler.decode(e);
 
-    assertTrue(handler.getModifications(o, true).isEmpty());
+    assertTrue(handler.getModifications(o, true, false).isEmpty());
   }
 
 

@@ -188,6 +188,23 @@ public class LDAPPersisterTestCase
            persister.modify(ou, conn, "ou=test," + getTestBaseDN(), true);
       assertNull(modifyResult);
 
+      ou.setDescription("testldapoperations");
+      modifyResult =
+           persister.modify(ou, conn, "ou=test," + getTestBaseDN(), true);
+      assertNull(modifyResult);
+
+      ou.setDescription("testldapoperations");
+      modifyResult =
+           persister.modify(ou, conn, "ou=test," + getTestBaseDN(), true,
+                false, null);
+      assertNull(modifyResult);
+
+      modifyResult =
+           persister.modify(ou, conn, "ou=test," + getTestBaseDN(), true,
+                true, null);
+      assertNotNull(modifyResult);
+      assertEquals(modifyResult.getResultCode(), ResultCode.SUCCESS);
+
       ou.setDescription("new description");
       mods = persister.getModifications(ou, true);
       assertNotNull(mods);
@@ -198,6 +215,25 @@ public class LDAPPersisterTestCase
                 "new description"));
 
       modifyResult = persister.modify(ou, conn, null, true);
+      assertNotNull(modifyResult);
+      assertEquals(modifyResult.getResultCode(), ResultCode.SUCCESS);
+
+      ou = persister.get(ou, conn, "ou=test," + getTestBaseDN());
+
+      ou.setDescription("New Description");
+      mods = persister.getModifications(ou, true);
+      assertNotNull(mods);
+      assertTrue(mods.isEmpty());
+
+      mods = persister.getModifications(ou, true, false);
+      assertNotNull(mods);
+      assertTrue(mods.isEmpty());
+
+      mods = persister.getModifications(ou, true, true);
+      assertNotNull(mods);
+      assertFalse(mods.isEmpty());
+
+      modifyResult = persister.modify(ou, conn, null, true, true, null);
       assertNotNull(modifyResult);
       assertEquals(modifyResult.getResultCode(), ResultCode.SUCCESS);
 

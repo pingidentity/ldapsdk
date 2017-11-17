@@ -3264,6 +3264,130 @@ public class EntryTestCase
 
 
   /**
+   * Tests the diff method when performing byte-for-byte comparison2.
+   *
+   * @throws  Exception   If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDiffByteForByte()
+         throws Exception
+  {
+    Entry e1 = new Entry("dn: uid=jdoe,ou=People,dc=example,dc=com",
+                         "objectClass: top",
+                         "objectClass: person",
+                         "objectClass: organizationalPerson",
+                         "objectClass: inetOrgPerson",
+                         "uid: jdoe",
+                         "givenName: John",
+                         "sn: Doe",
+                         "cn: John Doe",
+                         "userPassword: password",
+                         "description: description");
+
+    Entry e2 = new Entry("dn: uid=jdoe,ou=People,dc=example,dc=com",
+                         "objectClass: top",
+                         "objectClass: person",
+                         "objectClass: organizationalPerson",
+                         "objectClass: inetOrgPerson",
+                         "uid: jdoe",
+                         "givenName: john",
+                         "sn: doe",
+                         "cn: john doe",
+                         "userPassword: password",
+                         "displayName: displayName");
+
+    List<Modification> mods = Entry.diff(e1, e2, false);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 2, "Mods is " + String.valueOf(mods));
+    assertEquals(mods,
+         Arrays.asList(
+              new Modification(ModificationType.DELETE, "description",
+                   "description"),
+              new Modification(ModificationType.ADD, "displayName",
+                   "displayName")));
+
+    mods = Entry.diff(e1, e2, false, true);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 2, "Mods is " + String.valueOf(mods));
+    assertEquals(mods,
+         Arrays.asList(
+              new Modification(ModificationType.DELETE, "description",
+                   "description"),
+              new Modification(ModificationType.ADD, "displayName",
+                   "displayName")));
+
+    mods = Entry.diff(e1, e2, false, true, false);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 2, "Mods is " + String.valueOf(mods));
+    assertEquals(mods,
+         Arrays.asList(
+              new Modification(ModificationType.DELETE, "description",
+                   "description"),
+              new Modification(ModificationType.ADD, "displayName",
+                   "displayName")));
+
+    mods = Entry.diff(e1, e2, false);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 2, "Mods is " + String.valueOf(mods));
+    assertEquals(mods,
+         Arrays.asList(
+              new Modification(ModificationType.DELETE, "description",
+                   "description"),
+              new Modification(ModificationType.ADD, "displayName",
+                   "displayName")));
+
+    mods = Entry.diff(e1, e2, false, true);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 2, "Mods is " + String.valueOf(mods));
+    assertEquals(mods,
+         Arrays.asList(
+              new Modification(ModificationType.DELETE, "description",
+                   "description"),
+              new Modification(ModificationType.ADD, "displayName",
+                   "displayName")));
+
+    mods = Entry.diff(e1, e2, false, true, false);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 2, "Mods is " + String.valueOf(mods));
+    assertEquals(mods,
+         Arrays.asList(
+              new Modification(ModificationType.DELETE, "description",
+                   "description"),
+              new Modification(ModificationType.ADD, "displayName",
+                   "displayName")));
+
+    mods = Entry.diff(e1, e2, false, true, true);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 8);
+    assertEquals(mods,
+         Arrays.asList(
+              new Modification(ModificationType.DELETE, "description",
+                   "description"),
+              new Modification(ModificationType.ADD, "displayName",
+                   "displayName"),
+              new Modification(ModificationType.ADD, "givenName", "john"),
+              new Modification(ModificationType.DELETE, "givenName", "John"),
+              new Modification(ModificationType.ADD, "sn", "doe"),
+              new Modification(ModificationType.DELETE, "sn", "Doe"),
+              new Modification(ModificationType.ADD, "cn", "john doe"),
+              new Modification(ModificationType.DELETE, "cn", "John Doe")));
+
+    mods = Entry.diff(e1, e2, false, false, true);
+    assertFalse(mods.isEmpty());
+    assertEquals(mods.size(), 5);
+    assertEquals(mods,
+         Arrays.asList(
+              new Modification(ModificationType.REPLACE, "description"),
+              new Modification(ModificationType.REPLACE, "displayName",
+                   "displayName"),
+              new Modification(ModificationType.REPLACE, "givenName", "john"),
+              new Modification(ModificationType.REPLACE, "sn", "doe"),
+              new Modification(ModificationType.REPLACE, "cn", "john doe")));
+  }
+
+
+
+  /**
    * Provides test coverage for the {@code applyModifications} method with a
    * number of simple valid modifications.
    *
