@@ -86,7 +86,7 @@ public enum SignatureAlgorithmIdentifier
    * The algorithm identifier for the 512-bit SHA-2 message digest with RSA
    * encryption.  This identifier is defined in RFC 4055 section 5.
    */
-  SHA_512WITH_RSA("1.2.840.113549.1.1.13", "SHA512withRSA"),
+  SHA_512_WITH_RSA("1.2.840.113549.1.1.13", "SHA512withRSA"),
 
 
 
