@@ -57,6 +57,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.unboundid.asn1.ASN1BitString;
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -3312,6 +3313,11 @@ public final class ManageCertificates
     displayCSRFile.addLongIdentifier("filename", true);
     displayCSRParser.addArgument(displayCSRFile);
 
+    final BooleanArgument displayCSRVerbose = new BooleanArgument(null,
+         "verbose", 1,
+         INFO_MANAGE_CERTS_SC_DISPLAY_CSR_ARG_VERBOSE_DESC.get());
+    displayCSRParser.addArgument(displayCSRVerbose);
+
     final BooleanArgument displayCSRDisplayCommand = new BooleanArgument(null,
          "display-keytool-command", 1,
          INFO_MANAGE_CERTS_SC_DISPLAY_CSR_ARG_DISPLAY_COMMAND_DESC.get());
@@ -3700,6 +3706,19 @@ public final class ManageCertificates
         }
 
         printCertificate(certificateChain[i], "", verbose);
+
+        if (i == 0)
+        {
+          if (hasKeyAlias(keystore, alias))
+          {
+            out(INFO_MANAGE_CERTS_LIST_CERTS_LABEL_HAS_PK_YES.get());
+          }
+          else
+          {
+            out(INFO_MANAGE_CERTS_LIST_CERTS_LABEL_HAS_PK_NO.get());
+          }
+        }
+
         if (displayPEM)
         {
           out(INFO_MANAGE_CERTS_LIST_CERTS_LABEL_PEM.get());
@@ -3725,11 +3744,13 @@ public final class ManageCertificates
       out();
       if (keystorePassword == null)
       {
-        out(INFO_MANAGE_CERTS_LIST_CERTS_NO_CERTS_OR_KEYS_WITHOUT_PW.get());
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_LIST_CERTS_NO_CERTS_OR_KEYS_WITHOUT_PW.get());
       }
       else
       {
-        out(INFO_MANAGE_CERTS_LIST_CERTS_NO_CERTS_OR_KEYS_WITH_PW.get());
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_LIST_CERTS_NO_CERTS_OR_KEYS_WITH_PW.get());
       }
     }
 
@@ -4232,6 +4253,7 @@ public final class ManageCertificates
 
     final String keystoreType;
     final File keystorePath = getKeystorePath();
+    final boolean isNewKeystore = (! keystorePath.exists());
     try
     {
       keystoreType = inferKeystoreType(keystorePath);
@@ -4242,6 +4264,7 @@ public final class ManageCertificates
       wrapErr(0, WRAP_COLUMN, le.getMessage());
       return le.getResultCode();
     }
+
 
     final char[] keystorePassword;
     try
@@ -4636,6 +4659,14 @@ public final class ManageCertificates
         return le.getResultCode();
       }
 
+      if (isNewKeystore)
+      {
+        out();
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_IMPORT_CERT_CREATED_KEYSTORE.get(
+                  getUserFriendlyKeystoreType(keystoreType)));
+      }
+
       out();
       wrapOut(0, WRAP_COLUMN,
            INFO_MANAGE_CERTS_IMPORT_CERT_IMPORTED_CHAIN_WITH_PK.get());
@@ -4787,6 +4818,14 @@ public final class ManageCertificates
       }
 
       out();
+
+      if (isNewKeystore)
+      {
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_IMPORT_CERT_CREATED_KEYSTORE.get(
+                  getUserFriendlyKeystoreType(keystoreType)));
+      }
+
       wrapOut(0, WRAP_COLUMN,
            INFO_MANAGE_CERTS_IMPORT_CERT_IMPORTED_CHAIN_WITHOUT_PK.get());
       return ResultCode.SUCCESS;
@@ -4909,6 +4948,14 @@ public final class ManageCertificates
     }
 
     out();
+
+    if (isNewKeystore)
+    {
+      wrapOut(0, WRAP_COLUMN,
+           INFO_MANAGE_CERTS_IMPORT_CERT_CREATED_KEYSTORE.get(
+                getUserFriendlyKeystoreType(keystoreType)));
+    }
+
     wrapOut(0, WRAP_COLUMN,
          INFO_MANAGE_CERTS_IMPORT_CERT_IMPORTED_CHAIN_WITHOUT_PK.get());
     return ResultCode.SUCCESS;
@@ -5172,6 +5219,7 @@ public final class ManageCertificates
     final String alias = aliasArgument.getValue();
 
     final File keystorePath = getKeystorePath();
+    final boolean isNewKeystore = (! keystorePath.exists());
 
     DN subjectDN = null;
     final DNArgument subjectDNArgument =
@@ -6076,6 +6124,14 @@ public final class ManageCertificates
         return genKeyPairResultCode;
       }
 
+      if (isNewKeystore)
+      {
+        out();
+        wrapOut(0, WRAP_COLUMN,
+             INFO_MANAGE_CERTS_GEN_CERT_CERT_CREATED_KEYSTORE.get(
+                  getUserFriendlyKeystoreType(keystoreType)));
+      }
+
 
       // If we're just generating a self-signed certificate, then display the
       // certificate that we generated.
@@ -6208,7 +6264,7 @@ public final class ManageCertificates
       wrapOut(0, WRAP_COLUMN,
            INFO_MANAGE_CERTS_GEN_CERT_SIGN_CONFIRM.get());
       out();
-      printCertificateSigningRequest(csr, "");
+      printCertificateSigningRequest(csr, false, "");
       out();
 
       try
@@ -6587,6 +6643,7 @@ public final class ManageCertificates
 
     final String keystoreType;
     final File keystorePath = getKeystorePath();
+    final boolean isNewKeystore = (! keystorePath.exists());
     try
     {
       keystoreType = inferKeystoreType(keystorePath);
@@ -6783,6 +6840,14 @@ public final class ManageCertificates
       Debug.debugException(le);
       wrapErr(0, WRAP_COLUMN, le.getMessage());
       return le.getResultCode();
+    }
+
+    if (isNewKeystore)
+    {
+      out();
+      wrapOut(0, WRAP_COLUMN,
+           INFO_MANAGE_CERTS_TRUST_SERVER_CERT_CREATED_KEYSTORE.get(
+                getUserFriendlyKeystoreType(keystoreType)));
     }
 
     out();
@@ -7330,6 +7395,11 @@ public final class ManageCertificates
          subCommandParser.getFileArgument("certificate-signing-request-file");
     final File csrFile = csrFileArgument.getValue();
 
+    final BooleanArgument verboseArgument =
+         subCommandParser.getBooleanArgument("verbose");
+    final boolean verbose =
+         ((verboseArgument != null) && verboseArgument.isPresent());
+
     final BooleanArgument displayKeytoolCommandArgument =
          subCommandParser.getBooleanArgument("display-keytool-command");
     if ((displayKeytoolCommandArgument != null) &&
@@ -7359,7 +7429,7 @@ public final class ManageCertificates
     }
 
     out();
-    printCertificateSigningRequest(csr, "");
+    printCertificateSigningRequest(csr, verbose, "");
 
     return ResultCode.SUCCESS;
   }
@@ -7379,12 +7449,28 @@ public final class ManageCertificates
   private void printCertificate(final X509Certificate certificate,
                                 final String indent, final boolean verbose)
   {
+    if (verbose)
+    {
+      out(indent +
+           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_VERSION.get(
+                certificate.getVersion().getName()));
+    }
+
     out(indent +
          INFO_MANAGE_CERTS_PRINT_CERT_LABEL_SUBJECT_DN.get(
               certificate.getSubjectDN()));
     out(indent +
          INFO_MANAGE_CERTS_PRINT_CERT_LABEL_ISSUER_DN.get(
               certificate.getIssuerDN()));
+
+    if (verbose)
+    {
+      out(indent +
+           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_SERIAL_NUMBER.get(
+                toColonDelimitedHex(
+                     certificate.getSerialNumber().toByteArray())));
+    }
+
     out(indent +
          INFO_MANAGE_CERTS_PRINT_CERT_LABEL_VALIDITY_START.get(
               formatDateAndTime(certificate.getNotBeforeDate())));
@@ -7410,41 +7496,11 @@ public final class ManageCertificates
            INFO_MANAGE_CERTS_PRINT_CERT_LABEL_VALIDITY_STATE_VALID.get());
     }
 
-    try
-    {
-      out(indent +
-           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_FINGERPRINT.get("SHA-1",
-                toColonDelimitedHex(certificate.getSHA1Fingerprint())));
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
-    try
-    {
-      out(indent +
-           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_FINGERPRINT.get("SHA-256",
-                toColonDelimitedHex(certificate.getSHA256Fingerprint())));
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-    }
-
+    out(indent +
+         INFO_MANAGE_CERTS_PRINT_CERT_LABEL_SIG_ALG.get(
+              certificate.getSignatureAlgorithmNameOrOID()));
     if (verbose)
     {
-      out(indent +
-           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_VERSION.get(
-                certificate.getVersion().getName()));
-      out(indent +
-           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_SERIAL_NUMBER.get(
-                toColonDelimitedHex(
-                     certificate.getSerialNumber().toByteArray())));
-      out(indent +
-           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_SIG_ALG.get(
-                certificate.getSignatureAlgorithmNameOrOID()));
-
       String signatureString;
       try
       {
@@ -7462,11 +7518,28 @@ public final class ManageCertificates
       {
         out(indent + "     " + line);
       }
+    }
 
-      out(indent + INFO_MANAGE_CERTS_PRINT_CERT_LABEL_PK_ALG.get(
-           certificate.getPublicKeyAlgorithmNameOrOID()));
+    final String pkAlg;
+    final String pkSummary = getPublicKeySummary(
+         certificate.getPublicKeyAlgorithmOID(),
+         certificate.getDecodedPublicKey(),
+         certificate.getPublicKeyAlgorithmParameters());
+    if (pkSummary == null)
+    {
+      pkAlg = certificate.getPublicKeyAlgorithmNameOrOID();
+    }
+    else
+    {
+      pkAlg = certificate.getPublicKeyAlgorithmNameOrOID() + " (" +
+           pkSummary + ')';
+    }
+    out(indent + INFO_MANAGE_CERTS_PRINT_CERT_LABEL_PK_ALG.get(pkAlg));
 
-      printPublicKey(certificate.getDecodedPublicKey(),
+    if (verbose)
+    {
+      printPublicKey(certificate.getEncodedPublicKey(),
+           certificate.getDecodedPublicKey(),
            certificate.getPublicKeyAlgorithmParameters(), indent);
 
       if (certificate.getSubjectUniqueID() != null)
@@ -7515,6 +7588,28 @@ public final class ManageCertificates
 
       printExtensions(certificate.getExtensions(), indent);
     }
+
+    try
+    {
+      out(indent +
+           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_FINGERPRINT.get("SHA-1",
+                toColonDelimitedHex(certificate.getSHA1Fingerprint())));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    try
+    {
+      out(indent +
+           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_FINGERPRINT.get("SHA-256",
+                toColonDelimitedHex(certificate.getSHA256Fingerprint())));
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
   }
 
 
@@ -7523,13 +7618,15 @@ public final class ManageCertificates
    * Prints a string representation of the provided certificate signing request
    * to standard output.
    *
-   * @param  csr     The certificate signing request to be printed.
-   * @param  indent  The string to place at the beginning of each line to indent
-   *                 that line.
+   * @param  csr      The certificate signing request to be printed.
+   * @param  verbose  Indicates whether to display verbose information about
+   *                  the contents of the request.
+   * @param  indent   The string to place at the beginning of each line to
+   *                  indent that line.
    */
   private void printCertificateSigningRequest(
                     final PKCS10CertificateSigningRequest csr,
-                    final String indent)
+                    final boolean verbose, final String indent)
   {
     out(indent +
          INFO_MANAGE_CERTS_PRINT_CSR_LABEL_VERSION.get(
@@ -7541,31 +7638,47 @@ public final class ManageCertificates
          INFO_MANAGE_CERTS_PRINT_CERT_LABEL_SIG_ALG.get(
               csr.getSignatureAlgorithmNameOrOID()));
 
-    String signatureString;
-    try
+    if (verbose)
     {
-      signatureString =
-           toColonDelimitedHex(csr.getSignatureValue().getBytes());
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      signatureString = csr.getSignatureValue().toString();
-    }
-    out(indent +
-         INFO_MANAGE_CERTS_PRINT_CERT_LABEL_SIG_VALUE.get());
-    for (final String line : StaticUtils.wrapLine(signatureString, 78))
-    {
-      out(indent + "     " + line);
+      String signatureString;
+      try
+      {
+        signatureString =
+             toColonDelimitedHex(csr.getSignatureValue().getBytes());
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        signatureString = csr.getSignatureValue().toString();
+      }
+      out(indent +
+           INFO_MANAGE_CERTS_PRINT_CERT_LABEL_SIG_VALUE.get());
+      for (final String line : StaticUtils.wrapLine(signatureString, 78))
+      {
+        out(indent + "     " + line);
+      }
     }
 
-    out(indent + INFO_MANAGE_CERTS_PRINT_CERT_LABEL_PK_ALG.get(
-         csr.getPublicKeyAlgorithmNameOrOID()));
+    final String pkAlg;
+    final String pkSummary = getPublicKeySummary(csr.getPublicKeyAlgorithmOID(),
+         csr.getDecodedPublicKey(), csr.getPublicKeyAlgorithmParameters());
+    if (pkSummary == null)
+    {
+      pkAlg = csr.getPublicKeyAlgorithmNameOrOID();
+    }
+    else
+    {
+      pkAlg = csr.getPublicKeyAlgorithmNameOrOID() + " (" +
+           pkSummary + ')';
+    }
+    out(indent + INFO_MANAGE_CERTS_PRINT_CERT_LABEL_PK_ALG.get(pkAlg));
 
-    printPublicKey(csr.getDecodedPublicKey(),
-         csr.getPublicKeyAlgorithmParameters(), indent);
-
-    printExtensions(csr.getExtensions(), indent);
+    if (verbose)
+    {
+      printPublicKey(csr.getEncodedPublicKey(), csr.getDecodedPublicKey(),
+           csr.getPublicKeyAlgorithmParameters(), indent);
+      printExtensions(csr.getExtensions(), indent);
+    }
   }
 
 
@@ -7573,23 +7686,44 @@ public final class ManageCertificates
   /**
    * Prints information about the provided public key.
    *
-   * @param  publicKey   The public key to be printed.
-   * @param  parameters  The public key algorithm parameters, if any.
-   * @param  indent      The string to place at the beginning of each line to
-   *                     indent that line.
+   * @param  encodedPublicKey  The encoded representation of the public key.
+   *                           This must not be {@code null}.
+   * @param  decodedPublicKey  The decoded representation of the public key, if
+   *                           available.
+   * @param  parameters        The public key algorithm parameters, if any.
+   * @param  indent            The string to place at the beginning of each
+   *                           line to indent that line.
    */
-  private void printPublicKey(final DecodedPublicKey publicKey,
+  private void printPublicKey(final ASN1BitString encodedPublicKey,
+                              final DecodedPublicKey decodedPublicKey,
                               final ASN1Element parameters,
                               final String indent)
   {
-    if (publicKey == null)
+    if (decodedPublicKey == null)
     {
+      String pkString;
+      try
+      {
+        pkString = toColonDelimitedHex(encodedPublicKey.getBytes());
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        pkString = encodedPublicKey.toString();
+      }
+
+      out(indent + INFO_MANAGE_CERTS_PRINT_CERT_LABEL_ENCODED_PK.get());
+      for (final String line : StaticUtils.wrapLine(pkString, 78))
+      {
+        out(indent + "     " + line);
+      }
+
       return;
     }
 
-    if (publicKey instanceof RSAPublicKey)
+    if (decodedPublicKey instanceof RSAPublicKey)
     {
-      final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+      final RSAPublicKey rsaPublicKey = (RSAPublicKey) decodedPublicKey;
       final byte[] modulusBytes = rsaPublicKey.getModulus().toByteArray();
 
       int modulusSizeBits = modulusBytes.length * 8;
@@ -7612,23 +7746,10 @@ public final class ManageCertificates
                 toColonDelimitedHex(
                      rsaPublicKey.getPublicExponent().toByteArray())));
     }
-    else if (publicKey instanceof EllipticCurvePublicKey)
+    else if (decodedPublicKey instanceof EllipticCurvePublicKey)
     {
       final EllipticCurvePublicKey ecPublicKey =
-           (EllipticCurvePublicKey) publicKey;
-
-      try
-      {
-        final OID namedCurveOID =
-             parameters.decodeAsObjectIdentifier().getOID();
-        out(indent +
-             INFO_MANAGE_CERTS_PRINT_CERT_LABEL_EC_CURVE.get(
-                  NamedCurve.getNameOrOID(namedCurveOID)));
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
+           (EllipticCurvePublicKey) decodedPublicKey;
 
       out(indent +
            INFO_MANAGE_CERTS_PRINT_CERT_LABEL_EC_IS_COMPRESSED.get(
@@ -7649,6 +7770,61 @@ public final class ManageCertificates
                   String.valueOf(ecPublicKey.getYCoordinate())));
       }
     }
+  }
+
+
+
+  /**
+   * Retrieves a short summary of the provided public key, if available.  For
+   * RSA keys, this will be the modulus size in bits.  For elliptic curve keys,
+   * this will be the named curve, if available.
+   *
+   * @param  publicKeyAlgorithmOID  The OID that identifies the type of public
+   *                                key.
+   * @param  publicKey              The decoded public key.  This may be
+   *                                {@code null} if the decoded public key is
+   *                                not available.
+   * @param  parameters             The encoded public key algorithm parameters.
+   *                                This may be {@code null} if no public key
+   *                                algorithm parameters are available.
+   *
+   * @return  A short summary of the provided public key, or {@code null} if
+   *          no summary is available.
+   */
+  static String getPublicKeySummary(final OID publicKeyAlgorithmOID,
+                                    final DecodedPublicKey publicKey,
+                                    final ASN1Element parameters)
+  {
+    if (publicKey instanceof RSAPublicKey)
+    {
+      final RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+      final byte[] modulusBytes = rsaPublicKey.getModulus().toByteArray();
+
+      int modulusSizeBits = modulusBytes.length * 8;
+      if (((modulusBytes.length % 2) != 0) && (modulusBytes[0] == 0x00))
+      {
+        modulusSizeBits -= 8;
+      }
+
+      return INFO_MANAGE_CERTS_GET_PK_SUMMARY_RSA_MODULUS_SIZE.get(
+           modulusSizeBits);
+    }
+    else if ((parameters != null) &&
+         publicKeyAlgorithmOID.equals(PublicKeyAlgorithmIdentifier.EC.getOID()))
+    {
+      try
+      {
+        final OID namedCurveOID =
+             parameters.decodeAsObjectIdentifier().getOID();
+        return NamedCurve.getNameOrOID(namedCurveOID);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+      }
+    }
+
+    return null;
   }
 
 
@@ -8888,6 +9064,35 @@ public final class ManageCertificates
                 keystorePath.getAbsolutePath(),
                 StaticUtils.getExceptionMessage(e)),
            e);
+    }
+  }
+
+
+
+  /**
+   * Retrieves a user-friendly representation of the provided keystore type.
+   *
+   * @param  keystoreType  The keystore type for which to get the user-friendly
+   *                       name.
+   *
+   * @return  "JKS" if the provided keystore type is for a JKS keystore,
+   *          "PKCS#12" if the provided keystore type is for a PKCS#12 keystore,
+   *          or the provided string if it is for some other keystore type.
+   */
+  static String getUserFriendlyKeystoreType(final String keystoreType)
+  {
+    if (keystoreType.equalsIgnoreCase("JKS"))
+    {
+      return "JKS";
+    }
+    else if (keystoreType.equalsIgnoreCase("PKCS12") ||
+         keystoreType.equalsIgnoreCase("PKCS#12"))
+    {
+      return "PKCS#12";
+    }
+    else
+    {
+      return keystoreType;
     }
   }
 

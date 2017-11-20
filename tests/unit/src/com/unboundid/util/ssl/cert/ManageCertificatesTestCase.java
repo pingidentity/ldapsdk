@@ -727,7 +727,8 @@ public final class ManageCertificatesTestCase
          getCACertsFile().getAbsolutePath();
     manageCertificates(
          "list-certificates",
-         "--keystore", caCertsPath);
+         "--keystore", caCertsPath,
+         "--verbose");
 
     // Test the behavior when specifying a keystore path that is neither a JKS
     // nor a PKCS#12 keystore.
@@ -5729,6 +5730,7 @@ public final class ManageCertificatesTestCase
     manageCertificates(
          "display-certificate-signing-request-file",
          "--certificate-signing-request-file", serverCSRPath,
+         "--verbose",
          "--display-keytool-command");
 
 
@@ -6750,6 +6752,38 @@ public final class ManageCertificatesTestCase
     {
       // This was expected.
     }
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code getUserFriendlyKeystoreType} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetUserFriendlyKeystoreType()
+         throws Exception
+  {
+    assertEquals(ManageCertificates.getUserFriendlyKeystoreType("JKS"), "JKS");
+
+    assertEquals(ManageCertificates.getUserFriendlyKeystoreType("jks"), "JKS");
+
+    assertEquals(
+         ManageCertificates.getUserFriendlyKeystoreType("PKCS12"),
+         "PKCS#12");
+
+    assertEquals(
+         ManageCertificates.getUserFriendlyKeystoreType("pkcs12"),
+         "PKCS#12");
+
+    assertEquals(
+         ManageCertificates.getUserFriendlyKeystoreType("PKCS#12"),
+         "PKCS#12");
+
+    assertEquals(
+         ManageCertificates.getUserFriendlyKeystoreType("pkcs#12"),
+         "PKCS#12");
   }
 
 
